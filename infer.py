@@ -1,14 +1,21 @@
+"""
+   Inference for a simplifed version of Baidu DeepSpeech2 model.
+"""
+
 import paddle.v2 as paddle
-import audio_data_utils
-import argparse
-from model import deep_speech2
-import gzip
 from itertools import groupby
+import argparse
+import gzip
+import audio_data_utils
+from model import deep_speech2
 
 parser = argparse.ArgumentParser(
-    description='Simpled version of DeepSpeech2 inference.')
+    description='Simplified version of DeepSpeech2 inference.')
 parser.add_argument(
-    "--num_samples", default=10, type=int, help="Number of inference samples.")
+    "--num_samples",
+    default=10,
+    type=int,
+    help="Number of samples for inference.")
 parser.add_argument(
     "--num_conv_layers", default=2, type=int, help="Convolution layer number.")
 parser.add_argument(
@@ -21,13 +28,21 @@ args = parser.parse_args()
 
 
 def remove_duplicate_and_blank(id_list, blank_id):
+    """
+    Postprocessing for max-ctc-decoder.
+    - remove consecutive duplicate tokens.
+    - remove blanks.
+    """
     # remove consecutive duplicate tokens
     id_list = [x[0] for x in groupby(id_list)]
-    # remove blank
+    # remove blanks
     return [id for id in id_list if id != blank_id]
 
 
 def max_infer():
+    """
+    Max-ctc-decoding for DeepSpeech2.
+    """
     # create network config
     _, vocab_list = audio_data_utils.get_vocabulary()
     dict_size = len(vocab_list)
@@ -64,7 +79,7 @@ def max_infer():
         padding=[-1, 1000])
     infer_data = test_batch_reader().next()
 
-    # run inference
+    # run max-ctc-decoding
     max_id_results = paddle.infer(
         output_layer=max_id,
         parameters=parameters,

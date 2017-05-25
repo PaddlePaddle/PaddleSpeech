@@ -1,20 +1,27 @@
+"""
+   Trainer for a simplifed version of Baidu DeepSpeech2 model.
+"""
+
 import paddle.v2 as paddle
-import audio_data_utils
 import argparse
-from model import deep_speech2
 import gzip
+import sys
+from model import deep_speech2
+import audio_data_utils
+
+#TODO: add WER metric
 
 parser = argparse.ArgumentParser(
-    description='Simpled version of DeepSpeech2 trainer.')
+    description='Simplified version of DeepSpeech2 trainer.')
 parser.add_argument(
     "--batch_size", default=512, type=int, help="Minibatch size.")
 parser.add_argument("--trainer", default=1, type=int, help="Trainer number.")
 parser.add_argument(
     "--num_passes", default=20, type=int, help="Training pass number.")
 parser.add_argument(
-    "--num_conv_layers", default=2, type=int, help="Convolution layer number.")
+    "--num_conv_layers", default=3, type=int, help="Convolution layer number.")
 parser.add_argument(
-    "--num_rnn_layers", default=3, type=int, help="RNN layer number.")
+    "--num_rnn_layers", default=5, type=int, help="RNN layer number.")
 parser.add_argument(
     "--rnn_layer_size", default=256, type=int, help="RNN layer cell number.")
 parser.add_argument(
@@ -25,6 +32,9 @@ args = parser.parse_args()
 
 
 def train():
+    """
+    DeepSpeech2 training.
+    """
     # create network config
     dict_size = audio_data_utils.get_vocabulary_size()
     audio_data = paddle.layer.data(
@@ -89,8 +99,7 @@ def train():
                 sys.stdout.flush()
         if isinstance(event, paddle.event.EndPass):
             result = trainer.test(reader=test_batch_reader, feeding=feeding)
-            print "Pass: %d, TestCost: %f, %s" % (event.pass_id, event.cost,
-                                                  result.metrics)
+            print "Pass: %d, TestMetric: %s" % (event.pass_id, result.metrics)
             with gzip.open("params.tar.gz", 'w') as f:
                 parameters.to_tar(f)
 

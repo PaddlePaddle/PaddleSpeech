@@ -1,3 +1,6 @@
+"""
+   Audio data preprocessing tools and reader creators.
+"""
 import paddle.v2 as paddle
 import logging
 import json
@@ -86,18 +89,24 @@ def vocabulary_from_file(vocabulary_path):
 
 
 def get_vocabulary_size():
+    """
+    Get vocabulary size.
+    """
     vocab_dict, _ = vocabulary_from_file(ENGLISH_CHAR_VOCAB_FILEPATH)
     return len(vocab_dict)
 
 
 def get_vocabulary():
+    """
+    Get vocabulary.
+    """
     return vocabulary_from_file(ENGLISH_CHAR_VOCAB_FILEPATH)
 
 
 def parse_transcript(text, vocabulary):
     """
-      Convert the transcript text string to list of token index integers..
-      """
+    Convert the transcript text string to list of token index integers.
+    """
     return [vocabulary[w] for w in text]
 
 
@@ -106,6 +115,28 @@ def reader_creator(manifest_path,
                    shuffle=False,
                    max_duration=10.0,
                    min_duration=0.0):
+    """
+    Audio data reader creator.
+
+    Instance: a tuple of a numpy ndarray of audio spectrogram and a list of
+    tokenized transcription text.
+
+    :param manifest_path: Filepath for Manifest of audio clip files.
+    :type manifest_path: basestring
+    :param sort_by_duration: Sort the audio clips by duration if set True.
+                             For SortaGrad.
+    :type sort_by_duration: bool
+    :param shuffle: Shuffle the audio clips if set True.
+    :type shuffle: bool
+    :param max_duration: Audio clips with duration (in seconds) greater than
+                         this will be discarded.
+    :type max_duration: float
+    :param min_duration: Audio clips with duration (in seconds) smaller than
+                         this will be discarded.
+    :type min_duration: float
+    :return: Data reader function.
+    :rtype: callable
+    """
     if sort_by_duration and shuffle:
         sort_by_duration = False
         logger.warn("When shuffle set to true, "
@@ -138,6 +169,27 @@ def reader_creator(manifest_path,
 
 
 def padding_batch_reader(batch_reader, padding=[-1, -1], flatten=True):
+    """
+    Padding for batches. Return a batch reader.
+
+    Each instance in a batch will be padded to be of a same target shape.
+    The target shape is the largest shape among all the batch instances and
+    'padding' argument. Therefore, if padding is set [-1, -1], instance will be
+    padded to have the same shape just within each batch and the shape will
+    be different across batches; if padding is set
+    [VERY_LARGE_NUM, VERY_LARGE_NUM], instances in all batches will be padded to
+    have the same shape of [VERY_LARGE_NUM, VERY_LARGE_NUM].
+
+    :param batch_reader: Input batch reader.
+    :type batch_reader: callable
+    :param padding: Padding pattern. Details please refer to the above.
+    :type padding: list
+    :param flatten: Flatten the tensor to be one dimension.
+    :type flatten: bool
+    :return: Batch reader function.
+    :rtype: callable
+    """
+
     def padding_batch(batch):
         new_batch = []
         # get target shape within batch

@@ -1,3 +1,11 @@
+"""
+   Download, unpack and create manifest for Librespeech dataset.
+
+   Manifest is a json file with each line containing one audio clip filepath,
+   its transcription text string, and its duration. It servers as a unified
+   interfance to organize different data sets.
+"""
+
 import paddle.v2 as paddle
 import os
 import wget
@@ -88,9 +96,10 @@ def main():
         url=URL_DEV,
         target_dir=os.path.join(args.target_dir),
         manifest_path=args.manifest + ".dev")
-    #prepare_dataset(url=URL_TRAIN,
-#target_dir=os.path.join(args.target_dir),
-#manifest_path=args.manifest + ".train")
+    prepare_dataset(
+        url=URL_TRAIN,
+        target_dir=os.path.join(args.target_dir),
+        manifest_path=args.manifest + ".train")
 
 
 if __name__ == '__main__':

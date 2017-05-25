@@ -1,6 +1,8 @@
 import paddle.v2 as paddle
 import audio_data_utils
 import argparse
+from model import deep_speech2
+import gzip
 
 parser = argparse.ArgumentParser(
     description='Simpled version of DeepSpeech2 trainer.')
@@ -9,112 +11,17 @@ parser.add_argument(
 parser.add_argument("--trainer", default=1, type=int, help="Trainer number.")
 parser.add_argument(
     "--num_passes", default=20, type=int, help="Training pass number.")
+parser.add_argument(
+    "--num_conv_layers", default=2, type=int, help="Convolution layer number.")
+parser.add_argument(
+    "--num_rnn_layers", default=3, type=int, help="RNN layer number.")
+parser.add_argument(
+    "--rnn_layer_size", default=256, type=int, help="RNN layer cell number.")
+parser.add_argument(
+    "--use_gpu", default=True, type=bool, help="Use gpu or not.")
+parser.add_argument(
+    "--trainer_count", default=8, type=int, help="Trainer number.")
 args = parser.parse_args()
-
-
-def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
-                  padding, act):
-    conv_layer = paddle.layer.img_conv(
-        input=input,
-        filter_size=filter_size,
-        num_channels=num_channels_in,
-        num_filters=num_channels_out,
-        stride=stride,
-        padding=padding,
-        act=paddle.activation.Linear(),
-        bias_attr=False)
-    return paddle.layer.batch_norm(input=conv_layer, act=act)
-
-
-def bidirectonal_simple_rnn_bn_layer(name, input, size, act):
-    def __simple_rnn_step__(input):
-        last_state = paddle.layer.memory(name=name + "_state", size=size)
-        input_fc = paddle.layer.fc(
-            input=input,
-            size=size,
-            act=paddle.activation.Linear(),
-            bias_attr=False)
-        input_fc_bn = paddle.layer.batch_norm(
-            input=input_fc, act=paddle.activation.Linear())
-        state_fc = paddle.layer.fc(
-            input=last_state,
-            size=size,
-            act=paddle.activation.Linear(),
-            bias_attr=False)
-        return paddle.layer.addto(
-            name=name + "_state", input=[input_fc_bn, state_fc], act=act)
-
-    forward = paddle.layer.recurrent_group(
-        step=__simple_rnn_step__, input=input)
-    return forward
-    # argument reverse is not exposed in V2 recurrent_group
-    #backward = paddle.layer.recurrent_group(
-
-
-#step=__simple_rnn_step__,
-#input=input,
-#reverse=True)
-#return paddle.layer.concat(input=[forward, backward])
-
-
-def conv_group(input):
-    conv1 = conv_bn_layer(
-        input=input,
-        filter_size=(11, 41),
-        num_channels_in=1,
-        num_channels_out=32,
-        stride=(3, 2),
-        padding=(5, 20),
-        act=paddle.activation.BRelu())
-    conv2 = conv_bn_layer(
-        input=conv1,
-        filter_size=(11, 21),
-        num_channels_in=32,
-        num_channels_out=32,
-        stride=(1, 2),
-        padding=(5, 10),
-        act=paddle.activation.BRelu())
-    conv3 = conv_bn_layer(
-        input=conv2,
-        filter_size=(11, 21),
-        num_channels_in=32,
-        num_channels_out=32,
-        stride=(1, 2),
-        padding=(5, 10),
-        act=paddle.activation.BRelu())
-    return conv3
-
-
-def rnn_group(input, size, num_stacks):
-    output = input
-    for i in xrange(num_stacks):
-        output = bidirectonal_simple_rnn_bn_layer(
-            name=str(i), input=output, size=size, act=paddle.activation.BRelu())
-    return output
-
-
-def deep_speech2(audio_data, text_data, dict_size):
-    conv_group_output = conv_group(input=audio_data)
-    conv2seq = paddle.layer.block_expand(
-        input=conv_group_output,
-        num_channels=32,
-        stride_x=1,
-        stride_y=1,
-        block_x=1,
-        block_y=21)
-    rnn_group_output = rnn_group(input=conv2seq, size=256, num_stacks=5)
-    fc = paddle.layer.fc(
-        input=rnn_group_output,
-        size=dict_size + 1,
-        act=paddle.activation.Linear(),
-        bias_attr=True)
-    cost = paddle.layer.warp_ctc(
-        input=fc,
-        label=text_data,
-        size=dict_size + 1,
-        blank=dict_size,
-        norm_by_times=True)
-    return cost
 
 
 def train():
@@ -128,7 +35,13 @@ def train():
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(dict_size))
-    cost = deep_speech2(audio_data, text_data, dict_size)
+    cost, _ = deep_speech2(
+        audio_data=audio_data,
+        text_data=text_data,
+        dict_size=dict_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        rnn_size=args.rnn_layer_size)
 
     # create parameters and optimizer
     parameters = paddle.parameters.create(cost)
@@ -138,21 +51,30 @@ def train():
         regularization=paddle.optimizer.L2Regularization(rate=8e-4))
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
-    return
 
     # create data readers
     feeding = {
         "audio_spectrogram": 0,
         "transcript_text": 1,
     }
-    train_batch_reader = audio_data_utils.padding_batch_reader(
+    train_batch_reader_with_sortagrad = audio_data_utils.padding_batch_reader(
         paddle.batch(
-            audio_data_utils.reader_creator("./libri.manifest.dev"),
+            audio_data_utils.reader_creator(
+                manifest_path="./libri.manifest.dev", sort_by_duration=True),
+            batch_size=args.batch_size // args.trainer),
+        padding=[-1, 1000])
+    train_batch_reader_without_sortagrad = audio_data_utils.padding_batch_reader(
+        paddle.batch(
+            audio_data_utils.reader_creator(
+                manifest_path="./libri.manifest.dev",
+                sort_by_duration=False,
+                shuffle=True),
             batch_size=args.batch_size // args.trainer),
         padding=[-1, 1000])
     test_batch_reader = audio_data_utils.padding_batch_reader(
         paddle.batch(
-            audio_data_utils.reader_creator("./libri.manifest.test"),
+            audio_data_utils.reader_creator(
+                manifest_path="./libri.manifest.test", sort_by_duration=False),
             batch_size=args.batch_size // args.trainer),
         padding=[-1, 1000])
 
@@ -174,13 +96,19 @@ def train():
 
     # run train
     trainer.train(
-        reader=train_batch_reader,
+        reader=train_batch_reader_with_sortagrad,
         event_handler=event_handler,
-        num_passes=10,
+        num_passes=1,
+        feeding=feeding)
+    trainer.train(
+        reader=train_batch_reader_without_sortagrad,
+        event_handler=event_handler,
+        num_passes=self.num_passes - 1,
         feeding=feeding)
 
 
 def main():
+    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     train()
 
 

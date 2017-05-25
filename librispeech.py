@@ -23,7 +23,7 @@ parser.add_argument(
     "--manifest",
     default="./libri.manifest",
     type=str,
-    help="Filepath prefix of output manifests.")
+    help="Filepath prefix for output manifests.")
 args = parser.parse_args()
 
 

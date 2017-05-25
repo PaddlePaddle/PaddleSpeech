@@ -90,6 +90,10 @@ def get_vocabulary_size():
     return len(vocab_dict)
 
 
+def get_vocabulary():
+    return vocabulary_from_file(ENGLISH_CHAR_VOCAB_FILEPATH)
+
+
 def parse_transcript(text, vocabulary):
     """
       Convert the transcript text string to list of token index integers..

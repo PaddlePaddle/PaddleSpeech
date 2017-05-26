@@ -27,6 +27,8 @@ parser.add_argument(
 parser.add_argument(
     "--use_gpu", default=True, type=bool, help="Use gpu or not.")
 parser.add_argument(
+    "--use_sortagrad", default=False, type=bool, help="Use sortagrad or not.")
+parser.add_argument(
     "--trainer_count", default=8, type=int, help="Trainer number.")
 args = parser.parse_args()
 
@@ -56,12 +58,9 @@ def train():
     # create parameters and optimizer
     parameters = paddle.parameters.create(cost)
     optimizer = paddle.optimizer.Adam(
-        learning_rate=5e-5,
-        gradient_clipping_threshold=5,
-        regularization=paddle.optimizer.L2Regularization(rate=8e-4))
+        learning_rate=5e-4, gradient_clipping_threshold=400)
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
-
     # create data readers
     feeding = {
         "audio_spectrogram": 0,
@@ -70,13 +69,13 @@ def train():
     train_batch_reader_with_sortagrad = audio_data_utils.padding_batch_reader(
         paddle.batch(
             audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.dev", sort_by_duration=True),
+                manifest_path="./libri.manifest.train", sort_by_duration=True),
             batch_size=args.batch_size // args.trainer),
         padding=[-1, 1000])
     train_batch_reader_without_sortagrad = audio_data_utils.padding_batch_reader(
         paddle.batch(
             audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.dev",
+                manifest_path="./libri.manifest.train",
                 sort_by_duration=False,
                 shuffle=True),
             batch_size=args.batch_size // args.trainer),
@@ -84,7 +83,7 @@ def train():
     test_batch_reader = audio_data_utils.padding_batch_reader(
         paddle.batch(
             audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.test", sort_by_duration=False),
+                manifest_path="./libri.manifest.dev", sort_by_duration=False),
             batch_size=args.batch_size // args.trainer),
         padding=[-1, 1000])
 
@@ -92,27 +91,31 @@ def train():
     def event_handler(event):
         if isinstance(event, paddle.event.EndIteration):
             if event.batch_id % 10 == 0:
-                print "Pass: %d, Batch: %d, TrainCost: %f, %s" % (
-                    event.pass_id, event.batch_id, event.cost, event.metrics)
+                print "/nPass: %d, Batch: %d, TrainCost: %f" % (
+                    event.pass_id, event.batch_id, event.cost)
             else:
                 sys.stdout.write('.')
                 sys.stdout.flush()
         if isinstance(event, paddle.event.EndPass):
             result = trainer.test(reader=test_batch_reader, feeding=feeding)
-            print "Pass: %d, TestMetric: %s" % (event.pass_id, result.metrics)
+            print "Pass: %d, TestCost: %s" % (event.pass_id, result.cost)
             with gzip.open("params.tar.gz", 'w') as f:
                 parameters.to_tar(f)
 
     # run train
-    trainer.train(
-        reader=train_batch_reader_with_sortagrad,
-        event_handler=event_handler,
-        num_passes=1,
-        feeding=feeding)
+    # first pass with sortagrad
+    if args.use_sortagrad:
+        trainer.train(
+            reader=train_batch_reader_with_sortagrad,
+            event_handler=event_handler,
+            num_passes=1,
+            feeding=feeding)
+        args.num_passes -= 1
+    # other passes without sortagrad
     trainer.train(
         reader=train_batch_reader_without_sortagrad,
         event_handler=event_handler,
-        num_passes=self.num_passes - 1,
+        num_passes=args.num_passes,
         feeding=feeding)
 
 

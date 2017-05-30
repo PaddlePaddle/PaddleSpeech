@@ -5,16 +5,18 @@
 import paddle.v2 as paddle
 import argparse
 import gzip
+import time
 import sys
 from model import deep_speech2
-import audio_data_utils
+from audio_data_utils import DataGenerator
+import numpy as np
 
 #TODO: add WER metric
 
 parser = argparse.ArgumentParser(
     description='Simplified version of DeepSpeech2 trainer.')
 parser.add_argument(
-    "--batch_size", default=512, type=int, help="Minibatch size.")
+    "--batch_size", default=32, type=int, help="Minibatch size.")
 parser.add_argument("--trainer", default=1, type=int, help="Trainer number.")
 parser.add_argument(
     "--num_passes", default=20, type=int, help="Training pass number.")
@@ -23,7 +25,7 @@ parser.add_argument(
 parser.add_argument(
     "--num_rnn_layers", default=5, type=int, help="RNN layer number.")
 parser.add_argument(
-    "--rnn_layer_size", default=256, type=int, help="RNN layer cell number.")
+    "--rnn_layer_size", default=512, type=int, help="RNN layer cell number.")
 parser.add_argument(
     "--use_gpu", default=True, type=bool, help="Use gpu or not.")
 parser.add_argument(
@@ -37,13 +39,45 @@ def train():
     """
     DeepSpeech2 training.
     """
+    # create data readers
+    data_generator = DataGenerator(
+        vocab_filepath='eng_vocab.txt',
+        normalizer_manifest_path='./libri.manifest.train',
+        normalizer_num_samples=200,
+        max_duration=20.0,
+        min_duration=0.0,
+        stride_ms=10,
+        window_ms=20)
+    train_batch_reader_sortagrad = data_generator.batch_reader_creator(
+        manifest_path='./libri.manifest.dev.small',
+        batch_size=args.batch_size // args.trainer,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=True,
+        shuffle=False)
+    train_batch_reader_nosortagrad = data_generator.batch_reader_creator(
+        manifest_path='./libri.manifest.dev.small',
+        batch_size=args.batch_size // args.trainer,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=False,
+        shuffle=True)
+    test_batch_reader = data_generator.batch_reader_creator(
+        manifest_path='./libri.manifest.test',
+        batch_size=args.batch_size // args.trainer,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=False,
+        shuffle=False)
+    feeding = data_generator.data_name_feeding()
+
     # create network config
-    dict_size = audio_data_utils.get_vocabulary_size()
+    dict_size = data_generator.vocabulary_size()
     audio_data = paddle.layer.data(
         name="audio_spectrogram",
         height=161,
-        width=1000,
-        type=paddle.data_type.dense_vector(161000))
+        width=2000,
+        type=paddle.data_type.dense_vector(322000))
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(dict_size))
@@ -58,47 +92,26 @@ def train():
     # create parameters and optimizer
     parameters = paddle.parameters.create(cost)
     optimizer = paddle.optimizer.Adam(
-        learning_rate=5e-4, gradient_clipping_threshold=400)
+        learning_rate=5e-5, gradient_clipping_threshold=400)
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
-    # create data readers
-    feeding = {
-        "audio_spectrogram": 0,
-        "transcript_text": 1,
-    }
-    train_batch_reader_with_sortagrad = audio_data_utils.padding_batch_reader(
-        paddle.batch(
-            audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.train", sort_by_duration=True),
-            batch_size=args.batch_size // args.trainer),
-        padding=[-1, 1000])
-    train_batch_reader_without_sortagrad = audio_data_utils.padding_batch_reader(
-        paddle.batch(
-            audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.train",
-                sort_by_duration=False,
-                shuffle=True),
-            batch_size=args.batch_size // args.trainer),
-        padding=[-1, 1000])
-    test_batch_reader = audio_data_utils.padding_batch_reader(
-        paddle.batch(
-            audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.dev", sort_by_duration=False),
-            batch_size=args.batch_size // args.trainer),
-        padding=[-1, 1000])
 
     # create event handler
     def event_handler(event):
+        global start_time
         if isinstance(event, paddle.event.EndIteration):
             if event.batch_id % 10 == 0:
-                print "/nPass: %d, Batch: %d, TrainCost: %f" % (
+                print "\nPass: %d, Batch: %d, TrainCost: %f" % (
                     event.pass_id, event.batch_id, event.cost)
             else:
                 sys.stdout.write('.')
                 sys.stdout.flush()
+        if isinstance(event, paddle.event.BeginPass):
+            start_time = time.time()
         if isinstance(event, paddle.event.EndPass):
             result = trainer.test(reader=test_batch_reader, feeding=feeding)
-            print "Pass: %d, TestCost: %s" % (event.pass_id, result.cost)
+            print "\n------- Time: %d,  Pass: %d, TestCost: %s" % (
+                time.time() - start_time, event.pass_id, result.cost)
             with gzip.open("params.tar.gz", 'w') as f:
                 parameters.to_tar(f)
 
@@ -106,14 +119,14 @@ def train():
     # first pass with sortagrad
     if args.use_sortagrad:
         trainer.train(
-            reader=train_batch_reader_with_sortagrad,
+            reader=train_batch_reader_sortagrad,
             event_handler=event_handler,
             num_passes=1,
             feeding=feeding)
         args.num_passes -= 1
     # other passes without sortagrad
     trainer.train(
-        reader=train_batch_reader_without_sortagrad,
+        reader=train_batch_reader_nosortagrad,
         event_handler=event_handler,
         num_passes=args.num_passes,
         feeding=feeding)

@@ -3,6 +3,7 @@
 """
 
 import paddle.v2 as paddle
+import distutils.util
 import argparse
 import gzip
 import time
@@ -17,21 +18,61 @@ parser = argparse.ArgumentParser(
     description='Simplified version of DeepSpeech2 trainer.')
 parser.add_argument(
     "--batch_size", default=32, type=int, help="Minibatch size.")
-parser.add_argument("--trainer", default=1, type=int, help="Trainer number.")
 parser.add_argument(
-    "--num_passes", default=20, type=int, help="Training pass number.")
+    "--num_passes",
+    default=20,
+    type=int,
+    help="Training pass number. (default: %(default)s)")
 parser.add_argument(
-    "--num_conv_layers", default=3, type=int, help="Convolution layer number.")
+    "--num_conv_layers",
+    default=2,
+    type=int,
+    help="Convolution layer number. (default: %(default)s)")
 parser.add_argument(
-    "--num_rnn_layers", default=5, type=int, help="RNN layer number.")
+    "--num_rnn_layers",
+    default=3,
+    type=int,
+    help="RNN layer number. (default: %(default)s)")
 parser.add_argument(
-    "--rnn_layer_size", default=512, type=int, help="RNN layer cell number.")
+    "--rnn_layer_size",
+    default=512,
+    type=int,
+    help="RNN layer cell number. (default: %(default)s)")
 parser.add_argument(
-    "--use_gpu", default=True, type=bool, help="Use gpu or not.")
+    "--adam_learning_rate",
+    default=5e-4,
+    type=float,
+    help="Learning rate for ADAM Optimizer. (default: %(default)s)")
 parser.add_argument(
-    "--use_sortagrad", default=False, type=bool, help="Use sortagrad or not.")
+    "--use_gpu",
+    default=True,
+    type=distutils.util.strtobool,
+    help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
-    "--trainer_count", default=8, type=int, help="Trainer number.")
+    "--use_sortagrad",
+    default=False,
+    type=distutils.util.strtobool,
+    help="Use sortagrad or not. (default: %(default)s)")
+parser.add_argument(
+    "--trainer_count",
+    default=4,
+    type=int,
+    help="Trainer number. (default: %(default)s)")
+parser.add_argument(
+    "--normalizer_manifest_path",
+    default='./manifest.libri.train-clean-100',
+    type=str,
+    help="Manifest path for normalizer. (default: %(default)s)")
+parser.add_argument(
+    "--train_manifest_path",
+    default='./manifest.libri.train-clean-100',
+    type=str,
+    help="Manifest path for training. (default: %(default)s)")
+parser.add_argument(
+    "--dev_manifest_path",
+    default='./manifest.libri.dev-clean',
+    type=str,
+    help="Manifest path for validation. (default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -39,37 +80,15 @@ def train():
     """
     DeepSpeech2 training.
     """
-    # create data readers
+    # initialize data generator
     data_generator = DataGenerator(
         vocab_filepath='eng_vocab.txt',
-        normalizer_manifest_path='./libri.manifest.train',
+        normalizer_manifest_path=args.normalizer_manifest_path,
         normalizer_num_samples=200,
         max_duration=20.0,
         min_duration=0.0,
         stride_ms=10,
         window_ms=20)
-    train_batch_reader_sortagrad = data_generator.batch_reader_creator(
-        manifest_path='./libri.manifest.dev.small',
-        batch_size=args.batch_size // args.trainer,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=True,
-        shuffle=False)
-    train_batch_reader_nosortagrad = data_generator.batch_reader_creator(
-        manifest_path='./libri.manifest.dev.small',
-        batch_size=args.batch_size // args.trainer,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=False,
-        shuffle=True)
-    test_batch_reader = data_generator.batch_reader_creator(
-        manifest_path='./libri.manifest.test',
-        batch_size=args.batch_size // args.trainer,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=False,
-        shuffle=False)
-    feeding = data_generator.data_name_feeding()
 
     # create network config
     dict_size = data_generator.vocabulary_size()
@@ -92,28 +111,58 @@ def train():
     # create parameters and optimizer
     parameters = paddle.parameters.create(cost)
     optimizer = paddle.optimizer.Adam(
-        learning_rate=5e-5, gradient_clipping_threshold=400)
+        learning_rate=args.adam_learning_rate, gradient_clipping_threshold=400)
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
+
+    # prepare data reader
+    train_batch_reader_sortagrad = data_generator.batch_reader_creator(
+        manifest_path=args.train_manifest_path,
+        batch_size=args.batch_size // args.trainer_count,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=True,
+        shuffle=False)
+    train_batch_reader_nosortagrad = data_generator.batch_reader_creator(
+        manifest_path=args.train_manifest_path,
+        batch_size=args.batch_size // args.trainer_count,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=False,
+        shuffle=True)
+    test_batch_reader = data_generator.batch_reader_creator(
+        manifest_path=args.dev_manifest_path,
+        batch_size=args.batch_size // args.trainer_count,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=False,
+        shuffle=False)
+    feeding = data_generator.data_name_feeding()
 
     # create event handler
     def event_handler(event):
         global start_time
+        global cost_sum
+        global cost_counter
         if isinstance(event, paddle.event.EndIteration):
-            if event.batch_id % 10 == 0:
+            cost_sum += event.cost
+            cost_counter += 1
+            if event.batch_id % 50 == 0:
                 print "\nPass: %d, Batch: %d, TrainCost: %f" % (
-                    event.pass_id, event.batch_id, event.cost)
+                    event.pass_id, event.batch_id, cost_sum / cost_counter)
+                cost_sum, cost_counter = 0.0, 0
+                with gzip.open("params.tar.gz", 'w') as f:
+                    parameters.to_tar(f)
             else:
                 sys.stdout.write('.')
                 sys.stdout.flush()
         if isinstance(event, paddle.event.BeginPass):
             start_time = time.time()
+            cost_sum, cost_counter = 0.0, 0
         if isinstance(event, paddle.event.EndPass):
             result = trainer.test(reader=test_batch_reader, feeding=feeding)
-            print "\n------- Time: %d,  Pass: %d, TestCost: %s" % (
+            print "\n------- Time: %d sec,  Pass: %d, ValidationCost: %s" % (
                 time.time() - start_time, event.pass_id, result.cost)
-            with gzip.open("params.tar.gz", 'w') as f:
-                parameters.to_tar(f)
 
     # run train
     # first pass with sortagrad

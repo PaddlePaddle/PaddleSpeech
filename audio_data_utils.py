@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class DataGenerator(object):
     """
-    DataGenerator provides basic audio data preprocessing pipeline, and offer
+    DataGenerator provides basic audio data preprocessing pipeline, and offers
     both instance-level and batch-level data reader interfaces.
     Normalized FFT are used as audio features here.
 

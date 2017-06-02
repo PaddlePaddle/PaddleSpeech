@@ -1,9 +1,58 @@
 # Deep Speech 2 on PaddlePaddle
 
+## Quick Start
+
+### Installation
+
+Please replace `$PADDLE_INSTALL_DIR` with your paddle installation directory.
+
 ```
-sh requirements.sh
-python librispeech.py
-python train.py
+pip install -r requirements.txt
+export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/lib:$LD_LIBRARY_PATH
 ```
 
-Please add warp-ctc library path (usually $PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/lib) to LD_LIBRARY_PATH.
+For some machines, we also need to install libsndfile1. Details to be added.
+
+### Preparing Dataset(s)
+
+```
+python librispeech.py
+```
+
+More help for arguments:
+
+```
+python librispeech.py --help
+```
+
+### Traininig
+
+For GPU Training:
+
+```
+CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4
+```
+
+For CPU Training:
+
+```
+python train.py --trainer_count 8 --use_gpu False
+```
+
+More help for arguments:
+
+```
+python train.py --help
+```
+
+### Inferencing
+
+```
+python infer.py
+```
+
+More help for arguments:
+
+```
+python infer.py --help
+```

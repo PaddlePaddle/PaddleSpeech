@@ -4,9 +4,10 @@
 
 import paddle.v2 as paddle
 from itertools import groupby
+import distutils.util
 import argparse
 import gzip
-import audio_data_utils
+from audio_data_utils import DataGenerator
 from model import deep_speech2
 
 parser = argparse.ArgumentParser(
@@ -15,15 +16,42 @@ parser.add_argument(
     "--num_samples",
     default=10,
     type=int,
-    help="Number of samples for inference.")
+    help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
-    "--num_conv_layers", default=2, type=int, help="Convolution layer number.")
+    "--num_conv_layers",
+    default=2,
+    type=int,
+    help="Convolution layer number. (default: %(default)s)")
 parser.add_argument(
-    "--num_rnn_layers", default=3, type=int, help="RNN layer number.")
+    "--num_rnn_layers",
+    default=3,
+    type=int,
+    help="RNN layer number. (default: %(default)s)")
 parser.add_argument(
-    "--rnn_layer_size", default=512, type=int, help="RNN layer cell number.")
+    "--rnn_layer_size",
+    default=512,
+    type=int,
+    help="RNN layer cell number. (default: %(default)s)")
 parser.add_argument(
-    "--use_gpu", default=True, type=bool, help="Use gpu or not.")
+    "--use_gpu",
+    default=True,
+    type=distutils.util.strtobool,
+    help="Use gpu or not. (default: %(default)s)")
+parser.add_argument(
+    "--normalizer_manifest_path",
+    default='./manifest.libri.train-clean-100',
+    type=str,
+    help="Manifest path for normalizer. (default: %(default)s)")
+parser.add_argument(
+    "--decode_manifest_path",
+    default='./manifest.libri.test-clean',
+    type=str,
+    help="Manifest path for decoding. (default: %(default)s)")
+parser.add_argument(
+    "--model_filepath",
+    default='./params.tar.gz',
+    type=str,
+    help="Model filepath. (default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -39,18 +67,27 @@ def remove_duplicate_and_blank(id_list, blank_id):
     return [id for id in id_list if id != blank_id]
 
 
-def max_infer():
+def best_path_decode():
     """
     Max-ctc-decoding for DeepSpeech2.
     """
+    # initialize data generator
+    data_generator = DataGenerator(
+        vocab_filepath='eng_vocab.txt',
+        normalizer_manifest_path=args.normalizer_manifest_path,
+        normalizer_num_samples=200,
+        max_duration=20.0,
+        min_duration=0.0,
+        stride_ms=10,
+        window_ms=20)
     # create network config
-    _, vocab_list = audio_data_utils.get_vocabulary()
-    dict_size = len(vocab_list)
+    dict_size = data_generator.vocabulary_size()
+    vocab_list = data_generator.vocabulary_list()
     audio_data = paddle.layer.data(
         name="audio_spectrogram",
         height=161,
-        width=1000,
-        type=paddle.data_type.dense_vector(161000))
+        width=2000,
+        type=paddle.data_type.dense_vector(322000))
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(dict_size))
@@ -64,19 +101,17 @@ def max_infer():
 
     # load parameters
     parameters = paddle.parameters.Parameters.from_tar(
-        gzip.open("params.tar.gz"))
+        gzip.open(args.model_filepath))
 
     # prepare infer data
-    feeding = {
-        "audio_spectrogram": 0,
-        "transcript_text": 1,
-    }
-    test_batch_reader = audio_data_utils.padding_batch_reader(
-        paddle.batch(
-            audio_data_utils.reader_creator(
-                manifest_path="./libri.manifest.test", sort_by_duration=False),
-            batch_size=args.num_samples),
-        padding=[-1, 1000])
+    feeding = data_generator.data_name_feeding()
+    test_batch_reader = data_generator.batch_reader_creator(
+        manifest_path=args.decode_manifest_path,
+        batch_size=args.num_samples,
+        padding_to=2000,
+        flatten=True,
+        sort_by_duration=False,
+        shuffle=False)
     infer_data = test_batch_reader().next()
 
     # run max-ctc-decoding
@@ -89,7 +124,7 @@ def max_infer():
     # postprocess
     instance_length = len(max_id_results) / args.num_samples
     instance_list = [
-        max_id_results[i:i + instance_length]
+        max_id_results[i * instance_length:(i + 1) * instance_length]
         for i in xrange(0, args.num_samples)
     ]
     for i, instance in enumerate(instance_list):
@@ -102,7 +137,7 @@ def max_infer():
 
 def main():
     paddle.init(use_gpu=args.use_gpu, trainer_count=1)
-    max_infer()
+    best_path_decode()
 
 
 if __name__ == '__main__':

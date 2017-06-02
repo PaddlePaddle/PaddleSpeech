@@ -24,45 +24,23 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
     return paddle.layer.batch_norm(input=conv_layer, act=act)
 
 
-def bidirectonal_simple_rnn_bn_layer(name, input, size, act):
+def bidirectional_simple_rnn_bn_layer(name, input, size, act):
     """
-    Bidirectonal simple rnn layer with batch normalization.
-    The batch normalization is only performed on input-state projection
-    (sequence-wise normalization).
-
-    Question: does mean and variance statistics computed over the whole sequence
-    or just on each individual time steps?
+    Bidirectonal simple rnn layer with sequence-wise batch normalization.
+    The batch normalization is only performed on input-state weights.
     """
-
-    def __simple_rnn_step__(input):
-        last_state = paddle.layer.memory(name=name + "_state", size=size)
-        input_fc = paddle.layer.fc(
-            input=input,
-            size=size,
-            act=paddle.activation.Linear(),
-            bias_attr=False)
-        # batch norm is only performed on input-state projection 
-        input_fc_bn = paddle.layer.batch_norm(
-            input=input_fc, act=paddle.activation.Linear())
-        state_fc = paddle.layer.fc(
-            input=last_state,
-            size=size,
-            act=paddle.activation.Linear(),
-            bias_attr=False)
-        return paddle.layer.addto(
-            name=name + "_state", input=[input_fc_bn, state_fc], act=act)
-
-    forward = paddle.layer.recurrent_group(
-        step=__simple_rnn_step__, input=input)
-    return forward
-    # argument reverse is not exposed in V2 recurrent_group
-    #backward = paddle.layer.recurrent_group(
-
-
-#step=__simple_rnn_step__,
-#input=input,
-#reverse=True)
-#return paddle.layer.concat(input=[forward, backward])
+    # input-hidden weights shared across bi-direcitonal rnn.
+    input_proj = paddle.layer.fc(
+        input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
+    # batch norm is only performed on input-state projection 
+    input_proj_bn = paddle.layer.batch_norm(
+        input=input_proj, act=paddle.activation.Linear())
+    # forward and backward in time
+    forward_simple_rnn = paddle.layer.recurrent(
+        input=input_proj_bn, act=act, reverse=False)
+    backward_simple_rnn = paddle.layer.recurrent(
+        input=input_proj_bn, act=act, reverse=True)
+    return paddle.layer.concat(input=[forward_simple_rnn, backward_simple_rnn])
 
 
 def conv_group(input, num_stacks):
@@ -86,7 +64,9 @@ def conv_group(input, num_stacks):
             stride=(1, 2),
             padding=(5, 10),
             act=paddle.activation.BRelu())
-    return conv
+    output_num_channels = 32
+    output_height = 160 // pow(2, num_stacks) + 1
+    return conv, output_num_channels, output_height
 
 
 def rnn_group(input, size, num_stacks):
@@ -95,7 +75,7 @@ def rnn_group(input, size, num_stacks):
     """
     output = input
     for i in xrange(num_stacks):
-        output = bidirectonal_simple_rnn_bn_layer(
+        output = bidirectional_simple_rnn_bn_layer(
             name=str(i), input=output, size=size, act=paddle.activation.BRelu())
     return output
 
@@ -125,15 +105,16 @@ def deep_speech2(audio_data,
     :rtype: tuple of LayerOutput
     """
     # convolution group
-    conv_group_output = conv_group(input=audio_data, num_stacks=num_conv_layers)
+    conv_group_output, conv_group_num_channels, conv_group_height = conv_group(
+        input=audio_data, num_stacks=num_conv_layers)
     # convert data form convolution feature map to sequence of vectors
     conv2seq = paddle.layer.block_expand(
         input=conv_group_output,
-        num_channels=32,
+        num_channels=conv_group_num_channels,
         stride_x=1,
         stride_y=1,
         block_x=1,
-        block_y=21)
+        block_y=conv_group_height)
     # rnn group
     rnn_group_output = rnn_group(
         input=conv2seq, size=rnn_size, num_stacks=num_rnn_layers)

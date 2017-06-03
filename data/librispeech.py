@@ -15,7 +15,7 @@ import argparse
 import soundfile
 import json
 
-DATA_HOME = os.path.expanduser('~/.cache2/paddle/dataset/speech')
+DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
 URL_ROOT = "http://www.openslr.org/resources/12"
 URL_TEST_CLEAN = URL_ROOT + "/test-clean.tar.gz"
@@ -30,7 +30,7 @@ MD5_TEST_CLEAN = "32fa31d27d2e1cad72775fee3f4849a9"
 MD5_DEV_CLEAN = "42e2234ba48799c1f50f24a7926300a1"
 MD5_TRAIN_CLEAN_100 = "2a93770f6d5c6c964bc36631d331a522"
 MD5_TRAIN_CLEAN_360 = "c0e676e450a7ff2f54aeade5171606fa"
-MD5_TRAIN_CLEAN_500 = "d1a0fd59409feb2c614ce4d30c387708"
+MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
 
 parser = argparse.ArgumentParser(
     description='Downloads and prepare LibriSpeech dataset.')

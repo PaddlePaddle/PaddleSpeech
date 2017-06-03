@@ -1,10 +1,8 @@
 # Deep Speech 2 on PaddlePaddle
 
-## Quick Start
+## Installation
 
-### Installation
-
-Please replace `$PADDLE_INSTALL_DIR` with your paddle installation directory.
+Please replace `$PADDLE_INSTALL_DIR` with your own paddle installation directory.
 
 ```
 pip install -r requirements.txt
@@ -13,7 +11,9 @@ export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/li
 
 For some machines, we also need to install libsndfile1. Details to be added.
 
-### Preparing Dataset(s)
+## Usage
+
+### Preparing Data
 
 ```
 cd data

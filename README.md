@@ -16,7 +16,9 @@ For some machines, we also need to install libsndfile1. Details to be added.
 ### Preparing Dataset(s)
 
 ```
+cd data
 python librispeech.py
+cd ..
 ```
 
 More help for arguments:

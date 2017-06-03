@@ -85,7 +85,8 @@ def deep_speech2(audio_data,
                  dict_size,
                  num_conv_layers=2,
                  num_rnn_layers=3,
-                 rnn_size=256):
+                 rnn_size=256,
+                 is_inference=False):
     """
     The whole DeepSpeech2 model structure (a simplified version).
 
@@ -101,7 +102,12 @@ def deep_speech2(audio_data,
     :type num_rnn_layers: int
     :param rnn_size: RNN layer size (number of RNN cells).
     :type rnn_size: int
-    :return: Tuple of the cost layer and the max_id decoder layer.
+    :param is_inference: False in the training mode, and True in the
+                         inferene mode.
+    :type is_inference: bool
+    :return: If is_inference set False, return a ctc cost layer;
+             if is_inference set True, return a sequence layer of output
+             probability distribution.
     :rtype: tuple of LayerOutput
     """
     # convolution group
@@ -118,19 +124,21 @@ def deep_speech2(audio_data,
     # rnn group
     rnn_group_output = rnn_group(
         input=conv2seq, size=rnn_size, num_stacks=num_rnn_layers)
-    # output token distribution
     fc = paddle.layer.fc(
         input=rnn_group_output,
         size=dict_size + 1,
         act=paddle.activation.Linear(),
         bias_attr=True)
-    # ctc cost
-    cost = paddle.layer.warp_ctc(
-        input=fc,
-        label=text_data,
-        size=dict_size + 1,
-        blank=dict_size,
-        norm_by_times=True)
-    # max decoder
-    max_id = paddle.layer.max_id(input=fc)
-    return cost, max_id
+    if is_inference:
+        # probability distribution with softmax
+        return paddle.layer.mixed(
+            input=paddle.layer.identity_projection(input=fc),
+            act=paddle.activation.Softmax())
+    else:
+        # ctc cost
+        return paddle.layer.warp_ctc(
+            input=fc,
+            label=text_data,
+            size=dict_size + 1,
+            blank=dict_size,
+            norm_by_times=True)

@@ -60,19 +60,24 @@ parser.add_argument(
     help="Trainer number. (default: %(default)s)")
 parser.add_argument(
     "--normalizer_manifest_path",
-    default='./manifest.libri.train-clean-100',
+    default='data/manifest.libri.train-clean-100',
     type=str,
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
     "--train_manifest_path",
-    default='./manifest.libri.train-clean-100',
+    default='data/manifest.libri.train-clean-100',
     type=str,
     help="Manifest path for training. (default: %(default)s)")
 parser.add_argument(
     "--dev_manifest_path",
-    default='./manifest.libri.dev-clean',
+    default='data/manifest.libri.dev-clean',
     type=str,
     help="Manifest path for validation. (default: %(default)s)")
+parser.add_argument(
+    "--vocab_filepath",
+    default='data/eng_vocab.txt',
+    type=str,
+    help="Vocabulary filepath. (default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -82,7 +87,7 @@ def train():
     """
     # initialize data generator
     data_generator = DataGenerator(
-        vocab_filepath='eng_vocab.txt',
+        vocab_filepath=args.vocab_filepath,
         normalizer_manifest_path=args.normalizer_manifest_path,
         normalizer_num_samples=200,
         max_duration=20.0,
@@ -100,13 +105,14 @@ def train():
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(dict_size))
-    cost, _ = deep_speech2(
+    cost = deep_speech2(
         audio_data=audio_data,
         text_data=text_data,
         dict_size=dict_size,
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
-        rnn_size=args.rnn_layer_size)
+        rnn_size=args.rnn_layer_size,
+        is_inference=False)
 
     # create parameters and optimizer
     parameters = paddle.parameters.create(cost)
@@ -118,21 +124,21 @@ def train():
     # prepare data reader
     train_batch_reader_sortagrad = data_generator.batch_reader_creator(
         manifest_path=args.train_manifest_path,
-        batch_size=args.batch_size // args.trainer_count,
+        batch_size=args.batch_size,
         padding_to=2000,
         flatten=True,
         sort_by_duration=True,
         shuffle=False)
     train_batch_reader_nosortagrad = data_generator.batch_reader_creator(
         manifest_path=args.train_manifest_path,
-        batch_size=args.batch_size // args.trainer_count,
+        batch_size=args.batch_size,
         padding_to=2000,
         flatten=True,
         sort_by_duration=False,
         shuffle=True)
     test_batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.dev_manifest_path,
-        batch_size=args.batch_size // args.trainer_count,
+        batch_size=args.batch_size,
         padding_to=2000,
         flatten=True,
         sort_by_duration=False,
@@ -141,9 +147,7 @@ def train():
 
     # create event handler
     def event_handler(event):
-        global start_time
-        global cost_sum
-        global cost_counter
+        global start_time, cost_sum, cost_counter
         if isinstance(event, paddle.event.EndIteration):
             cost_sum += event.cost
             cost_counter += 1

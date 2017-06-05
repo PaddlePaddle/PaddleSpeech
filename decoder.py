@@ -4,6 +4,7 @@
 
 from itertools import groupby
 import numpy as np
+from ctc_beam_search_decoder import *
 
 
 def ctc_best_path_decode(probs_seq, vocabulary):
@@ -36,7 +37,11 @@ def ctc_best_path_decode(probs_seq, vocabulary):
     return ''.join([vocabulary[index] for index in index_list])
 
 
-def ctc_decode(probs_seq, vocabulary, method):
+def ctc_decode(probs_seq,
+               vocabulary,
+               method,
+               beam_size=None,
+               num_results_per_sample=None):
     """
     CTC-like sequence decoding from a sequence of likelihood probablilites. 
 
@@ -56,5 +61,12 @@ def ctc_decode(probs_seq, vocabulary, method):
             raise ValueError("probs dimension mismatchedd with vocabulary")
     if method == "best_path":
         return ctc_best_path_decode(probs_seq, vocabulary)
+    elif method == "beam_search":
+        return ctc_beam_search_decoder(
+            input_probs_matrix=probs_seq,
+            vocabulary=vocabulary,
+            beam_size=beam_size,
+            blank_id=len(vocabulary),
+            num_results_per_sample=num_results_per_sample)
     else:
-        raise ValueError("Decoding method [%s] is not supported.")
+        raise ValueError("Decoding method [%s] is not supported." % method)

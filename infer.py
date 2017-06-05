@@ -57,6 +57,23 @@ parser.add_argument(
     default='data/eng_vocab.txt',
     type=str,
     help="Vocabulary filepath. (default: %(default)s)")
+parser.add_argument(
+    "--decode_method",
+    default='best_path',
+    type=str,
+    help="Method for ctc decoding, best_path or beam_search. (default: %(default)s)"
+)
+parser.add_argument(
+    "--beam_size",
+    default=50,
+    type=int,
+    help="Width for beam search decoding. (default: %(default)d)")
+parser.add_argument(
+    "--num_result_per_sample",
+    default=2,
+    type=int,
+    help="Number of results per given sample in beam search. (default: %(default)d)"
+)
 args = parser.parse_args()
 
 
@@ -120,12 +137,22 @@ def infer():
 
     # decode and print
     for i, probs in enumerate(probs_split):
-        output_transcription = ctc_decode(
+        best_path_transcription = ctc_decode(
             probs_seq=probs, vocabulary=vocab_list, method="best_path")
         target_transcription = ''.join(
             [vocab_list[index] for index in infer_data[i][1]])
-        print("Target Transcription: %s \nOutput Transcription: %s \n" %
-              (target_transcription, output_transcription))
+        print("\nTarget   Transcription: %s \nBst_path Transcription: %s" %
+              (target_transcription, best_path_transcription))
+        beam_search_transcription = ctc_decode(
+            probs_seq=probs,
+            vocabulary=vocab_list,
+            method="beam_search",
+            beam_size=args.beam_size,
+            num_results_per_sample=args.num_result_per_sample)
+        for index in range(len(beam_search_transcription)):
+            print("LM No, %d - %4f: %s " %
+                  (index, beam_search_transcription[index][0],
+                   beam_search_transcription[index][1]))
 
 
 def main():

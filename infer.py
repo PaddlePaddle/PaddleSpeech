@@ -8,7 +8,7 @@ import argparse
 import gzip
 from audio_data_utils import DataGenerator
 from model import deep_speech2
-from decoder import ctc_decode
+from decoder import *
 
 parser = argparse.ArgumentParser(
     description='Simplified version of DeepSpeech2 inference.')
@@ -59,7 +59,7 @@ parser.add_argument(
     help="Vocabulary filepath. (default: %(default)s)")
 parser.add_argument(
     "--decode_method",
-    default='best_path',
+    default='beam_search',
     type=str,
     help="Method for ctc decoding, best_path or beam_search. (default: %(default)s)"
 )
@@ -69,11 +69,25 @@ parser.add_argument(
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
-    "--num_result_per_sample",
-    default=2,
+    "--num_results_per_sample",
+    default=1,
     type=int,
-    help="Number of results per given sample in beam search. (default: %(default)d)"
-)
+    help="Number of output per sample in beam search. (default: %(default)d)")
+parser.add_argument(
+    "--language_model_path",
+    default="./data/1Billion.klm",
+    type=str,
+    help="Path for language model. (default: %(default)d)")
+parser.add_argument(
+    "--alpha",
+    default=0.0,
+    type=float,
+    help="Parameter associated with language model. (default: %(default)f)")
+parser.add_argument(
+    "--beta",
+    default=0.0,
+    type=float,
+    help="Parameter associated with word count. (default: %(default)f)")
 args = parser.parse_args()
 
 
@@ -135,24 +149,34 @@ def infer():
         for i in xrange(0, len(infer_data))
     ]
 
-    # decode and print
-    for i, probs in enumerate(probs_split):
-        best_path_transcription = ctc_decode(
-            probs_seq=probs, vocabulary=vocab_list, method="best_path")
-        target_transcription = ''.join(
-            [vocab_list[index] for index in infer_data[i][1]])
-        print("\nTarget   Transcription: %s \nBst_path Transcription: %s" %
-              (target_transcription, best_path_transcription))
-        beam_search_transcription = ctc_decode(
-            probs_seq=probs,
-            vocabulary=vocab_list,
-            method="beam_search",
-            beam_size=args.beam_size,
-            num_results_per_sample=args.num_result_per_sample)
-        for index in range(len(beam_search_transcription)):
-            print("LM No, %d - %4f: %s " %
-                  (index, beam_search_transcription[index][0],
-                   beam_search_transcription[index][1]))
+    ## decode and print
+    # best path decode
+    if args.decode_method == "best_path":
+        for i, probs in enumerate(probs_split):
+            target_transcription = ''.join(
+                [vocab_list[index] for index in infer_data[i][1]])
+            best_path_transcription = ctc_best_path_decode(
+                probs_seq=probs, vocabulary=vocab_list)
+            print("\nTarget Transcription: %s\nOutput Transcription: %s" %
+                  (target_transcription, best_path_transcription))
+    # beam search decode
+    elif args.decode_method == "beam_search":
+        for i, probs in enumerate(probs_split):
+            target_transcription = ''.join(
+                [vocab_list[index] for index in infer_data[i][1]])
+            ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
+            beam_search_result = ctc_beam_search_decoder(
+                probs_seq=probs,
+                vocabulary=vocab_list,
+                beam_size=args.beam_size,
+                ext_scoring_func=ext_scorer.evaluate,
+                blank_id=len(vocab_list))
+            print("\nTarget Transcription:\t%s" % target_transcription)
+            for index in range(args.num_results_per_sample):
+                result = beam_search_result[index]
+                print("Beam %d: %f \t%s" % (index, result[0], result[1]))
+    else:
+        raise ValueError("Decoding method [%s] is not supported." % method)
 
 
 def main():

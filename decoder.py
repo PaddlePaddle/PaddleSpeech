@@ -52,13 +52,19 @@ class Scorer(object):
     """
 
     def __init__(self, alpha, beta, model_path):
-
         self._alpha = alpha
         self._beta = beta
         self._language_model = kenlm.LanguageModel(model_path)
 
     def language_model_score(self, sentence, bos=True, eos=False):
-        log_prob = self._language_model.score(sentence, bos, eos)
+        words = sentence.strip().split(' ')
+        length = len(words)
+        if length == 1:
+            log_prob = self._language_model.score(sentence, bos, eos)
+        else:
+            prefix_sent = ' '.join(words[0:length - 1])
+            log_prob = self._language_model.score(sentence, bos, eos) \
+                       - self._language_model.score(prefix_sent, bos, eos)
         return np.power(10, log_prob)
 
     def word_count(self, sentence):

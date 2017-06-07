@@ -6,6 +6,7 @@ from itertools import groupby
 import numpy as np
 import copy
 import kenlm
+import os
 
 
 def ctc_best_path_decode(probs_seq, vocabulary):
@@ -54,19 +55,16 @@ class Scorer(object):
     def __init__(self, alpha, beta, model_path):
         self._alpha = alpha
         self._beta = beta
+        if not os.path.isfile(model_path):
+            raise IOError("Invaid language model path: %s" % model_path)
         self._language_model = kenlm.LanguageModel(model_path)
 
-    # language model scoring
-    def language_model_score(self, sentence, bos=True, eos=False):
-        words = sentence.strip().split(' ')
-        length = len(words)
-        if length == 1:
-            log_prob = self._language_model.score(sentence, bos, eos)
-        else:
-            prefix_sent = ' '.join(words[0:length - 1])
-            log_prob = self._language_model.score(sentence, bos, eos) \
-                       - self._language_model.score(prefix_sent, bos, eos)
-        return np.power(10, log_prob)
+    # n-gram language model scoring
+    def language_model_score(self, sentence):
+        #log prob of last word
+        log_cond_prob = list(
+            self._language_model.full_scores(sentence, eos=False))[-1][0]
+        return np.power(10, log_cond_prob)
 
     # word insertion term
     def word_count(self, sentence):
@@ -74,8 +72,8 @@ class Scorer(object):
         return len(words)
 
     # execute evaluation
-    def evaluate(self, sentence, bos=True, eos=False):
-        lm = self.language_model_score(sentence, bos, eos)
+    def evaluate(self, sentence):
+        lm = self.language_model_score(sentence)
         word_cnt = self.word_count(sentence)
         score = np.power(lm, self._alpha) \
                 * np.power(word_cnt, self._beta)

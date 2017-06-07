@@ -85,23 +85,27 @@ def train():
     """
     DeepSpeech2 training.
     """
-    # initialize data generator
-    data_generator = DataGenerator(
-        vocab_filepath=args.vocab_filepath,
-        normalizer_manifest_path=args.normalizer_manifest_path,
-        normalizer_num_samples=200,
-        max_duration=20.0,
-        min_duration=0.0,
-        stride_ms=10,
-        window_ms=20)
 
+    # initialize data generator
+    def data_generator():
+        return DataGenerator(
+            vocab_filepath=args.vocab_filepath,
+            normalizer_manifest_path=args.normalizer_manifest_path,
+            normalizer_num_samples=200,
+            max_duration=20.0,
+            min_duration=0.0,
+            stride_ms=10,
+            window_ms=20)
+
+    train_generator = data_generator()
+    test_generator = data_generator()
     # create network config
-    dict_size = data_generator.vocabulary_size()
+    dict_size = train_generator.vocabulary_size()
+    # paddle.data_type.dense_array is used for variable batch input.
+    # the size 161 * 161 is only an placeholder value and the real shape
+    # of input batch data will be set at each batch.
     audio_data = paddle.layer.data(
-        name="audio_spectrogram",
-        height=161,
-        width=2000,
-        type=paddle.data_type.dense_vector(322000))
+        name="audio_spectrogram", type=paddle.data_type.dense_array(161 * 161))
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(dict_size))
@@ -122,28 +126,16 @@ def train():
         cost=cost, parameters=parameters, update_equation=optimizer)
 
     # prepare data reader
-    train_batch_reader_sortagrad = data_generator.batch_reader_creator(
+    train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest_path,
         batch_size=args.batch_size,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=True,
-        shuffle=False)
-    train_batch_reader_nosortagrad = data_generator.batch_reader_creator(
-        manifest_path=args.train_manifest_path,
-        batch_size=args.batch_size,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=False,
+        sortagrad=True,
         shuffle=True)
-    test_batch_reader = data_generator.batch_reader_creator(
+    test_batch_reader = test_generator.batch_reader_creator(
         manifest_path=args.dev_manifest_path,
         batch_size=args.batch_size,
-        padding_to=2000,
-        flatten=True,
-        sort_by_duration=False,
         shuffle=False)
-    feeding = data_generator.data_name_feeding()
+    feeding = train_generator.data_name_feeding()
 
     # create event handler
     def event_handler(event):
@@ -169,17 +161,8 @@ def train():
                 time.time() - start_time, event.pass_id, result.cost)
 
     # run train
-    # first pass with sortagrad
-    if args.use_sortagrad:
-        trainer.train(
-            reader=train_batch_reader_sortagrad,
-            event_handler=event_handler,
-            num_passes=1,
-            feeding=feeding)
-        args.num_passes -= 1
-    # other passes without sortagrad
     trainer.train(
-        reader=train_batch_reader_nosortagrad,
+        reader=train_batch_reader,
         event_handler=event_handler,
         num_passes=args.num_passes,
         feeding=feeding)

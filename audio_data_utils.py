@@ -8,6 +8,7 @@ import json
 import random
 import soundfile
 import numpy as np
+import itertools
 import os
 
 RANDOM_SEED = 0
@@ -62,6 +63,7 @@ class DataGenerator(object):
         self.__stride_ms__ = stride_ms
         self.__window_ms__ = window_ms
         self.__max_frequency__ = max_frequency
+        self.__epoc__ = 0
         self.__random__ = random.Random(RANDOM_SEED)
         # load vocabulary (dictionary)
         self.__vocab_dict__, self.__vocab_list__ = \
@@ -245,9 +247,33 @@ class DataGenerator(object):
             new_batch.append((padded_audio, text))
         return new_batch
 
+    def __batch_shuffle__(self, manifest, batch_size):
+        """
+        1. Sort the audio clips by duration.
+        2. Generate a random number `k`, k in [0, batch_size).
+        3. Randomly remove `k` instances in order to make different mini-batches,
+           then make minibatches and each minibatch size is batch_size.
+        4. Shuffle the minibatches.
+
+        :param manifest: manifest file.
+        :type manifest: list
+        :param batch_size: batch size.
+        :type batch_size: int
+        """
+        manifest.sort(key=lambda x: x["duration"])
+        shift_len = self.__random__.randint(0, batch_size - 1)
+        batch_manifest = zip(*[iter(manifest[shift_len:])] * batch_size)
+        self.__random__.shuffle(batch_manifest)
+        batch_manifest = list(sum(batch_manifest, ()))
+        res_len = len(manifest) - shift_len - len(batch_manifest)
+        batch_manifest.extend(manifest[-res_len:])
+        batch_manifest.extend(manifest[0:shift_len])
+        return batch_manifest
+
     def instance_reader_creator(self,
                                 manifest_path,
-                                sort_by_duration=True,
+                                batch_size,
+                                sortagrad=True,
                                 shuffle=False):
         """
         Instance reader creator for audio data. Creat a callable function to
@@ -258,18 +284,14 @@ class DataGenerator(object):
 
         :param manifest_path: Filepath of manifest for audio clip files.
         :type manifest_path: basestring
-        :param sort_by_duration: Sort the audio clips by duration if set True
-                                 (for SortaGrad).
-        :type sort_by_duration: bool
+        :param sortagrad: Sort the audio clips by duration in the first epoc
+                          if set True.
+        :type sortagrad: bool
         :param shuffle: Shuffle the audio clips if set True.
         :type shuffle: bool
         :return: Data reader function.
         :rtype: callable
         """
-        if sort_by_duration and shuffle:
-            sort_by_duration = False
-            logger.warn("When shuffle set to true, "
-                        "sort_by_duration is forced to set False.")
 
         def reader():
             # read manifest
@@ -278,16 +300,17 @@ class DataGenerator(object):
                 max_duration=self.__max_duration__,
                 min_duration=self.__min_duration__)
             # sort (by duration) or shuffle manifest
-            if sort_by_duration:
+            if self.__epoc__ == 0 and sortagrad:
                 manifest.sort(key=lambda x: x["duration"])
-            if shuffle:
-                self.__random__.shuffle(manifest)
+            elif shuffle:
+                manifest = self.__batch_shuffle__(manifest, batch_size)
             # extract spectrogram feature
             for instance in manifest:
                 spectrogram = self.__audio_featurize__(
                     instance["audio_filepath"])
                 transcript = self.__text_featurize__(instance["text"])
                 yield (spectrogram, transcript)
+            self.__epoc__ += 1
 
         return reader
 
@@ -296,7 +319,7 @@ class DataGenerator(object):
                              batch_size,
                              padding_to=-1,
                              flatten=False,
-                             sort_by_duration=True,
+                             sortagrad=False,
                              shuffle=False):
         """
         Batch data reader creator for audio data. Creat a callable function to
@@ -317,9 +340,9 @@ class DataGenerator(object):
         :param flatten: If set True, audio data will be flatten to be a 1-dim
                         ndarray. Otherwise, 2-dim ndarray. Default is False.
         :type flatten: bool
-        :param sort_by_duration: Sort the audio clips by duration if set True
-                                 (for SortaGrad).
-        :type sort_by_duration: bool
+        :param sortagrad: Sort the audio clips by duration in the first epoc
+                          if set True.
+        :type sortagrad: bool
         :param shuffle: Shuffle the audio clips if set True.
         :type shuffle: bool
         :return: Batch reader function, producing batches of data when called.
@@ -329,7 +352,8 @@ class DataGenerator(object):
         def batch_reader():
             instance_reader = self.instance_reader_creator(
                 manifest_path=manifest_path,
-                sort_by_duration=sort_by_duration,
+                batch_size=batch_size,
+                sortagrad=sortagrad,
                 shuffle=shuffle)
             batch = []
             for instance in instance_reader():

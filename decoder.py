@@ -68,9 +68,9 @@ class Scorer(object):
     # execute evaluation
     def evaluate(self, sentence, bos=True, eos=False):
         lm = self.language_model_score(sentence, bos, eos)
-        word_count = self.word_count(sentence)
+        word_cnt = self.word_count(sentence)
         score = np.power(lm, self._alpha) \
-                * np.power(word_count, self._beta)
+                * np.power(word_cnt, self._beta)
         return score
 
 
@@ -104,19 +104,18 @@ def ctc_beam_search_decoder(probs_seq,
     :rtype: list
 
     '''
-
+    # dimension check
     for prob_list in probs_seq:
         if not len(prob_list) == len(vocabulary) + 1:
             raise ValueError("probs dimension mismatchedd with vocabulary")
-
     max_time_steps = len(probs_seq)
-    if not max_time_steps > 0:
-        raise ValueError("probs_seq shouldn't be empty")
 
+    # blank_id check
     probs_dim = len(probs_seq[0])
     if not blank_id < probs_dim:
         raise ValueError("blank_id shouldn't be greater than probs dimension")
 
+    # assign space_id
     if ' ' not in vocabulary:
         raise ValueError("space doesn't exist in vocabulary")
     space_id = vocabulary.index(' ')

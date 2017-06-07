@@ -77,7 +77,7 @@ parser.add_argument(
     "--language_model_path",
     default="./data/1Billion.klm",
     type=str,
-    help="Path for language model. (default: %(default)d)")
+    help="Path for language model. (default: %(default)s)")
 parser.add_argument(
     "--alpha",
     default=0.0,
@@ -93,7 +93,7 @@ args = parser.parse_args()
 
 def infer():
     """
-    Max-ctc-decoding for DeepSpeech2.
+    Inference for DeepSpeech2.
     """
     # initialize data generator
     data_generator = DataGenerator(
@@ -174,6 +174,7 @@ def infer():
             print("\nTarget Transcription:\t%s" % target_transcription)
             for index in range(args.num_results_per_sample):
                 result = beam_search_result[index]
+                #output: index, log prob, beam result
                 print("Beam %d: %f \t%s" % (index, result[0], result[1]))
     else:
         raise ValueError("Decoding method [%s] is not supported." % method)

@@ -18,6 +18,7 @@ For some machines, we also need to install libsndfile1. Details to be added.
 ```
 cd data
 python librispeech.py
+cat manifest.libri.train-* > manifest.libri.train-all
 cd ..
 ```
 
@@ -32,13 +33,13 @@ python librispeech.py --help
 For GPU Training:
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4
+CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4 --train_manifest_path ./data/manifest.libri.train-all
 ```
 
 For CPU Training:
 
 ```
-python train.py --trainer_count 8 --use_gpu False
+python train.py --trainer_count 8 --use_gpu False -- train_manifest_path ./data/manifest.libri.train-all
 ```
 
 More help for arguments:

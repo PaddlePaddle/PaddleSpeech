@@ -56,6 +56,7 @@ class Scorer(object):
         self._beta = beta
         self._language_model = kenlm.LanguageModel(model_path)
 
+    # language model scoring
     def language_model_score(self, sentence, bos=True, eos=False):
         words = sentence.strip().split(' ')
         length = len(words)
@@ -67,6 +68,7 @@ class Scorer(object):
                        - self._language_model.score(prefix_sent, bos, eos)
         return np.power(10, log_prob)
 
+    # word insertion term
     def word_count(self, sentence):
         words = sentence.strip().split(' ')
         return len(words)

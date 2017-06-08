@@ -14,8 +14,7 @@ def levenshtein_distance(ref, hyp):
     if hyp_len == 0:
         return ref_len
 
-    distance = np.zeros((ref_len + 1) * (hyp_len + 1), dtype=np.int64)
-    distance = distance.reshape((ref_len + 1, hyp_len + 1))
+    distance = np.zeros((ref_len + 1, hyp_len + 1), dtype=np.int64)
 
     # initialization distance matrix
     for j in xrange(hyp_len + 1):
@@ -40,7 +39,7 @@ def levenshtein_distance(ref, hyp):
 def wer(reference, hypophysis, delimiter=' ', filter_none=True):
     """
     Calculate word error rate (WER). WER is a popular evaluation metric used
-    in speech recognition. It compares a reference to an hypophysis and
+    in speech recognition. It compares a reference with an hypophysis and
     is defined like this:
 
     .. math::
@@ -55,8 +54,8 @@ def wer(reference, hypophysis, delimiter=' ', filter_none=True):
         Iw is the number of words inserted,
         Nw is the number of words in the reference
 
-    We can use levenshtein distance to calculate WER. Take an attention that 
-    this function will truncate the beginning and ending delimiter for 
+    We can use levenshtein distance to calculate WER. Please draw an attention 
+    that this function will truncate the beginning and ending delimiter for 
     reference and hypophysis sentences before calculating WER.
 
     :param reference: The reference sentence.
@@ -111,12 +110,12 @@ def cer(reference, hypophysis, squeeze=True, ignore_case=False, strip_char=''):
     :param hypophysis: The hypophysis sentence.
     :type reference: str
     :param squeeze: If set true, consecutive space character 
-    will be squeezed to one
-    :type squeezed: bool
-    :param ignore_case: Whether ignoring character case.
+                    will be squeezed to one
+    :type squeeze: bool
+    :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
     :param strip_char: If not set to '', strip_char in beginning and ending of
-    sentence will be truncated.
+                       sentence will be truncated.
     :type strip_char: char
     :return: CER
     :rtype: float

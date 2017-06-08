@@ -1,10 +1,9 @@
 """
-    Download, unpack and create manifest file for the Librespeech dataset.
+    Download, unpack and create manifest json files for the Librespeech dataset.
 
-    A manifest file is a dataset summarization, with each line a json format
-    string containing meta data for one audio clip, including its filepath,
-    transcription string, and duration. It serves as a unified interface for
-    different data sets.
+    A manifest is a json file summarizing filelist in a data set, with each line
+    containing the meta data (i.e. audio filepath, transcription text, audio
+    duration) of each audio file in the data set.
 """
 
 import paddle.v2 as paddle
@@ -35,14 +34,6 @@ MD5_DEV_OTHER = "c8d0bcc9cca99d4f8b62fcc847357931"
 MD5_TRAIN_CLEAN_100 = "2a93770f6d5c6c964bc36631d331a522"
 MD5_TRAIN_CLEAN_360 = "c0e676e450a7ff2f54aeade5171606fa"
 MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
-
-NUM_LINES_TEST_CLEAN = 2620
-NUM_LINES_TEST_OTHER = 2939
-NUM_LINES_DEV_CLEAN = 2703
-NUM_LINES_DEV_OTHER = 2864
-NUM_LINES_TRAIN_CLEAN_100 = 28539
-NUM_LINES_TRAIN_CLEAN_360 = 104014
-NUM_LINES_TRAIN_OTHER_500 = 148688
 
 parser = argparse.ArgumentParser(
     description='Downloads and prepare LibriSpeech dataset.')
@@ -95,12 +86,9 @@ def unpack(filepath, target_dir):
 
 def create_manifest(data_dir, manifest_path):
     """
-    Create a manifest file summarizing the dataset (list of filepath and meta
-    data).
-
-    Each line of the manifest contains one audio clip filepath, its
-    transcription text string, and its duration. Manifest file servers as a
-    unified interfance to organize data sets.
+    Create a manifest json file summarizing the data set, with each line
+    containing the meta data (i.e. audio filepath, transcription text, audio
+    duration) of each audio file within the data set.
     """
     print("Creating manifest %s ..." % manifest_path)
     json_lines = []
@@ -128,28 +116,20 @@ def create_manifest(data_dir, manifest_path):
             out_file.write(line + '\n')
 
 
-def verify_file_line_number(filepath, num_lines):
-    with open(filepath, 'r') as file:
-        return len(file.readlines()) == num_lines
-
-
-def prepare_dataset(url, md5sum, target_dir, manifest_path, num_lines):
+def prepare_dataset(url, md5sum, target_dir, manifest_path):
     """
     Download, unpack and create summmary manifest file.
     """
-    # download
-    filepath = download(url, md5sum, target_dir)
-    # unpack
     if not os.path.exists(os.path.join(target_dir, "LibriSpeech")):
+        # download
+        filepath = download(url, md5sum, target_dir)
+        # unpack
         unpack(filepath, target_dir)
     else:
-        print("Unpacked data exists, skip unpacking.")
-    # create manifest and verify line number
+        print("Skip downloading and unpacking. Data already exists in %s." %
+              target_dir)
+    # create manifest json file
     create_manifest(target_dir, manifest_path)
-    if not verify_file_line_number(manifest_path, num_lines):
-        raise RuntimeError("Manifest line number check failed. "
-                           "Please remove directory and try running the script "
-                           "again.")
 
 
 def main():
@@ -157,45 +137,38 @@ def main():
         url=URL_TEST_CLEAN,
         md5sum=MD5_TEST_CLEAN,
         target_dir=os.path.join(args.target_dir, "test-clean"),
-        manifest_path=args.manifest_prefix + ".test-clean",
-        num_lines=NUM_LINES_TEST_CLEAN)
+        manifest_path=args.manifest_prefix + ".test-clean")
     prepare_dataset(
         url=URL_DEV_CLEAN,
         md5sum=MD5_DEV_CLEAN,
         target_dir=os.path.join(args.target_dir, "dev-clean"),
-        manifest_path=args.manifest_prefix + ".dev-clean",
-        num_lines=NUM_LINES_DEV_CLEAN)
+        manifest_path=args.manifest_prefix + ".dev-clean")
     prepare_dataset(
         url=URL_TRAIN_CLEAN_100,
         md5sum=MD5_TRAIN_CLEAN_100,
         target_dir=os.path.join(args.target_dir, "train-clean-100"),
-        manifest_path=args.manifest_prefix + ".train-clean-100",
-        num_lines=NUM_LINES_TRAIN_CLEAN_100)
+        manifest_path=args.manifest_prefix + ".train-clean-100")
     if args.full_download:
         prepare_dataset(
             url=URL_TEST_OTHER,
             md5sum=MD5_TEST_OTHER,
             target_dir=os.path.join(args.target_dir, "test-other"),
-            manifest_path=args.manifest_prefix + ".test-other",
-            num_lines=NUM_LINES_TEST_OTHER)
+            manifest_path=args.manifest_prefix + ".test-other")
         prepare_dataset(
             url=URL_DEV_OTHER,
             md5sum=MD5_DEV_OTHER,
             target_dir=os.path.join(args.target_dir, "dev-other"),
-            manifest_path=args.manifest_prefix + ".dev-other",
-            num_lines=NUM_LINES_DEV_OTHER)
+            manifest_path=args.manifest_prefix + ".dev-other")
         prepare_dataset(
             url=URL_TRAIN_CLEAN_360,
             md5sum=MD5_TRAIN_CLEAN_360,
             target_dir=os.path.join(args.target_dir, "train-clean-360"),
-            manifest_path=args.manifest_prefix + ".train-clean-360",
-            num_lines=NUM_LINES_TRAIN_CLEAN_360)
+            manifest_path=args.manifest_prefix + ".train-clean-360")
         prepare_dataset(
             url=URL_TRAIN_OTHER_500,
             md5sum=MD5_TRAIN_OTHER_500,
             target_dir=os.path.join(args.target_dir, "train-other-500"),
-            manifest_path=args.manifest_prefix + ".train-other-500",
-            num_lines=NUM_LINES_TRAIN_OTHER_500)
+            manifest_path=args.manifest_prefix + ".train-other-500")
 
 
 if __name__ == '__main__':

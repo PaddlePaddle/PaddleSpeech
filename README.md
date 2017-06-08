@@ -22,6 +22,10 @@ cat manifest.libri.train-* > manifest.libri.train-all
 cd ..
 ```
 
+After running librispeech.py, we have several "manifest" json files named with a prefix `manifest.libri.`. A manifest file summarizes a speech data set, with each line containing the meta data (i.e. audio filepath, transcription text, audio duration) of each audio file within the data set, in json format.
+
+By `cat manifest.libri.train-* > manifest.libri.train-all`, we simply merge the three seperate sample sets of LibriSpeech (train-clean-100, train-clean-360, train-other-500) into one training set. This is a simple way for merging different data sets.
+
 More help for arguments:
 
 ```

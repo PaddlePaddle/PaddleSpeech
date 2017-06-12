@@ -44,7 +44,7 @@ parser.add_argument(
     help="Directory to save the dataset. (default: %(default)s)")
 parser.add_argument(
     "--manifest_prefix",
-    default="manifest.libri",
+    default="manifest",
     type=str,
     help="Filepath prefix for output manifests. (default: %(default)s)")
 parser.add_argument(

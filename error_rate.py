@@ -1,4 +1,9 @@
-# -- * -- coding: utf-8 -- * --
+# -*- coding: utf-8 -*-
+"""
+    This module provides functions to calculate error rate in different level.
+    e.g. wer for word-level, cer for char-level.
+"""
+
 import numpy as np
 
 
@@ -14,9 +19,9 @@ def levenshtein_distance(ref, hyp):
     if hyp_len == 0:
         return ref_len
 
-    distance = np.zeros((ref_len + 1, hyp_len + 1), dtype=np.int64)
+    distance = np.zeros((ref_len + 1, hyp_len + 1), dtype=np.int32)
 
-    # initialization distance matrix
+    # initialize distance matrix
     for j in xrange(hyp_len + 1):
         distance[0][j] = j
     for i in xrange(ref_len + 1):
@@ -36,11 +41,10 @@ def levenshtein_distance(ref, hyp):
     return distance[ref_len][hyp_len]
 
 
-def wer(reference, hypophysis, delimiter=' ', filter_none=True):
+def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     """
-    Calculate word error rate (WER). WER is a popular evaluation metric used
-    in speech recognition. It compares a reference with an hypophysis and
-    is defined like this:
+    Calculate word error rate (WER). WER compares reference text and 
+    hypothesis text in word-level. WER is defined as:
 
     .. math::
         WER = (Sw + Dw + Iw) / Nw
@@ -54,41 +58,39 @@ def wer(reference, hypophysis, delimiter=' ', filter_none=True):
         Iw is the number of words inserted,
         Nw is the number of words in the reference
 
-    We can use levenshtein distance to calculate WER. Please draw an attention 
-    that this function will truncate the beginning and ending delimiter for 
-    reference and hypophysis sentences before calculating WER.
+    We can use levenshtein distance to calculate WER. Please draw an attention that 
+    empty items will be removed when splitting sentences by delimiter.
 
     :param reference: The reference sentence.
-    :type reference: str
-    :param hypophysis: The hypophysis sentence.
-    :type reference: str
+    :type reference: basestring
+    :param hypothesis: The hypothesis sentence.
+    :type hypothesis: basestring
+    :param ignore_case: Whether case-sensitive or not.
+    :type ignore_case: bool
     :param delimiter: Delimiter of input sentences.
     :type delimiter: char
-    :param filter_none: Whether to remove None value when splitting sentence.
-    :type filter_none: bool
-    :return: WER
+    :return: Word error rate.
     :rtype: float
     """
+    if ignore_case == True:
+        reference = reference.lower()
+        hypothesis = hypothesis.lower()
 
-    if len(reference.strip(delimiter)) == 0:
+    ref_words = filter(None, reference.split(delimiter))
+    hyp_words = filter(None, hypothesis.split(delimiter))
+
+    if len(ref_words) == 0:
         raise ValueError("Reference's word number should be greater than 0.")
-
-    if filter_none == True:
-        ref_words = filter(None, reference.strip(delimiter).split(delimiter))
-        hyp_words = filter(None, hypophysis.strip(delimiter).split(delimiter))
-    else:
-        ref_words = reference.strip(delimiter).split(delimiter)
-        hyp_words = reference.strip(delimiter).split(delimiter)
 
     edit_distance = levenshtein_distance(ref_words, hyp_words)
     wer = float(edit_distance) / len(ref_words)
     return wer
 
 
-def cer(reference, hypophysis, squeeze=True, ignore_case=False, strip_char=''):
+def cer(reference, hypothesis, ignore_case=False):
     """
-    Calculate charactor error rate (CER). CER will compare reference text and
-    hypophysis text in char-level. CER is defined as:
+    Calculate charactor error rate (CER). CER compares reference text and
+    hypothesis text in char-level. CER is defined as:
 
     .. math::
         CER = (Sc + Dc + Ic) / Nc
@@ -97,41 +99,35 @@ def cer(reference, hypophysis, squeeze=True, ignore_case=False, strip_char=''):
 
     .. code-block:: text
 
-        Sc is the number of character substituted,
-        Dc is the number of deleted,
-        Ic is the number of inserted
+        Sc is the number of characters substituted,
+        Dc is the number of characters deleted,
+        Ic is the number of characters inserted
         Nc is the number of characters in the reference
 
     We can use levenshtein distance to calculate CER. Chinese input should be 
-    encoded to unicode.
+    encoded to unicode. Please draw an attention that the leading and tailing 
+    white space characters will be truncated and multiple consecutive white 
+    space characters in a sentence will be replaced by one white space character.
 
     :param reference: The reference sentence.
-    :type reference: str
-    :param hypophysis: The hypophysis sentence.
-    :type reference: str
-    :param squeeze: If set true, consecutive space character 
-                    will be squeezed to one
-    :type squeeze: bool
+    :type reference: basestring
+    :param hypothesis: The hypothesis sentence.
+    :type hypothesis: basestring
     :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
-    :param strip_char: If not set to '', strip_char in beginning and ending of
-                       sentence will be truncated.
-    :type strip_char: char
-    :return: CER
+    :return: Character error rate.
     :rtype: float
     """
     if ignore_case == True:
         reference = reference.lower()
-        hypophysis = hypophysis.lower()
-    if strip_char != '':
-        reference = reference.strip(strip_char)
-        hypophysis = hypophysis.strip(strip_char)
-    if squeeze == True:
-        reference = ' '.join(filter(None, reference.split(' ')))
-        hypophysis = ' '.join(filter(None, hypophysis.split(' ')))
+        hypothesis = hypothesis.lower()
+
+    reference = ' '.join(filter(None, reference.split(' ')))
+    hypothesis = ' '.join(filter(None, hypothesis.split(' ')))
 
     if len(reference) == 0:
         raise ValueError("Length of reference should be greater than 0.")
-    edit_distance = levenshtein_distance(reference, hypophysis)
+
+    edit_distance = levenshtein_distance(reference, hypothesis)
     cer = float(edit_distance) / len(reference)
     return cer

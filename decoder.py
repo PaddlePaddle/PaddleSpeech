@@ -199,7 +199,7 @@ def ctc_beam_search_decoder_nproc(probs_split,
     '''
     Beam search decoder using multiple processes.
 
-    :param probs_seq: 3-D list with length num_time_steps, each element
+    :param probs_seq: 3-D list with length batch_size, each element
                       is a 2-D list of  probabilities can be used by
                       ctc_beam_search_decoder.
 

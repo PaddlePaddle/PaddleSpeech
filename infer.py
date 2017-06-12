@@ -189,7 +189,7 @@ def infer():
             wer_counter += 1
             print("cur wer = %f , average wer = %f" %
                   (wer_cur, wer_sum / wer_counter))
-    # beam search in multiple processes
+    # beam search using multiple processes
     elif args.decode_method == "beam_search_nproc":
         ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
         beam_search_nproc_results = ctc_beam_search_decoder_nproc(

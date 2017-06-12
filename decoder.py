@@ -2,11 +2,12 @@
     CTC-like decoder utilitis.
 """
 
+import os
 from itertools import groupby
 import numpy as np
 import copy
 import kenlm
-import os
+import multiprocessing
 
 
 def ctc_best_path_decode(probs_seq, vocabulary):
@@ -187,3 +188,54 @@ def ctc_beam_search_decoder(probs_seq,
     ## output top beam_size decoding results
     beam_result = sorted(beam_result, key=lambda asd: asd[0], reverse=True)
     return beam_result
+
+
+def ctc_beam_search_decoder_nproc(probs_split,
+                                  beam_size,
+                                  vocabulary,
+                                  ext_scoring_func=None,
+                                  blank_id=0,
+                                  num_processes=None):
+    '''
+    Beam search decoder using multiple processes.
+
+    :param probs_seq: 3-D list with length num_time_steps, each element
+                      is a 2-D list of  probabilities can be used by
+                      ctc_beam_search_decoder.
+
+    :type probs_seq: 3-D list
+    :param beam_size: Width for beam search.
+    :type beam_size: int
+    :param vocabulary: Vocabulary list.
+    :type vocabulary: list
+    :param ext_scoring_func: External defined scoring function for
+                            partially decoded sentence, e.g. word count
+                            and language model.
+    :type external_scoring_function: function
+    :param blank_id: id of blank, default 0.
+    :type blank_id: int
+    :param num_processes: Number of processes, default None, equal to the
+                 number of CPUs.
+    :type num_processes: int
+    :return: Decoding log probability and result string.
+    :rtype: list
+
+    '''
+
+    if num_processes is None:
+        num_processes = multiprocessing.cpu_count()
+    if not num_processes > 0:
+        raise ValueError("Number of processes must be positive!")
+
+    pool = multiprocessing.Pool(processes=num_processes)
+    results = []
+    for i, probs_list in enumerate(probs_split):
+        args = (probs_list, beam_size, vocabulary, ext_scoring_func, blank_id)
+        results.append(pool.apply_async(ctc_beam_search_decoder, args))
+
+    pool.close()
+    pool.join()
+    beam_search_results = []
+    for result in results:
+        beam_search_results.append(result.get())
+    return beam_search_results

@@ -143,12 +143,12 @@ def train():
     train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest_path,
         batch_size=args.batch_size,
-        sortagrad=True,
-        shuffle=True)
+        sortagrad=True if args.init_model_path is None else False,
+        batch_shuffle=True)
     test_batch_reader = test_generator.batch_reader_creator(
         manifest_path=args.dev_manifest_path,
         batch_size=args.batch_size,
-        shuffle=False)
+        batch_shuffle=False)
     feeding = train_generator.data_name_feeding()
 
     # create event handler

@@ -198,8 +198,7 @@ def infer():
             vocabulary=vocab_list,
             beam_size=args.beam_size,
             ext_scoring_func=ext_scorer,
-            blank_id=len(vocab_list),
-            num_processes=1)
+            blank_id=len(vocab_list))
         for i, beam_search_result in enumerate(beam_search_nproc_results):
             target_transcription = ''.join(
                 [vocab_list[index] for index in infer_data[i][1]])

@@ -73,7 +73,7 @@ class Scorer(object):
         return len(words)
 
     # execute evaluation
-    def evaluate(self, sentence):
+    def __call__(self, sentence):
         lm = self.language_model_score(sentence)
         word_cnt = self.word_count(sentence)
         score = np.power(lm, self._alpha) \
@@ -84,8 +84,9 @@ class Scorer(object):
 def ctc_beam_search_decoder(probs_seq,
                             beam_size,
                             vocabulary,
+                            blank_id=0,
                             ext_scoring_func=None,
-                            blank_id=0):
+                            nproc=False):
     '''
     Beam search decoder for CTC-trained network, using beam search with width
     beam_size to find many paths to one label, return  beam_size labels in
@@ -107,6 +108,8 @@ def ctc_beam_search_decoder(probs_seq,
     :type external_scoring_function: function
     :param blank_id: id of blank, default 0.
     :type blank_id: int
+    :param nproc: Whether the decoder used in multiprocesses.
+    :type nproc: bool
     :return: Decoding log probability and result string.
     :rtype: list
 
@@ -121,6 +124,12 @@ def ctc_beam_search_decoder(probs_seq,
     probs_dim = len(probs_seq[0])
     if not blank_id < probs_dim:
         raise ValueError("blank_id shouldn't be greater than probs dimension")
+
+    # If the decoder called in the multiprocesses, then use the global scorer
+    # instantiated in ctc_beam_search_decoder_nproc().
+    if nproc is True:
+        global ext_nproc_scorer
+        ext_scoring_func = ext_nproc_scorer
 
     ## initialize
     # the set containing selected prefixes
@@ -193,8 +202,8 @@ def ctc_beam_search_decoder(probs_seq,
 def ctc_beam_search_decoder_nproc(probs_split,
                                   beam_size,
                                   vocabulary,
-                                  ext_scoring_func=None,
                                   blank_id=0,
+                                  ext_scoring_func=None,
                                   num_processes=None):
     '''
     Beam search decoder using multiple processes.
@@ -202,7 +211,6 @@ def ctc_beam_search_decoder_nproc(probs_split,
     :param probs_seq: 3-D list with length batch_size, each element
                       is a 2-D list of  probabilities can be used by
                       ctc_beam_search_decoder.
-
     :type probs_seq: 3-D list
     :param beam_size: Width for beam search.
     :type beam_size: int
@@ -227,10 +235,15 @@ def ctc_beam_search_decoder_nproc(probs_split,
     if not num_processes > 0:
         raise ValueError("Number of processes must be positive!")
 
+    # use global variable to pass the externnal scorer to beam search decoder
+    global ext_nproc_scorer
+    ext_nproc_scorer = ext_scoring_func
+    nproc = True
+
     pool = multiprocessing.Pool(processes=num_processes)
     results = []
     for i, probs_list in enumerate(probs_split):
-        args = (probs_list, beam_size, vocabulary, ext_scoring_func, blank_id)
+        args = (probs_list, beam_size, vocabulary, blank_id, None, nproc)
         results.append(pool.apply_async(ctc_beam_search_decoder, args))
 
     pool.close()

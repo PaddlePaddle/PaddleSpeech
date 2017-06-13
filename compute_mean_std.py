@@ -1,3 +1,4 @@
+"""Compute mean and std for feature normalizer, and save to file."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -17,7 +18,7 @@ parser.add_argument(
     "(default: %(default)s)")
 parser.add_argument(
     "--num_samples",
-    default=500,
+    default=2000,
     type=int,
     help="Number of samples for computing mean and stddev. "
     "(default: %(default)s)")

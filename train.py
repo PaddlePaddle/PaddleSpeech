@@ -1,7 +1,4 @@
-"""
-   Trainer for a simplifed version of Baidu DeepSpeech2 model.
-"""
-
+"""Trainer for DeepSpeech2 model."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -164,7 +161,7 @@ def train():
                 print("\nPass: %d, Batch: %d, TrainCost: %f" %
                       (event.pass_id, event.batch_id, cost_sum / cost_counter))
                 cost_sum, cost_counter = 0.0, 0
-                with gzip.open("params.tar.gz", 'w') as f:
+                with gzip.open("params_tmp.tar.gz", 'w') as f:
                     parameters.to_tar(f)
             else:
                 sys.stdout.write('.')

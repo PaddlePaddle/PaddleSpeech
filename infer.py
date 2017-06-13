@@ -1,7 +1,4 @@
-"""
-   Inference for a simplifed version of Baidu DeepSpeech2 model.
-"""
-
+"""Inferer for DeepSpeech2 model."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

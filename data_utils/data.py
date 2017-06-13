@@ -1,8 +1,6 @@
+"""Contains data generator for orgnaizing various audio data preprocessing
+pipeline and offering data reader interface of PaddlePaddle requirements.
 """
-    Providing basic audio data preprocessing pipeline, and offering
-    both instance-level and batch-level data reader interfaces.
-"""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,42 +11,41 @@ import paddle.v2 as paddle
 from data_utils import utils
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
-from data_utils.audio import SpeechSegment
+from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
 
 
 class DataGenerator(object):
     """
     DataGenerator provides basic audio data preprocessing pipeline, and offers
-    both instance-level and batch-level data reader interfaces.
-    Normalized FFT are used as audio features here.
+    data reader interfaces of PaddlePaddle requirements.
 
-    :param vocab_filepath: Vocabulary file path for indexing tokenized
-                           transcriptions.
+    :param vocab_filepath: Vocabulary filepath for indexing tokenized
+                           transcripts.
     :type vocab_filepath: basestring
-    :param normalizer_manifest_path: Manifest filepath for collecting feature
-                                     normalization statistics, e.g. mean, std.
-    :type normalizer_manifest_path: basestring
-    :param normalizer_num_samples: Number of instances sampled for collecting
-                                   feature normalization statistics.
-                                   Default is 100.
-    :type normalizer_num_samples: int
-    :param max_duration: Audio clips with duration (in seconds) greater than
-                         this will be discarded. Default is 20.0.
+    :param mean_std_filepath: File containing the pre-computed mean and stddev.
+    :type mean_std_filepath: None|basestring
+    :param augmentation_config: Augmentation configuration in json string.
+                                Details see AugmentationPipeline.__doc__.
+    :type augmentation_config: str
+    :param max_duration: Audio with duration (in seconds) greater than
+                         this will be discarded.
     :type max_duration: float
-    :param min_duration: Audio clips with duration (in seconds) smaller than
-                         this will be discarded. Default is 0.0.
+    :param min_duration: Audio with duration (in seconds) smaller than
+                         this will be discarded.
     :type min_duration: float
     :param stride_ms: Striding size (in milliseconds) for generating frames.
-                      Default is 10.0. 
     :type stride_ms: float
-    :param window_ms: Window size (in milliseconds) for frames. Default is 20.0.
+    :param window_ms: Window size (in milliseconds) for generating frames.
     :type window_ms: float
-    :param max_frequency: Maximun frequency for FFT features. FFT features of
-                          frequency larger than this will be discarded.
-                          If set None, all features will be kept.
-                          Default is None.
-    :type max_frequency: float
+    :param max_freq: Used when specgram_type is 'linear', only FFT bins
+                     corresponding to frequencies between [0, max_freq] are
+                     returned.
+    :types max_freq: None|float
+    :param specgram_type: Specgram feature type. Options: 'linear'.
+    :type specgram_type: str
+    :param random_seed: Random seed.
+    :type random_seed: int
     """
 
     def __init__(self,
@@ -60,6 +57,7 @@ class DataGenerator(object):
                  stride_ms=10.0,
                  window_ms=20.0,
                  max_freq=None,
+                 specgram_type='linear',
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration
@@ -68,46 +66,49 @@ class DataGenerator(object):
             augmentation_config=augmentation_config, random_seed=random_seed)
         self._speech_featurizer = SpeechFeaturizer(
             vocab_filepath=vocab_filepath,
+            specgram_type=specgram_type,
             stride_ms=stride_ms,
             window_ms=window_ms,
-            max_freq=max_freq,
-            random_seed=random_seed)
+            max_freq=max_freq)
         self._rng = random.Random(random_seed)
         self._epoch = 0
 
     def batch_reader_creator(self,
                              manifest_path,
                              batch_size,
+                             min_batch_size=1,
                              padding_to=-1,
                              flatten=False,
                              sortagrad=False,
                              batch_shuffle=False):
         """
-        Batch data reader creator for audio data. Creat a callable function to
-        produce batches of data.
+        Batch data reader creator for audio data. Return a callable generator
+        function to produce batches of data.
         
-        Audio features will be padded with zeros to make each instance in the
-        batch to share the same audio feature shape.
+        Audio features within one batch will be padded with zeros to have the
+        same shape, or a user-defined shape.
 
-        :param manifest_path: Filepath of manifest for audio clip files.
+        :param manifest_path: Filepath of manifest for audio files.
         :type manifest_path: basestring
-        :param batch_size: Instance number in a batch.
+        :param batch_size: Number of instances in a batch.
         :type batch_size: int
-        :param padding_to:  If set -1, the maximun column numbers in the batch
-                            will be used as the target size for padding.
-                            Otherwise, `padding_to` will be the target size.
-                            Default is -1.
+        :param min_batch_size: Any batch with batch size smaller than this will
+                               be discarded. (To be deprecated in the future.)
+        :type min_batch_size: int
+        :param padding_to:  If set -1, the maximun shape in the batch
+                            will be used as the target shape for padding.
+                            Otherwise, `padding_to` will be the target shape.
         :type padding_to: int
-        :param flatten: If set True, audio data will be flatten to be a 1-dim
-                        ndarray. Otherwise, 2-dim ndarray. Default is False.
+        :param flatten: If set True, audio features will be flatten to 1darray.
         :type flatten: bool
-        :param sortagrad: Sort the audio clips by duration in the first epoc
-                          if set True.
+        :param sortagrad: If set True, sort the instances by audio duration
+                          in the first epoch for speed up training.
         :type sortagrad: bool
-        :param batch_shuffle: Shuffle the audio clips if set True. It is
-                              not a thorough instance-wise shuffle, but a
-                              specific batch-wise shuffle. For more details,
-                              please see `_batch_shuffle` function.
+        :param batch_shuffle: If set True, instances are batch-wise shuffled.
+                              For more details, please see 
+                              ``_batch_shuffle.__doc__``.
+                              If sortagrad is True, batch_shuffle is disabled
+                              for the first epoch.
         :type batch_shuffle: bool
         :return: Batch reader function, producing batches of data when called.
         :rtype: callable
@@ -132,7 +133,7 @@ class DataGenerator(object):
                 if len(batch) == batch_size:
                     yield self._padding_batch(batch, padding_to, flatten)
                     batch = []
-            if len(batch) > 0:
+            if len(batch) >= min_batch_size:
                 yield self._padding_batch(batch, padding_to, flatten)
             self._epoch += 1
 
@@ -140,20 +141,33 @@ class DataGenerator(object):
 
     @property
     def feeding(self):
-        """Returns data_reader's feeding dict."""
+        """Returns data reader's feeding dict.
+        
+        :return: Data feeding dict.
+        :rtype: dict 
+        """
         return {"audio_spectrogram": 0, "transcript_text": 1}
 
     @property
     def vocab_size(self):
-        """Returns vocabulary size."""
+        """Return the vocabulary size.
+
+        :return: Vocabulary size.
+        :rtype: int
+        """
         return self._speech_featurizer.vocab_size
 
     @property
     def vocab_list(self):
-        """Returns vocabulary list."""
+        """Return the vocabulary in list.
+
+        :return: Vocabulary in list.
+        :rtype: list
+        """
         return self._speech_featurizer.vocab_list
 
     def _process_utterance(self, filename, transcript):
+        """Load, augment, featurize and normalize for speech data."""
         speech_segment = SpeechSegment.from_file(filename, transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
@@ -162,16 +176,11 @@ class DataGenerator(object):
 
     def _instance_reader_creator(self, manifest):
         """
-        Instance reader creator for audio data. Creat a callable function to
-        produce instances of data.
+        Instance reader creator. Create a callable function to produce
+        instances of data.
 
-        Instance: a tuple of a numpy ndarray of audio spectrogram and a list of
-        tokenized and indexed transcription text.
-
-        :param manifest: Filepath of manifest for audio clip files.
-        :type manifest: basestring
-        :return: Data reader function.
-        :rtype: callable
+        Instance: a tuple of ndarray of audio spectrogram and a list of
+        token indices for transcript.
         """
 
         def reader():
@@ -183,24 +192,22 @@ class DataGenerator(object):
 
     def _padding_batch(self, batch, padding_to=-1, flatten=False):
         """
-        Padding audio part of features (only in the time axis -- column axis)
-        with zeros, to make each instance in the batch share the same
-        audio feature shape.
+        Padding audio features with zeros to make them have the same shape (or
+        a user-defined shape) within one bach.
 
-        If `padding_to` is set -1, the maximun column numbers in the batch will
-        be used as the target size. Otherwise, `padding_to` will be the target
-        size. Default is -1.
+        If ``padding_to`` is -1, the maximun shape in the batch will be used
+        as the target shape for padding. Otherwise, `padding_to` will be the
+        target shape (only refers to the second axis).
 
-        If `flatten` is set True, audio data will be flatten to be a 1-dim
-        ndarray. Default is False.
+        If `flatten` is True, features will be flatten to 1darray.
         """
         new_batch = []
         # get target shape
         max_length = max([audio.shape[1] for audio, text in batch])
         if padding_to != -1:
             if padding_to < max_length:
-                raise ValueError("If padding_to is not -1, it should be greater"
-                                 " or equal to the original instance length.")
+                raise ValueError("If padding_to is not -1, it should be larger "
+                                 "than any instance's shape in the batch")
             max_length = padding_to
         # padding
         for audio, text in batch:
@@ -212,28 +219,21 @@ class DataGenerator(object):
         return new_batch
 
     def _batch_shuffle(self, manifest, batch_size):
-        """
-        The instances have different lengths and they cannot be
-        combined into a single matrix multiplication. It usually
-        sorts the training examples by length and combines only
-        similarly-sized instances into minibatches, pads with
-        silence when necessary so that all instances in a batch
-        have the same length. This batch shuffle fuction is used
-        to make similarly-sized instances into minibatches and
-        make a batch-wise shuffle.
+        """Put similarly-sized instances into minibatches for better efficiency
+        and make a batch-wise shuffle.
 
         1. Sort the audio clips by duration.
         2. Generate a random number `k`, k in [0, batch_size).
-        3. Randomly remove `k` instances in order to make different mini-batches,
-           then make minibatches and each minibatch size is batch_size.
+        3. Randomly shift `k` instances in order to create different batches
+           for different epochs. Create minibatches.
         4. Shuffle the minibatches.
 
-        :param manifest: manifest file.
+        :param manifest: Manifest contents. List of dict.
         :type manifest: list
         :param batch_size: Batch size. This size is also used for generate
                            a random number for batch shuffle.
         :type batch_size: int
-        :return: batch shuffled mainifest.
+        :return: Batch shuffled mainifest.
         :rtype: list
         """
         manifest.sort(key=lambda x: x["duration"])

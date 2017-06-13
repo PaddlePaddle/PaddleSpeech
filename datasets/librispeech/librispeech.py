@@ -1,13 +1,14 @@
-"""
-    Download, unpack and create manifest json files for the Librespeech dataset.
+"""Prepare Librispeech ASR datasets.
 
-    A manifest is a json file summarizing filelist in a data set, with each line
-    containing the meta data (i.e. audio filepath, transcription text, audio
-    duration) of each audio file in the data set.
+Download, unpack and create manifest files.
+Manifest file is a json-format file with each line containing the
+meta data (i.e. audio filepath, transcript and audio duration)
+of each audio file in the data set.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-import paddle.v2 as paddle
-from paddle.v2.dataset.common import md5file
 import distutils.util
 import os
 import wget
@@ -15,6 +16,7 @@ import tarfile
 import argparse
 import soundfile
 import json
+from paddle.v2.dataset.common import md5file
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 

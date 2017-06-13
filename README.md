@@ -16,34 +16,48 @@ For some machines, we also need to install libsndfile1. Details to be added.
 ### Preparing Data
 
 ```
-cd data
-python librispeech.py
-cat manifest.libri.train-* > manifest.libri.train-all
+cd datasets
+sh run_all.sh
 cd ..
 ```
 
-After running librispeech.py, we have several "manifest" json files named with a prefix `manifest.libri.`. A manifest file summarizes a speech data set, with each line containing the meta data (i.e. audio filepath, transcription text, audio duration) of each audio file within the data set, in json format.
+`sh run_all.sh` prepares all ASR datasets (currently, only LibriSpeech available). After running, we have several summarization manifest files in json-format.
 
-By `cat manifest.libri.train-* > manifest.libri.train-all`, we simply merge the three seperate sample sets of LibriSpeech (train-clean-100, train-clean-360, train-other-500) into one training set. This is a simple way for merging different data sets.
+A manifest file summarizes a speech data set, with each line containing the meta data (i.e. audio filepath, transcript text, audio duration) of each audio file within the data set, in json format. Manifest file serves as an interface informing our system of  where and what to read the speech samples.
+
 
 More help for arguments:
 
 ```
-python librispeech.py --help
+python datasets/librispeech/librispeech.py --help
 ```
 
-### Traininig
+### Preparing for Training
+
+```
+python compute_mean_std.py
+```
+
+`python compute_mean_std.py` computes mean and stdandard deviation for audio features, and save them to a file with a default name `./mean_std.npz`. This file will be used in both training and inferencing.
+
+More help for arguments:
+
+```
+python compute_mean_std.py --help
+```
+
+### Training
 
 For GPU Training:
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4 --train_manifest_path ./data/manifest.libri.train-all
+CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4
 ```
 
 For CPU Training:
 
 ```
-python train.py --trainer_count 8 --use_gpu False -- train_manifest_path ./data/manifest.libri.train-all
+python train.py --trainer_count 8 --use_gpu False
 ```
 
 More help for arguments:
@@ -55,7 +69,7 @@ python train.py --help
 ### Inferencing
 
 ```
-python infer.py
+CUDA_VISIBLE_DEVICES=0 python infer.py
 ```
 
 More help for arguments:

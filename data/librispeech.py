@@ -1,13 +1,14 @@
 """
-   Download, unpack and create manifest for Librespeech dataset.
+    Download, unpack and create manifest json files for the Librespeech dataset.
 
-   Manifest is a json file with each line containing one audio clip filepath,
-   its transcription text string, and its duration. It servers as a unified
-   interfance to organize different data sets.
+    A manifest is a json file summarizing filelist in a data set, with each line
+    containing the meta data (i.e. audio filepath, transcription text, audio
+    duration) of each audio file in the data set.
 """
 
 import paddle.v2 as paddle
 from paddle.v2.dataset.common import md5file
+import distutils.util
 import os
 import wget
 import tarfile
@@ -27,7 +28,9 @@ URL_TRAIN_CLEAN_360 = URL_ROOT + "/train-clean-360.tar.gz"
 URL_TRAIN_OTHER_500 = URL_ROOT + "/train-other-500.tar.gz"
 
 MD5_TEST_CLEAN = "32fa31d27d2e1cad72775fee3f4849a9"
+MD5_TEST_OTHER = "fb5a50374b501bb3bac4815ee91d3135"
 MD5_DEV_CLEAN = "42e2234ba48799c1f50f24a7926300a1"
+MD5_DEV_OTHER = "c8d0bcc9cca99d4f8b62fcc847357931"
 MD5_TRAIN_CLEAN_100 = "2a93770f6d5c6c964bc36631d331a522"
 MD5_TRAIN_CLEAN_360 = "c0e676e450a7ff2f54aeade5171606fa"
 MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
@@ -44,6 +47,13 @@ parser.add_argument(
     default="manifest.libri",
     type=str,
     help="Filepath prefix for output manifests. (default: %(default)s)")
+parser.add_argument(
+    "--full_download",
+    default="True",
+    type=distutils.util.strtobool,
+    help="Download all datasets for Librispeech."
+    " If False, only download a minimal requirement (test-clean, dev-clean"
+    " train-clean-100). (default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -57,7 +67,10 @@ def download(url, md5sum, target_dir):
         print("Downloading %s ..." % url)
         wget.download(url, target_dir)
         print("\nMD5 Chesksum %s ..." % filepath)
-        assert md5file(filepath) == md5sum, "MD5 checksum failed."
+        if not md5file(filepath) == md5sum:
+            raise RuntimeError("MD5 checksum failed.")
+    else:
+        print("File exists, skip downloading. (%s)" % filepath)
     return filepath
 
 
@@ -69,21 +82,17 @@ def unpack(filepath, target_dir):
     tar = tarfile.open(filepath)
     tar.extractall(target_dir)
     tar.close()
-    return target_dir
 
 
 def create_manifest(data_dir, manifest_path):
     """
-    Create a manifest file summarizing the dataset (list of filepath and meta
-    data).
-
-    Each line of the manifest contains one audio clip filepath, its
-    transcription text string, and its duration. Manifest file servers as a
-    unified interfance to organize data sets.
+    Create a manifest json file summarizing the data set, with each line
+    containing the meta data (i.e. audio filepath, transcription text, audio
+    duration) of each audio file within the data set.
     """
     print("Creating manifest %s ..." % manifest_path)
     json_lines = []
-    for subfolder, _, filelist in os.walk(data_dir):
+    for subfolder, _, filelist in sorted(os.walk(data_dir)):
         text_filelist = [
             filename for filename in filelist if filename.endswith('trans.txt')
         ]
@@ -111,9 +120,16 @@ def prepare_dataset(url, md5sum, target_dir, manifest_path):
     """
     Download, unpack and create summmary manifest file.
     """
-    filepath = download(url, md5sum, target_dir)
-    unpacked_dir = unpack(filepath, target_dir)
-    create_manifest(unpacked_dir, manifest_path)
+    if not os.path.exists(os.path.join(target_dir, "LibriSpeech")):
+        # download
+        filepath = download(url, md5sum, target_dir)
+        # unpack
+        unpack(filepath, target_dir)
+    else:
+        print("Skip downloading and unpacking. Data already exists in %s." %
+              target_dir)
+    # create manifest json file
+    create_manifest(target_dir, manifest_path)
 
 
 def main():
@@ -132,6 +148,27 @@ def main():
         md5sum=MD5_TRAIN_CLEAN_100,
         target_dir=os.path.join(args.target_dir, "train-clean-100"),
         manifest_path=args.manifest_prefix + ".train-clean-100")
+    if args.full_download:
+        prepare_dataset(
+            url=URL_TEST_OTHER,
+            md5sum=MD5_TEST_OTHER,
+            target_dir=os.path.join(args.target_dir, "test-other"),
+            manifest_path=args.manifest_prefix + ".test-other")
+        prepare_dataset(
+            url=URL_DEV_OTHER,
+            md5sum=MD5_DEV_OTHER,
+            target_dir=os.path.join(args.target_dir, "dev-other"),
+            manifest_path=args.manifest_prefix + ".dev-other")
+        prepare_dataset(
+            url=URL_TRAIN_CLEAN_360,
+            md5sum=MD5_TRAIN_CLEAN_360,
+            target_dir=os.path.join(args.target_dir, "train-clean-360"),
+            manifest_path=args.manifest_prefix + ".train-clean-360")
+        prepare_dataset(
+            url=URL_TRAIN_OTHER_500,
+            md5sum=MD5_TRAIN_OTHER_500,
+            target_dir=os.path.join(args.target_dir, "train-other-500"),
+            manifest_path=args.manifest_prefix + ".train-other-500")
 
 
 if __name__ == '__main__':

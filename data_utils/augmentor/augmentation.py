@@ -6,6 +6,11 @@ from __future__ import print_function
 import json
 import random
 from data_utils.augmentor.volume_perturb import VolumePerturbAugmentor
+from data_utils.augmentor.resamler import ResamplerAugmentor
+from data_utils.augmentor.speed_perturb import SpeedPerturbatioAugmentor
+from data_utils.augmentor.online_bayesian_normalization import OnlineBayesianNormalizationAugmentor
+from data_utils.augmentor.Impulse_response import ImpulseResponseAugmentor
+from data_utils.augmentor.noise_speech import NoiseSpeechAugmentor
 
 
 class AugmentationPipeline(object):
@@ -76,5 +81,15 @@ class AugmentationPipeline(object):
         """Return an augmentation model by the type name, and pass in params."""
         if augmentor_type == "volume":
             return VolumePerturbAugmentor(self._rng, **params)
+        if augmentor_type == "resamle":
+            return ResamplerAugmentor(self._rng, **params)
+        if augmentor_type == "speed":
+            return SpeedPerturbatioAugmentor(self._rng, **params)
+        if augmentor_type == "online_bayesian_normalization":
+            return OnlineBayesianNormalizationAugmentor(self._rng, **params)
+        if augmentor_type == "Impulse_response":
+            return ImpulseResponseAugmentor(self._rng, **params)
+        if augmentor_type == "noise_speech":
+            return NoiseSpeechAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

@@ -10,9 +10,9 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
 from decoder import ctc_decode
+import utils
 
-parser = argparse.ArgumentParser(
-    description='Simplified version of DeepSpeech2 inference.')
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
     default=10,
@@ -62,9 +62,7 @@ args = parser.parse_args()
 
 
 def infer():
-    """
-    Max-ctc-decoding for DeepSpeech2.
-    """
+    """Max-ctc-decoding for DeepSpeech2."""
     # initialize data generator
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
@@ -98,7 +96,7 @@ def infer():
         manifest_path=args.decode_manifest_path,
         batch_size=args.num_samples,
         sortagrad=False,
-        batch_shuffle=False)
+        shuffle_method=None)
     infer_data = batch_reader().next()
 
     # run inference
@@ -123,6 +121,7 @@ def infer():
 
 
 def main():
+    utils.print_arguments(args)
     paddle.init(use_gpu=args.use_gpu, trainer_count=1)
     infer()
 

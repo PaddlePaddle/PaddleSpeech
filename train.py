@@ -12,6 +12,7 @@ import distutils.util
 import paddle.v2 as paddle
 from model import deep_speech2
 from data_utils.data import DataGenerator
+import utils
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -51,6 +52,12 @@ parser.add_argument(
     default=True,
     type=distutils.util.strtobool,
     help="Use sortagrad or not. (default: %(default)s)")
+parser.add_argument(
+    "--shuffle_method",
+    default='instance_shuffle',
+    type=str,
+    help="Shuffle method: 'instance_shuffle', 'batch_shuffle', "
+    "'batch_shuffle_batch'. (default: %(default)s)")
 parser.add_argument(
     "--trainer_count",
     default=4,
@@ -93,9 +100,7 @@ args = parser.parse_args()
 
 
 def train():
-    """
-    DeepSpeech2 training.
-    """
+    """DeepSpeech2 training."""
 
     # initialize data generator
     def data_generator():
@@ -145,13 +150,13 @@ def train():
         batch_size=args.batch_size,
         min_batch_size=args.trainer_count,
         sortagrad=args.use_sortagrad if args.init_model_path is None else False,
-        batch_shuffle=True)
+        shuffle_method=args.shuffle_method)
     test_batch_reader = test_generator.batch_reader_creator(
         manifest_path=args.dev_manifest_path,
         batch_size=args.batch_size,
         min_batch_size=1,  # must be 1, but will have errors.
         sortagrad=False,
-        batch_shuffle=False)
+        shuffle_method=None)
 
     # create event handler
     def event_handler(event):
@@ -186,6 +191,7 @@ def train():
 
 
 def main():
+    utils.print_arguments(args)
     paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     train()
 

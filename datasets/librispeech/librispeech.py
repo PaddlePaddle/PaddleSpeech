@@ -37,8 +37,7 @@ MD5_TRAIN_CLEAN_100 = "2a93770f6d5c6c964bc36631d331a522"
 MD5_TRAIN_CLEAN_360 = "c0e676e450a7ff2f54aeade5171606fa"
 MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
 
-parser = argparse.ArgumentParser(
-    description='Downloads and prepare LibriSpeech dataset.')
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--target_dir",
     default=DATA_HOME + "/Libri",

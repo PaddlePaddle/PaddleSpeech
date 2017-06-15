@@ -8,8 +8,7 @@ from itertools import groupby
 
 
 def ctc_best_path_decode(probs_seq, vocabulary):
-    """
-    Best path decoding, also called argmax decoding or greedy decoding.
+    """Best path decoding, also called argmax decoding or greedy decoding.
     Path consisting of the most probable tokens are further post-processed to
     remove consecutive repetitions and all blanks.
 
@@ -38,8 +37,7 @@ def ctc_best_path_decode(probs_seq, vocabulary):
 
 
 def ctc_decode(probs_seq, vocabulary, method):
-    """
-    CTC-like sequence decoding from a sequence of likelihood probablilites. 
+    """CTC-like sequence decoding from a sequence of likelihood probablilites.
 
     :param probs_seq: 2-D list of probabilities over the vocabulary for each
                       character. Each element is a list of float probabilities

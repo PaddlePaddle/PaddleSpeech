@@ -104,7 +104,8 @@ class AudioSegment(object):
             io.BytesIO(bytes), dtype='float32')
         return cls(samples, sample_rate)
 
-    def concatenate(self, *segments):
+    @classmethod
+    def concatenate(cls, *segments):
         """Concatenate an arbitrary number of audio segments together.
 
         :param *segments: Input audio segments
@@ -123,11 +124,11 @@ class AudioSegment(object):
             if sample_rate != seg._sample_rate:
                 raise ValueError("Can't concatenate segments with "
                                  "different sample rates")
-            if type(seg) is not type(self):
+            if type(seg) is not cls:
                 raise TypeError("Only audio segments of the same type "
                                 "instance can be concatenated.")
         samples = np.concatenate([seg.samples for seg in segments])
-        return type(self)(samples, sample_rate)
+        return cls(samples, sample_rate)
 
     def to_wav_file(self, filepath, dtype='float32'):
         """Save audio segment to disk as wav file.
@@ -355,13 +356,14 @@ class AudioSegment(object):
         """
         if duration == 0.0:
             return self
+        cls = type(self)
         silence = self.make_silence(duration, self._sample_rate)
         if sides == "beginning":
-            padded = self.concatenate(silence, self)
+            padded = cls.concatenate(silence, self)
         elif sides == "end":
-            padded = self.concatenate(self, silence)
+            padded = cls.concatenate(self, silence)
         elif sides == "both":
-            padded = self.concatenate(silence, self, silence)
+            padded = cls.concatenate(silence, self, silence)
         else:
             raise ValueError("Unknown value for the kwarg %s" % sides)
         self._samples = padded._samples

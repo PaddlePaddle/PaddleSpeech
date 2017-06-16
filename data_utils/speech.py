@@ -65,6 +65,32 @@ class SpeechSegment(AudioSegment):
         audio = AudioSegment.from_bytes(bytes)
         return cls(audio.samples, audio.sample_rate, transcript)
 
+    @classmethod
+    def concatenate(cls, *segments):
+        """Concatenate an arbitrary number of audio segments together.
+
+        :param *segments: Input speech segments
+        :type *segments: SpeechSegment
+        :return: Speech segment instance.
+        :rtype: SpeechSegment
+        :raises ValueError: If number of segments is zero, or if sample_rate
+                            not match between two audio segments
+        :raises TypeError: If item of segments is not Audiosegment instance
+        """
+        # Perform basic sanity-checks.
+        if len(segments) == 0:
+            raise ValueError("No audio segments are given to concatenate.")
+        sample_rate = segments[0]._sample_rate
+        for seg in segments:
+            if sample_rate != seg._sample_rate:
+                raise ValueError("Can't concatenate segments with "
+                                 "different sample rates")
+            if type(seg) is not cls:
+                raise TypeError("Only speech segments of the same type "
+                                "instance can be concatenated.")
+        samples = np.concatenate([seg.samples for seg in segments])
+        return cls(samples, sample_rate, seg._transcript)
+
     @property
     def transcript(self):
         """Return the transcript text.

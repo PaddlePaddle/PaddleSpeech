@@ -3,10 +3,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from . import base
+from data_utils.augmentor.base import AugmentorBase
 
 
-class VolumePerturbAugmentor(base.AugmentorBase):
+class VolumePerturbAugmentor(AugmentorBase):
     """Augmentation model for adding random volume perturbation.
     
     This is used for multi-loudness training of PCEN. See

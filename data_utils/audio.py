@@ -8,6 +8,7 @@ import io
 import soundfile
 import scikits.samplerate
 from scipy import signal
+import random
 
 
 class AudioSegment(object):
@@ -46,6 +47,32 @@ class AudioSegment(object):
         """Return whether two objects are unequal."""
         return not self.__eq__(other)
 
+    def __len__(self):
+        """Returns length of segment in samples."""
+        return self.num_samples
+
+    def __add__(self, other):
+        """Add samples from another segment to those of this segment and return
+        a new segment (sample-wise addition, not segment concatenation).
+
+        :param other: Segment containing samples to be
+                      added in.
+        :type other: AudioSegment
+        :return: New segment containing resulting samples.
+        :rtype: AudioSegment
+        :raise TypeError: If sample rates of segments don't match,
+                          or if length of segments don't match.
+        """
+        if type(self) != type(other):
+            raise TypeError("Cannot add segment of different type: {}"
+                            .format(type(other)))
+        if self._sample_rate != other._sample_rate:
+            raise TypeError("Sample rates must match to add segments.")
+        if len(self._samples) != len(other._samples):
+            raise TypeError("Segment lengths must match to add segments.")
+        samples = self.samples + other.samples
+        return type(self)(samples, sample_rate=self._sample_rate)
+
     def __str__(self):
         """Return human-readable representation of segment."""
         return ("%s: num_samples=%d, sample_rate=%d, duration=%.2fsec, "
@@ -65,69 +92,6 @@ class AudioSegment(object):
         return cls(samples, sample_rate)
 
     @classmethod
-    def slice_from_file(cls, fname, start=None, end=None):
-        """ 
-        Loads a small section of an audio without having to load
-        the entire file into the memory which can be incredibly wasteful.
-
-        :param fname: input audio file name
-        :type fname: bsaestring
-        :param start: start time in seconds (supported granularity is ms)
-            If start is negative, it wraps around from the end. If not
-            provided, this function reads from the very beginning.
-        :type start: float
-        :param end: start time in seconds (supported granularity is ms)
-            If end is negative, it wraps around from the end. If not
-            provided, the default behvaior is to read to the end of the
-            file.
-        :type end: float
-
-        :return:the specified slice of input audio in the audio.AudioSegment
-            format.
-        """
-        sndfile = soundfile.SoundFile(fname)
-
-        sample_rate = sndfile.samplerate
-        if sndfile.channels != 1:
-            raise TypeError("{} has more than 1 channel.".format(fname))
-
-        duration = float(len(sndfile)) / sample_rate
-
-        if start is None:
-            start = 0.0
-        if end is None:
-            end = duration
-
-        if start < 0.0:
-            start += duration
-        if end < 0.0:
-            end += duration
-
-        if start < 0.0:
-            raise IndexError("The slice start position ({} s) is out of "
-                             "bounds. Filename: {}".format(start, fname))
-        if end < 0.0:
-            raise IndexError("The slice end position ({} s) is out of bounds "
-                             "Filename: {}".format(end, fname))
-
-        if start > end:
-            raise IndexError("The slice start position ({} s) is later than "
-                             "the slice end position ({} s)."
-                             .format(start, end))
-
-        if end > duration:
-            raise ValueError("The slice end time ({} s) is out of "
-                             "bounds (> {} s) Filename: {}"
-                             .format(end, duration, fname))
-
-        start_frame = int(start * sample_rate)
-        end_frame = int(end * sample_rate)
-        sndfile.seek(start_frame)
-        data = sndfile.read(frames=end_frame - start_frame, dtype='float32')
-
-        return cls(data, sample_rate)
-
-    @classmethod
     def from_bytes(cls, bytes):
         """Create audio segment from a byte string containing audio samples.
         
@@ -140,43 +104,30 @@ class AudioSegment(object):
             io.BytesIO(bytes), dtype='float32')
         return cls(samples, sample_rate)
 
-    @classmethod
-    def make_silence(cls, duration, sample_rate):
-        """Creates a silent audio segment of the given duration and
-        sample rate.
-
-        :param duration: length of silence in seconds
-        :type duration: scalar
-        :param sample_rate: sample rate
-        :type sample_rate: scalar
-        :returns: silence of the given duration
-        :rtype: AudioSegment
-        """
-        samples = np.zeros(int(float(duration) * sample_rate))
-        return cls(samples, sample_rate)
-
-    @classmethod
-    def concatenate(cls, *segments):
+    def concatenate(self, *segments):
         """Concatenate an arbitrary number of audio segments together.
 
-        :param *segments: input audio segments
-        :type *segments: [AudioSegment]
+        :param *segments: Input audio segments
+        :type *segments: AudioSegment
+        :return: Audio segment instance.
+        :rtype: AudioSegment
+        :raises ValueError: If number of segments is zero, or if sample_rate
+                            not match between two audio segments
+        :raises TypeError: If item of segments is not Audiosegment instance
         """
         # Perform basic sanity-checks.
-        N = len(segments)
-        if N == 0:
+        if len(segments) == 0:
             raise ValueError("No audio segments are given to concatenate.")
         sample_rate = segments[0]._sample_rate
-        for segment in segments:
-            if sample_rate != segment._sample_rate:
+        for seg in segments:
+            if sample_rate != seg._sample_rate:
                 raise ValueError("Can't concatenate segments with "
                                  "different sample rates")
-            if type(segment) is not cls:
+            if type(seg) is not type(self):
                 raise TypeError("Only audio segments of the same type "
                                 "instance can be concatenated.")
-
         samples = np.concatenate([seg.samples for seg in segments])
-        return cls(samples, sample_rate)
+        return type(self)(samples, sample_rate)
 
     def to_wav_file(self, filepath, dtype='float32'):
         """Save audio segment to disk as wav file.
@@ -202,6 +153,65 @@ class AudioSegment(object):
             self._sample_rate,
             format='WAV',
             subtype=subtype_map[dtype])
+
+    def slice_from_file(self, file, start=None, end=None):
+        """Loads a small section of an audio without having to load
+        the entire file into the memory which can be incredibly wasteful.
+
+        :param file: Input audio filepath
+        :type file: basestring
+        :param start: Start time in seconds. If start is negative, it wraps
+                      around from the end. If not provided, this function 
+                      reads from the very beginning.
+        :type start: float
+        :param end: End time in seconds. If end is negative, it wraps around
+                    from the end. If not provided, the default behvaior is
+                    to read to the end of the file.
+        :type end: float
+        :return: The specified slice of input audio in the audio.AudioSegment format.
+        :rtype: AudioSegment
+        :rainse ValueError: If the position is error, or if the time is out bounds.
+        """
+        sndfile = soundfile.SoundFile(file)
+        sample_rate = sndfile.samplerate
+        duration = float(len(sndfile)) / sample_rate
+        start = 0. if start is None else start
+        end = 0. if end is None else end
+        if start < 0.0:
+            start += duration
+        if end < 0.0:
+            end += duration
+        if start < 0.0:
+            raise ValueError("The slice start position (%f s) is out of "
+                             "bounds. Filename: %s" % (start, file))
+        if end < 0.0:
+            raise ValueError("The slice end position (%f s) is out of bounds "
+                             "Filename: %s" % (end, file))
+        if start > end:
+            raise ValueError("The slice start position (%f s) is later than "
+                             "the slice end position (%f s)." % (start, end))
+        if end > duration:
+            raise ValueError("The slice end time (%f s) is out of bounds "
+                             "(> %f s) Filename: %s" % (end, duration, file))
+        start_frame = int(start * sample_rate)
+        end_frame = int(end * sample_rate)
+        sndfile.seek(start_frame)
+        data = sndfile.read(frames=end_frame - start_frame, dtype='float32')
+        return type(self)(data, sample_rate)
+
+    def make_silence(self, duration, sample_rate):
+        """Creates a silent audio segment of the given duration and
+        sample rate.
+
+        :param duration: Length of silence in seconds
+        :type duration: float
+        :param sample_rate: Sample rate
+        :type sample_rate: float
+        :return: Silence of the given duration
+        :rtype: AudioSegment
+        """
+        samples = np.zeros(int(duration * sample_rate))
+        return type(self)(samples, sample_rate)
 
     def to_bytes(self, dtype='float32'):
         """Create a byte string containing the audio content.
@@ -247,52 +257,49 @@ class AudioSegment(object):
         self._samples = np.interp(new_indices, old_indices, self._samples)
 
     def normalize(self, target_db=-20, max_gain_db=300.0):
-        """Normalize audio to desired RMS value in decibels.
+        """Normalize audio to be desired RMS value in decibels.
 
         Note that this is an in-place transformation.
 
-        :param target_db: Target RMS value in decibels.This value 
-            should be less than 0.0 as 0.0 is full-scale audio.
-        :type target_db: float, optional
-        :param max_gain_db: Max amount of gain in dB that can be applied
-            for normalization.  This is to prevent nans when attempting
-            to normalize a signal consisting of all zeros.
-        :type max_gain_db: float, optional
-
-        :raises NormalizationWarning: if the required gain to normalize the
-            segment to the target_db value exceeds max_gain_db.
+        :param target_db: Target RMS value in decibels. This value should
+                          be less than 0.0 as 0.0 is full-scale audio.
+        :type target_db: float
+        :param max_gain_db: Max amount of gain in dB that can be applied for
+                            normalization. This is to prevent nans when attempting
+                            to normalize a signal consisting of all zeros.
+        :type max_gain_db: float
+        :raises ValueError: If the required gain to normalize the segment to
+                            the target_db value exceeds max_gain_db.
         """
         gain = target_db - self.rms_db
         if gain > max_gain_db:
             raise ValueError(
-                "Unable to normalize segment to {} dB because it has an RMS "
-                "value of {} dB and the difference exceeds max_gain_db ({} dB)"
-                .format(target_db, self.rms_db, max_gain_db))
-        gain = min(max_gain_db, target_db - self.rms_db)
-        self.apply_gain(gain)
+                "Unable to normalize segment to %f dB because it has an RMS "
+                "value of %f dB and the difference exceeds max_gain_db (%f dB)"
+                % (target_db, self.rms_db, max_gain_db))
+        self.apply_gain(min(max_gain_db, target_db - self.rms_db))
 
     def normalize_online_bayesian(self,
                                   target_db,
                                   prior_db,
                                   prior_samples,
                                   startup_delay=0.0):
-        """
-        Normalize audio using a production-compatible online/causal algorithm.
-        This uses an exponential likelihood and gamma prior to make
-        online estimates of the RMS even when there are very few samples.
+        """Normalize audio using a production-compatible online/causal algorithm.
+        This uses an exponential likelihood and gamma prior to make online estimates
+        of the RMS even when there are very few samples.
 
         Note that this is an in-place transformation.
 
         :param target_db: Target RMS value in decibels
-        :type target_bd: scalar
+        :type target_bd: float
         :param prior_db: Prior RMS estimate in decibels
-        :type prior_db: scalar
+        :type prior_db: float
         :param prior_samples: Prior strength in number of samples
-        :type prior_samples: scalar
-        :param startup_delay: Default: 0.0 s. If provided, this
-            function will accrue statistics for the first startup_delay
-            seconds before applying online normalization.
-        :type startup_delay: scalar
+        :type prior_samples: float
+        :param startup_delay: Default 0.0 s. If provided, this function will accrue
+                              statistics for the first startup_delay seconds before
+                              applying online normalization.
+        :type startup_delay: float
         """
         # Estimate total RMS online
         startup_sample_idx = min(self.num_samples - 1,
@@ -309,88 +316,54 @@ class AudioSegment(object):
         mean_squared_estimate = ((cumsum_of_squares + prior_sum_of_squares) /
                                  (sample_count + prior_samples))
         rms_estimate_db = 10 * np.log10(mean_squared_estimate)
-
         # Compute required time-varying gain
         gain_db = target_db - rms_estimate_db
-
-        # Apply gain to new segment
-        self.apply_gain(gain_db)
-
-    def normalize_ewma(self,
-                       target_db,
-                       decay_rate,
-                       startup_delay,
-                       rms_eps=1e-6,
-                       max_gain_db=300.0):
-        startup_sample_idx = min(self.num_samples - 1,
-                                 int(self.sample_rate * startup_delay))
-        mean_sq = self.samples**2
-        if startup_sample_idx > 0:
-            mean_sq[:startup_sample_idx] = \
-                np.sum(mean_sq[:startup_sample_idx]) / startup_sample_idx
-        idx_start = max(0, startup_sample_idx - 1)
-        initial_condition = mean_sq[idx_start] * decay_rate
-        mean_sq[idx_start:] = lfilter(
-            [1.0 - decay_rate], [1.0, -decay_rate],
-            mean_sq[idx_start:],
-            axis=0,
-            zi=[initial_condition])[0]
-        rms_estimate_db = 10.0 * np.log10(mean_sq + rms_eps)
-        gain_db = target_db - rms_estimate_db
-        if np.any(gain_db > max_gain_db):
-            warnings.warn(
-                "Unable to normalize segment to {} dB because it has an RMS "
-                "value of {} dB and the difference exceeds max_gain_db ({} dB)"
-                .format(target_db, self.rms_db, max_gain_db),
-                NormalizationWarning)
-            gain_db = np.minimum(gain_db, max_gain_db)
         self.apply_gain(gain_db)
 
     def resample(self, target_sample_rate, quality='sinc_medium'):
-        """Resample audio and return new AudioSegment.
-        This resamples the audio to a new sample rate and returns a brand
-        new AudioSegment.  The existing AudioSegment is unchanged.
+        """Resample audio segment. This resamples the audio to a new 
+        sample rate.
 
         Note that this is an in-place transformation.
 
-        :param new_sample_rate: target sample rate
-        :type new_sample_rate: scalar
+        :param target_sample_rate: Target sample rate
+        :type target_sample_rate: int
         :param quality: One of {'sinc_fastest', 'sinc_medium', 'sinc_best'}.
-            Sets resampling speed/quality tradeoff.
-            See http://www.mega-nerd.com/SRC/api_misc.html#Converters
+                        Sets resampling speed/quality tradeoff.
+                        See http://www.mega-nerd.com/SRC/api_misc.html#Converters
         :type quality: basestring
         """
         resample_ratio = target_sample_rate / self._sample_rate
         new_samples = scikits.samplerate.resample(
             self._samples, r=resample_ratio, type=quality)
         self._samples = new_samples
-        self._sample_rate = new_sample_rate
+        self._sample_rate = target_sample_rate
 
     def pad_silence(self, duration, sides='both'):
         """Pads this audio sample with a period of silence.
 
         Note that this is an in-place transformation.
 
-        :param duration: length of silence in seconds to pad
+        :param duration: Length of silence in seconds to pad
         :type duration: float
-        :param sides:
-            'beginning' - adds silence in the beginning
-            'end' - adds silence in the end
-            'both' - adds silence in both the beginning and the end.
-        :type sides: basestring
+        :param sides: Position for padding
+                     'beginning' - adds silence in the beginning
+                     'end' - adds silence in the end
+                     'both' - adds silence in both the beginning and the end.
+        :type sides: str
+        :raises ValueError: If the sides not surport
         """
         if duration == 0.0:
             return self
-        cls = type(self)
-        silence = cls.make_silence(duration, self._sample_rate)
+        silence = self.make_silence(duration, self._sample_rate)
         if sides == "beginning":
-            padded = cls.concatenate(silence, self)
+            padded = self.concatenate(silence, self)
         elif sides == "end":
-            padded = cls.concatenate(self, silence)
+            padded = self.concatenate(self, silence)
         elif sides == "both":
-            padded = cls.concatenate(silence, self, silence)
+            padded = self.concatenate(silence, self, silence)
         else:
-            raise ValueError("Unknown value for the kwarg 'sides'")
+            raise ValueError("Unknown value for the kwarg %s" % sides)
         self._samples = padded._samples
         self._sample_rate = padded._sample_rate
 
@@ -398,88 +371,83 @@ class AudioSegment(object):
         """Return new AudioSegment containing audio between given boundaries.
 
         :param start_sec: Beginning of subsegment in seconds,
-            (beginning of segment if None).
-        :type start_sec:  scalar
+                          (beginning of segment if None).
+        :type start_sec: float
         :param end_sec: End of subsegment in seconds,
-            (end of segment if None).
-        :type end_sec: scalar
-
-        :return: New AudioSegment containing specified
-            subsegment.
-        :trype: AudioSegment
+                        (end of segment if None).
+        :type end_sec: float
+        :return: New AudioSegment containing specified subsegment.
+        :rtype: AudioSegment
         """
-        # Default boundaries
-        if start_sec is None:
-            start_sec = 0.0
-        if end_sec is None:
-            end_sec = self.duration
-
+        start_sec = 0.0 if start_sec is None else start_sec
+        end_sec = self.duration if end_sec is None else end_sec
         # negative boundaries are relative to end of segment
         if start_sec < 0.0:
             start_sec = self.duration + start_sec
         if end_sec < 0.0:
             end_sec = self.duration + end_sec
-
         start_sample = int(round(start_sec * self._sample_rate))
         end_sample = int(round(end_sec * self._sample_rate))
         samples = self._samples[start_sample:end_sample]
-
         return type(self)(samples, sample_rate=self._sample_rate)
 
     def random_subsegment(self, subsegment_length, rng=None):
-        """
-        Return a random subsegment of a specified length in seconds.
+        """Return a random subsegment of a specified length in seconds.
 
         :param subsegment_length: Subsegment length in seconds.
-        :type subsegment_length: scalar
+        :type subsegment_length: float
         :param rng: Random number generator state
-        :type rng: random.Random [optional]
-
-
-        :return:clip (SpeechDLSegment): New SpeechDLSegmen containing random
-            subsegment of original segment.
+        :type rng: random.Random
+        :return: New AudioSegment containing random subsegment
+                 of original segment
+        :rtype: AudioSegment
+        :raises ValueError: If the length of subsegment greater than origineal
+                            segemnt.
         """
-        if rng is None:
-            rng = random.Random()
-
+        rng = random.Random() if rng is None else rng
         if subsegment_length > self.duration:
             raise ValueError("Length of subsegment must not be greater "
                              "than original segment.")
         start_time = rng.uniform(0.0, self.duration - subsegment_length)
         return self.subsegment(start_time, start_time + subsegment_length)
 
-    def convolve(self, ir, allow_resampling=False):
+    def convolve(self, impulse_segment, allow_resample=False):
         """Convolve this audio segment with the given filter.
 
-        :param ir: impulse response
-        :type ir: AudioSegment
-        :param allow_resampling: indicates whether resampling is allowed
-                when the ir has a different sample rate from this signal.
-        :type allow_resampling: boolean
+        Note that this is an in-place transformation.
+
+        :param impulse_segment: Impulse response segments.
+        :type impulse_segment: AudioSegment
+        :param allow_resample: indicates whether resampling is allowed when
+                                 the impulse_segment has a different sample 
+                                 rate from this signal.
+        :type allow_resample: boolean
+        :raises ValueError: If the sample rate is not match between two
+                            audio segments and resample is not allowed.
         """
-        if allow_resampling and self.sample_rate != ir.sample_rate:
-            ir = ir.resample(self.sample_rate)
-
-        if self.sample_rate != ir.sample_rate:
-            raise ValueError("Impulse response sample rate ({}Hz) is "
-                             "equal to base signal sample rate ({}Hz)."
-                             .format(ir.sample_rate, self.sample_rate))
-
-        samples = signal.fftconvolve(self.samples, ir.samples, "full")
+        if allow_resample and self.sample_rate != impulse_segment.sample_rate:
+            impulse_segment = impulse_segment.resample(self.sample_rate)
+        if self.sample_rate != impulse_segment.sample_rate:
+            raise ValueError("Impulse segment's sample rate (%d Hz) is not"
+                             "equal to base signal sample rate (%d Hz)." %
+                             (impulse_segment.sample_rate, self.sample_rate))
+        samples = signal.fftconvolve(self.samples, impulse_segment.samples,
+                                     "full")
         self._samples = samples
 
-    def convolve_and_normalize(self, ir, allow_resample=False):
+    def convolve_and_normalize(self, impulse_segment, allow_resample=False):
         """Convolve and normalize the resulting audio segment so that it
         has the same average power as the input signal.
 
-        :param ir: impulse response
-        :type ir: AudioSegment
-        :param allow_resampling: indicates whether resampling is allowed
-            when the ir has a different sample rate from this signal.
-        :type allow_resampling: boolean
+        :param impulse_segment: Impulse response segments.
+        :type impulse_segment: AudioSegment
+        :param allow_resample: indicates whether resampling is allowed when
+                               the impulse_segment has a different sample rate from this signal.
+        :type allow_resample: boolean
         """
-        self.convolve(ir, allow_resampling=allow_resampling)
-        self.normalize(target_db=self.rms_db)
+        target_db = self.rms_db
+        self.convolve(impulse_segment, allow_resample=allow_resample)
+        self.normalize(target_db)
 
     def add_noise(self,
                   noise,
@@ -492,42 +460,45 @@ class AudioSegment(object):
         of matching length is sampled from it and used instead.
 
         :param noise: Noise signal to add.
-        :type noise: SpeechDLSegment
+        :type noise: AudioSegment
         :param snr_dB: Signal-to-Noise Ratio, in decibels.
-        :type snr_dB: scalar
-        :param allow_downsampling: whether to allow the noise signal
-            to be downsampled to match the base signal sample rate.
+        :type snr_dB: float
+        :param allow_downsampling: whether to allow the noise signal to be downsampled
+                                   to match the base signal sample rate.
         :type allow_downsampling: boolean
-        :param max_gain_db: Maximum amount of gain to apply to noise
-            signal before adding it in.  This is to prevent attempting
-            to apply infinite gain to a zero signal.
-        :type max_gain_db: scalar
+        :param max_gain_db: Maximum amount of gain to apply to noise signal before
+                            adding it in. This is to prevent attempting to apply infinite
+                            gain to a zero signal.
+        :type max_gain_db: float
         :param rng: Random number generator state.
         :type rng: random.Random
-
-        Returns:
-            SpeechDLSegment: signal with noise added.
+        :raises ValueError: If the sample rate does not match between the two audio segments
+                            and resample is not allowed, or if the duration of noise segments
+                            is shorter than original audio segments.
         """
-        if rng is None:
-            rng = random.Random()
-
+        rng = random.Random() if rng is None else rng
         if allow_downsampling and noise.sample_rate > self.sample_rate:
             noise = noise.resample(self.sample_rate)
-
         if noise.sample_rate != self.sample_rate:
-            raise ValueError("Noise sample rate ({}Hz) is not equal to "
-                             "base signal sample rate ({}Hz)."
-                             .format(noise.sample_rate, self.sample_rate))
+            raise ValueError("Noise sample rate (%d Hz) is not equal to "
+                             "base signal sample rate (%d Hz)." %
+                             (noise.sample_rate, self.sample_rate))
         if noise.duration < self.duration:
-            raise ValueError("Noise signal ({} sec) must be at "
-                             "least as long as base signal ({} sec)."
-                             .format(noise.duration, self.duration))
+            raise ValueError("Noise signal (%f sec) must be at "
+                             "least as long as base signal (%f sec)." %
+                             (noise.duration, self.duration))
         noise_gain_db = self.rms_db - noise.rms_db - snr_dB
         noise_gain_db = min(max_gain_db, noise_gain_db)
         noise_subsegment = noise.random_subsegment(self.duration, rng=rng)
         output = self + self.tranform_noise(noise_subsegment, noise_gain_db)
         self._samples = output._samples
         self._sample_rate = output._sample_rate
+
+    def tranform_noise(self, noise_subsegment, noise_gain_db):
+        """ tranform noise file
+        """
+        return type(self)(noise_subsegment._samples * (10.**(
+            noise_gain_db / 20.)), noise_subsegment._sample_rate)
 
     @property
     def samples(self):
@@ -618,9 +589,3 @@ class AudioSegment(object):
         else:
             raise TypeError("Unsupported sample type: %s." % samples.dtype)
         return output_samples.astype(dtype)
-
-    def tranform_noise(self, noise_subsegment, noise_gain_db):
-        """ tranform noise file
-        """
-        return type(self)(noise_subsegment._samples * (10.**(
-            noise_gain_db / 20.)), noise_subsegment._sample_rate)

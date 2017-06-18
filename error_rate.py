@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-    This module provides functions to calculate error rate in different level.
-    e.g. wer for word-level, cer for char-level.
+"""This module provides functions to calculate error rate in different level.
+e.g. wer for word-level, cer for char-level.
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import numpy as np
 
 
@@ -42,8 +44,7 @@ def levenshtein_distance(ref, hyp):
 
 
 def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
-    """
-    Calculate word error rate (WER). WER compares reference text and 
+    """Calculate word error rate (WER). WER compares reference text and 
     hypothesis text in word-level. WER is defined as:
 
     .. math::
@@ -71,6 +72,7 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     :type delimiter: char
     :return: Word error rate.
     :rtype: float
+    :raises ValueError: If reference length is zero.
     """
     if ignore_case == True:
         reference = reference.lower()
@@ -88,8 +90,7 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
 
 
 def cer(reference, hypothesis, ignore_case=False):
-    """
-    Calculate charactor error rate (CER). CER compares reference text and
+    """Calculate charactor error rate (CER). CER compares reference text and
     hypothesis text in char-level. CER is defined as:
 
     .. math::
@@ -117,6 +118,7 @@ def cer(reference, hypothesis, ignore_case=False):
     :type ignore_case: bool
     :return: Character error rate.
     :rtype: float
+    :raises ValueError: If reference length is zero.
     """
     if ignore_case == True:
         reference = reference.lower()

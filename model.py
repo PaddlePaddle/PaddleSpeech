@@ -1,10 +1,9 @@
-"""
-   A simplifed version of Baidu DeepSpeech2 model.
-"""
+"""Contains DeepSpeech2 model."""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import paddle.v2 as paddle
-
-#TODO: add bidirectional rnn.
 
 
 def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,

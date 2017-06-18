@@ -69,8 +69,8 @@ class SpeechSegment(AudioSegment):
     def concatenate(cls, *segments):
         """Concatenate an arbitrary number of speech segments together.
 
-        :param *segments: Input speech segments.
-        :type *segments: SpeechSegment
+        :param *segments: Input speech segments to be concatenated.
+        :type *segments: tuple of SpeechSegment
         :return: Speech segment instance.
         :rtype: SpeechSegment
         :raises ValueError: If the number of segments is zero, or if the 

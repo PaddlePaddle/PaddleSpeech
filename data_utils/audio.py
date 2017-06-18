@@ -82,8 +82,8 @@ class AudioSegment(object):
     def concatenate(cls, *segments):
         """Concatenate an arbitrary number of audio segments together.
 
-        :param *segments: Input audio segments.
-        :type *segments: AudioSegment
+        :param *segments: Input audio segments to be concatenated.
+        :type *segments: tuple of AudioSegment
         :return: Audio segment instance as concatenating results.
         :rtype: AudioSegment
         :raises ValueError: If the number of segments is zero, or if the 

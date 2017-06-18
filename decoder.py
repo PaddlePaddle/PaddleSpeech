@@ -222,8 +222,11 @@ def ctc_beam_search_decoder(probs_seq,
 
     beam_result = []
     for (seq, prob) in prefix_set_prev.items():
-        if prob > 0.0:
+        if prob > 0.0 and len(seq) > 1:
             result = seq[1:]
+            # score last word by external scorer
+            if (ext_scoring_func is not None) and (result[-1] != ' '):
+                prob = prob * ext_scoring_func(result)
             log_prob = np.log(prob)
             beam_result.append([log_prob, result])
 

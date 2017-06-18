@@ -9,6 +9,7 @@ import soundfile
 import scikits.samplerate
 from scipy import signal
 import random
+import copy
 
 
 class AudioSegment(object):
@@ -87,9 +88,8 @@ class AudioSegment(object):
         :return: Audio segment instance as concatenating results.
         :rtype: AudioSegment
         :raises ValueError: If the number of segments is zero, or if the 
-                            sample_rate of any two segment does not match.
-        :raises TypeError: If every item in segments is not AudioSegment
-                           instance.
+                            sample_rate of any segments does not match.
+        :raises TypeError: If any segment is not AudioSegment instance.
         """
         # Perform basic sanity-checks.
         if len(segments) == 0:
@@ -101,7 +101,7 @@ class AudioSegment(object):
                                  "different sample rates")
             if type(seg) is not cls:
                 raise TypeError("Only audio segments of the same type "
-                                "instance can be concatenated.")
+                                "can be concatenated.")
         samples = np.concatenate([seg.samples for seg in segments])
         return cls(samples, sample_rate)
 
@@ -180,8 +180,7 @@ class AudioSegment(object):
 
     @classmethod
     def make_silence(cls, duration, sample_rate):
-        """Creates a silent audio segment of the given duration and
-        sample rate.
+        """Creates a silent audio segment of the given duration and sample rate.
 
         :param duration: Length of silence in seconds.
         :type duration: float
@@ -193,15 +192,17 @@ class AudioSegment(object):
         samples = np.zeros(int(duration * sample_rate))
         return cls(samples, sample_rate)
 
-    def superimposed(self, other):
+    def superimpose(self, other):
         """Add samples from another segment to those of this segment
         (sample-wise addition, not segment concatenation).
+
+        Note that this is an in-place transformation.
 
         :param other: Segment containing samples to be added in.
         :type other: AudioSegments
         :raise TypeError: If type of two segments don't match.
-        :raise ValueError: If the sample_rate of two segments not equal, or if
-                           the length of segments don't match.
+        :raise ValueError: If the sample rates of the two segments are not
+                           equal, or if the lengths of segments don't match.
         """
         if type(self) != type(other):
             raise TypeError("Cannot add segments of different types: %s "
@@ -215,7 +216,7 @@ class AudioSegment(object):
     def to_bytes(self, dtype='float32'):
         """Create a byte string containing the audio content.
         
-        :param dtype: Data type for export samples. Options: 'int16','int32',
+        :param dtype: Data type for export samples. Options: 'int16', 'int32',
                       'float32', 'float64'. Default is 'float32'.
         :type dtype: str
         :return: Byte string containing audio content.
@@ -362,16 +363,20 @@ class AudioSegment(object):
         elif sides == "both":
             padded = cls.concatenate(silence, self, silence)
         else:
-            raise ValueError("Unknown value for the kwarg %s" % sides)
+            raise ValueError("Unknown value for the sides %s" % sides)
         self._samples = padded._samples
 
     def subsegment(self, start_sec=None, end_sec=None):
-        """Return new AudioSegment containing audio between given boundaries.
+        """Cut the AudioSegment between given boundaries.
+
+        Note that this is an in-place transformation.
 
         :param start_sec: Beginning of subsegment in seconds.
         :type start_sec: float
         :param end_sec: End of subsegment in seconds.
         :type end_sec: float
+        :raise ValueError: If start_sec or end_sec is incorrectly set, e.g. out
+                           of bounds in time.
         """
         start_sec = 0.0 if start_sec is None else start_sec
         end_sec = self.duration if end_sec is None else end_sec
@@ -379,19 +384,33 @@ class AudioSegment(object):
             start_sec = self.duration + start_sec
         if end_sec < 0.0:
             end_sec = self.duration + end_sec
+        if start_sec < 0.0:
+            raise ValueError("The slice start position (%f s) is out of "
+                             "bounds." % start_sec)
+        if end_sec < 0.0:
+            raise ValueError("The slice end position (%f s) is out of bounds." %
+                             end_sec)
+        if start_sec > end_sec:
+            raise ValueError("The slice start position (%f s) is later than "
+                             "the end position (%f s)." % (start_sec, end_sec))
+        if end_sec > self.duration:
+            raise ValueError("The slice end position (%f s) is out of bounds "
+                             "(> %f s)" % (end_sec, self.duration))
         start_sample = int(round(start_sec * self._sample_rate))
         end_sample = int(round(end_sec * self._sample_rate))
         self._samples = self._samples[start_sample:end_sample]
 
     def random_subsegment(self, subsegment_length, rng=None):
-        """Return a random subsegment of a specified length in seconds.
+        """Cut the specified length of the audiosegment randomly.
+
+        Note that this is an in-place transformation.
 
         :param subsegment_length: Subsegment length in seconds.
         :type subsegment_length: float
         :param rng: Random number generator state.
         :type rng: random.Random
-        :raises ValueError: If the length of subsegment greater than
-                            origineal segemnt.
+        :raises ValueError: If the length of subsegment is greater than
+                            the origineal segemnt.
         """
         rng = random.Random() if rng is None else rng
         if subsegment_length > self.duration:
@@ -401,7 +420,7 @@ class AudioSegment(object):
         self.subsegment(start_time, start_time + subsegment_length)
 
     def convolve(self, impulse_segment, allow_resample=False):
-        """Convolve this audio segment with the given impulse_segment.
+        """Convolve this audio segment with the given impulse segment.
 
         Note that this is an in-place transformation.
 
@@ -428,6 +447,8 @@ class AudioSegment(object):
         """Convolve and normalize the resulting audio segment so that it
         has the same average power as the input signal.
 
+        Note that this is an in-place transformation.
+
         :param impulse_segment: Impulse response segments.
         :type impulse_segment: AudioSegment
         :param allow_resample: Indicates whether resampling is allowed when
@@ -445,9 +466,11 @@ class AudioSegment(object):
                   allow_downsampling=False,
                   max_gain_db=300.0,
                   rng=None):
-        """Adds the given noise segment at a specific signal-to-noise ratio.
+        """Add the given noise segment at a specific signal-to-noise ratio.
         If the noise segment is longer than this segment, a random subsegment
         of matching length is sampled from it and used instead.
+
+        Note that this is an in-place transformation.
 
         :param noise: Noise signal to add.
         :type noise: AudioSegment
@@ -480,9 +503,10 @@ class AudioSegment(object):
                              " base signal (%f sec)." %
                              (noise.duration, self.duration))
         noise_gain_db = min(self.rms_db - noise.rms_db - snr_dB, max_gain_db)
-        noise.random_subsegment(self.duration, rng=rng)
-        noise.apply_gain(noise_gain_db)
-        self.superimposed(noise)
+        noise_new = copy.deepcopy(noise)
+        noise_new.random_subsegment(self.duration, rng=rng)
+        noise_new.apply_gain(noise_gain_db)
+        self.superimpose(noise_new)
 
     @property
     def samples(self):

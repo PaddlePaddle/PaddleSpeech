@@ -67,7 +67,8 @@ class SpeechSegment(AudioSegment):
 
     @classmethod
     def concatenate(cls, *segments):
-        """Concatenate an arbitrary number of speech segments together.
+        """Concatenate an arbitrary number of speech segments together, both
+        audio and transcript will be concatenated.
 
         :param *segments: Input speech segments to be concatenated.
         :type *segments: tuple of SpeechSegment
@@ -75,8 +76,7 @@ class SpeechSegment(AudioSegment):
         :rtype: SpeechSegment
         :raises ValueError: If the number of segments is zero, or if the 
                             sample_rate of any two segments does not match.
-        :raises TypeError: If every item in segments is not SpeechSegment
-                           instance.
+        :raises TypeError: If any segment is not SpeechSegment instance.
         """
         if len(segments) == 0:
             raise ValueError("No speech segments are given to concatenate.")
@@ -94,7 +94,7 @@ class SpeechSegment(AudioSegment):
         return cls(samples, sample_rate, transcripts)
 
     @classmethod
-    def slice_from_file(cls, filepath, start=None, end=None, transcript=""):
+    def slice_from_file(cls, filepath, start=None, end=None, transcript):
         """Loads a small section of an speech without having to load
         the entire file into the memory which can be incredibly wasteful.
 
@@ -121,7 +121,7 @@ class SpeechSegment(AudioSegment):
     @classmethod
     def make_silence(cls, duration, sample_rate):
         """Creates a silent speech segment of the given duration and
-        sample rate.
+        sample rate, transcript will be an empty string.
 
         :param duration: Length of silence in seconds.
         :type duration: float

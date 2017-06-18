@@ -87,7 +87,7 @@ class AudioSegment(object):
         :return: Audio segment instance as concatenating results.
         :rtype: AudioSegment
         :raises ValueError: If the number of segments is zero, or if the 
-                            sample_rate of any two segments does not match.
+                            sample_rate of any two segment does not match.
         :raises TypeError: If every item in segments is not AudioSegment
                            instance.
         """
@@ -412,7 +412,7 @@ class AudioSegment(object):
                                rate from this signal.
         :type allow_resample: bool
         :raises ValueError: If the sample rate is not match between two
-                            audio segments and resample is not allowed.
+                            audio segments when resample is not allowed.
         """
         if allow_resample and self.sample_rate != impulse_segment.sample_rate:
             impulse_segment = impulse_segment.resample(self.sample_rate)
@@ -464,8 +464,8 @@ class AudioSegment(object):
         :param rng: Random number generator state.
         :type rng: None|random.Random
         :raises ValueError: If the sample rate does not match between the two
-                            audio segments and resample is not allowed, or if
-                            the duration of noise segments is shorter than
+                            audio segments when downsampling is not allowed, or
+                            if the duration of noise segments is shorter than
                             original audio segments.
         """
         rng = random.Random() if rng is None else rng

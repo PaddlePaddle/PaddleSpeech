@@ -88,7 +88,8 @@ class AudioSegment(object):
         :rtype: AudioSegment
         :raises ValueError: If the number of segments is zero, or if the 
                             sample_rate of any two segments does not match.
-        :raises TypeError: If every segment in is not Audiosegment instance.
+        :raises TypeError: If every item in segments is not Audiosegment
+                           instance.
         """
         # Perform basic sanity-checks.
         if len(segments) == 0:

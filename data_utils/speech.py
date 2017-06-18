@@ -75,7 +75,8 @@ class SpeechSegment(AudioSegment):
         :rtype: SpeechSegment
         :raises ValueError: If the number of segments is zero, or if the 
                             sample_rate of any two segments does not match.
-        :raises TypeError: If every segment in is not Audiosegment instance.
+        :raises TypeError: If every item in segments is not Audiosegment
+                           instance.
         """
         if len(segments) == 0:
             raise ValueError("No audio segments are given to concatenate.")

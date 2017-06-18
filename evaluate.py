@@ -1,5 +1,5 @@
 """
-   Parameters tuning for beam search decoder in Deep Speech 2.
+   Evaluation for a simplifed version of Baidu DeepSpeech2 model.
 """
 
 import paddle.v2 as paddle
@@ -12,13 +12,12 @@ from decoder import *
 from error_rate import wer
 
 parser = argparse.ArgumentParser(
-    description='Parameters tuning for ctc beam search decoder in  Deep Speech 2.'
-)
+    description='Simplified version of DeepSpeech2 evaluation.')
 parser.add_argument(
     "--num_samples",
     default=100,
     type=int,
-    help="Number of samples for parameters tuning. (default: %(default)s)")
+    help="Number of samples for evaluation. (default: %(default)s)")
 parser.add_argument(
     "--num_conv_layers",
     default=2,
@@ -40,13 +39,45 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
+    "--decode_method",
+    default='beam_search_nproc',
+    type=str,
+    help="Method for ctc decoding, best_path, "
+    "beam_search or beam_search_nproc. (default: %(default)s)")
+parser.add_argument(
+    "--language_model_path",
+    default="./data/1Billion.klm",
+    type=str,
+    help="Path for language model. (default: %(default)s)")
+parser.add_argument(
+    "--alpha",
+    default=0.26,
+    type=float,
+    help="Parameter associated with language model. (default: %(default)f)")
+parser.add_argument(
+    "--beta",
+    default=0.1,
+    type=float,
+    help="Parameter associated with word count. (default: %(default)f)")
+parser.add_argument(
+    "--cutoff_prob",
+    default=0.99,
+    type=float,
+    help="The cutoff probability of pruning"
+    "in beam search. (default: %(default)f)")
+parser.add_argument(
+    "--beam_size",
+    default=500,
+    type=int,
+    help="Width for beam search decoding. (default: %(default)d)")
+parser.add_argument(
     "--normalizer_manifest_path",
     default='data/manifest.libri.train-clean-100',
     type=str,
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
     "--decode_manifest_path",
-    default='data/manifest.libri.test-100sample',
+    default='data/manifest.libri.test-clean',
     type=str,
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(
@@ -59,77 +90,13 @@ parser.add_argument(
     default='data/eng_vocab.txt',
     type=str,
     help="Vocabulary filepath. (default: %(default)s)")
-parser.add_argument(
-    "--decode_method",
-    default='beam_search_nproc',
-    type=str,
-    help="Method for decoding, beam_search or beam_search_nproc. (default: %(default)s)"
-)
-parser.add_argument(
-    "--beam_size",
-    default=500,
-    type=int,
-    help="Width for beam search decoding. (default: %(default)d)")
-parser.add_argument(
-    "--num_results_per_sample",
-    default=1,
-    type=int,
-    help="Number of outputs per sample in beam search. (default: %(default)d)")
-parser.add_argument(
-    "--language_model_path",
-    default="./data/1Billion.klm",
-    type=str,
-    help="Path for language model. (default: %(default)s)")
-parser.add_argument(
-    "--alpha_from",
-    default=0.1,
-    type=float,
-    help="Where alpha starts from. (default: %(default)f)")
-parser.add_argument(
-    "--num_alphas",
-    default=14,
-    type=int,
-    help="Number of candidate alphas. (default: %(default)d)")
-parser.add_argument(
-    "--alpha_to",
-    default=0.36,
-    type=float,
-    help="Where alpha ends with. (default: %(default)f)")
-parser.add_argument(
-    "--beta_from",
-    default=0.05,
-    type=float,
-    help="Where beta starts from. (default: %(default)f)")
-parser.add_argument(
-    "--num_betas",
-    default=20,
-    type=float,
-    help="Number of candidate betas. (default: %(default)d)")
-parser.add_argument(
-    "--beta_to",
-    default=1.0,
-    type=float,
-    help="Where beta ends with. (default: %(default)f)")
-parser.add_argument(
-    "--cutoff_prob",
-    default=0.99,
-    type=float,
-    help="The cutoff probability of pruning"
-    "in beam search. (default: %(default)f)")
 args = parser.parse_args()
 
 
-def tune():
+def evaluate():
     """
-    Tune parameters alpha and beta on one minibatch.
+    Evaluate on whole test data for DeepSpeech2.
     """
-
-    if not args.num_alphas >= 0:
-        raise ValueError("num_alphas must be non-negative!")
-
-    if not args.num_betas >= 0:
-        raise ValueError("num_betas must be non-negative!")
-
     # initialize data generator
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
@@ -173,30 +140,38 @@ def tune():
         flatten=True,
         sort_by_duration=False,
         shuffle=False)
-    # get one batch data for tuning
-    infer_data = test_batch_reader().next()
 
-    # run inference
-    infer_results = paddle.infer(
-        output_layer=output_probs, parameters=parameters, input=infer_data)
-    num_steps = len(infer_results) / len(infer_data)
-    probs_split = [
-        infer_results[i * num_steps:(i + 1) * num_steps]
-        for i in xrange(0, len(infer_data))
-    ]
+    # define inferer
+    inferer = paddle.inference.Inference(
+        output_layer=output_probs, parameters=parameters)
 
-    # create grid for search
-    cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)
-    cand_betas = np.linspace(args.beta_from, args.beta_to, args.num_betas)
-    params_grid = [(alpha, beta) for alpha in cand_alphas
-                   for beta in cand_betas]
+    # initialize external scorer for beam search decoding
+    if args.decode_method == 'beam_search' or \
+       args.decode_method == 'beam_search_nproc':
+        ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
 
-    ## tune parameters in loop
-    for (alpha, beta) in params_grid:
-        wer_sum, wer_counter = 0, 0
-        ext_scorer = Scorer(alpha, beta, args.language_model_path)
-        # beam search decode
-        if args.decode_method == "beam_search":
+    wer_counter, wer_sum = 0, 0.0
+    for infer_data in test_batch_reader():
+        # run inference
+        infer_results = inferer.infer(input=infer_data)
+        num_steps = len(infer_results) / len(infer_data)
+        probs_split = [
+            infer_results[i * num_steps:(i + 1) * num_steps]
+            for i in xrange(0, len(infer_data))
+        ]
+
+        # decode and print
+        # best path decode
+        if args.decode_method == "best_path":
+            for i, probs in enumerate(probs_split):
+                output_transcription = ctc_decode(
+                    probs_seq=probs, vocabulary=vocab_list, method="best_path")
+                target_transcription = ''.join(
+                    [vocab_list[index] for index in infer_data[i][1]])
+                wer_sum += wer(target_transcription, output_transcription)
+                wer_counter += 1
+        # beam search decode in single process
+        elif args.decode_method == "beam_search":
             for i, probs in enumerate(probs_split):
                 target_transcription = ''.join(
                     [vocab_list[index] for index in infer_data[i][1]])
@@ -205,8 +180,8 @@ def tune():
                     vocabulary=vocab_list,
                     beam_size=args.beam_size,
                     blank_id=len(vocab_list),
-                    cutoff_prob=args.cutoff_prob,
-                    ext_scoring_func=ext_scorer, )
+                    ext_scoring_func=ext_scorer,
+                    cutoff_prob=args.cutoff_prob, )
                 wer_sum += wer(target_transcription, beam_search_result[0][1])
                 wer_counter += 1
         # beam search using multiple processes
@@ -215,9 +190,9 @@ def tune():
                 probs_split=probs_split,
                 vocabulary=vocab_list,
                 beam_size=args.beam_size,
-                cutoff_prob=args.cutoff_prob,
                 blank_id=len(vocab_list),
-                ext_scoring_func=ext_scorer, )
+                ext_scoring_func=ext_scorer,
+                cutoff_prob=args.cutoff_prob, )
             for i, beam_search_result in enumerate(beam_search_nproc_results):
                 target_transcription = ''.join(
                     [vocab_list[index] for index in infer_data[i][1]])
@@ -226,13 +201,13 @@ def tune():
         else:
             raise ValueError("Decoding method [%s] is not supported." % method)
 
-        print("alpha = %f\tbeta = %f\tWER = %f" %
-              (alpha, beta, wer_sum / wer_counter))
+        print("Cur WER = %f" % (wer_sum / wer_counter))
+    print("Final WER = %f" % (wer_sum / wer_counter))
 
 
 def main():
     paddle.init(use_gpu=args.use_gpu, trainer_count=1)
-    tune()
+    evaluate()
 
 
 if __name__ == '__main__':

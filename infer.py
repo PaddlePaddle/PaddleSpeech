@@ -9,14 +9,14 @@ import gzip
 from audio_data_utils import DataGenerator
 from model import deep_speech2
 from decoder import *
-import kenlm
 from error_rate import wer
+import time
 
 parser = argparse.ArgumentParser(
     description='Simplified version of DeepSpeech2 inference.')
 parser.add_argument(
     "--num_samples",
-    default=10,
+    default=100,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -46,7 +46,7 @@ parser.add_argument(
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
     "--decode_manifest_path",
-    default='data/manifest.libri.test-clean',
+    default='data/manifest.libri.test-100sample',
     type=str,
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(
@@ -63,11 +63,13 @@ parser.add_argument(
     "--decode_method",
     default='beam_search_nproc',
     type=str,
-    help="Method for ctc decoding, best_path, beam_search or beam_search_nproc. (default: %(default)s)"
-)
+    help="Method for ctc decoding:"
+    "  best_path,"
+    "  beam_search, "
+    "   or beam_search_nproc. (default: %(default)s)")
 parser.add_argument(
     "--beam_size",
-    default=50,
+    default=500,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
@@ -82,14 +84,20 @@ parser.add_argument(
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
     "--alpha",
-    default=0.0,
+    default=0.26,
     type=float,
     help="Parameter associated with language model. (default: %(default)f)")
 parser.add_argument(
     "--beta",
-    default=0.0,
+    default=0.1,
     type=float,
     help="Parameter associated with word count. (default: %(default)f)")
+parser.add_argument(
+    "--cutoff_prob",
+    default=0.99,
+    type=float,
+    help="The cutoff probability of pruning"
+    "in beam search. (default: %(default)f)")
 args = parser.parse_args()
 
 
@@ -154,6 +162,7 @@ def infer():
     ## decode and print
     # best path decode
     wer_sum, wer_counter = 0, 0
+    total_time = 0.0
     if args.decode_method == "best_path":
         for i, probs in enumerate(probs_split):
             target_transcription = ''.join(
@@ -177,11 +186,12 @@ def infer():
                 probs_seq=probs,
                 vocabulary=vocab_list,
                 beam_size=args.beam_size,
-                ext_scoring_func=ext_scorer,
-                blank_id=len(vocab_list))
+                blank_id=len(vocab_list),
+                cutoff_prob=args.cutoff_prob,
+                ext_scoring_func=ext_scorer, )
             print("\nTarget Transcription:\t%s" % target_transcription)
 
-            for index in range(args.num_results_per_sample):
+            for index in xrange(args.num_results_per_sample):
                 result = beam_search_result[index]
                 #output: index, log prob, beam result
                 print("Beam %d: %f \t%s" % (index, result[0], result[1]))
@@ -190,21 +200,21 @@ def infer():
             wer_counter += 1
             print("cur wer = %f , average wer = %f" %
                   (wer_cur, wer_sum / wer_counter))
-    # beam search using multiple processes
     elif args.decode_method == "beam_search_nproc":
         ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
         beam_search_nproc_results = ctc_beam_search_decoder_nproc(
             probs_split=probs_split,
             vocabulary=vocab_list,
             beam_size=args.beam_size,
-            ext_scoring_func=ext_scorer,
-            blank_id=len(vocab_list))
+            blank_id=len(vocab_list),
+            cutoff_prob=args.cutoff_prob,
+            ext_scoring_func=ext_scorer, )
         for i, beam_search_result in enumerate(beam_search_nproc_results):
             target_transcription = ''.join(
                 [vocab_list[index] for index in infer_data[i][1]])
             print("\nTarget Transcription:\t%s" % target_transcription)
 
-            for index in range(args.num_results_per_sample):
+            for index in xrange(args.num_results_per_sample):
                 result = beam_search_result[index]
                 #output: index, log prob, beam result
                 print("Beam %d: %f \t%s" % (index, result[0], result[1]))

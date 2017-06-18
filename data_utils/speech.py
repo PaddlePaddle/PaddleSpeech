@@ -75,11 +75,11 @@ class SpeechSegment(AudioSegment):
         :rtype: SpeechSegment
         :raises ValueError: If the number of segments is zero, or if the 
                             sample_rate of any two segments does not match.
-        :raises TypeError: If every item in segments is not Audiosegment
+        :raises TypeError: If every item in segments is not SpeechSegment
                            instance.
         """
         if len(segments) == 0:
-            raise ValueError("No audio segments are given to concatenate.")
+            raise ValueError("No speech segments are given to concatenate.")
         sample_rate = segments[0]._sample_rate
         transcripts = ""
         for seg in segments:
@@ -116,7 +116,7 @@ class SpeechSegment(AudioSegment):
         :rtype: SpeechSegment
         """
         audio = Audiosegment.slice_from_file(filepath, start, end)
-        return cls(audio.samples, audio.sample_rate, transcripts)
+        return cls(audio.samples, audio.sample_rate, transcript)
 
     @classmethod
     def make_silence(cls, duration, sample_rate):
@@ -128,7 +128,7 @@ class SpeechSegment(AudioSegment):
         :param sample_rate: Sample rate.
         :type sample_rate: float
         :return: Silence of the given duration.
-        :rtype: AudioSegment
+        :rtype: SpeechSegment
         """
         audio = AudioSegment.make_silence(duration, sample_rate)
         return cls(audio.samples, audio.sample_rate, "")

@@ -88,7 +88,7 @@ class AudioSegment(object):
         :rtype: AudioSegment
         :raises ValueError: If the number of segments is zero, or if the 
                             sample_rate of any two segments does not match.
-        :raises TypeError: If every item in segments is not Audiosegment
+        :raises TypeError: If every item in segments is not AudioSegment
                            instance.
         """
         # Perform basic sanity-checks.
@@ -296,7 +296,7 @@ class AudioSegment(object):
         :type prior_db: float
         :param prior_samples: Prior strength in number of samples.
         :type prior_samples: float
-        :param startup_delay: Default 0.0 s. If provided, this function will
+        :param startup_delay: Default 0.0s. If provided, this function will
                               accrue statistics for the first startup_delay 
                               seconds before applying online normalization.
         :type startup_delay: float
@@ -401,7 +401,7 @@ class AudioSegment(object):
         self.subsegment(start_time, start_time + subsegment_length)
 
     def convolve(self, impulse_segment, allow_resample=False):
-        """Convolve this audio segment with the given filter.
+        """Convolve this audio segment with the given impulse_segment.
 
         Note that this is an in-place transformation.
 

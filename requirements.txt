@@ -1,4 +1,3 @@
 SoundFile==0.9.0.post1
 wget==3.2
-scikits.samplerate==0.3.3
-scipy==0.13.0b1
+scipy==0.13.1

@@ -2,14 +2,20 @@
 """This module provides functions to calculate error rate in different level.
 e.g. wer for word-level, cer for char-level.
 """
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
 import numpy as np
 
 
-def levenshtein_distance(ref, hyp):
+def _levenshtein_distance(ref, hyp):
+    """Levenshtein distance is a string metric for measuring the difference between
+    two sequences. Informally, the levenshtein disctance is defined as the minimum
+    number of single-character edits (substitutions, insertions or deletions) 
+    required to change one word into the other. We can naturally extend the edits to 
+    word level when calculate levenshtein disctance for two sentences.
+    """
     ref_len = len(ref)
     hyp_len = len(hyp)
 
@@ -72,7 +78,7 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     :type delimiter: char
     :return: Word error rate.
     :rtype: float
-    :raises ValueError: If reference length is zero.
+    :raises ValueError: If the reference length is zero.
     """
     if ignore_case == True:
         reference = reference.lower()
@@ -84,7 +90,7 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     if len(ref_words) == 0:
         raise ValueError("Reference's word number should be greater than 0.")
 
-    edit_distance = levenshtein_distance(ref_words, hyp_words)
+    edit_distance = _levenshtein_distance(ref_words, hyp_words)
     wer = float(edit_distance) / len(ref_words)
     return wer
 
@@ -118,7 +124,7 @@ def cer(reference, hypothesis, ignore_case=False):
     :type ignore_case: bool
     :return: Character error rate.
     :rtype: float
-    :raises ValueError: If reference length is zero.
+    :raises ValueError: If the reference length is zero.
     """
     if ignore_case == True:
         reference = reference.lower()
@@ -130,6 +136,6 @@ def cer(reference, hypothesis, ignore_case=False):
     if len(reference) == 0:
         raise ValueError("Length of reference should be greater than 0.")
 
-    edit_distance = levenshtein_distance(reference, hypothesis)
+    edit_distance = _levenshtein_distance(reference, hypothesis)
     cer = float(edit_distance) / len(reference)
     return cer

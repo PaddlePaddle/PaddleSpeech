@@ -23,10 +23,8 @@ class TestParse(unittest.TestCase):
     def test_wer_3(self):
         ref = ' '
         hyp = 'Hypothesis sentence'
-        try:
+        with self.assertRaises(ValueError):
             word_error_rate = error_rate.wer(ref, hyp)
-        except Exception as e:
-            self.assertTrue(isinstance(e, ValueError))
 
     def test_cer_1(self):
         ref = 'werewolf'
@@ -53,10 +51,8 @@ class TestParse(unittest.TestCase):
     def test_cer_5(self):
         ref = ''
         hyp = 'Hypothesis'
-        try:
+        with self.assertRaises(ValueError):
             char_error_rate = error_rate.cer(ref, hyp)
-        except Exception as e:
-            self.assertTrue(isinstance(e, ValueError))
 
 
 if __name__ == '__main__':

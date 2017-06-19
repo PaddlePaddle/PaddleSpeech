@@ -1,6 +1,7 @@
-"""
-    CTC-like decoder utilitis.
-"""
+"""Contains various CTC decoder."""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import os
 from itertools import groupby
@@ -10,8 +11,7 @@ import multiprocessing
 
 
 def ctc_best_path_decode(probs_seq, vocabulary):
-    """
-    Best path decoding, also called argmax decoding or greedy decoding.
+    """Best path decoding, also called argmax decoding or greedy decoding.
     Path consisting of the most probable tokens are further post-processed to
     remove consecutive repetitions and all blanks.
 
@@ -40,8 +40,7 @@ def ctc_best_path_decode(probs_seq, vocabulary):
 
 
 class Scorer(object):
-    """
-    External defined scorer to evaluate a sentence in beam search
+    """External defined scorer to evaluate a sentence in beam search
                decoding, consisting of language model and word count.
 
     :param alpha: Parameter associated with language model.
@@ -73,8 +72,7 @@ class Scorer(object):
 
     # execute evaluation
     def __call__(self, sentence, log=False):
-        """
-        Evaluation function
+        """Evaluation function, gathering all the scores.
 
         :param sentence: The input sentence for evalutation
         :type sentence: basestring
@@ -101,8 +99,7 @@ def ctc_beam_search_decoder(probs_seq,
                             cutoff_prob=1.0,
                             ext_scoring_func=None,
                             nproc=False):
-    '''
-    Beam search decoder for CTC-trained network, using beam search with width
+    '''Beam search decoder for CTC-trained network, using beam search with width
     beam_size to find many paths to one label, return  beam_size labels in
     the descending order of probabilities. The implementation is based on Prefix
     Beam Search(https://arxiv.org/abs/1408.2873), and the unclear part is
@@ -129,7 +126,6 @@ def ctc_beam_search_decoder(probs_seq,
     :type nproc: bool
     :return: Decoding log probabilities and result sentences in descending order.
     :rtype: list
-
     '''
     # dimension check
     for prob_list in probs_seq:
@@ -242,8 +238,7 @@ def ctc_beam_search_decoder_nproc(probs_split,
                                   cutoff_prob=1.0,
                                   ext_scoring_func=None,
                                   num_processes=None):
-    '''
-    Beam search decoder using multiple processes.
+    '''Beam search decoder using multiple processes.
 
     :param probs_seq: 3-D list with length batch_size, each element
                       is a 2-D list of  probabilities can be used by

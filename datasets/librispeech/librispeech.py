@@ -1,13 +1,14 @@
-"""
-    Download, unpack and create manifest json files for the Librespeech dataset.
+"""Prepare Librispeech ASR datasets.
 
-    A manifest is a json file summarizing filelist in a data set, with each line
-    containing the meta data (i.e. audio filepath, transcription text, audio
-    duration) of each audio file in the data set.
+Download, unpack and create manifest files.
+Manifest file is a json-format file with each line containing the
+meta data (i.e. audio filepath, transcript and audio duration)
+of each audio file in the data set.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-import paddle.v2 as paddle
-from paddle.v2.dataset.common import md5file
 import distutils.util
 import os
 import wget
@@ -15,6 +16,7 @@ import tarfile
 import argparse
 import soundfile
 import json
+from paddle.v2.dataset.common import md5file
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
@@ -35,8 +37,7 @@ MD5_TRAIN_CLEAN_100 = "2a93770f6d5c6c964bc36631d331a522"
 MD5_TRAIN_CLEAN_360 = "c0e676e450a7ff2f54aeade5171606fa"
 MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
 
-parser = argparse.ArgumentParser(
-    description='Downloads and prepare LibriSpeech dataset.')
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--target_dir",
     default=DATA_HOME + "/Libri",
@@ -44,7 +45,7 @@ parser.add_argument(
     help="Directory to save the dataset. (default: %(default)s)")
 parser.add_argument(
     "--manifest_prefix",
-    default="manifest.libri",
+    default="manifest",
     type=str,
     help="Filepath prefix for output manifests. (default: %(default)s)")
 parser.add_argument(

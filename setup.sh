@@ -4,8 +4,8 @@
 if [ -f 'requirements.txt' ]; then
     pip install -r requirements.txt
 fi
-
 if [ $? != 0 ]; then
+    echo "Install python dependencies failed !!!"
     exit 1
 fi
 
@@ -23,6 +23,8 @@ rm -rf libsamplerate-0.1.9
 rm libsamplerate-0.1.9.tar.gz
 pip install scikits.samplerate==0.3.3
 if [ $? != 0 ]; then
-    echo "Install sckikits.samplerate failed !!!"
+    echo "Install scikits.samplerate failed !!!"
     exit 1
 fi
+
+echo "Install all dependencies successfully."

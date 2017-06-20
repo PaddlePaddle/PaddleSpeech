@@ -6,6 +6,7 @@ from __future__ import print_function
 import argparse
 import gzip
 import distutils.util
+import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
@@ -39,6 +40,11 @@ parser.add_argument(
     default=True,
     type=distutils.util.strtobool,
     help="Use gpu or not. (default: %(default)s)")
+parser.add_argument(
+    "--num_threads_data",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
@@ -107,7 +113,8 @@ def infer():
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
-        augmentation_config='{}')
+        augmentation_config='{}',
+        num_threads=args.num_threads_data)
 
     # create network config
     # paddle.data_type.dense_array is used for variable batch input.

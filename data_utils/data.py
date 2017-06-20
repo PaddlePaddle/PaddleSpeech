@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import random
 import numpy as np
+import multiprocessing
 import paddle.v2 as paddle
 from data_utils import utils
 from data_utils.augmentor.augmentation import AugmentationPipeline
@@ -44,6 +45,8 @@ class DataGenerator(object):
     :types max_freq: None|float
     :param specgram_type: Specgram feature type. Options: 'linear'.
     :type specgram_type: str
+    :param num_threads: Number of CPU threads for processing data.
+    :type num_threads: int
     :param random_seed: Random seed.
     :type random_seed: int
     """
@@ -58,6 +61,7 @@ class DataGenerator(object):
                  window_ms=20.0,
                  max_freq=None,
                  specgram_type='linear',
+                 num_threads=multiprocessing.cpu_count(),
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration
@@ -70,6 +74,7 @@ class DataGenerator(object):
             stride_ms=stride_ms,
             window_ms=window_ms,
             max_freq=max_freq)
+        self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
 
@@ -207,10 +212,14 @@ class DataGenerator(object):
 
         def reader():
             for instance in manifest:
-                yield self._process_utterance(instance["audio_filepath"],
-                                              instance["text"])
+                yield instance
 
-        return reader
+        def mapper(instance):
+            return self._process_utterance(instance["audio_filepath"],
+                                           instance["text"])
+
+        return paddle.reader.xmap_readers(
+            mapper, reader, self._num_threads, 1024, order=True)
 
     def _padding_batch(self, batch, padding_to=-1, flatten=False):
         """

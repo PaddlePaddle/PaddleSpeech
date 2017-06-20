@@ -9,6 +9,7 @@ import argparse
 import gzip
 import time
 import distutils.util
+import multiprocessing
 import paddle.v2 as paddle
 from model import deep_speech2
 from data_utils.data import DataGenerator
@@ -53,6 +54,18 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use sortagrad or not. (default: %(default)s)")
 parser.add_argument(
+    "--max_duration",
+    default=100.0,
+    type=float,
+    help="Audios with duration larger than this will be discarded. "
+    "(default: %(default)s)")
+parser.add_argument(
+    "--min_duration",
+    default=0.0,
+    type=float,
+    help="Audios with duration smaller than this will be discarded. "
+    "(default: %(default)s)")
+parser.add_argument(
     "--shuffle_method",
     default='instance_shuffle',
     type=str,
@@ -63,6 +76,11 @@ parser.add_argument(
     default=4,
     type=int,
     help="Trainer number. (default: %(default)s)")
+parser.add_argument(
+    "--num_threads_data",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
@@ -107,7 +125,10 @@ def train():
         return DataGenerator(
             vocab_filepath=args.vocab_filepath,
             mean_std_filepath=args.mean_std_filepath,
-            augmentation_config=args.augmentation_config)
+            augmentation_config=args.augmentation_config,
+            max_duration=args.max_duration,
+            min_duration=args.min_duration,
+            num_threads=args.num_threads_data)
 
     train_generator = data_generator()
     test_generator = data_generator()

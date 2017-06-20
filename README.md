@@ -5,7 +5,7 @@
 Please replace `$PADDLE_INSTALL_DIR` with your own paddle installation directory.
 
 ```
-pip install -r requirements.txt
+sh setup.sh
 export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/lib:$LD_LIBRARY_PATH
 ```
 

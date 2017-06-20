@@ -65,6 +65,74 @@ class SpeechSegment(AudioSegment):
         audio = AudioSegment.from_bytes(bytes)
         return cls(audio.samples, audio.sample_rate, transcript)
 
+    @classmethod
+    def concatenate(cls, *segments):
+        """Concatenate an arbitrary number of speech segments together, both
+        audio and transcript will be concatenated.
+
+        :param *segments: Input speech segments to be concatenated.
+        :type *segments: tuple of SpeechSegment
+        :return: Speech segment instance.
+        :rtype: SpeechSegment
+        :raises ValueError: If the number of segments is zero, or if the 
+                            sample_rate of any two segments does not match.
+        :raises TypeError: If any segment is not SpeechSegment instance.
+        """
+        if len(segments) == 0:
+            raise ValueError("No speech segments are given to concatenate.")
+        sample_rate = segments[0]._sample_rate
+        transcripts = ""
+        for seg in segments:
+            if sample_rate != seg._sample_rate:
+                raise ValueError("Can't concatenate segments with "
+                                 "different sample rates")
+            if type(seg) is not cls:
+                raise TypeError("Only speech segments of the same type "
+                                "instance can be concatenated.")
+            transcripts += seg._transcript
+        samples = np.concatenate([seg.samples for seg in segments])
+        return cls(samples, sample_rate, transcripts)
+
+    @classmethod
+    def slice_from_file(cls, filepath, start=None, end=None, transcript):
+        """Loads a small section of an speech without having to load
+        the entire file into the memory which can be incredibly wasteful.
+
+        :param filepath: Filepath or file object to audio file.
+        :type filepath: basestring|file
+        :param start: Start time in seconds. If start is negative, it wraps
+                      around from the end. If not provided, this function 
+                      reads from the very beginning.
+        :type start: float
+        :param end: End time in seconds. If end is negative, it wraps around
+                    from the end. If not provided, the default behvaior is
+                    to read to the end of the file.
+        :type end: float
+        :param transcript: Transcript text for the speech. if not provided, 
+                           the defaults is an empty string.
+        :type transript: basestring
+        :return: SpeechSegment instance of the specified slice of the input
+                 speech file.
+        :rtype: SpeechSegment
+        """
+        audio = Audiosegment.slice_from_file(filepath, start, end)
+        return cls(audio.samples, audio.sample_rate, transcript)
+
+    @classmethod
+    def make_silence(cls, duration, sample_rate):
+        """Creates a silent speech segment of the given duration and
+        sample rate, transcript will be an empty string.
+
+        :param duration: Length of silence in seconds.
+        :type duration: float
+        :param sample_rate: Sample rate.
+        :type sample_rate: float
+        :return: Silence of the given duration.
+        :rtype: SpeechSegment
+        """
+        audio = AudioSegment.make_silence(duration, sample_rate)
+        return cls(audio.samples, audio.sample_rate, "")
+
     @property
     def transcript(self):
         """Return the transcript text.

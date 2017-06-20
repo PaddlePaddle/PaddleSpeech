@@ -11,7 +11,7 @@ class ResampleAugmentor(AugmentorBase):
     
     :param rng: Random generator object.
     :type rng: random.Random
-    :param new_sample_rate: New sample rate in Hz
+    :param new_sample_rate: New sample rate in Hz.
     :type new_sample_rate: int
     """
 

@@ -83,7 +83,7 @@ class AugmentationPipeline(object):
             return SpeedPerturbAugmentor(self._rng, **params)
         if augmentor_type == "resample":
             return ResampleAugmentor(self._rng, **params)
-        if augmentor_type == "baysian_normal":
+        if augmentor_type == "bayesian_normal":
             return OnlineBayesianNormalizationAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

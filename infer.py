@@ -39,6 +39,11 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
+    "--num_threads_data",
+    default=12,
+    type=int,
+    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
+parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
     type=str,
@@ -67,7 +72,8 @@ def infer():
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
-        augmentation_config='{}')
+        augmentation_config='{}',
+        num_threads=args.num_threads_data)
 
     # create network config
     # paddle.data_type.dense_array is used for variable batch input.

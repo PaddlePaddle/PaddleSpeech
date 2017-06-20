@@ -94,7 +94,7 @@ class SpeechSegment(AudioSegment):
         return cls(samples, sample_rate, transcripts)
 
     @classmethod
-    def slice_from_file(cls, filepath, start=None, end=None, transcript):
+    def slice_from_file(cls, filepath, transcript, start=None, end=None):
         """Loads a small section of an speech without having to load
         the entire file into the memory which can be incredibly wasteful.
 

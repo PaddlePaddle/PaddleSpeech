@@ -151,7 +151,6 @@ def infer():
     ## decode and print
     # best path decode
     wer_sum, wer_counter = 0, 0
-    total_time = 0.0
     if args.decode_method == "best_path":
         for i, probs in enumerate(probs_split):
             target_transcription = ''.join([

@@ -1,4 +1,4 @@
-"""Contains various CTC decoder."""
+"""Contains various CTC decoders."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -103,7 +103,7 @@ def ctc_beam_search_decoder(probs_seq,
     beam_size to find many paths to one label, return  beam_size labels in
     the descending order of probabilities. The implementation is based on Prefix
     Beam Search(https://arxiv.org/abs/1408.2873), and the unclear part is
-    redesigned, need to be verified.
+    redesigned.
 
     :param probs_seq: 2-D list with length num_time_steps, each element
                       is a list of normalized probabilities over vocabulary
@@ -262,9 +262,7 @@ def ctc_beam_search_decoder_nproc(probs_split,
     :type num_processes: int
     :return: Decoding log probabilities and result sentences in descending order.
     :rtype: list
-
     '''
-
     if num_processes is None:
         num_processes = multiprocessing.cpu_count()
     if not num_processes > 0:

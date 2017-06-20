@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import random
 import numpy as np
+import multiprocessing
 import paddle.v2 as paddle
 from data_utils import utils
 from data_utils.augmentor.augmentation import AugmentationPipeline
@@ -60,7 +61,7 @@ class DataGenerator(object):
                  window_ms=20.0,
                  max_freq=None,
                  specgram_type='linear',
-                 num_threads=12,
+                 num_threads=multiprocessing.cpu_count(),
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration

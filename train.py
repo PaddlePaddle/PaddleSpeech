@@ -9,6 +9,7 @@ import argparse
 import gzip
 import time
 import distutils.util
+import multiprocessing
 import paddle.v2 as paddle
 from model import deep_speech2
 from data_utils.data import DataGenerator
@@ -77,7 +78,7 @@ parser.add_argument(
     help="Trainer number. (default: %(default)s)")
 parser.add_argument(
     "--num_threads_data",
-    default=12,
+    default=multiprocessing.cpu_count(),
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(

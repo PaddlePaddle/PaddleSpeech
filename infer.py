@@ -6,6 +6,7 @@ from __future__ import print_function
 import argparse
 import gzip
 import distutils.util
+import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
@@ -40,7 +41,7 @@ parser.add_argument(
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
     "--num_threads_data",
-    default=12,
+    default=multiprocessing.cpu_count(),
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(

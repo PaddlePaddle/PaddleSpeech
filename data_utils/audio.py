@@ -308,7 +308,7 @@ class AudioSegment(object):
         prior_mean_squared = 10.**(prior_db / 10.)
         prior_sum_of_squares = prior_mean_squared * prior_samples
         cumsum_of_squares = np.cumsum(self.samples**2)
-        sample_count = np.arange(len(self.num_samples)) + 1
+        sample_count = np.arange(self.num_samples) + 1
         if startup_sample_idx > 0:
             cumsum_of_squares[:startup_sample_idx] = \
                 cumsum_of_squares[startup_sample_idx]

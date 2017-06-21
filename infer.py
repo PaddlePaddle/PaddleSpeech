@@ -11,6 +11,7 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
 from decoder import *
+from scorer import Scorer
 from error_rate import wer
 import utils
 
@@ -67,7 +68,7 @@ parser.add_argument(
     help="Vocabulary filepath. (default: %(default)s)")
 parser.add_argument(
     "--decode_method",
-    default='best_path',
+    default='beam_search_nproc',
     type=str,
     help="Method for ctc decoding:"
     "  best_path,"
@@ -85,7 +86,7 @@ parser.add_argument(
     help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="data/1Billion.klm",
+    default="data/en.00.UNKNOWN.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(

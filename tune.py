@@ -10,6 +10,7 @@ import gzip
 from data_utils.data import DataGenerator
 from model import deep_speech2
 from decoder import *
+from scorer import Scorer
 from error_rate import wer
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -81,7 +82,7 @@ parser.add_argument(
     help="Number of outputs per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="data/1Billion.klm",
+    default="data/en.00.UNKNOWN.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(

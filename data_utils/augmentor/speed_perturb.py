@@ -23,9 +23,11 @@ class SpeedPerturbAugmentor(AugmentorBase):
     def __init__(self, rng, min_speed_rate, max_speed_rate):
 
         if (min_speed_rate < 0.5):
-            raise ValueError("Sampling speed below 0.9 can cause unnatural effects")
+            raise ValueError("Sampling speed below 0.9 can cause unnatural "\
+                             "effects")
         if (max_speed_rate > 1.5):
-            raise ValueError("Sampling speed above 1.1 can cause unnatural effects")
+            raise ValueError("Sampling speed above 1.1 can cause unnatural "\
+                             "effects")
         self._min_speed_rate = min_speed_rate
         self._max_speed_rate = max_speed_rate
         self._rng = rng
@@ -39,5 +41,6 @@ class SpeedPerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegment|SpeechSegment
         """
-        sampled_speed = self._rng.uniform(self._min_speed_rate, self._max_speed_rate)
+        sampled_speed = self._rng.uniform(self._min_speed_rate,
+                                          self._max_speed_rate)
         audio_segment.change_speed(sampled_speed)

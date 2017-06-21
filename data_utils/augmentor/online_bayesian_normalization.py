@@ -32,9 +32,8 @@ class OnlineBayesianNormalizationAugmentor(AugmentorBase):
         self._target_db = target_db
         self._prior_db = prior_db
         self._prior_samples = prior_samples
-        self._startup_delay = startup_delay
         self._rng = rng
-        self._startup_delay=startup_delay
+        self._startup_delay = startup_delay
 
     def transform_audio(self, audio_segment):
         """Normalizes the input audio using the online Bayesian approach.
@@ -44,7 +43,6 @@ class OnlineBayesianNormalizationAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegment|SpeechSegment
         """
-        audio_segment.normalize_online_bayesian(self._target_db,
-                                                self._prior_db,
+        audio_segment.normalize_online_bayesian(self._target_db, self._prior_db,
                                                 self._prior_samples,
                                                 self._startup_delay)

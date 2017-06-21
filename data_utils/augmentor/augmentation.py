@@ -6,6 +6,7 @@ from __future__ import print_function
 import json
 import random
 from data_utils.augmentor.volume_perturb import VolumePerturbAugmentor
+from data_utils.augmentor.shift_perturb import ShiftPerturbAugmentor
 
 
 class AugmentationPipeline(object):
@@ -76,5 +77,7 @@ class AugmentationPipeline(object):
         """Return an augmentation model by the type name, and pass in params."""
         if augmentor_type == "volume":
             return VolumePerturbAugmentor(self._rng, **params)
+        elif augmentor_type == "shift":
+            return ShiftPerturbAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

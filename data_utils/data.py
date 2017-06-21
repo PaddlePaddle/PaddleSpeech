@@ -45,6 +45,9 @@ class DataGenerator(object):
     :types max_freq: None|float
     :param specgram_type: Specgram feature type. Options: 'linear'.
     :type specgram_type: str
+    :param use_dB_normalization: Whether to normalize the audio to -20 dB
+                                 before extracting the features.
+    :type use_dB_normalization: bool
     :param num_threads: Number of CPU threads for processing data.
     :type num_threads: int
     :param random_seed: Random seed.
@@ -61,6 +64,7 @@ class DataGenerator(object):
                  window_ms=20.0,
                  max_freq=None,
                  specgram_type='linear',
+                 use_dB_normalization=True,
                  num_threads=multiprocessing.cpu_count(),
                  random_seed=0):
         self._max_duration = max_duration
@@ -73,7 +77,8 @@ class DataGenerator(object):
             specgram_type=specgram_type,
             stride_ms=stride_ms,
             window_ms=window_ms,
-            max_freq=max_freq)
+            max_freq=max_freq,
+            use_dB_normalization=use_dB_normalization)
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0

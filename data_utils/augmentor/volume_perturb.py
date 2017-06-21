@@ -36,5 +36,5 @@ class VolumePerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        gain = self._rng.uniform(min_gain_dBFS, max_gain_dBFS)
+        gain = self._rng.uniform(self._min_gain_dBFS, self._max_gain_dBFS)
         audio_segment.apply_gain(gain)

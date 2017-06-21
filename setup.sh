@@ -27,4 +27,7 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+# prepare ./checkpoints
+mkdir checkpoints
+
 echo "Install all dependencies successfully."

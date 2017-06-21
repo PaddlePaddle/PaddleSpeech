@@ -6,7 +6,7 @@ from __future__ import print_function
 import numpy as np
 import io
 import soundfile
-import scikits.samplerate
+import resampy
 from scipy import signal
 import random
 import copy
@@ -321,21 +321,19 @@ class AudioSegment(object):
         gain_db = target_db - rms_estimate_db
         self.apply_gain(gain_db)
 
-    def resample(self, target_sample_rate, quality='sinc_medium'):
+    def resample(self, target_sample_rate, filter='kaiser_best'):
         """Resample the audio to a target sample rate.
 
         Note that this is an in-place transformation.
 
         :param target_sample_rate: Target sample rate.
         :type target_sample_rate: int
-        :param quality: One of {'sinc_fastest', 'sinc_medium', 'sinc_best'}.
-                        Sets resampling speed/quality tradeoff.
-                        See http://www.mega-nerd.com/SRC/api_misc.html#Converters
-        :type quality: str
+        :param filter: The resampling filter to use one of {'kaiser_best',
+                       'kaiser_fast'}.               
+        :type filter: str
         """
-        resample_ratio = target_sample_rate / self._sample_rate
-        self._samples = scikits.samplerate.resample(
-            self._samples, r=resample_ratio, type=quality)
+        self._samples = resampy.resample(
+            self.samples, self.sample_rate, target_sample_rate, filter=filter)
         self._sample_rate = target_sample_rate
 
     def pad_silence(self, duration, sides='both'):

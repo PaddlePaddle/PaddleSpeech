@@ -8,6 +8,9 @@ from data_utils.augmentor.base import AugmentorBase
 
 class ResampleAugmentor(AugmentorBase):
     """Augmentation model for resampling.
+
+    See more info here:
+    https://ccrma.stanford.edu/~jos/resample/index.html
     
     :param rng: Random generator object.
     :type rng: random.Random

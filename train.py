@@ -17,10 +17,10 @@ import utils
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
-    "--batch_size", default=32, type=int, help="Minibatch size.")
+    "--batch_size", default=256, type=int, help="Minibatch size.")
 parser.add_argument(
     "--num_passes",
-    default=20,
+    default=200,
     type=int,
     help="Training pass number. (default: %(default)s)")
 parser.add_argument(
@@ -55,7 +55,7 @@ parser.add_argument(
     help="Use sortagrad or not. (default: %(default)s)")
 parser.add_argument(
     "--max_duration",
-    default=100.0,
+    default=27.0,
     type=float,
     help="Audios with duration larger than this will be discarded. "
     "(default: %(default)s)")
@@ -67,13 +67,13 @@ parser.add_argument(
     "(default: %(default)s)")
 parser.add_argument(
     "--shuffle_method",
-    default='instance_shuffle',
+    default='batch_shuffle_clipped',
     type=str,
     help="Shuffle method: 'instance_shuffle', 'batch_shuffle', "
     "'batch_shuffle_batch'. (default: %(default)s)")
 parser.add_argument(
     "--trainer_count",
-    default=4,
+    default=8,
     type=int,
     help="Trainer number. (default: %(default)s)")
 parser.add_argument(
@@ -110,7 +110,9 @@ parser.add_argument(
     "the existing model of this path. (default: %(default)s)")
 parser.add_argument(
     "--augmentation_config",
-    default='{}',
+    default='[{"type": "shift", '
+    '"params": {"min_shift_ms": -5, "max_shift_ms": 5},'
+    '"prob": 1.0}]',
     type=str,
     help="Augmentation configuration in json-format. "
     "(default: %(default)s)")
@@ -189,7 +191,7 @@ def train():
                 print("\nPass: %d, Batch: %d, TrainCost: %f" % (
                     event.pass_id, event.batch_id + 1, cost_sum / cost_counter))
                 cost_sum, cost_counter = 0.0, 0
-                with gzip.open("params.tar.gz", 'w') as f:
+                with gzip.open("checkpoints/params.latest.tar.gz", 'w') as f:
                     parameters.to_tar(f)
             else:
                 sys.stdout.write('.')
@@ -202,6 +204,9 @@ def train():
                 reader=test_batch_reader, feeding=test_generator.feeding)
             print("\n------- Time: %d sec,  Pass: %d, ValidationCost: %s" %
                   (time.time() - start_time, event.pass_id, result.cost))
+            with gzip.open("checkpoints/params.pass-%d.tar.gz" % event.pass_id,
+                           'w') as f:
+                parameters.to_tar(f)
 
     # run train
     trainer.train(

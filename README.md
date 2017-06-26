@@ -51,13 +51,13 @@ python compute_mean_std.py --help
 For GPU Training:
 
 ```
-CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --trainer_count 4
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py
 ```
 
 For CPU Training:
 
 ```
-python train.py --trainer_count 8 --use_gpu False
+python train.py --use_gpu False
 ```
 
 More help for arguments:

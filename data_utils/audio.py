@@ -378,7 +378,7 @@ class AudioSegment(object):
         :type shift_ms: float
         :raises ValueError: If shift_ms is longer than audio duration.
         """
-        if shift_ms / 1000.0 > self.duration:
+        if abs(shift_ms) / 1000.0 > self.duration:
             raise ValueError("Absolute value of shift_ms should be smaller "
                              "than audio duration.")
         shift_samples = int(shift_ms * self._sample_rate / 1000)

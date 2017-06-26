@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install python dependencies
-if [ -f 'requirements.txt' ]; then
+if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
 fi
 if [ $? != 0 ]; then
@@ -9,21 +9,21 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-# install scikits.samplerate
-curl -O "http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz"
+# install package Soundfile
+curl -O "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
 if [ $? != 0 ]; then
-    echo "Download libsamplerate-0.1.9.tar.gz failed !!!"
+    echo "Download libsndfile-1.0.28.tar.gz failed !!!"
     exit 1
 fi
-tar -xvf libsamplerate-0.1.9.tar.gz
-cd libsamplerate-0.1.9
+tar -zxvf libsndfile-1.0.28.tar.gz
+cd libsndfile-1.0.28
 ./configure && make && make install
 cd -
-rm -rf libsamplerate-0.1.9
-rm libsamplerate-0.1.9.tar.gz
-pip install scikits.samplerate==0.3.3
+rm -rf libsndfile-1.0.28
+rm libsndfile-1.0.28.tar.gz
+pip install SoundFile==0.9.0.post1
 if [ $? != 0 ]; then
-    echo "Install scikits.samplerate failed !!!"
+    echo "Install SoundFile failed !!!"
     exit 1
 fi
 

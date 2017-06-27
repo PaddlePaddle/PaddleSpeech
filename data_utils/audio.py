@@ -332,7 +332,6 @@ class AudioSegment(object):
                        'kaiser_fast'}.
         :type filter: str
         """
-        resample_ratio = target_sample_rate / self._sample_rate
         self._samples = resampy.resample(
             self.samples, self.sample_rate, target_sample_rate, filter=filter)
         self._sample_rate = target_sample_rate

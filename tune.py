@@ -3,14 +3,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import paddle.v2 as paddle
 import distutils.util
 import argparse
 import gzip
+import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
 from decoder import *
-from scorer import Scorer
+from lm.lm_scorer import LmScorer
 from error_rate import wer
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -40,23 +40,28 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
+    "--num_threads_data",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
+parser.add_argument(
+    "--num_processes_beam_search",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu processes for beam search. (default: %(default)s)")
+parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
     type=str,
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
-    "--normalizer_manifest_path",
-    default='data/manifest.libri.train-clean-100',
-    type=str,
-    help="Manifest path for normalizer. (default: %(default)s)")
-parser.add_argument(
     "--decode_manifest_path",
-    default='data/manifest.libri.test-100sample',
+    default='datasets/manifest.test',
     type=str,
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(
     "--model_filepath",
-    default='./params.tar.gz',
+    default='checkpoints/params.latest.tar.gz',
     type=str,
     help="Model filepath. (default: %(default)s)")
 parser.add_argument(
@@ -65,24 +70,13 @@ parser.add_argument(
     type=str,
     help="Vocabulary filepath. (default: %(default)s)")
 parser.add_argument(
-    "--decode_method",
-    default='beam_search_nproc',
-    type=str,
-    help="Method for decoding, beam_search or beam_search_nproc. (default: %(default)s)"
-)
-parser.add_argument(
     "--beam_size",
     default=500,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
-    "--num_results_per_sample",
-    default=1,
-    type=int,
-    help="Number of outputs per sample in beam search. (default: %(default)d)")
-parser.add_argument(
     "--language_model_path",
-    default="data/en.00.UNKNOWN.klm",
+    default="lm/data/en.00.UNKNOWN.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -137,7 +131,8 @@ def tune():
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
-        augmentation_config='{}')
+        augmentation_config='{}',
+        num_threads=args.num_threads_data)
 
     # create network config
     # paddle.data_type.dense_array is used for variable batch input.
@@ -188,42 +183,22 @@ def tune():
     ## tune parameters in loop
     for (alpha, beta) in params_grid:
         wer_sum, wer_counter = 0, 0
-        ext_scorer = Scorer(alpha, beta, args.language_model_path)
-        # beam search decode
-        if args.decode_method == "beam_search":
-            for i, probs in enumerate(probs_split):
-                target_transcription = ''.join([
-                    data_generator.vocab_list[index]
-                    for index in infer_data[i][1]
-                ])
-                beam_search_result = ctc_beam_search_decoder(
-                    probs_seq=probs,
-                    vocabulary=data_generator.vocab_list,
-                    beam_size=args.beam_size,
-                    blank_id=len(data_generator.vocab_list),
-                    cutoff_prob=args.cutoff_prob,
-                    ext_scoring_func=ext_scorer, )
-                wer_sum += wer(target_transcription, beam_search_result[0][1])
-                wer_counter += 1
+        ext_scorer = LmScorer(alpha, beta, args.language_model_path)
         # beam search using multiple processes
-        elif args.decode_method == "beam_search_nproc":
-            beam_search_nproc_results = ctc_beam_search_decoder_nproc(
-                probs_split=probs_split,
-                vocabulary=data_generator.vocab_list,
-                beam_size=args.beam_size,
-                cutoff_prob=args.cutoff_prob,
-                blank_id=len(data_generator.vocab_list),
-                ext_scoring_func=ext_scorer, )
-            for i, beam_search_result in enumerate(beam_search_nproc_results):
-                target_transcription = ''.join([
-                    data_generator.vocab_list[index]
-                    for index in infer_data[i][1]
-                ])
-                wer_sum += wer(target_transcription, beam_search_result[0][1])
-                wer_counter += 1
-        else:
-            raise ValueError("Decoding method [%s] is not supported." %
-                             decode_method)
+        beam_search_results = ctc_beam_search_decoder_batch(
+            probs_split=probs_split,
+            vocabulary=data_generator.vocab_list,
+            beam_size=args.beam_size,
+            cutoff_prob=args.cutoff_prob,
+            blank_id=len(data_generator.vocab_list),
+            num_processes=args.num_processes_beam_search,
+            ext_scoring_func=ext_scorer, )
+        for i, beam_search_result in enumerate(beam_search_results):
+            target_transcription = ''.join([
+                data_generator.vocab_list[index] for index in infer_data[i][1]
+            ])
+            wer_sum += wer(target_transcription, beam_search_result[0][1])
+            wer_counter += 1
 
         print("alpha = %f\tbeta = %f\tWER = %f" %
               (alpha, beta, wer_sum / wer_counter))

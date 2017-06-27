@@ -8,13 +8,16 @@ import kenlm
 import numpy as np
 
 
-class Scorer(object):
-    """External defined scorer to evaluate a sentence in beam search
-               decoding, consisting of language model and word count.
+class LmScorer(object):
+    """External scorer to evaluate a prefix or whole sentence in
+       beam search decoding, including the score from n-gram language
+       model and word count.
 
-    :param alpha: Parameter associated with language model.
+    :param alpha: Parameter associated with language model. Don't use
+                  language model when alpha = 0.
     :type alpha: float
-    :param beta: Parameter associated with word count.
+    :param beta: Parameter associated with word count. Don't use word
+                count when beta = 0.
     :type beta: float
     :model_path: Path to load language model.
     :type model_path: basestring
@@ -28,14 +31,14 @@ class Scorer(object):
         self._language_model = kenlm.LanguageModel(model_path)
 
     # n-gram language model scoring
-    def language_model_score(self, sentence):
+    def _language_model_score(self, sentence):
         #log10 prob of last word
         log_cond_prob = list(
             self._language_model.full_scores(sentence, eos=False))[-1][0]
         return np.power(10, log_cond_prob)
 
     # word insertion term
-    def word_count(self, sentence):
+    def _word_count(self, sentence):
         words = sentence.strip().split(' ')
         return len(words)
 
@@ -51,8 +54,8 @@ class Scorer(object):
         :return: Evaluation score, in the decimal or log.
         :rtype: float
         """
-        lm = self.language_model_score(sentence)
-        word_cnt = self.word_count(sentence)
+        lm = self._language_model_score(sentence)
+        word_cnt = self._word_count(sentence)
         if log == False:
             score = np.power(lm, self._alpha) \
                     * np.power(word_cnt, self._beta)

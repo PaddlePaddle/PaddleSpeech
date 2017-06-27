@@ -53,11 +53,11 @@ class TestDecoders(unittest.TestCase):
         self.beam_search_result = ['acdc', "b'a"]
 
     def test_best_path_decoder_1(self):
-        bst_result = ctc_best_path_decode(self.probs_seq1, self.vocab_list)
+        bst_result = ctc_best_path_decoder(self.probs_seq1, self.vocab_list)
         self.assertEqual(bst_result, self.best_path_result[0])
 
     def test_best_path_decoder_2(self):
-        bst_result = ctc_best_path_decode(self.probs_seq2, self.vocab_list)
+        bst_result = ctc_best_path_decoder(self.probs_seq2, self.vocab_list)
         self.assertEqual(bst_result, self.best_path_result[1])
 
     def test_beam_search_decoder_1(self):
@@ -77,7 +77,7 @@ class TestDecoders(unittest.TestCase):
         self.assertEqual(beam_result[0][1], self.beam_search_result[1])
 
     def test_beam_search_nproc_decoder(self):
-        beam_results = ctc_beam_search_decoder_nproc(
+        beam_results = ctc_beam_search_decoder_batch(
             probs_split=[self.probs_seq1, self.probs_seq2],
             beam_size=self.beam_size,
             vocabulary=self.vocab_list,

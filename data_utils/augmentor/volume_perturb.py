@@ -37,4 +37,4 @@ class VolumePerturbAugmentor(AugmentorBase):
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
         gain = self._rng.uniform(self._min_gain_dBFS, self._max_gain_dBFS)
-        audio_segment.apply_gain(gain)
+        audio_segment.gain_db(gain)

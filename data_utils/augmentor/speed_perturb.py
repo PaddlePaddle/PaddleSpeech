@@ -15,10 +15,10 @@ class SpeedPerturbAugmentor(AugmentorBase):
     :param rng: Random generator object.
     :type rng: random.Random
     :param min_speed_rate: Lower bound of new speed rate to sample and should
-                           not below 0.9.
+                           not be smaller than 0.9.
     :type min_speed_rate: float
     :param max_speed_rate: Upper bound of new speed rate to sample and should
-                           not above 1.1.
+                           not be larger than 1.1.
     :type max_speed_rate: float
     """
 

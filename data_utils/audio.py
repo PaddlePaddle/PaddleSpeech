@@ -67,70 +67,6 @@ class AudioSegment(object):
         return cls(samples, sample_rate)
 
     @classmethod
-    def from_bytes(cls, bytes):
-        """Create audio segment from a byte string containing audio samples.
-        
-        :param bytes: Byte string containing audio samples.
-        :type bytes: str
-        :return: Audio segment instance.
-        :rtype: AudioSegment
-        """
-        samples, sample_rate = soundfile.read(
-            io.BytesIO(bytes), dtype='float32')
-        return cls(samples, sample_rate)
-
-    @classmethod
-    def concatenate(cls, *segments):
-        """Concatenate an arbitrary number of audio segments together.
-
-        :param *segments: Input audio segments to be concatenated.
-        :type *segments: tuple of AudioSegment
-        :return: Audio segment instance as concatenating results.
-        :rtype: AudioSegment
-        :raises ValueError: If the number of segments is zero, or if the 
-                            sample_rate of any segments does not match.
-        :raises TypeError: If any segment is not AudioSegment instance.
-        """
-        # Perform basic sanity-checks.
-        if len(segments) == 0:
-            raise ValueError("No audio segments are given to concatenate.")
-        sample_rate = segments[0]._sample_rate
-        for seg in segments:
-            if sample_rate != seg._sample_rate:
-                raise ValueError("Can't concatenate segments with "
-                                 "different sample rates")
-            if type(seg) is not cls:
-                raise TypeError("Only audio segments of the same type "
-                                "can be concatenated.")
-        samples = np.concatenate([seg.samples for seg in segments])
-        return cls(samples, sample_rate)
-
-    def to_wav_file(self, filepath, dtype='float32'):
-        """Save audio segment to disk as wav file.
-        
-        :param filepath: WAV filepath or file object to save the
-                         audio segment.
-        :type filepath: basestring|file
-        :param dtype: Subtype for audio file. Options: 'int16', 'int32',
-                      'float32', 'float64'. Default is 'float32'.
-        :type dtype: str
-        :raises TypeError: If dtype is not supported.
-        """
-        samples = self._convert_samples_from_float32(self._samples, dtype)
-        subtype_map = {
-            'int16': 'PCM_16',
-            'int32': 'PCM_32',
-            'float32': 'FLOAT',
-            'float64': 'DOUBLE'
-        }
-        soundfile.write(
-            filepath,
-            samples,
-            self._sample_rate,
-            format='WAV',
-            subtype=subtype_map[dtype])
-
-    @classmethod
     def slice_from_file(cls, file, start=None, end=None):
         """Loads a small section of an audio without having to load
         the entire file into the memory which can be incredibly wasteful.
@@ -179,6 +115,45 @@ class AudioSegment(object):
         return cls(data, sample_rate)
 
     @classmethod
+    def from_bytes(cls, bytes):
+        """Create audio segment from a byte string containing audio samples.
+        
+        :param bytes: Byte string containing audio samples.
+        :type bytes: str
+        :return: Audio segment instance.
+        :rtype: AudioSegment
+        """
+        samples, sample_rate = soundfile.read(
+            io.BytesIO(bytes), dtype='float32')
+        return cls(samples, sample_rate)
+
+    @classmethod
+    def concatenate(cls, *segments):
+        """Concatenate an arbitrary number of audio segments together.
+
+        :param *segments: Input audio segments to be concatenated.
+        :type *segments: tuple of AudioSegment
+        :return: Audio segment instance as concatenating results.
+        :rtype: AudioSegment
+        :raises ValueError: If the number of segments is zero, or if the 
+                            sample_rate of any segments does not match.
+        :raises TypeError: If any segment is not AudioSegment instance.
+        """
+        # Perform basic sanity-checks.
+        if len(segments) == 0:
+            raise ValueError("No audio segments are given to concatenate.")
+        sample_rate = segments[0]._sample_rate
+        for seg in segments:
+            if sample_rate != seg._sample_rate:
+                raise ValueError("Can't concatenate segments with "
+                                 "different sample rates")
+            if type(seg) is not cls:
+                raise TypeError("Only audio segments of the same type "
+                                "can be concatenated.")
+        samples = np.concatenate([seg.samples for seg in segments])
+        return cls(samples, sample_rate)
+
+    @classmethod
     def make_silence(cls, duration, sample_rate):
         """Creates a silent audio segment of the given duration and sample rate.
 
@@ -191,6 +166,31 @@ class AudioSegment(object):
         """
         samples = np.zeros(int(duration * sample_rate))
         return cls(samples, sample_rate)
+
+    def to_wav_file(self, filepath, dtype='float32'):
+        """Save audio segment to disk as wav file.
+        
+        :param filepath: WAV filepath or file object to save the
+                         audio segment.
+        :type filepath: basestring|file
+        :param dtype: Subtype for audio file. Options: 'int16', 'int32',
+                      'float32', 'float64'. Default is 'float32'.
+        :type dtype: str
+        :raises TypeError: If dtype is not supported.
+        """
+        samples = self._convert_samples_from_float32(self._samples, dtype)
+        subtype_map = {
+            'int16': 'PCM_16',
+            'int32': 'PCM_32',
+            'float32': 'FLOAT',
+            'float64': 'DOUBLE'
+        }
+        soundfile.write(
+            filepath,
+            samples,
+            self._sample_rate,
+            format='WAV',
+            subtype=subtype_map[dtype])
 
     def superimpose(self, other):
         """Add samples from another segment to those of this segment
@@ -225,7 +225,7 @@ class AudioSegment(object):
         samples = self._convert_samples_from_float32(self._samples, dtype)
         return samples.tostring()
 
-    def apply_gain(self, gain):
+    def gain_db(self, gain):
         """Apply gain in decibels to samples.
 
         Note that this is an in-place transformation.
@@ -278,7 +278,7 @@ class AudioSegment(object):
                 "Unable to normalize segment to %f dB because the "
                 "the probable gain have exceeds max_gain_db (%f dB)" %
                 (target_db, max_gain_db))
-        self.apply_gain(min(max_gain_db, target_db - self.rms_db))
+        self.gain_db(min(max_gain_db, target_db - self.rms_db))
 
     def normalize_online_bayesian(self,
                                   target_db,
@@ -319,7 +319,7 @@ class AudioSegment(object):
         rms_estimate_db = 10 * np.log10(mean_squared_estimate)
         # Compute required time-varying gain.
         gain_db = target_db - rms_estimate_db
-        self.apply_gain(gain_db)
+        self.gain_db(gain_db)
 
     def resample(self, target_sample_rate, filter='kaiser_best'):
         """Resample the audio to a target sample rate.
@@ -329,9 +329,10 @@ class AudioSegment(object):
         :param target_sample_rate: Target sample rate.
         :type target_sample_rate: int
         :param filter: The resampling filter to use one of {'kaiser_best',
-                       'kaiser_fast'}.               
+                       'kaiser_fast'}.
         :type filter: str
         """
+        resample_ratio = target_sample_rate / self._sample_rate
         self._samples = resampy.resample(
             self.samples, self.sample_rate, target_sample_rate, filter=filter)
         self._sample_rate = target_sample_rate
@@ -363,6 +364,31 @@ class AudioSegment(object):
         else:
             raise ValueError("Unknown value for the sides %s" % sides)
         self._samples = padded._samples
+
+    def shift(self, shift_ms):
+        """Shift the audio in time. If `shift_ms` is positive, shift with time
+        advance; if negative, shift with time delay. Silence are padded to
+        keep the duration unchanged.
+
+        Note that this is an in-place transformation.
+
+        :param shift_ms: Shift time in millseconds. If positive, shift with
+                         time advance; if negative; shift with time delay.
+        :type shift_ms: float
+        :raises ValueError: If shift_ms is longer than audio duration.
+        """
+        if abs(shift_ms) / 1000.0 > self.duration:
+            raise ValueError("Absolute value of shift_ms should be smaller "
+                             "than audio duration.")
+        shift_samples = int(shift_ms * self._sample_rate / 1000)
+        if shift_samples > 0:
+            # time advance
+            self._samples[:-shift_samples] = self._samples[shift_samples:]
+            self._samples[-shift_samples:] = 0
+        elif shift_samples < 0:
+            # time delay
+            self._samples[-shift_samples:] = self._samples[:shift_samples]
+            self._samples[:-shift_samples] = 0
 
     def subsegment(self, start_sec=None, end_sec=None):
         """Cut the AudioSegment between given boundaries.
@@ -503,7 +529,7 @@ class AudioSegment(object):
         noise_gain_db = min(self.rms_db - noise.rms_db - snr_dB, max_gain_db)
         noise_new = copy.deepcopy(noise)
         noise_new.random_subsegment(self.duration, rng=rng)
-        noise_new.apply_gain(noise_gain_db)
+        noise_new.gain_db(noise_gain_db)
         self.superimpose(noise_new)
 
     @property

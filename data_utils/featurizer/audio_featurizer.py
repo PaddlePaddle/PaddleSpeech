@@ -24,26 +24,64 @@ class AudioFeaturizer(object):
                      corresponding to frequencies between [0, max_freq] are
                      returned.
     :types max_freq: None|float
+    :param target_sample_rate: Audio are resampled (if upsampling or
+                               downsampling is allowed) to this before
+                               extracting spectrogram features.
+    :type target_sample_rate: float
+    :param use_dB_normalization: Whether to normalize the audio to a certain
+                                 decibels before extracting the features.
+    :type use_dB_normalization: bool
+    :param target_dB: Target audio decibels for normalization.
+    :type target_dB: float
     """
 
     def __init__(self,
                  specgram_type='linear',
                  stride_ms=10.0,
                  window_ms=20.0,
-                 max_freq=None):
+                 max_freq=None,
+                 target_sample_rate=16000,
+                 use_dB_normalization=True,
+                 target_dB=-20):
         self._specgram_type = specgram_type
         self._stride_ms = stride_ms
         self._window_ms = window_ms
         self._max_freq = max_freq
+        self._target_sample_rate = target_sample_rate
+        self._use_dB_normalization = use_dB_normalization
+        self._target_dB = target_dB
 
-    def featurize(self, audio_segment):
+    def featurize(self,
+                  audio_segment,
+                  allow_downsampling=True,
+                  allow_upsamplling=True):
         """Extract audio features from AudioSegment or SpeechSegment.
 
         :param audio_segment: Audio/speech segment to extract features from.
         :type audio_segment: AudioSegment|SpeechSegment
+        :param allow_downsampling: Whether to allow audio downsampling before
+                                   featurizing.
+        :type allow_downsampling: bool
+        :param allow_upsampling: Whether to allow audio upsampling before
+                                 featurizing.
+        :type allow_upsampling: bool
         :return: Spectrogram audio feature in 2darray.
         :rtype: ndarray
+        :raises ValueError: If audio sample rate is not supported.
         """
+        # upsampling or downsampling
+        if ((audio_segment.sample_rate > self._target_sample_rate and
+             allow_downsampling) or
+            (audio_segment.sample_rate < self._target_sample_rate and
+             allow_upsampling)):
+            audio_segment.resample(self._target_sample_rate)
+        if audio_segment.sample_rate != self._target_sample_rate:
+            raise ValueError("Audio sample rate is not supported. "
+                             "Turn allow_downsampling or allow up_sampling on.")
+        # decibel normalization
+        if self._use_dB_normalization:
+            audio_segment.normalize(target_db=self._target_dB)
+        # extract spectrogram
         return self._compute_specgram(audio_segment.samples,
                                       audio_segment.sample_rate)
 

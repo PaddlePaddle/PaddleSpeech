@@ -6,6 +6,7 @@ from __future__ import print_function
 import json
 import random
 from data_utils.augmentor.volume_perturb import VolumePerturbAugmentor
+from data_utils.augmentor.shift_perturb import ShiftPerturbAugmentor
 from data_utils.augmentor.speed_perturb import SpeedPerturbAugmentor
 from data_utils.augmentor.resample import ResampleAugmentor
 from data_utils.augmentor.online_bayesian_normalization import OnlineBayesianNormalizationAugmentor
@@ -79,11 +80,13 @@ class AugmentationPipeline(object):
         """Return an augmentation model by the type name, and pass in params."""
         if augmentor_type == "volume":
             return VolumePerturbAugmentor(self._rng, **params)
-        if augmentor_type == "speed":
+        elif augmentor_type == "shift":
+            return ShiftPerturbAugmentor(self._rng, **params)
+        elif augmentor_type == "speed":
             return SpeedPerturbAugmentor(self._rng, **params)
-        if augmentor_type == "resample":
+        elif augmentor_type == "resample":
             return ResampleAugmentor(self._rng, **params)
-        if augmentor_type == "bayesian_normal":
+        elif augmentor_type == "bayesian_normal":
             return OnlineBayesianNormalizationAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

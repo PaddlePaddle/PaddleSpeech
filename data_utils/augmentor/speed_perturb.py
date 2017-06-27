@@ -14,20 +14,21 @@ class SpeedPerturbAugmentor(AugmentorBase):
 
     :param rng: Random generator object.
     :type rng: random.Random
-    :param min_speed_rate: Lower bound of new speed rate to sample.
+    :param min_speed_rate: Lower bound of new speed rate to sample and should
+                           not below 0.9.
     :type min_speed_rate: float
-    :param max_speed_rate: Upper bound of new speed rate to sample.
+    :param max_speed_rate: Upper bound of new speed rate to sample and should
+                           not above 1.1.
     :type max_speed_rate: float
     """
 
     def __init__(self, rng, min_speed_rate, max_speed_rate):
-
-        if (min_speed_rate < 0.5):
-            raise ValueError("Sampling speed below 0.9 can cause unnatural "\
-                             "effects")
-        if (max_speed_rate > 1.5):
-            raise ValueError("Sampling speed above 1.1 can cause unnatural "\
-                             "effects")
+        if min_speed_rate < 0.9:
+            raise ValueError(
+                "Sampling speed below 0.9 can cause unnatural effects")
+        if max_speed_rate > 1.1:
+            raise ValueError(
+                "Sampling speed above 1.1 can cause unnatural effects")
         self._min_speed_rate = min_speed_rate
         self._max_speed_rate = max_speed_rate
         self._rng = rng

@@ -9,6 +9,7 @@ import argparse
 import gzip
 import time
 import distutils.util
+import multiprocessing
 import paddle.v2 as paddle
 from model import deep_speech2
 from data_utils.data import DataGenerator
@@ -16,10 +17,10 @@ import utils
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
-    "--batch_size", default=32, type=int, help="Minibatch size.")
+    "--batch_size", default=256, type=int, help="Minibatch size.")
 parser.add_argument(
     "--num_passes",
-    default=20,
+    default=200,
     type=int,
     help="Training pass number. (default: %(default)s)")
 parser.add_argument(
@@ -53,16 +54,33 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use sortagrad or not. (default: %(default)s)")
 parser.add_argument(
+    "--max_duration",
+    default=27.0,
+    type=float,
+    help="Audios with duration larger than this will be discarded. "
+    "(default: %(default)s)")
+parser.add_argument(
+    "--min_duration",
+    default=0.0,
+    type=float,
+    help="Audios with duration smaller than this will be discarded. "
+    "(default: %(default)s)")
+parser.add_argument(
     "--shuffle_method",
-    default='instance_shuffle',
+    default='batch_shuffle_clipped',
     type=str,
     help="Shuffle method: 'instance_shuffle', 'batch_shuffle', "
     "'batch_shuffle_batch'. (default: %(default)s)")
 parser.add_argument(
     "--trainer_count",
-    default=4,
+    default=8,
     type=int,
     help="Trainer number. (default: %(default)s)")
+parser.add_argument(
+    "--num_threads_data",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
@@ -92,7 +110,9 @@ parser.add_argument(
     "the existing model of this path. (default: %(default)s)")
 parser.add_argument(
     "--augmentation_config",
-    default='{}',
+    default='[{"type": "shift", '
+    '"params": {"min_shift_ms": -5, "max_shift_ms": 5},'
+    '"prob": 1.0}]',
     type=str,
     help="Augmentation configuration in json-format. "
     "(default: %(default)s)")
@@ -107,7 +127,10 @@ def train():
         return DataGenerator(
             vocab_filepath=args.vocab_filepath,
             mean_std_filepath=args.mean_std_filepath,
-            augmentation_config=args.augmentation_config)
+            augmentation_config=args.augmentation_config,
+            max_duration=args.max_duration,
+            min_duration=args.min_duration,
+            num_threads=args.num_threads_data)
 
     train_generator = data_generator()
     test_generator = data_generator()
@@ -168,7 +191,7 @@ def train():
                 print("\nPass: %d, Batch: %d, TrainCost: %f" % (
                     event.pass_id, event.batch_id + 1, cost_sum / cost_counter))
                 cost_sum, cost_counter = 0.0, 0
-                with gzip.open("params.tar.gz", 'w') as f:
+                with gzip.open("checkpoints/params.latest.tar.gz", 'w') as f:
                     parameters.to_tar(f)
             else:
                 sys.stdout.write('.')
@@ -181,6 +204,9 @@ def train():
                 reader=test_batch_reader, feeding=test_generator.feeding)
             print("\n------- Time: %d sec,  Pass: %d, ValidationCost: %s" %
                   (time.time() - start_time, event.pass_id, result.cost))
+            with gzip.open("checkpoints/params.pass-%d.tar.gz" % event.pass_id,
+                           'w') as f:
+                parameters.to_tar(f)
 
     # run train
     trainer.train(

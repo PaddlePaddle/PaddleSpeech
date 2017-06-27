@@ -63,7 +63,7 @@ parser.add_argument(
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(
     "--model_filepath",
-    default='checkpoints/params.tar.gz.41',
+    default='checkpoints/params.latest.tar.gz',
     type=str,
     help="Model filepath. (default: %(default)s)")
 parser.add_argument(

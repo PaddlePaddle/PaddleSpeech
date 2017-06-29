@@ -8,6 +8,7 @@ import random
 from data_utils.augmentor.volume_perturb import VolumePerturbAugmentor
 from data_utils.augmentor.shift_perturb import ShiftPerturbAugmentor
 from data_utils.augmentor.speed_perturb import SpeedPerturbAugmentor
+from data_utils.augmentor.noise_perturb import NoisePerturbAugmentor
 from data_utils.augmentor.resample import ResampleAugmentor
 from data_utils.augmentor.online_bayesian_normalization import \
      OnlineBayesianNormalizationAugmentor
@@ -89,5 +90,7 @@ class AugmentationPipeline(object):
             return ResampleAugmentor(self._rng, **params)
         elif augmentor_type == "bayesian_normal":
             return OnlineBayesianNormalizationAugmentor(self._rng, **params)
+        elif augmentor_type == "noise":
+            return NoisePerturbAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

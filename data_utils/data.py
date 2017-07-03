@@ -8,12 +8,19 @@ from __future__ import print_function
 import random
 import numpy as np
 import multiprocessing
+from threading import local
 import paddle.v2 as paddle
+import tarfile
 from data_utils import utils
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
+
+# for caching tar files info
+local_data = local()
+local_data.tar2info = {}
+local_data.tar2object = {}
 
 
 class DataGenerator(object):
@@ -45,9 +52,6 @@ class DataGenerator(object):
     :types max_freq: None|float
     :param specgram_type: Specgram feature type. Options: 'linear'.
     :type specgram_type: str
-    :param use_dB_normalization: Whether to normalize the audio to -20 dB
-                                 before extracting the features.
-    :type use_dB_normalization: bool
     :param num_threads: Number of CPU threads for processing data.
     :type num_threads: int
     :param random_seed: Random seed.
@@ -64,7 +68,6 @@ class DataGenerator(object):
                  window_ms=20.0,
                  max_freq=None,
                  specgram_type='linear',
-                 use_dB_normalization=True,
                  num_threads=multiprocessing.cpu_count(),
                  random_seed=0):
         self._max_duration = max_duration
@@ -77,11 +80,14 @@ class DataGenerator(object):
             specgram_type=specgram_type,
             stride_ms=stride_ms,
             window_ms=window_ms,
-            max_freq=max_freq,
-            use_dB_normalization=use_dB_normalization)
+            max_freq=max_freq)
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
+
+        # for caching tar files info
+        self.tar2info = {}
+        self.tar2object = {}
 
     def batch_reader_creator(self,
                              manifest_path,
@@ -94,7 +100,7 @@ class DataGenerator(object):
         """
         Batch data reader creator for audio data. Return a callable generator
         function to produce batches of data.
-        
+
         Audio features within one batch will be padded with zeros to have the
         same shape, or a user-defined shape.
 
@@ -174,9 +180,9 @@ class DataGenerator(object):
     @property
     def feeding(self):
         """Returns data reader's feeding dict.
-        
+
         :return: Data feeding dict.
-        :rtype: dict 
+        :rtype: dict
         """
         return {"audio_spectrogram": 0, "transcript_text": 1}
 
@@ -198,9 +204,41 @@ class DataGenerator(object):
         """
         return self._speech_featurizer.vocab_list
 
+    def _parse_tar(self, file):
+        """
+        Parse a tar file to get a tarfile object and a map containing tarinfoes
+        """
+        result = {}
+        f = tarfile.open(file)
+        for tarinfo in f.getmembers():
+            result[tarinfo.name] = tarinfo
+        return f, result
+
+    def _read_soundbytes(self, filepath):
+        """
+        Read bytes from file.
+        If filepath startwith tar, we will read bytes from tar file
+        and cached tar file info for next reading request.
+        """
+        if filepath.startswith('tar:'):
+            tarpath, filename = filepath.split(':', 1)[1].split('#', 1)
+            if 'tar2info' not in local_data.__dict__:
+                local_data.tar2info = {}
+            if 'tar2object' not in local_data.__dict__:
+                local_data.tar2object = {}
+            if tarpath not in local_data.tar2info:
+                object, infoes = self._parse_tar(tarpath)
+                local_data.tar2info[tarpath] = infoes
+                local_data.tar2object[tarpath] = object
+            return local_data.tar2object[tarpath].extractfile(
+                local_data.tar2info[tarpath][filename]).read()
+        else:
+            return open(filepath).read()
+
     def _process_utterance(self, filename, transcript):
         """Load, augment, featurize and normalize for speech data."""
-        speech_segment = SpeechSegment.from_file(filename, transcript)
+        speech_segment = SpeechSegment.from_bytes(
+            self._read_soundbytes(filename), transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
         specgram = self._normalizer.apply(specgram)

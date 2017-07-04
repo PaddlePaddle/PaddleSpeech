@@ -58,7 +58,7 @@ parser.add_argument(
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(
     "--model_filepath",
-    default='ds2_new_models_0628/params.pass-51.tar.gz',
+    default='checkpoints/params.latest.tar.gz',
     type=str,
     help="Model filepath. (default: %(default)s)")
 parser.add_argument(
@@ -162,9 +162,10 @@ def infer():
         for i, probs in enumerate(probs_split)
     ]
 
+    # external scorer
     ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
-    ## decode and print
 
+    ## decode and print
     wer_sum, wer_counter = 0, 0
     for i, probs in enumerate(probs_split):
         beam_result = ctc_beam_search_decoder(

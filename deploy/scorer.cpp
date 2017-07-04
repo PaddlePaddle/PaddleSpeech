@@ -35,7 +35,7 @@ inline void strip(std::string &str, char ch=' ') {
             break;
         }
     }
-    
+
     if (start == 0 && end == str.size()-1) return;
     if (start > end) {
         std::string emp_str;
@@ -47,13 +47,12 @@ inline void strip(std::string &str, char ch=' ') {
 
 int Scorer::word_count(std::string sentence) {
     strip(sentence);
-    int cnt = 0;
+    int cnt = 1;
     for (int i=0; i<sentence.size(); i++) {
         if (sentence[i] == ' ' && sentence[i-1] != ' ') {
             cnt ++;
         }
     }
-    if (cnt > 0) cnt ++;
     return cnt;
 }
 
@@ -68,15 +67,16 @@ double Scorer::language_model_score(std::string sentence) {
         ret = model->FullScore(state, vocab, out_state);
         state = out_state;
     }
-    double score = ret.prob; 
-    
-    return  pow(10, score);
+    //log10 prob
+    double log_prob = ret.prob;
+
+    return log_prob;
 }
 
 double Scorer::get_score(std::string sentence) {
     double lm_score = language_model_score(sentence);
     int word_cnt = word_count(sentence);
 
-    double final_score = pow(lm_score, _alpha) * pow(word_cnt, _beta);
+    double final_score = pow(10, _alpha*lm_score) * pow(word_cnt, _beta);
     return final_score;
 }

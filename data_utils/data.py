@@ -169,7 +169,7 @@ class DataGenerator(object):
                         manifest, batch_size, clipped=True)
                 elif shuffle_method == "instance_shuffle":
                     self._rng.shuffle(manifest)
-                elif not shuffle_method:
+                elif shuffle_method == None:
                     pass
                 else:
                     raise ValueError("Unknown shuffle method %s." %

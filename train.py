@@ -123,9 +123,7 @@ parser.add_argument(
     help="Directory for saving models. (default: %(default)s)")
 parser.add_argument(
     "--augmentation_config",
-    default='[{"type": "shift", '
-    '"params": {"min_shift_ms": -5, "max_shift_ms": 5},'
-    '"prob": 1.0}]',
+    default=open('augmentation.config', 'r').read(),
     type=str,
     help="Augmentation configuration in json-format. "
     "(default: %(default)s)")

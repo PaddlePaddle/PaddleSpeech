@@ -115,7 +115,7 @@ class SpeechSegment(AudioSegment):
                  speech file.
         :rtype: SpeechSegment
         """
-        audio = Audiosegment.slice_from_file(filepath, start, end)
+        audio = AudioSegment.slice_from_file(filepath, start, end)
         return cls(audio.samples, audio.sample_rate, transcript)
 
     @classmethod

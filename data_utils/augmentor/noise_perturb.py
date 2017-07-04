@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from data_utils.augmentor.base import AugmentorBase
 from data_utils import utils
-from data_utils.speech import SpeechSegment
+from data_utils.audio import AudioSegment
 
 
 class NoisePerturbAugmentor(AugmentorBase):
@@ -17,6 +17,8 @@ class NoisePerturbAugmentor(AugmentorBase):
     :type min_snr_dB: float
     :param max_snr_dB: Maximal signal noise ratio, in decibels.
     :type max_snr_dB: float
+    :param noise_manifest: Manifest path for noise audio data.
+    :type noise_manifest: basestring 
     """
 
     def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest):
@@ -40,8 +42,8 @@ class NoisePerturbAugmentor(AugmentorBase):
         diff_duration = noise_json['duration'] - audio_segment.duration
         start = self._rng.uniform(0, diff_duration)
         end = start + audio_segment.duration
-        noise_segment = SpeechSegment.slice_from_file(
-            noise_json['audio_filepath'], transcript="", start=start, end=end)
+        noise_segment = AudioSegment.slice_from_file(
+            noise_json['audio_filepath'], start=start, end=end)
         snr_dB = self._rng.uniform(self._min_snr_dB, self._max_snr_dB)
         audio_segment.add_noise(
             noise_segment, snr_dB, allow_downsampling=True, rng=self._rng)

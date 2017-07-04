@@ -76,7 +76,7 @@ class TestDecoders(unittest.TestCase):
             blank_id=len(self.vocab_list))
         self.assertEqual(beam_result[0][1], self.beam_search_result[1])
 
-    def test_beam_search_nproc_decoder(self):
+    def test_beam_search_decoder_batch(self):
         beam_results = ctc_beam_search_decoder_batch(
             probs_split=[self.probs_seq1, self.probs_seq2],
             beam_size=self.beam_size,

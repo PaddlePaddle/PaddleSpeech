@@ -42,6 +42,11 @@ class LmScorer(object):
         words = sentence.strip().split(' ')
         return len(words)
 
+    # reset alpha and beta
+    def reset_params(self, alpha, beta):
+        self._alpha = alpha
+        self._beta = beta
+
     # execute evaluation
     def __call__(self, sentence, log=False):
         """Evaluation function, gathering all the different scores

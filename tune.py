@@ -12,6 +12,7 @@ from model import deep_speech2
 from decoder import *
 from lm.lm_scorer import LmScorer
 from error_rate import wer
+import utils
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -180,10 +181,13 @@ def tune():
     params_grid = [(alpha, beta) for alpha in cand_alphas
                    for beta in cand_betas]
 
+    ext_scorer = LmScorer(args.alpha_from, args.beta_from,
+                          args.language_model_path)
     ## tune parameters in loop
-    for (alpha, beta) in params_grid:
+    for alpha, beta in params_grid:
         wer_sum, wer_counter = 0, 0
-        ext_scorer = LmScorer(alpha, beta, args.language_model_path)
+        # reset scorer
+        ext_scorer.reset_params(alpha, beta)
         # beam search using multiple processes
         beam_search_results = ctc_beam_search_decoder_batch(
             probs_split=probs_split,

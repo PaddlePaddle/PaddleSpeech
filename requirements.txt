@@ -1,3 +1,4 @@
 wget==3.2
 scipy==0.13.1
 resampy==0.1.5
+https://github.com/kpu/kenlm/archive/master.zip

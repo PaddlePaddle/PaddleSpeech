@@ -77,3 +77,29 @@ More help for arguments:
 ```
 python infer.py --help
 ```
+
+### Evaluating
+
+```
+CUDA_VISIBLE_DEVICES=0 python evaluate.py
+```
+
+More help for arguments:
+
+```
+python evaluate.py --help
+```
+
+### Parameters tuning
+
+Parameters tuning for the CTC beam search decoder
+
+```
+CUDA_VISIBLE_DEVICES=0 python tune.py
+```
+
+More help for arguments:
+
+```
+python tune.py --help
+```

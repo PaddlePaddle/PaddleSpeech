@@ -1,12 +1,11 @@
-"""Inferer for DeepSpeech2 model."""
+"""Parameters tuning for DeepSpeech2 model."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import distutils.util
 import argparse
 import gzip
-import distutils.util
-import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
@@ -18,9 +17,9 @@ import utils
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=10,
+    default=100,
     type=int,
-    help="Number of samples for inference. (default: %(default)s)")
+    help="Number of samples for parameters tuning. (default: %(default)s)")
 parser.add_argument(
     "--num_conv_layers",
     default=2,
@@ -72,36 +71,45 @@ parser.add_argument(
     type=str,
     help="Vocabulary filepath. (default: %(default)s)")
 parser.add_argument(
-    "--decode_method",
-    default='beam_search',
-    type=str,
-    help="Method for ctc decoding: best_path or beam_search. (default: %(default)s)"
-)
-parser.add_argument(
     "--beam_size",
     default=500,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
-parser.add_argument(
-    "--num_results_per_sample",
-    default=1,
-    type=int,
-    help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
     default="lm/data/1Billion.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
-    "--alpha",
-    default=0.26,
-    type=float,
-    help="Parameter associated with language model. (default: %(default)f)")
-parser.add_argument(
-    "--beta",
+    "--alpha_from",
     default=0.1,
     type=float,
-    help="Parameter associated with word count. (default: %(default)f)")
+    help="Where alpha starts from. (default: %(default)f)")
+parser.add_argument(
+    "--num_alphas",
+    default=14,
+    type=int,
+    help="Number of candidate alphas. (default: %(default)d)")
+parser.add_argument(
+    "--alpha_to",
+    default=0.36,
+    type=float,
+    help="Where alpha ends with. (default: %(default)f)")
+parser.add_argument(
+    "--beta_from",
+    default=0.05,
+    type=float,
+    help="Where beta starts from. (default: %(default)f)")
+parser.add_argument(
+    "--num_betas",
+    default=20,
+    type=float,
+    help="Number of candidate betas. (default: %(default)d)")
+parser.add_argument(
+    "--beta_to",
+    default=1.0,
+    type=float,
+    help="Where beta ends with. (default: %(default)f)")
 parser.add_argument(
     "--cutoff_prob",
     default=0.99,
@@ -111,8 +119,15 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def infer():
-    """Inference for DeepSpeech2."""
+def tune():
+    """Tune parameters alpha and beta on one minibatch."""
+
+    if not args.num_alphas >= 0:
+        raise ValueError("num_alphas must be non-negative!")
+
+    if not args.num_betas >= 0:
+        raise ValueError("num_betas must be non-negative!")
+
     # initialize data generator
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
@@ -146,9 +161,9 @@ def infer():
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.decode_manifest_path,
         batch_size=args.num_samples,
-        min_batch_size=1,
         sortagrad=False,
         shuffle_method=None)
+    # get one batch data for tuning
     infer_data = batch_reader().next()
 
     # run inference
@@ -157,61 +172,45 @@ def infer():
     num_steps = len(infer_results) // len(infer_data)
     probs_split = [
         infer_results[i * num_steps:(i + 1) * num_steps]
-        for i in xrange(len(infer_data))
+        for i in xrange(0, len(infer_data))
     ]
 
-    # targe transcription
-    target_transcription = [
-        ''.join(
-            [data_generator.vocab_list[index] for index in infer_data[i][1]])
-        for i, probs in enumerate(probs_split)
-    ]
+    # create grid for search
+    cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)
+    cand_betas = np.linspace(args.beta_from, args.beta_to, args.num_betas)
+    params_grid = [(alpha, beta) for alpha in cand_alphas
+                   for beta in cand_betas]
 
-    ## decode and print
-    # best path decode
-    wer_sum, wer_counter = 0, 0
-    if args.decode_method == "best_path":
-        for i, probs in enumerate(probs_split):
-            best_path_transcription = ctc_best_path_decoder(
-                probs_seq=probs, vocabulary=data_generator.vocab_list)
-            print("\nTarget Transcription: %s\nOutput Transcription: %s" %
-                  (target_transcription[i], best_path_transcription))
-            wer_cur = wer(target_transcription[i], best_path_transcription)
-            wer_sum += wer_cur
-            wer_counter += 1
-            print("cur wer = %f, average wer = %f" %
-                  (wer_cur, wer_sum / wer_counter))
-    # beam search decode
-    elif args.decode_method == "beam_search":
-        ext_scorer = LmScorer(args.alpha, args.beta, args.language_model_path)
-        beam_search_batch_results = ctc_beam_search_decoder_batch(
+    ext_scorer = LmScorer(args.alpha_from, args.beta_from,
+                          args.language_model_path)
+    ## tune parameters in loop
+    for alpha, beta in params_grid:
+        wer_sum, wer_counter = 0, 0
+        # reset scorer
+        ext_scorer.reset_params(alpha, beta)
+        # beam search using multiple processes
+        beam_search_results = ctc_beam_search_decoder_batch(
             probs_split=probs_split,
             vocabulary=data_generator.vocab_list,
             beam_size=args.beam_size,
+            cutoff_prob=args.cutoff_prob,
             blank_id=len(data_generator.vocab_list),
             num_processes=args.num_processes_beam_search,
-            cutoff_prob=args.cutoff_prob,
             ext_scoring_func=ext_scorer, )
-        for i, beam_search_result in enumerate(beam_search_batch_results):
-            print("\nTarget Transcription:\t%s" % target_transcription[i])
-            for index in xrange(args.num_results_per_sample):
-                result = beam_search_result[index]
-                #output: index, log prob, beam result
-                print("Beam %d: %f \t%s" % (index, result[0], result[1]))
-            wer_cur = wer(target_transcription[i], beam_search_result[0][1])
-            wer_sum += wer_cur
+        for i, beam_search_result in enumerate(beam_search_results):
+            target_transcription = ''.join([
+                data_generator.vocab_list[index] for index in infer_data[i][1]
+            ])
+            wer_sum += wer(target_transcription, beam_search_result[0][1])
             wer_counter += 1
-            print("cur wer = %f , average wer = %f" %
-                  (wer_cur, wer_sum / wer_counter))
-    else:
-        raise ValueError("Decoding method [%s] is not supported." %
-                         decode_method)
+
+        print("alpha = %f\tbeta = %f\tWER = %f" %
+              (alpha, beta, wer_sum / wer_counter))
 
 
 def main():
-    utils.print_arguments(args)
     paddle.init(use_gpu=args.use_gpu, trainer_count=1)
-    infer()
+    tune()
 
 
 if __name__ == '__main__':

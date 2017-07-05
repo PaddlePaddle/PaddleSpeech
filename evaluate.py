@@ -62,7 +62,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--language_model_path",
-    default="data/en.00.UNKNOWN.klm",
+    default="lm/data/1Billion.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -88,7 +88,7 @@ parser.add_argument(
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
     "--decode_manifest_path",
-    default='data/manifest.libri.test-clean',
+    default='datasets/manifest.test',
     type=str,
     help="Manifest path for decoding. (default: %(default)s)")
 parser.add_argument(

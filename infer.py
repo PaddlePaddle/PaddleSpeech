@@ -89,7 +89,7 @@ parser.add_argument(
     help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="lm/data/en.00.UNKNOWN.klm",
+    default="lm/data/1Billion.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(

@@ -5,6 +5,7 @@ from __future__ import print_function
 
 from itertools import groupby
 import numpy as np
+from math import log
 import multiprocessing
 
 
@@ -97,13 +98,8 @@ def ctc_beam_search_decoder(probs_seq,
     # prefix_set_prev: the set containing selected prefixes
     # probs_b_prev: prefixes' probability ending with blank in previous step
     # probs_nb_prev: prefixes' probability ending with non-blank in previous step
-    prefix_set_prev, probs_b_prev, probs_nb_prev = {
-        '\t': 1.0
-    }, {
-        '\t': 1.0
-    }, {
-        '\t': 0.0
-    }
+    prefix_set_prev = {'\t': 1.0}
+    probs_b_prev, probs_nb_prev = {'\t': 1.0}, {'\t': 0.0}
 
     ## extend prefix in loop
     for time_step in xrange(len(probs_seq)):
@@ -179,7 +175,7 @@ def ctc_beam_search_decoder(probs_seq,
             # score last word by external scorer
             if (ext_scoring_func is not None) and (result[-1] != ' '):
                 prob = prob * ext_scoring_func(result)
-            log_prob = np.log(prob)
+            log_prob = log(prob)
             beam_result.append((log_prob, result))
 
     ## output top beam_size decoding results

@@ -62,9 +62,7 @@ class LmScorer(object):
         lm = self._language_model_score(sentence)
         word_cnt = self._word_count(sentence)
         if log == False:
-            score = np.power(lm, self._alpha) \
-                    * np.power(word_cnt, self._beta)
+            score = np.power(lm, self._alpha) * np.power(word_cnt, self._beta)
         else:
-            score = self._alpha * np.log(lm) \
-                    + self._beta * np.log(word_cnt)
+            score = self._alpha * np.log(lm) + self._beta * np.log(word_cnt)
         return score

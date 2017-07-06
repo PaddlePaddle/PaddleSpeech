@@ -10,8 +10,8 @@ def compile_test(header, library):
     return os.system(command) == 0
 
 
-FILES = glob.glob('util/*.cc') + glob.glob('lm/*.cc') + glob.glob(
-    'util/double-conversion/*.cc')
+FILES = glob.glob('kenlm/util/*.cc') + glob.glob('kenlm/lm/*.cc') + glob.glob(
+    'kenlm/util/double-conversion/*.cc')
 FILES = [
     fn for fn in FILES if not (fn.endswith('main.cc') or fn.endswith('test.cc'))
 ]
@@ -44,7 +44,7 @@ ctc_beam_search_decoder_module = [
             'ctc_beam_search_decoder.cpp'
         ],
         language='C++',
-        include_dirs=['.'],
+        include_dirs=['.', './kenlm'],
         libraries=LIBS,
         extra_compile_args=ARGS)
 ]
@@ -52,7 +52,6 @@ ctc_beam_search_decoder_module = [
 setup(
     name='swig_ctc_beam_search_decoder',
     version='0.1',
-    author='Yibing Liu',
     description="""CTC beam search decoder""",
     ext_modules=ctc_beam_search_decoder_module,
     py_modules=['swig_ctc_beam_search_decoder'], )

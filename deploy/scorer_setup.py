@@ -10,8 +10,8 @@ def compile_test(header, library):
     return os.system(command) == 0
 
 
-FILES = glob.glob('util/*.cc') + glob.glob('lm/*.cc') + glob.glob(
-    'util/double-conversion/*.cc')
+FILES = glob.glob('kenlm/util/*.cc') + glob.glob('kenlm/lm/*.cc') + glob.glob(
+    'kenlm/util/double-conversion/*.cc')
 FILES = [
     fn for fn in FILES if not (fn.endswith('main.cc') or fn.endswith('test.cc'))
 ]
@@ -41,7 +41,7 @@ ext_modules = [
         name='_swig_scorer',
         sources=FILES + ['scorer_wrap.cxx', 'scorer.cpp'],
         language='C++',
-        include_dirs=['.'],
+        include_dirs=['.', './kenlm'],
         libraries=LIBS,
         extra_compile_args=ARGS)
 ]

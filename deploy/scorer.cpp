@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "scorer.h"
 #include "lm/model.hh"
 #include "util/tokenize_piece.hh"
@@ -17,6 +16,13 @@ Scorer::~Scorer(){
    delete (Model *)this->_language_model;
 }
 
+/* Strip a input sentence
+ * Parameters:
+ *     str: A reference to the objective string
+ *     ch: The character to prune
+ * Return:
+ *     void
+ */
 inline void strip(std::string &str, char ch=' ') {
     if (str.size() == 0) return;
     int start  = 0;
@@ -69,8 +75,12 @@ double Scorer::language_model_score(std::string sentence) {
     }
     //log10 prob
     double log_prob = ret.prob;
-
     return log_prob;
+}
+
+void Scorer::reset_params(float alpha, float beta) {
+    this->_alpha = alpha;
+    this->_beta = beta;
 }
 
 double Scorer::get_score(std::string sentence) {

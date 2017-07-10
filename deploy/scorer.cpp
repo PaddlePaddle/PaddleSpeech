@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include "scorer.h"
 #include "lm/model.hh"
 #include "util/tokenize_piece.hh"
@@ -9,11 +10,16 @@ using namespace lm::ngram;
 Scorer::Scorer(float alpha, float beta, std::string lm_model_path) {
     this->_alpha = alpha;
     this->_beta = beta;
-    this->_language_model = new Model(lm_model_path.c_str());
+
+    if (access(lm_model_path.c_str(), F_OK) != 0) {
+        std::cout<<"Invalid language model path!"<<std::endl;
+        exit(1);
+    }
+    this->_language_model = LoadVirtual(lm_model_path.c_str());
 }
 
 Scorer::~Scorer(){
-   delete (Model *)this->_language_model;
+   delete (lm::base::Model *)this->_language_model;
 }
 
 /* Strip a input sentence
@@ -63,14 +69,14 @@ int Scorer::word_count(std::string sentence) {
 }
 
 double Scorer::language_model_score(std::string sentence) {
-    Model *model = (Model *)this->_language_model;
+    lm::base::Model *model = (lm::base::Model *)this->_language_model;
     State state, out_state;
     lm::FullScoreReturn ret;
-    state = model->BeginSentenceState();
+    model->BeginSentenceWrite(&state);
 
     for (util::TokenIter<util::SingleCharacter, true> it(sentence, ' '); it; ++it){
-        lm::WordIndex vocab = model->GetVocabulary().Index(*it);
-        ret = model->FullScore(state, vocab, out_state);
+        lm::WordIndex wid = model->BaseVocabulary().Index(*it);
+        ret = model->BaseFullScore(&state, wid, &out_state);
         state = out_state;
     }
     //log10 prob

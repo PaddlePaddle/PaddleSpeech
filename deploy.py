@@ -14,6 +14,7 @@ from swig_ctc_beam_search_decoder import *
 from swig_scorer import Scorer
 from error_rate import wer
 import utils
+import time
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -74,7 +75,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--beam_size",
-    default=500,
+    default=200,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
@@ -166,6 +167,7 @@ def infer():
     ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
 
     ## decode and print
+    time_begin = time.time()
     wer_sum, wer_counter = 0, 0
     for i, probs in enumerate(probs_split):
         beam_result = ctc_beam_search_decoder(
@@ -183,6 +185,8 @@ def infer():
         wer_counter += 1
         print("cur wer = %f , average wer = %f" %
               (wer_cur, wer_sum / wer_counter))
+    time_end = time.time()
+    print("total time = %f" % (time_end - time_begin))
 
 
 def main():

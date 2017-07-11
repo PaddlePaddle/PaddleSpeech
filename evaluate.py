@@ -62,7 +62,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--language_model_path",
-    default="lm/data/1Billion.klm",
+    default="lm/data/common_crawl_00.prune01111.trie.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -139,6 +139,7 @@ def evaluate():
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.decode_manifest_path,
         batch_size=args.batch_size,
+        min_batch_size=1,
         sortagrad=False,
         shuffle_method=None)
 

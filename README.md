@@ -66,10 +66,34 @@ More help for arguments:
 python train.py --help
 ```
 
-### Inferencing
+### Preparing language model
+
+The following steps, inference, parameters tuning and evaluating, will require a language model during decoding.
+A compressed language model is provided and can be accessed by
+
+```
+cd ./lm
+sh run.sh
+```
+
+After the downloading is completed, then
+
+```
+cd ..
+```
+
+### Inference
+
+For GPU inference
 
 ```
 CUDA_VISIBLE_DEVICES=0 python infer.py
+```
+
+For CPU inference
+
+```
+python infer.py --use_gpu=False
 ```
 
 More help for arguments:
@@ -92,10 +116,18 @@ python evaluate.py --help
 
 ### Parameters tuning
 
-Parameters tuning for the CTC beam search decoder
+Usually, the parameters $\alpha$ and $\beta$ for the CTC [prefix beam search](https://arxiv.org/abs/1408.2873) decoder need to be tuned after retraining the acoustic model.
+
+For GPU tuning
 
 ```
 CUDA_VISIBLE_DEVICES=0 python tune.py
+```
+
+For CPU tuning
+
+```
+python tune.py --use_gpu=False
 ```
 
 More help for arguments:
@@ -103,3 +135,5 @@ More help for arguments:
 ```
 python tune.py --help
 ```
+
+Then reset parameters with the tuning result before inference or evaluating.

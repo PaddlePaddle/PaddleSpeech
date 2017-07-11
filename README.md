@@ -74,11 +74,6 @@ A compressed language model is provided and can be accessed by
 ```
 cd ./lm
 sh run.sh
-```
-
-After the downloading is completed, then
-
-```
 cd ..
 ```
 

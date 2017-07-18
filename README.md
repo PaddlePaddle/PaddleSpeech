@@ -38,7 +38,11 @@ python datasets/librispeech/librispeech.py --help
 python compute_mean_std.py
 ```
 
-`python compute_mean_std.py` computes mean and stdandard deviation for audio features, and save them to a file with a default name `./mean_std.npz`. This file will be used in both training and inferencing.
+`python compute_mean_std.py` computes mean and stdandard deviation for audio features, and save them to a file with a default name `./mean_std.npz`. This file will be used in both training and inferencing. The default feature of audio data is power spectrum, currently the mfcc feature is also supported. To train and infer based on mfcc feature, you can regenerate this file by
+
+```
+python compute_mean_std.py --specgram_type mfcc
+```
 
 More help for arguments:
 

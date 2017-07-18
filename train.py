@@ -54,6 +54,12 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use sortagrad or not. (default: %(default)s)")
 parser.add_argument(
+    "--specgram_type",
+    default='linear',
+    type=str,
+    help="Feature type of audio data: 'linear' (power spectrum)"
+    " or 'mfcc'. (default: %(default)s)")
+parser.add_argument(
     "--max_duration",
     default=27.0,
     type=float,
@@ -130,6 +136,7 @@ def train():
             augmentation_config=args.augmentation_config,
             max_duration=args.max_duration,
             min_duration=args.min_duration,
+            specgram_type=args.specgram_type,
             num_threads=args.num_threads_data)
 
     train_generator = data_generator()

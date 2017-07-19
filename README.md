@@ -44,6 +44,8 @@ python compute_mean_std.py
 python compute_mean_std.py --specgram_type mfcc
 ```
 
+and specify the ```specgram_type``` to ```mfcc``` in each step, including training, inference etc.
+
 More help for arguments:
 
 ```

@@ -52,6 +52,12 @@ parser.add_argument(
     type=int,
     help="Number of cpu processes for beam search. (default: %(default)s)")
 parser.add_argument(
+    "--specgram_type",
+    default='linear',
+    type=str,
+    help="Feature type of audio data: 'linear' (power spectrum)"
+    " or 'mfcc'. (default: %(default)s)")
+parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
     type=str,
@@ -118,6 +124,7 @@ def infer():
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
         augmentation_config='{}',
+        specgram_type=args.specgram_type,
         num_threads=args.num_threads_data)
 
     # create network config

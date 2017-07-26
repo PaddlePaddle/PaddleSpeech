@@ -16,7 +16,7 @@ class FeatureNormalizer(object):
     if mean_std_filepath is provided (not None), the normalizer will directly
     initilize from the file. Otherwise, both manifest_path and featurize_func
     should be given for on-the-fly mean and stddev computing.
-    
+
     :param mean_std_filepath: File containing the pre-computed mean and stddev.
     :type mean_std_filepath: None|basestring
     :param manifest_path: Manifest of instances for computing mean and stddev.

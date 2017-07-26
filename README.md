@@ -8,9 +8,6 @@ Please replace `$PADDLE_INSTALL_DIR` with your own paddle installation directory
 sh setup.sh
 export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/lib:$LD_LIBRARY_PATH
 ```
-
-For some machines, we also need to install libsndfile1. Details to be added.
-
 ## Usage
 
 ### Preparing Data

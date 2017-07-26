@@ -9,7 +9,9 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-# install package Soundfile
+# install package libsndfile
+DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+mkdir thirdparty
 curl -O "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
 if [ $? != 0 ]; then
     echo "Download libsndfile-1.0.28.tar.gz failed !!!"
@@ -17,15 +19,10 @@ if [ $? != 0 ]; then
 fi
 tar -zxvf libsndfile-1.0.28.tar.gz
 cd libsndfile-1.0.28
-./configure && make && make install
-cd -
+./configure --prefix=$DIR/thirdparty/libsndfile && make && make install
+cd ..
 rm -rf libsndfile-1.0.28
 rm libsndfile-1.0.28.tar.gz
-pip install SoundFile==0.9.0.post1
-if [ $? != 0 ]; then
-    echo "Install SoundFile failed !!!"
-    exit 1
-fi
 
 # prepare ./checkpoints
 mkdir checkpoints

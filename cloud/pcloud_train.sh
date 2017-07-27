@@ -12,7 +12,7 @@ VOCAB_PATH=${DATA_PATH}/eng_vocab.txt
 #setted by user
 MEAN_STD_FILE=${DATA_PATH}/mean_std.npz
 
-tar -xzvf deepspeech.tar.gz
+tar -xzf deepspeech.tar.gz
 rm -rf ./cloud/data/*
 
 # split train data for each pcloud node

@@ -89,10 +89,15 @@ void Scorer::reset_params(float alpha, float beta) {
     this->_beta = beta;
 }
 
-double Scorer::get_score(std::string sentence) {
+double Scorer::get_score(std::string sentence, bool log) {
     double lm_score = language_model_score(sentence);
     int word_cnt = word_count(sentence);
 
-    double final_score = pow(10, _alpha*lm_score) * pow(word_cnt, _beta);
+    double final_score = 0.0;
+    if (log == false) {
+        final_score = pow(10, _alpha*lm_score) * pow(word_cnt, _beta);
+    } else {
+        final_score = _alpha*lm_score*std::log(10) + _beta*std::log(word_cnt);
+    }
     return final_score;
 }

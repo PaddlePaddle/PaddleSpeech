@@ -31,5 +31,9 @@ std::vector<std::pair<double, std::string> >
                             Scorer *ext_scorer=NULL,
                             bool nproc=false
                             );
+/* CTC Best Path Decoder
+ */
+std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
+                                     std::vector<std::string> vocabulary);
 
 #endif // CTC_BEAM_SEARCH_DECODER_H_

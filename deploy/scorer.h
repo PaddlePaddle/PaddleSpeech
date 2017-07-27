@@ -30,7 +30,7 @@ public:
     // reset params alpha & beta
     void reset_params(float alpha, float beta);
     // get the final score
-    double get_score(std::string);
+    double get_score(std::string, bool log=false);
 };
 
 #endif //SCORER_H_

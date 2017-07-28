@@ -14,8 +14,8 @@ class TestSetup(unittest.TestCase):
         file = 'test.wav'
         sf.write(file, data, 44100, format='WAV', subtype='FLOAT')
         read, fs = sf.read(file)
-        assert np.all(read == data)
-        assert fs == 44100
+        self.assertTrue(np.all(read == data))
+        self.assertEqual(fs, 44100)
         os.remove(file)
 
 

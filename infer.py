@@ -58,6 +58,11 @@ parser.add_argument(
     help="Feature type of audio data: 'linear' (power spectrum)"
     " or 'mfcc'. (default: %(default)s)")
 parser.add_argument(
+    "--trainer_count",
+    default=8,
+    type=int,
+    help="Trainer number. (default: %(default)s)")
+parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
     type=str,
@@ -208,7 +213,7 @@ def infer():
             wer_cur = wer(target_transcription[i], beam_search_result[0][1])
             wer_sum += wer_cur
             wer_counter += 1
-            print("cur wer = %f , average wer = %f" %
+            print("Current WER = %f , Average WER = %f" %
                   (wer_cur, wer_sum / wer_counter))
     else:
         raise ValueError("Decoding method [%s] is not supported." %
@@ -217,7 +222,7 @@ def infer():
 
 def main():
     utils.print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu, trainer_count=1)
+    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     infer()
 
 

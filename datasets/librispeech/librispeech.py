@@ -11,7 +11,7 @@ from __future__ import print_function
 
 import distutils.util
 import os
-import wget
+import sys
 import tarfile
 import argparse
 import soundfile
@@ -66,7 +66,7 @@ def download(url, md5sum, target_dir):
     filepath = os.path.join(target_dir, url.split("/")[-1])
     if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
         print("Downloading %s ..." % url)
-        wget.download(url, target_dir)
+        os.system("wget -c " + url + " -P " + target_dir)
         print("\nMD5 Chesksum %s ..." % filepath)
         if not md5file(filepath) == md5sum:
             raise RuntimeError("MD5 checksum failed.")

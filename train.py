@@ -3,15 +3,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
-import os
 import argparse
-import gzip
-import time
 import distutils.util
 import multiprocessing
 import paddle.v2 as paddle
-from model import deep_speech2
+from model import DeepSpeech2Model
 from data_utils.data import DataGenerator
 import utils
 
@@ -23,6 +19,12 @@ parser.add_argument(
     default=200,
     type=int,
     help="Training pass number. (default: %(default)s)")
+parser.add_argument(
+    "--num_iterations_print",
+    default=100,
+    type=int,
+    help="Number of iterations for every train cost printing. "
+    "(default: %(default)s)")
 parser.add_argument(
     "--num_conv_layers",
     default=2,
@@ -127,100 +129,47 @@ args = parser.parse_args()
 
 def train():
     """DeepSpeech2 training."""
-
-    # initialize data generator
-    def data_generator():
-        return DataGenerator(
-            vocab_filepath=args.vocab_filepath,
-            mean_std_filepath=args.mean_std_filepath,
-            augmentation_config=args.augmentation_config,
-            max_duration=args.max_duration,
-            min_duration=args.min_duration,
-            specgram_type=args.specgram_type,
-            num_threads=args.num_threads_data)
-
-    train_generator = data_generator()
-    test_generator = data_generator()
-
-    # create network config
-    # paddle.data_type.dense_array is used for variable batch input.
-    # The size 161 * 161 is only an placeholder value and the real shape
-    # of input batch data will be induced during training.
-    audio_data = paddle.layer.data(
-        name="audio_spectrogram", type=paddle.data_type.dense_array(161 * 161))
-    text_data = paddle.layer.data(
-        name="transcript_text",
-        type=paddle.data_type.integer_value_sequence(
-            train_generator.vocab_size))
-    cost = deep_speech2(
-        audio_data=audio_data,
-        text_data=text_data,
-        dict_size=train_generator.vocab_size,
-        num_conv_layers=args.num_conv_layers,
-        num_rnn_layers=args.num_rnn_layers,
-        rnn_size=args.rnn_layer_size,
-        is_inference=False)
-
-    # create/load parameters and optimizer
-    if args.init_model_path is None:
-        parameters = paddle.parameters.create(cost)
-    else:
-        if not os.path.isfile(args.init_model_path):
-            raise IOError("Invalid model!")
-        parameters = paddle.parameters.Parameters.from_tar(
-            gzip.open(args.init_model_path))
-    optimizer = paddle.optimizer.Adam(
-        learning_rate=args.adam_learning_rate, gradient_clipping_threshold=400)
-    trainer = paddle.trainer.SGD(
-        cost=cost, parameters=parameters, update_equation=optimizer)
-
-    # prepare data reader
+    train_generator = DataGenerator(
+        vocab_filepath=args.vocab_filepath,
+        mean_std_filepath=args.mean_std_filepath,
+        augmentation_config=args.augmentation_config,
+        max_duration=args.max_duration,
+        min_duration=args.min_duration,
+        specgram_type=args.specgram_type,
+        num_threads=args.num_threads_data)
+    dev_generator = DataGenerator(
+        vocab_filepath=args.vocab_filepath,
+        mean_std_filepath=args.mean_std_filepath,
+        augmentation_config="{}",
+        specgram_type=args.specgram_type,
+        num_threads=args.num_threads_data)
     train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest_path,
         batch_size=args.batch_size,
         min_batch_size=args.trainer_count,
         sortagrad=args.use_sortagrad if args.init_model_path is None else False,
         shuffle_method=args.shuffle_method)
-    test_batch_reader = test_generator.batch_reader_creator(
+    dev_batch_reader = dev_generator.batch_reader_creator(
         manifest_path=args.dev_manifest_path,
         batch_size=args.batch_size,
         min_batch_size=1,  # must be 1, but will have errors.
         sortagrad=False,
         shuffle_method=None)
 
-    # create event handler
-    def event_handler(event):
-        global start_time, cost_sum, cost_counter
-        if isinstance(event, paddle.event.EndIteration):
-            cost_sum += event.cost
-            cost_counter += 1
-            if (event.batch_id + 1) % 100 == 0:
-                print("\nPass: %d, Batch: %d, TrainCost: %f" % (
-                    event.pass_id, event.batch_id + 1, cost_sum / cost_counter))
-                cost_sum, cost_counter = 0.0, 0
-                with gzip.open("checkpoints/params.latest.tar.gz", 'w') as f:
-                    parameters.to_tar(f)
-            else:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-        if isinstance(event, paddle.event.BeginPass):
-            start_time = time.time()
-            cost_sum, cost_counter = 0.0, 0
-        if isinstance(event, paddle.event.EndPass):
-            result = trainer.test(
-                reader=test_batch_reader, feeding=test_generator.feeding)
-            print("\n------- Time: %d sec,  Pass: %d, ValidationCost: %s" %
-                  (time.time() - start_time, event.pass_id, result.cost))
-            with gzip.open("checkpoints/params.pass-%d.tar.gz" % event.pass_id,
-                           'w') as f:
-                parameters.to_tar(f)
-
-    # run train
-    trainer.train(
-        reader=train_batch_reader,
-        event_handler=event_handler,
+    ds2_model = DeepSpeech2Model(
+        vocab_size=train_generator.vocab_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        rnn_layer_size=args.rnn_layer_size,
+        pretrained_model_path=args.init_model_path)
+    ds2_model.train(
+        train_batch_reader=train_batch_reader,
+        dev_batch_reader=dev_batch_reader,
+        feeding_dict=train_generator.feeding,
+        learning_rate=args.adam_learning_rate,
+        gradient_clipping=400,
         num_passes=args.num_passes,
-        feeding=train_generator.feeding)
+        num_iterations_print=args.num_iterations_print)
 
 
 def main():

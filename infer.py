@@ -40,7 +40,7 @@ parser.add_argument(
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
     "--num_threads_data",
-    default=multiprocessing.cpu_count(),
+    default=1,
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(

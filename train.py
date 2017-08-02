@@ -117,6 +117,11 @@ parser.add_argument(
     "Otherwise, the training will resume from "
     "the existing model of this path. (default: %(default)s)")
 parser.add_argument(
+    "--output_model_dir",
+    default="./checkpoints",
+    type=str,
+    help="Directory for saving models. (default: %(default)s)")
+parser.add_argument(
     "--augmentation_config",
     default='[{"type": "shift", '
     '"params": {"min_shift_ms": -5, "max_shift_ms": 5},'
@@ -169,7 +174,8 @@ def train():
         learning_rate=args.adam_learning_rate,
         gradient_clipping=400,
         num_passes=args.num_passes,
-        num_iterations_print=args.num_iterations_print)
+        num_iterations_print=args.num_iterations_print,
+        output_model_dir=args.output_model_dir)
 
 
 def main():

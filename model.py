@@ -14,6 +14,21 @@ from layer import *
 
 
 class DeepSpeech2Model(object):
+    """DeepSpeech2Model class.
+
+    :param vocab_size: Decoding vocabulary size.
+    :type vocab_size: int
+    :param num_conv_layers: Number of stacking convolution layers.
+    :type num_conv_layers: int
+    :param num_rnn_layers: Number of stacking RNN layers.
+    :type num_rnn_layers: int
+    :param rnn_layer_size: RNN layer size (number of RNN cells).
+    :type rnn_layer_size: int
+    :param pretrained_model_path: Pretrained model path. If None, will train
+                                  from stratch.
+    :type pretrained_model_path: basestring|None
+    """
+
     def __init__(self, vocab_size, num_conv_layers, num_rnn_layers,
                  rnn_layer_size, pretrained_model_path):
         self._create_network(vocab_size, num_conv_layers, num_rnn_layers,
@@ -29,8 +44,33 @@ class DeepSpeech2Model(object):
               learning_rate,
               gradient_clipping,
               num_passes,
-              num_iterations_print=100,
-              output_model_dir='checkpoints'):
+              output_model_dir,
+              num_iterations_print=100):
+        """Train the model.
+
+        :param train_batch_reader: Train data reader.
+        :type train_batch_reader: callable
+        :param dev_batch_reader: Validation data reader.
+        :type dev_batch_reader: callable
+        :param feeding_dict: Feeding is a map of field name and tuple index
+                             of the data that reader returns.
+        :type feeding_dict: dict|list
+        :param learning_rate: Learning rate for ADAM optimizer.
+        :type learning_rate: float
+        :param gradient_clipping: Gradient clipping threshold.
+        :type gradient_clipping: float
+        :param num_passes: Number of training epochs.
+        :type num_passes: int
+        :param num_iterations_print: Number of training iterations for printing
+                                     a training loss.
+        :type rnn_iteratons_print: int
+        :param output_model_dir: Directory for saving the model (every pass).
+        :type output_model_dir: basestring
+        """
+        # prepare model output directory
+        if not os.path.exists(output_model_dir):
+            os.mkdir(output_model_dir)
+
         # prepare optimizer and trainer
         optimizer = paddle.optimizer.Adam(
             learning_rate=learning_rate,
@@ -81,6 +121,34 @@ class DeepSpeech2Model(object):
     def infer_batch(self, infer_data, decode_method, beam_alpha, beam_beta,
                     beam_size, cutoff_prob, vocab_list, language_model_path,
                     num_processes):
+        """Model inference. Infer the transcription for a batch of speech
+        utterances.
+
+        :param infer_data: List of utterances to infer, with each utterance a
+                           tuple of audio features and transcription text (empty
+                           string).
+        :type infer_data: list
+        :param decode_method: Decoding method name, 'best_path' or
+                              'beam search'.
+        :param decode_method: string
+        :param beam_alpha: Parameter associated with language model.
+        :type beam_alpha: float
+        :param beam_beta: Parameter associated with word count.
+        :type beam_beta: float
+        :param beam_size: Width for Beam search.
+        :type beam_size: int
+        :param cutoff_prob: Cutoff probability in pruning,
+                            default 1.0, no pruning.
+        :type cutoff_prob: float
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :param language_model_path: Filepath for language model.
+        :type language_model_path: basestring|None
+        :param num_processes: Number of processes (CPU) for decoder.
+        :type num_processes: int
+        :return: List of transcription texts.
+        :rtype: List of basestring
+        """
         # define inferer
         if self._inferer == None:
             self._inferer = paddle.inference.Inference(
@@ -126,6 +194,7 @@ class DeepSpeech2Model(object):
         return results
 
     def _create_parameters(self, model_path=None):
+        """Load or create model parameters."""
         if model_path is None:
             self._parameters = paddle.parameters.create(self._loss)
         else:
@@ -134,6 +203,7 @@ class DeepSpeech2Model(object):
 
     def _create_network(self, vocab_size, num_conv_layers, num_rnn_layers,
                         rnn_layer_size):
+        """Create data layers and model network."""
         # paddle.data_type.dense_array is used for variable batch input.
         # The size 161 * 161 is only an placeholder value and the real shape
         # of input batch data will be induced during training.

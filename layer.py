@@ -5,13 +5,27 @@ from __future__ import print_function
 
 import paddle.v2 as paddle
 
-DISABLE_CUDNN_BATCH_NORM = True
-
 
 def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
                   padding, act):
-    """
-    Convolution layer with batch normalization.
+    """Convolution layer with batch normalization.
+
+    :param input: Input layer.
+    :type input: LayerOutput
+    :param filter_size: The x dimension of a filter kernel. Or input a tuple for
+                        two image dimension.
+    :type filter_size: int|tuple|list
+    :param num_channels_in: Number of input channels.
+    :type num_channels_in: int
+    :type num_channels_out: Number of output channels.
+    :type num_channels_in: out
+    :param padding: The x dimension of the padding. Or input a tuple for two
+                    image dimension.
+    :type padding: int|tuple|list
+    :param act: Activation type.
+    :type act: BaseActivation
+    :return: Batch norm layer after convolution layer.
+    :rtype: LayerOutput
     """
     conv_layer = paddle.layer.img_conv(
         input=input,
@@ -22,32 +36,30 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
         padding=padding,
         act=paddle.activation.Linear(),
         bias_attr=False)
-    if DISABLE_CUDNN_BATCH_NORM:
-        # temopary patch, need to be removed.
-        return paddle.layer.batch_norm(
-            input=conv_layer, act=act, batch_norm_type="batch_norm")
-    else:
-        return paddle.layer.batch_norm(input=conv_layer, act=act)
+    return paddle.layer.batch_norm(input=conv_layer, act=act)
 
 
 def bidirectional_simple_rnn_bn_layer(name, input, size, act):
-    """
-    Bidirectonal simple rnn layer with sequence-wise batch normalization.
+    """Bidirectonal simple rnn layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
+
+    :param name: Name of the layer.
+    :type name: string
+    :param input: Input layer.
+    :type input: LayerOutput
+    :param size: Number of RNN cells.
+    :type size: int
+    :param act: Activation type.
+    :type act: BaseActivation
+    :return: Bidirectional simple rnn layer.
+    :rtype: LayerOutput
     """
     # input-hidden weights shared across bi-direcitonal rnn.
     input_proj = paddle.layer.fc(
         input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
     # batch norm is only performed on input-state projection 
-    if DISABLE_CUDNN_BATCH_NORM:
-        # temopary patch, need to be removed.
-        input_proj_bn = paddle.layer.batch_norm(
-            input=input_proj,
-            act=paddle.activation.Linear(),
-            batch_norm_type="batch_norm")
-    else:
-        input_proj_bn = paddle.layer.batch_norm(
-            input=input_proj, act=paddle.activation.Linear())
+    input_proj_bn = paddle.layer.batch_norm(
+        input=input_proj, act=paddle.activation.Linear())
     # forward and backward in time
     forward_simple_rnn = paddle.layer.recurrent(
         input=input_proj_bn, act=act, reverse=False)
@@ -57,8 +69,14 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, act):
 
 
 def conv_group(input, num_stacks):
-    """
-    Convolution group with several stacking convolution layers.
+    """Convolution group with stacked convolution layers.
+
+    :param input: Input layer.
+    :type input: LayerOutput
+    :param num_stacks: Number of stacked convolution layers.
+    :type num_stacks: int
+    :return: Output layer of the convolution group.
+    :rtype: LayerOutput
     """
     conv = conv_bn_layer(
         input=input,
@@ -83,8 +101,16 @@ def conv_group(input, num_stacks):
 
 
 def rnn_group(input, size, num_stacks):
-    """
-    RNN group with several stacking RNN layers.
+    """RNN group with stacked bidirectional simple RNN layers.
+
+    :param input: Input layer.
+    :type input: LayerOutput
+    :param size: Number of RNN cells in each layer.
+    :type size: int
+    :param num_stacks: Number of stacked rnn layers.
+    :type num_stacks: int
+    :return: Output layer of the RNN group.
+    :rtype: LayerOutput
     """
     output = input
     for i in xrange(num_stacks):
@@ -114,12 +140,8 @@ def deep_speech2(audio_data,
     :type num_rnn_layers: int
     :param rnn_size: RNN layer size (number of RNN cells).
     :type rnn_size: int
-    :param is_inference: False in the training mode, and True in the
-                         inferene mode.
-    :type is_inference: bool
-    :return: If is_inference set False, return a ctc cost layer;
-             if is_inference set True, return a sequence layer of output
-             probability distribution.
+    :return: A tuple of an output unnormalized log probability layer (
+             before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
     # convolution group

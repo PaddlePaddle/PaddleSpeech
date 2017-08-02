@@ -46,7 +46,7 @@ parser.add_argument(
     help="Trainer number. (default: %(default)s)")
 parser.add_argument(
     "--num_threads_data",
-    default=multiprocessing.cpu_count(),
+    default=1,
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
@@ -67,7 +67,7 @@ parser.add_argument(
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
     "--tune_manifest_path",
-    default='datasets/manifest.test',
+    default='datasets/manifest.dev',
     type=str,
     help="Manifest path for tuning. (default: %(default)s)")
 parser.add_argument(

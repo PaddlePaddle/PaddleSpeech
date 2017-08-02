@@ -83,6 +83,23 @@ class DataGenerator(object):
         self._rng = random.Random(random_seed)
         self._epoch = 0
 
+    def process_utterance(self, filename, transcript):
+        """Load, augment, featurize and normalize for speech data.
+
+        :param filename: Audio filepath
+        :type filename: basestring
+        :param transcript: Transcription text.
+        :type transcript: basestring
+        :return: Tuple of audio feature tensor and list of token ids for
+                 transcription. 
+        :rtype: tuple of (2darray, list)
+        """
+        speech_segment = SpeechSegment.from_file(filename, transcript)
+        self._augmentation_pipeline.transform_audio(speech_segment)
+        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
+        specgram = self._normalizer.apply(specgram)
+        return specgram, text_ids
+
     def batch_reader_creator(self,
                              manifest_path,
                              batch_size,
@@ -198,14 +215,6 @@ class DataGenerator(object):
         """
         return self._speech_featurizer.vocab_list
 
-    def _process_utterance(self, filename, transcript):
-        """Load, augment, featurize and normalize for speech data."""
-        speech_segment = SpeechSegment.from_file(filename, transcript)
-        self._augmentation_pipeline.transform_audio(speech_segment)
-        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
-        specgram = self._normalizer.apply(specgram)
-        return specgram, text_ids
-
     def _instance_reader_creator(self, manifest):
         """
         Instance reader creator. Create a callable function to produce
@@ -220,8 +229,8 @@ class DataGenerator(object):
                 yield instance
 
         def mapper(instance):
-            return self._process_utterance(instance["audio_filepath"],
-                                           instance["text"])
+            return self.process_utterance(instance["audio_filepath"],
+                                          instance["text"])
 
         return paddle.reader.xmap_readers(
             mapper, reader, self._num_threads, 1024, order=True)

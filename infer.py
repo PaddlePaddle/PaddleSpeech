@@ -83,18 +83,13 @@ parser.add_argument(
     "--decode_method",
     default='beam_search',
     type=str,
-    help="Method for ctc decoding: best_path or beam_search. (default: %(default)s)"
-)
+    help="Method for ctc decoding: best_path or beam_search. "
+    "(default: %(default)s)")
 parser.add_argument(
     "--beam_size",
     default=500,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
-parser.add_argument(
-    "--num_results_per_sample",
-    default=1,
-    type=int,
-    help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
     default="lm/data/common_crawl_00.prune01111.trie.klm",
@@ -102,12 +97,12 @@ parser.add_argument(
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
     "--alpha",
-    default=0.26,
+    default=0.36,
     type=float,
     help="Parameter associated with language model. (default: %(default)f)")
 parser.add_argument(
     "--beta",
-    default=0.1,
+    default=0.25,
     type=float,
     help="Parameter associated with word count. (default: %(default)f)")
 parser.add_argument(

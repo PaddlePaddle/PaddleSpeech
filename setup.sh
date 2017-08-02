@@ -26,7 +26,4 @@ if [ $? != 0 ]; then
     rm libsndfile-1.0.28.tar.gz
 fi
 
-# prepare ./checkpoints
-mkdir checkpoints
-
 echo "Install all dependencies successfully."

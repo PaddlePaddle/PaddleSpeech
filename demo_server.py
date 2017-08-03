@@ -1,3 +1,4 @@
+"""Server-end for the ASR demo."""
 import os
 import time
 import random
@@ -17,7 +18,7 @@ from data_utils.utils import read_manifest
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--host_ip",
-    default="10.104.18.14",
+    default="localhost",
     type=str,
     help="Server IP address. (default: %(default)s)")
 parser.add_argument(

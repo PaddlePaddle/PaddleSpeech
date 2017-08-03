@@ -1,10 +1,23 @@
+"""Client-end for the ASR demo."""
 from pynput import keyboard
 import struct
 import socket
 import sys
+import argparse
 import pyaudio
 
-HOST, PORT = "10.104.18.14", 8086
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument(
+    "--host_ip",
+    default="localhost",
+    type=str,
+    help="Server IP address. (default: %(default)s)")
+parser.add_argument(
+    "--host_port",
+    default=8086,
+    type=int,
+    help="Server Port. (default: %(default)s)")
+args = parser.parse_args()
 
 is_recording = False
 enable_trigger_record = True
@@ -42,7 +55,7 @@ def callback(in_data, frame_count, time_info, status):
     elif len(data_list) > 0:
         # Connect to server and send data
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((HOST, PORT))
+        sock.connect((args.host_ip, args.host_port))
         sent = ''.join(data_list)
         sock.sendall(struct.pack('>i', len(sent)) + sent)
         print('Speech[length=%d] Sent.' % len(sent))

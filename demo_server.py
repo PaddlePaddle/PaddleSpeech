@@ -8,7 +8,6 @@ from time import gmtime, strftime
 import SocketServer
 import struct
 import wave
-import pyaudio
 import paddle.v2 as paddle
 from utils import print_arguments
 from data_utils.data import DataGenerator

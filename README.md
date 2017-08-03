@@ -7,7 +7,7 @@
  - **Python = 2.7** only supported;
  - **cuDNN >= 6.0** is required to utilize NVIDIA GPU platform in the installation of PaddlePaddle, and the **CUDA toolkit** with proper version suitable for cuDNN. The cuDNN library below 6.0 is found to yield a fatal error in batch normalization when handling utterances with long duration in inference.
 
-### Setup
+### Setup for Training & Evaluation
 
 ```
 sh setup.sh
@@ -15,6 +15,19 @@ export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/li
 ```
 
 Please replace `$PADDLE_INSTALL_DIR` with your own paddle installation directory.
+
+### Setup for Demo
+
+Please do the following extra installation before run `demo_client.py` to try the realtime ASR demo. However there is no need to install them for the computer running the demo's server-end (`demo_server.py`). For details of running the ASR demo, please refer to the [section](#playing-with-the-asr-demo).
+
+For example, on MAC OS X:
+
+```
+brew install portaudio
+pip install pyaudio
+pip install pynput
+```
+
 
 ## Usage
 
@@ -158,4 +171,8 @@ python demo_client.py
 ```
 On the client console, press and hold "white-space" key and start talking, then release the "white-space" key when you finish your speech. The decoding results (infered transcription) will be displayed.
 
-If you would like to start server and client in two machines. Please use `--host_ip` and `--host_port` to indicate the actual IP address and port, for both `demo_server.py` and `demo_client.py`.
+If you would like to start the server and the client in two machines. Please use `--host_ip` and `--host_port` to indicate the actual IP address and port, for both `demo_server.py` and `demo_client.py`.
+
+Notice that `demo_client.py` should be started in your local computer with microphone hardware, while `demo_server.py` can be started in any remote server as well as the same local computer. IP address and port should be properly set for server-client communication.
+
+For running `demo_client.py`, please first finish the [extra installation steps](#setup-for-demo).

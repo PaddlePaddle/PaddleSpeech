@@ -112,6 +112,8 @@ args = parser.parse_args()
 
 
 class AsrTCPServer(SocketServer.TCPServer):
+    """The ASR TCP Server."""
+
     def __init__(self,
                  server_address,
                  RequestHandlerClass,
@@ -125,8 +127,7 @@ class AsrTCPServer(SocketServer.TCPServer):
 
 
 class AsrRequestHandler(SocketServer.BaseRequestHandler):
-    """The ASR request handler.
-    """
+    """The ASR request handler."""
 
     def handle(self):
         # receive data through TCP socket
@@ -170,6 +171,7 @@ def warm_up_test(audio_process_handler,
                  manifest_path,
                  num_test_cases,
                  random_seed=0):
+    """Warming-up test."""
     manifest = read_manifest(manifest_path)
     rng = random.Random(random_seed)
     samples = rng.sample(manifest, num_test_cases)
@@ -183,12 +185,15 @@ def warm_up_test(audio_process_handler,
 
 
 def start_server():
+    """Start the ASR server"""
+    # prepare data generator
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=1)
+    # prepare ASR model
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,
         num_conv_layers=args.num_conv_layers,
@@ -196,6 +201,7 @@ def start_server():
         rnn_layer_size=args.rnn_layer_size,
         pretrained_model_path=args.model_filepath)
 
+    # prepare ASR inference handler
     def file_to_transcript(filename):
         feature = data_generator.process_utterance(filename, "")
         result_transcript = ds2_model.infer_batch(
@@ -210,6 +216,7 @@ def start_server():
             num_processes=1)
         return result_transcript[0]
 
+    # warming up with utterrances sampled from Librispeech
     print('-----------------------------------------------------------')
     print('Warming up ...')
     warm_up_test(
@@ -218,12 +225,12 @@ def start_server():
         num_test_cases=3)
     print('-----------------------------------------------------------')
 
+    # start the server
     server = AsrTCPServer(
         server_address=(args.host_ip, args.host_port),
         RequestHandlerClass=AsrRequestHandler,
         speech_save_dir=args.speech_save_dir,
         audio_process_handler=file_to_transcript)
-
     print("ASR Server Started.")
     server.serve_forever()
 

@@ -11,6 +11,7 @@ enable_trigger_record = True
 
 
 def on_press(key):
+    """On-press keyboard callback function."""
     global is_recording, enable_trigger_record
     if key == keyboard.Key.space:
         if (not is_recording) and enable_trigger_record:
@@ -20,6 +21,7 @@ def on_press(key):
 
 
 def on_release(key):
+    """On-release keyboard callback function."""
     global is_recording, enable_trigger_record
     if key == keyboard.Key.esc:
         return False
@@ -32,6 +34,7 @@ data_list = []
 
 
 def callback(in_data, frame_count, time_info, status):
+    """Audio recorder's stream callback function."""
     global data_list, is_recording, enable_trigger_record
     if is_recording:
         data_list.append(in_data)
@@ -53,6 +56,7 @@ def callback(in_data, frame_count, time_info, status):
 
 
 def main():
+    # prepare audio recorder
     p = pyaudio.PyAudio()
     stream = p.open(
         format=pyaudio.paInt32,
@@ -62,10 +66,12 @@ def main():
         stream_callback=callback)
     stream.start_stream()
 
+    # prepare keyboard listener
     with keyboard.Listener(
             on_press=on_press, on_release=on_release) as listener:
         listener.join()
 
+    # close up
     stream.stop_stream()
     stream.close()
     p.terminate()

@@ -64,8 +64,6 @@ class AudioSegment(object):
         :rtype: AudioSegment
         """
         samples, sample_rate = soundfile.read(file, dtype='float32')
-        print(samples)
-        print(sample_rate)
         return cls(samples, sample_rate)
 
     @classmethod

@@ -7,7 +7,7 @@
 
 using namespace lm::ngram;
 
-Scorer::Scorer(float alpha, float beta, std::string lm_model_path) {
+LmScorer::LmScorer(float alpha, float beta, std::string lm_model_path) {
     this->_alpha = alpha;
     this->_beta = beta;
 
@@ -18,7 +18,7 @@ Scorer::Scorer(float alpha, float beta, std::string lm_model_path) {
     this->_language_model = LoadVirtual(lm_model_path.c_str());
 }
 
-Scorer::~Scorer(){
+LmScorer::~LmScorer(){
    delete (lm::base::Model *)this->_language_model;
 }
 
@@ -57,7 +57,7 @@ inline void strip(std::string &str, char ch=' ') {
     }
 }
 
-int Scorer::word_count(std::string sentence) {
+int LmScorer::word_count(std::string sentence) {
     strip(sentence);
     int cnt = 1;
     for (int i=0; i<sentence.size(); i++) {
@@ -68,7 +68,7 @@ int Scorer::word_count(std::string sentence) {
     return cnt;
 }
 
-double Scorer::language_model_score(std::string sentence) {
+double LmScorer::language_model_score(std::string sentence) {
     lm::base::Model *model = (lm::base::Model *)this->_language_model;
     State state, out_state;
     lm::FullScoreReturn ret;
@@ -84,12 +84,12 @@ double Scorer::language_model_score(std::string sentence) {
     return log_prob;
 }
 
-void Scorer::reset_params(float alpha, float beta) {
+void LmScorer::reset_params(float alpha, float beta) {
     this->_alpha = alpha;
     this->_beta = beta;
 }
 
-double Scorer::get_score(std::string sentence, bool log) {
+double LmScorer::get_score(std::string sentence, bool log) {
     double lm_score = language_model_score(sentence);
     int word_cnt = word_count(sentence);
 

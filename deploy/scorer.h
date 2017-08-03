@@ -8,10 +8,10 @@
  * count and language model scoring.
 
  * Example:
- *     Scorer ext_scorer(alpha, beta, "path_to_language_model.klm");
+ *     LmScorer ext_scorer(alpha, beta, "path_to_language_model.klm");
  *     double score = ext_scorer.get_score("sentence_to_score");
  */
-class Scorer{
+class LmScorer{
 private:
     float _alpha;
     float _beta;
@@ -23,9 +23,9 @@ private:
     double language_model_score(std::string);
 
 public:
-    Scorer(){}
-    Scorer(float alpha, float beta, std::string lm_model_path);
-    ~Scorer();
+    LmScorer(){}
+    LmScorer(float alpha, float beta, std::string lm_model_path);
+    ~LmScorer();
 
     // reset params alpha & beta
     void reset_params(float alpha, float beta);

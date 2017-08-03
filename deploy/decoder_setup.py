@@ -34,15 +34,13 @@ if compile_test('lzma.h', 'lzma'):
     ARGS.append('-DHAVE_XZLIB')
     LIBS.append('lzma')
 
-os.system('swig -python -c++ ./ctc_beam_search_decoder.i')
+os.system('swig -python -c++ ./ctc_decoders.i')
 
 ctc_beam_search_decoder_module = [
     Extension(
-        name='_swig_ctc_beam_search_decoder',
-        sources=FILES + [
-            'scorer.cpp', 'ctc_beam_search_decoder_wrap.cxx',
-            'ctc_beam_search_decoder.cpp'
-        ],
+        name='_swig_ctc_decoders',
+        sources=FILES +
+        ['scorer.cpp', 'ctc_decoders_wrap.cxx', 'ctc_decoders.cpp'],
         language='C++',
         include_dirs=['.', './kenlm'],
         libraries=LIBS,
@@ -50,8 +48,8 @@ ctc_beam_search_decoder_module = [
 ]
 
 setup(
-    name='swig_ctc_beam_search_decoder',
+    name='swig_ctc_decoders',
     version='0.1',
-    description="""CTC beam search decoder""",
+    description="""CTC decoders""",
     ext_modules=ctc_beam_search_decoder_module,
-    py_modules=['swig_ctc_beam_search_decoder'], )
+    py_modules=['swig_ctc_decoders'], )

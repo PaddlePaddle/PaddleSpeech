@@ -10,8 +10,8 @@ import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
-from swig_ctc_beam_search_decoder import *
-from swig_scorer import Scorer
+from deploy.swig_decoders import *
+from swig_scorer import LmScorer
 from error_rate import wer
 import utils
 import time
@@ -85,7 +85,7 @@ parser.add_argument(
     help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="lm/data/en.00.UNKNOWN.klm",
+    default="lm/data/common_crawl_00.prune01111.trie.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -164,19 +164,19 @@ def infer():
     ]
 
     # external scorer
-    ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
+    ext_scorer = LmScorer(args.alpha, args.beta, args.language_model_path)
 
     ## decode and print
     time_begin = time.time()
     wer_sum, wer_counter = 0, 0
     for i, probs in enumerate(probs_split):
         beam_result = ctc_beam_search_decoder(
-            probs.tolist(),
-            args.beam_size,
-            data_generator.vocab_list,
-            len(data_generator.vocab_list),
-            args.cutoff_prob,
-            ext_scorer, )
+            probs_seq=probs,
+            beam_size=args.beam_size,
+            vocabulary=data_generator.vocab_list,
+            blank_id=len(data_generator.vocab_list),
+            cutoff_prob=args.cutoff_prob,
+            ext_scoring_func=ext_scorer, )
 
         print("\nTarget Transcription:\t%s" % target_transcription[i])
         print("Beam %d: %f \t%s" % (0, beam_result[0][0], beam_result[0][1]))

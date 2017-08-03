@@ -4,9 +4,9 @@
 #include <utility>
 #include <cmath>
 #include <limits>
-#include "ctc_beam_search_decoder.h"
+#include "ctc_decoders.h"
 
-typedef float log_prob_type;
+typedef double log_prob_type;
 
 template <typename T1, typename T2>
 bool pair_comp_first_rev(const std::pair<T1, T2> a, const std::pair<T1, T2> b)
@@ -24,8 +24,8 @@ template <typename T>
 T log_sum_exp(T x, T y)
 {
     static T num_min = -std::numeric_limits<T>::max();
-    if (x <= -num_min) return y;
-    if (y <= -num_min) return x;
+    if (x <= num_min) return y;
+    if (y <= num_min) return x;
     T xmax = std::max(x, y);
     return std::log(std::exp(x-xmax) + std::exp(y-xmax)) + xmax;
 }
@@ -55,17 +55,13 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
             }
         }
         max_idx_vec.push_back(max_idx);
-        std::cout<<max_idx<<",";
         max_prob = 0.0;
         max_idx = 0;
     }
-    std::cout<<std::endl;
 
     std::vector<int> idx_vec;
     for (int i=0; i<max_idx_vec.size(); i++) {
-        std::cout<<max_idx_vec[i]<<",";
         if ((i == 0) || ((i>0) && max_idx_vec[i]!=max_idx_vec[i-1])) {
-            std::cout<<max_idx_vec[i]<<",";
             idx_vec.push_back(max_idx_vec[i]);
         }
     }
@@ -73,7 +69,7 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
     std::string best_path_result;
     for (int i=0; i<idx_vec.size(); i++) {
         if (idx_vec[i] != blank_id) {
-            best_path_result += vocabulary[i];
+            best_path_result += vocabulary[idx_vec[i]];
         }
     }
     return best_path_result;
@@ -85,21 +81,21 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob,
-                            Scorer *ext_scorer,
+                            LmScorer *ext_scorer,
                             bool nproc) {
     // dimension check
     int num_time_steps = probs_seq.size();
     for (int i=0; i<num_time_steps; i++) {
         if (probs_seq[i].size() != vocabulary.size()+1) {
-            std::cout<<"The shape of probs_seq does not match"
-                     <<" with the shape of the vocabulary!"<<std::endl;
+            std::cout << " The shape of probs_seq does not match"
+                      << " with the shape of the vocabulary!" << std::endl;
             exit(1);
         }
     }
 
     // blank_id check
     if (blank_id > vocabulary.size()) {
-        std::cout<<"Invalid blank_id!"<<std::endl;
+        std::cout << " Invalid blank_id! " << std::endl;
         exit(1);
     }
 
@@ -108,7 +104,7 @@ std::vector<std::pair<double, std::string> >
                                                   vocabulary.end(), " ");
     int space_id = it - vocabulary.begin();
     if(space_id >= vocabulary.size()) {
-        std::cout<<"The character space is not in the vocabulary!"<<std::endl;
+        std::cout << " The character space is not in the vocabulary!"<<std::endl;
         exit(1);
     }
 

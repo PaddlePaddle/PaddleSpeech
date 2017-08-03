@@ -1,6 +1,6 @@
-%module swig_ctc_beam_search_decoder
+%module swig_ctc_decoders
 %{
-#include "ctc_beam_search_decoder.h"
+#include "ctc_decoders.h"
 %}
 
 %include "std_vector.i"
@@ -19,4 +19,4 @@ namespace std{
 }
 
 %import scorer.h
-%include "ctc_beam_search_decoder.h"
+%include "ctc_decoders.h"

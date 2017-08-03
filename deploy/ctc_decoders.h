@@ -28,10 +28,19 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob=1.0,
-                            Scorer *ext_scorer=NULL,
+                            LmScorer *ext_scorer=NULL,
                             bool nproc=false
                             );
+
 /* CTC Best Path Decoder
+ *
+ * Parameters:
+ *     probs_seq: 2-D vector that each element is a vector of probabilities
+ *               over vocabulary of one time step.
+ *     vocabulary: A vector of vocabulary.
+ * Return:
+ *     A vector that each element is a pair of score  and decoding result,
+ *     in desending order.
  */
 std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
                                      std::vector<std::string> vocabulary);

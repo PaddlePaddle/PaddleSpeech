@@ -143,9 +143,9 @@ class DeepSpeech2Model(object):
         """Model inference. Infer the transcription for a batch of speech
         utterances.
 
-        :param infer_data: List of utterances to infer, with each utterance a
-                           tuple of audio features and transcription text (empty
-                           string).
+        :param infer_data: List of utterances to infer, with each utterance
+                           consisting of a tuple of audio features and
+                           transcription text (empty string).
         :type infer_data: list
         :param decode_method: Decoding method name, 'best_path' or
                               'beam search'.

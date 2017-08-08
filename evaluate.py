@@ -45,12 +45,12 @@ parser.add_argument(
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
     "--num_threads_data",
-    default=multiprocessing.cpu_count(),
+    default=multiprocessing.cpu_count() // 2,
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
     "--num_processes_beam_search",
-    default=multiprocessing.cpu_count(),
+    default=multiprocessing.cpu_count() // 2,
     type=int,
     help="Number of cpu processes for beam search. (default: %(default)s)")
 parser.add_argument(

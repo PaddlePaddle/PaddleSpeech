@@ -65,7 +65,7 @@ class DataGenerator(object):
                  max_freq=None,
                  specgram_type='linear',
                  use_dB_normalization=True,
-                 num_threads=multiprocessing.cpu_count(),
+                 num_threads=multiprocessing.cpu_count() // 2,
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration

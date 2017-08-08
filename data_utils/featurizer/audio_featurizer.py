@@ -166,21 +166,18 @@ class AudioFeaturizer(object):
                              "window size.")
         # compute 13 cepstral coefficients, and the first one is replaced
         # by log(frame energy)
-        mfcc_feat = mfcc(
-            signal=samples,
-            samplerate=sample_rate,
-            winlen=0.001 * window_ms,
-            winstep=0.001 * stride_ms,
-            highfreq=max_freq)
+        mfcc_feat = np.transpose(
+            mfcc(
+                signal=samples,
+                samplerate=sample_rate,
+                winlen=0.001 * window_ms,
+                winstep=0.001 * stride_ms,
+                highfreq=max_freq))
         # Deltas
         d_mfcc_feat = delta(mfcc_feat, 2)
         # Deltas-Deltas
         dd_mfcc_feat = delta(d_mfcc_feat, 2)
         # concat above three features
-        concat_mfcc_feat = [
-            np.concatenate((mfcc_feat[i], d_mfcc_feat[i], dd_mfcc_feat[i]))
-            for i in xrange(len(mfcc_feat))
-        ]
-        # transpose to be consistent with the linear specgram situation
-        concat_mfcc_feat = np.transpose(concat_mfcc_feat)
+        concat_mfcc_feat = np.concatenate(
+            (mfcc_feat, d_mfcc_feat, dd_mfcc_feat))
         return concat_mfcc_feat

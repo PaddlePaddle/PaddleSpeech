@@ -30,7 +30,7 @@ class AugmentationPipeline(object):
                 "type": "noise",
                 "params": {"min_snr_dB": 10,
                            "max_snr_dB": 20,
-                           "noise_manifest": "datasets/manifest.noise"},
+                           "noise_manifest_path": "datasets/manifest.noise"},
                 "prob": 0.0
             },
             {

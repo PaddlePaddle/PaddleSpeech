@@ -17,15 +17,16 @@ class NoisePerturbAugmentor(AugmentorBase):
     :type min_snr_dB: float
     :param max_snr_dB: Maximal signal noise ratio, in decibels.
     :type max_snr_dB: float
-    :param noise_manifest: Manifest path for noise audio data.
-    :type noise_manifest: basestring 
+    :param noise_manifest_path: Manifest path for noise audio data.
+    :type noise_manifest_path: basestring 
     """
 
-    def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest):
+    def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest_path):
         self._min_snr_dB = min_snr_dB
         self._max_snr_dB = max_snr_dB
         self._rng = rng
-        self._manifest = utils.read_manifest(manifest_path=noise_manifest)
+        self._noise_manifest = utils.read_manifest(
+            manifest_path=noise_manifest_path)
 
     def transform_audio(self, audio_segment):
         """Add background noise audio.
@@ -35,7 +36,7 @@ class NoisePerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        noise_json = self._rng.sample(self._manifest, 1)[0]
+        noise_json = self._rng.sample(self._noise_manifest, 1)[0]
         if noise_json['duration'] < audio_segment.duration:
             raise RuntimeError("The duration of sampled noise audio is smaller "
                                "than the audio segment to add effects to.")

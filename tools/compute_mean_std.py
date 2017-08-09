@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import _init_paths
 from data_utils.normalizer import FeatureNormalizer
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.audio_featurizer import AudioFeaturizer

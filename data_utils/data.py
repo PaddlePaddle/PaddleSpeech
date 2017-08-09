@@ -72,7 +72,7 @@ class DataGenerator(object):
                  max_freq=None,
                  specgram_type='linear',
                  use_dB_normalization=True,
-                 num_threads=multiprocessing.cpu_count(),
+                 num_threads=multiprocessing.cpu_count() // 2,
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration
@@ -89,10 +89,26 @@ class DataGenerator(object):
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
-
         # for caching tar files info
         self.tar2info = {}
         self.tar2object = {}
+
+    def process_utterance(self, filename, transcript):
+        """Load, augment, featurize and normalize for speech data.
+
+        :param filename: Audio filepath
+        :type filename: basestring
+        :param transcript: Transcription text.
+        :type transcript: basestring
+        :return: Tuple of audio feature tensor and list of token ids for
+                 transcription. 
+        :rtype: tuple of (2darray, list)
+        """
+        speech_segment = SpeechSegment.from_file(filename, transcript)
+        self._augmentation_pipeline.transform_audio(speech_segment)
+        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
+        specgram = self._normalizer.apply(specgram)
+        return specgram, text_ids
 
     def batch_reader_creator(self,
                              manifest_path,
@@ -163,7 +179,7 @@ class DataGenerator(object):
                         manifest, batch_size, clipped=True)
                 elif shuffle_method == "instance_shuffle":
                     self._rng.shuffle(manifest)
-                elif not shuffle_method:
+                elif shuffle_method == None:
                     pass
                 else:
                     raise ValueError("Unknown shuffle method %s." %
@@ -263,8 +279,8 @@ class DataGenerator(object):
                 yield instance
 
         def mapper(instance):
-            return self._process_utterance(instance["audio_filepath"],
-                                           instance["text"])
+            return self.process_utterance(instance["audio_filepath"],
+                                          instance["text"])
 
         return paddle.reader.xmap_readers(
             mapper, reader, self._num_threads, 1024, order=True)

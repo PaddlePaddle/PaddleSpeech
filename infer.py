@@ -10,6 +10,7 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from error_rate import wer
+from error_rate import cer
 import utils
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -111,6 +112,14 @@ parser.add_argument(
     type=float,
     help="The cutoff probability of pruning"
     "in beam search. (default: %(default)f)")
+parser.add_argument(
+    "--error_rate_type",
+    default='wer',
+    choices=['wer', 'cer'],
+    type=str,
+    help="There are total two error rate types including wer and cer. wer "
+    "represents for word error rate while cer for character error rate. "
+    "(default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -147,6 +156,13 @@ def infer():
         language_model_path=args.language_model_path,
         num_processes=args.num_processes_beam_search)
 
+    if args.error_rate_type == 'wer':
+        error_rate_func = wer
+        error_rate_info = 'wer'
+    else:
+        error_rate_func = cer
+        error_rate_info = 'cer'
+
     target_transcripts = [
         ''.join([data_generator.vocab_list[token] for token in transcript])
         for _, transcript in infer_data
@@ -154,7 +170,8 @@ def infer():
     for target, result in zip(target_transcripts, result_transcripts):
         print("\nTarget Transcription: %s\nOutput Transcription: %s" %
               (target, result))
-        print("Current wer = %f" % wer(target, result))
+        print("Current %s = %f" % \
+                (error_rate_info, error_rate_func(target, result)))
 
 
 def main():

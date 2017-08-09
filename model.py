@@ -185,7 +185,7 @@ class DeepSpeech2Model(object):
             # best path decode
             for i, probs in enumerate(probs_split):
                 output_transcription = ctc_best_path_decoder(
-                    probs_seq=probs, vocabulary=data_generator.vocab_list)
+                    probs_seq=probs, vocabulary=vocab_list)
                 results.append(output_transcription)
         elif decode_method == "beam_search":
             # initialize external scorer

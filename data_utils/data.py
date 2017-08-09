@@ -91,7 +91,7 @@ class DataGenerator(object):
         :param transcript: Transcription text.
         :type transcript: basestring
         :return: Tuple of audio feature tensor and list of token ids for
-                 transcription. 
+                 transcription.
         :rtype: tuple of (2darray, list)
         """
         speech_segment = SpeechSegment.from_file(filename, transcript)
@@ -111,7 +111,7 @@ class DataGenerator(object):
         """
         Batch data reader creator for audio data. Return a callable generator
         function to produce batches of data.
-        
+
         Audio features within one batch will be padded with zeros to have the
         same shape, or a user-defined shape.
 
@@ -191,9 +191,9 @@ class DataGenerator(object):
     @property
     def feeding(self):
         """Returns data reader's feeding dict.
-        
+
         :return: Data feeding dict.
-        :rtype: dict 
+        :rtype: dict
         """
         return {"audio_spectrogram": 0, "transcript_text": 1}
 

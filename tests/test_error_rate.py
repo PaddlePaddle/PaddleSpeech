@@ -34,21 +34,33 @@ class TestParse(unittest.TestCase):
 
     def test_cer_2(self):
         ref = 'werewolf'
+        hyp = 'weae  wolf'
+        char_error_rate = error_rate.cer(ref, hyp, remove_space=True)
+        self.assertTrue(abs(char_error_rate - 0.125) < 1e-6)
+
+    def test_cer_3(self):
+        ref = 'werewolf'
         char_error_rate = error_rate.cer(ref, ref)
         self.assertEqual(char_error_rate, 0.0)
 
-    def test_cer_3(self):
+    def test_cer_4(self):
         ref = u'我是中国人'
         hyp = u'我是 美洲人'
         char_error_rate = error_rate.cer(ref, hyp)
         self.assertTrue(abs(char_error_rate - 0.6) < 1e-6)
 
-    def test_cer_4(self):
+    def test_cer_5(self):
+        ref = u'我 是 中 国 人'
+        hyp = u'我 是 美 洲 人'
+        char_error_rate = error_rate.cer(ref, hyp, remove_space=True)
+        self.assertTrue(abs(char_error_rate - 0.4) < 1e-6)
+
+    def test_cer_6(self):
         ref = u'我是中国人'
         char_error_rate = error_rate.cer(ref, ref)
         self.assertFalse(char_error_rate, 0.0)
 
-    def test_cer_5(self):
+    def test_cer_7(self):
         ref = ''
         hyp = 'Hypothesis'
         with self.assertRaises(ValueError):

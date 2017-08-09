@@ -17,6 +17,7 @@ import argparse
 import soundfile
 import json
 from paddle.v2.dataset.common import md5file
+import codecs
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
@@ -112,7 +113,7 @@ def create_manifest(data_dir, manifest_path):
                         'duration': duration,
                         'text': text
                     }))
-    with open(manifest_path, 'w') as out_file:
+    with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:
             out_file.write(line + '\n')
 

@@ -16,8 +16,8 @@ import tarfile
 import argparse
 import soundfile
 import json
-from paddle.v2.dataset.common import md5file
 import codecs
+from paddle.v2.dataset.common import md5file
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 

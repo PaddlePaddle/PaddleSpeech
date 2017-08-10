@@ -5,7 +5,7 @@
 ### Prerequisites
 
  - **Python = 2.7** only supported;
- - **cuDNN >= 6.0** is required to utilize NVIDIA GPU platform in the installation of PaddlePaddle, and the **CUDA toolkit** with proper version suitable for cuDNN. The cuDNN library below 6.0 is found to yield a fatal error in batch normalization when handling utterances with long duration in inference.
+ - **cuDNN** library is required to utilize NVIDIA GPU platform sufficiently in the installation of PaddlePaddle, and the **CUDA toolkit** with proper version suitable for cuDNN.
 
 ### Setup
 

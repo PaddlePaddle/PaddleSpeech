@@ -25,12 +25,12 @@ parser.add_argument(
     help="Manifest of target data. (default: %(default)s)")
 parser.add_argument(
     "--out_tar_path",
-    default="./data/dev.tar",
+    default="./tmp/cloud.train.tar",
     type=str,
     help="Output tar file path. (default: %(default)s)")
 parser.add_argument(
     "--out_manifest_path",
-    default="./data/dev.mani",
+    default="./tmp/cloud.train.manifest",
     type=str,
     help="Manifest of output data. (default: %(default)s)")
 args = parser.parse_args()

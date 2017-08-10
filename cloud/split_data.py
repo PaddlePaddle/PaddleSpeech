@@ -11,17 +11,17 @@ import argparse
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--in_manifest_path",
-    default='./cloud/data/dev.mani',
+    default='./cloud.train.manifest',
     type=str,
     help="Input manifest path. (default: %(default)s)")
 parser.add_argument(
     "--data_tar_path",
-    default='./cloud/data/dev.tar',
+    default='./cloud.train.tar',
     type=str,
     help="Data tar file path. (default: %(default)s)")
 parser.add_argument(
     "--out_manifest_path",
-    default='./cloud/data/dev.mani.split',
+    default='./local.train.manifest',
     type=str,
     help="Out manifest file path. (default: %(default)s)")
 args = parser.parse_args()

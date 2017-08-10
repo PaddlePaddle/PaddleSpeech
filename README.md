@@ -2,13 +2,6 @@
 
 ## Installation
 
-### Prerequisites
-
- - **Python = 2.7** only supported;
- - **cuDNN** library is required to utilize NVIDIA GPU platform sufficiently in the installation of PaddlePaddle, and the **CUDA toolkit** with proper version suitable for cuDNN.
-
-### Setup
-
 ```
 sh setup.sh
 export LD_LIBRARY_PATH=$PADDLE_INSTALL_DIR/Paddle/third_party/install/warpctc/lib:$LD_LIBRARY_PATH

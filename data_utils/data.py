@@ -89,7 +89,6 @@ class DataGenerator(object):
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
-
         # for caching tar files info
         self.tar2info = {}
         self.tar2object = {}

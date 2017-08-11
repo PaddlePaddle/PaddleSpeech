@@ -1,12 +1,13 @@
 ﻿# Run DS2 on PaddleCloud
 
->Note: Make sure current directory is `models/deep_speech_2/cloud/`
+>Note:
+>Make sure [PaddleCloud client](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E9%85%8D%E7%BD%AEpaddlecloud) has be installed and current directory is `models/deep_speech_2/cloud/`
 
-## Step1  Configure data set
+## Step-1  Configure data set
 
-You can configure your input data and output path in pcloud_submit.sh:
+Configure your input data and output path in pcloud_submit.sh:
 
--  `TRAIN_MANIFEST`： Absolute path of train data manifest file  in local file system.This file has format as bellow:
+-  `TRAIN_MANIFEST`： Absolute path of train data manifest file in local file system.This file has format as bellow:
 
 ```
 {"audio_filepath": "/home/disk1/LibriSpeech/dev-clean/1272/128104/1272-128104-0000.flac", "duration": 5.855, "text
@@ -15,19 +16,18 @@ You can configure your input data and output path in pcloud_submit.sh:
 ": "nor is mister ..."}
 ```
 
-- `TEST_MANIFEST`: Absolute path of train data manifest file in local filesystem.This file has format like  TRAIN_MANIFEST.
-
+- `TEST_MANIFEST`: Absolute path of train data manifest file in local filesystem. This file has format like `TRAIN_MANIFEST`.
 - `VOCAB_FILE`:  Absolute path of vocabulary file in local filesytem.
-- `MEAN_STD_FILE`: Absolute path of vocabulary file in local filesytem.
+- `MEAN_STD_FILE`: Absolute path of normalizer's statistic file in local filesytem.
 - `CLOUD_DATA_DIR:`  Absolute path in PaddleCloud filesystem. We will upload local train data to this directory.
 - `CLOUD_MODEL_DIR`: Absolute path in PaddleCloud filesystem. PaddleCloud trainer will save model to this directory.
 
+>Note: Upload will be skipped if target file has existed in `CLOUD_DATA_DIR`.
 
->Note: Upload will be skipped if target file has existed in  ${CLOUD_DATA_DIR}.
+## Step-2  Configure computation resource
 
-## Step2  Configure computation resource
+Configure computation resource in pcloud_submit.sh:
 
-You can configure computation resource in pcloud_submit.sh:
 ```
 # Configure computation resource and submit job to PaddleCloud
  paddlecloud submit \
@@ -44,10 +44,10 @@ You can configure computation resource in pcloud_submit.sh:
  -entry "sh pcloud_train.sh ${CLOUD_DATA_DIR} ${CLOUD_MODEL_DIR}" \
  ${DS2_PATH}
 ```
-For more information, please refer to[PaddleCloud](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#提交任务)
+For more information, please refer to [PaddleCloud](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#提交任务)
 
-## Step3  Configure algorithm options
-You can configure algorithm options in pcloud_train.sh:
+## Step-3  Configure algorithm options
+Configure algorithm options in pcloud_train.sh:
 ```
 python train.py \
 --use_gpu=1 \
@@ -65,13 +65,13 @@ cd ..
 python train.py --help
 ```
 
-## Step4  Submit job
+## Step-4  Submit job
 ```
 $ sh pcloud_submit.sh
 ```
 
 
-## Step5 Get logs
+## Step-5 Get logs
 ```
 $ paddlecloud logs -n 10000 deepspeech20170727130129
 ```

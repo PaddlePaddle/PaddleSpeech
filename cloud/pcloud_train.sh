@@ -22,8 +22,6 @@ python ./cloud/split_data.py \
 python train.py \
 --use_gpu=1 \
 --trainer_count=4 \
---batch_size=32 \
---num_threads_data=4 \
 --mean_std_filepath=$MEAN_STD_FILE \
 --train_manifest_path='./local.train.manifest' \
 --dev_manifest_path='./local.test.manifest' \

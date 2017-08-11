@@ -15,6 +15,11 @@ python upload_data.py \
 --vocab_file=${VOCAB_FILE} \
 --mean_std_file=${MEAN_STD_FILE} \
 --cloud_data_path=${CLOUD_DATA_DIR}
+if [ $? -ne 0 ]
+then
+    echo "upload data failed!"
+    exit 1
+fi
 
 JOB_NAME=deepspeech`date +%Y%m%d%H%M%S`
 DS2_PATH=${PWD%/*}
@@ -27,7 +32,7 @@ paddlecloud submit \
 -cpu 4 \
 -gpu 4 \
 -memory 10Gi \
--parallelism 1 \
+-parallelism 2 \
 -pscpu 1 \
 -pservers 1 \
 -psmemory 10Gi \

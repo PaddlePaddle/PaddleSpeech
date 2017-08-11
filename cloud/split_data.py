@@ -1,9 +1,11 @@
-"""
-This tool is used for splitting data into each node of
+"""This tool is used for splitting data into each node of
 paddle cloud by total trainer count and current trainer id.
 The meaning of trainer is a instance of k8s cluster.
 This script should be called in paddle cloud.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import os
 import json
 import argparse

@@ -89,9 +89,6 @@ class DataGenerator(object):
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
-        # for caching tar files info
-        self.tar2info = {}
-        self.tar2object = {}
 
     def process_utterance(self, filename, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -237,6 +234,7 @@ class DataGenerator(object):
 
     def _get_file_object(self, file):
         """Get file object by file path.
+
         If file startwith tar, it will return a tar file object
         and cached tar file info for next reading request.
         It will return file directly, if the type of file is not str.
@@ -254,7 +252,7 @@ class DataGenerator(object):
             return local_data.tar2object[tarpath].extractfile(
                 local_data.tar2info[tarpath][filename])
         else:
-            return open(file)
+            return open(file, 'r')
 
     def _instance_reader_creator(self, manifest):
         """

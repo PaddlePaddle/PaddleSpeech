@@ -1,5 +1,4 @@
-"""
-This tool is used for preparing data for DeepSpeech2 trainning on paddle cloud.
+"""This tool is used for preparing data for DeepSpeech2 trainning on paddle cloud.
 
 Steps:
 1. Read original manifest and get the local path of sound files.
@@ -9,6 +8,9 @@ Steps:
 Finally, we will get a tar file and a manifest with sound file name, duration
 and text.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import json
 import os
 import tarfile
@@ -50,7 +52,6 @@ parser.add_argument(
 parser.add_argument(
     "--cloud_data_path",
     required=True,
-    default="",
     type=str,
     help="Destination path on  paddlecloud. (default: %(default)s)")
 args = parser.parse_args()
@@ -64,8 +65,7 @@ args = parser.parse_args()
 
 
 def pack_data(manifest_path, out_tar_path, out_manifest_path):
-    '''
-    1. According manifest, tar sound files into out_tar_path
+    '''1. According to the manifest, tar sound files into out_tar_path
     2. Generate a new manifest for output tar file
     '''
     out_tar = tarfile.open(out_tar_path, 'w')
@@ -83,65 +83,65 @@ def pack_data(manifest_path, out_tar_path, out_manifest_path):
     out_tar.close()
 
 
-if __name__ == '__main__':
-    cloud_train_manifest = "%s/%s" % (args.cloud_data_path, TRAIN_MANIFEST)
-    cloud_train_tar = "%s/%s" % (args.cloud_data_path, TRAIN_TAR)
-    cloud_test_manifest = "%s/%s" % (args.cloud_data_path, TEST_MANIFEST)
-    cloud_test_tar = "%s/%s" % (args.cloud_data_path, TEST_TAR)
-    cloud_vocab_file = "%s/%s" % (args.cloud_data_path, VOCAB_FILE)
-    cloud_mean_file = "%s/%s" % (args.cloud_data_path, MEAN_STD_FILE)
+def pcloud_cp(src, dst):
+    """Copy src from local filesytem to dst in PaddleCloud filesystem.
+    """
+    ret = call(['paddlecloud', 'cp', src, dst])
+    return ret
 
-    local_train_manifest = "%s/%s" % (args.local_tmp_path, TRAIN_MANIFEST)
-    local_train_tar = "%s/%s" % (args.local_tmp_path, TRAIN_TAR)
-    local_test_manifest = "%s/%s" % (args.local_tmp_path, TEST_MANIFEST)
-    local_test_tar = "%s/%s" % (args.local_tmp_path, TEST_TAR)
+
+def pcloud_exist(path):
+    """Check if file or directory exists in PaddleCloud filesystem.
+    """
+    ret = call(['paddlecloud', 'ls', path])
+    return ret
+
+
+if __name__ == '__main__':
+    cloud_train_manifest = os.path.join(args.cloud_data_path, TRAIN_MANIFEST)
+    cloud_train_tar = os.path.join(args.cloud_data_path, TRAIN_TAR)
+    cloud_test_manifest = os.path.join(args.cloud_data_path, TEST_MANIFEST)
+    cloud_test_tar = os.path.join(args.cloud_data_path, TEST_TAR)
+    cloud_vocab_file = os.path.join(args.cloud_data_path, VOCAB_FILE)
+    cloud_mean_file = os.path.join(args.cloud_data_path, MEAN_STD_FILE)
+
+    local_train_manifest = os.path.join(args.local_tmp_path, TRAIN_MANIFEST)
+    local_train_tar = os.path.join(args.local_tmp_path, TRAIN_TAR)
+    local_test_manifest = os.path.join(args.local_tmp_path, TEST_MANIFEST)
+    local_test_tar = os.path.join(args.local_tmp_path, TEST_TAR)
 
     if os.path.exists(args.local_tmp_path):
         shutil.rmtree(args.local_tmp_path)
     os.makedirs(args.local_tmp_path)
 
-    ret = 1
     # train data
     if args.train_manifest_path != "":
-        ret = call(['paddlecloud', 'ls', cloud_train_manifest])
+        ret = pcloud_exist(cloud_train_manifest)
         if ret != 0:
-            print "%s does't exist" % cloud_train_manifest
             pack_data(args.train_manifest_path, local_train_tar,
                       local_train_manifest)
-            call([
-                'paddlecloud', 'cp', local_train_manifest, cloud_train_manifest
-            ])
-            call(['paddlecloud', 'cp', local_train_tar, cloud_train_tar])
+            pcloud_cp(local_train_manifest, cloud_train_manifest)
+            pcloud_cp(local_train_tar, cloud_train_tar)
 
     # test data
     if args.test_manifest_path != "":
-        try:
-            ret = call(['paddlecloud', 'ls', cloud_test_manifest])
-        except Exception:
-            ret = 1
+        ret = pcloud_exist(cloud_test_manifest)
         if ret != 0:
             pack_data(args.test_manifest_path, local_test_tar,
                       local_test_manifest)
-            call(
-                ['paddlecloud', 'cp', local_test_manifest, cloud_test_manifest])
-            call(['paddlecloud', 'cp', local_test_tar, cloud_test_tar])
+            pcloud_cp(local_test_manifest, cloud_test_manifest)
+            pcloud_cp(local_test_tar, cloud_test_tar)
 
     # vocab file
     if args.vocab_file != "":
-        try:
-            ret = call(['paddlecloud', 'ls', cloud_vocab_file])
-        except Exception:
-            ret = 1
+        ret = pcloud_exist(cloud_vocab_file)
         if ret != 0:
-            call(['paddlecloud', 'cp', args.vocab_file, cloud_vocab_file])
+            pcloud_cp(args.vocab_file, cloud_vocab_file)
 
     # mean_std file
     if args.mean_std_file != "":
-        try:
-            ret = call(['paddlecloud', 'ls', cloud_mean_file])
-        except Exception:
-            ret = 1
+        ret = pcloud_exist(cloud_mean_file)
         if ret != 0:
-            call(['paddlecloud', 'cp', args.mean_std_file, cloud_mean_file])
+            pcloud_cp(args.mean_std_file, cloud_mean_file)
 
-    os.removedirs(args.local_tmp_path)
+    shutil.rmtree(args.local_tmp_path)

@@ -159,24 +159,27 @@ class AudioFeaturizer(object):
         if max_freq is None:
             max_freq = sample_rate / 2
         if max_freq > sample_rate / 2:
-            raise ValueError("max_freq must be greater than half of "
+            raise ValueError("max_freq must not be greater than half of "
                              "sample rate.")
         if stride_ms > window_ms:
             raise ValueError("Stride size must not be greater than "
                              "window size.")
-        # compute 13 cepstral coefficients, and the first one is replaced
+        # compute the 13 cepstral coefficients, and the first one is replaced
         # by log(frame energy)
-        mfcc_feat = np.transpose(
-            mfcc(
-                signal=samples,
-                samplerate=sample_rate,
-                winlen=0.001 * window_ms,
-                winstep=0.001 * stride_ms,
-                highfreq=max_freq))
+        mfcc_feat = mfcc(
+            signal=samples,
+            samplerate=sample_rate,
+            winlen=0.001 * window_ms,
+            winstep=0.001 * stride_ms,
+            highfreq=max_freq)
         # Deltas
         d_mfcc_feat = delta(mfcc_feat, 2)
         # Deltas-Deltas
         dd_mfcc_feat = delta(d_mfcc_feat, 2)
+        # transpose
+        mfcc_feat = np.transpose(mfcc_feat)
+        d_mfcc_feat = np.transpose(d_mfcc_feat)
+        dd_mfcc_feat = np.transpose(dd_mfcc_feat)
         # concat above three features
         concat_mfcc_feat = np.concatenate(
             (mfcc_feat, d_mfcc_feat, dd_mfcc_feat))

@@ -11,11 +11,12 @@ from __future__ import print_function
 
 import distutils.util
 import os
-import wget
+import sys
 import tarfile
 import argparse
 import soundfile
 import json
+import codecs
 from paddle.v2.dataset.common import md5file
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
@@ -66,7 +67,7 @@ def download(url, md5sum, target_dir):
     filepath = os.path.join(target_dir, url.split("/")[-1])
     if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
         print("Downloading %s ..." % url)
-        wget.download(url, target_dir)
+        os.system("wget -c " + url + " -P " + target_dir)
         print("\nMD5 Chesksum %s ..." % filepath)
         if not md5file(filepath) == md5sum:
             raise RuntimeError("MD5 checksum failed.")
@@ -112,7 +113,7 @@ def create_manifest(data_dir, manifest_path):
                         'duration': duration,
                         'text': text
                     }))
-    with open(manifest_path, 'w') as out_file:
+    with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:
             out_file.write(line + '\n')
 

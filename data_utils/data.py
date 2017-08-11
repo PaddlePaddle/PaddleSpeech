@@ -72,7 +72,7 @@ class DataGenerator(object):
                  max_freq=None,
                  specgram_type='linear',
                  use_dB_normalization=True,
-                 num_threads=multiprocessing.cpu_count(),
+                 num_threads=multiprocessing.cpu_count() // 2,
                  random_seed=0):
         self._max_duration = max_duration
         self._min_duration = min_duration
@@ -93,6 +93,23 @@ class DataGenerator(object):
         # for caching tar files info
         self.tar2info = {}
         self.tar2object = {}
+
+    def process_utterance(self, filename, transcript):
+        """Load, augment, featurize and normalize for speech data.
+
+        :param filename: Audio filepath
+        :type filename: basestring | file
+        :param transcript: Transcription text.
+        :type transcript: basestring
+        :return: Tuple of audio feature tensor and list of token ids for
+                 transcription.
+        :rtype: tuple of (2darray, list)
+        """
+        speech_segment = SpeechSegment.from_file(filename, transcript)
+        self._augmentation_pipeline.transform_audio(speech_segment)
+        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
+        specgram = self._normalizer.apply(specgram)
+        return specgram, text_ids
 
     def batch_reader_creator(self,
                              manifest_path,
@@ -163,7 +180,7 @@ class DataGenerator(object):
                         manifest, batch_size, clipped=True)
                 elif shuffle_method == "instance_shuffle":
                     self._rng.shuffle(manifest)
-                elif not shuffle_method:
+                elif shuffle_method == None:
                     pass
                 else:
                     raise ValueError("Unknown shuffle method %s." %
@@ -210,8 +227,8 @@ class DataGenerator(object):
         return self._speech_featurizer.vocab_list
 
     def _parse_tar(self, file):
-        """
-        Parse a tar file to get a tarfile object and a map containing tarinfoes
+        """Parse a tar file to get a tarfile object
+        and a map containing tarinfoes
         """
         result = {}
         f = tarfile.open(file)
@@ -219,14 +236,14 @@ class DataGenerator(object):
             result[tarinfo.name] = tarinfo
         return f, result
 
-    def _read_soundbytes(self, filepath):
-        """
-        Read bytes from file.
-        If filepath startwith tar, we will read bytes from tar file
+    def _get_file_object(self, file):
+        """Get file object by file path.
+        If file startwith tar, it will return a tar file object
         and cached tar file info for next reading request.
+        It will return file directly, if the type of file is not str.
         """
-        if filepath.startswith('tar:'):
-            tarpath, filename = filepath.split(':', 1)[1].split('#', 1)
+        if file.startswith('tar:'):
+            tarpath, filename = file.split(':', 1)[1].split('#', 1)
             if 'tar2info' not in local_data.__dict__:
                 local_data.tar2info = {}
             if 'tar2object' not in local_data.__dict__:
@@ -236,18 +253,9 @@ class DataGenerator(object):
                 local_data.tar2info[tarpath] = infoes
                 local_data.tar2object[tarpath] = object
             return local_data.tar2object[tarpath].extractfile(
-                local_data.tar2info[tarpath][filename]).read()
+                local_data.tar2info[tarpath][filename])
         else:
-            return open(filepath).read()
-
-    def _process_utterance(self, filename, transcript):
-        """Load, augment, featurize and normalize for speech data."""
-        speech_segment = SpeechSegment.from_bytes(
-            self._read_soundbytes(filename), transcript)
-        self._augmentation_pipeline.transform_audio(speech_segment)
-        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
-        specgram = self._normalizer.apply(specgram)
-        return specgram, text_ids
+            return open(file)
 
     def _instance_reader_creator(self, manifest):
         """
@@ -263,8 +271,9 @@ class DataGenerator(object):
                 yield instance
 
         def mapper(instance):
-            return self._process_utterance(instance["audio_filepath"],
-                                           instance["text"])
+            return self.process_utterance(
+                self._get_file_object(instance["audio_filepath"]),
+                instance["text"])
 
         return paddle.reader.xmap_readers(
             mapper, reader, self._num_threads, 1024, order=True)

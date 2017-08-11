@@ -3,14 +3,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import distutils.util
 import argparse
-import gzip
+import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
-from model import deep_speech2
-from decoder import *
-from lm.lm_scorer import LmScorer
+from model import DeepSpeech2Model
 from error_rate import wer
 import utils
 
@@ -41,13 +40,18 @@ parser.add_argument(
     type=distutils.util.strtobool,
     help="Use gpu or not. (default: %(default)s)")
 parser.add_argument(
+    "--trainer_count",
+    default=8,
+    type=int,
+    help="Trainer number. (default: %(default)s)")
+parser.add_argument(
     "--num_threads_data",
-    default=multiprocessing.cpu_count(),
+    default=1,
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
     "--num_processes_beam_search",
-    default=multiprocessing.cpu_count(),
+    default=multiprocessing.cpu_count() // 2,
     type=int,
     help="Number of cpu processes for beam search. (default: %(default)s)")
 parser.add_argument(
@@ -62,10 +66,10 @@ parser.add_argument(
     type=str,
     help="Manifest path for normalizer. (default: %(default)s)")
 parser.add_argument(
-    "--decode_manifest_path",
-    default='datasets/manifest.test',
+    "--tune_manifest_path",
+    default='datasets/manifest.dev',
     type=str,
-    help="Manifest path for decoding. (default: %(default)s)")
+    help="Manifest path for tuning. (default: %(default)s)")
 parser.add_argument(
     "--model_filepath",
     default='checkpoints/params.latest.tar.gz',
@@ -127,60 +131,34 @@ args = parser.parse_args()
 
 def tune():
     """Tune parameters alpha and beta on one minibatch."""
-
     if not args.num_alphas >= 0:
         raise ValueError("num_alphas must be non-negative!")
-
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
 
-    # initialize data generator
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_filepath,
         mean_std_filepath=args.mean_std_filepath,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=args.num_threads_data)
-
-    # create network config
-    # paddle.data_type.dense_array is used for variable batch input.
-    # The size 161 * 161 is only an placeholder value and the real shape
-    # of input batch data will be induced during training.
-    audio_data = paddle.layer.data(
-        name="audio_spectrogram", type=paddle.data_type.dense_array(161 * 161))
-    text_data = paddle.layer.data(
-        name="transcript_text",
-        type=paddle.data_type.integer_value_sequence(data_generator.vocab_size))
-    output_probs = deep_speech2(
-        audio_data=audio_data,
-        text_data=text_data,
-        dict_size=data_generator.vocab_size,
-        num_conv_layers=args.num_conv_layers,
-        num_rnn_layers=args.num_rnn_layers,
-        rnn_size=args.rnn_layer_size,
-        is_inference=True)
-
-    # load parameters
-    parameters = paddle.parameters.Parameters.from_tar(
-        gzip.open(args.model_filepath))
-
-    # prepare infer data
     batch_reader = data_generator.batch_reader_creator(
-        manifest_path=args.decode_manifest_path,
+        manifest_path=args.tune_manifest_path,
         batch_size=args.num_samples,
         sortagrad=False,
         shuffle_method=None)
-    # get one batch data for tuning
-    infer_data = batch_reader().next()
-
-    # run inference
-    infer_results = paddle.infer(
-        output_layer=output_probs, parameters=parameters, input=infer_data)
-    num_steps = len(infer_results) // len(infer_data)
-    probs_split = [
-        infer_results[i * num_steps:(i + 1) * num_steps]
-        for i in xrange(0, len(infer_data))
+    tune_data = batch_reader().next()
+    target_transcripts = [
+        ''.join([data_generator.vocab_list[token] for token in transcript])
+        for _, transcript in tune_data
     ]
+
+    ds2_model = DeepSpeech2Model(
+        vocab_size=data_generator.vocab_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        rnn_layer_size=args.rnn_layer_size,
+        pretrained_model_path=args.model_filepath)
 
     # create grid for search
     cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)
@@ -188,35 +166,29 @@ def tune():
     params_grid = [(alpha, beta) for alpha in cand_alphas
                    for beta in cand_betas]
 
-    ext_scorer = LmScorer(args.alpha_from, args.beta_from,
-                          args.language_model_path)
     ## tune parameters in loop
     for alpha, beta in params_grid:
-        wer_sum, wer_counter = 0, 0
-        # reset scorer
-        ext_scorer.reset_params(alpha, beta)
-        # beam search using multiple processes
-        beam_search_results = ctc_beam_search_decoder_batch(
-            probs_split=probs_split,
-            vocabulary=data_generator.vocab_list,
+        result_transcripts = ds2_model.infer_batch(
+            infer_data=tune_data,
+            decode_method='beam_search',
+            beam_alpha=alpha,
+            beam_beta=beta,
             beam_size=args.beam_size,
             cutoff_prob=args.cutoff_prob,
-            blank_id=len(data_generator.vocab_list),
-            num_processes=args.num_processes_beam_search,
-            ext_scoring_func=ext_scorer, )
-        for i, beam_search_result in enumerate(beam_search_results):
-            target_transcription = ''.join([
-                data_generator.vocab_list[index] for index in infer_data[i][1]
-            ])
-            wer_sum += wer(target_transcription, beam_search_result[0][1])
-            wer_counter += 1
-
+            vocab_list=data_generator.vocab_list,
+            language_model_path=args.language_model_path,
+            num_processes=args.num_processes_beam_search)
+        wer_sum, num_ins = 0.0, 0
+        for target, result in zip(target_transcripts, result_transcripts):
+            wer_sum += wer(target, result)
+            num_ins += 1
         print("alpha = %f\tbeta = %f\tWER = %f" %
-              (alpha, beta, wer_sum / wer_counter))
+              (alpha, beta, wer_sum / num_ins))
 
 
 def main():
-    paddle.init(use_gpu=args.use_gpu, trainer_count=1)
+    utils.print_arguments(args)
+    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     tune()
 
 

@@ -205,9 +205,9 @@ def ctc_beam_search_decoder_batch(probs_split,
     :type num_processes: int
     :param cutoff_prob: Cutoff probability in pruning,
                         default 1.0, no pruning.
+    :type cutoff_prob: float
     :param num_processes: Number of parallel processes.
     :type num_processes: int
-    :type cutoff_prob: float
     :param ext_scoring_func: External scoring function for
                             partially decoded sentence, e.g. word count
                             or language model.

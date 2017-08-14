@@ -179,15 +179,13 @@ def train():
         gradient_clipping=400,
         num_passes=args.num_passes,
         num_iterations_print=args.num_iterations_print,
-        output_model_dir=args.output_model_dir)
+        output_model_dir=args.output_model_dir,
+        is_local=args.is_local)
 
 
 def main():
     utils.print_arguments(args)
-    paddle.init(
-        use_gpu=args.use_gpu,
-        trainer_count=args.trainer_count,
-        is_local=args.is_local)
+    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     train()
 
 

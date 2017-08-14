@@ -127,6 +127,12 @@ parser.add_argument(
     type=str,
     help="Augmentation configuration in json-format. "
     "(default: %(default)s)")
+parser.add_argument(
+    "--is_local",
+    default=True,
+    type=distutils.util.strtobool,
+    help="Set to false if running with pserver in paddlecloud. "
+    "(default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -173,7 +179,8 @@ def train():
         gradient_clipping=400,
         num_passes=args.num_passes,
         num_iterations_print=args.num_iterations_print,
-        output_model_dir=args.output_model_dir)
+        output_model_dir=args.output_model_dir,
+        is_local=args.is_local)
 
 
 def main():

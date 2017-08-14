@@ -85,9 +85,9 @@ class DataGenerator(object):
         self._rng = random.Random(random_seed)
         self._epoch = 0
         # for caching tar files info
-        self.local_data = local()
-        self.local_data.tar2info = {}
-        self.local_data.tar2object = {}
+        self._local_data = local()
+        self._local_data.tar2info = {}
+        self._local_data.tar2object = {}
 
     def process_utterance(self, filename, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -240,16 +240,16 @@ class DataGenerator(object):
         """
         if file.startswith('tar:'):
             tarpath, filename = file.split(':', 1)[1].split('#', 1)
-            if 'tar2info' not in self.local_data.__dict__:
-                self.local_data.tar2info = {}
-            if 'tar2object' not in self.local_data.__dict__:
-                self.local_data.tar2object = {}
-            if tarpath not in self.local_data.tar2info:
+            if 'tar2info' not in self._local_data.__dict__:
+                self._local_data.tar2info = {}
+            if 'tar2object' not in self._local_data.__dict__:
+                self._local_data.tar2object = {}
+            if tarpath not in self._local_data.tar2info:
                 object, infoes = self._parse_tar(tarpath)
-                self.local_data.tar2info[tarpath] = infoes
-                self.local_data.tar2object[tarpath] = object
-            return self.local_data.tar2object[tarpath].extractfile(
-                self.local_data.tar2info[tarpath][filename])
+                self._local_data.tar2info[tarpath] = infoes
+                self._local_data.tar2object[tarpath] = object
+            return self._local_data.tar2object[tarpath].extractfile(
+                self._local_data.tar2info[tarpath][filename])
         else:
             return open(file, 'r')
 

@@ -127,6 +127,12 @@ parser.add_argument(
     type=str,
     help="Augmentation configuration in json-format. "
     "(default: %(default)s)")
+parser.add_argument(
+    "--is_local",
+    default=True,
+    type=distutils.util.strtobool,
+    help="Set to false if running with pserver in paddlecloud. "
+    "(default: %(default)s)")
 args = parser.parse_args()
 
 
@@ -178,7 +184,10 @@ def train():
 
 def main():
     utils.print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
+    paddle.init(
+        use_gpu=args.use_gpu,
+        trainer_count=args.trainer_count,
+        is_local=args.is_local)
     train()
 
 

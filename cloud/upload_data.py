@@ -22,14 +22,20 @@ from data_utils.utils import read_manifest
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--in_manifest_paths",
-    default=["../datasets/manifest.test", "../datasets/manifest.dev"],
+    default=[
+        "../datasets/manifest.train", "../datasets/manifest.dev",
+        "../datasets/manifest.test"
+    ],
     type=str,
     nargs='+',
     help="Local filepaths of input manifests to load, pack and upload."
     "(default: %(default)s)")
 parser.add_argument(
     "--out_manifest_paths",
-    default=["./cloud.manifest.test", "./cloud.manifest.dev"],
+    default=[
+        "./cloud.manifest.train", "./cloud.manifest.dev",
+        "./cloud.manifest.test"
+    ],
     type=str,
     nargs='+',
     help="Local filepaths of modified manifests to write to. "
@@ -91,6 +97,7 @@ def upload_data(in_manifest_path_list, out_manifest_path_list, local_tmp_dir,
             out_manifest.append("%s\n" % json.dumps(json_data))
         with open(out_manifest_path, 'w') as f:
             f.writelines(out_manifest)
+        pcloud_cp(out_manifest_path, upload_tar_dir)
     tar_file.close()
     pcloud_cp(tar_path, upload_tar_dir)
     os.remove(tar_path)
@@ -117,6 +124,6 @@ if __name__ == '__main__':
     pcloud_mkdir(args.cloud_data_dir)
 
     upload_data(args.in_manifest_paths, args.out_manifest_paths,
-                args.local_tmp_dir, args.cloud_data_dir, 10)
+                args.local_tmp_dir, args.cloud_data_dir, args.num_shards)
 
     shutil.rmtree(args.local_tmp_dir)

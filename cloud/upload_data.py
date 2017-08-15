@@ -1,12 +1,9 @@
-"""This script is used for preparing data for DeepSpeech2 trainning on paddle
-cloud.
+"""This script is for uploading data for DeepSpeech2 training on paddlecloud.
 
 Steps:
-1. Read original manifest and get the local path of sound files.
-2. Tar all local sound files into one tar file.
-3. Modify original manifest to remove the local path information.
-
-Finally, we will get a tar file and a new manifest.
+1. Read original manifests and extract local sound files.
+2. Tar all local sound files into multiple tar files and upload them.
+3. Modify original manifests with updated paths in cloud filesystem.
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -22,66 +19,81 @@ from subprocess import call
 import _init_paths
 from data_utils.utils import read_manifest
 
-TRAIN_TAR = "cloud.train.tar"
-TRAIN_MANIFEST = "cloud.train.manifest"
-DEV_TAR = "cloud.dev.tar"
-DEV_MANIFEST = "cloud.dev.manifest"
-VOCAB_FILE = "vocab.txt"
-MEAN_STD_FILE = "mean_std.npz"
-
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
-    "--train_manifest_path",
-    default="../datasets/manifest.train",
+    "--in_manifest_paths",
+    default=["../datasets/manifest.test", "../datasets/manifest.dev"],
     type=str,
-    help="Manifest file path for train data. (default: %(default)s)")
-parser.add_argument(
-    "--dev_manifest_path",
-    default="../datasets/manifest.dev",
-    type=str,
-    help="Manifest file path for validation data. (default: %(default)s)")
-parser.add_argument(
-    "--vocab_file",
-    default="../datasets/vocab/eng_vocab.txt",
-    type=str,
-    help="Vocabulary file to be uploaded to paddlecloud. "
+    nargs='+',
+    help="Local filepaths of input manifests to load, pack and upload."
     "(default: %(default)s)")
 parser.add_argument(
-    "--mean_std_file",
-    default="../mean_std.npz",
+    "--out_manifest_paths",
+    default=["./cloud.manifest.test", "./cloud.manifest.dev"],
     type=str,
-    help="Normalizer's statistics (mean and stddev) file to be uploaded to "
-    "paddlecloud. (default: %(default)s)")
+    nargs='+',
+    help="Local filepaths of modified manifests to write to. "
+    "(default: %(default)s)")
 parser.add_argument(
-    "--cloud_data_path",
+    "--cloud_data_dir",
     required=True,
     type=str,
-    help="Destination path on paddlecloud. (default: %(default)s)")
+    help="Destination directory on paddlecloud to upload data to.")
 parser.add_argument(
-    "--local_tmp_path",
+    "--num_shards",
+    default=10,
+    type=int,
+    help="Number of parts to split data to. (default: %(default)s)")
+parser.add_argument(
+    "--local_tmp_dir",
     default="./tmp/",
     type=str,
     help="Local directory for storing temporary data. (default: %(default)s)")
 args = parser.parse_args()
 
 
-def pack_data(manifest_path, out_tar_path, out_manifest_path):
-    """1. According to the manifest, tar sound files into out_tar_path.
-    2. Generate a new manifest for output tar file.
+def upload_data(in_manifest_path_list, out_manifest_path_list, local_tmp_dir,
+                upload_tar_dir, num_shards):
+    """Extract and pack sound files listed in the manifest files into multple
+    tar files and upload them to padldecloud. Besides, generate new manifest
+    files with updated paths in paddlecloud.
     """
-    out_tar = tarfile.open(out_tar_path, 'w')
-    manifest = read_manifest(manifest_path)
-    results = []
-    for json_data in manifest:
-        sound_file = json_data['audio_filepath']
-        filename = os.path.basename(sound_file)
-        out_tar.add(sound_file, arcname=filename)
-        json_data['audio_filepath'] = filename
-        results.append("%s\n" % json.dumps(json_data))
-    with open(out_manifest_path, 'w') as out_manifest:
-        out_manifest.writelines(results)
-    out_manifest.close()
-    out_tar.close()
+    # compute total audio number
+    total_line = 0
+    for manifest_path in in_manifest_path_list:
+        with open(manifest_path, 'r') as f:
+            total_line += len(f.readlines())
+    line_per_tar = (total_line // num_shards) + 1
+
+    # pack and upload shard by shard
+    line_count, tar_file = 0, None
+    for manifest_path, out_manifest_path in zip(in_manifest_path_list,
+                                                out_manifest_path_list):
+        manifest = read_manifest(manifest_path)
+        out_manifest = []
+        for json_data in manifest:
+            sound_filepath = json_data['audio_filepath']
+            sound_filename = os.path.basename(sound_filepath)
+            if line_count % line_per_tar == 0:
+                if tar_file != None:
+                    tar_file.close()
+                    pcloud_cp(tar_path, upload_tar_dir)
+                    os.remove(tar_path)
+                tar_name = 'part-%s-of-%s.tar' % (
+                    str(line_count // line_per_tar).zfill(5),
+                    str(num_shards).zfill(5))
+                tar_path = os.path.join(local_tmp_dir, tar_name)
+                tar_file = tarfile.open(tar_path, 'w')
+            tar_file.add(sound_filepath, arcname=sound_filename)
+            line_count += 1
+            json_data['audio_filepath'] = "tar:%s#%s" % (
+                os.path.join(upload_tar_dir, tar_name), sound_filename)
+            out_manifest.append("%s\n" % json.dumps(json_data))
+        with open(out_manifest_path, 'w') as f:
+            f.writelines(out_manifest)
+    tar_file.close()
+    pcloud_cp(tar_path, upload_tar_dir)
+    os.remove(tar_path)
 
 
 def pcloud_mkdir(dir):
@@ -99,44 +111,12 @@ def pcloud_cp(src, dst):
         raise IOError("PaddleCloud cp failed: from [%s] to [%s]." % (src, dst))
 
 
-def pcloud_exist(path):
-    """Check if file or directory exists in PaddleCloud filesystem.
-    """
-    ret = call(['paddlecloud', 'ls', path])
-    return ret
-
-
 if __name__ == '__main__':
-    cloud_train_manifest = os.path.join(args.cloud_data_path, TRAIN_MANIFEST)
-    cloud_train_tar = os.path.join(args.cloud_data_path, TRAIN_TAR)
-    cloud_dev_manifest = os.path.join(args.cloud_data_path, DEV_MANIFEST)
-    cloud_dev_tar = os.path.join(args.cloud_data_path, DEV_TAR)
-    cloud_vocab_file = os.path.join(args.cloud_data_path, VOCAB_FILE)
-    cloud_mean_file = os.path.join(args.cloud_data_path, MEAN_STD_FILE)
+    if not os.path.exists(args.local_tmp_dir):
+        os.makedirs(args.local_tmp_dir)
+    pcloud_mkdir(args.cloud_data_dir)
 
-    local_train_manifest = os.path.join(args.local_tmp_path, TRAIN_MANIFEST)
-    local_train_tar = os.path.join(args.local_tmp_path, TRAIN_TAR)
-    local_dev_manifest = os.path.join(args.local_tmp_path, DEV_MANIFEST)
-    local_dev_tar = os.path.join(args.local_tmp_path, DEV_TAR)
+    upload_data(args.in_manifest_paths, args.out_manifest_paths,
+                args.local_tmp_dir, args.cloud_data_dir, 10)
 
-    # prepare local and cloud dir
-    if os.path.exists(args.local_tmp_path):
-        shutil.rmtree(args.local_tmp_path)
-    os.makedirs(args.local_tmp_path)
-    pcloud_mkdir(args.cloud_data_path)
-
-    # pack and upload train data
-    pack_data(args.train_manifest_path, local_train_tar, local_train_manifest)
-    pcloud_cp(local_train_manifest, cloud_train_manifest)
-    pcloud_cp(local_train_tar, cloud_train_tar)
-
-    # pack and upload validation data
-    pack_data(args.dev_manifest_path, local_dev_tar, local_dev_manifest)
-    pcloud_cp(local_dev_manifest, cloud_dev_manifest)
-    pcloud_cp(local_dev_tar, cloud_dev_tar)
-
-    # upload vocab file and mean_std file
-    pcloud_cp(args.vocab_file, cloud_vocab_file)
-    pcloud_cp(args.mean_std_file, cloud_mean_file)
-
-    shutil.rmtree(args.local_tmp_path)
+    shutil.rmtree(args.local_tmp_dir)

@@ -1,4 +1,4 @@
-# Deep Speech 2 on PaddlePaddle
+# DeepSpeech2 on PaddlePaddle
 
 ## Installation
 
@@ -161,3 +161,9 @@ python demo_client.py
 On the client console, press and hold the "white-space" key on the keyboard to start talking, until you finish your speech and then release the "white-space" key. The decoding results (infered transcription) will be displayed.
 
 It could be possible to start the server and the client in two seperate machines, e.g. `demo_client.py` is usually started in a machine with a microphone hardware, while `demo_server.py` is usually started in a remote server with powerful GPUs. Please first make sure that these two machines have network access to each other, and then use `--host_ip` and `--host_port` to indicate the server machine's actual IP address (instead of the `localhost` as default) and TCP port, in both `demo_server.py` and `demo_client.py`.
+
+
+## PaddleCloud Training
+
+If you wish to train DeepSpeech2 on PaddleCloud, please refer to
+[Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).

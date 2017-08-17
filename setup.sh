@@ -13,7 +13,7 @@ fi
 python -c "import soundfile"
 if [ $? != 0 ]; then
     echo "Install package libsndfile into default system path."
-    curl -O "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
+    wget "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
     if [ $? != 0 ]; then
         echo "Download libsndfile-1.0.28.tar.gz failed !!!"
         exit 1

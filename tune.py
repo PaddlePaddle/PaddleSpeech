@@ -35,6 +35,11 @@ parser.add_argument(
     type=int,
     help="RNN layer cell number. (default: %(default)s)")
 parser.add_argument(
+    "--use_gru",
+    default=True,
+    type=bool,
+    help="Use GRU or simple RNN. (default: %(default)s)")
+parser.add_argument(
     "--use_gpu",
     default=True,
     type=distutils.util.strtobool,
@@ -158,6 +163,7 @@ def tune():
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
+        use_gru=args.use_gru,
         pretrained_model_path=args.model_filepath)
 
     # create grid for search

@@ -37,9 +37,14 @@ parser.add_argument(
     help="RNN layer number. (default: %(default)s)")
 parser.add_argument(
     "--rnn_layer_size",
-    default=512,
+    default=1280,
     type=int,
     help="RNN layer cell number. (default: %(default)s)")
+parser.add_argument(
+    "--use_gru",
+    default=True,
+    type=bool,
+    help="Use GRU or simple RNN. (default: %(default)s)")
 parser.add_argument(
     "--adam_learning_rate",
     default=5e-4,
@@ -170,6 +175,7 @@ def train():
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
+        use_gru=args.use_gru,
         pretrained_model_path=args.init_model_path)
     ds2_model.train(
         train_batch_reader=train_batch_reader,

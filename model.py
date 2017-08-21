@@ -30,9 +30,9 @@ class DeepSpeech2Model(object):
     """
 
     def __init__(self, vocab_size, num_conv_layers, num_rnn_layers,
-                 rnn_layer_size, pretrained_model_path):
+                 rnn_layer_size, use_gru, pretrained_model_path):
         self._create_network(vocab_size, num_conv_layers, num_rnn_layers,
-                             rnn_layer_size)
+                             rnn_layer_size, use_gru)
         self._create_parameters(pretrained_model_path)
         self._inferer = None
         self._loss_inferer = None
@@ -226,7 +226,7 @@ class DeepSpeech2Model(object):
                 gzip.open(model_path))
 
     def _create_network(self, vocab_size, num_conv_layers, num_rnn_layers,
-                        rnn_layer_size):
+                        rnn_layer_size, use_gru):
         """Create data layers and model network."""
         # paddle.data_type.dense_array is used for variable batch input.
         # The size 161 * 161 is only an placeholder value and the real shape
@@ -243,4 +243,5 @@ class DeepSpeech2Model(object):
             dict_size=vocab_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
-            rnn_size=rnn_layer_size)
+            rnn_size=rnn_layer_size,
+            use_gru=use_gru)

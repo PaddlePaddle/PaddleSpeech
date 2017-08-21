@@ -117,7 +117,7 @@ def conv_group(input, num_stacks):
         num_channels_out=32,
         stride=(2, 2),
         padding=(5, 20),
-        act=paddle.activation.BRelu())
+        act=paddle.activation.Relu())
     for i in xrange(num_stacks - 1):
         conv = conv_bn_layer(
             input=conv,
@@ -126,7 +126,7 @@ def conv_group(input, num_stacks):
             num_channels_out=32,
             stride=(1, 2),
             padding=(5, 10),
-            act=paddle.activation.BRelu())
+            act=paddle.activation.Relu())
     output_num_channels = 32
     output_height = 160 // pow(2, num_stacks) + 1
     return conv, output_num_channels, output_height
@@ -153,13 +153,13 @@ def rnn_group(input, size, num_stacks, use_gru):
                 name=str(i),
                 input=output,
                 size=size,
-                act=paddle.activation.BRelu())
+                act=paddle.activation.Relu())
         else:
             output = bidirectional_simple_rnn_bn_layer(
                 name=str(i),
                 input=output,
                 size=size,
-                act=paddle.activation.BRelu())
+                act=paddle.activation.Relu())
     return output
 
 

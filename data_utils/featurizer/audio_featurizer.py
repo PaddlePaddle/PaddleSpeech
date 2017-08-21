@@ -57,7 +57,7 @@ class AudioFeaturizer(object):
     def featurize(self,
                   audio_segment,
                   allow_downsampling=True,
-                  allow_upsamplling=True):
+                  allow_upsampling=True):
         """Extract audio features from AudioSegment or SpeechSegment.
 
         :param audio_segment: Audio/speech segment to extract features from.

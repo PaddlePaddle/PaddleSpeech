@@ -1,5 +1,6 @@
-%module swig_ctc_decoders
+%module swig_decoders
 %{
+#include "scorer.h"
 #include "ctc_decoders.h"
 %}
 
@@ -18,6 +19,6 @@ namespace std{
     %template(PairDoubleStringVector) std::vector<std::pair<double, std::string> >;
 }
 
-%import scorer.h
 %import decoder_utils.h
+%include "scorer.h"
 %include "ctc_decoders.h"

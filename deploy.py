@@ -10,8 +10,7 @@ import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
-from deploy.swig_decoders import *
-from swig_scorer import Scorer
+from deploy.swig_decoders_wrapper import *
 from error_rate import wer
 import utils
 import time
@@ -164,7 +163,8 @@ def infer():
     ]
 
     # external scorer
-    ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
+    ext_scorer = Scorer(
+        alpha=args.alpha, beta=args.beta, model_path=args.language_model_path)
 
     ## decode and print
     time_begin = time.time()

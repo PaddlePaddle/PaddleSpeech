@@ -3,9 +3,25 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import swig_ctc_decoders
-#import multiprocessing
-from pathos.multiprocessing import Pool
+import swig_decoders
+import multiprocessing
+
+
+class Scorer(swig_decoders.Scorer):
+    """Wrapper for Scorer.
+
+    :param alpha: Parameter associated with language model. Don't use
+                  language model when alpha = 0.
+    :type alpha: float
+    :param beta: Parameter associated with word count. Don't use word
+                count when beta = 0.
+    :type beta: float
+    :model_path: Path to load language model.
+    :type model_path: basestring
+    """
+
+    def __init__(self, alpha, beta, model_path):
+        swig_decoders.Scorer.__init__(self, alpha, beta, model_path)
 
 
 def ctc_best_path_decoder(probs_seq, vocabulary):
@@ -20,8 +36,7 @@ def ctc_best_path_decoder(probs_seq, vocabulary):
     :return: Decoding result string.
     :rtype: basestring
     """
-    return swig_ctc_decoders.ctc_best_path_decoder(probs_seq.tolist(),
-                                                   vocabulary)
+    return swig_decoders.ctc_best_path_decoder(probs_seq.tolist(), vocabulary)
 
 
 def ctc_beam_search_decoder(
@@ -54,9 +69,9 @@ def ctc_beam_search_decoder(
              results, in descending order of the probability.
     :rtype: list
     """
-    return swig_ctc_decoders.ctc_beam_search_decoder(
-        probs_seq.tolist(), beam_size, vocabulary, blank_id, cutoff_prob,
-        ext_scoring_func)
+    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), beam_size,
+                                                 vocabulary, blank_id,
+                                                 cutoff_prob, ext_scoring_func)
 
 
 def ctc_beam_search_decoder_batch(probs_split,
@@ -86,25 +101,4 @@ def ctc_beam_search_decoder_batch(probs_split,
     pool.close()
     pool.join()
     beam_search_results = [result.get() for result in results]
-    """
-    len_args = len(probs_split)
-    beam_search_results = pool.map(ctc_beam_search_decoder,
-                                  probs_split,
-                                  [beam_size for i in xrange(len_args)],
-                                  [vocabulary for i in xrange(len_args)],
-                                  [blank_id for i in xrange(len_args)],
-                                  [cutoff_prob for i in xrange(len_args)],
-                                  [ext_scoring_func for i in xrange(len_args)]
-                                  )
-    """
-    '''
-    processes = [mp.Process(target=ctc_beam_search_decoder,
-                args=(probs_list, beam_size, vocabulary, blank_id, cutoff_prob,
-                    ext_scoring_func) for probs_list in probs_split]
-    for p in processes:
-        p.start()
-    for p in processes:
-        p.join()
-    beam_search_results = []
-    '''
     return beam_search_results

@@ -20,7 +20,7 @@ LIBS = ['stdc++']
 if platform.system() != 'Darwin':
     LIBS.append('rt')
 
-ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6']
+ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6', '-std=c++11']
 
 if compile_test('zlib.h', 'z'):
     ARGS.append('-DHAVE_ZLIB')
@@ -34,24 +34,21 @@ if compile_test('lzma.h', 'lzma'):
     ARGS.append('-DHAVE_XZLIB')
     LIBS.append('lzma')
 
-os.system('swig -python -c++ ./ctc_decoders.i')
+os.system('swig -python -c++ ./decoders.i')
 
 ctc_beam_search_decoder_module = [
     Extension(
-        name='_swig_ctc_decoders',
-        sources=FILES + [
-            'scorer.cpp', 'ctc_decoders_wrap.cxx', 'ctc_decoders.cpp',
-            'decoder_utils.cpp'
-        ],
+        name='_swig_decoders',
+        sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
         language='C++',
-        include_dirs=['.', './kenlm'],
+        include_dirs=['.', './kenlm', './openfst-1.6.3/src/include'],
         libraries=LIBS,
         extra_compile_args=ARGS)
 ]
 
 setup(
-    name='swig_ctc_decoders',
+    name='swig_decoders',
     version='0.1',
     description="""CTC decoders""",
     ext_modules=ctc_beam_search_decoder_module,
-    py_modules=['swig_ctc_decoders'], )
+    py_modules=['swig_decoders'], )

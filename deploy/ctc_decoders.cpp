@@ -5,8 +5,10 @@
 #include <cmath>
 #include <limits>
 #include "ctc_decoders.h"
+#include "decoder_utils.h"
 
 typedef double log_prob_type;
+
 
 template <typename T1, typename T2>
 bool pair_comp_first_rev(const std::pair<T1, T2> a, const std::pair<T1, T2> b)
@@ -81,7 +83,7 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob,
-                            LmScorer *ext_scorer,
+                            Scorer *ext_scorer,
                             bool nproc) {
     // dimension check
     int num_time_steps = probs_seq.size();

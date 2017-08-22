@@ -11,7 +11,7 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import deep_speech2
 from deploy.swig_decoders import *
-from swig_scorer import LmScorer
+from swig_scorer import Scorer
 from error_rate import wer
 import utils
 import time
@@ -19,7 +19,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=100,
+    default=10,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -164,7 +164,7 @@ def infer():
     ]
 
     # external scorer
-    ext_scorer = LmScorer(args.alpha, args.beta, args.language_model_path)
+    ext_scorer = Scorer(args.alpha, args.beta, args.language_model_path)
 
     ## decode and print
     time_begin = time.time()

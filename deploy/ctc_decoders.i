@@ -19,4 +19,5 @@ namespace std{
 }
 
 %import scorer.h
+%import decoder_utils.h
 %include "ctc_decoders.h"

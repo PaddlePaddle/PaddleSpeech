@@ -28,7 +28,7 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob=1.0,
-                            LmScorer *ext_scorer=NULL,
+                            Scorer *ext_scorer=NULL,
                             bool nproc=false
                             );
 

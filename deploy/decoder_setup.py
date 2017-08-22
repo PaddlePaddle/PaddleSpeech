@@ -39,8 +39,10 @@ os.system('swig -python -c++ ./ctc_decoders.i')
 ctc_beam_search_decoder_module = [
     Extension(
         name='_swig_ctc_decoders',
-        sources=FILES +
-        ['scorer.cpp', 'ctc_decoders_wrap.cxx', 'ctc_decoders.cpp'],
+        sources=FILES + [
+            'scorer.cpp', 'ctc_decoders_wrap.cxx', 'ctc_decoders.cpp',
+            'decoder_utils.cpp'
+        ],
         language='C++',
         include_dirs=['.', './kenlm'],
         libraries=LIBS,

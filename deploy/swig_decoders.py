@@ -4,7 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 import swig_ctc_decoders
-import multiprocessing
+#import multiprocessing
+from pathos.multiprocessing import Pool
 
 
 def ctc_best_path_decoder(probs_seq, vocabulary):
@@ -73,14 +74,37 @@ def ctc_beam_search_decoder_batch(probs_split,
     if not num_processes > 0:
         raise ValueError("Number of processes must be positive!")
 
-    pool = multiprocessing.Pool(processes=num_processes)
+    pool = Pool(processes=num_processes)
     results = []
+    args_list = []
     for i, probs_list in enumerate(probs_split):
         args = (probs_list, beam_size, vocabulary, blank_id, cutoff_prob,
                 ext_scoring_func)
+        args_list.append(args)
         results.append(pool.apply_async(ctc_beam_search_decoder, args))
 
     pool.close()
     pool.join()
     beam_search_results = [result.get() for result in results]
+    """
+    len_args = len(probs_split)
+    beam_search_results = pool.map(ctc_beam_search_decoder,
+                                  probs_split,
+                                  [beam_size for i in xrange(len_args)],
+                                  [vocabulary for i in xrange(len_args)],
+                                  [blank_id for i in xrange(len_args)],
+                                  [cutoff_prob for i in xrange(len_args)],
+                                  [ext_scoring_func for i in xrange(len_args)]
+                                  )
+    """
+    '''
+    processes = [mp.Process(target=ctc_beam_search_decoder,
+                args=(probs_list, beam_size, vocabulary, blank_id, cutoff_prob,
+                    ext_scoring_func) for probs_list in probs_split]
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+    beam_search_results = []
+    '''
     return beam_search_results

@@ -17,6 +17,8 @@ namespace std{
     %template(Pair) std::pair<float, std::string>;
     %template(PairFloatStringVector)  std::vector<std::pair<float, std::string> >;
     %template(PairDoubleStringVector) std::vector<std::pair<double, std::string> >;
+    %template(PairDoubleStringVector2) std::vector<std::vector<std::pair<double, std::string> > >;
+    %template(DoubleVector3) std::vector<std::vector<std::vector<double> > >;
 }
 
 %import decoder_utils.h

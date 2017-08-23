@@ -6,6 +6,7 @@
 #include <limits>
 #include "ctc_decoders.h"
 #include "decoder_utils.h"
+#include "ThreadPool.h"
 
 typedef double log_prob_type;
 
@@ -33,7 +34,8 @@ T log_sum_exp(T x, T y)
 }
 
 std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
-                                  std::vector<std::string> vocabulary) {
+                                  std::vector<std::string> vocabulary)
+{
     // dimension check
     int num_time_steps = probs_seq.size();
     for (int i=0; i<num_time_steps; i++) {
@@ -83,8 +85,8 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob,
-                            Scorer *ext_scorer,
-                            bool nproc) {
+                            Scorer *ext_scorer)
+{
     // dimension check
     int num_time_steps = probs_seq.size();
     for (int i=0; i<num_time_steps; i++) {
@@ -259,4 +261,40 @@ std::vector<std::pair<double, std::string> >
     std::sort(beam_result.begin(), beam_result.end(),
               pair_comp_first_rev<double, std::string>);
     return beam_result;
+}
+
+
+std::vector<std::vector<std::pair<double, std::string>>>
+    ctc_beam_search_decoder_batch(
+                std::vector<std::vector<std::vector<double>>> probs_split,
+                int beam_size,
+                std::vector<std::string> vocabulary,
+                int blank_id,
+                int num_processes,
+                double cutoff_prob,
+                Scorer *ext_scorer
+                )
+{
+    if (num_processes <= 0) {
+        std::cout << "num_processes must be nonnegative!" << std::endl;
+        exit(1);
+    }
+    // thread pool
+    ThreadPool pool(num_processes);
+    // number of samples
+    int batch_size = probs_split.size();
+    // enqueue the tasks of decoding
+    std::vector<std::future<std::vector<std::pair<double, std::string>>>> res;
+    for (int i = 0; i < batch_size; i++) {
+        res.emplace_back(
+                pool.enqueue(ctc_beam_search_decoder, probs_split[i],
+                    beam_size, vocabulary, blank_id, cutoff_prob, ext_scorer)
+            );
+    }
+    // get decoding results
+    std::vector<std::vector<std::pair<double, std::string>>> batch_results;
+    for (int i = 0; i < batch_size; i++) {
+        batch_results.emplace_back(res[i].get());
+    }
+    return batch_results;
 }

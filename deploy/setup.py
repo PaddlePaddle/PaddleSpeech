@@ -36,12 +36,12 @@ if compile_test('lzma.h', 'lzma'):
 
 os.system('swig -python -c++ ./decoders.i')
 
-ctc_beam_search_decoder_module = [
+decoders_module = [
     Extension(
         name='_swig_decoders',
         sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
         language='C++',
-        include_dirs=['.', './kenlm', './openfst-1.6.3/src/include'],
+        include_dirs=['.', 'kenlm', 'openfst-1.6.3/src/include', 'ThreadPool'],
         libraries=LIBS,
         extra_compile_args=ARGS)
 ]
@@ -50,5 +50,5 @@ setup(
     name='swig_decoders',
     version='0.1',
     description="""CTC decoders""",
-    ext_modules=ctc_beam_search_decoder_module,
+    ext_modules=decoders_module,
     py_modules=['swig_decoders'], )

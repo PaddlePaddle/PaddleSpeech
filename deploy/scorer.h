@@ -30,6 +30,7 @@ public:
 // Example:
 //     Scorer scorer(alpha, beta, "path_of_language_model");
 //     scorer.get_log_cond_prob({ "WORD1", "WORD2", "WORD3" });
+//     scorer.get_log_cond_prob("this a sentence");
 //     scorer.get_sent_log_prob({ "WORD1", "WORD2", "WORD3" });
 class Scorer{
 public:
@@ -40,7 +41,14 @@ public:
     size_t get_max_order() { return _max_order; }
     bool is_character_based() { return _is_character_based; }
     std::vector<std::string> get_vocab() { return _vocabulary; }
-
+    // word insertion term
+    int word_count(std::string);
+    // get the log cond prob of the last word
+    double get_log_cond_prob(std::string);
+    // reset params alpha & beta
+    void reset_params(float alpha, float beta);
+    // get the final score
+    double get_score(std::string, bool log=false);
     // expose to decoder
     double alpha;
     double beta;

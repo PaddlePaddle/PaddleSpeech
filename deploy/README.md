@@ -14,7 +14,7 @@ wget http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.3.tar.gz
 tar -xzvf openfst-1.6.3.tar.gz
 ```
 
-- [**swig**]: Compiling for python interface requires swig, please make sure swig being installed.
+- [**SWIG**](http://www.swig.org): Compiling for python interface requires swig, please make sure swig being installed.
 
 - [**ThreadPool**](http://progsch.net/wordpress/): A library for C++ thread pool
 

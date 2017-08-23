@@ -7,6 +7,8 @@ wget http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.3.tar.gz
 tar -xzvf openfst-1.6.3.tar.gz
 ```
 
+Compiling for python interface requires swig, please make sure swig being installed.
+
 Then run the setup
 
 ```shell

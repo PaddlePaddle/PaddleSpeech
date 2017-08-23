@@ -2,13 +2,15 @@
 %{
 #include "scorer.h"
 #include "ctc_decoders.h"
+#include "decoder_utils.h"
 %}
 
 %include "std_vector.i"
 %include "std_pair.i"
 %include "std_string.i"
+%import "decoder_utils.h"
 
-namespace std{
+namespace std {
     %template(DoubleVector) std::vector<double>;
     %template(IntVector) std::vector<int>;
     %template(StringVector) std::vector<std::string>;
@@ -19,6 +21,9 @@ namespace std{
     %template(PairDoubleStringVector) std::vector<std::pair<double, std::string> >;
 }
 
-%import decoder_utils.h
+%template(IntDoublePairCompSecondRev) pair_comp_second_rev<int, double>;
+%template(StringDoublePairCompSecondRev) pair_comp_second_rev<std::string, double>;
+%template(DoubleStringPairCompFirstRev) pair_comp_first_rev<double, std::string>;
+
 %include "scorer.h"
 %include "ctc_decoders.h"

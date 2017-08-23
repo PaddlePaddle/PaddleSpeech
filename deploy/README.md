@@ -25,7 +25,7 @@ git clone https://github.com/progschj/ThreadPool.git
 Then run the setup
 
 ```shell
-python setup.py install
+python setup.py install --num_processes 4
 cd ..
 ```
 

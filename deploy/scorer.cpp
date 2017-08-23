@@ -1,5 +1,8 @@
 #include <iostream>
 #include <unistd.h>
+#include "lm/config.hh"
+#include "lm/state.hh"
+#include "lm/model.hh"
 #include "scorer.h"
 #include "decoder_utils.h"
 
@@ -24,7 +27,7 @@ void Scorer::load_LM(const char* filename) {
         exit(1);
     }
     RetriveStrEnumerateVocab enumerate;
-    Config config;
+    lm::ngram::Config config;
     config.enumerate_vocab = &enumerate;
     _language_model = lm::ngram::LoadVirtual(filename, config);
     _max_order = static_cast<lm::base::Model*>(_language_model)->Order();
@@ -43,7 +46,7 @@ void Scorer::load_LM(const char* filename) {
 double Scorer::get_log_cond_prob(const std::vector<std::string>& words) {
     lm::base::Model* model = static_cast<lm::base::Model*>(_language_model);
     double cond_prob;
-    State state, tmp_state, out_state;
+    lm::ngram::State state, tmp_state, out_state;
     // avoid to inserting <s> in begin
     model->NullContextWrite(&state);
     for (size_t i = 0; i < words.size(); ++i) {

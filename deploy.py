@@ -18,7 +18,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=10,
+    default=32,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -47,6 +47,11 @@ parser.add_argument(
     type=int,
     help="Number of cpu threads for preprocessing data. (default: %(default)s)")
 parser.add_argument(
+    "--num_processes_beam_search",
+    default=multiprocessing.cpu_count(),
+    type=int,
+    help="Number of cpu processes for beam search. (default: %(default)s)")
+parser.add_argument(
     "--mean_std_filepath",
     default='mean_std.npz',
     type=str,
@@ -70,8 +75,8 @@ parser.add_argument(
     "--decode_method",
     default='beam_search',
     type=str,
-    help="Method for ctc decoding: best_path or beam_search. (default: %(default)s)"
-)
+    help="Method for ctc decoding: beam_search or beam_search_batch. "
+    "(default: %(default)s)")
 parser.add_argument(
     "--beam_size",
     default=200,
@@ -169,15 +174,28 @@ def infer():
     ## decode and print
     time_begin = time.time()
     wer_sum, wer_counter = 0, 0
-    for i, probs in enumerate(probs_split):
-        beam_result = ctc_beam_search_decoder(
-            probs_seq=probs,
+    batch_beam_results = []
+    if args.decode_method == 'beam_search':
+        for i, probs in enumerate(probs_split):
+            beam_result = ctc_beam_search_decoder(
+                probs_seq=probs,
+                beam_size=args.beam_size,
+                vocabulary=data_generator.vocab_list,
+                blank_id=len(data_generator.vocab_list),
+                cutoff_prob=args.cutoff_prob,
+                ext_scoring_func=ext_scorer, )
+            batch_beam_results += [beam_result]
+    else:
+        batch_beam_results = ctc_beam_search_decoder_batch(
+            probs_split=probs_split,
             beam_size=args.beam_size,
             vocabulary=data_generator.vocab_list,
             blank_id=len(data_generator.vocab_list),
+            num_processes=args.num_processes_beam_search,
             cutoff_prob=args.cutoff_prob,
             ext_scoring_func=ext_scorer, )
 
+    for i, beam_result in enumerate(batch_beam_results):
         print("\nTarget Transcription:\t%s" % target_transcription[i])
         print("Beam %d: %f \t%s" % (0, beam_result[0][0], beam_result[0][1]))
         wer_cur = wer(target_transcription[i], beam_result[0][1])
@@ -185,6 +203,7 @@ def infer():
         wer_counter += 1
         print("cur wer = %f , average wer = %f" %
               (wer_cur, wer_sum / wer_counter))
+
     time_end = time.time()
     print("total time = %f" % (time_end - time_begin))
 

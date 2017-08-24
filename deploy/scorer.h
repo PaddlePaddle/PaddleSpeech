@@ -4,10 +4,12 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include "lm/enumerate_vocab.hh"
 #include "lm/word_index.hh"
 #include "lm/virtual_interface.hh"
 #include "util/string_piece.hh"
+#include "path_trie.h"
 
 const double OOV_SCOER = -1000.0;
 const std::string START_TOKEN = "<s>";
@@ -49,18 +51,29 @@ public:
     void reset_params(float alpha, float beta);
     // get the final score
     double get_score(std::string, bool log=false);
+    // make ngram
+    std::vector<std::string> make_ngram(PathTrie* prefix);
     // expose to decoder
     double alpha;
     double beta;
+    // fst dictionary
+    void* dictionary;
 
 protected:
     void load_LM(const char* filename);
     double get_log_prob(const std::vector<std::string>& words);
 
 private:
+    void _init_char_list();
+    void _init_char_map();
+
     void* _language_model;
     bool _is_character_based;
     size_t _max_order;
+
+    std::vector<std::string> _char_list;
+    std::unordered_map<char, int> _char_map;
+
     std::vector<std::string> _vocabulary;
 };
 

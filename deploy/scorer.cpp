@@ -175,3 +175,42 @@ double Scorer::get_score(std::string sentence, bool log) {
     }
     return final_score;
 }
+
+//--------------------------------------------------
+// Turn indices back into strings of chars
+//--------------------------------------------------
+std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
+    /*
+    std::vector<std::string> ngram;
+    PathTrie* current_node = prefix;
+    PathTrie* new_node = nullptr;
+
+    for (int order = 0; order < _max_order; order++) {
+        std::vector<int> prefix_vec;
+
+        if (_is_character_based) {
+            new_node = current_node->get_path_vec(prefix_vec, ' ', 1);
+            current_node = new_node;
+        } else {
+            new_node = current_node->getPathVec(prefix_vec, ' ');
+            current_node = new_node->_parent;  // Skipping spaces
+        }
+
+        // reconstruct word
+        std::string word = vec2str(prefix_vec);
+        ngram.push_back(word);
+
+        if (new_node->_character == -1) {
+            // No more spaces, but still need order
+            for (int i = 0; i < max_order - order - 1; i++) {
+                ngram.push_back("<s>");
+            }
+            break;
+        }
+    }
+    std::reverse(ngram.begin(), ngram.end());
+    */
+    std::vector<std::string> ngram;
+    ngram.push_back("this");
+    return ngram;
+}  //---------------- End makeNgrams ------------------

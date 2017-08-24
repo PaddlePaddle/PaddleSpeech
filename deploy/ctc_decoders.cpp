@@ -4,11 +4,13 @@
 #include <utility>
 #include <cmath>
 #include <limits>
+#include "fst/fstlib.h"
 #include "ctc_decoders.h"
 #include "decoder_utils.h"
+#include "path_trie.h"
 #include "ThreadPool.h"
 
-typedef double log_prob_type;
+typedef float log_prob_type;
 
 std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
                                   std::vector<std::string> vocabulary)
@@ -89,24 +91,30 @@ std::vector<std::pair<double, std::string> >
         exit(1);
     }
 
-    // initialize
-    // two sets containing selected and candidate prefixes respectively
-    std::map<std::string, log_prob_type> prefix_set_prev, prefix_set_next;
-    // probability of prefixes ending with blank and non-blank
-    std::map<std::string, log_prob_type> log_probs_b_prev, log_probs_nb_prev;
-    std::map<std::string, log_prob_type> log_probs_b_cur, log_probs_nb_cur;
+    static log_prob_type POS_INF = std::numeric_limits<log_prob_type>::max();
+    static log_prob_type NEG_INF = -POS_INF;
+    static log_prob_type NUM_MIN = std::numeric_limits<log_prob_type>::min();
 
-    static log_prob_type NUM_MAX = std::numeric_limits<log_prob_type>::max();
-    prefix_set_prev["\t"] = 0.0;
-    log_probs_b_prev["\t"] = 0.0;
-    log_probs_nb_prev["\t"] = -NUM_MAX;
+    // init
+    PathTrie root;
+    root._log_prob_b_prev = 0.0;
+    root._score = 0.0;
+    std::vector<PathTrie*> prefixes;
+    prefixes.push_back(&root);
 
-    for (int time_step=0; time_step<num_time_steps; time_step++) {
-        prefix_set_next.clear();
-        log_probs_b_cur.clear();
-        log_probs_nb_cur.clear();
+    if ( ext_scorer != nullptr && !ext_scorer->is_character_based()) {
+        if (ext_scorer->dictionary == nullptr) {
+        // TODO: init dictionary
+        }
+        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->dictionary);
+        fst::StdVectorFst* dict_ptr = fst_dict->Copy(true);
+        root.set_dictionary(dict_ptr);
+        auto matcher = std::make_shared<FSTMATCH>(*dict_ptr, fst::MATCH_INPUT);
+        root.set_matcher(matcher);
+    }
+
+    for (int time_step = 0; time_step < num_time_steps; time_step++) {
         std::vector<double> prob = probs_seq[time_step];
-
         std::vector<std::pair<int, double> > prob_idx;
         for (int i=0; i<prob.size(); i++) {
             prob_idx.push_back(std::pair<int, double>(i, prob[i]));
@@ -132,113 +140,134 @@ std::vector<std::pair<double, std::string> >
         std::vector<std::pair<int, log_prob_type> > log_prob_idx;
         for (int i=0; i<cutoff_len; i++) {
             log_prob_idx.push_back(std::pair<int, log_prob_type>
-                        (prob_idx[i].first, log(prob_idx[i].second)));
+                        (prob_idx[i].first, log(prob_idx[i].second + NUM_MIN)));
         }
 
-        // extend prefix
-        for (std::map<std::string, log_prob_type>::iterator
-             it = prefix_set_prev.begin();
-            it != prefix_set_prev.end(); it++) {
-            std::string l = it->first;
-            if( prefix_set_next.find(l) == prefix_set_next.end()) {
-                log_probs_b_cur[l] = log_probs_nb_cur[l] = -NUM_MAX;
-            }
+        // loop over chars
+        for (int index = 0; index < log_prob_idx.size(); index++) {
+            auto c = log_prob_idx[index].first;
+            log_prob_type log_prob_c = log_prob_idx[index].second;
+            //log_prob_type log_probs_prev;
 
-            for (int index=0; index<log_prob_idx.size(); index++) {
-                int c = log_prob_idx[index].first;
-                log_prob_type log_prob_c = log_prob_idx[index].second;
-                log_prob_type log_probs_prev;
+            for (int i = 0; i < prefixes.size() && i<beam_size; i++) {
+                auto prefix = prefixes[i];
+                // blank
                 if (c == blank_id) {
-                    log_probs_prev = log_sum_exp(log_probs_b_prev[l],
-                                                 log_probs_nb_prev[l]);
-                    log_probs_b_cur[l] = log_sum_exp(log_probs_b_cur[l],
-                                                     log_prob_c+log_probs_prev);
-                } else {
-                    std::string last_char = l.substr(l.size()-1, 1);
-                    std::string new_char = vocabulary[c];
-                    std::string l_plus = l + new_char;
+                    prefix->_log_prob_b_cur = log_sum_exp(
+                                               prefix->_log_prob_b_cur,
+                                               log_prob_c + prefix->_score);
+                    continue;
+                }
+                // repeated character
+                if (c == prefix->_character) {
+                    prefix->_log_prob_nb_cur = log_sum_exp(
+                        prefix->_log_prob_nb_cur,
+                        log_prob_c + prefix->_log_prob_nb_prev
+                        );
+                }
+                // get new prefix
+                auto prefix_new = prefix->get_path_trie(c);
 
-                    if( prefix_set_next.find(l_plus) == prefix_set_next.end()) {
-                        log_probs_b_cur[l_plus] = -NUM_MAX;
-                        log_probs_nb_cur[l_plus] = -NUM_MAX;
+                if (prefix_new != nullptr) {
+                    float log_p = NEG_INF;
+
+                    if (c == prefix->_character
+                        && prefix->_log_prob_b_prev > NEG_INF) {
+                        log_p = log_prob_c + prefix->_log_prob_b_prev;
+                    } else if (c != prefix->_character) {
+                        log_p = log_prob_c + prefix->_score;
                     }
-                    if (last_char == new_char) {
-                        log_probs_nb_cur[l_plus] = log_sum_exp(
-                                                log_probs_nb_cur[l_plus],
-                                                log_prob_c+log_probs_b_prev[l]
-                                            );
-                        log_probs_nb_cur[l] = log_sum_exp(
-                                                log_probs_nb_cur[l],
-                                                log_prob_c+log_probs_nb_prev[l]
-                                            );
-                    } else if (new_char == " ") {
-                        float score = 0.0;
-                        if (ext_scorer != NULL && l.size() > 1) {
-                            score = ext_scorer->get_score(l.substr(1), true);
+
+                    // language model scoring
+                    if (ext_scorer != nullptr &&
+                        (c == space_id || ext_scorer->is_character_based()) ) {
+                        PathTrie *prefix_to_score = nullptr;
+
+                        // don't score the space
+                        if (ext_scorer->is_character_based()) {
+                            prefix_to_score = prefix_new;
+                        } else {
+                            prefix_to_score = prefix;
                         }
-                        log_probs_prev = log_sum_exp(log_probs_b_prev[l],
-                                                     log_probs_nb_prev[l]);
-                        log_probs_nb_cur[l_plus] = log_sum_exp(
-                                            log_probs_nb_cur[l_plus],
-                                            score + log_prob_c + log_probs_prev
-                                        );
-                    } else {
-                        log_probs_prev = log_sum_exp(log_probs_b_prev[l],
-                                                     log_probs_nb_prev[l]);
-                        log_probs_nb_cur[l_plus] = log_sum_exp(
-                                                    log_probs_nb_cur[l_plus],
-                                                    log_prob_c+log_probs_prev
-                                                );
+
+                        double score = 0.0;
+                        std::vector<std::string> ngram;
+                        ngram = ext_scorer->make_ngram(prefix_to_score);
+                        score = ext_scorer->get_log_cond_prob(ngram) *
+                                ext_scorer->alpha;
+
+                        log_p += score;
+                        log_p += ext_scorer->beta;
+
                     }
-                    prefix_set_next[l_plus] = log_sum_exp(
-                                                log_probs_nb_cur[l_plus],
-                                                log_probs_b_cur[l_plus]
-                                            );
+                    prefix_new->_log_prob_nb_cur = log_sum_exp(
+                                        prefix_new->_log_prob_nb_cur, log_p);
                 }
             }
 
-            prefix_set_next[l] = log_sum_exp(log_probs_b_cur[l],
-                                             log_probs_nb_cur[l]);
-        }
+        } // end of loop over chars
 
-        log_probs_b_prev = log_probs_b_cur;
-        log_probs_nb_prev = log_probs_nb_cur;
-        std::vector<std::pair<std::string, log_prob_type> >
-                  prefix_vec_next(prefix_set_next.begin(),
-                                  prefix_set_next.end());
-        std::sort(prefix_vec_next.begin(),
-                  prefix_vec_next.end(),
-                  pair_comp_second_rev<std::string, log_prob_type>);
-        int num_prefixes_next = prefix_vec_next.size();
-        int k = beam_size<num_prefixes_next ? beam_size : num_prefixes_next;
-        prefix_set_prev = std::map<std::string, log_prob_type> (
-                                                   prefix_vec_next.begin(),
-                                                   prefix_vec_next.begin() + k
-                                                );
-    }
+        prefixes.clear();
+        // update log probabilities
+        root.iterate_to_vec(prefixes);
 
-    // post processing
-    std::vector<std::pair<double, std::string> > beam_result;
-    for (std::map<std::string, log_prob_type>::iterator
-         it = prefix_set_prev.begin(); it != prefix_set_prev.end(); it++) {
-        if (it->second > -NUM_MAX && it->first.size() > 1) {
-            log_prob_type log_prob = it->second;
-            std::string sentence = it->first.substr(1);
-            // scoring the last word
-            if (ext_scorer != NULL && sentence[sentence.size()-1] != ' ') {
-                log_prob = log_prob + ext_scorer->get_score(sentence, true);
-            }
-            if (log_prob > -NUM_MAX) {
-                std::pair<double, std::string> cur_result(log_prob, sentence);
-                beam_result.push_back(cur_result);
+        // sort prefixes by score
+        if (prefixes.size() >= beam_size) {
+            std::nth_element(prefixes.begin(),
+                    prefixes.begin() + beam_size,
+                    prefixes.end(),
+                    prefix_compare);
+
+            for (size_t i = beam_size; i < prefixes.size(); i++) {
+                prefixes[i]->remove();
             }
         }
     }
-    // sort the result and return
-    std::sort(beam_result.begin(), beam_result.end(),
-              pair_comp_first_rev<double, std::string>);
-    return beam_result;
-}
+
+    for (size_t i = 0; i < beam_size && i < prefixes.size(); i++) {
+        double approx_ctc = prefixes[i]->_score;
+
+        // remove word insert:
+        std::vector<int> output;
+        prefixes[i]->get_path_vec(output);
+        size_t prefix_length = output.size();
+        // remove language model weight:
+        if (ext_scorer != nullptr) {
+           // auto words = split_labels(output);
+           // approx_ctc = approx_ctc - path_length * ext_scorer->beta;
+           // approx_ctc -= (_lm->get_sent_log_prob(words)) * ext_scorer->alpha;
+        }
+
+        prefixes[i]->_approx_ctc = approx_ctc;
+    }
+
+    // allow for the post processing
+    std::vector<PathTrie*> space_prefixes;
+    if (space_prefixes.empty()) {
+        for (size_t i = 0; i < beam_size && i< prefixes.size(); i++) {
+            space_prefixes.push_back(prefixes[i]);
+        }
+    }
+
+    std::sort(space_prefixes.begin(), space_prefixes.end(), prefix_compare);
+    std::vector<std::pair<double, std::string> > output_vecs;
+    for (size_t i = 0; i < beam_size && i < space_prefixes.size(); i++) {
+        std::vector<int> output;
+        space_prefixes[i]->get_path_vec(output);
+        // convert index to string
+        std::string output_str;
+        for (int j = 0; j < output.size(); j++) {
+            output_str += vocabulary[output[j]];
+        }
+        std::pair<double, std::string> output_pair(space_prefixes[i]->_score,
+                                                   output_str);
+        output_vecs.emplace_back(
+            output_pair
+        );
+    }
+
+    return output_vecs;
+ }
 
 
 std::vector<std::vector<std::pair<double, std::string>>>
@@ -250,8 +279,7 @@ std::vector<std::vector<std::pair<double, std::string>>>
                 int num_processes,
                 double cutoff_prob,
                 Scorer *ext_scorer
-                )
-{
+                ) {
     if (num_processes <= 0) {
         std::cout << "num_processes must be nonnegative!" << std::endl;
         exit(1);

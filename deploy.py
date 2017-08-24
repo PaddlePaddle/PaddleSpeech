@@ -18,7 +18,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=32,
+    default=5,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -79,7 +79,7 @@ parser.add_argument(
     "(default: %(default)s)")
 parser.add_argument(
     "--beam_size",
-    default=200,
+    default=20,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
@@ -104,7 +104,7 @@ parser.add_argument(
     help="Parameter associated with word count. (default: %(default)f)")
 parser.add_argument(
     "--cutoff_prob",
-    default=0.99,
+    default=1.0,
     type=float,
     help="The cutoff probability of pruning"
     "in beam search. (default: %(default)f)")
@@ -183,7 +183,8 @@ def infer():
                 vocabulary=data_generator.vocab_list,
                 blank_id=len(data_generator.vocab_list),
                 cutoff_prob=args.cutoff_prob,
-                ext_scoring_func=ext_scorer, )
+                #            ext_scoring_func=ext_scorer,
+            )
             batch_beam_results += [beam_result]
     else:
         batch_beam_results = ctc_beam_search_decoder_batch(

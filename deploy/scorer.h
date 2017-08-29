@@ -11,7 +11,7 @@
 #include "util/string_piece.hh"
 #include "path_trie.h"
 
-const double OOV_SCOER = -1000.0;
+const double OOV_SCORE = -1000.0;
 const std::string START_TOKEN = "<s>";
 const std::string UNK_TOKEN = "<unk>";
 const std::string END_TOKEN = "</s>";
@@ -68,18 +68,13 @@ protected:
     double get_log_prob(const std::vector<std::string>& words);
     std::string vec2str(const std::vector<int> &input);
     std::vector<std::string> split_labels(const std::vector<int> &labels);
-    std::vector<std::string> split_str(const std::string &s,
-                                       const std::string &delim);
 
 private:
-    void _init_char_list();
-    void _init_char_map();
-
     void* _language_model;
     bool _is_character_based;
     size_t _max_order;
 
-    unsigned int _SPACE;
+    int _SPACE_ID;
     std::vector<std::string> _char_list;
     std::unordered_map<char, int> _char_map;
 

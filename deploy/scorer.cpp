@@ -17,7 +17,7 @@ Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
     _language_model = nullptr;
     _dictionary = nullptr;
     _max_order = 0;
-    _SPACE = -1;
+    _SPACE_ID = -1;
     // load language model
     load_LM(lm_path.c_str());
 }
@@ -61,7 +61,7 @@ double Scorer::get_log_cond_prob(const std::vector<std::string>& words) {
         lm::WordIndex word_index = model->BaseVocabulary().Index(words[i]);
         // encounter OOV
         if (word_index == 0) {
-            return OOV_SCOER;
+            return OOV_SCORE;
         }
         cond_prob = model->BaseScore(&state, word_index, &out_state);
         tmp_state = state;
@@ -197,64 +197,27 @@ Scorer::split_labels(const std::vector<int> &labels) {
     std::string s = vec2str(labels);
     std::vector<std::string> words;
     if (_is_character_based) {
-        words = UTF8_split(s);
+        words = split_utf8_str(s);
     } else {
         words = split_str(s, " ");
     }
     return words;
 }
 
-// Split a string into a list of strings on a given string
-// delimiter. NB: delimiters on beginning / end of string are
-// trimmed. Eg, "FooBarFoo" split on "Foo" returns ["Bar"].
-std::vector<std::string> Scorer::split_str(const std::string &s,
-                                   const std::string &delim) {
-    std::vector<std::string> result;
-    std::size_t start = 0, delim_len = delim.size();
-    while (true) {
-        std::size_t end = s.find(delim, start);
-        if (end == std::string::npos) {
-            if (start < s.size()) {
-                result.push_back(s.substr(start));
-            }
-            break;
-        }
-        if (end > start) {
-            result.push_back(s.substr(start, end - start));
-        }
-        start = end + delim_len;
-    }
-    return result;
-}
-
-//---------------------------------------------------
-// Add index to char list for searching language model
-//---------------------------------------------------
 void Scorer::set_char_map(std::vector<std::string> char_list) {
     _char_list = char_list;
-    std::string _SPACE_STR = " ";
-
-    for (unsigned int i = 0; i < _char_list.size(); i++) {
-    //    if (_char_list[i] == _BLANK_STR) {
-      //      _BLANK = i;
-      //  } else
-        if (_char_list[i] == _SPACE_STR) {
-            _SPACE = i;
-        }
-    }
-
     _char_map.clear();
+
     for(unsigned int i = 0; i < _char_list.size(); i++)
     {
-        if(i == (unsigned int)_SPACE){
+        if (_char_list[i] == " ") {
+            _SPACE_ID = i;
             _char_map[' '] = i;
-        }
-        else if(_char_list[i].size() == 1){
+        } else if(_char_list[i].size() == 1){
             _char_map[_char_list[i][0]] = i;
         }
     }
-
-}  //------------- End of set_char_map ----------------
+}
 
 std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
     std::vector<std::string> ngram;
@@ -265,10 +228,10 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
         std::vector<int> prefix_vec;
 
         if (_is_character_based) {
-            new_node = current_node->get_path_vec(prefix_vec, _SPACE, 1);
+            new_node = current_node->get_path_vec(prefix_vec, _SPACE_ID, 1);
             current_node = new_node;
         } else {
-            new_node = current_node->get_path_vec(prefix_vec, _SPACE);
+            new_node = current_node->get_path_vec(prefix_vec, _SPACE_ID);
             current_node = new_node->_parent;  // Skipping spaces
         }
 
@@ -279,7 +242,7 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
         if (new_node->_character == -1) {
             // No more spaces, but still need order
             for (int i = 0; i < _max_order - order - 1; i++) {
-                ngram.push_back("<s>");
+                ngram.push_back(START_TOKEN);
             }
             break;
         }
@@ -288,10 +251,6 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
     return ngram;
 }
 
-//---------------------------------------------------------
-// Helper function to populate Trie with a vocab using the
-// char_list for maping from string to int
-//---------------------------------------------------------
 void Scorer::fill_dictionary(bool add_space) {
 
     fst::StdVectorFst dictionary;
@@ -307,7 +266,7 @@ void Scorer::fill_dictionary(bool add_space) {
         bool added = add_word_to_dictionary(word,
                                             char_map,
                                             add_space,
-                                            _SPACE,
+                                            _SPACE_ID,
                                             &dictionary);
         vocab_size += added ? 1 : 0;
     }

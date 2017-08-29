@@ -8,12 +8,11 @@
 #include "decoder_utils.h"
 
 PathTrie::PathTrie() {
-    float lowest = -1.0*std::numeric_limits<float>::max();
-    _log_prob_b_prev = lowest;
-    _log_prob_nb_prev = lowest;
-    _log_prob_b_cur = lowest;
-    _log_prob_nb_cur = lowest;
-    _score = lowest;
+    _log_prob_b_prev = -NUM_FLT_INF;
+    _log_prob_nb_prev = -NUM_FLT_INF;
+    _log_prob_b_cur = -NUM_FLT_INF;
+    _log_prob_nb_cur = -NUM_FLT_INF;
+    _score = -NUM_FLT_INF;
 
     _ROOT = -1;
     _character = _ROOT;
@@ -41,11 +40,10 @@ PathTrie* PathTrie::get_path_trie(int new_char, bool reset) {
     if ( child != _children.end() ) {
         if (!child->second->_exists) {
             child->second->_exists = true;
-            float lowest = -1.0*std::numeric_limits<float>::max();
-            child->second->_log_prob_b_prev = lowest;
-            child->second->_log_prob_nb_prev = lowest;
-            child->second->_log_prob_b_cur = lowest;
-            child->second->_log_prob_nb_cur = lowest;
+            child->second->_log_prob_b_prev = -NUM_FLT_INF;
+            child->second->_log_prob_nb_prev = -NUM_FLT_INF;
+            child->second->_log_prob_b_cur = -NUM_FLT_INF;
+            child->second->_log_prob_nb_cur = -NUM_FLT_INF;
         }
         return (child->second);
     } else {
@@ -106,8 +104,8 @@ void PathTrie::iterate_to_vec(
         _log_prob_b_prev = _log_prob_b_cur;
         _log_prob_nb_prev = _log_prob_nb_cur;
 
-        _log_prob_b_cur = -1.0 * std::numeric_limits<float>::max();
-        _log_prob_nb_cur = -1.0 * std::numeric_limits<float>::max();
+        _log_prob_b_cur = -NUM_FLT_INF;
+        _log_prob_nb_cur = -NUM_FLT_INF;
 
         _score = log_sum_exp(_log_prob_b_prev, _log_prob_nb_prev);
         output.push_back(this);
@@ -117,9 +115,6 @@ void PathTrie::iterate_to_vec(
     }
 }
 
-//-------------------------------------------------------
-//  Effectively removes node
-//-------------------------------------------------------
 void PathTrie::remove() {
     _exists = false;
 

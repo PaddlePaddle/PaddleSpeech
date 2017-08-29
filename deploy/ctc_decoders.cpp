@@ -10,8 +10,6 @@
 #include "path_trie.h"
 #include "ThreadPool.h"
 
-typedef float log_prob_type;
-
 std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
                                   std::vector<std::string> vocabulary)
 {
@@ -19,8 +17,8 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
     int num_time_steps = probs_seq.size();
     for (int i=0; i<num_time_steps; i++) {
         if (probs_seq[i].size() != vocabulary.size()+1) {
-            std::cout<<"The shape of probs_seq does not match"
-                     <<" with the shape of the vocabulary!"<<std::endl;
+            std::cout << "The shape of probs_seq does not match"
+                      << " with the shape of the vocabulary!" << std::endl;
             exit(1);
         }
     }
@@ -30,8 +28,8 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
     std::vector<int> max_idx_vec;
     double max_prob = 0.0;
     int max_idx = 0;
-    for (int i=0; i<num_time_steps; i++) {
-        for (int j=0; j<probs_seq[i].size(); j++) {
+    for (int i = 0; i < num_time_steps; i++) {
+        for (int j = 0; j < probs_seq[i].size(); j++) {
             if (max_prob < probs_seq[i][j]) {
                 max_idx = j;
                 max_prob = probs_seq[i][j];
@@ -43,14 +41,14 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
     }
 
     std::vector<int> idx_vec;
-    for (int i=0; i<max_idx_vec.size(); i++) {
-        if ((i == 0) || ((i>0) && max_idx_vec[i]!=max_idx_vec[i-1])) {
+    for (int i = 0; i < max_idx_vec.size(); i++) {
+        if ((i == 0) || ((i > 0) && max_idx_vec[i] != max_idx_vec[i-1])) {
             idx_vec.push_back(max_idx_vec[i]);
         }
     }
 
     std::string best_path_result;
-    for (int i=0; i<idx_vec.size(); i++) {
+    for (int i = 0; i < idx_vec.size(); i++) {
         if (idx_vec[i] != blank_id) {
             best_path_result += vocabulary[idx_vec[i]];
         }
@@ -68,8 +66,8 @@ std::vector<std::pair<double, std::string> >
 {
     // dimension check
     int num_time_steps = probs_seq.size();
-    for (int i=0; i<num_time_steps; i++) {
-        if (probs_seq[i].size() != vocabulary.size()+1) {
+    for (int i = 0; i < num_time_steps; i++) {
+        if (probs_seq[i].size() != vocabulary.size() + 1) {
             std::cout << " The shape of probs_seq does not match"
                       << " with the shape of the vocabulary!" << std::endl;
             exit(1);
@@ -86,19 +84,14 @@ std::vector<std::pair<double, std::string> >
     std::vector<std::string>::iterator it = std::find(vocabulary.begin(),
                                                   vocabulary.end(), " ");
     int space_id = it - vocabulary.begin();
+    // if no space in vocabulary
     if(space_id >= vocabulary.size()) {
-        std::cout << " The character space is not in the vocabulary!"<<std::endl;
-        exit(1);
+        space_id = -2;
     }
-
-    static log_prob_type POS_INF = std::numeric_limits<log_prob_type>::max();
-    static log_prob_type NEG_INF = -POS_INF;
-    static log_prob_type NUM_MIN = std::numeric_limits<log_prob_type>::min();
 
     // init
     PathTrie root;
-    root._log_prob_b_prev = 0.0;
-    root._score = 0.0;
+    root._score = root._log_prob_b_prev = 0.0;
     std::vector<PathTrie*> prefixes;
     prefixes.push_back(&root);
 
@@ -140,17 +133,17 @@ std::vector<std::pair<double, std::string> >
                             prob_idx.begin() + cutoff_len);
         }
 
-        std::vector<std::pair<int, log_prob_type> > log_prob_idx;
-        for (int i=0; i<cutoff_len; i++) {
-            log_prob_idx.push_back(std::pair<int, log_prob_type>
-                        (prob_idx[i].first, log(prob_idx[i].second + NUM_MIN)));
+        std::vector<std::pair<int, float> > log_prob_idx;
+        for (int i = 0; i < cutoff_len; i++) {
+            log_prob_idx.push_back(std::pair<int, float>
+                  (prob_idx[i].first, log(prob_idx[i].second + NUM_FLT_MIN)));
         }
 
         // loop over chars
         for (int index = 0; index < log_prob_idx.size(); index++) {
             auto c = log_prob_idx[index].first;
-            log_prob_type log_prob_c = log_prob_idx[index].second;
-            //log_prob_type log_probs_prev;
+            float log_prob_c = log_prob_idx[index].second;
+            //float log_probs_prev;
 
             for (int i = 0; i < prefixes.size() && i<beam_size; i++) {
                 auto prefix = prefixes[i];
@@ -165,17 +158,16 @@ std::vector<std::pair<double, std::string> >
                 if (c == prefix->_character) {
                     prefix->_log_prob_nb_cur = log_sum_exp(
                         prefix->_log_prob_nb_cur,
-                        log_prob_c + prefix->_log_prob_nb_prev
-                        );
+                        log_prob_c + prefix->_log_prob_nb_prev);
                 }
                 // get new prefix
                 auto prefix_new = prefix->get_path_trie(c);
 
                 if (prefix_new != nullptr) {
-                    float log_p = NEG_INF;
+                    float log_p = -NUM_FLT_INF;
 
                     if (c == prefix->_character
-                        && prefix->_log_prob_b_prev > NEG_INF) {
+                        && prefix->_log_prob_b_prev > -NUM_FLT_INF) {
                         log_p = log_prob_c + prefix->_log_prob_b_prev;
                     } else if (c != prefix->_character) {
                         log_p = log_prob_c + prefix->_score;
@@ -201,7 +193,6 @@ std::vector<std::pair<double, std::string> >
 
                         log_p += score;
                         log_p += ext_scorer->beta;
-
                     }
                     prefix_new->_log_prob_nb_cur = log_sum_exp(
                                         prefix_new->_log_prob_nb_cur, log_p);
@@ -273,7 +264,7 @@ std::vector<std::pair<double, std::string> >
  }
 
 
-std::vector<std::vector<std::pair<double, std::string>>>
+std::vector<std::vector<std::pair<double, std::string> > >
     ctc_beam_search_decoder_batch(
                 std::vector<std::vector<std::vector<double>>> probs_split,
                 int beam_size,
@@ -292,12 +283,12 @@ std::vector<std::vector<std::pair<double, std::string>>>
     // number of samples
     int batch_size = probs_split.size();
     // dictionary init
-    if ( ext_scorer != nullptr) {
-        if (ext_scorer->_dictionary == nullptr) {
-        // TODO: init dictionary
-            ext_scorer->set_char_map(vocabulary);
-            ext_scorer->fill_dictionary(true);
-        }
+    if ( ext_scorer != nullptr
+         && !ext_scorer->is_character_based()
+         && ext_scorer->_dictionary == nullptr) {
+        // init dictionary
+        ext_scorer->set_char_map(vocabulary);
+        ext_scorer->fill_dictionary(true);
     }
     // enqueue the tasks of decoding
     std::vector<std::future<std::vector<std::pair<double, std::string>>>> res;
@@ -308,7 +299,7 @@ std::vector<std::vector<std::pair<double, std::string>>>
             );
     }
     // get decoding results
-    std::vector<std::vector<std::pair<double, std::string>>> batch_results;
+    std::vector<std::vector<std::pair<double, std::string> > > batch_results;
     for (int i = 0; i < batch_size; i++) {
         batch_results.emplace_back(res[i].get());
     }

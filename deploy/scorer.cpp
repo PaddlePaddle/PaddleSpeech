@@ -15,7 +15,9 @@ Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
     this->beta = beta;
     _is_character_based = true;
     _language_model = nullptr;
+    _dictionary = nullptr;
     _max_order = 0;
+    _SPACE = -1;
     // load language model
     load_LM(lm_path.c_str());
 }
@@ -23,6 +25,8 @@ Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
 Scorer::~Scorer() {
     if (_language_model != nullptr)
         delete static_cast<lm::base::Model*>(_language_model);
+    if (_dictionary != nullptr)
+        delete static_cast<fst::StdVectorFst*>(_dictionary);
 }
 
 void Scorer::load_LM(const char* filename) {
@@ -176,11 +180,83 @@ double Scorer::get_score(std::string sentence, bool log) {
     return final_score;
 }
 
-//--------------------------------------------------
-// Turn indices back into strings of chars
-//--------------------------------------------------
+std::string Scorer::vec2str(const std::vector<int>& input) {
+    std::string word;
+    for (auto ind : input) {
+        word += _char_list[ind];
+    }
+    return word;
+}
+
+
+std::vector<std::string>
+Scorer::split_labels(const std::vector<int> &labels) {
+    if (labels.empty())
+        return {};
+
+    std::string s = vec2str(labels);
+    std::vector<std::string> words;
+    if (_is_character_based) {
+        words = UTF8_split(s);
+    } else {
+        words = split_str(s, " ");
+    }
+    return words;
+}
+
+// Split a string into a list of strings on a given string
+// delimiter. NB: delimiters on beginning / end of string are
+// trimmed. Eg, "FooBarFoo" split on "Foo" returns ["Bar"].
+std::vector<std::string> Scorer::split_str(const std::string &s,
+                                   const std::string &delim) {
+    std::vector<std::string> result;
+    std::size_t start = 0, delim_len = delim.size();
+    while (true) {
+        std::size_t end = s.find(delim, start);
+        if (end == std::string::npos) {
+            if (start < s.size()) {
+                result.push_back(s.substr(start));
+            }
+            break;
+        }
+        if (end > start) {
+            result.push_back(s.substr(start, end - start));
+        }
+        start = end + delim_len;
+    }
+    return result;
+}
+
+//---------------------------------------------------
+// Add index to char list for searching language model
+//---------------------------------------------------
+void Scorer::set_char_map(std::vector<std::string> char_list) {
+    _char_list = char_list;
+    std::string _SPACE_STR = " ";
+
+    for (unsigned int i = 0; i < _char_list.size(); i++) {
+    //    if (_char_list[i] == _BLANK_STR) {
+      //      _BLANK = i;
+      //  } else
+        if (_char_list[i] == _SPACE_STR) {
+            _SPACE = i;
+        }
+    }
+
+    _char_map.clear();
+    for(unsigned int i = 0; i < _char_list.size(); i++)
+    {
+        if(i == (unsigned int)_SPACE){
+            _char_map[' '] = i;
+        }
+        else if(_char_list[i].size() == 1){
+            _char_map[_char_list[i][0]] = i;
+        }
+    }
+
+}  //------------- End of set_char_map ----------------
+
 std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
-    /*
     std::vector<std::string> ngram;
     PathTrie* current_node = prefix;
     PathTrie* new_node = nullptr;
@@ -189,10 +265,10 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
         std::vector<int> prefix_vec;
 
         if (_is_character_based) {
-            new_node = current_node->get_path_vec(prefix_vec, ' ', 1);
+            new_node = current_node->get_path_vec(prefix_vec, _SPACE, 1);
             current_node = new_node;
         } else {
-            new_node = current_node->getPathVec(prefix_vec, ' ');
+            new_node = current_node->get_path_vec(prefix_vec, _SPACE);
             current_node = new_node->_parent;  // Skipping spaces
         }
 
@@ -202,15 +278,60 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
 
         if (new_node->_character == -1) {
             // No more spaces, but still need order
-            for (int i = 0; i < max_order - order - 1; i++) {
+            for (int i = 0; i < _max_order - order - 1; i++) {
                 ngram.push_back("<s>");
             }
             break;
         }
     }
     std::reverse(ngram.begin(), ngram.end());
-    */
-    std::vector<std::string> ngram;
-    ngram.push_back("this");
     return ngram;
-}  //---------------- End makeNgrams ------------------
+}
+
+//---------------------------------------------------------
+// Helper function to populate Trie with a vocab using the
+// char_list for maping from string to int
+//---------------------------------------------------------
+void Scorer::fill_dictionary(bool add_space) {
+
+    fst::StdVectorFst dictionary;
+    // First reverse char_list so ints can be accessed by chars
+    std::unordered_map<std::string, int> char_map;
+    for (unsigned int i = 0; i < _char_list.size(); i++) {
+        char_map[_char_list[i]] = i;
+    }
+
+    // For each unigram convert to ints and put in trie
+    int vocab_size = 0;
+    for (const auto& word : _vocabulary) {
+        bool added = add_word_to_dictionary(word,
+                                            char_map,
+                                            add_space,
+                                            _SPACE,
+                                            &dictionary);
+        vocab_size += added ? 1 : 0;
+    }
+
+    std::cerr << "Vocab Size " << vocab_size << std::endl;
+
+    // Simplify FST
+
+    // This gets rid of "epsilon" transitions in the FST.
+    // These are transitions that don't require a string input to be taken.
+    // Getting rid of them is necessary to make the FST determinisitc, but
+    // can greatly increase the size of the FST
+    fst::RmEpsilon(&dictionary);
+    fst::StdVectorFst* new_dict = new fst::StdVectorFst;
+
+    // This makes the FST deterministic, meaning for any string input there's
+    // only one possible state the FST could be in.  It is assumed our
+    // dictionary is deterministic when using it.
+    // (lest we'd have to check for multiple transitions at each state)
+    fst::Determinize(dictionary, new_dict);
+
+    // Finds the simplest equivalent fst.  This is unnecessary but decreases
+    // memory usage of the dictionary
+    fst::Minimize(new_dict);
+    _dictionary = new_dict;
+
+}

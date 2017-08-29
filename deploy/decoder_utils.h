@@ -35,10 +35,12 @@ bool prefix_compare(const PathTrie* x,  const PathTrie* y);
 // See: http://stackoverflow.com/a/4063229
 size_t get_utf8_str_len(const std::string& str);
 
+std::vector<std::string> UTF8_split(const std::string &str);
+
 void add_word_to_fst(const std::vector<int>& word,
                      fst::StdVectorFst* dictionary);
 
-bool addWordToDictionary(const std::string& word,
+bool add_word_to_dictionary(const std::string& word,
                          const std::unordered_map<std::string, int>& char_map,
                          bool add_space,
                          int SPACE,

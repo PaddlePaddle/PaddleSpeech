@@ -18,7 +18,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=5,
+    default=4,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -89,7 +89,8 @@ parser.add_argument(
     help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="lm/data/common_crawl_00.prune01111.trie.klm",
+    default="/home/work/liuyibing/lm_bak/common_crawl_00.prune01111.trie.klm",
+    #default="ptb_all.arpa",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -183,8 +184,7 @@ def infer():
                 vocabulary=data_generator.vocab_list,
                 blank_id=len(data_generator.vocab_list),
                 cutoff_prob=args.cutoff_prob,
-                #            ext_scoring_func=ext_scorer,
-            )
+                ext_scoring_func=ext_scorer, )
             batch_beam_results += [beam_result]
     else:
         batch_beam_results = ctc_beam_search_decoder_batch(

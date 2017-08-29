@@ -53,15 +53,23 @@ public:
     double get_score(std::string, bool log=false);
     // make ngram
     std::vector<std::string> make_ngram(PathTrie* prefix);
+    // fill dictionary for fst
+    void fill_dictionary(bool add_space);
+    // set char map
+    void set_char_map(std::vector<std::string> char_list);
     // expose to decoder
     double alpha;
     double beta;
     // fst dictionary
-    void* dictionary;
+    void* _dictionary;
 
 protected:
     void load_LM(const char* filename);
     double get_log_prob(const std::vector<std::string>& words);
+    std::string vec2str(const std::vector<int> &input);
+    std::vector<std::string> split_labels(const std::vector<int> &labels);
+    std::vector<std::string> split_str(const std::string &s,
+                                       const std::string &delim);
 
 private:
     void _init_char_list();
@@ -71,6 +79,7 @@ private:
     bool _is_character_based;
     size_t _max_order;
 
+    unsigned int _SPACE;
     std::vector<std::string> _char_list;
     std::unordered_map<char, int> _char_map;
 

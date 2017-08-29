@@ -103,10 +103,13 @@ std::vector<std::pair<double, std::string> >
     prefixes.push_back(&root);
 
     if ( ext_scorer != nullptr && !ext_scorer->is_character_based()) {
-        if (ext_scorer->dictionary == nullptr) {
+        if (ext_scorer->_dictionary == nullptr) {
         // TODO: init dictionary
+            ext_scorer->set_char_map(vocabulary);
+            // add_space should be true?
+            ext_scorer->fill_dictionary(true);
         }
-        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->dictionary);
+        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->_dictionary);
         fst::StdVectorFst* dict_ptr = fst_dict->Copy(true);
         root.set_dictionary(dict_ptr);
         auto matcher = std::make_shared<FSTMATCH>(*dict_ptr, fst::MATCH_INPUT);
@@ -288,6 +291,14 @@ std::vector<std::vector<std::pair<double, std::string>>>
     ThreadPool pool(num_processes);
     // number of samples
     int batch_size = probs_split.size();
+    // dictionary init
+    if ( ext_scorer != nullptr) {
+        if (ext_scorer->_dictionary == nullptr) {
+        // TODO: init dictionary
+            ext_scorer->set_char_map(vocabulary);
+            ext_scorer->fill_dictionary(true);
+        }
+    }
     // enqueue the tasks of decoding
     std::vector<std::future<std::vector<std::pair<double, std::string>>>> res;
     for (int i = 0; i < batch_size; i++) {

@@ -11,6 +11,32 @@ size_t get_utf8_str_len(const std::string& str) {
     return str_len;
 }
 
+//------------------------------------------------------
+//Splits string into vector of strings representing
+//UTF-8 characters (not same as chars)
+//------------------------------------------------------
+std::vector<std::string> UTF8_split(const std::string& str)
+{
+  std::vector<std::string> result;
+  std::string out_str;
+
+  for (char c : str)
+    {
+      if ((c & 0xc0) != 0x80)  //new UTF-8 character
+        {
+          if (!out_str.empty())
+            {
+              result.push_back(out_str);
+              out_str.clear();
+            }
+        }
+
+      out_str.append(1, c);
+    }
+  result.push_back(out_str);
+  return result;
+}
+
 //-------------------------------------------------------
 //  Overriding less than operator for sorting
 //-------------------------------------------------------
@@ -49,12 +75,11 @@ void add_word_to_fst(const std::vector<int>& word,
 // ---------------------------------------------------------
 // Adds a word to the dictionary FST based on char_map
 // ---------------------------------------------------------
-bool addWordToDictionary(const std::string& word,
+bool add_word_to_dictionary(const std::string& word,
                          const std::unordered_map<std::string, int>& char_map,
                          bool add_space,
                          int SPACE,
                          fst::StdVectorFst* dictionary) {
-    /*
     auto characters = UTF8_split(word);
 
     std::vector<int> int_word;
@@ -77,6 +102,5 @@ bool addWordToDictionary(const std::string& word,
     }
 
     add_word_to_fst(int_word, dictionary);
-    */
     return true;
 }  // -------------- End of addWordToDictionary ------------

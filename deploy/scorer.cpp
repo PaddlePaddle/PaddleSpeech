@@ -15,7 +15,7 @@ Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
     this->beta = beta;
     _is_character_based = true;
     _language_model = nullptr;
-    _dictionary = nullptr;
+    dictionary = nullptr;
     _max_order = 0;
     _SPACE_ID = -1;
     // load language model
@@ -25,8 +25,8 @@ Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
 Scorer::~Scorer() {
     if (_language_model != nullptr)
         delete static_cast<lm::base::Model*>(_language_model);
-    if (_dictionary != nullptr)
-        delete static_cast<fst::StdVectorFst*>(_dictionary);
+    if (dictionary != nullptr)
+        delete static_cast<fst::StdVectorFst*>(dictionary);
 }
 
 void Scorer::load_LM(const char* filename) {
@@ -99,85 +99,9 @@ double Scorer::get_log_prob(const std::vector<std::string>& words) {
     return score;
 }
 
-/* Strip a input sentence
- * Parameters:
- *     str: A reference to the objective string
- *     ch: The character to prune
- * Return:
- *     void
- */
-inline void strip(std::string &str, char ch=' ') {
-    if (str.size() == 0) return;
-    int start  = 0;
-    int end = str.size()-1;
-    for (int i=0; i<str.size(); i++){
-        if (str[i] == ch) {
-            start ++;
-        } else {
-            break;
-        }
-    }
-    for (int i=str.size()-1; i>=0; i--) {
-        if  (str[i] == ch) {
-            end --;
-        } else {
-            break;
-        }
-    }
-
-    if (start == 0 && end == str.size()-1) return;
-    if (start > end) {
-        std::string emp_str;
-        str = emp_str;
-    } else {
-        str = str.substr(start, end-start+1);
-    }
-}
-
-int Scorer::word_count(std::string sentence) {
-    strip(sentence);
-    int cnt = 1;
-    for (int i=0; i<sentence.size(); i++) {
-        if (sentence[i] == ' ' && sentence[i-1] != ' ') {
-            cnt ++;
-        }
-    }
-    return cnt;
-}
-
-double Scorer::get_log_cond_prob(std::string sentence) {
-    lm::base::Model *model = (lm::base::Model *)this->_language_model;
-    State state, out_state;
-    lm::FullScoreReturn ret;
-    model->BeginSentenceWrite(&state);
-
-    for (util::TokenIter<util::SingleCharacter, true> it(sentence, ' '); it; ++it){
-        lm::WordIndex wid = model->BaseVocabulary().Index(*it);
-        ret = model->BaseFullScore(&state, wid, &out_state);
-        state = out_state;
-    }
-    //log10 prob
-    double log_prob = ret.prob;
-    return log_prob;
-}
-
 void Scorer::reset_params(float alpha, float beta) {
     this->alpha = alpha;
     this->beta = beta;
-}
-
-double Scorer::get_score(std::string sentence, bool log) {
-    double lm_score = get_log_cond_prob(sentence);
-    int word_cnt = word_count(sentence);
-
-    double final_score = 0.0;
-    if (log == false) {
-        final_score = pow(10, alpha * lm_score) * pow(word_cnt, beta);
-    } else {
-        final_score = alpha * lm_score * std::log(10)
-                      + beta * std::log(word_cnt);
-    }
-    return final_score;
 }
 
 std::string Scorer::vec2str(const std::vector<int>& input) {
@@ -187,7 +111,6 @@ std::string Scorer::vec2str(const std::vector<int>& input) {
     }
     return word;
 }
-
 
 std::vector<std::string>
 Scorer::split_labels(const std::vector<int> &labels) {
@@ -291,6 +214,6 @@ void Scorer::fill_dictionary(bool add_space) {
     // Finds the simplest equivalent fst.  This is unnecessary but decreases
     // memory usage of the dictionary
     fst::Minimize(new_dict);
-    _dictionary = new_dict;
+    this->dictionary = new_dict;
 
 }

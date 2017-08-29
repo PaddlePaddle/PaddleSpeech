@@ -42,15 +42,8 @@ public:
     double get_sent_log_prob(const std::vector<std::string>& words);
     size_t get_max_order() { return _max_order; }
     bool is_character_based() { return _is_character_based; }
-    std::vector<std::string> get_vocab() { return _vocabulary; }
-    // word insertion term
-    int word_count(std::string);
-    // get the log cond prob of the last word
-    double get_log_cond_prob(std::string);
     // reset params alpha & beta
     void reset_params(float alpha, float beta);
-    // get the final score
-    double get_score(std::string, bool log=false);
     // make ngram
     std::vector<std::string> make_ngram(PathTrie* prefix);
     // fill dictionary for fst
@@ -61,7 +54,7 @@ public:
     double alpha;
     double beta;
     // fst dictionary
-    void* _dictionary;
+    void* dictionary;
 
 protected:
     void load_LM(const char* filename);

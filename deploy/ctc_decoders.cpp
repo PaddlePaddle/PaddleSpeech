@@ -96,13 +96,13 @@ std::vector<std::pair<double, std::string> >
     prefixes.push_back(&root);
 
     if ( ext_scorer != nullptr && !ext_scorer->is_character_based()) {
-        if (ext_scorer->_dictionary == nullptr) {
+        if (ext_scorer->dictionary == nullptr) {
         // TODO: init dictionary
             ext_scorer->set_char_map(vocabulary);
             // add_space should be true?
             ext_scorer->fill_dictionary(true);
         }
-        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->_dictionary);
+        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->dictionary);
         fst::StdVectorFst* dict_ptr = fst_dict->Copy(true);
         root.set_dictionary(dict_ptr);
         auto matcher = std::make_shared<FSTMATCH>(*dict_ptr, fst::MATCH_INPUT);
@@ -285,7 +285,7 @@ std::vector<std::vector<std::pair<double, std::string> > >
     // dictionary init
     if ( ext_scorer != nullptr
          && !ext_scorer->is_character_based()
-         && ext_scorer->_dictionary == nullptr) {
+         && ext_scorer->dictionary == nullptr) {
         // init dictionary
         ext_scorer->set_char_map(vocabulary);
         ext_scorer->fill_dictionary(true);

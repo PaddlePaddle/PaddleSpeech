@@ -90,26 +90,32 @@ std::vector<std::pair<double, std::string> >
         space_id = -2;
     }
 
-    // init
+    // init prefixes' root
     PathTrie root;
     root._score = root._log_prob_b_prev = 0.0;
     std::vector<PathTrie*> prefixes;
     prefixes.push_back(&root);
 
-    if ( ext_scorer != nullptr && !ext_scorer->is_character_based()) {
-        if (ext_scorer->dictionary == nullptr) {
-        // TODO: init dictionary
+    if ( ext_scorer != nullptr) {
+        if (ext_scorer->is_char_map_empty()) {
             ext_scorer->set_char_map(vocabulary);
-            // add_space should be true?
-            ext_scorer->fill_dictionary(true);
         }
-        auto fst_dict = static_cast<fst::StdVectorFst*>(ext_scorer->dictionary);
-        fst::StdVectorFst* dict_ptr = fst_dict->Copy(true);
-        root.set_dictionary(dict_ptr);
-        auto matcher = std::make_shared<FSTMATCH>(*dict_ptr, fst::MATCH_INPUT);
-        root.set_matcher(matcher);
+        if (!ext_scorer->is_character_based()) {
+            if (ext_scorer->dictionary == nullptr) {
+                // fill dictionary for fst
+                ext_scorer->fill_dictionary(true);
+            }
+            auto fst_dict = static_cast<fst::StdVectorFst*>
+                                (ext_scorer->dictionary);
+            fst::StdVectorFst* dict_ptr = fst_dict->Copy(true);
+            root.set_dictionary(dict_ptr);
+            auto matcher = std::make_shared<FSTMATCH>
+                                (*dict_ptr, fst::MATCH_INPUT);
+            root.set_matcher(matcher);
+        }
     }
 
+    // prefix search over time
     for (int time_step = 0; time_step < num_time_steps; time_step++) {
         std::vector<double> prob = probs_seq[time_step];
         std::vector<std::pair<int, double> > prob_idx;
@@ -147,12 +153,12 @@ std::vector<std::pair<double, std::string> >
             prob_idx = std::vector<std::pair<int, double> >( prob_idx.begin(),
                             prob_idx.begin() + cutoff_len);
         }
-
         std::vector<std::pair<int, float> > log_prob_idx;
         for (int i = 0; i < cutoff_len; i++) {
             log_prob_idx.push_back(std::pair<int, float>
                   (prob_idx[i].first, log(prob_idx[i].second + NUM_FLT_MIN)));
         }
+
         // loop over chars
         for (int index = 0; index < log_prob_idx.size(); index++) {
             auto c = log_prob_idx[index].first;
@@ -214,15 +220,14 @@ std::vector<std::pair<double, std::string> >
                     prefix_new->_log_prob_nb_cur = log_sum_exp(
                                         prefix_new->_log_prob_nb_cur, log_p);
                 }
-            }
-
+            } // end of loop over prefix
         } // end of loop over chars
 
         prefixes.clear();
         // update log probs
         root.iterate_to_vec(prefixes);
 
-        // preserve top beam_size prefixes
+        // only preserve top beam_size prefixes
         if (prefixes.size() >= beam_size) {
             std::nth_element(prefixes.begin(),
                     prefixes.begin() + beam_size,
@@ -233,7 +238,7 @@ std::vector<std::pair<double, std::string> >
                 prefixes[i]->remove();
             }
         }
-    }
+    } // end of loop over time
 
     // compute aproximate ctc score as the return score
     for (size_t i = 0; i < beam_size && i < prefixes.size(); i++) {
@@ -300,14 +305,19 @@ std::vector<std::vector<std::pair<double, std::string> > >
     ThreadPool pool(num_processes);
     // number of samples
     int batch_size = probs_split.size();
-    // dictionary init
-    if ( ext_scorer != nullptr
-         && !ext_scorer->is_character_based()
-         && ext_scorer->dictionary == nullptr) {
-        // init dictionary
-        ext_scorer->set_char_map(vocabulary);
-        ext_scorer->fill_dictionary(true);
+
+    // scorer filling up
+    if ( ext_scorer != nullptr) {
+        if (ext_scorer->is_char_map_empty()) {
+            ext_scorer->set_char_map(vocabulary);
+        }
+        if(!ext_scorer->is_character_based()
+           && ext_scorer->dictionary == nullptr) {
+            // init dictionary
+            ext_scorer->fill_dictionary(true);
+        }
     }
+
     // enqueue the tasks of decoding
     std::vector<std::future<std::vector<std::pair<double, std::string>>>> res;
     for (int i = 0; i < batch_size; i++) {
@@ -317,6 +327,7 @@ std::vector<std::vector<std::pair<double, std::string> > >
                     cutoff_top_n, ext_scorer)
             );
     }
+
     // get decoding results
     std::vector<std::vector<std::pair<double, std::string> > > batch_results;
     for (int i = 0; i < batch_size; i++) {

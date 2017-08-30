@@ -11,10 +11,6 @@ size_t get_utf8_str_len(const std::string& str) {
     return str_len;
 }
 
-//------------------------------------------------------
-//Splits string into vector of strings representing
-//UTF-8 characters (not same as chars)
-//------------------------------------------------------
 std::vector<std::string> split_utf8_str(const std::string& str)
 {
   std::vector<std::string> result;
@@ -37,9 +33,6 @@ std::vector<std::string> split_utf8_str(const std::string& str)
   return result;
 }
 
-// Split a string into a list of strings on a given string
-// delimiter. NB: delimiters on beginning / end of string are
-// trimmed. Eg, "FooBarFoo" split on "Foo" returns ["Bar"].
 std::vector<std::string> split_str(const std::string &s,
                                    const std::string &delim) {
     std::vector<std::string> result;
@@ -60,9 +53,6 @@ std::vector<std::string> split_str(const std::string &s,
     return result;
 }
 
-//-------------------------------------------------------
-//  Overriding less than operator for sorting
-//-------------------------------------------------------
 bool prefix_compare(const PathTrie* x,  const PathTrie* y) {
     if (x->_score == y->_score) {
         if (x->_character == y->_character) {
@@ -73,11 +63,8 @@ bool prefix_compare(const PathTrie* x,  const PathTrie* y) {
     } else {
         return x->_score > y->_score;
     }
-}  //---------- End path_compare ---------------------------
+}
 
-// --------------------------------------------------------------
-// Adds word to fst without copying entire dictionary
-// --------------------------------------------------------------
 void add_word_to_fst(const std::vector<int>& word,
                      fst::StdVectorFst* dictionary) {
     if (dictionary->NumStates() == 0) {
@@ -93,15 +80,12 @@ void add_word_to_fst(const std::vector<int>& word,
         src = dst;
     }
     dictionary->SetFinal(dst, fst::StdArc::Weight::One());
-}  // ------------ End of add_word_to_fst -----------------------
+}
 
-// ---------------------------------------------------------
-// Adds a word to the dictionary FST based on char_map
-// ---------------------------------------------------------
 bool add_word_to_dictionary(const std::string& word,
                          const std::unordered_map<std::string, int>& char_map,
                          bool add_space,
-                         int SPACE,
+                         int SPACE_ID,
                          fst::StdVectorFst* dictionary) {
     auto characters = split_utf8_str(word);
 
@@ -109,7 +93,7 @@ bool add_word_to_dictionary(const std::string& word,
 
     for (auto& c : characters) {
         if (c == " ") {
-            int_word.push_back(SPACE);
+            int_word.push_back(SPACE_ID);
         } else {
             auto int_c = char_map.find(c);
             if (int_c != char_map.end()) {
@@ -121,9 +105,9 @@ bool add_word_to_dictionary(const std::string& word,
     }
 
     if (add_space) {
-        int_word.push_back(SPACE);
+        int_word.push_back(SPACE_ID);
     }
 
     add_word_to_fst(int_word, dictionary);
     return true;
-}  // -------------- End of addWordToDictionary ------------
+}

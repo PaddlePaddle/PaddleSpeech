@@ -32,34 +32,48 @@ public:
 // Example:
 //     Scorer scorer(alpha, beta, "path_of_language_model");
 //     scorer.get_log_cond_prob({ "WORD1", "WORD2", "WORD3" });
-//     scorer.get_log_cond_prob("this a sentence");
 //     scorer.get_sent_log_prob({ "WORD1", "WORD2", "WORD3" });
 class Scorer{
 public:
     Scorer(double alpha, double beta, const std::string& lm_path);
     ~Scorer();
+
     double get_log_cond_prob(const std::vector<std::string>& words);
+
     double get_sent_log_prob(const std::vector<std::string>& words);
+
     size_t get_max_order() { return _max_order; }
+
+    bool is_char_map_empty() {return _char_map.size() == 0; }
+
     bool is_character_based() { return _is_character_based; }
+
     // reset params alpha & beta
     void reset_params(float alpha, float beta);
+
     // make ngram
     std::vector<std::string> make_ngram(PathTrie* prefix);
+
     // fill dictionary for fst
     void fill_dictionary(bool add_space);
+
     // set char map
     void set_char_map(std::vector<std::string> char_list);
+
     std::vector<std::string> split_labels(const std::vector<int> &labels);
+
     // expose to decoder
     double alpha;
     double beta;
+
     // fst dictionary
     void* dictionary;
 
 protected:
     void load_LM(const char* filename);
+
     double get_log_prob(const std::vector<std::string>& words);
+
     std::string vec2str(const std::vector<int> &input);
 
 private:

@@ -27,7 +27,8 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
  *     beam_size: The width of beam search.
  *     vocabulary: A vector of vocabulary.
  *     blank_id: ID of blank.
- *     cutoff_prob: Cutoff probability of pruning
+ *     cutoff_prob: Cutoff probability for pruning.
+ *     cutoff_top_n: Cutoff number for pruning.
  *     ext_scorer: External scorer to evaluate a prefix.
  * Return:
  *     A vector that each element is a pair of score  and decoding result,
@@ -54,7 +55,8 @@ std::vector<std::pair<double, std::string> >
  *     vocabulary: A vector of vocabulary.
  *     blank_id: ID of blank.
  *     num_processes: Number of threads for beam search.
- *     cutoff_prob: Cutoff probability of pruning
+ *     cutoff_prob: Cutoff probability for pruning.
+ *     cutoff_top_n: Cutoff number for pruning.
  *     ext_scorer: External scorer to evaluate a prefix.
  * Return:
  *     A 2-D vector that each element is a vector of decoding result for one

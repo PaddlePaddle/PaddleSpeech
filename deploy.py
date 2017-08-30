@@ -9,7 +9,7 @@ import distutils.util
 import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
-from model import deep_speech2
+from layer import deep_speech2
 from deploy.swig_decoders_wrapper import *
 from error_rate import wer
 import utils
@@ -79,7 +79,7 @@ parser.add_argument(
     "(default: %(default)s)")
 parser.add_argument(
     "--beam_size",
-    default=20,
+    default=500,
     type=int,
     help="Width for beam search decoding. (default: %(default)d)")
 parser.add_argument(
@@ -89,8 +89,7 @@ parser.add_argument(
     help="Number of output per sample in beam search. (default: %(default)d)")
 parser.add_argument(
     "--language_model_path",
-    default="/home/work/liuyibing/lm_bak/common_crawl_00.prune01111.trie.klm",
-    #default="ptb_all.arpa",
+    default="lm/data/common_crawl_00.prune01111.trie.klm",
     type=str,
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
@@ -136,14 +135,13 @@ def infer():
     text_data = paddle.layer.data(
         name="transcript_text",
         type=paddle.data_type.integer_value_sequence(data_generator.vocab_size))
-    output_probs = deep_speech2(
+    output_probs, _ = deep_speech2(
         audio_data=audio_data,
         text_data=text_data,
         dict_size=data_generator.vocab_size,
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
-        rnn_size=args.rnn_layer_size,
-        is_inference=True)
+        rnn_size=args.rnn_layer_size)
 
     # load parameters
     parameters = paddle.parameters.Parameters.from_tar(
@@ -159,8 +157,10 @@ def infer():
     infer_data = batch_reader().next()
 
     # run inference
-    infer_results = paddle.infer(
-        output_layer=output_probs, parameters=parameters, input=infer_data)
+    inferer = paddle.inference.Inference(
+        output_layer=output_probs, parameters=parameters)
+    infer_results = inferer.infer(input=infer_data)
+
     num_steps = len(infer_results) // len(infer_data)
     probs_split = [
         infer_results[i * num_steps:(i + 1) * num_steps]
@@ -178,17 +178,29 @@ def infer():
     ext_scorer = Scorer(
         alpha=args.alpha, beta=args.beta, model_path=args.language_model_path)
 
+    # from unicode to string
+    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+
+    # The below two steps, i.e. setting char map and filling dictionary of
+    # FST will be completed implicitly when ext_scorer first used.But to save
+    # the time of decoding the first audio sample, they are done in advance.
+    ext_scorer.set_char_map(vocab_list)
+    # only for ward based language model
+    ext_scorer.fill_dictionary(True)
+
+    # for word error rate metric
+    wer_sum, wer_counter = 0.0, 0
+
     ## decode and print
     time_begin = time.time()
-    wer_sum, wer_counter = 0, 0
     batch_beam_results = []
     if args.decode_method == 'beam_search':
         for i, probs in enumerate(probs_split):
             beam_result = ctc_beam_search_decoder(
                 probs_seq=probs,
                 beam_size=args.beam_size,
-                vocabulary=data_generator.vocab_list,
-                blank_id=len(data_generator.vocab_list),
+                vocabulary=vocab_list,
+                blank_id=len(vocab_list),
                 cutoff_prob=args.cutoff_prob,
                 cutoff_top_n=args.cutoff_top_n,
                 ext_scoring_func=ext_scorer, )
@@ -197,8 +209,8 @@ def infer():
         batch_beam_results = ctc_beam_search_decoder_batch(
             probs_split=probs_split,
             beam_size=args.beam_size,
-            vocabulary=data_generator.vocab_list,
-            blank_id=len(data_generator.vocab_list),
+            vocabulary=vocab_list,
+            blank_id=len(vocab_list),
             num_processes=args.num_processes_beam_search,
             cutoff_prob=args.cutoff_prob,
             cutoff_top_n=args.cutoff_top_n,
@@ -213,8 +225,7 @@ def infer():
         print("cur wer = %f , average wer = %f" %
               (wer_cur, wer_sum / wer_counter))
 
-    time_end = time.time()
-    print("total time = %f" % (time_end - time_begin))
+    print("time for decoding = %f" % (time.time() - time_begin))
 
 
 def main():

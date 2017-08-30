@@ -86,7 +86,7 @@ PathTrie* PathTrie::get_path_vec(std::vector<int>& output) {
 
 PathTrie* PathTrie::get_path_vec(std::vector<int>& output,
         int stop,
-        size_t max_steps /*= std::numeric_limits<size_t>::max() */) {
+        size_t max_steps) {
     if (_character == stop ||
             _character == _ROOT ||
             output.size() == max_steps) {

@@ -39,6 +39,7 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob=1.0,
+                            int cutoff_top_n=40,
                             Scorer *ext_scorer=NULL
                             );
 
@@ -66,6 +67,7 @@ std::vector<std::vector<std::pair<double, std::string>>>
                             int blank_id,
                             int num_processes,
                             double cutoff_prob=1.0,
+                            int cutoff_top_n=40,
                             Scorer *ext_scorer=NULL
                             );
 

@@ -62,6 +62,7 @@ std::vector<std::pair<double, std::string> >
                             std::vector<std::string> vocabulary,
                             int blank_id,
                             double cutoff_prob,
+                            int cutoff_top_n,
                             Scorer *ext_scorer)
 {
     // dimension check
@@ -116,19 +117,33 @@ std::vector<std::pair<double, std::string> >
             prob_idx.push_back(std::pair<int, double>(i, prob[i]));
         }
 
+       float min_cutoff = -NUM_FLT_INF;
+       bool full_beam = false;
+       if (ext_scorer != nullptr) {
+           int num_prefixes = std::min((int)prefixes.size(), beam_size);
+           std::sort(prefixes.begin(), prefixes.begin() + num_prefixes,
+                     prefix_compare);
+           min_cutoff = prefixes[num_prefixes-1]->_score + log(prob[blank_id])
+                        - std::max(0.0, ext_scorer->beta);
+           full_beam = (num_prefixes == beam_size);
+       }
+
         // pruning of vacobulary
         int cutoff_len = prob.size();
-        if (cutoff_prob < 1.0) {
+        if (cutoff_prob < 1.0 || cutoff_top_n < prob.size()) {
             std::sort(prob_idx.begin(),
                       prob_idx.end(),
                       pair_comp_second_rev<int, double>);
-            double cum_prob = 0.0;
-            cutoff_len = 0;
-            for (int i=0; i<prob_idx.size(); i++) {
-                cum_prob += prob_idx[i].second;
-                cutoff_len += 1;
-                if (cum_prob >= cutoff_prob) break;
+            if (cutoff_prob < 1.0) {
+                double cum_prob = 0.0;
+                cutoff_len = 0;
+                for (int i=0; i<prob_idx.size(); i++) {
+                    cum_prob += prob_idx[i].second;
+                    cutoff_len += 1;
+                    if (cum_prob >= cutoff_prob) break;
+                }
             }
+            cutoff_len = std::min(cutoff_len, cutoff_top_n);
             prob_idx = std::vector<std::pair<int, double> >( prob_idx.begin(),
                             prob_idx.begin() + cutoff_len);
         }
@@ -138,15 +153,17 @@ std::vector<std::pair<double, std::string> >
             log_prob_idx.push_back(std::pair<int, float>
                   (prob_idx[i].first, log(prob_idx[i].second + NUM_FLT_MIN)));
         }
-
         // loop over chars
         for (int index = 0; index < log_prob_idx.size(); index++) {
             auto c = log_prob_idx[index].first;
             float log_prob_c = log_prob_idx[index].second;
-            //float log_probs_prev;
 
             for (int i = 0; i < prefixes.size() && i<beam_size; i++) {
                 auto prefix = prefixes[i];
+
+                if (full_beam && log_prob_c + prefix->_score < min_cutoff) {
+                    break;
+                }
                 // blank
                 if (c == blank_id) {
                     prefix->_log_prob_b_cur = log_sum_exp(
@@ -178,7 +195,7 @@ std::vector<std::pair<double, std::string> >
                         (c == space_id || ext_scorer->is_character_based()) ) {
                         PathTrie *prefix_to_score = nullptr;
 
-                        // don't score the space
+                        // skip scoring the space
                         if (ext_scorer->is_character_based()) {
                             prefix_to_score = prefix_new;
                         } else {
@@ -202,10 +219,10 @@ std::vector<std::pair<double, std::string> >
         } // end of loop over chars
 
         prefixes.clear();
-        // update log probabilities
+        // update log probs
         root.iterate_to_vec(prefixes);
 
-        // sort prefixes by score
+        // preserve top beam_size prefixes
         if (prefixes.size() >= beam_size) {
             std::nth_element(prefixes.begin(),
                     prefixes.begin() + beam_size,
@@ -218,18 +235,20 @@ std::vector<std::pair<double, std::string> >
         }
     }
 
+    // compute aproximate ctc score as the return score
     for (size_t i = 0; i < beam_size && i < prefixes.size(); i++) {
         double approx_ctc = prefixes[i]->_score;
 
-        // remove word insert:
-        std::vector<int> output;
-        prefixes[i]->get_path_vec(output);
-        size_t prefix_length = output.size();
-        // remove language model weight:
         if (ext_scorer != nullptr) {
-           // auto words = split_labels(output);
-           // approx_ctc = approx_ctc - path_length * ext_scorer->beta;
-           // approx_ctc -= (_lm->get_sent_log_prob(words)) * ext_scorer->alpha;
+            std::vector<int> output;
+            prefixes[i]->get_path_vec(output);
+            size_t prefix_length = output.size();
+            auto words = ext_scorer->split_labels(output);
+           // remove word insert
+            approx_ctc = approx_ctc - prefix_length * ext_scorer->beta;
+            // remove language model weight:
+            approx_ctc -= (ext_scorer->get_sent_log_prob(words))
+                          * ext_scorer->alpha;
         }
 
         prefixes[i]->_approx_ctc = approx_ctc;
@@ -253,11 +272,9 @@ std::vector<std::pair<double, std::string> >
         for (int j = 0; j < output.size(); j++) {
             output_str += vocabulary[output[j]];
         }
-        std::pair<double, std::string> output_pair(space_prefixes[i]->_score,
-                                                   output_str);
-        output_vecs.emplace_back(
-            output_pair
-        );
+        std::pair<double, std::string>
+            output_pair(-space_prefixes[i]->_approx_ctc, output_str);
+        output_vecs.emplace_back(output_pair);
     }
 
     return output_vecs;
@@ -272,6 +289,7 @@ std::vector<std::vector<std::pair<double, std::string> > >
                 int blank_id,
                 int num_processes,
                 double cutoff_prob,
+                int cutoff_top_n,
                 Scorer *ext_scorer
                 ) {
     if (num_processes <= 0) {
@@ -295,7 +313,8 @@ std::vector<std::vector<std::pair<double, std::string> > >
     for (int i = 0; i < batch_size; i++) {
         res.emplace_back(
                 pool.enqueue(ctc_beam_search_decoder, probs_split[i],
-                    beam_size, vocabulary, blank_id, cutoff_prob, ext_scorer)
+                    beam_size, vocabulary, blank_id, cutoff_prob,
+                    cutoff_top_n, ext_scorer)
             );
     }
     // get decoding results

@@ -50,6 +50,7 @@ public:
     void fill_dictionary(bool add_space);
     // set char map
     void set_char_map(std::vector<std::string> char_list);
+    std::vector<std::string> split_labels(const std::vector<int> &labels);
     // expose to decoder
     double alpha;
     double beta;
@@ -60,7 +61,6 @@ protected:
     void load_LM(const char* filename);
     double get_log_prob(const std::vector<std::string>& words);
     std::string vec2str(const std::vector<int> &input);
-    std::vector<std::string> split_labels(const std::vector<int> &labels);
 
 private:
     void* _language_model;

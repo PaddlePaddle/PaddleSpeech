@@ -43,6 +43,7 @@ def ctc_beam_search_decoder(probs_seq,
                             vocabulary,
                             blank_id,
                             cutoff_prob=1.0,
+                            cutoff_top_n=40,
                             ext_scoring_func=None):
     """Wrapper for the CTC Beam Search Decoder.
 
@@ -59,6 +60,10 @@ def ctc_beam_search_decoder(probs_seq,
     :param cutoff_prob: Cutoff probability in pruning,
                         default 1.0, no pruning.
     :type cutoff_prob: float
+    :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+    :type cutoff_top_n: int
     :param ext_scoring_func: External scoring function for
                             partially decoded sentence, e.g. word count
                             or language model.
@@ -67,9 +72,9 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), beam_size,
-                                                 vocabulary, blank_id,
-                                                 cutoff_prob, ext_scoring_func)
+    return swig_decoders.ctc_beam_search_decoder(
+        probs_seq.tolist(), beam_size, vocabulary, blank_id, cutoff_prob,
+        cutoff_top_n, ext_scoring_func)
 
 
 def ctc_beam_search_decoder_batch(probs_split,
@@ -78,6 +83,7 @@ def ctc_beam_search_decoder_batch(probs_split,
                                   blank_id,
                                   num_processes,
                                   cutoff_prob=1.0,
+                                  cutoff_top_n=40,
                                   ext_scoring_func=None):
     """Wrapper for the batched CTC beam search decoder.
 
@@ -92,11 +98,15 @@ def ctc_beam_search_decoder_batch(probs_split,
     :type blank_id: int
     :param num_processes: Number of parallel processes.
     :type num_processes: int
-    :param cutoff_prob: Cutoff probability in pruning,
+    :param cutoff_prob: Cutoff probability in vocabulary pruning,
                         default 1.0, no pruning.
+    :type cutoff_prob: float
+    :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+    :type cutoff_top_n: int
     :param num_processes: Number of parallel processes.
     :type num_processes: int
-    :type cutoff_prob: float
     :param ext_scoring_func: External scoring function for
                             partially decoded sentence, e.g. word count
                             or language model.
@@ -109,4 +119,4 @@ def ctc_beam_search_decoder_batch(probs_split,
 
     return swig_decoders.ctc_beam_search_decoder_batch(
         probs_split, beam_size, vocabulary, blank_id, num_processes,
-        cutoff_prob, ext_scoring_func)
+        cutoff_prob, cutoff_top_n, ext_scoring_func)

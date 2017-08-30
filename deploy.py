@@ -18,7 +18,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--num_samples",
-    default=4,
+    default=10,
     type=int,
     help="Number of samples for inference. (default: %(default)s)")
 parser.add_argument(
@@ -95,12 +95,12 @@ parser.add_argument(
     help="Path for language model. (default: %(default)s)")
 parser.add_argument(
     "--alpha",
-    default=0.26,
+    default=1.5,
     type=float,
     help="Parameter associated with language model. (default: %(default)f)")
 parser.add_argument(
     "--beta",
-    default=0.1,
+    default=0.3,
     type=float,
     help="Parameter associated with word count. (default: %(default)f)")
 parser.add_argument(
@@ -108,6 +108,12 @@ parser.add_argument(
     default=1.0,
     type=float,
     help="The cutoff probability of pruning"
+    "in beam search. (default: %(default)f)")
+parser.add_argument(
+    "--cutoff_top_n",
+    default=40,
+    type=int,
+    help="The cutoff number of pruning"
     "in beam search. (default: %(default)f)")
 args = parser.parse_args()
 
@@ -184,6 +190,7 @@ def infer():
                 vocabulary=data_generator.vocab_list,
                 blank_id=len(data_generator.vocab_list),
                 cutoff_prob=args.cutoff_prob,
+                cutoff_top_n=args.cutoff_top_n,
                 ext_scoring_func=ext_scorer, )
             batch_beam_results += [beam_result]
     else:
@@ -194,6 +201,7 @@ def infer():
             blank_id=len(data_generator.vocab_list),
             num_processes=args.num_processes_beam_search,
             cutoff_prob=args.cutoff_prob,
+            cutoff_top_n=args.cutoff_top_n,
             ext_scoring_func=ext_scorer, )
 
     for i, beam_result in enumerate(batch_beam_results):

@@ -4,15 +4,16 @@ from __future__ import division
 from __future__ import print_function
 
 import json
+import codecs
 
 
 def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
     """Load and parse manifest file.
-    
+
     Instances with durations outside [min_duration, max_duration] will be
     filtered out.
 
-    :param manifest_path: Manifest file to load and parse. 
+    :param manifest_path: Manifest file to load and parse.
     :type manifest_path: basestring
     :param max_duration: Maximal duration in seconds for instance filter.
     :type max_duration: float
@@ -23,7 +24,7 @@ def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
     :raises IOError: If failed to parse the manifest.
     """
     manifest = []
-    for json_line in open(manifest_path):
+    for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
         try:
             json_data = json.loads(json_line)
         except Exception as e:

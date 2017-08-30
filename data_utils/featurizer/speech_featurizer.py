@@ -11,23 +11,24 @@ class SpeechFeaturizer(object):
     """Speech featurizer, for extracting features from both audio and transcript
     contents of SpeechSegment.
 
-    Currently, for audio parts, it only supports feature type of linear
-    spectrogram; for transcript parts, it only supports char-level tokenizing
-    and conversion into a list of token indices. Note that the token indexing
-    order follows the given vocabulary file.
+    Currently, for audio parts, it supports feature types of linear
+    spectrogram and mfcc; for transcript parts, it only supports char-level
+    tokenizing and conversion into a list of token indices. Note that the
+    token indexing order follows the given vocabulary file.
 
     :param vocab_filepath: Filepath to load vocabulary for token indices
                            conversion.
     :type specgram_type: basestring
-    :param specgram_type: Specgram feature type. Options: 'linear'.
+    :param specgram_type: Specgram feature type. Options: 'linear', 'mfcc'.
     :type specgram_type: str
     :param stride_ms: Striding size (in milliseconds) for generating frames.
     :type stride_ms: float
     :param window_ms: Window size (in milliseconds) for generating frames.
     :type window_ms: float
-    :param max_freq: Used when specgram_type is 'linear', only FFT bins
+    :param max_freq: When specgram_type is 'linear', only FFT bins
                      corresponding to frequencies between [0, max_freq] are
-                     returned.
+                     returned; when specgram_type is 'mfcc', max_freq is the
+                     highest band edge of mel filters.
     :types max_freq: None|float
     :param target_sample_rate: Speech are resampled (if upsampling or
                                downsampling is allowed) to this before

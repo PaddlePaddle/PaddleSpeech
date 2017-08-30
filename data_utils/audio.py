@@ -204,7 +204,7 @@ class AudioSegment(object):
         :raise ValueError: If the sample rates of the two segments are not
                            equal, or if the lengths of segments don't match.
         """
-        if type(self) != type(other):
+        if isinstance(other, type(self)):
             raise TypeError("Cannot add segments of different types: %s "
                             "and %s." % (type(self), type(other)))
         if self._sample_rate != other._sample_rate:
@@ -231,7 +231,7 @@ class AudioSegment(object):
         Note that this is an in-place transformation.
         
         :param gain: Gain in decibels to apply to samples. 
-        :type gain: float
+        :type gain: float|1darray
         """
         self._samples *= 10.**(gain / 20.)
 
@@ -457,9 +457,9 @@ class AudioSegment(object):
                             audio segments when resample is not allowed.
         """
         if allow_resample and self.sample_rate != impulse_segment.sample_rate:
-            impulse_segment = impulse_segment.resample(self.sample_rate)
+            impulse_segment.resample(self.sample_rate)
         if self.sample_rate != impulse_segment.sample_rate:
-            raise ValueError("Impulse segment's sample rate (%d Hz) is not"
+            raise ValueError("Impulse segment's sample rate (%d Hz) is not "
                              "equal to base signal sample rate (%d Hz)." %
                              (impulse_segment.sample_rate, self.sample_rate))
         samples = signal.fftconvolve(self.samples, impulse_segment.samples,

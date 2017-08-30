@@ -4,12 +4,19 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import _init_paths
 from data_utils.normalizer import FeatureNormalizer
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.audio_featurizer import AudioFeaturizer
 
 parser = argparse.ArgumentParser(
     description='Computing mean and stddev for feature normalizer.')
+parser.add_argument(
+    "--specgram_type",
+    default='linear',
+    type=str,
+    help="Feature type of audio data: 'linear' (power spectrum)"
+    " or 'mfcc'. (default: %(default)s)")
 parser.add_argument(
     "--manifest_path",
     default='datasets/manifest.train',
@@ -39,7 +46,7 @@ args = parser.parse_args()
 
 def main():
     augmentation_pipeline = AugmentationPipeline(args.augmentation_config)
-    audio_featurizer = AudioFeaturizer()
+    audio_featurizer = AudioFeaturizer(specgram_type=args.specgram_type)
 
     def augment_and_featurize(audio_segment):
         augmentation_pipeline.transform_audio(audio_segment)

@@ -55,16 +55,20 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, act):
     :rtype: LayerOutput
     """
     # input-hidden weights shared across bi-direcitonal rnn.
-    input_proj = paddle.layer.fc(
+    input_proj_forward = paddle.layer.fc(
         input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
-    # batch norm is only performed on input-state projection 
-    input_proj_bn = paddle.layer.batch_norm(
-        input=input_proj, act=paddle.activation.Linear())
+    input_proj_backward = paddle.layer.fc(
+        input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
+    # batch norm is only performed on input-state projection
+    input_proj_bn_forward = paddle.layer.batch_norm(
+        input=input_proj_forward, act=paddle.activation.Linear())
+    input_proj_bn_backward = paddle.layer.batch_norm(
+        input=input_proj_backward, act=paddle.activation.Linear())
     # forward and backward in time
     forward_simple_rnn = paddle.layer.recurrent(
-        input=input_proj_bn, act=act, reverse=False)
+        input=input_proj_bn_forward, act=act, reverse=False)
     backward_simple_rnn = paddle.layer.recurrent(
-        input=input_proj_bn, act=act, reverse=True)
+        input=input_proj_bn_backward, act=act, reverse=True)
     return paddle.layer.concat(input=[forward_simple_rnn, backward_simple_rnn])
 
 

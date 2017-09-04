@@ -43,7 +43,7 @@ parser.add_argument(
 parser.add_argument(
     "--use_gru",
     default=False,
-    type=bool,
+    type=distutils.util.strtobool,
     help="Use GRU or simple RNN. (default: %(default)s)")
 parser.add_argument(
     "--adam_learning_rate",

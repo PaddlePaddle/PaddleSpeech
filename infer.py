@@ -35,8 +35,8 @@ parser.add_argument(
     help="RNN layer cell number. (default: %(default)s)")
 parser.add_argument(
     "--use_gru",
-    default=True,
-    type=bool,
+    default=False,
+    type=distutils.util.strtobool,
     help="Use GRU or simple RNN. (default: %(default)s)")
 parser.add_argument(
     "--use_gpu",

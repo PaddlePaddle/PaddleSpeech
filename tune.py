@@ -31,9 +31,16 @@ parser.add_argument(
     help="RNN layer number. (default: %(default)s)")
 parser.add_argument(
     "--rnn_layer_size",
-    default=512,
+    default=2048,
     type=int,
     help="RNN layer cell number. (default: %(default)s)")
+parser.add_argument(
+    "--share_rnn_weights",
+    default=True,
+    type=distutils.util.strtobool,
+    help="Whether to share input-hidden weights between forword and backward "
+    "directional simple RNNs. Only available when use_gru=False. "
+    "(default: %(default)s)")
 parser.add_argument(
     "--use_gru",
     default=False,
@@ -164,7 +171,8 @@ def tune():
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
-        pretrained_model_path=args.model_filepath)
+        pretrained_model_path=args.model_filepath,
+        share_rnn_weights=args.share_rnn_weights)
 
     # create grid for search
     cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)

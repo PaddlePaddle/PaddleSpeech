@@ -39,7 +39,7 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
     return paddle.layer.batch_norm(input=conv_layer, act=act)
 
 
-def bidirectional_simple_rnn_bn_layer(name, input, size, act):
+def bidirectional_simple_rnn_bn_layer(name, input, size, act, share_weights):
     """Bidirectonal simple rnn layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
 
@@ -51,24 +51,50 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, act):
     :type size: int
     :param act: Activation type.
     :type act: BaseActivation
+    :param share_weights: Whether to share input-hidden weights between
+                          forward and backward directional RNNs.
+    :type share_weights: bool
     :return: Bidirectional simple rnn layer.
     :rtype: LayerOutput
     """
-    # input-hidden weights shared across bi-direcitonal rnn.
-    input_proj_forward = paddle.layer.fc(
-        input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
-    input_proj_backward = paddle.layer.fc(
-        input=input, size=size, act=paddle.activation.Linear(), bias_attr=False)
-    # batch norm is only performed on input-state projection
-    input_proj_bn_forward = paddle.layer.batch_norm(
-        input=input_proj_forward, act=paddle.activation.Linear())
-    input_proj_bn_backward = paddle.layer.batch_norm(
-        input=input_proj_backward, act=paddle.activation.Linear())
-    # forward and backward in time
-    forward_simple_rnn = paddle.layer.recurrent(
-        input=input_proj_bn_forward, act=act, reverse=False)
-    backward_simple_rnn = paddle.layer.recurrent(
-        input=input_proj_bn_backward, act=act, reverse=True)
+    if share_weights:
+        # input-hidden weights shared between bi-direcitonal rnn.
+        input_proj = paddle.layer.fc(
+            input=input,
+            size=size,
+            act=paddle.activation.Linear(),
+            bias_attr=False)
+        # batch norm is only performed on input-state projection
+        input_proj_bn = paddle.layer.batch_norm(
+            input=input_proj, act=paddle.activation.Linear())
+        # forward and backward in time
+        forward_simple_rnn = paddle.layer.recurrent(
+            input=input_proj_bn, act=act, reverse=False)
+        backward_simple_rnn = paddle.layer.recurrent(
+            input=input_proj_bn, act=act, reverse=True)
+
+    else:
+        input_proj_forward = paddle.layer.fc(
+            input=input,
+            size=size,
+            act=paddle.activation.Linear(),
+            bias_attr=False)
+        input_proj_backward = paddle.layer.fc(
+            input=input,
+            size=size,
+            act=paddle.activation.Linear(),
+            bias_attr=False)
+        # batch norm is only performed on input-state projection
+        input_proj_bn_forward = paddle.layer.batch_norm(
+            input=input_proj_forward, act=paddle.activation.Linear())
+        input_proj_bn_backward = paddle.layer.batch_norm(
+            input=input_proj_backward, act=paddle.activation.Linear())
+        # forward and backward in time
+        forward_simple_rnn = paddle.layer.recurrent(
+            input=input_proj_bn_forward, act=act, reverse=False)
+        backward_simple_rnn = paddle.layer.recurrent(
+            input=input_proj_bn_backward, act=act, reverse=True)
+
     return paddle.layer.concat(input=[forward_simple_rnn, backward_simple_rnn])
 
 
@@ -87,7 +113,6 @@ def bidirectional_gru_bn_layer(name, input, size, act):
     :return: Bidirectional simple rnn layer.
     :rtype: LayerOutput
     """
-    # input-hidden weights shared across bi-direcitonal rnn.
     input_proj_forward = paddle.layer.fc(
         input=input,
         size=size * 3,
@@ -98,7 +123,7 @@ def bidirectional_gru_bn_layer(name, input, size, act):
         size=size * 3,
         act=paddle.activation.Linear(),
         bias_attr=False)
-    # batch norm is only performed on input-state projection
+    # batch norm is only performed on input-related projections
     input_proj_bn_forward = paddle.layer.batch_norm(
         input=input_proj_forward, act=paddle.activation.Linear())
     input_proj_bn_backward = paddle.layer.batch_norm(
@@ -126,9 +151,9 @@ def conv_group(input, num_stacks):
         filter_size=(11, 41),
         num_channels_in=1,
         num_channels_out=32,
-        stride=(2, 2),
+        stride=(3, 2),
         padding=(5, 20),
-        act=paddle.activation.Relu())
+        act=paddle.activation.BRelu())
     for i in xrange(num_stacks - 1):
         conv = conv_bn_layer(
             input=conv,
@@ -137,13 +162,13 @@ def conv_group(input, num_stacks):
             num_channels_out=32,
             stride=(1, 2),
             padding=(5, 10),
-            act=paddle.activation.Relu())
+            act=paddle.activation.BRelu())
     output_num_channels = 32
     output_height = 160 // pow(2, num_stacks) + 1
     return conv, output_num_channels, output_height
 
 
-def rnn_group(input, size, num_stacks, use_gru):
+def rnn_group(input, size, num_stacks, use_gru, share_rnn_weights):
     """RNN group with stacked bidirectional simple RNN layers.
 
     :param input: Input layer.
@@ -154,6 +179,10 @@ def rnn_group(input, size, num_stacks, use_gru):
     :type num_stacks: int
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool
+    :param share_rnn_weights: Whether to share input-hidden weights between
+                              forward and backward directional RNNs.
+                              It is only available when use_gru=False.
+    :type share_weights: bool
     :return: Output layer of the RNN group.
     :rtype: LayerOutput
     """
@@ -165,12 +194,14 @@ def rnn_group(input, size, num_stacks, use_gru):
                 input=output,
                 size=size,
                 act=paddle.activation.Relu())
+            # BRelu does not support hppl, need to add later. Use Relu instead.
         else:
             output = bidirectional_simple_rnn_bn_layer(
                 name=str(i),
                 input=output,
                 size=size,
-                act=paddle.activation.Relu())
+                act=paddle.activation.BRelu(),
+                share_weights=share_rnn_weights)
     return output
 
 
@@ -180,9 +211,10 @@ def deep_speech2(audio_data,
                  num_conv_layers=2,
                  num_rnn_layers=3,
                  rnn_size=256,
-                 use_gru=True):
+                 use_gru=False,
+                 share_rnn_weights=True):
     """
-    The whole DeepSpeech2 model structure (a simplified version).
+    The whole DeepSpeech2 model structure.
 
     :param audio_data: Audio spectrogram data layer.
     :type audio_data: LayerOutput
@@ -198,6 +230,10 @@ def deep_speech2(audio_data,
     :type rnn_size: int
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool
+    :param share_rnn_weights: Whether to share input-hidden weights between
+                              forward and backward direction RNNs.
+                              It is only available when use_gru=False.
+    :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
@@ -218,7 +254,8 @@ def deep_speech2(audio_data,
         input=conv2seq,
         size=rnn_size,
         num_stacks=num_rnn_layers,
-        use_gru=use_gru)
+        use_gru=use_gru,
+        share_rnn_weights=share_rnn_weights)
     fc = paddle.layer.fc(
         input=rnn_group_output,
         size=dict_size + 1,

@@ -13,7 +13,7 @@ python ./cloud/split_data.py \
 --in_manifest_path=${DEV_MANIFEST} \
 --out_manifest_path='/local.manifest.dev'
 
-python train.py \
+python -u train.py \
 --batch_size=$BATCH_SIZE \
 --use_gpu=1 \
 --trainer_count=${NUM_GPU} \
@@ -21,4 +21,4 @@ python train.py \
 --is_local=${IS_LOCAL} \
 --train_manifest_path='/local.manifest.train' \
 --dev_manifest_path='/local.manifest.dev' \
---output_model_dir=${MODEL_PATH} \
+--output_model_dir=${MODEL_PATH} 2>&1 | tee ./log/train.log

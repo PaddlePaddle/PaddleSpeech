@@ -37,12 +37,12 @@ parser.add_argument(
     help="RNN layer number. (default: %(default)s)")
 parser.add_argument(
     "--rnn_layer_size",
-    default=1280,
+    default=1024,
     type=int,
     help="RNN layer cell number. (default: %(default)s)")
 parser.add_argument(
     "--use_gru",
-    default=True,
+    default=False,
     type=bool,
     help="Use GRU or simple RNN. (default: %(default)s)")
 parser.add_argument(

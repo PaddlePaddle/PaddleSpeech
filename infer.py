@@ -10,140 +10,82 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from error_rate import wer, cer
-import utils
 
+NUM_CPU = multiprocessing.cpu_count() // 2
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument(
-    "--num_samples",
-    default=10,
-    type=int,
-    help="Number of samples for inference. (default: %(default)s)")
-parser.add_argument(
-    "--num_conv_layers",
-    default=2,
-    type=int,
-    help="Convolution layer number. (default: %(default)s)")
-parser.add_argument(
-    "--num_rnn_layers",
-    default=3,
-    type=int,
-    help="RNN layer number. (default: %(default)s)")
-parser.add_argument(
-    "--rnn_layer_size",
-    default=2048,
-    type=int,
-    help="RNN layer cell number. (default: %(default)s)")
-parser.add_argument(
-    "--share_rnn_weights",
-    default=True,
-    type=distutils.util.strtobool,
-    help="Whether to share input-hidden weights between forword and backward "
-    "directional simple RNNs. Only available when use_gru=False. "
-    "(default: %(default)s)")
-parser.add_argument(
-    "--use_gru",
-    default=False,
-    type=distutils.util.strtobool,
-    help="Use GRU or simple RNN. (default: %(default)s)")
-parser.add_argument(
-    "--use_gpu",
-    default=True,
-    type=distutils.util.strtobool,
-    help="Use gpu or not. (default: %(default)s)")
-parser.add_argument(
-    "--num_threads_data",
-    default=1,
-    type=int,
-    help="Number of cpu threads for preprocessing data. (default: %(default)s)")
-parser.add_argument(
-    "--num_processes_beam_search",
-    default=multiprocessing.cpu_count() // 2,
-    type=int,
-    help="Number of cpu processes for beam search. (default: %(default)s)")
-parser.add_argument(
-    "--specgram_type",
-    default='linear',
-    type=str,
-    help="Feature type of audio data: 'linear' (power spectrum)"
-    " or 'mfcc'. (default: %(default)s)")
-parser.add_argument(
-    "--trainer_count",
-    default=8,
-    type=int,
-    help="Trainer number. (default: %(default)s)")
-parser.add_argument(
-    "--mean_std_filepath",
-    default='mean_std.npz',
-    type=str,
-    help="Manifest path for normalizer. (default: %(default)s)")
-parser.add_argument(
-    "--decode_manifest_path",
-    default='datasets/manifest.test',
-    type=str,
-    help="Manifest path for decoding. (default: %(default)s)")
-parser.add_argument(
-    "--model_filepath",
-    default='checkpoints/params.latest.tar.gz',
-    type=str,
-    help="Model filepath. (default: %(default)s)")
-parser.add_argument(
-    "--vocab_filepath",
-    default='datasets/vocab/eng_vocab.txt',
-    type=str,
-    help="Vocabulary filepath. (default: %(default)s)")
-parser.add_argument(
-    "--decode_method",
-    default='beam_search',
-    type=str,
-    help="Method for ctc decoding: best_path or beam_search. "
-    "(default: %(default)s)")
-parser.add_argument(
-    "--beam_size",
-    default=500,
-    type=int,
-    help="Width for beam search decoding. (default: %(default)d)")
-parser.add_argument(
-    "--language_model_path",
-    default="lm/data/common_crawl_00.prune01111.trie.klm",
-    type=str,
-    help="Path for language model. (default: %(default)s)")
-parser.add_argument(
-    "--alpha",
-    default=0.36,
-    type=float,
-    help="Parameter associated with language model. (default: %(default)f)")
-parser.add_argument(
-    "--beta",
-    default=0.25,
-    type=float,
-    help="Parameter associated with word count. (default: %(default)f)")
-parser.add_argument(
-    "--cutoff_prob",
-    default=0.99,
-    type=float,
-    help="The cutoff probability of pruning"
-    "in beam search. (default: %(default)f)")
-parser.add_argument(
-    "--error_rate_type",
-    default='wer',
-    choices=['wer', 'cer'],
-    type=str,
-    help="Error rate type for evaluation. 'wer' for word error rate and 'cer' "
-    "for character error rate. "
-    "(default: %(default)s)")
+
+
+def add_arg(argname, type, default, help, **kwargs):
+    type = distutils.util.strtobool if type == bool else type
+    parser.add_argument(
+        "--" + argname,
+        default=default,
+        type=type,
+        help=help + ' Default: %(default)s.',
+        **kwargs)
+
+
+# yapf: disable
+# configurations of overall
+add_arg('num_samples',      int,    10,     "# of samples to infer.")
+add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
+add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
+add_arg('error_rate_type',  str,    'wer',  "Error rate type for evaluation.",
+        choices=['wer', 'cer'])
+# configurations of decoder
+add_arg('beam_size',        int,    500,    "Beam search width.")
+add_arg('alpha',            float,  0.36,   "Coef of LM for beam search.")
+add_arg('beta',             float,  0.25,   "Coef of WC for beam search.")
+add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
+add_arg('parallels_bsearch',int,    NUM_CPU,"# of CPUs for beam search.")
+add_arg('lang_model_path',  str,
+        'lm/data/common_crawl_00.prune01111.trie.klm',
+        "Filepath for language model.")
+add_arg('decoder_method',   str,
+        'ctc_beam_search',
+        "Decoder method. Options: ctc_beam_search, ctc_greedy",
+        choices = ['ctc_beam_search', 'ctc_greedy'])
+# configurations of data preprocess
+add_arg('specgram_type',    str,
+        'linear',
+        "Audio feature type. Options: linear, mfcc.",
+        choices=['linear', 'mfcc'])
+# configurations of model structure
+add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
+add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
+add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
+add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
+add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
+                                            "bi-directional RNNs. Not for GRU.")
+# configurations of data io
+add_arg('infer_manifest',   str,
+        'datasets/manifest.dev',
+        "Filepath of manifest to infer.")
+add_arg('mean_std_path',    str,
+        'mean_std.npz',
+        "Filepath of normalizer's mean & std.")
+add_arg('vocab_path',       str,
+        'datasets/vocab/eng_vocab.txt',
+        "Filepath of vocabulary.")
+# configurations of model io
+add_arg('model_path',       str,
+        './checkpoints/params.latest.tar.gz',
+        "If None, the training starts from scratch, "
+        "otherwise, it resumes from the pre-trained model.")
 args = parser.parse_args()
+# yapf: disable
 
 
 def infer():
     """Inference for DeepSpeech2."""
     data_generator = DataGenerator(
-        vocab_filepath=args.vocab_filepath,
-        mean_std_filepath=args.mean_std_filepath,
+        vocab_filepath=args.vocab_path,
+        mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=args.num_threads_data)
+        num_threads=1)
     batch_reader = data_generator.batch_reader_creator(
-        manifest_path=args.decode_manifest_path,
+        manifest_path=args.infer_manifest,
         batch_size=args.num_samples,
         min_batch_size=1,
         sortagrad=False,
@@ -156,18 +98,18 @@ def infer():
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
-        pretrained_model_path=args.model_filepath,
+        pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
     result_transcripts = ds2_model.infer_batch(
         infer_data=infer_data,
-        decode_method=args.decode_method,
+        decoder_method=args.decoder_method,
         beam_alpha=args.alpha,
         beam_beta=args.beta,
         beam_size=args.beam_size,
         cutoff_prob=args.cutoff_prob,
         vocab_list=data_generator.vocab_list,
-        language_model_path=args.language_model_path,
-        num_processes=args.num_processes_beam_search)
+        language_model_path=args.lang_model_path,
+        num_processes=args.parallels_bsearch)
 
     error_rate_func = cer if args.error_rate_type == 'cer' else wer
     target_transcripts = [
@@ -181,8 +123,15 @@ def infer():
               (args.error_rate_type, error_rate_func(target, result)))
 
 
+def print_arguments(args):
+    print("-----------  Configuration Arguments -----------")
+    for arg, value in sorted(vars(args).iteritems()):
+        print("%s: %s" % (arg, value))
+    print("------------------------------------------------")
+
+
 def main():
-    utils.print_arguments(args)
+    print_arguments(args)
     paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
     infer()
 

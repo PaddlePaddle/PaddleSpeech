@@ -9,8 +9,9 @@ from math import log
 import multiprocessing
 
 
-def ctc_best_path_decoder(probs_seq, vocabulary):
-    """Best path decoder, also called argmax decoder or greedy decoder.
+def ctc_greedy_decoder(probs_seq, vocabulary):
+    """CTC greedy (best path) decoder.
+
     Path consisting of the most probable tokens are further post-processed to
     remove consecutive repetitions and all blanks.
 
@@ -45,10 +46,12 @@ def ctc_beam_search_decoder(probs_seq,
                             cutoff_prob=1.0,
                             ext_scoring_func=None,
                             nproc=False):
-    """Beam search decoder for CTC-trained network. It utilizes beam search
-    to approximately select top best decoding labels and returning results
-    in the descending order. The implementation is based on Prefix
-    Beam Search (https://arxiv.org/abs/1408.2873), and the unclear part is
+    """CTC Beam search decoder.
+
+    It utilizes beam search to approximately select top best decoding
+    labels and returning results in the descending order.
+    The implementation is based on Prefix Beam Search
+    (https://arxiv.org/abs/1408.2873), and the unclear part is
     redesigned. Two important modifications: 1) in the iterative computation
     of probabilities, the assignment operation is changed to accumulation for
     one prefix may comes from different paths; 2) the if condition "if l^+ not

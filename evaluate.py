@@ -3,26 +3,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import distutils.util
 import argparse
+import functools
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from error_rate import wer, cer
+from utils import add_arguments, print_arguments
 
-
-def add_arg(argname, type, default, help, **kwargs):
-    type = distutils.util.strtobool if type == bool else type
-    parser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
-
-
-# yapf: disable
 parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
 add_arg('batch_size',       int,    128,    "Minibatch size.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('beam_size',        int,    500,    "Beam search width.")
@@ -66,8 +57,8 @@ add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
-args = parser.parse_args()
 # yapf: disable
+args = parser.parse_args()
 
 
 def evaluate():
@@ -118,13 +109,6 @@ def evaluate():
               (args.error_rate_type, num_ins, error_sum / num_ins))
     print("Final error rate [%s] (%d/%d) = %f" %
           (args.error_rate_type, num_ins, num_ins, error_sum / num_ins))
-
-
-def print_arguments(args):
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(args).iteritems()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
 
 
 def main():

@@ -7,26 +7,18 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import functools
 import codecs
 import json
 from collections import Counter
 import os.path
 import _init_paths
 from data_utils import utils
+from utils import add_arguments, print_arguments
 
-
-def add_arg(argname, type, default, help, **kwargs):
-    type = distutils.util.strtobool if type == bool else type
-    parser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
-
-
-# yapf: disable
 parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
 add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
 add_arg('vocab_path',       str,
         'datasets/vocab/zh_vocab.txt',
@@ -37,8 +29,8 @@ add_arg('manifest_paths',   str,
         "You can provide multiple manifest files.",
         nargs='+',
         required=True)
-args = parser.parse_args()
 # yapf: disable
+args = parser.parse_args()
 
 
 def count_manifest(counter, manifest_path):
@@ -46,13 +38,6 @@ def count_manifest(counter, manifest_path):
     for line_json in manifest_jsons:
         for char in line_json['text']:
             counter.update(char)
-
-
-def print_arguments(args):
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(args).iteritems()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
 
 
 def main():

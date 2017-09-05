@@ -3,7 +3,7 @@ import os
 import time
 import random
 import argparse
-import distutils.util
+import functools
 from time import gmtime, strftime
 import SocketServer
 import struct
@@ -12,20 +12,11 @@ import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from data_utils.utils import read_manifest
+from utils import add_arguments, print_arguments
 
-
-def add_arg(argname, type, default, help, **kwargs):
-    type = distutils.util.strtobool if type == bool else type
-    parser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
-
-
-# yapf: disable
 parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
 add_arg('host_port',        int,    8086,    "Server's IP port.")
 add_arg('beam_size',        int,    500,    "Beam search width.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
@@ -68,8 +59,8 @@ add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
-args = parser.parse_args()
 # yapf: disable
+args = parser.parse_args()
 
 
 class AsrTCPServer(SocketServer.TCPServer):
@@ -196,13 +187,6 @@ def start_server():
         audio_process_handler=file_to_transcript)
     print("ASR Server Started.")
     server.serve_forever()
-
-
-def print_arguments(args):
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(args).iteritems()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
 
 
 def main():

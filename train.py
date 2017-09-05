@@ -4,24 +4,15 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
-import distutils.util
+import functools
 import paddle.v2 as paddle
 from model import DeepSpeech2Model
 from data_utils.data import DataGenerator
+from utils import add_arguments, print_arguments
 
-
-def add_arg(argname, type, default, help, **kwargs):
-    type = distutils.util.strtobool if type == bool else type
-    parser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
-
-
-# yapf: disable
 parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
 add_arg('batch_size',       int,    256,    "Minibatch size.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('num_passes',       int,    200,    "# of training epochs.")
@@ -70,8 +61,8 @@ add_arg('shuffle_method',   str,
         'batch_shuffle_clipped',
         "Shuffle method.",
         choices=['instance_shuffle', 'batch_shuffle', 'batch_shuffle_clipped'])
-args = parser.parse_args()
 # yapf: disable
+args = parser.parse_args()
 
 
 def train():
@@ -121,13 +112,6 @@ def train():
         num_iterations_print=args.num_iter_print,
         output_model_dir=args.output_model_dir,
         is_local=args.is_local)
-
-
-def print_arguments(args):
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(args).iteritems()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
 
 
 def main():

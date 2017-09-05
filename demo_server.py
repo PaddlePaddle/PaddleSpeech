@@ -13,8 +13,6 @@ from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from data_utils.utils import read_manifest
 
-parser = argparse.ArgumentParser(description=__doc__)
-
 
 def add_arg(argname, type, default, help, **kwargs):
     type = distutils.util.strtobool if type == bool else type
@@ -27,6 +25,7 @@ def add_arg(argname, type, default, help, **kwargs):
 
 
 # yapf: disable
+parser = argparse.ArgumentParser(description=__doc__)
 add_arg('host_port',        int,    8086,    "Server's IP port.")
 add_arg('beam_size',        int,    500,    "Beam search width.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")

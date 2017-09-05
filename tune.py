@@ -6,14 +6,10 @@ from __future__ import print_function
 import numpy as np
 import distutils.util
 import argparse
-import multiprocessing
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model import DeepSpeech2Model
 from error_rate import wer
-
-NUM_CPU = multiprocessing.cpu_count() // 2
-parser = argparse.ArgumentParser(description=__doc__)
 
 
 def add_arg(argname, type, default, help, **kwargs):
@@ -27,10 +23,11 @@ def add_arg(argname, type, default, help, **kwargs):
 
 
 # yapf: disable
+parser = argparse.ArgumentParser(description=__doc__)
 add_arg('num_samples',      int,    100,    "# of samples to infer.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('beam_size',        int,    500,    "Beam search width.")
-add_arg('parallels_bsearch',int,    NUM_CPU,"# of CPUs for beam search.")
+add_arg('parallels_bsearch',int,    12,     "# of CPUs for beam search.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
@@ -71,6 +68,7 @@ add_arg('specgram_type',    str,
         choices=['linear', 'mfcc'])
 args = parser.parse_args()
 # yapf: disable
+
 
 
 def tune():

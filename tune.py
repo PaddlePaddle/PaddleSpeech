@@ -27,40 +27,25 @@ def add_arg(argname, type, default, help, **kwargs):
 
 
 # yapf: disable
-# configurations of overall
 add_arg('num_samples',      int,    100,    "# of samples to infer.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
-add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
-add_arg('error_rate_type',  str,    'wer',  "Error rate type for evaluation.",
-        choices=['wer', 'cer'])
-# configurations of tuning parameters
-add_arg('alpha_from',       float,  0.1,    "Where alpha starts tuning from.")
-add_arg('alpha_to',         float,  0.36,   "Where alpha ends tuning with.")
-add_arg('num_alphas',       int,    14,     "# of alpha candidates for tuning.")
-add_arg('beta_from',        float,  0.05,   "Where beta starts tuning from.")
-add_arg('beta_to',          float,  0.36,   "Where beta ends tuning with.")
-add_arg('num_betas',        int,    20,     "# of beta candidates for tuning.")
-# configurations of decoder
 add_arg('beam_size',        int,    500,    "Beam search width.")
-add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
 add_arg('parallels_bsearch',int,    NUM_CPU,"# of CPUs for beam search.")
-add_arg('lang_model_path',  str,
-        'lm/data/common_crawl_00.prune01111.trie.klm',
-        "Filepath for language model.")
-# configurations of data preprocess
-add_arg('specgram_type',    str,
-        'linear',
-        "Audio feature type. Options: linear, mfcc.",
-        choices=['linear', 'mfcc'])
-# configurations of model structure
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
+add_arg('num_alphas',       int,    14,     "# of alpha candidates for tuning.")
+add_arg('num_betas',        int,    20,     "# of beta candidates for tuning.")
+add_arg('alpha_from',       float,  0.1,    "Where alpha starts tuning from.")
+add_arg('alpha_to',         float,  0.36,   "Where alpha ends tuning with.")
+add_arg('beta_from',        float,  0.05,   "Where beta starts tuning from.")
+add_arg('beta_to',          float,  0.36,   "Where beta ends tuning with.")
+add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
+add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
-# configurations of data io
-add_arg('tune_manifest',   str,
+add_arg('tune_manifest',    str,
         'datasets/manifest.test',
         "Filepath of manifest to tune.")
 add_arg('mean_std_path',    str,
@@ -69,11 +54,21 @@ add_arg('mean_std_path',    str,
 add_arg('vocab_path',       str,
         'datasets/vocab/eng_vocab.txt',
         "Filepath of vocabulary.")
-# configurations of model io
+add_arg('lang_model_path',  str,
+        'lm/data/common_crawl_00.prune01111.trie.klm',
+        "Filepath for language model.")
 add_arg('model_path',       str,
         './checkpoints/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
+add_arg('error_rate_type',  str,
+        'wer',
+        "Error rate type for evaluation.",
+        choices=['wer', 'cer'])
+add_arg('specgram_type',    str,
+        'linear',
+        "Audio feature type. Options: linear, mfcc.",
+        choices=['linear', 'mfcc'])
 args = parser.parse_args()
 # yapf: disable
 

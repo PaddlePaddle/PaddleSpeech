@@ -27,41 +27,25 @@ def add_arg(argname, type, default, help, **kwargs):
 
 
 # yapf: disable
-# configurations of overall
 add_arg('host_port',        int,    8086,    "Server's IP port.")
+add_arg('beam_size',        int,    500,    "Beam search width.")
+add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
+add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
+add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
+add_arg('alpha',            float,  0.36,   "Coef of LM for beam search.")
+add_arg('beta',             float,  0.25,   "Coef of WC for beam search.")
+add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
+add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
+add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
+add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
+                                            "bi-directional RNNs. Not for GRU.")
 add_arg('host_ip',          str,
         'localhost',
         "Server's IP address.")
 add_arg('speech_save_dir',  str,
         'demo_cache',
         "Directory to save demo audios.")
-add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
-# configurations of decoder
-add_arg('beam_size',        int,    500,    "Beam search width.")
-add_arg('alpha',            float,  0.36,   "Coef of LM for beam search.")
-add_arg('beta',             float,  0.25,   "Coef of WC for beam search.")
-add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
-add_arg('lang_model_path',  str,
-        'lm/data/common_crawl_00.prune01111.trie.klm',
-        "Filepath for language model.")
-add_arg('decoder_method',   str,
-        'ctc_beam_search',
-        "Decoder method. Options: ctc_beam_search, ctc_greedy",
-        choices = ['ctc_beam_search', 'ctc_greedy'])
-# configurations of data preprocess
-add_arg('specgram_type',    str,
-        'linear',
-        "Audio feature type. Options: linear, mfcc.",
-        choices=['linear', 'mfcc'])
-# configurations of model structure
-add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
-add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
-add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
-add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
-add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
-                                            "bi-directional RNNs. Not for GRU.")
-# configurations of data io
-add_arg('warmup_manifest',   str,
+add_arg('warmup_manifest',  str,
         'datasets/manifest.test',
         "Filepath of manifest to warm up.")
 add_arg('mean_std_path',    str,
@@ -70,11 +54,21 @@ add_arg('mean_std_path',    str,
 add_arg('vocab_path',       str,
         'datasets/vocab/eng_vocab.txt',
         "Filepath of vocabulary.")
-# configurations of model io
 add_arg('model_path',       str,
         './checkpoints/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
+add_arg('lang_model_path',  str,
+        'lm/data/common_crawl_00.prune01111.trie.klm',
+        "Filepath for language model.")
+add_arg('decoder_method',   str,
+        'ctc_beam_search',
+        "Decoder method. Options: ctc_beam_search, ctc_greedy",
+        choices = ['ctc_beam_search', 'ctc_greedy'])
+add_arg('specgram_type',    str,
+        'linear',
+        "Audio feature type. Options: linear, mfcc.",
+        choices=['linear', 'mfcc'])
 args = parser.parse_args()
 # yapf: disable
 

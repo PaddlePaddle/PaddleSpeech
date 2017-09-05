@@ -16,7 +16,7 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 add_arg('batch_size',       int,    256,    "Minibatch size.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('num_passes',       int,    200,    "# of training epochs.")
-add_arg('parallels_data',   int,    12,     "# of CPUs for data preprocessing.")
+add_arg('num_proc_data',    int,    12,     "# of CPUs for data preprocessing.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
@@ -28,7 +28,7 @@ add_arg('min_duration',     float,  0.0,    "Shortest audio duration allowed.")
 add_arg('use_sortagrad',    bool,   True,   "Use SortaGrad or not.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('is_local',         bool,   True,   "Use pserver or not.")
-add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
+add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
 add_arg('train_manifest',   str,
@@ -74,13 +74,13 @@ def train():
         max_duration=args.max_duration,
         min_duration=args.min_duration,
         specgram_type=args.specgram_type,
-        num_threads=args.parallels_data)
+        num_threads=args.num_proc_data)
     dev_generator = DataGenerator(
         vocab_filepath=args.vocab_path,
         mean_std_filepath=args.mean_std_path,
         augmentation_config="{}",
         specgram_type=args.specgram_type,
-        num_threads=args.parallels_data)
+        num_threads=args.num_proc_data)
     train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest,
         batch_size=args.batch_size,

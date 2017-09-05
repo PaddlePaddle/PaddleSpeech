@@ -25,7 +25,7 @@ add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
 add_arg('alpha',            float,  0.36,   "Coef of LM for beam search.")
 add_arg('beta',             float,  0.25,   "Coef of WC for beam search.")
 add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
-add_arg('use_gru',          bool,   False,  "Use GRUs instead of Simple RNNs.")
+add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
@@ -51,9 +51,9 @@ add_arg('model_path',       str,
 add_arg('lang_model_path',  str,
         'lm/data/common_crawl_00.prune01111.trie.klm',
         "Filepath for language model.")
-add_arg('decoder_method',   str,
+add_arg('decoding_method',  str,
         'ctc_beam_search',
-        "Decoder method. Options: ctc_beam_search, ctc_greedy",
+        "Decoding method. Options: ctc_beam_search, ctc_greedy",
         choices = ['ctc_beam_search', 'ctc_greedy'])
 add_arg('specgram_type',    str,
         'linear',
@@ -160,7 +160,7 @@ def start_server():
         feature = data_generator.process_utterance(filename, "")
         result_transcript = ds2_model.infer_batch(
             infer_data=[feature],
-            decoder_method=args.decoder_method,
+            decoding_method=args.decoding_method,
             beam_alpha=args.alpha,
             beam_beta=args.beta,
             beam_size=args.beam_size,

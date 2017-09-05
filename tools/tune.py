@@ -7,10 +7,11 @@ import numpy as np
 import argparse
 import functools
 import paddle.v2 as paddle
+import _init_paths
 from data_utils.data import DataGenerator
-from model import DeepSpeech2Model
-from error_rate import wer
-from utils import add_arguments, print_arguments
+from models.model import DeepSpeech2Model
+from utils.error_rate import wer
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -27,20 +28,20 @@ add_arg('num_betas',        int,    20,     "# of beta candidates for tuning.")
 add_arg('alpha_from',       float,  0.1,    "Where alpha starts tuning from.")
 add_arg('alpha_to',         float,  0.36,   "Where alpha ends tuning with.")
 add_arg('beta_from',        float,  0.05,   "Where beta starts tuning from.")
-add_arg('beta_to',          float,  0.36,   "Where beta ends tuning with.")
+add_arg('beta_to',          float,  1.0,    "Where beta ends tuning with.")
 add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
 add_arg('tune_manifest',    str,
-        'datasets/manifest.test',
+        'data/librispeech/manifest.dev',
         "Filepath of manifest to tune.")
 add_arg('mean_std_path',    str,
-        'mean_std.npz',
+        'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'datasets/vocab/eng_vocab.txt',
+        'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('lang_model_path',  str,
         'lm/data/common_crawl_00.prune01111.trie.klm',

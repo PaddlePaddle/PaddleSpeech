@@ -7,10 +7,10 @@ import sys
 import os
 import time
 import gzip
-from decoder import *
-from lm.lm_scorer import LmScorer
 import paddle.v2 as paddle
-from layer import *
+from utils.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
+from lm.lm_scorer import LmScorer
+from models.network import deep_speech_v2_network
 
 
 class DeepSpeech2Model(object):
@@ -241,7 +241,7 @@ class DeepSpeech2Model(object):
         text_data = paddle.layer.data(
             name="transcript_text",
             type=paddle.data_type.integer_value_sequence(vocab_size))
-        self._log_probs, self._loss = deep_speech2(
+        self._log_probs, self._loss = deep_speech_v2_network(
             audio_data=audio_data,
             text_data=text_data,
             dict_size=vocab_size,

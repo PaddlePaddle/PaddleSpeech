@@ -1,7 +1,9 @@
-TRAIN_MANIFEST="cloud/cloud.manifest.train"
-DEV_MANIFEST="cloud/cloud.manifest.dev"
+#! /usr/bin/bash
+
+TRAIN_MANIFEST="cloud/cloud_manifests/cloud.manifest.train"
+DEV_MANIFEST="cloud/cloud_manifests/cloud.manifest.dev"
 CLOUD_MODEL_DIR="./checkpoints"
-BATCH_SIZE=256
+BATCH_SIZE=512
 NUM_GPU=8
 NUM_NODE=1
 IS_LOCAL="True"

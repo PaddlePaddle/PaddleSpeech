@@ -11,7 +11,7 @@ import multiprocessing
 import numpy as np
 import paddle.v2 as paddle
 from threading import local
-from data_utils import utils
+from data_utils.utility import read_manifest
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
@@ -159,7 +159,7 @@ class DataGenerator(object):
 
         def batch_reader():
             # read manifest
-            manifest = utils.read_manifest(
+            manifest = read_manifest(
                 manifest_path=manifest_path,
                 max_duration=self._max_duration,
                 min_duration=self._min_duration)

@@ -1,4 +1,4 @@
-"""Contains DeepSpeech2 layers."""
+"""Contains DeepSpeech2 layers and networks."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -205,16 +205,15 @@ def rnn_group(input, size, num_stacks, use_gru, share_rnn_weights):
     return output
 
 
-def deep_speech2(audio_data,
-                 text_data,
-                 dict_size,
-                 num_conv_layers=2,
-                 num_rnn_layers=3,
-                 rnn_size=256,
-                 use_gru=False,
-                 share_rnn_weights=True):
-    """
-    The whole DeepSpeech2 model structure.
+def deep_speech_v2_network(audio_data,
+                           text_data,
+                           dict_size,
+                           num_conv_layers=2,
+                           num_rnn_layers=3,
+                           rnn_size=256,
+                           use_gru=False,
+                           share_rnn_weights=True):
+    """The DeepSpeech2 network structure.
 
     :param audio_data: Audio spectrogram data layer.
     :type audio_data: LayerOutput

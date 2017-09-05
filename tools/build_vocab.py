@@ -13,8 +13,8 @@ import json
 from collections import Counter
 import os.path
 import _init_paths
-from data_utils import utils
-from utils import add_arguments, print_arguments
+from data_utils.utility import read_manifest
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

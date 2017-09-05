@@ -7,9 +7,9 @@ import argparse
 import functools
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
-from model import DeepSpeech2Model
-from error_rate import wer, cer
-from utils import add_arguments, print_arguments
+from models.model import DeepSpeech2Model
+from utils.error_rate import wer, cer
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -29,13 +29,13 @@ add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
 add_arg('infer_manifest',   str,
-        'datasets/manifest.dev',
+        'data/librispeech/manifest.dev-clean',
         "Filepath of manifest to infer.")
 add_arg('mean_std_path',    str,
-        'mean_std.npz',
+        'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'datasets/vocab/eng_vocab.txt',
+        'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('lang_model_path',  str,
         'lm/data/common_crawl_00.prune01111.trie.klm',

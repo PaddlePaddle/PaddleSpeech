@@ -9,10 +9,11 @@ import SocketServer
 import struct
 import wave
 import paddle.v2 as paddle
+import _init_paths
 from data_utils.data import DataGenerator
-from model import DeepSpeech2Model
+from models.model import DeepSpeech2Model
 from data_utils.utils import read_manifest
-from utils import add_arguments, print_arguments
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -36,13 +37,13 @@ add_arg('speech_save_dir',  str,
         'demo_cache',
         "Directory to save demo audios.")
 add_arg('warmup_manifest',  str,
-        'datasets/manifest.test',
+        'data/librispeech/manifest.test-clean',
         "Filepath of manifest to warm up.")
 add_arg('mean_std_path',    str,
-        'mean_std.npz',
+        'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'datasets/vocab/eng_vocab.txt',
+        'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('model_path',       str,
         './checkpoints/params.latest.tar.gz',

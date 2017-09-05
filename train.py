@@ -6,9 +6,9 @@ from __future__ import print_function
 import argparse
 import functools
 import paddle.v2 as paddle
-from model import DeepSpeech2Model
+from models.model import DeepSpeech2Model
 from data_utils.data import DataGenerator
-from utils import add_arguments, print_arguments
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -27,21 +27,21 @@ add_arg('max_duration',     float,  27.0,   "Longest audio duration allowed.")
 add_arg('min_duration',     float,  0.0,    "Shortest audio duration allowed.")
 add_arg('use_sortagrad',    bool,   True,   "Use SortaGrad or not.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
-add_arg('is_local',         bool,   True,   "Use pserver or not.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
+add_arg('is_local',         bool,   True,   "Use pserver or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
 add_arg('train_manifest',   str,
-        'datasets/manifest.train',
+        'data/librispeech/manifest.train',
         "Filepath of train manifest.")
 add_arg('dev_manifest',     str,
-        'datasets/manifest.dev',
+        'data/librispeech/manifest.dev-clean',
         "Filepath of validation manifest.")
 add_arg('mean_std_path',    str,
-        'mean_std.npz',
+        'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'datasets/vocab/eng_vocab.txt',
+        'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('init_model_path',  str,
         None,
@@ -101,7 +101,7 @@ def train():
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
         pretrained_model_path=args.init_model_path,
-        share_rnn_weights=args.share_weights)
+        share_rnn_weights=args.share_rnn_weights)
     ds2_model.train(
         train_batch_reader=train_batch_reader,
         dev_batch_reader=dev_batch_reader,

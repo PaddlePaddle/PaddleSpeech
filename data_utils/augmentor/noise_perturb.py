@@ -4,13 +4,13 @@ from __future__ import division
 from __future__ import print_function
 
 from data_utils.augmentor.base import AugmentorBase
-from data_utils import utils
+from data_utils.utility import read_manifest
 from data_utils.audio import AudioSegment
 
 
 class NoisePerturbAugmentor(AugmentorBase):
     """Augmentation model for adding background noise.
-    
+
     :param rng: Random generator object.
     :type rng: random.Random
     :param min_snr_dB: Minimal signal noise ratio, in decibels.
@@ -18,15 +18,14 @@ class NoisePerturbAugmentor(AugmentorBase):
     :param max_snr_dB: Maximal signal noise ratio, in decibels.
     :type max_snr_dB: float
     :param noise_manifest_path: Manifest path for noise audio data.
-    :type noise_manifest_path: basestring 
+    :type noise_manifest_path: basestring
     """
 
     def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest_path):
         self._min_snr_dB = min_snr_dB
         self._max_snr_dB = max_snr_dB
         self._rng = rng
-        self._noise_manifest = utils.read_manifest(
-            manifest_path=noise_manifest_path)
+        self._noise_manifest = read_manifest(manifest_path=noise_manifest_path)
 
     def transform_audio(self, audio_segment):
         """Add background noise audio.

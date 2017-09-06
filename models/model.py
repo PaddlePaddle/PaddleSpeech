@@ -8,8 +8,8 @@ import os
 import time
 import gzip
 import paddle.v2 as paddle
-from utils.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
 from lm.lm_scorer import LmScorer
+from models.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
 from models.network import deep_speech_v2_network
 
 

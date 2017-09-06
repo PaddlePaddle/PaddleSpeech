@@ -1,9 +1,9 @@
 #ifndef CTC_BEAM_SEARCH_DECODER_H_
 #define CTC_BEAM_SEARCH_DECODER_H_
 
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
 #include "scorer.h"
 
 /* CTC Best Path Decoder
@@ -16,8 +16,8 @@
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
  */
-std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
-                                     std::vector<std::string> vocabulary);
+std::string ctc_best_path_decoder(std::vector<std::vector<double>> probs_seq,
+                                  std::vector<std::string> vocabulary);
 
 /* CTC Beam Search Decoder
 
@@ -34,15 +34,14 @@ std::string ctc_best_path_decoder(std::vector<std::vector<double> > probs_seq,
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
 */
-std::vector<std::pair<double, std::string> >
-    ctc_beam_search_decoder(std::vector<std::vector<double> > probs_seq,
-                            int beam_size,
-                            std::vector<std::string> vocabulary,
-                            int blank_id,
-                            double cutoff_prob=1.0,
-                            int cutoff_top_n=40,
-                            Scorer *ext_scorer=NULL
-                            );
+std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
+    std::vector<std::vector<double>> probs_seq,
+    int beam_size,
+    std::vector<std::string> vocabulary,
+    int blank_id,
+    double cutoff_prob = 1.0,
+    int cutoff_top_n = 40,
+    Scorer *ext_scorer = NULL);
 
 /* CTC Beam Search Decoder for batch data, the interface is consistent with the
  * original decoder in Python version.
@@ -63,15 +62,14 @@ std::vector<std::pair<double, std::string> >
  *     sample.
 */
 std::vector<std::vector<std::pair<double, std::string>>>
-    ctc_beam_search_decoder_batch(std::vector<std::vector<std::vector<double>>> probs_split,
-                            int beam_size,
-                            std::vector<std::string> vocabulary,
-                            int blank_id,
-                            int num_processes,
-                            double cutoff_prob=1.0,
-                            int cutoff_top_n=40,
-                            Scorer *ext_scorer=NULL
-                            );
+ctc_beam_search_decoder_batch(
+    std::vector<std::vector<std::vector<double>>> probs_split,
+    int beam_size,
+    std::vector<std::string> vocabulary,
+    int blank_id,
+    int num_processes,
+    double cutoff_prob = 1.0,
+    int cutoff_top_n = 40,
+    Scorer *ext_scorer = NULL);
 
-
-#endif // CTC_BEAM_SEARCH_DECODER_H_
+#endif  // CTC_BEAM_SEARCH_DECODER_H_

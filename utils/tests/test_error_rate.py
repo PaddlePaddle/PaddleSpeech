@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import unittest
-import error_rate
+from utils import error_rate
 
 
 class TestParse(unittest.TestCase):

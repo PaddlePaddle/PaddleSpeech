@@ -7,10 +7,10 @@ import sys
 import os
 import time
 import gzip
-from decoder import *
-from lm.lm_scorer import LmScorer
 import paddle.v2 as paddle
-from layer import *
+from lm.lm_scorer import LmScorer
+from models.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
+from models.network import deep_speech_v2_network
 
 
 class DeepSpeech2Model(object):
@@ -27,12 +27,17 @@ class DeepSpeech2Model(object):
     :param pretrained_model_path: Pretrained model path. If None, will train
                                   from stratch.
     :type pretrained_model_path: basestring|None
+    :param share_rnn_weights: Whether to share input-hidden weights between
+                              forward and backward directional RNNs.Notice that
+                              for GRU, weight sharing is not supported.
+    :type share_rnn_weights: bool
     """
 
     def __init__(self, vocab_size, num_conv_layers, num_rnn_layers,
-                 rnn_layer_size, pretrained_model_path):
+                 rnn_layer_size, use_gru, pretrained_model_path,
+                 share_rnn_weights):
         self._create_network(vocab_size, num_conv_layers, num_rnn_layers,
-                             rnn_layer_size)
+                             rnn_layer_size, use_gru, share_rnn_weights)
         self._create_parameters(pretrained_model_path)
         self._inferer = None
         self._loss_inferer = None
@@ -141,7 +146,7 @@ class DeepSpeech2Model(object):
         # run inference
         return self._loss_inferer.infer(input=infer_data)
 
-    def infer_batch(self, infer_data, decode_method, beam_alpha, beam_beta,
+    def infer_batch(self, infer_data, decoding_method, beam_alpha, beam_beta,
                     beam_size, cutoff_prob, vocab_list, language_model_path,
                     num_processes):
         """Model inference. Infer the transcription for a batch of speech
@@ -151,9 +156,9 @@ class DeepSpeech2Model(object):
                            consisting of a tuple of audio features and
                            transcription text (empty string).
         :type infer_data: list
-        :param decode_method: Decoding method name, 'best_path' or
-                              'beam search'.
-        :param decode_method: string
+        :param decoding_method: Decoding method name, 'ctc_greedy' or
+                                'ctc_beam_search'.
+        :param decoding_method: string
         :param beam_alpha: Parameter associated with language model.
         :type beam_alpha: float
         :param beam_beta: Parameter associated with word count.
@@ -185,13 +190,13 @@ class DeepSpeech2Model(object):
         ]
         # run decoder
         results = []
-        if decode_method == "best_path":
+        if decoding_method == "ctc_greedy":
             # best path decode
             for i, probs in enumerate(probs_split):
-                output_transcription = ctc_best_path_decoder(
+                output_transcription = ctc_greedy_decoder(
                     probs_seq=probs, vocabulary=vocab_list)
                 results.append(output_transcription)
-        elif decode_method == "beam_search":
+        elif decoding_method == "ctc_beam_search":
             # initialize external scorer
             if self._ext_scorer == None:
                 self._ext_scorer = LmScorer(beam_alpha, beam_beta,
@@ -200,7 +205,6 @@ class DeepSpeech2Model(object):
             else:
                 self._ext_scorer.reset_params(beam_alpha, beam_beta)
                 assert self._loaded_lm_path == language_model_path
-
             # beam search decode
             beam_search_results = ctc_beam_search_decoder_batch(
                 probs_split=probs_split,
@@ -214,7 +218,7 @@ class DeepSpeech2Model(object):
             results = [result[0][1] for result in beam_search_results]
         else:
             raise ValueError("Decoding method [%s] is not supported." %
-                             decode_method)
+                             decoding_method)
         return results
 
     def _create_parameters(self, model_path=None):
@@ -226,7 +230,7 @@ class DeepSpeech2Model(object):
                 gzip.open(model_path))
 
     def _create_network(self, vocab_size, num_conv_layers, num_rnn_layers,
-                        rnn_layer_size):
+                        rnn_layer_size, use_gru, share_rnn_weights):
         """Create data layers and model network."""
         # paddle.data_type.dense_array is used for variable batch input.
         # The size 161 * 161 is only an placeholder value and the real shape
@@ -237,10 +241,12 @@ class DeepSpeech2Model(object):
         text_data = paddle.layer.data(
             name="transcript_text",
             type=paddle.data_type.integer_value_sequence(vocab_size))
-        self._log_probs, self._loss = deep_speech2(
+        self._log_probs, self._loss = deep_speech_v2_network(
             audio_data=audio_data,
             text_data=text_data,
             dict_size=vocab_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
-            rnn_size=rnn_layer_size)
+            rnn_size=rnn_layer_size,
+            use_gru=use_gru,
+            share_rnn_weights=share_rnn_weights)

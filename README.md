@@ -1,5 +1,7 @@
 # DeepSpeech2 on PaddlePaddle
 
+>TODO: to be updated, since the directory hierarchy was changed.
+
 ## Installation
 
 ```

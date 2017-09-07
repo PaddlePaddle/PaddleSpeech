@@ -1,7 +1,9 @@
-TRAIN_MANIFEST="cloud/cloud.manifest.train"
-DEV_MANIFEST="cloud/cloud.manifest.dev"
-CLOUD_MODEL_DIR="/pfs/dlnel/home/USERNAME/deepspeech2/model"
-BATCH_SIZE=256
+#! /usr/bin/bash
+
+TRAIN_MANIFEST="cloud/cloud_manifests/cloud.manifest.train"
+DEV_MANIFEST="cloud/cloud_manifests/cloud.manifest.dev"
+CLOUD_MODEL_DIR="./checkpoints"
+BATCH_SIZE=512
 NUM_GPU=8
 NUM_NODE=1
 IS_LOCAL="True"
@@ -11,7 +13,7 @@ DS2_PATH=${PWD%/*}
 cp -f  pcloud_train.sh ${DS2_PATH}
 
 paddlecloud submit \
--image bootstrapper:5000/wanghaoshuang/pcloud_ds2:latest \
+-image bootstrapper:5000/paddlepaddle/pcloud_ds2:latest \
 -jobname ${JOB_NAME} \
 -cpu ${NUM_GPU} \
 -gpu ${NUM_GPU} \

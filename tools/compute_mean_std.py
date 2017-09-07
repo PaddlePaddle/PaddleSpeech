@@ -4,48 +4,35 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import functools
 import _init_paths
 from data_utils.normalizer import FeatureNormalizer
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.audio_featurizer import AudioFeaturizer
+from utils.utility import add_arguments, print_arguments
 
-parser = argparse.ArgumentParser(
-    description='Computing mean and stddev for feature normalizer.')
-parser.add_argument(
-    "--specgram_type",
-    default='linear',
-    type=str,
-    help="Feature type of audio data: 'linear' (power spectrum)"
-    " or 'mfcc'. (default: %(default)s)")
-parser.add_argument(
-    "--manifest_path",
-    default='datasets/manifest.train',
-    type=str,
-    help="Manifest path for computing normalizer's mean and stddev."
-    "(default: %(default)s)")
-parser.add_argument(
-    "--num_samples",
-    default=2000,
-    type=int,
-    help="Number of samples for computing mean and stddev. "
-    "(default: %(default)s)")
-parser.add_argument(
-    "--augmentation_config",
-    default='{}',
-    type=str,
-    help="Augmentation configuration in json-format. "
-    "(default: %(default)s)")
-parser.add_argument(
-    "--output_file",
-    default='mean_std.npz',
-    type=str,
-    help="Filepath to write mean and std to (.npz)."
-    "(default: %(default)s)")
+parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
+add_arg('num_samples',      int,    2000,    "# of samples to for statistics.")
+add_arg('specgram_type',    str,
+        'linear',
+        "Audio feature type. Options: linear, mfcc.",
+        choices=['linear', 'mfcc'])
+add_arg('manifest_path',    str,
+        'datasets/manifest.train',
+        "Filepath of manifest to compute normalizer's mean and stddev.")
+add_arg('output_path',    str,
+        'mean_std.npz',
+        "Filepath of write mean and stddev to (.npz).")
+# yapf: disable
 args = parser.parse_args()
 
 
 def main():
-    augmentation_pipeline = AugmentationPipeline(args.augmentation_config)
+    print_arguments(args)
+
+    augmentation_pipeline = AugmentationPipeline('{}')
     audio_featurizer = AudioFeaturizer(specgram_type=args.specgram_type)
 
     def augment_and_featurize(audio_segment):
@@ -57,7 +44,7 @@ def main():
         manifest_path=args.manifest_path,
         featurize_func=augment_and_featurize,
         num_samples=args.num_samples)
-    normalizer.write_to_file(args.output_file)
+    normalizer.write_to_file(args.output_path)
 
 
 if __name__ == '__main__':

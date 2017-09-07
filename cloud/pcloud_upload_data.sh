@@ -1,5 +1,9 @@
-IN_MANIFESTS="../datasets/manifest.train ../datasets/manifest.dev ../datasets/manifest.test"
-OUT_MANIFESTS="./cloud.manifest.train ./cloud.manifest.dev ./cloud.manifest.test"
+#! /usr/bin/bash
+
+mkdir cloud_manifests
+
+IN_MANIFESTS="../data/librispeech/manifest.train ../data/librispeech/manifest.dev-clean ../data/librispeech/manifest.test-clean"
+OUT_MANIFESTS="cloud_manifests/cloud.manifest.train cloud_manifests/cloud.manifest.dev cloud_manifests/cloud.manifest.test"
 CLOUD_DATA_DIR="/pfs/dlnel/home/USERNAME/deepspeech2/data/librispeech"
 NUM_SHARDS=50
 
@@ -14,4 +18,5 @@ then
     echo "Upload Data Failed!"
     exit 1
 fi
+
 echo "All Done."

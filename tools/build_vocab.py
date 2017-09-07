@@ -7,32 +7,29 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import functools
 import codecs
 import json
 from collections import Counter
 import os.path
 import _init_paths
-from data_utils import utils
+from data_utils.utility import read_manifest
+from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument(
-    "--manifest_paths",
-    type=str,
-    help="Manifest paths for building vocabulary."
-    "You can provide multiple manifest files.",
-    nargs='+',
-    required=True)
-parser.add_argument(
-    "--count_threshold",
-    default=0,
-    type=int,
-    help="Characters whose counts are below the threshold will be truncated. "
-    "(default: %(default)i)")
-parser.add_argument(
-    "--vocab_path",
-    default='datasets/vocab/zh_vocab.txt',
-    type=str,
-    help="File path to write the vocabulary. (default: %(default)s)")
+add_arg = functools.partial(add_arguments, argparser=parser)
+# yapf: disable
+add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
+add_arg('vocab_path',       str,
+        'datasets/vocab/zh_vocab.txt',
+        "Filepath to write the vocabulary.")
+add_arg('manifest_paths',   str,
+        None,
+        "Filepaths of manifests for building vocabulary. "
+        "You can provide multiple manifest files.",
+        nargs='+',
+        required=True)
+# yapf: disable
 args = parser.parse_args()
 
 
@@ -44,6 +41,8 @@ def count_manifest(counter, manifest_path):
 
 
 def main():
+    print_arguments(args)
+
     counter = Counter()
     for manifest_path in args.manifest_paths:
         count_manifest(counter, manifest_path)

@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "scorer.h"
 
 /* CTC Best Path Decoder
@@ -16,8 +17,9 @@
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
  */
-std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
-                                  std::vector<std::string> vocabulary);
+std::string ctc_greedy_decoder(
+    const std::vector<std::vector<double>>& probs_seq,
+    const std::vector<std::string>& vocabulary);
 
 /* CTC Beam Search Decoder
 
@@ -35,7 +37,7 @@ std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
  *     in desending order.
 */
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
-    std::vector<std::vector<double>> probs_seq,
+    const std::vector<std::vector<double>>& probs_seq,
     int beam_size,
     std::vector<std::string> vocabulary,
     int blank_id,
@@ -43,8 +45,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     int cutoff_top_n = 40,
     Scorer *ext_scorer = NULL);
 
-/* CTC Beam Search Decoder for batch data, the interface is consistent with the
- * original decoder in Python version.
+/* CTC Beam Search Decoder for batch data
 
  * Parameters:
  *     probs_seq: 3-D vector that each element is a 2-D vector that can be used
@@ -63,9 +64,9 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 */
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
-    std::vector<std::vector<std::vector<double>>> probs_split,
+    const std::vector<std::vector<std::vector<double>>>& probs_split,
     int beam_size,
-    std::vector<std::string> vocabulary,
+    const std::vector<std::string>& vocabulary,
     int blank_id,
     int num_processes,
     double cutoff_prob = 1.0,

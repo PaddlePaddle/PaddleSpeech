@@ -1,17 +1,21 @@
 #include "ctc_decoders.h"
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <map>
 #include <utility>
-#include "ThreadPool.h"
-#include "decoder_utils.h"
+
 #include "fst/fstlib.h"
+#include "ThreadPool.h"
+
+#include "decoder_utils.h"
 #include "path_trie.h"
 
-std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
-                               std::vector<std::string> vocabulary) {
+std::string ctc_greedy_decoder(
+    const std::vector<std::vector<double>>& probs_seq,
+    const std::vector<std::string>& vocabulary) {
   // dimension check
   int num_time_steps = probs_seq.size();
   for (int i = 0; i < num_time_steps; i++) {
@@ -56,7 +60,7 @@ std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
 }
 
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
-    std::vector<std::vector<double>> probs_seq,
+    const std::vector<std::vector<double>>& probs_seq,
     int beam_size,
     std::vector<std::string> vocabulary,
     int blank_id,
@@ -64,7 +68,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     int cutoff_top_n,
     Scorer *extscorer) {
   // dimension check
-  int num_time_steps = probs_seq.size();
+  size_t num_time_steps = probs_seq.size();
   for (int i = 0; i < num_time_steps; i++) {
     if (probs_seq[i].size() != vocabulary.size() + 1) {
       std::cout << " The shape of probs_seq does not match"
@@ -278,9 +282,9 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
-    std::vector<std::vector<std::vector<double>>> probs_split,
+    const std::vector<std::vector<std::vector<double>>>& probs_split,
     int beam_size,
-    std::vector<std::string> vocabulary,
+    const std::vector<std::string>& vocabulary,
     int blank_id,
     int num_processes,
     double cutoff_prob,

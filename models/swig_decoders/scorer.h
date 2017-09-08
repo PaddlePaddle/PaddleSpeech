@@ -5,11 +5,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "lm/enumerate_vocab.hh"
 #include "lm/virtual_interface.hh"
 #include "lm/word_index.hh"
-#include "path_trie.h"
 #include "util/string_piece.hh"
+
+#include "path_trie.h"
 
 const double OOV_SCORE = -1000.0;
 const std::string START_TOKEN = "<s>";
@@ -28,11 +30,13 @@ public:
   std::vector<std::string> vocabulary;
 };
 
-// External scorer to query languange score for n-gram or sentence.
-// Example:
-//     Scorer scorer(alpha, beta, "path_of_language_model");
-//     scorer.get_log_cond_prob({ "WORD1", "WORD2", "WORD3" });
-//     scorer.get_sent_log_prob({ "WORD1", "WORD2", "WORD3" });
+/* External scorer to query languange score for n-gram or sentence.
+ *
+ * Example:
+ *     Scorer scorer(alpha, beta, "path_of_language_model");
+ *     scorer.get_log_cond_prob({ "WORD1", "WORD2", "WORD3" });
+ *     scorer.get_sent_log_prob({ "WORD1", "WORD2", "WORD3" });
+ */
 class Scorer {
 public:
   Scorer(double alpha, double beta, const std::string& lm_path);
@@ -58,7 +62,7 @@ public:
   void fill_dictionary(bool add_space);
 
   // set char map
-  void set_char_map(std::vector<std::string> char_list);
+  void set_char_map(const std::vector<std::string>& char_list);
 
   std::vector<std::string> split_labels(const std::vector<int>& labels);
 

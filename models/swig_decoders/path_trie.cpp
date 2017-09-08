@@ -1,3 +1,5 @@
+#include "path_trie.h"
+
 #include <algorithm>
 #include <limits>
 #include <memory>
@@ -5,7 +7,6 @@
 #include <vector>
 
 #include "decoder_utils.h"
-#include "path_trie.h"
 
 PathTrie::PathTrie() {
   log_prob_b_prev = -NUM_FLT_INF;

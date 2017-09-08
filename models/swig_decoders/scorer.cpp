@@ -1,12 +1,15 @@
 #include "scorer.h"
+
 #include <unistd.h>
 #include <iostream>
-#include "decoder_utils.h"
+
 #include "lm/config.hh"
 #include "lm/model.hh"
 #include "lm/state.hh"
 #include "util/string_piece.hh"
 #include "util/tokenize_piece.hh"
+
+#include "decoder_utils.h"
 
 using namespace lm::ngram;
 
@@ -122,7 +125,7 @@ std::vector<std::string> Scorer::split_labels(const std::vector<int>& labels) {
   return words;
 }
 
-void Scorer::set_char_map(std::vector<std::string> char_list) {
+void Scorer::set_char_map(const std::vector<std::string>& char_list) {
   _char_list = char_list;
   _char_map.clear();
 

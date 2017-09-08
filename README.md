@@ -82,6 +82,16 @@ sh run.sh
 cd ..
 ```
 
+### Setup decoders
+
+```shell
+cd models/swig_decoders
+sh setup.sh
+cd ../..
+```
+
+These commands will install the decoders that translate the ouptut probability  vectors of DS2 model to text data, incuding CTC greedy decoder, CTC beam search decoder and its batch version.
+
 ### Inference
 
 For GPU inference

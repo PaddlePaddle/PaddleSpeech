@@ -1,12 +1,12 @@
 #ifndef PATH_TRIE_H
 #define PATH_TRIE_H
 #pragma once
-#include <fst/fstlib.h>
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <fst/fstlib.h>
 
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 
@@ -45,12 +45,12 @@ public:
 private:
   int _ROOT;
   bool _exists;
+  bool _has_dictionary;
 
   std::vector<std::pair<int, PathTrie*>> _children;
 
   fst::StdVectorFst* _dictionary;
   fst::StdVectorFst::StateId _dictionary_state;
-  bool _has_dictionary;
   std::shared_ptr<FSTMATCH> _matcher;
 };
 

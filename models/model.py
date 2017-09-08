@@ -8,8 +8,9 @@ import os
 import time
 import gzip
 import paddle.v2 as paddle
-from lm.lm_scorer import LmScorer
-from models.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
+from models.swig_decoders_wrapper import Scorer
+from models.swig_decoders_wrapper import ctc_greedy_decoder
+from models.swig_decoders_wrapper import ctc_beam_search_decoder_batch
 from models.network import deep_speech_v2_network
 
 
@@ -199,9 +200,12 @@ class DeepSpeech2Model(object):
         elif decoding_method == "ctc_beam_search":
             # initialize external scorer
             if self._ext_scorer == None:
-                self._ext_scorer = LmScorer(beam_alpha, beam_beta,
-                                            language_model_path)
+                self._ext_scorer = Scorer(beam_alpha, beam_beta,
+                                          language_model_path)
                 self._loaded_lm_path = language_model_path
+                self._ext_scorer.set_char_map(vocab_list)
+                if (not self._ext_scorer.is_character_based()):
+                    self._ext_scorer.fill_dictionary(True)
             else:
                 self._ext_scorer.reset_params(beam_alpha, beam_beta)
                 assert self._loaded_lm_path == language_model_path

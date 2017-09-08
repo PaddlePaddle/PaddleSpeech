@@ -16,7 +16,7 @@
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
  */
-std::string ctc_best_path_decoder(std::vector<std::vector<double>> probs_seq,
+std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
                                   std::vector<std::string> vocabulary);
 
 /* CTC Beam Search Decoder

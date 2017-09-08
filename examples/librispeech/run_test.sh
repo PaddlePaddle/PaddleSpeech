@@ -3,7 +3,7 @@
 pushd ../..
 
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-python -u evaluate.py \
+python -u test.py \
 --batch_size=128 \
 --trainer_count=8 \
 --beam_size=500 \
@@ -12,9 +12,9 @@ python -u evaluate.py \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=2048 \
---alpha=0.36 \
---beta=0.25 \
---cutoff_prob=0.99 \
+--alpha=2.15 \
+--beta=0.35 \
+--cutoff_prob=1.0 \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \

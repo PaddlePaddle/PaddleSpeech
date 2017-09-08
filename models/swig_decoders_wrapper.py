@@ -23,7 +23,7 @@ class Scorer(swig_decoders.Scorer):
         swig_decoders.Scorer.__init__(self, alpha, beta, model_path)
 
 
-def ctc_best_path_decoder(probs_seq, vocabulary):
+def ctc_greedy_decoder(probs_seq, vocabulary):
     """Wrapper for ctc best path decoder in swig.
 
     :param probs_seq: 2-D list of probability distributions over each time
@@ -35,7 +35,7 @@ def ctc_best_path_decoder(probs_seq, vocabulary):
     :return: Decoding result string.
     :rtype: basestring
     """
-    return swig_decoders.ctc_best_path_decoder(probs_seq.tolist(), vocabulary)
+    return swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
 
 
 def ctc_beam_search_decoder(probs_seq,

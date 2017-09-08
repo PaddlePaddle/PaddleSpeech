@@ -10,8 +10,8 @@
 #include "fst/fstlib.h"
 #include "path_trie.h"
 
-std::string ctc_best_path_decoder(std::vector<std::vector<double>> probs_seq,
-                                  std::vector<std::string> vocabulary) {
+std::string ctc_greedy_decoder(std::vector<std::vector<double>> probs_seq,
+                               std::vector<std::string> vocabulary) {
   // dimension check
   int num_time_steps = probs_seq.size();
   for (int i = 0; i < num_time_steps; i++) {

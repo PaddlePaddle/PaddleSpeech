@@ -84,6 +84,8 @@ def infer():
         use_gru=args.use_gru,
         pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
+
+    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
     result_transcripts = ds2_model.infer_batch(
         infer_data=infer_data,
         decoding_method=args.decoding_method,
@@ -91,7 +93,7 @@ def infer():
         beam_beta=args.beta,
         beam_size=args.beam_size,
         cutoff_prob=args.cutoff_prob,
-        vocab_list=data_generator.vocab_list,
+        vocab_list=vocab_list,
         language_model_path=args.lang_model_path,
         num_processes=args.num_proc_bsearch)
 

@@ -23,14 +23,15 @@ class RetriveStrEnumerateVocab : public lm::EnumerateVocab {
 public:
   RetriveStrEnumerateVocab() {}
 
-  void Add(lm::WordIndex index, const StringPiece& str) {
+  void Add(lm::WordIndex index, const StringPiece &str) {
     vocabulary.push_back(std::string(str.data(), str.length()));
   }
 
   std::vector<std::string> vocabulary;
 };
 
-/* External scorer to query languange score for n-gram or sentence.
+/* External scorer to query score for n-gram or sentence, including language
+ * model scoring and word insertion.
  *
  * Example:
  *     Scorer scorer(alpha, beta, "path_of_language_model");
@@ -39,12 +40,12 @@ public:
  */
 class Scorer {
 public:
-  Scorer(double alpha, double beta, const std::string& lm_path);
+  Scorer(double alpha, double beta, const std::string &lm_path);
   ~Scorer();
 
-  double get_log_cond_prob(const std::vector<std::string>& words);
+  double get_log_cond_prob(const std::vector<std::string> &words);
 
-  double get_sent_log_prob(const std::vector<std::string>& words);
+  double get_sent_log_prob(const std::vector<std::string> &words);
 
   size_t get_max_order() { return _max_order; }
 
@@ -56,32 +57,32 @@ public:
   void reset_params(float alpha, float beta);
 
   // make ngram
-  std::vector<std::string> make_ngram(PathTrie* prefix);
+  std::vector<std::string> make_ngram(PathTrie *prefix);
 
   // fill dictionary for fst
   void fill_dictionary(bool add_space);
 
   // set char map
-  void set_char_map(const std::vector<std::string>& char_list);
+  void set_char_map(const std::vector<std::string> &char_list);
 
-  std::vector<std::string> split_labels(const std::vector<int>& labels);
+  std::vector<std::string> split_labels(const std::vector<int> &labels);
 
   // expose to decoder
   double alpha;
   double beta;
 
   // fst dictionary
-  void* dictionary;
+  void *dictionary;
 
 protected:
-  void load_LM(const char* filename);
+  void load_LM(const char *filename);
 
-  double get_log_prob(const std::vector<std::string>& words);
+  double get_log_prob(const std::vector<std::string> &words);
 
-  std::string vec2str(const std::vector<int>& input);
+  std::string vec2str(const std::vector<int> &input);
 
 private:
-  void* _language_model;
+  void *_language_model;
   bool _is_character_based;
   size_t _max_order;
 

@@ -22,7 +22,7 @@ PathTrie::PathTrie() {
   _dictionary = nullptr;
   _dictionary_state = 0;
   _has_dictionary = false;
-  _matcher = nullptr;  // finds arcs in FST
+  _matcher = nullptr;
 }
 
 PathTrie::~PathTrie() {

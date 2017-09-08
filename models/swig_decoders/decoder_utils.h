@@ -14,12 +14,14 @@ bool pair_comp_first_rev(const std::pair<T1, T2> &a,
   return a.first > b.first;
 }
 
+// Function template for comparing two pairs
 template <typename T1, typename T2>
 bool pair_comp_second_rev(const std::pair<T1, T2> &a,
                           const std::pair<T1, T2> &b) {
   return a.second > b.second;
 }
 
+// Return the sum of two probabilities in log scale
 template <typename T>
 T log_sum_exp(const T &x, const T &y) {
   static T num_min = -std::numeric_limits<T>::max();
@@ -32,18 +34,21 @@ T log_sum_exp(const T &x, const T &y) {
 // Functor for prefix comparsion
 bool prefix_compare(const PathTrie *x, const PathTrie *y);
 
-// Get length of utf8 encoding string
-// See: http://stackoverflow.com/a/4063229
+/* Get length of utf8 encoding string
+ * See: http://stackoverflow.com/a/4063229
+ */
 size_t get_utf8_str_len(const std::string &str);
 
-// Split a string into a list of strings on a given string
-// delimiter. NB: delimiters on beginning / end of string are
-// trimmed. Eg, "FooBarFoo" split on "Foo" returns ["Bar"].
+/* Split a string into a list of strings on a given string
+ * delimiter. NB: delimiters on beginning / end of string are
+ * trimmed. Eg, "FooBarFoo" split on "Foo" returns ["Bar"].
+ */
 std::vector<std::string> split_str(const std::string &s,
                                    const std::string &delim);
 
-// Splits string into vector of strings representing
-// UTF-8 characters (not same as chars)
+/* Splits string into vector of strings representing
+ * UTF-8 characters (not same as chars)
+ */
 std::vector<std::string> split_utf8_str(const std::string &str);
 
 // Add a word in index to the dicionary of fst

@@ -14,8 +14,8 @@
 #include "path_trie.h"
 
 std::string ctc_greedy_decoder(
-    const std::vector<std::vector<double>>& probs_seq,
-    const std::vector<std::string>& vocabulary) {
+    const std::vector<std::vector<double>> &probs_seq,
+    const std::vector<std::string> &vocabulary) {
   // dimension check
   int num_time_steps = probs_seq.size();
   for (int i = 0; i < num_time_steps; i++) {
@@ -60,7 +60,7 @@ std::string ctc_greedy_decoder(
 }
 
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
-    const std::vector<std::vector<double>>& probs_seq,
+    const std::vector<std::vector<double>> &probs_seq,
     int beam_size,
     std::vector<std::string> vocabulary,
     int blank_id,
@@ -104,7 +104,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     }
     if (!extscorer->is_character_based()) {
       if (extscorer->dictionary == nullptr) {
-        // fill dictionary for fst
+        // fill dictionary for fst with space
         extscorer->fill_dictionary(true);
       }
       auto fst_dict = static_cast<fst::StdVectorFst *>(extscorer->dictionary);
@@ -282,9 +282,9 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
-    const std::vector<std::vector<std::vector<double>>>& probs_split,
+    const std::vector<std::vector<std::vector<double>>> &probs_split,
     int beam_size,
-    const std::vector<std::string>& vocabulary,
+    const std::vector<std::string> &vocabulary,
     int blank_id,
     int num_processes,
     double cutoff_prob,
@@ -304,8 +304,7 @@ ctc_beam_search_decoder_batch(
     if (extscorer->is_char_map_empty()) {
       extscorer->set_char_map(vocabulary);
     }
-    if (!extscorer->is_character_based() &&
-        extscorer->dictionary == nullptr) {
+    if (!extscorer->is_character_based() && extscorer->dictionary == nullptr) {
       // init dictionary
       extscorer->fill_dictionary(true);
     }

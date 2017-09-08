@@ -68,7 +68,7 @@ double Scorer::get_log_cond_prob(const std::vector<std::string>& words) {
     state = out_state;
     out_state = tmp_state;
   }
-  // log10 prob
+  // return  log10 prob
   return cond_prob;
 }
 
@@ -189,23 +189,26 @@ void Scorer::fill_dictionary(bool add_space) {
 
   std::cerr << "Vocab Size " << vocab_size << std::endl;
 
-  // Simplify FST
+  /* Simplify FST
 
-  // This gets rid of "epsilon" transitions in the FST.
-  // These are transitions that don't require a string input to be taken.
-  // Getting rid of them is necessary to make the FST determinisitc, but
-  // can greatly increase the size of the FST
+   * This gets rid of "epsilon" transitions in the FST.
+   * These are transitions that don't require a string input to be taken.
+   * Getting rid of them is necessary to make the FST determinisitc, but
+   * can greatly increase the size of the FST
+   */
   fst::RmEpsilon(&dictionary);
   fst::StdVectorFst* new_dict = new fst::StdVectorFst;
 
-  // This makes the FST deterministic, meaning for any string input there's
-  // only one possible state the FST could be in.  It is assumed our
-  // dictionary is deterministic when using it.
-  // (lest we'd have to check for multiple transitions at each state)
+  /* This makes the FST deterministic, meaning for any string input there's
+   * only one possible state the FST could be in.  It is assumed our
+   * dictionary is deterministic when using it.
+   * (lest we'd have to check for multiple transitions at each state)
+   */
   fst::Determinize(dictionary, new_dict);
 
-  // Finds the simplest equivalent fst.  This is unnecessary but decreases
-  // memory usage of the dictionary
+  /* Finds the simplest equivalent fst. This is unnecessary but decreases
+   * memory usage of the dictionary
+   */
   fst::Minimize(new_dict);
   this->dictionary = new_dict;
 }

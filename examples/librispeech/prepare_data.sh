@@ -6,7 +6,7 @@ pushd ../..
 python data/librispeech/librispeech.py \
 --manifest_prefix='data/librispeech/manifest' \
 --full_download='True' \
---target_dir='~/.cache/paddle/dataset/speech/Libri'
+--target_dir=$HOME'/.cache/paddle/dataset/speech/Libri'
 
 if [ $? -ne 0 ]; then
     echo "Prepare LibriSpeech failed. Terminated."

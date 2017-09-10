@@ -11,6 +11,7 @@
 - [Inference and Evaluation](#inference-and-evaluation)
 - [Distributed Cloud Training](#distributed-cloud-training)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
+- [Training for Mandarin Language](#training-for-mandarin-language)
 - [Trying Live Demo with Your Own Voice](#trying-live-demo-with-your-own-voice)
 - [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Questions and Help](#questions-and-help)
@@ -21,7 +22,7 @@
 
 ## Installation
 
-Please install the [prerequisites](#prerequisites) above before moving on this.
+Please install the [prerequisites](#prerequisites) above before moving onto this quick installation.
 
 ```
 git clone https://github.com/PaddlePaddle/models.git
@@ -31,137 +32,298 @@ sh setup.sh
 
 ## Getting Started
 
-TODO
+Several shell scripts provided in `./examples` will help us to quickly give it a try, including training, inferencing, evaluation and demo deployment.
+
+Most of the scripts in `./examples` are configured with 8 GPUs. If you don't have 8 GPUs available, please modify `CUDA_VISIBLE_DEVICE` and `--trainer_count`. If you don't have any GPU available, please set `--use_gpu` to False.
+
+Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org/12/) for instance.
+
+- Go to directory
+
+    ```
+    cd examples/librispeech_tiny
+    ```
+
+    Notice that this is only a toy example with a tiny sampled set of LibriSpeech. If we would like to try with the complete LibriSpeech (would take much a longer time for training), please go to `examples/librispeech` instead.
+- Prepare the libripseech data
+
+    ```
+    sh preprare_data.sh
+    ```
+
+    `prepare_data.sh` downloads dataset, generates file manifests, collects normalizer' statitics and builds vocabulary for us. Once the running is done, we'll find our LibriSpeech data (not full in this "tiny" example) downloaded in `~/.cache/paddle/dataset/speech/Libri` and several manifest files as well as one mean stddev file generated in `./data/librispeech_tiny`, for the further model training. It needs to be run for only once.
+- Train your own ASR model
+
+    ```
+    sh run_train.sh
+    ```
+
+    `run_train.sh` starts a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints`. We can resume the training from these checkpoints, or use them for inference, evalutiaton and deployment.
+- Case inference with an existing model
+
+    ```
+    sh run_infer.sh
+    ```
+
+    `run_infer.sh` will quickly show us speech-to-text decoding results for several (default: 10) audio samples with an existing model. Since the model is only trained on a subset of LibriSpeech, the performance might not be very good. We can download a well-trained model and then do the inference:
+
+    ```
+    sh download_model_run_infer.sh
+    ```
+- Evaluate an existing model
+
+    ```
+    sh run_test.sh
+    ```
+
+    `run_test.sh` evaluates the model with Word Error Rate (or Character Error Rate) measurement. Similarly, we can also download a well-trained model and test its performance:
+
+    ```
+    sh download_model_run_test.sh
+    ```
+- Try out a live demo with your own voice
+
+    Until now, we have trained and tested an ASR model quantitively and qualitatively with existing audios. But we haven't try the model with our own speech. `demo_server.sh` and `demo_client.sh` helps quickly build up a demo ASR engine with the trained model, enabling us to test and play around with the demo with our own voice.
+
+    We start the server in one console by entering:
+
+    ```
+    sh run_demo_server.sh
+    ```
+
+    and start the client in another console by entering:
+
+    ```
+    sh run_demo_client.sh
+    ```
+
+    Then, in the client console, press the `whitespace` key, hold, and start speaking. Until we finish our ulterance, we release the key to let the speech-to-text results show in the console.
+
+    Notice that `run_demo_client.sh` must be run in a machine with a microphone device, while `run_demo_server.sh` could be run in one without any audio recording device, e.g. any remote server. Just be careful to update `run_demo_server.sh` and `run_demo_client.sh` with the actual accessable IP address and port, if the server and client are running with two seperate machines. Nothing has to be done if running in one single machine.
+
+    This demo will first download a pre-trained Mandarin model (trained with 3000 hours of internal speech data). If we would like to try some other model, just update `model_path` argument in the script.  
+    
+More detailed information are provided in the following sections.
+
+Wish you a happy journey with the DeepSpeech2 ASR engine!
+
 
 ## Data Preparation
 
-```
-cd datasets
-sh run_all.sh
-cd ..
-```
+#### Generate Manifest
 
-`sh run_all.sh` prepares all ASR datasets (currently, only LibriSpeech available). After running, we have several summarization manifest files in json-format.
-
-A manifest file summarizes a speech data set, with each line containing the meta data (i.e. audio filepath, transcript text, audio duration) of each audio file within the data set, in json format. Manifest file serves as an interface informing our system of  where and what to read the speech samples.
-
-
-More help for arguments:
+*DeepSpeech2 on PaddlePaddle* accepts a textual **manifest** file as its data set interface. A manifest file summarizes a set of speech data, with each line containing the meta data (e.g. filepath, transcription, duration) of one audio clip, in [JSON](http://www.json.org/) format, just as:
 
 ```
-python datasets/librispeech/librispeech.py --help
+{"audio_filepath": "/home/work/.cache/paddle/Libri/134686/1089-134686-0001.flac", "duration": 3.275, "text": "stuff it into you his belly counselled him"}
+{"audio_filepath": "/home/work/.cache/paddle/Libri/134686/1089-134686-0007.flac", "duration": 4.275, "text": "a cold lucid indifference reigned in his soul"}
 ```
 
+To use any custom data, we only need to generate such manifest files to summarize the dataset. Given such summarized manifests, training, inference and all other modules can be aware of where to access the audio files, as well as their meta data including the transcription labels.
 
+For example script to generate such manifest files, please refer to `data/librispeech/librispeech.py`, which download and generate manifests for LibriSpeech dataset.
 
-```
-python tools/compute_mean_std.py
-```
+#### Compute Mean & Stddev for Normalizer
 
-It will compute mean and stdandard deviation for audio features, and save them to a file with a default name `./mean_std.npz`. This file will be used in both training and inferencing. The default feature of audio data is power spectrum, and the mfcc feature is also supported. To train and infer based on mfcc feature, please generate this file by
-
-```
-python tools/compute_mean_std.py --specgram_type mfcc
-```
-
-and specify ```--specgram_type mfcc``` when running train.py, infer.py, evaluator.py or tune.py.
-
-More help for arguments:
+To perform z-score normalization (zero-mean, unit stddev) upon audio features, we have to estimate in advance the mean and standard deviation of the features, with sampled training audios:
 
 ```
+python tools/compute_mean_std.py \
+--num_samples 2000 \
+--specgram_type linear \
+--manifest_paths data/librispeech/manifest.train \
+--output_path data/librispeech/mean_std.npz
+```
+
+It will compute the mean and standard deviation of power spectgram feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
+
+
+#### Build Vocabulary
+
+A list of possible characters is required to convert the target transcription into list of token indices for training and in docoders convert from them back to text. Such a character-based vocabulary can be build with `tools/build_vocab.py`.
+
+```
+python tools/build_vocab.py \
+--count_threshold 0 \
+--vocab_path data/librispeech/eng_vocab.txt \
+--manifest_paths data/librispeech/manifest.train
+```
+
+It will build a vocabuary file of `data/librispeeech/eng_vocab.txt` with all transcription text in `data/librispeech/manifest.train`, without character truncation.
+
+#### More Help
+
+For more help on arguments:
+
+```
+python data/librispeech/librispeech.py --help
 python tools/compute_mean_std.py --help
+python tools/build_vocab.py --help
 ```
 
 ## Training a model
 
-For GPU Training:
+`train.py` is the main caller of the training module. We list several usage below.
 
-```
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py
-```
+- Start training from scratch with 8 GPUs:
 
-For CPU Training:
+    ```
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py --trainer_count 8
+    ```
 
-```
-python train.py --use_gpu False
-```
+- Start training from scratch with 16 CPUs:
 
-More help for arguments:
+    ```
+    python train.py --use_gpu False --trainer_count 16
+    ```
+- Resume training from a checkpoint (an existing model):
+
+    ```
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py \
+    --init_model_path CHECKPOINT_PATH_TO_RESUME_FROM
+    ```
+
+For more help on arguments:
 
 ```
 python train.py --help
 ```
+or refer to `example/librispeech/run_train.sh.
 
-### Inference and Evaluation
+#### Augment the Dataset for Training
 
-The following steps, inference, parameters tuning and evaluating, will require a language model during decoding.
-A compressed language model is provided and can be accessed by
+Data augmentation has often been a highly effective technique to boost the deep learning performance. We augment our speech data by synthesizing new audios with small random perterbation (label-invariant transformation) added upon raw audios. We don't have to do the syntheses by ourselves, as it is already embeded into the data provider and is done on the fly, randomly for each epoch.
 
-```
-cd ./lm
-sh run.sh
-cd ..
-```
+Six optional augmentation components are provided for us to configured and inserted into the processing pipeline.
 
+  - Volume Perturbation
+  - Speed Perturbation
+  - Shifting Perturbation
+  - Online Beyesian normalization
+  - Noise Perturbation (need background noise audio files)
+  - Impulse Response (need impulse audio files)
 
-
-For GPU inference
-
-```
-CUDA_VISIBLE_DEVICES=0 python infer.py
-```
-
-For CPU inference
+In order to inform the trainer of what augmentation components we need and what their processing orders are, we are required to prepare a *augmentation configuration file* in JSON format. For example:
 
 ```
-python infer.py --use_gpu=False
+[{
+    "type": "speed",
+    "params": {"min_speed_rate": 0.95,
+               "max_speed_rate": 1.05},
+    "prob": 0.6
+},
+{
+    "type": "shift",
+    "params": {"min_shift_ms": -5,
+               "max_shift_ms": 5},
+    "prob": 0.8
+}]
 ```
 
-More help for arguments:
+When the `--augment_conf_file` argument of `trainer.py` is set to the path of the above example configuration file, each audio clip in each epoch will be processed: with 60% of chance, it will first be speed perturbed with a uniformly random sampled speed-rate between 0.95 and 1.05, and then with 80% of chance it will be shifted in time with a random sampled offset between -5 ms and 5 ms. Finally this newly synthesized audio clip will be feed into the feature extractor for further training.
+
+For configuration examples, please refer to `conf/augmenatation.config.example`.
+
+Be careful when we are utilizing the data augmentation technique, as improper augmentation will instead do harm to the training, due to the enlarged train-test gap.
+
+## Inference and Evaluation
+
+#### Prepare Language Model
+
+A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. Please refer to `examples/librispeech/download_model.sh` and `examples/mandarin_demo/download_model.sh` for their urls. If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
+
+TODO: any other requirements or tips to add?
+
+#### Speech-to-text Inference
+
+We provide a inference module `infer.py` to infer, decode and visualize speech-to-text results for several given audio clips, which might help to have a intuitive and qualitative evaluation of the ASR model performance.
+
+- Inference with GPU:
+
+    ```
+    CUDA_VISIBLE_DEVICES=0 python infer.py --trainer_count 1
+    ```
+
+- Inference with CPU:
+
+    ```
+    python infer.py --use_gpu False
+    ```
+
+We provide two CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilzied a heuristic breadth-first gragh search for arriving at a near global optimality; it requires a pre-trained KenLM language model for better scoring and ranking sentences. The decoder type can be set with argument `--decoding_method`.
+
+For more help on arguments:
 
 ```
 python infer.py --help
 ```
+or refer to `example/librispeech/run_infer.sh.
 
+#### Evaluate a Model
+
+To evaluate a model quantitively, we can run:
+
+- Evaluation with GPU:
+
+    ```
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py --trainer_count 8
+    ```
+
+- Evaluation with CPU:
+
+    ```
+    python test.py --use_gpu False
+    ```
+
+The error rate (default: word error rate, can be set with `--error_rate_type`) will be printed.
+
+For more help on arguments:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python evaluate.py
+python test.py --help
 ```
-
-More help for arguments:
-
-```
-python evaluate.py --help
-```
+or refer to `example/librispeech/run_test.sh.
 
 ## Hyper-parameters Tuning
 
-Usually, the parameters $\alpha$ and $\beta$ for the CTC [prefix beam search](https://arxiv.org/abs/1408.2873) decoder need to be tuned after retraining the acoustic model.
+The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta$ (coefficient for word count scorer) for the [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) often have a significant impact on the decoder's performance. It'd be better to re-tune them on validation samples after the accustic model is renewed.
 
-For GPU tuning
+`tools/tune.py` performs a 2-D grid search over the hyper-parameter $\alpha$ and $\beta$. We have to provide the range of $\alpha$ and $\beta$, as well as the number of attempts.
 
-```
-CUDA_VISIBLE_DEVICES=0 python tune.py
-```
+- Tuning with GPU:
 
-For CPU tuning
+    ```
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python tools/tune.py \
+    --trainer_count 8 \
+    --alpha_from 0.1 \
+    --alpha_to 0.36 \
+    --num_alphas 14 \
+    --beta_from 0.05 \
+    --beta_to 1.0 \
+    --num_betas 20
+    ```
 
-```
-python tune.py --use_gpu=False
-```
+- Tuning with CPU:
 
-More help for arguments:
+    ```
+    python tools/tune.py --use_gpu False
+    ```
+
+After tuning, we can reset $\alpha$ and $\beta$ in the inference and evaluation modules to see if they can really improve the ASR performance.
 
 ```
 python tune.py --help
 ```
+or refer to `example/librispeech/run_tune.sh.
 
-Then reset parameters with the tuning result before inference or evaluating.
+TODO: add figure.
 
 ## Distributed Cloud Training
 
 If you wish to train DeepSpeech2 on PaddleCloud, please refer to
 [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+
+## Training for Mandarin Language
 
 ## Trying Live Demo with Your Own Voice
 

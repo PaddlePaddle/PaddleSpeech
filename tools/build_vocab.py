@@ -21,8 +21,10 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
 add_arg('vocab_path',       str,
-        'datasets/vocab/zh_vocab.txt',
-        "Filepath to write the vocabulary.")
+        None,
+        "Filepath to write the vocabulary.",
+        nargs='+',
+        required=True)
 add_arg('manifest_paths',   str,
         None,
         "Filepaths of manifests for building vocabulary. "
@@ -34,7 +36,7 @@ args = parser.parse_args()
 
 
 def count_manifest(counter, manifest_path):
-    manifest_jsons = utils.read_manifest(manifest_path)
+    manifest_jsons = read_manifest(manifest_path)
     for line_json in manifest_jsons:
         for char in line_json['text']:
             counter.update(char)

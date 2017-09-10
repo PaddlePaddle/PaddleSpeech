@@ -2,10 +2,10 @@
 
 pushd ../..
 
-CUDA_VISIBLE_DEVICES=0 \
-python -u infer.py \
---num_samples=10 \
---trainer_count=1 \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+python -u evaluate.py \
+--batch_size=128 \
+--trainer_count=8 \
 --beam_size=500 \
 --num_proc_bsearch=12 \
 --num_proc_data=12 \
@@ -18,7 +18,7 @@ python -u infer.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---infer_manifest='data/librispeech/manifest.dev-clean' \
+--test_manifest='data/librispeech/manifest.test-clean' \
 --mean_std_path='data/librispeech/mean_std.npz' \
 --vocab_path='data/librispeech/eng_vocab.txt' \
 --model_path='checkpoints/params.latest.tar.gz' \

@@ -14,6 +14,3 @@ if [ $MD5 != $md5_tmp ]; then
     echo "Fail to download the language model!"
     exit 1
 fi
-
-
-

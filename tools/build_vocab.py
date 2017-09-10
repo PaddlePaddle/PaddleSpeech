@@ -21,10 +21,8 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
 add_arg('vocab_path',       str,
-        None,
-        "Filepath to write the vocabulary.",
-        nargs='+',
-        required=True)
+        'data/librispeech/vocab.txt',
+        "Filepath to write the vocabulary.")
 add_arg('manifest_paths',   str,
         None,
         "Filepaths of manifests for building vocabulary. "

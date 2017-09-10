@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import unittest
-from models import decoder
+from model_utils import decoder
 
 
 class TestDecoders(unittest.TestCase):

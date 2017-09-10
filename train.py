@@ -6,7 +6,7 @@ from __future__ import print_function
 import argparse
 import functools
 import paddle.v2 as paddle
-from models.model import DeepSpeech2Model
+from model_utils.model import DeepSpeech2Model
 from data_utils.data import DataGenerator
 from utils.utility import add_arguments, print_arguments
 
@@ -41,7 +41,7 @@ add_arg('mean_std_path',    str,
         'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'data/librispeech/eng_vocab.txt',
+        'data/librispeech/vocab.txt',
         "Filepath of vocabulary.")
 add_arg('init_model_path',  str,
         None,

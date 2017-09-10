@@ -16,7 +16,7 @@ fi
 cat data/librispeech/manifest.train* | shuf > data/librispeech/manifest.train
 
 
-# build vocabulary (for English data, we can just skip this)
+# build vocabulary (can be skipped for English, as already provided)
 # python tools/build_vocab.py \
 # --count_threshold=0 \
 # --vocab_path='data/librispeech/eng_vocab.txt' \

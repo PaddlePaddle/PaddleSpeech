@@ -8,9 +8,10 @@ import os
 import time
 import gzip
 import paddle.v2 as paddle
-from lm.lm_scorer import LmScorer
-from models.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
-from models.network import deep_speech_v2_network
+from model_utils.lm_scorer import LmScorer
+from model_utils.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
+from model_utils.decoder import ctc_beam_search_decoder_batch
+from model_utils.network import deep_speech_v2_network
 
 
 class DeepSpeech2Model(object):

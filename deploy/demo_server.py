@@ -11,7 +11,7 @@ import wave
 import paddle.v2 as paddle
 import _init_paths
 from data_utils.data import DataGenerator
-from models.model import DeepSpeech2Model
+from model_utils.model import DeepSpeech2Model
 from data_utils.utils import read_manifest
 from utils.utility import add_arguments, print_arguments
 

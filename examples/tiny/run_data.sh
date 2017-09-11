@@ -1,27 +1,26 @@
 #! /usr/bin/bash
 
-pushd ../..
+pushd ../.. > /dev/null
 
 # download data, generate manifests
-python data/tiny/tiny.py \
+python data/librispeech/librispeech.py \
 --manifest_prefix='data/tiny/manifest' \
---target_dir=$HOME'/.cache/paddle/dataset/speech/tiny'
+--target_dir='~/.cache/paddle/dataset/speech/libri' \
+--full_download='False'
 
 if [ $? -ne 0 ]; then
     echo "Prepare LibriSpeech failed. Terminated."
     exit 1
 fi
 
-cat data/tiny/manifest.dev-clean | head -n 32 > data/tiny/manifest.train
-cat data/tiny/manifest.dev-clean | head -n 48 | tail -n 16 > data/tiny/manifest.dev
-cat data/tiny/manifest.dev-clean | head -n 64 | tail -n 16 > data/tiny/manifest.test
+head -n 64 data/tiny/manifest.dev-clean  > data/tiny/manifest.tiny
 
 
 # build vocabulary
 python tools/build_vocab.py \
 --count_threshold=0 \
 --vocab_path='data/tiny/vocab.txt' \
---manifest_paths='data/tiny/manifest.train'
+--manifest_paths='data/tiny/manifest.dev'
 
 if [ $? -ne 0 ]; then
     echo "Build vocabulary failed. Terminated."
@@ -31,8 +30,8 @@ fi
 
 # compute mean and stddev for normalizer
 python tools/compute_mean_std.py \
---manifest_path='data/tiny/manifest.train' \
---num_samples=32 \
+--manifest_path='data/tiny/manifest.tiny' \
+--num_samples=64 \
 --specgram_type='linear' \
 --output_path='data/tiny/mean_std.npz'
 
@@ -43,3 +42,4 @@ fi
 
 
 echo "Tiny data preparation done."
+exit 0

@@ -1,6 +1,6 @@
 # DeepSpeech2 on PaddlePaddle
 
-*DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech-to-text, via an easy-to-use, efficent and scalable integreted implementation, including training, inferencing & testing module, distributed [PaddleCloud](https://github.com/PaddlePaddle/cloud) training, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
+*DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient and scalable implementation, including training, inferencing & testing module, distributed [PaddleCloud](https://github.com/PaddlePaddle/cloud) training, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -53,14 +53,14 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     sh run_data.sh
     ```
 
-    `run_data.sh` will download dataset, generate manifests, collect normalizer' statitics and build vocabulary. Once the data preparation is done, we will find the data (only part of LibriSpeech) downloaded in `~/.cache/paddle/dataset/speech/libri` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time we run this dataset and is reusable for all further experiments.
+    `run_data.sh` will download dataset, generate manifests, collect normalizer' statistics and build vocabulary. Once the data preparation is done, we will find the data (only part of LibriSpeech) downloaded in `~/.cache/paddle/dataset/speech/libri` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time we run this dataset and is reusable for all further experiments.
 - Train your own ASR model
 
     ```
     sh run_train.sh
     ```
 
-    `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints/tiny`. We can resume the training from these checkpoints, or use them for inference, evalutiaton and deployment.
+    `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints/tiny`. We can resume the training from these checkpoints, or use them for inference, evaluation and deployment.
 - Case inference with an existing model
 
     ```
@@ -83,10 +83,8 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     ```
     sh run_test_golden.sh
     ```
-    
-More detailed information are provided in the following sections.
 
-Wish you a happy journey with the DeepSpeech2 ASR engine!
+More detailed information are provided in the following sections. Wish you a happy journey with the *DeepSpeech2 on PaddlePaddle* ASR engine!
 
 
 ## Data Preparation
@@ -116,11 +114,12 @@ python tools/compute_mean_std.py \
 --output_path data/librispeech/mean_std.npz
 ```
 
-It will compute the mean and standard deviation of power spectgram feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
+It will compute the mean and standard deviation of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
+
 
 ### Build Vocabulary
 
-A vocabulary of possible characters is required to convert the transcription into a list of token indices for training, and in docoding, to convert from a list of indices back to text again. Such a character-based vocabulary can be build with `tools/build_vocab.py`.
+A vocabulary of possible characters is required to convert the transcription into a list of token indices for training, and in decoding, to convert from a list of indices back to text again. Such a character-based vocabulary can be built with `tools/build_vocab.py`.
 
 ```
 python tools/build_vocab.py \
@@ -173,14 +172,14 @@ or refer to `example/librispeech/run_train.sh`.
 
 ## Data Augmentation Pipeline
 
-Data augmentation has often been a highly effective technique to boost the deep learning performance. We augment our speech data by synthesizing new audios with small random perterbation (label-invariant transformation) added upon raw audios. We don't have to do the syntheses by ourselves, as it is already embeded into the data provider and is done on the fly, randomly for each epoch during training.
+Data augmentation has often been a highly effective technique to boost the deep learning performance. We augment our speech data by synthesizing new audios with small random perturbation (label-invariant transformation) added upon raw audios. We don't have to do the syntheses by ourselves, as it is already embedded into the data provider and is done on the fly, randomly for each epoch during training.
 
 Six optional augmentation components are provided for us to configured and inserted into the processing pipeline.
 
   - Volume Perturbation
   - Speed Perturbation
   - Shifting Perturbation
-  - Online Beyesian normalization
+  - Online Bayesian normalization
   - Noise Perturbation (need background noise audio files)
   - Impulse Response (need impulse audio files)
 
@@ -211,13 +210,20 @@ Be careful when we are utilizing the data augmentation technique, as improper au
 
 ### Prepare Language Model
 
-A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. Please refer to `models/lm/download_lm_en.sh` and `models/lm/download_lm_zh.sh` for their urls. If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
+A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. We can simply run this to download the preprared language models:
+
+```
+cd models/lm
+sh download_lm_en.sh
+sh download_lm_ch.sh
+```
+If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
 
 TODO: any other requirements or tips to add?
 
 ### Speech-to-text Inference
 
-We provide a inference module `infer.py` to infer, decode and visualize speech-to-text results for several given audio clips. It might help us to have a intuitive and qualitative evaluation of the ASR model's performance.
+An inference module caller `infer.py` is provided for us to infer, decode and visualize speech-to-text results for several given audio clips. It might help to have an intuitive and qualitative evaluation of the ASR model's performance.
 
 - Inference with GPU:
 
@@ -225,13 +231,13 @@ We provide a inference module `infer.py` to infer, decode and visualize speech-t
     CUDA_VISIBLE_DEVICES=0 python infer.py --trainer_count 1
     ```
 
-- Inference with CPU:
+- Inference with CPUs:
 
     ```
     python infer.py --use_gpu False --trainer_count 12
     ```
 
-We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first gragh search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `--decoding_method`.
+We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first graph search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `--decoding_method`.
 
 For more help on arguments:
 
@@ -242,15 +248,15 @@ or refer to `example/librispeech/run_infer.sh`.
 
 ### Evaluate a Model
 
-To evaluate a model's performance quantitively, we can run:
+To evaluate a model's performance quantitatively, we can run:
 
-- Evaluation with GPU:
+- Evaluation with GPUs:
 
     ```
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py --trainer_count 8
     ```
 
-- Evaluation with CPU:
+- Evaluation with CPUs:
 
     ```
     python test.py --use_gpu False --trainer_count 12
@@ -267,9 +273,9 @@ or refer to `example/librispeech/run_test.sh`.
 
 ## Hyper-parameters Tuning
 
-The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta$ (coefficient for word count scorer) for the [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) often have a significant impact on the decoder's performance. It would be better to re-tune them on a validation set when the accustic model is renewed.
+The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta$ (coefficient for word count scorer) for the [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) often have a significant impact on the decoder's performance. It would be better to re-tune them on a validation set when the acoustic model is renewed.
 
-`tools/tune.py` performs a 2-D grid search over the hyper-parameter $\alpha$ and $\beta$. We have to provide the range of $\alpha$ and $\beta$, as well as the number of their attempts.
+`tools/tune.py` performs a 2-D grid search over the hyper-parameter $\alpha$ and $\beta$. We must provide the range of $\alpha$ and $\beta$, as well as the number of their attempts.
 
 - Tuning with GPU:
 
@@ -304,16 +310,16 @@ TODO: add figure.
 
 We provide a cloud training module for users to do the distributed cluster training on [PaddleCloud](https://github.com/PaddlePaddle/cloud), to achieve a much faster training speed with multiple machines. To start with this, please first install PaddleCloud client and register a PaddleCloud account, as described in [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E9%85%8D%E7%BD%AEpaddlecloud).
 
-Then, we take the following steps to sumbit a training job:
+Then, we take the following steps to submit a training job:
 
-- go to directory:
+- Go to directory:
 
     ```
     cd cloud
     ```
 - Upload data:
 
-    Data must be uploaded to PaddleCloud filesystem to be accessed from a cloud job. `pcloud_upload_data.sh` helps do the data packing and uploading:
+    Data must be uploaded to PaddleCloud filesystem to be accessed within a cloud job. `pcloud_upload_data.sh` helps do the data packing and uploading:
 
     ```
     sh pcloud_upload_data.sh
@@ -326,7 +332,7 @@ Then, we take the following steps to sumbit a training job:
     - Upload these tar files to PaddleCloud filesystem.
     - Create cloud manifests by replacing local filesystem paths with PaddleCloud filesystem paths. New manifests will be used to inform the cloud jobs of audio files' location and their meta information.
 
-    It has to be done only once for the very first time we do the cloud training. Later on, the data is persisitent on the cloud filesystem and reusable for further job submissions.
+    It should be done only once for the very first time we do the cloud training. Later, the data is kept persisitent on the cloud filesystem and reusable for further job submissions.
 
     For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
 
@@ -343,7 +349,7 @@ Then, we take the following steps to sumbit a training job:
     ```
     sh pcloud_submit.sh
     ```
-    we submit a training job to PaddleCloud. And we will see the job name when the submission is finished. Now our training job is running well on the PaddleCloud.
+    we submit a training job to PaddleCloud. And the job name will be printed when the submission is finished. Now our training job is running well on the PaddleCloud.
 
   - Get training logs
 
@@ -369,7 +375,7 @@ TODO: to be added
 
 ## Trying Live Demo with Your Own Voice
 
-Until now, we have trained and tested our ASR model qualitatively (`infer.py`) and quantitively (`test.py`) with existing audio files. But we have not yet play the model with our own speech. `deploy/demo_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling us to test and play around with the demo, with our own voice.
+Until now, we have trained and tested our ASR model qualitatively (`infer.py`) and quantitatively (`test.py`) with existing audio files. But we have not yet try the model with our own speech. `deploy/demo_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling us to test and play around with the demo, with our own voice.
 
 We start the demo's server in one console by:
 
@@ -381,7 +387,7 @@ python deploy/demo_server.py \
 --host_port 8086
 ```
 
-For the machine (might be the same or a different machine) to run the demo's client, we have to do the following installation before moving on.
+For the machine (might not be the same machine) to run the demo's client, we have to do the following installation before moving on.
 
 For example, on MAC OS X:
 
@@ -397,12 +403,12 @@ Then we can start the client in another console by:
 CUDA_VISIBLE_DEVICES=0 \
 python -u deploy/demo_client.py \
 --host_ip 'localhost' \
---host_port 8086 \
+--host_port 8086
 ```
 
-Next, in the client console, press the `whitespace` key, hold, and start speaking. Until we finish our ulterance, we release the key to let the speech-to-text results shown in the console. To quit the client, just press `ESC` key.
+Now, in the client console, press the `whitespace` key, hold, and start speaking. Until we finish our utterance, we release the key to let the speech-to-text results shown in the console. To quit the client, just press `ESC` key.
 
-Notice that `deploy/demo_client.py` must be run in a machine with a microphone device, while `deploy/demo_server.py` could be run in one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessable IP address and port, if the server and client are running with two seperate machines. Nothing has to be done if they are running in one single machine.
+Notice that `deploy/demo_client.py` must be run in a machine with a microphone device, while `deploy/demo_server.py` could be run in one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running in one single machine.
 
 We can also refer to `examples/mandarin/run_demo_server.sh` for example, which will first download a pre-trained Mandarin model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, we can speak Mandarin to test it. If we would like to try some other models, just update `--model_path` argument in the script.  
 

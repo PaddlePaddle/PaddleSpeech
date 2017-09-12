@@ -2,6 +2,12 @@
 
 pushd ../.. > /dev/null
 
+# prepare folder
+if [ ! -e data/tiny ]; then
+    mkdir data/tiny
+fi
+
+
 # download data, generate manifests
 python data/librispeech/librispeech.py \
 --manifest_prefix='data/tiny/manifest' \

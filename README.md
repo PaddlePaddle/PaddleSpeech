@@ -34,7 +34,7 @@ sh setup.sh
 
 ## Getting Started
 
-Several shell scripts provided in `./examples` will help us to quickly give it a try, for most major modules, including data preparation, model training, case inference, model evaluation and demo deployment, with a few public dataset (e.g. [LibriSpeech](http://www.openslr.org/12/), [Aishell](https://github.com/kaldi-asr/kaldi/tree/master/egs/aishell)). Reading these examples will also help us understand how to make it work with our own data.
+Several shell scripts provided in `./examples` will help us to quickly give it a try, for most major modules, including data preparation, model training, case inference and model evaluation, with a few public dataset (e.g. [LibriSpeech](http://www.openslr.org/12/), [Aishell](https://github.com/kaldi-asr/kaldi/tree/master/egs/aishell)). Reading these examples will also help us understand how to make it work with our own data.
 
 Some of the scripts in `./examples` are configured with 8 GPUs. If you don't have 8 GPUs available, please modify `CUDA_VISIBLE_DEVICE` and `--trainer_count`. If you don't have any GPU available, please set `--use_gpu` to False to use CPUs instead.
 
@@ -83,27 +83,6 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     ```
     sh run_test_golden.sh
     ```
-- Try out a live demo with your own voice
-
-    Until now, we have trained and tested our ASR model qualitatively (`run_infer.sh`) and quantitively (`run_test.sh`) with existing audio files. But we have not yet play the model with our own speech. `demo_server.sh` and `demo_client.sh` helps quickly build up a demo ASR engine with the trained model, enabling us to test and play around with the demo with our own voice.
-
-    We start the server in one console by entering:
-
-    ```
-    sh run_demo_server.sh
-    ```
-
-    and start the client in another console by entering:
-
-    ```
-    sh run_demo_client.sh
-    ```
-
-    Then, in the client console, press the `whitespace` key, hold, and start speaking. Until we finish our ulterance, we release the key to let the speech-to-text results show in the console.
-
-    Notice that `run_demo_client.sh` must be run in a machine with a microphone device, while `run_demo_server.sh` could be run in one without any audio recording device, e.g. any remote server. Just be careful to update `run_demo_server.sh` and `run_demo_client.sh` with the actual accessable IP address and port, if the server and client are running with two seperate machines. Nothing has to be done if running in one single machine.
-
-    This demo will first download a pre-trained Mandarin model (trained with 3000 hours of internal speech data). If we would like to try some other model, just update `model_path` argument in the script.  
     
 More detailed information are provided in the following sections.
 
@@ -112,7 +91,7 @@ Wish you a happy journey with the DeepSpeech2 ASR engine!
 
 ## Data Preparation
 
-#### Generate Manifest
+### Generate Manifest
 
 *DeepSpeech2 on PaddlePaddle* accepts a textual **manifest** file as its data set interface. A manifest file summarizes a set of speech data, with each line containing some meta data (e.g. filepath, transcription, duration) of one audio clip, in [JSON](http://www.json.org/) format, such as:
 
@@ -125,7 +104,7 @@ To use your custom data, you only need to generate such manifest files to summar
 
 For how to generate such manifest files, please refer to `data/librispeech/librispeech.py`, which download and generate manifests for LibriSpeech dataset.
 
-#### Compute Mean & Stddev for Normalizer
+### Compute Mean & Stddev for Normalizer
 
 To perform z-score normalization (zero-mean, unit stddev) upon audio features, we have to estimate in advance the mean and standard deviation of the features, with some training samples:
 
@@ -139,8 +118,7 @@ python tools/compute_mean_std.py \
 
 It will compute the mean and standard deviation of power spectgram feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
 
-
-#### Build Vocabulary
+### Build Vocabulary
 
 A vocabulary of possible characters is required to convert the transcription into a list of token indices for training, and in docoding, to convert from a list of indices back to text again. Such a character-based vocabulary can be build with `tools/build_vocab.py`.
 
@@ -153,7 +131,7 @@ python tools/build_vocab.py \
 
 It will write a vocabuary file `data/librispeeech/eng_vocab.txt` with all transcription text in `data/librispeech/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
 
-#### More Help
+### More Help
 
 For more help on arguments:
 
@@ -181,7 +159,8 @@ python tools/build_vocab.py --help
 - Resume training from a checkpoint:
 
     ```
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py \
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    python train.py \
     --init_model_path CHECKPOINT_PATH_TO_RESUME_FROM
     ```
 
@@ -295,7 +274,8 @@ The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta
 - Tuning with GPU:
 
     ```
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python tools/tune.py \
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+    python tools/tune.py \
     --trainer_count 8 \
     --alpha_from 0.1 \
     --alpha_to 0.36 \
@@ -322,14 +302,86 @@ TODO: add figure.
 
 ## Distributed Cloud Training
 
-If you wish to train DeepSpeech2 on PaddleCloud, please refer to
+We provide a cloud training module for users to do the distributed cluster training on [PaddleCloud](https://github.com/PaddlePaddle/cloud), to achieve a much faster training speed with multiple machines. To start with this, please first install PaddleCloud client and register a PaddleCloud account, as described in [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E9%85%8D%E7%BD%AEpaddlecloud).
+
+Then, we take the following steps to sumbit a training job:
+
+- go to directory:
+
+    ```
+    cd cloud
+    ```
+- Upload data:
+
+    Data must be uploaded to PaddleCloud filesystem to be accessed from a cloud job. `pcloud_upload_data.sh` helps do the data packing and uploading:
+
+    ```
+    sh pcloud_upload_data.sh
+    ```
+
+    Given input manifests, `pcloud_upload_data.sh` will:
+
+    - Extract the audio files listed in the input manifests.
+    - Pack them into a specified number of tar files.
+    - Upload these tar files to PaddleCloud filesystem.
+    - Create cloud manifests by replacing local filesystem paths with PaddleCloud filesystem paths. New manifests will be used to inform the cloud jobs of audio files' location and their meta information.
+
+    It has to be done only once for the very first time we do the cloud training. Later on, the data is persisitent on the cloud filesystem and reusable for further job submissions.
+
+    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+
+ - Configure training arguments:
+
+    Configure the cloud job parameters in `pcloud_submit.sh` (e.g. `NUM_NODES`, `NUM_GPUS`, `CLOUD_TRAIN_DIR`, `JOB_NAME` etc.) and then configure other hyper-parameters for training in `pcloud_train.sh` (just as what you do for local training).
+
+    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+
+ - Submit the job:
+
+    By running:
+
+    ```
+    sh pcloud_submit.sh
+    ```
+    we submit a training job to PaddleCloud. And we will see the job name when the submission is finished. Now our training job is running well on the PaddleCloud.
+
+  - Get training logs
+
+    Run this to list all the jobs you have submitted, as well as their running status:
+
+    ```
+    paddlecloud get jobs
+    ```
+
+    Run this, the corresponding job's logs will be printed.
+    ```
+    paddlecloud logs -n 10000 $REPLACED_WITH_YOUR_ACTUAL_JOB_NAME
+    ```
+
+For more information about the usage of PaddleCloud, please refer to [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#提交任务).
+
+For more information about the DeepSpeech2 training on PaddleCloud, please refer to
 [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
 
 ## Training for Mandarin Language
 
+TODO: to be added
+
 ## Trying Live Demo with Your Own Voice
 
-A real-time ASR demo is built for users to try out the ASR model with their own voice. Please do the following installation on the machine you'd like to run the demo's client (no need for the machine running the demo's server).
+Until now, we have trained and tested our ASR model qualitatively (`infer.py`) and quantitively (`test.py`) with existing audio files. But we have not yet play the model with our own speech. `deploy/demo_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling us to test and play around with the demo, with our own voice.
+
+We start the demo's server in one console by:
+
+```
+CUDA_VISIBLE_DEVICES=0 \
+python deploy/demo_server.py \
+--trainer_count 1 \
+--host_ip localhost \
+--host_port 8086
+```
+
+For the machine (might be the same or a different machine) to run the demo's client, we have to do the following installation before moving on.
 
 For example, on MAC OS X:
 
@@ -338,22 +390,37 @@ brew install portaudio
 pip install pyaudio
 pip install pynput
 ```
-After a model and language model is prepared, we can first start the demo's server:
+
+Then we can start the client in another console by:
 
 ```
-CUDA_VISIBLE_DEVICES=0 python demo_server.py
+CUDA_VISIBLE_DEVICES=0 \
+python -u deploy/demo_client.py \
+--host_ip 'localhost' \
+--host_port 8086 \
 ```
-And then in another console, start the demo's client:
+
+Next, in the client console, press the `whitespace` key, hold, and start speaking. Until we finish our ulterance, we release the key to let the speech-to-text results shown in the console. To quit the client, just press `ESC` key.
+
+Notice that `deploy/demo_client.py` must be run in a machine with a microphone device, while `deploy/demo_server.py` could be run in one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessable IP address and port, if the server and client are running with two seperate machines. Nothing has to be done if they are running in one single machine.
+
+We can also refer to `examples/mandarin/run_demo_server.sh` for example, which will first download a pre-trained Mandarin model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, we can speak Mandarin to test it. If we would like to try some other models, just update `--model_path` argument in the script.  
+
+For more help on arguments:
 
 ```
-python demo_client.py
+python deploy/demo_server.py --help
+python deploy/demo_client.py --help
 ```
-On the client console, press and hold the "white-space" key on the keyboard to start talking, until you finish your speech and then release the "white-space" key. The decoding results (infered transcription) will be displayed.
-
-It could be possible to start the server and the client in two seperate machines, e.g. `demo_client.py` is usually started in a machine with a microphone hardware, while `demo_server.py` is usually started in a remote server with powerful GPUs. Please first make sure that these two machines have network access to each other, and then use `--host_ip` and `--host_port` to indicate the server machine's actual IP address (instead of the `localhost` as default) and TCP port, in both `demo_server.py` and `demo_client.py`.
 
 ## Experiments and Benchmarks
 
+TODO: to be added
+
 ## Released Models
 
+TODO: to be added
+
 ## Questions and Help
+
+You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/models/issues). You are also welcome to contribute to this project.

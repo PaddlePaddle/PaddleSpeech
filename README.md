@@ -26,7 +26,7 @@
 
 Please install the [prerequisites](#prerequisites) above before moving on.
 
-```
+```bash
 git clone https://github.com/PaddlePaddle/models.git
 cd models/deep_speech_2
 sh setup.sh
@@ -42,45 +42,45 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
 
 - Go to directory
 
-    ```
+    ```bash
     cd examples/tiny
     ```
 
     Notice that this is only a toy example with a tiny sampled subset of LibriSpeech. If we would like to try with the complete dataset (would take several days for training), please go to `examples/librispeech` instead.
 - Prepare the data
 
-    ```
+    ```bash
     sh run_data.sh
     ```
 
     `run_data.sh` will download dataset, generate manifests, collect normalizer' statistics and build vocabulary. Once the data preparation is done, we will find the data (only part of LibriSpeech) downloaded in `~/.cache/paddle/dataset/speech/libri` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time we run this dataset and is reusable for all further experiments.
 - Train your own ASR model
 
-    ```
+    ```bash
     sh run_train.sh
     ```
 
     `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints/tiny`. We can resume the training from these checkpoints, or use them for inference, evaluation and deployment.
 - Case inference with an existing model
 
-    ```
+    ```bash
     sh run_infer.sh
     ```
 
     `run_infer.sh` will show us some speech-to-text decoding results for several (default: 10) samples with the trained model. The performance might not be good now as the current model is only trained with a toy subset of LibriSpeech. To see the results with a better model, we can download a well-trained (trained for several days, with the complete LibriSpeech) model and do the inference:
 
-    ```
+    ```bash
     sh run_infer_golden.sh
     ```
 - Evaluate an existing model
 
-    ```
+    ```bash
     sh run_test.sh
     ```
 
     `run_test.sh` will evaluate the model with Word Error Rate (or Character Error Rate) measurement. Similarly, we can also download a well-trained model and test its performance:
 
-    ```
+    ```bash
     sh run_test_golden.sh
     ```
 
@@ -106,7 +106,7 @@ For how to generate such manifest files, please refer to `data/librispeech/libri
 
 To perform z-score normalization (zero-mean, unit stddev) upon audio features, we have to estimate in advance the mean and standard deviation of the features, with some training samples:
 
-```
+```bash
 python tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
@@ -121,7 +121,7 @@ It will compute the mean and standard deviation of power spectrum feature with 2
 
 A vocabulary of possible characters is required to convert the transcription into a list of token indices for training, and in decoding, to convert from a list of indices back to text again. Such a character-based vocabulary can be built with `tools/build_vocab.py`.
 
-```
+```bash
 python tools/build_vocab.py \
 --count_threshold 0 \
 --vocab_path data/librispeech/eng_vocab.txt \
@@ -134,7 +134,7 @@ It will write a vocabuary file `data/librispeeech/eng_vocab.txt` with all transc
 
 For more help on arguments:
 
-```
+```bash
 python data/librispeech/librispeech.py --help
 python tools/compute_mean_std.py --help
 python tools/build_vocab.py --help
@@ -165,7 +165,7 @@ python tools/build_vocab.py --help
 
 For more help on arguments:
 
-```
+```bash
 python train.py --help
 ```
 or refer to `example/librispeech/run_train.sh`.
@@ -212,7 +212,7 @@ Be careful when we are utilizing the data augmentation technique, as improper au
 
 A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. We can simply run this to download the preprared language models:
 
-```
+```bash
 cd models/lm
 sh download_lm_en.sh
 sh download_lm_ch.sh
@@ -227,13 +227,13 @@ An inference module caller `infer.py` is provided for us to infer, decode and vi
 
 - Inference with GPU:
 
-    ```
+    ```bash
     CUDA_VISIBLE_DEVICES=0 python infer.py --trainer_count 1
     ```
 
 - Inference with CPUs:
 
-    ```
+    ```bash
     python infer.py --use_gpu False --trainer_count 12
     ```
 
@@ -252,13 +252,13 @@ To evaluate a model's performance quantitatively, we can run:
 
 - Evaluation with GPUs:
 
-    ```
+    ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py --trainer_count 8
     ```
 
 - Evaluation with CPUs:
 
-    ```
+    ```bash
     python test.py --use_gpu False --trainer_count 12
     ```
 
@@ -266,7 +266,7 @@ The error rate (default: word error rate; can be set with `--error_rate_type`) w
 
 For more help on arguments:
 
-```
+```bash
 python test.py --help
 ```
 or refer to `example/librispeech/run_test.sh`.
@@ -279,7 +279,7 @@ The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta
 
 - Tuning with GPU:
 
-    ```
+    ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     python tools/tune.py \
     --trainer_count 8 \
@@ -293,13 +293,13 @@ The hyper-parameters $\alpha$ (coefficient for language model scorer) and $\beta
 
 - Tuning with CPU:
 
-    ```
+    ```bash
     python tools/tune.py --use_gpu False
     ```
 
 After tuning, we can reset $\alpha$ and $\beta$ in the inference and evaluation modules to see if they really help improve the ASR performance.
 
-```
+```bash
 python tune.py --help
 ```
 or refer to `example/librispeech/run_tune.sh`.
@@ -314,14 +314,14 @@ Then, we take the following steps to submit a training job:
 
 - Go to directory:
 
-    ```
+    ```bash
     cd cloud
     ```
 - Upload data:
 
     Data must be uploaded to PaddleCloud filesystem to be accessed within a cloud job. `pcloud_upload_data.sh` helps do the data packing and uploading:
 
-    ```
+    ```bash
     sh pcloud_upload_data.sh
     ```
 
@@ -346,7 +346,7 @@ Then, we take the following steps to submit a training job:
 
     By running:
 
-    ```
+    ```bash
     sh pcloud_submit.sh
     ```
     we submit a training job to PaddleCloud. And the job name will be printed when the submission is finished. Now our training job is running well on the PaddleCloud.
@@ -355,12 +355,12 @@ Then, we take the following steps to submit a training job:
 
     Run this to list all the jobs you have submitted, as well as their running status:
 
-    ```
+    ```bash
     paddlecloud get jobs
     ```
 
     Run this, the corresponding job's logs will be printed.
-    ```
+    ```bash
     paddlecloud logs -n 10000 $REPLACED_WITH_YOUR_ACTUAL_JOB_NAME
     ```
 
@@ -379,7 +379,7 @@ Until now, we have trained and tested our ASR model qualitatively (`infer.py`) a
 
 We start the demo's server in one console by:
 
-```
+```bash
 CUDA_VISIBLE_DEVICES=0 \
 python deploy/demo_server.py \
 --trainer_count 1 \
@@ -391,7 +391,7 @@ For the machine (might not be the same machine) to run the demo's client, we hav
 
 For example, on MAC OS X:
 
-```
+```bash
 brew install portaudio
 pip install pyaudio
 pip install pynput
@@ -399,7 +399,7 @@ pip install pynput
 
 Then we can start the client in another console by:
 
-```
+```bash
 CUDA_VISIBLE_DEVICES=0 \
 python -u deploy/demo_client.py \
 --host_ip 'localhost' \
@@ -414,7 +414,7 @@ We can also refer to `examples/mandarin/run_demo_server.sh` for example, which w
 
 For more help on arguments:
 
-```
+```bash
 python deploy/demo_server.py --help
 python deploy/demo_client.py --help
 ```

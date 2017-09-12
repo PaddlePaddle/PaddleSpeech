@@ -65,7 +65,6 @@ def download(url, md5sum, target_dir):
     if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
         print("Downloading %s ..." % url)
         ret = os.system("wget -c " + url + " -P " + target_dir)
-        print(ret)
         print("\nMD5 Chesksum %s ..." % filepath)
         if not md5file(filepath) == md5sum:
             raise RuntimeError("MD5 checksum failed.")

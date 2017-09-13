@@ -48,7 +48,7 @@ add_arg('init_model_path',  str,
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('output_model_dir', str,
-        "./checkpoints",
+        "./checkpoints/libri",
         "Directory for saving checkpoints.")
 add_arg('augment_conf_path',str,
         'conf/augmentation.config',

@@ -44,10 +44,10 @@ add_arg('vocab_path',       str,
         'data/librispeech/vocab.txt',
         "Filepath of vocabulary.")
 add_arg('lang_model_path',  str,
-        'model_zoo/lm/common_crawl_00.prune01111.trie.klm',
+        'models/lm/common_crawl_00.prune01111.trie.klm',
         "Filepath for language model.")
 add_arg('model_path',       str,
-        './checkpoints/params.latest.tar.gz',
+        './checkpoints/libri/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('error_rate_type',  str,

@@ -46,7 +46,7 @@ add_arg('vocab_path',       str,
         'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('model_path',       str,
-        './checkpoints/params.latest.tar.gz',
+        './checkpoints/libri/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('lang_model_path',  str,

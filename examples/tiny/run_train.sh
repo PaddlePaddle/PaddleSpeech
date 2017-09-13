@@ -3,6 +3,7 @@
 pushd ../.. > /dev/null
 
 # train model
+# if you wish to resume from an exists model, uncomment --init_model_path
 CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python -u train.py \
 --batch_size=16 \

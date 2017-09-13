@@ -8,10 +8,10 @@ import os
 import time
 import gzip
 import paddle.v2 as paddle
-from models.swig_decoders_wrapper import Scorer
-from models.swig_decoders_wrapper import ctc_greedy_decoder
-from models.swig_decoders_wrapper import ctc_beam_search_decoder_batch
-from models.network import deep_speech_v2_network
+from decoders.swig_wrapper import Scorer
+from decoders.swig_wrapper import ctc_greedy_decoder
+from decoders.swig_wrapper import ctc_beam_search_decoder_batch
+from model_utils.network import deep_speech_v2_network
 
 
 class DeepSpeech2Model(object):

@@ -1,12 +1,12 @@
 #ifndef PATH_TRIE_H
 #define PATH_TRIE_H
 #pragma once
+#include <fst/fstlib.h>
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <fst/fstlib.h>
 
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 

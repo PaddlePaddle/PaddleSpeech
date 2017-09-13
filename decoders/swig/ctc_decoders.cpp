@@ -7,8 +7,8 @@
 #include <map>
 #include <utility>
 
-#include "fst/fstlib.h"
 #include "ThreadPool.h"
+#include "fst/fstlib.h"
 
 #include "decoder_utils.h"
 #include "path_trie.h"

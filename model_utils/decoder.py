@@ -180,6 +180,8 @@ def ctc_beam_search_decoder(probs_seq,
                 prob = prob * ext_scoring_func(result)
             log_prob = log(prob)
             beam_result.append((log_prob, result))
+        else:
+            beam_result.append((float('-inf'), ''))
 
     ## output top beam_size decoding results
     beam_result = sorted(beam_result, key=lambda asd: asd[0], reverse=True)

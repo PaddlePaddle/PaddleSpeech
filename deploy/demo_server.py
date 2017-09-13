@@ -11,7 +11,7 @@ import wave
 import paddle.v2 as paddle
 import _init_paths
 from data_utils.data import DataGenerator
-from models.model import DeepSpeech2Model
+from model_utils.model import DeepSpeech2Model
 from data_utils.utils import read_manifest
 from utils.utility import add_arguments, print_arguments
 
@@ -46,7 +46,7 @@ add_arg('vocab_path',       str,
         'data/librispeech/eng_vocab.txt',
         "Filepath of vocabulary.")
 add_arg('model_path',       str,
-        './checkpoints/params.latest.tar.gz',
+        './checkpoints/libri/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('lang_model_path',  str,

@@ -1,19 +1,31 @@
 #! /usr/bin/bash
 
-pushd ../..
+pushd ../.. > /dev/null
 
 # download data, generate manifests
 python data/librispeech/librispeech.py \
 --manifest_prefix='data/librispeech/manifest' \
---full_download='True' \
---target_dir=$HOME'/.cache/paddle/dataset/speech/Libri'
+--target_dir='~/.cache/paddle/dataset/speech/Libri' \
+--full_download='True'
 
 if [ $? -ne 0 ]; then
     echo "Prepare LibriSpeech failed. Terminated."
     exit 1
 fi
 
-#cat data/librispeech/manifest.train* | shuf > data/librispeech/manifest.train
+cat data/librispeech/manifest.train-* | shuf > data/librispeech/manifest.train
+
+
+# build vocabulary
+python tools/build_vocab.py \
+--count_threshold=0 \
+--vocab_path='data/librispeech/vocab.txt' \
+--manifest_paths='data/librispeech/manifest.train'
+
+if [ $? -ne 0 ]; then
+    echo "Build vocabulary failed. Terminated."
+    exit 1
+fi
 
 
 # compute mean and stddev for normalizer
@@ -30,3 +42,4 @@ fi
 
 
 echo "LibriSpeech Data preparation done."
+exit 0

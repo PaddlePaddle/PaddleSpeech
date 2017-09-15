@@ -12,6 +12,10 @@ download() {
     fi
 
     wget -c $URL -O "$TARGET"
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+
     md5_result=`md5sum $TARGET | awk -F[' '] '{print $1}'`
     if [ ! $MD5 == $md5_result ]; then
         return 1

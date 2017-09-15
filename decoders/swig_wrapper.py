@@ -41,7 +41,6 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
 def ctc_beam_search_decoder(probs_seq,
                             beam_size,
                             vocabulary,
-                            blank_id,
                             cutoff_prob=1.0,
                             cutoff_top_n=40,
                             ext_scoring_func=None):
@@ -55,8 +54,6 @@ def ctc_beam_search_decoder(probs_seq,
     :type beam_size: int
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
-    :param blank_id: ID of blank.
-    :type blank_id: int
     :param cutoff_prob: Cutoff probability in pruning,
                         default 1.0, no pruning.
     :type cutoff_prob: float
@@ -72,15 +69,14 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    return swig_decoders.ctc_beam_search_decoder(
-        probs_seq.tolist(), beam_size, vocabulary, blank_id, cutoff_prob,
-        cutoff_top_n, ext_scoring_func)
+    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), beam_size,
+                                                 vocabulary, cutoff_prob,
+                                                 cutoff_top_n, ext_scoring_func)
 
 
 def ctc_beam_search_decoder_batch(probs_split,
                                   beam_size,
                                   vocabulary,
-                                  blank_id,
                                   num_processes,
                                   cutoff_prob=1.0,
                                   cutoff_top_n=40,
@@ -94,8 +90,6 @@ def ctc_beam_search_decoder_batch(probs_split,
     :type beam_size: int
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
-    :param blank_id: ID of blank.
-    :type blank_id: int
     :param num_processes: Number of parallel processes.
     :type num_processes: int
     :param cutoff_prob: Cutoff probability in vocabulary pruning,
@@ -118,5 +112,5 @@ def ctc_beam_search_decoder_batch(probs_split,
     probs_split = [probs_seq.tolist() for probs_seq in probs_split]
 
     return swig_decoders.ctc_beam_search_decoder_batch(
-        probs_split, beam_size, vocabulary, blank_id, num_processes,
-        cutoff_prob, cutoff_top_n, ext_scoring_func)
+        probs_split, beam_size, vocabulary, num_processes, cutoff_prob,
+        cutoff_top_n, ext_scoring_func)

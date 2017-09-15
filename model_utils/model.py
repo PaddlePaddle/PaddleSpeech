@@ -214,7 +214,6 @@ class DeepSpeech2Model(object):
                 probs_split=probs_split,
                 vocabulary=vocab_list,
                 beam_size=beam_size,
-                blank_id=len(vocab_list),
                 num_processes=num_processes,
                 ext_scoring_func=self._ext_scorer,
                 cutoff_prob=cutoff_prob)

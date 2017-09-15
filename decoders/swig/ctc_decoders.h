@@ -27,21 +27,21 @@ std::string ctc_greedy_decoder(
  *               over vocabulary of one time step.
  *     beam_size: The width of beam search.
  *     vocabulary: A vector of vocabulary.
- *     blank_id: ID of blank.
  *     cutoff_prob: Cutoff probability for pruning.
  *     cutoff_top_n: Cutoff number for pruning.
- *     ext_scorer: External scorer to evaluate a prefix.
+ *     ext_scorer: External scorer to evaluate a prefix, which consists of
+ *                 n-gram language model scoring and word insertion term.
+ *                 Default null, decoding the input sample without scorer.
  * Return:
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
 */
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,
-    int beam_size,
+    const size_t beam_size,
     std::vector<std::string> vocabulary,
-    int blank_id,
-    double cutoff_prob = 1.0,
-    int cutoff_top_n = 40,
+    const double cutoff_prob = 1.0,
+    const size_t cutoff_top_n = 40,
     Scorer *ext_scorer = NULL);
 
 /* CTC Beam Search Decoder for batch data
@@ -52,11 +52,12 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
  *      .
  *     beam_size: The width of beam search.
  *     vocabulary: A vector of vocabulary.
- *     blank_id: ID of blank.
  *     num_processes: Number of threads for beam search.
  *     cutoff_prob: Cutoff probability for pruning.
  *     cutoff_top_n: Cutoff number for pruning.
- *     ext_scorer: External scorer to evaluate a prefix.
+ *     ext_scorer: External scorer to evaluate a prefix, which consists of
+ *                 n-gram language model scoring and word insertion term.
+ *                 Default null, decoding the input sample without scorer.
  * Return:
  *     A 2-D vector that each element is a vector of beam search decoding
  *     result for one audio sample.
@@ -64,12 +65,11 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
-    int beam_size,
+    const size_t beam_size,
     const std::vector<std::string> &vocabulary,
-    int blank_id,
-    int num_processes,
+    const size_t num_processes,
     double cutoff_prob = 1.0,
-    int cutoff_top_n = 40,
+    const size_t cutoff_top_n = 40,
     Scorer *ext_scorer = NULL);
 
 #endif  // CTC_BEAM_SEARCH_DECODER_H_

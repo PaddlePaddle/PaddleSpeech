@@ -22,6 +22,8 @@ class TextFeaturizer(object):
     def __init__(self, vocab_filepath):
         self._vocab_dict, self._vocab_list = self._load_vocabulary_from_file(
             vocab_filepath)
+        # from unicode to string
+        self._vocab_list = [chars.encode("utf-8") for chars in self._vocab_list]
 
     def featurize(self, text):
         """Convert text string to a list of token indices in char-level.Note

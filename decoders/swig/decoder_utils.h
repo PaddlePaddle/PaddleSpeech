@@ -7,6 +7,22 @@
 const float NUM_FLT_INF = std::numeric_limits<float>::max();
 const float NUM_FLT_MIN = std::numeric_limits<float>::min();
 
+// check if __A == _B
+#define VALID_CHECK_EQ(__A, __B, __ERR)          \
+  if ((__A) != (__B)) {                          \
+    std::ostringstream str;                      \
+    str << (__A) << " != " << (__B) << ", ";     \
+    throw std::runtime_error(str.str() + __ERR); \
+  }
+
+// check if __A > __B
+#define VALID_CHECK_GT(__A, __B, __ERR)          \
+  if ((__A) <= (__B)) {                          \
+    std::ostringstream str;                      \
+    str << (__A) << " <= " << (__B) << ", ";     \
+    throw std::runtime_error(str.str() + __ERR); \
+  }
+
 // Function template for comparing two pairs
 template <typename T1, typename T2>
 bool pair_comp_first_rev(const std::pair<T1, T2> &a,

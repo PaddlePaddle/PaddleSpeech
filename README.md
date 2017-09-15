@@ -24,8 +24,6 @@
 
 ## Installation
 
-### Basic setup
-
 Please make sure the above [prerequisites](#prerequisites) have been satisfied before moving on.
 
 ```bash
@@ -33,16 +31,6 @@ git clone https://github.com/PaddlePaddle/models.git
 cd models/deep_speech_2
 sh setup.sh
 ```
-
-### Decoders setup
-
-```bash
-cd decoders/swig
-sh setup.sh
-cd ../..
-```
-
-These commands will install the decoders that translate the ouptut probability  vectors of DS2 model to text data, incuding CTC greedy decoder, CTC beam search decoder and its batch version. And a detailed usuage about them will be given in the following sections.
 
 ## Getting Started
 
@@ -189,7 +177,6 @@ Data augmentation has often been a highly effective technique to boost the deep 
 Six optional augmentation components are provided to be selected, configured and inserted into the processing pipeline.
 
 ### Inference
-
   - Volume Perturbation
   - Speed Perturbation
   - Shifting Perturbation

@@ -26,4 +26,13 @@ if [ $? != 0 ]; then
     rm libsndfile-1.0.28.tar.gz
 fi
 
+# install decoders
+python -c "import swig_decoders"
+if [ $? != 0 ]; then
+    pushd decoders/swig > /dev/null
+    sh setup.sh
+    popd > /dev/null
+fi
+
+
 echo "Install all dependencies successfully."

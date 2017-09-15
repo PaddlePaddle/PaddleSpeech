@@ -419,13 +419,56 @@ python deploy/demo_server.py --help
 python deploy/demo_client.py --help
 ```
 
-## Experiments and Benchmarks
-
-TODO: to be added
-
 ## Released Models
 
-TODO: to be added
+#### Speech Model Released
+
+Language  | Model Name | Training Data | Training Hours
+:-----------: | :------------: | :----------: |  -------:
+English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [Internal English Model](to-be-added) | Baidu English Dataset | 8000 h
+Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
+Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 2917 h
+
+#### Language Model Released
+
+Language Model | Training Data | Token-based | Size | Filter Configuraiton
+:-------------:| :------------:| :-----: | -----: | -----------------:
+[English LM (Median)](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  To Be Added | Word-based | 8.3 GB | To Be Added
+[English LM (Big)](to-be-added) |  To Be Added | Word-based | X.X GB | To Be Added
+[Mandarin LM (Median)](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) |  To Be Added | Character-based | 2.8 GB | To Be Added
+[Mandarin LM (Big)](to-be-added) |  To Be Added | Character-based | X.X GB | To Be Added
+
+## Experiments and Benchmarks
+
+#### English Model Evaluation (Word Error Rate)
+
+Test Set                | LibriSpeech Model | Internal English Model
+:---------------------: | :---------------: | :-------------------:
+LibriSpeech-Test-Clean  |   7.9             |   X.X
+LibriSpeech-Test-Other  |   X.X             |   X.X
+VoxForge-Test           |   X.X             |   X.X
+Baidu-English-Test      |   X.X             |   X.X
+
+#### English Model Evaluation (Character Error Rate)
+
+Test Set                | LibriSpeech Model | Internal English Model
+:---------------------: | :---------------: | :-------------------:
+LibriSpeech-Test-Clean  |   X.X             |   X.X
+LibriSpeech-Test-Other  |   X.X             |   X.X
+VoxForge-Test           |   X.X             |   X.X
+Baidu-English-Test      |   X.X             |   X.X
+
+#### Mandarin Model Evaluation (Character Error Rate)
+
+Test Set                | Aishell Model     | Internal Mandarin Model
+:---------------------: | :---------------: | :-------------------:
+Aishell-Test            |   X.X             |   X.X
+Baidu-Mandarin-Test     |   X.X             |   X.X
+
+#### Multiple GPU Efficiency
+
+TODO: To Be Added
 
 ## Questions and Help
 

@@ -2,4 +2,3 @@ scipy==0.13.1
 resampy==0.1.5
 SoundFile==0.9.0.post1
 python_speech_features
-https://github.com/luotao1/kenlm/archive/master.zip

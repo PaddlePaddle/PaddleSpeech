@@ -11,10 +11,9 @@ download() {
         fi
     fi
 
-    wget -c $URL -P `dirname "$TARGET"`
+    wget -c $URL -O "$TARGET"
     md5_result=`md5sum $TARGET | awk -F[' '] '{print $1}'`
-    if [ $MD5 == $md5_result ]; then
-        echo "Fail to download the language model!"
+    if [ ! $MD5 == $md5_result ]; then
         return 1
     fi
 }

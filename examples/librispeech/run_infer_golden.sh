@@ -36,7 +36,7 @@ python -u infer.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---infer_manifest='data/tiny/manifest.test-clean' \
+--infer_manifest='data/librispeech/manifest.test-clean' \
 --mean_std_path='models/librispeech/mean_std.npz' \
 --vocab_path='models/librispeech/vocab.txt' \
 --model_path='models/librispeech/params.tar.gz' \

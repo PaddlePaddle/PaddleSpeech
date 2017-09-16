@@ -33,6 +33,7 @@ python -u infer.py \
 --alpha=2.15 \
 --beta=0.35 \
 --cutoff_prob=1.0 \
+--cutoff_top_n=40 \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \

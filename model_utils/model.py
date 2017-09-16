@@ -148,8 +148,8 @@ class DeepSpeech2Model(object):
         return self._loss_inferer.infer(input=infer_data)
 
     def infer_batch(self, infer_data, decoding_method, beam_alpha, beam_beta,
-                    beam_size, cutoff_prob, vocab_list, language_model_path,
-                    num_processes):
+                    beam_size, cutoff_prob, cutoff_top_n, vocab_list,
+                    language_model_path, num_processes):
         """Model inference. Infer the transcription for a batch of speech
         utterances.
 
@@ -169,6 +169,10 @@ class DeepSpeech2Model(object):
         :param cutoff_prob: Cutoff probability in pruning,
                             default 1.0, no pruning.
         :type cutoff_prob: float
+        :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+        :type cutoff_top_n: int
         :param vocab_list: List of tokens in the vocabulary, for decoding.
         :type vocab_list: list
         :param language_model_path: Filepath for language model.
@@ -216,7 +220,8 @@ class DeepSpeech2Model(object):
                 beam_size=beam_size,
                 num_processes=num_processes,
                 ext_scoring_func=self._ext_scorer,
-                cutoff_prob=cutoff_prob)
+                cutoff_prob=cutoff_prob,
+                cutoff_top_n=cutoff_top_n)
 
             results = [result[0][1] for result in beam_search_results]
         else:

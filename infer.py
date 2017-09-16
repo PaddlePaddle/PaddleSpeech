@@ -23,7 +23,8 @@ add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
 add_arg('alpha',            float,  2.15,   "Coef of LM for beam search.")
 add_arg('beta',             float,  0.35,   "Coef of WC for beam search.")
-add_arg('cutoff_prob',      float,  1.0,   "Cutoff probability for pruning.")
+add_arg('cutoff_prob',      float,  1.0,    "Cutoff probability for pruning.")
+add_arg('cutoff_top_n',     int,    40,     "Cutoff number for pruning.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
@@ -85,6 +86,9 @@ def infer():
         pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
+    # decoders only accept string encoded in utf-8
+    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+
     result_transcripts = ds2_model.infer_batch(
         infer_data=infer_data,
         decoding_method=args.decoding_method,
@@ -92,7 +96,8 @@ def infer():
         beam_beta=args.beta,
         beam_size=args.beam_size,
         cutoff_prob=args.cutoff_prob,
-        vocab_list=data_generator.vocab_list,
+        cutoff_top_n=args.cutoff_top_n,
+        vocab_list=vocab_list,
         language_model_path=args.lang_model_path,
         num_processes=args.num_proc_bsearch)
 

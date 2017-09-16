@@ -128,7 +128,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 
     // pruning of vacobulary
     size_t cutoff_len = prob.size();
-    if (cutoff_prob < 1.0 || cutoff_top_n < prob.size()) {
+    if (cutoff_prob < 1.0 || cutoff_top_n < cutoff_len) {
       std::sort(
           prob_idx.begin(), prob_idx.end(), pair_comp_second_rev<int, double>);
       if (cutoff_prob < 1.0) {

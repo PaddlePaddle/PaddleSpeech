@@ -13,29 +13,47 @@
 
 using namespace lm::ngram;
 
-Scorer::Scorer(double alpha, double beta, const std::string& lm_path) {
+Scorer::Scorer(double alpha,
+               double beta,
+               const std::string& lm_path,
+               const std::vector<std::string>& vocab_list) {
   this->alpha = alpha;
   this->beta = beta;
   _is_character_based = true;
   _language_model = nullptr;
   dictionary = nullptr;
   _max_order = 0;
+  _dict_size = 0;
   _SPACE_ID = -1;
-  // load language model
-  load_LM(lm_path.c_str());
+
+  setup(lm_path, vocab_list);
 }
 
 Scorer::~Scorer() {
-  if (_language_model != nullptr)
+  if (_language_model != nullptr) {
     delete static_cast<lm::base::Model*>(_language_model);
-  if (dictionary != nullptr) delete static_cast<fst::StdVectorFst*>(dictionary);
+  }
+  if (dictionary != nullptr) {
+    delete static_cast<fst::StdVectorFst*>(dictionary);
+  }
 }
 
-void Scorer::load_LM(const char* filename) {
-  if (access(filename, F_OK) != 0) {
-    std::cerr << "Invalid language model file !!!" << std::endl;
-    exit(1);
+void Scorer::setup(const std::string& lm_path,
+                   const std::vector<std::string>& vocab_list) {
+  // load language model
+  load_lm(lm_path);
+  // set char map for scorer
+  set_char_map(vocab_list);
+  // fill the dictionary for FST
+  if (!is_character_based()) {
+    fill_dictionary(true);
   }
+}
+
+void Scorer::load_lm(const std::string& lm_path) {
+  const char* filename = lm_path.c_str();
+  VALID_CHECK_EQ(access(filename, F_OK), 0, "Invalid language model path");
+
   RetriveStrEnumerateVocab enumerate;
   lm::ngram::Config config;
   config.enumerate_vocab = &enumerate;
@@ -180,14 +198,14 @@ void Scorer::fill_dictionary(bool add_space) {
   }
 
   // For each unigram convert to ints and put in trie
-  int vocab_size = 0;
+  int dict_size = 0;
   for (const auto& word : _vocabulary) {
     bool added = add_word_to_dictionary(
         word, char_map, add_space, _SPACE_ID, &dictionary);
-    vocab_size += added ? 1 : 0;
+    dict_size += added ? 1 : 0;
   }
 
-  std::cerr << "Vocab Size " << vocab_size << std::endl;
+  _dict_size = dict_size;
 
   /* Simplify FST
 

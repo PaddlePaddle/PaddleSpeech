@@ -115,6 +115,7 @@ def evaluate():
     print("Final error rate [%s] (%d/%d) = %f" %
           (args.error_rate_type, num_ins, num_ins, error_sum / num_ins))
 
+    ds2_model.logger.info("finish evaluation")
 
 def main():
     print_arguments(args)

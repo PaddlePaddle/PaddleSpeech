@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d kenlm ]; then
     git clone https://github.com/luotao1/kenlm.git

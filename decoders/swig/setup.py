@@ -70,8 +70,11 @@ FILES = glob.glob('kenlm/util/*.cc') \
 
 FILES += glob.glob('openfst-1.6.3/src/lib/*.cc')
 
+# FILES + glob.glob('glog/src/*.cc')
 FILES = [
-    fn for fn in FILES if not (fn.endswith('main.cc') or fn.endswith('test.cc'))
+    fn for fn in FILES
+    if not (fn.endswith('main.cc') or fn.endswith('test.cc') or fn.endswith(
+        'unittest.cc'))
 ]
 
 LIBS = ['stdc++']
@@ -99,7 +102,13 @@ decoders_module = [
         name='_swig_decoders',
         sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
         language='c++',
-        include_dirs=['.', 'kenlm', 'openfst-1.6.3/src/include', 'ThreadPool'],
+        include_dirs=[
+            '.',
+            'kenlm',
+            'openfst-1.6.3/src/include',
+            'ThreadPool',
+            #'glog/src'
+        ],
         libraries=LIBS,
         extra_compile_args=ARGS)
 ]

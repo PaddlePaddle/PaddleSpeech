@@ -112,6 +112,7 @@ def infer():
         print("Current error rate [%s] = %f" %
               (args.error_rate_type, error_rate_func(target, result)))
 
+    ds2_model.logger.info("finish inference")
 
 def main():
     print_arguments(args)

@@ -13,14 +13,14 @@ class Scorer(swig_decoders.Scorer):
                   language model when alpha = 0.
     :type alpha: float
     :param beta: Parameter associated with word count. Don't use word
-                count when beta = 0.
+                 count when beta = 0.
     :type beta: float
     :model_path: Path to load language model.
     :type model_path: basestring
     """
 
-    def __init__(self, alpha, beta, model_path):
-        swig_decoders.Scorer.__init__(self, alpha, beta, model_path)
+    def __init__(self, alpha, beta, model_path, vocabulary):
+        swig_decoders.Scorer.__init__(self, alpha, beta, model_path, vocabulary)
 
 
 def ctc_greedy_decoder(probs_seq, vocabulary):
@@ -58,12 +58,12 @@ def ctc_beam_search_decoder(probs_seq,
                         default 1.0, no pruning.
     :type cutoff_prob: float
     :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
-                        characters with highest probs in vocabulary will be
-                        used in beam search, default 40.
+                         characters with highest probs in vocabulary will be
+                         used in beam search, default 40.
     :type cutoff_top_n: int
     :param ext_scoring_func: External scoring function for
-                            partially decoded sentence, e.g. word count
-                            or language model.
+                             partially decoded sentence, e.g. word count
+                             or language model.
     :type external_scoring_func: callable
     :return: List of tuples of log probability and sentence as decoding
              results, in descending order of the probability.
@@ -96,14 +96,14 @@ def ctc_beam_search_decoder_batch(probs_split,
                         default 1.0, no pruning.
     :type cutoff_prob: float
     :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
-                        characters with highest probs in vocabulary will be
-                        used in beam search, default 40.
+                         characters with highest probs in vocabulary will be
+                         used in beam search, default 40.
     :type cutoff_top_n: int
     :param num_processes: Number of parallel processes.
     :type num_processes: int
     :param ext_scoring_func: External scoring function for
-                            partially decoded sentence, e.g. word count
-                            or language model.
+                             partially decoded sentence, e.g. word count
+                             or language model.
     :type external_scoring_function: callable
     :return: List of tuples of log probability and sentence as decoding
              results, in descending order of the probability.

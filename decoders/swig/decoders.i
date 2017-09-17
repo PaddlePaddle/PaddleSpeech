@@ -1,7 +1,8 @@
 %module swig_decoders
 %{
 #include "scorer.h"
-#include "ctc_decoders.h"
+#include "ctc_greedy_decoder.h"
+#include "ctc_beam_search_decoder.h"
 #include "decoder_utils.h"
 %}
 
@@ -28,4 +29,5 @@ namespace std {
 %template(DoubleStringPairCompFirstRev) pair_comp_first_rev<double, std::string>;
 
 %include "scorer.h"
-%include "ctc_decoders.h"
+%include "ctc_greedy_decoder.h"
+%include "ctc_beam_search_decoder.h"

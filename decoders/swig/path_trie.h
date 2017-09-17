@@ -1,14 +1,13 @@
 #ifndef PATH_TRIE_H
 #define PATH_TRIE_H
-#pragma once
-#include <fst/fstlib.h>
+
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
 
-using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
+#include "fst/fstlib.h"
 
 /* Trie tree for prefix storing and manipulating, with a dictionary in
  * finite-state transducer for spelling correction.
@@ -35,7 +34,7 @@ public:
   // set dictionary for FST
   void set_dictionary(fst::StdVectorFst* dictionary);
 
-  void set_matcher(std::shared_ptr<FSTMATCH> matcher);
+  void set_matcher(std::shared_ptr<fst::SortedMatcher<fst::StdVectorFst>>);
 
   bool is_empty() { return _ROOT == character; }
 
@@ -62,7 +61,7 @@ private:
   fst::StdVectorFst* _dictionary;
   fst::StdVectorFst::StateId _dictionary_state;
   // true if finding ars in FST
-  std::shared_ptr<FSTMATCH> _matcher;
+  std::shared_ptr<fst::SortedMatcher<fst::StdVectorFst>> _matcher;
 };
 
 #endif  // PATH_TRIE_H

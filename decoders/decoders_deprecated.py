@@ -119,7 +119,7 @@ def ctc_beam_search_decoder(probs_seq,
                 cutoff_len += 1
                 if cum_prob >= cutoff_prob:
                     break
-            cutoff_len = min(cutoff_top_n, cutoff_top_n)
+            cutoff_len = min(cutoff_len, cutoff_top_n)
             prob_idx = prob_idx[0:cutoff_len]
 
         for l in prefix_set_prev:
@@ -228,8 +228,8 @@ def ctc_beam_search_decoder_batch(probs_split,
     pool = multiprocessing.Pool(processes=num_processes)
     results = []
     for i, probs_list in enumerate(probs_split):
-        args = (probs_list, beam_size, vocabulary, blank_id, cutoff_prob,
-                cutoff_top_n, None, nproc)
+        args = (probs_list, beam_size, vocabulary, cutoff_prob, cutoff_top_n,
+                None, nproc)
         results.append(pool.apply_async(ctc_beam_search_decoder, args))
 
     pool.close()

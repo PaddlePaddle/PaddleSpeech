@@ -21,9 +21,9 @@ python -u infer.py \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=2048 \
---alpha=0.36 \
---beta=0.25 \
---cutoff_prob=0.99 \
+--alpha=2.15 \
+--beta=0.35 \
+--cutoff_prob=1.0 \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \

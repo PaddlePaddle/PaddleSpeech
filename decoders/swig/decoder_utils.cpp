@@ -4,6 +4,71 @@
 #include <cmath>
 #include <limits>
 
+std::vector<std::pair<size_t, float>> get_pruned_log_probs(
+    const std::vector<double> &prob_step,
+    double cutoff_prob,
+    size_t cutoff_top_n) {
+  std::vector<std::pair<int, double>> prob_idx;
+  for (size_t i = 0; i < prob_step.size(); ++i) {
+    prob_idx.push_back(std::pair<int, double>(i, prob_step[i]));
+  }
+  // pruning of vacobulary
+  size_t cutoff_len = prob_step.size();
+  if (cutoff_prob < 1.0 || cutoff_top_n < cutoff_len) {
+    std::sort(
+        prob_idx.begin(), prob_idx.end(), pair_comp_second_rev<int, double>);
+    if (cutoff_prob < 1.0) {
+      double cum_prob = 0.0;
+      cutoff_len = 0;
+      for (size_t i = 0; i < prob_idx.size(); ++i) {
+        cum_prob += prob_idx[i].second;
+        cutoff_len += 1;
+        if (cum_prob >= cutoff_prob) break;
+      }
+    }
+    cutoff_len = std::min(cutoff_len, cutoff_top_n);
+    prob_idx = std::vector<std::pair<int, double>>(
+        prob_idx.begin(), prob_idx.begin() + cutoff_len);
+  }
+  std::vector<std::pair<size_t, float>> log_prob_idx;
+  for (size_t i = 0; i < cutoff_len; ++i) {
+    log_prob_idx.push_back(std::pair<int, float>(
+        prob_idx[i].first, log(prob_idx[i].second + NUM_FLT_MIN)));
+  }
+  return log_prob_idx;
+}
+
+
+std::vector<std::pair<double, std::string>> get_beam_search_result(
+    const std::vector<PathTrie *> &prefixes,
+    const std::vector<std::string> &vocabulary,
+    size_t beam_size) {
+  // allow for the post processing
+  std::vector<PathTrie *> space_prefixes;
+  if (space_prefixes.empty()) {
+    for (size_t i = 0; i < beam_size && i < prefixes.size(); ++i) {
+      space_prefixes.push_back(prefixes[i]);
+    }
+  }
+
+  std::sort(space_prefixes.begin(), space_prefixes.end(), prefix_compare);
+  std::vector<std::pair<double, std::string>> output_vecs;
+  for (size_t i = 0; i < beam_size && i < space_prefixes.size(); ++i) {
+    std::vector<int> output;
+    space_prefixes[i]->get_path_vec(output);
+    // convert index to string
+    std::string output_str;
+    for (size_t j = 0; j < output.size(); j++) {
+      output_str += vocabulary[output[j]];
+    }
+    std::pair<double, std::string> output_pair(-space_prefixes[i]->approx_ctc,
+                                               output_str);
+    output_vecs.emplace_back(output_pair);
+  }
+
+  return output_vecs;
+}
+
 size_t get_utf8_str_len(const std::string &str) {
   size_t str_len = 0;
   for (char c : str) {

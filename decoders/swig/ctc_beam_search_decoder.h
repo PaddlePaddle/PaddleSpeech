@@ -7,19 +7,6 @@
 
 #include "scorer.h"
 
-/* CTC Best Path Decoder
- *
- * Parameters:
- *     probs_seq: 2-D vector that each element is a vector of probabilities
- *               over vocabulary of one time step.
- *     vocabulary: A vector of vocabulary.
- * Return:
- *     The decoding result in string
- */
-std::string ctc_greedy_decoder(
-    const std::vector<std::vector<double>> &probs_seq,
-    const std::vector<std::string> &vocabulary);
-
 /* CTC Beam Search Decoder
 
  * Parameters:
@@ -38,11 +25,11 @@ std::string ctc_greedy_decoder(
 */
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,
-    const size_t beam_size,
+    size_t beam_size,
     std::vector<std::string> vocabulary,
-    const double cutoff_prob = 1.0,
-    const size_t cutoff_top_n = 40,
-    Scorer *ext_scorer = NULL);
+    double cutoff_prob = 1.0,
+    size_t cutoff_top_n = 40,
+    Scorer *ext_scorer = nullptr);
 
 /* CTC Beam Search Decoder for batch data
 
@@ -65,11 +52,11 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
-    const size_t beam_size,
+    size_t beam_size,
     const std::vector<std::string> &vocabulary,
-    const size_t num_processes,
+    size_t num_processes,
     double cutoff_prob = 1.0,
-    const size_t cutoff_top_n = 40,
-    Scorer *ext_scorer = NULL);
+    size_t cutoff_top_n = 40,
+    Scorer *ext_scorer = nullptr);
 
 #endif  // CTC_BEAM_SEARCH_DECODER_H_

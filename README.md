@@ -176,7 +176,6 @@ Data augmentation has often been a highly effective technique to boost the deep 
 
 Six optional augmentation components are provided to be selected, configured and inserted into the processing pipeline.
 
-### Inference
   - Volume Perturbation
   - Speed Perturbation
   - Shifting Perturbation

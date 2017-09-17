@@ -6,12 +6,16 @@ from __future__ import print_function
 import sys
 import os
 import time
+import logging
 import gzip
 import paddle.v2 as paddle
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
 from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 from model_utils.network import deep_speech_v2_network
+
+logging.basicConfig(
+    format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
 
 
 class DeepSpeech2Model(object):
@@ -43,6 +47,8 @@ class DeepSpeech2Model(object):
         self._inferer = None
         self._loss_inferer = None
         self._ext_scorer = None
+        self.logger = logging.getLogger("")
+        self.logger.setLevel(level=logging.INFO)
 
     def train(self,
               train_batch_reader,
@@ -204,16 +210,25 @@ class DeepSpeech2Model(object):
         elif decoding_method == "ctc_beam_search":
             # initialize external scorer
             if self._ext_scorer == None:
-                self._ext_scorer = Scorer(beam_alpha, beam_beta,
-                                          language_model_path)
                 self._loaded_lm_path = language_model_path
-                self._ext_scorer.set_char_map(vocab_list)
-                if (not self._ext_scorer.is_character_based()):
-                    self._ext_scorer.fill_dictionary(True)
+                self.logger.info("begin to initialize the external scorer "
+                                 "for decoding")
+                self._ext_scorer = Scorer(beam_alpha, beam_beta,
+                                          language_model_path, vocab_list)
+
+                lm_char_based = self._ext_scorer.is_character_based()
+                lm_max_order = self._ext_scorer.get_max_order()
+                lm_dict_size = self._ext_scorer.get_dict_size()
+                self.logger.info("language model: "
+                                 "is_character_based = %d," % lm_char_based +
+                                 " max_order = %d," % lm_max_order +
+                                 " dict_size = %d" % lm_dict_size)
+                self.logger.info("end initializing scorer. Start decoding ...")
             else:
                 self._ext_scorer.reset_params(beam_alpha, beam_beta)
                 assert self._loaded_lm_path == language_model_path
             # beam search decode
+            num_processes = min(num_processes, len(probs_split))
             beam_search_results = ctc_beam_search_decoder_batch(
                 probs_split=probs_split,
                 vocabulary=vocab_list,

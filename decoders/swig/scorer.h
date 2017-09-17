@@ -40,31 +40,32 @@ public:
  */
 class Scorer {
 public:
-  Scorer(double alpha, double beta, const std::string &lm_path);
+  Scorer(double alpha,
+         double beta,
+         const std::string &lm_path,
+         const std::vector<std::string> &vocabulary);
   ~Scorer();
 
   double get_log_cond_prob(const std::vector<std::string> &words);
 
   double get_sent_log_prob(const std::vector<std::string> &words);
 
-  size_t get_max_order() { return _max_order; }
+  size_t get_max_order() const { return _max_order; }
 
-  bool is_char_map_empty() { return _char_map.size() == 0; }
+  size_t get_dict_size() const { return _dict_size; }
 
-  bool is_character_based() { return _is_character_based; }
+  bool is_char_map_empty() const { return _char_map.size() == 0; }
+
+  bool is_character_based() const { return _is_character_based; }
 
   // reset params alpha & beta
   void reset_params(float alpha, float beta);
 
-  // make ngram
+  // make ngram for a given prefix
   std::vector<std::string> make_ngram(PathTrie *prefix);
 
-  // fill dictionary for fst
-  void fill_dictionary(bool add_space);
-
-  // set char map
-  void set_char_map(const std::vector<std::string> &char_list);
-
+  // trransform the labels in index to the vector of words (word based lm) or
+  // the vector of characters (character based lm)
   std::vector<std::string> split_labels(const std::vector<int> &labels);
 
   // expose to decoder
@@ -75,7 +76,16 @@ public:
   void *dictionary;
 
 protected:
-  void load_LM(const char *filename);
+  void setup(const std::string &lm_path,
+             const std::vector<std::string> &vocab_list);
+
+  void load_lm(const std::string &lm_path);
+
+  // fill dictionary for fst
+  void fill_dictionary(bool add_space);
+
+  // set char map
+  void set_char_map(const std::vector<std::string> &char_list);
 
   double get_log_prob(const std::vector<std::string> &words);
 
@@ -85,6 +95,7 @@ private:
   void *_language_model;
   bool _is_character_based;
   size_t _max_order;
+  size_t _dict_size;
 
   int _SPACE_ID;
   std::vector<std::string> _char_list;

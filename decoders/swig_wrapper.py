@@ -39,8 +39,8 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
 
 
 def ctc_beam_search_decoder(probs_seq,
-                            beam_size,
                             vocabulary,
+                            beam_size,
                             cutoff_prob=1.0,
                             cutoff_top_n=40,
                             ext_scoring_func=None):
@@ -50,10 +50,10 @@ def ctc_beam_search_decoder(probs_seq,
                       step, with each element being a list of normalized
                       probabilities over vocabulary and blank.
     :type probs_seq: 2-D list
-    :param beam_size: Width for beam search.
-    :type beam_size: int
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
+    :param beam_size: Width for beam search.
+    :type beam_size: int
     :param cutoff_prob: Cutoff probability in pruning,
                         default 1.0, no pruning.
     :type cutoff_prob: float
@@ -69,14 +69,14 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), beam_size,
-                                                 vocabulary, cutoff_prob,
+    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), vocabulary,
+                                                 beam_size, cutoff_prob,
                                                  cutoff_top_n, ext_scoring_func)
 
 
 def ctc_beam_search_decoder_batch(probs_split,
-                                  beam_size,
                                   vocabulary,
+                                  beam_size,
                                   num_processes,
                                   cutoff_prob=1.0,
                                   cutoff_top_n=40,
@@ -86,10 +86,10 @@ def ctc_beam_search_decoder_batch(probs_split,
     :param probs_seq: 3-D list with each element as an instance of 2-D list
                       of probabilities used by ctc_beam_search_decoder().
     :type probs_seq: 3-D list
-    :param beam_size: Width for beam search.
-    :type beam_size: int
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
+    :param beam_size: Width for beam search.
+    :type beam_size: int
     :param num_processes: Number of parallel processes.
     :type num_processes: int
     :param cutoff_prob: Cutoff probability in vocabulary pruning,
@@ -112,5 +112,5 @@ def ctc_beam_search_decoder_batch(probs_split,
     probs_split = [probs_seq.tolist() for probs_seq in probs_split]
 
     return swig_decoders.ctc_beam_search_decoder_batch(
-        probs_split, beam_size, vocabulary, num_processes, cutoff_prob,
+        probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
         cutoff_top_n, ext_scoring_func)

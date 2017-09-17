@@ -18,8 +18,8 @@ using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,
+    const std::vector<std::string> &vocabulary,
     size_t beam_size,
-    std::vector<std::string> vocabulary,
     double cutoff_prob,
     size_t cutoff_top_n,
     Scorer *ext_scorer) {
@@ -36,8 +36,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
   size_t blank_id = vocabulary.size();
 
   // assign space id
-  std::vector<std::string>::iterator it =
-      std::find(vocabulary.begin(), vocabulary.end(), " ");
+  auto it = std::find(vocabulary.begin(), vocabulary.end(), " ");
   int space_id = it - vocabulary.begin();
   // if no space in vocabulary
   if ((size_t)space_id >= vocabulary.size()) {
@@ -173,11 +172,11 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
-    const size_t beam_size,
     const std::vector<std::string> &vocabulary,
-    const size_t num_processes,
-    const double cutoff_prob,
-    const size_t cutoff_top_n,
+    size_t beam_size,
+    size_t num_processes,
+    double cutoff_prob,
+    size_t cutoff_top_n,
     Scorer *ext_scorer) {
   VALID_CHECK_GT(num_processes, 0, "num_processes must be nonnegative!");
   // thread pool
@@ -190,8 +189,8 @@ ctc_beam_search_decoder_batch(
   for (size_t i = 0; i < batch_size; ++i) {
     res.emplace_back(pool.enqueue(ctc_beam_search_decoder,
                                   probs_split[i],
-                                  beam_size,
                                   vocabulary,
+                                  beam_size,
                                   cutoff_prob,
                                   cutoff_top_n,
                                   ext_scorer));

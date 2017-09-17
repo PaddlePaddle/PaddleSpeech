@@ -12,8 +12,8 @@
  * Parameters:
  *     probs_seq: 2-D vector that each element is a vector of probabilities
  *               over vocabulary of one time step.
- *     beam_size: The width of beam search.
  *     vocabulary: A vector of vocabulary.
+ *     beam_size: The width of beam search.
  *     cutoff_prob: Cutoff probability for pruning.
  *     cutoff_top_n: Cutoff number for pruning.
  *     ext_scorer: External scorer to evaluate a prefix, which consists of
@@ -25,8 +25,8 @@
 */
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,
+    const std::vector<std::string> &vocabulary,
     size_t beam_size,
-    std::vector<std::string> vocabulary,
     double cutoff_prob = 1.0,
     size_t cutoff_top_n = 40,
     Scorer *ext_scorer = nullptr);
@@ -36,9 +36,8 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
  * Parameters:
  *     probs_seq: 3-D vector that each element is a 2-D vector that can be used
  *                by ctc_beam_search_decoder().
- *      .
- *     beam_size: The width of beam search.
  *     vocabulary: A vector of vocabulary.
+ *     beam_size: The width of beam search.
  *     num_processes: Number of threads for beam search.
  *     cutoff_prob: Cutoff probability for pruning.
  *     cutoff_top_n: Cutoff number for pruning.
@@ -52,8 +51,8 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 std::vector<std::vector<std::pair<double, std::string>>>
 ctc_beam_search_decoder_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
-    size_t beam_size,
     const std::vector<std::string> &vocabulary,
+    size_t beam_size,
     size_t num_processes,
     double cutoff_prob = 1.0,
     size_t cutoff_top_n = 40,

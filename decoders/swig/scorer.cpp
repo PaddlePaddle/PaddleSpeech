@@ -19,19 +19,19 @@ Scorer::Scorer(double alpha,
                const std::vector<std::string>& vocab_list) {
   this->alpha = alpha;
   this->beta = beta;
-  _is_character_based = true;
-  _language_model = nullptr;
+  is_character_based_ = true;
+  language_model_ = nullptr;
   dictionary = nullptr;
-  _max_order = 0;
-  _dict_size = 0;
-  _SPACE_ID = -1;
+  max_order_ = 0;
+  dict_size_ = 0;
+  SPACE_ID_ = -1;
 
   setup(lm_path, vocab_list);
 }
 
 Scorer::~Scorer() {
-  if (_language_model != nullptr) {
-    delete static_cast<lm::base::Model*>(_language_model);
+  if (language_model_ != nullptr) {
+    delete static_cast<lm::base::Model*>(language_model_);
   }
   if (dictionary != nullptr) {
     delete static_cast<fst::StdVectorFst*>(dictionary);
@@ -57,20 +57,20 @@ void Scorer::load_lm(const std::string& lm_path) {
   RetriveStrEnumerateVocab enumerate;
   lm::ngram::Config config;
   config.enumerate_vocab = &enumerate;
-  _language_model = lm::ngram::LoadVirtual(filename, config);
-  _max_order = static_cast<lm::base::Model*>(_language_model)->Order();
-  _vocabulary = enumerate.vocabulary;
-  for (size_t i = 0; i < _vocabulary.size(); ++i) {
-    if (_is_character_based && _vocabulary[i] != UNK_TOKEN &&
-        _vocabulary[i] != START_TOKEN && _vocabulary[i] != END_TOKEN &&
+  language_model_ = lm::ngram::LoadVirtual(filename, config);
+  max_order_ = static_cast<lm::base::Model*>(language_model_)->Order();
+  vocabulary_ = enumerate.vocabulary;
+  for (size_t i = 0; i < vocabulary_.size(); ++i) {
+    if (is_character_based_ && vocabulary_[i] != UNK_TOKEN &&
+        vocabulary_[i] != START_TOKEN && vocabulary_[i] != END_TOKEN &&
         get_utf8_str_len(enumerate.vocabulary[i]) > 1) {
-      _is_character_based = false;
+      is_character_based_ = false;
     }
   }
 }
 
 double Scorer::get_log_cond_prob(const std::vector<std::string>& words) {
-  lm::base::Model* model = static_cast<lm::base::Model*>(_language_model);
+  lm::base::Model* model = static_cast<lm::base::Model*>(language_model_);
   double cond_prob;
   lm::ngram::State state, tmp_state, out_state;
   // avoid to inserting <s> in begin
@@ -93,11 +93,11 @@ double Scorer::get_log_cond_prob(const std::vector<std::string>& words) {
 double Scorer::get_sent_log_prob(const std::vector<std::string>& words) {
   std::vector<std::string> sentence;
   if (words.size() == 0) {
-    for (size_t i = 0; i < _max_order; ++i) {
+    for (size_t i = 0; i < max_order_; ++i) {
       sentence.push_back(START_TOKEN);
     }
   } else {
-    for (size_t i = 0; i < _max_order - 1; ++i) {
+    for (size_t i = 0; i < max_order_ - 1; ++i) {
       sentence.push_back(START_TOKEN);
     }
     sentence.insert(sentence.end(), words.begin(), words.end());
@@ -107,11 +107,11 @@ double Scorer::get_sent_log_prob(const std::vector<std::string>& words) {
 }
 
 double Scorer::get_log_prob(const std::vector<std::string>& words) {
-  assert(words.size() > _max_order);
+  assert(words.size() > max_order_);
   double score = 0.0;
-  for (size_t i = 0; i < words.size() - _max_order + 1; ++i) {
+  for (size_t i = 0; i < words.size() - max_order_ + 1; ++i) {
     std::vector<std::string> ngram(words.begin() + i,
-                                   words.begin() + i + _max_order);
+                                   words.begin() + i + max_order_);
     score += get_log_cond_prob(ngram);
   }
   return score;
@@ -125,7 +125,7 @@ void Scorer::reset_params(float alpha, float beta) {
 std::string Scorer::vec2str(const std::vector<int>& input) {
   std::string word;
   for (auto ind : input) {
-    word += _char_list[ind];
+    word += char_list_[ind];
   }
   return word;
 }
@@ -135,7 +135,7 @@ std::vector<std::string> Scorer::split_labels(const std::vector<int>& labels) {
 
   std::string s = vec2str(labels);
   std::vector<std::string> words;
-  if (_is_character_based) {
+  if (is_character_based_) {
     words = split_utf8_str(s);
   } else {
     words = split_str(s, " ");
@@ -144,15 +144,15 @@ std::vector<std::string> Scorer::split_labels(const std::vector<int>& labels) {
 }
 
 void Scorer::set_char_map(const std::vector<std::string>& char_list) {
-  _char_list = char_list;
-  _char_map.clear();
+  char_list_ = char_list;
+  char_map_.clear();
 
-  for (unsigned int i = 0; i < _char_list.size(); i++) {
-    if (_char_list[i] == " ") {
-      _SPACE_ID = i;
-      _char_map[' '] = i;
-    } else if (_char_list[i].size() == 1) {
-      _char_map[_char_list[i][0]] = i;
+  for (size_t i = 0; i < char_list_.size(); i++) {
+    if (char_list_[i] == " ") {
+      SPACE_ID_ = i;
+      char_map_[' '] = i;
+    } else if (char_list_[i].size() == 1) {
+      char_map_[char_list_[i][0]] = i;
     }
   }
 }
@@ -162,14 +162,14 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
   PathTrie* current_node = prefix;
   PathTrie* new_node = nullptr;
 
-  for (int order = 0; order < _max_order; order++) {
+  for (int order = 0; order < max_order_; order++) {
     std::vector<int> prefix_vec;
 
-    if (_is_character_based) {
-      new_node = current_node->get_path_vec(prefix_vec, _SPACE_ID, 1);
+    if (is_character_based_) {
+      new_node = current_node->get_path_vec(prefix_vec, SPACE_ID_, 1);
       current_node = new_node;
     } else {
-      new_node = current_node->get_path_vec(prefix_vec, _SPACE_ID);
+      new_node = current_node->get_path_vec(prefix_vec, SPACE_ID_);
       current_node = new_node->parent;  // Skipping spaces
     }
 
@@ -179,7 +179,7 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
 
     if (new_node->character == -1) {
       // No more spaces, but still need order
-      for (int i = 0; i < _max_order - order - 1; i++) {
+      for (int i = 0; i < max_order_ - order - 1; i++) {
         ngram.push_back(START_TOKEN);
       }
       break;
@@ -193,19 +193,19 @@ void Scorer::fill_dictionary(bool add_space) {
   fst::StdVectorFst dictionary;
   // First reverse char_list so ints can be accessed by chars
   std::unordered_map<std::string, int> char_map;
-  for (unsigned int i = 0; i < _char_list.size(); i++) {
-    char_map[_char_list[i]] = i;
+  for (size_t i = 0; i < char_list_.size(); i++) {
+    char_map[char_list_[i]] = i;
   }
 
   // For each unigram convert to ints and put in trie
   int dict_size = 0;
-  for (const auto& word : _vocabulary) {
+  for (const auto& word : vocabulary_) {
     bool added = add_word_to_dictionary(
-        word, char_map, add_space, _SPACE_ID, &dictionary);
+        word, char_map, add_space, SPACE_ID_, &dictionary);
     dict_size += added ? 1 : 0;
   }
 
-  _dict_size = dict_size;
+  dict_size_ = dict_size;
 
   /* Simplify FST
 

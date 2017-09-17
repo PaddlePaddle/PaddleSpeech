@@ -36,7 +36,7 @@ public:
 
   void set_matcher(std::shared_ptr<fst::SortedMatcher<fst::StdVectorFst>>);
 
-  bool is_empty() { return _ROOT == character; }
+  bool is_empty() { return ROOT_ == character; }
 
   // remove current path from root
   void remove();
@@ -51,17 +51,17 @@ public:
   PathTrie* parent;
 
 private:
-  int _ROOT;
-  bool _exists;
-  bool _has_dictionary;
+  int ROOT_;
+  bool exists_;
+  bool has_dictionary_;
 
-  std::vector<std::pair<int, PathTrie*>> _children;
+  std::vector<std::pair<int, PathTrie*>> children_;
 
   // pointer to dictionary of FST
-  fst::StdVectorFst* _dictionary;
-  fst::StdVectorFst::StateId _dictionary_state;
+  fst::StdVectorFst* dictionary_;
+  fst::StdVectorFst::StateId dictionary_state_;
   // true if finding ars in FST
-  std::shared_ptr<fst::SortedMatcher<fst::StdVectorFst>> _matcher;
+  std::shared_ptr<fst::SortedMatcher<fst::StdVectorFst>> matcher_;
 };
 
 #endif  // PATH_TRIE_H

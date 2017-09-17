@@ -18,7 +18,7 @@ const std::string START_TOKEN = "<s>";
 const std::string UNK_TOKEN = "<unk>";
 const std::string END_TOKEN = "</s>";
 
-// Implement a callback to retrive string vocabulary.
+// Implement a callback to retrive the dictionary of language model.
 class RetriveStrEnumerateVocab : public lm::EnumerateVocab {
 public:
   RetriveStrEnumerateVocab() {}
@@ -50,13 +50,14 @@ public:
 
   double get_sent_log_prob(const std::vector<std::string> &words);
 
-  size_t get_max_order() const { return _max_order; }
+  // return the max order
+  size_t get_max_order() const { return max_order_; }
 
-  size_t get_dict_size() const { return _dict_size; }
+  // return the dictionary size of language model
+  size_t get_dict_size() const { return dict_size_; }
 
-  bool is_char_map_empty() const { return _char_map.size() == 0; }
-
-  bool is_character_based() const { return _is_character_based; }
+  // retrun true if the language model is character based
+  bool is_character_based() const { return is_character_based_; }
 
   // reset params alpha & beta
   void reset_params(float alpha, float beta);
@@ -68,20 +69,23 @@ public:
   // the vector of characters (character based lm)
   std::vector<std::string> split_labels(const std::vector<int> &labels);
 
-  // expose to decoder
+  // language model weight
   double alpha;
+  // word insertion weight
   double beta;
 
-  // fst dictionary
+  // pointer to the dictionary of FST
   void *dictionary;
 
 protected:
+  // necessary setup: load language model, set char map, fill FST's dictionary
   void setup(const std::string &lm_path,
              const std::vector<std::string> &vocab_list);
 
+  // load language model from given path
   void load_lm(const std::string &lm_path);
 
-  // fill dictionary for fst
+  // fill dictionary for FST
   void fill_dictionary(bool add_space);
 
   // set char map
@@ -89,19 +93,20 @@ protected:
 
   double get_log_prob(const std::vector<std::string> &words);
 
+  // translate the vector in index to string
   std::string vec2str(const std::vector<int> &input);
 
 private:
-  void *_language_model;
-  bool _is_character_based;
-  size_t _max_order;
-  size_t _dict_size;
+  void *language_model_;
+  bool is_character_based_;
+  size_t max_order_;
+  size_t dict_size_;
 
-  int _SPACE_ID;
-  std::vector<std::string> _char_list;
-  std::unordered_map<char, int> _char_map;
+  int SPACE_ID_;
+  std::vector<std::string> char_list_;
+  std::unordered_map<char, int> char_map_;
 
-  std::vector<std::string> _vocabulary;
+  std::vector<std::string> vocabulary_;
 };
 
 #endif  // SCORER_H_

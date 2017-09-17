@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /usr/bin/env bash
 # TODO: replace the model with a mandarin model
 
 pushd ../.. > /dev/null

@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /usr/bin/env bash
 
 TRAIN_MANIFEST="cloud/cloud_manifests/cloud.manifest.train"
 DEV_MANIFEST="cloud/cloud_manifests/cloud.manifest.dev"

@@ -60,7 +60,8 @@ class DeepSpeech2Model(object):
               num_passes,
               output_model_dir,
               is_local=True,
-              num_iterations_print=100):
+              num_iterations_print=100,
+              test_off=False):
         """Train the model.
 
         :param train_batch_reader: Train data reader.
@@ -83,6 +84,8 @@ class DeepSpeech2Model(object):
         :type is_local: bool
         :param output_model_dir: Directory for saving the model (every pass).
         :type output_model_dir: basestring
+        :param test_off: Turn off testing.
+        :type test_off: bool
         """
         # prepare model output directory
         if not os.path.exists(output_model_dir):
@@ -120,14 +123,19 @@ class DeepSpeech2Model(object):
                 start_time = time.time()
                 cost_sum, cost_counter = 0.0, 0
             if isinstance(event, paddle.event.EndPass):
-                result = trainer.test(
-                    reader=dev_batch_reader, feeding=feeding_dict)
+                if test_off:
+                    print("\n------- Time: %d sec,  Pass: %d" %
+                          (time.time() - start_time, event.pass_id))
+                else:
+                    result = trainer.test(
+                        reader=dev_batch_reader, feeding=feeding_dict)
+                    print("\n------- Time: %d sec,  Pass: %d, "
+                          "ValidationCost: %s" %
+                          (time.time() - start_time, event.pass_id, 0))
                 output_model_path = os.path.join(
                     output_model_dir, "params.pass-%d.tar.gz" % event.pass_id)
                 with gzip.open(output_model_path, 'w') as f:
                     self._parameters.to_tar(f)
-                print("\n------- Time: %d sec,  Pass: %d, ValidationCost: %s" %
-                      (time.time() - start_time, event.pass_id, result.cost))
 
         # run train
         trainer.train(

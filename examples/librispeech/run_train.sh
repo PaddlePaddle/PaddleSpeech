@@ -17,6 +17,7 @@ python -u train.py \
 --learning_rate=5e-4 \
 --max_duration=27.0 \
 --min_duration=0.0 \
+--test_off=False \
 --use_sortagrad=True \
 --use_gru=False \
 --use_gpu=True \

@@ -25,6 +25,7 @@ add_arg('num_iter_print',   int,    100,    "Every # iterations for printing "
 add_arg('learning_rate',    float,  5e-4,   "Learning rate.")
 add_arg('max_duration',     float,  27.0,   "Longest audio duration allowed.")
 add_arg('min_duration',     float,  0.0,    "Shortest audio duration allowed.")
+add_arg('test_off',         bool,   False,  "Turn off testing.")
 add_arg('use_sortagrad',    bool,   True,   "Use SortaGrad or not.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
@@ -111,7 +112,8 @@ def train():
         num_passes=args.num_passes,
         num_iterations_print=args.num_iter_print,
         output_model_dir=args.output_model_dir,
-        is_local=args.is_local)
+        is_local=args.is_local,
+        test_off=args.test_off)
 
 
 def main():

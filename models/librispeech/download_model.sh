@@ -2,8 +2,8 @@
 
 source ../../utils/utility.sh
 
-URL='http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae'
-MD5=ea5024a457a91179472f6dfee60e053d
+URL='http://cloud.dlnel.org/filepub/?uuid=8e3cf742-2ff3-41ce-a49d-f6158cc06a23'
+MD5=2ef08f8b608a7c555592161fc14d81a6
 TARGET=./librispeech_model.tar.gz
 
 

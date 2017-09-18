@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env  bash
 
 # install python dependencies
 if [ -f "requirements.txt" ]; then
@@ -29,9 +29,9 @@ fi
 # install decoders
 python -c "import swig_decoders"
 if [ $? != 0 ]; then
-    pushd decoders/swig > /dev/null
+    cd decoders/swig > /dev/null
     sh setup.sh
-    popd > /dev/null
+    cd - > /dev/null
 fi
 
 

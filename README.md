@@ -14,8 +14,8 @@
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
 - [Training for Mandarin Language](#training-for-mandarin-language)
 - [Trying Live Demo with Your Own Voice](#trying-live-demo-with-your-own-voice)
-- [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Released Models](#released-models)
+- [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Questions and Help](#questions-and-help)
 
 ## Prerequisites
@@ -466,9 +466,21 @@ Test Set                | Aishell Model     | Internal Mandarin Model
 Aishell-Test            |   X.X             |   X.X
 Baidu-Mandarin-Test     |   X.X             |   X.X
 
-#### Multiple GPU Efficiency
+#### Acceleration with Multi-GPUs
 
-TODO: To Be Added
+We compare the training time with 1, 2, 4, 8, 16 Tesla K40m GPUs (with a subset of LibriSpeech samples whose audio durations are between 6.0 and 7.0 seconds).  And it shows that a **near-linear** acceleration with multiple GPUs has been achieved. In the following figure, the time (in seconds) used for training is plotted on the blue bars.
+
+<img src="docs/images/multi_gpu_speedup.png" width=450><br/>
+
+| # of GPU  | Acceleration Rate |
+| --------  | --------------:   |
+| 1         | 1.00 X |
+| 2         | 1.97 X |
+| 4         | 3.74 X |
+| 8         | 6.21 X |
+|16         | 10.70 X |
+
+`tools/profile.sh` provides such a profiling tool.
 
 ## Questions and Help
 

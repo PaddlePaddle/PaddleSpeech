@@ -6,13 +6,17 @@ from __future__ import print_function
 import sys
 import os
 import time
+import logging
 import gzip
 from distutils.dir_util import mkpath
 import paddle.v2 as paddle
-from model_utils.lm_scorer import LmScorer
-from model_utils.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
-from model_utils.decoder import ctc_beam_search_decoder_batch
+from decoders.swig_wrapper import Scorer
+from decoders.swig_wrapper import ctc_greedy_decoder
+from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 from model_utils.network import deep_speech_v2_network
+
+logging.basicConfig(
+    format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
 
 
 class DeepSpeech2Model(object):
@@ -44,6 +48,8 @@ class DeepSpeech2Model(object):
         self._inferer = None
         self._loss_inferer = None
         self._ext_scorer = None
+        self.logger = logging.getLogger("")
+        self.logger.setLevel(level=logging.INFO)
 
     def train(self,
               train_batch_reader,
@@ -157,8 +163,8 @@ class DeepSpeech2Model(object):
         return self._loss_inferer.infer(input=infer_data)
 
     def infer_batch(self, infer_data, decoding_method, beam_alpha, beam_beta,
-                    beam_size, cutoff_prob, vocab_list, language_model_path,
-                    num_processes):
+                    beam_size, cutoff_prob, cutoff_top_n, vocab_list,
+                    language_model_path, num_processes):
         """Model inference. Infer the transcription for a batch of speech
         utterances.
 
@@ -178,6 +184,10 @@ class DeepSpeech2Model(object):
         :param cutoff_prob: Cutoff probability in pruning,
                             default 1.0, no pruning.
         :type cutoff_prob: float
+        :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+        :type cutoff_top_n: int
         :param vocab_list: List of tokens in the vocabulary, for decoding.
         :type vocab_list: list
         :param language_model_path: Filepath for language model.
@@ -209,21 +219,33 @@ class DeepSpeech2Model(object):
         elif decoding_method == "ctc_beam_search":
             # initialize external scorer
             if self._ext_scorer == None:
-                self._ext_scorer = LmScorer(beam_alpha, beam_beta,
-                                            language_model_path)
                 self._loaded_lm_path = language_model_path
+                self.logger.info("begin to initialize the external scorer "
+                                 "for decoding")
+                self._ext_scorer = Scorer(beam_alpha, beam_beta,
+                                          language_model_path, vocab_list)
+
+                lm_char_based = self._ext_scorer.is_character_based()
+                lm_max_order = self._ext_scorer.get_max_order()
+                lm_dict_size = self._ext_scorer.get_dict_size()
+                self.logger.info("language model: "
+                                 "is_character_based = %d," % lm_char_based +
+                                 " max_order = %d," % lm_max_order +
+                                 " dict_size = %d" % lm_dict_size)
+                self.logger.info("end initializing scorer. Start decoding ...")
             else:
                 self._ext_scorer.reset_params(beam_alpha, beam_beta)
                 assert self._loaded_lm_path == language_model_path
             # beam search decode
+            num_processes = min(num_processes, len(probs_split))
             beam_search_results = ctc_beam_search_decoder_batch(
                 probs_split=probs_split,
                 vocabulary=vocab_list,
                 beam_size=beam_size,
-                blank_id=len(vocab_list),
                 num_processes=num_processes,
                 ext_scoring_func=self._ext_scorer,
-                cutoff_prob=cutoff_prob)
+                cutoff_prob=cutoff_prob,
+                cutoff_top_n=cutoff_top_n)
 
             results = [result[0][1] for result in beam_search_results]
         else:

@@ -8,7 +8,7 @@ import kenlm
 import numpy as np
 
 
-class LmScorer(object):
+class Scorer(object):
     """External scorer to evaluate a prefix or whole sentence in
        beam search decoding, including the score from n-gram language
        model and word count.

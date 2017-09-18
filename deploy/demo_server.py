@@ -100,7 +100,7 @@ class AsrRequestHandler(SocketServer.BaseRequestHandler):
         finish_time = time.time()
         print("Response Time: %f, Transcript: %s" %
               (finish_time - start_time, transcript))
-        self.request.sendall(transcript)
+        self.request.sendall(transcript.encode('utf-8'))
 
     def _write_to_file(self, data):
         # prepare save dir and filename

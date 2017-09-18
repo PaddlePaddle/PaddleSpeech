@@ -8,6 +8,7 @@ import os
 import time
 import logging
 import gzip
+from distutils.dir_util import mkpath
 import paddle.v2 as paddle
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
@@ -85,7 +86,7 @@ class DeepSpeech2Model(object):
         """
         # prepare model output directory
         if not os.path.exists(output_model_dir):
-            os.mkdir(output_model_dir)
+            mkpath(output_model_dir)
 
         # prepare optimizer and trainer
         optimizer = paddle.optimizer.Adam(

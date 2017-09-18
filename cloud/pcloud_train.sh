@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /usr/bin/env bash
 
 TRAIN_MANIFEST=$1
 DEV_MANIFEST=$2

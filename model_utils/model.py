@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import gzip
+from distutils.dir_util import mkpath
 import paddle.v2 as paddle
 from model_utils.lm_scorer import LmScorer
 from model_utils.decoder import ctc_greedy_decoder, ctc_beam_search_decoder
@@ -79,7 +80,7 @@ class DeepSpeech2Model(object):
         """
         # prepare model output directory
         if not os.path.exists(output_model_dir):
-            os.mkdir(output_model_dir)
+            mkpath(output_model_dir)
 
         # prepare optimizer and trainer
         optimizer = paddle.optimizer.Adam(

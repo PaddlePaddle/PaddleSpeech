@@ -14,7 +14,7 @@
  *     The decoding result in string
  */
 std::string ctc_greedy_decoder(
-    const std::vector<std::vector<double>> &probs_seq,
-    const std::vector<std::string> &vocabulary);
+    const std::vector<std::vector<double>>& probs_seq,
+    const std::vector<std::string>& vocabulary);
 
 #endif  // CTC_GREEDY_DECODER_H

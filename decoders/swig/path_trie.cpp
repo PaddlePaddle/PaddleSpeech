@@ -19,9 +19,11 @@ PathTrie::PathTrie() {
   character = ROOT_;
   exists_ = true;
   parent = nullptr;
+
   dictionary_ = nullptr;
   dictionary_state_ = 0;
   has_dictionary_ = false;
+
   matcher_ = nullptr;
 }
 

@@ -9,7 +9,6 @@
 
 #include "ThreadPool.h"
 #include "fst/fstlib.h"
-#include "fst/log.h"
 
 #include "decoder_utils.h"
 #include "path_trie.h"
@@ -130,7 +129,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
               log_sum_exp(prefix_new->log_prob_nb_cur, log_p);
         }
       }  // end of loop over prefix
-    }    // end of loop over chars
+    }    // end of loop over vocabulary
 
     prefixes.clear();
     // update log probs

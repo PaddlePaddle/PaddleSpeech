@@ -27,7 +27,7 @@ std::string ctc_greedy_decoder(
         max_prob = probs_step[j];
       }
     }
-    // id with maximum probability in current step
+    // id with maximum probability in current time step
     max_idx_vec[i] = max_idx;
     // deduplicate
     if ((i == 0) || ((i > 0) && max_idx_vec[i] != max_idx_vec[i - 1])) {

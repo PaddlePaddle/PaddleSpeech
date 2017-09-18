@@ -2,8 +2,8 @@
 #define DECODER_UTILS_H_
 
 #include <utility>
-#include "path_trie.h"
 #include "fst/log.h"
+#include "path_trie.h"
 
 const float NUM_FLT_INF = std::numeric_limits<float>::max();
 const float NUM_FLT_MIN = std::numeric_limits<float>::min();

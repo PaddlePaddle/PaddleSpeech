@@ -23,10 +23,9 @@ std::vector<std::pair<size_t, float>> get_pruned_log_probs(
       for (size_t i = 0; i < prob_idx.size(); ++i) {
         cum_prob += prob_idx[i].second;
         cutoff_len += 1;
-        if (cum_prob >= cutoff_prob) break;
+        if (cum_prob >= cutoff_prob || cutoff_len >= cutoff_top_n) break;
       }
     }
-    cutoff_len = std::min(cutoff_len, cutoff_top_n);
     prob_idx = std::vector<std::pair<int, double>>(
         prob_idx.begin(), prob_idx.begin() + cutoff_len);
   }

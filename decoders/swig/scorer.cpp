@@ -19,9 +19,11 @@ Scorer::Scorer(double alpha,
                const std::vector<std::string>& vocab_list) {
   this->alpha = alpha;
   this->beta = beta;
+
+  dictionary = nullptr;
   is_character_based_ = true;
   language_model_ = nullptr;
-  dictionary = nullptr;
+
   max_order_ = 0;
   dict_size_ = 0;
   SPACE_ID_ = -1;

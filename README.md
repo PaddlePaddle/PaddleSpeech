@@ -219,6 +219,18 @@ sh download_lm_ch.sh
 ```
 If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
 
+Here we provide some tips to show how we prepearing our english and mandarin language models.
+
+#### English LM
+
+The english corpus is from the [Common Crawl Repository](http://commoncrawl.org) and you can download it from [statmt](http://data.statmt.org/ngrams/deduped_en). We use part en.00 to train our english languge model. There are some preprocessing steps before training:
+
+  * Characters which not in [A-Za-z0-9\s'] are removed and arabic numbers are converted to english numbers like 1000 to one thousand.
+  * Repeated whitespace are squeezed to one and the beginning whitespace are removed. Notice that all transcriptions are lowercase, so all characters are converted to lowercases.
+  * Top 400000 words by frequency are selected to build the vocabulary and all words not in the vocabulary are replaced with 'UNKNOWNWORD'.
+
+Now the preprocessing is done and we get a clean corpus to train the language model. Our released language model are pruned by '0 1 1 1 1'. To save disk storage we convert the arpa file to 'trie' binary file with parameters '-a 22 -q 8 -b 8'.
+
 TODO: any other requirements or tips to add?
 
 ### Speech-to-text Inference
@@ -296,7 +308,7 @@ The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertio
     ```bash
     python tools/tune.py --use_gpu False
     ```
- The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.  
+ The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.
 
 <p align="center">
 <img src="docs/images/tuning_error_surface.png" width=550>

@@ -217,19 +217,18 @@ cd models/lm
 sh download_lm_en.sh
 sh download_lm_ch.sh
 ```
-If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
 
-Here we provide some tips to show how we prepearing our english and mandarin language models.
+If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials. Here we provide some tips to show how we preparing our english and mandarin language models. You can take it as a reference when you train your own.
 
 #### English LM
 
 The english corpus is from the [Common Crawl Repository](http://commoncrawl.org) and you can download it from [statmt](http://data.statmt.org/ngrams/deduped_en). We use part en.00 to train our english languge model. There are some preprocessing steps before training:
 
-  * Characters which not in [A-Za-z0-9\s'] are removed and arabic numbers are converted to english numbers like 1000 to one thousand.
-  * Repeated whitespace are squeezed to one and the beginning whitespace are removed. Notice that all transcriptions are lowercase, so all characters are converted to lowercases.
-  * Top 400000 words by frequency are selected to build the vocabulary and all words not in the vocabulary are replaced with 'UNKNOWNWORD'.
+  * Characters not in \[A-Za-z0-9\s'\] (\s represents whitespace characters) are removed and arabic numbers are converted to english numbers like 1000 to one thousand.
+  * Repeated whitespace characters are squeezed to one and the beginning whitespace characters are removed. Notice that all transcriptions are lowercase, so all characters are converted to lowercase.
+  * Top 400,000 most frequent words are selected to build the vocabulary and the rest are replaced with 'UNKNOWNWORD'.
 
-Now the preprocessing is done and we get a clean corpus to train the language model. Our released language model are pruned by '0 1 1 1 1'. To save disk storage we convert the arpa file to 'trie' binary file with parameters '-a 22 -q 8 -b 8'.
+Now the preprocessing is done and we get a clean corpus to train the language model. Our released language model are trained with agruments '-o 5 --prune 0 1 1 1 1'. '-o 5' means the max order of language model is 5. '--prune 0 1 1 1 1' represents count thresholds for each order and more specifically it will prune singletons for orders two and higher. To save disk storage we convert the arpa file to 'trie' binary file with arguments '-a 22 -q 8 -b 8'. '-a' represents the maximum number of leading bits of pointers in 'trie' to chop. '-q -b' are quantization parameters for probability and backoff.
 
 TODO: any other requirements or tips to add?
 

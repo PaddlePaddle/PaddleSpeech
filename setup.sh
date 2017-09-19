@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env  bash
 
 # install python dependencies
 if [ -f "requirements.txt" ]; then
@@ -13,17 +13,26 @@ fi
 python -c "import soundfile"
 if [ $? != 0 ]; then
     echo "Install package libsndfile into default system path."
-    curl -O "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
+    wget "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
     if [ $? != 0 ]; then
         echo "Download libsndfile-1.0.28.tar.gz failed !!!"
         exit 1
     fi
     tar -zxvf libsndfile-1.0.28.tar.gz
     cd libsndfile-1.0.28
-    ./configure && make && make install
+    ./configure > /dev/null && make > /dev/null && make install > /dev/null
     cd ..
     rm -rf libsndfile-1.0.28
     rm libsndfile-1.0.28.tar.gz
 fi
+
+# install decoders
+python -c "import swig_decoders"
+if [ $? != 0 ]; then
+    cd decoders/swig > /dev/null
+    sh setup.sh
+    cd - > /dev/null
+fi
+
 
 echo "Install all dependencies successfully."

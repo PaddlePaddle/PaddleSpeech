@@ -6,10 +6,12 @@ from __future__ import division
 from __future__ import print_function
 
 import random
-import numpy as np
+import tarfile
 import multiprocessing
+import numpy as np
 import paddle.v2 as paddle
-from data_utils import utils
+from threading import local
+from data_utils.utility import read_manifest
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
@@ -46,7 +48,7 @@ class DataGenerator(object):
     :param specgram_type: Specgram feature type. Options: 'linear'.
     :type specgram_type: str
     :param use_dB_normalization: Whether to normalize the audio to -20 dB
-                                 before extracting the features.
+                                before extracting the features.
     :type use_dB_normalization: bool
     :param num_threads: Number of CPU threads for processing data.
     :type num_threads: int
@@ -82,16 +84,20 @@ class DataGenerator(object):
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._epoch = 0
+        # for caching tar files info
+        self._local_data = local()
+        self._local_data.tar2info = {}
+        self._local_data.tar2object = {}
 
     def process_utterance(self, filename, transcript):
         """Load, augment, featurize and normalize for speech data.
 
         :param filename: Audio filepath
-        :type filename: basestring
+        :type filename: basestring | file
         :param transcript: Transcription text.
         :type transcript: basestring
         :return: Tuple of audio feature tensor and list of token ids for
-                 transcription. 
+                 transcription.
         :rtype: tuple of (2darray, list)
         """
         speech_segment = SpeechSegment.from_file(filename, transcript)
@@ -111,7 +117,7 @@ class DataGenerator(object):
         """
         Batch data reader creator for audio data. Return a callable generator
         function to produce batches of data.
-        
+
         Audio features within one batch will be padded with zeros to have the
         same shape, or a user-defined shape.
 
@@ -153,7 +159,7 @@ class DataGenerator(object):
 
         def batch_reader():
             # read manifest
-            manifest = utils.read_manifest(
+            manifest = read_manifest(
                 manifest_path=manifest_path,
                 max_duration=self._max_duration,
                 min_duration=self._min_duration)
@@ -191,9 +197,9 @@ class DataGenerator(object):
     @property
     def feeding(self):
         """Returns data reader's feeding dict.
-        
+
         :return: Data feeding dict.
-        :rtype: dict 
+        :rtype: dict
         """
         return {"audio_spectrogram": 0, "transcript_text": 1}
 
@@ -215,6 +221,38 @@ class DataGenerator(object):
         """
         return self._speech_featurizer.vocab_list
 
+    def _parse_tar(self, file):
+        """Parse a tar file to get a tarfile object
+        and a map containing tarinfoes
+        """
+        result = {}
+        f = tarfile.open(file)
+        for tarinfo in f.getmembers():
+            result[tarinfo.name] = tarinfo
+        return f, result
+
+    def _get_file_object(self, file):
+        """Get file object by file path.
+
+        If file startwith tar, it will return a tar file object
+        and cached tar file info for next reading request.
+        It will return file directly, if the type of file is not str.
+        """
+        if file.startswith('tar:'):
+            tarpath, filename = file.split(':', 1)[1].split('#', 1)
+            if 'tar2info' not in self._local_data.__dict__:
+                self._local_data.tar2info = {}
+            if 'tar2object' not in self._local_data.__dict__:
+                self._local_data.tar2object = {}
+            if tarpath not in self._local_data.tar2info:
+                object, infoes = self._parse_tar(tarpath)
+                self._local_data.tar2info[tarpath] = infoes
+                self._local_data.tar2object[tarpath] = object
+            return self._local_data.tar2object[tarpath].extractfile(
+                self._local_data.tar2info[tarpath][filename])
+        else:
+            return open(file, 'r')
+
     def _instance_reader_creator(self, manifest):
         """
         Instance reader creator. Create a callable function to produce
@@ -229,8 +267,9 @@ class DataGenerator(object):
                 yield instance
 
         def mapper(instance):
-            return self.process_utterance(instance["audio_filepath"],
-                                          instance["text"])
+            return self.process_utterance(
+                self._get_file_object(instance["audio_filepath"]),
+                instance["text"])
 
         return paddle.reader.xmap_readers(
             mapper, reader, self._num_threads, 1024, order=True)

@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import codecs
 
 
 class TextFeaturizer(object):
@@ -59,7 +60,7 @@ class TextFeaturizer(object):
     def _load_vocabulary_from_file(self, vocab_filepath):
         """Load vocabulary from file."""
         vocab_lines = []
-        with open(vocab_filepath, 'r') as file:
+        with codecs.open(vocab_filepath, 'r', 'utf-8') as file:
             vocab_lines.extend(file.readlines())
         vocab_list = [line[:-1] for line in vocab_lines]
         vocab_dict = dict(

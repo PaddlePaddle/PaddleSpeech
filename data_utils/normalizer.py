@@ -5,7 +5,7 @@ from __future__ import print_function
 
 import numpy as np
 import random
-import data_utils.utils as utils
+from data_utils.utility import read_manifest
 from data_utils.audio import AudioSegment
 
 
@@ -75,7 +75,7 @@ class FeatureNormalizer(object):
 
     def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
         """Compute mean and std from randomly sampled instances."""
-        manifest = utils.read_manifest(manifest_path)
+        manifest = read_manifest(manifest_path)
         sampled_manifest = self._rng.sample(manifest, num_samples)
         features = []
         for instance in sampled_manifest:

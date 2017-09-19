@@ -16,7 +16,6 @@ import argparse
 import soundfile
 import json
 import codecs
-from paddle.v2.dataset.common import md5file
 from data_utils.utility import download, unpack
 
 URL_ROOT = "http://www.openslr.org/resources/12"
@@ -104,7 +103,8 @@ def prepare_dataset(url, md5sum, target_dir, manifest_path):
 
 
 def main():
-    args.target_dir = os.path.expanduser(args.target_dir)
+    if args.target_dir.startswith('~'):
+        args.target_dir = os.path.expanduser(args.target_dir)
 
     prepare_dataset(
         url=URL_TEST_CLEAN,

@@ -5,6 +5,8 @@ from __future__ import print_function
 
 import json
 import codecs
+import os
+import tarfile
 
 
 def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
@@ -33,3 +35,28 @@ def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
                 json_data["duration"] >= min_duration):
             manifest.append(json_data)
     return manifest
+
+
+def download(url, md5sum, target_dir):
+    """Download file from url to target_dir, and check md5sum."""
+    if not os.path.exists(target_dir): os.makedirs(target_dir)
+    filepath = os.path.join(target_dir, url.split("/")[-1])
+    if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
+        print("Downloading %s ..." % url)
+        os.system("wget -c " + url + " -P " + target_dir)
+        print("\nMD5 Chesksum %s ..." % filepath)
+        if not md5file(filepath) == md5sum:
+            raise RuntimeError("MD5 checksum failed.")
+    else:
+        print("File exists, skip downloading. (%s)" % filepath)
+    return filepath
+
+
+def unpack(filepath, target_dir, rm_tar=False):
+    """Unpack the file to the target_dir."""
+    print("Unpacking %s ..." % filepath)
+    tar = tarfile.open(filepath)
+    tar.extractall(target_dir)
+    tar.close()
+    if rm_tar == True:
+        os.remove(filepath)

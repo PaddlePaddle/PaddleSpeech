@@ -296,14 +296,14 @@ The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertio
     ```bash
     python tools/tune.py --use_gpu False
     ```
- The grid search will log the WER (word error rate) or CER (character error rate) at each point in the hyper-parameter space and their minima, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.  
+ The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.  
 
 <p align="center">
-<img src="docs/images/tuning_error_surface.png" width=450>
+<img src="docs/images/tuning_error_surface.png" width=550>
 <br/>An example error surface for tuning on the dev-clean set of LibriSpeech
 </p>
 
-Usually, as the figure shows the variation of language model weight ($alpha$) mainly affect the performance of CTC beam search decoder. And a better procedure is first tuning on serveral data batches (the number can be specified) to find out the proper range of hyper-parameters, then change to the whole validataion set to carray out an accurate tuning.
+Usually, as the figure shows, the variation of language model weight ($\alpha$) significantly affect the performance of CTC beam search decoder. And a better procedure is to first tune on serveral data batches (the number can be specified) to find out the proper range of hyper-parameters, then change to the whole validation set to carray out an accurate tuning.
 
 After tuning, you can reset $\alpha$ and $\beta$ in the inference and evaluation modules to see if they really help improve the ASR performance. For more help
 

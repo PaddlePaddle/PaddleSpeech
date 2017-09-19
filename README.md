@@ -426,7 +426,7 @@ python deploy/demo_client.py --help
 Language  | Model Name | Training Data | Training Hours
 :-----------: | :------------: | :----------: |  -------:
 English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [Internal English Model](to-be-added) | Baidu English Dataset | 8000 h
+English  | [Internal English Model](to-be-added) | Baidu English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
 Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 2917 h
 
@@ -434,30 +434,21 @@ Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 291
 
 Language Model | Training Data | Token-based | Size | Filter Configuraiton
 :-------------:| :------------:| :-----: | -----: | -----------------:
-[English LM (Median)](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  To Be Added | Word-based | 8.3 GB | To Be Added
-[English LM (Big)](to-be-added) |  To Be Added | Word-based | X.X GB | To Be Added
-[Mandarin LM (Median)](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) |  To Be Added | Character-based | 2.8 GB | To Be Added
-[Mandarin LM (Big)](to-be-added) |  To Be Added | Character-based | X.X GB | To Be Added
+[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  To Be Added | Word-based | 8.3 GB | To Be Added
+[Mandarin LM](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) |  To Be Added | Character-based | 2.8 GB | To Be Added
 
 ## Experiments and Benchmarks
 
 #### English Model Evaluation (Word Error Rate)
 
 Test Set                | LibriSpeech Model | Internal English Model
-:---------------------: | :---------------: | :-------------------:
-LibriSpeech-Test-Clean  |   7.9             |   X.X
-LibriSpeech-Test-Other  |   X.X             |   X.X
+:---------------------: | ---------------:  | -------------------:
+LibriSpeech-Test-Clean  |   7.96            |   X.X
+LibriSpeech-Test-Other  |   23.87           |   X.X
 VoxForge-Test           |   X.X             |   X.X
 Baidu-English-Test      |   X.X             |   X.X
 
-#### English Model Evaluation (Character Error Rate)
-
-Test Set                | LibriSpeech Model | Internal English Model
-:---------------------: | :---------------: | :-------------------:
-LibriSpeech-Test-Clean  |   X.X             |   X.X
-LibriSpeech-Test-Other  |   X.X             |   X.X
-VoxForge-Test           |   X.X             |   X.X
-Baidu-English-Test      |   X.X             |   X.X
+(Beam size=2000)
 
 #### Mandarin Model Evaluation (Character Error Rate)
 
@@ -468,7 +459,7 @@ Baidu-Mandarin-Test     |   X.X             |   X.X
 
 #### Acceleration with Multi-GPUs
 
-We compare the training time with 1, 2, 4, 8, 16 Tesla K40m GPUs (with a subset of LibriSpeech samples whose audio durations are between 6.0 and 7.0 seconds).  And it shows that a **near-linear** acceleration with multiple GPUs has been achieved. In the following figure, the time (in seconds) used for training is plotted on the blue bars.
+We compare the training time with 1, 2, 4, 8, 16 Tesla K40m GPUs (with a subset of LibriSpeech samples whose audio durations are between 6.0 and 7.0 seconds).  And it shows that a **near-linear** acceleration with multiple GPUs has been achieved. In the following figure, the time (in seconds) cost for training is printed on the blue bars.
 
 <img src="docs/images/multi_gpu_speedup.png" width=450><br/>
 

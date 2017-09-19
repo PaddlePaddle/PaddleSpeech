@@ -230,7 +230,15 @@ The english corpus is from the [Common Crawl Repository](http://commoncrawl.org)
 
 Now the preprocessing is done and we get a clean corpus to train the language model. Our released language model are trained with agruments '-o 5 --prune 0 1 1 1 1'. '-o 5' means the max order of language model is 5. '--prune 0 1 1 1 1' represents count thresholds for each order and more specifically it will prune singletons for orders two and higher. To save disk storage we convert the arpa file to 'trie' binary file with arguments '-a 22 -q 8 -b 8'. '-a' represents the maximum number of leading bits of pointers in 'trie' to chop. '-q -b' are quantization parameters for probability and backoff.
 
-TODO: any other requirements or tips to add?
+#### Mandarin LM
+
+Different from word-based language model, mandarin language model is character-based where each token is a chinese character. We use an internal corpus to train the released mandarin language model. This corpus contains billions of tokens. The preprocessing has small difference from english language model and all steps are:
+
+  * The beginning and trailing whitespace characters are removed.
+  * English punctuations and chinese punctuations are removed.
+  * Insert a whitespace character between two tokens.
+
+Please notice that the released language model only contains chinese simplified characters. When preprocessing done we can begin to train the language model. The key training parameters are '-o 5 --prune 0 1 2 4 4'. Please refer above section for the meaning of each parameter. We also convert the arpa file to binary file using default settings.
 
 ### Speech-to-text Inference
 

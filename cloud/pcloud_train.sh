@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /usr/bin/env bash
 
 TRAIN_MANIFEST=$1
 DEV_MANIFEST=$2
@@ -14,6 +14,8 @@ python ./cloud/split_data.py \
 python ./cloud/split_data.py \
 --in_manifest_path=${DEV_MANIFEST} \
 --out_manifest_path='/local.manifest.dev'
+
+mkdir ./logs
 
 python -u train.py \
 --batch_size=${BATCH_SIZE} \
@@ -35,10 +37,10 @@ python -u train.py \
 --train_manifest='/local.manifest.train' \
 --dev_manifest='/local.manifest.dev' \
 --mean_std_path='data/librispeech/mean_std.npz' \
---vocab_path='data/librispeech/eng_vocab.txt' \
+--vocab_path='data/librispeech/vocab.txt' \
 --output_model_dir='./checkpoints' \
 --output_model_dir=${MODEL_PATH} \
 --augment_conf_path='conf/augmentation.config' \
 --specgram_type='linear' \
 --shuffle_method='batch_shuffle_clipped' \
-2>&1 | tee ./log/train.log
+2>&1 | tee ./logs/train.log

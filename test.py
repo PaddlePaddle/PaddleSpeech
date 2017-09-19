@@ -7,7 +7,7 @@ import argparse
 import functools
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
-from models.model import DeepSpeech2Model
+from model_utils.model import DeepSpeech2Model
 from utils.error_rate import wer, cer
 from utils.utility import add_arguments, print_arguments
 
@@ -22,9 +22,10 @@ add_arg('num_proc_data',    int,    12,     "# of CPUs for data preprocessing.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
-add_arg('alpha',            float,  0.36,   "Coef of LM for beam search.")
-add_arg('beta',             float,  0.25,   "Coef of WC for beam search.")
-add_arg('cutoff_prob',      float,  0.99,   "Cutoff probability for pruning.")
+add_arg('alpha',            float,  2.15,   "Coef of LM for beam search.")
+add_arg('beta',             float,  0.35,   "Coef of WC for beam search.")
+add_arg('cutoff_prob',      float,  1.0,    "Cutoff probability for pruning.")
+add_arg('cutoff_top_n',     int,    40,     "Cutoff number for pruning.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
@@ -36,14 +37,14 @@ add_arg('mean_std_path',    str,
         'data/librispeech/mean_std.npz',
         "Filepath of normalizer's mean & std.")
 add_arg('vocab_path',       str,
-        'data/librispeech/eng_vocab.txt',
+        'data/librispeech/vocab.txt',
         "Filepath of vocabulary.")
 add_arg('model_path',       str,
-        './checkpoints/params.latest.tar.gz',
+        './checkpoints/libri/params.latest.tar.gz',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('lang_model_path',  str,
-        'lm/data/common_crawl_00.prune01111.trie.klm',
+        'models/lm/common_crawl_00.prune01111.trie.klm',
         "Filepath for language model.")
 add_arg('decoding_method',  str,
         'ctc_beam_search',
@@ -85,6 +86,9 @@ def evaluate():
         pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
+    # decoders only accept string encoded in utf-8
+    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+
     error_rate_func = cer if args.error_rate_type == 'cer' else wer
     error_sum, num_ins = 0.0, 0
     for infer_data in batch_reader():
@@ -95,7 +99,8 @@ def evaluate():
             beam_beta=args.beta,
             beam_size=args.beam_size,
             cutoff_prob=args.cutoff_prob,
-            vocab_list=data_generator.vocab_list,
+            cutoff_top_n=args.cutoff_top_n,
+            vocab_list=vocab_list,
             language_model_path=args.lang_model_path,
             num_processes=args.num_proc_bsearch)
         target_transcripts = [
@@ -110,6 +115,7 @@ def evaluate():
     print("Final error rate [%s] (%d/%d) = %f" %
           (args.error_rate_type, num_ins, num_ins, error_sum / num_ins))
 
+    ds2_model.logger.info("finish evaluation")
 
 def main():
     print_arguments(args)

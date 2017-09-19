@@ -20,10 +20,10 @@ add_arg('specgram_type',    str,
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
 add_arg('manifest_path',    str,
-        'datasets/manifest.train',
+        'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
 add_arg('output_path',    str,
-        'mean_std.npz',
+        'data/librispeech/mean_std.npz',
         "Filepath of write mean and stddev to (.npz).")
 # yapf: disable
 args = parser.parse_args()

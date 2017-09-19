@@ -14,7 +14,7 @@ popd > /dev/null
 # evaluate model
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u test.py \
---batch_size=128 \
+--batch_size=16 \
 --trainer_count=8 \
 --beam_size=500 \
 --num_proc_bsearch=8 \
@@ -28,10 +28,10 @@ python -u test.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---test_manifest='data/librispeech/manifest.test-clean' \
---mean_std_path='data/librispeech/mean_std.npz' \
---vocab_path='data/librispeech/vocab.txt' \
---model_path='checkpoints/libri/params.latest.tar.gz' \
+--test_manifest='data/tiny/manifest.tiny' \
+--mean_std_path='data/tiny/mean_std.npz' \
+--vocab_path='data/tiny/vocab.txt' \
+--model_path='checkpoints/params.pass-19.tar.gz' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='wer' \

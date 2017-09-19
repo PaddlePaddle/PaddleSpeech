@@ -22,10 +22,10 @@ python -u tools/tune.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---tune_manifest='data/librispeech/manifest.dev-clean' \
---mean_std_path='data/librispeech/mean_std.npz' \
---vocab_path='data/librispeech/vocab.txt' \
---model_path='checkpoints/libri/params.latest.tar.gz' \
+--tune_manifest='data/tiny/manifest.tiny' \
+--mean_std_path='data/tiny/mean_std.npz' \
+--vocab_path='data/tiny/vocab.txt' \
+--model_path='checkpoints/params.pass-9.tar.gz' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --error_rate_type='wer' \
 --specgram_type='linear'

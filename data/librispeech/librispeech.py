@@ -19,8 +19,6 @@ import codecs
 from paddle.v2.dataset.common import md5file
 from data_utils.utility import download, unpack
 
-DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
-
 URL_ROOT = "http://www.openslr.org/resources/12"
 URL_TEST_CLEAN = URL_ROOT + "/test-clean.tar.gz"
 URL_TEST_OTHER = URL_ROOT + "/test-other.tar.gz"
@@ -41,7 +39,7 @@ MD5_TRAIN_OTHER_500 = "d1a0fd59409feb2c614ce4d30c387708"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--target_dir",
-    default=DATA_HOME + "/Libri",
+    default='~/.cache/paddle/dataset/speech/libri',
     type=str,
     help="Directory to save the dataset. (default: %(default)s)")
 parser.add_argument(
@@ -60,8 +58,7 @@ args = parser.parse_args()
 
 
 def create_manifest(data_dir, manifest_path):
-    """
-    Create a manifest json file summarizing the data set, with each line
+    """Create a manifest json file summarizing the data set, with each line
     containing the meta data (i.e. audio filepath, transcription text, audio
     duration) of each audio file within the data set.
     """
@@ -92,8 +89,7 @@ def create_manifest(data_dir, manifest_path):
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):
-    """
-    Download, unpack and create summmary manifest file.
+    """Download, unpack and create summmary manifest file.
     """
     if not os.path.exists(os.path.join(target_dir, "LibriSpeech")):
         # download
@@ -108,6 +104,8 @@ def prepare_dataset(url, md5sum, target_dir, manifest_path):
 
 
 def main():
+    args.target_dir = os.path.expanduser(args.target_dir)
+
     prepare_dataset(
         url=URL_TEST_CLEAN,
         md5sum=MD5_TEST_CLEAN,
@@ -118,12 +116,12 @@ def main():
         md5sum=MD5_DEV_CLEAN,
         target_dir=os.path.join(args.target_dir, "dev-clean"),
         manifest_path=args.manifest_prefix + ".dev-clean")
-    prepare_dataset(
-        url=URL_TRAIN_CLEAN_100,
-        md5sum=MD5_TRAIN_CLEAN_100,
-        target_dir=os.path.join(args.target_dir, "train-clean-100"),
-        manifest_path=args.manifest_prefix + ".train-clean-100")
     if args.full_download:
+        prepare_dataset(
+            url=URL_TRAIN_CLEAN_100,
+            md5sum=MD5_TRAIN_CLEAN_100,
+            target_dir=os.path.join(args.target_dir, "train-clean-100"),
+            manifest_path=args.manifest_prefix + ".train-clean-100")
         prepare_dataset(
             url=URL_TEST_OTHER,
             md5sum=MD5_TEST_OTHER,

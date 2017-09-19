@@ -11,6 +11,15 @@ fi
 popd > /dev/null
 
 
+# download well-trained model
+pushd models/librispeech > /dev/null
+sh download_model.sh
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+popd > /dev/null
+
+
 # evaluate model
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u test.py \
@@ -28,10 +37,10 @@ python -u test.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---test_manifest='data/librispeech/manifest.test-clean' \
---mean_std_path='data/librispeech/mean_std.npz' \
---vocab_path='data/librispeech/vocab.txt' \
---model_path='checkpoints/libri/params.latest.tar.gz' \
+--test_manifest='data/tiny/manifest.test-clean' \
+--mean_std_path='models/librispeech/mean_std.npz' \
+--vocab_path='models/librispeech/vocab.txt' \
+--model_path='models/librispeech/params.tar.gz' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='wer' \

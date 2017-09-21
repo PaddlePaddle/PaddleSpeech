@@ -218,13 +218,13 @@ sh download_lm_en.sh
 sh download_lm_ch.sh
 ```
 
-If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials. Here we provide some tips to show how we preparing our english and mandarin language models. You can take it as a reference when you train your own.
+If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials. Here we provide some tips to show how we preparing our English and Mandarin language models. You can take it as a reference when you train your own.
 
 #### English LM
 
-The english corpus is from the [Common Crawl Repository](http://commoncrawl.org) and you can download it from [statmt](http://data.statmt.org/ngrams/deduped_en). We use part en.00 to train our english languge model. There are some preprocessing steps before training:
+The English corpus is from the [Common Crawl Repository](http://commoncrawl.org) and you can download it from [statmt](http://data.statmt.org/ngrams/deduped_en). We use part en.00 to train our English languge model. There are some preprocessing steps before training:
 
-  * Characters not in \[A-Za-z0-9\s'\] (\s represents whitespace characters) are removed and arabic numbers are converted to english numbers like 1000 to one thousand.
+  * Characters not in \[A-Za-z0-9\s'\] (\s represents whitespace characters) are removed and Arabic numbers are converted to English numbers like 1000 to one thousand.
   * Repeated whitespace characters are squeezed to one and the beginning whitespace characters are removed. Notice that all transcriptions are lowercase, so all characters are converted to lowercase.
   * Top 400,000 most frequent words are selected to build the vocabulary and the rest are replaced with 'UNKNOWNWORD'.
 
@@ -232,13 +232,13 @@ Now the preprocessing is done and we get a clean corpus to train the language mo
 
 #### Mandarin LM
 
-Different from word-based language model, mandarin language model is character-based where each token is a chinese character. We use an internal corpus to train the released mandarin language model. This corpus contains billions of tokens. The preprocessing has small difference from english language model and all steps are:
+Different from the English language model, Mandarin language model is character-based where each token is a Chinese character. We use an internal corpus to train the released Mandarin language model. This corpus contains billions of tokens. The preprocessing has tiny difference from English language model and main steps include:
 
   * The beginning and trailing whitespace characters are removed.
-  * English punctuations and chinese punctuations are removed.
-  * Insert a whitespace character between two tokens.
+  * English punctuations and Chinese punctuations are removed.
+  * A whitespace character between two tokens is inserted.
 
-Please notice that the released language model only contains chinese simplified characters. When preprocessing done we can begin to train the language model. The key training parameters are '-o 5 --prune 0 1 2 4 4'. Please refer above section for the meaning of each parameter. We also convert the arpa file to binary file using default settings.
+Please notice that the released language model only contains Chinese simplified characters. After preprocessing done we can begin to train the language model. The key training arguments are '-o 5 --prune 0 1 2 4 4'. Please refer above section for the meaning of each argument. We also convert the arpa file to binary file using default settings.
 
 ### Speech-to-text Inference
 

@@ -3,18 +3,18 @@
 pushd ../.. > /dev/null
 
 # grid-search for hyper-parameters in language model
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python -u tools/tune.py \
---num_batches=2 \
---batch_size=24 \
+--num_batches=-1 \
+--batch_size=256 \
 --trainer_count=8 \
 --beam_size=500 \
 --num_proc_bsearch=12 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=2048 \
---num_alphas=2 \
---num_betas=2 \
+--num_alphas=45 \
+--num_betas=8 \
 --alpha_from=1.0 \
 --alpha_to=3.2 \
 --beta_from=0.1 \

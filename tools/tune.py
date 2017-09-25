@@ -11,7 +11,7 @@ import paddle.v2 as paddle
 import _init_paths
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
-from utils.error_rate import wer
+from utils.error_rate import wer, cer
 from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)

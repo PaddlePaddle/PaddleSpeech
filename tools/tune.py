@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
+import os
 import numpy as np
 import argparse
 import functools
@@ -111,6 +112,8 @@ def tune():
         shuffle_method=None)
 
     # load parameters
+    if not os.path.isfile(args.model_path):
+        raise IOError("Invaid model path: %s" % args.model_path)
     parameters = paddle.parameters.Parameters.from_tar(
         gzip.open(args.model_path))
 
@@ -124,6 +127,8 @@ def tune():
     logger.setLevel(level=logging.INFO)
     # init external scorer
     logger.info("begin to initialize the external scorer for tuning")
+    if not os.path.isfile(args.lang_model_path):
+        raise IOError("Invaid language model path: %s" % args.lang_model_path)
     ext_scorer = Scorer(
         alpha=args.alpha_from,
         beta=args.beta_from,

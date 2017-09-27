@@ -88,21 +88,21 @@ def tune():
         num_threads=1)
 
     audio_data = paddle.layer.data(
- name="audio_spectrogram",
- type=paddle.data_type.dense_array(161 * 161))
+        name="audio_spectrogram",
+        type=paddle.data_type.dense_array(161 * 161))
     text_data = paddle.layer.data(
- name="transcript_text",
- type=paddle.data_type.integer_value_sequence(data_generator.vocab_size))
+        name="transcript_text",
+        type=paddle.data_type.integer_value_sequence(data_generator.vocab_size))
 
     output_probs, _ = deep_speech_v2_network(
- audio_data=audio_data,
- text_data=text_data,
- dict_size=data_generator.vocab_size,
- num_conv_layers=args.num_conv_layers,
- num_rnn_layers=args.num_rnn_layers,
- rnn_size=args.rnn_layer_size,
- use_gru=args.use_gru,
- share_rnn_weights=args.share_rnn_weights)
+        audio_data=audio_data,
+        text_data=text_data,
+        dict_size=data_generator.vocab_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        rnn_size=args.rnn_layer_size,
+        use_gru=args.use_gru,
+        share_rnn_weights=args.share_rnn_weights)
 
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.tune_manifest,
@@ -168,13 +168,13 @@ def tune():
             # reset alpha & beta
             ext_scorer.reset_params(alpha, beta)
             beam_search_results = ctc_beam_search_decoder_batch(
-         probs_split=probs_split,
-         vocabulary=vocab_list,
-         beam_size=args.beam_size,
-         num_processes=args.num_proc_bsearch,
-         cutoff_prob=args.cutoff_prob,
-         cutoff_top_n=args.cutoff_top_n,
-         ext_scoring_func=ext_scorer, )
+                probs_split=probs_split,
+                vocabulary=vocab_list,
+                beam_size=args.beam_size,
+                num_processes=args.num_proc_bsearch,
+                cutoff_prob=args.cutoff_prob,
+                cutoff_top_n=args.cutoff_top_n,
+                ext_scoring_func=ext_scorer, )
 
             result_transcripts = [res[0][1] for res in beam_search_results]
             for target, result in zip(target_transcripts, result_transcripts):

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # train model
 # if you wish to resume from an exists model, uncomment --init_model_path

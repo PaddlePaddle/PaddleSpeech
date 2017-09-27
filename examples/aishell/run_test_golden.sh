@@ -1,23 +1,23 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # download language model
-pushd models/lm > /dev/null
+cd models/lm > /dev/null
 sh download_lm_ch.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-popd > /dev/null
+cd - > /dev/null
 
 
 # download well-trained model
-pushd models/aishell > /dev/null
+cd models/aishell > /dev/null
 sh download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-popd > /dev/null
+cd - > /dev/null
 
 
 # evaluate model

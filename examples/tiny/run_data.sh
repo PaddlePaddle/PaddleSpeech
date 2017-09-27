@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # prepare folder
 if [ ! -e data/tiny ]; then

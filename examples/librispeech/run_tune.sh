@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # grid-search for hyper-parameters in language model
 CUDA_VISIBLE_DEVICES=0,1,2,3 \

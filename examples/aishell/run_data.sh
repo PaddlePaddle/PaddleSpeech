@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python data/aishell/aishell.py \

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pushd ../.. > /dev/null
+cd ../.. > /dev/null
 
 # start demo client
 CUDA_VISIBLE_DEVICES=0 \

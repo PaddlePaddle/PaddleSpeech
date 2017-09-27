@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-source ../../utils/utility.sh
+. ../../utils/utility.sh
 
 URL='http://cloud.dlnel.org/filepub/?uuid=8e3cf742-2ff3-41ce-a49d-f6158cc06a23'
 MD5=2ef08f8b608a7c555592161fc14d81a6

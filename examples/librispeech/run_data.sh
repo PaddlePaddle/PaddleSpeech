@@ -3,7 +3,7 @@
 cd ../.. > /dev/null
 
 # download data, generate manifests
-PYTHONPATH=.:$PYPYTHONPATH python data/librispeech/librispeech.py \
+PYTHONPATH=.:$PYTHONPATH python data/librispeech/librispeech.py \
 --manifest_prefix='data/librispeech/manifest' \
 --target_dir='~/.cache/paddle/dataset/speech/Libri' \
 --full_download='True'

@@ -9,7 +9,7 @@ fi
 
 
 # download data, generate manifests
-python data/librispeech/librispeech.py \
+PYTHONPATH=.:$PYTHONPATH python data/librispeech/librispeech.py \
 --manifest_prefix='data/tiny/manifest' \
 --target_dir='~/.cache/paddle/dataset/speech/libri' \
 --full_download='False'
@@ -26,7 +26,7 @@ head -n 64 data/tiny/manifest.dev-clean  > data/tiny/manifest.tiny
 python tools/build_vocab.py \
 --count_threshold=0 \
 --vocab_path='data/tiny/vocab.txt' \
---manifest_paths='data/tiny/manifest.dev'
+--manifest_paths='data/tiny/manifest.dev-clean'
 
 if [ $? -ne 0 ]; then
     echo "Build vocabulary failed. Terminated."

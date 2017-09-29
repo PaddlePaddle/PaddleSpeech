@@ -129,9 +129,10 @@ class DeepSpeech2Model(object):
                 else:
                     result = trainer.test(
                         reader=dev_batch_reader, feeding=feeding_dict)
-                    print("\n------- Time: %d sec,  Pass: %d, "
-                          "ValidationCost: %s" %
-                          (time.time() - start_time, event.pass_id, 0))
+                    print(
+                        "\n------- Time: %d sec,  Pass: %d, "
+                        "ValidationCost: %s" %
+                        (time.time() - start_time, event.pass_id, result.cost))
                 output_model_path = os.path.join(
                     output_model_dir, "params.pass-%d.tar.gz" % event.pass_id)
                 with gzip.open(output_model_path, 'w') as f:

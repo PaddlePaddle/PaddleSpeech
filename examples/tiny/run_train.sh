@@ -33,7 +33,7 @@ python -u train.py \
 --shuffle_method='batch_shuffle_clipped'
 
 if [ $? -ne 0 ]; then
-    echo "Fail to do inference!"
+    echo "Fail in training!"
     exit 1
 fi
 

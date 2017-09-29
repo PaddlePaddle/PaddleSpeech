@@ -35,7 +35,8 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
     :return: Decoding result string.
     :rtype: basestring
     """
-    return swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
+    result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
+    return result.decode('utf-8')
 
 
 def ctc_beam_search_decoder(probs_seq,
@@ -69,9 +70,11 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    return swig_decoders.ctc_beam_search_decoder(probs_seq.tolist(), vocabulary,
-                                                 beam_size, cutoff_prob,
-                                                 cutoff_top_n, ext_scoring_func)
+    beam_results = swig_decoders.ctc_beam_search_decoder(
+        probs_seq.tolist(), vocabulary, beam_size, cutoff_prob, cutoff_top_n,
+        ext_scoring_func)
+    beam_results = [(res[0], res[1].decode('utf-8')) for res in beam_results]
+    return beam_results
 
 
 def ctc_beam_search_decoder_batch(probs_split,
@@ -111,6 +114,11 @@ def ctc_beam_search_decoder_batch(probs_split,
     """
     probs_split = [probs_seq.tolist() for probs_seq in probs_split]
 
-    return swig_decoders.ctc_beam_search_decoder_batch(
+    batch_beam_results = swig_decoders.ctc_beam_search_decoder_batch(
         probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
         cutoff_top_n, ext_scoring_func)
+    batch_beam_results = [
+        [(res[0], res[1].decode("utf-8")) for res in beam_results]
+        for beam_results in batch_beam_results
+    ]
+    return batch_beam_results

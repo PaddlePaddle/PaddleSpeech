@@ -141,7 +141,8 @@ class AudioFeaturizer(object):
         # window weighting, squared Fast Fourier Transform (fft), scaling
         weighting = np.hanning(window_size)[:, None]
         fft = np.fft.rfft(windows * weighting, axis=0)
-        fft = np.absolute(fft)**2
+        fft = np.absolute(fft)
+        fft = fft**2
         scale = np.sum(weighting**2) * sample_rate
         fft[1:-1, :] *= (2.0 / scale)
         fft[(0, -1), :] /= scale

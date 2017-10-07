@@ -5,6 +5,8 @@ from __future__ import print_function
 
 import numpy as np
 import io
+import struct
+import re
 import soundfile
 import resampy
 from scipy import signal
@@ -113,6 +115,46 @@ class AudioSegment(object):
         sndfile.seek(start_frame)
         data = sndfile.read(frames=end_frame - start_frame, dtype='float32')
         return cls(data, sample_rate)
+
+    @classmethod
+    def from_sequence_file(cls, filepath):
+        """Create audio segment from sequence file.
+
+        :param filepath: Filepath of sequence file.
+        :type filepath: basestring
+        :return: Audio segment instance.
+        :rtype: AudioSegment
+        """
+        # parse filepath
+        matches = re.match(r"(.+\.seqbin)_(\d+)", filepath)
+        if matches is None:
+            raise IOError("File type of %s is not supported" % filepath)
+        filename = matches.group(1)
+        fileno = int(matches.group(2))
+
+        # read headers
+        f = open(filename, 'rb')
+        version = f.read(4)
+        num_utterances = struct.unpack("i", f.read(4))[0]
+        bytes_per_header = struct.unpack("i", f.read(4))[0]
+        header_bytes = f.read(bytes_per_header * (num_utterances + 1))
+        header = [
+            struct.unpack("i", header_bytes[bytes_per_header * i:
+                                            bytes_per_header * (i + 1)])[0]
+            for i in range(num_utterances + 1)
+        ]
+
+        # read audio bytes
+        f.seek(header[fileno - 1])
+        audio_bytes = f.read(header[fileno] - header[fileno - 1])
+        f.close()
+
+        # create audio segment
+        try:
+            return cls.from_bytes(audio_bytes)
+        except Exception as e:
+            samples = np.frombuffer(audio_bytes, dtype='int16')
+            return cls(samples=samples, sample_rate=8000)
 
     @classmethod
     def from_bytes(cls, bytes):

@@ -7,6 +7,9 @@ import json
 import codecs
 import os
 import tarfile
+import time
+from Queue import Queue
+from multiprocessing import Process, Manager
 from paddle.v2.dataset.common import md5file
 
 
@@ -61,3 +64,98 @@ def unpack(filepath, target_dir, rm_tar=False):
     tar.close()
     if rm_tar == True:
         os.remove(filepath)
+
+
+class XmapEndSignal():
+    pass
+
+
+def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
+    """A multiprocessing pipeline wrapper for the data reader.
+
+    :param mapper:  Function to map sample.
+    :type mapper: callable
+    :param reader: Given data reader.
+    :type reader: callable
+    :param process_num: Number of processes in the pipeline
+    :type process_num: int
+    :param buffer_size: Maximal buffer size.
+    :type buffer_size: int
+    :param order: Reserve the order of samples from the given reader.
+    :type order: bool
+    :return: The wrappered reader
+    :rtype: callable
+    """
+    end_flag = XmapEndSignal()
+
+    # define a worker to read samples from reader to in_queue
+    def read_worker(reader, in_queue):
+        for sample in reader():
+            in_queue.put(sample)
+        in_queue.put(end_flag)
+
+    # define a worker to read samples from reader to in_queue with order flag
+    def order_read_worker(reader, in_queue):
+        for order_id, sample in enumerate(reader()):
+            in_queue.put((order_id, sample))
+        in_queue.put(end_flag)
+
+    # define a worker to handle samples from in_queue by mapper and put results to out_queue
+    def handle_worker(in_queue, out_queue, mapper):
+        sample = in_queue.get()
+        while not isinstance(sample, XmapEndSignal):
+            out_queue.put(mapper(sample))
+            sample = in_queue.get()
+        in_queue.put(end_flag)
+        out_queue.put(end_flag)
+
+    # define a worker to handle samples from in_queue by mapper and put results to out_queue with order
+    def order_handle_worker(in_queue, out_queue, mapper, out_order):
+        ins = in_queue.get()
+        while not isinstance(ins, XmapEndSignal):
+            order_id, sample = ins
+            result = mapper(sample)
+            while order_id != out_order[0]:
+                time.sleep(0.001)
+            out_queue.put(result)
+            out_order[0] += 1
+            ins = in_queue.get()
+        in_queue.put(end_flag)
+        out_queue.put(end_flag)
+
+    def xreader():
+        # prepare shared memory
+        manager = Manager()
+        in_queue = manager.Queue(buffer_size)
+        out_queue = manager.Queue(buffer_size)
+        out_order = manager.list([0])
+
+        # start a read worker in a process
+        target = order_read_worker if order else read_worker
+        p = Process(target=target, args=(reader, in_queue))
+        p.start()
+
+        # start handle_workers with multiple processes
+        target = order_handle_worker if order else handle_worker
+        args = (in_queue, out_queue, mapper, out_order) if order else (
+            in_queue, out_queue, mapper)
+        workers = [
+            Process(target=target, args=args) for _ in xrange(process_num)
+        ]
+        for w in workers:
+            w.start()
+
+        # get results
+        sample = out_queue.get()
+        while not isinstance(sample, XmapEndSignal):
+            yield sample
+            sample = out_queue.get()
+        finish = 1
+        while finish < process_num:
+            sample = out_queue.get()
+            if isinstance(sample, XmapEndSignal):
+                finish += 1
+            else:
+                yield sample
+
+    return xreader

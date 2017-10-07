@@ -7,11 +7,13 @@ from __future__ import print_function
 
 import random
 import tarfile
+import re
 import multiprocessing
 import numpy as np
 import paddle.v2 as paddle
 from threading import local
 from data_utils.utility import read_manifest
+from data_utils.utility import xmap_readers_mp
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
@@ -100,7 +102,14 @@ class DataGenerator(object):
                  transcription.
         :rtype: tuple of (2darray, list)
         """
-        speech_segment = SpeechSegment.from_file(filename, transcript)
+        if filename.startswith('tar:'):
+            speech_segment = SpeechSegment.from_file(
+                self._subfile_from_tar(filename), transcript)
+        elif re.findall(r".seqbin_\d+$", filename):
+            speech_segment = SpeechSegment.from_sequence_file(filename,
+                                                              transcript)
+        else:
+            speech_segment = SpeechSegment.from_file(filename, transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
         specgram = self._normalizer.apply(specgram)
@@ -231,27 +240,23 @@ class DataGenerator(object):
             result[tarinfo.name] = tarinfo
         return f, result
 
-    def _get_file_object(self, file):
-        """Get file object by file path.
+    def _subfile_from_tar(self, file):
+        """Get subfile object from tar.
 
-        If file startwith tar, it will return a tar file object
+        It will return a subfile object from tar file
         and cached tar file info for next reading request.
-        It will return file directly, if the type of file is not str.
         """
-        if file.startswith('tar:'):
-            tarpath, filename = file.split(':', 1)[1].split('#', 1)
-            if 'tar2info' not in self._local_data.__dict__:
-                self._local_data.tar2info = {}
-            if 'tar2object' not in self._local_data.__dict__:
-                self._local_data.tar2object = {}
-            if tarpath not in self._local_data.tar2info:
-                object, infoes = self._parse_tar(tarpath)
-                self._local_data.tar2info[tarpath] = infoes
-                self._local_data.tar2object[tarpath] = object
-            return self._local_data.tar2object[tarpath].extractfile(
-                self._local_data.tar2info[tarpath][filename])
-        else:
-            return open(file, 'r')
+        tarpath, filename = file.split(':', 1)[1].split('#', 1)
+        if 'tar2info' not in self._local_data.__dict__:
+            self._local_data.tar2info = {}
+        if 'tar2object' not in self._local_data.__dict__:
+            self._local_data.tar2object = {}
+        if tarpath not in self._local_data.tar2info:
+            object, infoes = self._parse_tar(tarpath)
+            self._local_data.tar2info[tarpath] = infoes
+            self._local_data.tar2object[tarpath] = object
+        return self._local_data.tar2object[tarpath].extractfile(
+            self._local_data.tar2info[tarpath][filename])
 
     def _instance_reader_creator(self, manifest):
         """
@@ -266,13 +271,12 @@ class DataGenerator(object):
             for instance in manifest:
                 yield instance
 
-        def mapper(instance):
-            return self.process_utterance(
-                self._get_file_object(instance["audio_filepath"]),
-                instance["text"])
-
-        return paddle.reader.xmap_readers(
-            mapper, reader, self._num_threads, 1024, order=True)
+        return xmap_readers_mp(
+            lambda instance: self.process_utterance(instance["audio_filepath"], instance["text"]),
+            reader,
+            self._num_threads,
+            4096,
+            order=True)
 
     def _padding_batch(self, batch, padding_to=-1, flatten=False):
         """

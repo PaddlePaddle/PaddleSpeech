@@ -133,6 +133,7 @@ def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
         # start a read worker in a process
         target = order_read_worker if order else read_worker
         p = Process(target=target, args=(reader, in_queue))
+        p.daemon = True
         p.start()
 
         # start handle_workers with multiple processes
@@ -143,6 +144,7 @@ def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
             Process(target=target, args=args) for _ in xrange(process_num)
         ]
         for w in workers:
+            w.daemon = True
             w.start()
 
         # get results

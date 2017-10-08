@@ -118,7 +118,25 @@ class AudioSegment(object):
 
     @classmethod
     def from_sequence_file(cls, filepath):
-        """Create audio segment from sequence file.
+        """Create audio segment from sequence file. Sequence file is a binary
+        file containing a collection of multiple audio files, with several
+        header bytes in the head indicating the offsets of each audio byte data
+        chunk.
+
+        The format is:
+
+            4 bytes (int, version),
+            4 bytes (int, num of utterance),
+            4 bytes (int, bytes per header),
+            [bytes_per_header*(num_utterance+1)] bytes (offsets for each audio),
+            audio_bytes_data_of_1st_utterance,
+            audio_bytes_data_of_2nd_utterance,
+            ......
+
+        Sequence file name must end with ".seqbin". And the filename of the 5th
+        utterance's audio file in sequence file "xxx.seqbin" must be
+        "xxx.seqbin_5", with "5" indicating the utterance index within this
+        sequence file (starting from 1).
 
         :param filepath: Filepath of sequence file.
         :type filepath: basestring

@@ -148,11 +148,7 @@ def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
             w.start()
 
         # get results
-        sample = out_queue.get()
-        while not isinstance(sample, XmapEndSignal):
-            yield sample
-            sample = out_queue.get()
-        finish = 1
+        finish = 0
         while finish < process_num:
             sample = out_queue.get()
             if isinstance(sample, XmapEndSignal):

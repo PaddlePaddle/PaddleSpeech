@@ -24,7 +24,7 @@ python -u train.py \
 --is_local=True \
 --share_rnn_weights=True \
 --train_manifest='data/librispeech/manifest.train' \
---dev_manifest='data/librispeech/manifest.dev' \
+--dev_manifest='data/librispeech/manifest.dev-clean' \
 --mean_std_path='data/librispeech/mean_std.npz' \
 --vocab_path='data/librispeech/vocab.txt' \
 --output_model_dir='./checkpoints/libri' \

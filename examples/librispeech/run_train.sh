@@ -6,10 +6,10 @@ cd ../.. > /dev/null
 # if you wish to resume from an exists model, uncomment --init_model_path
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u train.py \
---batch_size=512 \
+--batch_size=160 \
 --trainer_count=8 \
 --num_passes=50 \
---num_proc_data=8 \
+--num_proc_data=16 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=2048 \

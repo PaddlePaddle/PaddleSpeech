@@ -27,7 +27,8 @@ add_arg('num_batches',      int,    -1,     "# of batches tuning on. "
 add_arg('batch_size',       int,    256,    "# of samples per batch.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('beam_size',        int,    500,    "Beam search width.")
-add_arg('num_proc_bsearch', int,    12,     "# of CPUs for beam search.")
+add_arg('num_proc_bsearch', int,    8,     "# of CPUs for beam search.")
+add_arg('num_proc_data',    int,    8,      "# of CPUs for data preprocessing.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
@@ -86,7 +87,7 @@ def tune():
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=1)
+        num_threads=args.num_proc_data)
 
     audio_data = paddle.layer.data(
         name="audio_spectrogram",

@@ -9,7 +9,7 @@ python -u train.py \
 --batch_size=64 \
 --trainer_count=8 \
 --num_passes=50 \
---num_proc_data=8 \
+--num_proc_data=16 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=1024 \

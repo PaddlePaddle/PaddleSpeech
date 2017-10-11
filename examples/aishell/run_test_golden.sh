@@ -27,7 +27,7 @@ python -u test.py \
 --trainer_count=8 \
 --beam_size=300 \
 --num_proc_bsearch=8 \
---num_proc_data=4 \
+--num_proc_data=8 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=1024 \

@@ -119,6 +119,7 @@ def train():
 def main():
     print_arguments(args)
     paddle.init(use_gpu=args.use_gpu,
+                rnn_use_batch=True,
                 trainer_count=args.trainer_count,
                 log_clipping=True)
     train()

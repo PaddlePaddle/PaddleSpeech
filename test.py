@@ -119,7 +119,9 @@ def evaluate():
 
 def main():
     print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu, trainer_count=args.trainer_count)
+    paddle.init(use_gpu=args.use_gpu,
+                rnn_use_batch=True,
+                trainer_count=args.trainer_count)
     evaluate()
 
 

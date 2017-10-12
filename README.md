@@ -463,7 +463,7 @@ Language Model | Training Data | Token-based | Size | Description
 :-------------:| :------------:| :-----: | -----: | :-----------------:
 [English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  [en.00.deduped.xz](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | pruned with 0 1 1 1 1 <br/> about 1.85 billion n-grams <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
 [Mandarin LM Small](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) | Small internel data | Character-based | 2.8 GB | pruned with 0 1 2 4 4 <br/> about 0.13 billion n-grams <br/> 'probing' binary with default settings
-Mandarin LM Large | Large internel data | Character-based | 70.4 GB | no pruning <br/> about 3.7 billion n-grams <br/> 'probing' binary with default settings
+[Mandarin LM Large](http://cloud.dlnel.org/filepub/?uuid=245d02bb-cd01-4ebe-b079-b97be864ec37) | Large internel data | Character-based | 70.4 GB | no pruning <br/> about 3.7 billion n-grams <br/> 'probing' binary with default settings
 
 ## Experiments and Benchmarks
 

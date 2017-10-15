@@ -51,20 +51,6 @@ class SpeechSegment(AudioSegment):
         return cls(audio.samples, audio.sample_rate, transcript)
 
     @classmethod
-    def from_sequence_file(cls, filepath, transcript):
-        """Create speech segment from sequence file and transcript.
-        
-        :param filepath: Filepath of sequence file.
-        :type filepath: basestring
-        :param transcript: Transcript text for the speech.
-        :type transript: basestring
-        :return: Speech segment instance.
-        :rtype: SpeechSegment
-        """
-        audio = AudioSegment.from_sequence_file(filepath)
-        return cls(audio.samples, audio.sample_rate, transcript)
-
-    @classmethod
     def from_bytes(cls, bytes, transcript):
         """Create speech segment from a byte string and corresponding
         transcript.

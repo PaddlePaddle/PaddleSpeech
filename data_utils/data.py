@@ -7,7 +7,6 @@ from __future__ import print_function
 
 import random
 import tarfile
-import re
 import multiprocessing
 import numpy as np
 import paddle.v2 as paddle
@@ -105,9 +104,6 @@ class DataGenerator(object):
         if filename.startswith('tar:'):
             speech_segment = SpeechSegment.from_file(
                 self._subfile_from_tar(filename), transcript)
-        elif re.findall(r".seqbin_\d+$", filename):
-            speech_segment = SpeechSegment.from_sequence_file(filename,
-                                                              transcript)
         else:
             speech_segment = SpeechSegment.from_file(filename, transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)

@@ -32,6 +32,7 @@ python -u deploy/demo_server.py \
 --alpha=0.36 \
 --beta=0.25 \
 --cutoff_prob=0.99 \
+--cutoff_top_n=40 \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \

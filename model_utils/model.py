@@ -111,7 +111,7 @@ class DeepSpeech2Model(object):
                     output_model_path = os.path.join(output_model_dir,
                                                      "params.latest.tar.gz")
                     with gzip.open(output_model_path, 'w') as f:
-                        self._parameters.to_tar(f)
+                        trainer.save_parameter_to_tar(f)
                     print("\nPass: %d, Batch: %d, TrainCost: %f" %
                           (event.pass_id, event.batch_id + 1,
                            cost_sum / cost_counter))
@@ -136,7 +136,7 @@ class DeepSpeech2Model(object):
                 output_model_path = os.path.join(
                     output_model_dir, "params.pass-%d.tar.gz" % event.pass_id)
                 with gzip.open(output_model_path, 'w') as f:
-                    self._parameters.to_tar(f)
+                    trainer.save_parameter_to_tar(f)
 
         # run train
         trainer.train(

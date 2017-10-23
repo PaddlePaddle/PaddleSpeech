@@ -146,7 +146,8 @@ def start_server():
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=1)
+        num_threads=1,
+        keep_transcription_text=True)
     # prepare ASR model
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,

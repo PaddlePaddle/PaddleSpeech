@@ -22,7 +22,7 @@
 
 ## Installation
 
-To avoid the trouble of environment setup, [running in docker container](#Running-in-Docker-Container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
+To avoid the trouble of environment setup, [running in docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
 - Python 2.7 only supported
@@ -337,7 +337,7 @@ or refer to `example/librispeech/run_tune.sh`.
 
 ## Running in Docker Container
 
-Docker is an open tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
 
 Take several steps to launch the Docker image:
 
@@ -358,7 +358,7 @@ git clone https://github.com/PaddlePaddle/models.git
 ```bash
 sudo nvidia-docker run -it -v $(pwd)/models:/models paddlepaddle/models:deep-speech-2 /bin/bash
 ```
-Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similary in the Docker container.
+Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similarly in the Docker container.
 
 ## Distributed Cloud Training
 

@@ -87,7 +87,8 @@ def tune():
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=args.num_proc_data)
+        num_threads=args.num_proc_data,
+        keep_transcription_text=True)
 
     audio_data = paddle.layer.data(
         name="audio_spectrogram",
@@ -163,10 +164,7 @@ def tune():
             for i in xrange(len(infer_data))
         ]
 
-        target_transcripts = [
-            ''.join([data_generator.vocab_list[token] for token in transcript])
-            for _, transcript in infer_data
-        ]
+        target_transcripts = [transcript for _, transcript in infer_data]
 
         num_ins += len(target_transcripts)
         # grid search

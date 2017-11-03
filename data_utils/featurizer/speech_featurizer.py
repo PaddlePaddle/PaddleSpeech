@@ -60,12 +60,12 @@ class SpeechFeaturizer(object):
             target_dB=target_dB)
         self._text_featurizer = TextFeaturizer(vocab_filepath)
 
-    def featurize(self, speech_segment):
+    def featurize(self, speech_segment, keep_transcription_text):
         """Extract features for speech segment.
 
         1. For audio parts, extract the audio features.
-        2. For transcript parts, convert text string to a list of token indices
-           in char-level.
+        2. For transcript parts, keep the original text or convert text string
+           to a list of token indices in char-level.
 
         :param audio_segment: Speech segment to extract features from.
         :type audio_segment: SpeechSegment
@@ -74,6 +74,8 @@ class SpeechFeaturizer(object):
         :rtype: tuple
         """
         audio_feature = self._audio_featurizer.featurize(speech_segment)
+        if keep_transcription_text:
+            return audio_feature, speech_segment.transcript
         text_ids = self._text_featurizer.featurize(speech_segment.transcript)
         return audio_feature, text_ids
 

@@ -69,7 +69,8 @@ def evaluate():
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=args.num_proc_data)
+        num_threads=args.num_proc_data,
+        keep_transcription_text=True)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.test_manifest,
         batch_size=args.batch_size,
@@ -103,10 +104,7 @@ def evaluate():
             vocab_list=vocab_list,
             language_model_path=args.lang_model_path,
             num_processes=args.num_proc_bsearch)
-        target_transcripts = [
-            ''.join([data_generator.vocab_list[token] for token in transcript])
-            for _, transcript in infer_data
-        ]
+        target_transcripts = [transcript for _, transcript in infer_data]
         for target, result in zip(target_transcripts, result_transcripts):
             error_sum += error_rate_func(target, result)
             num_ins += 1

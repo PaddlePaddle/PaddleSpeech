@@ -55,6 +55,10 @@ class DataGenerator(object):
     :type num_threads: int
     :param random_seed: Random seed.
     :type random_seed: int
+    :param keep_transcription_text: If set to True, transcription text will
+                                    be passed forward directly without
+                                    converting to index sequence.
+    :type keep_transcription_text: bool
     """
 
     def __init__(self,
@@ -69,7 +73,8 @@ class DataGenerator(object):
                  specgram_type='linear',
                  use_dB_normalization=True,
                  num_threads=multiprocessing.cpu_count() // 2,
-                 random_seed=0):
+                 random_seed=0,
+                 keep_transcription_text=False):
         self._max_duration = max_duration
         self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
@@ -84,6 +89,7 @@ class DataGenerator(object):
             use_dB_normalization=use_dB_normalization)
         self._num_threads = num_threads
         self._rng = random.Random(random_seed)
+        self._keep_transcription_text = keep_transcription_text
         self._epoch = 0
         # for caching tar files info
         self._local_data = local()
@@ -97,8 +103,8 @@ class DataGenerator(object):
         :type filename: basestring | file
         :param transcript: Transcription text.
         :type transcript: basestring
-        :return: Tuple of audio feature tensor and list of token ids for
-                 transcription.
+        :return: Tuple of audio feature tensor and data of transcription part,
+                 where transcription part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
         if filename.startswith('tar:'):
@@ -107,9 +113,10 @@ class DataGenerator(object):
         else:
             speech_segment = SpeechSegment.from_file(filename, transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)
-        specgram, text_ids = self._speech_featurizer.featurize(speech_segment)
+        specgram, transcript_part = self._speech_featurizer.featurize(
+            speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
-        return specgram, text_ids
+        return specgram, transcript_part
 
     def batch_reader_creator(self,
                              manifest_path,

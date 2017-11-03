@@ -3,13 +3,13 @@
 *DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient and scalable implementation, including training, inference & testing module, distributed [PaddleCloud](https://github.com/PaddlePaddle/cloud) training, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
 
 ## Table of Contents
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
 - [Data Preparation](#data-preparation)
 - [Training a Model](#training-a-model)
 - [Data Augmentation Pipeline](#data-augmentation-pipeline)
 - [Inference and Evaluation](#inference-and-evaluation)
+- [Running in Docker Container](#running-in-docker-container)
 - [Distributed Cloud Training](#distributed-cloud-training)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
 - [Training for Mandarin Language](#training-for-mandarin-language)
@@ -18,13 +18,17 @@
 - [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Questions and Help](#questions-and-help)
 
-## Prerequisites
-- Python 2.7 only supported
-- PaddlePaddle the latest version (please refer to the [Installation Guide](https://github.com/PaddlePaddle/Paddle#installation))
+
 
 ## Installation
 
-Please make sure the above [prerequisites](#prerequisites) have been satisfied before moving on.
+To avoid the trouble of environment setup, [running in docker container](#Running-in-Docker-Container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
+
+### Prerequisites
+- Python 2.7 only supported
+- PaddlePaddle the latest version (please refer to the [Installation Guide](https://github.com/PaddlePaddle/Paddle#installation))
+
+### Setup
 
 ```bash
 git clone https://github.com/PaddlePaddle/models.git
@@ -331,7 +335,30 @@ python tune.py --help
 ```
 or refer to `example/librispeech/run_tune.sh`.
 
+## Running in Docker Container
 
+Docker is an open tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+
+Take several steps to launch the Docker image:
+
+- Download the Docker image
+
+```bash
+nvidia-docker pull paddlepaddle/models:deep-speech-2
+```
+
+- Clone this repository
+
+```
+git clone https://github.com/PaddlePaddle/models.git
+```
+
+- Run the Docker image
+
+```bash
+sudo nvidia-docker run -it -v $(pwd)/models:/models paddlepaddle/models:deep-speech-2 /bin/bash
+```
+Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similary in the Docker container.
 
 ## Distributed Cloud Training
 

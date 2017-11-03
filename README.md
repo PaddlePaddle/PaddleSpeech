@@ -459,11 +459,11 @@ Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 291
 
 #### Language Model Released
 
-Language Model | Training Data | Token-based | Size | Description
-:-------------:| :------------:| :-----: | -----: | :-----------------:
-[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  [en.00.deduped.xz](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | pruned with 0 1 1 1 1 <br/> about 1.85 billion n-grams <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
-[Mandarin LM Small](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) | Small internel data | Character-based | 2.8 GB | pruned with 0 1 2 4 4 <br/> about 0.13 billion n-grams <br/> 'probing' binary with default settings
-[Mandarin LM Large](http://cloud.dlnel.org/filepub/?uuid=245d02bb-cd01-4ebe-b079-b97be864ec37) | Large internel data | Character-based | 70.4 GB | no pruning <br/> about 3.7 billion n-grams <br/> 'probing' binary with default settings
+Language Model | Training Data | Token-based | Size | Descriptions
+:-------------:| :------------:| :-----: | -----: | :-----------------
+[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
+[Mandarin LM Small](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
+[Mandarin LM Large](http://cloud.dlnel.org/filepub/?uuid=245d02bb-cd01-4ebe-b079-b97be864ec37) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
 ## Experiments and Benchmarks
 

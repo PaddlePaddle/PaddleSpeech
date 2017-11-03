@@ -164,9 +164,7 @@ def tune():
             for i in xrange(len(infer_data))
         ]
 
-        target_transcripts = [
-            transcript for _, transcript in infer_data
-        ]
+        target_transcripts = [transcript for _, transcript in infer_data]
 
         num_ins += len(target_transcripts)
         # grid search

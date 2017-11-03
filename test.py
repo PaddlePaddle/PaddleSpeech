@@ -104,9 +104,7 @@ def evaluate():
             vocab_list=vocab_list,
             language_model_path=args.lang_model_path,
             num_processes=args.num_proc_bsearch)
-        target_transcripts = [
-            transcript for _, transcript in infer_data
-        ]
+        target_transcripts = [transcript for _, transcript in infer_data]
         for target, result in zip(target_transcripts, result_transcripts):
             error_sum += error_rate_func(target, result)
             num_ins += 1

@@ -103,8 +103,8 @@ class DataGenerator(object):
         :type filename: basestring | file
         :param transcript: Transcription text.
         :type transcript: basestring
-        :return: Tuple of audio feature tensor and list of token ids for
-                 transcription.
+        :return: Tuple of audio feature tensor and data of transcription part,
+                 where transcription part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
         if filename.startswith('tar:'):

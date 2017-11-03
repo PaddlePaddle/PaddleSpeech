@@ -103,9 +103,7 @@ def infer():
         num_processes=args.num_proc_bsearch)
 
     error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    target_transcripts = [
-        transcript for _, transcript in infer_data
-    ]
+    target_transcripts = [transcript for _, transcript in infer_data]
     for target, result in zip(target_transcripts, result_transcripts):
         print("\nTarget Transcription: %s\nOutput Transcription: %s" %
               (target, result))

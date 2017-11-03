@@ -398,7 +398,8 @@ For more information about the DeepSpeech2 training on PaddleCloud, please refer
 
 ## Training for Mandarin Language
 
-The steps of training, evaluation and inference for Mandarin ASR model is same with English ASR model. We have provided an example for Mandarin data which using Aishell dataset and you can find it in ```examples/aishell```. As mentioned above, you can execute ```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh``` and ```sh run_infer.sh``` to do data preparation, training, test and inference correspondingly. We have also tuned a setting to get better model performance (not the best), and you can execute ```sh run_infer_golden.sh``` to show some speech-to-text decoding results.
+Before training model for Mandarin Language, mean stddev file and vocabulary file are also required. For mean stddev file, you can run ```tools/compute_mean_std.py``` to generate as above. However, the Mandarin vocabulary contains much more tokens than English vocabulary, but you can still run ```tools/build_vocab.py``` to generate it. The steps of training, evaluation and inference for Mandarin ASR model is same to English ASR model. Notice that, after training a model please run ```tools/tune.py``` to find an optimal setting for Language Model.
+We have provided an example for Mandarin training with Aishell in ```examples/aishell```. As mentioned above, please execute ```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh``` and ```sh run_infer.sh``` to do data preparation, training, test and inference correspondingly. We have also prepared a pre-trained model (downloaded by ./models/aishell/download_model.sh) for users to try with ```sh run_infer_golden.sh``` and ```sh run_test_golden.sh```.
 
 ## Trying Live Demo with Your Own Voice
 

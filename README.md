@@ -232,13 +232,13 @@ Now the preprocessing is done and we get a clean corpus to train the language mo
 
 #### Mandarin LM
 
-Different from the English language model, Mandarin language model is character-based where each token is a Chinese character. We use an internal corpus to train the released Mandarin language model. This corpus contains billions of tokens. The preprocessing has tiny difference from English language model and main steps include:
+Different from the English language model, Mandarin language model is character-based where each token is a Chinese character. We use internal corpus to train the released Mandarin language models. The corpus contain billions of tokens. The preprocessing has tiny difference from English language model and main steps include:
 
   * The beginning and trailing whitespace characters are removed.
   * English punctuations and Chinese punctuations are removed.
   * A whitespace character between two tokens is inserted.
 
-Please notice that the released language model only contains Chinese simplified characters. After preprocessing done we can begin to train the language model. The key training arguments are '-o 5 --prune 0 1 2 4 4'. Please refer above section for the meaning of each argument. We also convert the arpa file to binary file using default settings.
+Please notice that the released language models only contain Chinese simplified characters. After preprocessing done we can begin to train the language model. The key training arguments for small LM is '-o 5 --prune 0 1 2 4 4' and '-o 5' for large LM. Please refer above section for the meaning of each argument. We also convert the arpa file to binary file using default settings.
 
 ### Speech-to-text Inference
 
@@ -459,10 +459,11 @@ Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 291
 
 #### Language Model Released
 
-Language Model | Training Data | Token-based | Size | Filter Configuraiton
-:-------------:| :------------:| :-----: | -----: | -----------------:
-[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  To Be Added | Word-based | 8.3 GB | To Be Added
-[Mandarin LM](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) |  To Be Added | Character-based | 2.8 GB | To Be Added
+Language Model | Training Data | Token-based | Size | Descriptions
+:-------------:| :------------:| :-----: | -----: | :-----------------
+[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
+[Mandarin LM Small](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
+[Mandarin LM Large](http://cloud.dlnel.org/filepub/?uuid=245d02bb-cd01-4ebe-b079-b97be864ec37) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
 ## Experiments and Benchmarks
 

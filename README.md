@@ -498,13 +498,13 @@ Language Model | Training Data | Token-based | Size | Descriptions
 
 Test Set                | LibriSpeech Model | BaiduEN8K Model
 :---------------------  | ---------------:  | -------------------:
-LibriSpeech Test-Clean  |   8.06            |   6.85
-LibriSpeech Test-Other  |   24.25           |   17.16
-VoxForge American-Canadian | 13.48          |   8.10
-VoxForge Commonwealth   |   22.37           |   17.35
-VoxForge European       |   32.64           |   21.47
-VoxForge Indian         |   58.48           |   30.39
-Baidu Internal Testset  |   48.93           |   9.56
+LibriSpeech Test-Clean  |   8.06            |   6.63
+LibriSpeech Test-Other  |   24.25           |   16.59
+VoxForge American-Canadian | 13.48          |   7.46
+VoxForge Commonwealth   |   22.37           |   16.23
+VoxForge European       |   32.64           |   20.47
+VoxForge Indian         |   58.48           |   28.15
+Baidu Internal Testset  |   48.93           |   8.92
 
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 

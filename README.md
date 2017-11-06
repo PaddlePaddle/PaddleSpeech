@@ -450,12 +450,12 @@ python deploy/demo_client.py --help
 
 #### Speech Model Released
 
-Language  | Model Name | Training Data | Training Hours
+Language  | Model Name | Training Data | Hours of Speech
 :-----------: | :------------: | :----------: |  -------:
 English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [Internal English Model](to-be-added) | Baidu English Dataset | 8628 h
+English  | [BaiduEng8k Model](to-be-added) | Baidu Internal English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [Internal Mandarin Model](to-be-added) | Baidu Mandarin Dataset | 2917 h
+Mandarin | [BaiduChi1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
 
 #### Language Model Released
 
@@ -466,23 +466,23 @@ Language Model | Training Data | Token-based | Size | Filter Configuraiton
 
 ## Experiments and Benchmarks
 
-#### English Model Evaluation (Word Error Rate)
+#### Benchmark Results for English Models (Word Error Rate)
 
-Test Set                | LibriSpeech Model | Internal English Model
-:---------------------: | ---------------:  | -------------------:
-LibriSpeech-Test-Clean  |   7.96            |   X.X
-LibriSpeech-Test-Other  |   23.87           |   X.X
-VoxForge-Test           |   X.X             |   X.X
-Baidu-English-Test      |   X.X             |   X.X
+Test Set                | LibriSpeech Model | BaiduEng8K Model
+:---------------------  | ---------------:  | -------------------:
+LibriSpeech Test-Clean  |   7.96            |   6.85
+LibriSpeech Test-Other  |   23.87           |   17.16
+VoxForge American-Canadian |-               |   8.10
+VoxForge Commonwealth   |   -               |   17.35
+VoxForge European       |   -               |   21.47
+VoxForge Indian         |   -               |   30.39
+Baidu Internal Testset  |   -               |   9.56
 
-(Beam size=2000)
+#### Benchmark Results for Mandarin Model (Character Error Rate)
 
-#### Mandarin Model Evaluation (Character Error Rate)
-
-Test Set                | Aishell Model     | Internal Mandarin Model
-:---------------------: | :---------------: | :-------------------:
-Aishell-Test            |   X.X             |   X.X
-Baidu-Mandarin-Test     |   X.X             |   X.X
+Test Set                | Aishell Model     | BaiduChi1.2k Model
+:---------------------  | ---------------:  | -------------------:
+Baidu Internal Testset  |   -               |   15.49
 
 #### Acceleration with Multi-GPUs
 

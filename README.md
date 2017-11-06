@@ -453,9 +453,9 @@ python deploy/demo_client.py --help
 Language  | Model Name | Training Data | Hours of Speech
 :-----------: | :------------: | :----------: |  -------:
 English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [BaiduEng8k Model](to-be-added) | Baidu Internal English Dataset | 8628 h
+English  | [BaiduEN8k Model](to-be-added) | Baidu Internal English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [BaiduChi1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
+Mandarin | [BaiduCN1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
 
 #### Language Model Released
 
@@ -468,7 +468,7 @@ Language Model | Training Data | Token-based | Size | Filter Configuraiton
 
 #### Benchmark Results for English Models (Word Error Rate)
 
-Test Set                | LibriSpeech Model | BaiduEng8K Model
+Test Set                | LibriSpeech Model | BaiduEN8K Model
 :---------------------  | ---------------:  | -------------------:
 LibriSpeech Test-Clean  |   7.96            |   6.85
 LibriSpeech Test-Other  |   23.87           |   17.16
@@ -480,7 +480,7 @@ Baidu Internal Testset  |   -               |   9.56
 
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 
-Test Set                | Aishell Model     | BaiduChi1.2k Model
+Test Set                | Aishell Model     | BaiduCN1.2k Model
 :---------------------  | ---------------:  | -------------------:
 Baidu Internal Testset  |   -               |   15.49
 

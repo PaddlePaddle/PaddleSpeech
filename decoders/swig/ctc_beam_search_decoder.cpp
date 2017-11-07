@@ -148,11 +148,11 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     }
   }  // end of loop over time
 
-  // score the last word/character of each prefix
-  if (ext_scorer != nullptr) {
+  // score the last word of each prefix that doesn't end with space
+  if (ext_scorer != nullptr && !ext_scorer->is_character_based()) {
     for (size_t i = 0; i < beam_size && i < prefixes.size(); ++i) {
       auto prefix = prefixes[i];
-      if (prefix->character != space_id && !prefix->is_empty()) {
+      if (!prefix->is_empty() && prefix->character != space_id) {
         float score = 0.0;
         std::vector<std::string> ngram = ext_scorer->make_ngram(prefix);
         score = ext_scorer->get_log_cond_prob(ngram) * ext_scorer->alpha;

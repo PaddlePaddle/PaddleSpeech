@@ -11,6 +11,7 @@ import multiprocessing
 import numpy as np
 import paddle.v2 as paddle
 from threading import local
+import atexit
 from data_utils.utility import read_manifest
 from data_utils.utility import xmap_readers_mp
 from data_utils.augmentor.augmentation import AugmentationPipeline
@@ -274,12 +275,17 @@ class DataGenerator(object):
             for instance in manifest:
                 yield instance
 
-        return xmap_readers_mp(
+        reader, cleanup_callback = xmap_readers_mp(
             lambda instance: self.process_utterance(instance["audio_filepath"], instance["text"]),
             reader,
             self._num_threads,
             4096,
             order=True)
+
+        # register callback to main process
+        atexit.register(cleanup_callback)
+
+        return reader
 
     def _padding_batch(self, batch, padding_to=-1, flatten=False):
         """

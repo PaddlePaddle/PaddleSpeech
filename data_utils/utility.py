@@ -138,6 +138,10 @@ def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
                 out_queue.put(sample)
         out_queue.put(end_flag)
 
+    def cleanup():
+        # kill all sub process and threads
+        os._exit(0)
+
     def xreader():
         # prepare shared memory
         manager = Manager()
@@ -174,4 +178,4 @@ def xmap_readers_mp(mapper, reader, process_num, buffer_size, order=False):
             yield sample
             sample = flush_queue.get()
 
-    return xreader
+    return xreader, cleanup

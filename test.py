@@ -70,7 +70,8 @@ def evaluate():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=args.num_proc_data,
-        keep_transcription_text=True)
+        keep_transcription_text=True,
+        num_conv_layers=args.num_conv_layers)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.test_manifest,
         batch_size=args.batch_size,
@@ -103,8 +104,9 @@ def evaluate():
             cutoff_top_n=args.cutoff_top_n,
             vocab_list=vocab_list,
             language_model_path=args.lang_model_path,
-            num_processes=args.num_proc_bsearch)
-        target_transcripts = [transcript for _, transcript in infer_data]
+            num_processes=args.num_proc_bsearch,
+            feeding_dict=data_generator.feeding)
+        target_transcripts = [data[1] for data in infer_data]
         for target, result in zip(target_transcripts, result_transcripts):
             error_sum += error_rate_func(target, result)
             num_ins += 1

@@ -69,7 +69,8 @@ def infer():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=1,
-        keep_transcription_text=True)
+        keep_transcription_text=True,
+        num_conv_layers=args.num_conv_layers)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.infer_manifest,
         batch_size=args.num_samples,
@@ -100,10 +101,11 @@ def infer():
         cutoff_top_n=args.cutoff_top_n,
         vocab_list=vocab_list,
         language_model_path=args.lang_model_path,
-        num_processes=args.num_proc_bsearch)
+        num_processes=args.num_proc_bsearch,
+        feeding_dict=data_generator.feeding)
 
     error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    target_transcripts = [transcript for _, transcript in infer_data]
+    target_transcripts = [data[1] for data in infer_data]
     for target, result in zip(target_transcripts, result_transcripts):
         print("\nTarget Transcription: %s\nOutput Transcription: %s" %
               (target, result))

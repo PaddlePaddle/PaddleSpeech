@@ -7,7 +7,7 @@ import paddle.v2 as paddle
 
 
 def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
-                  padding, act):
+                  padding, act, index_range_data):
     """Convolution layer with batch normalization.
 
     :param input: Input layer.
@@ -24,6 +24,8 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
     :type padding: int|tuple|list
     :param act: Activation type.
     :type act: BaseActivation
+    :param index_range_data: Index range to indicate sub region.
+    :type index_range_data: LayerOutput
     :return: Batch norm layer after convolution layer.
     :rtype: LayerOutput
     """
@@ -36,7 +38,11 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
         padding=padding,
         act=paddle.activation.Linear(),
         bias_attr=False)
-    return paddle.layer.batch_norm(input=conv_layer, act=act)
+    batch_norm = paddle.layer.batch_norm(input=conv_layer, act=act)
+    # reset padding part to 0
+    scale_sub_region = paddle.layer.scale_sub_region(
+        batch_norm, index_range_data, value=0.0)
+    return scale_sub_region
 
 
 def bidirectional_simple_rnn_bn_layer(name, input, size, act, share_weights):
@@ -136,13 +142,15 @@ def bidirectional_gru_bn_layer(name, input, size, act):
     return paddle.layer.concat(input=[forward_gru, backward_gru])
 
 
-def conv_group(input, num_stacks):
+def conv_group(input, num_stacks, index_range_datas):
     """Convolution group with stacked convolution layers.
 
     :param input: Input layer.
     :type input: LayerOutput
     :param num_stacks: Number of stacked convolution layers.
     :type num_stacks: int
+    :param index_range_datas: Index ranges for each convolution layer.
+    :type index_range_datas: tuple|list
     :return: Output layer of the convolution group.
     :rtype: LayerOutput
     """
@@ -153,7 +161,8 @@ def conv_group(input, num_stacks):
         num_channels_out=32,
         stride=(3, 2),
         padding=(5, 20),
-        act=paddle.activation.BRelu())
+        act=paddle.activation.BRelu(),
+        index_range_data=index_range_datas[0])
     for i in xrange(num_stacks - 1):
         conv = conv_bn_layer(
             input=conv,
@@ -162,7 +171,8 @@ def conv_group(input, num_stacks):
             num_channels_out=32,
             stride=(1, 2),
             padding=(5, 10),
-            act=paddle.activation.BRelu())
+            act=paddle.activation.BRelu(),
+            index_range_data=index_range_datas[i + 1])
     output_num_channels = 32
     output_height = 160 // pow(2, num_stacks) + 1
     return conv, output_num_channels, output_height
@@ -207,6 +217,9 @@ def rnn_group(input, size, num_stacks, use_gru, share_rnn_weights):
 
 def deep_speech_v2_network(audio_data,
                            text_data,
+                           seq_offset_data,
+                           seq_len_data,
+                           index_range_datas,
                            dict_size,
                            num_conv_layers=2,
                            num_rnn_layers=3,
@@ -219,6 +232,12 @@ def deep_speech_v2_network(audio_data,
     :type audio_data: LayerOutput
     :param text_data: Transcription text data layer.
     :type text_data: LayerOutput
+    :param seq_offset_data: Sequence offset data layer.
+    :type seq_offset_data: LayerOutput
+    :param seq_len_data: Valid sequence length data layer.
+    :type seq_len_data: LayerOutput
+    :param index_range_datas: Index ranges data layers.
+    :type index_range_datas: tuple|list
     :param dict_size: Dictionary size for tokenized transcription.
     :type dict_size: int
     :param num_conv_layers: Number of stacking convolution layers.
@@ -239,7 +258,9 @@ def deep_speech_v2_network(audio_data,
     """
     # convolution group
     conv_group_output, conv_group_num_channels, conv_group_height = conv_group(
-        input=audio_data, num_stacks=num_conv_layers)
+        input=audio_data,
+        num_stacks=num_conv_layers,
+        index_range_datas=index_range_datas)
     # convert data form convolution feature map to sequence of vectors
     conv2seq = paddle.layer.block_expand(
         input=conv_group_output,
@@ -248,9 +269,16 @@ def deep_speech_v2_network(audio_data,
         stride_y=1,
         block_x=1,
         block_y=conv_group_height)
+    # remove padding part
+    remove_padding = paddle.layer.sub_seq(
+        input=conv2seq,
+        offsets=seq_offset_data,
+        sizes=seq_len_data,
+        act=paddle.activation.Linear(),
+        bias_attr=False)
     # rnn group
     rnn_group_output = rnn_group(
-        input=conv2seq,
+        input=remove_padding,
         size=rnn_size,
         num_stacks=num_rnn_layers,
         use_gru=use_gru,

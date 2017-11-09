@@ -165,7 +165,7 @@ class DeepSpeech2Model(object):
 
     def infer_batch(self, infer_data, decoding_method, beam_alpha, beam_beta,
                     beam_size, cutoff_prob, cutoff_top_n, vocab_list,
-                    language_model_path, num_processes):
+                    language_model_path, num_processes, feeding_dict):
         """Model inference. Infer the transcription for a batch of speech
         utterances.
 
@@ -195,6 +195,9 @@ class DeepSpeech2Model(object):
         :type language_model_path: basestring|None
         :param num_processes: Number of processes (CPU) for decoder.
         :type num_processes: int
+        :param feeding_dict: Feeding is a map of field name and tuple index
+                             of the data that reader returns.
+        :type feeding_dict: dict|list
         :return: List of transcription texts.
         :rtype: List of basestring
         """
@@ -203,10 +206,13 @@ class DeepSpeech2Model(object):
             self._inferer = paddle.inference.Inference(
                 output_layer=self._log_probs, parameters=self._parameters)
         # run inference
-        infer_results = self._inferer.infer(input=infer_data)
-        num_steps = len(infer_results) // len(infer_data)
+        infer_results = self._inferer.infer(
+            input=infer_data, feeding=feeding_dict)
+        start_pos = [0] * (len(infer_data) + 1)
+        for i in xrange(len(infer_data)):
+            start_pos[i + 1] = start_pos[i] + infer_data[i][3][0]
         probs_split = [
-            infer_results[i * num_steps:(i + 1) * num_steps]
+            infer_results[start_pos[i]:start_pos[i + 1]]
             for i in xrange(0, len(infer_data))
         ]
         # run decoder
@@ -274,9 +280,25 @@ class DeepSpeech2Model(object):
         text_data = paddle.layer.data(
             name="transcript_text",
             type=paddle.data_type.integer_value_sequence(vocab_size))
+        seq_offset_data = paddle.layer.data(
+            name='sequence_offset',
+            type=paddle.data_type.integer_value_sequence(1))
+        seq_len_data = paddle.layer.data(
+            name='sequence_length',
+            type=paddle.data_type.integer_value_sequence(1))
+        index_range_datas = []
+        for i in xrange(num_rnn_layers):
+            index_range_datas.append(
+                paddle.layer.data(
+                    name='conv%d_index_range' % i,
+                    type=paddle.data_type.dense_vector(6)))
+
         self._log_probs, self._loss = deep_speech_v2_network(
             audio_data=audio_data,
             text_data=text_data,
+            seq_offset_data=seq_offset_data,
+            seq_len_data=seq_len_data,
+            index_range_datas=index_range_datas,
             dict_size=vocab_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,

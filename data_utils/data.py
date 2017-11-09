@@ -59,6 +59,9 @@ class DataGenerator(object):
                                     be passed forward directly without
                                     converting to index sequence.
     :type keep_transcription_text: bool
+    :param num_conv_layers: The number of convolution layer, used to compute
+                            the sequence length.
+    :type num_conv_layers: int
     """
 
     def __init__(self,
@@ -74,7 +77,8 @@ class DataGenerator(object):
                  use_dB_normalization=True,
                  num_threads=multiprocessing.cpu_count() // 2,
                  random_seed=0,
-                 keep_transcription_text=False):
+                 keep_transcription_text=False,
+                 num_conv_layers=2):
         self._max_duration = max_duration
         self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
@@ -95,6 +99,7 @@ class DataGenerator(object):
         self._local_data = local()
         self._local_data.tar2info = {}
         self._local_data.tar2object = {}
+        self._num_conv_layers = num_conv_layers
 
     def process_utterance(self, filename, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -213,7 +218,15 @@ class DataGenerator(object):
         :return: Data feeding dict.
         :rtype: dict
         """
-        return {"audio_spectrogram": 0, "transcript_text": 1}
+        feeding_dict = {
+            "audio_spectrogram": 0,
+            "transcript_text": 1,
+            "sequence_offset": 2,
+            "sequence_length": 3
+        }
+        for i in xrange(self._num_conv_layers):
+            feeding_dict["conv%d_index_range" % i] = len(feeding_dict)
+        return feeding_dict
 
     @property
     def vocab_size(self):
@@ -306,7 +319,25 @@ class DataGenerator(object):
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
                 padded_audio = padded_audio.flatten()
-            new_batch.append((padded_audio, text))
+
+            padded_instance = [padded_audio, text]
+            padded_conv0_h = (padded_audio.shape[0] - 1) // 2 + 1
+            padded_conv0_w = (padded_audio.shape[1] - 1) // 3 + 1
+            valid_w = (audio.shape[1] - 1) // 3 + 1
+            padded_instance += [
+                [0],  # sequence offset, always 0
+                [valid_w],  # valid sequence length
+                [1, 32, 1, padded_conv0_h, valid_w + 1, padded_conv0_w]
+            ]
+            pre_padded_h = padded_conv0_h
+            for i in xrange(self._num_conv_layers - 1):
+                padded_h = (pre_padded_h - 1) // 2 + 1
+                pre_padded_h = padded_h
+                padded_instance += [
+                    [1, 32, 1, padded_h, valid_w + 1, padded_conv0_w]
+                ]
+
+            new_batch.append(padded_instance)
         return new_batch
 
     def _batch_shuffle(self, manifest, batch_size, clipped=False):

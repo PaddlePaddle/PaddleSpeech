@@ -70,7 +70,6 @@ FILES = glob.glob('kenlm/util/*.cc') \
 
 FILES += glob.glob('openfst-1.6.3/src/lib/*.cc')
 
-# FILES + glob.glob('glog/src/*.cc')
 FILES = [
     fn for fn in FILES
     if not (fn.endswith('main.cc') or fn.endswith('test.cc') or fn.endswith(
@@ -107,7 +106,6 @@ decoders_module = [
             'kenlm',
             'openfst-1.6.3/src/include',
             'ThreadPool',
-            #'glog/src'
         ],
         libraries=LIBS,
         extra_compile_args=ARGS)
@@ -115,7 +113,7 @@ decoders_module = [
 
 setup(
     name='swig_decoders',
-    version='0.1',
+    version='1.0',
     description="""CTC decoders""",
     ext_modules=decoders_module,
     py_modules=['swig_decoders'], )

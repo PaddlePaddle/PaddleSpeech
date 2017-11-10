@@ -320,6 +320,9 @@ class DataGenerator(object):
             if flatten:
                 padded_audio = padded_audio.flatten()
 
+            # Stride size for conv0 is (3, 2)
+            # Stride size for conv1 to convN is (1, 2)
+            # Same as the network, hard-coded here
             padded_instance = [padded_audio, text]
             padded_conv0_h = (padded_audio.shape[0] - 1) // 2 + 1
             padded_conv0_w = (padded_audio.shape[1] - 1) // 3 + 1
@@ -327,6 +330,8 @@ class DataGenerator(object):
             padded_instance += [
                 [0],  # sequence offset, always 0
                 [valid_w],  # valid sequence length
+                # Index ranges for channel, height and width
+                # Please refer scale_sub_region layer to see details
                 [1, 32, 1, padded_conv0_h, valid_w + 1, padded_conv0_w]
             ]
             pre_padded_h = padded_conv0_h

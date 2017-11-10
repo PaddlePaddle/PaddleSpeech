@@ -270,7 +270,7 @@ def deep_speech_v2_network(audio_data,
         block_x=1,
         block_y=conv_group_height)
     # remove padding part
-    remove_padding = paddle.layer.sub_seq(
+    remove_padding_data = paddle.layer.sub_seq(
         input=conv2seq,
         offsets=seq_offset_data,
         sizes=seq_len_data,
@@ -278,7 +278,7 @@ def deep_speech_v2_network(audio_data,
         bias_attr=False)
     # rnn group
     rnn_group_output = rnn_group(
-        input=remove_padding,
+        input=remove_padding_data,
         size=rnn_size,
         num_stacks=num_rnn_layers,
         use_gru=use_gru,

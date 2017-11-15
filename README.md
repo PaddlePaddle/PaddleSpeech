@@ -22,7 +22,7 @@
 
 ## Installation
 
-To avoid the trouble of environment setup, [running in docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
+To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
 - Python 2.7 only supported
@@ -344,7 +344,7 @@ Take several steps to launch the Docker image:
 - Download the Docker image
 
 ```bash
-nvidia-docker pull paddlepaddle/models:deep-speech-2
+sudo nvidia-docker pull paddlepaddle/models:deep-speech-2
 ```
 
 - Clone this repository

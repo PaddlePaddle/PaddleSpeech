@@ -480,7 +480,7 @@ python deploy/demo_client.py --help
 Language  | Model Name | Training Data | Hours of Speech
 :-----------: | :------------: | :----------: |  -------:
 English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [BaiduEN8k Model](to-be-added) | Baidu Internal English Dataset | 8628 h
+English  | [BaiduEN8k Model](http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90) | Baidu Internal English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
 Mandarin | [BaiduCN1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
 

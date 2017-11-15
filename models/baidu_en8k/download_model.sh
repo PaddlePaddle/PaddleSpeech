@@ -2,7 +2,7 @@
 
 . ../../utils/utility.sh
 
-URL='To-be-added'
+URL='http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90'
 MD5=a19d40cb3b558eb696c44d883f32cfda
 TARGET=./baidu_en8k_model.tar.gz
 

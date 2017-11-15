@@ -32,7 +32,7 @@ python -u test.py \
 --test_manifest='data/tiny/manifest.tiny' \
 --mean_std_path='data/tiny/mean_std.npz' \
 --vocab_path='data/tiny/vocab.txt' \
---model_path='checkpoints/params.pass-19.tar.gz' \
+--model_path='checkpoints/tiny/params.pass-19.tar.gz' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='wer' \

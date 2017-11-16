@@ -5,7 +5,7 @@ cd ../.. > /dev/null
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python data/librispeech/librispeech.py \
 --manifest_prefix='data/librispeech/manifest' \
---target_dir='~/.cache/paddle/dataset/speech/Libri' \
+--target_dir='~/.cache/paddle/dataset/speech/libri' \
 --full_download='True'
 
 if [ $? -ne 0 ]; then

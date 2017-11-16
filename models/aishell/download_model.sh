@@ -2,8 +2,8 @@
 
 . ../../utils/utility.sh
 
-URL='http://cloud.dlnel.org/filepub/?uuid=6c83b9d8-3255-4adf-9726-0fe0be3d0274'
-MD5=28521a58552885a81cf92a1e9b133a71
+URL='http://cloud.dlnel.org/filepub/?uuid=61de63b9-6904-4809-ad95-0cc5104ab973'
+MD5=0ee83aa15fba421e5de8fc66c8feb350
 TARGET=./aishell_model.tar.gz
 
 

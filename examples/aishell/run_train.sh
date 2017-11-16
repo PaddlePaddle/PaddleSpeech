@@ -19,7 +19,7 @@ python -u train.py \
 --min_duration=0.0 \
 --test_off=False \
 --use_sortagrad=True \
---use_gru=False \
+--use_gru=True \
 --use_gpu=True \
 --is_local=True \
 --share_rnn_weights=False \

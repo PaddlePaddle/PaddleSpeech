@@ -21,11 +21,11 @@ python -u infer.py \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=1024 \
---alpha=1.4 \
---beta=2.4 \
+--alpha=2.6 \
+--beta=5.0 \
 --cutoff_prob=0.99 \
 --cutoff_top_n=40 \
---use_gru=False \
+--use_gru=True \
 --use_gpu=True \
 --share_rnn_weights=False \
 --infer_manifest='data/aishell/manifest.test' \

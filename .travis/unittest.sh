@@ -24,13 +24,6 @@ unittest(){
 trap 'abort' 0
 set -e
 
-for proj in */ ; do
-    if [ -d $proj ]; then
-        unittest $proj
-        if [ $? != 0 ]; then
-            exit 1
-        fi
-    fi
-done
+unittest .
 
 trap : 0

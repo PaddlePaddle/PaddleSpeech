@@ -33,11 +33,3 @@
         entry: bash .clang_format.hook -i
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
--   repo: local
-    hooks:
-    -   id: convert-markdown-into-html
-        name: convert-markdown-into-html
-        description: Convert README.md into index.html
-        entry: python .pre-commit-hooks/convert_markdown_into_html.py
-        language: system
-        files: .+README\.md$

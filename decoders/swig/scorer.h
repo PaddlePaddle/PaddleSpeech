@@ -104,7 +104,7 @@ private:
 
   int SPACE_ID_;
   std::vector<std::string> char_list_;
-  std::unordered_map<char, int> char_map_;
+  std::unordered_map<std::string, int> char_map_;
 
   std::vector<std::string> vocabulary_;
 };

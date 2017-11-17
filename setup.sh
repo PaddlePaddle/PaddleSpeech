@@ -27,7 +27,7 @@ if [ $? != 0 ]; then
 fi
 
 # install decoders
-python -c "import swig_decoders"
+python -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"
 if [ $? != 0 ]; then
     cd decoders/swig > /dev/null
     sh setup.sh

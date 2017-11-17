@@ -16,7 +16,6 @@ addons:
       - python
       - python-pip
       - python2.7-dev
-  ssh_known_hosts: 52.76.173.135
 
 before_install:
   -  sudo pip install -U virtualenv pre-commit pip
@@ -27,14 +26,6 @@ script:
   - .travis/precommit.sh || exit_code=$(( exit_code | $? ))
   - docker run -i --rm -v "$PWD:/py_unittest" paddlepaddle/paddle:latest /bin/bash -c
     'cd /py_unittest; sh .travis/unittest.sh' || exit_code=$(( exit_code | $? ))
-  - |
-    if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then exit $exit_code; fi;
-    if [[ "$TRAVIS_BRANCH" != "develop"  && ! "$TRAVIS_BRANCH" =~ ^v[[:digit:]]+\.[[:digit:]]+(\.[[:digit:]]+)?(-\S*)?$ ]]; then echo "not develop branch, no deploy"; exit $exit_code; fi;
-    export DEPLOY_DOCS_SH=https://raw.githubusercontent.com/PaddlePaddle/PaddlePaddle.org/master/scripts/deploy/deploy_docs.sh
-    export MODELS_DIR=`pwd`
-    cd ..
-    curl $DEPLOY_DOCS_SH | bash -s $CONTENT_DEC_PASSWD $TRAVIS_BRANCH $MODELS_DIR
-    exit_code=$(( exit_code | $? ))
     exit $exit_code
 
 notifications:

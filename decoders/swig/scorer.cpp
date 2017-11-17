@@ -149,11 +149,15 @@ void Scorer::set_char_map(const std::vector<std::string>& char_list) {
   char_list_ = char_list;
   char_map_.clear();
 
+  // Set the char map for the FST for spelling correction
   for (size_t i = 0; i < char_list_.size(); i++) {
     if (char_list_[i] == " ") {
       SPACE_ID_ = i;
     }
-    char_map_[char_list_[i]] = i + 1;  // Force index starting from zero
+    // The initial state of FST is state 0, hence the index of chars in
+    // the FST should start from 1 to avoid the conflict with the initial
+    // state, otherwise wrong decoding results would be given.
+    char_map_[char_list_[i]] = i + 1;
   }
 }
 

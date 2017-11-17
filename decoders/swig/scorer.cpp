@@ -152,10 +152,8 @@ void Scorer::set_char_map(const std::vector<std::string>& char_list) {
   for (size_t i = 0; i < char_list_.size(); i++) {
     if (char_list_[i] == " ") {
       SPACE_ID_ = i;
-      char_map_[' '] = i;
-    } else if (char_list_[i].size() == 1) {
-      char_map_[char_list_[i][0]] = i;
     }
+    char_map_[char_list_[i]] = i + 1;  // Force index starting from zero
   }
 }
 
@@ -193,17 +191,11 @@ std::vector<std::string> Scorer::make_ngram(PathTrie* prefix) {
 
 void Scorer::fill_dictionary(bool add_space) {
   fst::StdVectorFst dictionary;
-  // First reverse char_list so ints can be accessed by chars
-  std::unordered_map<std::string, int> char_map;
-  for (size_t i = 0; i < char_list_.size(); i++) {
-    char_map[char_list_[i]] = i;
-  }
-
   // For each unigram convert to ints and put in trie
   int dict_size = 0;
   for (const auto& word : vocabulary_) {
     bool added = add_word_to_dictionary(
-        word, char_map, add_space, SPACE_ID_, &dictionary);
+        word, char_map_, add_space, SPACE_ID_ + 1, &dictionary);
     dict_size += added ? 1 : 0;
   }
 

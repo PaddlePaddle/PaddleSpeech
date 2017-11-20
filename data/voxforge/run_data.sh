@@ -1,10 +1,8 @@
 #! /usr/bin/env bash
 
-cd ../.. > /dev/null
-
 # download data, generate manifests
-PYTHONPATH=.:$PYTHONPATH python data/voxforge/voxforge.py \
---manifest_prefix='data/voxforge/manifest' \
+PYTHONPATH=../../:$PYTHONPATH python voxforge.py \
+--manifest_prefix='./manifest' \
 --target_dir='~/.cache/paddle/dataset/speech/VoxForge' \
 --is_merge_dialect=True \
 --dialects 'american' 'british' 'australian' 'european' 'irish' 'canadian' 'indian'

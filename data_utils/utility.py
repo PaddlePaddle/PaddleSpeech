@@ -42,6 +42,25 @@ def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
     return manifest
 
 
+def getfile_insensitive(path):
+    """Get the actual file path when given insensitive filename."""
+    directory, filename = os.path.split(path)
+    directory, filename = (directory or '.'), filename.lower()
+    for f in os.listdir(directory):
+        newpath = os.path.join(directory, f)
+        if os.path.isfile(newpath) and f.lower() == filename:
+            return newpath
+
+
+def download_multi(url, target_dir, extra_args):
+    """Download multiple files from url to target_dir."""
+    if not os.path.exists(target_dir): os.makedirs(target_dir)
+    print("Downloading %s ..." % url)
+    ret_code = os.system("wget -c " + url + ' ' + extra_args + " -P " +
+                         target_dir)
+    return ret_code
+
+
 def download(url, md5sum, target_dir):
     """Download file from url to target_dir, and check md5sum."""
     if not os.path.exists(target_dir): os.makedirs(target_dir)

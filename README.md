@@ -506,6 +506,8 @@ VoxForge European       |   31.21           |   20.47
 VoxForge Indian         |   56.79           |   28.15
 Baidu Internal Testset  |   47.73           |   8.92
 
+For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh run_data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
+
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 
 Test Set                | Aishell Model     | BaiduCN1.2k Model

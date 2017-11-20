@@ -479,7 +479,7 @@ python deploy/demo_client.py --help
 
 Language  | Model Name | Training Data | Hours of Speech
 :-----------: | :------------: | :----------: |  -------:
-English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=17404caf-cf19-492f-9707-1fad07c19aae) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=117cde63-cd59-4948-8b80-df782555f7d6) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
 English  | [BaiduEN8k Model](http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90) | Baidu Internal English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=61de63b9-6904-4809-ad95-0cc5104ab973) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
 Mandarin | [BaiduCN1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
@@ -498,13 +498,13 @@ Language Model | Training Data | Token-based | Size | Descriptions
 
 Test Set                | LibriSpeech Model | BaiduEN8K Model
 :---------------------  | ---------------:  | -------------------:
-LibriSpeech Test-Clean  |   7.77            |   6.63
-LibriSpeech Test-Other  |   23.25           |   16.59
-VoxForge American-Canadian | 12.52          |   7.46
-VoxForge Commonwealth   |   21.08           |   16.23
-VoxForge European       |   31.21           |   20.47
-VoxForge Indian         |   56.79           |   28.15
-Baidu Internal Testset  |   47.73           |   8.92
+LibriSpeech Test-Clean  |   7.73            |   6.63
+LibriSpeech Test-Other  |   23.15           |   16.59
+VoxForge American-Canadian | 12.30          |   7.46
+VoxForge Commonwealth   |   20.03           |   16.23
+VoxForge European       |   30.31           |   20.47
+VoxForge Indian         |   55.47           |   28.15
+Baidu Internal Testset  |   44.71           |   8.92
 
 For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh run_data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
 

@@ -22,7 +22,7 @@
 
 ## Installation
 
-To avoid the trouble of environment setup, [running in docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
+To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
 - Python 2.7 only supported
@@ -351,19 +351,19 @@ Take several steps to launch the Docker image:
 - Download the Docker image
 
 ```bash
-nvidia-docker pull paddlepaddle/models:deep-speech-2
+nvidia-docker pull paddlepaddle/deep_speech:latest-gpu
 ```
 
 - Clone this repository
 
 ```
-git clone https://github.com/PaddlePaddle/models.git
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
 ```
 
 - Run the Docker image
 
 ```bash
-sudo nvidia-docker run -it -v $(pwd)/models:/models paddlepaddle/models:deep-speech-2 /bin/bash
+sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech paddlepaddle/deep_speech:latest-gpu /bin/bash
 ```
 Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similarly in the Docker container.
 

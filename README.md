@@ -31,8 +31,9 @@ To avoid the trouble of environment setup, [running in docker container](#runnin
 ### Setup
 
 ```bash
-git clone https://github.com/PaddlePaddle/models.git
-cd models/deep_speech_2
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev swig
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+cd DeepSpeech
 sh setup.sh
 ```
 

@@ -29,10 +29,17 @@ To avoid the trouble of environment setup, [running in docker container](#runnin
 - PaddlePaddle the latest version (please refer to the [Installation Guide](https://github.com/PaddlePaddle/Paddle#installation))
 
 ### Setup
+- Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis` and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
-git clone https://github.com/PaddlePaddle/models.git
-cd models/deep_speech_2
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev swig
+```
+
+- Run the setup script for the remaining dependencies
+
+```bash
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+cd DeepSpeech
 sh setup.sh
 ```
 

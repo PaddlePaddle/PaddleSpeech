@@ -70,7 +70,6 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
     :type delimiter: char
     :return: Levenshtein distance and word number of reference sentence.
     :rtype: list
-    :raises ValueError: If word number of reference sentence is zero.
     """
     if ignore_case == True:
         reference = reference.lower()
@@ -78,9 +77,6 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
 
     ref_words = filter(None, reference.split(delimiter))
     hyp_words = filter(None, hypothesis.split(delimiter))
-
-    if len(ref_words) == 0:
-        raise ValueError("Reference's word number should be greater than 0.")
 
     edit_distance = _levenshtein_distance(ref_words, hyp_words)
     return float(edit_distance), len(ref_words)
@@ -100,7 +96,6 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
     :type remove_space: bool
     :return: Levenshtein distance and length of reference sentence.
     :rtype: list
-    :raises ValueError: If the reference length is zero.
     """
     if ignore_case == True:
         reference = reference.lower()
@@ -112,9 +107,6 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
 
     reference = join_char.join(filter(None, reference.split(' ')))
     hypothesis = join_char.join(filter(None, hypothesis.split(' ')))
-
-    if len(reference) == 0:
-        raise ValueError("Length of reference should be greater than 0.")
 
     edit_distance = _levenshtein_distance(reference, hypothesis)
     return float(edit_distance), len(reference)
@@ -153,6 +145,10 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     """
     edit_distance, ref_len = word_errors(reference, hypothesis, ignore_case,
                                          delimiter)
+
+    if ref_len == 0:
+        raise ValueError("Reference's word number should be greater than 0.")
+
     wer = float(edit_distance) / ref_len
     return wer
 
@@ -192,5 +188,9 @@ def cer(reference, hypothesis, ignore_case=False, remove_space=False):
     """
     edit_distance, ref_len = char_errors(reference, hypothesis, ignore_case,
                                          remove_space)
-    cer = float(edit_distance) / len(ref_len)
+
+    if ref_len == 0:
+        raise ValueError("Length of reference should be greater than 0.")
+
+    cer = float(edit_distance) / ref_len
     return cer

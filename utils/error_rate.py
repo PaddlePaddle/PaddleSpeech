@@ -56,6 +56,62 @@ def _levenshtein_distance(ref, hyp):
     return distance[m % 2][n]
 
 
+def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
+    """Compute the levenshtein distance between reference sequence and
+    hypothesis sequence in word-level.
+
+    :param reference: The reference sentence.
+    :type reference: basestring
+    :param hypothesis: The hypothesis sentence.
+    :type hypothesis: basestring
+    :param ignore_case: Whether case-sensitive or not.
+    :type ignore_case: bool
+    :param delimiter: Delimiter of input sentences.
+    :type delimiter: char
+    :return: Levenshtein distance and word number of reference sentence.
+    :rtype: list
+    """
+    if ignore_case == True:
+        reference = reference.lower()
+        hypothesis = hypothesis.lower()
+
+    ref_words = filter(None, reference.split(delimiter))
+    hyp_words = filter(None, hypothesis.split(delimiter))
+
+    edit_distance = _levenshtein_distance(ref_words, hyp_words)
+    return float(edit_distance), len(ref_words)
+
+
+def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
+    """Compute the levenshtein distance between reference sequence and
+    hypothesis sequence in char-level.
+
+    :param reference: The reference sentence.
+    :type reference: basestring
+    :param hypothesis: The hypothesis sentence.
+    :type hypothesis: basestring
+    :param ignore_case: Whether case-sensitive or not.
+    :type ignore_case: bool
+    :param remove_space: Whether remove internal space characters
+    :type remove_space: bool
+    :return: Levenshtein distance and length of reference sentence.
+    :rtype: list
+    """
+    if ignore_case == True:
+        reference = reference.lower()
+        hypothesis = hypothesis.lower()
+
+    join_char = ' '
+    if remove_space == True:
+        join_char = ''
+
+    reference = join_char.join(filter(None, reference.split(' ')))
+    hypothesis = join_char.join(filter(None, hypothesis.split(' ')))
+
+    edit_distance = _levenshtein_distance(reference, hypothesis)
+    return float(edit_distance), len(reference)
+
+
 def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     """Calculate word error rate (WER). WER compares reference text and
     hypothesis text in word-level. WER is defined as:
@@ -85,20 +141,15 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     :type delimiter: char
     :return: Word error rate.
     :rtype: float
-    :raises ValueError: If the reference length is zero.
+    :raises ValueError: If word number of reference is zero.
     """
-    if ignore_case == True:
-        reference = reference.lower()
-        hypothesis = hypothesis.lower()
+    edit_distance, ref_len = word_errors(reference, hypothesis, ignore_case,
+                                         delimiter)
 
-    ref_words = filter(None, reference.split(delimiter))
-    hyp_words = filter(None, hypothesis.split(delimiter))
-
-    if len(ref_words) == 0:
+    if ref_len == 0:
         raise ValueError("Reference's word number should be greater than 0.")
 
-    edit_distance = _levenshtein_distance(ref_words, hyp_words)
-    wer = float(edit_distance) / len(ref_words)
+    wer = float(edit_distance) / ref_len
     return wer
 
 
@@ -135,20 +186,11 @@ def cer(reference, hypothesis, ignore_case=False, remove_space=False):
     :rtype: float
     :raises ValueError: If the reference length is zero.
     """
-    if ignore_case == True:
-        reference = reference.lower()
-        hypothesis = hypothesis.lower()
+    edit_distance, ref_len = char_errors(reference, hypothesis, ignore_case,
+                                         remove_space)
 
-    join_char = ' '
-    if remove_space == True:
-        join_char = ''
-
-    reference = join_char.join(filter(None, reference.split(' ')))
-    hypothesis = join_char.join(filter(None, hypothesis.split(' ')))
-
-    if len(reference) == 0:
+    if ref_len == 0:
         raise ValueError("Length of reference should be greater than 0.")
 
-    edit_distance = _levenshtein_distance(reference, hypothesis)
-    cer = float(edit_distance) / len(reference)
+    cer = float(edit_distance) / ref_len
     return cer

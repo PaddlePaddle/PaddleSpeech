@@ -4,19 +4,19 @@ cd ../.. > /dev/null
 
 # download language model
 cd models/lm > /dev/null
-#sh download_lm_en.sh
-#if [ $? -ne 0 ]; then
-#    exit 1
-#fi
+sh download_lm_en.sh
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 cd - > /dev/null
 
 
 # download well-trained model
 cd models/baidu_en8k > /dev/null
-#sh download_model.sh
-#if [ $? -ne 0 ]; then
-#    exit 1
-#fi
+sh download_model.sh
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 cd - > /dev/null
 
 

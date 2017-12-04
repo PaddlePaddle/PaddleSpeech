@@ -8,7 +8,7 @@ import functools
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
-from utils.error_rate import wer, cer
+from utils.error_rate import char_errors, word_errors
 from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -91,8 +91,8 @@ def evaluate():
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
 
-    error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    error_sum, num_ins = 0.0, 0
+    errors_func = char_errors if args.error_rate_type == 'cer' else word_errors
+    errors_sum, len_refs, num_ins = 0.0, 0, 0
     for infer_data in batch_reader():
         result_transcripts = ds2_model.infer_batch(
             infer_data=infer_data,
@@ -108,12 +108,14 @@ def evaluate():
             feeding_dict=data_generator.feeding)
         target_transcripts = [data[1] for data in infer_data]
         for target, result in zip(target_transcripts, result_transcripts):
-            error_sum += error_rate_func(target, result)
+            errors, len_ref = errors_func(target, result)
+            errors_sum += errors
+            len_refs += len_ref
             num_ins += 1
         print("Error rate [%s] (%d/?) = %f" %
-              (args.error_rate_type, num_ins, error_sum / num_ins))
+              (args.error_rate_type, num_ins, errors_sum / len_refs))
     print("Final error rate [%s] (%d/%d) = %f" %
-          (args.error_rate_type, num_ins, num_ins, error_sum / num_ins))
+          (args.error_rate_type, num_ins, num_ins, errors_sum / len_refs))
 
     ds2_model.logger.info("finish evaluation")
 

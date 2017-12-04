@@ -505,13 +505,13 @@ Language Model | Training Data | Token-based | Size | Descriptions
 
 Test Set                | LibriSpeech Model | BaiduEN8K Model
 :---------------------  | ---------------:  | -------------------:
-LibriSpeech Test-Clean  |   7.73            |   6.63
-LibriSpeech Test-Other  |   23.15           |   16.59
-VoxForge American-Canadian | 12.30          |   7.46
-VoxForge Commonwealth   |   20.03           |   16.23
-VoxForge European       |   30.31           |   20.47
-VoxForge Indian         |   55.47           |   28.15
-Baidu Internal Testset  |   44.71           |   8.92
+LibriSpeech Test-Clean  |   6.85            |   5.73
+LibriSpeech Test-Other  |   21.18           |   14.47
+VoxForge American-Canadian | 12.12          |   7.37
+VoxForge Commonwealth   |   19.82           |   15.58
+VoxForge European       |   30.15           |   19.44
+VoxForge Indian         |   53.73           |   26.15
+Baidu Internal Testset  |   40.75           |   8.82
 
 For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh run_data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
 

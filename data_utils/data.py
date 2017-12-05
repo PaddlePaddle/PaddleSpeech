@@ -290,10 +290,7 @@ class DataGenerator(object):
 
         reader, cleanup_callback = xmap_readers_mp(
             lambda instance: self.process_utterance(instance["audio_filepath"], instance["text"]),
-            reader,
-            self._num_threads,
-            4096,
-            order=True)
+            reader, self._num_threads, 4096)
 
         # register callback to main process
         atexit.register(cleanup_callback)

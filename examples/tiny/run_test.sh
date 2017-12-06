@@ -22,8 +22,8 @@ python -u test.py \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=2048 \
---alpha=2.15 \
---beta=0.35 \
+--alpha=2.5 \
+--beta=0.3 \
 --cutoff_prob=1.0 \
 --cutoff_top_n=40 \
 --use_gru=False \

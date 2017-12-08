@@ -112,7 +112,7 @@ class AudioFeaturizer(object):
         if max_freq is None:
             max_freq = sample_rate / 2
         if max_freq > sample_rate / 2:
-            raise ValueError("max_freq must be greater than half of "
+            raise ValueError("max_freq must not be greater than half of "
                              "sample rate.")
         if stride_ms > window_ms:
             raise ValueError("Stride size must not be greater than "

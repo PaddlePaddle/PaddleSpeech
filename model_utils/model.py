@@ -50,7 +50,7 @@ class DeepSpeech2Model(object):
         self._inferer = None
         self._loss_inferer = None
         self._ext_scorer = None
-        self._num_conv_layers = num_rnn_layers
+        self._num_conv_layers = num_conv_layers
         self.logger = logging.getLogger("")
         self.logger.setLevel(level=logging.INFO)
 

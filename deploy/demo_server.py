@@ -147,8 +147,7 @@ def start_server():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=1,
-        keep_transcription_text=True,
-        num_conv_layers=args.num_conv_layers)
+        keep_transcription_text=True)
     # prepare ASR model
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,
@@ -164,20 +163,9 @@ def start_server():
     # prepare ASR inference handler
     def file_to_transcript(filename):
         feature = data_generator.process_utterance(filename, "")
-        ins = []
-        conv0_h = (feature[0].shape[0] - 1) // 2 + 1
-        conv0_w = (feature[0].shape[1] - 1) // 3 + 1
-        ins += [feature[0], feature[1],
-                [0], [conv0_w],
-                [1, 32, 1, conv0_h, conv0_w + 1, conv0_w]]
-        pre_h = conv0_h
-        for i in xrange(args.num_conv_layers - 1):
-            h = (pre_h - 1) // 2 + 1
-            pre_h = h
-            ins += [[1, 32, 1, h, conv0_w + 1, conv0_w]]
 
         result_transcript = ds2_model.infer_batch(
-            infer_data=[ins],
+            infer_data=[feature],
             decoding_method=args.decoding_method,
             beam_alpha=args.alpha,
             beam_beta=args.beta,

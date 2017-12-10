@@ -75,15 +75,13 @@ def train():
         max_duration=args.max_duration,
         min_duration=args.min_duration,
         specgram_type=args.specgram_type,
-        num_threads=args.num_proc_data,
-        num_conv_layers=args.num_conv_layers)
+        num_threads=args.num_proc_data)
     dev_generator = DataGenerator(
         vocab_filepath=args.vocab_path,
         mean_std_filepath=args.mean_std_path,
         augmentation_config="{}",
         specgram_type=args.specgram_type,
-        num_threads=args.num_proc_data,
-        num_conv_layers=args.num_conv_layers)
+        num_threads=args.num_proc_data)
     train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest,
         batch_size=args.batch_size,

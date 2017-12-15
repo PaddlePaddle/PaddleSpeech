@@ -395,13 +395,13 @@ Please take the following steps to submit a training job:
 
     It should be done only once for the very first time to do the cloud training. Later, the data is kept persisitent on the cloud filesystem and reusable for further job submissions.
 
-    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
 
  - Configure training arguments:
 
     Configure the cloud job parameters in `pcloud_submit.sh` (e.g. `NUM_NODES`, `NUM_GPUS`, `CLOUD_TRAIN_DIR`, `JOB_NAME` etc.) and then configure other hyper-parameters for training in `pcloud_train.sh` (just as what you do for local training).
 
-    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
 
  - Submit the job:
 
@@ -428,7 +428,7 @@ Please take the following steps to submit a training job:
 For more information about the usage of PaddleCloud, please refer to [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#提交任务).
 
 For more information about the DeepSpeech2 training on PaddleCloud, please refer to
-[Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/models/tree/develop/deep_speech_2/cloud).
+[Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
 
 ## Training for Mandarin Language
 

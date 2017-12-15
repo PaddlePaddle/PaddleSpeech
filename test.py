@@ -70,8 +70,7 @@ def evaluate():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=args.num_proc_data,
-        keep_transcription_text=True,
-        num_conv_layers=args.num_conv_layers)
+        keep_transcription_text=True)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.test_manifest,
         batch_size=args.batch_size,

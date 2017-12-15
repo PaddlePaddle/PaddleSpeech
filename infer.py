@@ -69,8 +69,7 @@ def infer():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=1,
-        keep_transcription_text=True,
-        num_conv_layers=args.num_conv_layers)
+        keep_transcription_text=True)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.infer_manifest,
         batch_size=args.num_samples,

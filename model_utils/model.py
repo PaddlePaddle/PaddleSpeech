@@ -8,6 +8,8 @@ import os
 import time
 import logging
 import gzip
+import copy
+import inspect
 from distutils.dir_util import mkpath
 import paddle.v2 as paddle
 from decoders.swig_wrapper import Scorer
@@ -48,6 +50,7 @@ class DeepSpeech2Model(object):
         self._inferer = None
         self._loss_inferer = None
         self._ext_scorer = None
+        self._num_conv_layers = num_conv_layers
         self.logger = logging.getLogger("")
         self.logger.setLevel(level=logging.INFO)
 
@@ -91,6 +94,11 @@ class DeepSpeech2Model(object):
         if not os.path.exists(output_model_dir):
             mkpath(output_model_dir)
 
+        # adapt the feeding dict and reader according to the network
+        adapted_feeding_dict = self._adapt_feeding_dict(feeding_dict)
+        adapted_train_batch_reader = self._adapt_data(train_batch_reader)
+        adapted_dev_batch_reader = self._adapt_data(dev_batch_reader)
+
         # prepare optimizer and trainer
         optimizer = paddle.optimizer.Adam(
             learning_rate=learning_rate,
@@ -128,7 +136,8 @@ class DeepSpeech2Model(object):
                           (time.time() - start_time, event.pass_id))
                 else:
                     result = trainer.test(
-                        reader=dev_batch_reader, feeding=feeding_dict)
+                        reader=adapted_dev_batch_reader,
+                        feeding=adapted_feeding_dict)
                     print(
                         "\n------- Time: %d sec,  Pass: %d, "
                         "ValidationCost: %s" %
@@ -140,11 +149,12 @@ class DeepSpeech2Model(object):
 
         # run train
         trainer.train(
-            reader=train_batch_reader,
+            reader=adapted_train_batch_reader,
             event_handler=event_handler,
             num_passes=num_passes,
-            feeding=feeding_dict)
+            feeding=adapted_feeding_dict)
 
+    # TODO(@pkuyym) merge this function into infer_batch
     def infer_loss_batch(self, infer_data):
         """Model inference. Infer the ctc loss for a batch of speech
         utterances.
@@ -205,15 +215,17 @@ class DeepSpeech2Model(object):
         if self._inferer == None:
             self._inferer = paddle.inference.Inference(
                 output_layer=self._log_probs, parameters=self._parameters)
+        adapted_feeding_dict = self._adapt_feeding_dict(feeding_dict)
+        adapted_infer_data = self._adapt_data(infer_data)
         # run inference
         infer_results = self._inferer.infer(
-            input=infer_data, feeding=feeding_dict)
-        start_pos = [0] * (len(infer_data) + 1)
-        for i in xrange(len(infer_data)):
-            start_pos[i + 1] = start_pos[i] + infer_data[i][3][0]
+            input=adapted_infer_data, feeding=adapted_feeding_dict)
+        start_pos = [0] * (len(adapted_infer_data) + 1)
+        for i in xrange(len(adapted_infer_data)):
+            start_pos[i + 1] = start_pos[i] + adapted_infer_data[i][3][0]
         probs_split = [
             infer_results[start_pos[i]:start_pos[i + 1]]
-            for i in xrange(0, len(infer_data))
+            for i in xrange(0, len(adapted_infer_data))
         ]
         # run decoder
         results = []
@@ -259,6 +271,100 @@ class DeepSpeech2Model(object):
             raise ValueError("Decoding method [%s] is not supported." %
                              decoding_method)
         return results
+
+    def _adapt_feeding_dict(self, feeding_dict):
+        """Adapt feeding dict according to network struct.
+
+        To remove impacts from padding part, we add scale_sub_region layer and
+        sub_seq layer. For sub_seq layer, 'sequence_offset' and
+        'sequence_length' fields are appended. For each scale_sub_region layer
+        'convN_index_range' field is appended.
+
+        :param feeding_dict: Feeding is a map of field name and tuple index
+                             of the data that reader returns.
+        :type feeding_dict: dict|list
+        :return: Adapted feeding dict.
+        :rtype: dict|list
+        """
+        adapted_feeding_dict = copy.deepcopy(feeding_dict)
+        if isinstance(feeding_dict, dict):
+            adapted_feeding_dict["sequence_offset"] = len(adapted_feeding_dict)
+            adapted_feeding_dict["sequence_length"] = len(adapted_feeding_dict)
+            for i in xrange(self._num_conv_layers):
+                adapted_feeding_dict["conv%d_index_range" %i] = \
+                        len(adapted_feeding_dict)
+        elif isinstance(feeding_dict, list):
+            adapted_feeding_dict.append("sequence_offset")
+            adapted_feeding_dict.append("sequence_length")
+            for i in xrange(self._num_conv_layers):
+                adapted_feeding_dict.append("conv%d_index_range" % i)
+        else:
+            raise ValueError("Type of feeding_dict is %s, not supported." %
+                             type(feeding_dict))
+
+        return adapted_feeding_dict
+
+    def _adapt_data(self, data):
+        """Adapt data according to network struct.
+
+        For each convolution layer in the conv_group, to remove impacts from
+        padding data, we can multiply zero to the padding part of the outputs
+        of each batch normalization layer. We add a scale_sub_region layer after
+        each batch normalization layer to reset the padding data.
+        For rnn layers, to remove impacts from padding data, we can truncate the
+        padding part before output data feeded into the first rnn layer. We use
+        sub_seq layer to achieve this.
+
+        :param data: Data from data_provider.
+        :type data: list|function
+        :return: Adapted data.
+        :rtype: list|function
+        """
+
+        def adapt_instance(instance):
+            if len(instance) < 2 or len(instance) > 3:
+                raise ValueError("Size of instance should be 2 or 3.")
+            padded_audio = instance[0]
+            text = instance[1]
+            # no padding part
+            if len(instance) == 2:
+                audio_len = padded_audio.shape[1]
+            else:
+                audio_len = instance[2]
+            adapted_instance = [padded_audio, text]
+            # Stride size for conv0 is (3, 2)
+            # Stride size for conv1 to convN is (1, 2)
+            # Same as the network, hard-coded here
+            padded_conv0_h = (padded_audio.shape[0] - 1) // 2 + 1
+            padded_conv0_w = (padded_audio.shape[1] - 1) // 3 + 1
+            valid_w = (audio_len - 1) // 3 + 1
+            adapted_instance += [
+                [0],  # sequence offset, always 0
+                [valid_w],  # valid sequence length
+                # Index ranges for channel, height and width
+                # Please refer scale_sub_region layer to see details
+                [1, 32, 1, padded_conv0_h, valid_w + 1, padded_conv0_w]
+            ]
+            pre_padded_h = padded_conv0_h
+            for i in xrange(self._num_conv_layers - 1):
+                padded_h = (pre_padded_h - 1) // 2 + 1
+                pre_padded_h = padded_h
+                adapted_instance += [
+                    [1, 32, 1, padded_h, valid_w + 1, padded_conv0_w]
+                ]
+            return adapted_instance
+
+        if isinstance(data, list):
+            return map(adapt_instance, data)
+        elif inspect.isgeneratorfunction(data):
+
+            def adapted_reader():
+                for instance in data():
+                    yield map(adapt_instance, instance)
+
+            return adapted_reader
+        else:
+            raise ValueError("Type of data is %s, not supported." % type(data))
 
     def _create_parameters(self, model_path=None):
         """Load or create model parameters."""

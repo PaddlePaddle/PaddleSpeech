@@ -489,7 +489,7 @@ Language  | Model Name | Training Data | Hours of Speech
 English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=117cde63-cd59-4948-8b80-df782555f7d6) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
 English  | [BaiduEN8k Model](http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90) | Baidu Internal English Dataset | 8628 h
 Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=61de63b9-6904-4809-ad95-0cc5104ab973) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [BaiduCN1.2k Model](to-be-added) | Baidu Internal Mandarin Dataset | 1204 h
+Mandarin | [BaiduCN1.2k Model](http://cloud.dlnel.org/filepub/?uuid=499569a6-0025-4f40-83e6-1c99527431a6) | Baidu Internal Mandarin Dataset | 1204 h
 
 #### Language Model Released
 
@@ -517,9 +517,9 @@ For reproducing benchmark results on VoxForge data, we provide a script to downl
 
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 
-Test Set                | Aishell Model     | BaiduCN1.2k Model
-:---------------------  | ---------------:  | -------------------:
-Baidu Internal Testset  |   -               |   15.49
+Test Set                |  BaiduCN1.2k Model
+:---------------------  |  -------------------:
+Baidu Internal Testset  |   12.64
 
 #### Acceleration with Multi-GPUs
 

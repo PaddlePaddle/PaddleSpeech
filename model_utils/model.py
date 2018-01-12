@@ -226,6 +226,17 @@ class DeepSpeech2Model(object):
                         vocab_list):
         """Initialize the external scorer.
 
+        :param beam_alpha: Parameter associated with language model.
+        :type beam_alpha: float
+        :param beam_beta: Parameter associated with word count.
+        :type beam_beta: float
+        :param language_model_path: Filepath for language model. If it is
+                                    empty, the external scorer will be set to
+                                    None, and the decoding method will be pure
+                                    beam search without scorer.
+        :type language_model_path: basestring|None
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
         """
         if language_model_path != '':
             self.logger.info("begin to initialize the external scorer "

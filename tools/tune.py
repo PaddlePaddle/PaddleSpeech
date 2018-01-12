@@ -70,9 +70,6 @@ add_arg('specgram_type',    str,
 args = parser.parse_args()
 
 
-logging.basicConfig(
-    format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
-
 def tune():
     """Tune parameters alpha and beta incrementally."""
     if not args.num_alphas >= 0:

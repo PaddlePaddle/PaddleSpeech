@@ -13,9 +13,7 @@ import logging
 import paddle.v2 as paddle
 import _init_paths
 from data_utils.data import DataGenerator
-from decoders.swig_wrapper import Scorer
-from decoders.swig_wrapper import ctc_beam_search_decoder_batch
-from model_utils.model import deep_speech_v2_network
+from model_utils.model import DeepSpeech2Model
 from utils.error_rate import char_errors, word_errors
 from utils.utility import add_arguments, print_arguments
 
@@ -88,40 +86,7 @@ def tune():
         augmentation_config='{}',
         specgram_type=args.specgram_type,
         num_threads=args.num_proc_data,
-        keep_transcription_text=True,
-        num_conv_layers=args.num_conv_layers)
-
-    audio_data = paddle.layer.data(
-        name="audio_spectrogram",
-        type=paddle.data_type.dense_array(161 * 161))
-    text_data = paddle.layer.data(
-        name="transcript_text",
-        type=paddle.data_type.integer_value_sequence(data_generator.vocab_size))
-    seq_offset_data = paddle.layer.data(
-        name='sequence_offset',
-        type=paddle.data_type.integer_value_sequence(1))
-    seq_len_data = paddle.layer.data(
-        name='sequence_length',
-        type=paddle.data_type.integer_value_sequence(1))
-    index_range_datas = []
-    for i in xrange(args.num_rnn_layers):
-        index_range_datas.append(
-            paddle.layer.data(
-                name='conv%d_index_range' % i,
-                type=paddle.data_type.dense_vector(6)))
-
-    output_probs, _ = deep_speech_v2_network(
-        audio_data=audio_data,
-        text_data=text_data,
-        seq_offset_data=seq_offset_data,
-        seq_len_data=seq_len_data,
-        index_range_datas=index_range_datas,
-        dict_size=data_generator.vocab_size,
-        num_conv_layers=args.num_conv_layers,
-        num_rnn_layers=args.num_rnn_layers,
-        rnn_size=args.rnn_layer_size,
-        use_gru=args.use_gru,
-        share_rnn_weights=args.share_rnn_weights)
+        keep_transcription_text=True)
 
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.tune_manifest,
@@ -129,35 +94,17 @@ def tune():
         sortagrad=False,
         shuffle_method=None)
 
-    # load parameters
-    if not os.path.isfile(args.model_path):
-        raise IOError("Invaid model path: %s" % args.model_path)
-    parameters = paddle.parameters.Parameters.from_tar(
-        gzip.open(args.model_path))
+    ds2_model = DeepSpeech2Model(
+        vocab_size=data_generator.vocab_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        rnn_layer_size=args.rnn_layer_size,
+        use_gru=args.use_gru,
+        pretrained_model_path=args.model_path,
+        share_rnn_weights=args.share_rnn_weights)
 
-    inferer = paddle.inference.Inference(
-        output_layer=output_probs, parameters=parameters)
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
-
-    # init logger
-    logger = logging.getLogger("")
-    logger.setLevel(level=logging.INFO)
-    # init external scorer
-    logger.info("begin to initialize the external scorer for tuning")
-    if not os.path.isfile(args.lang_model_path):
-        raise IOError("Invaid language model path: %s" % args.lang_model_path)
-    ext_scorer = Scorer(
-        alpha=args.alpha_from,
-        beta=args.beta_from,
-        model_path=args.lang_model_path,
-        vocabulary=vocab_list)
-    logger.info("language model: "
-                "is_character_based = %d," % ext_scorer.is_character_based() +
-                " max_order = %d," % ext_scorer.get_max_order() +
-                " dict_size = %d" % ext_scorer.get_dict_size())
-    logger.info("end initializing scorer. Start tuning ...")
-
     errors_func = char_errors if args.error_rate_type == 'cer' else word_errors
     # create grid for search
     cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)
@@ -168,37 +115,32 @@ def tune():
     err_sum = [0.0 for i in xrange(len(params_grid))]
     err_ave = [0.0 for i in xrange(len(params_grid))]
     num_ins, len_refs, cur_batch = 0, 0, 0
+    # initialize external scorer
+    ds2_model.init_ext_scorer(args.alpha_from, args.beta_from,
+                              args.lang_model_path, vocab_list)
     ## incremental tuning parameters over multiple batches
+    ds2_model.logger.info("start tuning ...")
     for infer_data in batch_reader():
         if (args.num_batches >= 0) and (cur_batch >= args.num_batches):
             break
-        infer_results = inferer.infer(input=infer_data,
-                                      feeding=data_generator.feeding)
-        start_pos = [0] * (len(infer_data) + 1)
-        for i in xrange(len(infer_data)):
-            start_pos[i + 1] = start_pos[i] + infer_data[i][3][0]
-        probs_split = [
-                infer_results[start_pos[i]:start_pos[i + 1]]
-                for i in xrange(0, len(infer_data))
-        ]
-
+        probs_split = ds2_model.infer_probs_batch(
+            infer_data=infer_data,
+            feeding_dict=data_generator.feeding)
         target_transcripts = [ data[1] for data in infer_data ]
 
         num_ins += len(target_transcripts)
         # grid search
         for index, (alpha, beta) in enumerate(params_grid):
-            # reset alpha & beta
-            ext_scorer.reset_params(alpha, beta)
-            beam_search_results = ctc_beam_search_decoder_batch(
+            result_transcripts = ds2_model.infer_batch_beam_search(
                 probs_split=probs_split,
-                vocabulary=vocab_list,
+                beam_alpha=alpha,
+                beam_beta=beta,
                 beam_size=args.beam_size,
-                num_processes=args.num_proc_bsearch,
                 cutoff_prob=args.cutoff_prob,
                 cutoff_top_n=args.cutoff_top_n,
-                ext_scoring_func=ext_scorer, )
+                vocab_list=vocab_list,
+                num_processes=args.num_proc_bsearch)
 
-            result_transcripts = [res[0][1] for res in beam_search_results]
             for target, result in zip(target_transcripts, result_transcripts):
                 errors, len_ref = errors_func(target, result)
                 err_sum[index] += errors
@@ -235,7 +177,7 @@ def tune():
             % (cur_batch, "%.3f" % params_grid[min_index][0],
               "%.3f" % params_grid[min_index][1]))
 
-    logger.info("finish tuning")
+    ds2_model.logger.info("finish tuning")
 
 
 def main():

@@ -173,43 +173,19 @@ class DeepSpeech2Model(object):
         # run inference
         return self._loss_inferer.infer(input=infer_data)
 
-    def infer_batch(self, infer_data, decoding_method, beam_alpha, beam_beta,
-                    beam_size, cutoff_prob, cutoff_top_n, vocab_list,
-                    language_model_path, num_processes, feeding_dict):
-        """Model inference. Infer the transcription for a batch of speech
-        utterances.
+    def infer_probs_batch(self, infer_data, feeding_dict):
+        """Infer the prob matrices for a batch of speech utterances.
 
         :param infer_data: List of utterances to infer, with each utterance
                            consisting of a tuple of audio features and
                            transcription text (empty string).
         :type infer_data: list
-        :param decoding_method: Decoding method name, 'ctc_greedy' or
-                                'ctc_beam_search'.
-        :param decoding_method: string
-        :param beam_alpha: Parameter associated with language model.
-        :type beam_alpha: float
-        :param beam_beta: Parameter associated with word count.
-        :type beam_beta: float
-        :param beam_size: Width for Beam search.
-        :type beam_size: int
-        :param cutoff_prob: Cutoff probability in pruning,
-                            default 1.0, no pruning.
-        :type cutoff_prob: float
-        :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
-                        characters with highest probs in vocabulary will be
-                        used in beam search, default 40.
-        :type cutoff_top_n: int
-        :param vocab_list: List of tokens in the vocabulary, for decoding.
-        :type vocab_list: list
-        :param language_model_path: Filepath for language model.
-        :type language_model_path: basestring|None
-        :param num_processes: Number of processes (CPU) for decoder.
-        :type num_processes: int
         :param feeding_dict: Feeding is a map of field name and tuple index
                              of the data that reader returns.
         :type feeding_dict: dict|list
-        :return: List of transcription texts.
-        :rtype: List of basestring
+        :return: List of 2-D probability matrix, and each consists of prob
+                 vectors for one speech utterancce.
+        :rtype: List of matrix
         """
         # define inferer
         if self._inferer == None:
@@ -227,49 +203,91 @@ class DeepSpeech2Model(object):
             infer_results[start_pos[i]:start_pos[i + 1]]
             for i in xrange(0, len(adapted_infer_data))
         ]
-        # run decoder
+        return probs_split
+
+    def infer_batch_greedy(self, probs_split, vocab_list):
+        """
+        :param probs_split: List of 2-D probability matrix, and each consists
+                            of prob vectors for one speech utterancce.
+        :param probs_split: List of matrix
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :return: List of transcription texts.
+        :rtype: List of basestring
+        """
         results = []
-        if decoding_method == "ctc_greedy":
-            # best path decode
-            for i, probs in enumerate(probs_split):
-                output_transcription = ctc_greedy_decoder(
-                    probs_seq=probs, vocabulary=vocab_list)
-                results.append(output_transcription)
-        elif decoding_method == "ctc_beam_search":
-            # initialize external scorer
-            if self._ext_scorer == None:
-                self._loaded_lm_path = language_model_path
-                self.logger.info("begin to initialize the external scorer "
-                                 "for decoding")
-                self._ext_scorer = Scorer(beam_alpha, beam_beta,
-                                          language_model_path, vocab_list)
+        for i, probs in enumerate(probs_split):
+            output_transcription = ctc_greedy_decoder(
+                probs_seq=probs, vocabulary=vocab_list)
+            results.append(output_transcription)
+        return results
 
-                lm_char_based = self._ext_scorer.is_character_based()
-                lm_max_order = self._ext_scorer.get_max_order()
-                lm_dict_size = self._ext_scorer.get_dict_size()
-                self.logger.info("language model: "
-                                 "is_character_based = %d," % lm_char_based +
-                                 " max_order = %d," % lm_max_order +
-                                 " dict_size = %d" % lm_dict_size)
-                self.logger.info("end initializing scorer. Start decoding ...")
-            else:
-                self._ext_scorer.reset_params(beam_alpha, beam_beta)
-                assert self._loaded_lm_path == language_model_path
-            # beam search decode
-            num_processes = min(num_processes, len(probs_split))
-            beam_search_results = ctc_beam_search_decoder_batch(
-                probs_split=probs_split,
-                vocabulary=vocab_list,
-                beam_size=beam_size,
-                num_processes=num_processes,
-                ext_scoring_func=self._ext_scorer,
-                cutoff_prob=cutoff_prob,
-                cutoff_top_n=cutoff_top_n)
+    def init_ext_scorer(self, beam_alpha, beam_beta, language_model_path,
+                        vocab_list):
+        """Initialize the external scorer.
 
-            results = [result[0][1] for result in beam_search_results]
+        """
+        if language_model_path != '':
+            self.logger.info("begin to initialize the external scorer "
+                             "for decoding")
+            self._ext_scorer = Scorer(beam_alpha, beam_beta,
+                                      language_model_path, vocab_list)
+            lm_char_based = self._ext_scorer.is_character_based()
+            lm_max_order = self._ext_scorer.get_max_order()
+            lm_dict_size = self._ext_scorer.get_dict_size()
+            self.logger.info("language model: "
+                             "is_character_based = %d," % lm_char_based +
+                             " max_order = %d," % lm_max_order +
+                             " dict_size = %d" % lm_dict_size)
+            self.logger.info("end initializing scorer")
         else:
-            raise ValueError("Decoding method [%s] is not supported." %
-                             decoding_method)
+            self._ext_scorer = None
+            self.logger.info("no language model provided, "
+                             "decoding by pure beam search without scorer.")
+
+    def infer_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
+                                beam_size, cutoff_prob, cutoff_top_n,
+                                vocab_list, num_processes):
+        """Model inference. Infer the transcription for a batch of speech
+        utterances.
+
+        :param probs_split: List of 2-D probability matrix, and each consists
+                            of prob vectors for one speech utterancce.
+        :param probs_split: List of matrix
+        :param beam_alpha: Parameter associated with language model.
+        :type beam_alpha: float
+        :param beam_beta: Parameter associated with word count.
+        :type beam_beta: float
+        :param beam_size: Width for Beam search.
+        :type beam_size: int
+        :param cutoff_prob: Cutoff probability in pruning,
+                            default 1.0, no pruning.
+        :type cutoff_prob: float
+        :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+        :type cutoff_top_n: int
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :param num_processes: Number of processes (CPU) for decoder.
+        :type num_processes: int
+        :return: List of transcription texts.
+        :rtype: List of basestring
+        """
+        if self._ext_scorer != None:
+            self._ext_scorer.reset_params(beam_alpha, beam_beta)
+        # beam search decode
+        num_processes = min(num_processes, len(probs_split))
+        beam_search_results = ctc_beam_search_decoder_batch(
+            probs_split=probs_split,
+            vocabulary=vocab_list,
+            beam_size=beam_size,
+            num_processes=num_processes,
+            ext_scoring_func=self._ext_scorer,
+            cutoff_prob=cutoff_prob,
+            cutoff_top_n=cutoff_top_n)
+
+        results = [result[0][1] for result in beam_search_results]
         return results
 
     def _adapt_feeding_dict(self, feeding_dict):

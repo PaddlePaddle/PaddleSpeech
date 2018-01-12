@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python -u tools/tune.py \
 --num_batches=-1 \
 --batch_size=128 \
---trainer_count=8 \
+--trainer_count=4 \
 --beam_size=500 \
 --num_proc_bsearch=12 \
 --num_conv_layers=2 \

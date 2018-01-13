@@ -128,7 +128,7 @@ def tune():
         num_ins += len(target_transcripts)
         # grid search
         for index, (alpha, beta) in enumerate(params_grid):
-            result_transcripts = ds2_model.infer_batch_beam_search(
+            result_transcripts = ds2_model.decode_batch_beam_search(
                 probs_split=probs_split,
                 beam_alpha=alpha,
                 beam_beta=beta,

@@ -205,8 +205,9 @@ class DeepSpeech2Model(object):
         ]
         return probs_split
 
-    def infer_batch_greedy(self, probs_split, vocab_list):
-        """
+    def decode_batch_greedy(self, probs_split, vocab_list):
+        """Decode by best path for a batch of probs matrix input.
+
         :param probs_split: List of 2-D probability matrix, and each consists
                             of prob vectors for one speech utterancce.
         :param probs_split: List of matrix
@@ -256,11 +257,10 @@ class DeepSpeech2Model(object):
             self.logger.info("no language model provided, "
                              "decoding by pure beam search without scorer.")
 
-    def infer_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
-                                beam_size, cutoff_prob, cutoff_top_n,
-                                vocab_list, num_processes):
-        """Model inference. Infer the transcription for a batch of speech
-        utterances.
+    def decode_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
+                                 beam_size, cutoff_prob, cutoff_top_n,
+                                 vocab_list, num_processes):
+        """Decode by beam search for a batch of probs matrix input.
 
         :param probs_split: List of 2-D probability matrix, and each consists
                             of prob vectors for one speech utterancce.

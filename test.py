@@ -102,11 +102,11 @@ def evaluate():
             feeding_dict=data_generator.feeding)
 
         if args.decoding_method == "ctc_greedy":
-            result_transcripts = ds2_model.infer_batch_greedy(
+            result_transcripts = ds2_model.decode_batch_greedy(
                 probs_split=probs_split,
                 vocab_list=vocab_list)
         else:
-            result_transcripts = ds2_model.infer_batch_beam_search(
+            result_transcripts = ds2_model.decode_batch_beam_search(
                 probs_split=probs_split,
                 beam_alpha=args.alpha,
                 beam_beta=args.beta,

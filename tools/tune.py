@@ -120,7 +120,7 @@ def tune():
     for infer_data in batch_reader():
         if (args.num_batches >= 0) and (cur_batch >= args.num_batches):
             break
-        probs_split = ds2_model.infer_probs_batch(
+        probs_split = ds2_model.infer_batch_probs(
             infer_data=infer_data,
             feeding_dict=data_generator.feeding)
         target_transcripts = [ data[1] for data in infer_data ]

@@ -173,7 +173,7 @@ class DeepSpeech2Model(object):
         # run inference
         return self._loss_inferer.infer(input=infer_data)
 
-    def infer_probs_batch(self, infer_data, feeding_dict):
+    def infer_batch_probs(self, infer_data, feeding_dict):
         """Infer the prob matrices for a batch of speech utterances.
 
         :param infer_data: List of utterances to infer, with each utterance

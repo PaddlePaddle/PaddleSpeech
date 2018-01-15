@@ -92,7 +92,7 @@ def infer():
 
     if args.decoding_method == "ctc_greedy":
         ds2_model.logger.info("start inference ...")
-        probs_split = ds2_model.infer_probs_batch(infer_data=infer_data,
+        probs_split = ds2_model.infer_batch_probs(infer_data=infer_data,
             feeding_dict=data_generator.feeding)
         result_transcripts = ds2_model.decode_batch_greedy(
             probs_split=probs_split,
@@ -101,7 +101,7 @@ def infer():
         ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,
                                   vocab_list)
         ds2_model.logger.info("start inference ...")
-        probs_split = ds2_model.infer_probs_batch(infer_data=infer_data,
+        probs_split = ds2_model.infer_batch_probs(infer_data=infer_data,
             feeding_dict=data_generator.feeding)
         result_transcripts = ds2_model.decode_batch_beam_search(
             probs_split=probs_split,

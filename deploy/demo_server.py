@@ -166,7 +166,7 @@ def start_server():
     # prepare ASR inference handler
     def file_to_transcript(filename):
         feature = data_generator.process_utterance(filename, "")
-        probs_split = ds2_model.infer_probs_batch(
+        probs_split = ds2_model.infer_batch_probs(
             infer_data=[feature],
             feeding_dict=data_generator.feeding)
 

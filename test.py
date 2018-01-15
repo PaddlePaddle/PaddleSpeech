@@ -97,7 +97,7 @@ def evaluate():
     errors_sum, len_refs, num_ins = 0.0, 0, 0
     ds2_model.logger.info("start evaluation ...")
     for infer_data in batch_reader():
-        probs_split = ds2_model.infer_probs_batch(
+        probs_split = ds2_model.infer_batch_probs(
             infer_data=infer_data,
             feeding_dict=data_generator.feeding)
 

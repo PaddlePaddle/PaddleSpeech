@@ -90,22 +90,33 @@ def evaluate():
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
 
+    if args.decoding_method == "ctc_beam_search":
+        ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,
+                                  vocab_list)
     errors_func = char_errors if args.error_rate_type == 'cer' else word_errors
     errors_sum, len_refs, num_ins = 0.0, 0, 0
+    ds2_model.logger.info("start evaluation ...")
     for infer_data in batch_reader():
-        result_transcripts = ds2_model.infer_batch(
+        probs_split = ds2_model.infer_batch_probs(
             infer_data=infer_data,
-            decoding_method=args.decoding_method,
-            beam_alpha=args.alpha,
-            beam_beta=args.beta,
-            beam_size=args.beam_size,
-            cutoff_prob=args.cutoff_prob,
-            cutoff_top_n=args.cutoff_top_n,
-            vocab_list=vocab_list,
-            language_model_path=args.lang_model_path,
-            num_processes=args.num_proc_bsearch,
             feeding_dict=data_generator.feeding)
+
+        if args.decoding_method == "ctc_greedy":
+            result_transcripts = ds2_model.decode_batch_greedy(
+                probs_split=probs_split,
+                vocab_list=vocab_list)
+        else:
+            result_transcripts = ds2_model.decode_batch_beam_search(
+                probs_split=probs_split,
+                beam_alpha=args.alpha,
+                beam_beta=args.beta,
+                beam_size=args.beam_size,
+                cutoff_prob=args.cutoff_prob,
+                cutoff_top_n=args.cutoff_top_n,
+                vocab_list=vocab_list,
+                num_processes=args.num_proc_bsearch)
         target_transcripts = [data[1] for data in infer_data]
+
         for target, result in zip(target_transcripts, result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors

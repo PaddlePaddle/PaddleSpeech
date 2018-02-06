@@ -97,22 +97,22 @@ class DataGenerator(object):
         self._local_data.tar2info = {}
         self._local_data.tar2object = {}
 
-    def process_utterance(self, filename, transcript):
+    def process_utterance(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
 
-        :param filename: Audio filepath
-        :type filename: basestring | file
+        :param audio_file: Filepath or file object of audio file.
+        :type audio_file: basestring | file
         :param transcript: Transcription text.
         :type transcript: basestring
         :return: Tuple of audio feature tensor and data of transcription part,
                  where transcription part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
-        if filename.startswith('tar:'):
+        if isinstance(audio_file, basestring) and audio_file.startswith('tar:'):
             speech_segment = SpeechSegment.from_file(
-                self._subfile_from_tar(filename), transcript)
+                self._subfile_from_tar(audio_file), transcript)
         else:
-            speech_segment = SpeechSegment.from_file(filename, transcript)
+            speech_segment = SpeechSegment.from_file(audio_file, transcript)
         self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)

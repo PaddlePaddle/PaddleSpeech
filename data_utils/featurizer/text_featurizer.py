@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Contains the text featurizer class."""
 from __future__ import absolute_import
 from __future__ import division
@@ -32,8 +33,12 @@ class TextFeaturizer(object):
         :return: List of char-level token indices.
         :rtype: list
         """
-        tokens = self._char_tokenize(text)
-        return [self._vocab_dict[token] for token in tokens]
+        result = []
+        try:
+            result = [self._vocab_dict[token] for token in text]
+        except KeyError, e:
+            print('Incorrect symbol "%s" found in string: ' % str(e).encode('utf-8'), text.encode('utf-8'))
+        return result
 
     @property
     def vocab_size(self):

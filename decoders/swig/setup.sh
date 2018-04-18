@@ -5,10 +5,10 @@ if [ ! -d kenlm ]; then
     echo -e "\n"
 fi
 
-if [ ! -d openfst-1.6.3 ]; then
+if [ ! -d openfst-1.6.7 ]; then
     echo "Download and extract openfst ..."
-    wget http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.3.tar.gz
-    tar -xzvf openfst-1.6.3.tar.gz
+    wget https://sites.google.com/site/openfst/home/openfst-down/openfst-1.6.7.tar.gz
+    tar -xzvf openfst-1.6.7.tar.gz
     echo -e "\n"
 fi
 

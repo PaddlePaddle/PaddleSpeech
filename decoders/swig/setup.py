@@ -68,7 +68,7 @@ FILES = glob.glob('kenlm/util/*.cc') \
         + glob.glob('kenlm/lm/*.cc') \
         + glob.glob('kenlm/util/double-conversion/*.cc')
 
-FILES += glob.glob('openfst-1.6.3/src/lib/*.cc')
+FILES += glob.glob('openfst-1.6.7/src/lib/*.cc')
 
 FILES = [
     fn for fn in FILES
@@ -104,7 +104,7 @@ decoders_module = [
         include_dirs=[
             '.',
             'kenlm',
-            'openfst-1.6.3/src/include',
+            'openfst-1.6.7/src/include',
             'ThreadPool',
         ],
         libraries=LIBS,

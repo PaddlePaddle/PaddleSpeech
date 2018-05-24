@@ -539,4 +539,4 @@ We compare the training time with 1, 2, 4, 8, 16 Tesla K40m GPUs (with a subset 
 
 ## Questions and Help
 
-You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/models/issues). You are also welcome to contribute to this project.
+You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.

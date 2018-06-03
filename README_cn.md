@@ -2,7 +2,7 @@ https://github.com/PaddlePaddle/DeepSpeech/issues/172
 # 语音识别: DeepSpeech2
 
 *语音识别: DeepSpeech2*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，具体原理参考这篇论文[Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf)。
-我们的愿景是为语音识别在工业应用和学术研究上，提供易于使用、高效和可扩展的工具，包括训练，推理，测试模块，以及分布式的[PaddleCloud](https://github.com/PaddlePaddle/cloud)训练和demo部署。同时，还将发布一些预训练好的英语和普通话模型。
+我们的愿景是为语音识别在工业应用和学术研究上，提供易于使用、高效和可扩展的工具，包括训练，推理，测试模块，以及分布式的[PaddleCloud](https://github.com/PaddlePaddle/cloud)训练和demo部署。同时，我们还将发布一些预训练好的英语和普通话模型。
 
 ## 目录
 - [安装](#安装)
@@ -44,9 +44,9 @@ sh setup.sh
 
 ## 开始
 
-`./examples`里的一些shell脚本将帮助我们在一些公开数据集(比如：[LibriSpeech](http://www.openslr.org/12/), [Aishell](http://www.openslr.org/33)) 进行快速尝试，包括了数据准备，模型训练，案例推断和模型评价。阅读这些例子将帮助你理解在如何应用你的数据集。
+`./examples`里的一些shell脚本将帮助我们在一些公开数据集(比如：[LibriSpeech](http://www.openslr.org/12/), [Aishell](http://www.openslr.org/33)) 进行快速尝试，包括了数据准备，模型训练，案例推断和模型评价。阅读这些例子将帮助你理解如何应用你的数据集。
 
-`./examples`目录中的一些脚本配置使用了8个GPU。如果你没有8个可用的GPU，请修改`CUDA_VISIBLE_DEVICES`和`--trainer_count`。如果你没有可用的GPU，请设置`--use_gpu`为False，这样会用CPU代替它。另外如果发生内存不足的问题，减小`--batch_size`即可。
+`./examples`目录中的一些脚本配置使用了8个GPU。如果你没有8个可用的GPU，请修改`CUDA_VISIBLE_DEVICES`和`--trainer_count`。如果你没有可用的GPU，请设置`--use_gpu`为False，这样程序会用CPU代替GPU。另外如果发生内存不足的问题，减小`--batch_size`即可。
 
 让我们先看看[LibriSpeech dataset](http://www.openslr.org/12/)小样本集的例子。
 
@@ -63,7 +63,7 @@ sh setup.sh
     sh run_data.sh
     ```
 
-    运行`run_data.sh`脚本将会下载数据集，产出manifests文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有LibriSpeech一部分）在`~/.cache/paddle/dataset/speech/libri`中，对应的manifest文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。    
+    运行`run_data.sh`脚本将会下载数据集，产出manifests文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有LibriSpeech一部分）在`~/.cache/paddle/dataset/speech/libri`中；其对应的manifest文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。    
 - 训练你自己的ASR模型
 
     ```bash
@@ -124,7 +124,7 @@ python tools/compute_mean_std.py \
 --output_path data/librispeech/mean_std.npz
 ```
 
-它会去计算在`data/librispeech/manifest.train`路径中，2000个随机采样音频剪辑的功率谱特征均值和标准差，并将结果保存在`data/librispeech/mean_std.npz`中，方便以后使用。
+以上这段代码会计算在`data/librispeech/manifest.train`路径中，2000个随机采样音频剪辑的功率谱特征均值和标准差，并将结果保存在`data/librispeech/mean_std.npz`中，方便以后使用。
 
 ### 建立词表
 
@@ -210,7 +210,7 @@ python train.py --help
 }]
 ```
 
-当`trainer.py`的`--augment_conf_file`参数被设置为上述示例配置文件的路径时，在每个epoch中每个音频片段将被处理，它首先有60％的概率被均匀随机采样速率在0.95和1.05之间进行速度扰动，然后有80％的概率随时间偏移进行偏差在-5毫秒和5毫秒之间的随机采样。最后，这个新合成的音频片段将传送给特征提取器以用于接下来的训练。
+当`trainer.py`的`--augment_conf_file`参数被设置为上述示例配置文件的路径时，每个epoch中的每个音频片段都将被处理。首先，均匀随机采样速率会有60％的概率在0.95和1.05之间对音频片段进行速度扰动。然后，音频片段有80％的概率在时间上被挪移，挪移偏差值是-5毫秒和5毫秒之间的随机采样。最后，这个新合成的音频片段将被传送给特征提取器，以用于接下来的训练。
 
 有关其他配置实例，请参考`conf/augmenatation.config.example`.
 
@@ -218,9 +218,9 @@ python train.py --help
 
 ## 推断和评价
 
-###准备语言模型
+### 准备语言模型
 
-提升解码器的性能需要准备语言模型。我们准备了两种语言模型（有损压缩）供用户下载和尝试。一个是英语，另一个是普通话。用户可以执行以下命令来下载已经训练好的语言模型：
+提升解码器的性能需要准备语言模型。我们准备了两种语言模型（有损压缩）供用户下载和尝试。一个是英语模型，另一个是普通话模型。用户可以执行以下命令来下载已经训练好的语言模型：
 
 ```bash
 cd models/lm
@@ -228,18 +228,18 @@ sh download_lm_en.sh
 sh download_lm_ch.sh
 ```
 
-如果你想训练自己更好的语言模型，请参考[KenLM]（https://github.com/kpu/kenlm）获取教程。在这里，我们提供一些技巧来展示我们如何准备我们的英语和普通话模型。当你开始训练的时候，你可以参考它。
+如果你想训练自己更好的语言模型，请参考[KenLM]（https://github.com/kpu/kenlm）获取教程。在这里，我们提供一些技巧来展示我们如何准备我们的英语和普通话模型。开始训练的时候，你可以参考这些技巧。
 
 
 #### 英语语言模型
 
 英语语料库来自[Common Crawl Repository](http://commoncrawl.org)，您可以从[statmt](http://data.statmt.org/ngrams/deduped_en)下载它。我们使用en.00部分来训练我们的英语语言模型。训练前有一些预处理步骤如下：
   
-  * 不在\[A-Za-z0-9\s'\]（\s表示空白字符）中的字符将被删除，阿拉伯数字被转换为英文数字，比如1000转换为one thousand。
+  * 不在\[A-Za-z0-9\s'\]（\s表示空白字符）中的字符将被删除，阿拉伯数字被转换为英文数字，比如“1000”转换为one thousand。
   * 重复的空白字符被压缩为一个，并且开始的空白字符将被删除。请注意，所有的录音都是小写字母，因此所有字符都转换为小写字母。
-  * 选择前40万个最常用的单词来建立词表，其余部分将被替换为'UNKNOWNWORD'。
+  * 选择前40万个最常用的单词来建立词表，其余部分将被替换为“UNKNOWNWORD”。
 
-现在预处理完成了，我们得到一个干净的语料库来训练语言模型。我们发布的语言模型版本使用了参数'-o 5 --prune 0 1 1 1 1'来训练。'-o 5'表示语言模型的最大order为5。'--prune 0 1 1 1 1'表示每个order的计数阈值，更具体地说，它将第2个以及更高的order修剪为单个。为了节省磁盘存储空间，我们将使用参数'-a 22 -q 8 -b 8'转换arpa文件为'trie'二进制文件。'-a'表示在'trie'中用于切分的指针的最高位数。'-q -b'是概率和退避的量化参数。
+现在预处理完成了，我们得到一个干净的语料库来训练语言模型。我们发布的语言模型版本使用了参数“-o 5 --prune 0 1 1 1 1”来训练。“-o 5”表示语言模型的最大order为5。“--prune 0 1 1 1 1”表示每个order的计数阈值，更具体地说，它将第2个以及更高的order修剪为单个。为了节省磁盘存储空间，我们将使用参数“-a 22 -q 8 -b 8”将arpa文件转换为“trie”二进制文件。“-a”表示在“trie”中用于切分的指针的最高位数。“-q -b”是概率和退避的量化参数。
 
 #### 普通话语言模型
 
@@ -249,7 +249,7 @@ sh download_lm_ch.sh
   * 删除英文标点和中文标点。
   * 在两个字符之间插入空白字符。
 
-请注意，发布的语言模型只包含中文简体字。预处理完成后，我们开始训练语言模型。这个小的语言模型训练关键参数是'-o 5 --prune 0 1 2 4 4'，'-o 5'是针对大语言模型。请参考上面的部分了解每个参数的含义。我们还使用默认设置将arpa文件转换为二进制文件。
+请注意，发布的语言模型只包含中文简体字。预处理完成后，我们开始训练语言模型。这个小的语言模型训练关键参数是“-o 5 --prune 0 1 2 4 4”，“-o 5”是针对大语言模型。请参考上面的部分了解每个参数的含义。我们还使用默认设置将arpa文件转换为二进制文件。
 
 ### 语音到文本推断
 
@@ -544,3 +544,4 @@ Baidu Internal Testset  |   12.64
 ## 问题和帮助
 
 欢迎您在[Github问题](https://github.com/PaddlePaddle/models/issues)中提交问题和bug。也欢迎您为这个项目做出贡献。
+

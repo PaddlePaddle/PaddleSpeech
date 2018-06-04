@@ -1,4 +1,3 @@
-https://github.com/PaddlePaddle/DeepSpeech/issues/172
 # 语音识别: DeepSpeech2
 
 *语音识别: DeepSpeech2*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，具体原理参考这篇论文[Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf)。

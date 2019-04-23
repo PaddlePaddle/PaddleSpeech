@@ -55,14 +55,14 @@ sh setup.sh
     cd examples/tiny
     ```
 
-    注意这仅仅是LibriSpeech一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。   
+    注意这仅仅是LibriSpeech一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。  
 - 准备数据
 
     ```bash
     sh run_data.sh
     ```
 
-    运行`run_data.sh`脚本将会下载数据集，产出manifests文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有LibriSpeech一部分）在`~/.cache/paddle/dataset/speech/libri`中；其对应的manifest文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。    
+    运行`run_data.sh`脚本将会下载数据集，产出manifests文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有LibriSpeech一部分）在`~/.cache/paddle/dataset/speech/libri`中；其对应的manifest文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。  
 - 训练你自己的ASR模型
 
     ```bash
@@ -163,7 +163,7 @@ python tools/build_vocab.py --help
     ```
     python train.py --use_gpu False --trainer_count 16
     ```
-    
+
 - 从检查点恢复训练：
 
     ```
@@ -233,7 +233,7 @@ sh download_lm_ch.sh
 #### 英语语言模型
 
 英语语料库来自[Common Crawl Repository](http://commoncrawl.org)，您可以从[statmt](http://data.statmt.org/ngrams/deduped_en)下载它。我们使用en.00部分来训练我们的英语语言模型。训练前有一些预处理步骤如下：
-  
+
   * 不在\[A-Za-z0-9\s'\]（\s表示空白字符）中的字符将被删除，阿拉伯数字被转换为英文数字，比如“1000”转换为one thousand。
   * 重复的空白字符被压缩为一个，并且开始的空白字符将被删除。请注意，所有的录音都是小写字母，因此所有字符都转换为小写字母。
   * 选择前40万个最常用的单词来建立词表，其余部分将被替换为“UNKNOWNWORD”。
@@ -414,7 +414,7 @@ sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech paddlepaddle/deep_sp
     一个训练任务已经提交给PaddleCloud，并将任务名输出到控制台。
 
   - 获取训练日志
-    
+
     执行以下命令以列出你提交的所有任务以及它们的运行状态：
 
     ```bash
@@ -422,7 +422,7 @@ sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech paddlepaddle/deep_sp
     ```
 
     运行此操作，将打印相应的任务日志。
-    
+
     ```bash
     paddlecloud logs -n 10000 $REPLACED_WITH_YOUR_ACTUAL_JOB_NAME
     ```
@@ -488,18 +488,18 @@ python deploy/demo_client.py --help
 
 语种  | 模型名 | 训练数据 | 语音时长
 :-----------: | :------------: | :----------: |  -------:
-English  | [LibriSpeech Model](http://cloud.dlnel.org/filepub/?uuid=117cde63-cd59-4948-8b80-df782555f7d6) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [BaiduEN8k Model](http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90) | Baidu Internal English Dataset | 8628 h
-Mandarin | [Aishell Model](http://cloud.dlnel.org/filepub/?uuid=61de63b9-6904-4809-ad95-0cc5104ab973) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [BaiduCN1.2k Model](http://cloud.dlnel.org/filepub/?uuid=499569a6-0025-4f40-83e6-1c99527431a6) | Baidu Internal Mandarin Dataset | 1204 h
+English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model.tar.gz) | Baidu Internal English Dataset | 8628 h
+Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
+Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
 
 #### 语言模型发布
 
 语言模型 | 训练数据 | 基于的字符 | 大小 | 描述
 :-------------:| :------------:| :-----: | -----: | :-----------------
-[English LM](http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
-[Mandarin LM Small](http://cloud.dlnel.org/filepub/?uuid=d21861e4-4ed6-45bb-ad8e-ae417a43195e) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
-[Mandarin LM Large](http://cloud.dlnel.org/filepub/?uuid=245d02bb-cd01-4ebe-b079-b97be864ec37) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
+[English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
+[Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
+[Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
 ## 实验和基准
 
@@ -543,4 +543,3 @@ Baidu Internal Testset  |   12.64
 ## 问题和帮助
 
 欢迎您在[Github问题](https://github.com/PaddlePaddle/models/issues)中提交问题和bug。也欢迎您为这个项目做出贡献。
-

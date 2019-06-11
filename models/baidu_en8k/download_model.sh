@@ -2,7 +2,7 @@
 
 . ../../utils/utility.sh
 
-URL='http://cloud.dlnel.org/filepub/?uuid=37a1c211-ec47-494c-973c-31437a10ae90'
+URL='https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model.tar.gz'
 MD5=5fe7639e720d51b3c3bdf7a1470c6272
 TARGET=./baidu_en8k_model.tar.gz
 

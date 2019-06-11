@@ -2,7 +2,7 @@
 
 . ../../utils/utility.sh
 
-URL=http://paddlepaddle.bj.bcebos.com/model_zoo/speech/common_crawl_00.prune01111.trie.klm
+URL=https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm
 MD5="099a601759d467cd0a8523ff939819c5"
 TARGET=./common_crawl_00.prune01111.trie.klm
 

@@ -2,7 +2,7 @@
 
 . ../../utils/utility.sh
 
-URL='http://cloud.dlnel.org/filepub/?uuid=61de63b9-6904-4809-ad95-0cc5104ab973'
+URL='https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model.tar.gz'
 MD5=0ee83aa15fba421e5de8fc66c8feb350
 TARGET=./aishell_model.tar.gz
 

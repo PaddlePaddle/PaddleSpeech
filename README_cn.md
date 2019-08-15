@@ -1,6 +1,6 @@
-# 语音识别: DeepSpeech2
+# DeepSpeech2
 
-*语音识别: DeepSpeech2*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，具体原理参考这篇论文[Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf)。
+*DeepSpeech2* 是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，具体原理请参考这篇论文[Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf)。
 我们的愿景是为语音识别在工业应用和学术研究上，提供易于使用、高效和可扩展的工具，包括训练，推理，测试模块，以及分布式的[PaddleCloud](https://github.com/PaddlePaddle/cloud)训练和demo部署。同时，我们还将发布一些预训练好的英语和普通话模型。
 
 ## 目录
@@ -20,26 +20,8 @@
 - [问题和帮助](#问题和帮助)
 
 ## 安装
-为了避免环境配置问题，强烈建议在[Docker容器上运行](#在Docker容器上运行)，另外请按照下面的指南安装依赖项。
 
-### 前提
-- 只支持Python 2.7
-- PaddlePaddle最新版本(请参考[安装指南](https://github.com/PaddlePaddle/Paddle#installation))
-
-### 安装
-- 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 以上可以通过`apt-get`安装：
-
-```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
-```
-
-- 为剩下的依赖项运行安装脚本
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-sh setup.sh
-```
+因该项目基于 PaddlePaddle V2 API 开发，其已不再被官方维护，目前我们仅支持 [在 Docker 容器中运行该项目](#在Docker容器上运行)，而不支持从源码构建环境。我们很快会将这个项目升级到最新的 Paddle Fluid  API，请保持关注。
 
 ## 开始
 

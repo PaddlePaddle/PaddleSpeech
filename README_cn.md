@@ -21,7 +21,26 @@
 
 ## 安装
 
-因该项目基于 PaddlePaddle V2 API 开发，其已不再被官方维护，目前我们仅支持 [在 Docker 容器中运行该项目](#在Docker容器上运行)，而不支持从源码构建环境。我们很快会将这个项目升级到最新的 Paddle Fluid  API，请保持关注。
+因该项目基于 PaddlePaddle V2 API 开发，其已不再被官方维护，为了避免环境配置问题，强烈建议在[Docker容器上运行](#在Docker容器上运行)，否则请按照下面的指南安装依赖项。我们很快会将这个项目升级到最新的 Paddle Fluid  API，请保持关注。
+
+### 前提
+- 只支持Python 2.7
+- PaddlePaddle 0.13 版本(请参考[安装指南](https://www.paddlepaddle.org.cn/documentation/docs/zh/0.13.0/build_and_install/index_cn.html))
+
+### 安装
+- 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：
+
+```bash
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
+```
+
+- 运行脚本安装其余的依赖项
+
+```bash
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+cd DeepSpeech
+sh setup.sh
+```
 
 ## 开始
 

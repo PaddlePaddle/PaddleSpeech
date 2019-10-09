@@ -25,7 +25,11 @@
 
 ### 前提
 - 只支持Python 2.7
-- PaddlePaddle 0.13 版本(请参考[安装指南](https://www.paddlepaddle.org.cn/documentation/docs/zh/0.13.0/build_and_install/index_cn.html))
+- PaddlePaddle 0.13 版本
+
+```bash
+pip install paddlepaddle==0.13
+```
 
 ### 安装
 - 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：

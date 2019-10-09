@@ -25,7 +25,11 @@
 For this project was developed in PaddlePaddle V2 API, which is not maintained officially any more. To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually. And we are going to release the update to the latest Paddle Fluid API very soon, please keep an eye on this project.
 ### Prerequisites
 - Python 2.7 only supported
-- PaddlePaddle the 0.13 version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/0.13.0/build_and_install/pip_install_en.html))
+- PaddlePaddle the 0.13 version
+
+```bash
+pip install paddlepaddle==0.13
+```
 
 ### Setup
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:

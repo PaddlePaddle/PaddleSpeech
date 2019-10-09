@@ -28,7 +28,7 @@
 - PaddlePaddle 0.13 版本
 
 ```bash
-pip install paddlepaddle==0.13
+pip install paddlepaddle-gpu==0.13
 ```
 
 ### 安装

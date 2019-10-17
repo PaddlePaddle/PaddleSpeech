@@ -4,7 +4,7 @@ cd ../.. > /dev/null
 
 # download language model
 cd models/lm > /dev/null
-sh download_lm_en.sh
+bash download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -13,7 +13,7 @@ cd - > /dev/null
 
 # download well-trained model
 cd models/librispeech > /dev/null
-sh download_model.sh
+bash download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -24,7 +24,6 @@ cd - > /dev/null
 CUDA_VISIBLE_DEVICES=0 \
 python -u infer.py \
 --num_samples=10 \
---trainer_count=1 \
 --beam_size=500 \
 --num_proc_bsearch=8 \
 --num_conv_layers=2 \
@@ -40,7 +39,7 @@ python -u infer.py \
 --infer_manifest='data/tiny/manifest.test-clean' \
 --mean_std_path='models/librispeech/mean_std.npz' \
 --vocab_path='models/librispeech/vocab.txt' \
---model_path='models/librispeech/params.tar.gz' \
+--model_path='models/librispeech' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='wer' \

@@ -1,188 +1,322 @@
-"""Contains DeepSpeech2 layers and networks."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import paddle.v2 as paddle
+import collections
+import paddle.fluid as fluid
+import numpy as np
 
 
 def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
-                  padding, act, index_range_data):
+                  padding, act, masks, name):
     """Convolution layer with batch normalization.
 
     :param input: Input layer.
-    :type input: LayerOutput
+    :type input: Variable
     :param filter_size: The x dimension of a filter kernel. Or input a tuple for
                         two image dimension.
     :type filter_size: int|tuple|list
     :param num_channels_in: Number of input channels.
     :type num_channels_in: int
-    :type num_channels_out: Number of output channels.
-    :type num_channels_in: out
+    :param num_channels_out: Number of output channels.
+    :type num_channels_out: int
+    :param stride: The x dimension of the stride. Or input a tuple for two 
+                   image dimension. 
+    :type stride: int|tuple|list
     :param padding: The x dimension of the padding. Or input a tuple for two
                     image dimension.
     :type padding: int|tuple|list
     :param act: Activation type.
-    :type act: BaseActivation
-    :param index_range_data: Index range to indicate sub region.
-    :type index_range_data: LayerOutput
+    :type act: string
+    :param masks: Masks data layer to reset padding.
+    :type masks: Variable
+    :param name: Name of the layer.
+    :param name: string
     :return: Batch norm layer after convolution layer.
-    :rtype: LayerOutput
+    :rtype: Variable
+   
     """
-    conv_layer = paddle.layer.img_conv(
+    conv_layer = fluid.layers.conv2d(
         input=input,
-        filter_size=filter_size,
-        num_channels=num_channels_in,
         num_filters=num_channels_out,
+        filter_size=filter_size,
         stride=stride,
         padding=padding,
-        act=paddle.activation.Linear(),
+        param_attr=fluid.ParamAttr(name=name + '_conv2d_weight'),
+        act=None,
         bias_attr=False)
-    batch_norm = paddle.layer.batch_norm(input=conv_layer, act=act)
+
+    batch_norm = fluid.layers.batch_norm(
+        input=conv_layer,
+        act=act,
+        param_attr=fluid.ParamAttr(name=name + '_batch_norm_weight'),
+        bias_attr=fluid.ParamAttr(name=name + '_batch_norm_bias'),
+        moving_mean_name=name + '_batch_norm_moving_mean',
+        moving_variance_name=name + '_batch_norm_moving_variance')
+
     # reset padding part to 0
-    scale_sub_region = paddle.layer.scale_sub_region(
-        batch_norm, index_range_data, value=0.0)
-    return scale_sub_region
+    padding_reset = fluid.layers.elementwise_mul(batch_norm, masks)
+    return padding_reset
 
 
-def bidirectional_simple_rnn_bn_layer(name, input, size, act, share_weights):
+def simple_rnn(input, size, param_attr=None, bias_attr=None, is_reverse=False):
+    '''A simple rnn layer.
+    :param input:input layer.
+    :type input:Variable
+    :param size:Number of RNN cells.
+    :type size:int
+    :param param_attr:Parameter properties of hidden layer weights that 
+                      can be learned
+    :type param_attr:ParamAttr
+    :param bias_attr:Bias properties of hidden layer weights that can be learned
+    :type bias_attr:ParamAttr
+    :param is_reverse:Whether to calculate the inverse RNN
+    :type is_reverse:bool
+    :return: A simple RNN layer.
+    :rtype: Variable
+    '''
+    if is_reverse:
+        input = fluid.layers.sequence_reverse(x=input)
+
+    pad_value = fluid.layers.assign(input=np.array([0.0], dtype=np.float32))
+    input, length = fluid.layers.sequence_pad(input, pad_value)
+    rnn = fluid.layers.StaticRNN()
+    input = fluid.layers.transpose(input, [1, 0, 2])
+    with rnn.step():
+        in_ = rnn.step_input(input)
+        mem = rnn.memory(shape=[-1, size], batch_ref=in_)
+        out = fluid.layers.fc(
+            input=mem,
+            size=size,
+            act=None,
+            param_attr=param_attr,
+            bias_attr=bias_attr)
+        out = fluid.layers.elementwise_add(out, in_)
+        out = fluid.layers.brelu(out)
+        rnn.update_memory(mem, out)
+        rnn.output(out)
+
+    out = rnn()
+    out = fluid.layers.transpose(out, [1, 0, 2])
+    out = fluid.layers.sequence_unpad(x=out, length=length)
+
+    if is_reverse:
+        out = fluid.layers.sequence_reverse(x=out)
+    return out
+
+
+def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
     """Bidirectonal simple rnn layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
-
-    :param name: Name of the layer.
+    :param name: Name of the layer parameters.
     :type name: string
     :param input: Input layer.
-    :type input: LayerOutput
+    :type input: Variable
     :param size: Number of RNN cells.
     :type size: int
-    :param act: Activation type.
-    :type act: BaseActivation
     :param share_weights: Whether to share input-hidden weights between
                           forward and backward directional RNNs.
     :type share_weights: bool
     :return: Bidirectional simple rnn layer.
-    :rtype: LayerOutput
+    :rtype: Variable
     """
     if share_weights:
-        # input-hidden weights shared between bi-direcitonal rnn.
-        input_proj = paddle.layer.fc(
+        #input-hidden weights shared between bi-directional rnn.
+        input_proj = fluid.layers.fc(
             input=input,
             size=size,
-            act=paddle.activation.Linear(),
+            act=None,
+            param_attr=fluid.ParamAttr(name=name + '_fc_weight'),
             bias_attr=False)
+
         # batch norm is only performed on input-state projection
-        input_proj_bn = paddle.layer.batch_norm(
-            input=input_proj, act=paddle.activation.Linear())
-        # forward and backward in time
-        forward_simple_rnn = paddle.layer.recurrent(
-            input=input_proj_bn, act=act, reverse=False)
-        backward_simple_rnn = paddle.layer.recurrent(
-            input=input_proj_bn, act=act, reverse=True)
+        input_proj_bn = fluid.layers.batch_norm(
+            input=input_proj,
+            act=None,
+            param_attr=fluid.ParamAttr(name=name + '_batch_norm_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_batch_norm_bias'),
+            moving_mean_name=name + '_batch_norm_moving_mean',
+            moving_variance_name=name + '_batch_norm_moving_variance')
+        #forward and backword in time 
+        forward_rnn = simple_rnn(
+            input=input_proj_bn,
+            size=size,
+            param_attr=fluid.ParamAttr(name=name + '_forward_rnn_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_forward_rnn_bias'),
+            is_reverse=False)
+
+        reverse_rnn = simple_rnn(
+            input=input_proj_bn,
+            size=size,
+            param_attr=fluid.ParamAttr(name=name + '_reverse_rnn_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_reverse_rnn_bias'),
+            is_reverse=True)
 
     else:
-        input_proj_forward = paddle.layer.fc(
+        input_proj_forward = fluid.layers.fc(
             input=input,
             size=size,
-            act=paddle.activation.Linear(),
+            act=None,
+            param_attr=fluid.ParamAttr(name=name + '_forward_fc_weight'),
             bias_attr=False)
-        input_proj_backward = paddle.layer.fc(
+        input_proj_backward = fluid.layers.fc(
             input=input,
             size=size,
-            act=paddle.activation.Linear(),
+            act=None,
+            param_attr=fluid.ParamAttr(name=name + '_reverse_fc_weight'),
             bias_attr=False)
-        # batch norm is only performed on input-state projection
-        input_proj_bn_forward = paddle.layer.batch_norm(
-            input=input_proj_forward, act=paddle.activation.Linear())
-        input_proj_bn_backward = paddle.layer.batch_norm(
-            input=input_proj_backward, act=paddle.activation.Linear())
+        #batch norm is only performed on input-state projection
+        input_proj_bn_forward = fluid.layers.batch_norm(
+            input=input_proj_forward,
+            act=None,
+            param_attr=fluid.ParamAttr(
+                name=name + '_forward_batch_norm_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_forward_batch_norm_bias'),
+            moving_mean_name=name + '_forward_batch_norm_moving_mean',
+            moving_variance_name=name + '_forward_batch_norm_moving_variance')
+        input_proj_bn_backward = fluid.layers.batch_norm(
+            input=input_proj_backward,
+            act=None,
+            param_attr=fluid.ParamAttr(
+                name=name + '_reverse_batch_norm_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_reverse_batch_norm_bias'),
+            moving_mean_name=name + '_reverse_batch_norm_moving_mean',
+            moving_variance_name=name + '_reverse_batch_norm_moving_variance')
         # forward and backward in time
-        forward_simple_rnn = paddle.layer.recurrent(
-            input=input_proj_bn_forward, act=act, reverse=False)
-        backward_simple_rnn = paddle.layer.recurrent(
-            input=input_proj_bn_backward, act=act, reverse=True)
-
-    return paddle.layer.concat(input=[forward_simple_rnn, backward_simple_rnn])
+        forward_rnn = simple_rnn(
+            input=input_proj_bn_forward,
+            size=size,
+            param_attr=fluid.ParamAttr(name=name + '_forward_rnn_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_forward_rnn_bias'),
+            is_reverse=False)
+        reverse_rnn = simple_rnn(
+            input=input_proj_bn_backward,
+            size=size,
+            param_attr=fluid.ParamAttr(name=name + '_reverse_rnn_weight'),
+            bias_attr=fluid.ParamAttr(name=name + '_reverse_rnn_bias'),
+            is_reverse=True)
+    out = fluid.layers.concat(input=[forward_rnn, reverse_rnn], axis=1)
+    return out
 
 
 def bidirectional_gru_bn_layer(name, input, size, act):
     """Bidirectonal gru layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
-
     :param name: Name of the layer.
     :type name: string
     :param input: Input layer.
-    :type input: LayerOutput
-    :param size: Number of RNN cells.
+    :type input: Variable
+    :param size: Number of GRU cells.
     :type size: int
     :param act: Activation type.
-    :type act: BaseActivation
-    :return: Bidirectional simple rnn layer.
-    :rtype: LayerOutput
+    :type act: string
+    :return: Bidirectional GRU layer.
+    :rtype: Variable
     """
-    input_proj_forward = paddle.layer.fc(
+    input_proj_forward = fluid.layers.fc(
         input=input,
         size=size * 3,
-        act=paddle.activation.Linear(),
+        act=None,
+        param_attr=fluid.ParamAttr(name=name + '_forward_fc_weight'),
         bias_attr=False)
-    input_proj_backward = paddle.layer.fc(
+    input_proj_backward = fluid.layers.fc(
         input=input,
         size=size * 3,
-        act=paddle.activation.Linear(),
+        act=None,
+        param_attr=fluid.ParamAttr(name=name + '_reverse_fc_weight'),
         bias_attr=False)
-    # batch norm is only performed on input-related projections
-    input_proj_bn_forward = paddle.layer.batch_norm(
-        input=input_proj_forward, act=paddle.activation.Linear())
-    input_proj_bn_backward = paddle.layer.batch_norm(
-        input=input_proj_backward, act=paddle.activation.Linear())
-    # forward and backward in time
-    forward_gru = paddle.layer.grumemory(
-        input=input_proj_bn_forward, act=act, reverse=False)
-    backward_gru = paddle.layer.grumemory(
-        input=input_proj_bn_backward, act=act, reverse=True)
-    return paddle.layer.concat(input=[forward_gru, backward_gru])
+    #batch norm is only performed on input-related prohections
+    input_proj_bn_forward = fluid.layers.batch_norm(
+        input=input_proj_forward,
+        act=None,
+        param_attr=fluid.ParamAttr(name=name + '_forward_batch_norm_weight'),
+        bias_attr=fluid.ParamAttr(name=name + '_forward_batch_norm_bias'),
+        moving_mean_name=name + '_forward_batch_norm_moving_mean',
+        moving_variance_name=name + '_forward_batch_norm_moving_variance')
+    input_proj_bn_backward = fluid.layers.batch_norm(
+        input=input_proj_backward,
+        act=None,
+        param_attr=fluid.ParamAttr(name=name + '_reverse_batch_norm_weight'),
+        bias_attr=fluid.ParamAttr(name=name + '_reverse_batch_norm_bias'),
+        moving_mean_name=name + '_reverse_batch_norm_moving_mean',
+        moving_variance_name=name + '_reverse_batch_norm_moving_variance')
+    #forward and backward in time
+    forward_gru = fluid.layers.dynamic_gru(
+        input=input_proj_bn_forward,
+        size=size,
+        gate_activation='sigmoid',
+        candidate_activation=act,
+        param_attr=fluid.ParamAttr(name=name + '_forward_gru_weight'),
+        bias_attr=fluid.ParamAttr(name=name + '_forward_gru_bias'),
+        is_reverse=False)
+    reverse_gru = fluid.layers.dynamic_gru(
+        input=input_proj_bn_backward,
+        size=size,
+        gate_activation='sigmoid',
+        candidate_activation=act,
+        param_attr=fluid.ParamAttr(name=name + '_reverse_gru_weight'),
+        bias_attr=fluid.ParamAttr(name=name + '_reverse_gru_bias'),
+        is_reverse=True)
+    return fluid.layers.concat(input=[forward_gru, reverse_gru], axis=1)
 
 
-def conv_group(input, num_stacks, index_range_datas):
+def conv_group(input, num_stacks, seq_len_data, masks):
     """Convolution group with stacked convolution layers.
-
     :param input: Input layer.
-    :type input: LayerOutput
+    :type input: Variable
     :param num_stacks: Number of stacked convolution layers.
     :type num_stacks: int
-    :param index_range_datas: Index ranges for each convolution layer.
-    :type index_range_datas: tuple|list
+    :param seq_len_data:Valid sequence length data layer. 
+    :type seq_len_data:Variable
+    :param masks: Masks data layer to reset padding.
+    :type masks: Variable
     :return: Output layer of the convolution group.
-    :rtype: LayerOutput
+    :rtype: Variable
     """
+    filter_size = (41, 11)
+    stride = (2, 3)
+    padding = (20, 5)
     conv = conv_bn_layer(
         input=input,
-        filter_size=(11, 41),
+        filter_size=filter_size,
         num_channels_in=1,
         num_channels_out=32,
-        stride=(3, 2),
-        padding=(5, 20),
-        act=paddle.activation.BRelu(),
-        index_range_data=index_range_datas[0])
-    for i in xrange(num_stacks - 1):
+        stride=stride,
+        padding=padding,
+        act="brelu",
+        masks=masks,
+        name='layer_0', )
+
+    seq_len_data = (np.array(seq_len_data) - filter_size[1] + 2 * padding[1]
+                    ) // stride[1] + 1
+
+    output_height = (161 - 1) // 2 + 1
+
+    for i in range(num_stacks - 1):
+        #reshape masks
+        output_height = (output_height - 1) // 2 + 1
+        masks = fluid.layers.slice(
+            masks, axes=[2], starts=[0], ends=[output_height])
         conv = conv_bn_layer(
             input=conv,
-            filter_size=(11, 21),
+            filter_size=(21, 11),
             num_channels_in=32,
             num_channels_out=32,
-            stride=(1, 2),
-            padding=(5, 10),
-            act=paddle.activation.BRelu(),
-            index_range_data=index_range_datas[i + 1])
+            stride=(2, 1),
+            padding=(10, 5),
+            act="brelu",
+            masks=masks,
+            name='layer_{}'.format(i + 1), )
+
     output_num_channels = 32
-    output_height = 160 // pow(2, num_stacks) + 1
-    return conv, output_num_channels, output_height
+    return conv, output_num_channels, output_height, seq_len_data
 
 
-def rnn_group(input, size, num_stacks, use_gru, share_rnn_weights):
-    """RNN group with stacked bidirectional simple RNN layers.
-
+def rnn_group(input, size, num_stacks, num_conv_layers, use_gru,
+              share_rnn_weights):
+    """RNN group with stacked bidirectional simple RNN or GRU layers.
     :param input: Input layer.
-    :type input: LayerOutput
+    :type input: Variable
     :param size: Number of RNN cells in each layer.
     :type size: int
     :param num_stacks: Number of stacked rnn layers.
@@ -194,32 +328,30 @@ def rnn_group(input, size, num_stacks, use_gru, share_rnn_weights):
                               It is only available when use_gru=False.
     :type share_weights: bool
     :return: Output layer of the RNN group.
-    :rtype: LayerOutput
+    :rtype: Variable
     """
     output = input
-    for i in xrange(num_stacks):
+    for i in range(num_stacks):
         if use_gru:
             output = bidirectional_gru_bn_layer(
-                name=str(i),
+                name='layer_{}'.format(i + num_conv_layers),
                 input=output,
                 size=size,
-                act=paddle.activation.Relu())
-            # BRelu does not support hppl, need to add later. Use Relu instead.
+                act="relu")
         else:
+            name = 'layer_{}'.format(i + num_conv_layers)
             output = bidirectional_simple_rnn_bn_layer(
-                name=str(i),
+                name=name,
                 input=output,
                 size=size,
-                act=paddle.activation.BRelu(),
                 share_weights=share_rnn_weights)
     return output
 
 
 def deep_speech_v2_network(audio_data,
                            text_data,
-                           seq_offset_data,
                            seq_len_data,
-                           index_range_datas,
+                           masks,
                            dict_size,
                            num_conv_layers=2,
                            num_rnn_layers=3,
@@ -227,17 +359,14 @@ def deep_speech_v2_network(audio_data,
                            use_gru=False,
                            share_rnn_weights=True):
     """The DeepSpeech2 network structure.
-
     :param audio_data: Audio spectrogram data layer.
-    :type audio_data: LayerOutput
+    :type audio_data: Variable
     :param text_data: Transcription text data layer.
-    :type text_data: LayerOutput
-    :param seq_offset_data: Sequence offset data layer.
-    :type seq_offset_data: LayerOutput
+    :type text_data: Variable
     :param seq_len_data: Valid sequence length data layer.
-    :type seq_len_data: LayerOutput
-    :param index_range_datas: Index ranges data layers.
-    :type index_range_datas: tuple|list
+    :type seq_len_data: Variable
+    :param masks: Masks data layer to reset padding.
+    :type masks: Variable
     :param dict_size: Dictionary size for tokenized transcription.
     :type dict_size: int
     :param num_conv_layers: Number of stacking convolution layers.
@@ -254,49 +383,53 @@ def deep_speech_v2_network(audio_data,
     :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
-    :rtype: tuple of LayerOutput
+    :rtype: tuple of LayerOutput    
     """
+    audio_data = fluid.layers.unsqueeze(audio_data, axes=[1])
+
     # convolution group
-    conv_group_output, conv_group_num_channels, conv_group_height = conv_group(
+    conv_group_output, conv_group_num_channels, conv_group_height, seq_len_data = conv_group(
         input=audio_data,
         num_stacks=num_conv_layers,
-        index_range_datas=index_range_datas)
+        seq_len_data=seq_len_data,
+        masks=masks)
+
     # convert data form convolution feature map to sequence of vectors
-    conv2seq = paddle.layer.block_expand(
-        input=conv_group_output,
-        num_channels=conv_group_num_channels,
-        stride_x=1,
-        stride_y=1,
-        block_x=1,
-        block_y=conv_group_height)
+    transpose = fluid.layers.transpose(conv_group_output, perm=[0, 3, 1, 2])
+    reshape_conv_output = fluid.layers.reshape(
+        x=transpose,
+        shape=[0, -1, conv_group_height * conv_group_num_channels],
+        inplace=False)
     # remove padding part
-    remove_padding_data = paddle.layer.sub_seq(
-        input=conv2seq,
-        offsets=seq_offset_data,
-        sizes=seq_len_data,
-        act=paddle.activation.Linear(),
-        bias_attr=False)
-    # rnn group
+    seq_len_data = fluid.layers.reshape(seq_len_data, [-1])
+    sequence = fluid.layers.sequence_unpad(
+        x=reshape_conv_output, length=seq_len_data)
+    #rnn group
     rnn_group_output = rnn_group(
-        input=remove_padding_data,
+        input=sequence,
         size=rnn_size,
         num_stacks=num_rnn_layers,
+        num_conv_layers=num_conv_layers,
         use_gru=use_gru,
         share_rnn_weights=share_rnn_weights)
-    fc = paddle.layer.fc(
+    fc = fluid.layers.fc(
         input=rnn_group_output,
         size=dict_size + 1,
-        act=paddle.activation.Linear(),
-        bias_attr=True)
-    # probability distribution with softmax
-    log_probs = paddle.layer.mixed(
-        input=paddle.layer.identity_projection(input=fc),
-        act=paddle.activation.Softmax())
-    # ctc cost
-    ctc_loss = paddle.layer.warp_ctc(
-        input=fc,
-        label=text_data,
-        size=dict_size + 1,
-        blank=dict_size,
-        norm_by_times=True)
-    return log_probs, ctc_loss
+        act=None,
+        param_attr=fluid.ParamAttr(
+            name='layer_{}'.format(num_conv_layers + num_rnn_layers) +
+            '_fc_weight'),
+        bias_attr=fluid.ParamAttr(
+            name='layer_{}'.format(num_conv_layers + num_rnn_layers) +
+            '_fc_bias'))
+    # pribability distribution with softmax
+    log_probs = fluid.layers.softmax(fc)
+    log_probs.persistable = True
+    if not text_data:
+        return log_probs, None
+    else:
+        #ctc cost
+        ctc_loss = fluid.layers.warpctc(
+            input=fc, label=text_data, blank=dict_size, norm_by_times=True)
+        ctc_loss = fluid.layers.reduce_sum(ctc_loss)
+        return log_probs, ctc_loss

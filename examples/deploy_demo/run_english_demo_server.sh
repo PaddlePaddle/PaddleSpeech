@@ -5,7 +5,7 @@ cd ../.. > /dev/null
 
 # download language model
 cd models/lm > /dev/null
-sh download_lm_en.sh
+bash download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -14,7 +14,7 @@ cd - > /dev/null
 
 # download well-trained model
 cd models/baidu_en8k > /dev/null
-sh download_model.sh
+bash download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -40,7 +40,7 @@ python -u deploy/demo_server.py \
 --warmup_manifest='data/tiny/manifest.test-clean' \
 --mean_std_path='models/baidu_en8k/mean_std.npz' \
 --vocab_path='models/baidu_en8k/vocab.txt' \
---model_path='models/baidu_en8k/params.tar.gz' \
+--model_path='models/baidu_en8k' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \
 --specgram_type='linear'

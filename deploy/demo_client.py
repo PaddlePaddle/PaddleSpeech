@@ -1,5 +1,5 @@
 """Client-end for the ASR demo."""
-from pynput import keyboard
+import keyboard
 import struct
 import socket
 import sys
@@ -23,22 +23,17 @@ is_recording = False
 enable_trigger_record = True
 
 
-def on_press(key):
-    """On-press keyboard callback function."""
+def on_press_release(x):
+    """Keyboard callback function."""
     global is_recording, enable_trigger_record
-    if key == keyboard.Key.space:
+    press = keyboard.KeyboardEvent('down', 28, 'space')
+    release = keyboard.KeyboardEvent('up', 28, 'space')
+    if x.event_type == 'down' and x.name == press.name:
         if (not is_recording) and enable_trigger_record:
             sys.stdout.write("Start Recording ... ")
             sys.stdout.flush()
             is_recording = True
-
-
-def on_release(key):
-    """On-release keyboard callback function."""
-    global is_recording, enable_trigger_record
-    if key == keyboard.Key.esc:
-        return False
-    elif key == keyboard.Key.space:
+    if x.event_type == 'up' and x.name == release.name:
         if is_recording == True:
             is_recording = False
 
@@ -80,9 +75,10 @@ def main():
     stream.start_stream()
 
     # prepare keyboard listener
-    with keyboard.Listener(
-            on_press=on_press, on_release=on_release) as listener:
-        listener.join()
+    while (1):
+        keyboard.hook(on_press_release)
+        if keyboard.record('esc'):
+            break
 
     # close up
     stream.stop_stream()

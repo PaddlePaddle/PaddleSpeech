@@ -7,7 +7,6 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python -u tools/tune.py \
 --num_batches=-1 \
 --batch_size=128 \
---trainer_count=4 \
 --beam_size=500 \
 --num_proc_bsearch=12 \
 --num_conv_layers=2 \
@@ -27,7 +26,7 @@ python -u tools/tune.py \
 --tune_manifest='data/librispeech/manifest.dev-clean' \
 --mean_std_path='data/librispeech/mean_std.npz' \
 --vocab_path='models/librispeech/vocab.txt' \
---model_path='models/librispeech/params.tar.gz' \
+--model_path='models/librispeech' \
 --lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
 --error_rate_type='wer' \
 --specgram_type='linear'

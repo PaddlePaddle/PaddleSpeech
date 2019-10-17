@@ -8,7 +8,8 @@ from time import gmtime, strftime
 import SocketServer
 import struct
 import wave
-import paddle.v2 as paddle
+import paddle.fluid as fluid
+import numpy as np
 import _init_paths
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
@@ -141,13 +142,19 @@ def warm_up_test(audio_process_handler,
 def start_server():
     """Start the ASR server"""
     # prepare data generator
+    if args.use_gpu:
+        place = fluid.CUDAPlace(0)
+    else:
+        place = fluid.CPUPlace()
+
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_path,
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=1,
-        keep_transcription_text=True)
+        keep_transcription_text=True,
+        place = place,
+        is_training = False)
     # prepare ASR model
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,
@@ -155,7 +162,8 @@ def start_server():
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
-        pretrained_model_path=args.model_path,
+        init_from_pretrain_model=args.model_path,
+        place=place,
         share_rnn_weights=args.share_rnn_weights)
 
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
@@ -166,8 +174,24 @@ def start_server():
     # prepare ASR inference handler
     def file_to_transcript(filename):
         feature = data_generator.process_utterance(filename, "")
+        audio_len = feature[0].shape[1]
+        mask_shape0 = (feature[0].shape[0] - 1) // 2 + 1
+        mask_shape1 = (feature[0].shape[1] - 1) // 3 + 1
+        mask_max_len = (audio_len - 1) // 3 + 1
+        mask_ones = np.ones((mask_shape0, mask_shape1))
+        mask_zeros = np.zeros((mask_shape0, mask_max_len - mask_shape1))
+        mask = np.repeat(
+            np.reshape(
+                np.concatenate((mask_ones, mask_zeros), axis=1),
+                (1, mask_shape0, mask_max_len)),
+            32,
+            axis=0)
+        feature = (np.array([feature[0]]).astype('float32'),
+                   None,
+                   np.array([audio_len]).astype('int64').reshape([-1,1]),
+                   np.array([mask]).astype('float32'))
         probs_split = ds2_model.infer_batch_probs(
-            infer_data=[feature],
+            infer_data=feature,
             feeding_dict=data_generator.feeding)
 
         if args.decoding_method == "ctc_greedy":
@@ -207,7 +231,6 @@ def start_server():
 
 def main():
     print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu, trainer_count=1)
     start_server()
 
 

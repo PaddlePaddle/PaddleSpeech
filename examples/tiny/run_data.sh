@@ -7,11 +7,10 @@ if [ ! -e data/tiny ]; then
     mkdir data/tiny
 fi
 
-
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python data/librispeech/librispeech.py \
 --manifest_prefix='data/tiny/manifest' \
---target_dir='~/.cache/paddle/dataset/speech/libri' \
+--target_dir='./dataset/librispeech' \
 --full_download='False'
 
 if [ $? -ne 0 ]; then
@@ -21,12 +20,11 @@ fi
 
 head -n 64 data/tiny/manifest.dev-clean  > data/tiny/manifest.tiny
 
-
 # build vocabulary
 python tools/build_vocab.py \
 --count_threshold=0 \
 --vocab_path='data/tiny/vocab.txt' \
---manifest_paths='data/tiny/manifest.dev-clean'
+--manifest_paths='data/tiny/manifest.tiny'
 
 if [ $? -ne 0 ]; then
     echo "Build vocabulary failed. Terminated."
@@ -47,5 +45,5 @@ if [ $? -ne 0 ]; then
 fi
 
 
-echo "Tiny data preparation done."
+echo "LibriSpeech Data preparation done."
 exit 0

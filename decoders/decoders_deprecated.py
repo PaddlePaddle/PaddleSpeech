@@ -102,7 +102,7 @@ def ctc_beam_search_decoder(probs_seq,
     probs_b_prev, probs_nb_prev = {'\t': 1.0}, {'\t': 0.0}
 
     ## extend prefix in loop
-    for time_step in xrange(len(probs_seq)):
+    for time_step in range(len(probs_seq)):
         # prefix_set_next: the set containing candidate prefixes
         # probs_b_cur: prefixes' probability ending with blank in current step
         # probs_nb_cur: prefixes' probability ending with non-blank in current step
@@ -114,7 +114,7 @@ def ctc_beam_search_decoder(probs_seq,
         if cutoff_prob < 1.0 or cutoff_top_n < cutoff_len:
             prob_idx = sorted(prob_idx, key=lambda asd: asd[1], reverse=True)
             cutoff_len, cum_prob = 0, 0.0
-            for i in xrange(len(prob_idx)):
+            for i in range(len(prob_idx)):
                 cum_prob += prob_idx[i][1]
                 cutoff_len += 1
                 if cum_prob >= cutoff_prob:
@@ -127,7 +127,7 @@ def ctc_beam_search_decoder(probs_seq,
                 probs_b_cur[l], probs_nb_cur[l] = 0.0, 0.0
 
             # extend prefix by travering prob_idx
-            for index in xrange(cutoff_len):
+            for index in range(cutoff_len):
                 c, prob_c = prob_idx[index][0], prob_idx[index][1]
 
                 if c == blank_id:

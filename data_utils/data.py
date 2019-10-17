@@ -9,10 +9,9 @@ import random
 import tarfile
 import multiprocessing
 import numpy as np
-import paddle.v2 as paddle
+import paddle.fluid as fluid
 from threading import local
 from data_utils.utility import read_manifest
-from data_utils.utility import xmap_readers_mp
 from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
@@ -51,14 +50,17 @@ class DataGenerator(object):
     :param use_dB_normalization: Whether to normalize the audio to -20 dB
                                 before extracting the features.
     :type use_dB_normalization: bool
-    :param num_threads: Number of CPU threads for processing data.
-    :type num_threads: int
     :param random_seed: Random seed.
     :type random_seed: int
     :param keep_transcription_text: If set to True, transcription text will
                                     be passed forward directly without
                                     converting to index sequence.
     :type keep_transcription_text: bool
+    :param place: The place to run the program.
+    :type place: CPU or GPU
+    :param is_training: If set to True, generate text data for training, 
+                        otherwise,  generate text data for infer.
+    :type is_training: bool 
     """
 
     def __init__(self,
@@ -72,9 +74,10 @@ class DataGenerator(object):
                  max_freq=None,
                  specgram_type='linear',
                  use_dB_normalization=True,
-                 num_threads=multiprocessing.cpu_count() // 2,
                  random_seed=0,
-                 keep_transcription_text=False):
+                 keep_transcription_text=False,
+                 place=fluid.CPUPlace(),
+                 is_training=True):
         self._max_duration = max_duration
         self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
@@ -87,14 +90,15 @@ class DataGenerator(object):
             window_ms=window_ms,
             max_freq=max_freq,
             use_dB_normalization=use_dB_normalization)
-        self._num_threads = num_threads
         self._rng = random.Random(random_seed)
         self._keep_transcription_text = keep_transcription_text
         self._epoch = 0
+        self._is_training = is_training
         # for caching tar files info
         self._local_data = local()
         self._local_data.tar2info = {}
         self._local_data.tar2object = {}
+        self._place = place
 
     def process_utterance(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -121,7 +125,6 @@ class DataGenerator(object):
     def batch_reader_creator(self,
                              manifest_path,
                              batch_size,
-                             min_batch_size=1,
                              padding_to=-1,
                              flatten=False,
                              sortagrad=False,
@@ -137,9 +140,6 @@ class DataGenerator(object):
         :type manifest_path: basestring
         :param batch_size: Number of instances in a batch.
         :type batch_size: int
-        :param min_batch_size: Any batch with batch size smaller than this will
-                               be discarded. (To be deprecated in the future.)
-        :type min_batch_size: int
         :param padding_to:  If set -1, the maximun shape in the batch
                             will be used as the target shape for padding.
                             Otherwise, `padding_to` will be the target shape.
@@ -178,6 +178,7 @@ class DataGenerator(object):
             # sort (by duration) or batch-wise shuffle the manifest
             if self._epoch == 0 and sortagrad:
                 manifest.sort(key=lambda x: x["duration"])
+
             else:
                 if shuffle_method == "batch_shuffle":
                     manifest = self._batch_shuffle(
@@ -193,18 +194,16 @@ class DataGenerator(object):
                     raise ValueError("Unknown shuffle method %s." %
                                      shuffle_method)
             # prepare batches
-            instance_reader, cleanup = self._instance_reader_creator(manifest)
             batch = []
-            try:
-                for instance in instance_reader():
-                    batch.append(instance)
-                    if len(batch) == batch_size:
-                        yield self._padding_batch(batch, padding_to, flatten)
-                        batch = []
-                if len(batch) >= min_batch_size:
+            instance_reader = self._instance_reader_creator(manifest)
+
+            for instance in instance_reader():
+                batch.append(instance)
+                if len(batch) == batch_size:
                     yield self._padding_batch(batch, padding_to, flatten)
-            finally:
-                cleanup()
+                    batch = []
+            if len(batch) >= 1:
+                yield self._padding_batch(batch, padding_to, flatten)
             self._epoch += 1
 
         return batch_reader
@@ -276,13 +275,11 @@ class DataGenerator(object):
 
         def reader():
             for instance in manifest:
-                yield instance
+                inst = self.process_utterance(instance["audio_filepath"],
+                                              instance["text"]),
+                yield inst[0]
 
-        reader, cleanup_callback = xmap_readers_mp(
-            lambda instance: self.process_utterance(instance["audio_filepath"], instance["text"]),
-            reader, self._num_threads, 4096)
-
-        return reader, cleanup_callback
+        return reader
 
     def _padding_batch(self, batch, padding_to=-1, flatten=False):
         """
@@ -304,14 +301,43 @@ class DataGenerator(object):
                                  "than any instance's shape in the batch")
             max_length = padding_to
         # padding
+        padded_audios = []
+        texts, text_lens = [], []
+        audio_lens = []
+        masks = []
         for audio, text in batch:
             padded_audio = np.zeros([audio.shape[0], max_length])
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
                 padded_audio = padded_audio.flatten()
-            padded_instance = [padded_audio, text, audio.shape[1]]
-            new_batch.append(padded_instance)
-        return new_batch
+            padded_audios.append(padded_audio)
+            if self._is_training:
+                texts += text
+            else:
+                texts.append(text)
+            text_lens.append(len(text))
+            audio_lens.append(audio.shape[1])
+            mask_shape0 = (audio.shape[0] - 1) // 2 + 1
+            mask_shape1 = (audio.shape[1] - 1) // 3 + 1
+            mask_max_len = (max_length - 1) // 3 + 1
+            mask_ones = np.ones((mask_shape0, mask_shape1))
+            mask_zeros = np.zeros((mask_shape0, mask_max_len - mask_shape1))
+            mask = np.repeat(
+                np.reshape(
+                    np.concatenate((mask_ones, mask_zeros), axis=1),
+                    (1, mask_shape0, mask_max_len)),
+                32,
+                axis=0)
+            masks.append(mask)
+        padded_audios = np.array(padded_audios).astype('float32')
+        if self._is_training:
+            texts = fluid.create_lod_tensor(
+                np.array(texts).astype('int32'),
+                recursive_seq_lens=[text_lens],
+                place=self._place)
+        audio_lens = np.array(audio_lens).astype('int64').reshape([-1, 1])
+        masks = np.array(masks).astype('float32')
+        return padded_audios, texts, audio_lens, masks
 
     def _batch_shuffle(self, manifest, batch_size, clipped=False):
         """Put similarly-sized instances into minibatches for better efficiency

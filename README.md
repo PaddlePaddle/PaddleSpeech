@@ -1,6 +1,6 @@
 # DeepSpeech2 on PaddlePaddle
 
-*DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient and scalable implementation, including training, inference & testing module, distributed [PaddleCloud](https://github.com/PaddlePaddle/cloud) training, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
+*DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient and scalable implementation, including training, inference & testing module, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -10,7 +10,6 @@
 - [Data Augmentation Pipeline](#data-augmentation-pipeline)
 - [Inference and Evaluation](#inference-and-evaluation)
 - [Running in Docker Container](#running-in-docker-container)
-- [Distributed Cloud Training](#distributed-cloud-training)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
 - [Training for Mandarin Language](#training-for-mandarin-language)
 - [Trying Live Demo with Your Own Voice](#trying-live-demo-with-your-own-voice)
@@ -22,13 +21,45 @@
 
 ## Installation
 
-For this project was developed in PaddlePaddle V2 API, which is not maintained officially any more, we only support [running it in Docker container](#running-in-docker-container), instead of building environment from source code. And we are going to release the update to the latest Paddle Fluid API very soon, please keep an eye on this project.
+To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
+
+### Prerequisites
+- Python 2.7 only supported
+- PaddlePaddle the latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/1.5/beginners_guide/install/index_en.html))
+
+### Setup
+- Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
+
+```bash
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
+```
+
+or, installing them via `yum`:
+
+```bash
+sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel
+wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
+xz -d flac-1.3.1.tar.xz
+tar -xvf flac-1.3.1.tar
+cd flac-1.3.1
+./configure
+make
+make install
+```
+
+- Run the setup script for the remaining dependencies
+
+```bash
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+cd DeepSpeech
+sh setup.sh
+```
 
 ## Getting Started
 
 Several shell scripts provided in `./examples` will help us to quickly give it a try, for most major modules, including data preparation, model training, case inference and model evaluation, with a few public dataset (e.g. [LibriSpeech](http://www.openslr.org/12/), [Aishell](http://www.openslr.org/33)). Reading these examples will also help you to understand how to make it work with your own data.
 
-Some of the scripts in `./examples` are configured with 8 GPUs. If you don't have 8 GPUs available, please modify `CUDA_VISIBLE_DEVICES` and `--trainer_count`. If you don't have any GPU available, please set `--use_gpu` to False to use CPUs instead. Besides, if out-of-memory problem occurs, just reduce `--batch_size` to fit.
+Some of the scripts in `./examples` are configured with 8 GPUs. If you don't have 8 GPUs available, please modify `CUDA_VISIBLE_DEVICES`. If you don't have any GPU available, please set `--use_gpu` to False to use CPUs instead. Besides, if out-of-memory problem occurs, just reduce `--batch_size` to fit.
 
 Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org/12/) for instance.
 
@@ -45,7 +76,7 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     sh run_data.sh
     ```
 
-    `run_data.sh` will download dataset, generate manifests, collect normalizer's statistics and build vocabulary. Once the data preparation is done, you will find the data (only part of LibriSpeech) downloaded in `~/.cache/paddle/dataset/speech/libri` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time you run this dataset and is reusable for all further experiments.
+    `run_data.sh` will download dataset, generate manifests, collect normalizer's statistics and build vocabulary. Once the data preparation is done, you will find the data (only part of LibriSpeech) downloaded in `./dataset/librispeech` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time you run this dataset and is reusable for all further experiments.
 - Train your own ASR model
 
     ```bash
@@ -139,20 +170,20 @@ python tools/build_vocab.py --help
 - Start training from scratch with 8 GPUs:
 
     ```
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py --trainer_count 8
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py
     ```
 
-- Start training from scratch with 16 CPUs:
+- Start training from scratch with CPUs:
 
     ```
-    python train.py --use_gpu False --trainer_count 16
+    python train.py --use_gpu False
     ```
 - Resume training from a checkpoint:
 
     ```
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     python train.py \
-    --init_model_path CHECKPOINT_PATH_TO_RESUME_FROM
+    --init_from_pretrain_model CHECKPOINT_PATH_TO_RESUME_FROM
     ```
 
 For more help on arguments:
@@ -161,6 +192,7 @@ For more help on arguments:
 python train.py --help
 ```
 or refer to `example/librispeech/run_train.sh`.
+
 
 ## Data Augmentation Pipeline
 
@@ -206,8 +238,8 @@ A language model is required to improve the decoder's performance. We have prepa
 
 ```bash
 cd models/lm
-sh download_lm_en.sh
-sh download_lm_ch.sh
+bash download_lm_en.sh
+bash download_lm_ch.sh
 ```
 
 If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials. Here we provide some tips to show how we preparing our English and Mandarin language models. You can take it as a reference when you train your own.
@@ -216,7 +248,7 @@ If you wish to train your own better language model, please refer to [KenLM](htt
 
 The English corpus is from the [Common Crawl Repository](http://commoncrawl.org) and you can download it from [statmt](http://data.statmt.org/ngrams/deduped_en). We use part en.00 to train our English language model. There are some preprocessing steps before training:
 
-  * Characters not in \[A-Za-z0-9\s'\] (\s represents whitespace characters) are removed and Arabic numbers are converted to English numbers like 1000 to one thousand.
+  * Characters not in \['A-Za-z0-9\s'\] (\s represents whitespace characters) are removed and Arabic numbers are converted to English numbers like 1000 to one thousand.
   * Repeated whitespace characters are squeezed to one and the beginning whitespace characters are removed. Notice that all transcriptions are lowercase, so all characters are converted to lowercase.
   * Top 400,000 most frequent words are selected to build the vocabulary and the rest are replaced with 'UNKNOWNWORD'.
 
@@ -239,13 +271,13 @@ An inference module caller `infer.py` is provided to infer, decode and visualize
 - Inference with GPU:
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0 python infer.py --trainer_count 1
+    CUDA_VISIBLE_DEVICES=0 python infer.py
     ```
 
 - Inference with CPUs:
 
     ```bash
-    python infer.py --use_gpu False --trainer_count 12
+    python infer.py --use_gpu False
     ```
 
 We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first graph search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `--decoding_method`.
@@ -264,13 +296,13 @@ To evaluate a model's performance quantitatively, please run:
 - Evaluation with GPUs:
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py --trainer_count 8
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py
     ```
 
 - Evaluation with CPUs:
 
     ```bash
-    python test.py --use_gpu False --trainer_count 12
+    python test.py --use_gpu False
     ```
 
 The error rate (default: word error rate; can be set with `--error_rate_type`) will be printed.
@@ -293,7 +325,6 @@ The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertio
     ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     python tools/tune.py \
-    --trainer_count 8 \
     --alpha_from 1.0 \
     --alpha_to 3.2 \
     --num_alphas 45 \
@@ -332,7 +363,7 @@ Take several steps to launch the Docker image:
 - Download the Docker image
 
 ```bash
-nvidia-docker pull paddlepaddle/deep_speech:latest-gpu
+nvidia-docker pull hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu
 ```
 
 - Clone this repository
@@ -344,72 +375,10 @@ git clone https://github.com/PaddlePaddle/DeepSpeech.git
 - Run the Docker image
 
 ```bash
-sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech paddlepaddle/deep_speech:latest-gpu /bin/bash
+sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu /bin/bash
 ```
 Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similarly in the Docker container.
 
-## Distributed Cloud Training
-
-We also provide a cloud training module for users to do the distributed cluster training on [PaddleCloud](https://github.com/PaddlePaddle/cloud), to achieve a much faster training speed with multiple machines. To start with this, please first install PaddleCloud client and register a PaddleCloud account, as described in [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E9%85%8D%E7%BD%AEpaddlecloud).
-
-Please take the following steps to submit a training job:
-
-- Go to directory:
-
-    ```bash
-    cd cloud
-    ```
-- Upload data:
-
-    Data must be uploaded to PaddleCloud filesystem to be accessed within a cloud job. `pcloud_upload_data.sh` helps do the data packing and uploading:
-
-    ```bash
-    sh pcloud_upload_data.sh
-    ```
-
-    Given input manifests, `pcloud_upload_data.sh` will:
-
-    - Extract the audio files listed in the input manifests.
-    - Pack them into a specified number of tar files.
-    - Upload these tar files to PaddleCloud filesystem.
-    - Create cloud manifests by replacing local filesystem paths with PaddleCloud filesystem paths. New manifests will be used to inform the cloud jobs of audio files' location and their meta information.
-
-    It should be done only once for the very first time to do the cloud training. Later, the data is kept persisitent on the cloud filesystem and reusable for further job submissions.
-
-    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
-
- - Configure training arguments:
-
-    Configure the cloud job parameters in `pcloud_submit.sh` (e.g. `NUM_NODES`, `NUM_GPUS`, `CLOUD_TRAIN_DIR`, `JOB_NAME` etc.) and then configure other hyper-parameters for training in `pcloud_train.sh` (just as what you do for local training).
-
-    For argument details please refer to [Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
-
- - Submit the job:
-
-    By running:
-
-    ```bash
-    sh pcloud_submit.sh
-    ```
-    a training job has been submitted to PaddleCloud, with the job name printed to the console.
-
-  - Get training logs
-
-    Run this to list all the jobs you have submitted, as well as their running status:
-
-    ```bash
-    paddlecloud get jobs
-    ```
-
-    Run this, the corresponding job's logs will be printed.
-    ```bash
-    paddlecloud logs -n 10000 $REPLACED_WITH_YOUR_ACTUAL_JOB_NAME
-    ```
-
-For more information about the usage of PaddleCloud, please refer to [PaddleCloud Usage](https://github.com/PaddlePaddle/cloud/blob/develop/doc/usage_cn.md#提交任务).
-
-For more information about the DeepSpeech2 training on PaddleCloud, please refer to
-[Train DeepSpeech2 on PaddleCloud](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/cloud).
 
 ## Training for Mandarin Language
 
@@ -417,14 +386,13 @@ The key steps of training for Mandarin language are same to that of English lang
 
 ## Trying Live Demo with Your Own Voice
 
-Until now, an ASR model is trained and tested qualitatively (`infer.py`) and quantitatively (`test.py`) with existing audio files. But it is not yet tested with your own speech. `deploy/demo_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling you to test and play around with the demo, with your own voice.
+Until now, an ASR model is trained and tested qualitatively (`infer.py`) and quantitatively (`test.py`) with existing audio files. But it is not yet tested with your own speech. `deploy/demo_english_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling you to test and play around with the demo, with your own voice.
 
 To start the demo's server, please run this in one console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
 python deploy/demo_server.py \
---trainer_count 1 \
 --host_ip localhost \
 --host_port 8086
 ```
@@ -436,7 +404,7 @@ For example, on MAC OS X:
 ```bash
 brew install portaudio
 pip install pyaudio
-pip install pynput
+pip install keyboard
 ```
 
 Then to start the client, please run this in another console:
@@ -452,7 +420,7 @@ Now, in the client console, press the `whitespace` key, hold, and start speaking
 
 Notice that `deploy/demo_client.py` must be run on a machine with a microphone device, while `deploy/demo_server.py` could be run on one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running on one single machine.
 
-Please also refer to `examples/mandarin/run_demo_server.sh`, which will first download a pre-trained Mandarin model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, you can speak Mandarin to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
+Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
 
 For more help on arguments:
 
@@ -467,10 +435,10 @@ python deploy/demo_client.py --help
 
 Language  | Model Name | Training Data | Hours of Speech
 :-----------: | :------------: | :----------: |  -------:
-English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model.tar.gz) | Baidu Internal English Dataset | 8628 h
-Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
+English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model_fluid.tar.gz) | Baidu Internal English Dataset | 8628 h
+Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_fluid.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
+Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model_fluid.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
 
 #### Language Model Released
 
@@ -504,17 +472,16 @@ Baidu Internal Testset  |   12.64
 
 #### Acceleration with Multi-GPUs
 
-We compare the training time with 1, 2, 4, 8, 16 Tesla K40m GPUs (with a subset of LibriSpeech samples whose audio durations are between 6.0 and 7.0 seconds).  And it shows that a **near-linear** acceleration with multiple GPUs has been achieved. In the following figure, the time (in seconds) cost for training is printed on the blue bars.
+We compare the training time with 1, 2, 4, 8 Tesla V100 GPUs (with a subset of LibriSpeech samples whose audio durations are between 6.0 and 7.0 seconds).  And it shows that a **near-linear** acceleration with multiple GPUs has been achieved. In the following figure, the time (in seconds) cost for training is printed on the blue bars.
 
 <img src="docs/images/multi_gpu_speedup.png" width=450><br/>
 
 | # of GPU  | Acceleration Rate |
 | --------  | --------------:   |
 | 1         | 1.00 X |
-| 2         | 1.97 X |
-| 4         | 3.74 X |
-| 8         | 6.21 X |
-|16         | 10.70 X |
+| 2         | 1.98 X |
+| 4         | 3.73 X |
+| 8         | 6.95 X |
 
 `tools/profile.sh` provides such a profiling tool.
 

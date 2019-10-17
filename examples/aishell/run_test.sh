@@ -4,7 +4,7 @@ cd ../.. > /dev/null
 
 # download language model
 cd models/lm > /dev/null
-sh download_lm_ch.sh
+bash download_lm_ch.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -15,10 +15,8 @@ cd - > /dev/null
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u test.py \
 --batch_size=128 \
---trainer_count=8 \
 --beam_size=300 \
 --num_proc_bsearch=8 \
---num_proc_data=8 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
 --rnn_layer_size=1024 \
@@ -32,7 +30,7 @@ python -u test.py \
 --test_manifest='data/aishell/manifest.test' \
 --mean_std_path='data/aishell/mean_std.npz' \
 --vocab_path='data/aishell/vocab.txt' \
---model_path='checkpoints/aishell/params.latest.tar.gz' \
+--model_path='checkpoints/aishell/step_final' \
 --lang_model_path='models/lm/zh_giga.no_cna_cmn.prune01244.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='cer' \

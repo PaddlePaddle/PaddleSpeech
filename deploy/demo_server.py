@@ -162,7 +162,7 @@ def start_server():
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
-        init_from_pretrain_model=args.model_path,
+        init_from_pretrained_model=args.model_path,
         place=place,
         share_rnn_weights=args.share_rnn_weights)
 

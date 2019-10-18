@@ -44,7 +44,7 @@ class DeepSpeech2Model(object):
                               for GRU, weight sharing is not supported.
     :type share_rnn_weights: bool
     :param place: Program running place.
-    :type place: CPU or GPU
+    :type place: CPUPlace or CUDAPlace
     :param init_from_pretrained_model: Pretrained model path. If None, will train
                                   from stratch.
     :type init_from_pretrained_model: string|None
@@ -60,7 +60,7 @@ class DeepSpeech2Model(object):
                  use_gru=False,
                  share_rnn_weights=True,
                  place=fluid.CPUPlace(),
-                 init_from_pretrain_model=None,
+                 init_from_pretrained_model=None,
                  output_model_dir=None):
         self._vocab_size = vocab_size
         self._num_conv_layers = num_conv_layers
@@ -69,7 +69,7 @@ class DeepSpeech2Model(object):
         self._use_gru = use_gru
         self._share_rnn_weights = share_rnn_weights
         self._place = place
-        self._init_from_pretrain_model = init_from_pretrain_model
+        self._init_from_pretrained_model = init_from_pretrained_model
         self._output_model_dir = output_model_dir
         self._ext_scorer = None
         self.logger = logging.getLogger("")
@@ -90,13 +90,14 @@ class DeepSpeech2Model(object):
         if not is_infer:
             input_fields = {
                 'names': ['audio_data', 'text_data', 'seq_len_data', 'masks'],
-                'shapes': [[-1, 161, 161], [-1, 1], [-1, 1], [-1, 32, 81, 1]],
+                'shapes':
+                [[None, 161, None], [None, 1], [None, 1], [None, 32, 81, None]],
                 'dtypes': ['float32', 'int32', 'int64', 'float32'],
                 'lod_levels': [0, 1, 0, 0]
             }
 
             inputs = [
-                fluid.layers.data(
+                fluid.data(
                     name=input_fields['names'][i],
                     shape=input_fields['shapes'][i],
                     dtype=input_fields['dtypes'][i],
@@ -104,7 +105,7 @@ class DeepSpeech2Model(object):
                 for i in range(len(input_fields['names']))
             ]
 
-            reader = fluid.io.PyReader(
+            reader = fluid.io.DataLoader.from_generator(
                 feed_list=inputs,
                 capacity=64,
                 iterable=False,
@@ -112,16 +113,19 @@ class DeepSpeech2Model(object):
 
             (audio_data, text_data, seq_len_data, masks) = inputs
         else:
-            audio_data = fluid.layers.data(
+            audio_data = fluid.data(
                 name='audio_data',
-                shape=[-1, 161, 161],
+                shape=[None, 161, None],
                 dtype='float32',
                 lod_level=0)
-            seq_len_data = fluid.layers.data(
-                name='seq_len_data', shape=[-1, 1], dtype='int64', lod_level=0)
-            masks = fluid.layers.data(
+            seq_len_data = fluid.data(
+                name='seq_len_data',
+                shape=[None, 1],
+                dtype='int64',
+                lod_level=0)
+            masks = fluid.data(
                 name='masks',
-                shape=[-1, 32, 81, 1],
+                shape=[None, 32, 81, None],
                 dtype='float32',
                 lod_level=0)
             text_data = None
@@ -141,26 +145,26 @@ class DeepSpeech2Model(object):
             share_rnn_weights=self._share_rnn_weights)
         return reader, log_probs, loss
 
-    def init_from_pretrain_model(self, exe, program):
+    def init_from_pretrained_model(self, exe, program):
         '''Init params from pretrain model. '''
 
-        assert isinstance(self._init_from_pretrain_model, str)
+        assert isinstance(self._init_from_pretrained_model, str)
 
-        if not os.path.exists(self._init_from_pretrain_model):
-            print(self._init_from_pretrain_model)
+        if not os.path.exists(self._init_from_pretrained_model):
+            print(self._init_from_pretrained_model)
             raise Warning("The pretrained params do not exist.")
             return False
         fluid.io.load_params(
             exe,
-            self._init_from_pretrain_model,
+            self._init_from_pretrained_model,
             main_program=program,
             filename="params.pdparams")
 
         print("finish initing model from pretrained params from %s" %
-              (self._init_from_pretrain_model))
+              (self._init_from_pretrained_model))
 
         pre_epoch = 0
-        dir_name = self._init_from_pretrain_model.split('_')
+        dir_name = self._init_from_pretrained_model.split('_')
         if len(dir_name) >= 2 and dir_name[-2].endswith('epoch') and dir_name[
                 -1].isdigit():
             pre_epoch = int(dir_name[-1])
@@ -186,7 +190,7 @@ class DeepSpeech2Model(object):
 
         return True
 
-    def test(self, exe, dev_batch_reader, test_program, test_pyreader,
+    def test(self, exe, dev_batch_reader, test_program, test_reader,
              fetch_list):
         '''Test the model.
 
@@ -196,14 +200,14 @@ class DeepSpeech2Model(object):
         :type dev_batch_reader: read generator 
         :param test_program: The program of test.
         :type test_program: Program
-        :param test_pyreader: Pyreader of test.
-        :type test_pyreader: Pyreader
+        :param test_reader: Reader of test.
+        :type test_reader: Reader
         :param fetch_list: Fetch list.
         :type fetch_list: list
         :return: An output unnormalized log probability. 
         :rtype: array
         '''
-        test_pyreader.start()
+        test_reader.start()
         epoch_loss = []
         while True:
             try:
@@ -214,7 +218,7 @@ class DeepSpeech2Model(object):
                 epoch_loss.extend(np.array(each_loss[0]))
 
             except fluid.core.EOFException:
-                test_pyreader.reset()
+                test_reader.reset()
                 break
         return np.mean(np.array(epoch_loss))
 
@@ -274,7 +278,7 @@ class DeepSpeech2Model(object):
         startup_prog = fluid.Program()
         with fluid.program_guard(train_program, startup_prog):
             with fluid.unique_name.guard():
-                train_pyreader, log_probs, ctc_loss = self.create_network()
+                train_reader, log_probs, ctc_loss = self.create_network()
                 # prepare optimizer
                 optimizer = fluid.optimizer.AdamOptimizer(
                     learning_rate=fluid.layers.exponential_decay(
@@ -290,7 +294,7 @@ class DeepSpeech2Model(object):
         test_prog = fluid.Program()
         with fluid.program_guard(test_prog, startup_prog):
             with fluid.unique_name.guard():
-                test_pyreader, _, ctc_loss = self.create_network()
+                test_reader, _, ctc_loss = self.create_network()
 
         test_prog = test_prog.clone(for_test=True)
 
@@ -299,8 +303,8 @@ class DeepSpeech2Model(object):
 
         # init from some pretrain models, to better solve the current task
         pre_epoch = 0
-        if self._init_from_pretrain_model:
-            pre_epoch = self.init_from_pretrain_model(exe, train_program)
+        if self._init_from_pretrained_model:
+            pre_epoch = self.init_from_pretrained_model(exe, train_program)
 
         build_strategy = compiler.BuildStrategy()
         exec_strategy = fluid.ExecutionStrategy()
@@ -312,12 +316,12 @@ class DeepSpeech2Model(object):
                 build_strategy=build_strategy,
                 exec_strategy=exec_strategy)
 
-        train_pyreader.decorate_batch_generator(train_batch_reader)
-        test_pyreader.decorate_batch_generator(dev_batch_reader)
+        train_reader.set_batch_generator(train_batch_reader)
+        test_reader.set_batch_generator(dev_batch_reader)
 
         # run train 
         for epoch_id in range(num_epoch):
-            train_pyreader.start()
+            train_reader.start()
             epoch_loss = []
             time_begin = time.time()
             batch_id = 0
@@ -346,7 +350,7 @@ class DeepSpeech2Model(object):
 
                     batch_id = batch_id + 1
                 except fluid.core.EOFException:
-                    train_pyreader.reset()
+                    train_reader.reset()
                     break
             time_end = time.time()
             used_time = time_end - time_begin
@@ -359,7 +363,7 @@ class DeepSpeech2Model(object):
                     exe,
                     dev_batch_reader=dev_batch_reader,
                     test_program=test_prog,
-                    test_pyreader=test_pyreader,
+                    test_reader=test_reader,
                     fetch_list=[ctc_loss])
                 print(
                     "--------Time: %f sec, epoch: %d, train loss: %f, test loss: %f"
@@ -402,10 +406,10 @@ class DeepSpeech2Model(object):
         exe = fluid.Executor(self._place)
         exe.run(startup_prog)
 
-        # init param from pretrain_model
-        if not self._init_from_pretrain_model:
+        # init param from pretrained_model
+        if not self._init_from_pretrained_model:
             exit("No pretrain model file path!")
-        self.init_from_pretrain_model(exe, infer_program)
+        self.init_from_pretrained_model(exe, infer_program)
 
         infer_results = []
         time_begin = time.time()

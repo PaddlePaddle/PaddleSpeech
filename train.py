@@ -7,6 +7,7 @@ import argparse
 import functools
 import io
 from model_utils.model import DeepSpeech2Model
+from model_utils.model_check import check_cuda, check_version
 from data_utils.data import DataGenerator
 from utils.utility import add_arguments, print_arguments
 
@@ -34,7 +35,7 @@ add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('is_local',         bool,   True,   "Use pserver or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                            "bi-directional RNNs. Not for GRU.")
-add_arg('init_from_pretrain_model',str,
+add_arg('init_from_pretrained_model',str,
          None,
          "If None, the training starts from scratch, "
          "otherwise, it resumes from the pre-trained model.")
@@ -71,6 +72,12 @@ args = parser.parse_args()
 
 def train():
     """DeepSpeech2 training."""
+
+    # check if set use_gpu=True in paddlepaddle cpu version
+    check_cuda(args.use_gpu)
+    # check if paddlepaddle version is satisfied
+    check_version()
+
     if args.use_gpu:
         place = fluid.CUDAPlace(0)
     else:
@@ -93,7 +100,7 @@ def train():
     train_batch_reader = train_generator.batch_reader_creator(
         manifest_path=args.train_manifest,
         batch_size=args.batch_size,
-        sortagrad=args.use_sortagrad if args.init_from_pretrain_model is None else False,
+        sortagrad=args.use_sortagrad if args.init_from_pretrained_model is None else False,
         shuffle_method=args.shuffle_method)
     dev_batch_reader = dev_generator.batch_reader_creator(
         manifest_path=args.dev_manifest,
@@ -109,7 +116,7 @@ def train():
         use_gru=args.use_gru,
         share_rnn_weights=args.share_rnn_weights,
         place=place,
-        init_from_pretrain_model=args.init_from_pretrain_model,
+        init_from_pretrained_model=args.init_from_pretrained_model,
         output_model_dir=args.output_model_dir)
 
     ds2_model.train(

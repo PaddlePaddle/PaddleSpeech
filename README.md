@@ -25,7 +25,7 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 
 ### Prerequisites
 - Python 2.7 only supported
-- PaddlePaddle the latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/1.5/beginners_guide/install/index_en.html))
+- PaddlePaddle 1.6 version (Coming soon ...)
 
 ### Setup
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
@@ -183,7 +183,7 @@ python tools/build_vocab.py --help
     ```
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
     python train.py \
-    --init_from_pretrain_model CHECKPOINT_PATH_TO_RESUME_FROM
+    --init_from_pretrained_model CHECKPOINT_PATH_TO_RESUME_FROM
     ```
 
 For more help on arguments:

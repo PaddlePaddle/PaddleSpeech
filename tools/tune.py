@@ -103,7 +103,7 @@ def tune():
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
         place=place,
-        init_from_pretrain_model=args.model_path,
+        init_from_pretrained_model=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
     # decoders only accept string encoded in utf-8

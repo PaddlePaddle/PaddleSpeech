@@ -57,7 +57,7 @@ class DataGenerator(object):
                                     converting to index sequence.
     :type keep_transcription_text: bool
     :param place: The place to run the program.
-    :type place: CPU or GPU
+    :type place: CPUPlace or CUDAPlace
     :param is_training: If set to True, generate text data for training, 
                         otherwise,  generate text data for infer.
     :type is_training: bool 

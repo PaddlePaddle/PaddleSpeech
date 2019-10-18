@@ -3,7 +3,7 @@
 cd ../.. > /dev/null
 
 # train model
-# if you wish to resume from an exists model, uncomment --init_from_pretrain_model
+# if you wish to resume from an exists model, uncomment --init_from_pretrained_model
 export FLAGS_sync_nccl_allreduce=0
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u train.py \

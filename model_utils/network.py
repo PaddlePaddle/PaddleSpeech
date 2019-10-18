@@ -61,17 +61,17 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
 
 def simple_rnn(input, size, param_attr=None, bias_attr=None, is_reverse=False):
     '''A simple rnn layer.
-    :param input:input layer.
-    :type input:Variable
-    :param size:Number of RNN cells.
-    :type size:int
-    :param param_attr:Parameter properties of hidden layer weights that 
+    :param input: input layer.
+    :type input: Variable
+    :param size: Dimension of RNN cells.
+    :type size: int
+    :param param_attr: Parameter properties of hidden layer weights that 
                       can be learned
-    :type param_attr:ParamAttr
-    :param bias_attr:Bias properties of hidden layer weights that can be learned
-    :type bias_attr:ParamAttr
-    :param is_reverse:Whether to calculate the inverse RNN
-    :type is_reverse:bool
+    :type param_attr: ParamAttr
+    :param bias_attr: Bias properties of hidden layer weights that can be learned
+    :type bias_attr: ParamAttr
+    :param is_reverse: Whether to calculate the inverse RNN
+    :type is_reverse: bool
     :return: A simple RNN layer.
     :rtype: Variable
     '''
@@ -112,7 +112,7 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
     :type name: string
     :param input: Input layer.
     :type input: Variable
-    :param size: Number of RNN cells.
+    :param size: Dimension of RNN cells.
     :type size: int
     :param share_weights: Whether to share input-hidden weights between
                           forward and backward directional RNNs.
@@ -206,7 +206,7 @@ def bidirectional_gru_bn_layer(name, input, size, act):
     :type name: string
     :param input: Input layer.
     :type input: Variable
-    :param size: Number of GRU cells.
+    :param size: Dimension of GRU cells.
     :type size: int
     :param act: Activation type.
     :type act: string
@@ -317,7 +317,7 @@ def rnn_group(input, size, num_stacks, num_conv_layers, use_gru,
     """RNN group with stacked bidirectional simple RNN or GRU layers.
     :param input: Input layer.
     :type input: Variable
-    :param size: Number of RNN cells in each layer.
+    :param size: Dimension of RNN cells in each layer.
     :type size: int
     :param num_stacks: Number of stacked rnn layers.
     :type num_stacks: int
@@ -373,7 +373,7 @@ def deep_speech_v2_network(audio_data,
     :type num_conv_layers: int
     :param num_rnn_layers: Number of stacking RNN layers.
     :type num_rnn_layers: int
-    :param rnn_size: RNN layer size (number of RNN cells).
+    :param rnn_size: RNN layer size (dimension of RNN cells).
     :type rnn_size: int
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool

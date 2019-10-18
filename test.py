@@ -8,6 +8,7 @@ import functools
 import paddle.fluid as fluid
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
+from model_utils.model_check import check_cuda, check_version
 from utils.error_rate import char_errors, word_errors
 from utils.utility import add_arguments, print_arguments
 
@@ -62,6 +63,12 @@ args = parser.parse_args()
 
 def evaluate():
     """Evaluate on whole test data for DeepSpeech2."""
+
+    # check if set use_gpu=True in paddlepaddle cpu version
+    check_cuda(args.use_gpu)
+    # check if paddlepaddle version is satisfied
+    check_version()
+
     if args.use_gpu:
         place = fluid.CUDAPlace(0)
     else:
@@ -89,7 +96,7 @@ def evaluate():
         use_gru=args.use_gru,
         share_rnn_weights=args.share_rnn_weights,
         place=place,
-        init_from_pretrain_model=args.model_path)
+        init_from_pretrained_model=args.model_path)
 
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]

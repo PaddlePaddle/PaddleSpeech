@@ -2,9 +2,9 @@
 
 . ../../utils/utility.sh
 
-URL='https://deepspeech.bj.bcebos.com/eng_models/librispeech_model.tar.gz'
-MD5=1f72d0c5591f453362f0caa09dd57618
-TARGET=./librispeech_model.tar.gz
+URL='https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz'
+MD5=fafb11fe57c3ecd107147056453f5348
+TARGET=./librispeech_model_fluid.tar.gz
 
 
 echo "Download LibriSpeech model ..."

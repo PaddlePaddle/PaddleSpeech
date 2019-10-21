@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from data_utils.utility import download_multi, unpack, getfile_insensitive
 
-DATA_HOME = '~/.cache/paddle/dataset/speech'
+DATA_HOME = './dataset'
 
 DATA_URL = 'http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/' \
            'Audio/Main/16kHz_16bit'

@@ -12,6 +12,7 @@ import resampy
 from scipy import signal
 import random
 import copy
+import io
 
 
 class AudioSegment(object):
@@ -154,7 +155,7 @@ class AudioSegment(object):
         fileno = int(matches.group(2))
 
         # read headers
-        f = open(filename, 'rb')
+        f = io.open(filename, mode='rb', encoding='utf8')
         version = f.read(4)
         num_utterances = struct.unpack("i", f.read(4))[0]
         bytes_per_header = struct.unpack("i", f.read(4))[0]

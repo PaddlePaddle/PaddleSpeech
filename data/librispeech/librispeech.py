@@ -16,6 +16,7 @@ import argparse
 import soundfile
 import json
 import codecs
+import io
 from data_utils.utility import download, unpack
 
 URL_ROOT = "http://www.openslr.org/resources/12"
@@ -68,12 +69,11 @@ def create_manifest(data_dir, manifest_path):
             filename for filename in filelist if filename.endswith('trans.txt')
         ]
         if len(text_filelist) > 0:
-            text_filepath = os.path.join(data_dir, subfolder, text_filelist[0])
-            for line in open(text_filepath):
+            text_filepath = os.path.join(subfolder, text_filelist[0])
+            for line in io.open(text_filepath, encoding="utf8"):
                 segments = line.strip().split()
                 text = ' '.join(segments[1:]).lower()
-                audio_filepath = os.path.join(data_dir, subfolder,
-                                              segments[0] + '.flac')
+                audio_filepath = os.path.join(subfolder, segments[0] + '.flac')
                 audio_data, samplerate = soundfile.read(audio_filepath)
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(

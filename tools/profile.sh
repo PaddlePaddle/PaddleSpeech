@@ -9,14 +9,13 @@ function join_by { local IFS="$1"; shift; echo "$*"; }
 for NUM_GPUS in 16 8 4 2 1
 do
   DEVICES=$(join_by , $(seq 0 $(($NUM_GPUS-1))))
-  BATCH_SIZE=$(($BATCH_SIZE_PER_GPU * $NUM_GPUS))
+  BATCH_SIZE=$(($BATCH_SIZE_PER_GPU))
 
   CUDA_VISIBLE_DEVICES=$DEVICES \
   python train.py \
   --batch_size=$BATCH_SIZE \
-  --num_passes=1 \
+  --num_epoch=1 \
   --test_off=True \
-  --trainer_count=$NUM_GPUS \
   --min_duration=$MIN_DURATION \
   --max_duration=$MAX_DURATION > tmp.log 2>&1
 
@@ -24,7 +23,7 @@ do
       exit 1
   fi
 
-  cat tmp.log  | grep "Time" | awk '{print "GPU Num: " "'"$NUM_GPUS"'" "	Time: "$3}'
+  cat tmp.log  | grep "Time" | awk '{print "GPU Num: " "'"$NUM_GPUS"'" "	Time: "$2}'
 
   rm tmp.log
 done

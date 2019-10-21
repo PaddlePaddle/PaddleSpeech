@@ -3,7 +3,7 @@
 # download data, generate manifests
 PYTHONPATH=../../:$PYTHONPATH python voxforge.py \
 --manifest_prefix='./manifest' \
---target_dir='~/.cache/paddle/dataset/speech/VoxForge' \
+--target_dir='./dataset/VoxForge' \
 --is_merge_dialect=True \
 --dialects 'american' 'british' 'australian' 'european' 'irish' 'canadian' 'indian'
 

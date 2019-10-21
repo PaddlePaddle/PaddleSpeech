@@ -10,7 +10,7 @@ import argparse
 import functools
 import gzip
 import logging
-import paddle.v2 as paddle
+import paddle.fluid as fluid
 import _init_paths
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
@@ -26,7 +26,6 @@ add_arg('batch_size',       int,    256,    "# of samples per batch.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
 add_arg('beam_size',        int,    500,    "Beam search width.")
 add_arg('num_proc_bsearch', int,    8,     "# of CPUs for beam search.")
-add_arg('num_proc_data',    int,    8,      "# of CPUs for data preprocessing.")
 add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
 add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
 add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
@@ -77,13 +76,19 @@ def tune():
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
 
+    if args.use_gpu:
+        place = fluid.CUDAPlace(0)
+    else:
+        place = fluid.CPUPlace()
+
     data_generator = DataGenerator(
         vocab_filepath=args.vocab_path,
         mean_std_filepath=args.mean_std_path,
         augmentation_config='{}',
         specgram_type=args.specgram_type,
-        num_threads=args.num_proc_data,
-        keep_transcription_text=True)
+        keep_transcription_text=True,
+        place = place,
+        is_training = False)
 
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.tune_manifest,
@@ -97,7 +102,8 @@ def tune():
         num_rnn_layers=args.num_rnn_layers,
         rnn_layer_size=args.rnn_layer_size,
         use_gru=args.use_gru,
-        pretrained_model_path=args.model_path,
+        place=place,
+        init_from_pretrained_model=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
     # decoders only accept string encoded in utf-8
@@ -109,8 +115,8 @@ def tune():
     params_grid = [(alpha, beta) for alpha in cand_alphas
                    for beta in cand_betas]
 
-    err_sum = [0.0 for i in xrange(len(params_grid))]
-    err_ave = [0.0 for i in xrange(len(params_grid))]
+    err_sum = [0.0 for i in range(len(params_grid))]
+    err_ave = [0.0 for i in range(len(params_grid))]
     num_ins, len_refs, cur_batch = 0, 0, 0
     # initialize external scorer
     ds2_model.init_ext_scorer(args.alpha_from, args.beta_from,
@@ -123,7 +129,7 @@ def tune():
         probs_split = ds2_model.infer_batch_probs(
             infer_data=infer_data,
             feeding_dict=data_generator.feeding)
-        target_transcripts = [ data[1] for data in infer_data ]
+        target_transcripts = infer_data[1]
 
         num_ins += len(target_transcripts)
         # grid search
@@ -137,7 +143,6 @@ def tune():
                 cutoff_top_n=args.cutoff_top_n,
                 vocab_list=vocab_list,
                 num_processes=args.num_proc_bsearch)
-
             for target, result in zip(target_transcripts, result_transcripts):
                 errors, len_ref = errors_func(target, result)
                 err_sum[index] += errors
@@ -163,7 +168,7 @@ def tune():
 
     # output WER/CER at every (alpha, beta)
     print("\nFinal %s:\n" % args.error_rate_type)
-    for index in xrange(len(params_grid)):
+    for index in range(len(params_grid)):
         print("(alpha, beta) = (%s, %s), [%s] = %f"
              % ("%.3f" % params_grid[index][0], "%.3f" % params_grid[index][1],
              args.error_rate_type, err_ave[index]))
@@ -179,9 +184,6 @@ def tune():
 
 def main():
     print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu,
-                rnn_use_batch=True,
-                trainer_count=args.trainer_count)
     tune()
 
 

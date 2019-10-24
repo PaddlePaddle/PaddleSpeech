@@ -1,5 +1,7 @@
 # DeepSpeech2 on PaddlePaddle
 
+[中文版](README_cn.md)
+
 *DeepSpeech2 on PaddlePaddle* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, based on [Baidu's Deep Speech 2 paper](http://proceedings.mlr.press/v48/amodei16.pdf), with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient and scalable implementation, including training, inference & testing module, and demo deployment. Besides, several pre-trained models for both English and Mandarin are also released.
 
 ## Table of Contents

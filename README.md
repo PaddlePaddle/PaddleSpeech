@@ -27,7 +27,7 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 
 ### Prerequisites
 - Python 2.7 only supported
-- PaddlePaddle 1.6 version (Coming soon ...)
+- PaddlePaddle 1.6.0 or later
 
 ### Setup
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:

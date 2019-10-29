@@ -60,6 +60,8 @@ def conv_bn_layer(input, filter_size, num_channels_in, num_channels_out, stride,
 
 
 class RNNCell(fluid.layers.RNNCell):
+    """A simple rnn cell."""
+
     def __init__(self,
                  hidden_size,
                  param_attr=None,
@@ -68,7 +70,8 @@ class RNNCell(fluid.layers.RNNCell):
                  activation=None,
                  dtype="float32",
                  name="RNNCell"):
-        '''A simple rnn cell.
+        """Initialize simple rnn cell.
+
         :param hidden_size: Dimension of RNN cells.
         :type hidden_size: int
         :param param_attr: Parameter properties of hidden layer weights that 
@@ -82,7 +85,7 @@ class RNNCell(fluid.layers.RNNCell):
         :type activation: Activation
         :param name: Name of cell
         :type name: string
-        '''
+        """
 
         self.hidden_size = hidden_size
         self.param_attr = param_attr
@@ -111,6 +114,7 @@ class RNNCell(fluid.layers.RNNCell):
 def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
     """Bidirectonal simple rnn layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
+
     :param name: Name of the layer parameters.
     :type name: string
     :param input: Input layer.
@@ -147,28 +151,14 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
             bias_attr=False)
 
         # batch norm is only performed on input-state projection
-        input_proj_bn = fluid.layers.batch_norm(
+        input_proj_bn_forward = fluid.layers.batch_norm(
             input=input_proj,
             act=None,
             param_attr=fluid.ParamAttr(name=name + '_batch_norm_weight'),
             bias_attr=fluid.ParamAttr(name=name + '_batch_norm_bias'),
             moving_mean_name=name + '_batch_norm_moving_mean',
             moving_variance_name=name + '_batch_norm_moving_variance')
-        #forward and backword in time
-
-        input, length = fluid.layers.sequence_pad(input_proj_bn, pad_value)
-        forward_rnn, _ = fluid.layers.rnn(
-            cell=forward_cell, inputs=input, time_major=False, is_reverse=False)
-        forward_rnn = fluid.layers.sequence_unpad(x=forward_rnn, length=length)
-
-        reverse_rnn, _ = fluid.layers.rnn(
-            cell=reverse_cell,
-            inputs=input,
-            sequence_length=length,
-            time_major=False,
-            is_reverse=True)
-        reverse_rnn = fluid.layers.sequence_unpad(x=reverse_rnn, length=length)
-
+        input_proj_bn_reverse = input_proj_bn_forward
     else:
         input_proj_forward = fluid.layers.fc(
             input=input,
@@ -199,22 +189,20 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
             bias_attr=fluid.ParamAttr(name=name + '_reverse_batch_norm_bias'),
             moving_mean_name=name + '_reverse_batch_norm_moving_mean',
             moving_variance_name=name + '_reverse_batch_norm_moving_variance')
-        # forward and backward in time
-        input, length = fluid.layers.sequence_pad(input_proj_bn_forward,
-                                                  pad_value)
-        forward_rnn, _ = fluid.layers.rnn(
-            cell=forward_cell, inputs=input, time_major=False, is_reverse=False)
-        forward_rnn = fluid.layers.sequence_unpad(x=forward_rnn, length=length)
+    # forward and backward in time
+    input, length = fluid.layers.sequence_pad(input_proj_bn_forward, pad_value)
+    forward_rnn, _ = fluid.layers.rnn(
+        cell=forward_cell, inputs=input, time_major=False, is_reverse=False)
+    forward_rnn = fluid.layers.sequence_unpad(x=forward_rnn, length=length)
 
-        input, length = fluid.layers.sequence_pad(input_proj_bn_reverse,
-                                                  pad_value)
-        reverse_rnn, _ = fluid.layers.rnn(
-            cell=reverse_cell,
-            inputs=input,
-            sequence_length=length,
-            time_major=False,
-            is_reverse=True)
-        reverse_rnn = fluid.layers.sequence_unpad(x=reverse_rnn, length=length)
+    input, length = fluid.layers.sequence_pad(input_proj_bn_reverse, pad_value)
+    reverse_rnn, _ = fluid.layers.rnn(
+        cell=reverse_cell,
+        inputs=input,
+        sequence_length=length,
+        time_major=False,
+        is_reverse=True)
+    reverse_rnn = fluid.layers.sequence_unpad(x=reverse_rnn, length=length)
 
     out = fluid.layers.concat(input=[forward_rnn, reverse_rnn], axis=1)
     return out
@@ -223,6 +211,7 @@ def bidirectional_simple_rnn_bn_layer(name, input, size, share_weights):
 def bidirectional_gru_bn_layer(name, input, size, act):
     """Bidirectonal gru layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
+
     :param name: Name of the layer.
     :type name: string
     :param input: Input layer.
@@ -283,6 +272,7 @@ def bidirectional_gru_bn_layer(name, input, size, act):
 
 def conv_group(input, num_stacks, seq_len_data, masks):
     """Convolution group with stacked convolution layers.
+
     :param input: Input layer.
     :type input: Variable
     :param num_stacks: Number of stacked convolution layers.
@@ -336,6 +326,7 @@ def conv_group(input, num_stacks, seq_len_data, masks):
 def rnn_group(input, size, num_stacks, num_conv_layers, use_gru,
               share_rnn_weights):
     """RNN group with stacked bidirectional simple RNN or GRU layers.
+
     :param input: Input layer.
     :type input: Variable
     :param size: Dimension of RNN cells in each layer.
@@ -380,6 +371,7 @@ def deep_speech_v2_network(audio_data,
                            use_gru=False,
                            share_rnn_weights=True):
     """The DeepSpeech2 network structure.
+
     :param audio_data: Audio spectrogram data layer.
     :type audio_data: Variable
     :param text_data: Transcription text data layer.

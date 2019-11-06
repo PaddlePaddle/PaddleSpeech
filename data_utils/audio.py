@@ -639,6 +639,8 @@ class AudioSegment(object):
         """
         # square root => multiply by 10 instead of 20 for dBs
         mean_square = np.mean(self._samples**2)
+        if mean_square == 0.:
+            return 0.
         return 10 * np.log10(mean_square)
 
     def _convert_samples_to_float32(self, samples):

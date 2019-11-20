@@ -46,7 +46,7 @@ add_arg('lang_model_path',  str,
         'models/lm/common_crawl_00.prune01111.trie.klm',
         "Filepath for language model.")
 add_arg('model_path',       str,
-        './checkpoints/libri/params.latest.tar.gz',
+        './checkpoints/libri/step_final',
         "If None, the training starts from scratch, "
         "otherwise, it resumes from the pre-trained model.")
 add_arg('decoding_method',  str,

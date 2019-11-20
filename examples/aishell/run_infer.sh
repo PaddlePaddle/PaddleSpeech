@@ -30,7 +30,7 @@ python -u infer.py \
 --infer_manifest='data/aishell/manifest.test' \
 --mean_std_path='data/aishell/mean_std.npz' \
 --vocab_path='data/aishell/vocab.txt' \
---model_path='checkpoints/aishell/srep_final' \
+--model_path='checkpoints/aishell/step_final' \
 --lang_model_path='models/lm/zh_giga.no_cna_cmn.prune01244.klm' \
 --decoding_method='ctc_beam_search' \
 --error_rate_type='cer' \

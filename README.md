@@ -39,7 +39,7 @@ sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost
 or, installing them via `yum`:
 
 ```bash
-sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel
+sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python-devel
 wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
 xz -d flac-1.3.1.tar.xz
 tar -xvf flac-1.3.1.tar

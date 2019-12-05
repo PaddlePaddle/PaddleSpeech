@@ -135,7 +135,7 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 python tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_paths data/librispeech/manifest.train \
+--manifest_path data/librispeech/manifest.train \
 --output_path data/librispeech/mean_std.npz
 ```
 

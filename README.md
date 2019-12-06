@@ -35,7 +35,7 @@ pip install paddlepaddle-gpu==0.13
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
 ```
 
 - Run the setup script for the remaining dependencies
@@ -124,7 +124,7 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 python tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_paths data/librispeech/manifest.train \
+--manifest_path data/librispeech/manifest.train \
 --output_path data/librispeech/mean_std.npz
 ```
 

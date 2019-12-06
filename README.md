@@ -33,7 +33,7 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
 ```
 
 or, installing them via `yum`:
@@ -139,7 +139,7 @@ python tools/compute_mean_std.py \
 --output_path data/librispeech/mean_std.npz
 ```
 
-It will compute the mean and standard deviation of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
+It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
 
 
 ### Build Vocabulary

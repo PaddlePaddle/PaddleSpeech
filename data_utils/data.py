@@ -330,9 +330,10 @@ class DataGenerator(object):
                 axis=0)
             masks.append(mask)
         padded_audios = np.array(padded_audios).astype('float32')
+        texts = np.expand_dims(np.array(texts).astype('int32'), axis=-1)
         if self._is_training:
             texts = fluid.create_lod_tensor(
-                np.array(texts).astype('int32'),
+                texts,
                 recursive_seq_lens=[text_lens],
                 place=self._place)
         audio_lens = np.array(audio_lens).astype('int64').reshape([-1, 1])

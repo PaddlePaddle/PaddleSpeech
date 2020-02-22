@@ -7,7 +7,7 @@ cd ../.. > /dev/null
 export FLAGS_sync_nccl_allreduce=0
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python -u train.py \
---batch_size=64 \
+--batch_size=16 \
 --num_epoch=50 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \

@@ -1,0 +1,1231 @@
+-----------  Configuration Arguments -----------
+augment_conf_path: conf/augmentation.config
+batch_size: 16
+dev_manifest: data/aishell/manifest.dev
+init_from_pretrained_model: None
+is_local: 1
+learning_rate: 0.0005
+max_duration: 27.0
+mean_std_path: data/aishell/mean_std.npz
+min_duration: 0.0
+num_conv_layers: 2
+num_epoch: 50
+num_iter_print: 100
+num_rnn_layers: 3
+num_samples: 120000
+output_model_dir: ./checkpoints/aishell
+rnn_layer_size: 1024
+save_epoch: 1
+share_rnn_weights: 0
+shuffle_method: batch_shuffle_clipped
+specgram_type: linear
+test_off: 0
+train_manifest: data/aishell/manifest.train
+use_gpu: 1
+use_gru: 1
+use_sortagrad: 1
+vocab_path: data/aishell/vocab.txt
+------------------------------------------------
+epoch: 0, batch: 0, train loss: 480.613922
+
+epoch: 0, batch: 100, train loss: 64.953033
+
+epoch: 0, batch: 200, train loss: 71.678635
+
+epoch: 0, batch: 300, train loss: 46.102283
+
+epoch: 0, batch: 400, train loss: 24.468616
+
+epoch: 0, batch: 500, train loss: 29.759787
+
+epoch: 0, batch: 600, train loss: 25.117950
+
+epoch: 0, batch: 700, train loss: 18.331684
+
+epoch: 0, batch: 800, train loss: 25.283037
+
+epoch: 0, batch: 900, train loss: 21.820284
+
+
+----------Begin test...
+--------Time: 1103.803159 sec, epoch: 0, train loss: 80.812927, test loss: 15.729966
+save parameters at ./checkpoints/aishell/epoch_0
+epoch: 1, batch: 0, train loss: 16.310713
+
+epoch: 1, batch: 100, train loss: 15.084491
+
+epoch: 1, batch: 200, train loss: 8.345015
+
+epoch: 1, batch: 300, train loss: 11.693773
+
+epoch: 1, batch: 400, train loss: 9.128176
+
+epoch: 1, batch: 500, train loss: 17.852001
+
+epoch: 1, batch: 600, train loss: 9.291201
+
+epoch: 1, batch: 700, train loss: 18.705881
+
+epoch: 1, batch: 800, train loss: 11.047236
+
+epoch: 1, batch: 900, train loss: 12.794666
+
+
+----------Begin test...
+--------Time: 1085.508810 sec, epoch: 1, train loss: 13.025314, test loss: 11.402254
+save parameters at ./checkpoints/aishell/epoch_1
+epoch: 2, batch: 0, train loss: 3.554318
+
+epoch: 2, batch: 100, train loss: 6.407589
+
+epoch: 2, batch: 200, train loss: 6.183108
+
+epoch: 2, batch: 300, train loss: 3.295897
+
+epoch: 2, batch: 400, train loss: 4.661909
+
+epoch: 2, batch: 500, train loss: 4.897026
+
+epoch: 2, batch: 600, train loss: 2.375128
+
+epoch: 2, batch: 700, train loss: 8.363723
+
+epoch: 2, batch: 800, train loss: 7.217932
+
+epoch: 2, batch: 900, train loss: 4.847300
+
+
+----------Begin test...
+--------Time: 1105.195585 sec, epoch: 2, train loss: 5.180394, test loss: 9.068042
+save parameters at ./checkpoints/aishell/epoch_2
+epoch: 3, batch: 0, train loss: 6.333299
+
+epoch: 3, batch: 100, train loss: 6.620622
+
+epoch: 3, batch: 200, train loss: 1.812780
+
+epoch: 3, batch: 300, train loss: 6.457730
+
+epoch: 3, batch: 400, train loss: 5.952549
+
+epoch: 3, batch: 500, train loss: 1.832713
+
+epoch: 3, batch: 600, train loss: 8.861201
+
+epoch: 3, batch: 700, train loss: 5.218220
+
+epoch: 3, batch: 800, train loss: 6.757529
+
+epoch: 3, batch: 900, train loss: 4.462037
+
+
+----------Begin test...
+--------Time: 1122.607170 sec, epoch: 3, train loss: 5.430868, test loss: 8.425313
+save parameters at ./checkpoints/aishell/epoch_3
+epoch: 4, batch: 0, train loss: 1.913369
+
+epoch: 4, batch: 100, train loss: 1.371377
+
+epoch: 4, batch: 200, train loss: 2.677536
+
+epoch: 4, batch: 300, train loss: 6.509803
+
+epoch: 4, batch: 400, train loss: 2.856065
+
+epoch: 4, batch: 500, train loss: 1.678937
+
+epoch: 4, batch: 600, train loss: 4.195983
+
+epoch: 4, batch: 700, train loss: 4.737135
+
+epoch: 4, batch: 800, train loss: 4.216950
+
+epoch: 4, batch: 900, train loss: 5.520942
+
+
+----------Begin test...
+--------Time: 1124.483654 sec, epoch: 4, train loss: 3.567810, test loss: 8.195715
+save parameters at ./checkpoints/aishell/epoch_4
+epoch: 5, batch: 0, train loss: 5.014627
+
+epoch: 5, batch: 100, train loss: 0.823091
+
+epoch: 5, batch: 200, train loss: 4.691119
+
+epoch: 5, batch: 300, train loss: 0.244170
+
+epoch: 5, batch: 400, train loss: 0.640370
+
+epoch: 5, batch: 500, train loss: 1.644324
+
+epoch: 5, batch: 600, train loss: 2.666806
+
+epoch: 5, batch: 700, train loss: 2.619156
+
+epoch: 5, batch: 800, train loss: 1.520404
+
+epoch: 5, batch: 900, train loss: 1.172095
+
+
+----------Begin test...
+--------Time: 1120.435067 sec, epoch: 5, train loss: 2.103616, test loss: 8.195010
+save parameters at ./checkpoints/aishell/epoch_5
+epoch: 6, batch: 0, train loss: 0.858896
+
+epoch: 6, batch: 100, train loss: 0.357103
+
+epoch: 6, batch: 200, train loss: 1.514591
+
+epoch: 6, batch: 300, train loss: 0.995927
+
+epoch: 6, batch: 400, train loss: 0.849111
+
+epoch: 6, batch: 500, train loss: 1.311366
+
+epoch: 6, batch: 600, train loss: 1.776164
+
+epoch: 6, batch: 700, train loss: 2.479715
+
+epoch: 6, batch: 800, train loss: 0.422640
+
+epoch: 6, batch: 900, train loss: 1.283745
+
+
+----------Begin test...
+--------Time: 1121.402046 sec, epoch: 6, train loss: 1.184926, test loss: 8.282545
+save parameters at ./checkpoints/aishell/epoch_6
+epoch: 7, batch: 0, train loss: 0.718311
+
+epoch: 7, batch: 100, train loss: 1.136687
+
+epoch: 7, batch: 200, train loss: 0.516995
+
+epoch: 7, batch: 300, train loss: 2.214590
+
+epoch: 7, batch: 400, train loss: 0.863782
+
+epoch: 7, batch: 500, train loss: 0.619560
+
+epoch: 7, batch: 600, train loss: 0.879997
+
+epoch: 7, batch: 700, train loss: 0.106394
+
+epoch: 7, batch: 800, train loss: 0.188178
+
+epoch: 7, batch: 900, train loss: 1.267265
+
+
+----------Begin test...
+--------Time: 1121.896665 sec, epoch: 7, train loss: 0.851176, test loss: 8.818271
+save parameters at ./checkpoints/aishell/epoch_7
+epoch: 8, batch: 0, train loss: 0.506075
+
+epoch: 8, batch: 100, train loss: 0.113345
+
+epoch: 8, batch: 200, train loss: 0.202955
+
+epoch: 8, batch: 300, train loss: 0.352375
+
+epoch: 8, batch: 400, train loss: 0.844707
+
+epoch: 8, batch: 500, train loss: 1.565568
+
+epoch: 8, batch: 600, train loss: 1.246309
+
+epoch: 8, batch: 700, train loss: 0.984690
+
+epoch: 8, batch: 800, train loss: 1.201993
+
+epoch: 8, batch: 900, train loss: 0.616655
+
+
+----------Begin test...
+--------Time: 1116.486496 sec, epoch: 8, train loss: 0.763467, test loss: 9.184538
+save parameters at ./checkpoints/aishell/epoch_8
+epoch: 9, batch: 0, train loss: 2.798908
+
+epoch: 9, batch: 100, train loss: 0.264902
+
+epoch: 9, batch: 200, train loss: 0.122887
+
+epoch: 9, batch: 300, train loss: 0.279502
+
+epoch: 9, batch: 400, train loss: 0.085652
+
+epoch: 9, batch: 500, train loss: 0.203212
+
+epoch: 9, batch: 600, train loss: 0.065118
+
+epoch: 9, batch: 700, train loss: 1.378463
+
+epoch: 9, batch: 800, train loss: 0.286114
+
+epoch: 9, batch: 900, train loss: 0.192987
+
+
+----------Begin test...
+--------Time: 1123.381559 sec, epoch: 9, train loss: 0.567774, test loss: 9.722534
+save parameters at ./checkpoints/aishell/epoch_9
+epoch: 10, batch: 0, train loss: 0.713207
+
+epoch: 10, batch: 100, train loss: 0.122485
+
+epoch: 10, batch: 200, train loss: 0.627694
+
+epoch: 10, batch: 300, train loss: 0.054273
+
+epoch: 10, batch: 400, train loss: 0.729036
+
+epoch: 10, batch: 500, train loss: 0.634296
+
+epoch: 10, batch: 600, train loss: 0.309176
+
+epoch: 10, batch: 700, train loss: 0.506876
+
+epoch: 10, batch: 800, train loss: 0.162657
+
+epoch: 10, batch: 900, train loss: 0.198566
+
+
+----------Begin test...
+--------Time: 1125.094690 sec, epoch: 10, train loss: 0.405827, test loss: 9.927851
+save parameters at ./checkpoints/aishell/epoch_10
+epoch: 11, batch: 0, train loss: 0.411612
+
+epoch: 11, batch: 100, train loss: 0.483193
+
+epoch: 11, batch: 200, train loss: 0.260634
+
+epoch: 11, batch: 300, train loss: 0.219534
+
+epoch: 11, batch: 400, train loss: 0.764071
+
+epoch: 11, batch: 500, train loss: 0.127738
+
+epoch: 11, batch: 600, train loss: 0.050108
+
+epoch: 11, batch: 700, train loss: 0.082676
+
+epoch: 11, batch: 800, train loss: 0.928664
+
+epoch: 11, batch: 900, train loss: 0.272778
+
+
+----------Begin test...
+--------Time: 1120.240812 sec, epoch: 11, train loss: 0.360101, test loss: 10.279653
+save parameters at ./checkpoints/aishell/epoch_11
+epoch: 12, batch: 0, train loss: 0.040654
+
+epoch: 12, batch: 100, train loss: 0.050440
+
+epoch: 12, batch: 200, train loss: 0.198392
+
+epoch: 12, batch: 300, train loss: 0.019211
+
+epoch: 12, batch: 400, train loss: 0.528099
+
+epoch: 12, batch: 500, train loss: 0.169299
+
+epoch: 12, batch: 600, train loss: 0.297236
+
+epoch: 12, batch: 700, train loss: 0.203630
+
+epoch: 12, batch: 800, train loss: 0.100857
+
+epoch: 12, batch: 900, train loss: 0.145414
+
+
+----------Begin test...
+--------Time: 1122.168606 sec, epoch: 12, train loss: 0.175323, test loss: 10.821768
+save parameters at ./checkpoints/aishell/epoch_12
+epoch: 13, batch: 0, train loss: 0.056877
+
+epoch: 13, batch: 100, train loss: 0.092468
+
+epoch: 13, batch: 200, train loss: 0.029816
+
+epoch: 13, batch: 300, train loss: 0.029715
+
+epoch: 13, batch: 400, train loss: 0.020788
+
+epoch: 13, batch: 500, train loss: 0.204496
+
+epoch: 13, batch: 600, train loss: 0.076543
+
+epoch: 13, batch: 700, train loss: 0.179445
+
+epoch: 13, batch: 800, train loss: 0.154627
+
+epoch: 13, batch: 900, train loss: 0.194273
+
+
+----------Begin test...
+--------Time: 1116.901916 sec, epoch: 13, train loss: 0.103905, test loss: 10.966830
+save parameters at ./checkpoints/aishell/epoch_13
+epoch: 14, batch: 0, train loss: 0.040796
+
+epoch: 14, batch: 100, train loss: 0.064494
+
+epoch: 14, batch: 200, train loss: 0.012521
+
+epoch: 14, batch: 300, train loss: 0.065963
+
+epoch: 14, batch: 400, train loss: 0.004625
+
+epoch: 14, batch: 500, train loss: 0.036874
+
+epoch: 14, batch: 600, train loss: 0.132368
+
+epoch: 14, batch: 700, train loss: 0.011490
+
+epoch: 14, batch: 800, train loss: 0.023595
+
+epoch: 14, batch: 900, train loss: 0.110187
+
+
+----------Begin test...
+--------Time: 1123.831096 sec, epoch: 14, train loss: 0.050291, test loss: 11.310933
+save parameters at ./checkpoints/aishell/epoch_14
+epoch: 15, batch: 0, train loss: 0.272254
+
+epoch: 15, batch: 100, train loss: 0.050792
+
+epoch: 15, batch: 200, train loss: 0.024153
+
+epoch: 15, batch: 300, train loss: 0.056063
+
+epoch: 15, batch: 400, train loss: 0.084143
+
+epoch: 15, batch: 500, train loss: 0.018214
+
+epoch: 15, batch: 600, train loss: 0.027366
+
+epoch: 15, batch: 700, train loss: 0.015496
+
+epoch: 15, batch: 800, train loss: 0.315576
+
+epoch: 15, batch: 900, train loss: 0.007378
+
+
+----------Begin test...
+--------Time: 1119.861315 sec, epoch: 15, train loss: 0.087143, test loss: 11.487091
+save parameters at ./checkpoints/aishell/epoch_15
+epoch: 16, batch: 0, train loss: 0.064795
+
+epoch: 16, batch: 100, train loss: 0.021784
+
+epoch: 16, batch: 200, train loss: 0.088472
+
+epoch: 16, batch: 300, train loss: 0.047234
+
+epoch: 16, batch: 400, train loss: 0.019982
+
+epoch: 16, batch: 500, train loss: 0.102682
+
+epoch: 16, batch: 600, train loss: 0.080477
+
+epoch: 16, batch: 700, train loss: 0.050174
+
+epoch: 16, batch: 800, train loss: 0.018946
+
+epoch: 16, batch: 900, train loss: 0.017378
+
+
+----------Begin test...
+--------Time: 1128.508045 sec, epoch: 16, train loss: 0.051192, test loss: 11.634155
+save parameters at ./checkpoints/aishell/epoch_16
+epoch: 17, batch: 0, train loss: 0.012901
+
+epoch: 17, batch: 100, train loss: 0.022397
+
+epoch: 17, batch: 200, train loss: 0.004494
+
+epoch: 17, batch: 300, train loss: 0.009837
+
+epoch: 17, batch: 400, train loss: 0.237886
+
+epoch: 17, batch: 500, train loss: 0.027151
+
+epoch: 17, batch: 600, train loss: 0.075120
+
+epoch: 17, batch: 700, train loss: 0.022973
+
+epoch: 17, batch: 800, train loss: 0.031675
+
+epoch: 17, batch: 900, train loss: 0.006577
+
+
+----------Begin test...
+--------Time: 1124.166515 sec, epoch: 17, train loss: 0.045101, test loss: 11.747203
+save parameters at ./checkpoints/aishell/epoch_17
+epoch: 18, batch: 0, train loss: 0.039191
+
+epoch: 18, batch: 100, train loss: 0.009081
+
+epoch: 18, batch: 200, train loss: 0.023807
+
+epoch: 18, batch: 300, train loss: 0.038785
+
+epoch: 18, batch: 400, train loss: 0.011797
+
+epoch: 18, batch: 500, train loss: 0.048262
+
+epoch: 18, batch: 600, train loss: 0.007741
+
+epoch: 18, batch: 700, train loss: 0.022058
+
+epoch: 18, batch: 800, train loss: 0.003713
+
+epoch: 18, batch: 900, train loss: 0.009581
+
+
+----------Begin test...
+--------Time: 1115.692471 sec, epoch: 18, train loss: 0.021402, test loss: 11.887609
+save parameters at ./checkpoints/aishell/epoch_18
+epoch: 19, batch: 0, train loss: 0.005899
+
+epoch: 19, batch: 100, train loss: 0.006903
+
+epoch: 19, batch: 200, train loss: 0.009886
+
+epoch: 19, batch: 300, train loss: 0.024232
+
+epoch: 19, batch: 400, train loss: 0.004618
+
+epoch: 19, batch: 500, train loss: 0.020496
+
+epoch: 19, batch: 600, train loss: 0.004069
+
+epoch: 19, batch: 700, train loss: 0.010430
+
+epoch: 19, batch: 800, train loss: 0.122937
+
+epoch: 19, batch: 900, train loss: 0.018647
+
+
+----------Begin test...
+--------Time: 1126.904852 sec, epoch: 19, train loss: 0.022812, test loss: 12.099025
+save parameters at ./checkpoints/aishell/epoch_19
+epoch: 20, batch: 0, train loss: 0.007060
+
+epoch: 20, batch: 100, train loss: 0.020062
+
+epoch: 20, batch: 200, train loss: 0.017326
+
+epoch: 20, batch: 300, train loss: 0.017130
+
+epoch: 20, batch: 400, train loss: 0.013042
+
+epoch: 20, batch: 500, train loss: 0.011079
+
+epoch: 20, batch: 600, train loss: 0.015160
+
+epoch: 20, batch: 700, train loss: 0.110114
+
+epoch: 20, batch: 800, train loss: 0.013283
+
+epoch: 20, batch: 900, train loss: 0.036537
+
+
+----------Begin test...
+--------Time: 1124.471417 sec, epoch: 20, train loss: 0.026079, test loss: 12.435321
+save parameters at ./checkpoints/aishell/epoch_20
+epoch: 21, batch: 0, train loss: 0.037630
+
+epoch: 21, batch: 100, train loss: 0.020154
+
+epoch: 21, batch: 200, train loss: 0.025828
+
+epoch: 21, batch: 300, train loss: 0.004351
+
+epoch: 21, batch: 400, train loss: 0.005963
+
+epoch: 21, batch: 500, train loss: 0.007371
+
+epoch: 21, batch: 600, train loss: 0.019913
+
+epoch: 21, batch: 700, train loss: 0.006405
+
+epoch: 21, batch: 800, train loss: 0.012718
+
+epoch: 21, batch: 900, train loss: 0.008203
+
+
+----------Begin test...
+--------Time: 1120.349374 sec, epoch: 21, train loss: 0.014854, test loss: 12.507361
+save parameters at ./checkpoints/aishell/epoch_21
+epoch: 22, batch: 0, train loss: 0.037867
+
+epoch: 22, batch: 100, train loss: 0.006307
+
+epoch: 22, batch: 200, train loss: 0.020871
+
+epoch: 22, batch: 300, train loss: 0.006017
+
+epoch: 22, batch: 400, train loss: 0.004851
+
+epoch: 22, batch: 500, train loss: 0.005982
+
+epoch: 22, batch: 600, train loss: 0.026075
+
+epoch: 22, batch: 700, train loss: 0.008420
+
+epoch: 22, batch: 800, train loss: 0.023830
+
+epoch: 22, batch: 900, train loss: 0.014486
+
+
+----------Begin test...
+--------Time: 1120.262464 sec, epoch: 22, train loss: 0.015471, test loss: 12.601303
+save parameters at ./checkpoints/aishell/epoch_22
+epoch: 23, batch: 0, train loss: 0.004893
+
+epoch: 23, batch: 100, train loss: 0.023019
+
+epoch: 23, batch: 200, train loss: 0.026909
+
+epoch: 23, batch: 300, train loss: 0.012716
+
+epoch: 23, batch: 400, train loss: 0.012661
+
+epoch: 23, batch: 500, train loss: 0.013498
+
+epoch: 23, batch: 600, train loss: 0.010206
+
+epoch: 23, batch: 700, train loss: 0.006354
+
+epoch: 23, batch: 800, train loss: 0.018238
+
+epoch: 23, batch: 900, train loss: 0.002941
+
+
+----------Begin test...
+--------Time: 1125.890350 sec, epoch: 23, train loss: 0.013144, test loss: 12.678063
+save parameters at ./checkpoints/aishell/epoch_23
+epoch: 24, batch: 0, train loss: 0.012222
+
+epoch: 24, batch: 100, train loss: 0.007351
+
+epoch: 24, batch: 200, train loss: 0.006149
+
+epoch: 24, batch: 300, train loss: 0.006479
+
+epoch: 24, batch: 400, train loss: 0.013480
+
+epoch: 24, batch: 500, train loss: 0.008164
+
+epoch: 24, batch: 600, train loss: 0.011562
+
+epoch: 24, batch: 700, train loss: 0.005758
+
+epoch: 24, batch: 800, train loss: 0.003461
+
+epoch: 24, batch: 900, train loss: 0.001151
+
+
+----------Begin test...
+--------Time: 1125.224430 sec, epoch: 24, train loss: 0.007578, test loss: 12.822789
+save parameters at ./checkpoints/aishell/epoch_24
+epoch: 25, batch: 0, train loss: 0.014265
+
+epoch: 25, batch: 100, train loss: 0.001821
+
+epoch: 25, batch: 200, train loss: 0.086553
+
+epoch: 25, batch: 300, train loss: 0.010452
+
+epoch: 25, batch: 400, train loss: 0.002686
+
+epoch: 25, batch: 500, train loss: 0.017257
+
+epoch: 25, batch: 600, train loss: 0.002550
+
+epoch: 25, batch: 700, train loss: 0.014735
+
+epoch: 25, batch: 800, train loss: 0.000648
+
+epoch: 25, batch: 900, train loss: 0.015994
+
+
+----------Begin test...
+--------Time: 1124.161757 sec, epoch: 25, train loss: 0.016696, test loss: 12.741198
+save parameters at ./checkpoints/aishell/epoch_25
+epoch: 26, batch: 0, train loss: 0.012264
+
+epoch: 26, batch: 100, train loss: 0.002826
+
+epoch: 26, batch: 200, train loss: 0.001736
+
+epoch: 26, batch: 300, train loss: 0.007122
+
+epoch: 26, batch: 400, train loss: 0.030622
+
+epoch: 26, batch: 500, train loss: 0.009644
+
+epoch: 26, batch: 600, train loss: 0.035564
+
+epoch: 26, batch: 700, train loss: 0.002087
+
+epoch: 26, batch: 800, train loss: 0.004386
+
+epoch: 26, batch: 900, train loss: 0.012198
+
+
+----------Begin test...
+--------Time: 1122.788329 sec, epoch: 26, train loss: 0.011845, test loss: 12.717399
+save parameters at ./checkpoints/aishell/epoch_26
+epoch: 27, batch: 0, train loss: 0.010314
+
+epoch: 27, batch: 100, train loss: 0.014826
+
+epoch: 27, batch: 200, train loss: 0.000987
+
+epoch: 27, batch: 300, train loss: 0.003573
+
+epoch: 27, batch: 400, train loss: 0.018340
+
+epoch: 27, batch: 500, train loss: 0.001172
+
+epoch: 27, batch: 600, train loss: 0.024555
+
+epoch: 27, batch: 700, train loss: 0.004538
+
+epoch: 27, batch: 800, train loss: 0.043678
+
+epoch: 27, batch: 900, train loss: 0.006536
+
+
+----------Begin test...
+--------Time: 1056.126794 sec, epoch: 27, train loss: 0.012852, test loss: 12.852071
+save parameters at ./checkpoints/aishell/epoch_27
+epoch: 28, batch: 0, train loss: 0.001938
+
+epoch: 28, batch: 100, train loss: 0.005952
+
+epoch: 28, batch: 200, train loss: 0.011360
+
+epoch: 28, batch: 300, train loss: 0.001298
+
+epoch: 28, batch: 400, train loss: 0.006017
+
+epoch: 28, batch: 500, train loss: 0.012465
+
+epoch: 28, batch: 600, train loss: 0.005787
+
+epoch: 28, batch: 700, train loss: 0.003117
+
+epoch: 28, batch: 800, train loss: 0.008736
+
+epoch: 28, batch: 900, train loss: 0.003664
+
+
+----------Begin test...
+--------Time: 1050.530972 sec, epoch: 28, train loss: 0.006033, test loss: 12.801536
+save parameters at ./checkpoints/aishell/epoch_28
+epoch: 29, batch: 0, train loss: 0.022039
+
+epoch: 29, batch: 100, train loss: 0.051069
+
+epoch: 29, batch: 200, train loss: 0.010355
+
+epoch: 29, batch: 300, train loss: 0.002973
+
+epoch: 29, batch: 400, train loss: 0.024904
+
+epoch: 29, batch: 500, train loss: 0.004413
+
+epoch: 29, batch: 600, train loss: 0.018130
+
+epoch: 29, batch: 700, train loss: 0.016501
+
+epoch: 29, batch: 800, train loss: 0.005366
+
+epoch: 29, batch: 900, train loss: 0.001201
+
+
+----------Begin test...
+--------Time: 1049.527139 sec, epoch: 29, train loss: 0.015695, test loss: 12.899893
+save parameters at ./checkpoints/aishell/epoch_29
+epoch: 30, batch: 0, train loss: 0.001418
+
+epoch: 30, batch: 100, train loss: 0.008641
+
+epoch: 30, batch: 200, train loss: 0.001641
+
+epoch: 30, batch: 300, train loss: 0.001918
+
+epoch: 30, batch: 400, train loss: 0.008286
+
+epoch: 30, batch: 500, train loss: 0.008233
+
+epoch: 30, batch: 600, train loss: 0.008073
+
+epoch: 30, batch: 700, train loss: 0.026764
+
+epoch: 30, batch: 800, train loss: 0.005477
+
+epoch: 30, batch: 900, train loss: 0.003201
+
+
+----------Begin test...
+--------Time: 1050.032423 sec, epoch: 30, train loss: 0.007365, test loss: 13.122167
+save parameters at ./checkpoints/aishell/epoch_30
+epoch: 31, batch: 0, train loss: 0.001354
+
+epoch: 31, batch: 100, train loss: 0.015001
+
+epoch: 31, batch: 200, train loss: 0.008085
+
+epoch: 31, batch: 300, train loss: 0.003801
+
+epoch: 31, batch: 400, train loss: 0.003658
+
+epoch: 31, batch: 500, train loss: 0.011398
+
+epoch: 31, batch: 600, train loss: 0.005424
+
+epoch: 31, batch: 700, train loss: 0.001773
+
+epoch: 31, batch: 800, train loss: 0.012814
+
+epoch: 31, batch: 900, train loss: 0.004213
+
+
+----------Begin test...
+--------Time: 1054.878592 sec, epoch: 31, train loss: 0.006752, test loss: 13.009324
+save parameters at ./checkpoints/aishell/epoch_31
+epoch: 32, batch: 0, train loss: 0.011270
+
+epoch: 32, batch: 100, train loss: 0.001964
+
+epoch: 32, batch: 200, train loss: 0.004611
+
+epoch: 32, batch: 300, train loss: 0.001889
+
+epoch: 32, batch: 400, train loss: 0.004739
+
+epoch: 32, batch: 500, train loss: 0.002014
+
+epoch: 32, batch: 600, train loss: 0.000742
+
+epoch: 32, batch: 700, train loss: 0.002434
+
+epoch: 32, batch: 800, train loss: 0.004877
+
+epoch: 32, batch: 900, train loss: 0.007940
+
+
+----------Begin test...
+--------Time: 1053.252683 sec, epoch: 32, train loss: 0.004248, test loss: 12.990310
+save parameters at ./checkpoints/aishell/epoch_32
+epoch: 33, batch: 0, train loss: 0.019587
+
+epoch: 33, batch: 100, train loss: 0.009336
+
+epoch: 33, batch: 200, train loss: 0.006843
+
+epoch: 33, batch: 300, train loss: 0.001768
+
+epoch: 33, batch: 400, train loss: 0.002437
+
+epoch: 33, batch: 500, train loss: 0.009115
+
+epoch: 33, batch: 600, train loss: 0.046682
+
+epoch: 33, batch: 700, train loss: 0.004176
+
+epoch: 33, batch: 800, train loss: 0.003430
+
+epoch: 33, batch: 900, train loss: 0.014705
+
+
+----------Begin test...
+--------Time: 1048.242641 sec, epoch: 33, train loss: 0.011808, test loss: 13.102102
+save parameters at ./checkpoints/aishell/epoch_33
+epoch: 34, batch: 0, train loss: 0.008195
+
+epoch: 34, batch: 100, train loss: 0.003263
+
+epoch: 34, batch: 200, train loss: 0.019870
+
+epoch: 34, batch: 300, train loss: 0.025961
+
+epoch: 34, batch: 400, train loss: 0.007869
+
+epoch: 34, batch: 500, train loss: 0.003488
+
+epoch: 34, batch: 600, train loss: 0.005743
+
+epoch: 34, batch: 700, train loss: 0.004349
+
+epoch: 34, batch: 800, train loss: 0.005780
+
+epoch: 34, batch: 900, train loss: 0.001927
+
+
+----------Begin test...
+--------Time: 1057.776842 sec, epoch: 34, train loss: 0.008645, test loss: 13.061934
+save parameters at ./checkpoints/aishell/epoch_34
+epoch: 35, batch: 0, train loss: 0.001729
+
+epoch: 35, batch: 100, train loss: 0.032870
+
+epoch: 35, batch: 200, train loss: 0.004960
+
+epoch: 35, batch: 300, train loss: 0.008721
+
+epoch: 35, batch: 400, train loss: 0.002292
+
+epoch: 35, batch: 500, train loss: 0.004561
+
+epoch: 35, batch: 600, train loss: 0.011208
+
+epoch: 35, batch: 700, train loss: 0.001869
+
+epoch: 35, batch: 800, train loss: 0.021391
+
+epoch: 35, batch: 900, train loss: 0.003958
+
+
+----------Begin test...
+--------Time: 1040.950755 sec, epoch: 35, train loss: 0.009356, test loss: 13.091005
+save parameters at ./checkpoints/aishell/epoch_35
+epoch: 36, batch: 0, train loss: 0.009486
+
+epoch: 36, batch: 100, train loss: 0.006668
+
+epoch: 36, batch: 200, train loss: 0.074059
+
+epoch: 36, batch: 300, train loss: 0.029644
+
+epoch: 36, batch: 400, train loss: 0.006081
+
+epoch: 36, batch: 500, train loss: 0.020740
+
+epoch: 36, batch: 600, train loss: 0.014467
+
+epoch: 36, batch: 700, train loss: 0.005097
+
+epoch: 36, batch: 800, train loss: 0.011684
+
+epoch: 36, batch: 900, train loss: 0.019059
+
+
+----------Begin test...
+--------Time: 1036.029223 sec, epoch: 36, train loss: 0.019699, test loss: 13.235681
+save parameters at ./checkpoints/aishell/epoch_36
+epoch: 37, batch: 0, train loss: 0.008624
+
+epoch: 37, batch: 100, train loss: 0.006822
+
+epoch: 37, batch: 200, train loss: 0.004217
+
+epoch: 37, batch: 300, train loss: 0.012352
+
+epoch: 37, batch: 400, train loss: 0.007290
+
+epoch: 37, batch: 500, train loss: 0.011720
+
+epoch: 37, batch: 600, train loss: 0.004706
+
+epoch: 37, batch: 700, train loss: 0.005244
+
+epoch: 37, batch: 800, train loss: 0.004690
+
+epoch: 37, batch: 900, train loss: 0.004379
+
+
+----------Begin test...
+--------Time: 1049.309634 sec, epoch: 37, train loss: 0.007004, test loss: 13.286928
+save parameters at ./checkpoints/aishell/epoch_37
+epoch: 38, batch: 0, train loss: 0.002098
+
+epoch: 38, batch: 100, train loss: 0.014016
+
+epoch: 38, batch: 200, train loss: 0.004067
+
+epoch: 38, batch: 300, train loss: 0.008523
+
+epoch: 38, batch: 400, train loss: 0.002834
+
+epoch: 38, batch: 500, train loss: 0.018575
+
+epoch: 38, batch: 600, train loss: 0.009747
+
+epoch: 38, batch: 700, train loss: 0.001845
+
+epoch: 38, batch: 800, train loss: 0.007979
+
+epoch: 38, batch: 900, train loss: 0.001759
+
+
+----------Begin test...
+--------Time: 1076.725952 sec, epoch: 38, train loss: 0.007144, test loss: 13.002213
+save parameters at ./checkpoints/aishell/epoch_38
+epoch: 39, batch: 0, train loss: 0.003852
+
+epoch: 39, batch: 100, train loss: 0.005015
+
+epoch: 39, batch: 200, train loss: 0.018578
+
+epoch: 39, batch: 300, train loss: 0.000455
+
+epoch: 39, batch: 400, train loss: 0.004350
+
+epoch: 39, batch: 500, train loss: 0.003898
+
+epoch: 39, batch: 600, train loss: 0.004291
+
+epoch: 39, batch: 700, train loss: 0.006326
+
+epoch: 39, batch: 800, train loss: 0.003759
+
+epoch: 39, batch: 900, train loss: 0.012439
+
+
+----------Begin test...
+--------Time: 1084.023699 sec, epoch: 39, train loss: 0.006296, test loss: 13.163168
+save parameters at ./checkpoints/aishell/epoch_39
+epoch: 40, batch: 0, train loss: 0.002450
+
+epoch: 40, batch: 100, train loss: 0.008869
+
+epoch: 40, batch: 200, train loss: 0.010450
+
+epoch: 40, batch: 300, train loss: 0.004988
+
+epoch: 40, batch: 400, train loss: 0.004082
+
+epoch: 40, batch: 500, train loss: 0.008841
+
+epoch: 40, batch: 600, train loss: 0.000720
+
+epoch: 40, batch: 700, train loss: 0.003633
+
+epoch: 40, batch: 800, train loss: 0.002460
+
+epoch: 40, batch: 900, train loss: 0.003290
+
+
+----------Begin test...
+--------Time: 1090.469567 sec, epoch: 40, train loss: 0.004978, test loss: 13.037650
+save parameters at ./checkpoints/aishell/epoch_40
+epoch: 41, batch: 0, train loss: 0.003918
+
+epoch: 41, batch: 100, train loss: 0.007149
+
+epoch: 41, batch: 200, train loss: 0.001179
+
+epoch: 41, batch: 300, train loss: 0.000857
+
+epoch: 41, batch: 400, train loss: 0.004095
+
+epoch: 41, batch: 500, train loss: 0.001132
+
+epoch: 41, batch: 600, train loss: 0.003790
+
+epoch: 41, batch: 700, train loss: 0.003734
+
+epoch: 41, batch: 800, train loss: 0.001182
+
+epoch: 41, batch: 900, train loss: 0.006680
+
+
+----------Begin test...
+--------Time: 1076.745838 sec, epoch: 41, train loss: 0.003371, test loss: 13.153307
+save parameters at ./checkpoints/aishell/epoch_41
+epoch: 42, batch: 0, train loss: 0.001766
+
+epoch: 42, batch: 100, train loss: 0.006105
+
+epoch: 42, batch: 200, train loss: 0.007481
+
+epoch: 42, batch: 300, train loss: 0.001708
+
+epoch: 42, batch: 400, train loss: 0.009657
+
+epoch: 42, batch: 500, train loss: 0.001954
+
+epoch: 42, batch: 600, train loss: 0.003783
+
+epoch: 42, batch: 700, train loss: 0.003043
+
+epoch: 42, batch: 800, train loss: 0.004231
+
+epoch: 42, batch: 900, train loss: 0.002815
+
+
+----------Begin test...
+--------Time: 1019.373485 sec, epoch: 42, train loss: 0.004254, test loss: 13.202432
+save parameters at ./checkpoints/aishell/epoch_42
+epoch: 43, batch: 0, train loss: 0.006264
+
+epoch: 43, batch: 100, train loss: 0.002236
+
+epoch: 43, batch: 200, train loss: 0.003126
+
+epoch: 43, batch: 300, train loss: 0.003823
+
+epoch: 43, batch: 400, train loss: 0.003499
+
+epoch: 43, batch: 500, train loss: 0.002952
+
+epoch: 43, batch: 600, train loss: 0.009854
+
+epoch: 43, batch: 700, train loss: 0.002141
+
+epoch: 43, batch: 800, train loss: 0.003336
+
+epoch: 43, batch: 900, train loss: 0.008301
+
+
+----------Begin test...
+--------Time: 1050.589351 sec, epoch: 43, train loss: 0.004553, test loss: 13.233140
+save parameters at ./checkpoints/aishell/epoch_43
+epoch: 44, batch: 0, train loss: 0.002841
+
+epoch: 44, batch: 100, train loss: 0.008376
+
+epoch: 44, batch: 200, train loss: 0.002188
+
+epoch: 44, batch: 300, train loss: 0.002011
+
+epoch: 44, batch: 400, train loss: 0.004545
+
+epoch: 44, batch: 500, train loss: 0.007848
+
+epoch: 44, batch: 600, train loss: 0.012666
+
+epoch: 44, batch: 700, train loss: 0.004798
+
+epoch: 44, batch: 800, train loss: 0.002759
+
+epoch: 44, batch: 900, train loss: 0.001327
+
+
+----------Begin test...
+--------Time: 1042.035778 sec, epoch: 44, train loss: 0.004936, test loss: 13.126458
+save parameters at ./checkpoints/aishell/epoch_44
+epoch: 45, batch: 0, train loss: 0.006089
+
+epoch: 45, batch: 100, train loss: 0.006136
+
+epoch: 45, batch: 200, train loss: 0.001919
+
+epoch: 45, batch: 300, train loss: 0.002704
+
+epoch: 45, batch: 400, train loss: 0.007871
+
+epoch: 45, batch: 500, train loss: 0.003246
+
+epoch: 45, batch: 600, train loss: 0.025831
+
+epoch: 45, batch: 700, train loss: 0.004113
+
+epoch: 45, batch: 800, train loss: 0.003816
+
+epoch: 45, batch: 900, train loss: 0.005097
+
+
+----------Begin test...
+--------Time: 1034.880073 sec, epoch: 45, train loss: 0.006682, test loss: 13.076161
+save parameters at ./checkpoints/aishell/epoch_45
+epoch: 46, batch: 0, train loss: 0.009975
+
+epoch: 46, batch: 100, train loss: 0.003629
+
+epoch: 46, batch: 200, train loss: 0.003718
+
+epoch: 46, batch: 300, train loss: 0.011939
+
+epoch: 46, batch: 400, train loss: 0.003455
+
+epoch: 46, batch: 500, train loss: 0.008931
+
+epoch: 46, batch: 600, train loss: 0.001786
+
+epoch: 46, batch: 700, train loss: 0.003118
+
+epoch: 46, batch: 800, train loss: 0.002683
+
+epoch: 46, batch: 900, train loss: 0.006112
+
+
+----------Begin test...
+--------Time: 1081.192727 sec, epoch: 46, train loss: 0.005535, test loss: 13.158254
+save parameters at ./checkpoints/aishell/epoch_46
+epoch: 47, batch: 0, train loss: 0.001809
+
+epoch: 47, batch: 100, train loss: 0.002837
+
+epoch: 47, batch: 200, train loss: 0.014279
+
+epoch: 47, batch: 300, train loss: 0.002726
+
+epoch: 47, batch: 400, train loss: 0.002881
+
+epoch: 47, batch: 500, train loss: 0.003132
+
+epoch: 47, batch: 600, train loss: 0.002000
+
+epoch: 47, batch: 700, train loss: 0.005425
+
+epoch: 47, batch: 800, train loss: 0.010182
+
+epoch: 47, batch: 900, train loss: 0.003369
+
+
+----------Begin test...
+--------Time: 1056.067716 sec, epoch: 47, train loss: 0.004864, test loss: 13.273453
+save parameters at ./checkpoints/aishell/epoch_47
+epoch: 48, batch: 0, train loss: 0.013245
+
+epoch: 48, batch: 100, train loss: 0.003452
+
+epoch: 48, batch: 200, train loss: 0.002596
+
+epoch: 48, batch: 300, train loss: 0.002304
+
+epoch: 48, batch: 400, train loss: 0.002664
+
+epoch: 48, batch: 500, train loss: 0.007766
+
+epoch: 48, batch: 600, train loss: 0.002245
+
+epoch: 48, batch: 700, train loss: 0.002390
+
+epoch: 48, batch: 800, train loss: 0.003428
+
+epoch: 48, batch: 900, train loss: 0.002855
+
+
+----------Begin test...
+--------Time: 1063.378374 sec, epoch: 48, train loss: 0.004295, test loss: 13.159493
+save parameters at ./checkpoints/aishell/epoch_48
+epoch: 49, batch: 0, train loss: 0.005873
+
+epoch: 49, batch: 100, train loss: 0.008870
+
+epoch: 49, batch: 200, train loss: 0.010006
+
+epoch: 49, batch: 300, train loss: 0.004879
+
+epoch: 49, batch: 400, train loss: 0.011755
+
+epoch: 49, batch: 500, train loss: 0.001973
+
+epoch: 49, batch: 600, train loss: 0.008649
+
+epoch: 49, batch: 700, train loss: 0.011653
+
+epoch: 49, batch: 800, train loss: 0.005818
+
+epoch: 49, batch: 900, train loss: 0.002438
+
+
+----------Begin test...
+--------Time: 1044.964188 sec, epoch: 49, train loss: 0.007191, test loss: 13.111539
+save parameters at ./checkpoints/aishell/epoch_49
+save parameters at ./checkpoints/aishell/step_final
+
+------------Training finished!!!-------------

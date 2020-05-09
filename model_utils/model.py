@@ -285,9 +285,8 @@ class DeepSpeech2Model(object):
                         learning_rate=learning_rate,
                         decay_steps=num_samples / batch_size / dev_count,
                         decay_rate=0.83,
-                        staircase=True))
-                fluid.clip.set_gradient_clip(
-                    clip=fluid.clip.GradientClipByGlobalNorm(
+                        staircase=True),
+                    grad_clip=fluid.clip.GradientClipByGlobalNorm(
                         clip_norm=gradient_clipping))
                 optimizer.minimize(loss=ctc_loss)
 

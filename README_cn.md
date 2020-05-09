@@ -25,7 +25,7 @@
 
 ### 前提
 - 只支持Python 2.7
-- PaddlePaddle 1.6.0 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
+- PaddlePaddle 1.8.0 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
 
 ### 安装
 - 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：

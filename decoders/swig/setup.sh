@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ ! -d kenlm ]; then
-    git clone https://github.com/luotao1/kenlm.git
+    git clone https://github.com/kpu/kenlm.git
     echo -e "\n"
 fi
 

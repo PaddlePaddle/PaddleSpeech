@@ -386,7 +386,7 @@ sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/pad
 
 普通话语言训练与英语训练的关键步骤相同，我们提供了一个使用 Aishell 进行普通话训练的例子```examples/aishell```。如上所述，请执行```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh```和```sh run_infer.sh```做相应的数据准备，训练，测试和推断。我们还准备了一个预训练过的模型（执行./models/aishell/download_model.sh下载）供用户使用```run_infer_golden.sh```和```run_test_golden.sh```来。请注意，与英语语言模型不同，普通话语言模型是基于汉字的，请运行```tools/tune.py```来查找最佳设置。
 
-##用自己的声音尝试现场演示
+## 用自己的声音尝试现场演示
 
 到目前为止，一个 ASR 模型已经训练完毕，并且用现有的音频文件进行了定性测试（`infer.py`）和定量测试（`test.py`）。但目前还没有用你自己的声音进行测试。`deploy/demo_english_server.py`和`deploy/demo_client.py`能够快速构建一个利用已训练好的模型对ASR引擎进行实时演示的系统，使你能够用自己的语音测试和演示。
 

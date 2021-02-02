@@ -276,8 +276,8 @@ class DataGenerator(object):
         def reader():
             for instance in manifest:
                 inst = self.process_utterance(instance["audio_filepath"],
-                                              instance["text"]),
-                yield inst[0]
+                                              instance["text"])
+                yield inst
 
         return reader
 

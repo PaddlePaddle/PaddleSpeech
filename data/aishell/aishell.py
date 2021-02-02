@@ -19,6 +19,7 @@ from data_utils.utility import download, unpack
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
 URL_ROOT = 'http://www.openslr.org/resources/33'
+URL_ROOT = 'https://openslr.magicdatatech.com/resources/33'
 DATA_URL = URL_ROOT + '/data_aishell.tgz'
 MD5_DATA = '2f494334227864a8a8fec932999db9d8'
 

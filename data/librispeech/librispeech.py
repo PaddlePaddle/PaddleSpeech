@@ -20,6 +20,7 @@ import io
 from data_utils.utility import download, unpack
 
 URL_ROOT = "http://www.openslr.org/resources/12"
+URL_ROOT = "https://openslr.magicdatatech.com/resources/12"
 URL_TEST_CLEAN = URL_ROOT + "/test-clean.tar.gz"
 URL_TEST_OTHER = URL_ROOT + "/test-other.tar.gz"
 URL_DEV_CLEAN = URL_ROOT + "/dev-clean.tar.gz"

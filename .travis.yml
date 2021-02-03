@@ -13,13 +13,14 @@ addons:
   apt:
     packages:
       - git
-      - python3.5
-      - python3-dev
+      #- python3.5
+      #- python3-dev
 
 before_install:
-  -  sudo python3 -m pip install -U virtualenv pre-commit pip
-  -  docker pull paddlepaddle/paddle:latest
   -  python3 --version
+  #-  sudo python3 -m pip install -U virtualenv pre-commit pip
+  -  pip3 install -U virtualenv pre-commit pip
+  -  docker pull paddlepaddle/paddle:latest
 
 script:
   - exit_code=0

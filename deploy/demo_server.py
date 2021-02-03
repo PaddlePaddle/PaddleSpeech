@@ -166,7 +166,7 @@ def start_server():
         place=place,
         share_rnn_weights=args.share_rnn_weights)
 
-    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+    vocab_list = [chars for chars in data_generator.vocab_list]
 
     if args.decoding_method == "ctc_beam_search":
         ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,

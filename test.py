@@ -1,7 +1,4 @@
 """Evaluation for DeepSpeech2 model."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import argparse
 import functools
@@ -99,7 +96,7 @@ def evaluate():
         init_from_pretrained_model=args.model_path)
 
     # decoders only accept string encoded in utf-8
-    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+    vocab_list = [chars for chars in data_generator.vocab_list]
 
     if args.decoding_method == "ctc_beam_search":
         ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,

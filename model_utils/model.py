@@ -1,7 +1,4 @@
 """Contains DeepSpeech2 model."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import sys
 import os
@@ -10,7 +7,6 @@ import logging
 import gzip
 import copy
 import inspect
-import cPickle as pickle
 import collections
 import multiprocessing
 import numpy as np
@@ -445,7 +441,7 @@ class DeepSpeech2Model(object):
         :param vocab_list: List of tokens in the vocabulary, for decoding.
         :type vocab_list: list
         :return: List of transcription texts.
-        :rtype: List of basestring
+        :rtype: List of str
         """
         results = []
         for i, probs in enumerate(probs_split):
@@ -466,7 +462,7 @@ class DeepSpeech2Model(object):
                                     empty, the external scorer will be set to
                                     None, and the decoding method will be pure
                                     beam search without scorer.
-        :type language_model_path: basestring|None
+        :type language_model_path: str|None
         :param vocab_list: List of tokens in the vocabulary, for decoding.
         :type vocab_list: list
         """
@@ -513,7 +509,7 @@ class DeepSpeech2Model(object):
         :param num_processes: Number of processes (CPU) for decoder.
         :type num_processes: int
         :return: List of transcription texts.
-        :rtype: List of basestring
+        :rtype: List of str
         """
         if self._ext_scorer != None:
             self._ext_scorer.reset_params(beam_alpha, beam_beta)

@@ -1,7 +1,4 @@
 """Contains the impulse response augmentation model."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from data_utils.augmentor.base import AugmentorBase
 from data_utils.utility import read_manifest
@@ -14,7 +11,7 @@ class ImpulseResponseAugmentor(AugmentorBase):
     :param rng: Random generator object.
     :type rng: random.Random
     :param impulse_manifest_path: Manifest path for impulse audio data.
-    :type impulse_manifest_path: basestring
+    :type impulse_manifest_path: str
     """
 
     def __init__(self, rng, impulse_manifest_path):

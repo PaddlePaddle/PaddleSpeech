@@ -6,7 +6,7 @@ cd ../.. > /dev/null
 # if you wish to resume from an exists model, uncomment --init_from_pretrained_model
 export FLAGS_sync_nccl_allreduce=0
 CUDA_VISIBLE_DEVICES=0,1,2,3 \
-python -u train.py \
+python3 -u train.py \
 --batch_size=4 \
 --num_epoch=20 \
 --num_conv_layers=2 \

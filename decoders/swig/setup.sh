@@ -21,4 +21,4 @@ if [ ! -d ThreadPool ]; then
 fi
 
 echo "Install decoders ..."
-python setup.py install --num_processes 4
+python3 setup.py install --num_processes 4

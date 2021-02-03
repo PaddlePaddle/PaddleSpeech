@@ -1,7 +1,4 @@
 """Contains the noise perturb augmentation model."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from data_utils.augmentor.base import AugmentorBase
 from data_utils.utility import read_manifest
@@ -18,7 +15,7 @@ class NoisePerturbAugmentor(AugmentorBase):
     :param max_snr_dB: Maximal signal noise ratio, in decibels.
     :type max_snr_dB: float
     :param noise_manifest_path: Manifest path for noise audio data.
-    :type noise_manifest_path: basestring
+    :type noise_manifest_path: str
     """
 
     def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest_path):

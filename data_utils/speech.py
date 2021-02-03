@@ -1,7 +1,4 @@
 """Contains the speech segment class."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 from data_utils.audio import AudioSegment
@@ -16,7 +13,7 @@ class SpeechSegment(AudioSegment):
     :param sample_rate: Audio sample rate.
     :type sample_rate: int
     :param transcript: Transcript text for the speech.
-    :type transript: basestring
+    :type transript: str
     :raises TypeError: If the sample data type is not float or int.
     """
 
@@ -42,9 +39,9 @@ class SpeechSegment(AudioSegment):
         """Create speech segment from audio file and corresponding transcript.
         
         :param filepath: Filepath or file object to audio file.
-        :type filepath: basestring|file
+        :type filepath: str|file
         :param transcript: Transcript text for the speech.
-        :type transript: basestring
+        :type transript: str
         :return: Speech segment instance.
         :rtype: SpeechSegment
         """
@@ -59,7 +56,7 @@ class SpeechSegment(AudioSegment):
         :param bytes: Byte string containing audio samples.
         :type bytes: str
         :param transcript: Transcript text for the speech.
-        :type transript: basestring
+        :type transript: str
         :return: Speech segment instance.
         :rtype: Speech Segment
         """
@@ -100,7 +97,7 @@ class SpeechSegment(AudioSegment):
         the entire file into the memory which can be incredibly wasteful.
 
         :param filepath: Filepath or file object to audio file.
-        :type filepath: basestring|file
+        :type filepath: str|file
         :param start: Start time in seconds. If start is negative, it wraps
                       around from the end. If not provided, this function 
                       reads from the very beginning.
@@ -111,7 +108,7 @@ class SpeechSegment(AudioSegment):
         :type end: float
         :param transcript: Transcript text for the speech. if not provided, 
                            the defaults is an empty string.
-        :type transript: basestring
+        :type transript: str
         :return: SpeechSegment instance of the specified slice of the input
                  speech file.
         :rtype: SpeechSegment
@@ -139,6 +136,6 @@ class SpeechSegment(AudioSegment):
         """Return the transcript text.
 
         :return: Transcript text for the speech.
-        :rtype: basestring
+        :rtype: str
         """
         return self._transcript

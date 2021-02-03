@@ -1,7 +1,4 @@
 """Wrapper for various CTC decoders in SWIG."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import swig_decoders
 
@@ -16,7 +13,7 @@ class Scorer(swig_decoders.Scorer):
                  count when beta = 0.
     :type beta: float
     :model_path: Path to load language model.
-    :type model_path: basestring
+    :type model_path: str
     """
 
     def __init__(self, alpha, beta, model_path, vocabulary):
@@ -33,7 +30,7 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
     :return: Decoding result string.
-    :rtype: basestring
+    :rtype: str
     """
     result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
     return result.decode('utf-8')
@@ -117,8 +114,6 @@ def ctc_beam_search_decoder_batch(probs_split,
     batch_beam_results = swig_decoders.ctc_beam_search_decoder_batch(
         probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
         cutoff_top_n, ext_scoring_func)
-    batch_beam_results = [
-        [(res[0], res[1].decode("utf-8")) for res in beam_results]
-        for beam_results in batch_beam_results
-    ]
+    batch_beam_results = [[(res[0], res[1]) for res in beam_results]
+                          for beam_results in batch_beam_results]
     return batch_beam_results

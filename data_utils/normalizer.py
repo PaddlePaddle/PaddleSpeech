@@ -1,7 +1,4 @@
 """Contains feature normalizers."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 import random
@@ -18,9 +15,9 @@ class FeatureNormalizer(object):
     should be given for on-the-fly mean and stddev computing.
 
     :param mean_std_filepath: File containing the pre-computed mean and stddev.
-    :type mean_std_filepath: None|basestring
+    :type mean_std_filepath: None|str
     :param manifest_path: Manifest of instances for computing mean and stddev.
-    :type meanifest_path: None|basestring
+    :type meanifest_path: None|str
     :param featurize_func: Function to extract features. It should be callable
                            with ``featurize_func(audio_segment)``.
     :type featurize_func: None|callable
@@ -63,7 +60,7 @@ class FeatureNormalizer(object):
         """Write the mean and stddev to the file.
 
         :param filepath: File to write mean and stddev.
-        :type filepath: basestring
+        :type filepath: str
         """
         np.savez(filepath, mean=self._mean, std=self._std)
 

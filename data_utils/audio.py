@@ -94,7 +94,7 @@ class AudioSegment(object):
         sample_rate = sndfile.samplerate
         duration = float(len(sndfile)) / sample_rate
         start = 0. if start is None else start
-        end = 0. if end is None else end
+        end = duration if end is None else end
         if start < 0.0:
             start += duration
         if end < 0.0:

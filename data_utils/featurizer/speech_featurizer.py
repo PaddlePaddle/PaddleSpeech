@@ -1,7 +1,4 @@
 """Contains the speech featurizer class."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from data_utils.featurizer.audio_featurizer import AudioFeaturizer
 from data_utils.featurizer.text_featurizer import TextFeaturizer
@@ -18,7 +15,7 @@ class SpeechFeaturizer(object):
 
     :param vocab_filepath: Filepath to load vocabulary for token indices
                            conversion.
-    :type specgram_type: basestring
+    :type specgram_type: str
     :param specgram_type: Specgram feature type. Options: 'linear', 'mfcc'.
     :type specgram_type: str
     :param stride_ms: Striding size (in milliseconds) for generating frames.

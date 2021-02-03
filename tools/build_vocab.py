@@ -2,9 +2,6 @@
 
 Each item in vocabulary file is a character.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import argparse
 import functools

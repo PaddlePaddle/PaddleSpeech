@@ -3,7 +3,7 @@
 cd ../.. > /dev/null
 
 # download data, generate manifests
-PYTHONPATH=.:$PYTHONPATH python data/librispeech/librispeech.py \
+PYTHONPATH=.:$PYTHONPATH python3 data/librispeech/librispeech.py \
 --manifest_prefix='data/librispeech/manifest' \
 --target_dir='./dataset/librispeech' \
 --full_download='True'
@@ -17,7 +17,7 @@ cat data/librispeech/manifest.train-* | shuf > data/librispeech/manifest.train
 
 
 # build vocabulary
-python tools/build_vocab.py \
+python3 tools/build_vocab.py \
 --count_threshold=0 \
 --vocab_path='data/librispeech/vocab.txt' \
 --manifest_paths='data/librispeech/manifest.train'
@@ -29,7 +29,7 @@ fi
 
 
 # compute mean and stddev for normalizer
-python tools/compute_mean_std.py \
+python3 tools/compute_mean_std.py \
 --manifest_path='data/librispeech/manifest.train' \
 --num_samples=2000 \
 --specgram_type='linear' \

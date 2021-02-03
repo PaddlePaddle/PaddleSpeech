@@ -22,7 +22,7 @@ cd - > /dev/null
 
 # evaluate model
 CUDA_VISIBLE_DEVICES=0,1,2,3 \
-python -u test.py \
+python3 -u test.py \
 --batch_size=128 \
 --beam_size=500 \
 --num_proc_bsearch=8 \

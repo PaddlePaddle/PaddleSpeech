@@ -1,7 +1,4 @@
 """External Scorer for Beam Search Decoder."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import os
 import kenlm
@@ -20,7 +17,7 @@ class Scorer(object):
                 count when beta = 0.
     :type beta: float
     :model_path: Path to load language model.
-    :type model_path: basestring
+    :type model_path: str
     """
 
     def __init__(self, alpha, beta, model_path):
@@ -53,7 +50,7 @@ class Scorer(object):
         and return the final one.
 
         :param sentence: The input sentence for evalutation
-        :type sentence: basestring
+        :type sentence: str
         :param log: Whether return the score in log representation.
         :type log: bool
         :return: Evaluation score, in the decimal or log.

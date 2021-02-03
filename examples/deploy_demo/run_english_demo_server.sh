@@ -23,7 +23,7 @@ cd - > /dev/null
 
 # start demo server
 CUDA_VISIBLE_DEVICES=0 \
-python -u deploy/demo_server.py \
+python3 -u deploy/demo_server.py \
 --host_ip='localhost' \
 --host_port=8086 \
 --num_conv_layers=2 \

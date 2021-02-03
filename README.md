@@ -26,20 +26,20 @@
 To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
-- Python 2.7 only supported
+- Python >= 3.5
 - PaddlePaddle 1.8.0 or later (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
 ### Setup
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 ```
 
 or, installing them via `yum`:
 
 ```bash
-sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python-devel
+sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python3-devel
 wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
 xz -d flac-1.3.1.tar.xz
 tar -xvf flac-1.3.1.tar
@@ -55,6 +55,39 @@ make install
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
 sh setup.sh
+```
+
+### Running in Docker Container
+
+Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+
+Take several steps to launch the Docker image:
+
+- Download the Docker image
+
+```bash
+nvidia-docker pull hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu
+```
+
+- Clone this repository
+
+```
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+```
+
+- Run the Docker image
+
+```bash
+sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu /bin/bash
+```
+Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similarly in the Docker container.
+
+
+- Install PaddlePaddle
+
+For example, for CUDA 10.1, CuDNN7.5:
+```bash
+python3 -m pip install paddlepaddle-gpu==1.8.0.post107
 ```
 
 ## Getting Started
@@ -132,7 +165,7 @@ For how to generate such manifest files, please refer to `data/librispeech/libri
 To perform z-score normalization (zero-mean, unit stddev) upon audio features, we have to estimate in advance the mean and standard deviation of the features, with some training samples:
 
 ```bash
-python tools/compute_mean_std.py \
+python3 tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
 --manifest_path data/librispeech/manifest.train \
@@ -147,7 +180,7 @@ It will compute the mean and standard deviatio of power spectrum feature with 20
 A vocabulary of possible characters is required to convert the transcription into a list of token indices for training, and in decoding, to convert from a list of indices back to text again. Such a character-based vocabulary can be built with `tools/build_vocab.py`.
 
 ```bash
-python tools/build_vocab.py \
+python3 tools/build_vocab.py \
 --count_threshold 0 \
 --vocab_path data/librispeech/eng_vocab.txt \
 --manifest_paths data/librispeech/manifest.train
@@ -160,9 +193,9 @@ It will write a vocabuary file `data/librispeeech/eng_vocab.txt` with all transc
 For more help on arguments:
 
 ```bash
-python data/librispeech/librispeech.py --help
-python tools/compute_mean_std.py --help
-python tools/build_vocab.py --help
+python3 data/librispeech/librispeech.py --help
+python3 tools/compute_mean_std.py --help
+python3 tools/build_vocab.py --help
 ```
 
 ## Training a model
@@ -172,26 +205,26 @@ python tools/build_vocab.py --help
 - Start training from scratch with 8 GPUs:
 
     ```
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 train.py
     ```
 
 - Start training from scratch with CPUs:
 
     ```
-    python train.py --use_gpu False
+    python3 train.py --use_gpu False
     ```
 - Resume training from a checkpoint:
 
     ```
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python train.py \
+    python3 train.py \
     --init_from_pretrained_model CHECKPOINT_PATH_TO_RESUME_FROM
     ```
 
 For more help on arguments:
 
 ```bash
-python train.py --help
+python3 train.py --help
 ```
 or refer to `example/librispeech/run_train.sh`.
 
@@ -273,13 +306,13 @@ An inference module caller `infer.py` is provided to infer, decode and visualize
 - Inference with GPU:
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0 python infer.py
+    CUDA_VISIBLE_DEVICES=0 python3 infer.py
     ```
 
 - Inference with CPUs:
 
     ```bash
-    python infer.py --use_gpu False
+    python3 infer.py --use_gpu False
     ```
 
 We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first graph search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `--decoding_method`.
@@ -287,7 +320,7 @@ We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search 
 For more help on arguments:
 
 ```
-python infer.py --help
+python3 infer.py --help
 ```
 or refer to `example/librispeech/run_infer.sh`.
 
@@ -298,13 +331,13 @@ To evaluate a model's performance quantitatively, please run:
 - Evaluation with GPUs:
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 test.py
     ```
 
 - Evaluation with CPUs:
 
     ```bash
-    python test.py --use_gpu False
+    python3 test.py --use_gpu False
     ```
 
 The error rate (default: word error rate; can be set with `--error_rate_type`) will be printed.
@@ -312,7 +345,7 @@ The error rate (default: word error rate; can be set with `--error_rate_type`) w
 For more help on arguments:
 
 ```bash
-python test.py --help
+python3 test.py --help
 ```
 or refer to `example/librispeech/run_test.sh`.
 
@@ -326,7 +359,7 @@ The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertio
 
     ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python tools/tune.py \
+    python3 tools/tune.py \
     --alpha_from 1.0 \
     --alpha_to 3.2 \
     --num_alphas 45 \
@@ -338,7 +371,7 @@ The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertio
 - Tuning with CPU:
 
     ```bash
-    python tools/tune.py --use_gpu False
+    python3 tools/tune.py --use_gpu False
     ```
  The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.
 
@@ -352,35 +385,9 @@ Usually, as the figure shows, the variation of language model weight ($\alpha$) 
 After tuning, you can reset $\alpha$ and $\beta$ in the inference and evaluation modules to see if they really help improve the ASR performance. For more help
 
 ```bash
-python tune.py --help
+python3 tune.py --help
 ```
 or refer to `example/librispeech/run_tune.sh`.
-
-## Running in Docker Container
-
-Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
-
-Take several steps to launch the Docker image:
-
-- Download the Docker image
-
-```bash
-nvidia-docker pull hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu
-```
-
-- Clone this repository
-
-```
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-```
-
-- Run the Docker image
-
-```bash
-sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu /bin/bash
-```
-Now go back and start from the [Getting Started](#getting-started) section, you can execute training, inference and hyper-parameters tuning similarly in the Docker container.
-
 
 ## Training for Mandarin Language
 
@@ -394,7 +401,7 @@ To start the demo's server, please run this in one console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python deploy/demo_server.py \
+python3 deploy/demo_server.py \
 --host_ip localhost \
 --host_port 8086
 ```
@@ -413,7 +420,7 @@ Then to start the client, please run this in another console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python -u deploy/demo_client.py \
+python3 -u deploy/demo_client.py \
 --host_ip 'localhost' \
 --host_port 8086
 ```
@@ -427,8 +434,8 @@ Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which wi
 For more help on arguments:
 
 ```bash
-python deploy/demo_server.py --help
-python deploy/demo_client.py --help
+python3 deploy/demo_server.py --help
+python3 deploy/demo_client.py --help
 ```
 
 ## Released Models

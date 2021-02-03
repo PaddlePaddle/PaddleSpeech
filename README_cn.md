@@ -7,12 +7,12 @@
 
 ## 目录
 - [安装](#安装)
+- [在 Docker 容器上运行](#在Docker容器上运行)
 - [开始](#开始)
 - [数据准备](#数据准备)
 - [训练模型](#训练模型)
 - [数据增强流水线](#数据增强流水线)
 - [推断和评价](#推断和评价)
-- [在 Docker 容器上运行](#在Docker容器上运行)
 - [超参数调整](#超参数调整)
 - [训练汉语语言](#训练汉语语言)
 - [用自己的声音尝试现场演示](#用自己的声音尝试现场演示)
@@ -24,20 +24,20 @@
 为了避免环境配置问题，强烈建议在[Docker容器上运行](#在Docker容器上运行)，否则请按照下面的指南安装依赖项。
 
 ### 前提
-- 只支持Python 2.7
+- Python >= 3.6
 - PaddlePaddle 1.8.0 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
 
 ### 安装
 - 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：
 
 ```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 ```
 
 或者，也可以通过`yum`安装：
 
 ```bash
-sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python-devel
+sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python3-devel
 wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
 xz -d flac-1.3.1.tar.xz
 tar -xvf flac-1.3.1.tar
@@ -53,6 +53,39 @@ make install
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
 sh setup.sh
+```
+
+### 在Docker容器上运行
+
+Docker 是一个开源工具，用于在孤立的环境中构建、发布和运行分布式应用程序。此项目的 Docker 镜像已在[hub.docker.com](https://hub.docker.com)中提供，并安装了所有依赖项，其中包括预先构建的PaddlePaddle，CTC解码器以及其他必要的 Python 和第三方库。这个 Docker 映像需要NVIDIA GPU的支持，所以请确保它的可用性并已完成[nvidia-docker](https://github.com/NVIDIA/nvidia-docker)的安装。
+
+采取以下步骤来启动 Docker 镜像：
+
+- 下载 Docker 镜像
+
+```bash
+nvidia-docker pull hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu
+```
+
+- git clone 这个资源库
+
+```
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+```
+
+- 运行 Docker 镜像
+
+```bash
+sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu /bin/bash
+```
+
+现在返回并从[开始](#开始)部分开始，您可以在Docker容器中同样执行模型训练，推断和超参数调整。
+
+- 安装 PaddlePaddle
+
+例如 CUDA 10.1, CuDNN7.5:
+```bash
+python3 -m pip install paddlepaddle-gpu==1.8.0.post107
 ```
 
 ## 开始
@@ -130,7 +163,7 @@ sh setup.sh
 为了对音频特征进行 z-score 归一化（零均值，单位标准差），我们必须预估训练样本特征的均值和标准差：
 
 ```bash
-python tools/compute_mean_std.py \
+python3 tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
 --manifest_path data/librispeech/manifest.train \
@@ -144,7 +177,7 @@ python tools/compute_mean_std.py \
 我们需要一个包含可能会出现的字符集合的词表来在训练的时候将字符转换成索引，并在解码的时候将索引转换回文本。`tools/build_vocab.py`脚本将生成这种基于字符的词表。
 
 ```bash
-python tools/build_vocab.py \
+python3 tools/build_vocab.py \
 --count_threshold 0 \
 --vocab_path data/librispeech/eng_vocab.txt \
 --manifest_paths data/librispeech/manifest.train
@@ -157,9 +190,9 @@ python tools/build_vocab.py \
 获得更多帮助：
 
 ```bash
-python data/librispeech/librispeech.py --help
-python tools/compute_mean_std.py --help
-python tools/build_vocab.py --help
+python3 data/librispeech/librispeech.py --help
+python3 tools/compute_mean_std.py --help
+python3 tools/build_vocab.py --help
 ```
 
 ## 训练模型
@@ -169,27 +202,27 @@ python tools/build_vocab.py --help
 - 开始使用 8 片 GPU 训练：
 
     ```
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 train.py
     ```
 
 - 开始使用 CPU 训练：
 
     ```
-    python train.py --use_gpu False
+    python3 train.py --use_gpu False
     ```
 
 - 从检查点恢复训练：
 
     ```
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python train.py \
+    python3 train.py \
     --init_from_pretrained_model CHECKPOINT_PATH_TO_RESUME_FROM
     ```
 
 获得更多帮助：
 
 ```bash
-python train.py --help
+python3 train.py --help
 ```
 或参考 `example/librispeech/run_train.sh`.
 
@@ -272,13 +305,13 @@ bash download_lm_ch.sh
 - GPU 版本的推断：
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0 python infer.py
+    CUDA_VISIBLE_DEVICES=0 python3 infer.py
     ```
 
 - CPU 版本的推断：
 
     ```bash
-    python infer.py --use_gpu False
+    python3 infer.py --use_gpu False
     ```
 
 我们提供两种类型的 CTC 解码器：*CTC贪心解码器*和*CTC波束搜索解码器*。*CTC贪心解码器*是简单的最佳路径解码算法的实现，在每个时间步选择最可能的字符，因此是贪心的并且是局部最优的。[*CTC波束搜索解码器*](https://arxiv.org/abs/1408.2873)另外使用了启发式广度优先图搜索以达到近似全局最优; 它也需要预先训练的KenLM语言模型以获得更好的评分和排名。解码器类型可以用参数`--decoding_method`设置。
@@ -286,7 +319,7 @@ bash download_lm_ch.sh
 获得更多帮助：
 
 ```
-python infer.py --help
+python3 infer.py --help
 ```
 或参考`example/librispeech/run_infer.sh`.
 
@@ -297,13 +330,13 @@ python infer.py --help
 - GPU 版本评估
 
     ```bash
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python test.py
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 test.py
     ```
 
 - CPU 版本评估
 
     ```bash
-    python test.py --use_gpu False
+    python3 test.py --use_gpu False
     ```
 
 错误率（默认：误字率;可以用--error_rate_type设置）将被打印出来。
@@ -311,7 +344,7 @@ python infer.py --help
 获得更多帮助：
 
 ```bash
-python test.py --help
+python3 test.py --help
 ```
 或参考`example/librispeech/run_test.sh`.
 
@@ -325,7 +358,7 @@ python test.py --help
 
     ```bash
     CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python tools/tune.py \
+    python3 tools/tune.py \
     --alpha_from 1.0 \
     --alpha_to 3.2 \
     --num_alphas 45 \
@@ -337,7 +370,7 @@ python test.py --help
 - CPU 版的调整：
 
     ```bash
-    python tools/tune.py --use_gpu False
+    python3 tools/tune.py --use_gpu False
     ```
 网格搜索将会在超参数空间的每个点处打印出 WER (误字率)或者 CER (字符错误率)，并且可绘出误差曲面。一个合适的超参数范围应包括 WER/CER 误差表面的全局最小值，如下图所示。
 
@@ -351,36 +384,9 @@ python test.py --help
 调整之后，您可以在推理和评价模块中重置$\alpha$和$\beta$，以检查它们是否真的有助于提高 ASR 性能。更多帮助如下：
 
 ```bash
-python tune.py --help
+python3 tune.py --help
 ```
 或参考`example/librispeech/run_tune.sh`.
-
-## 在Docker容器上运行
-
-Docker 是一个开源工具，用于在孤立的环境中构建、发布和运行分布式应用程序。此项目的 Docker 镜像已在[hub.docker.com](https://hub.docker.com)中提供，并安装了所有依赖项，其中包括预先构建的PaddlePaddle，CTC解码器以及其他必要的 Python 和第三方库。这个 Docker 映像需要NVIDIA GPU的支持，所以请确保它的可用性并已完成[nvidia-docker](https://github.com/NVIDIA/nvidia-docker)的安装。
-
-采取以下步骤来启动 Docker 镜像：
-
-- 下载 Docker 镜像
-
-```bash
-nvidia-docker pull hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu
-```
-
-- git clone 这个资源库
-
-```
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-```
-
-- 运行 Docker 镜像
-
-```bash
-sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/paddlepaddle/deep_speech_fluid:latest-gpu /bin/bash
-```
-
-现在返回并从[开始](#开始)部分开始，您可以在Docker容器中同样执行模型训练，推断和超参数调整。
-
 
 ## 训练普通话语言
 
@@ -394,7 +400,7 @@ sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/pad
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python deploy/demo_server.py \
+python3 deploy/demo_server.py \
 --host_ip localhost \
 --host_port 8086
 ```
@@ -413,7 +419,7 @@ pip install keyboard
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python -u deploy/demo_client.py \
+python3 -u deploy/demo_client.py \
 --host_ip 'localhost' \
 --host_port 8086
 ```
@@ -427,8 +433,8 @@ python -u deploy/demo_client.py \
 获得更多帮助：
 
 ```bash
-python deploy/demo_server.py --help
-python deploy/demo_client.py --help
+python3 deploy/demo_server.py --help
+python3 deploy/demo_client.py --help
 ```
 
 ## 发布模型

@@ -18,10 +18,10 @@ addons:
       - python3-dev
 
 before_install:
-  -  python --version
-  -  pip --version
-  -  sudo pip install -U virtualenv pre-commit pip
+  -  sudo pip3 install -U virtualenv pre-commit pip
   -  docker pull paddlepaddle/paddle:latest
+  -  python3 --version
+  -  pip3 --version
 
 script:
   - exit_code=0

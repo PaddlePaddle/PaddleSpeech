@@ -22,7 +22,7 @@ cd - > /dev/null
 
 # infer
 CUDA_VISIBLE_DEVICES=0 \
-python -u infer.py \
+python3 -u infer.py \
 --num_samples=10 \
 --beam_size=500 \
 --num_proc_bsearch=5 \

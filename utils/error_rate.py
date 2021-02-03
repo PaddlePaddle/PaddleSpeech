@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 """This module provides functions to calculate error rate in different level.
 e.g. wer for word-level, cer for char-level.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 
@@ -61,9 +57,9 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
     hypothesis sequence in word-level.
 
     :param reference: The reference sentence.
-    :type reference: basestring
+    :type reference: str
     :param hypothesis: The hypothesis sentence.
-    :type hypothesis: basestring
+    :type hypothesis: str
     :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
     :param delimiter: Delimiter of input sentences.
@@ -75,8 +71,8 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
         reference = reference.lower()
         hypothesis = hypothesis.lower()
 
-    ref_words = filter(None, reference.split(delimiter))
-    hyp_words = filter(None, hypothesis.split(delimiter))
+    ref_words = list(filter(None, reference.split(delimiter)))
+    hyp_words = list(filter(None, hypothesis.split(delimiter)))
 
     edit_distance = _levenshtein_distance(ref_words, hyp_words)
     return float(edit_distance), len(ref_words)
@@ -87,9 +83,9 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
     hypothesis sequence in char-level.
 
     :param reference: The reference sentence.
-    :type reference: basestring
+    :type reference: str
     :param hypothesis: The hypothesis sentence.
-    :type hypothesis: basestring
+    :type hypothesis: str
     :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
     :param remove_space: Whether remove internal space characters
@@ -105,8 +101,8 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
     if remove_space == True:
         join_char = ''
 
-    reference = join_char.join(filter(None, reference.split(' ')))
-    hypothesis = join_char.join(filter(None, hypothesis.split(' ')))
+    reference = join_char.join(list(filter(None, reference.split(' '))))
+    hypothesis = join_char.join(list(filter(None, hypothesis.split(' '))))
 
     edit_distance = _levenshtein_distance(reference, hypothesis)
     return float(edit_distance), len(reference)
@@ -132,9 +128,9 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     that empty items will be removed when splitting sentences by delimiter.
 
     :param reference: The reference sentence.
-    :type reference: basestring
+    :type reference: str
     :param hypothesis: The hypothesis sentence.
-    :type hypothesis: basestring
+    :type hypothesis: str
     :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
     :param delimiter: Delimiter of input sentences.
@@ -175,9 +171,9 @@ def cer(reference, hypothesis, ignore_case=False, remove_space=False):
     characters in a sentence will be replaced by one space character.
 
     :param reference: The reference sentence.
-    :type reference: basestring
+    :type reference: str
     :param hypothesis: The hypothesis sentence.
-    :type hypothesis: basestring
+    :type hypothesis: str
     :param ignore_case: Whether case-sensitive or not.
     :type ignore_case: bool
     :param remove_space: Whether remove internal space characters

@@ -56,7 +56,7 @@ def callback(in_data, frame_count, time_info, status):
         print('Speech[length=%d] Sent.' % len(sent))
         # Receive data from the server and shut down
         received = sock.recv(1024)
-        print "Recognition Results: {}".format(received)
+        print("Recognition Results: {}".format(received))
         sock.close()
         data_list = []
     enable_trigger_record = True

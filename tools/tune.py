@@ -1,7 +1,4 @@
 """Beam search parameters tuning for DeepSpeech2 model."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import sys
 import os
@@ -107,7 +104,7 @@ def tune():
         share_rnn_weights=args.share_rnn_weights)
 
     # decoders only accept string encoded in utf-8
-    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+    vocab_list = [chars for chars in data_generator.vocab_list]
     errors_func = char_errors if args.error_rate_type == 'cer' else word_errors
     # create grid for search
     cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)

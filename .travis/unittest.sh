@@ -17,7 +17,7 @@ unittest(){
     fi
     find . -name 'tests' -type d -print0 | \
         xargs -0 -I{} -n1 bash -c \
-        'python -m unittest discover -v -s {}'
+        'python3 -m unittest discover -v -s {}'
     cd - > /dev/null
 }
 

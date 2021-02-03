@@ -1,7 +1,4 @@
 """Contains the audio segment class."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 import io
@@ -62,11 +59,11 @@ class AudioSegment(object):
         """Create audio segment from audio file.
         
         :param filepath: Filepath or file object to audio file.
-        :type filepath: basestring|file
+        :type filepath: str|file
         :return: Audio segment instance.
         :rtype: AudioSegment
         """
-        if isinstance(file, basestring) and re.findall(r".seqbin_\d+$", file):
+        if isinstance(file, str) and re.findall(r".seqbin_\d+$", file):
             return cls.from_sequence_file(file)
         else:
             samples, sample_rate = soundfile.read(file, dtype='float32')
@@ -78,7 +75,7 @@ class AudioSegment(object):
         the entire file into the memory which can be incredibly wasteful.
 
         :param file: Input audio filepath or file object.
-        :type file: basestring|file
+        :type file: str|file
         :param start: Start time in seconds. If start is negative, it wraps
                       around from the end. If not provided, this function 
                       reads from the very beginning.
@@ -97,7 +94,7 @@ class AudioSegment(object):
         sample_rate = sndfile.samplerate
         duration = float(len(sndfile)) / sample_rate
         start = 0. if start is None else start
-        end = 0. if end is None else end
+        end = duration if end is None else end
         if start < 0.0:
             start += duration
         if end < 0.0:
@@ -143,7 +140,7 @@ class AudioSegment(object):
         sequence file (starting from 1).
 
         :param filepath: Filepath of sequence file.
-        :type filepath: basestring
+        :type filepath: str
         :return: Audio segment instance.
         :rtype: AudioSegment
         """
@@ -236,7 +233,7 @@ class AudioSegment(object):
         
         :param filepath: WAV filepath or file object to save the
                          audio segment.
-        :type filepath: basestring|file
+        :type filepath: str|file
         :param dtype: Subtype for audio file. Options: 'int16', 'int32',
                       'float32', 'float64'. Default is 'float32'.
         :type dtype: str

@@ -6,12 +6,12 @@
 
 ## Table of Contents
 - [Installation](#installation)
+- [Running in Docker Container](#running-in-docker-container)
 - [Getting Started](#getting-started)
 - [Data Preparation](#data-preparation)
 - [Training a Model](#training-a-model)
 - [Data Augmentation Pipeline](#data-augmentation-pipeline)
 - [Inference and Evaluation](#inference-and-evaluation)
-- [Running in Docker Container](#running-in-docker-container)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
 - [Training for Mandarin Language](#training-for-mandarin-language)
 - [Trying Live Demo with Your Own Voice](#trying-live-demo-with-your-own-voice)
@@ -26,7 +26,7 @@
 To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
-- Python >= 3.5
+- Python >= 3.6
 - PaddlePaddle 1.8.0 or later (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
 ### Setup

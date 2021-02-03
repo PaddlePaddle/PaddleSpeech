@@ -1,4 +1,3 @@
-
 import collections
 import paddle.fluid as fluid
 import numpy as np

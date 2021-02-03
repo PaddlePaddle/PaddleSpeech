@@ -13,11 +13,13 @@ addons:
   apt:
     packages:
       - git
+      - python3-pip
+      - python3-dev
 
 before_install:
   -  python3 --version
   -  python3 -m pip --version
-  -  python3 -m pip install -U virtualenv pre-commit pip
+  -  sudo pip install -U virtualenv pre-commit pip
   -  docker pull paddlepaddle/paddle:latest
 
 script:

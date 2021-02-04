@@ -2,7 +2,7 @@
 
 # grid-search for hyper-parameters in language model
 CUDA_VISIBLE_DEVICES=0,1,2,3 \
-python3 -u tools/tune.py \
+python3 -u ${MAIN_ROOT}tools/tune.py \
 --num_batches=-1 \
 --batch_size=128 \
 --beam_size=500 \

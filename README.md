@@ -6,11 +6,9 @@
 
 ## Table of Contents
 - [Installation](#installation)
-- [Running in Docker Container](#running-in-docker-container)
 - [Getting Started](#getting-started)
 - [Data Preparation](#data-preparation)
 - [Training a Model](#training-a-model)
-- [Data Augmentation Pipeline](#data-augmentation-pipeline)
 - [Inference and Evaluation](#inference-and-evaluation)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
 - [Training for Mandarin Language](#training-for-mandarin-language)
@@ -116,42 +114,6 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     ```bash
     bash run.sh
     ```
-- Prepare the data
-
-    ```bash
-    sh local/run_data.sh
-    ```
-
-    `run_data.sh` will download dataset, generate manifests, collect normalizer's statistics and build vocabulary. Once the data preparation is done, you will find the data (only part of LibriSpeech) downloaded in `${MAIN_ROOT}/dataset/librispeech` and the corresponding manifest files generated in `${PWD}/data` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time you run this dataset and is reusable for all further experiments.
-- Train your own ASR model
-
-    ```bash
-    sh local/run_train.sh
-    ```
-
-    `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `${PWD}/checkpoints`. These checkpoints could be used for training resuming, inference, evaluation and deployment.
-- Case inference with an existing model
-
-    ```bash
-    sh local/run_infer.sh
-    ```
-
-    `run_infer.sh` will show us some speech-to-text decoding results for several (default: 10) samples with the trained model. The performance might not be good now as the current model is only trained with a toy subset of LibriSpeech. To see the results with a better model, you can download a well-trained (trained for several days, with the complete LibriSpeech) model and do the inference:
-
-    ```bash
-    sh local/run_infer_golden.sh
-    ```
-- Evaluate an existing model
-
-    ```bash
-    sh local/run_test.sh
-    ```
-
-    `run_test.sh` will evaluate the model with Word Error Rate (or Character Error Rate) measurement. Similarly, you can also download a well-trained model and test its performance:
-
-    ```bash
-    sh local/run_test_golden.sh
-    ```
 
 More detailed information are provided in the following sections. Wish you a happy journey with the *DeepSpeech2 on PaddlePaddle* ASR engine!
 
@@ -169,7 +131,7 @@ More detailed information are provided in the following sections. Wish you a hap
 
 To use your custom data, you only need to generate such manifest files to summarize the dataset. Given such summarized manifests, training, inference and all other modules can be aware of where to access the audio files, as well as their meta data including the transcription labels.
 
-For how to generate such manifest files, please refer to `PATH/TO/LIBRISPEECH/local/librispeech.py`, which will download data and generate manifest files for LibriSpeech dataset.
+For how to generate such manifest files, please refer to `examples/librispeech/local/librispeech.py`, which will download data and generate manifest files for LibriSpeech dataset.
 
 ### Compute Mean & Stddev for Normalizer
 
@@ -179,11 +141,11 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 python3 tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_path PATH/TO/LIBRISPEECH/data/manifest.train \
---output_path PATH/TO/LIBRISPEECH/data/mean_std.npz
+--manifest_path examples/librispeech/data/manifest.train \
+--output_path examples/librispeech/data/mean_std.npz
 ```
 
-It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `PATH/TO/LIBRISPEECH/data/manifest.train` and save the results to `PATH/TO/LIBRISPEECH/data/mean_std.npz` for further usage.
+It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `examples/librispeech/data/manifest.train` and save the results to `examples/librispeech/data/mean_std.npz` for further usage.
 
 
 ### Build Vocabulary
@@ -193,18 +155,18 @@ A vocabulary of possible characters is required to convert the transcription int
 ```bash
 python3 tools/build_vocab.py \
 --count_threshold 0 \
---vocab_path PATH/TO/LIBRISPEECH/data/eng_vocab.txt \
---manifest_paths PATH/TO/LIBRISPEECH/data/manifest.train
+--vocab_path examples/librispeech/data/eng_vocab.txt \
+--manifest_paths examples/librispeech/data/manifest.train
 ```
 
-It will write a vocabuary file `PATH/TO/LIBRISPEEECH/data/eng_vocab.txt` with all transcription text in `PATH/TO/LIBRISPEECH/data/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
+It will write a vocabuary file `examples/librispeech/data/eng_vocab.txt` with all transcription text in `examples/librispeech/data/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
 
 ### More Help
 
 For more help on arguments:
 
 ```bash
-python3 data/librispeech/librispeech.py --help
+python3 examples/librispeech/local/librispeech.py --help
 python3 tools/compute_mean_std.py --help
 python3 tools/build_vocab.py --help
 ```
@@ -240,7 +202,7 @@ python3 train.py --help
 or refer to `example/librispeech/local/run_train.sh`.
 
 
-## Data Augmentation Pipeline
+### Data Augmentation Pipeline
 
 Data augmentation has often been a highly effective technique to boost the deep learning performance. We augment our speech data by synthesizing new audios with small random perturbation (label-invariant transformation) added upon raw audios. You don't have to do the syntheses on your own, as it is already embedded into the data provider and is done on the fly, randomly for each epoch during training.
 
@@ -440,7 +402,7 @@ Now, in the client console, press the `whitespace` key, hold, and start speaking
 
 Notice that `deploy/demo_client.py` must be run on a machine with a microphone device, while `deploy/demo_server.py` could be run on one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running on one single machine.
 
-Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
+Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/deploy_demo/run_demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
 
 For more help on arguments:
 

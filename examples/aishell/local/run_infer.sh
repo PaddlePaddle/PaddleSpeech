@@ -1,9 +1,8 @@
 #! /usr/bin/env bash
 
-cd ../.. > /dev/null
 
 # download language model
-cd models/lm > /dev/null
+cd ${MAIN_ROOT}/models/lm > /dev/null
 bash download_lm_ch.sh
 if [ $? -ne 0 ]; then
     exit 1
@@ -13,7 +12,7 @@ cd - > /dev/null
 
 # infer
 CUDA_VISIBLE_DEVICES=0 \
-python3 -u infer.py \
+python3 -u ${MAIN_ROOT}/infer.py \
 --num_samples=10 \
 --beam_size=300 \
 --num_proc_bsearch=8 \
@@ -27,11 +26,11 @@ python3 -u infer.py \
 --use_gru=True \
 --use_gpu=True \
 --share_rnn_weights=False \
---infer_manifest="data/aishell/manifest.test" \
---mean_std_path="data/aishell/mean_std.npz" \
---vocab_path="data/aishell/vocab.txt" \
---model_path="checkpoints/aishell/step_final" \
---lang_model_path="models/lm/zh_giga.no_cna_cmn.prune01244.klm" \
+--infer_manifest="data/manifest.test" \
+--mean_std_path="data/mean_std.npz" \
+--vocab_path="data/vocab.txt" \
+--model_path="checkpoints/step_final" \
+--lang_model_path="${MAIN_ROOT}/models/lm/zh_giga.no_cna_cmn.prune01244.klm" \
 --decoding_method="ctc_beam_search" \
 --error_rate_type="cer" \
 --specgram_type="linear"

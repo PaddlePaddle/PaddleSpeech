@@ -11,15 +11,6 @@ fi
 cd - > /dev/null
 
 
-# download well-trained model
-cd models/aishell > /dev/null
-bash download_model.sh
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-cd - > /dev/null
-
-
 # evaluate model
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 python3 -u test.py \
@@ -36,14 +27,14 @@ python3 -u test.py \
 --use_gru=True \
 --use_gpu=True \
 --share_rnn_weights=False \
---test_manifest='data/aishell/manifest.test' \
---mean_std_path='models/aishell/mean_std.npz' \
---vocab_path='models/aishell/vocab.txt' \
---model_path='models/aishell' \
---lang_model_path='models/lm/zh_giga.no_cna_cmn.prune01244.klm' \
---decoding_method='ctc_beam_search' \
---error_rate_type='cer' \
---specgram_type='linear'
+--test_manifest="data/aishell/manifest.test" \
+--mean_std_path="data/aishell/mean_std.npz" \
+--vocab_path="data/aishell/vocab.txt" \
+--model_path="checkpoints/aishell/step_final" \
+--lang_model_path="models/lm/zh_giga.no_cna_cmn.prune01244.klm" \
+--decoding_method="ctc_beam_search" \
+--error_rate_type="cer" \
+--specgram_type="linear"
 
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"

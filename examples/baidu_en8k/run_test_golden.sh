@@ -37,14 +37,14 @@ python3 -u test.py \
 --use_gru=True \
 --use_gpu=False \
 --share_rnn_weights=False \
---test_manifest='data/librispeech/manifest.test-clean' \
---mean_std_path='models/baidu_en8k/mean_std.npz' \
---vocab_path='models/baidu_en8k/vocab.txt' \
---model_path='models/baidu_en8k' \
---lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
---decoding_method='ctc_beam_search' \
---error_rate_type='wer' \
---specgram_type='linear'
+--test_manifest="data/librispeech/manifest.test-clean" \
+--mean_std_path="models/baidu_en8k/mean_std.npz" \
+--vocab_path="models/baidu_en8k/vocab.txt" \
+--model_path="models/baidu_en8k" \
+--lang_model_path="models/lm/common_crawl_00.prune01111.trie.klm" \
+--decoding_method="ctc_beam_search" \
+--error_rate_type="wer" \
+--specgram_type="linear"
 
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"

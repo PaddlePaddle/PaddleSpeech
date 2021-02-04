@@ -21,13 +21,13 @@ python3 -u $MAIN_ROOT/tools/tune.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---tune_manifest='data/manifest.dev-clean' \
---mean_std_path='data/mean_std.npz' \
---vocab_path='data/vocab.txt' \
+--tune_manifest="data/manifest.dev-clean" \
+--mean_std_path="data/mean_std.npz" \
+--vocab_path="data/vocab.txt" \
 --model_path="$MAIN_ROOT/models/librispeech" \
 --lang_model_path="$MAIN_ROOT/models/lm/common_crawl_00.prune01111.trie.klm" \
---error_rate_type='wer' \
---specgram_type='linear'
+--error_rate_type="wer" \
+--specgram_type="linear"
 
 if [ $? -ne 0 ]; then
     echo "Failed in tuning!"

@@ -22,14 +22,14 @@ python3 -u ${MAIN_ROOT}/train.py \
 --use_gpu=True \
 --is_local=True \
 --share_rnn_weights=True \
---train_manifest='data/manifest.tiny' \
---dev_manifest='data/manifest.tiny' \
---mean_std_path='data/mean_std.npz' \
---vocab_path='data/vocab.txt' \
---output_model_dir='./checkpoints/' \
+--train_manifest="data/manifest.tiny" \
+--dev_manifest="data/manifest.tiny" \
+--mean_std_path="data/mean_std.npz" \
+--vocab_path="data/vocab.txt" \
+--output_model_dir="./checkpoints/" \
 --augment_conf_path="${MAIN_ROOT}/conf/augmentation.config" \
---specgram_type='linear' \
---shuffle_method='batch_shuffle_clipped' \
+--specgram_type="linear" \
+--shuffle_method="batch_shuffle_clipped" \
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

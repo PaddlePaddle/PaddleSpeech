@@ -1,7 +1,5 @@
 #! /usr/bin/env bash
 
-cd ../.. > /dev/null
-
 # grid-search for hyper-parameters in language model
 CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python3 -u tools/tune.py \
@@ -23,13 +21,13 @@ python3 -u tools/tune.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---tune_manifest='data/librispeech/manifest.dev-clean' \
---mean_std_path='data/librispeech/mean_std.npz' \
---vocab_path='models/librispeech/vocab.txt' \
---model_path='models/librispeech' \
---lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm' \
---error_rate_type='wer' \
---specgram_type='linear'
+--tune_manifest="data/manifest.dev-clean" \
+--mean_std_path="data/mean_std.npz" \
+--vocab_path="${MAIN_ROOT}/models/librispeech/vocab.txt" \
+--model_path="${MAIN_ROOT}/models/librispeech" \
+--lang_model_path="${MAIN_ROOT}/models/lm/common_crawl_00.prune01111.trie.klm" \
+--error_rate_type="wer" \
+--specgram_type="linear"
 
 if [ $? -ne 0 ]; then
     echo "Failed in tuning!"

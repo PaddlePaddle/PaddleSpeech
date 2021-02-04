@@ -3,7 +3,7 @@
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python3 local/librispeech.py \
 --manifest_prefix="data/manifest" \
---target_dir="./dataset/librispeech" \
+--target_dir="{MAIN_ROOT}/dataset/librispeech" \
 --full_download="True"
 
 if [ $? -ne 0 ]; then

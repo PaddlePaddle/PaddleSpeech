@@ -3,7 +3,7 @@
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python3 local/aishell.py \
 --manifest_prefix="data/manifest" \
---target_dir="./dataset/aishell"
+--target_dir="${MAIN_ROOT}/dataset/aishell"
 
 if [ $? -ne 0 ]; then
     echo "Prepare Aishell failed. Terminated."

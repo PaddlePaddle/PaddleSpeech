@@ -33,3 +33,9 @@
         entry: bash .clang_format.hook -i
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
+    -   id: copyright_checker
+        name: copyright_checker
+        entry: python .copyright.hook
+        language: system
+        files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
+        exclude: (?!.*third_party)^.*$ | (?!.*book)^.*$

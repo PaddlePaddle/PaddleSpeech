@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+mkdir -p data
+
 # download data, generate manifests
 PYTHONPATH=.:$PYTHONPATH python3 local/aishell.py \
 --manifest_prefix="data/manifest" \

@@ -102,7 +102,7 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
 
     Notice that this is only a toy example with a tiny sampled subset of LibriSpeech. If you would like to try with the complete dataset (would take several days for training), please go to `examples/librispeech` instead.
 - Source env
-    
+
     ```bash
     source path.sh
     ```

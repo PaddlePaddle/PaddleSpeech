@@ -99,7 +99,7 @@ python3 -m pip install paddlepaddle-gpu==1.8.0.post107
     cd examples/tiny
     ```
 
-    注意这仅仅是 LibriSpeech 一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。   
+    注意这仅仅是 LibriSpeech 一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。  
 - 设置环境变量
 
     ```bash
@@ -108,7 +108,7 @@ python3 -m pip install paddlepaddle-gpu==1.8.0.post107
 - 入口脚本
 
     ```bash
-    bash run.sh 
+    bash run.sh
     ```
 
 更多细节会在接下来的章节中阐述。祝你在*DeepSpeech2*ASR引擎学习中过得愉快！

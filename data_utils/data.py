@@ -371,7 +371,7 @@ class DataGenerator(object):
         """
         manifest.sort(key=lambda x: x["duration"])
         shift_len = self._rng.randint(0, batch_size - 1)
-        batch_manifest = list(zip(*[iter(manifest[shift_len:])] * batch_size))
+        batch_manifest = list(zip(* [iter(manifest[shift_len:])] * batch_size))
         self._rng.shuffle(batch_manifest)
         batch_manifest = [item for batch in batch_manifest for item in batch]
         if not clipped:

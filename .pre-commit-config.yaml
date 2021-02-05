@@ -30,6 +30,12 @@
     -   id: clang-format
         name: clang-format
         description: Format files with ClangFormat
-        entry: bash .clang_format.hook -i
+        entry: bash .pre-commit-hooks/clang-format.hook -i
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
+    -   id: copyright_checker
+        name: copyright_checker
+        entry: python .pre-commit-hooks/copyright-check.hook
+        language: system
+        files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
+        exclude: (?=decoders/swig).*(\.cpp|\.h)$

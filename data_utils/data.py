@@ -187,6 +187,9 @@ class DataGenerator():
                 manifest_path=manifest_path,
                 max_duration=self._max_duration,
                 min_duration=self._min_duration)
+
+
+                
             # sort (by duration) or batch-wise shuffle the manifest
             if self._epoch == 0 and sortagrad:
                 manifest.sort(key=lambda x: x["duration"])

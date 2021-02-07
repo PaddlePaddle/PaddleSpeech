@@ -27,8 +27,10 @@ from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
 
+__all__ = ['DataGenerator']
 
-class DataGenerator(object):
+
+class DataGenerator():
     """
     DataGenerator provides basic audio data preprocessing pipeline, and offers
     data reader interfaces of PaddlePaddle requirements.
@@ -310,43 +312,32 @@ class DataGenerator(object):
                 raise ValueError("If padding_to is not -1, it should be larger "
                                  "than any instance's shape in the batch")
             max_length = padding_to
+        max_text_length = max([len(text) for audio, text in batch])
         # padding
         padded_audios = []
-        texts, text_lens = [], []
         audio_lens = []
-        masks = []
+        texts, text_lens = [], []
         for audio, text in batch:
             padded_audio = np.zeros([audio.shape[0], max_length])
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
                 padded_audio = padded_audio.flatten()
             padded_audios.append(padded_audio)
+            audio_lens.append(audio.shape[1])
             if self._is_training:
-                texts += text
+                padded_text = np.zeros([max_text_length])
+                padded_text[:len(text)] = text
+                texts.append(padded_text)
             else:
                 texts.append(text)
             text_lens.append(len(text))
-            audio_lens.append(audio.shape[1])
-            mask_shape0 = (audio.shape[0] - 1) // 2 + 1
-            mask_shape1 = (audio.shape[1] - 1) // 3 + 1
-            mask_max_len = (max_length - 1) // 3 + 1
-            mask_ones = np.ones((mask_shape0, mask_shape1))
-            mask_zeros = np.zeros((mask_shape0, mask_max_len - mask_shape1))
-            mask = np.repeat(
-                np.reshape(
-                    np.concatenate((mask_ones, mask_zeros), axis=1),
-                    (1, mask_shape0, mask_max_len)),
-                32,
-                axis=0)
-            masks.append(mask)
+
         padded_audios = np.array(padded_audios).astype('float32')
+        audio_lens = np.array(audio_lens).astype('int64')
         if self._is_training:
-            texts = np.expand_dims(np.array(texts).astype('int32'), axis=-1)
-            texts = fluid.create_lod_tensor(
-                texts, recursive_seq_lens=[text_lens], place=self._place)
-        audio_lens = np.array(audio_lens).astype('int64').reshape([-1, 1])
-        masks = np.array(masks).astype('float32')
-        return padded_audios, texts, audio_lens, masks
+            texts = np.array(texts).astype('int32')
+            text_lens = np.array(text_lens).astype('int64')
+        return padded_audios, texts, audio_lens, text_lens
 
     def _batch_shuffle(self, manifest, batch_size, clipped=False):
         """Put similarly-sized instances into minibatches for better efficiency

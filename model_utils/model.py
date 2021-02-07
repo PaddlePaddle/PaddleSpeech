@@ -25,6 +25,7 @@ import multiprocessing
 import numpy as np
 from distutils.dir_util import mkpath
 import paddle.fluid as fluid
+from paddle.io import DataLoader
 import paddle.fluid.compiler as compiler
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
@@ -97,24 +98,7 @@ class DeepSpeech2Model(object):
         """
 
         if not is_infer:
-            input_fields = {
-                'names': ['audio_data', 'text_data', 'seq_len_data', 'masks'],
-                'shapes':
-                [[None, 161, None], [None, 1], [None, 1], [None, 32, 81, None]],
-                'dtypes': ['float32', 'int32', 'int64', 'float32'],
-                'lod_levels': [0, 1, 0, 0]
-            }
-
-            inputs = [
-                fluid.data(
-                    name=input_fields['names'][i],
-                    shape=input_fields['shapes'][i],
-                    dtype=input_fields['dtypes'][i],
-                    lod_level=input_fields['lod_levels'][i])
-                for i in range(len(input_fields['names']))
-            ]
-
-            reader = fluid.io.DataLoader.from_generator(
+            reader = DataLoader.from_generator(
                 feed_list=inputs,
                 capacity=64,
                 iterable=False,

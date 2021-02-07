@@ -1,5 +1,11 @@
 #! /usr/bin/env  bash
 
+if [ `id -u ` == 0 ]; then
+  SUDO=
+else
+  SUDO='sudo'
+fi
+
 # install python dependencies
 if [ -f "requirements.txt" ]; then
     pip3 install -r requirements.txt
@@ -12,6 +18,9 @@ fi
 # install package libsndfile
 python3 -c "import soundfile"
 if [ $? != 0 ]; then
+    if [ -e /etc/lsb-release ];then
+        ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    fi
     echo "Install package libsndfile into default system path."
     wget "http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz"
     if [ $? != 0 ]; then

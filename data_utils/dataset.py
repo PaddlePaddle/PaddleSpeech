@@ -15,3 +15,8 @@
 import paddle
 from paddle.io import Dataset
 from paddle.io import DataLoader
+
+
+class DeepSpeech2Dataset(Dataset):
+    def __init__(self):
+        super().__init__()

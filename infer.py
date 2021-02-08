@@ -18,6 +18,7 @@ import argparse
 import functools
 import paddle.fluid as fluid
 from data_utils.data import DataGenerator
+from data_utils.dataset import create_dataloader
 from model_utils.model import DeepSpeech2Model
 from model_utils.model_check import check_cuda, check_version
 from utils.error_rate import wer, cer
@@ -80,75 +81,114 @@ def infer():
     # check if paddlepaddle version is satisfied
     check_version()
 
-    if args.use_gpu:
-        place = fluid.CUDAPlace(0)
-    else:
-        place = fluid.CPUPlace()
+    # data_generator = DataGenerator(
+    #     vocab_filepath=args.vocab_path,
+    #     mean_std_filepath=args.mean_std_path,
+    #     augmentation_config='{}',
+    #     specgram_type=args.specgram_type,
+    #     keep_transcription_text=True,
+    #     place = place,
+    #     is_training = False)
+    # batch_reader = data_generator.batch_reader_creator(
+    #     manifest_path=args.infer_manifest,
+    #     batch_size=args.num_samples,
+    #     sortagrad=False,
+    #     shuffle_method=None)
 
-    data_generator = DataGenerator(
-        vocab_filepath=args.vocab_path,
-        mean_std_filepath=args.mean_std_path,
-        augmentation_config='{}',
-        specgram_type=args.specgram_type,
-        keep_transcription_text=True,
-        place = place,
-        is_training = False)
-    batch_reader = data_generator.batch_reader_creator(
-        manifest_path=args.infer_manifest,
-        batch_size=args.num_samples,
-        sortagrad=False,
-        shuffle_method=None)
-    infer_data = next(batch_reader())
+    batch_reader = create_dataloader(
+            manifest_path=args.infer_manifest,
+            vocab_filepath=args.vocab_path,
+            mean_std_filepath=args.mean_std_path,
+            augmentation_config='{}',
+            max_duration=float('inf'),
+            min_duration=0.0,
+            stride_ms=10.0,
+            window_ms=20.0,
+            max_freq=None,
+            specgram_type=args.specgram_type,
+            use_dB_normalization=True,
+            random_seed=0,
+            keep_transcription_text=False,
+            is_training=False,
+            batch_size=args.num_samples,
+            sortagrad=False,
+            shuffle_method=None)
 
-    ds2_model = DeepSpeech2Model(
-        vocab_size=data_generator.vocab_size,
+    #for audio, text, audio_len, text_len in batch_reader:
+    #    print(audio.shape)
+    #    print(text.shape)
+    #    print(audio_len)
+    #    print(text_len)
+    #    break
+
+    reader = batch_reader()
+    infer_data = reader.next()
+    print(infer_data)
+
+    from model_utils.network2 import DeepSpeech2
+    feat_dim=161
+    model = DeepSpeech2(
+        feat_size=feat_dim,
+        dict_size=batch_reader.dataset.vocab_size,
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
-        rnn_layer_size=args.rnn_layer_size,
+        #rnn_size=1024,
         use_gru=args.use_gru,
         share_rnn_weights=args.share_rnn_weights,
-        place=place,
-        init_from_pretrained_model=args.model_path)
+    )
 
-    # decoders only accept string encoded in utf-8
-    vocab_list = [chars for chars in data_generator.vocab_list]
+    output = model(*infer_data)
+    print(output)
 
-    if args.decoding_method == "ctc_greedy":
-        ds2_model.logger.info("start inference ...")
-        probs_split = ds2_model.infer_batch_probs(
-            infer_data=infer_data,
-            feeding_dict=data_generator.feeding)
+    # ds2_model = DeepSpeech2Model(
+    #     vocab_size=data_generator.vocab_size,
+    #     num_conv_layers=args.num_conv_layers,
+    #     num_rnn_layers=args.num_rnn_layers,
+    #     rnn_layer_size=args.rnn_layer_size,
+    #     use_gru=args.use_gru,
+    #     share_rnn_weights=args.share_rnn_weights,
+    #     place=place,
+    #     init_from_pretrained_model=args.model_path)
 
-        result_transcripts = ds2_model.decode_batch_greedy(
-            probs_split=probs_split,
-            vocab_list=vocab_list)
-    else:
-        ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,
-                                  vocab_list)
-        ds2_model.logger.info("start inference ...")
-        probs_split= ds2_model.infer_batch_probs(
-            infer_data=infer_data,
-            feeding_dict=data_generator.feeding)
+    # # decoders only accept string encoded in utf-8
+    # vocab_list = [chars for chars in data_generator.vocab_list]
 
-        result_transcripts= ds2_model.decode_batch_beam_search(
-            probs_split=probs_split,
-            beam_alpha=args.alpha,
-            beam_beta=args.beta,
-            beam_size=args.beam_size,
-            cutoff_prob=args.cutoff_prob,
-            cutoff_top_n=args.cutoff_top_n,
-            vocab_list=vocab_list,
-            num_processes=args.num_proc_bsearch)
+    # if args.decoding_method == "ctc_greedy":
+    #     ds2_model.logger.info("start inference ...")
+    #     probs_split = ds2_model.infer_batch_probs(
+    #         infer_data=infer_data,
+    #         feeding_dict=data_generator.feeding)
 
-    error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    target_transcripts = infer_data[1]
-    for target, result in zip(target_transcripts, result_transcripts):
-        print("\nTarget Transcription: %s\nOutput Transcription: %s" %
-              (target, result))
-        print("Current error rate [%s] = %f" %
-              (args.error_rate_type, error_rate_func(target, result)))
+    #     result_transcripts = ds2_model.decode_batch_greedy(
+    #         probs_split=probs_split,
+    #         vocab_list=vocab_list)
+    # else:
+    #     ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,
+    #                               vocab_list)
+    #     ds2_model.logger.info("start inference ...")
+    #     probs_split= ds2_model.infer_batch_probs(
+    #         infer_data=infer_data,
+    #         feeding_dict=data_generator.feeding)
 
-    ds2_model.logger.info("finish inference")
+    #     result_transcripts= ds2_model.decode_batch_beam_search(
+    #         probs_split=probs_split,
+    #         beam_alpha=args.alpha,
+    #         beam_beta=args.beta,
+    #         beam_size=args.beam_size,
+    #         cutoff_prob=args.cutoff_prob,
+    #         cutoff_top_n=args.cutoff_top_n,
+    #         vocab_list=vocab_list,
+    #         num_processes=args.num_proc_bsearch)
+
+    # error_rate_func = cer if args.error_rate_type == 'cer' else wer
+    # target_transcripts = infer_data[1]
+    # for target, result in zip(target_transcripts, result_transcripts):
+    #     print("\nTarget Transcription: %s\nOutput Transcription: %s" %
+    #           (target, result))
+    #     print("Current error rate [%s] = %f" %
+    #           (args.error_rate_type, error_rate_func(target, result)))
+
+    # ds2_model.logger.info("finish inference")
 
 def main():
     print_arguments(args)

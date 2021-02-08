@@ -497,8 +497,6 @@ class DeepSpeech2(nn.Layer):
             share_rnn_weights=share_rnn_weights)
         self.fc = nn.Linear(rnn_size * 2, dict_size + 1)
 
-        self.loss = nn.CTCLoss(blank=dict_size, reduction='none')
-
     def predict(self, audio, audio_len):
         # [B, D, T] -> [B, C=1, D, T]
         audio = audio.unsqueeze(1)
@@ -534,14 +532,24 @@ class DeepSpeech2(nn.Layer):
         text_len: shape [B]
         """
         logits, probs = self.predict(audio, audio_len)
-        # warp-ctc do softmax on activations
-        # warp-ctc need activation with shape [T, B, V + 1]
-        logits = logits.transpose([1, 0, 2])
         print(logits.shape)
         print(text.shape)
         print(audio_len.shape)
         print(text_len.shape)
+        return logits
+
+
+class DeepSpeechLoss(nn.Layer):
+    def __init__(self, vocab_size):
+        super().__init__()
+        self.loss = nn.CTCLoss(blank=vocab_size, reduction='none')
+
+    def forward(self, logits, text, audio_len, text_len):
+        # warp-ctc do softmax on activations
+        # warp-ctc need activation with shape [T, B, V + 1]
+        logits = logits.transpose([1, 0, 2])
+
         ctc_loss = self.loss(logits, text, audio_len, text_len)
         ctc_loss /= text_len  # norm_by_times
         ctc_loss = ctc_loss.sum()
-        return probs, ctc_loss
+        return ctc_loss

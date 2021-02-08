@@ -1,9 +1,8 @@
 #! /usr/bin/env  bash
 
-if [ `id -u ` == 0 ]; then
-  SUDO=
-else
-  SUDO='sudo'
+SUDO='sudo'
+if [ $(id -u) -eq 0 ]; then
+  SUDO=''
 fi
 
 if [ -e /etc/lsb-release ];then

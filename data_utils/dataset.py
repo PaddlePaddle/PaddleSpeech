@@ -211,7 +211,7 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         rng = np.random.RandomState(self.epoch)
         manifest.sort(key=lambda x: x["duration"])
         shift_len = rng.randint(0, batch_size - 1)
-        batch_manifest = list(zip(* [iter(manifest[shift_len:])] * batch_size))
+        batch_manifest = list(zip(*[iter(manifest[shift_len:])] * batch_size))
         rng.shuffle(batch_manifest)
         batch_manifest = [item for batch in batch_manifest for item in batch]
         if not clipped:
@@ -347,7 +347,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
         rng = np.random.RandomState(self.epoch)
         manifest.sort(key=lambda x: x["duration"])
         shift_len = rng.randint(0, batch_size - 1)
-        batch_manifest = list(zip(* [iter(manifest[shift_len:])] * batch_size))
+        batch_manifest = list(zip(*[iter(manifest[shift_len:])] * batch_size))
         rng.shuffle(batch_manifest)
         batch_manifest = [item for batch in batch_manifest for item in batch]
         if not clipped:

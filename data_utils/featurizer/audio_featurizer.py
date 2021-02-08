@@ -63,6 +63,7 @@ class AudioFeaturizer(object):
         self._target_sample_rate = target_sample_rate
         self._use_dB_normalization = use_dB_normalization
         self._target_dB = target_dB
+        self._fft_point = None
 
     def featurize(self,
                   audio_segment,
@@ -97,6 +98,19 @@ class AudioFeaturizer(object):
         # extract spectrogram
         return self._compute_specgram(audio_segment.samples,
                                       audio_segment.sample_rate)
+
+    @property
+    def feature_size(self):
+        """audio feature size"""
+        if self._specgram_type == 'linear':
+            fft_point = self._window_ms if self._fft_point is None else self._fft_point
+            return fft_point * (self._target_sample_rate / 1000) / 2 + 1
+        elif self._specgram_type == 'mfcc':
+            # mfcc,delta, delta-delta
+            return 13 * 3
+        else:
+            raise ValueError("Unknown specgram_type %s. "
+                             "Supported values: linear." % self._specgram_type)
 
     def _compute_specgram(self, samples, sample_rate):
         """Extract various audio features."""
@@ -150,7 +164,8 @@ class AudioFeaturizer(object):
             windows[:, 1] == samples[stride_size:(stride_size + window_size)])
         # window weighting, squared Fast Fourier Transform (fft), scaling
         weighting = np.hanning(window_size)[:, None]
-        fft = np.fft.rfft(windows * weighting, axis=0)
+        # https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html
+        fft = np.fft.rfft(windows * weighting, n=None, axis=0)
         fft = np.absolute(fft)
         fft = fft**2
         scale = np.sum(weighting**2) * sample_rate

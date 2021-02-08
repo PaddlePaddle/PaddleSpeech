@@ -14,8 +14,9 @@
 """This module provides functions to calculate error rate in different level.
 e.g. wer for word-level, cer for char-level.
 """
-
 import numpy as np
+
+__all__ = ['word_errors', 'char_errors', 'wer', 'cer']
 
 
 def _levenshtein_distance(ref, hyp):

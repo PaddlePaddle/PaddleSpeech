@@ -24,179 +24,177 @@ import collections
 import multiprocessing
 import numpy as np
 from distutils.dir_util import mkpath
+
 import paddle.fluid as fluid
-from paddle.io import DataLoader
-import paddle.fluid.compiler as compiler
+
+from training import Trainer
+from model_utils.network import DeepSpeech2
+from model_utils.network import DeepSpeech2Loss
+
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
 from decoders.swig_wrapper import ctc_beam_search_decoder_batch
-from model_utils.network import deep_speech_v2_network
 
 logging.basicConfig(
     format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
 
 
-class DeepSpeech2Model(object):
-    """DeepSpeech2Model class.
-
-    :param vocab_size: Decoding vocabulary size.
-    :type vocab_size: int
-    :param num_conv_layers: Number of stacking convolution layers.
-    :type num_conv_layers: int
-    :param num_rnn_layers: Number of stacking RNN layers.
-    :type num_rnn_layers: int
-    :param rnn_layer_size: RNN layer size (number of RNN cells).
-    :type rnn_layer_size: int
-    :param use_gru: Use gru if set True. Use simple rnn if set False.
-    :type use_gru: bool
-    :param share_rnn_weights: Whether to share input-hidden weights between
-                              forward and backward directional RNNs.Notice that
-                              for GRU, weight sharing is not supported.
-    :type share_rnn_weights: bool
-    :param place: Program running place.
-    :type place: CPUPlace or CUDAPlace
-    :param init_from_pretrained_model: Pretrained model path. If None, will train
-                                  from stratch.
-    :type init_from_pretrained_model: string|None
-    :param output_model_dir: Output model directory. If None, output to current directory. 
-    :type output_model_dir: string|None
-    """
-
-    def __init__(self,
-                 vocab_size,
-                 num_conv_layers,
-                 num_rnn_layers,
-                 rnn_layer_size,
-                 use_gru=False,
-                 share_rnn_weights=True,
-                 place=fluid.CPUPlace(),
-                 init_from_pretrained_model=None,
-                 output_model_dir=None):
-        self._vocab_size = vocab_size
-        self._num_conv_layers = num_conv_layers
-        self._num_rnn_layers = num_rnn_layers
-        self._rnn_layer_size = rnn_layer_size
-        self._use_gru = use_gru
-        self._share_rnn_weights = share_rnn_weights
-        self._place = place
-        self._init_from_pretrained_model = init_from_pretrained_model
-        self._output_model_dir = output_model_dir
-        self._ext_scorer = None
-        self.logger = logging.getLogger("")
-        self.logger.setLevel(level=logging.INFO)
-
-    def create_network(self, is_infer=False):
-        """Create data layers and model network.
-        :param is_training: Whether to create a network for training.
-        :type is_training: bool 
-        :return reader: Reader for input.
-        :rtype reader: read generater
-        :return log_probs: An output unnormalized log probability layer.
-        :rtype lig_probs: Varable
-        :return loss: A ctc loss layer.
-        :rtype loss: Variable
+class SpeechCollator():
+    def __init__(self, padding_to=-1):
         """
+        Padding audio features with zeros to make them have the same shape (or
+        a user-defined shape) within one bach.
 
-        if not is_infer:
-            reader = DataLoader.from_generator(
-                feed_list=inputs,
-                capacity=64,
-                iterable=False,
-                use_double_buffer=True)
+        If ``padding_to`` is -1, the maximun shape in the batch will be used
+        as the target shape for padding. Otherwise, `padding_to` will be the
+        target shape (only refers to the second axis).
+        """
+        self._padding_to = padding_to
 
-            (audio_data, text_data, seq_len_data, masks) = inputs
+    def __call__(self, batch):
+        new_batch = []
+        # get target shape
+        max_length = max([audio.shape[1] for audio, _ in batch])
+        if self._padding_to != -1:
+            if self._padding_to < max_length:
+                raise ValueError("If padding_to is not -1, it should be larger "
+                                 "than any instance's shape in the batch")
+            max_length = self._padding_to
+        max_text_length = max([len(text) for _, text in batch])
+        # padding
+        padded_audios = []
+        audio_lens = []
+        texts, text_lens = [], []
+        for audio, text in batch:
+            # audio
+            padded_audio = np.zeros([audio.shape[0], max_length])
+            padded_audio[:, :audio.shape[1]] = audio
+            padded_audios.append(padded_audio)
+            audio_lens.append(audio.shape[1])
+            # text
+            padded_text = np.zeros([max_text_length])
+            padded_text[:len(text)] = text
+            texts.append(padded_text)
+            text_lens.append(len(text))
+
+        padded_audios = np.array(padded_audios).astype('float32')
+        audio_lens = np.array(audio_lens).astype('int64')
+        texts = np.array(texts).astype('int32')
+        text_lens = np.array(text_lens).astype('int64')
+        return padded_audios, texts, audio_lens, text_lens
+
+
+class DeepSpeech2Trainer(Trainer):
+    def __init__(self):
+        self._ext_scorer = None
+
+    def setup_dataloader(self):
+        config = self.config
+
+        train_dataset = DeepSpeech2Dataset(
+            config.data.train_manifest_path,
+            config.data.vocab_filepath,
+            config.data.mean_std_filepath,
+            augmentation_config=config.data.augmentation_config,
+            max_duration=config.data.max_duration,
+            min_duration=config.data.min_duration,
+            stride_ms=config.data.stride_ms,
+            window_ms=config.data.window_ms,
+            max_freq=config.data.max_freq,
+            specgram_type=config.data.specgram_type,
+            use_dB_normalization=config.data.use_dB_normalization,
+            random_seed=config.data.random_seed,
+            keep_transcription_text=False)
+
+        dev_dataset = DeepSpeech2Dataset(
+            config.data.dev_manifest_path,
+            config.data.vocab_filepath,
+            config.data.mean_std_filepath,
+            augmentation_config=config.data.augmentation_config,
+            max_duration=config.data.max_duration,
+            min_duration=config.data.min_duration,
+            stride_ms=config.data.stride_ms,
+            window_ms=config.data.window_ms,
+            max_freq=config.data.max_freq,
+            specgram_type=config.data.specgram_type,
+            use_dB_normalization=config.data.use_dB_normalization,
+            random_seed=config.data.random_seed,
+            keep_transcription_text=False)
+
+        if self.parallel:
+            batch_sampler = DeepSpeech2DistributedBatchSampler(
+                train_dataset,
+                batch_size=config.data.batch_size,
+                num_replicas=None,
+                rank=None,
+                shuffle=True,
+                drop_last=True,
+                sortagrad=config.data.sortagrad,
+                shuffle_method=config.data.shuffle_method)
         else:
-            audio_data = fluid.data(
-                name='audio_data',
-                shape=[None, 161, None],
-                dtype='float32',
-                lod_level=0)
-            seq_len_data = fluid.data(
-                name='seq_len_data',
-                shape=[None, 1],
-                dtype='int64',
-                lod_level=0)
-            masks = fluid.data(
-                name='masks',
-                shape=[None, 32, 81, None],
-                dtype='float32',
-                lod_level=0)
-            text_data = None
-            reader = fluid.DataFeeder([audio_data, seq_len_data, masks],
-                                      self._place)
+            batch_sampler = DeepSpeech2BatchSampler(
+                train_dataset,
+                shuffle=True,
+                batch_size=config.data.batch_size,
+                drop_last=True,
+                sortagrad=config.data.sortagrad,
+                shuffle_method=config.data.shuffle_method)
 
-        log_probs, loss = deep_speech_v2_network(
-            audio_data=audio_data,
-            text_data=text_data,
-            seq_len_data=seq_len_data,
-            masks=masks,
-            dict_size=self._vocab_size,
-            num_conv_layers=self._num_conv_layers,
-            num_rnn_layers=self._num_rnn_layers,
-            rnn_size=self._rnn_layer_size,
-            use_gru=self._use_gru,
-            share_rnn_weights=self._share_rnn_weights)
-        return reader, log_probs, loss
+        collate_fn = SpeechCollator()
+        self.train_loader = DataLoader(
+            train_dataset,
+            batch_sampler=batch_sampler,
+            collate_fn=collate_fn,
+            num_workers=config.data.num_workers, )
+        self.valid_loader = DataLoader(
+            dev_dataset,
+            batch_size=config.data.batch_size,
+            shuffle=False,
+            drop_last=False,
+            collate_fn=collate_fn)
+        self.logger.info("Setup train/valid Dataloader!")
 
-    def init_from_pretrained_model(self, exe, program):
-        '''Init params from pretrain model. '''
+    def setup_model(self):
+        config = self.config
+        model = DeepSpeech2(
+            feat_size=self.train_loader.feature_size,
+            dict_size=self.train_loader.vocab_size,
+            num_conv_layers=config.model.num_conv_layers,
+            num_rnn_layers=config.model.num_rnn_layers,
+            rnn_size=config.model.rnn_layer_size,
+            share_rnn_weights=config.model.share_rnn_weights)
 
-        assert isinstance(self._init_from_pretrained_model, str)
+        if self.parallel:
+            model = paddle.DataParallel(model)
 
-        if not os.path.exists(self._init_from_pretrained_model):
-            print(self._init_from_pretrained_model)
-            raise Warning("The pretrained params do not exist.")
-            return False
-        fluid.io.load_params(
-            exe,
-            self._init_from_pretrained_model,
-            main_program=program,
-            filename="params.pdparams")
+        grad_clip = paddle.nn.ClipGradByGlobalNorm(config.training.grad_clip)
 
-        print("finish initing model from pretrained params from %s" %
-              (self._init_from_pretrained_model))
+        optimizer = paddle.optimizer.Adam(
+            learning_rate=config.training.lr,
+            parameters=model.parameters(),
+            weight_decay=paddle.regulaerizer.L2Decay(
+                config.training.weight_decay),
+            grad_clip=grad_clip, )
 
-        pre_epoch = 0
-        dir_name = self._init_from_pretrained_model.split('_')
-        if len(dir_name) >= 2 and dir_name[-2].endswith('epoch') and dir_name[
-                -1].isdigit():
-            pre_epoch = int(dir_name[-1])
+        criterion = DeepSpeech2Loss(self.train_loader.vocab_size)
 
-        return pre_epoch + 1
+        self.model = model
+        self.optimizer = optimizer
+        self.criterion = criterion
+        self.logger.info("Setup model/optimizer/criterion!")
 
-    def save_param(self, exe, program, dirname):
-        '''Save model params to dirname'''
+    def compute_losses(self, inputs, outputs):
+        pass
 
-        assert isinstance(self._output_model_dir, str)
-
-        param_dir = os.path.join(self._output_model_dir)
-
-        if not os.path.exists(param_dir):
-            os.mkdir(param_dir)
-
-        fluid.io.save_params(
-            exe,
-            os.path.join(param_dir, dirname),
-            main_program=program,
-            filename="params.pdparams")
-        print("save parameters at %s" % (os.path.join(param_dir, dirname)))
-
-        return True
-
-    def test(self, exe, dev_batch_reader, test_program, test_reader,
-             fetch_list):
+    def test(self, test_reader):
         '''Test the model.
 
         :param exe:The executor of program.
         :type exe: Executor
-        :param dev_batch_reader: The reader of test dataa.
-        :type dev_batch_reader: read generator 
         :param test_program: The program of test.
         :type test_program: Program
         :param test_reader: Reader of test.
         :type test_reader: Reader
-        :param fetch_list: Fetch list.
-        :type fetch_list: list
         :return: An output unnormalized log probability. 
         :rtype: array
         '''
@@ -254,13 +252,6 @@ class DeepSpeech2Model(object):
         :param test_off: Turn off testing.
         :type test_off: bool
         """
-        # prepare model output directory
-        if not os.path.exists(self._output_model_dir):
-            mkpath(self._output_model_dir)
-
-        # adapt the feeding dict according to the network
-        adapted_feeding_dict = self._adapt_feeding_dict(feeding_dict)
-
         if isinstance(self._place, fluid.CUDAPlace):
             dev_count = fluid.core.get_cuda_device_count()
         else:
@@ -297,16 +288,6 @@ class DeepSpeech2Model(object):
         pre_epoch = 0
         if self._init_from_pretrained_model:
             pre_epoch = self.init_from_pretrained_model(exe, train_program)
-
-        build_strategy = compiler.BuildStrategy()
-        exec_strategy = fluid.ExecutionStrategy()
-
-        # pass the build_strategy to with_data_parallel API
-        compiled_prog = compiler.CompiledProgram(
-            train_program).with_data_parallel(
-                loss_name=ctc_loss.name,
-                build_strategy=build_strategy,
-                exec_strategy=exec_strategy)
 
         train_reader.set_batch_generator(train_batch_reader)
         test_reader.set_batch_generator(dev_batch_reader)
@@ -385,9 +366,6 @@ class DeepSpeech2Model(object):
         # define inferer
         infer_program = fluid.Program()
         startup_prog = fluid.Program()
-
-        # adapt the feeding dict according to the network
-        adapted_feeding_dict = self._adapt_feeding_dict(feeding_dict)
 
         # prepare the network
         with fluid.program_guard(infer_program, startup_prog):
@@ -523,35 +501,3 @@ class DeepSpeech2Model(object):
 
         results = [result[0][1] for result in beam_search_results]
         return results
-
-    def _adapt_feeding_dict(self, feeding_dict):
-        """Adapt feeding dict according to network struct.
-
-        To remove impacts from padding part, we add scale_sub_region layer and
-        sub_seq layer. For sub_seq layer, 'sequence_offset' and
-        'sequence_length' fields are appended. For each scale_sub_region layer
-        'convN_index_range' field is appended.
-
-        :param feeding_dict: Feeding is a map of field name and tuple index
-                             of the data that reader returns.
-        :type feeding_dict: dict|list
-        :return: Adapted feeding dict.
-        :rtype: dict|list
-        """
-        adapted_feeding_dict = copy.deepcopy(feeding_dict)
-        if isinstance(feeding_dict, dict):
-            adapted_feeding_dict["sequence_offset"] = len(adapted_feeding_dict)
-            adapted_feeding_dict["sequence_length"] = len(adapted_feeding_dict)
-            for i in range(self._num_conv_layers):
-                adapted_feeding_dict["conv%d_index_range" %i] = \
-                        len(adapted_feeding_dict)
-        elif isinstance(feeding_dict, list):
-            adapted_feeding_dict.append("sequence_offset")
-            adapted_feeding_dict.append("sequence_length")
-            for i in range(self._num_conv_layers):
-                adapted_feeding_dict.append("conv%d_index_range" % i)
-        else:
-            raise ValueError("Type of feeding_dict is %s, not supported." %
-                             type(feeding_dict))
-
-        return adapted_feeding_dict

@@ -106,3 +106,12 @@ class SpeechFeaturizer(object):
         :rtype: list
         """
         return self._text_featurizer.vocab_list
+
+    @property
+    def feature_size(self):
+        """Return the audio feature size.
+
+        :return: audio feature size.
+        :rtype: int
+        """
+        return self._audio_featurizer.feature_size

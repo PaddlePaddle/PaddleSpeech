@@ -1,7 +1,7 @@
 language: cpp
 cache: ccache
 sudo: required
-dist: xenial 
+dist: Bionic 
 services:
   - docker
 os:

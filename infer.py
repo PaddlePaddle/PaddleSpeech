@@ -16,13 +16,12 @@
 import sys
 import argparse
 import functools
-import paddle.fluid as fluid
+from model_utils.model_check import check_cuda, check_version
+from utils.utility import add_arguments, print_arguments
+from utils.error_rate import wer, cer
 from data_utils.data import DataGenerator
 from data_utils.dataset import create_dataloader
 from model_utils.model import DeepSpeech2Model
-from model_utils.model_check import check_cuda, check_version
-from utils.error_rate import wer, cer
-from utils.utility import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -132,7 +131,7 @@ def infer():
         dict_size=batch_reader.dataset.vocab_size,
         num_conv_layers=args.num_conv_layers,
         num_rnn_layers=args.num_rnn_layers,
-        #rnn_size=1024,
+        rnn_size=args.rnn_layer_size,
         use_gru=args.use_gru,
         share_rnn_weights=args.share_rnn_weights,
     )

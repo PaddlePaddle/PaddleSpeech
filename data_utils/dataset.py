@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import random
 import tarfile
 import numpy as np
 import paddle
 from paddle.io import Dataset
 from paddle.io import DataLoader
+from paddle.io import BatchSampler
 from paddle.io import DistributedBatchSampler
 from collections import namedtuple
 from functools import partial
@@ -170,7 +172,7 @@ class DeepSpeech2Dataset(Dataset):
                                       instance["text"])
 
 
-class DeepSpeech2BatchSampler(DistributedBatchSampler):
+class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
     def __init__(self,
                  dataset,
                  batch_size,
@@ -279,6 +281,179 @@ class DeepSpeech2BatchSampler(DistributedBatchSampler):
         return num_samples // self.batch_size
 
 
+class DeepSpeech2BatchSampler(BatchSampler):
+    def __init__(self,
+                 dataset,
+                 batch_size,
+                 shuffle=False,
+                 drop_last=False,
+                 sortagrad=False,
+                 shuffle_method="batch_shuffle",
+                 num_replicas=1,
+                 rank=0):
+        self.dataset = dataset
+
+        assert isinstance(batch_size, int) and batch_size > 0, \
+                "batch_size should be a positive integer"
+        self.batch_size = batch_size
+        assert isinstance(shuffle, bool), \
+                "shuffle should be a boolean value"
+        self.shuffle = shuffle
+        assert isinstance(drop_last, bool), \
+                "drop_last should be a boolean number"
+
+        if num_replicas is not None:
+            assert isinstance(num_replicas, int) and num_replicas > 0, \
+                    "num_replicas should be a positive integer"
+            self.nranks = num_replicas
+        else:
+            self.nranks = num_replicas
+
+        if rank is not None:
+            assert isinstance(rank, int) and rank >= 0, \
+                    "rank should be a non-negative integer"
+            self.local_rank = rank
+        else:
+            self.local_rank = rank
+
+        self.drop_last = drop_last
+        self.epoch = 0
+        self.num_samples = int(math.ceil(len(self.dataset) * 1.0 / self.nranks))
+        self.total_size = self.num_samples * self.nranks
+        self._sortagrad = sortagrad
+        self._shuffle_method = shuffle_method
+
+    def _batch_shuffle(self, manifest, batch_size, clipped=False):
+        """Put similarly-sized instances into minibatches for better efficiency
+        and make a batch-wise shuffle.
+
+        1. Sort the audio clips by duration.
+        2. Generate a random number `k`, k in [0, batch_size).
+        3. Randomly shift `k` instances in order to create different batches
+           for different epochs. Create minibatches.
+        4. Shuffle the minibatches.
+
+        :param manifest: Manifest contents. List of dict.
+        :type manifest: list
+        :param batch_size: Batch size. This size is also used for generate
+                           a random number for batch shuffle.
+        :type batch_size: int
+        :param clipped: Whether to clip the heading (small shift) and trailing
+                        (incomplete batch) instances.
+        :type clipped: bool
+        :return: Batch shuffled mainifest.
+        :rtype: list
+        """
+        rng = np.random.RandomState(self.epoch)
+        manifest.sort(key=lambda x: x["duration"])
+        shift_len = rng.randint(0, batch_size - 1)
+        batch_manifest = list(zip(* [iter(manifest[shift_len:])] * batch_size))
+        rng.shuffle(batch_manifest)
+        batch_manifest = [item for batch in batch_manifest for item in batch]
+        if not clipped:
+            res_len = len(manifest) - shift_len - len(batch_manifest)
+            batch_manifest.extend(manifest[-res_len:])
+            batch_manifest.extend(manifest[0:shift_len])
+        return batch_manifest
+
+    def __iter__(self):
+        num_samples = len(self.dataset)
+        indices = np.arange(num_samples).tolist()
+        indices += indices[:(self.total_size - len(indices))]
+        assert len(indices) == self.total_size
+
+        # sort (by duration) or batch-wise shuffle the manifest
+        if self.shuffle:
+            if self.epoch == 0 and self.sortagrad:
+                pass
+            else:
+                if self._shuffle_method == "batch_shuffle":
+                    indices = self._batch_shuffle(
+                        indices, self.batch_size, clipped=False)
+                elif self._shuffle_method == "instance_shuffle":
+                    np.random.RandomState(self.epoch).shuffle(indices)
+                else:
+                    raise ValueError("Unknown shuffle method %s." %
+                                     self._shuffle_method)
+        assert len(indices) == self.total_size
+        self.epoch += 1
+
+        # subsample
+        def _get_indices_by_batch_size(indices):
+            subsampled_indices = []
+            last_batch_size = self.total_size % (self.batch_size * self.nranks)
+            assert last_batch_size % self.nranks == 0
+            last_local_batch_size = last_batch_size // self.nranks
+
+            for i in range(self.local_rank * self.batch_size,
+                           len(indices) - last_batch_size,
+                           self.batch_size * self.nranks):
+                subsampled_indices.extend(indices[i:i + self.batch_size])
+
+            indices = indices[len(indices) - last_batch_size:]
+            subsampled_indices.extend(
+                indices[self.local_rank * last_local_batch_size:(
+                    self.local_rank + 1) * last_local_batch_size])
+            return subsampled_indices
+
+        if self.nranks > 1:
+            indices = _get_indices_by_batch_size(indices)
+
+        assert len(indices) == self.num_samples
+        _sample_iter = iter(indices)
+
+        batch_indices = []
+        for idx in _sample_iter:
+            batch_indices.append(idx)
+            if len(batch_indices) == self.batch_size:
+                yield batch_indices
+                batch_indices = []
+        if not self.drop_last and len(batch_indices) > 0:
+            yield batch_indices
+
+    def __len__(self):
+        num_samples = self.num_samples
+        num_samples += int(not self.drop_last) * (self.batch_size - 1)
+        return num_samples // self.batch_size
+
+    def set_epoch(self, epoch):
+        """
+        Sets the epoch number. When :attr:`shuffle=True`, this number is used
+        as seeds of random numbers. By default, users may not set this, all
+        replicas (workers) use a different random ordering for each epoch.
+        If set same number at each epoch, this sampler will yield the same
+        ordering at all epoches.
+        Arguments:
+            epoch (int): Epoch number.
+        Examples:
+            .. code-block:: python
+    
+                import numpy as np
+    
+                from paddle.io import Dataset, DistributedBatchSampler
+    
+                # init with dataset
+                class RandomDataset(Dataset):
+                    def __init__(self, num_samples):
+                        self.num_samples = num_samples
+                
+                    def __getitem__(self, idx):
+                        image = np.random.random([784]).astype('float32')
+                        label = np.random.randint(0, 9, (1, )).astype('int64')
+                        return image, label
+                    
+                    def __len__(self):
+                        return self.num_samples
+      
+                dataset = RandomDataset(100)
+                sampler = DistributedBatchSampler(dataset, batch_size=64)
+    
+                for epoch in range(10):
+                    sampler.set_epoch(epoch)
+        """
+        self.epoch = epoch
+
+
 def create_dataloader(manifest_path,
                       vocab_filepath,
                       mean_std_filepath,
@@ -296,7 +471,8 @@ def create_dataloader(manifest_path,
                       batch_size=1,
                       num_workers=0,
                       sortagrad=False,
-                      shuffle_method=None):
+                      shuffle_method=None,
+                      dist=False):
 
     dataset = DeepSpeech2Dataset(
         manifest_path,
@@ -313,15 +489,24 @@ def create_dataloader(manifest_path,
         random_seed=random_seed,
         keep_transcription_text=keep_transcription_text)
 
-    batch_sampler = DeepSpeech2BatchSampler(
-        dataset,
-        batch_size,
-        num_replicas=None,
-        rank=None,
-        shuffle=is_training,
-        drop_last=is_training,
-        sortagrad=is_training,
-        shuffle_method=shuffle_method)
+    if dist:
+        batch_sampler = DeepSpeech2DistributedBatchSampler(
+            dataset,
+            batch_size,
+            num_replicas=None,
+            rank=None,
+            shuffle=is_training,
+            drop_last=is_training,
+            sortagrad=is_training,
+            shuffle_method=shuffle_method)
+    else:
+        batch_sampler = DeepSpeech2BatchSampler(
+            dataset,
+            shuffle=is_training,
+            batch_size=batch_size,
+            drop_last=is_training,
+            sortagrad=is_training,
+            shuffle_method=shuffle_method)
 
     def padding_batch(batch, padding_to=-1, flatten=False, is_training=True):
         """

@@ -77,9 +77,9 @@ def infer():
     """Inference for DeepSpeech2."""
 
     # check if set use_gpu=True in paddlepaddle cpu version
-    #check_cuda(args.use_gpu)
+    check_cuda(args.use_gpu)
     # check if paddlepaddle version is satisfied
-    #check_version()
+    check_version()
 
     # data_generator = DataGenerator(
     #     vocab_filepath=args.vocab_path,
@@ -114,15 +114,31 @@ def infer():
             sortagrad=False,
             shuffle_method=None)
 
-    for audio, text, audio_len, text_len in batch_reader:
-        print(audio.shape)
-        print(text.shape)
-        print(audio_len)
-        print(text_len)
-        break
+    #for audio, text, audio_len, text_len in batch_reader:
+    #    print(audio.shape)
+    #    print(text.shape)
+    #    print(audio_len)
+    #    print(text_len)
+    #    break
 
-    infer_data = batch_reader()
+    reader = batch_reader()
+    infer_data = reader.next()
     print(infer_data)
+
+    from model_utils.network2 import DeepSpeech2
+    feat_dim=161
+    model = DeepSpeech2(
+        feat_size=feat_dim,
+        dict_size=batch_reader.dataset.vocab_size,
+        num_conv_layers=args.num_conv_layers,
+        num_rnn_layers=args.num_rnn_layers,
+        #rnn_size=1024,
+        use_gru=args.use_gru,
+        share_rnn_weights=args.share_rnn_weights,
+    )
+
+    output = model(*infer_data)
+    print(output)
 
     # ds2_model = DeepSpeech2Model(
     #     vocab_size=data_generator.vocab_size,

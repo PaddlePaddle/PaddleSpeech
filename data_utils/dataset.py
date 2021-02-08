@@ -30,6 +30,11 @@ from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
 
+__all__ = [
+    "DeepSpeech2Dataset", "DeepSpeech2DistributedBatchSampler",
+    "DeepSpeech2BatchSampler"
+]
+
 
 class DeepSpeech2Dataset(Dataset):
     def __init__(self,

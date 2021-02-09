@@ -149,8 +149,8 @@ class DeepSpeech2Trainer(Trainer):
         self.logger.info("Setup model/optimizer/criterion!")
 
     def compute_losses(self, inputs, outputs):
-        _, texts, logits_len, texts_len = inputs
-        logits = outputs
+        _, texts, _, texts_len = inputs
+        logits, logits_len = outputs
         loss = self.criterion(logits, texts, logits_len, texts_len)
         return loss
 

@@ -18,6 +18,7 @@ import sys
 import os
 import time
 import numpy as np
+from collections import defaultdict
 
 import paddle
 from paddle import distributed as dist

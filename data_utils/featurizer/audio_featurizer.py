@@ -103,15 +103,19 @@ class AudioFeaturizer(object):
     @property
     def feature_size(self):
         """audio feature size"""
+        feat_dim = 0
         if self._specgram_type == 'linear':
             fft_point = self._window_ms if self._fft_point is None else self._fft_point
-            return fft_point * (self._target_sample_rate / 1000) / 2 + 1
+            feat_dim = int(fft_point * (self._target_sample_rate / 1000) / 2 +
+                           1)
         elif self._specgram_type == 'mfcc':
             # mfcc,delta, delta-delta
-            return 13 * 3
+            feat_dim = int(13 * 3)
         else:
             raise ValueError("Unknown specgram_type %s. "
                              "Supported values: linear." % self._specgram_type)
+        print('feat_dim:', feat_dim)
+        return feat_dim
 
     def _compute_specgram(self, samples, sample_rate):
         """Extract various audio features."""

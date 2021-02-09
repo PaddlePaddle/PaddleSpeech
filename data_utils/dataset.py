@@ -109,6 +109,10 @@ class DeepSpeech2Dataset(Dataset):
         """
         return self._speech_featurizer.vocab_list
 
+    @property
+    def feature_size(self):
+        return self._speech_featurizer.feature_size
+
     def _parse_tar(self, file):
         """Parse a tar file to get a tarfile object
         and a map containing tarinfoes
@@ -200,7 +204,7 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         self._sortagrad = sortagrad
         self._shuffle_method = shuffle_method
 
-    def _batch_shuffle(self, manifest, batch_size, clipped=False):
+    def _batch_shuffle(self, indices, batch_size, clipped=False):
         """Put similarly-sized instances into minibatches for better efficiency
         and make a batch-wise shuffle.
 
@@ -210,8 +214,8 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
            for different epochs. Create minibatches.
         4. Shuffle the minibatches.
 
-        :param manifest: Manifest contents. List of dict.
-        :type manifest: list
+        :param indices: indexes. List of int.
+        :type indices: list
         :param batch_size: Batch size. This size is also used for generate
                            a random number for batch shuffle.
         :type batch_size: int
@@ -222,16 +226,16 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         :rtype: list
         """
         rng = np.random.RandomState(self.epoch)
-        manifest.sort(key=lambda x: x["duration"])
         shift_len = rng.randint(0, batch_size - 1)
-        batch_manifest = list(zip(*[iter(manifest[shift_len:])] * batch_size))
-        rng.shuffle(batch_manifest)
-        batch_manifest = [item for batch in batch_manifest for item in batch]
+        batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
+        rng.shuffle(batch_indices)
+        batch_indices = [item for batch in batch_indices for item in batch]
+        assert (clipped == False)
         if not clipped:
-            res_len = len(manifest) - shift_len - len(batch_manifest)
-            batch_manifest.extend(manifest[-res_len:])
-            batch_manifest.extend(manifest[0:shift_len])
-        return batch_manifest
+            res_len = len(indices) - shift_len - len(batch_indices)
+            batch_indices.extend(indices[-res_len:])
+            batch_indices.extend(indices[0:shift_len])
+        return batch_indices
 
     def __iter__(self):
         num_samples = len(self.dataset)
@@ -336,7 +340,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
         self._sortagrad = sortagrad
         self._shuffle_method = shuffle_method
 
-    def _batch_shuffle(self, manifest, batch_size, clipped=False):
+    def _batch_shuffle(self, indices, batch_size, clipped=False):
         """Put similarly-sized instances into minibatches for better efficiency
         and make a batch-wise shuffle.
 
@@ -346,8 +350,8 @@ class DeepSpeech2BatchSampler(BatchSampler):
            for different epochs. Create minibatches.
         4. Shuffle the minibatches.
 
-        :param manifest: Manifest contents. List of dict.
-        :type manifest: list
+        :param indices: indexes. List of int.
+        :type indices: list
         :param batch_size: Batch size. This size is also used for generate
                            a random number for batch shuffle.
         :type batch_size: int
@@ -358,16 +362,16 @@ class DeepSpeech2BatchSampler(BatchSampler):
         :rtype: list
         """
         rng = np.random.RandomState(self.epoch)
-        manifest.sort(key=lambda x: x["duration"])
         shift_len = rng.randint(0, batch_size - 1)
-        batch_manifest = list(zip(*[iter(manifest[shift_len:])] * batch_size))
-        rng.shuffle(batch_manifest)
-        batch_manifest = [item for batch in batch_manifest for item in batch]
+        batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
+        rng.shuffle(batch_indices)
+        batch_indices = [item for batch in batch_indices for item in batch]
+        assert (clipped == False)
         if not clipped:
-            res_len = len(manifest) - shift_len - len(batch_manifest)
-            batch_manifest.extend(manifest[-res_len:])
-            batch_manifest.extend(manifest[0:shift_len])
-        return batch_manifest
+            res_len = len(indices) - shift_len - len(batch_indices)
+            batch_indices.extend(indices[-res_len:])
+            batch_indices.extend(indices[0:shift_len])
+        return batch_indices
 
     def __iter__(self):
         num_samples = len(self.dataset)
@@ -377,7 +381,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
 
         # sort (by duration) or batch-wise shuffle the manifest
         if self.shuffle:
-            if self.epoch == 0 and self.sortagrad:
+            if self.epoch == 0 and self._sortagrad:
                 pass
             else:
                 if self._shuffle_method == "batch_shuffle":

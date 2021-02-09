@@ -3,33 +3,23 @@
 # train model
 # if you wish to resume from an exists model, uncomment --init_from_pretrained_model
 export FLAGS_sync_nccl_allreduce=0
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+
+#CUDA_VISIBLE_DEVICES=0,1,2,3 \
+#python3 -u ${MAIN_ROOT}/train.py \
+#--num_iter_print=1 \
+#--save_epoch=1 \
+#--num_samples=64 \
+#--test_off=False \
+#--is_local=True \
+#--output_model_dir="./checkpoints/" \
+#--shuffle_method="batch_shuffle_clipped" \
+
+#CUDA_VISIBLE_DEVICES=0,1,2,3 \
+CUDA_VISIBLE_DEVICES=1,2,3 \
 python3 -u ${MAIN_ROOT}/train.py \
---batch_size=4 \
---num_epoch=20 \
---num_conv_layers=2 \
---num_rnn_layers=3 \
---rnn_layer_size=2048 \
---num_iter_print=1 \
---save_epoch=1 \
---num_samples=64 \
---learning_rate=1e-5 \
---max_duration=27.0 \
---min_duration=0.0 \
---test_off=False \
---use_sortagrad=True \
---use_gru=False \
---use_gpu=True \
---is_local=True \
---share_rnn_weights=True \
---train_manifest="data/manifest.tiny" \
---dev_manifest="data/manifest.tiny" \
---mean_std_path="data/mean_std.npz" \
---vocab_path="data/vocab.txt" \
---output_model_dir="./checkpoints/" \
---augment_conf_path="${MAIN_ROOT}/conf/augmentation.config" \
---specgram_type="linear" \
---shuffle_method="batch_shuffle_clipped" \
+--nproc 1 \
+--config conf/deepspeech2.yaml \
+--output ckpt
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

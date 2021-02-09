@@ -13,19 +13,18 @@
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
 
+import io
+import logging
 import argparse
 import functools
-import io
 
-from utils.model_check import check_cuda, check_version
+from paddle import distributed as dist
+
 from utils.utility import print_arguments
 from training.cli import default_argument_parser
 
 from model_utils.config import get_cfg_defaults
 from model_utils.model import DeepSpeech2Trainer as Trainer
-
-logging.basicConfig(
-    format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
 
 
 def main_sp(config, args):
@@ -35,26 +34,27 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    # check if set use_gpu=True in paddlepaddle cpu version
-    check_cuda(args.device == 'gpu')
-    # check if paddlepaddle version is satisfied
-    check_version()
-    if args.nprocs > 1 and args.device == "gpu":
+    if args.device == "gpu" and args.nprocs > 1:
         dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
     else:
         main_sp(config, args)
 
 
 if __name__ == "__main__":
-    config = get_cfg_defaults()
     parser = default_argument_parser()
     args = parser.parse_args()
+    print_arguments(args)
+
+    # https://yaml.org/type/float.html
+    config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()
     print(config)
-    print_arguments(args)
+    if args.dump_config:
+        with open(args.dump_config, 'w') as f:
+            print(config, file=f)
 
     main(config, args)

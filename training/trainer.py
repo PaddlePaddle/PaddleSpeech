@@ -20,6 +20,7 @@ from collections import defaultdict
 
 import paddle
 from paddle import distributed as dist
+from paddle.distributed.utils import get_gpus
 from tensorboardX import SummaryWriter
 
 from utils import checkpoint
@@ -238,9 +239,19 @@ class Trainer():
         """
         logger = logging.getLogger(__name__)
         logger.setLevel("INFO")
-        logger.addHandler(logging.StreamHandler())
+
+        formatter = logging.Formatter(
+            fmt='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s',
+            datefmt='%Y/%m/%d %H:%M:%S')
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
         log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
-        logger.addHandler(logging.FileHandler(str(log_file)))
+        file_handler = logging.FileHandler(str(log_file))
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
         self.logger = logger
 

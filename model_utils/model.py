@@ -13,25 +13,26 @@
 # limitations under the License.
 """Contains DeepSpeech2 model."""
 
+import io
 import sys
 import os
 import time
-import logging
-import gzip
-import copy
-import inspect
-import collections
-import multiprocessing
 import numpy as np
-from distutils.dir_util import mkpath
 
-import paddle.fluid as fluid
+import paddle
+from paddle import distributed as dist
+from paddle.io import DataLoader
 
+from utils import mp_tools
 from training import Trainer
 
 from model_utils.network import DeepSpeech2
 from model_utils.network import DeepSpeech2Loss
-from model_utils.network import SpeechCollator
+
+from data_utils.dataset import SpeechCollator
+from data_utils.dataset import DeepSpeech2Dataset
+from data_utils.dataset import DeepSpeech2DistributedBatchSampler
+from data_utils.dataset import DeepSpeech2BatchSampler
 
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
@@ -39,7 +40,8 @@ from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
 
 class DeepSpeech2Trainer(Trainer):
-    def __init__(self):
+    def __init__(self, config, args):
+        super().__init__(config, args)
         self._ext_scorer = None
 
     def setup_dataloader(self):
@@ -49,7 +51,9 @@ class DeepSpeech2Trainer(Trainer):
             config.data.train_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
-            augmentation_config=config.data.augmentation_config,
+            augmentation_config=io.open(
+                config.data.augmentation_config, mode='r',
+                encoding='utf8').read(),
             max_duration=config.data.max_duration,
             min_duration=config.data.min_duration,
             stride_ms=config.data.stride_ms,
@@ -67,7 +71,7 @@ class DeepSpeech2Trainer(Trainer):
             config.data.dev_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
-            augmentation_config=config.data.augmentation_config,
+            augmentation_config="{}",
             max_duration=config.data.max_duration,
             min_duration=config.data.min_duration,
             stride_ms=config.data.stride_ms,
@@ -117,8 +121,8 @@ class DeepSpeech2Trainer(Trainer):
     def setup_model(self):
         config = self.config
         model = DeepSpeech2(
-            feat_size=self.train_loader.feature_size,
-            dict_size=self.train_loader.vocab_size,
+            feat_size=self.train_loader.dataset.feature_size,
+            dict_size=self.train_loader.dataset.vocab_size,
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
@@ -133,11 +137,11 @@ class DeepSpeech2Trainer(Trainer):
         optimizer = paddle.optimizer.Adam(
             learning_rate=config.training.lr,
             parameters=model.parameters(),
-            weight_decay=paddle.regulaerizer.L2Decay(
+            weight_decay=paddle.regularizer.L2Decay(
                 config.training.weight_decay),
             grad_clip=grad_clip)
 
-        criterion = DeepSpeech2Loss(self.train_loader.vocab_size)
+        criterion = DeepSpeech2Loss(self.train_loader.dataset.vocab_size)
 
         self.model = model
         self.optimizer = optimizer

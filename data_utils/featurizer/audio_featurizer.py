@@ -52,6 +52,7 @@ class AudioFeaturizer(object):
                  specgram_type='linear',
                  stride_ms=10.0,
                  window_ms=20.0,
+                 n_fft=None,
                  max_freq=None,
                  target_sample_rate=16000,
                  use_dB_normalization=True,
@@ -63,7 +64,7 @@ class AudioFeaturizer(object):
         self._target_sample_rate = target_sample_rate
         self._use_dB_normalization = use_dB_normalization
         self._target_dB = target_dB
-        self._fft_point = None
+        self._fft_point = n_fft
 
     def featurize(self,
                   audio_segment,

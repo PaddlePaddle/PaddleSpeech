@@ -28,60 +28,14 @@ from distutils.dir_util import mkpath
 import paddle.fluid as fluid
 
 from training import Trainer
+
 from model_utils.network import DeepSpeech2
 from model_utils.network import DeepSpeech2Loss
+from model_utils.network import SpeechCollator
 
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
 from decoders.swig_wrapper import ctc_beam_search_decoder_batch
-
-logging.basicConfig(
-    format='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s')
-
-
-class SpeechCollator():
-    def __init__(self, padding_to=-1):
-        """
-        Padding audio features with zeros to make them have the same shape (or
-        a user-defined shape) within one bach.
-
-        If ``padding_to`` is -1, the maximun shape in the batch will be used
-        as the target shape for padding. Otherwise, `padding_to` will be the
-        target shape (only refers to the second axis).
-        """
-        self._padding_to = padding_to
-
-    def __call__(self, batch):
-        new_batch = []
-        # get target shape
-        max_length = max([audio.shape[1] for audio, _ in batch])
-        if self._padding_to != -1:
-            if self._padding_to < max_length:
-                raise ValueError("If padding_to is not -1, it should be larger "
-                                 "than any instance's shape in the batch")
-            max_length = self._padding_to
-        max_text_length = max([len(text) for _, text in batch])
-        # padding
-        padded_audios = []
-        audio_lens = []
-        texts, text_lens = [], []
-        for audio, text in batch:
-            # audio
-            padded_audio = np.zeros([audio.shape[0], max_length])
-            padded_audio[:, :audio.shape[1]] = audio
-            padded_audios.append(padded_audio)
-            audio_lens.append(audio.shape[1])
-            # text
-            padded_text = np.zeros([max_text_length])
-            padded_text[:len(text)] = text
-            texts.append(padded_text)
-            text_lens.append(len(text))
-
-        padded_audios = np.array(padded_audios).astype('float32')
-        audio_lens = np.array(audio_lens).astype('int64')
-        texts = np.array(texts).astype('int32')
-        text_lens = np.array(text_lens).astype('int64')
-        return padded_audios, texts, audio_lens, text_lens
 
 
 class DeepSpeech2Trainer(Trainer):
@@ -92,7 +46,7 @@ class DeepSpeech2Trainer(Trainer):
         config = self.config
 
         train_dataset = DeepSpeech2Dataset(
-            config.data.train_manifest_path,
+            config.data.train_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
             augmentation_config=config.data.augmentation_config,
@@ -100,14 +54,17 @@ class DeepSpeech2Trainer(Trainer):
             min_duration=config.data.min_duration,
             stride_ms=config.data.stride_ms,
             window_ms=config.data.window_ms,
+            n_fft=config.data.n_fft,
             max_freq=config.data.max_freq,
+            target_sample_rate=config.data.target_sample_rate,
             specgram_type=config.data.specgram_type,
             use_dB_normalization=config.data.use_dB_normalization,
+            target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,
             keep_transcription_text=False)
 
         dev_dataset = DeepSpeech2Dataset(
-            config.data.dev_manifest_path,
+            config.data.dev_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
             augmentation_config=config.data.augmentation_config,
@@ -115,9 +72,12 @@ class DeepSpeech2Trainer(Trainer):
             min_duration=config.data.min_duration,
             stride_ms=config.data.stride_ms,
             window_ms=config.data.window_ms,
+            n_fft=config.data.n_fft,
             max_freq=config.data.max_freq,
+            target_sample_rate=config.data.target_sample_rate,
             specgram_type=config.data.specgram_type,
             use_dB_normalization=config.data.use_dB_normalization,
+            target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,
             keep_transcription_text=False)
 
@@ -167,14 +127,15 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        grad_clip = paddle.nn.ClipGradByGlobalNorm(config.training.grad_clip)
+        grad_clip = paddle.nn.ClipGradByGlobalNorm(
+            config.training.global_grad_clip)
 
         optimizer = paddle.optimizer.Adam(
             learning_rate=config.training.lr,
             parameters=model.parameters(),
             weight_decay=paddle.regulaerizer.L2Decay(
                 config.training.weight_decay),
-            grad_clip=grad_clip, )
+            grad_clip=grad_clip)
 
         criterion = DeepSpeech2Loss(self.train_loader.vocab_size)
 
@@ -255,7 +216,7 @@ class DeepSpeech2Trainer(Trainer):
         """
         self.model.eval()
         audio, text, audio_len, text_len = infer_data
-        logits, probs = self.model.predict(audio, audio_len)
+        _, probs = self.model.predict(audio, audio_len)
         return probs
 
     def decode_batch_greedy(self, probs_split, vocab_list):

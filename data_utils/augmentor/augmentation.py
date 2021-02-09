@@ -25,7 +25,7 @@ from data_utils.augmentor.online_bayesian_normalization import \
      OnlineBayesianNormalizationAugmentor
 
 
-class AugmentationPipeline(object):
+class AugmentationPipeline():
     """Build a pre-processing pipeline with various augmentation models.Such a
     data augmentation pipeline is oftern leveraged to augment the training
     samples to make the model invariant to certain types of perturbations in the

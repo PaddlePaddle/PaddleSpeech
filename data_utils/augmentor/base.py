@@ -16,7 +16,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class AugmentorBase(object):
+class AugmentorBase():
     """Abstract base class for augmentation model (augmentor) class.
     All augmentor classes should inherit from this class, and implement the
     following abstract methods.

@@ -31,8 +31,10 @@ from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
 
 __all__ = [
-    "DeepSpeech2Dataset", "DeepSpeech2DistributedBatchSampler",
-    "DeepSpeech2BatchSampler"
+    "DeepSpeech2Dataset",
+    "DeepSpeech2DistributedBatchSampler",
+    "DeepSpeech2BatchSampler",
+    "SpeechCollator",
 ]
 
 
@@ -46,9 +48,12 @@ class DeepSpeech2Dataset(Dataset):
                  min_duration=0.0,
                  stride_ms=10.0,
                  window_ms=20.0,
+                 n_fft=None,
                  max_freq=None,
+                 target_sample_rate=16000,
                  specgram_type='linear',
                  use_dB_normalization=True,
+                 target_dB=-20,
                  random_seed=0,
                  keep_transcription_text=False):
         super().__init__()
@@ -63,8 +68,11 @@ class DeepSpeech2Dataset(Dataset):
             specgram_type=specgram_type,
             stride_ms=stride_ms,
             window_ms=window_ms,
+            n_fft=n_fft,
             max_freq=max_freq,
-            use_dB_normalization=use_dB_normalization)
+            target_sample_rate=target_sample_rate,
+            use_dB_normalization=use_dB_normalization,
+            target_dB=target_dB)
         self._rng = random.Random(random_seed)
         self._keep_transcription_text = keep_transcription_text
         # for caching tar files info
@@ -457,6 +465,51 @@ class DeepSpeech2BatchSampler(BatchSampler):
                     sampler.set_epoch(epoch)
         """
         self.epoch = epoch
+
+
+class SpeechCollator():
+    def __init__(self, padding_to=-1):
+        """
+        Padding audio features with zeros to make them have the same shape (or
+        a user-defined shape) within one bach.
+
+        If ``padding_to`` is -1, the maximun shape in the batch will be used
+        as the target shape for padding. Otherwise, `padding_to` will be the
+        target shape (only refers to the second axis).
+        """
+        self._padding_to = padding_to
+
+    def __call__(self, batch):
+        new_batch = []
+        # get target shape
+        max_length = max([audio.shape[1] for audio, _ in batch])
+        if self._padding_to != -1:
+            if self._padding_to < max_length:
+                raise ValueError("If padding_to is not -1, it should be larger "
+                                 "than any instance's shape in the batch")
+            max_length = self._padding_to
+        max_text_length = max([len(text) for _, text in batch])
+        # padding
+        padded_audios = []
+        audio_lens = []
+        texts, text_lens = [], []
+        for audio, text in batch:
+            # audio
+            padded_audio = np.zeros([audio.shape[0], max_length])
+            padded_audio[:, :audio.shape[1]] = audio
+            padded_audios.append(padded_audio)
+            audio_lens.append(audio.shape[1])
+            # text
+            padded_text = np.zeros([max_text_length])
+            padded_text[:len(text)] = text
+            texts.append(padded_text)
+            text_lens.append(len(text))
+
+        padded_audios = np.array(padded_audios).astype('float32')
+        audio_lens = np.array(audio_lens).astype('int64')
+        texts = np.array(texts).astype('int32')
+        text_lens = np.array(text_lens).astype('int64')
+        return padded_audios, texts, audio_lens, text_lens
 
 
 def create_dataloader(manifest_path,

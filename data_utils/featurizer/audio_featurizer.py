@@ -114,7 +114,6 @@ class AudioFeaturizer(object):
         else:
             raise ValueError("Unknown specgram_type %s. "
                              "Supported values: linear." % self._specgram_type)
-        print('feat_dim:', feat_dim)
         return feat_dim
 
     def _compute_specgram(self, samples, sample_rate):

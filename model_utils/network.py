@@ -532,7 +532,7 @@ class DeepSpeech2(nn.Layer):
         text_len: shape [B]
         """
         logits, _, audio_len = self.predict(audio, audio_len)
-        return logits, audio_len
+        return logits, text, audio_len, text_len
 
 
 class DeepSpeech2Loss(nn.Layer):

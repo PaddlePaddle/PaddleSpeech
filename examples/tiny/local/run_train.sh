@@ -15,10 +15,10 @@ export FLAGS_sync_nccl_allreduce=0
 #--shuffle_method="batch_shuffle_clipped" \
 
 #CUDA_VISIBLE_DEVICES=0,1,2,3 \
-CUDA_VISIBLE_DEVICES=1,2,3 \
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
 python3 -u ${MAIN_ROOT}/train.py \
 --device 'gpu' \
---nproc 1 \
+--nproc 4 \
 --config conf/deepspeech2.yaml \
 --output ckpt
 

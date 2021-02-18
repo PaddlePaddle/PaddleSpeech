@@ -20,10 +20,9 @@ __all__ = ["rank_zero_only"]
 
 
 def rank_zero_only(func):
-    rank = dist.get_rank()
-
     @wraps(func)
     def wrapper(*args, **kwargs):
+        rank = dist.get_rank()
         if rank != 0:
             return
         result = func(*args, **kwargs)

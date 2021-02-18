@@ -15,10 +15,16 @@
 import math
 import collections
 import numpy as np
+import logging
+
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
+
+from decoders.swig_wrapper import Scorer
+from decoders.swig_wrapper import ctc_greedy_decoder
+from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
 __all__ = ['DeepSpeech2', 'DeepSpeech2Loss']
 
@@ -497,7 +503,10 @@ class DeepSpeech2(nn.Layer):
             share_rnn_weights=share_rnn_weights)
         self.fc = nn.Linear(rnn_size * 2, dict_size + 1)
 
-    def predict(self, audio, audio_len):
+        self.logger = logging.getLogger(__name__)
+        self._ext_scorer = None
+
+    def infer(self, audio, audio_len):
         # [B, D, T] -> [B, C=1, D, T]
         audio = audio.unsqueeze(1)
 
@@ -519,11 +528,6 @@ class DeepSpeech2(nn.Layer):
 
         return logits, probs, audio_len
 
-    @paddle.no_grad()
-    def infer(self, audio, audio_len):
-        _, probs, audio_len = self.predict(audio, audio_len)
-        return probs
-
     def forward(self, audio, text, audio_len, text_len):
         """
         audio: shape [B, D, T]
@@ -531,8 +535,138 @@ class DeepSpeech2(nn.Layer):
         audio_len: shape [B]
         text_len: shape [B]
         """
-        logits, _, audio_len = self.predict(audio, audio_len)
-        return logits, text, audio_len, text_len
+        return self.infer(audio, audio_len)
+
+    @paddle.no_grad()
+    def predict(self, audio, audio_len):
+        """ Model infer """
+        return self.infer(audio, audio_len)
+
+    def _decode_batch_greedy(self, probs_split, vocab_list):
+        """Decode by best path for a batch of probs matrix input.
+        :param probs_split: List of 2-D probability matrix, and each consists
+                            of prob vectors for one speech utterancce.
+        :param probs_split: List of matrix
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :return: List of transcription texts.
+        :rtype: List of str
+        """
+        results = []
+        for i, probs in enumerate(probs_split):
+            output_transcription = ctc_greedy_decoder(
+                probs_seq=probs, vocabulary=vocab_list)
+            results.append(output_transcription)
+        return results
+
+    def _init_ext_scorer(self, beam_alpha, beam_beta, language_model_path,
+                         vocab_list):
+        """Initialize the external scorer.
+        :param beam_alpha: Parameter associated with language model.
+        :type beam_alpha: float
+        :param beam_beta: Parameter associated with word count.
+        :type beam_beta: float
+        :param language_model_path: Filepath for language model. If it is
+                                    empty, the external scorer will be set to
+                                    None, and the decoding method will be pure
+                                    beam search without scorer.
+        :type language_model_path: str|None
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        """
+        # init once
+        if self._ext_scorer != None:
+            return
+
+        if language_model_path != '':
+            self.logger.info("begin to initialize the external scorer "
+                             "for decoding")
+            self._ext_scorer = Scorer(beam_alpha, beam_beta,
+                                      language_model_path, vocab_list)
+            lm_char_based = self._ext_scorer.is_character_based()
+            lm_max_order = self._ext_scorer.get_max_order()
+            lm_dict_size = self._ext_scorer.get_dict_size()
+            self.logger.info("language model: "
+                             "is_character_based = %d," % lm_char_based +
+                             " max_order = %d," % lm_max_order +
+                             " dict_size = %d" % lm_dict_size)
+            self.logger.info("end initializing scorer")
+        else:
+            self._ext_scorer = None
+            self.logger.info("no language model provided, "
+                             "decoding by pure beam search without scorer.")
+
+    def _decode_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
+                                  beam_size, cutoff_prob, cutoff_top_n,
+                                  vocab_list, num_processes):
+        """Decode by beam search for a batch of probs matrix input.
+        :param probs_split: List of 2-D probability matrix, and each consists
+                            of prob vectors for one speech utterancce.
+        :param probs_split: List of matrix
+        :param beam_alpha: Parameter associated with language model.
+        :type beam_alpha: float
+        :param beam_beta: Parameter associated with word count.
+        :type beam_beta: float
+        :param beam_size: Width for Beam search.
+        :type beam_size: int
+        :param cutoff_prob: Cutoff probability in pruning,
+                            default 1.0, no pruning.
+        :type cutoff_prob: float
+        :param cutoff_top_n: Cutoff number in pruning, only top cutoff_top_n
+                        characters with highest probs in vocabulary will be
+                        used in beam search, default 40.
+        :type cutoff_top_n: int
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :param num_processes: Number of processes (CPU) for decoder.
+        :type num_processes: int
+        :return: List of transcription texts.
+        :rtype: List of str
+        """
+        if self._ext_scorer != None:
+            self._ext_scorer.reset_params(beam_alpha, beam_beta)
+
+        # beam search decode
+        num_processes = min(num_processes, len(probs_split))
+        beam_search_results = ctc_beam_search_decoder_batch(
+            probs_split=probs_split,
+            vocabulary=vocab_list,
+            beam_size=beam_size,
+            num_processes=num_processes,
+            ext_scoring_func=self._ext_scorer,
+            cutoff_prob=cutoff_prob,
+            cutoff_top_n=cutoff_top_n)
+
+        results = [result[0][1] for result in beam_search_results]
+        return results
+
+    def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
+                    decoding_method):
+        if decoding_method == "ctc_beam_search":
+            self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
+                                  vocab_list)
+
+    @paddle.no_grad()
+    def decode(self, audio, audio_len, vocab_list, decoding_method,
+               lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
+               cutoff_top_n, num_processes):
+        _, probs, _ = self.predict(audio, audio_len)
+        if decoding_method == "ctc_greedy":
+            result_transcripts = self._decode_batch_greedy(
+                probs_split=probs, vocab_list=vocab_list)
+        elif decoding_method == "ctc_beam_search":
+            result_transcripts = self._decode_batch_beam_search(
+                probs_split=probs,
+                beam_alpha=beam_alpha,
+                beam_beta=beam_beta,
+                beam_size=beam_size,
+                cutoff_prob=cutoff_prob,
+                cutoff_top_n=cutoff_top_n,
+                vocab_list=vocab_list,
+                num_processes=num_processes)
+        else:
+            raise ValueError(f"Not support: {decoding_method}")
+        return result_transcripts
 
 
 class DeepSpeech2Loss(nn.Layer):

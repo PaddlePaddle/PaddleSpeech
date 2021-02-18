@@ -14,6 +14,7 @@
 
 import os
 import time
+import logging
 import numpy as np
 import paddle
 from paddle import distributed as dist
@@ -21,6 +22,9 @@ from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 
 from utils import mp_tools
+
+logger = logging.getLogger(__name__)
+logger.setLevel("INFO")
 
 __all__ = ["load_parameters", "save_parameters"]
 
@@ -94,15 +98,15 @@ def load_parameters(model,
     params_path = checkpoint_path + ".pdparams"
     model_dict = paddle.load(params_path)
     model.set_state_dict(model_dict)
-    print(
+    logger.info(
         "[checkpoint] Rank {}: loaded model from {}".format(rank, params_path))
 
     optimizer_path = checkpoint_path + ".pdopt"
     if optimizer and os.path.isfile(optimizer_path):
         optimizer_dict = paddle.load(optimizer_path)
         optimizer.set_state_dict(optimizer_dict)
-        print("[checkpoint] Rank {}: loaded optimizer state from {}".format(
-            rank, optimizer_path))
+        logger.info("[checkpoint] Rank {}: loaded optimizer state from {}".
+                    format(rank, optimizer_path))
 
     return iteration
 
@@ -124,12 +128,13 @@ def save_parameters(checkpoint_dir, iteration, model, optimizer=None):
     model_dict = model.state_dict()
     params_path = checkpoint_path + ".pdparams"
     paddle.save(model_dict, params_path)
-    print("[checkpoint] Saved model to {}".format(params_path))
+    logger.info("[checkpoint] Saved model to {}".format(params_path))
 
     if optimizer:
         opt_dict = optimizer.state_dict()
         optimizer_path = checkpoint_path + ".pdopt"
         paddle.save(opt_dict, optimizer_path)
-        print("[checkpoint] Saved optimzier state to {}".format(optimizer_path))
+        logger.info(
+            "[checkpoint] Saved optimzier state to {}".format(optimizer_path))
 
     _save_checkpoint(checkpoint_dir, iteration)

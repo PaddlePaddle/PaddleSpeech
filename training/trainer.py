@@ -121,6 +121,7 @@ class Trainer():
         """
         dist.init_parallel_env()
 
+    @mp_tools.rank_zero_only
     def save(self):
         """Save checkpoint (model parameters and optimizer states).
         """
@@ -190,8 +191,9 @@ class Trainer():
         except KeyboardInterrupt:
             self.save()
             exit(-1)
+        finally:
+            self.destory()
 
-    @mp_tools.rank_zero_only
     def setup_output_dir(self):
         """Create a directory used for output.
         """
@@ -201,7 +203,6 @@ class Trainer():
 
         self.output_dir = output_dir
 
-    @mp_tools.rank_zero_only
     def setup_checkpointer(self):
         """Create a directory used to save checkpoints into.
         
@@ -212,6 +213,11 @@ class Trainer():
         checkpoint_dir.mkdir(exist_ok=True)
 
         self.checkpoint_dir = checkpoint_dir
+
+    @mp_tools.rank_zero_only
+    def destory(self):
+        # https://github.com/pytorch/fairseq/issues/2357
+        self.visualizer.close()
 
     @mp_tools.rank_zero_only
     def setup_visualizer(self):

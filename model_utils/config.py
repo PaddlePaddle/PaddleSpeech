@@ -46,8 +46,8 @@ _C.model = CN(
         num_conv_layers=2,  #Number of stacking convolution layers.
         num_rnn_layers=3,  #Number of stacking RNN layers.
         rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-        use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-        share_rnn_weights=False  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
+        use_gru=False,  #Use gru if set True. Use simple rnn if set False.
+        share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
     ))
 
 _C.training = CN(
@@ -60,6 +60,20 @@ _C.training = CN(
         save_interval=1000,  # checkpoint by step
         max_iteration=500000,  # max iteration to train by step
         n_epoch=50,  # train epochs
+    ))
+
+_C.decoding = CN(
+    dict(
+        alpha=2.5,  # Coef of LM for beam search.
+        beta=0.3,  # Coef of WC for beam search.
+        cutoff_prob=1.0,  # Cutoff probability for pruning.
+        cutoff_top_n=40,  # Cutoff number for pruning.
+        lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
+        decoding_method='ctc_beam_search',  # Decoding method. Options: ctc_beam_search, ctc_greedy
+        error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
+        num_proc_bsearch=8,  # # of CPUs for beam search.
+        beam_size=500,  # Beam search width.
+        batch_size=128,  # decoding batch size
     ))
 
 

@@ -646,11 +646,10 @@ class DeepSpeech2(nn.Layer):
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
 
-    @paddle.no_grad()
-    def decode(self, audio, audio_len, vocab_list, decoding_method,
-               lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-               cutoff_top_n, num_processes):
-        _, probs, _ = self.predict(audio, audio_len)
+    def decode_probs(self, probs, vocab_list, decoding_method, lang_model_path,
+                     beam_alpha, beam_beta, beam_size, cutoff_prob,
+                     cutoff_top_n, num_processes):
+        """ probs: activation after softmax """
         if decoding_method == "ctc_greedy":
             result_transcripts = self._decode_batch_greedy(
                 probs_split=probs, vocab_list=vocab_list)
@@ -667,6 +666,15 @@ class DeepSpeech2(nn.Layer):
         else:
             raise ValueError(f"Not support: {decoding_method}")
         return result_transcripts
+
+    @paddle.no_grad()
+    def decode(self, audio, audio_len, vocab_list, decoding_method,
+               lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
+               cutoff_top_n, num_processes):
+        _, probs, _ = self.predict(audio, audio_len)
+        return self.decode_probs(
+            probs, vocab_list, decoding_method, lang_model_path, beam_alpha,
+            beam_beta, beam_size, cutoff_prob, cutoff_top_n, num_processes)
 
 
 class DeepSpeech2Loss(nn.Layer):

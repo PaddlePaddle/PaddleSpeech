@@ -11,6 +11,7 @@
     ```
 
     `run_data.sh` will download dataset, generate manifests, collect normalizer's statistics and build vocabulary. Once the data preparation is done, you will find the data (only part of LibriSpeech) downloaded in `${MAIN_ROOT}/dataset/librispeech` and the corresponding manifest files generated in `${PWD}/data` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time you run this dataset and is reusable for all further experiments.
+
 - Train your own ASR model
 
     ```bash
@@ -18,6 +19,7 @@
     ```
 
     `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `${PWD}/checkpoints`. These checkpoints could be used for training resuming, inference, evaluation and deployment.
+
 - Case inference with an existing model
 
     ```bash
@@ -29,6 +31,7 @@
     ```bash
     sh local/run_infer_golden.sh
     ```
+
 - Evaluate an existing model
 
     ```bash

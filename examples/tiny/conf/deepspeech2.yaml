@@ -38,14 +38,14 @@ training:
   save_interval: 1000
   valid_interval: 1000
 decoding:
-  alpha: 2.5
   batch_size: 128
-  beam_size: 500
+  error_rate_type: wer
+  decoding_method: ctc_beam_search
+  lang_model_path: models/lm/common_crawl_00.prune01111.trie.klm
+  alpha: 2.5
   beta: 0.3
+  beam_size: 500
   cutoff_prob: 1.0
   cutoff_top_n: 40
-  decoding_method: ctc_beam_search
-  error_rate_type: wer
-  lang_model_path: models/lm/common_crawl_00.prune01111.trie.klm
   num_proc_bsearch: 8
 

@@ -39,7 +39,7 @@ from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
 from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
-from utils.error_rate import char_errors, word_errors
+from utils.error_rate import char_errors, word_errors, cer, wer
 
 
 class DeepSpeech2Trainer(Trainer):
@@ -255,15 +255,9 @@ class DeepSpeech2Trainer(Trainer):
         self.logger.info("Setup train/valid Dataloader!")
 
 
-class DeepSpeech2Tester(Trainer):
+class DeepSpeech2Tester(DeepSpeech2Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
-
-    def compute_losses(self, inputs, outputs):
-        _, texts, _, texts_len = inputs
-        logits, _, logits_len = outputs
-        loss = self.criterion(logits, texts, logits_len, texts_len)
-        return loss
 
     def id2token(self, texts, texts_len, vocab_list):
         trans = []
@@ -281,6 +275,7 @@ class DeepSpeech2Tester(Trainer):
 
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = char_errors if cfg.error_rate_type == 'cer' else word_errors
+        error_rate_func = cer if cfg.error_rate_type == 'cer' else wer
 
         vocab_list = self.test_loader.dataset.vocab_list
         target_transcripts = self.id2token(texts, texts_len, vocab_list)
@@ -301,6 +296,11 @@ class DeepSpeech2Tester(Trainer):
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
+            self.logger.info(
+                "\nTarget Transcription: %s\nOutput Transcription: %s" %
+                (target, result))
+            self.logger.info("Current error rate [%s] = %f" % (
+                cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
@@ -377,8 +377,6 @@ class DeepSpeech2Tester(Trainer):
             self.test()
         except KeyboardInterrupt:
             exit(-1)
-        finally:
-            self.destory()
 
     def setup_model(self):
         config = self.config

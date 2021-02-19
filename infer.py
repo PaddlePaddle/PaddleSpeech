@@ -13,6 +13,20 @@
 # limitations under the License.
 """Inferer for DeepSpeech2 model."""
 
+import io
+import logging
+import argparse
+import functools
+
+from paddle import distributed as dist
+
+from utils.utility import print_arguments
+from training.cli import default_argument_parser
+
+from model_utils.config import get_cfg_defaults
+from model_utils.model import DeepSpeech2Tester as Tester
+from utils.error_rate import char_errors, word_errors
+
 
 def main_sp(config, args):
     exp = Tester(config, args)

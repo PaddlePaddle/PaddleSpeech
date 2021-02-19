@@ -89,6 +89,8 @@ class Trainer():
     def __init__(self, config, args):
         self.config = config
         self.args = args
+        self.optimizer = None
+        self.visualizer = None
 
     def setup(self):
         """Setup the experiment.
@@ -217,7 +219,8 @@ class Trainer():
     @mp_tools.rank_zero_only
     def destory(self):
         # https://github.com/pytorch/fairseq/issues/2357
-        self.visualizer.close()
+        if self.visualizer:
+            self.visualizer.close()
 
     @mp_tools.rank_zero_only
     def setup_visualizer(self):

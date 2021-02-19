@@ -88,7 +88,7 @@ class DeepSpeech2Trainer(Trainer):
                          for k, v in losses_np.items())
         self.logger.info(msg)
 
-        if dist.get_rank() == 0:
+        if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 self.visualizer.add_scalar("train/{}".format(k), v,
                                            self.iteration)
@@ -143,8 +143,10 @@ class DeepSpeech2Trainer(Trainer):
                          for k, v in valid_losses.items())
         self.logger.info(msg)
 
-        for k, v in valid_losses.items():
-            self.visualizer.add_scalar("valid/{}".format(k), v, self.iteration)
+        if self.visualizer:
+            for k, v in valid_losses.items():
+                self.visualizer.add_scalar("valid/{}".format(k), v,
+                                           self.iteration)
 
     def setup_model(self):
         config = self.config
@@ -289,14 +291,37 @@ class DeepSpeech2Tester(Trainer):
         msg += ', '.join('{}: {:>.6f}'.format(k, v) for k, v in losses.items())
         self.logger.info(msg)
 
-        for k, v in losses.items():
-            self.visualizer.add_scalar("test/{}".format(k), v, self.iteration)
+    def setup(self):
+        """Setup the experiment.
+        """
+        paddle.set_device(self.args.device)
+        if self.parallel:
+            self.init_parallel()
+
+        self.setup_output_dir()
+        self.setup_logger()
+        self.setup_checkpointer()
+
+        self.setup_dataloader()
+        self.setup_model()
+
+        self.iteration = 0
+        self.epoch = 0
+
+    def run_test(self):
+        self.resume_or_load()
+        try:
+            self.test()
+        except KeyboardInterrupt:
+            exit(-1)
+        finally:
+            self.destory()
 
     def setup_model(self):
         config = self.config
         model = DeepSpeech2(
-            feat_size=self.train_loader.dataset.feature_size,
-            dict_size=self.train_loader.dataset.vocab_size,
+            feat_size=self.test_loader.dataset.feature_size,
+            dict_size=self.test_loader.dataset.vocab_size,
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
@@ -305,7 +330,7 @@ class DeepSpeech2Tester(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        criterion = DeepSpeech2Loss(self.train_loader.dataset.vocab_size)
+        criterion = DeepSpeech2Loss(self.test_loader.dataset.vocab_size)
 
         self.model = model
         self.criterion = criterion
@@ -331,6 +356,7 @@ class DeepSpeech2Tester(Trainer):
             random_seed=config.data.random_seed,
             keep_transcription_text=False)
 
+        collate_fn = SpeechCollator()
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.data.batch_size,

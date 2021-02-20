@@ -68,32 +68,18 @@ class DeepSpeech2Trainer(Trainer):
         loss = self.criterion(logits, texts, logits_len, texts_len)
         return loss
 
-    def read_batch(self):
-        """Read a batch from the train_loader.
-        Returns
-        -------
-        List[Tensor]
-            A batch.
-        """
-        try:
-            batch = next(self.iterator)
-        except StopIteration as e:
-            raise e
-        return batch
-
-    def train_batch(self):
+    def train_batch(self, batch_data):
         start = time.time()
-        batch = self.read_batch()
-        data_loader_time = time.time() - start
-
-        self.optimizer.clear_grad()
         self.model.train()
-        audio, text, audio_len, text_len = batch
-        batch_size = audio.shape[0]
+
+        audio, text, audio_len, text_len = batch_data
         outputs = self.model(audio, text, audio_len, text_len)
-        loss = self.compute_losses(batch, outputs)
+        loss = self.compute_losses(batch_data, outputs)
+
         loss.backward()
         self.optimizer.step()
+        self.optimizer.clear_grad()
+
         iteration_time = time.time() - start
 
         losses_np = {
@@ -104,19 +90,23 @@ class DeepSpeech2Trainer(Trainer):
         msg = "Train: Rank: {}, ".format(dist.get_rank())
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
-        msg += "time: {:>.3f}s/{:>.3f}s, ".format(data_loader_time,
-                                                  iteration_time)
-        msg += f"batch size: {batch_size}, "
+        msg += "time: {:>.3f}s, ".format(iteration_time)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
-
-        #if self.iteration % 100 == 0:
         self.logger.info(msg)
 
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 self.visualizer.add_scalar("train/{}".format(k), v,
                                            self.iteration)
+
+    def new_epoch(self):
+        """Reset the train loader and increment ``epoch``.
+        """
+        if self.parallel:
+            # batch sampler epoch start from 0
+            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        self.epoch += 1
 
     def train(self):
         """The training process.
@@ -126,21 +116,20 @@ class DeepSpeech2Trainer(Trainer):
         """
         self.new_epoch()
         while self.epoch <= self.config.training.n_epoch:
-            try:
+            for batch in self.train_loader:
                 self.iteration += 1
-                self.train_batch()
+                self.train_batch(batch)
 
                 # if self.iteration % self.config.training.valid_interval == 0:
                 #     self.valid()
 
                 # if self.iteration % self.config.training.save_interval == 0:
                 #     self.save()
-            except StopIteration:
-                self.iteration -= 1  #epoch end, iteration ahead 1
-                self.valid()
-                self.save()
-                self.lr_scheduler.step()
-                self.new_epoch()
+
+            self.valid()
+            self.save()
+            self.lr_scheduler.step()
+            self.new_epoch()
 
     def compute_metrics(self, inputs, outputs):
         pass
@@ -152,14 +141,13 @@ class DeepSpeech2Trainer(Trainer):
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
             audio, text, audio_len, text_len = batch
-            batch_size = audio.shape[0]
             outputs = self.model(audio, text, audio_len, text_len)
             loss = self.compute_losses(batch, outputs)
             metrics = self.compute_metrics(batch, outputs)
 
             valid_losses['val_loss'].append(float(loss))
             valid_losses['val_loss_div_batchsize'].append(
-                float(loss) / batch_size)
+                float(loss) / self.config.data.batch_size)
 
         # write visual log
         valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}

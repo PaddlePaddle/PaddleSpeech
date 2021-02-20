@@ -8,7 +8,7 @@ if [ $? -ne 0 ]; then
 fi
 cd - > /dev/null
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+CUDA_VISIBLE_DEVICES=0 \
 python3 -u ${MAIN_ROOT}/test.py \
 --device 'gpu' \
 --nproc 1 \

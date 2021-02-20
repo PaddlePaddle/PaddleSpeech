@@ -32,7 +32,7 @@ export FLAGS_sync_nccl_allreduce=0
 #--specgram_type="linear" \
 #--shuffle_method="batch_shuffle_clipped" \
 
-CUDA_VISIBLE_DEVICES=1,2,6,7 \
+CUDA_VISIBLE_DEVICES=2,3,5,7 \
 python3 -u ${MAIN_ROOT}/train.py \
 --device 'gpu' \
 --nproc 4 \

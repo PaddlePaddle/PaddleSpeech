@@ -2,3 +2,4 @@
 *.pyc
 tools/venv
 dataset
+models/*

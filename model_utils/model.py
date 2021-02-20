@@ -41,6 +41,22 @@ from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
 from utils.error_rate import char_errors, word_errors, cer, wer
 
+# class ExponentialDecayOld(LRScheduler):
+#     def __init__(self, learning_rate, gamma, last_epoch=-1, 
+#                 decay_steps, decay_rate, staircase=False, verbose=False):
+#         self.learning_rate = learning_rate
+#         self.decay_steps = decay_steps
+#         self.decay_rate = decay_rate
+#         self.staircase = staircase
+#         super(ExponentialDecay, self).__init__(learning_rate, last_epoch,
+#                                                verbose)
+
+#     def get_lr(self):
+#         div_res = self.step_num / self.decay_steps
+#         if self.staircase:
+#             div_res = paddle.floor(div_res)
+#         return self.base_lr * (self.decay_rate**div_res)
+
 
 class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
@@ -73,21 +89,28 @@ class DeepSpeech2Trainer(Trainer):
         self.optimizer.clear_grad()
         self.model.train()
         audio, text, audio_len, text_len = batch
+        batch_size = audio.shape[0]
         outputs = self.model(audio, text, audio_len, text_len)
         loss = self.compute_losses(batch, outputs)
         loss.backward()
         self.optimizer.step()
         iteration_time = time.time() - start
 
-        losses_np = {'train_loss': float(loss)}
+        losses_np = {
+            'train_loss': float(loss),
+            'train_loss_div_batchsize':
+            float(loss) / self.config.data.batch_size
+        }
         msg = "Train: Rank: {}, ".format(dist.get_rank())
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
-
         msg += "time: {:>.3f}s/{:>.3f}s, ".format(data_loader_time,
                                                   iteration_time)
+        msg += f"batch size: {batch_size}, "
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
+
+        #if self.iteration % 100 == 0:
         self.logger.info(msg)
 
         if dist.get_rank() == 0 and self.visualizer:
@@ -107,15 +130,16 @@ class DeepSpeech2Trainer(Trainer):
                 self.iteration += 1
                 self.train_batch()
 
-                if self.iteration % self.config.training.valid_interval == 0:
-                    self.valid()
+                # if self.iteration % self.config.training.valid_interval == 0:
+                #     self.valid()
 
-                if self.iteration % self.config.training.save_interval == 0:
-                    self.save()
+                # if self.iteration % self.config.training.save_interval == 0:
+                #     self.save()
             except StopIteration:
                 self.iteration -= 1  #epoch end, iteration ahead 1
                 self.valid()
                 self.save()
+                self.lr_scheduler.step()
                 self.new_epoch()
 
     def compute_metrics(self, inputs, outputs):
@@ -128,11 +152,14 @@ class DeepSpeech2Trainer(Trainer):
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
             audio, text, audio_len, text_len = batch
+            batch_size = audio.shape[0]
             outputs = self.model(audio, text, audio_len, text_len)
             loss = self.compute_losses(batch, outputs)
             metrics = self.compute_metrics(batch, outputs)
 
             valid_losses['val_loss'].append(float(loss))
+            valid_losses['val_loss_div_batchsize'].append(
+                float(loss) / batch_size)
 
         # write visual log
         valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
@@ -166,19 +193,33 @@ class DeepSpeech2Trainer(Trainer):
         grad_clip = paddle.nn.ClipGradByGlobalNorm(
             config.training.global_grad_clip)
 
+        # optimizer = paddle.optimizer.Adam(
+        #     learning_rate=config.training.lr,
+        #     parameters=model.parameters(),
+        #     weight_decay=paddle.regularizer.L2Decay(
+        #         config.training.weight_decay),
+        #     grad_clip=grad_clip)
+
+        #learning_rate=fluid.layers.exponential_decay(
+        #    learning_rate=learning_rate,
+        #    decay_steps=num_samples / batch_size / dev_count,
+        #    decay_rate=0.83,
+        #    staircase=True),
+
+        lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
+            learning_rate=config.training.lr, gamma=0.83, verbose=True)
         optimizer = paddle.optimizer.Adam(
-            learning_rate=config.training.lr,
+            learning_rate=lr_scheduler,
             parameters=model.parameters(),
-            weight_decay=paddle.regularizer.L2Decay(
-                config.training.weight_decay),
             grad_clip=grad_clip)
 
         criterion = DeepSpeech2Loss(self.train_loader.dataset.vocab_size)
 
         self.model = model
         self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
         self.criterion = criterion
-        self.logger.info("Setup model/optimizer/criterion!")
+        self.logger.info("Setup model/optimizer/lr_scheduler/criterion!")
 
     def setup_dataloader(self):
         config = self.config

@@ -29,6 +29,28 @@ from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 __all__ = ['DeepSpeech2', 'DeepSpeech2Loss']
 
 
+def ctc_loss(log_probs,
+             labels,
+             input_lengths,
+             label_lengths,
+             blank=0,
+             reduction='mean',
+             norm_by_times=True):
+    #print("my ctc loss with norm by times")
+    loss_out = paddle.fluid.layers.warpctc(log_probs, labels, blank, norm_by_times,
+                                    input_lengths, label_lengths)
+
+    loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
+    assert reduction in ['mean', 'sum', 'none']
+    if reduction == 'mean':
+        loss_out = paddle.mean(loss_out / label_lengths)
+    elif reduction == 'sum':
+        loss_out = paddle.sum(loss_out)
+    return loss_out
+
+F.ctc_loss = ctc_loss
+
+
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
     t_min = paddle.to_tensor(t_min)
     t_max = paddle.to_tensor(t_max)
@@ -683,12 +705,13 @@ class DeepSpeech2Loss(nn.Layer):
         # last token id as blank id
         self.loss = nn.CTCLoss(blank=vocab_size, reduction='none')
 
-    def forward(self, logits, text, audio_len, text_len):
+    def forward(self, logits, text, logits_len, text_len):
         # warp-ctc do softmax on activations
         # warp-ctc need activation with shape [T, B, V + 1]
         logits = logits.transpose([1, 0, 2])
 
-        ctc_loss = self.loss(logits, text, audio_len, text_len)
-        ctc_loss /= text_len  # norm_by_times
+        ctc_loss = self.loss(logits, text, logits_len, text_len)
+        ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
+        #ctc_loss /= logits_len  # norm_by_times
         ctc_loss = ctc_loss.sum()
         return ctc_loss

@@ -161,9 +161,10 @@ class Trainer():
     def new_epoch(self):
         """Reset the train loader and increment ``epoch``.
         """
-        self.epoch += 1
         if self.parallel:
+            # batch sampler epoch start from 0
             self.train_loader.batch_sampler.set_epoch(self.epoch)
+        self.epoch += 1
         self.iterator = iter(self.train_loader)
 
     def train(self):
@@ -246,22 +247,30 @@ class Trainer():
         the standard output and a text file named ``worker_n.log`` in the 
         output directory, where ``n`` means the rank of the process. 
         """
+        format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
+
         logger = logging.getLogger(__name__)
         logger.setLevel("INFO")
 
-        formatter = logging.Formatter(
-            fmt='[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s',
-            datefmt='%Y/%m/%d %H:%M:%S')
+        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
 
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
+        #stream_handler = logging.StreamHandler()
+        #stream_handler.setFormatter(formatter)
+        #logger.addHandler(stream_handler)
 
         log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
         file_handler = logging.FileHandler(str(log_file))
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
+        # global logger
+        stdout = True
+        save_path = '/dev/null'
+        logging.basicConfig(
+            level=logging.DEBUG if stdout else logging.INFO,
+            format=format,
+            datefmt='%Y/%m/%d %H:%M:%S',
+            filename=save_path if not stdout else None)
         self.logger = logger
 
     @mp_tools.rank_zero_only

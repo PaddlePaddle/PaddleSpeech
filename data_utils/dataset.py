@@ -15,6 +15,7 @@
 import math
 import random
 import tarfile
+import logging
 import numpy as np
 import paddle
 from paddle.io import Dataset
@@ -29,6 +30,8 @@ from data_utils.augmentor.augmentation import AugmentationPipeline
 from data_utils.featurizer.speech_featurizer import SpeechFeaturizer
 from data_utils.speech import SpeechSegment
 from data_utils.normalizer import FeatureNormalizer
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "DeepSpeech2Dataset",
@@ -234,9 +237,13 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         assert (clipped == False)
         if not clipped:
             res_len = len(indices) - shift_len - len(batch_indices)
+            assert res_len != 0, f"_batch_shuffle clipped {len(indices)} , {shift_len}, {len(batch_indices)}"
             # when res_len is 0, will return whole list, len(List[-0:]) = len(List[:])
             batch_indices.extend(indices[-res_len:])
             batch_indices.extend(indices[0:shift_len])
+            assert len(indices) == len(
+                batch_indices
+            ), f"_batch_shuffle: {len(indices)} : {len(batch_indices)} : {res_len} - {shift_len}"
         return batch_indices
 
     def __iter__(self):
@@ -247,8 +254,8 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
 
         # sort (by duration) or batch-wise shuffle the manifest
         if self.shuffle:
-            if self.epoch == 0 and self.sortagrad:
-                pass
+            if self.epoch == 0 and self._sortagrad:
+                logger.info(f'dataset sortagrad! epoch {self.epoch}')
             else:
                 if self._shuffle_method == "batch_shuffle":
                     indices = self._batch_shuffle(
@@ -374,9 +381,13 @@ class DeepSpeech2BatchSampler(BatchSampler):
         assert (clipped == False)
         if not clipped:
             res_len = len(indices) - shift_len - len(batch_indices)
+            assert res_len != 0, f"_batch_shuffle clipped {len(indices)} , {shift_len}, {len(batch_indices)}"
             # when res_len is 0, will return whole list, len(List[-0:]) = len(List[:])
             batch_indices.extend(indices[-res_len:])
             batch_indices.extend(indices[0:shift_len])
+            assert len(indices) == len(
+                batch_indices
+            ), f"_batch_shuffle: {len(indices)} : {len(batch_indices)} : {res_len} - {shift_len}"
         return batch_indices
 
     def __iter__(self):
@@ -388,7 +399,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
         # sort (by duration) or batch-wise shuffle the manifest
         if self.shuffle:
             if self.epoch == 0 and self._sortagrad:
-                pass
+                logger.info(f'dataset sortagrad! epoch {self.epoch}')
             else:
                 if self._shuffle_method == "batch_shuffle":
                     indices = self._batch_shuffle(

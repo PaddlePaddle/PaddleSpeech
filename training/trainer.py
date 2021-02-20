@@ -254,18 +254,18 @@ class Trainer():
 
         formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
 
-        #stream_handler = logging.StreamHandler()
-        #stream_handler.setFormatter(formatter)
-        #logger.addHandler(stream_handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
 
         log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
-        file_handler = logging.FileHandler(str(log_file))
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        # file_handler = logging.FileHandler(str(log_file))
+        # file_handler.setFormatter(formatter)
+        # logger.addHandler(file_handler)
 
         # global logger
-        stdout = True
-        save_path = '/dev/null'
+        stdout = False
+        save_path = log_file
         logging.basicConfig(
             level=logging.DEBUG if stdout else logging.INFO,
             format=format,

@@ -6,7 +6,7 @@ export FLAGS_sync_nccl_allreduce=0
 CUDA_VISIBLE_DEVICES=0,1 \
 python3 -u ${MAIN_ROOT}/train.py \
 --device 'gpu' \
---nproc 1 \
+--nproc 2 \
 --config conf/deepspeech2.yaml \
 --output ckpt
 

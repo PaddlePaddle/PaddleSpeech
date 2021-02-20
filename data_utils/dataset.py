@@ -17,13 +17,15 @@ import random
 import tarfile
 import logging
 import numpy as np
+from collections import namedtuple
+from functools import partial
+
 import paddle
 from paddle.io import Dataset
 from paddle.io import DataLoader
 from paddle.io import BatchSampler
 from paddle.io import DistributedBatchSampler
-from collections import namedtuple
-from functools import partial
+from paddle import distributed as dist
 
 from data_utils.utility import read_manifest
 from data_utils.augmentor.augmentation import AugmentationPipeline
@@ -229,8 +231,7 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         :rtype: list
         """
         rng = np.random.RandomState(self.epoch)
-        # must shift at leat by one
-        shift_len = rng.randint(1, batch_size - 1)
+        shift_len = rng.randint(0, batch_size - 1)
         batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
         rng.shuffle(batch_indices)
         batch_indices = [item for batch in batch_indices for item in batch]
@@ -255,8 +256,13 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         # sort (by duration) or batch-wise shuffle the manifest
         if self.shuffle:
             if self.epoch == 0 and self._sortagrad:
-                logger.info(f'dataset sortagrad! epoch {self.epoch}')
+                logger.info(
+                    f'rank: {dist.get_rank()} dataset sortagrad! epoch {self.epoch}'
+                )
             else:
+                logger.info(
+                    f'rank: {dist.get_rank()} dataset shuffle! epoch {self.epoch}'
+                )
                 if self._shuffle_method == "batch_shuffle":
                     indices = self._batch_shuffle(
                         indices, self.batch_size, clipped=False)
@@ -268,7 +274,6 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         assert len(
             indices
         ) == self.total_size, f"batch shuffle examples error: {len(indices)} : {self.total_size}"
-        self.epoch += 1
 
         # subsample
         def _get_indices_by_batch_size(indices):
@@ -298,6 +303,8 @@ class DeepSpeech2DistributedBatchSampler(DistributedBatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
+                logger.info(
+                    f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []
         if not self.drop_last and len(batch_indices) > 0:
@@ -316,9 +323,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
                  shuffle=False,
                  drop_last=False,
                  sortagrad=False,
-                 shuffle_method="batch_shuffle",
-                 num_replicas=1,
-                 rank=0):
+                 shuffle_method="batch_shuffle"):
         self.dataset = dataset
 
         assert isinstance(batch_size, int) and batch_size > 0, \
@@ -330,24 +335,10 @@ class DeepSpeech2BatchSampler(BatchSampler):
         assert isinstance(drop_last, bool), \
                 "drop_last should be a boolean number"
 
-        if num_replicas is not None:
-            assert isinstance(num_replicas, int) and num_replicas > 0, \
-                    "num_replicas should be a positive integer"
-            self.nranks = num_replicas
-        else:
-            self.nranks = num_replicas
-
-        if rank is not None:
-            assert isinstance(rank, int) and rank >= 0, \
-                    "rank should be a non-negative integer"
-            self.local_rank = rank
-        else:
-            self.local_rank = rank
-
         self.drop_last = drop_last
         self.epoch = 0
-        self.num_samples = int(math.ceil(len(self.dataset) * 1.0 / self.nranks))
-        self.total_size = self.num_samples * self.nranks
+        self.num_samples = int(math.ceil(len(self.dataset) * 1.0))
+        self.total_size = self.num_samples
         self._sortagrad = sortagrad
         self._shuffle_method = shuffle_method
 
@@ -374,7 +365,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
         """
         rng = np.random.RandomState(self.epoch)
         # must shift at leat by one
-        shift_len = rng.randint(1, batch_size - 1)
+        shift_len = rng.randint(0, batch_size - 1)
         batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
         rng.shuffle(batch_indices)
         batch_indices = [item for batch in batch_indices for item in batch]
@@ -401,6 +392,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
             if self.epoch == 0 and self._sortagrad:
                 logger.info(f'dataset sortagrad! epoch {self.epoch}')
             else:
+                logger.info(f'dataset shuffle! epoch {self.epoch}')
                 if self._shuffle_method == "batch_shuffle":
                     indices = self._batch_shuffle(
                         indices, self.batch_size, clipped=False)
@@ -412,28 +404,6 @@ class DeepSpeech2BatchSampler(BatchSampler):
         assert len(
             indices
         ) == self.total_size, f"batch shuffle examples error: {len(indices)} : {self.total_size}"
-        self.epoch += 1
-
-        # subsample
-        def _get_indices_by_batch_size(indices):
-            subsampled_indices = []
-            last_batch_size = self.total_size % (self.batch_size * self.nranks)
-            assert last_batch_size % self.nranks == 0
-            last_local_batch_size = last_batch_size // self.nranks
-
-            for i in range(self.local_rank * self.batch_size,
-                           len(indices) - last_batch_size,
-                           self.batch_size * self.nranks):
-                subsampled_indices.extend(indices[i:i + self.batch_size])
-
-            indices = indices[len(indices) - last_batch_size:]
-            subsampled_indices.extend(
-                indices[self.local_rank * last_local_batch_size:(
-                    self.local_rank + 1) * last_local_batch_size])
-            return subsampled_indices
-
-        if self.nranks > 1:
-            indices = _get_indices_by_batch_size(indices)
 
         assert len(indices) == self.num_samples
         _sample_iter = iter(indices)
@@ -442,52 +412,19 @@ class DeepSpeech2BatchSampler(BatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
+                logger.info(
+                    f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []
         if not self.drop_last and len(batch_indices) > 0:
             yield batch_indices
 
+        self.epoch += 1
+
     def __len__(self):
         num_samples = self.num_samples
         num_samples += int(not self.drop_last) * (self.batch_size - 1)
         return num_samples // self.batch_size
-
-    def set_epoch(self, epoch):
-        """
-        Sets the epoch number. When :attr:`shuffle=True`, this number is used
-        as seeds of random numbers. By default, users may not set this, all
-        replicas (workers) use a different random ordering for each epoch.
-        If set same number at each epoch, this sampler will yield the same
-        ordering at all epoches.
-        Arguments:
-            epoch (int): Epoch number.
-        Examples:
-            .. code-block:: python
-    
-                import numpy as np
-    
-                from paddle.io import Dataset, DistributedBatchSampler
-    
-                # init with dataset
-                class RandomDataset(Dataset):
-                    def __init__(self, num_samples):
-                        self.num_samples = num_samples
-                
-                    def __getitem__(self, idx):
-                        image = np.random.random([784]).astype('float32')
-                        label = np.random.randint(0, 9, (1, )).astype('int64')
-                        return image, label
-                    
-                    def __len__(self):
-                        return self.num_samples
-      
-                dataset = RandomDataset(100)
-                sampler = DistributedBatchSampler(dataset, batch_size=64)
-    
-                for epoch in range(10):
-                    sampler.set_epoch(epoch)
-        """
-        self.epoch = epoch
 
 
 class SpeechCollator():

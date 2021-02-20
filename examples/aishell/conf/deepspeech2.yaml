@@ -6,7 +6,7 @@ data:
   mean_std_filepath: data/mean_std.npz
   vocab_filepath: data/vocab.txt 
   augmentation_config: conf/augmentation.config
-  batch_size: 16 # one gpu
+  batch_size: 64 # one gpu
   max_duration: 27.0
   min_duration: 0.0
   specgram_type: linear

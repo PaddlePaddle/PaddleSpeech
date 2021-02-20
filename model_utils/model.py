@@ -41,22 +41,6 @@ from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
 from utils.error_rate import char_errors, word_errors, cer, wer
 
-# class ExponentialDecayOld(LRScheduler):
-#     def __init__(self, learning_rate, gamma, last_epoch=-1, 
-#                 decay_steps, decay_rate, staircase=False, verbose=False):
-#         self.learning_rate = learning_rate
-#         self.decay_steps = decay_steps
-#         self.decay_rate = decay_rate
-#         self.staircase = staircase
-#         super(ExponentialDecay, self).__init__(learning_rate, last_epoch,
-#                                                verbose)
-
-#     def get_lr(self):
-#         div_res = self.step_num / self.decay_steps
-#         if self.staircase:
-#             div_res = paddle.floor(div_res)
-#         return self.base_lr * (self.decay_rate**div_res)
-
 
 class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
@@ -114,6 +98,8 @@ class DeepSpeech2Trainer(Trainer):
         It includes forward/backward/update and periodical validation and 
         saving.
         """
+        self.logger.info(
+            f"Train Total Examples: {len(self.train_loader.dataset)}")
         self.new_epoch()
         while self.epoch <= self.config.training.n_epoch:
             for batch in self.train_loader:
@@ -137,6 +123,8 @@ class DeepSpeech2Trainer(Trainer):
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
+        self.logger.info(
+            f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         self.model.eval()
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
@@ -177,6 +165,10 @@ class DeepSpeech2Trainer(Trainer):
 
         if self.parallel:
             model = paddle.DataParallel(model)
+
+        for n, p in model.named_parameters():
+            self.logger.info(
+                f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}")
 
         grad_clip = paddle.nn.ClipGradByGlobalNorm(
             config.training.global_grad_clip)
@@ -341,9 +333,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def test(self):
+        self.logger.info(
+            f"Test Total Examples: {len(self.test_loader.dataset)}")
         self.model.eval()
         losses = defaultdict(list)
-
         cfg = self.config
         # decoders only accept string encoded in utf-8
         vocab_list = self.test_loader.dataset.vocab_list

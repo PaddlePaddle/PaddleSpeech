@@ -31,27 +31,30 @@ logger = logging.getLogger(__name__)
 __all__ = ['DeepSpeech2', 'DeepSpeech2Loss']
 
 
-def ctc_loss(log_probs,
+def ctc_loss(logits,
              labels,
              input_lengths,
              label_lengths,
              blank=0,
              reduction='mean',
-             norm_by_times=True):
+             norm_by_times=False):
     #logger.info("my ctc loss with norm by times")
+    ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
     loss_out = paddle.fluid.layers.warpctc(
-        log_probs, labels, blank, norm_by_times, input_lengths, label_lengths)
+        logits, labels, blank, norm_by_times, input_lengths, label_lengths)
 
     loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
+    logger.info(f"warpctc loss: {loss_out}/{loss_out.shape} ")
     assert reduction in ['mean', 'sum', 'none']
     if reduction == 'mean':
         loss_out = paddle.mean(loss_out / label_lengths)
     elif reduction == 'sum':
         loss_out = paddle.sum(loss_out)
+    logger.info(f"ctc loss: {loss_out}")
     return loss_out
 
 
-F.ctc_loss = ctc_loss
+#F.ctc_loss = ctc_loss
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
@@ -64,7 +67,8 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
     max_len = max_len or x_len.max()
     x_len = paddle.unsqueeze(x_len, -1)
     row_vector = paddle.arange(max_len)
-    mask = row_vector < x_len
+    #mask = row_vector < x_len
+    mask = row_vector > x_len  # a bug, broadcast 的时候出错了
     mask = paddle.cast(mask, dtype)
     return mask
 
@@ -119,7 +123,7 @@ class ConvBn(nn.Layer):
             weight_attr=None,
             bias_attr=None,
             data_format='NCHW')
-        self.act = paddle.relu if act == 'relu' else brelu
+        self.act = F.relu if act == 'relu' else brelu
 
     def forward(self, x, x_len):
         """
@@ -154,16 +158,13 @@ class ConvStack(nn.Layer):
         self.feat_size = feat_size  # D
         self.num_stacks = num_stacks
 
-        self.filter_size = (41, 11)  # [D, T]
-        self.stride = (2, 3)
-        self.padding = (20, 5)
         self.conv_in = ConvBn(
             num_channels_in=1,
             num_channels_out=32,
-            kernel_size=self.filter_size,
-            stride=self.stride,
-            padding=self.padding,
-            act='brelu', )
+            kernel_size=(41, 11), #[D, T]
+            stride=(2, 3),
+            padding=(20, 5),
+            act='brelu')
 
         out_channel = 32
         self.conv_stack = nn.LayerList([
@@ -307,7 +308,7 @@ class GRUCellShare(nn.RNNCellBase):
         self.input_size = input_size
         self._gate_activation = F.sigmoid
         #self._activation = paddle.tanh
-        self._activation = paddle.relu
+        self._activation = F.relu
 
     def forward(self, inputs, states=None):
         if states is None:
@@ -479,6 +480,9 @@ class RNNStack(nn.Layer):
         """
         for i, rnn in enumerate(self.rnn_stacks):
             x, x_len = rnn(x, x_len)
+            masks = sequence_mask(x_len)  #[B, T]
+            masks = masks.unsqueeze(-1)  # [B, T, 1]
+            x = x.multiply(masks)
         return x, x_len
 
 
@@ -544,14 +548,17 @@ class DeepSpeech2(nn.Layer):
 
         # convolution group
         x, audio_len = self.conv(audio, audio_len)
+        #print('conv out', x.shape)
 
         # convert data from convolution feature map to sequence of vectors
         B, C, D, T = paddle.shape(x)
         x = x.transpose([0, 3, 1, 2])  #[B, T, C, D]
         x = x.reshape([B, T, C * D])  #[B, T, C*D]
+        #print('rnn input', x.shape)
 
         # remove padding part
         x, audio_len = self.rnn(x, audio_len)  #[B, T, D]
+        #print('rnn output', x.shape)
 
         logits = self.fc(x)  #[B, T, V + 1]
 
@@ -713,7 +720,7 @@ class DeepSpeech2Loss(nn.Layer):
     def __init__(self, vocab_size):
         super().__init__()
         # last token id as blank id
-        self.loss = nn.CTCLoss(blank=vocab_size, reduction='none')
+        self.loss = nn.CTCLoss(blank=vocab_size, reduction='sum')
 
     def forward(self, logits, text, logits_len, text_len):
         # warp-ctc do softmax on activations
@@ -721,7 +728,4 @@ class DeepSpeech2Loss(nn.Layer):
         logits = logits.transpose([1, 0, 2])
 
         ctc_loss = self.loss(logits, text, logits_len, text_len)
-        ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
-        #ctc_loss /= logits_len  # norm_by_times
-        ctc_loss = ctc_loss.sum()
         return ctc_loss

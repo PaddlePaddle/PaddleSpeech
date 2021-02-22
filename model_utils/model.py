@@ -17,12 +17,20 @@ import io
 import sys
 import os
 import time
+import logging
 import numpy as np
 from collections import defaultdict
 
 import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
+
+
+from paddle.fluid.dygraph import base as imperative_base
+from paddle.fluid import layers
+from paddle.fluid import framework
+from paddle.fluid import core
+from paddle.fluid import name_scope
 
 from utils import mp_tools
 from training import Trainer
@@ -41,6 +49,68 @@ from decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
 from utils.error_rate import char_errors, word_errors, cer, wer
 
+logger = logging.getLogger(__name__)
+
+class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
+    def __init__(self, clip_norm):
+        super().__init__(clip_norm)
+
+    @imperative_base.no_grad
+    def _dygraph_clip(self, params_grads):
+        params_and_grads = []
+        sum_square_list = []
+        for p, g in params_grads:
+            if g is None:
+                continue
+            if getattr(p, 'need_clip', True) is False:
+                continue
+            merge_grad = g
+            if g.type == core.VarDesc.VarType.SELECTED_ROWS:
+                merge_grad = layers.merge_selected_rows(g)
+                merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
+            square = layers.square(merge_grad)
+            sum_square = layers.reduce_sum(square)
+            logger.info(f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }")
+            sum_square_list.append(sum_square)
+
+        # all parameters have been filterd out
+        if len(sum_square_list) == 0:
+            return params_grads
+
+        global_norm_var = layers.concat(sum_square_list)
+        global_norm_var = layers.reduce_sum(global_norm_var)
+        global_norm_var = layers.sqrt(global_norm_var)
+        logger.info(f"Grad Global Norm: {float(global_norm_var)}!!!!")
+        max_global_norm = layers.fill_constant(
+            shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
+        clip_var = layers.elementwise_div(
+            x=max_global_norm,
+            y=layers.elementwise_max(
+                x=global_norm_var, y=max_global_norm))
+        for p, g in params_grads:
+            if g is None:
+                continue
+            if getattr(p, 'need_clip', True) is False:
+                params_and_grads.append((p, g))
+                continue
+            new_grad = layers.elementwise_mul(x=g, y=clip_var)
+            logger.info(f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }")
+            params_and_grads.append((p, new_grad))
+
+        return params_and_grads
+
+
+def print_grads(model, logger=None):
+    for n, p in model.named_parameters():
+        msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
+        if logger:
+            logger.info(msg)
+
+def print_params(model, logger=None):
+    for n, p in model.named_parameters():
+        msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"
+         if logger:
+            logger.info(msg)
 
 class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
@@ -61,6 +131,7 @@ class DeepSpeech2Trainer(Trainer):
         loss = self.compute_losses(batch_data, outputs)
 
         loss.backward()
+        print_grads(self.model, logger=None)
         self.optimizer.step()
         self.optimizer.clear_grad()
 
@@ -102,15 +173,19 @@ class DeepSpeech2Trainer(Trainer):
             f"Train Total Examples: {len(self.train_loader.dataset)}")
         self.new_epoch()
         while self.epoch <= self.config.training.n_epoch:
-            for batch in self.train_loader:
-                self.iteration += 1
-                self.train_batch(batch)
+            try:
+                for batch in self.train_loader:
+                    self.iteration += 1
+                    self.train_batch(batch)
 
-                # if self.iteration % self.config.training.valid_interval == 0:
-                #     self.valid()
+                    # if self.iteration % self.config.training.valid_interval == 0:
+                    #     self.valid()
 
-                # if self.iteration % self.config.training.save_interval == 0:
-                #     self.save()
+                    # if self.iteration % self.config.training.save_interval == 0:
+                    #     self.save()
+            except Exception as e:
+                self.logger.error(e)
+                pass
 
             self.valid()
             self.save()
@@ -166,11 +241,9 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        for n, p in model.named_parameters():
-            self.logger.info(
-                f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}")
+        print_params(model, self.logger)
 
-        grad_clip = paddle.nn.ClipGradByGlobalNorm(
+        grad_clip = MyClipGradByGlobalNorm(
             config.training.global_grad_clip)
 
         # optimizer = paddle.optimizer.Adam(
@@ -299,6 +372,9 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         error_rate_func = cer if cfg.error_rate_type == 'cer' else wer
 
         vocab_list = self.test_loader.dataset.vocab_list
+        for t in vocab_list:
+            self.logger.info(f"vocab: {t}")
+            
         target_transcripts = self.id2token(texts, texts_len, vocab_list)
         result_transcripts = self.model.decode_probs(
             probs.numpy(),

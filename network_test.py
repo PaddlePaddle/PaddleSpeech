@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from network2 import DeepSpeech2
+from model_utils.network import DeepSpeech2
 import paddle
 import numpy as np
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         rnn_size=1024,
         use_gru=False,
         share_rnn_weights=False, )
-    probs = model(audio, text, audio_len, text_len)
+    logits, probs, logits_len = model(audio, text, audio_len, text_len)
     print('probs.shape', probs.shape)
     print("-----------------")
 

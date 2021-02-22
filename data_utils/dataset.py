@@ -428,7 +428,7 @@ class DeepSpeech2BatchSampler(BatchSampler):
 
 
 class SpeechCollator():
-    def __init__(self, padding_to=-1, is_training=False):
+    def __init__(self, padding_to=-1, is_training=True):
         """
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one bach.

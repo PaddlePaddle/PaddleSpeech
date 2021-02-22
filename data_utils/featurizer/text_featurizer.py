@@ -30,6 +30,7 @@ class TextFeaturizer(object):
     """
 
     def __init__(self, vocab_filepath):
+        self.unk = '<unk>'
         self._vocab_dict, self._vocab_list = self._load_vocabulary_from_file(
             vocab_filepath)
 
@@ -43,7 +44,11 @@ class TextFeaturizer(object):
         :rtype: list
         """
         tokens = self._char_tokenize(text)
-        return [self._vocab_dict[token] for token in tokens]
+        ids = []
+        for token in tokens:
+            token = token if token in self._vocab_dict else self.unk
+            ids.append(self._vocab_dict[token])
+        return ids
 
     @property
     def vocab_size(self):

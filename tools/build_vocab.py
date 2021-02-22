@@ -59,6 +59,7 @@ def main():
 
     count_sorted = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     with codecs.open(args.vocab_path, 'w', 'utf-8') as fout:
+        fout.write('<unk>' + '\n')
         for char, count in count_sorted:
             if count < args.count_threshold: break
             fout.write(char + '\n')

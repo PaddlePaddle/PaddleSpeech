@@ -197,7 +197,7 @@ For more help on arguments:
 ```bash
 python3 train.py --help
 ```
-or refer to `example/librispeech/local/run_train.sh`.
+or refer to `example/librispeech/local/train.sh`.
 
 
 ### Data Augmentation Pipeline
@@ -239,7 +239,7 @@ Be careful when utilizing the data augmentation technique, as improper augmentat
 
 ### Training for Mandarin Language
 
-The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell/local```. As mentioned above, please execute ```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh``` and ```sh run_infer.sh``` to do data preparation, training, testing and inference correspondingly. We have also prepared a pre-trained model (downloaded by ./models/aishell/download_model.sh) for users to try with ```sh run_infer_golden.sh``` and ```sh run_test_golden.sh```. Notice that, different from English LM, the Mandarin LM is character-based and please run ```tools/tune.py``` to find an optimal setting.
+The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell/local```. As mentioned above, please execute ```sh data.sh```, ```sh train.sh```, ```sh test.sh``` and ```sh infer.sh``` to do data preparation, training, testing and inference correspondingly. We have also prepared a pre-trained model (downloaded by ./models/aishell/download_model.sh) for users to try with ```sh infer_golden.sh``` and ```sh test_golden.sh```. Notice that, different from English LM, the Mandarin LM is character-based and please run ```tools/tune.py``` to find an optimal setting.
 
 
 ## Inference and Evaluation
@@ -299,7 +299,7 @@ For more help on arguments:
 ```
 python3 infer.py --help
 ```
-or refer to `example/librispeech/local/run_infer.sh`.
+or refer to `example/librispeech/local/infer.sh`.
 
 ### Evaluate a Model
 
@@ -324,7 +324,7 @@ For more help on arguments:
 ```bash
 python3 test.py --help
 ```
-or refer to `example/librispeech/local/run_test.sh`.
+or refer to `example/librispeech/local/test.sh`.
 
 ## Hyper-parameters Tuning
 
@@ -364,7 +364,7 @@ After tuning, you can reset $\alpha$ and $\beta$ in the inference and evaluation
 ```bash
 python3 tune.py --help
 ```
-or refer to `example/librispeech/local/run_tune.sh`.
+or refer to `example/librispeech/local/tune.sh`.
 
 
 ## Trying Live Demo with Your Own Voice
@@ -403,7 +403,7 @@ Now, in the client console, press the `whitespace` key, hold, and start speaking
 
 Notice that `deploy/demo_client.py` must be run on a machine with a microphone device, while `deploy/demo_server.py` could be run on one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running on one single machine.
 
-Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/deploy_demo/run_demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
+Please also refer to `examples/deploy_demo/english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/deploy_demo/demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
 
 For more help on arguments:
 
@@ -427,7 +427,7 @@ VoxForge European       |   30.15           |   18.64
 VoxForge Indian         |   53.73           |   25.51
 Baidu Internal Testset  |   40.75           |   8.48
 
-For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh run_data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
+For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
 
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 

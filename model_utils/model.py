@@ -20,11 +20,11 @@ import time
 import logging
 import numpy as np
 from collections import defaultdict
+from functools import partial
 
 import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
-
 
 from paddle.fluid.dygraph import base as imperative_base
 from paddle.fluid import layers
@@ -51,6 +51,7 @@ from utils.error_rate import char_errors, word_errors, cer, wer
 
 logger = logging.getLogger(__name__)
 
+
 class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
     def __init__(self, clip_norm):
         super().__init__(clip_norm)
@@ -70,7 +71,9 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
                 merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
             square = layers.square(merge_grad)
             sum_square = layers.reduce_sum(square)
-            logger.info(f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }")
+            logger.info(
+                f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
+            )
             sum_square_list.append(sum_square)
 
         # all parameters have been filterd out
@@ -85,8 +88,7 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
         clip_var = layers.elementwise_div(
             x=max_global_norm,
-            y=layers.elementwise_max(
-                x=global_norm_var, y=max_global_norm))
+            y=layers.elementwise_max(x=global_norm_var, y=max_global_norm))
         for p, g in params_grads:
             if g is None:
                 continue
@@ -94,7 +96,9 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
                 params_and_grads.append((p, g))
                 continue
             new_grad = layers.elementwise_mul(x=g, y=clip_var)
-            logger.info(f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }")
+            logger.info(
+                f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
+            )
             params_and_grads.append((p, new_grad))
 
         return params_and_grads
@@ -106,11 +110,13 @@ def print_grads(model, logger=None):
         if logger:
             logger.info(msg)
 
+
 def print_params(model, logger=None):
     for n, p in model.named_parameters():
         msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"
-         if logger:
+        if logger:
             logger.info(msg)
+
 
 class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
@@ -126,8 +132,7 @@ class DeepSpeech2Trainer(Trainer):
         start = time.time()
         self.model.train()
 
-        audio, text, audio_len, text_len = batch_data
-        outputs = self.model(audio, text, audio_len, text_len)
+        outputs = self.model(*batch_data)
         loss = self.compute_losses(batch_data, outputs)
 
         loss.backward()
@@ -204,7 +209,7 @@ class DeepSpeech2Trainer(Trainer):
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
             audio, text, audio_len, text_len = batch
-            outputs = self.model(audio, text, audio_len, text_len)
+            outputs = self.model(*batch)
             loss = self.compute_losses(batch, outputs)
             metrics = self.compute_metrics(batch, outputs)
 
@@ -243,8 +248,7 @@ class DeepSpeech2Trainer(Trainer):
 
         print_params(model, self.logger)
 
-        grad_clip = MyClipGradByGlobalNorm(
-            config.training.global_grad_clip)
+        grad_clip = MyClipGradByGlobalNorm(config.training.global_grad_clip)
 
         # optimizer = paddle.optimizer.Adam(
         #     learning_rate=config.training.lr,
@@ -313,7 +317,7 @@ class DeepSpeech2Trainer(Trainer):
             use_dB_normalization=config.data.use_dB_normalization,
             target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+            keep_transcription_text=True)
 
         if self.parallel:
             batch_sampler = DeepSpeech2DistributedBatchSampler(
@@ -338,14 +342,14 @@ class DeepSpeech2Trainer(Trainer):
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
-            collate_fn=collate_fn,
+            collate_fn=SpeechCollator(is_training=True),
             num_workers=config.data.num_workers, )
         self.valid_loader = DataLoader(
             dev_dataset,
             batch_size=config.data.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn)
+            collate_fn=SpeechCollator(is_training=True))
         self.logger.info("Setup train/valid Dataloader!")
 
 
@@ -353,13 +357,14 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def id2token(self, texts, texts_len, vocab_list):
+    def ordid2token(self, texts, texts_len):
+        """ ord() id to chr() chr """
         trans = []
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            trans.append(''.join([vocab_list[i] for i in ids]))
-        return np.array(trans)
+            trans.append(''.join([chr(i) for i in ids]))
+        return trans
 
     def compute_metrics(self, inputs, outputs):
         cfg = self.config.decoding
@@ -372,10 +377,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         error_rate_func = cer if cfg.error_rate_type == 'cer' else wer
 
         vocab_list = self.test_loader.dataset.vocab_list
-        for t in vocab_list:
-            self.logger.info(f"vocab: {t}")
-            
-        target_transcripts = self.id2token(texts, texts_len, vocab_list)
+
+        target_transcripts = self.ordid2token(texts, texts_len)
         result_transcripts = self.model.decode_probs(
             probs.numpy(),
             vocab_list,
@@ -513,13 +516,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             use_dB_normalization=config.data.use_dB_normalization,
             target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+            keep_transcription_text=True)
 
-        collate_fn = SpeechCollator()
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn)
+            collate_fn=SpeechCollator(is_training=False))
         self.logger.info("Setup test Dataloader!")

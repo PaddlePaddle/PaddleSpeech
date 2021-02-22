@@ -9,7 +9,6 @@ fi
 cd - > /dev/null
 
 
-CUDA_VISIBLE_DEVICES=6 \
 python3 -u ${MAIN_ROOT}/test.py \
 --device 'gpu' \
 --nproc 1 \

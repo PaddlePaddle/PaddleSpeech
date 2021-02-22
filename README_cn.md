@@ -197,7 +197,7 @@ python3 tools/build_vocab.py --help
 ```bash
 python3 train.py --help
 ```
-或参考 `example/librispeech/local/run_train.sh`.
+或参考 `example/librispeech/local/train.sh`.
 
 
 ### 数据增强流水线
@@ -238,7 +238,7 @@ python3 train.py --help
 
 ### 训练普通话语言
 
-普通话语言训练与英语训练的关键步骤相同，我们提供了一个使用 Aishell 进行普通话训练的例子```examples/aishell```。如上所述，请执行```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh```和```sh run_infer.sh```做相应的数据准备，训练，测试和推断。我们还准备了一个预训练过的模型（执行./models/aishell/download_model.sh下载）供用户使用```run_infer_golden.sh```和```run_test_golden.sh```来。请注意，与英语语言模型不同，普通话语言模型是基于汉字的，请运行```tools/tune.py```来查找最佳设置。
+普通话语言训练与英语训练的关键步骤相同，我们提供了一个使用 Aishell 进行普通话训练的例子```examples/aishell```。如上所述，请执行```sh data.sh```, ```sh train.sh```, ```sh test.sh```和```sh infer.sh```做相应的数据准备，训练，测试和推断。我们还准备了一个预训练过的模型（执行./models/aishell/download_model.sh下载）供用户使用```infer_golden.sh```和```test_golden.sh```来。请注意，与英语语言模型不同，普通话语言模型是基于汉字的，请运行```tools/tune.py```来查找最佳设置。
 
 
 
@@ -300,7 +300,7 @@ bash download_lm_ch.sh
 ```
 python3 infer.py --help
 ```
-或参考`example/librispeech/local/run_infer.sh`.
+或参考`example/librispeech/local/infer.sh`.
 
 ### 评估模型
 
@@ -325,7 +325,7 @@ python3 infer.py --help
 ```bash
 python3 test.py --help
 ```
-或参考`example/librispeech/local/run_test.sh`.
+或参考`example/librispeech/local/test.sh`.
 
 
 
@@ -367,7 +367,7 @@ python3 test.py --help
 ```bash
 python3 tune.py --help
 ```
-或参考`example/librispeech/local/run_tune.sh`.
+或参考`example/librispeech/local/tune.sh`.
 
 
 ## 用自己的声音尝试现场演示
@@ -406,7 +406,7 @@ python3 -u deploy/demo_client.py \
 
 请注意，`deploy/demo_client.py`必须在带麦克风设备的机器上运行，而`deploy/demo_server.py`可以在没有任何录音硬件的情况下运行，例如任何远程服务器机器。如果服务器和客户端使用两台独立的机器运行，只需要注意将`host_ip`和`host_port`参数设置为实际可访问的IP地址和端口。如果它们在单台机器上运行，则不用作任何处理。
 
-请参考`examples/deploy_demo/run_english_demo_server.sh`，它将首先下载一个预先训练过的英语模型（用3000小时的内部语音数据训练），然后用模型启动演示服务器。通过运行`examples/deploy_demo/run_demo_client.sh`，你可以说英语来测试它。如果您想尝试其他模型，只需更新脚本中的`--model_path`参数即可。
+请参考`examples/deploy_demo/english_demo_server.sh`，它将首先下载一个预先训练过的英语模型（用3000小时的内部语音数据训练），然后用模型启动演示服务器。通过运行`examples/deploy_demo/demo_client.sh`，你可以说英语来测试它。如果您想尝试其他模型，只需更新脚本中的`--model_path`参数即可。
 
 获得更多帮助：
 
@@ -430,7 +430,7 @@ VoxForge European       |   30.15           |   18.64
 VoxForge Indian         |   53.73           |   25.51
 Baidu Internal Testset  |   40.75           |   8.48
 
-为了在VoxForge数据上重现基准测试结果，我们提供了一个脚本来下载数据并生成VoxForge方言manifest文件。请到```data/voxforge```执行````run_data.sh```来获取VoxForge方言manifest文件。请注意，VoxForge数据可能会持续更新，生成的清单文件可能与我们评估的清单文件有所不同。
+为了在VoxForge数据上重现基准测试结果，我们提供了一个脚本来下载数据并生成VoxForge方言manifest文件。请到```data/voxforge```执行````data.sh```来获取VoxForge方言manifest文件。请注意，VoxForge数据可能会持续更新，生成的清单文件可能与我们评估的清单文件有所不同。
 
 
 #### 普通话模型的baseline测试结果（字符错误率）

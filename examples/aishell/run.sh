@@ -3,19 +3,19 @@
 source path.sh
 
 # prepare data
-bash ./local/run_data.sh
+bash ./local/data.sh
 
 # test pretrain model
-bash ./local/run_test_golden.sh
+bash ./local/test_golden.sh
 
 # test pretain model
-bash ./local/run_infer_golden.sh
+bash ./local/infer_golden.sh
 
 # train model
-bash ./local/run_train.sh
+bash ./local/train.sh
 
 # test model
-bash ./local/run_test.sh
+bash ./local/test.sh
 
 # infer model
-bash ./local/run_infer.sh
+bash ./local/infer.sh

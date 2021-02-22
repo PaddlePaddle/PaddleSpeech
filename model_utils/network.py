@@ -31,32 +31,6 @@ logger = logging.getLogger(__name__)
 __all__ = ['DeepSpeech2', 'DeepSpeech2Loss']
 
 
-def ctc_loss(logits,
-             labels,
-             input_lengths,
-             label_lengths,
-             blank=0,
-             reduction='mean',
-             norm_by_times=False):
-    #logger.info("my ctc loss with norm by times")
-    ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
-    loss_out = paddle.fluid.layers.warpctc(
-        logits, labels, blank, norm_by_times, input_lengths, label_lengths)
-
-    loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
-    logger.info(f"warpctc loss: {loss_out}/{loss_out.shape} ")
-    assert reduction in ['mean', 'sum', 'none']
-    if reduction == 'mean':
-        loss_out = paddle.mean(loss_out / label_lengths)
-    elif reduction == 'sum':
-        loss_out = paddle.sum(loss_out)
-    logger.info(f"ctc loss: {loss_out}")
-    return loss_out
-
-
-#F.ctc_loss = ctc_loss
-
-
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
     t_min = paddle.to_tensor(t_min)
     t_max = paddle.to_tensor(t_max)
@@ -161,7 +135,7 @@ class ConvStack(nn.Layer):
         self.conv_in = ConvBn(
             num_channels_in=1,
             num_channels_out=32,
-            kernel_size=(41, 11), #[D, T]
+            kernel_size=(41, 11),  #[D, T]
             stride=(2, 3),
             padding=(20, 5),
             act='brelu')
@@ -330,7 +304,6 @@ class GRUCellShare(nn.RNNCellBase):
         c = self._activation(x_c + r * h_c)  # apply reset gate after mm
         h = (pre_hidden - c) * z + c
         # https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/fluid/layers/dynamic_gru_cn.html#dynamic-gru
-        #h = (1-z) * pre_hidden + z * c
 
         return h, h
 
@@ -714,6 +687,32 @@ class DeepSpeech2(nn.Layer):
         return self.decode_probs(
             probs, vocab_list, decoding_method, lang_model_path, beam_alpha,
             beam_beta, beam_size, cutoff_prob, cutoff_top_n, num_processes)
+
+
+def ctc_loss(logits,
+             labels,
+             input_lengths,
+             label_lengths,
+             blank=0,
+             reduction='mean',
+             norm_by_times=True):
+    #logger.info("my ctc loss with norm by times")
+    ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
+    loss_out = paddle.fluid.layers.warpctc(logits, labels, blank, norm_by_times,
+                                           input_lengths, label_lengths)
+
+    loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
+    logger.info(f"warpctc loss: {loss_out}/{loss_out.shape} ")
+    assert reduction in ['mean', 'sum', 'none']
+    if reduction == 'mean':
+        loss_out = paddle.mean(loss_out / label_lengths)
+    elif reduction == 'sum':
+        loss_out = paddle.sum(loss_out)
+    logger.info(f"ctc loss: {loss_out}")
+    return loss_out
+
+
+F.ctc_loss = ctc_loss
 
 
 class DeepSpeech2Loss(nn.Layer):

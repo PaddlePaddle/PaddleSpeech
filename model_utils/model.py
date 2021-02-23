@@ -21,6 +21,7 @@ import logging
 import numpy as np
 from collections import defaultdict
 from functools import partial
+from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
@@ -449,6 +450,30 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         self.logger.info(msg)
 
+    def setup_output_dir(self):
+        """Create a directory used for output.
+        """
+        # output dir
+        if self.args.output:
+            output_dir = Path(self.args.output).expanduser() / "infer"
+            output_dir.mkdir(parents=True, exist_ok=True)
+        else:
+            output_dir = Path(self.args.checkpoint_path).expanduser().parent / "infer"
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+        self.output_dir = output_dir
+
+    # def setup_checkpointer(self):
+    #     """Create a directory used to save checkpoints into.
+        
+    #     It is "checkpoints" inside the output directory.
+    #     """
+    #     # checkpoint dir
+    #     checkpoint_dir = self.output_dir / "checkpoints"
+    #     checkpoint_dir.mkdir(exist_ok=True)
+
+    #     self.checkpoint_dir = checkpoint_dir
+
     def setup(self):
         """Setup the experiment.
         """
@@ -458,7 +483,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         self.setup_output_dir()
         self.setup_logger()
-        self.setup_checkpointer()
 
         self.setup_dataloader()
         self.setup_model()
@@ -482,7 +506,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
             share_rnn_weights=config.model.share_rnn_weights)
-
+        
         if self.parallel:
             model = paddle.DataParallel(model)
 

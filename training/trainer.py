@@ -91,6 +91,9 @@ class Trainer():
         self.args = args
         self.optimizer = None
         self.visualizer = None
+        self.output_dir = None
+        self.checkpoint_dir = None
+        self.logger = None
 
     def setup(self):
         """Setup the experiment.
@@ -257,6 +260,10 @@ class Trainer():
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
+
+        if not hasattr(self, 'output_dir'):
+            self.logger = logger
+            return
 
         log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
         # file_handler = logging.FileHandler(str(log_file))

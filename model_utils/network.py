@@ -688,6 +688,24 @@ class DeepSpeech2(nn.Layer):
             probs, vocab_list, decoding_method, lang_model_path, beam_alpha,
             beam_beta, beam_size, cutoff_prob, cutoff_top_n, num_processes)
 
+    def from_pretrained(self, checkpoint_path):
+        """Build a model from a pretrained model.
+        Parameters
+        ----------
+        model: nn.Layer
+            Asr Model.
+        
+        checkpoint_path: Path or str
+            The path of pretrained model checkpoint, without extension name.
+        
+        Returns
+        -------
+        Model
+            The model build from pretrined result.
+        """
+        checkpoint.load_parameters(self, checkpoint_path=checkpoint_path)
+        return model
+
 
 def ctc_loss(logits,
              labels,

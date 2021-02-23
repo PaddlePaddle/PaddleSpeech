@@ -34,11 +34,9 @@ add_arg('num_batches',      int,    -1,     "# of batches tuning on. "
                                             "Default -1, on whole dev set.")
 add_arg('batch_size',       int,    256,    "# of samples per batch.")
 add_arg('trainer_count',    int,    8,      "# of Trainers (CPUs or GPUs).")
+
 add_arg('beam_size',        int,    500,    "Beam search width.")
 add_arg('num_proc_bsearch', int,    8,     "# of CPUs for beam search.")
-add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
-add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
-add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
 add_arg('num_alphas',       int,    45,     "# of alpha candidates for tuning.")
 add_arg('num_betas',        int,    8,      "# of beta candidates for tuning.")
 add_arg('alpha_from',       float,  1.0,    "Where alpha starts tuning from.")
@@ -47,10 +45,15 @@ add_arg('beta_from',        float,  0.1,    "Where beta starts tuning from.")
 add_arg('beta_to',          float,  0.45,   "Where beta ends tuning with.")
 add_arg('cutoff_prob',      float,  1.0,    "Cutoff probability for pruning.")
 add_arg('cutoff_top_n',     int,    40,     "Cutoff number for pruning.")
+
+add_arg('num_conv_layers',  int,    2,      "# of convolution layers.")
+add_arg('num_rnn_layers',   int,    3,      "# of recurrent layers.")
+add_arg('rnn_layer_size',   int,    2048,   "# of recurrent cells per layer.")
 add_arg('use_gru',          bool,   False,  "Use GRUs instead of simple RNNs.")
 add_arg('use_gpu',          bool,   True,   "Use GPU or not.")
 add_arg('share_rnn_weights',bool,   True,   "Share input-hidden weights across "
                                             "bi-directional RNNs. Not for GRU.")
+
 add_arg('tune_manifest',    str,
         'data/librispeech/manifest.dev-clean',
         "Filepath of manifest to tune.")
@@ -127,6 +130,8 @@ def tune():
 
     err_sum = [0.0 for i in range(len(params_grid))]
     err_ave = [0.0 for i in range(len(params_grid))]
+
+
     num_ins, len_refs, cur_batch = 0, 0, 0
     # initialize external scorer
     ds2_model.init_ext_scorer(args.alpha_from, args.beta_from,
@@ -156,6 +161,7 @@ def tune():
             for target, result in zip(target_transcripts, result_transcripts):
                 errors, len_ref = errors_func(target, result)
                 err_sum[index] += errors
+
                 # accumulate the length of references of every batch
                 # in the first iteration
                 if args.alpha_from == alpha and args.beta_from == beta:

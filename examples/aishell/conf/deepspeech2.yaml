@@ -31,14 +31,15 @@ model:
 training:
   n_epoch: 20
   lr: 5e-4
+  lr_decay: 1.0
   weight_decay: 1e-06
-  global_grad_clip: 400.0
+  global_grad_clip: 5.0
   max_iteration: 500000
   plot_interval: 1000
   save_interval: 1000
   valid_interval: 1000
 decoding:
-  batch_size: 10
+  batch_size: 128
   error_rate_type: cer 
   decoding_method: ctc_beam_search
   lang_model_path: models/lm/zh_giga.no_cna_cmn.prune01244.klm

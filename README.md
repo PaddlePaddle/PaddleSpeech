@@ -232,7 +232,7 @@ In order to inform the trainer of what augmentation components are needed and wh
 
 When the `--augment_conf_file` argument of `trainer.py` is set to the path of the above example configuration file, every audio clip in every epoch will be processed: with 60% of chance, it will first be speed perturbed with a uniformly random sampled speed-rate between 0.95 and 1.05, and then with 80% of chance it will be shifted in time with a random sampled offset between -5 ms and 5 ms. Finally this newly synthesized audio clip will be feed into the feature extractor for further training.
 
-For other configuration examples, please refer to `conf/augmenatation.config.example`.
+For other configuration examples, please refer to `examples/conf/augmentation.config.example`.
 
 Be careful when utilizing the data augmentation technique, as improper augmentation will do harm to the training, due to the enlarged train-test gap.
 

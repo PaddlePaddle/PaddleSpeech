@@ -250,25 +250,15 @@ class DeepSpeech2Trainer(Trainer):
         print_params(model, self.logger)
 
         grad_clip = MyClipGradByGlobalNorm(config.training.global_grad_clip)
-
-        # optimizer = paddle.optimizer.Adam(
-        #     learning_rate=config.training.lr,
-        #     parameters=model.parameters(),
-        #     weight_decay=paddle.regularizer.L2Decay(
-        #         config.training.weight_decay),
-        #     grad_clip=grad_clip)
-
-        #learning_rate=fluid.layers.exponential_decay(
-        #    learning_rate=learning_rate,
-        #    decay_steps=num_samples / batch_size / dev_count,
-        #    decay_rate=0.83,
-        #    staircase=True),
-
         lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
-            learning_rate=config.training.lr, gamma=0.83, verbose=True)
+            learning_rate=config.training.lr,
+            gamma=config.training.lr_decay,
+            verbose=True)
         optimizer = paddle.optimizer.Adam(
             learning_rate=lr_scheduler,
             parameters=model.parameters(),
+            weight_decay=paddle.regularizer.L2Decay(
+                config.training.weight_decay),
             grad_clip=grad_clip)
 
         criterion = DeepSpeech2Loss(self.train_loader.dataset.vocab_size)
@@ -458,21 +448,11 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             output_dir = Path(self.args.output).expanduser() / "infer"
             output_dir.mkdir(parents=True, exist_ok=True)
         else:
-            output_dir = Path(self.args.checkpoint_path).expanduser().parent / "infer"
+            output_dir = Path(
+                self.args.checkpoint_path).expanduser().parent / "infer"
             output_dir.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = output_dir
-
-    # def setup_checkpointer(self):
-    #     """Create a directory used to save checkpoints into.
-        
-    #     It is "checkpoints" inside the output directory.
-    #     """
-    #     # checkpoint dir
-    #     checkpoint_dir = self.output_dir / "checkpoints"
-    #     checkpoint_dir.mkdir(exist_ok=True)
-
-    #     self.checkpoint_dir = checkpoint_dir
 
     def setup(self):
         """Setup the experiment.
@@ -506,7 +486,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
             share_rnn_weights=config.model.share_rnn_weights)
-        
+
         if self.parallel:
             model = paddle.DataParallel(model)
 

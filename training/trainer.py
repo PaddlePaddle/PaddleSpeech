@@ -14,6 +14,7 @@
 
 import time
 import logging
+import logging.handlers
 from pathlib import Path
 import numpy as np
 from collections import defaultdict
@@ -249,7 +250,22 @@ class Trainer():
         Each process has its own text logger. The logging message is write to 
         the standard output and a text file named ``worker_n.log`` in the 
         output directory, where ``n`` means the rank of the process. 
+        when - how to split the log file by time interval
+            'S' : Seconds
+            'M' : Minutes
+            'H' : Hours
+            'D' : Days
+            'W' : Week day
+            default value: 'D'
+        format - format of the log
+            default format:
+            %(levelname)s: %(asctime)s: %(filename)s:%(lineno)d * %(thread)d %(message)s
+            INFO: 12-09 18:02:42: log.py:40 * 139814749787872 HELLO WORLD
+        backup - how many backup file to keep
+            default value: 7
         """
+        when = 'D'
+        backup = 7
         format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
 
         logger = logging.getLogger(__name__)
@@ -269,6 +285,12 @@ class Trainer():
         # file_handler = logging.FileHandler(str(log_file))
         # file_handler.setFormatter(formatter)
         # logger.addHandler(file_handler)
+
+        handler = logging.handlers.TimedRotatingFileHandler(
+            str(self.output_dir / "warning.log"), when=when, backupCount=backup)
+        handler.setLevel(logging.WARNING)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
         # global logger
         stdout = False

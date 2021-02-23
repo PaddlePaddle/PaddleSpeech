@@ -53,8 +53,9 @@ _C.model = CN(
 _C.training = CN(
     dict(
         lr=5e-4,  # learning rate
+        lr_decay=1.0,  # learning rate decay
         weight_decay=1e-6,  # the coeff of weight decay
-        global_grad_clip=400.0,  # the global norm clip
+        global_grad_clip=5.0,  # the global norm clip
         plot_interval=1000,  # plot attention and spectrogram by step
         valid_interval=1000,  # validation by step
         save_interval=1000,  # checkpoint by step

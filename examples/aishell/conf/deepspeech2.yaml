@@ -29,9 +29,9 @@ model:
   use_gru: True 
   share_rnn_weights: False 
 training:
-  n_epoch: 20
+  n_epoch: 30
   lr: 5e-4
-  lr_decay: 1.0
+  lr_decay: 0.83
   weight_decay: 1e-06
   global_grad_clip: 5.0
   max_iteration: 500000

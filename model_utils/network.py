@@ -281,8 +281,8 @@ class GRUCellShare(nn.RNNCellBase):
         self.hidden_size = hidden_size
         self.input_size = input_size
         self._gate_activation = F.sigmoid
-        #self._activation = paddle.tanh
-        self._activation = F.relu
+        self._activation = paddle.tanh
+        #self._activation = F.relu
 
     def forward(self, inputs, states=None):
         if states is None:

@@ -27,7 +27,7 @@ if __name__ == '__main__':
     text = np.array([[1, 2], [1, 2]], dtype='int32')
     text_len = np.array([2] * batch_size, dtype='int32')
 
-    place = paddle.CUDAPinnedPlace()
+    place = paddle.CUDAPlace(0)
     audio = paddle.to_tensor(
         audio, dtype='float32', place=place, stop_gradient=True)
     audio_len = paddle.to_tensor(

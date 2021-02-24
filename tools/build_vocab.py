@@ -22,7 +22,6 @@ import codecs
 import json
 from collections import Counter
 import os.path
-import _init_paths
 from data_utils.utility import read_manifest
 from utils.utility import add_arguments, print_arguments
 

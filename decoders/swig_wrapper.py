@@ -46,7 +46,7 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
     :rtype: str
     """
     result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
-    return result.decode('utf-8')
+    return result
 
 
 def ctc_beam_search_decoder(probs_seq,

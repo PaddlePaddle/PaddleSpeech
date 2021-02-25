@@ -686,8 +686,9 @@ class DeepSpeech2(nn.Layer):
     def decode(self, audio, audio_len, vocab_list, decoding_method,
                lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
                cutoff_top_n, num_processes):
-        _, probs, _ = self.predict(audio, audio_len)
-        return self.decode_probs(probs.numpy(), vocab_list, decoding_method,
+        _, probs, audio_lens = self.predict(audio, audio_len)
+        probs_split = [probs[i, :l, :] for i, l in enumerate(audio_lens)]
+        return self.decode_probs(probs_split, vocab_list, decoding_method,
                                  lang_model_path, beam_alpha, beam_beta,
                                  beam_size, cutoff_prob, cutoff_top_n,
                                  num_processes)

@@ -22,6 +22,8 @@ from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
+from utils import checkpoint
+
 from decoders.swig_wrapper import Scorer
 from decoders.swig_wrapper import ctc_greedy_decoder
 from decoders.swig_wrapper import ctc_beam_search_decoder_batch
@@ -89,7 +91,7 @@ class ConvBn(nn.Layer):
             stride=stride,
             padding=padding,
             weight_attr=None,
-            bias_attr=None,
+            bias_attr=False,
             data_format='NCHW')
 
         self.bn = nn.BatchNorm2D(
@@ -387,6 +389,7 @@ class BiGRUWithBN(nn.Layer):
     def __init__(self, i_size, h_size, act):
         super().__init__()
         hidden_size = h_size * 3
+
         self.fw_fc = nn.Linear(i_size, hidden_size, bias_attr=False)
         self.fw_bn = nn.BatchNorm1D(
             hidden_size, bias_attr=None, data_format='NLC')
@@ -494,7 +497,7 @@ class DeepSpeech2(nn.Layer):
                  dict_size,
                  num_conv_layers=2,
                  num_rnn_layers=3,
-                 rnn_size=256,
+                 rnn_size=1024,
                  use_gru=False,
                  share_rnn_weights=True):
         super().__init__()
@@ -684,9 +687,10 @@ class DeepSpeech2(nn.Layer):
                lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
                cutoff_top_n, num_processes):
         _, probs, _ = self.predict(audio, audio_len)
-        return self.decode_probs(
-            probs, vocab_list, decoding_method, lang_model_path, beam_alpha,
-            beam_beta, beam_size, cutoff_prob, cutoff_top_n, num_processes)
+        return self.decode_probs(probs.numpy(), vocab_list, decoding_method,
+                                 lang_model_path, beam_alpha, beam_beta,
+                                 beam_size, cutoff_prob, cutoff_top_n,
+                                 num_processes)
 
     def from_pretrained(self, checkpoint_path):
         """Build a model from a pretrained model.
@@ -704,7 +708,7 @@ class DeepSpeech2(nn.Layer):
             The model build from pretrined result.
         """
         checkpoint.load_parameters(self, checkpoint_path=checkpoint_path)
-        return model
+        return
 
 
 def ctc_loss(logits,

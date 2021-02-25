@@ -19,7 +19,7 @@ data:
   target_dB: -20
   random_seed: 0
   keep_transcription_text: False
-  sortagrad: True 
+  sortagrad: True
   shuffle_method: batch_shuffle
   num_workers: 0
 model:
@@ -27,7 +27,7 @@ model:
   num_rnn_layers: 3
   rnn_layer_size: 1024
   use_gru: True 
-  share_rnn_weights: False 
+  share_rnn_weights: False
 training:
   n_epoch: 30
   lr: 5e-4
@@ -39,13 +39,13 @@ training:
   save_interval: 1000
   valid_interval: 1000
 decoding:
-  batch_size: 128
+  batch_size: 10
   error_rate_type: cer 
   decoding_method: ctc_beam_search
   lang_model_path: models/lm/zh_giga.no_cna_cmn.prune01244.klm
   alpha: 2.6
   beta: 5.0
   beam_size: 300
-  cutoff_prob: 0.99 
+  cutoff_prob: 1.0 
   cutoff_top_n: 40
-  num_proc_bsearch: 8
+  num_proc_bsearch: 10

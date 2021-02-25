@@ -63,7 +63,7 @@ if __name__ == '__main__':
         rnn_size=1024,
         use_gru=True,
         share_rnn_weights=False, )
-    probs = model2(audio, text, audio_len, text_len)
+    logits, probs, logits_len = model2(audio, text, audio_len, text_len)
     print('probs.shape', probs.shape)
     print("-----------------")
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         rnn_size=1024,
         use_gru=False,
         share_rnn_weights=True, )
-    probs = model3(audio, text, audio_len, text_len)
+    logits, probs, logits_len = model3(audio, text, audio_len, text_len)
     print('probs.shape', probs.shape)
     print("-----------------")
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         rnn_size=1024,
         use_gru=True,
         share_rnn_weights=True, )
-    probs = model4(audio, text, audio_len, text_len)
+    logits, probs, logits_len = model4(audio, text, audio_len, text_len)
     print('probs.shape', probs.shape)
     print("-----------------")
 
@@ -99,6 +99,6 @@ if __name__ == '__main__':
         rnn_size=1024,
         use_gru=False,
         share_rnn_weights=False, )
-    probs = model5(audio, text, audio_len, text_len)
+    logits, probs, logits_len = model5(audio, text, audio_len, text_len)
     print('probs.shape', probs.shape)
     print("-----------------")

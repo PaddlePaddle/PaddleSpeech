@@ -267,30 +267,29 @@ class Trainer():
         when = 'D'
         backup = 7
         format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
+        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
 
         logger = logging.getLogger(__name__)
         logger.setLevel("INFO")
-
-        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
 
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
-        if not hasattr(self, 'output_dir'):
-            self.logger = logger
-            return
+        # if not hasattr(self, 'output_dir'):
+        #     self.logger = logger
+        #     return
 
         log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
         # file_handler = logging.FileHandler(str(log_file))
         # file_handler.setFormatter(formatter)
         # logger.addHandler(file_handler)
 
-        handler = logging.handlers.TimedRotatingFileHandler(
-            str(self.output_dir / "warning.log"), when=when, backupCount=backup)
-        handler.setLevel(logging.WARNING)
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        # handler = logging.handlers.TimedRotatingFileHandler(
+        #     str(self.output_dir / "warning.log"), when=when, backupCount=backup)
+        # handler.setLevel(logging.WARNING)
+        # handler.setFormatter(formatter)
+        # logger.addHandler(handler)
 
         # global logger
         stdout = False

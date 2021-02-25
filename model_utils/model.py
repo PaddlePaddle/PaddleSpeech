@@ -242,6 +242,7 @@ class DeepSpeech2Trainer(Trainer):
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
+            use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
 
         if self.parallel:
@@ -329,7 +330,7 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.data.sortagrad,
                 shuffle_method=config.data.shuffle_method)
 
-        collate_fn = SpeechCollator()
+        collate_fn = SpeechCollator(is_training=True)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
@@ -449,7 +450,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             output_dir.mkdir(parents=True, exist_ok=True)
         else:
             output_dir = Path(
-                self.args.checkpoint_path).expanduser().parent / "infer"
+                self.args.checkpoint_path).expanduser().parent.parent / "infer"
             output_dir.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = output_dir
@@ -485,6 +486,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
+            use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
 
         if self.parallel:
@@ -498,6 +500,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def setup_dataloader(self):
         config = self.config
+        # return raw text
         test_dataset = DeepSpeech2Dataset(
             config.data.test_manifest,
             config.data.vocab_filepath,
@@ -516,6 +519,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             random_seed=config.data.random_seed,
             keep_transcription_text=True)
 
+        # return text ord id
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,

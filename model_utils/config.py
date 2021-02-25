@@ -46,7 +46,7 @@ _C.model = CN(
         num_conv_layers=2,  #Number of stacking convolution layers.
         num_rnn_layers=3,  #Number of stacking RNN layers.
         rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-        use_gru=False,  #Use gru if set True. Use simple rnn if set False.
+        use_gru=True,  #Use gru if set True. Use simple rnn if set False.
         share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
     ))
 

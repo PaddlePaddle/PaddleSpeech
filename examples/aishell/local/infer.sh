@@ -13,7 +13,7 @@ python3 -u ${MAIN_ROOT}/infer.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \
---checkpoint_path ckpt/checkpoints/step-3283
+--checkpoint_path ${1} 
 
 
 if [ $? -ne 0 ]; then

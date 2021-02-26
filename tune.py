@@ -114,7 +114,7 @@ def tune(config, args):
             return trans
 
         audio, text, audio_len, text_len = infer_data
-        _, probs, _ = model.predict(audio, audio_len)
+        _, probs, logits_lens = model.predict(audio, audio_len)
         target_transcripts = ordid2token(text, text_len)
         num_ins += audio.shape[0]
 
@@ -122,7 +122,8 @@ def tune(config, args):
         for index, (alpha, beta) in enumerate(params_grid):
             print(f"tuneing: alpha={alpha} beta={beta}")
             result_transcripts = model.decode_probs(
-                probs.numpy(), vocab_list, config.decoding.decoding_method,
+                probs.numpy(), logits_lens, vocab_list,
+                config.decoding.decoding_method,
                 config.decoding.lang_model_path, alpha, beta,
                 config.decoding.beam_size, config.decoding.cutoff_prob,
                 config.decoding.cutoff_top_n, config.decoding.num_proc_bsearch)

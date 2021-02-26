@@ -373,6 +373,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         target_transcripts = self.ordid2token(texts, texts_len)
         result_transcripts = self.model.decode_probs(
             probs.numpy(),
+            logits_len,
             vocab_list,
             decoding_method=cfg.decoding_method,
             lang_model_path=cfg.lang_model_path,

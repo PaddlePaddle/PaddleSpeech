@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from yacs.config import CfgNode as CN
+from deepspeech.models.DeepSpeech2 import DeepSpeech2Model
 
 _C = CN()
 _C.data = CN(
@@ -49,6 +50,8 @@ _C.model = CN(
         use_gru=True,  #Use gru if set True. Use simple rnn if set False.
         share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
     ))
+
+DeepSpeech2Model.params(_C.model)
 
 _C.training = CN(
     dict(

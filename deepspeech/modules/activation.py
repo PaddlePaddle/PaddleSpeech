@@ -11,19 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Set up paths for DS2"""
 
-import os.path
-import sys
+import logging
+
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+from paddle.nn import initializer as I
+
+logger = logging.getLogger(__name__)
+
+__all__ = ['brelu']
 
 
-def add_path(path):
-    if path not in sys.path:
-        sys.path.insert(0, path)
-
-
-this_dir = os.path.dirname(__file__)
-
-# Add project path to PYTHONPATH
-proj_path = os.path.join(this_dir, '..')
-add_path(proj_path)
+def brelu(x, t_min=0.0, t_max=24.0, name=None):
+    t_min = paddle.to_tensor(t_min)
+    t_max = paddle.to_tensor(t_max)
+    return x.maximum(t_min).minimum(t_max)

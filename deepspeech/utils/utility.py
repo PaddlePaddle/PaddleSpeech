@@ -15,6 +15,8 @@
 
 import distutils.util
 
+__all__ = ['print_arguments', 'add_arguments', 'print_grads', 'print_params']
+
 
 def print_arguments(args):
     """Print argparse's arguments.
@@ -55,3 +57,21 @@ def add_arguments(argname, type, default, help, argparser, **kwargs):
         type=type,
         help=help + ' Default: %(default)s.',
         **kwargs)
+
+
+def print_grads(model, logger=None):
+    for n, p in model.named_parameters():
+        msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
+        if logger:
+            logger.info(msg)
+
+
+def print_params(model, logger=None):
+    total = 0.0
+    for n, p in model.named_parameters():
+        msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"
+        total += np.prod(p.shape)
+        if logger:
+            logger.info(msg)
+    if logger:
+        logger.info(f"Total parameters: {total}!")

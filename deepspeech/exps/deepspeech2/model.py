@@ -27,93 +27,26 @@ import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
 
-from paddle.fluid.dygraph import base as imperative_base
-from paddle.fluid import layers
-from paddle.fluid import core
-
 from deepspeech.training import Trainer
+from deepspeech.training.gradclip import MyClipGradByGlobalNorm
+
 from deepspeech.utils import mp_tools
-from deepspeech.utils.error_rate import char_errors, word_errors, cer, wer
+from deepspeech.utils.error_rate import char_errors
+from deepspeech.utils.error_rate import word_errors
+from deepspeech.utils.error_rate import cer
+from deepspeech.utils.error_rate import wer
+from deepspeech.utils.utility import print_grads
+from deepspeech.utils.utility import print_params
 
-from deepspeech.models.network import DeepSpeech2
-from deepspeech.models.network import DeepSpeech2Loss
+from deepspeech.io.collator import SpeechCollator
+from deepspeech.io.sampler import SortagradDistributedBatchSampler
+from deepspeech.io.sampler import SortagradBatchSampler
+from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.decoders.swig_wrapper import Scorer
-from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
-from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
-
-from deepspeech.exps.deepspeech2.dataset import SpeechCollator
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2Dataset
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2DistributedBatchSampler
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2BatchSampler
+from deepspeech.training.loss import CTCLoss
+from deepspeech.models.DeepSpeech2 import DeepSpeech2Model
 
 logger = logging.getLogger(__name__)
-
-
-class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
-    def __init__(self, clip_norm):
-        super().__init__(clip_norm)
-
-    @imperative_base.no_grad
-    def _dygraph_clip(self, params_grads):
-        params_and_grads = []
-        sum_square_list = []
-        for p, g in params_grads:
-            if g is None:
-                continue
-            if getattr(p, 'need_clip', True) is False:
-                continue
-            merge_grad = g
-            if g.type == core.VarDesc.VarType.SELECTED_ROWS:
-                merge_grad = layers.merge_selected_rows(g)
-                merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
-            square = layers.square(merge_grad)
-            sum_square = layers.reduce_sum(square)
-            logger.info(
-                f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
-            sum_square_list.append(sum_square)
-
-        # all parameters have been filterd out
-        if len(sum_square_list) == 0:
-            return params_grads
-
-        global_norm_var = layers.concat(sum_square_list)
-        global_norm_var = layers.reduce_sum(global_norm_var)
-        global_norm_var = layers.sqrt(global_norm_var)
-        logger.info(f"Grad Global Norm: {float(global_norm_var)}!!!!")
-        max_global_norm = layers.fill_constant(
-            shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
-        clip_var = layers.elementwise_div(
-            x=max_global_norm,
-            y=layers.elementwise_max(x=global_norm_var, y=max_global_norm))
-        for p, g in params_grads:
-            if g is None:
-                continue
-            if getattr(p, 'need_clip', True) is False:
-                params_and_grads.append((p, g))
-                continue
-            new_grad = layers.elementwise_mul(x=g, y=clip_var)
-            logger.info(
-                f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
-            params_and_grads.append((p, new_grad))
-
-        return params_and_grads
-
-
-def print_grads(model, logger=None):
-    for n, p in model.named_parameters():
-        msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
-        if logger:
-            logger.info(msg)
-
-
-def print_params(model, logger=None):
-    for n, p in model.named_parameters():
-        msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"
-        if logger:
-            logger.info(msg)
 
 
 class DeepSpeech2Trainer(Trainer):
@@ -193,7 +126,7 @@ class DeepSpeech2Trainer(Trainer):
 
     def setup_model(self):
         config = self.config
-        model = DeepSpeech2(
+        model = DeepSpeech2Model(
             feat_size=self.train_loader.dataset.feature_size,
             dict_size=self.train_loader.dataset.vocab_size,
             num_conv_layers=config.model.num_conv_layers,
@@ -219,7 +152,7 @@ class DeepSpeech2Trainer(Trainer):
                 config.training.weight_decay),
             grad_clip=grad_clip)
 
-        criterion = DeepSpeech2Loss(self.train_loader.dataset.vocab_size)
+        criterion = CTCLoss(self.train_loader.dataset.vocab_size)
 
         self.model = model
         self.optimizer = optimizer
@@ -230,7 +163,7 @@ class DeepSpeech2Trainer(Trainer):
     def setup_dataloader(self):
         config = self.config
 
-        train_dataset = DeepSpeech2Dataset(
+        train_dataset = ManifestDataset(
             config.data.train_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
@@ -250,7 +183,7 @@ class DeepSpeech2Trainer(Trainer):
             random_seed=config.data.random_seed,
             keep_transcription_text=False)
 
-        dev_dataset = DeepSpeech2Dataset(
+        dev_dataset = ManifestDataset(
             config.data.dev_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
@@ -269,7 +202,7 @@ class DeepSpeech2Trainer(Trainer):
             keep_transcription_text=False)
 
         if self.parallel:
-            batch_sampler = DeepSpeech2DistributedBatchSampler(
+            batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
                 batch_size=config.data.batch_size,
                 num_replicas=None,
@@ -279,7 +212,7 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.data.sortagrad,
                 shuffle_method=config.data.shuffle_method)
         else:
-            batch_sampler = DeepSpeech2BatchSampler(
+            batch_sampler = SortagradBatchSampler(
                 train_dataset,
                 shuffle=True,
                 batch_size=config.data.batch_size,
@@ -461,7 +394,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def setup_model(self):
         config = self.config
-        model = DeepSpeech2(
+        model = DeepSpeech2Model(
             feat_size=self.test_loader.dataset.feature_size,
             dict_size=self.test_loader.dataset.vocab_size,
             num_conv_layers=config.model.num_conv_layers,
@@ -473,7 +406,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        criterion = DeepSpeech2Loss(self.test_loader.dataset.vocab_size)
+        criterion = CTCLoss(self.test_loader.dataset.vocab_size)
 
         self.model = model
         self.criterion = criterion
@@ -482,7 +415,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def setup_dataloader(self):
         config = self.config
         # return raw text
-        test_dataset = DeepSpeech2Dataset(
+        test_dataset = ManifestDataset(
             config.data.test_manifest,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,

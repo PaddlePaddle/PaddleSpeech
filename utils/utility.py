@@ -14,6 +14,7 @@
 
 import os
 import tarfile
+import zipfile
 from paddle.dataset.common import md5file
 
 
@@ -55,6 +56,16 @@ def unpack(filepath, target_dir, rm_tar=False):
     """Unpack the file to the target_dir."""
     print("Unpacking %s ..." % filepath)
     tar = tarfile.open(filepath)
+    tar.extractall(target_dir)
+    tar.close()
+    if rm_tar == True:
+        os.remove(filepath)
+
+
+def unzip(filepath, target_dir, rm_tar=False):
+    """Unzip the file to the target_dir."""
+    print("Unpacking %s ..." % filepath)
+    tar = zipfile.ZipFile(filepath, 'r')
     tar.extractall(target_dir)
     tar.close()
     if rm_tar == True:

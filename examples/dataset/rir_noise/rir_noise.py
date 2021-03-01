@@ -27,13 +27,13 @@ import codecs
 import soundfile
 import json
 import argparse
-from data_utils.utility import download, unpack
+from utils.utility import download, unpack, unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
 URL_ROOT = 'http://www.openslr.org/resources/28'
 DATA_URL = URL_ROOT + '/rirs_noises.zip'
-MD5_DATA = ''
+MD5_DATA = 'e6f48e257286e05de56413b4779d8ffb'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -52,37 +52,25 @@ args = parser.parse_args()
 def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
-    transcript_path = os.path.join(data_dir, 'transcript',
-                                   'aishell_transcript_v0.8.txt')
-    transcript_dict = {}
-    for line in codecs.open(transcript_path, 'r', 'utf-8'):
-        line = line.strip()
-        if line == '': continue
-        audio_id, text = line.split(' ', 1)
-        # remove withespace
-        text = ''.join(text.split())
-        transcript_dict[audio_id] = text
-
-    data_types = ['train', 'dev', 'test']
+    data_types = [
+        'pointsource_noises', 'real_rirs_isotropic_noises', 'simulated_rirs'
+    ]
     for type in data_types:
         del json_lines[:]
-        audio_dir = os.path.join(data_dir, 'wav', type)
+        audio_dir = os.path.join(data_dir, type)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
                 audio_path = os.path.join(subfolder, fname)
-                audio_id = fname[:-4]
-                # if no transcription for audio then skipped
-                if audio_id not in transcript_dict:
+                if not audio_path.endswith('.wav'):
                     continue
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
-                text = transcript_dict[audio_id]
                 json_lines.append(
                     json.dumps(
                         {
                             'audio_filepath': audio_path,
                             'duration': duration,
-                            'text': text
+                            'type': type,
                         },
                         ensure_ascii=False))
         manifest_path = manifest_path_prefix + '.' + type
@@ -92,16 +80,11 @@ def create_manifest(data_dir, manifest_path_prefix):
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):
-    """Download, unpack and create manifest file."""
-    data_dir = os.path.join(target_dir, 'data_aishell')
+    """Download, unzip and create manifest file."""
+    data_dir = os.path.join(target_dir, 'RIRS_NOISES')
     if not os.path.exists(data_dir):
         filepath = download(url, md5sum, target_dir)
-        unpack(filepath, target_dir)
-        # unpack all audio tar files
-        audio_dir = os.path.join(data_dir, 'wav')
-        for subfolder, _, filelist in sorted(os.walk(audio_dir)):
-            for ftar in filelist:
-                unpack(os.path.join(subfolder, ftar), subfolder, True)
+        unzip(filepath, target_dir)
     else:
         print("Skip downloading and unpacking. Data already exists in %s." %
               target_dir)

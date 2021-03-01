@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from model_utils.network import DeepSpeech2
 import paddle
 import numpy as np
+
+from deepspeech.models.network import DeepSpeech2
 
 if __name__ == '__main__':
 

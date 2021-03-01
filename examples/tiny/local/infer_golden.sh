@@ -1,22 +1,16 @@
 #! /usr/bin/env bash
 
 # download language model
-cd ${MAIN_ROOT}/models/lm > /dev/null
-bash download_lm_en.sh
+bash local/download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
-
 
 # download well-trained model
-cd ${MAIN_ROOT}/models/librispeech > /dev/null
-bash download_model.sh
+bash local/download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
-
 
 # infer
 CUDA_VISIBLE_DEVICES=0 \

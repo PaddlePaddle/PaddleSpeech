@@ -4,11 +4,14 @@
 # if you wish to resume from an exists model, uncomment --init_from_pretrained_model
 export FLAGS_sync_nccl_allreduce=0
 
-python3 -u ${MAIN_ROOT}/train.py \
+ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
+echo "using $ngpu gpus..."
+
+python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
---nproc 4 \
+--nproc ${ngpu} \
 --config conf/deepspeech2.yaml \
---output ckpt-${1}
+--output ckpt
 
 
 if [ $? -ne 0 ]; then

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # grid-search for hyper-parameters in language model
-python3 -u ${MAIN_ROOT}/tune.py \
+python3 -u ${BIN_DIR}/tune.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \

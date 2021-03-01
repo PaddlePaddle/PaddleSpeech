@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 source path.sh
 
@@ -6,13 +7,10 @@ source path.sh
 bash ./local/data.sh
 
 # train model
-bash ./local/train.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ./local/train.sh
 
 # test model
-bash ./local/test.sh
+CUDA_VISIBLE_DEVICES=0  bash ./local/test.sh
 
 # infer model
-bash ./local/infer.sh
-
-# tune model
-#bash ./local/tune.sh
+CUDA_VISIBLE_DEVICES=0 bash ./local/infer.sh

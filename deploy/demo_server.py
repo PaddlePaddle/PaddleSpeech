@@ -23,11 +23,12 @@ import struct
 import wave
 import paddle.fluid as fluid
 import numpy as np
-import _init_paths
-from data_utils.data import DataGenerator
-from model_utils.model import DeepSpeech2Model
-from data_utils.utility import read_manifest
-from utils.utility import add_arguments, print_arguments
+
+from deepspeech.frontend.utility import read_manifest
+from deepspeech.utils.utility import add_arguments, print_arguments
+
+from deepspeech.exps.deepspeech2.model import DeepSpeech2Model
+from deepspeech.exps.deepspeech2.dataset import DataGenerator
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

@@ -1,15 +1,13 @@
 #! /usr/bin/env bash
 
 # download language model
-cd $MAIN_ROOT/models/lm > /dev/null
-bash download_lm_en.sh
+bash local/download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
-python3 -u ${MAIN_ROOT}/infer.py \
+CUDA_VISIBLE_DEVICES=0 \
+python3 -u ${BIN_DIR}/infer.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \

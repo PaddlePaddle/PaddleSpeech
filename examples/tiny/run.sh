@@ -14,6 +14,3 @@ bash ./local/test.sh
 
 # infer model
 bash ./local/infer.sh
-
-## tune model
-#bash ./local/tune.sh

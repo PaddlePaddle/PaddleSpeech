@@ -3,22 +3,17 @@
 source path.sh
 
 # download language model
-cd ${MAIN_ROOT}/models/lm > /dev/null
 bash download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
 
 
 # download well-trained model
-cd ${MAIN_ROOT}/models/baidu_en8k > /dev/null
 bash download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
-
 
 # infer
 CUDA_VISIBLE_DEVICES=0 \
@@ -37,10 +32,10 @@ python3 -u ${MAIN_ROOT}/infer.py \
 --use_gpu=False \
 --share_rnn_weights=False \
 --infer_manifest="${MAIN_ROOT}/examples/librispeech/data/manifest.test-clean" \
---mean_std_path="${MAIN_ROOT}/models/baidu_en8k/mean_std.npz" \
---vocab_path="${MAIN_ROOT}/models/baidu_en8k/vocab.txt" \
---model_path="${MAIN_ROOT}/models/baidu_en8k" \
---lang_model_path="${MAIN_ROOT}/models/lm/common_crawl_00.prune01111.trie.klm" \
+--mean_std_path="data/pretrain/baidu_en8k/mean_std.npz" \
+--vocab_path="data/pretrain/baidu_en8k/vocab.txt" \
+--model_path="data/pretrain/baidu_en8k" \
+--lang_model_path="data/lm/common_crawl_00.prune01111.trie.klm" \
 --decoding_method="ctc_beam_search" \
 --error_rate_type="wer" \
 --specgram_type="linear"

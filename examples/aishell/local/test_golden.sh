@@ -1,47 +1,26 @@
 #! /usr/bin/env bash
 
 # download language model
-cd ${MAIN_ROOT}/models/lm > /dev/null
-bash download_lm_ch.sh
+bash local/download_lm_ch.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
-
 
 # download well-trained model
-cd ${MAIN_ROOT}/models/aishell > /dev/null
-bash download_model.sh
+bash local/download_model.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
-
 
 # evaluate model
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-python3 -u ${MAIN_ROOT}/test.py \
---batch_size=128 \
---beam_size=300 \
---num_proc_bsearch=8 \
---num_conv_layers=2 \
---num_rnn_layers=3 \
---rnn_layer_size=1024 \
---alpha=2.6 \
---beta=5.0 \
---cutoff_prob=0.99 \
---cutoff_top_n=40 \
---use_gru=True \
---use_gpu=True \
---share_rnn_weights=False \
---test_manifest="data/manifest.test" \
---mean_std_path="${MAIN_ROOT}/models/aishell/mean_std.npz" \
---vocab_path="${MAIN_ROOT}/models/aishell/vocab.txt" \
---model_path="${MAIN_ROOT}/models/aishell" \
---lang_model_path="${MAIN_ROOT}/models/lm/zh_giga.no_cna_cmn.prune01244.klm" \
---decoding_method="ctc_beam_search" \
---error_rate_type="cer" \
---specgram_type="linear"
+CUDA_VISIBLE_DEVICES=0 \
+python3 -u ${BIN_DIR}/test.py \
+--device 'gpu' \
+--nproc 1 \
+--config conf/deepspeech2.yaml \
+--checkpoint_path data/pretrain/params.pdparams  \
+--opts data.mean_std_filepath data/pretrain/mean_std.npz  \
+--opts data.vocab_filepath data/pretrain/vocab.txt
 
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"

@@ -25,7 +25,7 @@ from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
 from deepspeech.modules.conv import ConvStack
-from deepspeech.modules.conv import RNNStack
+from deepspeech.modules.rnn import RNNStack
 from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
 from deepspeech.utils import checkpoint
@@ -79,7 +79,7 @@ class DeepSpeech2Model(nn.Layer):
                 share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
             ))
         if config is not None:
-            config.model.merge_from_other_cfg(default)
+            config.merge_from_other_cfg(default)
         return default
 
     def __init__(self,

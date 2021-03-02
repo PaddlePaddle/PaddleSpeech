@@ -14,7 +14,7 @@
 """Test decoders."""
 
 import unittest
-from decoders import decoders_deprecated as decoder
+from deepspeech.decoders import decoders_deprecated as decoder
 
 
 class TestDecoders(unittest.TestCase):

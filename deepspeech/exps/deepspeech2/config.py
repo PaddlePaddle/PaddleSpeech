@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from yacs.config import CfgNode as CN
-from deepspeech.models.DeepSpeech2 import DeepSpeech2Model
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
 
 _C = CN()
 _C.data = CN(

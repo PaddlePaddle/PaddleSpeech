@@ -44,7 +44,7 @@ from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
 
 from deepspeech.training.loss import CTCLoss
-from deepspeech.models.DeepSpeech2 import DeepSpeech2Model
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
 
 logger = logging.getLogger(__name__)
 

@@ -14,6 +14,7 @@
 
 import logging
 
+import paddle
 from paddle.fluid.dygraph import base as imperative_base
 from paddle.fluid import layers
 from paddle.fluid import core

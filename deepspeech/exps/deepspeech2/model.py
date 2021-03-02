@@ -43,8 +43,9 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.training.loss import CTCLoss
+from deepspeech.modules.loss import CTCLoss
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
 
 logger = logging.getLogger(__name__)
 
@@ -53,19 +54,10 @@ class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def compute_losses(self, inputs, outputs):
-        _, texts, _, texts_len = inputs
-        logits, _, logits_len = outputs
-        loss = self.criterion(logits, texts, logits_len, texts_len)
-        return loss
-
     def train_batch(self, batch_data):
         start = time.time()
         self.model.train()
-
-        outputs = self.model(*batch_data)
-        loss = self.compute_losses(batch_data, outputs)
-
+        loss = self.model(*batch_data)
         loss.backward()
         print_grads(self.model, logger=None)
         self.optimizer.step()
@@ -99,10 +91,7 @@ class DeepSpeech2Trainer(Trainer):
         self.model.eval()
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
-            audio, text, audio_len, text_len = batch
-            outputs = self.model(*batch)
-            loss = self.compute_losses(batch, outputs)
-            #metrics = self.compute_metrics(batch, outputs)
+            loss = self.model(*batch)
 
             valid_losses['val_loss'].append(float(loss))
             valid_losses['val_loss_div_batchsize'].append(
@@ -152,13 +141,10 @@ class DeepSpeech2Trainer(Trainer):
                 config.training.weight_decay),
             grad_clip=grad_clip)
 
-        criterion = CTCLoss(self.train_loader.dataset.vocab_size)
-
         self.model = model
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
-        self.criterion = criterion
-        self.logger.info("Setup model/optimizer/lr_scheduler/criterion!")
+        self.logger.info("Setup model/optimizer/lr_scheduler!")
 
     def setup_dataloader(self):
         config = self.config
@@ -248,12 +234,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, inputs, outputs):
+    def compute_metrics(self, audio, texts, audio_len, texts_len):
         cfg = self.config.decoding
-
-        _, texts, _, texts_len = inputs
-        logits, probs, logits_len = outputs
-
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = char_errors if cfg.error_rate_type == 'cer' else word_errors
         error_rate_func = cer if cfg.error_rate_type == 'cer' else wer
@@ -261,9 +243,9 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         vocab_list = self.test_loader.dataset.vocab_list
 
         target_transcripts = self.ordid2token(texts, texts_len)
-        result_transcripts = self.model.decode_probs(
-            probs.numpy(),
-            logits_len,
+        result_transcripts = self.model.decode(
+            audio,
+            audio_len,
             vocab_list,
             decoding_method=cfg.decoding_method,
             lang_model_path=cfg.lang_model_path,
@@ -298,24 +280,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         self.logger.info(
             f"Test Total Examples: {len(self.test_loader.dataset)}")
         self.model.eval()
-
         cfg = self.config
-        # decoders only accept string encoded in utf-8
-        vocab_list = self.test_loader.dataset.vocab_list
-        self.model.init_decode(
-            beam_alpha=cfg.decoding.alpha,
-            beam_beta=cfg.decoding.beta,
-            lang_model_path=cfg.decoding.lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=cfg.decoding.decoding_method)
-
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
 
         for i, batch in enumerate(self.test_loader):
-            audio, text, audio_len, text_len = batch
-            outputs = self.model.predict(audio, audio_len)
-            metrics = self.compute_metrics(batch, outputs)
+            metrics = self.compute_metrics(*batch)
 
             errors_sum += metrics['errors_sum']
             len_refs += metrics['len_refs']
@@ -331,6 +301,109 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg += ", Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         self.logger.info(msg)
+
+    def export(self):
+        self.infer_model.eval()
+        feat_dim = self.test_loader.dataset.feature_size
+        # static_model = paddle.jit.to_static(
+        #     self.infer_model, 
+        #     input_spec=[
+        #         paddle.static.InputSpec(shape=[None, feat_dim, None], dtype='float32'), # audio, [B,D,T]
+        #         paddle.static.InputSpec(shape=[None], dtype='int64'), # audio_length, [B]
+        # ])
+        paddle.jit.save(
+            self.infer_model,
+            self.args.export_path,
+            input_spec=[
+                paddle.static.InputSpec(
+                    shape=[None, feat_dim, None],
+                    dtype='float32'),  # audio, [B,D,T]
+                paddle.static.InputSpec(shape=[None],
+                                        dtype='int64'),  # audio_length, [B]
+            ])
+
+    def run_test(self):
+        self.resume_or_load()
+        try:
+            self.test()
+        except KeyboardInterrupt:
+            exit(-1)
+
+    def run_export(self):
+        self.resume_or_load()
+        try:
+            self.export()
+        except KeyboardInterrupt:
+            exit(-1)
+
+    def setup(self):
+        """Setup the experiment.
+        """
+        paddle.set_device(self.args.device)
+
+        self.setup_output_dir()
+        self.setup_checkpointer()
+        self.setup_logger()
+
+        self.setup_dataloader()
+        self.setup_model()
+
+        self.iteration = 0
+        self.epoch = 0
+
+    def setup_model(self):
+        config = self.config
+        model = DeepSpeech2Model(
+            feat_size=self.test_loader.dataset.feature_size,
+            dict_size=self.test_loader.dataset.vocab_size,
+            num_conv_layers=config.model.num_conv_layers,
+            num_rnn_layers=config.model.num_rnn_layers,
+            rnn_size=config.model.rnn_layer_size,
+            use_gru=config.model.use_gru,
+            share_rnn_weights=config.model.share_rnn_weights)
+
+        infer_model = DeepSpeech2InferModel(
+            feat_size=self.test_loader.dataset.feature_size,
+            dict_size=self.test_loader.dataset.vocab_size,
+            num_conv_layers=config.model.num_conv_layers,
+            num_rnn_layers=config.model.num_rnn_layers,
+            rnn_size=config.model.rnn_layer_size,
+            use_gru=config.model.use_gru,
+            share_rnn_weights=config.model.share_rnn_weights)
+
+        self.model = model
+        self.infer_model = infer_model
+        self.logger.info("Setup model!")
+
+    def setup_dataloader(self):
+        config = self.config
+        # return raw text
+        test_dataset = ManifestDataset(
+            config.data.test_manifest,
+            config.data.vocab_filepath,
+            config.data.mean_std_filepath,
+            augmentation_config="{}",
+            max_duration=config.data.max_duration,
+            min_duration=config.data.min_duration,
+            stride_ms=config.data.stride_ms,
+            window_ms=config.data.window_ms,
+            n_fft=config.data.n_fft,
+            max_freq=config.data.max_freq,
+            target_sample_rate=config.data.target_sample_rate,
+            specgram_type=config.data.specgram_type,
+            use_dB_normalization=config.data.use_dB_normalization,
+            target_dB=config.data.target_dB,
+            random_seed=config.data.random_seed,
+            keep_transcription_text=True)
+
+        # return text ord id
+        self.test_loader = DataLoader(
+            test_dataset,
+            batch_size=config.decoding.batch_size,
+            shuffle=False,
+            drop_last=False,
+            collate_fn=SpeechCollator(is_training=False))
+        self.logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):
         """Create a directory used for output.
@@ -367,77 +440,3 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             datefmt='%Y/%m/%d %H:%M:%S',
             filename=save_path if not stdout else None)
         self.logger = logger
-
-    def setup(self):
-        """Setup the experiment.
-        """
-        paddle.set_device(self.args.device)
-        if self.parallel:
-            self.init_parallel()
-
-        self.setup_output_dir()
-        self.setup_checkpointer()
-        self.setup_logger()
-
-        self.setup_dataloader()
-        self.setup_model()
-
-        self.iteration = 0
-        self.epoch = 0
-
-    def run_test(self):
-        self.resume_or_load()
-        try:
-            self.test()
-        except KeyboardInterrupt:
-            exit(-1)
-
-    def setup_model(self):
-        config = self.config
-        model = DeepSpeech2Model(
-            feat_size=self.test_loader.dataset.feature_size,
-            dict_size=self.test_loader.dataset.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
-
-        if self.parallel:
-            model = paddle.DataParallel(model)
-
-        criterion = CTCLoss(self.test_loader.dataset.vocab_size)
-
-        self.model = model
-        self.criterion = criterion
-        self.logger.info("Setup model/criterion!")
-
-    def setup_dataloader(self):
-        config = self.config
-        # return raw text
-        test_dataset = ManifestDataset(
-            config.data.test_manifest,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            augmentation_config="{}",
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=True)
-
-        # return text ord id
-        self.test_loader = DataLoader(
-            test_dataset,
-            batch_size=config.decoding.batch_size,
-            shuffle=False,
-            drop_last=False,
-            collate_fn=SpeechCollator(is_training=False))
-        self.logger.info("Setup test Dataloader!")

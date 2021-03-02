@@ -27,13 +27,10 @@ from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.error_rate import char_errors, word_errors
 from deepspeech.utils.utility import add_arguments, print_arguments
 
-from deepspeech.models.network import DeepSpeech2
-from deepspeech.models.network import DeepSpeech2Loss
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.io.collator import SpeechCollator
+from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.exps.deepspeech2.dataset import SpeechCollator
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2Dataset
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2DistributedBatchSampler
-from deepspeech.exps.deepspeech2.dataset import DeepSpeech2BatchSampler
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 
 
@@ -44,7 +41,7 @@ def tune(config, args):
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
 
-    dev_dataset = DeepSpeech2Dataset(
+    dev_dataset = ManifestDataset(
         config.data.dev_manifest,
         config.data.vocab_filepath,
         config.data.mean_std_filepath,
@@ -69,7 +66,7 @@ def tune(config, args):
         drop_last=False,
         collate_fn=SpeechCollator(is_training=False))
 
-    model = DeepSpeech2(
+    model = DeepSpeech2Model(
         feat_size=valid_loader.dataset.feature_size,
         dict_size=valid_loader.dataset.vocab_size,
         num_conv_layers=config.model.num_conv_layers,
@@ -94,9 +91,9 @@ def tune(config, args):
 
     num_ins, len_refs, cur_batch = 0, 0, 0
     # initialize external scorer
-    model.init_decode(args.alpha_from, args.beta_from,
-                      config.decoding.lang_model_path, vocab_list,
-                      config.decoding.decoding_method)
+    model.decoder.init_decode(args.alpha_from, args.beta_from,
+                              config.decoding.lang_model_path, vocab_list,
+                              config.decoding.decoding_method)
     ## incremental tuning parameters over multiple batches
     print("start tuning ...")
     for infer_data in valid_loader():
@@ -113,15 +110,17 @@ def tune(config, args):
             return trans
 
         audio, text, audio_len, text_len = infer_data
-        _, probs, logits_lens = model.predict(audio, audio_len)
         target_transcripts = ordid2token(text, text_len)
         num_ins += audio.shape[0]
+
+        eouts, eouts_len = model.encoder(audio, audio_len)
+        probs = model.decoder.probs(eouts)
 
         # grid search
         for index, (alpha, beta) in enumerate(params_grid):
             print(f"tuneing: alpha={alpha} beta={beta}")
-            result_transcripts = model.decode_probs(
-                probs.numpy(), logits_lens, vocab_list,
+            result_transcripts = model.decoder.decode_probs(
+                probs.numpy(), eouts_len, vocab_list,
                 config.decoding.decoding_method,
                 config.decoding.lang_model_path, alpha, beta,
                 config.decoding.beam_size, config.decoding.cutoff_prob,
@@ -165,7 +164,7 @@ def tune(config, args):
           (cur_batch, "%.3f" % params_grid[min_index][0],
            "%.3f" % params_grid[min_index][1]))
 
-    ds2_model.logger.info("finish tuning")
+    print("finish tuning")
 
 
 def main_sp(config, args):

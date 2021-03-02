@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains common utility functions."""
 
+import numpy as np
 import distutils.util
 
 __all__ = ['print_arguments', 'add_arguments', 'print_grads', 'print_params']

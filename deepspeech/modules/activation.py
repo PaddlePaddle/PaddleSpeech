@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import numpy as np
 
 import paddle
 from paddle import nn
@@ -25,6 +26,7 @@ __all__ = ['brelu']
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
-    t_min = paddle.to_tensor(t_min)
-    t_max = paddle.to_tensor(t_max)
+    # paddle.to_tensor is dygraph_only can not work under JIT
+    t_min = paddle.full(shape=[1], fill_value=t_min, dtype='float32')
+    t_max = paddle.full(shape=[1], fill_value=t_max, dtype='float32')
     return x.maximum(t_min).minimum(t_max)

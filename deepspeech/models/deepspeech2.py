@@ -33,55 +33,14 @@ from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
 from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
+from deepspeech.modules.loss import CTCLoss
+
 logger = logging.getLogger(__name__)
 
 __all__ = ['DeepSpeech2Model']
 
 
-class DeepSpeech2Model(nn.Layer):
-    """The DeepSpeech2 network structure.
-
-    :param audio_data: Audio spectrogram data layer.
-    :type audio_data: Variable
-    :param text_data: Transcription text data layer.
-    :type text_data: Variable
-    :param audio_len: Valid sequence length data layer.
-    :type audio_len: Variable
-    :param masks: Masks data layer to reset padding.
-    :type masks: Variable
-    :param dict_size: Dictionary size for tokenized transcription.
-    :type dict_size: int
-    :param num_conv_layers: Number of stacking convolution layers.
-    :type num_conv_layers: int
-    :param num_rnn_layers: Number of stacking RNN layers.
-    :type num_rnn_layers: int
-    :param rnn_size: RNN layer size (dimension of RNN cells).
-    :type rnn_size: int
-    :param use_gru: Use gru if set True. Use simple rnn if set False.
-    :type use_gru: bool
-    :param share_rnn_weights: Whether to share input-hidden weights between
-                              forward and backward direction RNNs.
-                              It is only available when use_gru=False.
-    :type share_weights: bool
-    :return: A tuple of an output unnormalized log probability layer (
-             before softmax) and a ctc cost layer.
-    :rtype: tuple of LayerOutput    
-    """
-
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                num_conv_layers=2,  #Number of stacking convolution layers.
-                num_rnn_layers=3,  #Number of stacking RNN layers.
-                rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-                use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-                share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-            ))
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
+class CRNNEncoder(nn.Layer):
     def __init__(self,
                  feat_size,
                  dict_size,
@@ -91,6 +50,7 @@ class DeepSpeech2Model(nn.Layer):
                  use_gru=False,
                  share_rnn_weights=True):
         super().__init__()
+        self.rnn_size = rnn_size
         self.feat_size = feat_size  # 161 for linear
         self.dict_size = dict_size
 
@@ -103,49 +63,89 @@ class DeepSpeech2Model(nn.Layer):
             num_stacks=num_rnn_layers,
             use_gru=use_gru,
             share_rnn_weights=share_rnn_weights)
-        self.fc = nn.Linear(rnn_size * 2, dict_size + 1)
 
-        self.logger = logging.getLogger(__name__)
-        self._ext_scorer = None
+    @property
+    def output_size(self):
+        return self.rnn_size * 2
 
-    def infer(self, audio, audio_len):
-        # [B, D, T] -> [B, C=1, D, T]
-        audio = audio.unsqueeze(1)
-
-        # convolution group
-        x, audio_len = self.conv(audio, audio_len)
-        #print('conv out', x.shape)
-
-        # convert data from convolution feature map to sequence of vectors
-        B, C, D, T = paddle.shape(x)
-        x = x.transpose([0, 3, 1, 2])  #[B, T, C, D]
-        x = x.reshape([B, T, C * D])  #[B, T, C*D]
-        #print('rnn input', x.shape)
-
-        # remove padding part
-        x, audio_len = self.rnn(x, audio_len)  #[B, T, D]
-        #print('rnn output', x.shape)
-
-        logits = self.fc(x)  #[B, T, V + 1]
-
-        #ctcdecoder need probs, not log_probs
-        probs = F.softmax(logits)
-
-        return logits, probs, audio_len
-
-    def forward(self, audio, text, audio_len, text_len):
+    def forward(self, audio, audio_len):
         """
         audio: shape [B, D, T]
         text: shape [B, T]
         audio_len: shape [B]
         text_len: shape [B]
         """
-        return self.infer(audio, audio_len)
+        """Compute Encoder outputs
 
-    @paddle.no_grad()
-    def predict(self, audio, audio_len):
-        """ Model infer """
-        return self.infer(audio, audio_len)
+        Args:
+            audio (Tensor): [B, D, T]
+            text (Tensor): [B, T]
+            audio_len (Tensor): [B]
+            text_len (Tensor): [B]
+        Returns:
+            x (Tensor): encoder outputs, [B, T, D]
+            x_lens (Tensor): encoder length, [B]
+        """
+        # [B, D, T] -> [B, C=1, D, T]
+        x = audio.unsqueeze(1)
+        x_lens = audio_len
+
+        # convolution group
+        x, x_lens = self.conv(x, x_lens)
+
+        # convert data from convolution feature map to sequence of vectors
+        #B, C, D, T = paddle.shape(x)  # not work under jit
+        x = x.transpose([0, 3, 1, 2])  #[B, T, C, D]
+        #x = x.reshape([B, T, C * D])  #[B, T, C*D]  # not work under jit
+        x = x.reshape([0, 0, -1])  #[B, T, C*D]
+
+        # remove padding part
+        x, x_lens = self.rnn(x, x_lens)  #[B, T, D]
+        return x, x_lens
+
+
+class CTCDecoder(nn.Layer):
+    def __init__(self, enc_n_units, vocab_size):
+        super().__init__()
+        self.blank_id = vocab_size
+        self.output = nn.Linear(enc_n_units,
+                                vocab_size + 1)  # blank id is last id
+        self.criterion = CTCLoss(self.blank_id)
+
+        self._ext_scorer = None
+
+    def forward(self, eout, eout_lens, texts, texts_len):
+        """Compute CTC Loss
+
+        Args:
+            eout (Tensor): 
+            eout_lens (Tensor): 
+            texts (Tenosr):
+            texts_len (Tensor):
+        Returns:
+            loss (Tenosr): [1]
+        """
+        logits = self.output(eout)
+        loss = self.criterion(logits, texts, eout_lens, texts_len)
+        return loss
+
+    def probs(self, eouts, temperature=1.):
+        """Get CTC probabilities.
+        Args:
+            eouts (FloatTensor): `[B, T, enc_units]`
+        Returns:
+            probs (FloatTensor): `[B, T, vocab]`
+        """
+        return F.softmax(self.output(eouts) / temperature, axis=-1)
+
+    def scores(self, eouts, temperature=1.):
+        """Get log-scale CTC probabilities.
+        Args:
+            eouts (FloatTensor): `[B, T, enc_units]`
+        Returns:
+            log_probs (FloatTensor): `[B, T, vocab]`
+        """
+        return F.log_softmax(self.output(eouts) / temperature, axis=-1)
 
     def _decode_batch_greedy(self, probs_split, vocab_list):
         """Decode by best path for a batch of probs matrix input.
@@ -184,22 +184,22 @@ class DeepSpeech2Model(nn.Layer):
             return
 
         if language_model_path != '':
-            self.logger.info("begin to initialize the external scorer "
-                             "for decoding")
+            logger.info("begin to initialize the external scorer "
+                        "for decoding")
             self._ext_scorer = Scorer(beam_alpha, beam_beta,
                                       language_model_path, vocab_list)
             lm_char_based = self._ext_scorer.is_character_based()
             lm_max_order = self._ext_scorer.get_max_order()
             lm_dict_size = self._ext_scorer.get_dict_size()
-            self.logger.info("language model: "
-                             "is_character_based = %d," % lm_char_based +
-                             " max_order = %d," % lm_max_order +
-                             " dict_size = %d" % lm_dict_size)
-            self.logger.info("end initializing scorer")
+            logger.info("language model: "
+                        "is_character_based = %d," % lm_char_based +
+                        " max_order = %d," % lm_max_order + " dict_size = %d" %
+                        lm_dict_size)
+            logger.info("end initializing scorer")
         else:
             self._ext_scorer = None
-            self.logger.info("no language model provided, "
-                             "decoding by pure beam search without scorer.")
+            logger.info("no language model provided, "
+                        "decoding by pure beam search without scorer.")
 
     def _decode_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
                                   beam_size, cutoff_prob, cutoff_top_n,
@@ -275,15 +275,108 @@ class DeepSpeech2Model(nn.Layer):
             raise ValueError(f"Not support: {decoding_method}")
         return result_transcripts
 
+
+class DeepSpeech2Model(nn.Layer):
+    """The DeepSpeech2 network structure.
+
+    :param audio_data: Audio spectrogram data layer.
+    :type audio_data: Variable
+    :param text_data: Transcription text data layer.
+    :type text_data: Variable
+    :param audio_len: Valid sequence length data layer.
+    :type audio_len: Variable
+    :param masks: Masks data layer to reset padding.
+    :type masks: Variable
+    :param dict_size: Dictionary size for tokenized transcription.
+    :type dict_size: int
+    :param num_conv_layers: Number of stacking convolution layers.
+    :type num_conv_layers: int
+    :param num_rnn_layers: Number of stacking RNN layers.
+    :type num_rnn_layers: int
+    :param rnn_size: RNN layer size (dimension of RNN cells).
+    :type rnn_size: int
+    :param use_gru: Use gru if set True. Use simple rnn if set False.
+    :type use_gru: bool
+    :param share_rnn_weights: Whether to share input-hidden weights between
+                              forward and backward direction RNNs.
+                              It is only available when use_gru=False.
+    :type share_weights: bool
+    :return: A tuple of an output unnormalized log probability layer (
+             before softmax) and a ctc cost layer.
+    :rtype: tuple of LayerOutput    
+    """
+
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        default = CfgNode(
+            dict(
+                num_conv_layers=2,  #Number of stacking convolution layers.
+                num_rnn_layers=3,  #Number of stacking RNN layers.
+                rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
+                use_gru=True,  #Use gru if set True. Use simple rnn if set False.
+                share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
+            ))
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
+    def __init__(self,
+                 feat_size,
+                 dict_size,
+                 num_conv_layers=2,
+                 num_rnn_layers=3,
+                 rnn_size=1024,
+                 use_gru=False,
+                 share_rnn_weights=True):
+        super().__init__()
+        self.encoder = CRNNEncoder(
+            feat_size=feat_size,
+            dict_size=dict_size,
+            num_conv_layers=num_conv_layers,
+            num_rnn_layers=num_rnn_layers,
+            rnn_size=rnn_size,
+            use_gru=use_gru,
+            share_rnn_weights=share_rnn_weights)
+        assert (self.encoder.output_size == rnn_size * 2)
+        self.decoder = CTCDecoder(
+            enc_n_units=self.encoder.output_size, vocab_size=dict_size)
+
+    def forward(self, audio, text, audio_len, text_len):
+        """Compute Model loss
+
+        Args:
+            audio (Tenosr): [B, D, T]
+            text (Tensor): [B, T]
+            audio_len (Tensor): [B]
+            text_len (Tensor): [B]
+
+        Returns:
+            loss (Tenosr): [1]
+        """
+
+        eouts, eouts_len = self.encoder(audio, audio_len)
+        loss = self.decoder(eouts, eouts_len, text, text_len)
+        return loss
+
     @paddle.no_grad()
     def decode(self, audio, audio_len, vocab_list, decoding_method,
                lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
                cutoff_top_n, num_processes):
-        _, probs, logits_lens = self.predict(audio, audio_len)
-        return self.decode_probs(probs.numpy(), logits_lens, vocab_list,
-                                 decoding_method, lang_model_path, beam_alpha,
-                                 beam_beta, beam_size, cutoff_prob,
-                                 cutoff_top_n, num_processes)
+        # init once
+        # decoders only accept string encoded in utf-8
+        self.decoder.init_decode(
+            beam_alpha=beam_alpha,
+            beam_beta=beam_beta,
+            lang_model_path=lang_model_path,
+            vocab_list=vocab_list,
+            decoding_method=decoding_method)
+
+        eouts, eouts_len = self.encoder(audio, audio_len)
+        probs = self.decoder.probs(eouts)
+        return self.decoder.decode_probs(
+            probs.numpy(), eouts_len, vocab_list, decoding_method,
+            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
+            cutoff_top_n, num_processes)
 
     def from_pretrained(self, checkpoint_path):
         """Build a model from a pretrained model.
@@ -302,3 +395,36 @@ class DeepSpeech2Model(nn.Layer):
         """
         checkpoint.load_parameters(self, checkpoint_path=checkpoint_path)
         return
+
+
+class DeepSpeech2InferModel(DeepSpeech2Model):
+    def __init__(self,
+                 feat_size,
+                 dict_size,
+                 num_conv_layers=2,
+                 num_rnn_layers=3,
+                 rnn_size=1024,
+                 use_gru=False,
+                 share_rnn_weights=True):
+        super().__init__(
+            feat_size=feat_size,
+            dict_size=dict_size,
+            num_conv_layers=num_conv_layers,
+            num_rnn_layers=num_rnn_layers,
+            rnn_size=rnn_size,
+            use_gru=use_gru,
+            share_rnn_weights=share_rnn_weights)
+
+    def forward(self, audio, audio_len):
+        """export model function
+
+        Args:
+            audio (Tensor): [B, D, T]
+            audio_len (Tensor): [B]
+
+        Returns:
+            probs: probs after softmax
+        """
+        eouts, eouts_len = self.encoder(audio, audio_len)
+        probs = self.decoder.probs(eouts)
+        return probs

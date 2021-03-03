@@ -302,7 +302,15 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         self.logger.info(msg)
 
+    def run_test(self):
+        self.resume_or_load()
+        try:
+            self.test()
+        except KeyboardInterrupt:
+            exit(-1)
+
     def export(self):
+        self.infer_model.from_pretrained(self.args.checkpoint_path)
         self.infer_model.eval()
         feat_dim = self.test_loader.dataset.feature_size
         # static_model = paddle.jit.to_static(
@@ -322,15 +330,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                                         dtype='int64'),  # audio_length, [B]
             ])
 
-    def run_test(self):
-        self.resume_or_load()
-        try:
-            self.test()
-        except KeyboardInterrupt:
-            exit(-1)
-
     def run_export(self):
-        self.resume_or_load()
         try:
             self.export()
         except KeyboardInterrupt:

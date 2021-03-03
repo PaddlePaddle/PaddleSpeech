@@ -72,6 +72,7 @@ def tune(config, args):
         num_conv_layers=config.model.num_conv_layers,
         num_rnn_layers=config.model.num_rnn_layers,
         rnn_size=config.model.rnn_layer_size,
+        use_gru=config.model.use_gru,
         share_rnn_weights=config.model.share_rnn_weights)
     model.from_pretrained(args.checkpoint_path)
     model.eval()

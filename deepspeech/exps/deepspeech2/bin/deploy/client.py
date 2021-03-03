@@ -80,7 +80,7 @@ def main():
     # prepare audio recorder
     p = pyaudio.PyAudio()
     stream = p.open(
-        format=pyaudio.paInt32,
+        format=pyaudio.paInt16,
         channels=1,
         rate=16000,
         input=True,

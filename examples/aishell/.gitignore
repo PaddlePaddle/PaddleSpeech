@@ -1,2 +1,4 @@
 data
 ckpt*
+demo_cache
+*.log

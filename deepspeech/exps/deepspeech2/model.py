@@ -31,12 +31,8 @@ from deepspeech.training import Trainer
 from deepspeech.training.gradclip import MyClipGradByGlobalNorm
 
 from deepspeech.utils import mp_tools
-from deepspeech.utils.error_rate import char_errors
-from deepspeech.utils.error_rate import word_errors
-from deepspeech.utils.error_rate import cer
-from deepspeech.utils.error_rate import wer
-from deepspeech.utils.utility import print_grads
-from deepspeech.utils.utility import print_params
+from deepspeech.utils import layer_tools
+from deepspeech.utils import error_rate
 
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
@@ -59,7 +55,7 @@ class DeepSpeech2Trainer(Trainer):
         self.model.train()
         loss = self.model(*batch_data)
         loss.backward()
-        print_grads(self.model, logger=None)
+        layer_tools.print_grads(self.model, print_func=None)
         self.optimizer.step()
         self.optimizer.clear_grad()
 
@@ -127,7 +123,7 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        print_params(model, self.logger)
+        layer_tools.print_params(model, self.logger.info)
 
         grad_clip = MyClipGradByGlobalNorm(config.training.global_grad_clip)
         lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
@@ -237,8 +233,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def compute_metrics(self, audio, texts, audio_len, texts_len):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
-        errors_func = char_errors if cfg.error_rate_type == 'cer' else word_errors
-        error_rate_func = cer if cfg.error_rate_type == 'cer' else wer
+        errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
+        error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
         vocab_list = self.test_loader.dataset.vocab_list
 

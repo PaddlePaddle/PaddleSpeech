@@ -382,19 +382,45 @@ class DeepSpeech2Model(nn.Layer):
         """Build a model from a pretrained model.
         Parameters
         ----------
-        model: nn.Layer
-            Asr Model.
-        
         checkpoint_path: Path or str
             The path of pretrained model checkpoint, without extension name.
         
         Returns
         -------
-        Model
+        DeepSpeech2Model
             The model build from pretrined result.
         """
         checkpoint.load_parameters(self, checkpoint_path=checkpoint_path)
-        return
+        return self
+
+    @classmethod
+    def from_pretrained(cls, dataset, config, checkpoint_path):
+        """Build a DeepSpeech2Model model from a pretrained model.
+        Parameters
+        ----------
+        dataset: paddle.io.Dataset
+
+        config: yacs.config.CfgNode
+            model configs
+        
+        checkpoint_path: Path or str
+            the path of pretrained model checkpoint, without extension name
+        
+        Returns
+        -------
+        DeepSpeech2Model
+            The model built from pretrained result.
+        """
+        model = cls(feat_size=dataset.feature_size,
+                    dict_size=dataset.vocab_size,
+                    num_conv_layers=config.model.num_conv_layers,
+                    num_rnn_layers=config.model.num_rnn_layers,
+                    rnn_size=config.model.rnn_layer_size,
+                    use_gru=config.model.use_gru,
+                    share_rnn_weights=config.model.share_rnn_weights)
+        model.from_pretrained(checkpoint_path)
+        layer_tools.summary(model)
+        return model
 
 
 class DeepSpeech2InferModel(DeepSpeech2Model):

@@ -59,9 +59,10 @@ class SpeechCollator():
             # text
             padded_text = np.zeros([max_text_length])
             if self._is_training:
-                padded_text[:len(text)] = text  #ids
+                padded_text[:len(text)] = text  # token ids
             else:
-                padded_text[:len(text)] = [ord(t) for t in text]  # string
+                padded_text[:len(text)] = [ord(t)
+                                           for t in text]  # string, unicode ord
             texts.append(padded_text)
             text_lens.append(len(text))
 

@@ -282,7 +282,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         for i, batch in enumerate(self.test_loader):
             metrics = self.compute_metrics(*batch)
-
             errors_sum += metrics['errors_sum']
             len_refs += metrics['len_refs']
             num_ins += metrics['num_ins']
@@ -306,7 +305,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             exit(-1)
 
     def export(self):
-        self.infer_model.from_pretrained(self.args.checkpoint_path)
+
         self.infer_model.eval()
         feat_dim = self.test_loader.dataset.feature_size
         # static_model = paddle.jit.to_static(
@@ -358,14 +357,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
 
-        infer_model = DeepSpeech2InferModel(
-            feat_size=self.test_loader.dataset.feature_size,
-            dict_size=self.test_loader.dataset.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
+        infer_model = DeepSpeech2InferModel.from_pretrained(
+            self.test_loader.dataset, config, self.args.checkpoint_path)
 
         self.model = model
         self.infer_model = infer_model

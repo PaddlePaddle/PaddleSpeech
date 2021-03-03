@@ -17,6 +17,8 @@ import socket
 import argparse
 import wave
 
+from deepspeech.utils.socket_server import socket_send
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--host_ip",
@@ -43,16 +45,7 @@ def main():
     print(f"Wave sample rate: {wf.getframerate()}")
     print(f"Wave sample width: {wf.getsampwidth()}")
     assert isinstance(data, bytes)
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((args.host_ip, args.host_port))
-    sent = data
-    sock.sendall(struct.pack('>i', len(sent)) + sent)
-    print('Speech[length=%d] Sent.' % len(sent))
-    # Receive data from the server and shut down
-    received = sock.recv(1024)
-    print("Recognition Results: {}".format(received.decode('utf8')))
-    sock.close()
+    socket_send(args.host_ip, args.host_port, data)
 
 
 if __name__ == "__main__":

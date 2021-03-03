@@ -29,6 +29,7 @@ from deepspeech.modules.rnn import RNNStack
 from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
 from deepspeech.utils import checkpoint
+from deepspeech.utils import layer_tools
 from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
 from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
@@ -378,21 +379,6 @@ class DeepSpeech2Model(nn.Layer):
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
 
-    def from_pretrained(self, checkpoint_path):
-        """Build a model from a pretrained model.
-        Parameters
-        ----------
-        checkpoint_path: Path or str
-            The path of pretrained model checkpoint, without extension name.
-        
-        Returns
-        -------
-        DeepSpeech2Model
-            The model build from pretrined result.
-        """
-        checkpoint.load_parameters(self, checkpoint_path=checkpoint_path)
-        return self
-
     @classmethod
     def from_pretrained(cls, dataset, config, checkpoint_path):
         """Build a DeepSpeech2Model model from a pretrained model.
@@ -418,7 +404,7 @@ class DeepSpeech2Model(nn.Layer):
                     rnn_size=config.model.rnn_layer_size,
                     use_gru=config.model.use_gru,
                     share_rnn_weights=config.model.share_rnn_weights)
-        model.from_pretrained(checkpoint_path)
+        checkpoint.load_parameters(model, checkpoint_path=checkpoint_path)
         layer_tools.summary(model)
         return model
 

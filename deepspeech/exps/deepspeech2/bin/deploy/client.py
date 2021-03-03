@@ -19,6 +19,8 @@ import sys
 import argparse
 import pyaudio
 
+from deepspeech.utils.socket_server import socket_send
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--host_ip",
@@ -61,16 +63,7 @@ def callback(in_data, frame_count, time_info, status):
         data_list.append(in_data)
         enable_trigger_record = False
     elif len(data_list) > 0:
-        # Connect to server and send data
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((args.host_ip, args.host_port))
-        sent = ''.join(data_list)
-        sock.sendall(struct.pack('>i', len(sent)) + sent)
-        print('Speech[length=%d] Sent.' % len(sent))
-        # Receive data from the server and shut down
-        received = sock.recv(1024)
-        print("Recognition Results: {}".format(received))
-        sock.close()
+        socket_send(args.host_ip, args.host_port, ''.join(data_list))
         data_list = []
     enable_trigger_record = True
     return (in_data, pyaudio.paContinue)

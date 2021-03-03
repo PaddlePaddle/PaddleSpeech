@@ -53,6 +53,26 @@ class ManifestDataset(Dataset):
                  target_dB=-20,
                  random_seed=0,
                  keep_transcription_text=False):
+        """Manifest Dataset
+
+        Args:
+            manifest_path (str): manifest josn file path
+            vocab_filepath (str): vocab file path
+            mean_std_filepath (str): mean and std file path, which suffix is *.npy
+            augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
+            max_duration (float, optional): audio length in seconds must less than this. Defaults to float('inf').
+            min_duration (float, optional): audio length is seconds must greater than this. Defaults to 0.0.
+            stride_ms (float, optional): stride size in ms. Defaults to 10.0.
+            window_ms (float, optional): window size in ms. Defaults to 20.0.
+            n_fft (int, optional): fft points for rfft. Defaults to None.
+            max_freq (int, optional): max cut freq. Defaults to None.
+            target_sample_rate (int, optional): target sample rate which used for training. Defaults to 16000.
+            specgram_type (str, optional): 'linear' or 'mfcc'. Defaults to 'linear'.
+            use_dB_normalization (bool, optional): do dB normalization. Defaults to True.
+            target_dB (int, optional): target dB. Defaults to -20.
+            random_seed (int, optional): for random generator. Defaults to 0.
+            keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
+        """
         super().__init__()
 
         self._max_duration = max_duration

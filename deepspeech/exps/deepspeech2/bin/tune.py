@@ -23,14 +23,14 @@ import logging
 
 from paddle.io import DataLoader
 
-from deepspeech.training.cli import default_argument_parser
-from deepspeech.utils.error_rate import char_errors, word_errors
+from deepspeech.utils import error_rate
 from deepspeech.utils.utility import add_arguments, print_arguments
 
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 
+from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 
 
@@ -66,20 +66,13 @@ def tune(config, args):
         drop_last=False,
         collate_fn=SpeechCollator(is_training=False))
 
-    model = DeepSpeech2Model(
-        feat_size=valid_loader.dataset.feature_size,
-        dict_size=valid_loader.dataset.vocab_size,
-        num_conv_layers=config.model.num_conv_layers,
-        num_rnn_layers=config.model.num_rnn_layers,
-        rnn_size=config.model.rnn_layer_size,
-        use_gru=config.model.use_gru,
-        share_rnn_weights=config.model.share_rnn_weights)
-    model.from_pretrained(args.checkpoint_path)
+    model = DeepSpeech2Model.from_pretrained(dev_dataset, config,
+                                             args.checkpoint_path)
     model.eval()
 
     # decoders only accept string encoded in utf-8
     vocab_list = valid_loader.dataset.vocab_list
-    errors_func = char_errors if config.decoding.error_rate_type == 'cer' else word_errors
+    errors_func = error_rate.char_errors if config.decoding.error_rate_type == 'cer' else error_rate.word_errors
 
     # create grid for search
     cand_alphas = np.linspace(args.alpha_from, args.alpha_to, args.num_alphas)
@@ -168,12 +161,8 @@ def tune(config, args):
     print("finish tuning")
 
 
-def main_sp(config, args):
-    tune(config, args)
-
-
 def main(config, args):
-    main_sp(config, args)
+    tune(config, args)
 
 
 if __name__ == "__main__":

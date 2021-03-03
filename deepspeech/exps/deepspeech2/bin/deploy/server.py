@@ -14,15 +14,14 @@
 """Server-end for the ASR demo."""
 import os
 import time
-import random
 import argparse
 import functools
-from time import gmtime, strftime
-import socketserver
-import struct
-import wave
 import paddle
 import numpy as np
+
+from deepspeech.utils.socket_server import warm_up_test
+from deepspeech.utils.socket_server import AsrTCPServer
+from deepspeech.utils.socket_server import AsrRequestHandler
 
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
@@ -32,79 +31,6 @@ from deepspeech.utils.utility import add_arguments, print_arguments
 
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.io.dataset import ManifestDataset
-
-
-class AsrTCPServer(socketserver.TCPServer):
-    """The ASR TCP Server."""
-
-    def __init__(self,
-                 server_address,
-                 RequestHandlerClass,
-                 speech_save_dir,
-                 audio_process_handler,
-                 bind_and_activate=True):
-        self.speech_save_dir = speech_save_dir
-        self.audio_process_handler = audio_process_handler
-        socketserver.TCPServer.__init__(
-            self, server_address, RequestHandlerClass, bind_and_activate=True)
-
-
-class AsrRequestHandler(socketserver.BaseRequestHandler):
-    """The ASR request handler."""
-
-    def handle(self):
-        # receive data through TCP socket
-        chunk = self.request.recv(1024)
-        target_len = struct.unpack('>i', chunk[:4])[0]
-        data = chunk[4:]
-        while len(data) < target_len:
-            chunk = self.request.recv(1024)
-            data += chunk
-        # write to file
-        filename = self._write_to_file(data)
-
-        print("Received utterance[length=%d] from %s, saved to %s." %
-              (len(data), self.client_address[0], filename))
-        start_time = time.time()
-        transcript = self.server.audio_process_handler(filename)
-        finish_time = time.time()
-        print("Response Time: %f, Transcript: %s" %
-              (finish_time - start_time, transcript))
-        self.request.sendall(transcript.encode('utf-8'))
-
-    def _write_to_file(self, data):
-        # prepare save dir and filename
-        if not os.path.exists(self.server.speech_save_dir):
-            os.mkdir(self.server.speech_save_dir)
-        timestamp = strftime("%Y%m%d%H%M%S", gmtime())
-        out_filename = os.path.join(
-            self.server.speech_save_dir,
-            timestamp + "_" + self.client_address[0] + ".wav")
-        # write to wav file
-        file = wave.open(out_filename, 'wb')
-        file.setnchannels(1)
-        file.setsampwidth(2)
-        file.setframerate(16000)
-        file.writeframes(data)
-        file.close()
-        return out_filename
-
-
-def warm_up_test(audio_process_handler,
-                 manifest_path,
-                 num_test_cases,
-                 random_seed=0):
-    """Warming-up test."""
-    manifest = read_manifest(manifest_path)
-    rng = random.Random(random_seed)
-    samples = rng.sample(manifest, num_test_cases)
-    for idx, sample in enumerate(samples):
-        print("Warm-up Test Case %d: %s", idx, sample['audio_filepath'])
-        start_time = time.time()
-        transcript = audio_process_handler(sample['audio_filepath'])
-        finish_time = time.time()
-        print("Response Time: %f, Transcript: %s" %
-              (finish_time - start_time, transcript))
 
 
 def start_server(config, args):
@@ -127,15 +53,8 @@ def start_server(config, args):
         random_seed=config.data.random_seed,
         keep_transcription_text=True)
 
-    model = DeepSpeech2Model(
-        feat_size=dataset.feature_size,
-        dict_size=dataset.vocab_size,
-        num_conv_layers=config.model.num_conv_layers,
-        num_rnn_layers=config.model.num_rnn_layers,
-        rnn_size=config.model.rnn_layer_size,
-        use_gru=config.model.use_gru,
-        share_rnn_weights=config.model.share_rnn_weights)
-    model.from_pretrained(args.checkpoint_path)
+    model = DeepSpeech2Model.from_pretrained(dataset, config,
+                                             args.checkpoint_path)
     model.eval()
 
     # prepare ASR inference handler

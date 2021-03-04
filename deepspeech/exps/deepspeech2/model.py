@@ -305,15 +305,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             exit(-1)
 
     def export(self):
-
         self.infer_model.eval()
         feat_dim = self.test_loader.dataset.feature_size
-        # static_model = paddle.jit.to_static(
-        #     self.infer_model, 
-        #     input_spec=[
-        #         paddle.static.InputSpec(shape=[None, feat_dim, None], dtype='float32'), # audio, [B,D,T]
-        #         paddle.static.InputSpec(shape=[None], dtype='int64'), # audio_length, [B]
-        # ])
         paddle.jit.save(
             self.infer_model,
             self.args.export_path,

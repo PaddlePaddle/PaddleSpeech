@@ -3,3 +3,5 @@
 tools/venv
 .vscode
 *.log
+*.pdmodel
+*.pdiparams*

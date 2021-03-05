@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 
 export FLAGS_sync_nccl_allreduce=0
+# https://github.com/PaddlePaddle/Paddle/pull/28484
+export NCCL_SHM_DISABLE=1
 
 ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
 echo "using $ngpu gpus..."

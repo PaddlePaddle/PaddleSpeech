@@ -33,7 +33,7 @@ __all__ = [
 ]
 
 
-def _batch_shuffle(indices, batch_size, clipped=False):
+def _batch_shuffle(indices, batch_size, epoch, clipped=False):
     """Put similarly-sized instances into minibatches for better efficiency
     and make a batch-wise shuffle.
 
@@ -54,7 +54,7 @@ def _batch_shuffle(indices, batch_size, clipped=False):
     :return: Batch shuffled mainifest.
     :rtype: list
     """
-    rng = np.random.RandomState(self.epoch)
+    rng = np.random.RandomState(epoch)
     shift_len = rng.randint(0, batch_size - 1)
     batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
     rng.shuffle(batch_indices)
@@ -120,7 +120,10 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
                     # since diff batch examlpe length in batches case instability loss in diff rank, 
                     # e.g. rank0 maxlength 20, rank3 maxlength 1000
                     indices = _batch_shuffle(
-                        indices, self.batch_size * self.nranks, clipped=False)
+                        indices,
+                        self.batch_size * self.nranks,
+                        self.epoch,
+                        clipped=False)
                 elif self._shuffle_method == "instance_shuffle":
                     np.random.RandomState(self.epoch).shuffle(indices)
                 else:
@@ -221,7 +224,7 @@ class SortagradBatchSampler(BatchSampler):
                 logger.info(f'dataset shuffle! epoch {self.epoch}')
                 if self._shuffle_method == "batch_shuffle":
                     indices = _batch_shuffle(
-                        indices, self.batch_size, clipped=False)
+                        indices, self.batch_size, self.epoch, clipped=False)
                 elif self._shuffle_method == "instance_shuffle":
                     np.random.RandomState(self.epoch).shuffle(indices)
                 else:

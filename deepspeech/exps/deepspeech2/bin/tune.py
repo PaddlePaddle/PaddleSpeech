@@ -107,6 +107,7 @@ def tune(config, args):
         target_transcripts = ordid2token(text, text_len)
         num_ins += audio.shape[0]
 
+        # model infer
         eouts, eouts_len = model.encoder(audio, audio_len)
         probs = model.decoder.probs(eouts)
 

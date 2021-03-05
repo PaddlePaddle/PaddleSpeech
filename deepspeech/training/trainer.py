@@ -278,6 +278,10 @@ class Trainer():
         # handler.setFormatter(formatter)
         # logger.addHandler(handler)
 
+        # stop propagate for propagating may print
+        # log multiple times
+        logger.propagate = False
+
         # global logger
         stdout = False
         save_path = log_file

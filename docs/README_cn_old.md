@@ -7,22 +7,25 @@
 
 ## 目录
 - [安装](#安装)
+- [在 Docker 容器上运行](#在Docker容器上运行)
 - [开始](#开始)
 - [数据准备](#数据准备)
 - [训练模型](#训练模型)
+- [数据增强流水线](#数据增强流水线)
 - [推断和评价](#推断和评价)
 - [超参数调整](#超参数调整)
+- [训练汉语语言](#训练汉语语言)
 - [用自己的声音尝试现场演示](#用自己的声音尝试现场演示)
-- [试验和基准](#试验和基准)
 - [发布模型](#发布模型)
+- [试验和基准](#试验和基准)
 - [问题和帮助](#问题和帮助)
 
 ## 安装
 为了避免环境配置问题，强烈建议在[Docker容器上运行](#在Docker容器上运行)，否则请按照下面的指南安装依赖项。
 
 ### 前提
-- Python >= 3.6
-- PaddlePaddle 1.8.0 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
+- Python >= 3.7
+- PaddlePaddle 1.8.5 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
 
 ### 安装
 - 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：
@@ -49,8 +52,17 @@ make install
 ```bash
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
+pushd tools; make; popd
+source tools/venv/bin/activate
 sh setup.sh
 ```
+
+- Source venv before do experiment.
+
+```bash
+source tools/venv/bin/activate
+```
+
 
 ### 在Docker容器上运行
 
@@ -82,7 +94,7 @@ sudo nvidia-docker run -it -v $(pwd)/DeepSpeech:/DeepSpeech hub.baidubce.com/pad
 
 例如 CUDA 10.1, CuDNN7.5:
 ```bash
-python3 -m pip install paddlepaddle-gpu==1.8.0.post107
+python3 -m pip install paddlepaddle-gpu==1.8.5.post107
 ```
 
 ## 开始
@@ -100,15 +112,41 @@ python3 -m pip install paddlepaddle-gpu==1.8.0.post107
     ```
 
     注意这仅仅是 LibriSpeech 一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。  
-- 设置环境变量
+- 准备数据
 
     ```bash
-    source path.sh
+    sh run_data.sh
     ```
-- 入口脚本
+
+    运行`run_data.sh`脚本将会下载数据集，产出 manifests 文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有 LibriSpeech 一部分）在`dataset/librispeech`中；其对应的 manifest 文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。  
+- 训练你自己的 ASR 模型
 
     ```bash
-    bash run.sh
+    sh run_train.sh
+    ```
+
+    `run_train.sh`将会启动训练任务，训练日志会打印到终端，并且模型每个 epoch 的 checkpoint 都会保存到`./checkpoints/tiny`目录中。这些 checkpoint 可以用来恢复训练，推断，评价和部署。
+- 用已有的模型进行案例推断
+
+    ```bash
+    sh run_infer.sh
+    ```
+
+    `run_infer.sh`将会利用训练好的模型展现一些（默认 10 个）样本语音到文本的解码结果。由于当前模型只使用了 LibriSpeech 一部分数据集训练，因此性能可能不会太好。为了看到更好模型上的表现，你可以下载一个已训练好的模型（用完整的 LibriSpeech 训练了好几天）来做推断。
+
+    ```bash
+    sh run_infer_golden.sh
+    ```
+- 评价一个已经存在的模型
+
+    ```bash
+    sh run_test.sh
+    ```
+
+    `run_test.sh`能够利用误字率（或字符错误率）来评价模型。类似的，你可以下载一个完全训练好的模型来测试它的性能：
+
+    ```bash
+    sh run_test_golden.sh
     ```
 
 更多细节会在接下来的章节中阐述。祝你在*DeepSpeech2*ASR引擎学习中过得愉快！
@@ -127,7 +165,7 @@ python3 -m pip install paddlepaddle-gpu==1.8.0.post107
 
 如果你要使用自定义数据，你只需要按照以上格式生成自己的 manifest 文件即可。给定 manifest 文件，训练、推断以及其它所有模块都能够访问到音频数据以及对应的时长和标签数据。
 
-关于如何生成 manifest 文件，请参考`examples/librispeech/local/librispeech.py`。该脚本将会下载 LibriSpeech 数据集并生成 manifest 文件。
+关于如何生成 manifest 文件，请参考`data/librispeech/librispeech.py`。该脚本将会下载 LibriSpeech 数据集并生成 manifest 文件。
 
 ### 计算均值和标准差用于归一化
 
@@ -137,11 +175,11 @@ python3 -m pip install paddlepaddle-gpu==1.8.0.post107
 python3 tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_path examples/librispeech/data/manifest.train \
---output_path examples/librispeech/data/mean_std.npz
+--manifest_path data/librispeech/manifest.train \
+--output_path data/librispeech/mean_std.npz
 ```
 
-以上这段代码会计算在`examples/librispeech/data/manifest.train`路径中，2000 个随机采样的语音频谱特征的均值和标准差，并将结果保存在`examples/librispeech/data/mean_std.npz`中，方便以后使用。
+以上这段代码会计算在`data/librispeech/manifest.train`路径中，2000 个随机采样的语音频谱特征的均值和标准差，并将结果保存在`data/librispeech/mean_std.npz`中，方便以后使用。
 
 ### 建立词表
 
@@ -150,23 +188,21 @@ python3 tools/compute_mean_std.py \
 ```bash
 python3 tools/build_vocab.py \
 --count_threshold 0 \
---vocab_path examples/librispeech/data/eng_vocab.txt \
---manifest_paths examples/librispeech/data/manifest.train
+--vocab_path data/librispeech/eng_vocab.txt \
+--manifest_paths data/librispeech/manifest.train
 ```
 
-它将`examples/librispeech/data/manifest.train`目录中的所有录音文本写入词表文件`examples/librispeeech/data/eng_vocab.txt`，并且没有词汇截断(`--count_threshold 0`)。
+它将`data/librispeech/manifest.train`目录中的所有录音文本写入词表文件`data/librispeeech/eng_vocab.txt`，并且没有词汇截断(`--count_threshold 0`)。
 
 ### 更多帮助
 
 获得更多帮助：
 
 ```bash
-python3 examples/librispeech/local/librispeech.py --help
+python3 data/librispeech/librispeech.py --help
 python3 tools/compute_mean_std.py --help
 python3 tools/build_vocab.py --help
 ```
-
-
 
 ## 训练模型
 
@@ -197,10 +233,10 @@ python3 tools/build_vocab.py --help
 ```bash
 python3 train.py --help
 ```
-或参考 `example/librispeech/local/train.sh`.
+或参考 `example/librispeech/run_train.sh`.
 
 
-### 数据增强流水线
+## 数据增强流水线
 
 数据增强是用来提升深度学习性能的非常有效的技术。我们通过在原始音频中添加小的随机扰动（标签不变转换）获得新音频来增强我们的语音数据。你不必自己合成，因为数据增强已经嵌入到数据生成器中并且能够即时完成，在训练模型的每个epoch中随机合成音频。
 
@@ -232,15 +268,9 @@ python3 train.py --help
 
 当`trainer.py`的`--augment_conf_file`参数被设置为上述示例配置文件的路径时，每个 epoch 中的每个音频片段都将被处理。首先，均匀随机采样速率会有60％的概率在 0.95 和 1.05 之间对音频片段进行速度扰动。然后，音频片段有 80％ 的概率在时间上被挪移，挪移偏差值是 -5 毫秒和 5 毫秒之间的随机采样。最后，这个新合成的音频片段将被传送给特征提取器，以用于接下来的训练。
 
-有关其他配置实例，请参考`examples/conf/augmentation.config.example`.
+有关其他配置实例，请参考`conf/augmenatation.config.example`.
 
 使用数据增强技术时要小心，由于扩大了训练和测试集的差异，不恰当的增强会对训练模型不利，导致训练和预测的差距增大。
-
-### 训练普通话语言
-
-普通话语言训练与英语训练的关键步骤相同，我们提供了一个使用 Aishell 进行普通话训练的例子```examples/aishell```。如上所述，请执行```sh data.sh```, ```sh train.sh```, ```sh test.sh```和```sh infer.sh```做相应的数据准备，训练，测试和推断。我们还准备了一个预训练过的模型（执行./models/aishell/download_model.sh下载）供用户使用```infer_golden.sh```和```test_golden.sh```来。请注意，与英语语言模型不同，普通话语言模型是基于汉字的，请运行```tools/tune.py```来查找最佳设置。
-
-
 
 ## 推断和评价
 
@@ -300,7 +330,7 @@ bash download_lm_ch.sh
 ```
 python3 infer.py --help
 ```
-或参考`example/librispeech/local/infer.sh`.
+或参考`example/librispeech/run_infer.sh`.
 
 ### 评估模型
 
@@ -325,9 +355,7 @@ python3 infer.py --help
 ```bash
 python3 test.py --help
 ```
-或参考`example/librispeech/local/test.sh`.
-
-
+或参考`example/librispeech/run_test.sh`.
 
 ## 超参数调整
 
@@ -367,8 +395,11 @@ python3 test.py --help
 ```bash
 python3 tune.py --help
 ```
-或参考`example/librispeech/local/tune.sh`.
+或参考`example/librispeech/run_tune.sh`.
 
+## 训练普通话语言
+
+普通话语言训练与英语训练的关键步骤相同，我们提供了一个使用 Aishell 进行普通话训练的例子```examples/aishell```。如上所述，请执行```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh```和```sh run_infer.sh```做相应的数据准备，训练，测试和推断。我们还准备了一个预训练过的模型（执行./models/aishell/download_model.sh下载）供用户使用```run_infer_golden.sh```和```run_test_golden.sh```来。请注意，与英语语言模型不同，普通话语言模型是基于汉字的，请运行```tools/tune.py```来查找最佳设置。
 
 ## 用自己的声音尝试现场演示
 
@@ -406,7 +437,7 @@ python3 -u deploy/demo_client.py \
 
 请注意，`deploy/demo_client.py`必须在带麦克风设备的机器上运行，而`deploy/demo_server.py`可以在没有任何录音硬件的情况下运行，例如任何远程服务器机器。如果服务器和客户端使用两台独立的机器运行，只需要注意将`host_ip`和`host_port`参数设置为实际可访问的IP地址和端口。如果它们在单台机器上运行，则不用作任何处理。
 
-请参考`examples/deploy_demo/english_demo_server.sh`，它将首先下载一个预先训练过的英语模型（用3000小时的内部语音数据训练），然后用模型启动演示服务器。通过运行`examples/deploy_demo/demo_client.sh`，你可以说英语来测试它。如果您想尝试其他模型，只需更新脚本中的`--model_path`参数即可。
+请参考`examples/deploy_demo/run_english_demo_server.sh`，它将首先下载一个预先训练过的英语模型（用3000小时的内部语音数据训练），然后用模型启动演示服务器。通过运行`examples/mandarin/run_demo_client.sh`，你可以说英语来测试它。如果您想尝试其他模型，只需更新脚本中的`--model_path`参数即可。
 
 获得更多帮助：
 
@@ -415,6 +446,24 @@ python3 deploy/demo_server.py --help
 python3 deploy/demo_client.py --help
 ```
 
+## 发布模型
+
+#### 语音模型发布
+
+语种  | 模型名 | 训练数据 | 语音时长
+:-----------: | :------------: | :----------: |  -------:
+English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model_fluid.tar.gz) | Baidu Internal English Dataset | 8628 h
+Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_fluid.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
+Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model_fluid.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
+
+#### 语言模型发布
+
+语言模型 | 训练数据 | 基于的字符 | 大小 | 描述
+:-------------:| :------------:| :-----: | -----: | :-----------------
+[English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
+[Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
+[Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
 ## 实验和baseline
 
@@ -424,13 +473,13 @@ python3 deploy/demo_client.py --help
 :---------------------  | ---------------:  | -------------------:
 LibriSpeech Test-Clean  |   6.85            |   5.41
 LibriSpeech Test-Other  |   21.18           |   13.85
-VoxForge American-Canadian | 12.12          |   7.13
+VoxForge American-Canadian | 12.12          |   7.13
 VoxForge Commonwealth   |   19.82           |   14.93
 VoxForge European       |   30.15           |   18.64
 VoxForge Indian         |   53.73           |   25.51
-Baidu Internal Testset  |   40.75           |   8.48
+Baidu Internal Testset  |   40.75           |   8.48
 
-为了在VoxForge数据上重现基准测试结果，我们提供了一个脚本来下载数据并生成VoxForge方言manifest文件。请到```data/voxforge```执行````data.sh```来获取VoxForge方言manifest文件。请注意，VoxForge数据可能会持续更新，生成的清单文件可能与我们评估的清单文件有所不同。
+为了在VoxForge数据上重现基准测试结果，我们提供了一个脚本来下载数据并生成VoxForge方言manifest文件。请到```data/voxforge```执行````run_data.sh```来获取VoxForge方言manifest文件。请注意，VoxForge数据可能会持续更新，生成的清单文件可能与我们评估的清单文件有所不同。
 
 
 #### 普通话模型的baseline测试结果（字符错误率）
@@ -453,27 +502,6 @@ Baidu Internal Testset  |   12.64
 | 8         | 6.95 X |
 
 `tools/profile.sh`提供了上述分析工具.
-
-
-## 发布模型
-
-#### 语音模型发布
-
-语种  | 模型名 | 训练数据 | 语音时长
-:-----------: | :------------: | :----------: |  -------:
-English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model_fluid.tar.gz) | Baidu Internal English Dataset | 8628 h
-Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_fluid.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model_fluid.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
-
-#### 语言模型发布
-
-语言模型 | 训练数据 | 基于的字符 | 大小 | 描述
-:-------------:| :------------:| :-----: | -----: | :-----------------
-[English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
-[Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
-[Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
-
 
 ## 问题和帮助
 

@@ -6,15 +6,19 @@
 
 ## Table of Contents
 - [Installation](#installation)
+- [Running in Docker Container](#running-in-docker-container)
 - [Getting Started](#getting-started)
 - [Data Preparation](#data-preparation)
 - [Training a Model](#training-a-model)
+- [Data Augmentation Pipeline](#data-augmentation-pipeline)
 - [Inference and Evaluation](#inference-and-evaluation)
 - [Hyper-parameters Tuning](#hyper-parameters-tuning)
+- [Training for Mandarin Language](#training-for-mandarin-language)
 - [Trying Live Demo with Your Own Voice](#trying-live-demo-with-your-own-voice)
-- [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Released Models](#released-models)
+- [Experiments and Benchmarks](#experiments-and-benchmarks)
 - [Questions and Help](#questions-and-help)
+
 
 
 ## Installation
@@ -22,8 +26,8 @@
 To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise follow the guidelines below to install the dependencies manually.
 
 ### Prerequisites
-- Python >= 3.6
-- PaddlePaddle 1.8.0 or later (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
+- Python >= 3.7
+- PaddlePaddle 1.8.5 (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
 ### Setup
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
@@ -50,7 +54,15 @@ make install
 ```bash
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
-sh setup.sh
+pushd tools; make; popd
+source tools/venv/bin/activate
+bash setup.sh
+```
+
+- Source venv before do experiment.
+
+```bash
+source tools/venv/bin/activate
 ```
 
 ### Running in Docker Container
@@ -101,16 +113,41 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     ```
 
     Notice that this is only a toy example with a tiny sampled subset of LibriSpeech. If you would like to try with the complete dataset (would take several days for training), please go to `examples/librispeech` instead.
-- Source env
+- Prepare the data
 
     ```bash
-    source path.sh
+    sh run_data.sh
     ```
-    Set `MAIN_ROOT` as project dir.
-- Main entrypoint
+
+    `run_data.sh` will download dataset, generate manifests, collect normalizer's statistics and build vocabulary. Once the data preparation is done, you will find the data (only part of LibriSpeech) downloaded in `./dataset/librispeech` and the corresponding manifest files generated in `./data/tiny` as well as a mean stddev file and a vocabulary file. It has to be run for the very first time you run this dataset and is reusable for all further experiments.
+- Train your own ASR model
 
     ```bash
-    bash run.sh
+    sh run_train.sh
+    ```
+
+    `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints/tiny`. These checkpoints could be used for training resuming, inference, evaluation and deployment.
+- Case inference with an existing model
+
+    ```bash
+    sh run_infer.sh
+    ```
+
+    `run_infer.sh` will show us some speech-to-text decoding results for several (default: 10) samples with the trained model. The performance might not be good now as the current model is only trained with a toy subset of LibriSpeech. To see the results with a better model, you can download a well-trained (trained for several days, with the complete LibriSpeech) model and do the inference:
+
+    ```bash
+    sh run_infer_golden.sh
+    ```
+- Evaluate an existing model
+
+    ```bash
+    sh run_test.sh
+    ```
+
+    `run_test.sh` will evaluate the model with Word Error Rate (or Character Error Rate) measurement. Similarly, you can also download a well-trained model and test its performance:
+
+    ```bash
+    sh run_test_golden.sh
     ```
 
 More detailed information are provided in the following sections. Wish you a happy journey with the *DeepSpeech2 on PaddlePaddle* ASR engine!
@@ -129,7 +166,7 @@ More detailed information are provided in the following sections. Wish you a hap
 
 To use your custom data, you only need to generate such manifest files to summarize the dataset. Given such summarized manifests, training, inference and all other modules can be aware of where to access the audio files, as well as their meta data including the transcription labels.
 
-For how to generate such manifest files, please refer to `examples/librispeech/local/librispeech.py`, which will download data and generate manifest files for LibriSpeech dataset.
+For how to generate such manifest files, please refer to `data/librispeech/librispeech.py`, which will download data and generate manifest files for LibriSpeech dataset.
 
 ### Compute Mean & Stddev for Normalizer
 
@@ -139,11 +176,11 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 python3 tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_path examples/librispeech/data/manifest.train \
---output_path examples/librispeech/data/mean_std.npz
+--manifest_path data/librispeech/manifest.train \
+--output_path data/librispeech/mean_std.npz
 ```
 
-It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `examples/librispeech/data/manifest.train` and save the results to `examples/librispeech/data/mean_std.npz` for further usage.
+It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
 
 
 ### Build Vocabulary
@@ -153,18 +190,18 @@ A vocabulary of possible characters is required to convert the transcription int
 ```bash
 python3 tools/build_vocab.py \
 --count_threshold 0 \
---vocab_path examples/librispeech/data/eng_vocab.txt \
---manifest_paths examples/librispeech/data/manifest.train
+--vocab_path data/librispeech/eng_vocab.txt \
+--manifest_paths data/librispeech/manifest.train
 ```
 
-It will write a vocabuary file `examples/librispeech/data/eng_vocab.txt` with all transcription text in `examples/librispeech/data/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
+It will write a vocabuary file `data/librispeeech/eng_vocab.txt` with all transcription text in `data/librispeech/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
 
 ### More Help
 
 For more help on arguments:
 
 ```bash
-python3 examples/librispeech/local/librispeech.py --help
+python3 data/librispeech/librispeech.py --help
 python3 tools/compute_mean_std.py --help
 python3 tools/build_vocab.py --help
 ```
@@ -197,10 +234,10 @@ For more help on arguments:
 ```bash
 python3 train.py --help
 ```
-or refer to `example/librispeech/local/train.sh`.
+or refer to `example/librispeech/run_train.sh`.
 
 
-### Data Augmentation Pipeline
+## Data Augmentation Pipeline
 
 Data augmentation has often been a highly effective technique to boost the deep learning performance. We augment our speech data by synthesizing new audios with small random perturbation (label-invariant transformation) added upon raw audios. You don't have to do the syntheses on your own, as it is already embedded into the data provider and is done on the fly, randomly for each epoch during training.
 
@@ -232,15 +269,9 @@ In order to inform the trainer of what augmentation components are needed and wh
 
 When the `--augment_conf_file` argument of `trainer.py` is set to the path of the above example configuration file, every audio clip in every epoch will be processed: with 60% of chance, it will first be speed perturbed with a uniformly random sampled speed-rate between 0.95 and 1.05, and then with 80% of chance it will be shifted in time with a random sampled offset between -5 ms and 5 ms. Finally this newly synthesized audio clip will be feed into the feature extractor for further training.
 
-For other configuration examples, please refer to `examples/conf/augmentation.config.example`.
+For other configuration examples, please refer to `conf/augmenatation.config.example`.
 
 Be careful when utilizing the data augmentation technique, as improper augmentation will do harm to the training, due to the enlarged train-test gap.
-
-
-### Training for Mandarin Language
-
-The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell/local```. As mentioned above, please execute ```sh data.sh```, ```sh train.sh```, ```sh test.sh``` and ```sh infer.sh``` to do data preparation, training, testing and inference correspondingly. We have also prepared a pre-trained model (downloaded by ./models/aishell/download_model.sh) for users to try with ```sh infer_golden.sh``` and ```sh test_golden.sh```. Notice that, different from English LM, the Mandarin LM is character-based and please run ```tools/tune.py``` to find an optimal setting.
-
 
 ## Inference and Evaluation
 
@@ -299,7 +330,7 @@ For more help on arguments:
 ```
 python3 infer.py --help
 ```
-or refer to `example/librispeech/local/infer.sh`.
+or refer to `example/librispeech/run_infer.sh`.
 
 ### Evaluate a Model
 
@@ -324,7 +355,7 @@ For more help on arguments:
 ```bash
 python3 test.py --help
 ```
-or refer to `example/librispeech/local/test.sh`.
+or refer to `example/librispeech/run_test.sh`.
 
 ## Hyper-parameters Tuning
 
@@ -364,18 +395,21 @@ After tuning, you can reset $\alpha$ and $\beta$ in the inference and evaluation
 ```bash
 python3 tune.py --help
 ```
-or refer to `example/librispeech/local/tune.sh`.
+or refer to `example/librispeech/run_tune.sh`.
 
+## Training for Mandarin Language
+
+The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell```. As mentioned above, please execute ```sh run_data.sh```, ```sh run_train.sh```, ```sh run_test.sh``` and ```sh run_infer.sh``` to do data preparation, training, testing and inference correspondingly. We have also prepared a pre-trained model (downloaded by ./models/aishell/download_model.sh) for users to try with ```sh run_infer_golden.sh``` and ```sh run_test_golden.sh```. Notice that, different from English LM, the Mandarin LM is character-based and please run ```tools/tune.py``` to find an optimal setting.
 
 ## Trying Live Demo with Your Own Voice
 
-Until now, an ASR model is trained and tested qualitatively (`infer.py`) and quantitatively (`test.py`) with existing audio files. But it is not yet tested with your own speech. `deploy/server.py` and `deploy/client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling you to test and play around with the demo, with your own voice.
+Until now, an ASR model is trained and tested qualitatively (`infer.py`) and quantitatively (`test.py`) with existing audio files. But it is not yet tested with your own speech. `deploy/demo_english_server.py` and `deploy/demo_client.py` helps quickly build up a real-time demo ASR engine with the trained model, enabling you to test and play around with the demo, with your own voice.
 
 To start the demo's server, please run this in one console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python3 deploy/server.py \
+python3 deploy/demo_server.py \
 --host_ip localhost \
 --host_port 8086
 ```
@@ -394,24 +428,42 @@ Then to start the client, please run this in another console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
-python3 -u deploy/client.py \
+python3 -u deploy/demo_client.py \
 --host_ip 'localhost' \
 --host_port 8086
 ```
 
 Now, in the client console, press the `whitespace` key, hold, and start speaking. Until finishing your utterance, release the key to let the speech-to-text results shown in the console. To quit the client, just press `ESC` key.
 
-Notice that `deploy/client.py` must be run on a machine with a microphone device, while `deploy/server.py` could be run on one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running on one single machine.
+Notice that `deploy/demo_client.py` must be run on a machine with a microphone device, while `deploy/demo_server.py` could be run on one without any audio recording hardware, e.g. any remote server machine. Just be careful to set the `host_ip` and `host_port` argument with the actual accessible IP address and port, if the server and client are running with two separate machines. Nothing should be done if they are running on one single machine.
 
-Please also refer to `examples/aishell/local/server.sh`, which will first download a pre-trained Chinese model (trained with AISHELL1) and then start the demo server with the model. With running `examples/aishell/local/client.sh`, you can speak Chinese to test it. If you would like to try some other models, just update `--checkpoint_path` argument in the script.  
+Please also refer to `examples/deploy_demo/run_english_demo_server.sh`, which will first download a pre-trained English model (trained with 3000 hours of internal speech data) and then start the demo server with the model. With running `examples/mandarin/run_demo_client.sh`, you can speak English to test it. If you would like to try some other models, just update `--model_path` argument in the script.  
 
 For more help on arguments:
 
 ```bash
-python3 deploy/server.py --help
-python3 deploy/client.py --help
+python3 deploy/demo_server.py --help
+python3 deploy/demo_client.py --help
 ```
 
+## Released Models
+
+#### Speech Model Released
+
+Language  | Model Name | Training Data | Hours of Speech
+:-----------: | :------------: | :----------: |  -------:
+English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
+English  | [BaiduEN8k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_en8k_model_fluid.tar.gz) | Baidu Internal English Dataset | 8628 h
+Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_fluid.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
+Mandarin | [BaiduCN1.2k Model](https://deepspeech.bj.bcebos.com/demo_models/baidu_cn1.2k_model_fluid.tar.gz) | Baidu Internal Mandarin Dataset | 1204 h
+
+#### Language Model Released
+
+Language Model | Training Data | Token-based | Size | Descriptions
+:-------------:| :------------:| :-----: | -----: | :-----------------
+[English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
+[Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
+[Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
 ## Experiments and Benchmarks
 
@@ -421,13 +473,13 @@ Test Set                | LibriSpeech Model | BaiduEN8K Model
 :---------------------  | ---------------:  | -------------------:
 LibriSpeech Test-Clean  |   6.85            |   5.41
 LibriSpeech Test-Other  |   21.18           |   13.85
-VoxForge American-Canadian | 12.12          |   7.13
+VoxForge American-Canadian | 12.12          |   7.13
 VoxForge Commonwealth   |   19.82           |   14.93
 VoxForge European       |   30.15           |   18.64
 VoxForge Indian         |   53.73           |   25.51
-Baidu Internal Testset  |   40.75           |   8.48
+Baidu Internal Testset  |   40.75           |   8.48
 
-For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
+For reproducing benchmark results on VoxForge data, we provide a script to download data and generate VoxForge dialect manifest files. Please go to ```data/voxforge``` and execute ```sh run_data.sh``` to get VoxForge dialect manifest files. Notice that VoxForge data may keep updating and the generated manifest files may have difference from those we evaluated on.
 
 #### Benchmark Results for Mandarin Model (Character Error Rate)
 
@@ -449,25 +501,6 @@ We compare the training time with 1, 2, 4, 8 Tesla V100 GPUs (with a subset of L
 | 8         | 6.95 X |
 
 `tools/profile.sh` provides such a profiling tool.
-
-
-## Released Models
-
-#### Speech Model Released
-
-Language  | Model Name | Training Data | Hours of Speech
-:-----------: | :------------: | :----------: |  -------:
-English  | [LibriSpeech Model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_model_fluid.tar.gz) | [LibriSpeech Dataset](http://www.openslr.org/12/) | 960 h
-Mandarin | [Aishell Model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_fluid.tar.gz) | [Aishell Dataset](http://www.openslr.org/33/) | 151 h
-
-#### Language Model Released
-
-Language Model | Training Data | Token-based | Size | Descriptions
-:-------------:| :------------:| :-----: | -----: | :-----------------
-[English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
-[Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
-[Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
-
 
 ## Questions and Help
 

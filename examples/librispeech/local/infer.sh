@@ -10,8 +10,7 @@ python3 -u ${BIN_DIR}/infer.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \
---output ckpt
-
+--checkpoint_path ${1} 
 
 if [ $? -ne 0 ]; then
     echo "Failed in inference!"

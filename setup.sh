@@ -29,7 +29,7 @@ if [ $? != 0 ]; then
     fi
     tar -zxvf libsndfile-1.0.28.tar.gz
     cd libsndfile-1.0.28
-    ./configure > /dev/null; make > /dev/null; make install > /dev/null
+    ./configure > /dev/null && make > /dev/null && make install > /dev/null
     cd ..
     rm -rf libsndfile-1.0.28
     rm libsndfile-1.0.28.tar.gz

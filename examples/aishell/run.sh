@@ -1,21 +1,16 @@
 #!/bin/bash
 
 source path.sh
+# only demos
 
 # prepare data
-bash ./local/run_data.sh
-
-# test pretrain model
-bash ./local/run_test_golden.sh
-
-# test pretain model
-bash ./local/run_infer_golden.sh
+bash ./local/data.sh
 
 # train model
-bash ./local/run_train.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash ./local/train.sh
 
 # test model
-bash ./local/run_test.sh
+CUDA_VISIBLE_DEVICES=0 bash ./local/test.sh ckpt/checkpoints/step-3284
 
 # infer model
-bash ./local/run_infer.sh
+CUDA_VISIBLE_DEVICES=0 bash ./local/infer.sh ckpt/checkpoints/step-3284

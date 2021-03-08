@@ -38,4 +38,4 @@
         entry: python .pre-commit-hooks/copyright-check.hook
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
-        exclude: (?=decoders/swig).*(\.cpp|\.h)$
+        #exclude: (?=decoders/swig).*(\.cpp|\.h)$

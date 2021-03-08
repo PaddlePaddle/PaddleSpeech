@@ -1,5 +1,14 @@
 #! /usr/bin/env  bash
 
+SUDO='sudo'
+if [ $(id -u) -eq 0 ]; then
+  SUDO=''
+fi
+
+if [ -e /etc/lsb-release ];then
+    ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+fi
+
 # install python dependencies
 if [ -f "requirements.txt" ]; then
     pip3 install -r requirements.txt
@@ -29,7 +38,7 @@ fi
 # install decoders
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"
 if [ $? != 0 ]; then
-    cd decoders/swig > /dev/null
+    cd deepspeech/decoders/swig > /dev/null
     sh setup.sh
     cd - > /dev/null
 fi

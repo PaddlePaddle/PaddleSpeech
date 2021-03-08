@@ -1,24 +1,16 @@
 #!/bin/bash
+set -e
 
 source path.sh
 
 # prepare data
-bash ./local/run_data.sh
-
-# test pretrain model
-bash ./local/run_test_golden.sh
-
-# test pretain model
-bash ./local/run_infer_golden.sh
+bash ./local/data.sh
 
 # train model
-bash ./local/run_train.sh
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ./local/train.sh
 
 # test model
-bash ./local/run_test.sh
+CUDA_VISIBLE_DEVICES=0  bash ./local/test.sh
 
 # infer model
-bash ./local/run_infer.sh
-
-# tune model
-bash ./local/run_tune.sh
+CUDA_VISIBLE_DEVICES=0 bash ./local/infer.sh

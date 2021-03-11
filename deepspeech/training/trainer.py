@@ -167,9 +167,17 @@ class Trainer():
         self.new_epoch()
         while self.epoch <= self.config.training.n_epoch:
             try:
+                data_start_time = time.time()
                 for batch in self.train_loader:
+                    dataload_time = time.time() - data_start_time
+                    msg = "Train: Rank: {}, ".format(dist.get_rank())
+                    msg += "epoch: {}, ".format(self.epoch)
+                    msg += "step: {}, ".format(self.iteration)
+                    msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
+                    self.logger.info(msg)
                     self.iteration += 1
                     self.train_batch(batch)
+                    data_start_time = time.time()
             except Exception as e:
                 self.logger.error(e)
                 pass

@@ -11,7 +11,7 @@ python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
 --nproc ${ngpu} \
 --config conf/deepspeech2.yaml \
---output ckpt
+--output ckpt-${1}
 
 
 if [ $? -ne 0 ]; then

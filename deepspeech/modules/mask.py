@@ -28,6 +28,7 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
     max_len = max_len or x_len.max()
     x_len = paddle.unsqueeze(x_len, -1)
     row_vector = paddle.arange(max_len)
+    # TODO(Hui Zhang): fix this bug
     #mask = row_vector < x_len
     mask = row_vector > x_len  # a bug, broadcast 的时候出错了
     mask = paddle.cast(mask, dtype)

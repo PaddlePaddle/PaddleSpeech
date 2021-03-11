@@ -2,7 +2,7 @@
 # TODO: replace the model with a mandarin model
 
 if [[ $# != 1 ]];then
-   echo "usage: server.sh checkpoint_path"
+   echo "usage: $1 checkpoint_path"
    exit -1
 fi
 

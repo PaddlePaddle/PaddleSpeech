@@ -13,7 +13,6 @@ python3 -u ${BIN_DIR}/test.py \
 --config conf/deepspeech2.yaml \
 --output ckpt
 
-
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"
     exit 1

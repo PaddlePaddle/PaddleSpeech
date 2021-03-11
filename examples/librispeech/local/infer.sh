@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+if [[ $# != 1 ]];
+    echo "usage: $0 ckpt-path"
+    exit -1
+fi
+
 # download language model
 bash local/download_lm_en.sh
 if [ $? -ne 0 ]; then

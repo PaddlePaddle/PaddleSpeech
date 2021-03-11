@@ -10,7 +10,7 @@ python3 -u ${BIN_DIR}/test.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \
---checkpoint_path ${1} 
+--output ckpt
 
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"

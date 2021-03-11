@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['CTCLoss']
 
 
+# TODO(Hui Zhang): remove this hack, when `norm_by_times=True` is added
 def ctc_loss(logits,
              labels,
              input_lengths,
@@ -47,19 +48,35 @@ def ctc_loss(logits,
     return loss_out
 
 
+# TODO(Hui Zhang): remove this hack
 F.ctc_loss = ctc_loss
 
 
 class CTCLoss(nn.Layer):
-    def __init__(self, blank_id):
+    def __init__(self, blank=0, reduction='sum'):
         super().__init__()
         # last token id as blank id
-        self.loss = nn.CTCLoss(blank=blank_id, reduction='sum')
+        self.loss = nn.CTCLoss(blank=blank, reduction=reduction)
 
-    def forward(self, logits, text, logits_len, text_len):
-        # warp-ctc do softmax on activations
+    def forward(self, logits, ys_pad, hlens, ys_lens):
+        """Compute CTC loss.
+
+        Args:
+            logits ([paddle.Tensor]): [description]
+            ys_pad ([paddle.Tensor]): [description]
+            hlens ([paddle.Tensor]): [description]
+            ys_lens ([paddle.Tensor]): [description]
+
+        Returns:
+            [paddle.Tensor]: scalar. If reduction is 'none', then (N), where N = \text{batch size}.
+        """
+        # warp-ctc need logits, and do softmax on logits by itself
         # warp-ctc need activation with shape [T, B, V + 1]
+        # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
+        loss = self.loss(logits, ys_pad, hlens, ys_lens)
 
-        ctc_loss = self.loss(logits, text, logits_len, text_len)
-        return ctc_loss
+        # wenet do batch-size average, deepspeech2 not do this
+        # Batch-size average
+        # loss = loss / paddle.shape(logits)[1]
+        return loss

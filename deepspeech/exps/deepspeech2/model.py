@@ -305,11 +305,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             exit(-1)
 
     def export(self):
-        self.infer_model.eval()
+        infer_model = DeepSpeech2InferModel.from_pretrained(
+            self.test_loader.dataset, self.config, self.args.checkpoint_path)
+        infer_model.eval()
         feat_dim = self.test_loader.dataset.feature_size
-        paddle.jit.save(
-            self.infer_model,
-            self.args.export_path,
+        static_model = paddle.jit.to_static(
+            infer_model,
             input_spec=[
                 paddle.static.InputSpec(
                     shape=[None, feat_dim, None],
@@ -317,6 +318,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                 paddle.static.InputSpec(shape=[None],
                                         dtype='int64'),  # audio_length, [B]
             ])
+        logger.info(f"Export code: {static_model.forward.code}")
+        paddle.jit.save(static_model, self.args.export_path)
 
     def run_export(self):
         try:
@@ -349,12 +352,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             rnn_size=config.model.rnn_layer_size,
             use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
-
-        infer_model = DeepSpeech2InferModel.from_pretrained(
-            self.test_loader.dataset, config, self.args.checkpoint_path)
-
         self.model = model
-        self.infer_model = infer_model
         self.logger.info("Setup model!")
 
     def setup_dataloader(self):

@@ -70,7 +70,7 @@ class CTCLoss(nn.Layer):
         Returns:
             [paddle.Tensor]: scalar. If reduction is 'none', then (N), where N = \text{batch size}.
         """
-        # warp-ctc do softmax on activations
+        # warp-ctc need logits, and do softmax on logits by itself
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])

@@ -2,7 +2,6 @@
 
 export FLAGS_sync_nccl_allreduce=0
 
-CUDA_VISIBLE_DEVICES=0 \
 python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
 --nproc 1 \

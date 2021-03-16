@@ -24,7 +24,32 @@ from deepspeech.modules.activation import brelu
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['ConvStack']
+__all__ = ['ConvStack', "conv_output_size"]
+
+
+def conv_output_size(I, F, P, S):
+    # https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-convolutional-neural-networks#hyperparameters
+    # Output size after Conv:
+    #   By noting I the length of the input volume size, 
+    #   F the length of the filter, 
+    #   P the amount of zero padding, 
+    #   S the stride,
+    #   then the output size O of the feature map along that dimension is given by:
+    #       O = (I - F + Pstart + Pend) // S + 1
+    #   When Pstart == Pend == P, we can replace Pstart + Pend by 2P.
+    #   When Pstart == Pend == 0
+    #       O = (I - F - S) // S
+    # https://iq.opengenus.org/output-size-of-convolution/
+    # Output height = (Input height + padding height top + padding height bottom - kernel height) / (stride height) + 1
+    # Output width = (Output width + padding width right + padding width left - kernel width) / (stride width) + 1
+    return (I - F + 2 * P - S) // S
+
+
+# receptive field calculator
+# https://fomoro.com/research/article/receptive-field-calculator
+# https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-convolutional-neural-networks#hyperparameters
+# https://distill.pub/2019/computing-receptive-fields/
+# Rl-1 = Sl * Rl + (Kl - Sl) 
 
 
 class ConvBn(nn.Layer):

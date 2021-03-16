@@ -1,0 +1,149 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""ConvolutionModule definition."""
+from typing import Optional, Tuple
+from typeguard import check_argument_types
+
+import logging
+
+import paddle
+from paddle import nn
+from paddle.nn import functional as F
+from paddle.nn import initializer as I
+
+# init F.glu func
+# TODO(Hui Zhang): remove this line
+import deepspeech.modules.activation
+
+logger = logging.getLogger(__name__)
+
+__all__ = ['ConvolutionModule']
+
+
+class ConvolutionModule(nn.Layer):
+    """ConvolutionModule in Conformer model."""
+
+    def __init__(self,
+                 channels: int,
+                 kernel_size: int=15,
+                 activation: nn.Layer=nn.ReLU(),
+                 norm: str="batch_norm",
+                 causal: bool=False,
+                 bias: bool=True):
+        """Construct an ConvolutionModule object.
+        Args:
+            channels (int): The number of channels of conv layers.
+            kernel_size (int): Kernel size of conv layers.
+            activation (nn.Layer): Activation Layer.
+            norm (str): Normalization type, 'batch_norm' or 'layer_norm'
+            causal (bool): Whether use causal convolution or not
+            bias (bool): Whether Conv with bias or not
+        """
+        assert check_argument_types()
+        super().__init__()
+        self.pointwise_conv1 = nn.Conv1D(
+            channels,
+            2 * channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=None if bias else False,  # None for True as default
+        )
+
+        # self.lorder is used to distinguish if it's a causal convolution,
+        # if self.lorder > 0: 
+        #    it's a causal convolution, the input will be padded with 
+        #    `self.lorder` frames on the left in forward (causal conv impl).
+        # else: it's a symmetrical convolution
+        if causal:
+            padding = 0
+            self.lorder = kernel_size - 1
+        else:
+            # kernel_size should be an odd number for none causal convolution
+            assert (kernel_size - 1) % 2 == 0
+            padding = (kernel_size - 1) // 2
+            self.lorder = 0
+
+        self.depthwise_conv = nn.Conv1D(
+            channels,
+            channels,
+            kernel_size,
+            stride=1,
+            padding=padding,
+            groups=channels,
+            bias=None if bias else False,  # None for True as default
+        )
+
+        assert norm in ['batch_norm', 'layer_norm']
+        if norm == "batch_norm":
+            self.use_layer_norm = False
+            self.norm = nn.BatchNorm1D(channels)
+        else:
+            self.use_layer_norm = True
+            self.norm = nn.LayerNorm(channels)
+
+        self.pointwise_conv2 = nn.Conv1D(
+            channels,
+            channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=None if bias else False,  # None for True as default
+        )
+        self.activation = activation
+
+    def forward(self, x: paddle.Tensor, cache: Optional[paddle.Tensor]=None
+                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        """Compute convolution module.
+        Args:
+            x (paddle.Tensor): Input tensor (#batch, time, channels).
+            cache (paddle.Tensor): left context cache, it is only
+                used in causal convolution. (#batch, channels, time)
+        Returns:
+            paddle.Tensor: Output tensor (#batch, time, channels).
+            paddle.Tensor: Output cache tensor (#batch, channels, time)
+        """
+        # exchange the temporal dimension and the feature dimension
+        x = x.transpose([0, 2, 1])  # [B, C, T]
+        if self.lorder > 0:
+            if cache is None:
+                x = nn.functional.pad(
+                    x, (self.lorder, 0), 'constant', 0.0, data_format='NCL')
+            else:
+                assert cache.shape[0] == x.shape[0]  # B
+                assert cache.shape[1] == x.shape[1]  # C
+                x = paddle.concat((cache, x), axis=2)
+
+            assert (x.shape[2] > self.lorder)
+            new_cache = x[:, :, -self.lorder:]  #[B, C, T]
+        else:
+            # It's better we just return None if no cache is requried,
+            # However, for JIT export, here we just fake one tensor instead of
+            # None.
+            new_cache = paddle.to_tensor([0.0], dtype=x.dtype, place=x.place)
+
+        # GLU mechanism
+        x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)
+        x = nn.functional.glu(x, dim=1)  # (batch, channel, dim)
+
+        # 1D Depthwise Conv
+        x = self.depthwise_conv(x)
+        if self.use_layer_norm:
+            x = x.transpose([0, 2, 1])  # [B, T, C]
+        x = self.activation(self.norm(x))
+        if self.use_layer_norm:
+            x = x.transpose([0, 2, 1])  # [B, C, T]
+        x = self.pointwise_conv2(x)
+        x = x.transpose([0, 2, 1])  # [B, T, C]
+        return x, new_cache

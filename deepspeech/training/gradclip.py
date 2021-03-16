@@ -21,8 +21,10 @@ from paddle.fluid import core
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["ClipGradByGlobalNormWithLog"]
 
-class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
+
+class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
     def __init__(self, clip_norm):
         super().__init__(clip_norm)
 

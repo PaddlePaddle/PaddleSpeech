@@ -28,7 +28,7 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 
 from deepspeech.training import Trainer
-from deepspeech.training.gradclip import MyClipGradByGlobalNorm
+from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 
 from deepspeech.utils import mp_tools
 from deepspeech.utils import layer_tools
@@ -125,7 +125,8 @@ class DeepSpeech2Trainer(Trainer):
 
         layer_tools.print_params(model, self.logger.info)
 
-        grad_clip = MyClipGradByGlobalNorm(config.training.global_grad_clip)
+        grad_clip = ClipGradByGlobalNormWithLog(
+            config.training.global_grad_clip)
         lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
             learning_rate=config.training.lr,
             gamma=config.training.lr_decay,

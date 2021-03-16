@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union
 import logging
 import numpy as np
 import math
+from collections import OrderedDict
 
 import paddle
 from paddle import nn
@@ -23,7 +25,7 @@ from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['brelu', "softplus", "gelu_accurate", "gelu", 'Swish']
+__all__ = ['brelu', "glu"]
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
@@ -33,36 +35,180 @@ def brelu(x, t_min=0.0, t_max=24.0, name=None):
     return x.maximum(t_min).minimum(t_max)
 
 
-def softplus(x):
-    """Softplus function."""
-    if hasattr(paddle.nn.functional, 'softplus'):
-        #return paddle.nn.functional.softplus(x.float()).type_as(x)
-        return paddle.nn.functional.softplus(x)
+# def softplus(x):
+#     """Softplus function."""
+#     if hasattr(paddle.nn.functional, 'softplus'):
+#         #return paddle.nn.functional.softplus(x.float()).type_as(x)
+#         return paddle.nn.functional.softplus(x)
+#     else:
+#         raise NotImplementedError
+
+# def gelu_accurate(x):
+#     """Gaussian Error Linear Units (GELU) activation."""
+#     # [reference] https://github.com/pytorch/fairseq/blob/e75cff5f2c1d62f12dc911e0bf420025eb1a4e33/fairseq/modules/gelu.py
+#     if not hasattr(gelu_accurate, "_a"):
+#         gelu_accurate._a = math.sqrt(2 / math.pi)
+#     return 0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
+#                                       (x + 0.044715 * paddle.pow(x, 3))))
+
+# def gelu(x):
+#     """Gaussian Error Linear Units (GELU) activation."""
+#     if hasattr(nn.functional, 'gelu'):
+#         #return nn.functional.gelu(x.float()).type_as(x)
+#         return nn.functional.gelu(x)
+#     else:
+#         return x * 0.5 * (1.0 + paddle.erf(x / math.sqrt(2.0)))
+
+
+# TODO(Hui Zhang): remove this activation
+def glu(x, dim=-1):
+    """The gated linear unit (GLU) activation."""
+    if hasattr(nn.functional, 'glu'):
+        return nn.functional.glu(x)
     else:
-        raise NotImplementedError
+        a, b = x.split(2, axis=dim)
+        act_b = F.sigmoid(b)
+        return a * act_b
 
 
-def gelu_accurate(x):
-    """Gaussian Error Linear Units (GELU) activation."""
-    # [reference] https://github.com/pytorch/fairseq/blob/e75cff5f2c1d62f12dc911e0bf420025eb1a4e33/fairseq/modules/gelu.py
-    if not hasattr(gelu_accurate, "_a"):
-        gelu_accurate._a = math.sqrt(2 / math.pi)
-    return 0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
-                                      (x + 0.044715 * paddle.pow(x, 3))))
+# TODO(Hui Zhang): remove this activation
+if not hasattr(nn.functional, 'glu'):
+    setattr(nn.functional, 'glu', glu)
 
 
-def gelu(x):
-    """Gaussian Error Linear Units (GELU) activation."""
-    if hasattr(torch.nn.functional, 'gelu'):
-        #return torch.nn.functional.gelu(x.float()).type_as(x)
-        return torch.nn.functional.gelu(x)
-    else:
-        return x * 0.5 * (1.0 + paddle.erf(x / math.sqrt(2.0)))
+# TODO(Hui Zhang): remove this activation
+class GLU(nn.Layer):
+    """Gated Linear Units (GLU) Layer"""
+
+    def __init__(self, dim: int=-1):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, xs):
+        return glu(xs, dim=self.dim)
 
 
-class Swish(nn.Layer):
-    """Construct an Swish object."""
+class LinearGLUBlock(nn.Layer):
+    """A linear Gated Linear Units (GLU) block."""
 
-    def forward(self, x: paddle.Tensor) -> paddle.Tensor:
-        """Return Swish activation function."""
-        return x * F.sigmoid(x)
+    def __init__(self, idim: int):
+        """ GLU.
+        Args:
+            idim (int): input and output dimension
+        """
+        super().__init__()
+        self.fc = nn.Linear(idim, idim * 2)
+
+    def forward(self, xs):
+        return glu(self.fc(xs), dim=-1)
+
+
+# TODO(Hui Zhang): remove this Layer
+class ConstantPad2d(nn.Layer):
+    """Pads the input tensor boundaries with a constant value.
+    For N-dimensional padding, use paddle.nn.functional.pad().
+    """
+
+    def __init__(self, padding: Union[tuple, list, int], value: float):
+        """
+        Args:
+            paddle ([tuple]): the size of the padding. 
+                If is int, uses the same padding in all boundaries. 
+                If a 4-tuple, uses (padding_left, padding_right, padding_top, padding_bottom)
+            value ([flaot]): pad value
+        """
+        self.padding = padding if isinstance(padding,
+                                             [tuple, list]) else [padding] * 4
+        self.value = value
+
+    def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
+        return nn.functional.pad(
+            xs,
+            self.padding,
+            mode='constant',
+            value=self.value,
+            data_format='NCHW')
+
+
+class ConvGLUBlock(nn.Layer):
+    def __init__(self, kernel_size, in_ch, out_ch, bottlececk_dim=0,
+                 dropout=0.):
+        """A convolutional Gated Linear Units (GLU) block.
+
+        Args:
+            kernel_size (int): kernel size
+            in_ch (int): number of input channels
+            out_ch (int): number of output channels
+            bottlececk_dim (int): dimension of the bottleneck layers for computational efficiency. Defaults to 0.
+            dropout (float): dropout probability. Defaults to 0..
+        """
+
+        super().__init__()
+
+        self.conv_residual = None
+        if in_ch != out_ch:
+            self.conv_residual = nn.utils.weight_norm(
+                nn.Conv2D(
+                    in_channels=in_ch, out_channels=out_ch, kernel_size=(1, 1)),
+                name='weight',
+                dim=0)
+            self.dropout_residual = nn.Dropout(p=dropout)
+
+        self.pad_left = ConstantPad2d((0, 0, kernel_size - 1, 0), 0)
+
+        layers = OrderedDict()
+        if bottlececk_dim == 0:
+            layers['conv'] = nn.utils.weight_norm(
+                nn.Conv2D(
+                    in_channels=in_ch,
+                    out_channels=out_ch * 2,
+                    kernel_size=(kernel_size, 1)),
+                name='weight',
+                dim=0)
+            # TODO(hirofumi0810): padding?
+            layers['dropout'] = nn.Dropout(p=dropout)
+            layers['glu'] = GLU()
+
+        elif bottlececk_dim > 0:
+            layers['conv_in'] = nn.utils.weight_norm(
+                nn.Conv2D(
+                    in_channels=in_ch,
+                    out_channels=bottlececk_dim,
+                    kernel_size=(1, 1)),
+                name='weight',
+                dim=0)
+            layers['dropout_in'] = nn.Dropout(p=dropout)
+            layers['conv_bottleneck'] = nn.utils.weight_norm(
+                nn.Conv2D(
+                    in_channels=bottlececk_dim,
+                    out_channels=bottlececk_dim,
+                    kernel_size=(kernel_size, 1)),
+                name='weight',
+                dim=0)
+            layers['dropout'] = nn.Dropout(p=dropout)
+            layers['glu'] = GLU()
+            layers['conv_out'] = nn.utils.weight_norm(
+                nn.Conv2D(
+                    in_channels=bottlececk_dim,
+                    out_channels=out_ch * 2,
+                    kernel_size=(1, 1)),
+                name='weight',
+                dim=0)
+            layers['dropout_out'] = nn.Dropout(p=dropout)
+
+        self.layers = nn.Sequential(layers)
+
+    def forward(self, xs):
+        """Forward pass.
+        Args:
+            xs (FloatTensor): `[B, in_ch, T, feat_dim]`
+        Returns:
+            out (FloatTensor): `[B, out_ch, T, feat_dim]`
+        """
+        residual = xs
+        if self.conv_residual is not None:
+            residual = self.dropout_residual(self.conv_residual(residual))
+        xs = self.pad_left(xs)  # `[B, embed_dim, T+kernel-1, 1]`
+        xs = self.layers(xs)  # `[B, out_ch * 2, T ,1]`
+        xs = xs + residual
+        return xs

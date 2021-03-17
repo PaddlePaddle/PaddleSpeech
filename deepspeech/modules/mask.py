@@ -272,6 +272,6 @@ def mask_finished_preds(pred: paddle.Tensor, flag: paddle.Tensor,
     Returns:
         paddle.Tensor: (batch_size * beam_size).
     """
-    beam_size = pred.size(-1)
-    finished = flag.repeat([1, beam_size])
+    beam_size = pred.shape[-1]
+    finished = flag.repeat(1, beam_size)
     return pred.masked_fill_(finished, eos)

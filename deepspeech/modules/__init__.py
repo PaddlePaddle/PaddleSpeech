@@ -43,20 +43,53 @@ if not hasattr(paddle.Tensor, 'cat'):
     paddle.Tensor.cat = paddle.Tensor.concat
 
 
+def eq(xs: paddle.Tensor, ys: Union[paddle.Tensor, float]) -> paddle.Tensor:
+    return xs.equal(paddle.to_tensor(ys, dtype=xs.dtype, place=xs.place))
+
+
+if not hasattr(paddle.Tensor, 'eq'):
+    logger.warn(
+        "override eq of paddle.Tensor if exists or register, remove this when fixed!"
+    )
+    paddle.Tensor.eq = eq
+
+
+def contiguous(xs: paddle.Tensor) -> paddle.Tensor:
+    return xs
+
+
+if not hasattr(paddle.Tensor, 'contiguous'):
+    logger.warn(
+        "override contiguous of paddle.Tensor if exists or register, remove this when fixed!"
+    )
+    paddle.Tensor.contiguous = contiguous
+
+
 def size(xs: paddle.Tensor, *args: int) -> paddle.Tensor:
     nargs = len(args)
     assert (nargs <= 1)
     s = paddle.shape(xs)
     if nargs == 1:
-        return s[args]
+        return s[args[0]]
     else:
         return s
 
 
-# logger.warn(
-#     "override size of paddle.Tensor if exists or register, remove this when fixed!"
-# )
-# paddle.Tensor.size = size
+#`to_static` do not process `size` property, maybe some `paddle` api dependent on it.
+logger.warn(
+    "override size of paddle.Tensor "
+    "(`to_static` do not process `size` property, maybe some `paddle` api dependent on it), remove this when fixed!"
+)
+paddle.Tensor.size = size
+
+
+def view(xs: paddle.Tensor, *args: int) -> paddle.Tensor:
+    return xs.reshape(args)
+
+
+if not hasattr(paddle.Tensor, 'view'):
+    logger.warn("register user view to paddle.Tensor, remove this when fixed!")
+    paddle.Tensor.view = view
 
 
 def masked_fill(xs: paddle.Tensor,
@@ -184,6 +217,14 @@ if not hasattr(paddle.nn, 'ConstantPad2d'):
     logger.warn(
         "register user ConstantPad2d to paddle.nn, remove this when fixed!")
     setattr(paddle.nn, 'ConstantPad2d', ConstantPad2d)
+
+if not hasattr(paddle, 'softmax'):
+    logger.warn("register user softmax to paddle, remove this when fixed!")
+    setattr(paddle, 'softmax', paddle.nn.functional.softmax)
+
+if not hasattr(paddle, 'sigmoid'):
+    logger.warn("register user softmax to paddle, remove this when fixed!")
+    setattr(paddle, 'sigmoid', paddle.nn.functional.sigmoid)
 
 
 # hack loss

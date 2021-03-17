@@ -5,3 +5,4 @@ python_speech_features
 tensorboardX
 yacs
 typeguard
+pre-commit

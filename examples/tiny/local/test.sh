@@ -6,7 +6,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-CUDA_VISIBLE_DEVICES=0 \
 python3 -u ${BIN_DIR}/test.py \
 --device 'gpu' \
 --nproc 1 \

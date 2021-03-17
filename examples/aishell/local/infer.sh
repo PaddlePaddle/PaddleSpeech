@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-if [[ $# != 1 ]];
+if [[ $# != 1 ]]; then
     echo "usage: $0 ckpt-path"
     exit -1
 fi

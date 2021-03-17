@@ -25,7 +25,9 @@ from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['brelu', "glu"]
+__all__ = [
+    "brelu", "glu", "GLU", "LinearGLUBlock", "ConstantPad2d", "ConvGLUBlock"
+]
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
@@ -73,6 +75,8 @@ def glu(x, dim=-1):
 
 # TODO(Hui Zhang): remove this activation
 if not hasattr(nn.functional, 'glu'):
+    logger.warn(
+        "register user glu to paddle.nn.functional, remove this when fixed!")
     setattr(nn.functional, 'glu', glu)
 
 

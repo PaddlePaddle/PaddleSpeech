@@ -58,7 +58,8 @@ class ConvolutionModule(nn.Layer):
             kernel_size=1,
             stride=1,
             padding=0,
-            bias=None if bias else False,  # None for True as default
+            bias_attr=None
+            if bias else False,  # None for True, using bias as default config
         )
 
         # self.lorder is used to distinguish if it's a causal convolution,
@@ -82,7 +83,8 @@ class ConvolutionModule(nn.Layer):
             stride=1,
             padding=padding,
             groups=channels,
-            bias=None if bias else False,  # None for True as default
+            bias_attr=None
+            if bias else False,  # None for True, using bias as default config
         )
 
         assert norm in ['batch_norm', 'layer_norm']
@@ -99,7 +101,8 @@ class ConvolutionModule(nn.Layer):
             kernel_size=1,
             stride=1,
             padding=0,
-            bias=None if bias else False,  # None for True as default
+            bias_attr=None
+            if bias else False,  # None for True, using bias as default config
         )
         self.activation = activation
 
@@ -109,10 +112,10 @@ class ConvolutionModule(nn.Layer):
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, channels).
             cache (paddle.Tensor): left context cache, it is only
-                used in causal convolution. (#batch, channels, time)
+                used in causal convolution. (#batch, channels, time')
         Returns:
             paddle.Tensor: Output tensor (#batch, time, channels).
-            paddle.Tensor: Output cache tensor (#batch, channels, time)
+            paddle.Tensor: Output cache tensor (#batch, channels, time')
         """
         # exchange the temporal dimension and the feature dimension
         x = x.transpose([0, 2, 1])  # [B, C, T]

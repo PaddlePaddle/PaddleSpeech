@@ -24,34 +24,6 @@ logger = logging.getLogger(__name__)
 __all__ = ['CTCLoss', "LabelSmoothingLoss"]
 
 
-# TODO(Hui Zhang): remove this hack, when `norm_by_times=True` is added
-def ctc_loss(logits,
-             labels,
-             input_lengths,
-             label_lengths,
-             blank=0,
-             reduction='mean',
-             norm_by_times=True):
-    #logger.info("my ctc loss with norm by times")
-    ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
-    loss_out = paddle.fluid.layers.warpctc(logits, labels, blank, norm_by_times,
-                                           input_lengths, label_lengths)
-
-    loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
-    logger.info(f"warpctc loss: {loss_out}/{loss_out.shape} ")
-    assert reduction in ['mean', 'sum', 'none']
-    if reduction == 'mean':
-        loss_out = paddle.mean(loss_out / label_lengths)
-    elif reduction == 'sum':
-        loss_out = paddle.sum(loss_out)
-    logger.info(f"ctc loss: {loss_out}")
-    return loss_out
-
-
-# TODO(Hui Zhang): remove this hack
-F.ctc_loss = ctc_loss
-
-
 class CTCLoss(nn.Layer):
     def __init__(self, blank=0, reduction='sum'):
         super().__init__()
@@ -149,12 +121,14 @@ class LabelSmoothingLoss(nn.Layer):
         ignore = target == self.padding_idx  # (B,)
         ignore = ignore.cast(target.dtype)
 
-        target = target * (1 - ignore)  # avoid -1 index
+        #target = target * (1 - ignore)  # avoid -1 index
+        target = target.masked_fill(ignore, 0)  # avoid -1 index
         true_dist += F.one_hot(target, self.size) * self.confidence
 
         kl = self.criterion(F.log_softmax(x, axis=1), true_dist)
 
         total = len(target) - int(ignore.sum())
         denom = total if self.normalize_length else B
-        numer = (kl * (1 - ignore)).sum()
+        #numer = (kl * (1 - ignore)).sum()
+        numer = kl.masked_fill(ignore.unsqueeze(1), 0).sum()
         return numer / denom

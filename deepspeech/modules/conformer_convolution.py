@@ -22,10 +22,6 @@ from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
-# init F.glu func
-# TODO(Hui Zhang): remove this line
-import deepspeech.modules.activation
-
 logger = logging.getLogger(__name__)
 
 __all__ = ['ConvolutionModule']

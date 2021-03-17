@@ -25,9 +25,7 @@ from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "brelu", "glu", "GLU", "LinearGLUBlock", "ConstantPad2d", "ConvGLUBlock"
-]
+__all__ = ["brelu", "LinearGLUBlock", "ConstantPad2d", "ConvGLUBlock"]
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
@@ -35,61 +33,6 @@ def brelu(x, t_min=0.0, t_max=24.0, name=None):
     t_min = paddle.full(shape=[1], fill_value=t_min, dtype='float32')
     t_max = paddle.full(shape=[1], fill_value=t_max, dtype='float32')
     return x.maximum(t_min).minimum(t_max)
-
-
-# def softplus(x):
-#     """Softplus function."""
-#     if hasattr(paddle.nn.functional, 'softplus'):
-#         #return paddle.nn.functional.softplus(x.float()).type_as(x)
-#         return paddle.nn.functional.softplus(x)
-#     else:
-#         raise NotImplementedError
-
-# def gelu_accurate(x):
-#     """Gaussian Error Linear Units (GELU) activation."""
-#     # [reference] https://github.com/pytorch/fairseq/blob/e75cff5f2c1d62f12dc911e0bf420025eb1a4e33/fairseq/modules/gelu.py
-#     if not hasattr(gelu_accurate, "_a"):
-#         gelu_accurate._a = math.sqrt(2 / math.pi)
-#     return 0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
-#                                       (x + 0.044715 * paddle.pow(x, 3))))
-
-# def gelu(x):
-#     """Gaussian Error Linear Units (GELU) activation."""
-#     if hasattr(nn.functional, 'gelu'):
-#         #return nn.functional.gelu(x.float()).type_as(x)
-#         return nn.functional.gelu(x)
-#     else:
-#         return x * 0.5 * (1.0 + paddle.erf(x / math.sqrt(2.0)))
-
-
-# TODO(Hui Zhang): remove this activation
-def glu(x, dim=-1):
-    """The gated linear unit (GLU) activation."""
-    if hasattr(nn.functional, 'glu'):
-        return nn.functional.glu(x)
-    else:
-        a, b = x.split(2, axis=dim)
-        act_b = F.sigmoid(b)
-        return a * act_b
-
-
-# TODO(Hui Zhang): remove this activation
-if not hasattr(nn.functional, 'glu'):
-    logger.warn(
-        "register user glu to paddle.nn.functional, remove this when fixed!")
-    setattr(nn.functional, 'glu', glu)
-
-
-# TODO(Hui Zhang): remove this activation
-class GLU(nn.Layer):
-    """Gated Linear Units (GLU) Layer"""
-
-    def __init__(self, dim: int=-1):
-        super().__init__()
-        self.dim = dim
-
-    def forward(self, xs):
-        return glu(xs, dim=self.dim)
 
 
 class LinearGLUBlock(nn.Layer):

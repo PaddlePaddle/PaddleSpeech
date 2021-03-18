@@ -39,7 +39,7 @@ decoding:
   error_rate_type: cer 
   decoding_method: ctc_beam_search
   lang_model_path: data/lm/zh_giga.no_cna_cmn.prune01244.klm
-  alpha: 2.6
+  alpha: 2.5
   beta: 5.0
   beam_size: 300
   cutoff_prob: 0.99

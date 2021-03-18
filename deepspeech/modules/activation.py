@@ -25,7 +25,7 @@ from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["brelu", "LinearGLUBlock", "ConstantPad2d", "ConvGLUBlock"]
+__all__ = ["get_activation", "brelu", "LinearGLUBlock", "ConvGLUBlock"]
 
 
 def brelu(x, t_min=0.0, t_max=24.0, name=None):
@@ -48,33 +48,6 @@ class LinearGLUBlock(nn.Layer):
 
     def forward(self, xs):
         return glu(self.fc(xs), dim=-1)
-
-
-# TODO(Hui Zhang): remove this Layer
-class ConstantPad2d(nn.Layer):
-    """Pads the input tensor boundaries with a constant value.
-    For N-dimensional padding, use paddle.nn.functional.pad().
-    """
-
-    def __init__(self, padding: Union[tuple, list, int], value: float):
-        """
-        Args:
-            paddle ([tuple]): the size of the padding. 
-                If is int, uses the same padding in all boundaries. 
-                If a 4-tuple, uses (padding_left, padding_right, padding_top, padding_bottom)
-            value ([flaot]): pad value
-        """
-        self.padding = padding if isinstance(padding,
-                                             [tuple, list]) else [padding] * 4
-        self.value = value
-
-    def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
-        return nn.functional.pad(
-            xs,
-            self.padding,
-            mode='constant',
-            value=self.value,
-            data_format='NCHW')
 
 
 class ConvGLUBlock(nn.Layer):
@@ -159,3 +132,18 @@ class ConvGLUBlock(nn.Layer):
         xs = self.layers(xs)  # `[B, out_ch * 2, T ,1]`
         xs = xs + residual
         return xs
+
+
+def get_activation(act):
+    """Return activation function."""
+    # Lazy load to avoid unused import
+    activation_funcs = {
+        "hardtanh": paddle.nn.Hardtanh,
+        "tanh": paddle.nn.Tanh,
+        "relu": paddle.nn.ReLU,
+        "selu": paddle.nn.SELU,
+        "swish": paddle.nn.Swish,
+        "gelu": paddle.nn.GELU
+    }
+
+    return activation_funcs[act]()

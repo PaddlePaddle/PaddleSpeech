@@ -15,10 +15,9 @@
 import paddle
 import numpy as np
 
-from deepspeech.models.network import DeepSpeech2
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
 
 if __name__ == '__main__':
-
     batch_size = 2
     feat_dim = 161
     max_len = 100
@@ -28,15 +27,10 @@ if __name__ == '__main__':
     text = np.array([[1, 2], [1, 2]], dtype='int32')
     text_len = np.array([2] * batch_size, dtype='int32')
 
-    place = paddle.CUDAPlace(0)
-    audio = paddle.to_tensor(
-        audio, dtype='float32', place=place, stop_gradient=True)
-    audio_len = paddle.to_tensor(
-        audio_len, dtype='int64', place=place, stop_gradient=True)
-    text = paddle.to_tensor(
-        text, dtype='int32', place=place, stop_gradient=True)
-    text_len = paddle.to_tensor(
-        text_len, dtype='int64', place=place, stop_gradient=True)
+    audio = paddle.to_tensor(audio, dtype='float32')
+    audio_len = paddle.to_tensor(audio_len, dtype='int64')
+    text = paddle.to_tensor(text, dtype='int32')
+    text_len = paddle.to_tensor(text_len, dtype='int64')
 
     print(audio.shape)
     print(audio_len.shape)
@@ -44,7 +38,7 @@ if __name__ == '__main__':
     print(text_len.shape)
     print("-----------------")
 
-    model = DeepSpeech2(
+    model = DeepSpeech2Model(
         feat_size=feat_dim,
         dict_size=10,
         num_conv_layers=2,
@@ -56,7 +50,7 @@ if __name__ == '__main__':
     print('probs.shape', probs.shape)
     print("-----------------")
 
-    model2 = DeepSpeech2(
+    model2 = DeepSpeech2Model(
         feat_size=feat_dim,
         dict_size=10,
         num_conv_layers=2,
@@ -68,7 +62,7 @@ if __name__ == '__main__':
     print('probs.shape', probs.shape)
     print("-----------------")
 
-    model3 = DeepSpeech2(
+    model3 = DeepSpeech2Model(
         feat_size=feat_dim,
         dict_size=10,
         num_conv_layers=2,
@@ -80,7 +74,7 @@ if __name__ == '__main__':
     print('probs.shape', probs.shape)
     print("-----------------")
 
-    model4 = DeepSpeech2(
+    model4 = DeepSpeech2Model(
         feat_size=feat_dim,
         dict_size=10,
         num_conv_layers=2,
@@ -92,7 +86,7 @@ if __name__ == '__main__':
     print('probs.shape', probs.shape)
     print("-----------------")
 
-    model5 = DeepSpeech2(
+    model5 = DeepSpeech2Model(
         feat_size=feat_dim,
         dict_size=10,
         num_conv_layers=2,

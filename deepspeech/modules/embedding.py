@@ -27,9 +27,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["PositionalEncoding", "RelPositionalEncoding"]
 
-# TODO(Hui Zhang): remove this hack
-paddle.float32 = 'float32'
-
 
 class PositionalEncoding(nn.Layer):
     def __init__(self,
@@ -122,11 +119,11 @@ class RelPositionalEncoding(PositionalEncoding):
             paddle.Tensor: Encoded tensor (batch, time, `*`).
             paddle.Tensor: Positional embedding tensor (1, time, `*`).
         """
-        T = paddle.shape()[1]
-        assert offset + T < self.max_len
-        #assert offset + x.size(1) < self.max_len
+        #T = paddle.shape()[1]
+        #assert offset + T < self.max_len
+        assert offset + x.size(1) < self.max_len
         #self.pe = self.pe.to(x.device)
         x = x * self.xscale
-        #pos_emb = self.pe[:, offset:offset + x.size(1)]
-        pos_emb = self.pe[:, offset:offset + T]
+        pos_emb = self.pe[:, offset:offset + x.size(1)]
+        #pos_emb = self.pe[:, offset:offset + T]
         return self.dropout(x), self.dropout(pos_emb)

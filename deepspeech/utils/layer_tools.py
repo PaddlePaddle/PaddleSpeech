@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import numpy as np
+
 from paddle import nn
 
 __all__ = [
@@ -36,7 +37,7 @@ def gradient_norm(layer: nn.Layer):
     grad_norm_dict = {}
     for name, param in layer.state_dict().items():
         if param.trainable:
-            grad = param.gradient()
+            grad = param.gradient()  # return numpy.ndarray
             grad_norm_dict[name] = np.linalg.norm(grad) / grad.size
     return grad_norm_dict
 

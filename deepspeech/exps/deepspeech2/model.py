@@ -39,7 +39,6 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.modules.loss import CTCLoss
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
 

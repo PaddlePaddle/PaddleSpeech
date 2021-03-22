@@ -53,10 +53,11 @@ F.ctc_loss = ctc_loss
 
 
 class CTCLoss(nn.Layer):
-    def __init__(self, blank=0, reduction='sum'):
+    def __init__(self, blank=0, reduction='sum', batch_average=False):
         super().__init__()
         # last token id as blank id
         self.loss = nn.CTCLoss(blank=blank, reduction=reduction)
+        self.batch_average = batch_average
 
     def forward(self, logits, ys_pad, hlens, ys_lens):
         """Compute CTC loss.
@@ -76,8 +77,7 @@ class CTCLoss(nn.Layer):
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
         loss = self.loss(logits, ys_pad, hlens, ys_lens)
-
-        # wenet do batch-size average, deepspeech2 not do this
-        # Batch-size average
-        # loss = loss / B
+        if self.batch_average:
+            # Batch-size average
+            loss = loss / B
         return loss

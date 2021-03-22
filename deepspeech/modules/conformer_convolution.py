@@ -102,11 +102,15 @@ class ConvolutionModule(nn.Layer):
         )
         self.activation = activation
 
-    def forward(self, x: paddle.Tensor, cache: Optional[paddle.Tensor]=None
+    def forward(self,
+                x: paddle.Tensor,
+                mask_pad: Optional[paddle.Tensor]=None,
+                cache: Optional[paddle.Tensor]=None
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, channels).
+            mask_pad (paddle.Tensor): used for batch padding, (#batch, channels, time).
             cache (paddle.Tensor): left context cache, it is only
                 used in causal convolution. (#batch, channels, time')
         Returns:
@@ -115,6 +119,11 @@ class ConvolutionModule(nn.Layer):
         """
         # exchange the temporal dimension and the feature dimension
         x = x.transpose([0, 2, 1])  # [B, C, T]
+
+        # mask batch padding
+        if mask_pad is not None:
+            x.masked_fill_(mask_pad, 0.0)
+
         if self.lorder > 0:
             if cache is None:
                 x = nn.functional.pad(
@@ -144,5 +153,10 @@ class ConvolutionModule(nn.Layer):
         if self.use_layer_norm:
             x = x.transpose([0, 2, 1])  # [B, C, T]
         x = self.pointwise_conv2(x)
+
+        # mask batch padding
+        if mask_pad is not None:
+            x.masked_fill_(mask_pad, 0.0)
+
         x = x.transpose([0, 2, 1])  # [B, T, C]
         return x, new_cache

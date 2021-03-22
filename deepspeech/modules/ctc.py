@@ -36,14 +36,16 @@ class CTCDecoder(nn.Layer):
                  odim,
                  blank_id=0,
                  dropout_rate: float=0.0,
-                 reduction: bool=True):
+                 reduction: bool=True,
+                 batch_average: bool=False):
         """CTC decoder
 
         Args:
             enc_n_units ([int]): encoder output dimention
             vocab_size ([int]): text vocabulary size
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
-            reduction (bool): reduce the CTC loss into a scalar
+            reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
+            batch_average (bool): do batch dim wise average.
         """
         assert check_argument_types()
         super().__init__()
@@ -53,7 +55,10 @@ class CTCDecoder(nn.Layer):
         self.dropout_rate = dropout_rate
         self.ctc_lo = nn.Linear(enc_n_units, self.odim)
         reduction_type = "sum" if reduction else "none"
-        self.criterion = CTCLoss(blank=self.blank_id, reduction=reduction_type)
+        self.criterion = CTCLoss(
+            blank=self.blank_id,
+            reduction=reduction_type,
+            batch_average=batch_average)
 
         # CTCDecoder LM Score handle
         self._ext_scorer = None

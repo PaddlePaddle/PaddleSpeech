@@ -133,7 +133,7 @@ class ConformerEncoderLayer(nn.Layer):
     def __init__(
             self,
             size: int,
-            self_attn: int,
+            self_attn: nn.Layer,
             feed_forward: Optional[nn.Layer]=None,
             feed_forward_macaron: Optional[nn.Layer]=None,
             conv_module: Optional[nn.Layer]=None,

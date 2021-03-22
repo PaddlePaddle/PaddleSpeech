@@ -29,8 +29,8 @@ model:
   use_gru: False 
   share_rnn_weights: True 
 training:
-  n_epoch: 20
-  lr: 5e-4
+  n_epoch: 50
+  lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06
   global_grad_clip: 5.0
@@ -39,7 +39,7 @@ decoding:
   error_rate_type: wer
   decoding_method: ctc_beam_search
   lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
-  alpha: 2.5
+  alpha: 1.9
   beta: 0.3
   beam_size: 500
   cutoff_prob: 1.0

@@ -22,12 +22,12 @@ Please see [install](docs/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](docs/geting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](docs/getting_started.md) and [tiny egs](examples/tiny/README.md).
 
 ## More Information  
 
 * [Install](docs/install.md)  
-* [Getting Started](docs/geting_started.md)  
+* [Getting Started](docs/getting_started.md)  
 * [Data Prepration](docs/data_preparation.md)  
 * [Data Augmentation](docs/augmentation.md)  
 * [Ngram LM](docs/ngram_lm.md)  

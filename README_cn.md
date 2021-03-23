@@ -14,25 +14,11 @@
 * [Baidu's Deep Speech2](http://proceedings.mlr.press/v48/amodei16.pdf)
 
 ## 安装
+
 * python>=3.7
 * paddlepaddle>=2.0.0
-* Ubuntu
 
-- 安装依赖
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- 开始实验前要source环境.
-
-```bash
-source tools/venv/bin/activate
-```
+参看 [安装](docs/install.md)。
 
 ## 开始
 

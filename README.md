@@ -17,23 +17,8 @@
 
 * python>=3.7
 * paddlepaddle>=2.0.0
-* Ubuntu
 
-- Run the setup script for the remaining dependencies
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- Source venv before do experiment.
-
-```bash
-source tools/venv/bin/activate
-```
+Please see [install](docs/install.md).
 
 ## Getting Started
 

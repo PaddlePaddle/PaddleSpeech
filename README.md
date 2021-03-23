@@ -17,6 +17,7 @@
 
 * python>=3.7
 * paddlepaddle>=2.0.0
+* Ubuntu
 
 - Run the setup script for the remaining dependencies
 

@@ -7,6 +7,10 @@ assignees: ''
 
 ---
 
+For support and discussions, please use our [Discourse forums](https://github.com/PaddlePaddle/DeepSpeech/discussions).
+
+If you've found a feature request then please create an issue with the following information:
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

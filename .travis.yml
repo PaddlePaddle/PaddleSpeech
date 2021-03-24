@@ -19,7 +19,8 @@ addons:
 before_install:
   -  python3 --version
   -  python3 -m pip --version
-  -  sudo pip install -U virtualenv pre-commit pip
+  -  pip3 --version
+  -  sudo pip3 install -U virtualenv pre-commit pip
   -  docker pull paddlepaddle/paddle:latest
 
 script:

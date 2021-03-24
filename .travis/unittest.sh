@@ -6,10 +6,16 @@ abort(){
     exit 1
 }
 
+print_env(){
+    cat /etc/lsb-release
+    gcc -v
+    g++ -v
+}
+
 unittest(){
     cd $1 > /dev/null
     if [ -f "setup.sh" ]; then
-        sh setup.sh
+        bash setup.sh
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
     fi
     if [ $? != 0 ]; then
@@ -23,6 +29,10 @@ unittest(){
 
 trap 'abort' 0
 set -e
+
+
+print_env
+
 
 cd tools; make; cd - 
 . tools/venv/bin/activate

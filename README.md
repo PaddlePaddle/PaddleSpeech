@@ -39,7 +39,7 @@ Please see [Getting Started](docs/getting_started.md) and [tiny egs](examples/ti
 
 ## Questions and Help
 
-You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
+You are welcome to submit questions in [Github Discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
 
 
 ## License

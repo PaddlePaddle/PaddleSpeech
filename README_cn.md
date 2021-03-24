@@ -38,7 +38,7 @@
 
 ## 问题和帮助
 
-欢迎您在[Github问题](https://github.com/PaddlePaddle/models/issues)中提交问题和bug。也欢迎您为这个项目做出贡献。
+欢迎您在[Github讨论](https://github.com/PaddlePaddle/DeepSpeech/discussions)提交问题，[Github问题](https://github.com/PaddlePaddle/models/issues)中反馈bug。也欢迎您为这个项目做出贡献。
 
 ## License
 

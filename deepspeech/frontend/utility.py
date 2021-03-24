@@ -83,11 +83,11 @@ def rms_to_dbfs(rms: float):
     return rms_to_db(rms) - 3.0103
 
 
-def max_dbfs(sample_data: np.ndarry):
+def max_dbfs(sample_data: np.ndarray):
     """Peak dBFS based on the maximum energy sample. 
 
     Args:
-        sample_data ([np.ndarry]): float array, [-1, 1].
+        sample_data ([np.ndarray]): float array, [-1, 1].
 
     Returns:
         float: dBFS 
@@ -100,7 +100,7 @@ def mean_dbfs(sample_data):
     """Peak dBFS based on the RMS energy. 
 
     Args:
-        sample_data ([np.ndarry]): float array, [-1, 1].
+        sample_data ([np.ndarray]): float array, [-1, 1].
 
     Returns:
         float: dBFS 
@@ -121,15 +121,15 @@ def gain_db_to_ratio(gain_db: float):
     return math.pow(10.0, gain_db / 20.0)
 
 
-def normalize_audio(sample_data: np.ndarry, dbfs: float=-3.0103):
+def normalize_audio(sample_data: np.ndarray, dbfs: float=-3.0103):
     """Nomalize audio to dBFS.
     
     Args:
-        sample_data (np.ndarry): input wave samples, [-1, 1].
+        sample_data (np.ndarray): input wave samples, [-1, 1].
         dbfs (float, optional): target dBFS. Defaults to -3.0103.
 
     Returns:
-        np.ndarry: normalized wave
+        np.ndarray: normalized wave
     """
     return np.maximum(
         np.minimum(sample_data * gain_db_to_ratio(dbfs - max_dbfs(sample_data)),

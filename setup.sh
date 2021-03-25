@@ -6,6 +6,7 @@ if [ $(id -u) -eq 0 ]; then
 fi
 
 if [ -e /etc/lsb-release ];then
+    #${SUDO} apt-get update
     ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 fi
 

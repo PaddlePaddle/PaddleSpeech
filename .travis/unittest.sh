@@ -1,43 +1,24 @@
 #!/bin/bash
 
-abort(){
-    echo "Run unittest failed" 1>&2
-    echo "Please check your code" 1>&2
-    exit 1
-}
-
-print_env(){
-    cat /etc/lsb-release
-    gcc -v
-    g++ -v
-}
-
 unittest(){
     cd $1 > /dev/null
-    if [ -f "setup.sh" ]; then
-        bash setup.sh
-        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-    fi
-    if [ $? != 0 ]; then
-        exit 1
-    fi
     find . -path ./tools/venv -prune -false -o -name 'tests' -type d -print0 | \
         xargs -0 -I{} -n1 bash -c \
         'python3 -m unittest discover -v -s {}'
     cd - > /dev/null
 }
 
+abort(){
+    echo "Run unittest failed" 1>&2
+    echo "Please check your code" 1>&2
+    exit 1
+}
+
 trap 'abort' 0
 set -e
 
-
-print_env
-
-
-cd tools; make; cd - 
-. tools/venv/bin/activate
+source tools/venv/bin/activate
 pip3 install pytest
-
 unittest .
 
 trap : 0

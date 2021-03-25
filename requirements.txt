@@ -6,4 +6,4 @@ tensorboardX
 yacs
 typeguard
 pre-commit
-paddlepaddle-gpu==2.0.0
+#paddlepaddle-gpu==2.0.0

@@ -170,7 +170,8 @@ class DeepSpeech2Model(nn.Layer):
             odim=dict_size + 1,  # <blank> is append after vocab
             blank_id=dict_size,  # last token is <blank>
             dropout_rate=0.0,
-            reduction=True)
+            reduction=True,  # sum
+            batch_average=True)  # sum / batch_size
 
     def forward(self, audio, text, audio_len, text_len):
         """Compute Model loss

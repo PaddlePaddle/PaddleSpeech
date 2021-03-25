@@ -18,30 +18,16 @@
 * python>=3.7
 * paddlepaddle>=2.0.0
 
-- Run the setup script for the remaining dependencies
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- Source venv before do experiment.
-
-```bash
-source tools/venv/bin/activate
-```
+Please see [install](docs/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](docs/geting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](docs/getting_started.md) and [tiny egs](examples/tiny/README.md).
 
 ## More Information  
 
 * [Install](docs/install.md)  
-* [Getting Started](docs/geting_stared.md)  
+* [Getting Started](docs/getting_started.md)  
 * [Data Prepration](docs/data_preparation.md)  
 * [Data Augmentation](docs/augmentation.md)  
 * [Ngram LM](docs/ngram_lm.md)  
@@ -53,7 +39,7 @@ Please see [Getting Started](docs/geting_started.md) and [tiny egs](examples/tin
 
 ## Questions and Help
 
-You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
+You are welcome to submit questions in [Github Discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
 
 
 ## License

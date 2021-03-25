@@ -14,33 +14,20 @@
 * [Baidu's Deep Speech2](http://proceedings.mlr.press/v48/amodei16.pdf)
 
 ## 安装
+
 * python>=3.7
 * paddlepaddle>=2.0.0
 
-- 安装依赖
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- 开始实验前要source环境.
-
-```bash
-source tools/venv/bin/activate
-```
+参看 [安装](docs/install.md)。
 
 ## 开始
 
-请查看 [Getting Started](docs/geting_started.md) 和 [tiny egs](examples/tiny/README.md)。
+请查看 [Getting Started](docs/getting_started.md) 和 [tiny egs](examples/tiny/README.md)。
 
 ## 更多信息
 
 * [安装](docs/install.md)  
-* [开始](docs/geting_stared.md)  
+* [开始](docs/getting_started.md)  
 * [数据处理](docs/data_preparation.md)  
 * [数据增强](docs/augmentation.md)  
 * [语言模型](docs/ngram_lm.md)  
@@ -51,7 +38,7 @@ source tools/venv/bin/activate
 
 ## 问题和帮助
 
-欢迎您在[Github问题](https://github.com/PaddlePaddle/models/issues)中提交问题和bug。也欢迎您为这个项目做出贡献。
+欢迎您在[Github讨论](https://github.com/PaddlePaddle/DeepSpeech/discussions)提交问题，[Github问题](https://github.com/PaddlePaddle/models/issues)中反馈bug。也欢迎您为这个项目做出贡献。
 
 ## License
 

@@ -39,7 +39,6 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.modules.loss import CTCLoss
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
 
@@ -63,8 +62,6 @@ class DeepSpeech2Trainer(Trainer):
 
         losses_np = {
             'train_loss': float(loss),
-            'train_loss_div_batchsize':
-            float(loss) / self.config.data.batch_size
         }
         msg = "Train: Rank: {}, ".format(dist.get_rank())
         msg += "epoch: {}, ".format(self.epoch)
@@ -90,8 +87,6 @@ class DeepSpeech2Trainer(Trainer):
             loss = self.model(*batch)
 
             valid_losses['val_loss'].append(float(loss))
-            valid_losses['val_loss_div_batchsize'].append(
-                float(loss) / self.config.data.batch_size)
 
         # write visual log
         valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}

@@ -56,3 +56,6 @@ source tools/venv/bin/activate
 ## License
 
 DeepSpeech遵循[Apache-2.0开源协议](./LICENSE)。
+
+## 感谢
+开发中参考一些优秀的仓库，详情参见 [References](docs/reference.md)。

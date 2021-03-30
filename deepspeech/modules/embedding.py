@@ -51,7 +51,7 @@ class PositionalEncoding(nn.Layer):
         self.pe = paddle.zeros(self.max_len, self.d_model)  #[T,D]
 
         position = paddle.arange(
-            0, self.max_len, dtype=paddle.float32).unsqueeze(1)
+            0, self.max_len, dtype=paddle.float32).unsqueeze(1)  #[T, 1]
         div_term = paddle.exp(
             paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
             -(math.log(10000.0) / self.d_model))
@@ -68,7 +68,7 @@ class PositionalEncoding(nn.Layer):
             offset (int): position offset
         Returns:
             paddle.Tensor: Encoded tensor. Its shape is (batch, time, ...)
-            paddle.Tensor: for compatibility to RelPositionalEncoding
+            paddle.Tensor: for compatibility to RelPositionalEncoding, (batch=1, time, ...)
         """
         T = paddle.shape(x)[1]
         assert offset + T < self.max_len

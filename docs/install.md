@@ -43,7 +43,7 @@ bash setup.sh
 source tools/venv/bin/activate
 ```
 
-## Running in Docker Container
+## Running in Docker Container (optional)
 
 Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed, including the pre-built PaddlePaddle, CTC decoders, and other necessary Python and third-party packages. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
 

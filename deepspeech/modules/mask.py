@@ -56,13 +56,13 @@ def subsequent_mask(
     This mask is used only in decoder which works in an auto-regressive mode.
     This means the current step could only do attention with its left steps.
     In encoder, fully attention is used when streaming is not necessary and
-    the sequence is not long. In this  case, no attention mask is needed.
+    the sequence is not long. In this case, no attention mask is needed.
     When streaming is need, chunk-based attention is used in encoder. See
     subsequent_chunk_mask for the chunk-based attention mask.
     Args:
         size (int): size of mask
     Returns:
-        paddle.Tensor: mask
+        paddle.Tensor: mask, [size, size]
     Examples:
         >>> subsequent_mask(3)
         [[1, 0, 0],
@@ -86,7 +86,7 @@ def subsequent_chunk_mask(
             <0: use full chunk
             >=0: use num_left_chunks
     Returns:
-        paddle.Tensor: mask
+        paddle.Tensor: mask, [size, size]
     Examples:
         >>> subsequent_chunk_mask(4, 2)
         [[1, 1, 0, 0],
@@ -99,8 +99,8 @@ def subsequent_chunk_mask(
         if num_left_chunks < 0:
             start = 0
         else:
-            start = max((i // chunk_size - num_left_chunks) * chunk_size, 0)
-        ending = min((i // chunk_size + 1) * chunk_size, size)
+            start = max(0, (i // chunk_size - num_left_chunks) * chunk_size)
+        ending = min(size, (i // chunk_size + 1) * chunk_size)
         ret[i, start:ending] = True
     return ret
 

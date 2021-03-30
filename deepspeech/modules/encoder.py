@@ -59,16 +59,16 @@ class BaseEncoder(nn.Layer):
             concat_after: bool=False,
             static_chunk_size: int=0,
             use_dynamic_chunk: bool=False,
-            global_cmvn: torch.nn.Module=None,
+            global_cmvn: paddle.nn.Layer=None,
             use_dynamic_left_chunk: bool=False, ):
         """
         Args:
-            input_size (int): input dim
-            output_size (int): dimension of attention
+            input_size (int): input dim, d_feature
+            output_size (int): dimension of attention, d_model
             attention_heads (int): the number of heads of multi head attention
             linear_units (int): the hidden units number of position-wise feed
                 forward
-            num_blocks (int): the number of decoder blocks
+            num_blocks (int): the number of encoder blocks
             dropout_rate (float): dropout rate
             attention_dropout_rate (float): dropout rate in attention
             positional_dropout_rate (float): dropout rate after adding
@@ -89,7 +89,7 @@ class BaseEncoder(nn.Layer):
             use_dynamic_chunk (bool): whether use dynamic chunk size for
                 training or not, You can only use fixed chunk(chunk_size > 0)
                 or dyanmic chunk size(use_dynamic_chunk = True)
-            global_cmvn (Optional[torch.nn.Module]): Optional GlobalCMVN module
+            global_cmvn (Optional[paddle.nn.Layer]): Optional GlobalCMVN layer
             use_dynamic_left_chunk (bool): whether use dynamic left chunk in
                 dynamic chunk training
         """
@@ -117,13 +117,14 @@ class BaseEncoder(nn.Layer):
 
         self.global_cmvn = global_cmvn
         self.embed = subsampling_class(
-            input_size,
-            output_size,
-            dropout_rate,
-            pos_enc_class(output_size, positional_dropout_rate), )
+            idim=input_size,
+            odim=output_size,
+            dropout_rate=dropout_rate,
+            pos_enc_class=pos_enc_class(
+                d_model=output_size, dropout_rate=positional_dropout_rate), )
 
         self.normalize_before = normalize_before
-        self.after_norm = torch.nn.LayerNorm(output_size, eps=1e-12)
+        self.after_norm = nn.LayerNorm(output_size, epsilon=1e-12)
         self.static_chunk_size = static_chunk_size
         self.use_dynamic_chunk = use_dynamic_chunk
         self.use_dynamic_left_chunk = use_dynamic_left_chunk
@@ -133,11 +134,11 @@ class BaseEncoder(nn.Layer):
 
     def forward(
             self,
-            xs: torch.Tensor,
-            xs_lens: torch.Tensor,
+            xs: paddle.Tensor,
+            xs_lens: paddle.Tensor,
             decoding_chunk_size: int=0,
             num_decoding_left_chunks: int=-1,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Embed positions in tensor.
         Args:
             xs: padded input tensor (B, L, D)
@@ -147,16 +148,16 @@ class BaseEncoder(nn.Layer):
                 <0: for decoding, use full chunk.
                 >0: for decoding, use fixed chunk size as set.
             num_decoding_left_chunks: number of left chunks, this is for decoding,
-            the chunk size is decoding_chunk_size.
+                the chunk size is decoding_chunk_size.
                 >=0: use num_decoding_left_chunks
                 <0: use all left chunks
         Returns:
             encoder output tensor, lens and mask
         """
-        masks = ~make_pad_mask(xs_lens).unsqueeze(1)  # (B, 1, L)
+        masks = make_non_pad_mask(xs_lens).unsqueeze(1)  # (B, 1, L)
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
-        xs, pos_emb, masks = self.embed(xs, masks)
+        xs, pos_emb, masks = self.embed(xs, masks, offset=0)
         mask_pad = ~masks
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
@@ -173,48 +174,52 @@ class BaseEncoder(nn.Layer):
 
     def forward_chunk(
             self,
-            xs: torch.Tensor,
+            xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            subsampling_cache: Optional[torch.Tensor]=None,
-            elayers_output_cache: Optional[List[torch.Tensor]]=None,
-            conformer_cnn_cache: Optional[List[torch.Tensor]]=None,
-    ) -> Tuple[torch.Tensor, torch.Tensor, List[torch.Tensor], List[
-            torch.Tensor]]:
+            subsampling_cache: Optional[paddle.Tensor]=None,
+            elayers_output_cache: Optional[List[paddle.Tensor]]=None,
+            conformer_cnn_cache: Optional[List[paddle.Tensor]]=None,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, List[paddle.Tensor], List[
+            paddle.Tensor]]:
         """ Forward just one chunk
         Args:
-            xs (torch.Tensor): chunk input
+            xs (paddle.Tensor): chunk input, [B=1, T, D]
             offset (int): current offset in encoder output time stamp
             required_cache_size (int): cache size required for next chunk
                 compuation
                 >=0: actual cache size
                 <0: means all history cache is required
-            subsampling_cache (Optional[torch.Tensor]): subsampling cache
-            elayers_output_cache (Optional[List[torch.Tensor]]):
+            subsampling_cache (Optional[paddle.Tensor]): subsampling cache
+            elayers_output_cache (Optional[List[paddle.Tensor]]):
                 transformer/conformer encoder layers output cache
-            conformer_cnn_cache (Optional[List[torch.Tensor]]): conformer
+            conformer_cnn_cache (Optional[List[paddle.Tensor]]): conformer
                 cnn cache
         Returns:
-            torch.Tensor: output of current input xs
-            torch.Tensor: subsampling cache required for next chunk computation
-            List[torch.Tensor]: encoder layers output cache required for next
+            paddle.Tensor: output of current input xs
+            paddle.Tensor: subsampling cache required for next chunk computation
+            List[paddle.Tensor]: encoder layers output cache required for next
                 chunk computation
-            List[torch.Tensor]: conformer cnn cache
+            List[paddle.Tensor]: conformer cnn cache
         """
-        assert xs.size(0) == 1
+        assert xs.size(0) == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
-        tmp_masks = torch.ones(
-            1, xs.size(1), device=xs.device, dtype=torch.bool)
-        tmp_masks = tmp_masks.unsqueeze(1)
+        tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        tmp_masks = tmp_masks.unsqueeze(1)  #[B=1, C=1, T]
+
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
-        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset)
+
+        xs, pos_emb, _ = self.embed(
+            xs, tmp_masks, offset=offset)  #xs=(B, T, D), pos_emb=(B=1, T, D)
         if subsampling_cache is not None:
-            cache_size = subsampling_cache.size(1)
-            xs = torch.cat((subsampling_cache, xs), dim=1)
+            cache_size = subsampling_cache.size(1)  #T
+            xs = paddle.cat((subsampling_cache, xs), dim=1)
         else:
             cache_size = 0
-        pos_emb = self.embed.position_encoding(offset - cache_size, xs.size(1))
+        pos_emb = self.embed.position_encoding(
+            offset=offset - cache_size, size=xs.size(1))
+
         if required_cache_size < 0:
             next_cache_start = 0
         elif required_cache_size == 0:
@@ -222,20 +227,17 @@ class BaseEncoder(nn.Layer):
         else:
             next_cache_start = xs.size(1) - required_cache_size
         r_subsampling_cache = xs[:, next_cache_start:, :]
+
         # Real mask for transformer/conformer layers
-        masks = torch.ones(1, xs.size(1), device=xs.device, dtype=torch.bool)
-        masks = masks.unsqueeze(1)
+        masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        masks = masks.unsqueeze(1)  #[B=1, C=1, T]
         r_elayers_output_cache = []
         r_conformer_cnn_cache = []
         for i, layer in enumerate(self.encoders):
-            if elayers_output_cache is None:
-                attn_cache = None
-            else:
-                attn_cache = elayers_output_cache[i]
-            if conformer_cnn_cache is None:
-                cnn_cache = None
-            else:
-                cnn_cache = conformer_cnn_cache[i]
+            attn_cache = None if elayers_output_cache is None else elayers_output_cache[
+                i]
+            cnn_cache = None if conformer_cnn_cache is None else conformer_cnn_cache[
+                i]
             xs, _, new_cnn_cache = layer(
                 xs,
                 masks,
@@ -252,10 +254,10 @@ class BaseEncoder(nn.Layer):
 
     def forward_chunk_by_chunk(
             self,
-            xs: torch.Tensor,
+            xs: paddle.Tensor,
             decoding_chunk_size: int,
             num_decoding_left_chunks: int=-1,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """ Forward input chunk by chunk with chunk_size like a streaming
             fashion
         Here we should pay special attention to computation cache in the
@@ -277,24 +279,27 @@ class BaseEncoder(nn.Layer):
                layers in subsampling, we need to rewrite it to make it work
                with cache, which is not prefered.
         Args:
-            xs (torch.Tensor): (1, max_len, dim)
-            chunk_size (int): decoding chunk size
+            xs (paddle.Tensor): (1, max_len, dim)
+            chunk_size (int): decoding chunk size.
+            num_left_chunks (int): decoding with num left chunks.
         """
         assert decoding_chunk_size > 0
         # The model is trained by static or dynamic chunk
         assert self.static_chunk_size > 0 or self.use_dynamic_chunk
+
+        # feature stride and window for `subsampling` module
         subsampling = self.embed.subsampling_rate
         context = self.embed.right_context + 1  # Add current frame
         stride = subsampling * decoding_chunk_size
         decoding_window = (decoding_chunk_size - 1) * subsampling + context
+
         num_frames = xs.size(1)
-        subsampling_cache: Optional[torch.Tensor] = None
-        elayers_output_cache: Optional[List[torch.Tensor]] = None
-        conformer_cnn_cache: Optional[List[torch.Tensor]] = None
+        required_cache_size = decoding_chunk_size * num_decoding_left_chunks
+        subsampling_cache: Optional[paddle.Tensor] = None
+        elayers_output_cache: Optional[List[paddle.Tensor]] = None
+        conformer_cnn_cache: Optional[List[paddle.Tensor]] = None
         outputs = []
         offset = 0
-        required_cache_size = decoding_chunk_size * num_decoding_left_chunks
-
         # Feed forward overlap input step by step
         for cur in range(0, num_frames - context + 1, stride):
             end = min(cur + decoding_window, num_frames)
@@ -305,8 +310,9 @@ class BaseEncoder(nn.Layer):
                  elayers_output_cache, conformer_cnn_cache)
             outputs.append(y)
             offset += y.size(1)
-        ys = torch.cat(outputs, 1)
-        masks = torch.ones(1, ys.size(1), device=ys.device, dtype=torch.bool)
+        ys = paddle.cat(outputs, 1)
+        # fake mask, just for jit script and compatibility with `forward` api
+        masks = paddle.ones([1, ys.size(1)], dtype=paddle.bool)
         masks = masks.unsqueeze(1)
         return ys, masks
 
@@ -330,7 +336,7 @@ class TransformerEncoder(BaseEncoder):
             concat_after: bool=False,
             static_chunk_size: int=0,
             use_dynamic_chunk: bool=False,
-            global_cmvn: torch.nn.Module=None,
+            global_cmvn: nn.Layer=None,
             use_dynamic_left_chunk: bool=False, ):
         """ Construct TransformerEncoder
         See Encoder for the meaning of each parameter.
@@ -342,14 +348,16 @@ class TransformerEncoder(BaseEncoder):
                          pos_enc_layer_type, normalize_before, concat_after,
                          static_chunk_size, use_dynamic_chunk, global_cmvn,
                          use_dynamic_left_chunk)
-        self.encoders = torch.nn.ModuleList([
+        self.encoders = nn.ModuleList([
             TransformerEncoderLayer(
-                output_size,
-                MultiHeadedAttention(attention_heads, output_size,
-                                     attention_dropout_rate),
-                PositionwiseFeedForward(output_size, linear_units,
-                                        dropout_rate), dropout_rate,
-                normalize_before, concat_after) for _ in range(num_blocks)
+                size=output_size,
+                self_attn=MultiHeadedAttention(attention_heads, output_size,
+                                               attention_dropout_rate),
+                feed_forward=PositionwiseFeedForward(output_size, linear_units,
+                                                     dropout_rate),
+                dropout_rate=dropout_rate,
+                normalize_before=normalize_before,
+                concat_after=concat_after) for _ in range(num_blocks)
         ])
 
 
@@ -396,6 +404,7 @@ class ConformerEncoder(BaseEncoder):
             use_cnn_module (bool): Whether to use convolution module.
             cnn_module_kernel (int): Kernel size of convolution module.
             causal (bool): whether to use causal convolution or not.
+            cnn_module_norm (str): cnn conv norm type, Optional['batch_norm','layer_norm']
         """
         assert check_argument_types()
         super().__init__(input_size, output_size, attention_heads, linear_units,
@@ -409,26 +418,26 @@ class ConformerEncoder(BaseEncoder):
         # self-attention module definition
         encoder_selfattn_layer = RelPositionMultiHeadedAttention
         encoder_selfattn_layer_args = (attention_heads, output_size,
-                                       attention_dropout_rate, )
+                                       attention_dropout_rate)
         # feed-forward module definition
         positionwise_layer = PositionwiseFeedForward
         positionwise_layer_args = (output_size, linear_units, dropout_rate,
-                                   activation, )
+                                   activation)
         # convolution module definition
         convolution_layer = ConvolutionModule
         convolution_layer_args = (output_size, cnn_module_kernel, activation,
                                   cnn_module_norm, causal)
 
-        self.encoders = torch.nn.ModuleList([
+        self.encoders = nn.ModuleList([
             ConformerEncoderLayer(
-                output_size,
-                encoder_selfattn_layer(*encoder_selfattn_layer_args),
-                positionwise_layer(*positionwise_layer_args),
-                positionwise_layer(*positionwise_layer_args)
-                if macaron_style else None,
-                convolution_layer(*convolution_layer_args)
+                size=output_size,
+                eself_attn=ncoder_selfattn_layer(*encoder_selfattn_layer_args),
+                feed_forward=positionwise_layer(*positionwise_layer_args),
+                feed_forward_macaron=positionwise_layer(
+                    *positionwise_layer_args) if macaron_style else None,
+                conv_module=convolution_layer(*convolution_layer_args)
                 if use_cnn_module else None,
-                dropout_rate,
-                normalize_before,
-                concat_after, ) for _ in range(num_blocks)
+                dropout_rate=dropout_rate,
+                normalize_before=normalize_before,
+                concat_after=concat_after) for _ in range(num_blocks)
         ])

@@ -32,10 +32,12 @@ __all__ = [
 
 
 class BaseSubsampling(nn.Layer):
-    def __init__(self, pos_enc_class: PositionalEncoding):
+    def __init__(self, pos_enc_class: nn.Layer=PositionalEncoding):
         super().__init__()
         self.pos_enc = pos_enc_class
+        # window size = (1 + right_context) + (chunk_size -1) * subsampling_rate
         self.right_context = 0
+        # stride = chunk_size * subsampling_rate
         self.subsampling_rate = 1
 
     def position_encoding(self, offset: int, size: int) -> paddle.Tensor:
@@ -49,7 +51,7 @@ class LinearNoSubsampling(BaseSubsampling):
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: PositionalEncoding):
+                 pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an linear object.
         Args:
             idim (int): Input dimension.
@@ -71,6 +73,7 @@ class LinearNoSubsampling(BaseSubsampling):
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
             x_mask (paddle.Tensor): Input mask (#batch, 1, time).
+            offset (int): position encoding offset.
         Returns:
             paddle.Tensor: linear input tensor (#batch, time', odim),
                 where time' = time .
@@ -90,7 +93,7 @@ class Conv2dSubsampling4(BaseSubsampling):
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: PositionalEncoding):
+                 pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling4 object.
         
         Args:
@@ -117,6 +120,7 @@ class Conv2dSubsampling4(BaseSubsampling):
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
             x_mask (paddle.Tensor): Input mask (#batch, 1, time).
+            offset (int): position encoding offset.
         Returns:
             paddle.Tensor: Subsampled tensor (#batch, time', odim),
                 where time' = time // 4.
@@ -139,7 +143,7 @@ class Conv2dSubsampling6(BaseSubsampling):
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: PositionalEncoding):
+                 pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling6 object.
         
         Args:
@@ -169,6 +173,7 @@ class Conv2dSubsampling6(BaseSubsampling):
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
             x_mask (paddle.Tensor): Input mask (#batch, 1, time).
+            offset (int): position encoding offset.
         Returns:
             paddle.Tensor: Subsampled tensor (#batch, time', odim),
                 where time' = time // 6.
@@ -191,7 +196,7 @@ class Conv2dSubsampling8(BaseSubsampling):
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: PositionalEncoding):
+                 pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling8 object.
         
         Args:
@@ -221,6 +226,7 @@ class Conv2dSubsampling8(BaseSubsampling):
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
             x_mask (paddle.Tensor): Input mask (#batch, 1, time).
+            offset (int): position encoding offset.
         Returns:
             paddle.Tensor: Subsampled tensor (#batch, time', odim),
                 where time' = time // 8.

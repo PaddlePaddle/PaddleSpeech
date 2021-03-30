@@ -59,3 +59,6 @@ You are welcome to submit questions and bug reports in [Github Issues](https://g
 ## License
 
 DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
+
+## Acknowledgement
+We depends on many open source repos. See [References](docs/reference.md) for more information.

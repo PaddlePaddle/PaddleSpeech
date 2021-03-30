@@ -72,6 +72,7 @@ class TransformerEncoderLayer(nn.Layer):
             x: paddle.Tensor,
             mask: paddle.Tensor,
             pos_emb: paddle.Tensor,
+            mask_pad: Optional[paddle.Tensor]=None,
             output_cache: Optional[paddle.Tensor]=None,
             cnn_cache: Optional[paddle.Tensor]=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
@@ -81,6 +82,8 @@ class TransformerEncoderLayer(nn.Layer):
             mask (paddle.Tensor): Mask tensor for the input (#batch, time).
             pos_emb (paddle.Tensor): just for interface compatibility
                 to ConformerEncoderLayer
+            mask_pad (paddle.Tensor): does not used in transformer layer,
+                just for unified api with conformer.
             output_cache (paddle.Tensor): Cache tensor of the output
                 (#batch, time2, size), time2 < time in x.
             cnn_cache (paddle.Tensor): not used here, it's for interface
@@ -88,6 +91,7 @@ class TransformerEncoderLayer(nn.Layer):
         Returns:
             paddle.Tensor: Output tensor (#batch, time, size).
             paddle.Tensor: Mask tensor (#batch, time).
+            paddle.Tensor: Fake cnn cache tensor for api compatibility with Conformer (#batch, channels, time').
         """
         residual = x
         if self.normalize_before:
@@ -202,12 +206,13 @@ class ConformerEncoderLayer(nn.Layer):
             pos_emb (paddle.Tensor): positional encoding, must not be None
                 for ConformerEncoderLayer.
             mask_pad (paddle.Tensor): batch padding mask used for conv module, (B, 1, T).
-            output_cache (paddle.Tensor): Cache tensor of the output
+            output_cache (paddle.Tensor): Cache tensor of the encoder output
                 (#batch, time2, size), time2 < time in x.
             cnn_cache (paddle.Tensor): Convolution cache in conformer layer
         Returns:
             paddle.Tensor: Output tensor (#batch, time, size).
             paddle.Tensor: Mask tensor (#batch, time).
+            paddle.Tensor: New cnn cache tensor (#batch, channels, time').
         """
         # whether to use macaron style FFN
         if self.feed_forward_macaron is not None:

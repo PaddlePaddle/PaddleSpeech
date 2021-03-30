@@ -143,7 +143,8 @@ def get_activation(act):
         "relu": paddle.nn.ReLU,
         "selu": paddle.nn.SELU,
         "swish": paddle.nn.Swish,
-        "gelu": paddle.nn.GELU
+        "gelu": paddle.nn.GELU,
+        "brelu": brelu,
     }
 
     return activation_funcs[act]()

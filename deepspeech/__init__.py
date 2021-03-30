@@ -266,8 +266,17 @@ logger.warn(
 )
 F.ctc_loss = ctc_loss
 
-
 ########### hcak paddle.nn #############
+if not hasattr(paddle.nn, 'Module'):
+    logger.warn("register user Module to paddle.nn, remove this when fixed!")
+    setattr(paddle.nn, 'Module', paddle.nn.Layer)
+
+if not hasattr(paddle.nn, 'ModuleList'):
+    logger.warn(
+        "register user ModuleList to paddle.nn, remove this when fixed!")
+    setattr(paddle.nn, 'ModuleList', paddle.nn.LayerList)
+
+
 class GLU(nn.Layer):
     """Gated Linear Units (GLU) Layer"""
 

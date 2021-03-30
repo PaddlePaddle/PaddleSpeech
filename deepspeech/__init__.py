@@ -49,9 +49,17 @@ if not hasattr(paddle, 'softmax'):
     logger.warn("register user softmax to paddle, remove this when fixed!")
     setattr(paddle, 'softmax', paddle.nn.functional.softmax)
 
+if not hasattr(paddle, 'log_softmax'):
+    logger.warn("register user log_softmax to paddle, remove this when fixed!")
+    setattr(paddle, 'log_softmax', paddle.nn.functional.log_softmax)
+
 if not hasattr(paddle, 'sigmoid'):
     logger.warn("register user sigmoid to paddle, remove this when fixed!")
     setattr(paddle, 'sigmoid', paddle.nn.functional.sigmoid)
+
+if not hasattr(paddle, 'log_sigmoid'):
+    logger.warn("register user log_sigmoid to paddle, remove this when fixed!")
+    setattr(paddle, 'log_sigmoid', paddle.nn.functional.log_sigmoid)
 
 if not hasattr(paddle, 'relu'):
     logger.warn("register user relu to paddle, remove this when fixed!")

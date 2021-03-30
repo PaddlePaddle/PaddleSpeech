@@ -50,8 +50,7 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
     return mask
 
 
-def subsequent_mask(
-        size: int, ) -> paddle.Tensor:
+def subsequent_mask(size: int) -> paddle.Tensor:
     """Create mask for subsequent steps (size, size).
     This mask is used only in decoder which works in an auto-regressive mode.
     This means the current step could only do attention with its left steps.

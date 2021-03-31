@@ -109,7 +109,7 @@ def tune(config, args):
 
         # model infer
         eouts, eouts_len = model.encoder(audio, audio_len)
-        probs = model.decoder.probs(eouts)
+        probs = model.decoder.softmax(eouts)
 
         # grid search
         for index, (alpha, beta) in enumerate(params_grid):

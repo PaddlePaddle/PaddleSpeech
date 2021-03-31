@@ -20,10 +20,12 @@ from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
+from deepspeech.modules.loss import CTCLoss
+from deepspeech.utils import ctc_utils
+
 from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
 from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
-from deepspeech.modules.loss import CTCLoss
 
 logger = logging.getLogger(__name__)
 
@@ -67,38 +69,31 @@ class CTCDecoder(nn.Layer):
             ys_pad (Tenosr): batch of padded character id sequence tensor (B, Lmax)
             ys_lens (Tensor): batch of lengths of character sequence (B)
         Returns:
-            loss (Tenosr): scalar.
+            loss (Tenosr): ctc loss value, scalar.
         """
         logits = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
         loss = self.criterion(logits, ys_pad, hlens, ys_lens)
         return loss
 
-    def probs(self, eouts: paddle.Tensor, temperature: float=1.0):
+    def softmax(self, eouts: paddle.Tensor, temperature: float=1.0):
         """Get CTC probabilities.
         Args:
             eouts (FloatTensor): `[B, T, enc_units]`
         Returns:
             probs (FloatTensor): `[B, T, odim]`
         """
-        return F.softmax(self.ctc_lo(eouts) / temperature, axis=-1)
+        self.probs = F.softmax(self.ctc_lo(eouts) / temperature, axis=2)
+        return self.probs
 
-    def scores(self, eouts: paddle.Tensor, temperature: float=1.0):
-        """Get log-scale CTC probabilities.
-        Args:
-            eouts (FloatTensor): `[B, T, enc_units]`
-        Returns:
-            log_probs (FloatTensor): `[B, T, odim]`
-        """
-        return F.log_softmax(self.ctc_lo(eouts) / temperature, axis=-1)
-
-    def log_softmax(self, hs_pad: paddle.Tensor) -> paddle.Tensor:
+    def log_softmax(self, hs_pad: paddle.Tensor,
+                    temperature: float=1.0) -> paddle.Tensor:
         """log_softmax of frame activations
         Args:
             Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
         Returns:
             paddle.Tensor: log softmax applied 3d tensor (B, Tmax, odim)
         """
-        return self.scores(hs_pad)
+        return F.log_softmax(self.ctc_lo(hs_pad) / temperature, axis=2)
 
     def argmax(self, hs_pad: paddle.Tensor) -> paddle.Tensor:
         """argmax of frame activations
@@ -108,6 +103,20 @@ class CTCDecoder(nn.Layer):
             paddle.Tensor: argmax applied 2d tensor (B, Tmax)
         """
         return paddle.argmax(self.ctc_lo(hs_pad), dim=2)
+
+    def forced_align(self,
+                     ctc_probs: paddle.Tensor,
+                     y: paddle.Tensor,
+                     blank_id=0) -> list:
+        """ctc forced alignment.
+        Args:
+            ctc_probs (paddle.Tensor): hidden state sequence, 2d tensor (T, D)
+            y (paddle.Tensor): label id sequence tensor, 1d tensor (L)
+            blank_id (int): blank symbol index
+        Returns:
+            paddle.Tensor: best alignment result, (T).
+        """
+        return ctc_utils.forced_align(ctc_probs, y, blank_id)
 
     def _decode_batch_greedy(self, probs_split, vocab_list):
         """Decode by best path for a batch of probs matrix input.

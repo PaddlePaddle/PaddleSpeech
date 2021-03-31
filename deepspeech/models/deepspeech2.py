@@ -203,7 +203,7 @@ class DeepSpeech2Model(nn.Layer):
             decoding_method=decoding_method)
 
         eouts, eouts_len = self.encoder(audio, audio_len)
-        probs = self.decoder.probs(eouts)
+        probs = self.decoder.softmax(eouts)
         return self.decoder.decode_probs(
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
@@ -234,7 +234,9 @@ class DeepSpeech2Model(nn.Layer):
                     rnn_size=config.model.rnn_layer_size,
                     use_gru=config.model.use_gru,
                     share_rnn_weights=config.model.share_rnn_weights)
-        checkpoint.load_parameters(model, checkpoint_path=checkpoint_path)
+        infos = checkpoint.load_parameters(
+            model, checkpoint_path=checkpoint_path)
+        logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
 
@@ -268,5 +270,5 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
             probs: probs after softmax
         """
         eouts, eouts_len = self.encoder(audio, audio_len)
-        probs = self.decoder.probs(eouts)
+        probs = self.decoder.softmax(eouts)
         return probs

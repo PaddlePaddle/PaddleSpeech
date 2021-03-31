@@ -16,6 +16,8 @@ import os
 import time
 import logging
 import numpy as np
+import re
+import json
 
 import paddle
 from paddle import distributed as dist
@@ -37,15 +39,13 @@ def _load_latest_checkpoint(checkpoint_dir: str) -> int:
         int: the latest iteration number.
     """
     checkpoint_record = os.path.join(checkpoint_dir, "checkpoint")
-    if (not os.path.isfile(checkpoint_record)):
+    if not os.path.isfile(checkpoint_record):
         return 0
 
     # Fetch the latest checkpoint index.
     with open(checkpoint_record, "rt") as handle:
         latest_checkpoint = handle.readlines()[-1].strip()
-        step = latest_checkpoint.split(":")[-1]
-        iteration = int(step.split("-")[-1])
-
+        iteration = int(latest_checkpoint.split(":")[-1])
     return iteration
 
 
@@ -60,7 +60,7 @@ def _save_checkpoint(checkpoint_dir: str, iteration: int):
     checkpoint_record = os.path.join(checkpoint_dir, "checkpoint")
     # Update the latest checkpoint index.
     with open(checkpoint_record, "a+") as handle:
-        handle.write("model_checkpoint_path:step-{}\n".format(iteration))
+        handle.write("model_checkpoint_path:{}\n".format(iteration))
 
 
 def load_parameters(model,
@@ -74,20 +74,16 @@ def load_parameters(model,
             Defaults to None.
         checkpoint_dir (str, optional): the directory where checkpoint is saved.
         checkpoint_path (str, optional): if specified, load the checkpoint
-            stored in the checkpoint_path and the argument 'checkpoint_dir' will 
+            stored in the checkpoint_path(prefix) and the argument 'checkpoint_dir' will 
             be ignored. Defaults to None. 
     Returns:
-        iteration (int): number of iterations that the loaded checkpoint has 
-            been trained.
+        configs (dict): epoch or step, lr and other meta info should be saved.
     """
     if checkpoint_path is not None:
-        iteration = int(os.path.basename(checkpoint_path).split("-")[-1])
+        iteration = int(os.path.basename(checkpoint_path).split(":")[-1])
     elif checkpoint_dir is not None:
         iteration = _load_latest_checkpoint(checkpoint_dir)
-        if iteration == 0:
-            return iteration
-        checkpoint_path = os.path.join(checkpoint_dir,
-                                       "step-{}".format(iteration))
+        checkpoint_path = os.path.join(checkpoint_dir, "-{}".format(iteration))
     else:
         raise ValueError(
             "At least one of 'checkpoint_dir' and 'checkpoint_path' should be specified!"
@@ -98,43 +94,58 @@ def load_parameters(model,
     params_path = checkpoint_path + ".pdparams"
     model_dict = paddle.load(params_path)
     model.set_state_dict(model_dict)
-    logger.info(
-        "[checkpoint] Rank {}: loaded model from {}".format(rank, params_path))
+    logger.info("Rank {}: loaded model from {}".format(rank, params_path))
 
     optimizer_path = checkpoint_path + ".pdopt"
     if optimizer and os.path.isfile(optimizer_path):
         optimizer_dict = paddle.load(optimizer_path)
         optimizer.set_state_dict(optimizer_dict)
-        logger.info("[checkpoint] Rank {}: loaded optimizer state from {}".
-                    format(rank, optimizer_path))
+        logger.info("Rank {}: loaded optimizer state from {}".format(
+            rank, optimizer_path))
 
-    return iteration
+    info_path = re.sub('.pdparams$', '.json', params_path)
+    configs = {}
+    if os.path.exists(info_path):
+        with open(info_path, 'r') as fin:
+            configs = json.load(fin)
+    return configs
 
 
 @mp_tools.rank_zero_only
-def save_parameters(checkpoint_dir, iteration, model, optimizer=None):
+def save_parameters(checkpoint_dir: str,
+                    iteration: int,
+                    model: paddle.nn.Layer,
+                    optimizer: Optimizer=None,
+                    infos: dict=None):
     """Checkpoint the latest trained model parameters.
     Args:
         checkpoint_dir (str): the directory where checkpoint is saved.
-        iteration (int): the latest iteration number.
+        iteration (int): the latest iteration(step or epoch) number.
         model (Layer): model to be checkpointed.
         optimizer (Optimizer, optional): optimizer to be checkpointed.
             Defaults to None.
+        infos (dict or None): any info you want to save.
     Returns:
         None
     """
-    checkpoint_path = os.path.join(checkpoint_dir, "step-{}".format(iteration))
+    checkpoint_path = os.path.join(checkpoint_dir, "-{}".format(iteration))
 
     model_dict = model.state_dict()
     params_path = checkpoint_path + ".pdparams"
     paddle.save(model_dict, params_path)
-    logger.info("[checkpoint] Saved model to {}".format(params_path))
+    logger.info("Saved model to {}".format(params_path))
 
     if optimizer:
         opt_dict = optimizer.state_dict()
         optimizer_path = checkpoint_path + ".pdopt"
         paddle.save(opt_dict, optimizer_path)
-        logger.info(
-            "[checkpoint] Saved optimzier state to {}".format(optimizer_path))
+        logger.info("Saved optimzier state to {}".format(optimizer_path))
+
+    info_path = re.sub('.pdparams$', '.json', params_path)
+    if infos is None:
+        infos = {}
+    with open(info_path, 'w') as fout:
+        data = json.dumps(infos)
+        fout.write(data)
 
     _save_checkpoint(checkpoint_dir, iteration)

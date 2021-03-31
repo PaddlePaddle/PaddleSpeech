@@ -131,8 +131,13 @@ class Trainer():
     def save(self):
         """Save checkpoint (model parameters and optimizer states).
         """
+        infos = {
+            "step": self.iteration,
+            "epoch": self.epoch,
+            "lr": self.optimizer.get_lr(),
+        }
         checkpoint.save_parameters(self.checkpoint_dir, self.iteration,
-                                   self.model, self.optimizer)
+                                   self.model, self.optimizer, infos)
 
     def resume_or_load(self):
         """Resume from latest checkpoint at checkpoints in the output 
@@ -141,12 +146,13 @@ class Trainer():
         If ``args.checkpoint_path`` is not None, load the checkpoint, else
         resume training.
         """
-        iteration = checkpoint.load_parameters(
+        infos = checkpoint.load_parameters(
             self.model,
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
             checkpoint_path=self.args.checkpoint_path)
-        self.iteration = iteration
+        self.iteration = infos["step"]
+        self.epoch = infos["epoch"]
 
     def new_epoch(self):
         """Reset the train loader and increment ``epoch``.

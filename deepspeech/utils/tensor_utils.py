@@ -20,7 +20,7 @@ import paddle
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["pad_list", "add_sos_eos", "remove_duplicates_and_blank", "log_add"]
+__all__ = ["pad_list", "add_sos_eos", "th_accuracy"]
 
 IGNORE_ID = -1
 
@@ -90,24 +90,21 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
     return pad_list(ys_in, eos), pad_list(ys_out, ignore_id)
 
 
-def remove_duplicates_and_blank(hyp: List[int]) -> List[int]:
-    new_hyp: List[int] = []
-    cur = 0
-    while cur < len(hyp):
-        if hyp[cur] != 0:
-            new_hyp.append(hyp[cur])
-        prev = cur
-        while cur < len(hyp) and hyp[cur] == hyp[prev]:
-            cur += 1
-    return new_hyp
-
-
-def log_add(args: List[int]) -> float:
+def th_accuracy(pad_outputs: paddle.Tensor,
+                pad_targets: paddle.Tensor,
+                ignore_label: int) -> float:
+    """Calculate accuracy.
+    Args:
+        pad_outputs (Tensor): Prediction tensors (B * Lmax, D).
+        pad_targets (LongTensor): Target label tensors (B, Lmax, D).
+        ignore_label (int): Ignore label id.
+    Returns:
+        float: Accuracy value (0.0 - 1.0).
     """
-    Stable log add
-    """
-    if all(a == -float('inf') for a in args):
-        return -float('inf')
-    a_max = max(args)
-    lsp = math.log(sum(math.exp(a - a_max) for a in args))
-    return a_max + lsp
+    pad_pred = pad_outputs.view(
+        pad_targets.size(0), pad_targets.size(1), pad_outputs.size(1)).argmax(2)
+    mask = pad_targets != ignore_label
+    numerator = paddle.sum(
+        pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
+    denominator = paddle.sum(mask)
+    return float(numerator) / float(denominator)

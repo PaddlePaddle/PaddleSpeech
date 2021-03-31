@@ -36,19 +36,19 @@ source tools/venv/bin/activate
 
 ## Getting Started
 
-Please see [Getting Started](docs/geting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples/tiny/README.md).
 
 ## More Information  
 
-* [Install](docs/install.md)  
-* [Getting Started](docs/geting_stared.md)  
-* [Data Prepration](docs/data_preparation.md)  
-* [Data Augmentation](docs/augmentation.md)  
-* [Ngram LM](docs/ngram_lm.md)  
-* [Server Demo](docs/server.md)  
-* [Benchmark](docs/benchmark.md)  
-* [Relased Model](docs/released_model.md)  
-* [FAQ](docs/faq.md)  
+* [Install](docs/src/install.md)  
+* [Getting Started](docs/src/geting_stared.md)  
+* [Data Prepration](docs/src/data_preparation.md)  
+* [Data Augmentation](docs/src/augmentation.md)  
+* [Ngram LM](docs/src/ngram_lm.md)  
+* [Server Demo](docs/src/server.md)  
+* [Benchmark](docs/src/benchmark.md)  
+* [Relased Model](docs/src/released_model.md)  
+* [FAQ](docs/src/faq.md)  
 
 
 ## Questions and Help
@@ -61,4 +61,5 @@ You are welcome to submit questions and bug reports in [Github Issues](https://g
 DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
-We depends on many open source repos. See [References](docs/reference.md) for more information.
+
+We depends on many open source repos. See [References](docs/src/reference.md) for more information.

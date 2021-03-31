@@ -35,19 +35,19 @@ source tools/venv/bin/activate
 
 ## 开始
 
-请查看 [Getting Started](docs/geting_started.md) 和 [tiny egs](examples/tiny/README.md)。
+请查看 [Getting Started](docs/src/geting_started.md) 和 [tiny egs](examples/tiny/README.md)。
 
 ## 更多信息
 
-* [安装](docs/install.md)  
-* [开始](docs/geting_stared.md)  
-* [数据处理](docs/data_preparation.md)  
-* [数据增强](docs/augmentation.md)  
-* [语言模型](docs/ngram_lm.md)  
-* [服务部署](docs/server.md)  
-* [Benchmark](docs/benchmark.md)  
-* [Relased Model](docs/released_model.md)  
-* [FAQ](docs/faq.md)  
+* [安装](docs/src/install.md)  
+* [开始](docs/src/geting_stared.md)  
+* [数据处理](docs/src/data_preparation.md)  
+* [数据增强](docs/src/augmentation.md)  
+* [语言模型](docs/src/ngram_lm.md)  
+* [服务部署](docs/src/server.md)  
+* [Benchmark](docs/src/benchmark.md)  
+* [Relased Model](docs/src/released_model.md)  
+* [FAQ](docs/src/faq.md)  
 
 ## 问题和帮助
 
@@ -58,4 +58,5 @@ source tools/venv/bin/activate
 DeepSpeech遵循[Apache-2.0开源协议](./LICENSE)。
 
 ## 感谢
-开发中参考一些优秀的仓库，详情参见 [References](docs/reference.md)。
+
+开发中参考一些优秀的仓库，详情参见 [References](docs/src/reference.md)。

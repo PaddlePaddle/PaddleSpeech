@@ -17,9 +17,7 @@ import math
 import numpy as np
 import distutils.util
 
-__all__ = [
-    'print_arguments', 'add_arguments', "log_add", "remove_duplicates_and_blank"
-]
+__all__ = ['print_arguments', 'add_arguments', "log_add"]
 
 
 def print_arguments(args):
@@ -72,26 +70,3 @@ def log_add(args: List[int]) -> float:
     a_max = max(args)
     lsp = math.log(sum(math.exp(a - a_max) for a in args))
     return a_max + lsp
-
-
-def remove_duplicates_and_blank(hyp: List[int], blank_id=0) -> List[int]:
-    """ctc alignment to ctc label ids.
-
-    "abaa-acee-" -> "abaace"
-
-    Args:
-        hyp (List[int]): hypotheses ids, (L)
-        blank_id (int, optional): blank id. Defaults to 0.
-
-    Returns:
-        List[int]: remove dupicate ids, then remove blank id.
-    """
-    new_hyp: List[int] = []
-    cur = 0
-    while cur < len(hyp):
-        if hyp[cur] != blank_id:
-            new_hyp.append(hyp[cur])
-        prev = cur
-        while cur < len(hyp) and hyp[cur] == hyp[prev]:
-            cur += 1
-    return new_hyp

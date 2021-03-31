@@ -145,7 +145,7 @@ class ConvStack(nn.Layer):
             act='brelu')
 
         out_channel = 32
-        self.conv_stack = nn.LayerList([
+        self.conv_stack = nn.Sequential([
             ConvBn(
                 num_channels_in=32,
                 num_channels_out=out_channel,

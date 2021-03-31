@@ -11,7 +11,11 @@
 
 ## 模型
 
-* [Baidu's Deep Speech2](http://proceedings.mlr.press/v48/amodei16.pdf)
+* [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
+* [Transformer](https://arxiv.org/abs/1706.03762)
+* [Conformer](https://arxiv.org/abs/2005.08100)
+* [U2](https://arxiv.org/pdf/2012.05481.pdf)
+
 
 ## 安装
 * python>=3.7

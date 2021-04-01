@@ -172,15 +172,14 @@ class DeepSpeech2Model(nn.Layer):
         """Compute Model loss
 
         Args:
-            audio (Tenosr): [B, D, T]
-            text (Tensor): [B, T]
+            audio (Tenosr): [B, T, D]
+            text (Tensor): [B, U]
             audio_len (Tensor): [B]
             text_len (Tensor): [B]
 
         Returns:
             loss (Tenosr): [1]
         """
-
         eouts, eouts_len = self.encoder(audio, audio_len)
         loss = self.decoder(eouts, eouts_len, text, text_len)
         return loss
@@ -259,7 +258,7 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
         """export model function
 
         Args:
-            audio (Tensor): [B, D, T]
+            audio (Tensor): [B, T, D]
             audio_len (Tensor): [B]
 
         Returns:

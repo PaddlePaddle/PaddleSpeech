@@ -16,6 +16,7 @@
 import math
 import numpy as np
 import distutils.util
+from typing import List
 
 __all__ = ['print_arguments', 'add_arguments', "log_add"]
 

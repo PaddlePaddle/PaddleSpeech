@@ -13,6 +13,9 @@
 # limitations under the License.
 import logging
 from typing import Union
+from typing import Optional
+from typing import List
+from typing import Tuple
 from typing import Any
 
 import paddle
@@ -81,6 +84,20 @@ if not hasattr(paddle.Tensor, 'numel'):
         "override numel of paddle.Tensor if exists or register, remove this when fixed!"
     )
     paddle.Tensor.numel = paddle.numel
+
+
+def new_full(x: paddle.Tensor,
+             size: Union[List[int], Tuple[int], paddle.Tensor],
+             fill_value: Union[float, int, bool, paddle.Tensor],
+             dtype=None):
+    return paddle.full(size, fill_value, dtype=x.dtype)
+
+
+if not hasattr(paddle.Tensor, 'new_full'):
+    logger.warn(
+        "override new_full of paddle.Tensor if exists or register, remove this when fixed!"
+    )
+    paddle.Tensor.new_full = new_full
 
 
 def eq(xs: paddle.Tensor, ys: Union[paddle.Tensor, float]) -> paddle.Tensor:
@@ -279,6 +296,7 @@ if not hasattr(paddle.nn, 'Module'):
     logger.warn("register user Module to paddle.nn, remove this when fixed!")
     setattr(paddle.nn, 'Module', paddle.nn.Layer)
 
+# maybe cause assert isinstance(sublayer, core.Layer)
 if not hasattr(paddle.nn, 'ModuleList'):
     logger.warn(
         "register user ModuleList to paddle.nn, remove this when fixed!")
@@ -332,3 +350,78 @@ if not hasattr(paddle.nn, 'ConstantPad2d'):
     logger.warn(
         "register user ConstantPad2d to paddle.nn, remove this when fixed!")
     setattr(paddle.nn, 'ConstantPad2d', ConstantPad2d)
+
+########### hcak paddle.jit #############
+
+if not hasattr(paddle.jit, 'export'):
+    logger.warn("register user export to paddle.jit, remove this when fixed!")
+    setattr(paddle.jit, 'export', paddle.jit.to_static)
+
+
+########### hcak paddle.nn.utils #############
+def pad_sequence(sequences: List[paddle.Tensor],
+                 batch_first: bool=False,
+                 padding_value: float=0.0) -> paddle.Tensor:
+    r"""Pad a list of variable length Tensors with ``padding_value``
+
+    ``pad_sequence`` stacks a list of Tensors along a new dimension,
+    and pads them to equal length. For example, if the input is list of
+    sequences with size ``L x *`` and if batch_first is False, and ``T x B x *``
+    otherwise.
+
+    `B` is batch size. It is equal to the number of elements in ``sequences``.
+    `T` is length of the longest sequence.
+    `L` is length of the sequence.
+    `*` is any number of trailing dimensions, including none.
+
+    Example:
+        >>> from paddle.nn.utils.rnn import pad_sequence
+        >>> a = paddle.ones(25, 300)
+        >>> b = paddle.ones(22, 300)
+        >>> c = paddle.ones(15, 300)
+        >>> pad_sequence([a, b, c]).size()
+        paddle.Tensor([25, 3, 300])
+
+    Note:
+        This function returns a Tensor of size ``T x B x *`` or ``B x T x *``
+        where `T` is the length of the longest sequence. This function assumes
+        trailing dimensions and type of all the Tensors in sequences are same.
+
+    Args:
+        sequences (list[Tensor]): list of variable length sequences.
+        batch_first (bool, optional): output will be in ``B x T x *`` if True, or in
+            ``T x B x *`` otherwise
+        padding_value (float, optional): value for padded elements. Default: 0.
+
+    Returns:
+        Tensor of size ``T x B x *`` if :attr:`batch_first` is ``False``.
+        Tensor of size ``B x T x *`` otherwise
+    """
+
+    # assuming trailing dimensions and type of all the Tensors
+    # in sequences are same and fetching those from sequences[0]
+    max_size = sequences[0].size()
+    trailing_dims = max_size[1:]
+    max_len = max([s.size(0) for s in sequences])
+    if batch_first:
+        out_dims = (len(sequences), max_len) + trailing_dims
+    else:
+        out_dims = (max_len, len(sequences)) + trailing_dims
+
+    out_tensor = sequences[0].new_full(out_dims, padding_value)
+    for i, tensor in enumerate(sequences):
+        length = tensor.size(0)
+        # use index notation to prevent duplicate references to the tensor
+        if batch_first:
+            out_tensor[i, :length, ...] = tensor
+        else:
+            out_tensor[:length, i, ...] = tensor
+
+    return out_tensor
+
+
+if not hasattr(paddle.nn.utils, 'rnn.pad_sequence'):
+    logger.warn(
+        "register user rnn.pad_sequence to paddle.nn.utils, remove this when fixed!"
+    )
+    setattr(paddle.nn.utils, 'rnn.pad_sequence', pad_sequence)

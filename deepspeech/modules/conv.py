@@ -145,7 +145,7 @@ class ConvStack(nn.Layer):
             act='brelu')
 
         out_channel = 32
-        self.conv_stack = nn.Sequential([
+        convs = [
             ConvBn(
                 num_channels_in=32,
                 num_channels_out=out_channel,
@@ -153,7 +153,8 @@ class ConvStack(nn.Layer):
                 stride=(2, 1),
                 padding=(10, 5),
                 act='brelu') for i in range(num_stacks - 1)
-        ])
+        ]
+        self.conv_stack = nn.LayerList(convs)
 
         # conv output feat_dim
         output_height = (feat_size - 1) // 2 + 1

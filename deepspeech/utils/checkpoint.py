@@ -36,11 +36,11 @@ def _load_latest_checkpoint(checkpoint_dir: str) -> int:
     Args:
         checkpoint_dir (str): the directory where checkpoint is saved.
     Returns:
-        int: the latest iteration number.
+        int: the latest iteration number. -1 for no checkpoint to load.
     """
     checkpoint_record = os.path.join(checkpoint_dir, "checkpoint")
     if not os.path.isfile(checkpoint_record):
-        return 0
+        return -1
 
     # Fetch the latest checkpoint index.
     with open(checkpoint_record, "rt") as handle:
@@ -79,11 +79,15 @@ def load_parameters(model,
     Returns:
         configs (dict): epoch or step, lr and other meta info should be saved.
     """
+    configs = {}
+
     if checkpoint_path is not None:
         iteration = int(os.path.basename(checkpoint_path).split(":")[-1])
     elif checkpoint_dir is not None:
         iteration = _load_latest_checkpoint(checkpoint_dir)
-        checkpoint_path = os.path.join(checkpoint_dir, "-{}".format(iteration))
+        if iteration == -1:
+            return configs
+        checkpoint_path = os.path.join(checkpoint_dir, "{}".format(iteration))
     else:
         raise ValueError(
             "At least one of 'checkpoint_dir' and 'checkpoint_path' should be specified!"
@@ -104,7 +108,6 @@ def load_parameters(model,
             rank, optimizer_path))
 
     info_path = re.sub('.pdparams$', '.json', params_path)
-    configs = {}
     if os.path.exists(info_path):
         with open(info_path, 'r') as fin:
             configs = json.load(fin)
@@ -128,7 +131,7 @@ def save_parameters(checkpoint_dir: str,
     Returns:
         None
     """
-    checkpoint_path = os.path.join(checkpoint_dir, "-{}".format(iteration))
+    checkpoint_path = os.path.join(checkpoint_dir, "{}".format(iteration))
 
     model_dict = model.state_dict()
     params_path = checkpoint_path + ".pdparams"

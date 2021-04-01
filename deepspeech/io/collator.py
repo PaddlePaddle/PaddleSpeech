@@ -16,15 +16,15 @@ import logging
 import numpy as np
 from collections import namedtuple
 
+from deepspeech.io.utility import pad_sequence
+
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "SpeechCollator",
-]
+__all__ = ["SpeechCollator"]
 
 
 class SpeechCollator():
-    def __init__(self, padding_to=-1, is_training=True):
+    def __init__(self, is_training=True):
         """
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one bach.
@@ -32,42 +32,51 @@ class SpeechCollator():
         If ``padding_to`` is -1, the maximun shape in the batch will be used
         as the target shape for padding. Otherwise, `padding_to` will be the
         target shape (only refers to the second axis).
+
+        if ``is_training`` is True, text is token ids else is raw string.
         """
-        self._padding_to = padding_to
         self._is_training = is_training
 
     def __call__(self, batch):
-        new_batch = []
-        # get target shape
-        max_length = max([audio.shape[1] for audio, _ in batch])
-        if self._padding_to != -1:
-            if self._padding_to < max_length:
-                raise ValueError("If padding_to is not -1, it should be larger "
-                                 "than any instance's shape in the batch")
-            max_length = self._padding_to
-        max_text_length = max([len(text) for _, text in batch])
-        # padding
-        padded_audios = []
+        """batch examples
+
+        Args:
+            batch ([List]): batch is (audio, text)
+                audio (np.ndarray) shape (D, T)
+                text (List[int] or str): shape (U,)
+
+        Returns:
+            tuple(audio, text, audio_lens, text_lens): batched data.
+                audio : (B, Tmax, D)
+                text : (B, Umax)
+                audio_lens: (B)
+                text_lens: (B)
+        """
+        audios = []
         audio_lens = []
-        texts, text_lens = [], []
+        texts = []
+        text_lens = []
         for audio, text in batch:
             # audio
-            padded_audio = np.zeros([audio.shape[0], max_length])
-            padded_audio[:, :audio.shape[1]] = audio
-            padded_audios.append(padded_audio)
+            audios.append(audio.T)  # [T, D]
             audio_lens.append(audio.shape[1])
             # text
-            padded_text = np.zeros([max_text_length])
+            # for training, text is token ids
+            # else text is string, convert to unicode ord
+            tokens = []
             if self._is_training:
-                padded_text[:len(text)] = text  # token ids
+                tokens = text  # token ids
             else:
-                padded_text[:len(text)] = [ord(t)
-                                           for t in text]  # string, unicode ord
-            texts.append(padded_text)
+                assert isinstance(text, str)
+                tokens = [ord(t) for t in text]
+            tokens = tokens if isinstance(tokens, np.ndarray) else np.array(
+                tokens, dtype=np.int64)
+            texts.append(tokens)
             text_lens.append(len(text))
 
-        padded_audios = np.array(padded_audios).astype('float32')
-        audio_lens = np.array(audio_lens).astype('int64')
-        texts = np.array(texts).astype('int32')
-        text_lens = np.array(text_lens).astype('int64')
-        return padded_audios, texts, audio_lens, text_lens
+        padded_audios = pad_sequence(
+            audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
+        padded_texts = pad_sequence(texts, padding_value=-1).astype(np.int32)
+        audio_lens = np.array(audio_lens).astype(np.int64)
+        text_lens = np.array(text_lens).astype(np.int64)
+        return padded_audios, padded_texts, audio_lens, text_lens

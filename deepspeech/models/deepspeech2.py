@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Deepspeech2 ASR Model"""
 import math
 import collections
 import numpy as np
@@ -67,23 +67,19 @@ class CRNNEncoder(nn.Layer):
         return self.rnn_size * 2
 
     def forward(self, audio, audio_len):
-        """
-        audio: shape [B, D, T]
-        text: shape [B, T]
-        audio_len: shape [B]
-        text_len: shape [B]
-        """
         """Compute Encoder outputs
 
         Args:
-            audio (Tensor): [B, D, T]
-            text (Tensor): [B, T]
+            audio (Tensor): [B, Tmax, D]
+            text (Tensor): [B, Umax]
             audio_len (Tensor): [B]
             text_len (Tensor): [B]
         Returns:
             x (Tensor): encoder outputs, [B, T, D]
             x_lens (Tensor): encoder length, [B]
         """
+        # [B, T, D]  -> [B, D, T]
+        audio = audio.transpose([0, 2, 1])
         # [B, D, T] -> [B, C=1, D, T]
         x = audio.unsqueeze(1)
         x_lens = audio_len

@@ -128,14 +128,15 @@ class Trainer():
         dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
-    def save(self):
+    def save(self, infos=None):
         """Save checkpoint (model parameters and optimizer states).
         """
-        infos = {
-            "step": self.iteration,
-            "epoch": self.epoch,
-            "lr": self.optimizer.get_lr(),
-        }
+        if infos is None:
+            infos = {
+                "step": self.iteration,
+                "epoch": self.epoch,
+                "lr": self.optimizer.get_lr(),
+            }
         checkpoint.save_parameters(self.checkpoint_dir, self.iteration,
                                    self.model, self.optimizer, infos)
 
@@ -151,8 +152,9 @@ class Trainer():
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
             checkpoint_path=self.args.checkpoint_path)
-        self.iteration = infos["step"]
-        self.epoch = infos["epoch"]
+        if infos:
+            self.iteration = infos["step"]
+            self.epoch = infos["epoch"]
 
     def new_epoch(self):
         """Reset the train loader and increment ``epoch``.

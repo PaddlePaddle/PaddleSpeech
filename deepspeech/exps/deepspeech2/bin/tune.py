@@ -103,7 +103,7 @@ def tune(config, args):
                 trans.append(''.join([chr(i) for i in ids]))
             return trans
 
-        audio, text, audio_len, text_len = infer_data
+        audio, audio_len, text, text_len = infer_data
         target_transcripts = ordid2token(text, text_len)
         num_ins += audio.shape[0]
 

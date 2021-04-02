@@ -28,7 +28,12 @@ from paddle import jit
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
+
 from paddle.nn.utils.rnn import pad_sequence
+from deepspeech.modules.mask import make_pad_mask
+from deepspeech.modules.mask import mask_finished_preds
+from deepspeech.modules.mask import mask_finished_scores
+from deepspeech.modules.mask import subsequent_mask
 
 from deepspeech.modules.cmvn import GlobalCMVN
 from deepspeech.modules.encoder import ConformerEncoder
@@ -36,10 +41,6 @@ from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.modules.decoder import TransformerDecoder
 from deepspeech.modules.label_smoothing_loss import LabelSmoothingLoss
-from deepspeech.modules.mask import make_pad_mask
-from deepspeech.modules.mask import mask_finished_preds
-from deepspeech.modules.mask import mask_finished_scores
-from deepspeech.modules.mask import subsequent_mask
 
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
@@ -101,6 +102,8 @@ class U2Model(nn.Module):
             speech_lengths: (Batch, )
             text: (Batch, Length)
             text_lengths: (Batch,)
+        Returns:
+            total_loss, attention_loss, ctc_loss
         """
         assert text_lengths.dim() == 1, text_lengths.shape
         # Check that batch_size is unified
@@ -109,21 +112,19 @@ class U2Model(nn.Module):
                                          text.shape, text_lengths.shape)
         # 1. Encoder
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
-        encoder_out_lens = encoder_mask.squeeze(1).sum(1)
+        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
 
         # 2a. Attention-decoder branch
+        loss_att = None
         if self.ctc_weight != 1.0:
             loss_att, acc_att = self._calc_att_loss(encoder_out, encoder_mask,
                                                     text, text_lengths)
-        else:
-            loss_att = None
 
         # 2b. CTC branch
+        loss_ctc = None
         if self.ctc_weight != 0.0:
             loss_ctc = self.ctc(encoder_out, encoder_out_lens, text,
                                 text_lengths)
-        else:
-            loss_ctc = None
 
         if loss_ctc is None:
             loss = loss_att
@@ -139,6 +140,17 @@ class U2Model(nn.Module):
             encoder_mask: paddle.Tensor,
             ys_pad: paddle.Tensor,
             ys_pad_lens: paddle.Tensor, ) -> Tuple[paddle.Tensor, float]:
+        """Calc attention loss.
+
+        Args:
+            encoder_out (paddle.Tensor): [B, Tmax, D]
+            encoder_mask (paddle.Tensor): [B, 1, Tmax]
+            ys_pad (paddle.Tensor): [B, Umax]
+            ys_pad_lens (paddle.Tensor): [B]
+
+        Returns:
+            Tuple[paddle.Tensor, float]: attention_loss, accuracy rate
+        """
         ys_in_pad, ys_out_pad = add_sos_eos(ys_pad, self.sos, self.eos,
                                             self.ignore_id)
         ys_in_lens = ys_pad_lens + 1
@@ -163,6 +175,20 @@ class U2Model(nn.Module):
             num_decoding_left_chunks: int=-1,
             simulate_streaming: bool=False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        """Encoder pass.
+
+        Args:
+            speech (paddle.Tensor): [B, Tmax, D]
+            speech_lengths (paddle.Tensor): [B]
+            decoding_chunk_size (int, optional): chuck size. Defaults to -1.
+            num_decoding_left_chunks (int, optional): nums chunks. Defaults to -1.
+            simulate_streaming (bool, optional): streaming or not. Defaults to False.
+
+        Returns:
+            Tuple[paddle.Tensor, paddle.Tensor]: 
+                encoder hiddens (B, Tmax, D), 
+                encoder hiddens mask (B, 1, Tmax).
+        """
         # Let's assume B = batch_size
         # 1. Encoder
         if simulate_streaming and decoding_chunk_size > 0:
@@ -205,7 +231,7 @@ class U2Model(nn.Module):
         """
         assert speech.shape[0] == speech_lengths.shape[0]
         assert decoding_chunk_size != 0
-        device = speech.device
+        device = speech.place
         batch_size = speech.shape[0]
 
         # Let's assume B = batch_size and N = beam_size
@@ -223,14 +249,14 @@ class U2Model(nn.Module):
             1, beam_size, 1, 1).view(running_size, 1,
                                      maxlen)  # (B*N, 1, max_len)
 
-        hyps = torch.ones(
-            [running_size, 1], dtype=torch.long,
-            device=device).fill_(self.sos)  # (B*N, 1)
-        scores = paddle.tensor(
-            [0.0] + [-float('inf')] * (beam_size - 1), dtype=torch.float)
+        hyps = paddle.ones(
+            [running_size, 1], dtype=paddle.long).fill_(self.sos)  # (B*N, 1)
+        # log scale score
+        scores = paddle.to_tensor(
+            [0.0] + [-float('inf')] * (beam_size - 1), dtype=paddle.float)
         scores = scores.to(device).repeat([batch_size]).unsqueeze(1).to(
             device)  # (B*N, 1)
-        end_flag = torch.zeros_like(scores, dtype=torch.bool, device=device)
+        end_flag = paddle.zeros_like(scores, dtype=paddle.bool)  # (B*N, 1)
         cache: Optional[List[paddle.Tensor]] = None
         # 2. Decoder forward step by step
         for i in range(1, maxlen + 1):

@@ -50,6 +50,52 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
     return mask
 
 
+def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
+    """Make mask tensor containing indices of padded part.
+    See description of make_non_pad_mask.
+    Args:
+        lengths (paddle.Tensor): Batch of lengths (B,).
+    Returns:
+        paddle.Tensor: Mask tensor containing indices of padded part.
+    Examples:
+        >>> lengths = [5, 3, 2]
+        >>> make_pad_mask(lengths)
+        masks = [[0, 0, 0, 0 ,0],
+                 [0, 0, 0, 1, 1],
+                 [0, 0, 1, 1, 1]]
+    """
+    batch_size = int(lengths.shape[0])
+    max_len = int(lengths.max())
+    seq_range = paddle.arange(0, max_len, dtype=paddle.int64)
+    seq_range_expand = seq_range.unsqueeze(0).expand([batch_size, max_len])
+    seq_length_expand = lengths.unsqueeze(-1)
+    mask = seq_range_expand >= seq_length_expand
+    return mask
+
+
+def make_non_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
+    """Make mask tensor containing indices of non-padded part.
+    The sequences in a batch may have different lengths. To enable
+    batch computing, padding is need to make all sequence in same
+    size. To avoid the padding part pass value to context dependent
+    block such as attention or convolution , this padding part is
+    masked.
+    This pad_mask is used in both encoder and decoder.
+    1 for non-padded part and 0 for padded part.
+    Args:
+        lengths (paddle.Tensor): Batch of lengths (B,).
+    Returns:
+        paddle.Tensor: mask tensor containing indices of padded part.
+    Examples:
+        >>> lengths = [5, 3, 2]
+        >>> make_non_pad_mask(lengths)
+        masks = [[1, 1, 1, 1 ,1],
+                 [1, 1, 1, 0, 0],
+                 [1, 1, 0, 0, 0]]
+    """
+    return ~make_pad_mask(lengths)
+
+
 def subsequent_mask(size: int) -> paddle.Tensor:
     """Create mask for subsequent steps (size, size).
     This mask is used only in decoder which works in an auto-regressive mode.
@@ -168,52 +214,6 @@ def add_optional_chunk_mask(xs: paddle.Tensor,
     else:
         chunk_masks = masks
     return chunk_masks
-
-
-def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
-    """Make mask tensor containing indices of padded part.
-    See description of make_non_pad_mask.
-    Args:
-        lengths (paddle.Tensor): Batch of lengths (B,).
-    Returns:
-        paddle.Tensor: Mask tensor containing indices of padded part.
-    Examples:
-        >>> lengths = [5, 3, 2]
-        >>> make_pad_mask(lengths)
-        masks = [[0, 0, 0, 0 ,0],
-                 [0, 0, 0, 1, 1],
-                 [0, 0, 1, 1, 1]]
-    """
-    batch_size = int(lengths.shape[0])
-    max_len = int(lengths.max())
-    seq_range = paddle.arange(0, max_len, dtype=paddle.int64)
-    seq_range_expand = seq_range.unsqueeze(0).expand([batch_size, max_len])
-    seq_length_expand = lengths.unsqueeze(-1)
-    mask = seq_range_expand >= seq_length_expand
-    return mask
-
-
-def make_non_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
-    """Make mask tensor containing indices of non-padded part.
-    The sequences in a batch may have different lengths. To enable
-    batch computing, padding is need to make all sequence in same
-    size. To avoid the padding part pass value to context dependent
-    block such as attention or convolution , this padding part is
-    masked.
-    This pad_mask is used in both encoder and decoder.
-    1 for non-padded part and 0 for padded part.
-    Args:
-        lengths (paddle.Tensor): Batch of lengths (B,).
-    Returns:
-        paddle.Tensor: mask tensor containing indices of padded part.
-    Examples:
-        >>> lengths = [5, 3, 2]
-        >>> make_non_pad_mask(lengths)
-        masks = [[1, 1, 1, 1 ,1],
-                 [1, 1, 1, 0, 0],
-                 [1, 1, 0, 0, 0]]
-    """
-    return ~make_pad_mask(lengths)
 
 
 def mask_finished_scores(score: paddle.Tensor,

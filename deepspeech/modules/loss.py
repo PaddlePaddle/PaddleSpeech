@@ -88,7 +88,10 @@ class LabelSmoothingLoss(nn.Layer):
             size (int): the number of class
             padding_idx (int): padding class id which will be ignored for loss
             smoothing (float): smoothing rate (0.0 means the conventional CE)
-            normalize_length (bool): True, normalize loss by sequence length; False, normalize loss by batch size. Defaults to False.
+            normalize_length (bool): 
+                True, normalize loss by sequence length; 
+                False, normalize loss by batch size.
+                Defaults to False.
         """
         super().__init__()
         self.size = size
@@ -103,6 +106,7 @@ class LabelSmoothingLoss(nn.Layer):
         The model outputs and data labels tensors are flatten to
         (batch*seqlen, class) shape and a mask is applied to the
         padding part which should not be calculated for loss.
+        
         Args:
             x (paddle.Tensor): prediction (batch, seqlen, class)
             target (paddle.Tensor):

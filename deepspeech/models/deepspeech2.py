@@ -168,13 +168,13 @@ class DeepSpeech2Model(nn.Layer):
             dropout_rate=0.0,
             reduction=True)
 
-    def forward(self, audio, text, audio_len, text_len):
+    def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss
 
         Args:
             audio (Tenosr): [B, T, D]
-            text (Tensor): [B, U]
             audio_len (Tensor): [B]
+            text (Tensor): [B, U]
             text_len (Tensor): [B]
 
         Returns:

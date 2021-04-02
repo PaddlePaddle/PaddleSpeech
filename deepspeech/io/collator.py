@@ -17,6 +17,7 @@ import numpy as np
 from collections import namedtuple
 
 from deepspeech.io.utility import pad_sequence
+from deepspeech.utils.tensor_utils import IGNORE_ID
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +29,6 @@ class SpeechCollator():
         """
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one bach.
-
-        If ``padding_to`` is -1, the maximun shape in the batch will be used
-        as the target shape for padding. Otherwise, `padding_to` will be the
-        target shape (only refers to the second axis).
 
         if ``is_training`` is True, text is token ids else is raw string.
         """
@@ -48,8 +45,8 @@ class SpeechCollator():
         Returns:
             tuple(audio, text, audio_lens, text_lens): batched data.
                 audio : (B, Tmax, D)
-                text : (B, Umax)
                 audio_lens: (B)
+                text : (B, Umax)
                 text_lens: (B)
         """
         audios = []
@@ -76,7 +73,9 @@ class SpeechCollator():
 
         padded_audios = pad_sequence(
             audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
-        padded_texts = pad_sequence(texts, padding_value=-1).astype(np.int32)
         audio_lens = np.array(audio_lens).astype(np.int64)
+        # (TODO:Hui Zhang) ctc loss does not support int64 labels
+        padded_texts = pad_sequence(
+            texts, padding_value=IGNORE_ID).astype(np.int32)
         text_lens = np.array(text_lens).astype(np.int64)
-        return padded_audios, padded_texts, audio_lens, text_lens
+        return padded_audios, audio_lens, padded_texts, text_lens

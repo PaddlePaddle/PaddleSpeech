@@ -152,12 +152,12 @@ class TransformerDecoder(nn.Module):
             memory: encoded memory, float32  (batch, maxlen_in, feat)
             memory_mask: encoded memory mask, (batch, 1, maxlen_in)
             tgt: input token ids, int64 (batch, maxlen_out)
-            tgt_mask: input token mask,  (batch, maxlen_out)
+            tgt_mask: input token mask,  (batch, maxlen_out, maxlen_out)
                       dtype=paddle.bool
             cache: cached output list of (batch, max_time_out-1, size)
         Returns:
             y, cache: NN output value and cache per `self.decoders`.
-            y.shape` is (batch, maxlen_out, token)
+                y.shape` is (batch, token)
         """
         x, _ = self.embed(tgt)
         new_cache = []

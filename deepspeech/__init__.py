@@ -222,6 +222,31 @@ if not hasattr(paddle.Tensor, 'relu'):
     logger.warn("register user relu to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'relu', paddle.nn.functional.relu)
 
+
+def type_as(x: paddle.Tensor, other: paddle.Tensor) -> paddle.Tensor:
+    return x.astype(other.dtype)
+
+
+if not hasattr(paddle.Tensor, 'type_as'):
+    logger.warn(
+        "register user type_as to paddle.Tensor, remove this when fixed!")
+    setattr(paddle.Tensor, 'type_as', type_as)
+
+
+def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
+    assert len(args) == 1
+    if isinstace(args[0], str):  # dtype
+        return x.astype(args[0])
+    elif isinstance(args[0], paddle.Tensor):  #Tensor
+        return x.astype(args[0].dtype)
+    else:  # Device
+        return x
+
+
+if not hasattr(paddle.Tensor, 'to'):
+    logger.warn("register user to to paddle.Tensor, remove this when fixed!")
+    setattr(paddle.Tensor, 'to', to)
+
 ########### hcak paddle.nn.functional #############
 
 

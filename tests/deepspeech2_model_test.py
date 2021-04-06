@@ -28,12 +28,11 @@ class TestDeepSpeech2Model(unittest.TestCase):
 
         #(B, T, D)
         audio = np.random.randn(self.batch_size, max_len, self.feat_dim)
-        audio_len = np.random.randint(
-            max_len, size=self.batch_size, dtype='int32')
+        audio_len = np.random.randint(max_len, size=self.batch_size)
         audio_len[-1] = max_len
         #(B, U)
-        text = np.array([[1, 2], [1, 2]], dtype='int32')
-        text_len = np.array([2] * self.batch_size, dtype='int32')
+        text = np.array([[1, 2], [1, 2]])
+        text_len = np.array([2] * self.batch_size)
 
         self.audio = paddle.to_tensor(audio, dtype='float32')
         self.audio_len = paddle.to_tensor(audio_len, dtype='int64')

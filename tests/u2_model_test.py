@@ -21,39 +21,30 @@ from deepspeech.models.u2 import U2ConformerModel
 
 class TestU2Model(unittest.TestCase):
     def setUp(self):
-        batch_size = 2
-        feat_dim = 161
-        max_len = 100
-        audio = np.random.randn(batch_size, feat_dim, max_len)
-        audio_len = np.random.randint(100, size=batch_size, dtype='int32')
-        audio_len[-1] = 100
-        text = np.array([[1, 2], [1, 2]], dtype='int32')
-        text_len = np.array([2] * batch_size, dtype='int32')
+        paddle.set_device('cpu')
+
+        self.batch_size = 2
+        self.feat_dim = 161
+        self.max_len = 64
+
+        #(B, T, D)
+        audio = np.random.randn(self.batch_size, self.max_len, self.feat_dim)
+        audio_len = np.random.randint(self.max_len, size=self.batch_size)
+        audio_len[-1] = self.max_len
+        #(B, U)
+        text = np.array([[1, 2], [1, 2]])
+        text_len = np.array([2] * self.batch_size)
 
         self.audio = paddle.to_tensor(audio, dtype='float32')
         self.audio_len = paddle.to_tensor(audio_len, dtype='int64')
         self.text = paddle.to_tensor(text, dtype='int32')
         self.text_len = paddle.to_tensor(text_len, dtype='int64')
 
-        print(audio.shape)
-        print(audio_len.shape)
-        print(text.shape)
-        print(text_len.shape)
-        print("-----------------")
+    def test_transformer(self):
+        model = U2TransformerModel()
 
-    def test_ds2_1(self):
-        model = DeepSpeech2Model(
-            feat_size=feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            use_gru=False,
-            share_rnn_weights=False, )
-        logits, probs, logits_len = model(self.audio, self.audio_len, self.text,
-                                          self.text_len)
-        print('probs.shape', probs.shape)
-        print("-----------------")
+    def test_conformer(self):
+        model = U2ConformerModel()
 
 
 if __name__ == '__main__':

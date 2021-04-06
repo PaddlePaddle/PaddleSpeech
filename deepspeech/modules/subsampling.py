@@ -37,7 +37,7 @@ class BaseSubsampling(nn.Layer):
         self.pos_enc = pos_enc_class
         # window size = (1 + right_context) + (chunk_size -1) * subsampling_rate
         self.right_context = 0
-        # stride = chunk_size * subsampling_rate
+        # stride = subsampling_rate * chunk_size
         self.subsampling_rate = 1
 
     def position_encoding(self, offset: int, size: int) -> paddle.Tensor:

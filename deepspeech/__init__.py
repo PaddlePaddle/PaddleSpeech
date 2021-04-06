@@ -78,7 +78,32 @@ if not hasattr(paddle, 'cat'):
         "override cat of paddle if exists or register, remove this when fixed!")
     paddle.cat = cat
 
+
 ########### hcak paddle.Tensor #############
+def item(x: paddle.Tensor):
+    if x.dtype == paddle.fluid.core_avx.VarDesc.VarType.FP32:
+        return float(x)
+    else:
+        raise ValueError("not support")
+
+
+if not hasattr(paddle.Tensor, 'item'):
+    logger.warn(
+        "override item of paddle.Tensor if exists or register, remove this when fixed!"
+    )
+    paddle.Tensor.item = item
+
+
+def func_long(x: paddle.Tensor):
+    return paddle.cast(x, paddle.long)
+
+
+if not hasattr(paddle.Tensor, 'long'):
+    logger.warn(
+        "override long of paddle.Tensor if exists or register, remove this when fixed!"
+    )
+    paddle.Tensor.long = func_long
+
 if not hasattr(paddle.Tensor, 'numel'):
     logger.warn(
         "override numel of paddle.Tensor if exists or register, remove this when fixed!"
@@ -246,6 +271,15 @@ def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
 if not hasattr(paddle.Tensor, 'to'):
     logger.warn("register user to to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'to', to)
+
+
+def func_float(x: paddle.Tensor) -> paddle.Tensor:
+    return x.astype(paddle.float)
+
+
+if not hasattr(paddle.Tensor, 'float'):
+    logger.warn("register user float to paddle.Tensor, remove this when fixed!")
+    setattr(paddle.Tensor, 'float', func_float)
 
 ########### hcak paddle.nn.functional #############
 

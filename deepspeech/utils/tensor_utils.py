@@ -20,35 +20,70 @@ import paddle
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["pad_list", "add_sos_eos", "th_accuracy"]
+__all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
 
 IGNORE_ID = -1
 
 
-def pad_list(xs: List[paddle.Tensor], pad_value: int):
-    """Perform padding for the list of tensors.
-    Args:
-        xs (List): List of Tensors [(T_1, `*`), (T_2, `*`), ..., (T_B, `*`)].
-        pad_value (float): Value for padding.
-    Returns:
-        Tensor: Padded tensor (B, Tmax, `*`).
-    Examples:
-        >>> x = [paddle.ones(4), paddle.ones(2), paddle.ones(1)]
-        >>> x
-        [tensor([1., 1., 1., 1.]), tensor([1., 1.]), tensor([1.])]
-        >>> pad_list(x, 0)
-        tensor([[1., 1., 1., 1.],
-                [1., 1., 0., 0.],
-                [1., 0., 0., 0.]])
-    """
-    n_batch = len(xs)
-    max_len = max([x.size(0) for x in xs])
-    pad = paddle.zeros(n_batch, max_len, dtype=xs[0].dtype)
-    pad = pad.fill_(pad_value)
-    for i in range(n_batch):
-        pad[i, :xs[i].size(0)] = xs[i]
+def pad_sequence(sequences: List[paddle.Tensor],
+                 batch_first: bool=False,
+                 padding_value: float=0.0) -> paddle.Tensor:
+    r"""Pad a list of variable length Tensors with ``padding_value``
 
-    return pad
+    ``pad_sequence`` stacks a list of Tensors along a new dimension,
+    and pads them to equal length. For example, if the input is list of
+    sequences with size ``L x *`` and if batch_first is False, and ``T x B x *``
+    otherwise.
+
+    `B` is batch size. It is equal to the number of elements in ``sequences``.
+    `T` is length of the longest sequence.
+    `L` is length of the sequence.
+    `*` is any number of trailing dimensions, including none.
+
+    Example:
+        >>> from paddle.nn.utils.rnn import pad_sequence
+        >>> a = paddle.ones(25, 300)
+        >>> b = paddle.ones(22, 300)
+        >>> c = paddle.ones(15, 300)
+        >>> pad_sequence([a, b, c]).size()
+        paddle.Tensor([25, 3, 300])
+
+    Note:
+        This function returns a Tensor of size ``T x B x *`` or ``B x T x *``
+        where `T` is the length of the longest sequence. This function assumes
+        trailing dimensions and type of all the Tensors in sequences are same.
+
+    Args:
+        sequences (list[Tensor]): list of variable length sequences.
+        batch_first (bool, optional): output will be in ``B x T x *`` if True, or in
+            ``T x B x *`` otherwise
+        padding_value (float, optional): value for padded elements. Default: 0.
+
+    Returns:
+        Tensor of size ``T x B x *`` if :attr:`batch_first` is ``False``.
+        Tensor of size ``B x T x *`` otherwise
+    """
+
+    # assuming trailing dimensions and type of all the Tensors
+    # in sequences are same and fetching those from sequences[0]
+    max_size = sequences[0].size()
+    trailing_dims = max_size[1:]
+    max_len = max([s.size(0) for s in sequences])
+    if batch_first:
+        out_dims = (len(sequences), max_len) + trailing_dims
+    else:
+        out_dims = (max_len, len(sequences)) + trailing_dims
+
+    out_tensor = sequences[0].new_full(out_dims, padding_value)
+    for i, tensor in enumerate(sequences):
+        length = tensor.size(0)
+        # use index notation to prevent duplicate references to the tensor
+        if batch_first:
+            out_tensor[i, :length, ...] = tensor
+        else:
+            out_tensor[:length, i, ...] = tensor
+
+    return out_tensor
 
 
 def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,

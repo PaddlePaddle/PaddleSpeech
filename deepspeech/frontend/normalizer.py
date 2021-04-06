@@ -57,17 +57,17 @@ class FeatureNormalizer(object):
         else:
             self._read_mean_std_from_file(mean_std_filepath)
 
-    def apply(self, features, eps=1e-14):
+    def apply(self, features):
         """Normalize features to be of zero mean and unit stddev.
 
         :param features: Input features to be normalized.
-        :type features: ndarray
+        :type features: ndarray, shape (D, T)
         :param eps:  added to stddev to provide numerical stablibity.
         :type eps: float
         :return: Normalized features.
         :rtype: ndarray
         """
-        return (features - self._mean) / (self._std + eps)
+        return (features - self._mean) * self._istd
 
     def write_to_file(self, filepath):
         """Write the mean and stddev to the file.
@@ -77,11 +77,13 @@ class FeatureNormalizer(object):
         """
         np.savez(filepath, mean=self._mean, std=self._std)
 
-    def _read_mean_std_from_file(self, filepath):
+    def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
         npzfile = np.load(filepath)
         self._mean = npzfile["mean"]
-        self._std = npzfile["std"]
+        std = npzfile["std"]
+        std = np.clip(std, eps, None)
+        self._istd = 1.0 / std
 
     def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
         """Compute mean and std from randomly sampled instances."""
@@ -92,6 +94,6 @@ class FeatureNormalizer(object):
             features.append(
                 featurize_func(
                     AudioSegment.from_file(instance["audio_filepath"])))
-        features = np.hstack(features)
-        self._mean = np.mean(features, axis=1).reshape([-1, 1])
-        self._std = np.std(features, axis=1).reshape([-1, 1])
+        features = np.hstack(features)  #(D, T)
+        self._mean = np.mean(features, axis=1).reshape([-1, 1])  #(D, 1)
+        self._std = np.std(features, axis=1).reshape([-1, 1])  #(D, 1)

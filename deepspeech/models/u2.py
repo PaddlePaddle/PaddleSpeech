@@ -29,7 +29,6 @@ from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
-from paddle.nn.utils.rnn import pad_sequence
 from deepspeech.modules.mask import make_pad_mask
 from deepspeech.modules.mask import mask_finished_preds
 from deepspeech.modules.mask import mask_finished_scores
@@ -42,13 +41,15 @@ from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.modules.decoder import TransformerDecoder
 from deepspeech.modules.label_smoothing_loss import LabelSmoothingLoss
 
+from deepspeech.frontend.utility import load_cmvn
+
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
-from deepspeech.utils.cmvn import load_cmvn
 from deepspeech.utils.utility import log_add
 from deepspeech.utils.tensor_utils import IGNORE_ID
 from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import th_accuracy
+from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.ctc_utils import remove_duplicates_and_blank
 
 logger = logging.getLogger(__name__)
@@ -635,7 +636,7 @@ class U2TransformerModel(U2Model):
     def __init__(configs: dict):
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
-                                   configs['is_json_cmvn'])
+                                   configs['cmvn_file_type'])
             global_cmvn = GlobalCMVN(
                 paddle.to_tensor(mean).float(), paddle.to_tensor(istd).float())
         else:
@@ -666,7 +667,7 @@ class U2ConformerModel(U2Model):
     def __init__(configs: dict):
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
-                                   configs['is_json_cmvn'])
+                                   configs['cmvn_file_type'])
             global_cmvn = GlobalCMVN(
                 paddle.to_tensor(mean).float(), paddle.to_tensor(istd).float())
         else:

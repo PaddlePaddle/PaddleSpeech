@@ -21,7 +21,11 @@ from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['sequence_mask']
+__all__ = [
+    'sequence_mask', "make_pad_mask", "make_non_pad_mask", "subsequent_mask",
+    "subsequent_chunk_mask", "add_optional_chunk_mask", "mask_finished_scores",
+    "mask_finished_preds"
+]
 
 
 def sequence_mask(x_len, max_len=None, dtype='float32'):
@@ -93,7 +97,7 @@ def make_non_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
                  [1, 1, 1, 0, 0],
                  [1, 1, 0, 0, 0]]
     """
-    return ~make_pad_mask(lengths)
+    return make_pad_mask(lengths).logical_not()
 
 
 def subsequent_mask(size: int) -> paddle.Tensor:

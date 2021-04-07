@@ -115,14 +115,28 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
                 [ 4,  5,  6, 11, -1, -1],
                 [ 7,  8,  9, 11, -1, -1]])
     """
-    _sos = paddle.to_tensor(
-        [sos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
-    _eos = paddle.to_tensor(
-        [eos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
-    ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
-    ys_in = [paddle.cat([_sos, y], dim=0) for y in ys]
-    ys_out = [paddle.cat([y, _eos], dim=0) for y in ys]
-    return pad_sequence(ys_in, padding_value=eos), pad_sequence(ys_out, padding_value=ignore_id)
+    # TODO(Hui Zhang): using comment code, 
+    #_sos = paddle.to_tensor(
+    #    [sos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
+    #_eos = paddle.to_tensor(
+    #    [eos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
+    #ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
+    #ys_in = [paddle.cat([_sos, y], dim=0) for y in ys]
+    #ys_out = [paddle.cat([y, _eos], dim=0) for y in ys]
+    #return pad_sequence(ys_in, padding_value=eos), pad_sequence(ys_out, padding_value=ignore_id)
+    B = ys_pad.size(0)
+    _sos = paddle.ones([B, 1], dtype=ys_pad.dtype) * sos
+    _eos = paddle.ones([B, 1], dtype=ys_pad.dtype) * eos
+    ys_in = paddle.cat([_sos, ys_pad], dim=1)
+    mask_pad = (ys_in == ignore_id)
+    ys_in = ys_in.masked_fill(mask_pad, eos)
+
+    ys_out = paddle.cat([ys_pad, _eos], dim=1)
+    ys_out = ys_out.masked_fill(mask_pad, eos)
+    mask_eos = (ys_in == ignore_id)
+    ys_out = ys_out.masked_fill(mask_eos, eos)
+    ys_out = ys_out.masked_fill(mask_pad, ignore_id)
+    return ys_in, ys_out
 
 
 def th_accuracy(pad_outputs: paddle.Tensor,
@@ -139,7 +153,13 @@ def th_accuracy(pad_outputs: paddle.Tensor,
     pad_pred = pad_outputs.view(
         pad_targets.size(0), pad_targets.size(1), pad_outputs.size(1)).argmax(2)
     mask = pad_targets != ignore_label
-    numerator = paddle.sum(
+    #TODO(Hui Zhang): sum not support bool type
+    # numerator = paddle.sum(
+    #     pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
+    numerator = (
         pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
-    denominator = paddle.sum(mask)
+    numerator = paddle.sum(numerator.type_as(pad_targets))
+    #TODO(Hui Zhang): sum not support bool type
+    # denominator = paddle.sum(mask)
+    denominator = paddle.sum(mask.type_as(pad_targets))
     return float(numerator) / float(denominator)

@@ -97,6 +97,7 @@ def make_non_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
                  [1, 1, 1, 0, 0],
                  [1, 1, 0, 0, 0]]
     """
+    #TODO(Hui Zhang): return ~make_pad_mask(lengths), not support ~
     return make_pad_mask(lengths).logical_not()
 
 
@@ -119,7 +120,12 @@ def subsequent_mask(size: int) -> paddle.Tensor:
          [1, 1, 1]]
     """
     ret = paddle.ones([size, size], dtype=paddle.bool)
-    return paddle.tril(ret)
+    #TODO(Hui Zhang): tril not support bool
+    #return paddle.tril(ret)
+    ret = ret.astype(paddle.float)
+    ret = paddle.tril(ret)
+    ret = ret.astype(paddle.bool)
+    return ret
 
 
 def subsequent_chunk_mask(

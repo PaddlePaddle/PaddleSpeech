@@ -168,6 +168,8 @@ if not hasattr(paddle.Tensor, 'new_full'):
 
 
 def eq(xs: paddle.Tensor, ys: Union[paddle.Tensor, float]) -> paddle.Tensor:
+    if convert_dtype_to_string(xs.dtype) == paddle.bool:
+        xs = xs.astype(paddle.int)
     return xs.equal(
         paddle.to_tensor(
             ys, dtype=convert_dtype_to_string(xs.dtype), place=xs.place))
@@ -262,7 +264,7 @@ def masked_fill_(xs: paddle.Tensor,
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value
     ret = paddle.where(mask, trues, xs)
-    paddle.assign(ret, output=xs)
+    paddle.assign(ret.detach(), output=xs)
 
 
 if not hasattr(paddle.Tensor, 'masked_fill_'):
@@ -273,7 +275,7 @@ if not hasattr(paddle.Tensor, 'masked_fill_'):
 
 def fill_(xs: paddle.Tensor, value: Union[float, int]):
     val = paddle.full_like(xs, value)
-    paddle.assign(val, output=xs)
+    paddle.assign(val.detach(), output=xs)
 
 
 if not hasattr(paddle.Tensor, 'fill_'):

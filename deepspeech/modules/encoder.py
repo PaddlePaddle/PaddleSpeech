@@ -155,12 +155,15 @@ class BaseEncoder(nn.Layer):
             encoder output tensor, lens and mask
         """
         masks = make_non_pad_mask(xs_lens).unsqueeze(1)  # (B, 1, L)
-        #TODO(Hui Zhang): mask_pad = ~masks
-        mask_pad = masks.logical_not()
+
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
         #TODO(Hui Zhang): self.embed(xs, masks, offset=0), stride_slice not support bool tensor
         xs, pos_emb, masks = self.embed(xs, masks.type_as(xs), offset=0)
+        #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
+        masks = masks.astype(paddle.bool)
+        #TODO(Hui Zhang): mask_pad = ~masks
+        mask_pad = masks.logical_not()
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
             decoding_chunk_size, self.static_chunk_size,

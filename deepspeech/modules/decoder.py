@@ -26,7 +26,7 @@ from deepspeech.modules.decoder_layer import DecoderLayer
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
 from deepspeech.modules.mask import subsequent_mask
-from deepspeech.modules.mask import make_pad_mask
+from deepspeech.modules.mask import make_non_pad_mask
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +124,9 @@ class TransformerDecoder(nn.Module):
         # m: (1, L, L)
         m = subsequent_mask(tgt_mask.size(-1)).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        tgt_mask = tgt_mask & m
+        # TODO(Hui Zhang): not support & for tensor
+        #tgt_mask = tgt_mask & m
+        tgt_mask = tgt_mask.logical_and(m)
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -135,7 +137,9 @@ class TransformerDecoder(nn.Module):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        olens = tgt_mask.sum(1)
+        #TODO(Hui Zhang): reduce_sum not support bool type
+        #olens = tgt_mask.sum(1)
+        olens = tgt_mask.astype(paddle.int).sum(1)
         return x, olens
 
     def forward_one_step(

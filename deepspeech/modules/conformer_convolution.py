@@ -139,7 +139,7 @@ class ConvolutionModule(nn.Layer):
             # It's better we just return None if no cache is requried,
             # However, for JIT export, here we just fake one tensor instead of
             # None.
-            new_cache = paddle.to_tensor([0.0], dtype=x.dtype, place=x.place)
+            new_cache = paddle.zeros([1], dtype=x.dtype)
 
         # GLU mechanism
         x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)

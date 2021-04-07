@@ -86,8 +86,11 @@ class TestU2Model(unittest.TestCase):
         cfg.freeze()
         model = U2TransformerModel(cfg)
         summary(model, None)
-        output = model(self.audio, self.audio_len, self.text, self.text_len)
-        print(output)
+        total_loss, attention_loss, ctc_loss = model(self.audio, self.audio_len,
+                                                     self.text, self.text_len)
+        self.assertEqual(total_loss.numel(), 1)
+        self.assertEqual(attention_loss.numel(), 1)
+        self.assertEqual(ctc_loss.numel(), 1)
 
     def test_conformer(self):
         conf_str = """
@@ -135,8 +138,11 @@ class TestU2Model(unittest.TestCase):
         cfg.freeze()
         model = U2ConformerModel(cfg)
         summary(model, None)
-        output = model(self.audio, self.audio_len, self.text, self.text_len)
-        print(output)
+        total_loss, attention_loss, ctc_loss = model(self.audio, self.audio_len,
+                                                     self.text, self.text_len)
+        self.assertEqual(total_loss.numel(), 1)
+        self.assertEqual(attention_loss.numel(), 1)
+        self.assertEqual(ctc_loss.numel(), 1)
 
 
 if __name__ == '__main__':

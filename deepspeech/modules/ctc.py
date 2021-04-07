@@ -34,16 +34,16 @@ __all__ = ['CTCDecoder']
 
 class CTCDecoder(nn.Layer):
     def __init__(self,
-                 enc_n_units,
                  odim,
+                 enc_n_units,
                  blank_id=0,
                  dropout_rate: float=0.0,
                  reduction: bool=True):
         """CTC decoder
 
         Args:
+            odim ([int]): text vocabulary size
             enc_n_units ([int]): encoder output dimention
-            vocab_size ([int]): text vocabulary size
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar
         """

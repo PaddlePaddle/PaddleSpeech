@@ -112,7 +112,10 @@ class U2Model(nn.Module):
                                          text.shape, text_lengths.shape)
         # 1. Encoder
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
-        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
+        #TODO(Hui Zhang): sum not support bool type
+        #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
+        encoder_out_lens = encoder_mask.squeeze(1).astype(paddle.int64).sum(
+            1)  #[B, 1, T] -> [B]
 
         # 2a. Attention-decoder branch
         loss_att = None

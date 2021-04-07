@@ -48,7 +48,7 @@ class PositionalEncoding(nn.Layer):
         self.max_len = max_len
         self.xscale = paddle.to_tensor(math.sqrt(self.d_model))
         self.dropout = nn.Dropout(p=dropout_rate)
-        self.pe = paddle.zeros(self.max_len, self.d_model)  #[T,D]
+        self.pe = paddle.zeros([self.max_len, self.d_model])  #[T,D]
 
         position = paddle.arange(
             0, self.max_len, dtype=paddle.float32).unsqueeze(1)  #[T, 1]
@@ -70,11 +70,9 @@ class PositionalEncoding(nn.Layer):
             paddle.Tensor: Encoded tensor. Its shape is (batch, time, ...)
             paddle.Tensor: for compatibility to RelPositionalEncoding, (batch=1, time, ...)
         """
-        T = paddle.shape(x)[1]
-        assert offset + T < self.max_len
-        #assert offset + x.size(1) < self.max_len
-        #self.pe = self.pe.to(x.device)
-        #pos_emb = self.pe[:, offset:offset + x.size(1)]
+        T = x.shape[1]
+        assert offset + x.size(1) < self.max_len
+        #TODO(Hui Zhang): using T = x.size(1), __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + T]
         x = x * self.xscale + pos_emb
         return self.dropout(x), self.dropout(pos_emb)
@@ -119,11 +117,8 @@ class RelPositionalEncoding(PositionalEncoding):
             paddle.Tensor: Encoded tensor (batch, time, `*`).
             paddle.Tensor: Positional embedding tensor (1, time, `*`).
         """
-        #T = paddle.shape()[1]
-        #assert offset + T < self.max_len
         assert offset + x.size(1) < self.max_len
-        #self.pe = self.pe.to(x.device)
         x = x * self.xscale
-        pos_emb = self.pe[:, offset:offset + x.size(1)]
-        #pos_emb = self.pe[:, offset:offset + T]
+        #TODO(Hui Zhang): using x.size(1), __getitem__ not support Tensor
+        pos_emb = self.pe[:, offset:offset + x.shape[1]]
         return self.dropout(x), self.dropout(pos_emb)

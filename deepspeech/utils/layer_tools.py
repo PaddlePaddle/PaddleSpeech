@@ -24,13 +24,18 @@ __all__ = [
 
 def summary(layer: nn.Layer, print_func=print):
     num_params = num_elements = 0
-    print_func("layer summary:")
+    if print_func:
+        print_func(f"{layer.__class__.__name__} summary:")
     for name, param in layer.state_dict().items():
-        print_func("{}|{}|{}".format(name, param.shape, np.prod(param.shape)))
+        if print_func:
+            print_func(
+                "{} | {} | {}".format(name, param.shape, np.prod(param.shape)))
         num_elements += np.prod(param.shape)
         num_params += 1
-    print_func("layer has {} parameters, {} elements.".format(num_params,
-                                                              num_elements))
+    if print_func:
+        print_func(
+            f"{layer.__class__.__name__} has {num_params} parameters, {num_elements} elements."
+        )
 
 
 def gradient_norm(layer: nn.Layer):

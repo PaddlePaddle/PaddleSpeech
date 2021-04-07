@@ -23,7 +23,7 @@ from paddle.nn import initializer as I
 
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.attention import RelPositionMultiHeadedAttention
-from deepspeech.modules.convolution import ConvolutionModule
+from deepspeech.modules.conformer_convolution import ConvolutionModule
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.embedding import RelPositionalEncoding
 from deepspeech.modules.encoder_layer import TransformerEncoderLayer
@@ -33,7 +33,7 @@ from deepspeech.modules.subsampling import Conv2dSubsampling4
 from deepspeech.modules.subsampling import Conv2dSubsampling6
 from deepspeech.modules.subsampling import Conv2dSubsampling8
 from deepspeech.modules.subsampling import LinearNoSubsampling
-from deepspeech.modules.mask import make_pad_mask
+from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.mask import add_optional_chunk_mask
 from deepspeech.modules.activation import get_activation
 
@@ -155,10 +155,12 @@ class BaseEncoder(nn.Layer):
             encoder output tensor, lens and mask
         """
         masks = make_non_pad_mask(xs_lens).unsqueeze(1)  # (B, 1, L)
+        #TODO(Hui Zhang): mask_pad = ~masks
+        mask_pad = masks.logical_not()
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
-        xs, pos_emb, masks = self.embed(xs, masks, offset=0)
-        mask_pad = ~masks
+        #TODO(Hui Zhang): self.embed(xs, masks, offset=0), stride_slice not support bool tensor
+        xs, pos_emb, masks = self.embed(xs, masks.type_as(xs), offset=0)
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
             decoding_chunk_size, self.static_chunk_size,
@@ -380,7 +382,7 @@ class ConformerEncoder(BaseEncoder):
             concat_after: bool=False,
             static_chunk_size: int=0,
             use_dynamic_chunk: bool=False,
-            global_cmvn: torch.nn.Module=None,
+            global_cmvn: nn.Layer=None,
             use_dynamic_left_chunk: bool=False,
             positionwise_conv_kernel_size: int=1,
             macaron_style: bool=True,
@@ -431,7 +433,7 @@ class ConformerEncoder(BaseEncoder):
         self.encoders = nn.ModuleList([
             ConformerEncoderLayer(
                 size=output_size,
-                eself_attn=ncoder_selfattn_layer(*encoder_selfattn_layer_args),
+                self_attn=encoder_selfattn_layer(*encoder_selfattn_layer_args),
                 feed_forward=positionwise_layer(*positionwise_layer_args),
                 feed_forward_macaron=positionwise_layer(
                     *positionwise_layer_args) if macaron_style else None,

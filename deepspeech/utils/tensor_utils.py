@@ -122,7 +122,7 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
     ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
     ys_in = [paddle.cat([_sos, y], dim=0) for y in ys]
     ys_out = [paddle.cat([y, _eos], dim=0) for y in ys]
-    return pad_list(ys_in, eos), pad_list(ys_out, ignore_id)
+    return pad_sequence(ys_in, padding_value=eos), pad_sequence(ys_out, padding_value=ignore_id)
 
 
 def th_accuracy(pad_outputs: paddle.Tensor,

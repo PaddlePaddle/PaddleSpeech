@@ -20,6 +20,7 @@ from yacs.config import CfgNode as CN
 
 from deepspeech.models.u2 import U2TransformerModel
 from deepspeech.models.u2 import U2ConformerModel
+from deepspeech.utils.layer_tools import summary
 
 
 class TestU2Model(unittest.TestCase):
@@ -27,8 +28,9 @@ class TestU2Model(unittest.TestCase):
         paddle.set_device('cpu')
 
         self.batch_size = 2
-        self.feat_dim = 161
+        self.feat_dim = 83
         self.max_len = 64
+        self.vocab_size = 4239
 
         #(B, T, D)
         audio = np.random.randn(self.batch_size, self.max_len, self.feat_dim)
@@ -77,8 +79,15 @@ class TestU2Model(unittest.TestCase):
                 length_normalized_loss: false
         """
         cfg = CN().load_cfg(conf_str)
-        print(cfg)
-        model = U2TransformerModel()
+        cfg.input_dim = self.feat_dim
+        cfg.output_dim = self.vocab_size
+        cfg.cmvn_file = None
+        cfg.cmvn_file_type = 'npz'
+        cfg.freeze()
+        model = U2TransformerModel(cfg)
+        summary(model, None)
+        output = model(self.audio, self.audio_len, self.text, self.text_len)
+        print(output)
 
     def test_conformer(self):
         conf_str = """
@@ -119,8 +128,15 @@ class TestU2Model(unittest.TestCase):
                 length_normalized_loss: false
         """
         cfg = CN().load_cfg(conf_str)
-        print(cfg)
-        model = U2ConformerModel()
+        cfg.input_dim = self.feat_dim
+        cfg.output_dim = self.vocab_size
+        cfg.cmvn_file = None
+        cfg.cmvn_file_type = 'npz'
+        cfg.freeze()
+        model = U2ConformerModel(cfg)
+        summary(model, None)
+        output = model(self.audio, self.audio_len, self.text, self.text_len)
+        print(output)
 
 
 if __name__ == '__main__':

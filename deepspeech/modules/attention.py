@@ -217,11 +217,11 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # first compute matrix a and matrix c
         # as described in https://arxiv.org/abs/1901.02860 Section 3.3
         # (batch, head, time1, time2)
-        matrix_ac = torch.matmul(q_with_bias_u, k.transpose([0, 1, 3, 2]))
+        matrix_ac = paddle.matmul(q_with_bias_u, k.transpose([0, 1, 3, 2]))
 
         # compute matrix b and matrix d
         # (batch, head, time1, time2)
-        matrix_bd = torch.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
+        matrix_bd = paddle.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
         # Remove rel_shift since it is useless in speech recognition,
         # and it requires special attention for streaming.
         # matrix_bd = self.rel_shift(matrix_bd)

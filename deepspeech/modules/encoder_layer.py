@@ -127,7 +127,7 @@ class TransformerEncoderLayer(nn.Layer):
         if output_cache is not None:
             x = paddle.concat([output_cache, x], axis=1)
 
-        fake_cnn_cache = paddle.to_tensor([0.0], dtype=x.dtype, place=x.place)
+        fake_cnn_cache = paddle.zeros([1], dtype=x.dtype)
         return x, mask, fake_cnn_cache
 
 
@@ -253,7 +253,7 @@ class ConformerEncoderLayer(nn.Layer):
 
         # convolution module
         # Fake new cnn cache here, and then change it in conv_module
-        new_cnn_cache = paddle.to_tensor([0.0], dtype=x.dtype, place=x.place)
+        new_cnn_cache = paddle.zeros([1], dtype=x.dtype)
         if self.conv_module is not None:
             residual = x
             if self.normalize_before:

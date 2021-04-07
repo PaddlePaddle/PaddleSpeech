@@ -39,7 +39,7 @@ from deepspeech.modules.encoder import ConformerEncoder
 from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.modules.decoder import TransformerDecoder
-from deepspeech.modules.label_smoothing_loss import LabelSmoothingLoss
+from deepspeech.modules.loss import LabelSmoothingLoss
 
 from deepspeech.frontend.utility import load_cmvn
 
@@ -633,7 +633,7 @@ class U2Model(nn.Module):
 
 
 class U2TransformerModel(U2Model):
-    def __init__(configs: dict):
+    def __init__(self, configs: dict):
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
@@ -655,7 +655,7 @@ class U2TransformerModel(U2Model):
                                      **configs['decoder_conf'])
         ctc = CTCDecoder(vocab_size, encoder.output_size())
 
-        self.__init__(
+        super().__init__(
             vocab_size=vocab_size,
             encoder=encoder,
             decoder=decoder,
@@ -664,7 +664,7 @@ class U2TransformerModel(U2Model):
 
 
 class U2ConformerModel(U2Model):
-    def __init__(configs: dict):
+    def __init__(self, configs: dict):
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
@@ -686,7 +686,7 @@ class U2ConformerModel(U2Model):
                                      **configs['decoder_conf'])
         ctc = CTCDecoder(vocab_size, encoder.output_size())
 
-        self.__init__(
+        super().__init__(
             vocab_size=vocab_size,
             encoder=encoder,
             decoder=decoder,

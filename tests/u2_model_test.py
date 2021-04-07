@@ -13,8 +13,11 @@
 # limitations under the License.
 
 import paddle
-import numpy as np
+
 import unittest
+import numpy as np
+from yacs.config import CfgNode as CN
+
 from deepspeech.models.u2 import U2TransformerModel
 from deepspeech.models.u2 import U2ConformerModel
 
@@ -41,9 +44,82 @@ class TestU2Model(unittest.TestCase):
         self.text_len = paddle.to_tensor(text_len, dtype='int64')
 
     def test_transformer(self):
+        conf_str = """
+            # network architecture
+            # encoder related
+            encoder: transformer
+            encoder_conf:
+                output_size: 256    # dimension of attention
+                attention_heads: 4
+                linear_units: 2048  # the number of units of position-wise feed forward
+                num_blocks: 12      # the number of encoder blocks
+                dropout_rate: 0.1
+                positional_dropout_rate: 0.1
+                attention_dropout_rate: 0.0
+                input_layer: conv2d # encoder architecture type
+                normalize_before: true
+
+            # decoder related
+            decoder: transformer
+            decoder_conf:
+                attention_heads: 4
+                linear_units: 2048
+                num_blocks: 6
+                dropout_rate: 0.1
+                positional_dropout_rate: 0.1
+                self_attention_dropout_rate: 0.0
+                src_attention_dropout_rate: 0.0
+
+            # hybrid CTC/attention
+            model_conf:
+                ctc_weight: 0.3
+                lsm_weight: 0.1     # label smoothing option
+                length_normalized_loss: false
+        """
+        cfg = CN().load_cfg(conf_str)
+        print(cfg)
         model = U2TransformerModel()
 
     def test_conformer(self):
+        conf_str = """
+            # network architecture
+            # encoder related
+            encoder: conformer
+            encoder_conf:
+                output_size: 256    # dimension of attention
+                attention_heads: 4
+                linear_units: 2048  # the number of units of position-wise feed forward
+                num_blocks: 12      # the number of encoder blocks
+                dropout_rate: 0.1
+                positional_dropout_rate: 0.1
+                attention_dropout_rate: 0.0
+                input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+                normalize_before: true
+                cnn_module_kernel: 15
+                use_cnn_module: True
+                activation_type: 'swish'
+                pos_enc_layer_type: 'rel_pos'
+                selfattention_layer_type: 'rel_selfattn'
+
+            # decoder related
+            decoder: transformer
+            decoder_conf:
+                attention_heads: 4
+                linear_units: 2048
+                num_blocks: 6
+                dropout_rate: 0.1
+                positional_dropout_rate: 0.1
+                self_attention_dropout_rate: 0.0
+                src_attention_dropout_rate: 0.0
+
+            # hybrid CTC/attention
+            model_conf:
+                ctc_weight: 0.3
+                lsm_weight: 0.1     # label smoothing option
+                length_normalized_loss: false
+        """
+        cfg = CN().load_cfg(conf_str)
+        print(cfg)
         model = U2ConformerModel()
 
 

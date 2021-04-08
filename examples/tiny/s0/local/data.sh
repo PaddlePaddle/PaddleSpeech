@@ -23,10 +23,10 @@ bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
 # build vocabulary
 python3 ${MAIN_ROOT}/utils/build_vocab.py \
---unit_type "bpe" \
+--unit_type "spm" \
 --count_threshold=${nbpe} \
---bpe_mode ${bpemode} \
---bpe_model_prefix ${bpeprefix} \
+--spm_mode ${bpemode} \
+--spm_model_prefix ${bpeprefix} \
 --vocab_path="data/vocab.txt" \
 --manifest_paths="data/manifest.tiny.raw"
 
@@ -53,8 +53,8 @@ fi
 python3 ${MAIN_ROOT}/utils/format_data.py \
 --feat_type "raw" \
 --cmvn_path "data/mean_std.npz" \
---unit_type "bpe" \
---bpe_model_prefix ${bpeprefix} \
+--unit_type "spm" \
+--spm_model_prefix ${bpeprefix} \
 --vocab_path="data/vocab.txt" \
 --manifest_path="data/manifest.tiny.raw" \
 --output_path="data/manifest.tiny"

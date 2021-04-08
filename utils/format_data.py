@@ -27,6 +27,7 @@ from deepspeech.frontend.utility import SOS
 from deepspeech.frontend.utility import load_cmvn
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
+from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -35,7 +36,7 @@ add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kald
 add_arg('cmvn_path',       str,
         'examples/librispeech/data/mean_std.npz',
         "Filepath of cmvn.")
-add_arg('unit_type', str, "character", "Unit type, e.g. character, word, bpe")
+add_arg('unit_type', str, "char", "Unit type, e.g. char, word, spm")
 add_arg('vocab_path',       str,
         'examples/librispeech/data/vocab.txt',
         "Filepath of the vocabulary.")
@@ -46,7 +47,8 @@ add_arg('manifest_paths',   str,
         nargs='+',
         required=True)
 # bpe
-add_arg('bpe_model_prefix', str, "bpe_model_%(bpe_mode)_%(count_threshold)", "bpe model prefix, only need when `unit_type` is bpe")
+add_arg('spm_model_prefix', str, None,
+     "spm model prefix, spm_model_%(bpe_mode)_%(count_threshold), only need when `unit_type` is spm")
 add_arg('output_path',  str, None, "filepath of formated manifest.", required=True)
 # yapf: disable
 args = parser.parse_args()
@@ -54,93 +56,38 @@ args = parser.parse_args()
 
 def main():
     print_arguments(args)
+    fout = open(args.output_path, 'w', encoding='utf-8')
 
     # get feat dim
     mean, std = load_cmvn(args.cmvn_path, filetype='npz')
     feat_dim = mean.shape[0]
     print(f"Feature dim: {feat_dim}")
 
-    # read vocab
-    vocab = dict()
-    with open(args.vocab_path, 'r', encoding='utf-8') as fin:
-        for line in fin:
-            token = line.strip()
-            vocab[token] = len(vocab)
-    vocab_size = len(vocab)
+    text_feature = TextFeaturizer(args.unit_type, args.vocab_path, args.spm_model_prefix)
+    vocab_size = text_feature.vocab_size
     print(f"Vocab size: {vocab_size}")
 
-    fout = open(args.output_path, 'w', encoding='utf-8')
-
-    if args.unit_type != 'bpe':
-        for manifest_path in args.manifest_paths:
-            manifest_jsons = read_manifest(manifest_path)
-            for line_json in manifest_jsons:
-                tokens = []
-                tokenids = []
-                if args.unit_type == 'character':
-                    for char in line_json['text']:
-                        tokens.append(char)
-                        tokenids.append(vocab[char])
-                elif args.unit_type == 'word':
-                    for word in line_json['text'].split():
-                        tokens.append(word)
-                        tokenids.append(vocab[word])
-                line_json['token'] = tokens
-                line_json['token_id'] = tokenids
-                line_json['token_shape'] = (len(tokenids), vocab_size)
-                feat_shape = line_json['feat_shape']
-                assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
-                if args.feat_type == 'raw':
-                    feat_shape.append(feat_dim)
-                else: # kaldi
-                    raise NotImplemented('no support kaldi feat now!')
-                fout.write(json.dumps(line_json) + '\n')
-    else:
-        import sentencepiece as spm
-
-        # encode
-        sp = spm.SentencePieceProcessor()
-        sp.Load(args.bpe_model_prefix + '.model')
-
-        def valid(line):
-            return True
-
-        def encode(l):
-            return sp.EncodeAsPieces(l)
-
-        def encode_line(line):
-            line = line.strip()
-            if len(line) > 0:
-                line = encode(line)
-                if valid(line):
-                    return line
-                else:
-                    stats["num_filtered"] += 1
-            else:
-                stats["num_empty"] += 1
-            return None
-
-        for manifest_path in args.manifest_paths:
-            manifest_jsons = read_manifest(manifest_path)
-            for line_json in manifest_jsons:
-                line = line_json['text']
-                tokens = []
-                tokenids = []
-                enc_line = encode_line(line)
-                for code in enc_line:
-                    tokens.append(code)
-                    tokenids.append(vocab[code])
-                    #print(code, vocab[code])
-                line_json['token'] = tokens
-                line_json['token_id'] = tokenids
-                line_json['token_shape'] = (len(tokenids), vocab_size)
-                feat_shape = line_json['feat_shape']
-                assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
-                if args.feat_type == 'raw':
-                    feat_shape.append(feat_dim)
-                else: # kaldi
-                    raise NotImplemented('no support kaldi feat now!')
-                fout.write(json.dumps(line_json) + '\n')
+    for manifest_path in args.manifest_paths:
+        manifest_jsons = read_manifest(manifest_path)
+        for line_json in manifest_jsons:
+            line = line_json['text']
+            if args.unit_type == 'char':
+                tokens = text_feature.char_tokenize(line)
+            elif args.unit_type == 'word':
+                tokens = text_feature.word_tokenize(line)
+            else: #spm
+                tokens = text_feature.spm_tokenize(line)
+            tokenids = text_feature.featurize(line)
+            line_json['token'] = tokens
+            line_json['token_id'] = tokenids
+            line_json['token_shape'] = (len(tokenids), vocab_size)
+            feat_shape = line_json['feat_shape']
+            assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
+            if args.feat_type == 'raw':
+                feat_shape.append(feat_dim)
+            else: # kaldi
+                raise NotImplemented('no support kaldi feat now!')
+            fout.write(json.dumps(line_json) + '\n')
 
     fout.close()
 

@@ -14,7 +14,6 @@
 """Contains the text featurizer class."""
 
 import os
-import codecs
 import sentencepiece as spm
 
 from deepspeech.frontend.utility import UNK
@@ -42,7 +41,7 @@ class TextFeaturizer(object):
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'
             self.sp = spm.SentencePieceProcessor()
-            self.sp.Load(self.spm_model)
+            self.sp.Load(spm_model)
 
     def featurize(self, text):
         """Convert text string to a list of token indices in char-level.Note
@@ -51,14 +50,14 @@ class TextFeaturizer(object):
         :param text: Text to process.
         :type text: str
         :return: List of char-level token indices.
-        :rtype: list
+        :rtype: List[int]
         """
-        if unit_type == 'char':
-            tokens = self._char_tokenize(text)
-        elif unit_type == 'word':
-            tokens = self._word_tokenize(text)
+        if self.unit_type == 'char':
+            tokens = self.char_tokenize(text)
+        elif self.unit_type == 'word':
+            tokens = self.word_tokenize(text)
         else:
-            tokens = self._spm_tokenize(text)
+            tokens = self.spm_tokenize(text)
 
         ids = []
         for token in tokens:
@@ -84,15 +83,15 @@ class TextFeaturizer(object):
         """
         return self._vocab_list
 
-    def _char_tokenize(self, text):
+    def char_tokenize(self, text):
         """Character tokenizer."""
         return list(text.strip())
 
-    def _word_tokenize(self, text):
+    def word_tokenize(self, text):
         """Word tokenizer, spearte by <space>."""
         return text.strip().split()
 
-    def _spm_tokenize(self, text):
+    def spm_tokenize(self, text):
         """spm tokenize.
 
         Args:
@@ -127,7 +126,7 @@ class TextFeaturizer(object):
     def _load_vocabulary_from_file(self, vocab_filepath):
         """Load vocabulary from file."""
         vocab_lines = []
-        with codecs.open(vocab_filepath, 'r', 'utf-8') as file:
+        with open(vocab_filepath, 'r', encoding='utf-8') as file:
             vocab_lines.extend(file.readlines())
         vocab_list = [line[:-1] for line in vocab_lines]
         vocab_dict = dict(

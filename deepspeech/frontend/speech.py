@@ -24,7 +24,12 @@ class SpeechSegment(AudioSegment):
         AudioSegment (AudioSegment): Audio Segment
     """
 
-    def __init__(self, samples, sample_rate, transcript):
+    def __init__(self,
+                 samples,
+                 sample_rate,
+                 transcript,
+                 tokens=None,
+                 token_ids=None):
         """Speech segment abstraction, a subclass of AudioSegment,
             with an additional transcript.
 
@@ -32,9 +37,13 @@ class SpeechSegment(AudioSegment):
             samples (ndarray.float32): Audio samples [num_samples x num_channels].
             sample_rate (int): Audio sample rate.
             transcript (str): Transcript text for the speech.
+            tokens (List[str], optinal): Transcript tokens for the speech.
+            token_ids (List[int], optional): Transcript token ids for the speech.
         """
         AudioSegment.__init__(self, samples, sample_rate)
         self._transcript = transcript
+        self._tokens = tokens
+        self._token_ids = token_ids
 
     def __eq__(self, other):
         """Return whether two objects are equal.
@@ -46,6 +55,11 @@ class SpeechSegment(AudioSegment):
             return False
         if self._transcript != other._transcript:
             return False
+        if self.has_token and other.has_token:
+            if self._tokens != other._tokens:
+                return False
+            if self._token_ids != other._token_ids:
+                return False
         return True
 
     def __ne__(self, other):
@@ -53,33 +67,39 @@ class SpeechSegment(AudioSegment):
         return not self.__eq__(other)
 
     @classmethod
-    def from_file(cls, filepath, transcript):
+    def from_file(cls, filepath, transcript, tokens=None, token_ids=None):
         """Create speech segment from audio file and corresponding transcript.
-        
-        :param filepath: Filepath or file object to audio file.
-        :type filepath: str|file
-        :param transcript: Transcript text for the speech.
-        :type transript: str
-        :return: Speech segment instance.
-        :rtype: SpeechSegment
+
+        Args:
+            filepath (str|file): Filepath or file object to audio file.
+            transcript (str): Transcript text for the speech.
+            tokens (List[str], optional): text tokens. Defaults to None.
+            token_ids (List[int], optional): text token ids. Defaults to None.
+
+        Returns:
+            SpeechSegment: Speech segment instance.
         """
+
         audio = AudioSegment.from_file(filepath)
-        return cls(audio.samples, audio.sample_rate, transcript)
+        return cls(audio.samples, audio.sample_rate, transcript, tokens,
+                   token_ids)
 
     @classmethod
-    def from_bytes(cls, bytes, transcript):
+    def from_bytes(cls, bytes, transcript, tokens=None, token_ids=None):
         """Create speech segment from a byte string and corresponding
-        transcript.
-        
-        :param bytes: Byte string containing audio samples.
-        :type bytes: str
-        :param transcript: Transcript text for the speech.
-        :type transript: str
-        :return: Speech segment instance.
-        :rtype: Speech Segment
+
+        Args:
+            filepath (str|file): Filepath or file object to audio file.
+            transcript (str): Transcript text for the speech.
+            tokens (List[str], optional): text tokens. Defaults to None.
+            token_ids (List[int], optional): text token ids. Defaults to None.
+
+        Returns:
+            SpeechSegment: Speech segment instance.
         """
         audio = AudioSegment.from_bytes(bytes)
-        return cls(audio.samples, audio.sample_rate, transcript)
+        return cls(audio.samples, audio.sample_rate, transcript, tokens,
+                   token_ids)
 
     @classmethod
     def concatenate(cls, *segments):
@@ -98,6 +118,8 @@ class SpeechSegment(AudioSegment):
             raise ValueError("No speech segments are given to concatenate.")
         sample_rate = segments[0]._sample_rate
         transcripts = ""
+        tokens = []
+        token_ids = []
         for seg in segments:
             if sample_rate != seg._sample_rate:
                 raise ValueError("Can't concatenate segments with "
@@ -106,11 +128,20 @@ class SpeechSegment(AudioSegment):
                 raise TypeError("Only speech segments of the same type "
                                 "instance can be concatenated.")
             transcripts += seg._transcript
+            if self.has_token:
+                tokens += seg._tokens
+                token_ids += seg._token_ids
         samples = np.concatenate([seg.samples for seg in segments])
-        return cls(samples, sample_rate, transcripts)
+        return cls(samples, sample_rate, transcripts, tokens, token_ids)
 
     @classmethod
-    def slice_from_file(cls, filepath, transcript, start=None, end=None):
+    def slice_from_file(cls,
+                        filepath,
+                        transcript,
+                        tokens=None,
+                        token_ids=None,
+                        start=None,
+                        end=None):
         """Loads a small section of an speech without having to load
         the entire file into the memory which can be incredibly wasteful.
 
@@ -132,28 +163,54 @@ class SpeechSegment(AudioSegment):
         :rtype: SpeechSegment
         """
         audio = AudioSegment.slice_from_file(filepath, start, end)
-        return cls(audio.samples, audio.sample_rate, transcript)
+        return cls(audio.samples, audio.sample_rate, transcript, tokens,
+                   token_ids)
 
     @classmethod
     def make_silence(cls, duration, sample_rate):
         """Creates a silent speech segment of the given duration and
         sample rate, transcript will be an empty string.
 
-        :param duration: Length of silence in seconds.
-        :type duration: float
-        :param sample_rate: Sample rate.
-        :type sample_rate: float
-        :return: Silence of the given duration.
-        :rtype: SpeechSegment
+        Args:
+            duration (float): Length of silence in seconds.
+            sample_rate (float): Sample rate.
+
+        Returns:
+            SpeechSegment: Silence of the given duration.
         """
         audio = AudioSegment.make_silence(duration, sample_rate)
         return cls(audio.samples, audio.sample_rate, "")
 
     @property
+    def has_token(self):
+        if self._tokens or self._token_ids:
+            return True
+        return False
+
+    @property
     def transcript(self):
         """Return the transcript text.
 
-        :return: Transcript text for the speech.
-        :rtype: str
+        Returns:
+            str: Transcript text for the speech.
         """
+
         return self._transcript
+
+    @property
+    def tokens(self):
+        """Return the transcript text tokens.
+
+        Returns:
+            List[str]: text tokens.
+        """
+        return self._tokens
+
+    @property
+    def token_ids(self):
+        """Return the transcript text token ids.
+
+        Returns:
+            List[int]: text token ids.
+        """
+        return self._token_ids

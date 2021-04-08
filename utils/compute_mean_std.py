@@ -26,8 +26,14 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 add_arg('num_samples',      int,    2000,    "# of samples to for statistics.")
 add_arg('specgram_type',    str,
         'linear',
-        "Audio feature type. Options: linear, mfcc.",
-        choices=['linear', 'mfcc'])
+        "Audio feature type. Options: linear, mfcc, fbank.",
+        choices=['linear', 'mfcc', 'fbank'])
+add_arg('feat_dim',    int,
+        13,
+        "Audio feature dim.")
+add_arg('delta_delta',    bool,
+        False,
+        "Audio feature with delta delta.")
 add_arg('manifest_path',    str,
         'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
@@ -42,7 +48,10 @@ def main():
     print_arguments(args)
 
     augmentation_pipeline = AugmentationPipeline('{}')
-    audio_featurizer = AudioFeaturizer(specgram_type=args.specgram_type)
+    audio_featurizer = AudioFeaturizer(
+        specgram_type=args.specgram_type,
+        feat_dim=args.feat_dim,
+        delta_delta=args.delta_delta)
 
     def augment_and_featurize(audio_segment):
         augmentation_pipeline.transform_audio(audio_segment)

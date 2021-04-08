@@ -56,6 +56,8 @@ class SpeechFeaturizer(object):
                  vocab_filepath,
                  spm_model_prefix=None,
                  specgram_type='linear',
+                 feat_dim=13,
+                 delta_delta=True,
                  stride_ms=10.0,
                  window_ms=20.0,
                  n_fft=None,
@@ -65,6 +67,8 @@ class SpeechFeaturizer(object):
                  target_dB=-20):
         self._audio_featurizer = AudioFeaturizer(
             specgram_type=specgram_type,
+            feat_dim=feat_dim,
+            delta_delta=delta_delta,
             stride_ms=stride_ms,
             window_ms=window_ms,
             n_fft=n_fft,
@@ -82,17 +86,22 @@ class SpeechFeaturizer(object):
         2. For transcript parts, keep the original text or convert text string
            to a list of token indices in char-level.
 
-        :param audio_segment: Speech segment to extract features from.
-        :type audio_segment: SpeechSegment
-        :return: A tuple of 1) spectrogram audio feature in 2darray, 2) list of
-                 char-level token indices.
-        :rtype: tuple
+        Args:
+            speech_segment (SpeechSegment): Speech segment to extract features from.
+            keep_transcription_text (bool): True, keep transcript text, False, token ids
+
+        Returns:
+            tuple: 1) spectrogram audio feature in 2darray, 2) list oftoken indices.
         """
-        audio_feature = self._audio_featurizer.featurize(speech_segment)
+        spec_feature = self._audio_featurizer.featurize(speech_segment)
         if keep_transcription_text:
-            return audio_feature, speech_segment.transcript
-        text_ids = self._text_featurizer.featurize(speech_segment.transcript)
-        return audio_feature, text_ids
+            return spec_feature, speech_segment.transcript
+        if speech_segment.has_token:
+            text_ids = speech_segment.token_ids
+        else:
+            text_ids = self._text_featurizer.featurize(
+                speech_segment.transcript)
+        return spec_feature, text_ids
 
     @property
     def vocab_size(self):

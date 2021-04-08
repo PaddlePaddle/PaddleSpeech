@@ -17,6 +17,7 @@ import numpy as np
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.frontend.audio import AudioSegment
 from python_speech_features import mfcc
+from python_speech_features import logfbank
 from python_speech_features import delta
 
 
@@ -49,7 +50,9 @@ class AudioFeaturizer(object):
     """
 
     def __init__(self,
-                 specgram_type='linear',
+                 specgram_type: str='linear',
+                 feat_dim: int=None,
+                 delta_delta: bool=False,
                  stride_ms=10.0,
                  window_ms=20.0,
                  n_fft=None,
@@ -58,6 +61,8 @@ class AudioFeaturizer(object):
                  use_dB_normalization=True,
                  target_dB=-20):
         self._specgram_type = specgram_type
+        self._feat_dim = feat_dim
+        self._delta_delta = delta_delta
         self._stride_ms = stride_ms
         self._window_ms = window_ms
         self._max_freq = max_freq
@@ -110,7 +115,12 @@ class AudioFeaturizer(object):
                            1)
         elif self._specgram_type == 'mfcc':
             # mfcc, delta, delta-delta
-            feat_dim = int(13 * 3)
+            feat_dim = int(self._feat_dim *
+                           3) if self._delta_delta else int(self._feat_dim)
+        elif self._specgram_type == 'fbank':
+            # fbank, delta, delta-delta
+            feat_dim = int(self._feat_dim *
+                           3) if self._delta_delta else int(self._feat_dim)
         else:
             raise ValueError("Unknown specgram_type %s. "
                              "Supported values: linear." % self._specgram_type)
@@ -123,8 +133,23 @@ class AudioFeaturizer(object):
                 samples, sample_rate, self._stride_ms, self._window_ms,
                 self._max_freq)
         elif self._specgram_type == 'mfcc':
-            return self._compute_mfcc(samples, sample_rate, self._stride_ms,
-                                      self._window_ms, self._max_freq)
+            return self._compute_mfcc(
+                samples,
+                sample_rate,
+                self._stride_ms,
+                self._feat_dim,
+                self._window_ms,
+                self._max_freq,
+                delta_delta=self._delta_delta)
+        elif self._specgram_type == 'fbank':
+            return self._compute_fbank(
+                samples,
+                sample_rate,
+                self._stride_ms,
+                self._feat_dim,
+                self._window_ms,
+                self._max_freq,
+                delta_delta=self._delta_delta)
         else:
             raise ValueError("Unknown specgram_type %s. "
                              "Supported values: linear." % self._specgram_type)
@@ -179,13 +204,54 @@ class AudioFeaturizer(object):
         freqs = float(sample_rate) / window_size * np.arange(fft.shape[0])
         return fft, freqs
 
+    def _concat_delta_delta(self, feat):
+        """append delat, delta-delta feature.
+
+        Args:
+            feat (np.ndarray): (D, T)
+
+        Returns:
+            np.ndarray: feat with delta-delta, (3*D, T)
+        """
+        feat = np.transpose(feat)
+        # Deltas
+        d_feat = delta(feat, 2)
+        # Deltas-Deltas
+        dd_feat = delta(feat, 2)
+        # transpose
+        feat = np.transpose(feat)
+        d_feat = np.transpose(d_feat)
+        dd_feat = np.transpose(dd_feat)
+        # concat above three features
+        concat_feat = np.concatenate((feat, d_feat, dd_feat))
+        return concat_feat
+
     def _compute_mfcc(self,
                       samples,
                       sample_rate,
+                      feat_dim=13,
                       stride_ms=10.0,
                       window_ms=20.0,
-                      max_freq=None):
-        """Compute mfcc from samples."""
+                      max_freq=None,
+                      delta_delta=True):
+        """Compute mfcc from samples.
+
+        Args:
+            samples (np.ndarray): the audio signal from which to compute features. Should be an N*1 array
+            sample_rate (float): the sample rate of the signal we are working with, in Hz.
+            feat_dim (int): the number of cepstrum to return, default 13.
+            stride_ms (float, optional): stride length in ms. Defaults to 10.0.
+            window_ms (float, optional): window length in ms. Defaults to 20.0.
+            max_freq ([type], optional): highest band edge of mel filters. In Hz, default is samplerate/2. Defaults to None.
+            delta_delta (bool, optional): Whether with delta delta. Defaults to False.
+
+        Raises:
+            ValueError: max_freq > samplerate/2
+            ValueError: stride_ms > window_ms
+
+        Returns:
+            np.ndarray: mfcc feature, (D, T).
+        """
         if max_freq is None:
             max_freq = sample_rate / 2
         if max_freq > sample_rate / 2:
@@ -195,22 +261,73 @@ class AudioFeaturizer(object):
             raise ValueError("Stride size must not be greater than "
                              "window size.")
         # compute the 13 cepstral coefficients, and the first one is replaced
-        # by log(frame energy)
+        # by log(frame energy), (T, D)
         mfcc_feat = mfcc(
             signal=samples,
             samplerate=sample_rate,
             winlen=0.001 * window_ms,
             winstep=0.001 * stride_ms,
-            highfreq=max_freq)
-        # Deltas
-        d_mfcc_feat = delta(mfcc_feat, 2)
-        # Deltas-Deltas
-        dd_mfcc_feat = delta(d_mfcc_feat, 2)
-        # transpose
+            numcep=feat_dim,
+            nfilt=2 * feat_dim,
+            nfft=None,
+            lowfreq=0,
+            highfreq=max_freq,
+            preemph=0.97,
+            ceplifter=22,
+            appendEnergy=True,
+            winfunc=lambda x: np.ones((x, )))
         mfcc_feat = np.transpose(mfcc_feat)
-        d_mfcc_feat = np.transpose(d_mfcc_feat)
-        dd_mfcc_feat = np.transpose(dd_mfcc_feat)
-        # concat above three features
-        concat_mfcc_feat = np.concatenate(
-            (mfcc_feat, d_mfcc_feat, dd_mfcc_feat))
-        return concat_mfcc_feat
+        if delta_delta:
+            mfcc_feat = self._concat_delta_delta(mfcc_feat)
+        return mfcc_feat
+
+    def _compute_fbank(self,
+                       samples,
+                       sample_rate,
+                       feat_dim=26,
+                       stride_ms=10.0,
+                       window_ms=20.0,
+                       max_freq=None,
+                       delta_delta=False):
+        """Compute logfbank from samples.
+        
+        Args:
+            samples (np.ndarray): the audio signal from which to compute features. Should be an N*1 array
+            sample_rate (float): the sample rate of the signal we are working with, in Hz.
+            feat_dim (int): the number of cepstrum to return, default 13.
+            stride_ms (float, optional): stride length in ms. Defaults to 10.0.
+            window_ms (float, optional): window length in ms. Defaults to 20.0.
+            max_freq (float, optional): highest band edge of mel filters. In Hz, default is samplerate/2. Defaults to None.
+            delta_delta (bool, optional): Whether with delta delta. Defaults to False.
+
+        Raises:
+            ValueError: max_freq > samplerate/2
+            ValueError: stride_ms > window_ms
+
+        Returns:
+            np.ndarray: mfcc feature, (D, T).
+        """
+        if max_freq is None:
+            max_freq = sample_rate / 2
+        if max_freq > sample_rate / 2:
+            raise ValueError("max_freq must not be greater than half of "
+                             "sample rate.")
+        if stride_ms > window_ms:
+            raise ValueError("Stride size must not be greater than "
+                             "window size.")
+        #(T, D)
+        fbank_feat = logfbank(
+            signal=samples,
+            samplerate=sample_rate,
+            winlen=0.001 * window_ms,
+            winstep=0.001 * stride_ms,
+            nfilt=feat_dim,
+            nfft=512,
+            lowfreq=max_freq,
+            highfreq=None,
+            preemph=0.97,
+            winfunc=lambda x: np.ones((x, )))
+        fbank_feat = np.transpose(fbank_feat)
+        if delta_delta:
+            fbank_feat = self._concat_delta_delta(fbank_feat)
+        return fbank_feat

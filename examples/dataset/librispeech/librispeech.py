@@ -89,9 +89,13 @@ def create_manifest(data_dir, manifest_path):
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(
                     json.dumps({
-                        'audio_filepath': audio_filepath,
-                        'duration': duration,
-                        'text': text
+                        'utt':
+                        os.path.splitext(os.path.basename(audio_filepath))[0],
+                        'feat':
+                        audio_filepath,
+                        'feat_shape': (duration, ),  #second
+                        'text':
+                        text
                     }))
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:

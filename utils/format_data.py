@@ -11,10 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Build vocabulary from manifest files.
-Each item in vocabulary file is a character.
-"""
-
+"""format manifest with more metadata."""
 import argparse
 import functools
 import json
@@ -33,8 +30,8 @@ from deepspeech.utils.utility import print_arguments
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
+add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kaldi")
 add_arg('unit_type', str, "character", "Unit type, e.g. character, word, bpe")
-add_arg('count_threshold',  int,    0,  "Truncation threshold for char/word/bpe counts.")
 add_arg('vocab_path',       str,
         'examples/librispeech/data/vocab.txt',
         "Filepath to write the vocabulary.")
@@ -45,69 +42,49 @@ add_arg('manifest_paths',   str,
         nargs='+',
         required=True)
 # bpe
-add_arg('bpe_mode', str, 'unigram',
-    "bpe model type, e.g. unigram, bpe, char, word. only need when `unit_type` is bpe")
-add_arg('bpe_model_prefix', str, "bpe_model_%(bpe_mode)_%(count_threshold)",
-    "bpe model prefix, only need when `unit_type` is bpe")
+add_arg('bpe_model_prefix', str, "bpe_model_%(bpe_mode)_%(count_threshold)", "bpe model prefix, only need when `unit_type` is bpe")
+add_arg('output_path',  str, None, "filepath of formated manifest.", required=True)
 # yapf: disable
 args = parser.parse_args()
 
 
-def count_manifest(counter, manifest_path):
-    manifest_jsons = read_manifest(manifest_path)
-    for line_json in manifest_jsons:
-        if args.unit_type == 'character':
-            for char in line_json['text']:
-                counter.update(char)
-        elif args.unit_type == 'word':
-            for word in line_json['text'].split():
-                counter.update(word)
-
-def read_text_manifest(fileobj, manifest_path):
-    manifest_jsons = read_manifest(manifest_path)
-    for line_json in manifest_jsons:
-        fileobj.write(line_json['text'] + "\n")
-
 def main():
     print_arguments(args)
 
-    fout = open(args.vocab_path, 'w', encoding='utf-8')
-    fout.write(BLANK + "\n") # 0 will be used for "blank" in CTC
-    fout.write(UNK + '\n')   # <unk> must be 1
+    # read vocab
+    vocab = dict()
+    with open(args.vocab_path, 'r', encoding='utf-8') as fin:
+        for line in fin:
+            token = line.strip()
+            vocab[token] = len(vocab)
+    vocab_size = len(vocab)
+
+    fout = open(args.output_path, 'w', encoding='utf-8')
 
     if args.unit_type != 'bpe':
-        counter = Counter()
         for manifest_path in args.manifest_paths:
-            count_manifest(counter, manifest_path)
-
-        count_sorted = sorted(counter.items(), key=lambda x: x[1], reverse=True)
-        for char, count in count_sorted:
-            if count < args.count_threshold: break
-            fout.write(char + '\n')
+            manifest_jsons = read_manifest(manifest_path)
+            for line_json in manifest_jsons:
+                tokens = []
+                tokenids = []
+                if args.unit_type == 'character':
+                    for char in line_json['text']:
+                        tokens.append(char)
+                        tokenids.append(vocab[char])
+                elif args.unit_type == 'word':
+                    for word in line_json['text'].split():
+                        tokens.append(word)
+                        tokenids.append(vocab[word])
+                line_json['token'] = tokens
+                line_json['token_id'] = tokenids
+                line_json['token_shape'] = (len(tokenids), vocab_size)
+                fout.write(json.dumps(line_json) + '\n')
     else:
-        # tools/spm_train --input=$wave_data/lang_char/input.txt 
-        # --vocab_size=${nbpe} --model_type=${bpemode} 
-        # --model_prefix=${bpemodel} --input_sentence_size=100000000
         import sentencepiece as spm
-
-        fp = tempfile.NamedTemporaryFile(mode='w', delete=False)
-        for manifest_path in args.manifest_paths:
-            read_text_manifest(fp, manifest_path)
-        fp.close()
-        # train
-        spm.SentencePieceTrainer.Train(
-            input=fp.name,
-            vocab_size=args.count_threshold,
-            model_type=args.bpe_mode,
-            model_prefix=args.bpe_model_prefix,
-            input_sentence_size=100000000,
-            character_coverage=0.9995)
-        os.unlink(fp.name)
 
         # encode
         sp = spm.SentencePieceProcessor()
         sp.Load(args.bpe_model_prefix + '.model')
-        stats = {"num_empty": 0, "num_filtered": 0}
 
         def valid(line):
             return True
@@ -127,24 +104,22 @@ def main():
                 stats["num_empty"] += 1
             return None
 
-        vocabs = set()
         for manifest_path in args.manifest_paths:
             manifest_jsons = read_manifest(manifest_path)
             for line_json in manifest_jsons:
                 line = line_json['text']
+                tokens = []
+                tokenids = []
                 enc_line = encode_line(line)
                 for code in enc_line:
-                    vocabs.add(code)
-                #print(" ".join(enc_line))
-        vocabs_sorted = sorted(vocabs)
-        for unit in vocabs_sorted:
-            fout.write(unit + "\n")
+                    tokens.append(code)
+                    tokenids.append(vocab[code])
+                    #print(code, vocab[code])
+                line_json['token'] = tokens
+                line_json['token_id'] = tokenids
+                line_json['token_shape'] = (len(tokenids), vocab_size)
+                fout.write(json.dumps(line_json) + '\n')
 
-        print(f"bpe vocab size: {len(vocabs_sorted)}")
-        print(f"skip {stats['num_empty']} empty lines")
-        print(f"filter {stats['num_filtered']} invalid lines")
-
-    fout.write(SOS + "\n") # <sos/eos>
     fout.close()
 
 

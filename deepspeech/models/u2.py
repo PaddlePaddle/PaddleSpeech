@@ -42,11 +42,11 @@ from deepspeech.modules.decoder import TransformerDecoder
 from deepspeech.modules.loss import LabelSmoothingLoss
 
 from deepspeech.frontend.utility import load_cmvn
+from deepspeech.frontend.utility import IGNORE_ID
 
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
 from deepspeech.utils.utility import log_add
-from deepspeech.utils.tensor_utils import IGNORE_ID
 from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.tensor_utils import pad_sequence

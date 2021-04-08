@@ -55,9 +55,9 @@ def create_manifest(data_dir, manifest_path_prefix):
     data_types = [
         'pointsource_noises', 'real_rirs_isotropic_noises', 'simulated_rirs'
     ]
-    for type in data_types:
+    for dtype in data_types:
         del json_lines[:]
-        audio_dir = os.path.join(data_dir, type)
+        audio_dir = os.path.join(data_dir, dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
                 audio_path = os.path.join(subfolder, fname)
@@ -68,12 +68,16 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json_lines.append(
                     json.dumps(
                         {
-                            'audio_filepath': audio_path,
-                            'duration': duration,
-                            'type': type,
+                            'utt':
+                            os.path.splitext(os.path.basename(audio_path))[0],
+                            'feat':
+                            audio_path,
+                            'feat_shape': (duration, ),  #second
+                            'type':
+                            dtype,
                         },
                         ensure_ascii=False))
-        manifest_path = manifest_path_prefix + '.' + type
+        manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')

@@ -17,7 +17,7 @@ import numpy as np
 from collections import namedtuple
 
 from deepspeech.io.utility import pad_sequence
-from deepspeech.utils.tensor_utils import IGNORE_ID
+from deepspeech.frontend.utility import IGNORE_ID
 
 logger = logging.getLogger(__name__)
 

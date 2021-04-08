@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
 
-IGNORE_ID = -1
-
 
 def pad_sequence(sequences: List[paddle.Tensor],
                  batch_first: bool=False,

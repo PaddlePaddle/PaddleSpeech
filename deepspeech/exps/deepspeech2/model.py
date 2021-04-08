@@ -148,8 +148,10 @@ class DeepSpeech2Trainer(Trainer):
 
         train_dataset = ManifestDataset(
             config.data.train_manifest,
+            config.data.unit_type,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
+            spm_model_prefix=config.data.spm_model_prefix,
             augmentation_config=io.open(
                 config.data.augmentation_config, mode='r',
                 encoding='utf8').read(),
@@ -168,8 +170,10 @@ class DeepSpeech2Trainer(Trainer):
 
         dev_dataset = ManifestDataset(
             config.data.dev_manifest,
+            config.data.unit_type,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
+            spm_model_prefix=config.data.spm_model_prefix,
             augmentation_config="{}",
             max_duration=config.data.max_duration,
             min_duration=config.data.min_duration,
@@ -361,8 +365,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         # return raw text
         test_dataset = ManifestDataset(
             config.data.test_manifest,
+            config.data.unit_type,
             config.data.vocab_filepath,
             config.data.mean_std_filepath,
+            spm_model_prefix=config.data.spm_model_prefix,
             augmentation_config="{}",
             max_duration=config.data.max_duration,
             min_duration=config.data.min_duration,

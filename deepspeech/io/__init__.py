@@ -21,8 +21,10 @@ from deepspeech.io.dataset import ManifestDataset
 
 
 def create_dataloader(manifest_path,
+                      unit_type,
                       vocab_filepath,
                       mean_std_filepath,
+                      spm_model_prefix,
                       augmentation_config='{}',
                       max_duration=float('inf'),
                       min_duration=0.0,
@@ -42,8 +44,10 @@ def create_dataloader(manifest_path,
 
     dataset = ManifestDataset(
         manifest_path,
+        unit_type,
         vocab_filepath,
         mean_std_filepath,
+        spm_model_prefix=spm_model_prefix,
         augmentation_config=augmentation_config,
         max_duration=max_duration,
         min_duration=min_duration,

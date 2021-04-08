@@ -16,6 +16,7 @@
 import numpy as np
 import random
 from deepspeech.frontend.utility import read_manifest
+from deepspeech.frontend.utility import load_cmvn
 from deepspeech.frontend.audio import AudioSegment
 
 
@@ -79,10 +80,8 @@ class FeatureNormalizer(object):
 
     def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
-        npzfile = np.load(filepath)
-        self._mean = npzfile["mean"]
-        std = npzfile["std"]
-        std = np.clip(std, eps, None)
+        mean, std = load_cmvn(filepath, filetype='npz')
+        self._mean = mean
         self._istd = 1.0 / std
 
     def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
@@ -92,8 +91,7 @@ class FeatureNormalizer(object):
         features = []
         for instance in sampled_manifest:
             features.append(
-                featurize_func(
-                    AudioSegment.from_file(instance["audio_filepath"])))
+                featurize_func(AudioSegment.from_file(instance["feat"])))
         features = np.hstack(features)  #(D, T)
         self._mean = np.mean(features, axis=1).reshape([-1, 1])  #(D, 1)
         self._std = np.std(features, axis=1).reshape([-1, 1])  #(D, 1)

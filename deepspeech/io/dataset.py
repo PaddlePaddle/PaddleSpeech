@@ -38,8 +38,10 @@ __all__ = [
 class ManifestDataset(Dataset):
     def __init__(self,
                  manifest_path,
+                 unit_type,
                  vocab_filepath,
                  mean_std_filepath,
+                 spm_model_prefix=None,
                  augmentation_config='{}',
                  max_duration=float('inf'),
                  min_duration=0.0,
@@ -57,8 +59,10 @@ class ManifestDataset(Dataset):
 
         Args:
             manifest_path (str): manifest josn file path
-            vocab_filepath (str): vocab file path
+            unit_type(str): token unit type, e.g. char, word, spm
+            vocab_filepath (str): vocab file path.
             mean_std_filepath (str): mean and std file path, which suffix is *.npy
+            spm_model_prefix (str): spm model prefix, need if `unit_type` is spm.
             augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
             max_duration (float, optional): audio length in seconds must less than this. Defaults to float('inf').
             min_duration (float, optional): audio length is seconds must greater than this. Defaults to 0.0.
@@ -78,10 +82,12 @@ class ManifestDataset(Dataset):
         self._max_duration = max_duration
         self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
-        self._augmentation_pipeline = AugmentationPipeline(
+        self._audio_augmentation_pipeline = AugmentationPipeline(
             augmentation_config=augmentation_config, random_seed=random_seed)
         self._speech_featurizer = SpeechFeaturizer(
+            unit_type=unit_type,
             vocab_filepath=vocab_filepath,
+            spm_model_prefix=spm_model_prefix,
             specgram_type=specgram_type,
             stride_ms=stride_ms,
             window_ms=window_ms,
@@ -174,7 +180,7 @@ class ManifestDataset(Dataset):
                 self._subfile_from_tar(audio_file), transcript)
         else:
             speech_segment = SpeechSegment.from_file(audio_file, transcript)
-        self._augmentation_pipeline.transform_audio(speech_segment)
+        self._audio_augmentation_pipeline.transform_audio(speech_segment)
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
@@ -191,7 +197,7 @@ class ManifestDataset(Dataset):
 
         def reader():
             for instance in manifest:
-                inst = self.process_utterance(instance["audio_filepath"],
+                inst = self.process_utterance(instance["feat"],
                                               instance["text"])
                 yield inst
 
@@ -202,5 +208,4 @@ class ManifestDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self._manifest[idx]
-        return self.process_utterance(instance["audio_filepath"],
-                                      instance["text"])
+        return self.process_utterance(instance["feat"], instance["text"])

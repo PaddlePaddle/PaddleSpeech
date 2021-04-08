@@ -109,7 +109,7 @@ class AudioFeaturizer(object):
             feat_dim = int(fft_point * (self._target_sample_rate / 1000) / 2 +
                            1)
         elif self._specgram_type == 'mfcc':
-            # mfcc,delta, delta-delta
+            # mfcc, delta, delta-delta
             feat_dim = int(13 * 3)
         else:
             raise ValueError("Unknown specgram_type %s. "

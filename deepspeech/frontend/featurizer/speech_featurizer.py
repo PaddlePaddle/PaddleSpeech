@@ -52,7 +52,9 @@ class SpeechFeaturizer(object):
     """
 
     def __init__(self,
+                 unit_type,
                  vocab_filepath,
+                 spm_model_prefix=None,
                  specgram_type='linear',
                  stride_ms=10.0,
                  window_ms=20.0,
@@ -70,7 +72,8 @@ class SpeechFeaturizer(object):
             target_sample_rate=target_sample_rate,
             use_dB_normalization=use_dB_normalization,
             target_dB=target_dB)
-        self._text_featurizer = TextFeaturizer(vocab_filepath)
+        self._text_featurizer = TextFeaturizer(unit_type, vocab_filepath,
+                                               spm_model_prefix)
 
     def featurize(self, speech_segment, keep_transcription_text):
         """Extract features for speech segment.

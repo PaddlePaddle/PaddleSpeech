@@ -52,6 +52,7 @@ fi
 # format manifest with tokenids, vocab size
 python3 ${MAIN_ROOT}/utils/format_data.py \
 --feat_type "raw" \
+--cmvn_path "data/mean_std.npz" \
 --unit_type "bpe" \
 --bpe_model_prefix ${bpeprefix} \
 --vocab_path="data/vocab.txt" \

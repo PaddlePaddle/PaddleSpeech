@@ -15,24 +15,34 @@
 
 import os
 import codecs
+import sentencepiece as spm
+
+from deepspeech.frontend.utility import UNK
 
 
 class TextFeaturizer(object):
-    """Text featurizer, for processing or extracting features from text.
+    def __init__(self, unit_type, vocab_filepath, spm_model_prefix=None):
+        """Text featurizer, for processing or extracting features from text.
 
-    Currently, it only supports char-level tokenizing and conversion into
-    a list of token indices. Note that the token indexing order follows the
-    given vocabulary file.
+        Currently, it supports char/word/sentence-piece level tokenizing and conversion into
+        a list of token indices. Note that the token indexing order follows the
+        given vocabulary file.
 
-    :param vocab_filepath: Filepath to load vocabulary for token indices
-                           conversion.
-    :type specgram_type: str
-    """
-
-    def __init__(self, vocab_filepath):
-        self.unk = '<unk>'
+        Args:
+            unit_type (str): unit type, e.g. char, word, spm
+            vocab_filepath (str): Filepath to load vocabulary for token indices conversion.
+            spm_model_prefix (str, optional): spm model prefix. Defaults to None.
+        """
+        assert unit_type in ('char', 'spm', 'word')
+        self.unk = UNK
+        self.unit_type = unit_type
         self._vocab_dict, self._vocab_list = self._load_vocabulary_from_file(
             vocab_filepath)
+
+        if unit_type == 'spm':
+            spm_model = spm_model_prefix + '.model'
+            self.sp = spm.SentencePieceProcessor()
+            self.sp.Load(self.spm_model)
 
     def featurize(self, text):
         """Convert text string to a list of token indices in char-level.Note
@@ -43,7 +53,13 @@ class TextFeaturizer(object):
         :return: List of char-level token indices.
         :rtype: list
         """
-        tokens = self._char_tokenize(text)
+        if unit_type == 'char':
+            tokens = self._char_tokenize(text)
+        elif unit_type == 'word':
+            tokens = self._word_tokenize(text)
+        else:
+            tokens = self._spm_tokenize(text)
+
         ids = []
         for token in tokens:
             token = token if token in self._vocab_dict else self.unk
@@ -71,6 +87,42 @@ class TextFeaturizer(object):
     def _char_tokenize(self, text):
         """Character tokenizer."""
         return list(text.strip())
+
+    def _word_tokenize(self, text):
+        """Word tokenizer, spearte by <space>."""
+        return text.strip().split()
+
+    def _spm_tokenize(self, text):
+        """spm tokenize.
+
+        Args:
+            text (str): text string.
+
+        Returns:
+            List[str]: sentence pieces str code
+        """
+        stats = {"num_empty": 0, "num_filtered": 0}
+
+        def valid(line):
+            return True
+
+        def encode(l):
+            return self.sp.EncodeAsPieces(l)
+
+        def encode_line(line):
+            line = line.strip()
+            if len(line) > 0:
+                line = encode(line)
+                if valid(line):
+                    return line
+                else:
+                    stats["num_filtered"] += 1
+            else:
+                stats["num_empty"] += 1
+            return None
+
+        enc_line = encode_line(text)
+        return enc_line
 
     def _load_vocabulary_from_file(self, vocab_filepath):
         """Load vocabulary from file."""

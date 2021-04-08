@@ -43,8 +43,10 @@ def tune(config, args):
 
     dev_dataset = ManifestDataset(
         config.data.dev_manifest,
+        config.data.unit_type,
         config.data.vocab_filepath,
         config.data.mean_std_filepath,
+        spm_model_prefix=config.data.spm_model_prefix,
         augmentation_config="{}",
         max_duration=config.data.max_duration,
         min_duration=config.data.min_duration,

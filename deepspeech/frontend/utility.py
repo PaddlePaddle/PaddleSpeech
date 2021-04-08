@@ -20,6 +20,7 @@ import os
 import tarfile
 import time
 import logging
+from typing import List
 from threading import Thread
 from multiprocessing import Process, Manager, Value
 
@@ -39,31 +40,32 @@ EOS = SOS
 UNK = "<unk>"
 BLANK = "<blank>"
 
-# """Load and parse manifest file.
-
-# Instances with durations outside [min_duration, max_duration] will be
-# filtered out.
-
-# :param manifest_path: Manifest file to load and parse.
-# :type manifest_path: str
-# :param max_duration:maximum output seq length, in seconds for raw wav, in frame numbers for feature data.
-# :type max_duration: float
-# :param min_duration: minimum input seq length, in seconds for raw wav, in frame numbers for feature data.
-# :type min_duration: float
-# :return: Manifest parsing results. List of dict.
-# :rtype: list
-# :raises IOError: If failed to parse the manifest.
-# """
-
 
 def read_manifest(
         manifest_path,
         max_input_len=float('inf'),
         min_input_len=0.0,
-        max_output_len=500.0,
+        max_output_len=float('inf'),
         min_output_len=0.0,
-        max_output_input_ratio=10.0,
-        min_output_input_ratio=0.05, ):
+        max_output_input_ratio=float('inf'),
+        min_output_input_ratio=0.0, ):
+    """Load and parse manifest file.
+
+    Args:
+        manifest_path ([type]): Manifest file to load and parse.
+        max_input_len ([type], optional): maximum output seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
+        min_input_len (float, optional): minimum input seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
+        max_output_len (float, optional): maximum input seq length, in modeling units. Defaults to 500.0.
+        min_output_len (float, optional): minimum input seq length, in modeling units. Defaults to 0.0.
+        max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. Defaults to 10.0.
+        min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio. Defaults to 0.05.
+
+    Raises:
+        IOError: If failed to parse the manifest.
+
+    Returns:
+        List[dict]: Manifest parsing results.
+    """
 
     manifest = []
     for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
@@ -71,32 +73,22 @@ def read_manifest(
             json_data = json.loads(json_line)
         except Exception as e:
             raise IOError("Error reading manifest: %s" % str(e))
-        feat_len = json_data["feat_shape"][0]
-        token_len = json_data["token_shape"][0]
+
+        feat_len = json_data["feat_shape"][
+            0] if 'feat_shape' in json_data else 1.0
+        token_len = json_data["token_shape"][
+            0] if 'token_shape' in json_data else 1.0
         conditions = [
-            feat_len > min_input_len,
-            feat_len < max_input_len,
-            token_len > min_output_len,
-            token_len < max_output_len,
-            token_len / feat_len > min_output_input_ratio,
-            token_len / feat_len < max_output_input_ratio,
+            feat_len >= min_input_len,
+            feat_len <= max_input_len,
+            token_len >= min_output_len,
+            token_len <= max_output_len,
+            token_len / feat_len >= min_output_input_ratio,
+            token_len / feat_len <= max_output_input_ratio,
         ]
         if all(conditions):
             manifest.append(json_data)
     return manifest
-
-    # parser.add_argument('--max_input_len', type=float,
-    #                     default=20,
-    #                     help='maximum output seq length, in seconds for raw wav, in frame numbers for feature data')
-    # parser.add_argument('--min_output_len', type=float,
-    #                     default=0, help='minimum input seq length, in modeling units')
-    # parser.add_argument('--max_output_len', type=float,
-    #                     default=500,
-    #                     help='maximum output seq length, in modeling units')
-    # parser.add_argument('--min_output_input_ratio', type=float, default=0.05,
-    #                     help='minimum output seq length/output seq length ratio')
-    # parser.add_argument('--max_output_input_ratio', type=float, default=10,
-    #                     help='maximum output seq length/output seq length ratio')
 
 
 def rms_to_db(rms: float):
@@ -251,8 +243,8 @@ def _load_kaldi_cmvn(kaldi_cmvn_file):
 
 def _load_npz_cmvn(npz_cmvn_file, eps=1e-20):
     npzfile = np.load(npz_cmvn_file)
-    means = npzfile["mean"]
-    std = npzfile["std"]
+    means = npzfile["mean"]  #(D, 1)
+    std = npzfile["std"]  #(D, 1)
     std = np.clip(std, eps, None)
     variance = 1.0 / std
     cmvn = np.array([means, variance])
@@ -278,7 +270,7 @@ def load_cmvn(cmvn_file: str, filetype: str):
         cmvn = _load_json_cmvn(cmvn_file)
     elif filetype == "kaldi":
         cmvn = _load_kaldi_cmvn(cmvn_file)
-    elif filtype == "npz":
+    elif filetype == "npz":
         cmvn = _load_npz_cmvn(cmvn_file)
     else:
         raise ValueError(f"cmvn file type no support: {filetype}")

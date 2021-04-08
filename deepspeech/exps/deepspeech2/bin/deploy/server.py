@@ -37,8 +37,10 @@ def start_server(config, args):
     """Start the ASR server"""
     dataset = ManifestDataset(
         config.data.test_manifest,
+        config.data.unit_type,
         config.data.vocab_filepath,
         config.data.mean_std_filepath,
+        spm_model_prefix=config.data.spm_model_prefix,
         augmentation_config="{}",
         max_duration=config.data.max_duration,
         min_duration=config.data.min_duration,

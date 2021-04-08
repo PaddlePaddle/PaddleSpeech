@@ -24,6 +24,7 @@ from deepspeech.frontend.utility import read_manifest
 from deepspeech.frontend.utility import UNK
 from deepspeech.frontend.utility import BLANK
 from deepspeech.frontend.utility import SOS
+from deepspeech.frontend.utility import load_cmvn
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
 
@@ -31,10 +32,13 @@ parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kaldi")
+add_arg('cmvn_path',       str,
+        'examples/librispeech/data/mean_std.npz',
+        "Filepath of cmvn.")
 add_arg('unit_type', str, "character", "Unit type, e.g. character, word, bpe")
 add_arg('vocab_path',       str,
         'examples/librispeech/data/vocab.txt',
-        "Filepath to write the vocabulary.")
+        "Filepath of the vocabulary.")
 add_arg('manifest_paths',   str,
         None,
         "Filepaths of manifests for building vocabulary. "
@@ -51,6 +55,11 @@ args = parser.parse_args()
 def main():
     print_arguments(args)
 
+    # get feat dim
+    mean, std = load_cmvn(args.cmvn_path, filetype='npz')
+    feat_dim = mean.shape[0]
+    print(f"Feature dim: {feat_dim}")
+
     # read vocab
     vocab = dict()
     with open(args.vocab_path, 'r', encoding='utf-8') as fin:
@@ -58,6 +67,7 @@ def main():
             token = line.strip()
             vocab[token] = len(vocab)
     vocab_size = len(vocab)
+    print(f"Vocab size: {vocab_size}")
 
     fout = open(args.output_path, 'w', encoding='utf-8')
 
@@ -78,6 +88,12 @@ def main():
                 line_json['token'] = tokens
                 line_json['token_id'] = tokenids
                 line_json['token_shape'] = (len(tokenids), vocab_size)
+                feat_shape = line_json['feat_shape']
+                assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
+                if args.feat_type == 'raw':
+                    feat_shape.append(feat_dim)
+                else: # kaldi
+                    raise NotImplemented('no support kaldi feat now!')
                 fout.write(json.dumps(line_json) + '\n')
     else:
         import sentencepiece as spm
@@ -118,6 +134,12 @@ def main():
                 line_json['token'] = tokens
                 line_json['token_id'] = tokenids
                 line_json['token_shape'] = (len(tokenids), vocab_size)
+                feat_shape = line_json['feat_shape']
+                assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
+                if args.feat_type == 'raw':
+                    feat_shape.append(feat_dim)
+                else: # kaldi
+                    raise NotImplemented('no support kaldi feat now!')
                 fout.write(json.dumps(line_json) + '\n')
 
     fout.close()

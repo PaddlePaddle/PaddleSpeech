@@ -3,6 +3,7 @@ resampy==0.2.2
 SoundFile==0.9.0.post1
 python_speech_features
 tensorboardX
+sentencepiece
 yacs
 typeguard
 pre-commit

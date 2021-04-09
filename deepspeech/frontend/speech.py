@@ -42,6 +42,7 @@ class SpeechSegment(AudioSegment):
         """
         AudioSegment.__init__(self, samples, sample_rate)
         self._transcript = transcript
+        # must init `tokens` with `token_ids` at the same time
         self._tokens = tokens
         self._token_ids = token_ids
 
@@ -183,7 +184,7 @@ class SpeechSegment(AudioSegment):
 
     @property
     def has_token(self):
-        if self._tokens or self._token_ids:
+        if self._tokens and self._token_ids:
             return True
         return False
 

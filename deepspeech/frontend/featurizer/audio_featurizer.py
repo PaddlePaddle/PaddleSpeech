@@ -330,7 +330,7 @@ class AudioFeaturizer(object):
             nfft=512,
             lowfreq=0,
             highfreq=max_freq,
-            preemph=0.97,)
+            preemph=0.97, )
         fbank_feat = np.transpose(fbank_feat)
         if delta_delta:
             fbank_feat = self._concat_delta_delta(fbank_feat)

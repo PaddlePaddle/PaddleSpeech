@@ -48,7 +48,7 @@ class TextFeaturizer(object):
             tokens = self.char_tokenize(text)
         elif self.unit_type == 'word':
             tokens = self.word_tokenize(text)
-        else: # spm
+        else:  # spm
             tokens = self.spm_tokenize(text)
         return tokens
 

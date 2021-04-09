@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import math
 import random
 import tarfile
@@ -43,8 +44,12 @@ class ManifestDataset(Dataset):
                  mean_std_filepath,
                  spm_model_prefix=None,
                  augmentation_config='{}',
-                 max_duration=float('inf'),
-                 min_duration=0.0,
+                 max_input_len=float('inf'),
+                 min_input_len=0.0,
+                 max_output_len=float('inf'),
+                 min_output_len=0.0,
+                 max_output_input_ratio=float('inf'),
+                 min_output_input_ratio=0.0,
                  stride_ms=10.0,
                  window_ms=20.0,
                  n_fft=None,
@@ -66,8 +71,12 @@ class ManifestDataset(Dataset):
             mean_std_filepath (str): mean and std file path, which suffix is *.npy
             spm_model_prefix (str): spm model prefix, need if `unit_type` is spm.
             augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
-            max_duration (float, optional): audio length in seconds must less than this. Defaults to float('inf').
-            min_duration (float, optional): audio length is seconds must greater than this. Defaults to 0.0.
+            max_input_len ([type], optional): maximum output seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
+            min_input_len (float, optional): minimum input seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
+            max_output_len (float, optional): maximum input seq length, in modeling units. Defaults to 500.0.
+            min_output_len (float, optional): minimum input seq length, in modeling units. Defaults to 0.0.
+            max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. Defaults to 10.0.
+            min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio. Defaults to 0.05.
             stride_ms (float, optional): stride size in ms. Defaults to 10.0.
             window_ms (float, optional): window size in ms. Defaults to 20.0.
             n_fft (int, optional): fft points for rfft. Defaults to None.
@@ -82,9 +91,13 @@ class ManifestDataset(Dataset):
             keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
         """
         super().__init__()
+        self._max_input_len = max_input_len,
+        self._min_input_len = min_input_len,
+        self._max_output_len = max_output_len,
+        self._min_output_len = min_output_len,
+        self._max_output_input_ratio = max_output_input_ratio,
+        self._min_output_input_ratio = min_output_input_ratio,
 
-        self._max_duration = max_duration
-        self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
         self._audio_augmentation_pipeline = AugmentationPipeline(
             augmentation_config=augmentation_config, random_seed=random_seed)
@@ -102,6 +115,7 @@ class ManifestDataset(Dataset):
             target_sample_rate=target_sample_rate,
             use_dB_normalization=use_dB_normalization,
             target_dB=target_dB)
+
         self._rng = random.Random(random_seed)
         self._keep_transcription_text = keep_transcription_text
         # for caching tar files info
@@ -112,9 +126,58 @@ class ManifestDataset(Dataset):
         # read manifest
         self._manifest = read_manifest(
             manifest_path=manifest_path,
-            max_duration=self._max_duration,
-            min_duration=self._min_duration)
-        self._manifest.sort(key=lambda x: x["duration"])
+            max_input_len=max_input_len,
+            min_input_len=min_input_len,
+            max_output_len=max_output_len,
+            min_output_len=min_output_len,
+            max_output_input_ratio=max_output_input_ratio,
+            min_output_input_ratio=min_output_input_ratio)
+        self._manifest.sort(key=lambda x: x["feat_shape"][0])
+
+    @classmethod
+    def from_config(cls, config):
+        """Build a ManifestDataset object from a config.
+
+        Args:
+            config (yacs.config.CfgNode): configs object.
+
+        Returns:
+            ManifestDataset: dataet object.
+        """
+        assert manifest in config.data
+        assert keep_transcription_text in config.data
+        if isinstance(config.data.augmentation_config, (str, bytes)):
+            aug_file = io.open(
+                config.data.augmentation_config, mode='r', encoding='utf8')
+        else:
+            aug_file = config.data.augmentation_config
+            assert isinstance(aug_file, io.StringIO)
+        dataset = cls(
+            manifest_path=config.data.manifest,
+            unit_type=config.data.unit_type,
+            vocab_filepath=config.data.vocab_filepath,
+            mean_std_filepath=config.data.mean_std_filepath,
+            spm_model_prefix=config.data.spm_model_prefix,
+            augmentation_config=aug_file.read(),
+            max_input_len=config.data.max_input_len,
+            min_input_len=config.data.min_input_len,
+            max_output_len=config.data.max_output_len,
+            min_output_len=config.data.min_output_len,
+            max_output_input_ratio=config.data.max_output_input_ratio,
+            min_output_input_ratio=config.data.min_output_input_ratio,
+            stride_ms=config.data.stride_ms,
+            window_ms=config.data.window_ms,
+            n_fft=config.data.n_fft,
+            max_freq=config.data.max_freq,
+            target_sample_rate=config.data.target_sample_rate,
+            specgram_type=config.data.specgram_type,
+            feat_dim=config.data.feat_dim,
+            delta_delta=config.data.delat_delta,
+            use_dB_normalization=config.data.use_dB_normalization,
+            target_dB=config.data.target_dB,
+            random_seed=config.data.random_seed,
+            keep_transcription_text=config.data.keep_transcription_text)
+        return dataset
 
     @property
     def manifest(self):

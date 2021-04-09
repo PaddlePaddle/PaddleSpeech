@@ -25,14 +25,14 @@ __all__ = ["SpeechCollator"]
 
 
 class SpeechCollator():
-    def __init__(self, is_training=True):
+    def __init__(self, keep_transcription_text=True):
         """
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one bach.
 
-        if ``is_training`` is True, text is token ids else is raw string.
+        if ``keep_transcription_text`` is False, text is token ids else is raw string.
         """
-        self._is_training = is_training
+        self._keep_transcription_text = keep_transcription_text
 
     def __call__(self, batch):
         """batch examples
@@ -61,15 +61,15 @@ class SpeechCollator():
             # for training, text is token ids
             # else text is string, convert to unicode ord
             tokens = []
-            if self._is_training:
-                tokens = text  # token ids
-            else:
-                assert isinstance(text, str)
+            if self._keep_transcription_text:
+                assert isinstance(text, str), type(text)
                 tokens = [ord(t) for t in text]
+            else:
+                tokens = text  # token ids
             tokens = tokens if isinstance(tokens, np.ndarray) else np.array(
                 tokens, dtype=np.int64)
             texts.append(tokens)
-            text_lens.append(len(text))
+            text_lens.append(tokens.shape[0])
 
         padded_audios = pad_sequence(
             audios, padding_value=0.0).astype(np.float32)  #[B, T, D]

@@ -35,7 +35,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('unit_type', str, "char", "Unit type, e.g. char, word, spm")
-add_arg('count_threshold',  int,    0, 
+add_arg('count_threshold',  int,    0,
      "Truncation threshold for char/word counts.Default 0, no truncate.")
 add_arg('vocab_path',       str,
         'examples/librispeech/data/vocab.txt',
@@ -61,7 +61,7 @@ def count_manifest(counter, text_feature, manifest_path):
     for line_json in manifest_jsons:
         line = text_feature.tokenize(line_json['text'])
         counter.update(line)
-            
+
 def dump_text_manifest(fileobj, manifest_path):
     manifest_jsons = read_manifest(manifest_path)
     for line_json in manifest_jsons:
@@ -97,7 +97,7 @@ def main():
     # encode
     text_feature = TextFeaturizer(args.unit_type, args.vocab_path, args.spm_model_prefix)
     counter = Counter()
-    
+
     for manifest_path in args.manifest_paths:
         count_manifest(counter, text_feature, manifest_path)
 

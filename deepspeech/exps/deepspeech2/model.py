@@ -145,52 +145,15 @@ class DeepSpeech2Trainer(Trainer):
 
     def setup_dataloader(self):
         config = self.config
+        config.data.keep_transcription_text = False
 
-        train_dataset = ManifestDataset(
-            config.data.train_manifest,
-            config.data.unit_type,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            spm_model_prefix=config.data.spm_model_prefix,
-            augmentation_config=io.open(
-                config.data.augmentation_config, mode='r',
-                encoding='utf8').read(),
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+        config.data.manfiest = config.data.train_manifest
+        train_dataset = ManifestDataset.from_config(config)
 
-        dev_dataset = ManifestDataset(
-            config.data.dev_manifest,
-            config.data.unit_type,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            spm_model_prefix=config.data.spm_model_prefix,
-            augmentation_config="{}",
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+        config.data.manfiest = config.data.dev_manifest
+        config.data.augmentation_config = io.StringIO(
+            initial_value='{}', newline='')
+        dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
@@ -211,7 +174,7 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.data.sortagrad,
                 shuffle_method=config.data.shuffle_method)
 
-        collate_fn = SpeechCollator(is_training=True)
+        collate_fn = SpeechCollator(keep_transcription_text=False)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
@@ -367,27 +330,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def setup_dataloader(self):
         config = self.config
         # return raw text
-        test_dataset = ManifestDataset(
-            config.data.test_manifest,
-            config.data.unit_type,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            spm_model_prefix=config.data.spm_model_prefix,
-            augmentation_config="{}",
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=True)
+
+        config.data.manfiest = config.data.test_manifest
+        config.data.augmentation_config = io.StringIO(
+            initial_value='{}', newline='')
+        config.data.keep_transcription_text = True
+        test_dataset = ManifestDataset.from_config(config)
 
         # return text ord id
         self.test_loader = DataLoader(
@@ -395,7 +343,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=SpeechCollator(is_training=False))
+            collate_fn=SpeechCollator(keep_transcription_text=True))
         self.logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):

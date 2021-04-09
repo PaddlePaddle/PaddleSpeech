@@ -41,34 +41,18 @@ def tune(config, args):
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
 
-    dev_dataset = ManifestDataset(
-        config.data.dev_manifest,
-        config.data.unit_type,
-        config.data.vocab_filepath,
-        config.data.mean_std_filepath,
-        spm_model_prefix=config.data.spm_model_prefix,
-        augmentation_config="{}",
-        max_duration=config.data.max_duration,
-        min_duration=config.data.min_duration,
-        stride_ms=config.data.stride_ms,
-        window_ms=config.data.window_ms,
-        n_fft=config.data.n_fft,
-        max_freq=config.data.max_freq,
-        target_sample_rate=config.data.target_sample_rate,
-        specgram_type=config.data.specgram_type,
-                    feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
-        use_dB_normalization=config.data.use_dB_normalization,
-        target_dB=config.data.target_dB,
-        random_seed=config.data.random_seed,
-        keep_transcription_text=True)
+    config.data.manfiest = config.data.dev_manifest
+    config.data.augmentation_config = io.StringIO(
+        initial_value='{}', newline='')
+    config.data.keep_transcription_text = True
+    dev_dataset = ManifestDataset.from_config(config)
 
     valid_loader = DataLoader(
         dev_dataset,
         batch_size=config.data.batch_size,
         shuffle=False,
         drop_last=False,
-        collate_fn=SpeechCollator(is_training=False))
+        collate_fn=SpeechCollator(keep_transcription_text=True))
 
     model = DeepSpeech2Model.from_pretrained(dev_dataset, config,
                                              args.checkpoint_path)

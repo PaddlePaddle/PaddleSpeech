@@ -85,7 +85,7 @@ def main():
                 raise NotImplemented('no support kaldi feat now!')
             fout.write(json.dumps(line_json) + '\n')
             count += 1
-            
+
     print(f"Examples number: {count}")
     fout.close()
 

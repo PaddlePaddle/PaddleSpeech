@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+import numpy as np
 from paddle.io import DataLoader
 
 from deepspeech.io.collator import SpeechCollator
@@ -26,12 +28,18 @@ def create_dataloader(manifest_path,
                       mean_std_filepath,
                       spm_model_prefix,
                       augmentation_config='{}',
-                      max_duration=float('inf'),
-                      min_duration=0.0,
+                      max_input_len=float('inf'),
+                      min_input_len=0.0,
+                      max_output_len=float('inf'),
+                      min_output_len=0.0,
+                      max_output_input_ratio=float('inf'),
+                      min_output_input_ratio=0.0,
                       stride_ms=10.0,
                       window_ms=20.0,
                       max_freq=None,
                       specgram_type='linear',
+                      feat_dim=None,
+                      delta_delta=False,
                       use_dB_normalization=True,
                       random_seed=0,
                       keep_transcription_text=False,
@@ -43,20 +51,24 @@ def create_dataloader(manifest_path,
                       dist=False):
 
     dataset = ManifestDataset(
-        manifest_path,
-        unit_type,
-        vocab_filepath,
-        mean_std_filepath,
+        manifest_path=manifest_path,
+        unit_type=unit_type,
+        vocab_filepath=vocab_filepath,
+        mean_std_filepath=mean_std_filepath,
         spm_model_prefix=spm_model_prefix,
         augmentation_config=augmentation_config,
-        max_duration=max_duration,
-        min_duration=min_duration,
+        max_input_len=max_input_len,
+        min_input_len=min_input_len,
+        max_output_len=max_output_len,
+        min_output_len=min_output_len,
+        max_output_input_ratio=max_output_input_ratio,
+        min_output_input_ratio=min_output_input_ratio,
         stride_ms=stride_ms,
         window_ms=window_ms,
         max_freq=max_freq,
         specgram_type=specgram_type,
-                    feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
+        feat_dim=feat_dim,
+        delta_delta=delta_delta,
         use_dB_normalization=use_dB_normalization,
         random_seed=random_seed,
         keep_transcription_text=keep_transcription_text)
@@ -80,7 +92,10 @@ def create_dataloader(manifest_path,
             sortagrad=is_training,
             shuffle_method=shuffle_method)
 
-    def padding_batch(batch, padding_to=-1, flatten=False, is_training=True):
+    def padding_batch(batch,
+                      padding_to=-1,
+                      flatten=False,
+                      keep_transcription_text=True):
         """	
         Padding audio features with zeros to make them have the same shape (or	
         a user-defined shape) within one bach.	
@@ -113,10 +128,10 @@ def create_dataloader(manifest_path,
             audio_lens.append(audio.shape[1])
 
             padded_text = np.zeros([max_text_length])
-            if is_training:
-                padded_text[:len(text)] = text  #ids
-            else:
+            if keep_transcription_text:
                 padded_text[:len(text)] = [ord(t) for t in text]  # string
+            else:
+                padded_text[:len(text)] = text  #ids
             texts.append(padded_text)
             text_lens.append(len(text))
 
@@ -124,11 +139,13 @@ def create_dataloader(manifest_path,
         audio_lens = np.array(audio_lens).astype('int64')
         texts = np.array(texts).astype('int32')
         text_lens = np.array(text_lens).astype('int64')
-        return padded_audios, texts, audio_lens, text_lens
+        return padded_audios, audio_lens, texts, text_lens
 
+    #collate_fn=functools.partial(padding_batch, keep_transcription_text=keep_transcription_text),
+    collate_fn = SpeechCollator(keep_transcription_text=keep_transcription_text)
     loader = DataLoader(
         dataset,
         batch_sampler=batch_sampler,
-        collate_fn=partial(padding_batch, is_training=is_training),
+        collate_fn=collate_fn,
         num_workers=num_workers)
     return loader

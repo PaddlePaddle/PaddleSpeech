@@ -67,16 +67,12 @@ def main():
     vocab_size = text_feature.vocab_size
     print(f"Vocab size: {vocab_size}")
 
+    count = 0
     for manifest_path in args.manifest_paths:
         manifest_jsons = read_manifest(manifest_path)
         for line_json in manifest_jsons:
             line = line_json['text']
-            if args.unit_type == 'char':
-                tokens = text_feature.char_tokenize(line)
-            elif args.unit_type == 'word':
-                tokens = text_feature.word_tokenize(line)
-            else: #spm
-                tokens = text_feature.spm_tokenize(line)
+            tokens = text_feature.tokenize(line)
             tokenids = text_feature.featurize(line)
             line_json['token'] = tokens
             line_json['token_id'] = tokenids
@@ -88,7 +84,9 @@ def main():
             else: # kaldi
                 raise NotImplemented('no support kaldi feat now!')
             fout.write(json.dumps(line_json) + '\n')
-
+            count += 1
+            
+    print(f"Examples number: {count}")
     fout.close()
 
 

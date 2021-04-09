@@ -24,7 +24,7 @@ bpeprefix="data/bpe_${bpemode}_${nbpe}"
 # build vocabulary
 python3 ${MAIN_ROOT}/utils/build_vocab.py \
 --unit_type "spm" \
---count_threshold=${nbpe} \
+--vocab_size=${nbpe} \
 --spm_mode ${bpemode} \
 --spm_model_prefix ${bpeprefix} \
 --vocab_path="data/vocab.txt" \

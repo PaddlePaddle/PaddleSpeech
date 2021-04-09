@@ -50,6 +50,8 @@ def start_server(config, args):
         max_freq=config.data.max_freq,
         target_sample_rate=config.data.target_sample_rate,
         specgram_type=config.data.specgram_type,
+                    feat_dim=config.data.feat_dim,
+            delta_delta=config.data.delat_delta,
         use_dB_normalization=config.data.use_dB_normalization,
         target_dB=config.data.target_dB,
         random_seed=config.data.random_seed,

@@ -28,12 +28,13 @@ add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc, fbank.",
         choices=['linear', 'mfcc', 'fbank'])
-add_arg('feat_dim',    int,
-        13,
-        "Audio feature dim.")
+add_arg('feat_dim',    int, 13, "Audio feature dim.")
 add_arg('delta_delta',    bool,
         False,
         "Audio feature with delta delta.")
+add_arg('stride_ms',    float, 10.0,  "stride length in ms.")
+add_arg('window_ms',    float, 20.0,  "stride length in ms.")
+add_arg('sample_rate',    int, 16000,  "target sample rate.")
 add_arg('manifest_path',    str,
         'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
@@ -51,7 +52,14 @@ def main():
     audio_featurizer = AudioFeaturizer(
         specgram_type=args.specgram_type,
         feat_dim=args.feat_dim,
-        delta_delta=args.delta_delta)
+        delta_delta=args.delta_delta,
+        stride_ms=args.stride_ms,
+        window_ms=args.window_ms,
+        n_fft=None,
+        max_freq=None,
+        target_sample_rate=args.sample_rate,
+        use_dB_normalization=True,
+        target_dB=-20)
 
     def augment_and_featurize(audio_segment):
         augmentation_pipeline.transform_audio(audio_segment)

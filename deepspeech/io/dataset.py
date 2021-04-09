@@ -51,6 +51,8 @@ class ManifestDataset(Dataset):
                  max_freq=None,
                  target_sample_rate=16000,
                  specgram_type='linear',
+                 feat_dim=None,
+                 delta_delta=False,
                  use_dB_normalization=True,
                  target_dB=-20,
                  random_seed=0,
@@ -71,7 +73,9 @@ class ManifestDataset(Dataset):
             n_fft (int, optional): fft points for rfft. Defaults to None.
             max_freq (int, optional): max cut freq. Defaults to None.
             target_sample_rate (int, optional): target sample rate which used for training. Defaults to 16000.
-            specgram_type (str, optional): 'linear' or 'mfcc'. Defaults to 'linear'.
+            specgram_type (str, optional): 'linear', 'mfcc' or 'fbank'. Defaults to 'linear'.
+            feat_dim (int, optional): audio feature dim, using by 'mfcc' or 'fbank'. Defaults to None.
+            delta_delta (bool, optional): audio feature with delta-delta, using by 'fbank' or 'mfcc'. Defaults to False.
             use_dB_normalization (bool, optional): do dB normalization. Defaults to True.
             target_dB (int, optional): target dB. Defaults to -20.
             random_seed (int, optional): for random generator. Defaults to 0.
@@ -89,6 +93,8 @@ class ManifestDataset(Dataset):
             vocab_filepath=vocab_filepath,
             spm_model_prefix=spm_model_prefix,
             specgram_type=specgram_type,
+            feat_dim=feat_dim,
+            delta_delta=delta_delta,
             stride_ms=stride_ms,
             window_ms=window_ms,
             n_fft=n_fft,

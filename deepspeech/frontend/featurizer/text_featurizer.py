@@ -43,6 +43,15 @@ class TextFeaturizer(object):
             self.sp = spm.SentencePieceProcessor()
             self.sp.Load(spm_model)
 
+    def tokenize(self, text):
+        if self.unit_type == 'char':
+            tokens = self.char_tokenize(text)
+        elif self.unit_type == 'word':
+            tokens = self.word_tokenize(text)
+        else: # spm
+            tokens = self.spm_tokenize(text)
+        return tokens
+
     def featurize(self, text):
         """Convert text string to a list of token indices in char-level.Note
         that the token indexing order follows the given vocabulary file.
@@ -52,13 +61,7 @@ class TextFeaturizer(object):
         :return: List of char-level token indices.
         :rtype: List[int]
         """
-        if self.unit_type == 'char':
-            tokens = self.char_tokenize(text)
-        elif self.unit_type == 'word':
-            tokens = self.word_tokenize(text)
-        else:
-            tokens = self.spm_tokenize(text)
-
+        tokens = self.tokenize(text)
         ids = []
         for token in tokens:
             token = token if token in self._vocab_dict else self.unk

@@ -61,7 +61,9 @@ class AudioFeaturizer(object):
                  use_dB_normalization=True,
                  target_dB=-20):
         self._specgram_type = specgram_type
+        # mfcc and fbank using `feat_dim`
         self._feat_dim = feat_dim
+        # mfcc and fbank using `delta-delta`
         self._delta_delta = delta_delta
         self._stride_ms = stride_ms
         self._window_ms = window_ms
@@ -130,25 +132,28 @@ class AudioFeaturizer(object):
         """Extract various audio features."""
         if self._specgram_type == 'linear':
             return self._compute_linear_specgram(
-                samples, sample_rate, self._stride_ms, self._window_ms,
-                self._max_freq)
+                samples,
+                sample_rate,
+                stride_ms=self._stride_ms,
+                window_ms=self._window_ms,
+                max_freq=self._max_freq)
         elif self._specgram_type == 'mfcc':
             return self._compute_mfcc(
                 samples,
                 sample_rate,
-                self._stride_ms,
-                self._feat_dim,
-                self._window_ms,
-                self._max_freq,
+                feat_dim=self._feat_dim,
+                stride_ms=self._stride_ms,
+                window_ms=self._window_ms,
+                max_freq=self._max_freq,
                 delta_delta=self._delta_delta)
         elif self._specgram_type == 'fbank':
             return self._compute_fbank(
                 samples,
                 sample_rate,
-                self._stride_ms,
-                self._feat_dim,
-                self._window_ms,
-                self._max_freq,
+                feat_dim=self._feat_dim,
+                stride_ms=self._stride_ms,
+                window_ms=self._window_ms,
+                max_freq=self._max_freq,
                 delta_delta=self._delta_delta)
         else:
             raise ValueError("Unknown specgram_type %s. "
@@ -323,10 +328,9 @@ class AudioFeaturizer(object):
             winstep=0.001 * stride_ms,
             nfilt=feat_dim,
             nfft=512,
-            lowfreq=max_freq,
-            highfreq=None,
-            preemph=0.97,
-            winfunc=lambda x: np.ones((x, )))
+            lowfreq=0,
+            highfreq=max_freq,
+            preemph=0.97,)
         fbank_feat = np.transpose(fbank_feat)
         if delta_delta:
             fbank_feat = self._concat_delta_delta(fbank_feat)

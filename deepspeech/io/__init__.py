@@ -55,6 +55,8 @@ def create_dataloader(manifest_path,
         window_ms=window_ms,
         max_freq=max_freq,
         specgram_type=specgram_type,
+                    feat_dim=config.data.feat_dim,
+            delta_delta=config.data.delat_delta,
         use_dB_normalization=use_dB_normalization,
         random_seed=random_seed,
         keep_transcription_text=keep_transcription_text)

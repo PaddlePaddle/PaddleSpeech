@@ -40,7 +40,9 @@ fi
 python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
 --manifest_path="data/manifest.tiny.raw" \
 --num_samples=64 \
---specgram_type="linear" \
+--specgram_type="fbank" \
+--feat_dim=80 \
+--delta_delta=false \
 --output_path="data/mean_std.npz"
 
 if [ $? -ne 0 ]; then

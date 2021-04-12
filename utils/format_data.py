@@ -15,15 +15,8 @@
 import argparse
 import functools
 import json
-from collections import Counter
-import os
-import copy
-import tempfile
 
 from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.utility import UNK
-from deepspeech.frontend.utility import BLANK
-from deepspeech.frontend.utility import SOS
 from deepspeech.frontend.utility import load_cmvn
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
@@ -82,7 +75,7 @@ def main():
             if args.feat_type == 'raw':
                 feat_shape.append(feat_dim)
             else: # kaldi
-                raise NotImplemented('no support kaldi feat now!')
+                raise NotImplementedError('no support kaldi feat now!')
             fout.write(json.dumps(line_json) + '\n')
             count += 1
 

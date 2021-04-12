@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Server-end for the ASR demo."""
-import os
-import time
-import argparse
 import functools
 import paddle
 import numpy as np
@@ -26,7 +23,6 @@ from deepspeech.utils.socket_server import AsrRequestHandler
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 
-from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.utility import add_arguments, print_arguments
 
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
@@ -159,15 +155,13 @@ if __name__ == "__main__":
         "--params_file",
         type=str,
         default="",
-        help=
-        "Parameter filename, Specify this when your model is a combined model."
+        help="Parameter filename, Specify this when your model is a combined model."
     )
     add_arg(
         "--model_dir",
         type=str,
         default=None,
-        help=
-        "Model dir, If you load a non-combined model, specify the directory of the model."
+        help="Model dir, If you load a non-combined model, specify the directory of the model."
     )
     add_arg("--use_gpu",
                         type=bool,

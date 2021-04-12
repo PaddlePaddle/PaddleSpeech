@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import numpy as np
 from paddle.io import DataLoader
 
@@ -131,7 +130,7 @@ def create_dataloader(manifest_path,
             if keep_transcription_text:
                 padded_text[:len(text)] = [ord(t) for t in text]  # string
             else:
-                padded_text[:len(text)] = text  #ids
+                padded_text[:len(text)] = text  # ids
             texts.append(padded_text)
             text_lens.append(len(text))
 
@@ -141,7 +140,7 @@ def create_dataloader(manifest_path,
         text_lens = np.array(text_lens).astype('int64')
         return padded_audios, audio_lens, texts, text_lens
 
-    #collate_fn=functools.partial(padding_batch, keep_transcription_text=keep_transcription_text),
+    # collate_fn=functools.partial(padding_batch, keep_transcription_text=keep_transcription_text),
     collate_fn = SpeechCollator(keep_transcription_text=keep_transcription_text)
     loader = DataLoader(
         dataset,

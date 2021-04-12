@@ -12,12 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
-
-import io
-import logging
-import argparse
-import functools
-
 from paddle import distributed as dist
 
 from deepspeech.utils.utility import print_arguments

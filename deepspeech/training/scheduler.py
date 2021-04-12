@@ -14,7 +14,6 @@
 
 import logging
 
-import paddle
 from paddle.optimizer.lr import LRScheduler
 
 logger = logging.getLogger(__name__)

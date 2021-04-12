@@ -14,7 +14,6 @@
 """Contains common utility functions."""
 
 import math
-import numpy as np
 import distutils.util
 from typing import List
 

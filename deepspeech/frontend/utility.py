@@ -16,15 +16,7 @@ import numpy as np
 import math
 import json
 import codecs
-import os
-import tarfile
-import time
 import logging
-from typing import List
-from threading import Thread
-from multiprocessing import Process, Manager, Value
-
-from paddle.dataset.common import md5file
 
 logger = logging.getLogger(__name__)
 

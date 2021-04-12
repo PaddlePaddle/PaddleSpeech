@@ -91,7 +91,7 @@ def select_dialects(target_dir, dialect_list):
     for dialect in dialect_list:
         # filter files by dialect
         command = 'find %s -iwholename "*etc/readme*" -exec egrep -iHl \
-                   "pronunciation dialect.*%s" {} \;' % (audio_dir, dialect)
+            "pronunciation dialect.*%s" {} \;' % (audio_dir, dialect)
         p = subprocess.Popen(
             command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         output, err = p.communicate()

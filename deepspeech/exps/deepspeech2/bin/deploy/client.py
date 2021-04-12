@@ -13,8 +13,6 @@
 # limitations under the License.
 """Client-end for the ASR demo."""
 import keyboard
-import struct
-import socket
 import sys
 import argparse
 import pyaudio
@@ -49,7 +47,7 @@ def on_press_release(x):
             sys.stdout.flush()
             is_recording = True
     if x.event_type == 'up' and x.name == release.name:
-        if is_recording == True:
+        if is_recording:
             is_recording = False
 
 

@@ -18,8 +18,6 @@ from typeguard import check_argument_types
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.attention import RelPositionMultiHeadedAttention

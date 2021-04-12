@@ -17,10 +17,8 @@ Each item in vocabulary file is a character.
 
 import argparse
 import functools
-import json
 from collections import Counter
 import os
-import copy
 import tempfile
 
 from deepspeech.frontend.utility import read_manifest
@@ -35,23 +33,21 @@ parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('unit_type', str, "char", "Unit type, e.g. char, word, spm")
-add_arg('count_threshold',  int,    0,
-     "Truncation threshold for char/word counts.Default 0, no truncate.")
-add_arg('vocab_path',       str,
+add_arg('count_threshold', int, 0,
+        "Truncation threshold for char/word counts.Default 0, no truncate.")
+add_arg('vocab_path', str,
         'examples/librispeech/data/vocab.txt',
         "Filepath to write the vocabulary.")
-add_arg('manifest_paths',   str,
+add_arg('manifest_paths', str,
         None,
         "Filepaths of manifests for building vocabulary. "
         "You can provide multiple manifest files.",
         nargs='+',
         required=True)
 # bpe
-add_arg('vocab_size',  int,    0,  "Vocab size for spm.")
-add_arg('spm_mode', str, 'unigram',
-    "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
-add_arg('spm_model_prefix', str, "spm_model_%(spm_mode)_%(count_threshold)",
-    "spm model prefix, only need when `unit_type` is spm")
+add_arg('vocab_size', int, 0, "Vocab size for spm.")
+add_arg('spm_mode', str, 'unigram', "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
+add_arg('spm_model_prefix', str, "spm_model_%(spm_mode)_%(count_threshold)", "spm model prefix, only need when `unit_type` is spm")
 # yapf: disable
 args = parser.parse_args()
 
@@ -71,8 +67,8 @@ def main():
     print_arguments(args)
 
     fout = open(args.vocab_path, 'w', encoding='utf-8')
-    fout.write(BLANK + "\n") # 0 will be used for "blank" in CTC
-    fout.write(UNK + '\n')   # <unk> must be 1
+    fout.write(BLANK + "\n")  # 0 will be used for "blank" in CTC
+    fout.write(UNK + '\n')  # <unk> must be 1
 
     if args.unit_type == 'spm':
         # tools/spm_train --input=$wave_data/lang_char/input.txt 
@@ -104,14 +100,15 @@ def main():
     count_sorted = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     tokens = []
     for token, count in count_sorted:
-        if count < args.count_threshold: break
+        if count < args.count_threshold:
+            break
         tokens.append(token)
 
     tokens = sorted(tokens)
     for token in tokens:
         fout.write(token + '\n')
 
-    fout.write(SOS + "\n") # <sos/eos>
+    fout.write(SOS + "\n")  # <sos/eos>
     fout.close()
 
 

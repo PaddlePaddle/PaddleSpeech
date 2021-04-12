@@ -12,20 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-import math
-import collections
-import numpy as np
 import logging
 from typing import Optional
 from yacs.config import CfgNode
 
-import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
-from deepspeech.modules.mask import sequence_mask
-from deepspeech.modules.activation import brelu
 from deepspeech.modules.conv import ConvStack
 from deepspeech.modules.rnn import RNNStack
 from deepspeech.modules.ctc import CTCDecoder

@@ -14,8 +14,6 @@
 """Contains the audio featurizer class."""
 
 import numpy as np
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.audio import AudioSegment
 from python_speech_features import mfcc
 from python_speech_features import logfbank
 from python_speech_features import delta
@@ -320,7 +318,7 @@ class AudioFeaturizer(object):
         if stride_ms > window_ms:
             raise ValueError("Stride size must not be greater than "
                              "window size.")
-        #(T, D)
+        # (T, D)
         fbank_feat = logfbank(
             signal=samples,
             samplerate=sample_rate,

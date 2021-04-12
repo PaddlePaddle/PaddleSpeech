@@ -16,7 +16,8 @@
 from setuptools import setup, Extension, distutils
 import glob
 import platform
-import os, sys
+import os
+import sys
 import multiprocessing.pool
 import argparse
 
@@ -65,9 +66,9 @@ def parallelCCompile(self,
 def compile_test(header, library):
     dummy_path = os.path.join(os.path.dirname(__file__), "dummy")
     command = "bash -c \"g++ -include " + header \
-                + " -l" + library + " -x c++ - <<<'int main() {}' -o " \
-                + dummy_path + " >/dev/null 2>/dev/null && rm " \
-                + dummy_path + " 2>/dev/null\""
+        + " -l" + library + " -x c++ - <<<'int main() {}' -o " \
+        + dummy_path + " >/dev/null 2>/dev/null && rm " \
+        + dummy_path + " 2>/dev/null\""
     return os.system(command) == 0
 
 
@@ -75,8 +76,8 @@ def compile_test(header, library):
 distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 FILES = glob.glob('kenlm/util/*.cc') \
-        + glob.glob('kenlm/lm/*.cc') \
-        + glob.glob('kenlm/util/double-conversion/*.cc')
+    + glob.glob('kenlm/lm/*.cc') \
+    + glob.glob('kenlm/util/double-conversion/*.cc')
 
 FILES += glob.glob('openfst-1.6.3/src/lib/*.cc')
 

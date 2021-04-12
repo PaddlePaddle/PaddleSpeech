@@ -55,7 +55,8 @@ def create_manifest(data_dir, manifest_path_prefix):
     transcript_dict = {}
     for line in codecs.open(transcript_path, 'r', 'utf-8'):
         line = line.strip()
-        if line == '': continue
+        if line == '':
+            continue
         audio_id, text = line.split(' ', 1)
         # remove withespace
         text = ''.join(text.split())
@@ -82,7 +83,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                             os.path.splitext(os.path.basename(audio_path))[0],
                             'feat':
                             audio_path,
-                            'feat_shape': (duration, ),  #second
+                            'feat_shape': (duration, ),  # second
                             'text':
                             text
                         },

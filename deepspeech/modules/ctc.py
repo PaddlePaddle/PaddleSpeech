@@ -18,7 +18,6 @@ from typeguard import check_argument_types
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.loss import CTCLoss
 from deepspeech.utils import ctc_utils
@@ -151,7 +150,7 @@ class CTCDecoder(nn.Layer):
         :type vocab_list: list
         """
         # init once
-        if self._ext_scorer != None:
+        if self._ext_scorer is not None:
             return
 
         if language_model_path != '':
@@ -199,7 +198,7 @@ class CTCDecoder(nn.Layer):
         :return: List of transcription texts.
         :rtype: List of str
         """
-        if self._ext_scorer != None:
+        if self._ext_scorer is not None:
             self._ext_scorer.reset_params(beam_alpha, beam_beta)
 
         # beam search decode

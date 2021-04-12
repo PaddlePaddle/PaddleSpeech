@@ -14,12 +14,8 @@
 """Beam search parameters tuning for DeepSpeech2 model."""
 
 import sys
-import os
 import numpy as np
-import argparse
 import functools
-import gzip
-import logging
 
 from paddle.io import DataLoader
 
@@ -122,7 +118,7 @@ def tune(config, args):
             if index % 2 == 0:
                 sys.stdout.write('.')
                 sys.stdout.flush()
-            print(f"tuneing: one grid done!")
+            print("tuneing: one grid done!")
 
         # output on-line tuning result at the end of current batch
         err_ave_min = min(err_ave)

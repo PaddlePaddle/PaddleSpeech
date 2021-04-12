@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Unility functions for Transformer."""
-import math
 import logging
 from typing import Tuple, List
 

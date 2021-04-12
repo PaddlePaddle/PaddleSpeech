@@ -16,12 +16,9 @@ import time
 import logging
 import logging.handlers
 from pathlib import Path
-import numpy as np
-from collections import defaultdict
 
 import paddle
 from paddle import distributed as dist
-from paddle.distributed.utils import get_gpus
 from tensorboardX import SummaryWriter
 
 from deepspeech.utils import checkpoint

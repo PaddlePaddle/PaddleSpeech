@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Socket client to send wav to ASR server."""
-import struct
-import socket
 import argparse
 import wave
 

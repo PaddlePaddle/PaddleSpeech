@@ -14,7 +14,6 @@
 
 import logging
 import numpy as np
-from collections import namedtuple
 
 from deepspeech.io.utility import pad_sequence
 from deepspeech.frontend.utility import IGNORE_ID

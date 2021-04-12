@@ -15,10 +15,8 @@
 Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recognition 
 (https://arxiv.org/pdf/2012.05481.pdf)
 """
-import math
-import collections
+
 from collections import defaultdict
-import numpy as np
 import logging
 from yacs.config import CfgNode
 from typing import List, Optional, Tuple
@@ -26,8 +24,6 @@ from typing import List, Optional, Tuple
 import paddle
 from paddle import jit
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.mask import make_pad_mask
 from deepspeech.modules.mask import mask_finished_preds
@@ -54,7 +50,7 @@ from deepspeech.utils.ctc_utils import remove_duplicates_and_blank
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['U2TransformerModel', "U2ConformerModel"]
+__all__ = ["U2Model", "U2InferModel"]
 
 
 class U2BaseModel(nn.Module):

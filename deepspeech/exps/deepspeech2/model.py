@@ -14,13 +14,10 @@
 """Contains DeepSpeech2 model."""
 
 import io
-import sys
-import os
 import time
 import logging
 import numpy as np
 from collections import defaultdict
-from functools import partial
 from pathlib import Path
 
 import paddle
@@ -39,7 +36,6 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
 
-from deepspeech.modules.loss import CTCLoss
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
 

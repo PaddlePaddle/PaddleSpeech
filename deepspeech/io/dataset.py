@@ -13,13 +13,10 @@
 # limitations under the License.
 
 import io
-import math
 import random
 import tarfile
 import logging
-import numpy as np
 from collections import namedtuple
-from functools import partial
 from yacs.config import CfgNode
 
 from paddle.io import Dataset

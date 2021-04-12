@@ -22,7 +22,7 @@ from deepspeech.frontend.augmentor.noise_perturb import NoisePerturbAugmentor
 from deepspeech.frontend.augmentor.impulse_response import ImpulseResponseAugmentor
 from deepspeech.frontend.augmentor.resample import ResampleAugmentor
 from deepspeech.frontend.augmentor.online_bayesian_normalization import \
-     OnlineBayesianNormalizationAugmentor
+    OnlineBayesianNormalizationAugmentor
 
 
 class AugmentationPipeline():

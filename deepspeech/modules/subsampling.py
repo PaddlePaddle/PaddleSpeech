@@ -18,8 +18,6 @@ import logging
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.embedding import PositionalEncoding
 

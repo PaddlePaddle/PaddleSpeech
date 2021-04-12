@@ -13,16 +13,8 @@
 # limitations under the License.
 """Export for U2 model."""
 
-import io
-import logging
-import argparse
-import functools
-
-from paddle import distributed as dist
-
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.utility import print_arguments
-from deepspeech.utils.error_rate import char_errors, word_errors
 
 from deepspeech.exps.u2.config import get_cfg_defaults
 from deepspeech.exps.u2.model import U2Tester as Tester

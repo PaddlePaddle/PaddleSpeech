@@ -12,16 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union
 import logging
-import numpy as np
-import math
 from collections import OrderedDict
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 logger = logging.getLogger(__name__)
 

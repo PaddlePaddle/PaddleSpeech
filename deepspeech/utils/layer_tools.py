@@ -51,7 +51,7 @@ def recursively_remove_weight_norm(layer: nn.Layer):
     for layer in layer.sublayers():
         try:
             nn.utils.remove_weight_norm(layer)
-        except:
+        except ValueError as e:
             # ther is not weight norm hoom in this layer
             pass
 

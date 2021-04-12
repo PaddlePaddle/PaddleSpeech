@@ -19,9 +19,7 @@ meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
 
-import distutils.util
 import os
-import sys
 import argparse
 import soundfile
 import json

@@ -13,14 +13,9 @@
 # limitations under the License.
 
 import math
-import random
-import tarfile
 import logging
 import numpy as np
-from collections import namedtuple
-from functools import partial
 
-import paddle
 from paddle.io import BatchSampler
 from paddle.io import DistributedBatchSampler
 from paddle import distributed as dist
@@ -59,7 +54,7 @@ def _batch_shuffle(indices, batch_size, epoch, clipped=False):
     batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
     rng.shuffle(batch_indices)
     batch_indices = [item for batch in batch_indices for item in batch]
-    assert (clipped == False)
+    assert clipped is False
     if not clipped:
         res_len = len(indices) - shift_len - len(batch_indices)
         # when res_len is 0, will return whole list, len(List[-0:]) = len(List[:])
@@ -195,13 +190,13 @@ class SortagradBatchSampler(BatchSampler):
         self.dataset = dataset
 
         assert isinstance(batch_size, int) and batch_size > 0, \
-                "batch_size should be a positive integer"
+            "batch_size should be a positive integer"
         self.batch_size = batch_size
         assert isinstance(shuffle, bool), \
-                "shuffle should be a boolean value"
+            "shuffle should be a boolean value"
         self.shuffle = shuffle
         assert isinstance(drop_last, bool), \
-                "drop_last should be a boolean number"
+            "drop_last should be a boolean number"
 
         self.drop_last = drop_last
         self.epoch = 0

@@ -27,7 +27,7 @@ import codecs
 import soundfile
 import json
 import argparse
-from utils.utility import download, unpack, unzip
+from utils.utility import download, unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 

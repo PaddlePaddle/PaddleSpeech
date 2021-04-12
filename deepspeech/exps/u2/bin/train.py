@@ -13,11 +13,6 @@
 # limitations under the License.
 """Trainer for U2 model."""
 
-import io
-import logging
-import argparse
-import functools
-
 from paddle import distributed as dist
 
 from deepspeech.utils.utility import print_arguments

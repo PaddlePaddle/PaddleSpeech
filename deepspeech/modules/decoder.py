@@ -18,8 +18,6 @@ import logging
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.decoder_layer import DecoderLayer
@@ -125,7 +123,7 @@ class TransformerDecoder(nn.Module):
         m = subsequent_mask(tgt_mask.size(-1)).unsqueeze(0)
         # tgt_mask: (B, L, L)
         # TODO(Hui Zhang): not support & for tensor
-        #tgt_mask = tgt_mask & m
+        # tgt_mask = tgt_mask & m
         tgt_mask = tgt_mask.logical_and(m)
 
         x, _ = self.embed(tgt)
@@ -137,8 +135,8 @@ class TransformerDecoder(nn.Module):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        #TODO(Hui Zhang): reduce_sum not support bool type
-        #olens = tgt_mask.sum(1)
+        # TODO(Hui Zhang): reduce_sum not support bool type
+        # olens = tgt_mask.sum(1)
         olens = tgt_mask.astype(paddle.int).sum(1)
         return x, olens
 

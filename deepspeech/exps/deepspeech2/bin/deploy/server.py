@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Server-end for the ASR demo."""
-import os
-import time
-import argparse
 import functools
 import paddle
 import numpy as np
@@ -26,7 +23,6 @@ from deepspeech.utils.socket_server import AsrRequestHandler
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 
-from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.utility import add_arguments, print_arguments
 
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
@@ -100,7 +96,7 @@ if __name__ == "__main__":
     add_arg('speech_save_dir',  str,
             'demo_cache',
             "Directory to save demo audios.")
-    add_arg('warmup_manifest',  str, None, "Filepath of manifest to warm up.")
+    add_arg('warmup_manifest', str, None, "Filepath of manifest to warm up.")
     args = parser.parse_args()
     print_arguments(args)
 

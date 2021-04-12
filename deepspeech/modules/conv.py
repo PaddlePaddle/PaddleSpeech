@@ -14,10 +14,8 @@
 
 import logging
 
-import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from paddle.nn import initializer as I
 
 from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu

@@ -13,7 +13,6 @@
 # limitations under the License.
 """Contains the text featurizer class."""
 
-import os
 import sentencepiece as spm
 
 from deepspeech.frontend.utility import UNK

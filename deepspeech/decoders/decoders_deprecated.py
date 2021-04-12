@@ -104,14 +104,14 @@ def ctc_beam_search_decoder(probs_seq,
         global ext_nproc_scorer
         ext_scoring_func = ext_nproc_scorer
 
-    ## initialize
+    # initialize
     # prefix_set_prev: the set containing selected prefixes
     # probs_b_prev: prefixes' probability ending with blank in previous step
     # probs_nb_prev: prefixes' probability ending with non-blank in previous step
     prefix_set_prev = {'\t': 1.0}
     probs_b_prev, probs_nb_prev = {'\t': 1.0}, {'\t': 0.0}
 
-    ## extend prefix in loop
+    # extend prefix in loop
     for time_step in range(len(probs_seq)):
         # prefix_set_next: the set containing candidate prefixes
         # probs_b_cur: prefixes' probability ending with blank in current step
@@ -120,7 +120,7 @@ def ctc_beam_search_decoder(probs_seq,
 
         prob_idx = list(enumerate(probs_seq[time_step]))
         cutoff_len = len(prob_idx)
-        #If pruning is enabled
+        # If pruning is enabled
         if cutoff_prob < 1.0 or cutoff_top_n < cutoff_len:
             prob_idx = sorted(prob_idx, key=lambda asd: asd[1], reverse=True)
             cutoff_len, cum_prob = 0, 0.0
@@ -172,7 +172,7 @@ def ctc_beam_search_decoder(probs_seq,
         # update probs
         probs_b_prev, probs_nb_prev = probs_b_cur, probs_nb_cur
 
-        ## store top beam_size prefixes
+        # store top beam_size prefixes
         prefix_set_prev = sorted(
             prefix_set_next.items(), key=lambda asd: asd[1], reverse=True)
         if beam_size < len(prefix_set_prev):
@@ -191,7 +191,7 @@ def ctc_beam_search_decoder(probs_seq,
         else:
             beam_result.append((float('-inf'), ''))
 
-    ## output top beam_size decoding results
+    # output top beam_size decoding results
     beam_result = sorted(beam_result, key=lambda asd: asd[0], reverse=True)
     return beam_result
 

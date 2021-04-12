@@ -58,12 +58,15 @@ def default_argument_parser():
     parser.add_argument("--export_path", type=str, help="path of the jit model to save")
 
     # running
-    parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"], help="device type to use, cpu and gpu are supported.")
+    parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
+                        help="device type to use, cpu and gpu are supported.")
     parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
 
     # overwrite extra config and default config
-    #parser.add_argument("--opts", nargs=argparse.REMAINDER, help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
-    parser.add_argument("--opts", type=str, default=[], nargs='+', help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
+    # parser.add_argument("--opts", nargs=argparse.REMAINDER, 
+    # help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
+    parser.add_argument("--opts", type=str, default=[], nargs='+',
+                        help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
     # yapd: enable
 
     return parser

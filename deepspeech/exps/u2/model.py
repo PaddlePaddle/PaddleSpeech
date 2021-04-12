@@ -13,14 +13,10 @@
 # limitations under the License.
 """Contains U2 model."""
 
-import io
-import sys
-import os
 import time
 import logging
 import numpy as np
 from collections import defaultdict
-from functools import partial
 from pathlib import Path
 
 import paddle
@@ -39,8 +35,6 @@ from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
-
-from deepspeech.modules.loss import CTCLoss
 
 from deepspeech.models.u2 import U2Model
 

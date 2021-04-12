@@ -22,7 +22,6 @@ import resampy
 from scipy import signal
 import random
 import copy
-import io
 
 
 class AudioSegment(object):

@@ -21,7 +21,6 @@ of each audio file in the data set.
 
 import distutils.util
 import os
-import sys
 import argparse
 import soundfile
 import json

@@ -13,15 +13,12 @@
 # limitations under the License.
 
 import os
-import time
 import logging
-import numpy as np
 import re
 import json
 
 import paddle
 from paddle import distributed as dist
-from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 
 from deepspeech.utils import mp_tools

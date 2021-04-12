@@ -13,7 +13,6 @@
 # limitations under the License.
 import logging
 from typing import Union
-from typing import Optional
 from typing import List
 from typing import Tuple
 from typing import Any
@@ -21,7 +20,6 @@ from typing import Any
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from paddle.nn import initializer as I
 #TODO(Hui Zhang): remove  fluid import
 from paddle.fluid import core
 logger = logging.getLogger(__name__)
@@ -242,7 +240,7 @@ def is_broadcastable(shp1, shp2):
 def masked_fill(xs: paddle.Tensor,
                 mask: paddle.Tensor,
                 value: Union[float, int]):
-    assert is_broadcastable(xs.shape, mask.shape) == True
+    assert is_broadcastable(xs.shape, mask.shape) is True
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value
@@ -259,7 +257,7 @@ if not hasattr(paddle.Tensor, 'masked_fill'):
 def masked_fill_(xs: paddle.Tensor,
                  mask: paddle.Tensor,
                  value: Union[float, int]):
-    assert is_broadcastable(xs.shape, mask.shape) == True
+    assert is_broadcastable(xs.shape, mask.shape) is True
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value

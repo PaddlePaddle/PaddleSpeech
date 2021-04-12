@@ -95,6 +95,8 @@ class Trainer():
         self.output_dir = None
         self.checkpoint_dir = None
         self.logger = None
+        self.iteration = 0
+        self.epoch = 0
 
     def setup(self):
         """Setup the experiment.

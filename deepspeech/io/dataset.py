@@ -20,6 +20,7 @@ import logging
 import numpy as np
 from collections import namedtuple
 from functools import partial
+from yacs.config import CfgNode
 
 from paddle.io import Dataset
 
@@ -37,6 +38,97 @@ __all__ = [
 
 
 class ManifestDataset(Dataset):
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        default = CfgNode(
+            dict(
+                train_manifest="",
+                dev_manifest="",
+                test_manifest="",
+                unit_type="char",
+                vocab_filepath="",
+                spm_model_prefix="",
+                mean_std_filepath="",
+                augmentation_config="",
+                max_input_len=27.0,
+                min_input_len=0.0,
+                max_output_len=float('inf'),
+                min_output_len=0.0,
+                max_output_input_ratio=float('inf'),
+                min_output_input_ratio=0.0,
+                stride_ms=10.0,  # ms
+                window_ms=20.0,  # ms
+                n_fft=None,  # fft points
+                max_freq=None,  # None for samplerate/2
+                raw_wav=True,  # use raw_wav or kaldi feature
+                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+                feat_dim=0,  # 'mfcc', 'fbank'
+                delat_delta=False,  # 'mfcc', 'fbank'
+                target_sample_rate=16000,  # target sample rate
+                use_dB_normalization=True,
+                target_dB=-20,
+                random_seed=0,
+                keep_transcription_text=False,
+                batch_size=32,  # batch size
+                num_workers=0,  # data loader workers
+                sortagrad=False,  # sorted in first epoch when True
+                shuffle_method="batch_shuffle",  # 'batch_shuffle', 'instance_shuffle'
+            ))
+
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
+    @classmethod
+    def from_config(cls, config):
+        """Build a ManifestDataset object from a config.
+
+        Args:
+            config (yacs.config.CfgNode): configs object.
+
+        Returns:
+            ManifestDataset: dataet object.
+        """
+        assert manifest in config.data
+        assert keep_transcription_text in config.data
+
+        if isinstance(config.data.augmentation_config, (str, bytes)):
+            if config.data.augmentation_config:
+                aug_file = io.open(
+                    config.data.augmentation_config, mode='r', encoding='utf8')
+            else:
+                aug_file = io.StringIO(initial_value='{}', newline='')
+        else:
+            aug_file = config.data.augmentation_config
+            assert isinstance(aug_file, io.StringIO)
+
+        dataset = cls(
+            manifest_path=config.data.manifest,
+            unit_type=config.data.unit_type,
+            vocab_filepath=config.data.vocab_filepath,
+            mean_std_filepath=config.data.mean_std_filepath,
+            spm_model_prefix=config.data.spm_model_prefix,
+            augmentation_config=aug_file.read(),
+            max_input_len=config.data.max_input_len,
+            min_input_len=config.data.min_input_len,
+            max_output_len=config.data.max_output_len,
+            min_output_len=config.data.min_output_len,
+            max_output_input_ratio=config.data.max_output_input_ratio,
+            min_output_input_ratio=config.data.min_output_input_ratio,
+            stride_ms=config.data.stride_ms,
+            window_ms=config.data.window_ms,
+            n_fft=config.data.n_fft,
+            max_freq=config.data.max_freq,
+            target_sample_rate=config.data.target_sample_rate,
+            specgram_type=config.data.specgram_type,
+            feat_dim=config.data.feat_dim,
+            delta_delta=config.data.delat_delta,
+            use_dB_normalization=config.data.use_dB_normalization,
+            target_dB=config.data.target_dB,
+            random_seed=config.data.random_seed,
+            keep_transcription_text=config.data.keep_transcription_text)
+        return dataset
+
     def __init__(self,
                  manifest_path,
                  unit_type,
@@ -98,7 +190,8 @@ class ManifestDataset(Dataset):
         self._max_output_input_ratio = max_output_input_ratio,
         self._min_output_input_ratio = min_output_input_ratio,
 
-        self._normalizer = FeatureNormalizer(mean_std_filepath)
+        self._normalizer = FeatureNormalizer(
+            mean_std_filepath) if mean_std_filepath else None
         self._audio_augmentation_pipeline = AugmentationPipeline(
             augmentation_config=augmentation_config, random_seed=random_seed)
         self._speech_featurizer = SpeechFeaturizer(
@@ -133,51 +226,6 @@ class ManifestDataset(Dataset):
             max_output_input_ratio=max_output_input_ratio,
             min_output_input_ratio=min_output_input_ratio)
         self._manifest.sort(key=lambda x: x["feat_shape"][0])
-
-    @classmethod
-    def from_config(cls, config):
-        """Build a ManifestDataset object from a config.
-
-        Args:
-            config (yacs.config.CfgNode): configs object.
-
-        Returns:
-            ManifestDataset: dataet object.
-        """
-        assert manifest in config.data
-        assert keep_transcription_text in config.data
-        if isinstance(config.data.augmentation_config, (str, bytes)):
-            aug_file = io.open(
-                config.data.augmentation_config, mode='r', encoding='utf8')
-        else:
-            aug_file = config.data.augmentation_config
-            assert isinstance(aug_file, io.StringIO)
-        dataset = cls(
-            manifest_path=config.data.manifest,
-            unit_type=config.data.unit_type,
-            vocab_filepath=config.data.vocab_filepath,
-            mean_std_filepath=config.data.mean_std_filepath,
-            spm_model_prefix=config.data.spm_model_prefix,
-            augmentation_config=aug_file.read(),
-            max_input_len=config.data.max_input_len,
-            min_input_len=config.data.min_input_len,
-            max_output_len=config.data.max_output_len,
-            min_output_len=config.data.min_output_len,
-            max_output_input_ratio=config.data.max_output_input_ratio,
-            min_output_input_ratio=config.data.min_output_input_ratio,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=config.data.keep_transcription_text)
-        return dataset
 
     @property
     def manifest(self):
@@ -252,7 +300,8 @@ class ManifestDataset(Dataset):
         self._audio_augmentation_pipeline.transform_audio(speech_segment)
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
-        specgram = self._normalizer.apply(specgram)
+        if self._normalizer:
+            specgram = self._normalizer.apply(specgram)
         return specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):

@@ -83,7 +83,7 @@ class AugmentationPipeline():
     :raises ValueError: If the augmentation json config is in incorrect format".
     """
 
-    def __init__(self, augmentation_config, random_seed=0):
+    def __init__(self, augmentation_config: str, random_seed=0):
         self._rng = random.Random(random_seed)
         self._augmentors, self._rates = self._parse_pipeline_from(
             augmentation_config)

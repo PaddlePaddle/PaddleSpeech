@@ -60,6 +60,54 @@ __all__ = ['U2TransformerModel', "U2ConformerModel"]
 class U2BaseModel(nn.Module):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        # network architecture
+        default = CfgNode()
+        default.cmvn_file = ""
+        default.cmvn_file_type = "npz"
+        default.input_dim = 0
+        default.output_dim = 0
+        # encoder related
+        default.encoder = 'conformer'
+        default.encoder_conf = CfgNode(
+            dict(
+                output_size=256,  # dimension of attention
+                attention_heads=4,
+                linear_units=2048,  # the number of units of position-wise feed forward
+                num_blocks=12,  # the number of encoder blocks
+                dropout_rate=0.1,
+                positional_dropout_rate=0.1,
+                attention_dropout_rate=0.0,
+                input_layer=conv2d,  # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+                normalize_before=true,
+                cnn_module_kernel=15,
+                use_cnn_module=True,
+                activation_type='swish',
+                pos_enc_layer_type='rel_pos',
+                selfattention_layer_type='rel_selfattn', ))
+        # decoder related
+        default.decoder = 'transformer'
+        default.decoder_conf = CfgNode(
+            dict(
+                attention_heads=4,
+                linear_units=2048,
+                num_blocks=6,
+                dropout_rate=0.1,
+                positional_dropout_rate=0.1,
+                self_attention_dropout_rate=0.0,
+                src_attention_dropout_rate=0.0, ))
+        # hybrid CTC/attention
+        default.model_conf = CfgNode(
+            dict(
+                ctc_weight=0.3,
+                lsm_weight=0.1,  # label smoothing option
+                length_normalized_loss=false, ))
+
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
     def __init__(self,
                  vocab_size: int,
                  encoder: TransformerEncoder,
@@ -669,6 +717,8 @@ class U2Model(U2BaseModel):
 
         input_dim = configs['input_dim']
         vocab_size = configs['output_dim']
+        assert input_dim != 0, input_dim
+        assert vocab_size != 0, vocab_size
 
         encoder_type = configs.get('encoder', 'transformer')
         logger.info(f"U2 Encoder type: {encoder_type}")
@@ -679,7 +729,7 @@ class U2Model(U2BaseModel):
             encoder = ConformerEncoder(
                 input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
         else:
-            raise ValueError("not support encoder type:{encoder_type}")
+            raise ValueError(f"not support encoder type:{encoder_type}")
 
         decoder = TransformerDecoder(vocab_size,
                                      encoder.output_size(),
@@ -688,18 +738,18 @@ class U2Model(U2BaseModel):
         return vocab_size, encoder, decoder, ctc
 
     @classmethod
-    def from_pretrained(cls, dataset, config, checkpoint_path):
-        """Build a DeepSpeech2Model model from a pretrained model.
+    def from_config(cls, configs: dict):
+        """init model.
 
         Args:
-            dataset (paddle.io.Dataset): [description]
-            config (yacs.config.CfgNode):  model configs
-            checkpoint_path (Path or str): the path of pretrained model checkpoint, without extension name
+            configs (dict): config dict.
+
+        Raises:
+            ValueError: raise when using not support encoder type.
 
         Returns:
-            DeepSpeech2Model: The model built from pretrained result.
+            int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc 
         """
-
         vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
 
         model = cls(vocab_size=vocab_size,
@@ -707,9 +757,44 @@ class U2Model(U2BaseModel):
                     decoder=decoder,
                     ctc=ctc,
                     **configs['model_conf'])
+        return model
 
-        infos = checkpoint.load_parameters(
-            model, checkpoint_path=checkpoint_path)
-        logger.info(f"checkpoint info: {infos}")
+    @classmethod
+    def from_pretrained(cls, dataset, config, checkpoint_path):
+        """Build a DeepSpeech2Model model from a pretrained model.
+
+        Args:
+            dataset (paddle.io.Dataset): not used.
+            config (yacs.config.CfgNode):  model configs
+            checkpoint_path (Path or str): the path of pretrained model checkpoint, without extension name
+
+        Returns:
+            DeepSpeech2Model: The model built from pretrained result.
+        """
+        config.input_dim = self.dataset.feature_size
+        config.output_dim = self.dataset.vocab_size
+        model = cls.from_config(config)
+
+        if checkpoint_path:
+            infos = checkpoint.load_parameters(
+                model, checkpoint_path=checkpoint_path)
+            logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
+
+
+class U2InferModel(U2Model):
+    def __init__(self, configs: dict):
+        super().__init__(configs)
+
+    def forward(self, audio, audio_len):
+        """export model function
+
+        Args:
+            audio (Tensor): [B, T, D]
+            audio_len (Tensor): [B]
+
+        Returns:
+            probs: probs after softmax
+        """
+        raise NotImplementedError("U2Model infer")

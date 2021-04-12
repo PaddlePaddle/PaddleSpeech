@@ -6,7 +6,7 @@ data:
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
   spm_model_prefix: 'bpe_unigram_200'
-  mean_std_filepath: data/mean_std.npz
+  mean_std_filepath: ""
   augmentation_config: conf/augmentation.config
   batch_size: 4
   max_input_len: 27.0
@@ -23,7 +23,7 @@ data:
   max_freq: None
   n_fft: None
   stride_ms: 10.0
-  window_ms: 20.0
+  window_ms: 25.0
   use_dB_normalization: True
   target_dB: -20
   random_seed: 0
@@ -33,86 +33,109 @@ data:
   num_workers: 0
 
 
+#   # feature extraction
+# collate_conf:
+#     # waveform level config
+#     wav_distortion_conf:
+#         wav_dither: 0.1
+#         wav_distortion_rate: 0.0
+#         distortion_methods: []
+#     speed_perturb: true
+#     feature_extraction_conf:
+#         feature_type: 'fbank'
+#         mel_bins: 80
+#         frame_shift: 10
+#         frame_length: 25
+#         using_pitch: false
+#     # spec level config
+#     # spec_swap: false
+#     feature_dither: 0.0 # add dither [-feature_dither,feature_dither] on fbank feature
+#     spec_aug: true
+#     spec_aug_conf:
+#         warp_for_time: False
+#         num_t_mask: 2
+#         num_f_mask: 2
+#         max_t: 50
+#         max_f: 10
+#         max_w: 80
+
+
+# # dataset related
+# dataset_conf:
+#     max_length: 40960
+#     min_length: 0
+#     batch_type: 'static' # static or dynamic
+#     # the size of batch_size should be set according to your gpu memory size, here we used 2080ti gpu whose memory size is 11GB
+#     batch_size: 16
+#     sort: true
+
+
+
+
 # network architecture
-# encoder related
-encoder: conformer
-encoder_conf:
-    output_size: 256    # dimension of attention
-    attention_heads: 4
-    linear_units: 2048  # the number of units of position-wise feed forward
-    num_blocks: 12      # the number of encoder blocks
-    dropout_rate: 0.1
-    positional_dropout_rate: 0.1
-    attention_dropout_rate: 0.0
-    input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-    normalize_before: true
-    cnn_module_kernel: 15
-    use_cnn_module: True
-    activation_type: 'swish'
-    pos_enc_layer_type: 'rel_pos'
-    selfattention_layer_type: 'rel_selfattn'
+model:
+    cmvn_file: "data/mean_std.npz"
+    cmvn_file_type: "npz"
+    # encoder related
+    encoder: conformer
+    encoder_conf:
+        output_size: 256    # dimension of attention
+        attention_heads: 4
+        linear_units: 2048  # the number of units of position-wise feed forward
+        num_blocks: 12      # the number of encoder blocks
+        dropout_rate: 0.1
+        positional_dropout_rate: 0.1
+        attention_dropout_rate: 0.0
+        input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+        normalize_before: true
+        use_cnn_module: True
+        cnn_module_kernel: 15
+        activation_type: 'swish'
+        pos_enc_layer_type: 'rel_pos'
+        selfattention_layer_type: 'rel_selfattn'
 
-# decoder related
-decoder: transformer
-decoder_conf:
-    attention_heads: 4
-    linear_units: 2048
-    num_blocks: 6
-    dropout_rate: 0.1
-    positional_dropout_rate: 0.1
-    self_attention_dropout_rate: 0.0
-    src_attention_dropout_rate: 0.0
+    # decoder related
+    decoder: transformer
+    decoder_conf:
+        attention_heads: 4
+        linear_units: 2048
+        num_blocks: 6
+        dropout_rate: 0.1
+        positional_dropout_rate: 0.1
+        self_attention_dropout_rate: 0.0
+        src_attention_dropout_rate: 0.0
 
-# hybrid CTC/attention
-model_conf:
-    ctc_weight: 0.3
-    lsm_weight: 0.1     # label smoothing option
-    length_normalized_loss: false
-
-# feature extraction
-collate_conf:
-    # waveform level config
-    wav_distortion_conf:
-        wav_dither: 0.1
-        wav_distortion_rate: 0.0
-        distortion_methods: []
-    speed_perturb: true
-    feature_extraction_conf:
-        feature_type: 'fbank'
-        mel_bins: 80
-        frame_shift: 10
-        frame_length: 25
-        using_pitch: false
-    # spec level config
-    # spec_swap: false
-    feature_dither: 0.0 # add dither [-feature_dither,feature_dither] on fbank feature
-    spec_aug: true
-    spec_aug_conf:
-        warp_for_time: False
-        num_t_mask: 2
-        num_f_mask: 2
-        max_t: 50
-        max_f: 10
-        max_w: 80
+    # hybrid CTC/attention
+    model_conf:
+        ctc_weight: 0.3
+        lsm_weight: 0.1     # label smoothing option
+        length_normalized_loss: false
 
 
-# dataset related
-dataset_conf:
-    max_length: 40960
-    min_length: 0
-    batch_type: 'static' # static or dynamic
-    # the size of batch_size should be set according to your gpu memory size, here we used 2080ti gpu whose memory size is 11GB
-    batch_size: 16
-    sort: true
-
-grad_clip: 5
-accum_grad: 4
-max_epoch: 240
-log_interval: 100
-
-optim: adam
-optim_conf:
+training:
+  n_epoch: 20
+  accum_grad: 4
+  global_grad_clip: 5.0
+  optim: adam
+  optim_conf:
     lr: 0.002
-scheduler: warmuplr     # pytorch v1.1.0+ required
-scheduler_conf:
+    lr_decay: 1.0 
+    weight_decay: 1e-06
+  scheduler: warmuplr     # pytorch v1.1.0+ required
+  scheduler_conf:
     warmup_steps: 25000
+  log_interval: 100
+
+decoding:
+  batch_size: 128
+  error_rate_type: wer
+  decoding_method: ctc_beam_search
+  lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
+  alpha: 2.5
+  beta: 0.3
+  beam_size: 500
+  cutoff_prob: 1.0
+  cutoff_top_n: 40
+  num_proc_bsearch: 8
+
+

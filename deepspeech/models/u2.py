@@ -761,8 +761,10 @@ class U2Model(U2BaseModel):
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """
-        config.input_dim = self.dataset.feature_size
-        config.output_dim = self.dataset.vocab_size
+        config.defrost()
+        config.input_dim = dataset.feature_size
+        config.output_dim = dataset.vocab_size
+        config.freeze()
         model = cls.from_config(config)
 
         if checkpoint_path:

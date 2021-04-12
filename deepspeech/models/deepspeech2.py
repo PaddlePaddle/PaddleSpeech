@@ -16,6 +16,7 @@ import logging
 from typing import Optional
 from yacs.config import CfgNode
 
+import paddle
 from paddle import nn
 
 from deepspeech.modules.conv import ConvStack

@@ -74,7 +74,7 @@ class U2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def train_batch(self, batch_data):
+    def train_batch(self, batch_data, msg):
         train_conf = self.config.training
         self.model.train()
 
@@ -93,12 +93,9 @@ class U2Trainer(Trainer):
             'train_att_loss': float(attention_loss),
             'train_ctc_loss': float(ctc_loss),
         }
-        msg = "Train: Rank: {}, ".format(dist.get_rank())
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
         msg += "time: {:>.3f}s, ".format(iteration_time)
-        msg += f"batch size: {self.config.data.batch_size}, "
-        msg += f"accum: {train_config.accum_grad}, "
+        msg += "batch size: {}, ".format(self.config.data.batch_size)
+        msg += "accum: {}, ".format(train_conf.accum_grad)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
         if self.iteration % train_conf.log_interval == 0:

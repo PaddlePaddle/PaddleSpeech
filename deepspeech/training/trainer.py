@@ -181,13 +181,12 @@ class Trainer():
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
                     msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
-                    self.logger.info(msg)
                     self.iteration += 1
-                    self.train_batch(batch)
+                    self.train_batch(batch, msg)
                     data_start_time = time.time()
             except Exception as e:
                 self.logger.error(e)
-                pass
+                raise e
 
             self.valid()
             self.save()

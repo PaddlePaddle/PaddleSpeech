@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['U2TransformerModel', "U2ConformerModel"]
 
 
-class U2Model(nn.Module):
+class U2BaseModel(nn.Module):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
     def __init__(self,
@@ -635,8 +635,30 @@ class U2Model(nn.Module):
         return decoder_out
 
 
-class U2TransformerModel(U2Model):
+class U2Model(U2BaseModel):
     def __init__(self, configs: dict):
+        vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
+
+        super().__init__(
+            vocab_size=vocab_size,
+            encoder=encoder,
+            decoder=decoder,
+            ctc=ctc,
+            **configs['model_conf'])
+
+    @classmethod
+    def _init_from_config(cls, configs: dict):
+        """init sub module for model.
+
+        Args:
+            configs (dict): config dict.
+
+        Raises:
+            ValueError: raise when using not support encoder type.
+
+        Returns:
+            int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc 
+        """
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
@@ -649,49 +671,45 @@ class U2TransformerModel(U2Model):
         vocab_size = configs['output_dim']
 
         encoder_type = configs.get('encoder', 'transformer')
-        assert encoder_type == 'transformer'
-        encoder = TransformerEncoder(
-            input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
-
-        decoder = TransformerDecoder(vocab_size,
-                                     encoder.output_size(),
-                                     **configs['decoder_conf'])
-        ctc = CTCDecoder(vocab_size, encoder.output_size())
-
-        super().__init__(
-            vocab_size=vocab_size,
-            encoder=encoder,
-            decoder=decoder,
-            ctc=ctc,
-            **configs['model_conf'])
-
-
-class U2ConformerModel(U2Model):
-    def __init__(self, configs: dict):
-        if configs['cmvn_file'] is not None:
-            mean, istd = load_cmvn(configs['cmvn_file'],
-                                   configs['cmvn_file_type'])
-            global_cmvn = GlobalCMVN(
-                paddle.to_tensor(mean).float(), paddle.to_tensor(istd).float())
+        logger.info(f"U2 Encoder type: {encoder_type}")
+        if encoder_type == 'transformer':
+            encoder = TransformerEncoder(
+                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+        elif encoder_type == 'conformer':
+            encoder = ConformerEncoder(
+                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
         else:
-            global_cmvn = None
-
-        input_dim = configs['input_dim']
-        vocab_size = configs['output_dim']
-
-        encoder_type = configs.get('encoder', 'conformer')
-        assert encoder_type == 'conformer'
-        encoder = ConformerEncoder(
-            input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            raise ValueError("not support encoder type:{encoder_type}")
 
         decoder = TransformerDecoder(vocab_size,
                                      encoder.output_size(),
                                      **configs['decoder_conf'])
         ctc = CTCDecoder(vocab_size, encoder.output_size())
+        return vocab_size, encoder, decoder, ctc
 
-        super().__init__(
-            vocab_size=vocab_size,
-            encoder=encoder,
-            decoder=decoder,
-            ctc=ctc,
-            **configs['model_conf'])
+    @classmethod
+    def from_pretrained(cls, dataset, config, checkpoint_path):
+        """Build a DeepSpeech2Model model from a pretrained model.
+
+        Args:
+            dataset (paddle.io.Dataset): [description]
+            config (yacs.config.CfgNode):  model configs
+            checkpoint_path (Path or str): the path of pretrained model checkpoint, without extension name
+
+        Returns:
+            DeepSpeech2Model: The model built from pretrained result.
+        """
+
+        vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
+
+        model = cls(vocab_size=vocab_size,
+                    encoder=encoder,
+                    decoder=decoder,
+                    ctc=ctc,
+                    **configs['model_conf'])
+
+        infos = checkpoint.load_parameters(
+            model, checkpoint_path=checkpoint_path)
+        logger.info(f"checkpoint info: {infos}")
+        layer_tools.summary(model)
+        return model

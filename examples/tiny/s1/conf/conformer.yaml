@@ -1,3 +1,38 @@
+# https://yaml.org/type/float.html
+data:
+  train_manifest: data/manifest.tiny
+  dev_manifest: data/manifest.tiny
+  test_manifest: data/manifest.tiny
+  vocab_filepath: data/vocab.txt 
+  unit_type: 'spm'
+  spm_model_prefix: 'bpe_unigram_200'
+  mean_std_filepath: data/mean_std.npz
+  augmentation_config: conf/augmentation.config
+  batch_size: 4
+  max_input_len: 27.0
+  min_input_len: 0.0
+  max_output_len: .INF
+  min_output_len: 0.0
+  max_output_input_ratio: .INF
+  min_output_input_ratio: 0.0
+  raw_wav: True  # use raw_wav or kaldi feature
+  specgram_type: fbank #linear, mfcc, fbank
+  feat_dim: 80
+  delta_delta: False
+  target_sample_rate: 16000
+  max_freq: None
+  n_fft: None
+  stride_ms: 10.0
+  window_ms: 20.0
+  use_dB_normalization: True
+  target_dB: -20
+  random_seed: 0
+  keep_transcription_text: False
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 0
+
+
 # network architecture
 # encoder related
 encoder: conformer
@@ -33,9 +68,6 @@ model_conf:
     ctc_weight: 0.3
     lsm_weight: 0.1     # label smoothing option
     length_normalized_loss: false
-
-# use raw_wav or kaldi feature
-raw_wav: true
 
 # feature extraction
 collate_conf:

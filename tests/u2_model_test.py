@@ -18,8 +18,7 @@ import unittest
 import numpy as np
 from yacs.config import CfgNode as CN
 
-from deepspeech.models.u2 import U2TransformerModel
-from deepspeech.models.u2 import U2ConformerModel
+from deepspeech.models.u2 import U2Model
 from deepspeech.utils.layer_tools import summary
 
 
@@ -84,7 +83,7 @@ class TestU2Model(unittest.TestCase):
         cfg.cmvn_file = None
         cfg.cmvn_file_type = 'npz'
         cfg.freeze()
-        model = U2TransformerModel(cfg)
+        model = U2Model(cfg)
         summary(model, None)
         total_loss, attention_loss, ctc_loss = model(self.audio, self.audio_len,
                                                      self.text, self.text_len)
@@ -136,7 +135,7 @@ class TestU2Model(unittest.TestCase):
         cfg.cmvn_file = None
         cfg.cmvn_file_type = 'npz'
         cfg.freeze()
-        model = U2ConformerModel(cfg)
+        model = U2Model(cfg)
         summary(model, None)
         total_loss, attention_loss, ctc_loss = model(self.audio, self.audio_len,
                                                      self.text, self.text_len)

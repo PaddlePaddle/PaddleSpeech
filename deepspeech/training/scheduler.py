@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+from typing import Union
+from typeguard import check_argument_types
 
 from paddle.optimizer.lr import LRScheduler
 

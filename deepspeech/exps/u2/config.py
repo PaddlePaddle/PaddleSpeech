@@ -14,23 +14,20 @@
 
 from yacs.config import CfgNode
 
+from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2 import U2Model
 from deepspeech.exps.u2.model import U2Trainer
 from deepspeech.exps.u2.model import U2Tester
 
 _C = CfgNode()
 
-_C.data = CfgNode()
-ManifestDataset.params(_C.data)
+_C.data = ManifestDataset.params()
 
-_C.model = CfgNode()
-U2Model.params(_C.model)
+_C.model = U2Model.params()
 
-_C.training = CfgNode()
-U2Trainer.params(_C.training)
+_C.training = U2Trainer.params()
 
-_C.decoding = CfgNode()
-U2Tester.params(_C.training)
+_C.decoding = U2Tester.params()
 
 
 def get_cfg_defaults():

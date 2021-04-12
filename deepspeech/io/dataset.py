@@ -16,8 +16,9 @@ import io
 import random
 import tarfile
 import logging
-from collections import namedtuple
+from typing import Optional
 from yacs.config import CfgNode
+from collections import namedtuple
 
 from paddle.io import Dataset
 
@@ -42,6 +43,7 @@ class ManifestDataset(Dataset):
                 train_manifest="",
                 dev_manifest="",
                 test_manifest="",
+                manifest="",
                 unit_type="char",
                 vocab_filepath="",
                 spm_model_prefix="",
@@ -60,7 +62,7 @@ class ManifestDataset(Dataset):
                 raw_wav=True,  # use raw_wav or kaldi feature
                 specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
                 feat_dim=0,  # 'mfcc', 'fbank'
-                delat_delta=False,  # 'mfcc', 'fbank'
+                delta_delta=False,  # 'mfcc', 'fbank'
                 target_sample_rate=16000,  # target sample rate
                 use_dB_normalization=True,
                 target_dB=-20,
@@ -86,8 +88,9 @@ class ManifestDataset(Dataset):
         Returns:
             ManifestDataset: dataet object.
         """
-        assert manifest in config.data
-        assert keep_transcription_text in config.data
+        assert 'manifest' in config.data
+        assert config.data.manifest
+        assert 'keep_transcription_text' in config.data
 
         if isinstance(config.data.augmentation_config, (str, bytes)):
             if config.data.augmentation_config:
@@ -119,7 +122,7 @@ class ManifestDataset(Dataset):
             target_sample_rate=config.data.target_sample_rate,
             specgram_type=config.data.specgram_type,
             feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delat_delta,
+            delta_delta=config.data.delta_delta,
             use_dB_normalization=config.data.use_dB_normalization,
             target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,

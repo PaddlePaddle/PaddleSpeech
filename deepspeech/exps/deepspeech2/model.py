@@ -13,7 +13,6 @@
 # limitations under the License.
 """Contains DeepSpeech2 model."""
 
-import io
 import time
 import logging
 import numpy as np
@@ -24,7 +23,7 @@ import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
 
-from deepspeech.training import Trainer
+from deepspeech.training.trainer import Trainer
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 
 from deepspeech.utils import mp_tools
@@ -140,15 +139,15 @@ class DeepSpeech2Trainer(Trainer):
         self.logger.info("Setup model/optimizer/lr_scheduler!")
 
     def setup_dataloader(self):
-        config = self.config
+        config = self.config.clone()
+        config.defrost()
         config.data.keep_transcription_text = False
 
-        config.data.manfiest = config.data.train_manifest
+        config.data.manifest = config.data.train_manifest
         train_dataset = ManifestDataset.from_config(config)
 
-        config.data.manfiest = config.data.dev_manifest
-        config.data.augmentation_config = io.StringIO(
-            initial_value='{}', newline='')
+        config.data.manifest = config.data.dev_manifest
+        config.data.augmentation_config = ""
         dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:
@@ -324,13 +323,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         self.logger.info("Setup model!")
 
     def setup_dataloader(self):
-        config = self.config
+        config = self.config.clone()
+        config.defrost()
         # return raw text
 
-        config.data.manfiest = config.data.test_manifest
-        config.data.augmentation_config = io.StringIO(
-            initial_value='{}', newline='')
-        config.data.keep_transcription_text = True
+        config.data.manifest = config.data.test_manifest
+        config.data.augmentation_config = ""
         test_dataset = ManifestDataset.from_config(config)
 
         # return text ord id

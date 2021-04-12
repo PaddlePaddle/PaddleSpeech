@@ -36,10 +36,9 @@ def tune(config, args):
         raise ValueError("num_alphas must be non-negative!")
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
-
+    config.defrost()
     config.data.manfiest = config.data.dev_manifest
-    config.data.augmentation_config = io.StringIO(
-        initial_value='{}', newline='')
+    config.data.augmentation_config = ""
     config.data.keep_transcription_text = True
     dev_dataset = ManifestDataset.from_config(config)
 

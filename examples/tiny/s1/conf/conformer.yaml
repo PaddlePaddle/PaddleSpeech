@@ -5,7 +5,7 @@ data:
   test_manifest: data/manifest.tiny
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
-  spm_model_prefix: 'bpe_unigram_200'
+  spm_model_prefix: 'data/bpe_unigram_200'
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.config
   batch_size: 4
@@ -119,11 +119,11 @@ training:
   optim: adam
   optim_conf:
     lr: 0.002
-    lr_decay: 1.0 
     weight_decay: 1e-06
   scheduler: warmuplr     # pytorch v1.1.0+ required
   scheduler_conf:
     warmup_steps: 25000
+    lr_decay: 1.0
   log_interval: 100
 
 decoding:

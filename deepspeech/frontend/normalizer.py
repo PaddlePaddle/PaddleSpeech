@@ -93,5 +93,5 @@ class FeatureNormalizer(object):
             features.append(
                 featurize_func(AudioSegment.from_file(instance["feat"])))
         features = np.hstack(features)  #(D, T)
-        self._mean = np.mean(features, axis=1).reshape([-1, 1])  #(D, 1)
-        self._std = np.std(features, axis=1).reshape([-1, 1])  #(D, 1)
+        self._mean = np.mean(features, axis=1).reshape([1, -1])  #(1, D)
+        self._std = np.std(features, axis=1).reshape([1, -1])  #(1, D)

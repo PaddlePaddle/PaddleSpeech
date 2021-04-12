@@ -235,8 +235,8 @@ def _load_kaldi_cmvn(kaldi_cmvn_file):
 
 def _load_npz_cmvn(npz_cmvn_file, eps=1e-20):
     npzfile = np.load(npz_cmvn_file)
-    means = npzfile["mean"]  #(D, 1)
-    std = npzfile["std"]  #(D, 1)
+    means = npzfile["mean"]  #(1, D)
+    std = npzfile["std"]  #(1, D)
     std = np.clip(std, eps, None)
     variance = 1.0 / std
     cmvn = np.array([means, variance])

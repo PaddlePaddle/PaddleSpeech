@@ -31,9 +31,9 @@ from deepspeech.io.dataset import ManifestDataset
 
 def start_server(config, args):
     """Start the ASR server"""
+    config.defrost()
     config.data.manfiest = config.data.test_manifest
-    config.data.augmentation_config = io.StringIO(
-        initial_value='{}', newline='')
+    config.data.augmentation_config = ""
     config.data.keep_transcription_text = True
     dataset = ManifestDataset.from_config(config)
 

@@ -75,8 +75,8 @@ class U2BaseModel(nn.Module):
                 dropout_rate=0.1,
                 positional_dropout_rate=0.1,
                 attention_dropout_rate=0.0,
-                input_layer=conv2d,  # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-                normalize_before=true,
+                input_layer='conv2d',  # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+                normalize_before=True,
                 cnn_module_kernel=15,
                 use_cnn_module=True,
                 activation_type='swish',
@@ -98,7 +98,7 @@ class U2BaseModel(nn.Module):
             dict(
                 ctc_weight=0.3,
                 lsm_weight=0.1,  # label smoothing option
-                length_normalized_loss=false, ))
+                length_normalized_loss=False, ))
 
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -744,15 +744,9 @@ class U2Model(U2BaseModel):
             ValueError: raise when using not support encoder type.
 
         Returns:
-            int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc 
+            nn.Layer: U2Model
         """
-        vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
-
-        model = cls(vocab_size=vocab_size,
-                    encoder=encoder,
-                    decoder=decoder,
-                    ctc=ctc,
-                    **configs['model_conf'])
+        model = cls(configs)
         return model
 
     @classmethod

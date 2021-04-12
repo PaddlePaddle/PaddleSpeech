@@ -11,7 +11,7 @@ fi
 if [ -e /etc/lsb-release ]; then
     ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 else
-    error_msg "Please using Ubuntu or install `pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev` by user."
+    error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
     exit -1
 fi
 

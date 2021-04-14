@@ -113,7 +113,7 @@ class AugmentationPipeline():
         Args:
             spec_segment (np.ndarray): audio feature, (D, T).
         """
-        for augmentor, rate in zip(self._augmentors, self._rates):
+        for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
             if self._rng.uniform(0., 1.) < rate:
                 spec_segment = augmentor.transform_feature(spec_segment)
         return spec_segment

@@ -52,7 +52,7 @@
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
         #exclude: (?=decoders/swig).*(\.cpp|\.h)$
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.4.0
-    hooks:
-      - id: reorder-python-imports
+#-   repo: https://github.com/asottile/reorder_python_imports
+#    rev: v2.4.0
+#    hooks:
+#      - id: reorder-python-imports

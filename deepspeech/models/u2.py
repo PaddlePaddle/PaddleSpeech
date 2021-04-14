@@ -133,7 +133,6 @@ class U2BaseModel(nn.Module):
             smoothing=lsm_weight,
             normalize_length=length_normalized_loss, )
 
-    @jit.export
     def forward(
             self,
             speech: paddle.Tensor,

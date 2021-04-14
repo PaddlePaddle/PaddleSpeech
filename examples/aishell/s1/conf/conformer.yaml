@@ -8,11 +8,11 @@ data:
   spm_model_prefix: ''
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
-  batch_size: 16
+  batch_size: 64
   min_input_len: 0.5
   max_input_len: 20.0
   min_output_len: 0.0
-  max_output_len: 400
+  max_output_len: 400.0
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
   raw_wav: True  # use raw_wav or kaldi feature
@@ -75,7 +75,7 @@ model:
 
 training:
   n_epoch: 240
-  accum_grad: 4
+  accum_grad: 1
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
@@ -85,7 +85,7 @@ training:
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 100
+  log_interval: 1
 
 
 decoding:

@@ -6,7 +6,7 @@ echo "using $ngpu gpus..."
 python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
 --nproc ${ngpu} \
---config conf/deepspeech2.yaml \
+--config conf/conformer.yaml \
 --output ckpt-${1}
 
 

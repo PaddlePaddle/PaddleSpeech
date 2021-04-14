@@ -6,7 +6,7 @@ if [ $# != 2 ];then
 fi
 
 python3 -u ${BIN_DIR}/export.py \
---config conf/deepspeech2.yaml \
+--config conf/conformer.yaml \
 --checkpoint_path ${1} \
 --export_path ${2} 
 

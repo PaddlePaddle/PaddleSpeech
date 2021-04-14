@@ -40,7 +40,7 @@ class AugmentorBase():
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def transform_feature(self, spec_segment):
@@ -52,4 +52,4 @@ class AugmentorBase():
         Args:
             spec_segment (Spectrogram): Spectrogram segment to add effects to.
         """
-        pass
+        raise NotImplementedError

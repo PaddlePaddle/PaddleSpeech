@@ -6,7 +6,7 @@
       "max_speed_rate": 1.1,
       "num_rates": 3
     },
-    "prob": 1.0
+    "prob": 0.0
   },
   {
     "type": "shift",
@@ -29,6 +29,6 @@
       "adaptive_size_ratio": 0,
       "max_n_time_masks": 20
     },
-    "prob": 0.0
+    "prob": 1.0
   }
 ]

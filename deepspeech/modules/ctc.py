@@ -224,9 +224,28 @@ class CTCDecoder(nn.Layer):
     def decode_probs(self, probs, logits_lens, vocab_list, decoding_method,
                      lang_model_path, beam_alpha, beam_beta, beam_size,
                      cutoff_prob, cutoff_top_n, num_processes):
-        """ probs: activation after softmax 
-        logits_len: audio output lens
+        """ctc decoding with probs.
+
+        Args:
+            probs (Tenosr): activation after softmax 
+            logits_lens (Tenosr): audio output lens
+            vocab_list ([type]): [description]
+            decoding_method ([type]): [description]
+            lang_model_path ([type]): [description]
+            beam_alpha ([type]): [description]
+            beam_beta ([type]): [description]
+            beam_size ([type]): [description]
+            cutoff_prob ([type]): [description]
+            cutoff_top_n ([type]): [description]
+            num_processes ([type]): [description]
+
+        Raises:
+            ValueError: when decoding_method not support.
+
+        Returns:
+            List[str]: transcripts.
         """
+
         probs_split = [probs[i, :l, :] for i, l in enumerate(logits_lens)]
         if decoding_method == "ctc_greedy":
             result_transcripts = self._decode_batch_greedy(

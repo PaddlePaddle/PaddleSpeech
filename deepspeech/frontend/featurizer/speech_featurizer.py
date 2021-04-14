@@ -107,8 +107,8 @@ class SpeechFeaturizer(object):
     def vocab_size(self):
         """Return the vocabulary size.
 
-        :return: Vocabulary size.
-        :rtype: int
+        Returns:
+            int: Vocabulary size.
         """
         return self._text_featurizer.vocab_size
 
@@ -116,16 +116,34 @@ class SpeechFeaturizer(object):
     def vocab_list(self):
         """Return the vocabulary in list.
 
-        :return: Vocabulary in list.
-        :rtype: list
+        Returns:
+            List[str]: 
         """
         return self._text_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        """Return the vocabulary in dict.
+
+        Returns:
+            Dict[str, int]: 
+        """
+        return self._text_featurizer.vocab_dict
 
     @property
     def feature_size(self):
         """Return the audio feature size.
 
-        :return: audio feature size.
-        :rtype: int
+        Returns:
+            int: audio feature size.
         """
         return self._audio_featurizer.feature_size
+
+    @property
+    def text_feature(self):
+        """Return the text feature object.
+
+        Returns:
+            TextFeaturizer: object.
+        """
+        return self._text_featurizer

@@ -176,5 +176,5 @@ class TransformerDecoder(nn.Module):
         else:
             y = x[:, -1]
         if self.use_output_layer:
-            y = paddle.log_softmax(self.output_layer(y), dim=-1)
+            y = paddle.log_softmax(self.output_layer(y), axis=-1)
         return y, new_cache

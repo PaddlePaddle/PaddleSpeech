@@ -233,21 +233,19 @@ class ManifestDataset(Dataset):
 
     @property
     def vocab_size(self):
-        """Return the vocabulary size.
-
-        :return: Vocabulary size.
-        :rtype: int
-        """
         return self._speech_featurizer.vocab_size
 
     @property
     def vocab_list(self):
-        """Return the vocabulary in list.
-
-        :return: Vocabulary in list.
-        :rtype: list
-        """
         return self._speech_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        return self._speech_featurizer.vocab_dict
+
+    @property
+    def text_feature(self):
+        return self._speech_featurizer.text_feature
 
     @property
     def feature_size(self):

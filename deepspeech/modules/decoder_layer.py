@@ -101,12 +101,17 @@ class DecoderLayer(nn.Module):
             tgt_q_mask = tgt_mask
         else:
             # compute only the last frame query keeping dim: max_time_out -> 1
-            assert cache.shape == (
-                tgt.shape[0], tgt.shape[1] - 1, self.size,
-            ), "{cache.shape} == {(tgt.shape[0], tgt.shape[1] - 1, self.size)}"
+            assert cache.shape == [
+                tgt.shape[0],
+                tgt.shape[1] - 1,
+                self.size,
+            ], f"{cache.shape} == {[tgt.shape[0], tgt.shape[1] - 1, self.size]}"
             tgt_q = tgt[:, -1:, :]
             residual = residual[:, -1:, :]
-            tgt_q_mask = tgt_mask[:, -1:, :]
+            # TODO(Hui Zhang): slice not support bool type
+            # tgt_q_mask = tgt_mask[:, -1:, :]
+            tgt_q_mask = tgt_mask.cast(paddle.int64)[:, -1:, :].cast(
+                paddle.bool)
 
         if self.concat_after:
             tgt_concat = paddle.cat(

@@ -126,16 +126,24 @@ training:
     lr_decay: 1.0
   log_interval: 100
 
+
 decoding:
-  batch_size: 128
+  batch_size: 16
   error_rate_type: wer
-  decoding_method: ctc_beam_search
+  decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
   lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
   alpha: 2.5
   beta: 0.3
-  beam_size: 500
+  beam_size: 10
   cutoff_prob: 1.0
-  cutoff_top_n: 40
+  cutoff_top_n: 0
   num_proc_bsearch: 8
+  ctc_weight: 0.0 # ctc weight for attention rescoring decode mode.
+  decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
+      # <0: for decoding, use full chunk.
+      # >0: for decoding, use fixed chunk size as set.
+      # 0: used for training, it's prohibited here. 
+  num_decoding_left_chunks: -1  # number of left chunks for decoding. Defaults to -1.
+  simulate_streaming: False  # simulate streaming inference. Defaults to False.
 
 

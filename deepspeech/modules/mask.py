@@ -41,6 +41,7 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
         [[1., 1., 0., 0.],
          [1., 1., 1., 1.]]
     """
+    assert x_len.dim() == 1
     max_len = max_len or x_len.max()
     x_len = paddle.unsqueeze(x_len, -1)
     row_vector = paddle.arange(max_len)
@@ -65,6 +66,7 @@ def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
                  [0, 0, 0, 1, 1],
                  [0, 0, 1, 1, 1]]
     """
+    assert lengths.dim() == 1
     batch_size = int(lengths.shape[0])
     max_len = int(lengths.max())
     seq_range = paddle.arange(0, max_len, dtype=paddle.int64)

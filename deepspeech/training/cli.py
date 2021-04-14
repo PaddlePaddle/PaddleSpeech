@@ -57,6 +57,9 @@ def default_argument_parser():
     # save jit model to 
     parser.add_argument("--export_path", type=str, help="path of the jit model to save")
 
+    # save asr result to 
+    parser.add_argument("--result_file", type=str, help="path of save the asr result")
+
     # running
     parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
                         help="device type to use, cpu and gpu are supported.")

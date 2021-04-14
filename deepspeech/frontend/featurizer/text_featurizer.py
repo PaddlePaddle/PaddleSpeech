@@ -16,6 +16,7 @@
 import sentencepiece as spm
 
 from deepspeech.frontend.utility import UNK
+from deepspeech.frontend.utility import EOS
 
 
 class TextFeaturizer(object):
@@ -32,10 +33,12 @@ class TextFeaturizer(object):
             spm_model_prefix (str, optional): spm model prefix. Defaults to None.
         """
         assert unit_type in ('char', 'spm', 'word')
-        self.unk = UNK
         self.unit_type = unit_type
-        self._vocab_dict, self._vocab_list = self._load_vocabulary_from_file(
+        self._vocab_dict, self._id2token, self._vocab_list = self._load_vocabulary_from_file(
             vocab_filepath)
+        self.unk = UNK
+        self.unk_id = self._vocab_list.index(self.unk)
+        self.eos_id = self._vocab_list.index(EOS)
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'
@@ -51,14 +54,23 @@ class TextFeaturizer(object):
             tokens = self.spm_tokenize(text)
         return tokens
 
-    def featurize(self, text):
-        """Convert text string to a list of token indices in char-level.Note
-        that the token indexing order follows the given vocabulary file.
+    def detokenize(self, tokens):
+        if self.unit_type == 'char':
+            text = self.char_detokenize(tokens)
+        elif self.unit_type == 'word':
+            text = self.word_detokenize(tokens)
+        else:  # spm
+            text = self.spm_detokenize(tokens)
+        return text
 
-        :param text: Text to process.
-        :type text: str
-        :return: List of char-level token indices.
-        :rtype: List[int]
+    def featurize(self, text):
+        """Convert text string to a list of token indices.
+
+        Args:
+            text (str): Text to process.
+        
+        Returns:
+            List[int]: List of token indices.
         """
         tokens = self.tokenize(text)
         ids = []
@@ -66,6 +78,24 @@ class TextFeaturizer(object):
             token = token if token in self._vocab_dict else self.unk
             ids.append(self._vocab_dict[token])
         return ids
+
+    def defeaturize(self, idxs):
+        """Convert a list of token indices to text string,
+        ignore index after eos_id. 
+
+        Args:
+            idxs (List[int]): List of token indices.
+
+        Returns:
+            str: Text to process.
+        """
+        tokens = []
+        for idx in idxs:
+            if idx == self.eos_id:
+                break
+            tokens.append(self._id2token[idx])
+        text = self.detokenize(tokens)
+        return text
 
     @property
     def vocab_size(self):
@@ -80,18 +110,49 @@ class TextFeaturizer(object):
     def vocab_list(self):
         """Return the vocabulary in list.
 
-        :return: Vocabulary in list.
-        :rtype: list
+        Returns:
+            List[str]: tokens.
         """
         return self._vocab_list
 
+    @property
+    def vocab_dict(self):
+        """Return the vocabulary in dict.
+
+        Returns:
+            Dict[str, int]: token str -> int
+        """
+        return self._vocab_dict
+
     def char_tokenize(self, text):
-        """Character tokenizer."""
+        """Character tokenizer.
+
+        Args:
+            text (str): text string.
+
+        Returns:
+            List[str]: tokens.
+        """
         return list(text.strip())
 
+    def char_detokenize(self, tokens):
+        """Character detokenizer.
+
+        Args:
+            tokens (List[str]): tokens.
+
+        Returns:
+           str: text string.
+        """
+        return "".join(tokens)
+
     def word_tokenize(self, text):
-        """Word tokenizer, spearte by <space>."""
+        """Word tokenizer, separate by <space>."""
         return text.strip().split()
+
+    def word_detokenize(self, tokens):
+        """Word detokenizer, separate by <space>."""
+        return " ".join(tokens)
 
     def spm_tokenize(self, text):
         """spm tokenize.
@@ -125,12 +186,34 @@ class TextFeaturizer(object):
         enc_line = encode_line(text)
         return enc_line
 
+    def spm_detokenize(self, tokens, input_format='piece'):
+        """spm detokenize.
+
+        Args:
+            ids (List[str]): tokens.
+
+        Returns:
+            str: text
+        """
+        if input_format == "piece":
+
+            def decode(l):
+                return "".join(self.sp.DecodePieces(l))
+        elif input_format == "id":
+
+            def decode(l):
+                return "".join(self.sp.DecodeIds(l))
+
+        return decode(tokens)
+
     def _load_vocabulary_from_file(self, vocab_filepath):
         """Load vocabulary from file."""
         vocab_lines = []
         with open(vocab_filepath, 'r', encoding='utf-8') as file:
             vocab_lines.extend(file.readlines())
         vocab_list = [line[:-1] for line in vocab_lines]
-        vocab_dict = dict(
-            [(token, id) for (id, token) in enumerate(vocab_list)])
-        return vocab_dict, vocab_list
+        id2token = dict(
+            [(idx, token) for (idx, token) in enumerate(vocab_list)])
+        token2id = dict(
+            [(token, idx) for (idx, token) in enumerate(vocab_list)])
+        return token2id, id2token, vocab_list

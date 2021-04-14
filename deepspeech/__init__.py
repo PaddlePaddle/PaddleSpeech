@@ -179,6 +179,11 @@ if not hasattr(paddle.Tensor, 'eq'):
     )
     paddle.Tensor.eq = eq
 
+if not hasattr(paddle, 'eq'):
+    logger.warn(
+        "override eq of paddle if exists or register, remove this when fixed!")
+    paddle.eq = eq
+
 
 def contiguous(xs: paddle.Tensor) -> paddle.Tensor:
     return xs
@@ -256,13 +261,14 @@ if not hasattr(paddle.Tensor, 'masked_fill'):
 
 def masked_fill_(xs: paddle.Tensor,
                  mask: paddle.Tensor,
-                 value: Union[float, int]):
+                 value: Union[float, int]) -> paddle.Tensor:
     assert is_broadcastable(xs.shape, mask.shape) is True
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value
     ret = paddle.where(mask, trues, xs)
     paddle.assign(ret.detach(), output=xs)
+    return xs
 
 
 if not hasattr(paddle.Tensor, 'masked_fill_'):
@@ -271,9 +277,10 @@ if not hasattr(paddle.Tensor, 'masked_fill_'):
     paddle.Tensor.masked_fill_ = masked_fill_
 
 
-def fill_(xs: paddle.Tensor, value: Union[float, int]):
+def fill_(xs: paddle.Tensor, value: Union[float, int]) -> paddle.Tensor:
     val = paddle.full_like(xs, value)
     paddle.assign(val.detach(), output=xs)
+    return xs
 
 
 if not hasattr(paddle.Tensor, 'fill_'):
@@ -317,7 +324,7 @@ if not hasattr(paddle.Tensor, 'type_as'):
 
 def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
     assert len(args) == 1
-    if isinstace(args[0], str):  # dtype
+    if isinstance(args[0], str):  # dtype
         return x.astype(args[0])
     elif isinstance(args[0], paddle.Tensor):  #Tensor
         return x.astype(args[0].dtype)
@@ -337,6 +344,16 @@ def func_float(x: paddle.Tensor) -> paddle.Tensor:
 if not hasattr(paddle.Tensor, 'float'):
     logger.warn("register user float to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'float', func_float)
+
+
+def tolist(x: paddle.Tensor) -> List[Any]:
+    return x.numpy().tolist()
+
+
+if not hasattr(paddle.Tensor, 'tolist'):
+    logger.warn(
+        "register user tolist to paddle.Tensor, remove this when fixed!")
+    setattr(paddle.Tensor, 'tolist', tolist)
 
 ########### hcak paddle.nn.functional #############
 

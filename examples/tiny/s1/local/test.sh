@@ -11,6 +11,7 @@ python3 -u ${BIN_DIR}/test.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/conformer.yaml \
+--result_file data/asr.result \
 --output ckpt
 
 if [ $? -ne 0 ]; then

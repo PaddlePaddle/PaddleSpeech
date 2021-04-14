@@ -34,11 +34,12 @@ class TextFeaturizer(object):
         """
         assert unit_type in ('char', 'spm', 'word')
         self.unit_type = unit_type
-        self._vocab_dict, self._id2token, self._vocab_list = self._load_vocabulary_from_file(
-            vocab_filepath)
         self.unk = UNK
-        self.unk_id = self._vocab_list.index(self.unk)
-        self.eos_id = self._vocab_list.index(EOS)
+        if vocab_filepath:
+            self._vocab_dict, self._id2token, self._vocab_list = self._load_vocabulary_from_file(
+                vocab_filepath)
+            self.unk_id = self._vocab_list.index(self.unk)
+            self.eos_id = self._vocab_list.index(EOS)
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'

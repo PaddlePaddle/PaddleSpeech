@@ -32,7 +32,7 @@ def main(config, args):
 if __name__ == "__main__":
     parser = default_argument_parser()
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()

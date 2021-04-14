@@ -5,7 +5,7 @@ TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 
 # download data, generate manifests
-PYTHONPATH=.:$PYTHONPATH python3 ${TARGET_DIR}/librispeech/librispeech.py \
+python3 ${TARGET_DIR}/librispeech/librispeech.py \
 --manifest_prefix="data/manifest" \
 --target_dir="${TARGET_DIR}/librispeech" \
 --full_download="False"
@@ -24,7 +24,7 @@ bpeprefix="data/bpe_${bpemode}_${nbpe}"
 # build vocabulary
 python3 ${MAIN_ROOT}/utils/build_vocab.py \
 --unit_type "spm" \
---vocab_size=${nbpe} \
+--spm_vocab_size=${nbpe} \
 --spm_mode ${bpemode} \
 --spm_model_prefix ${bpeprefix} \
 --vocab_path="data/vocab.txt" \

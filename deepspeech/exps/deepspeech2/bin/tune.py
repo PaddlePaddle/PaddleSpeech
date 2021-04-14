@@ -168,7 +168,7 @@ if __name__ == "__main__":
     add_arg('cutoff_top_n', int, 40, "Cutoff number for pruning.")
 
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()

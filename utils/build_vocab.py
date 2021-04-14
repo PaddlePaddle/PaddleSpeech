@@ -45,9 +45,9 @@ add_arg('manifest_paths', str,
         nargs='+',
         required=True)
 # bpe
-add_arg('vocab_size', int, 0, "Vocab size for spm.")
+add_arg('spm_vocab_size', int, 0, "Vocab size for spm.")
 add_arg('spm_mode', str, 'unigram', "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
-add_arg('spm_model_prefix', str, "spm_model_%(spm_mode)_%(count_threshold)", "spm model prefix, only need when `unit_type` is spm")
+add_arg('spm_model_prefix', str, "", "spm_model_%(spm_mode)_%(count_threshold), spm model prefix, only need when `unit_type` is spm")
 # yapf: disable
 args = parser.parse_args()
 
@@ -64,7 +64,7 @@ def dump_text_manifest(fileobj, manifest_path):
         fileobj.write(line_json['text'] + "\n")
 
 def main():
-    print_arguments(args)
+    print_arguments(args, globals())
 
     fout = open(args.vocab_path, 'w', encoding='utf-8')
     fout.write(BLANK + "\n")  # 0 will be used for "blank" in CTC
@@ -91,7 +91,7 @@ def main():
         os.unlink(fp.name)
 
     # encode
-    text_feature = TextFeaturizer(args.unit_type, args.vocab_path, args.spm_model_prefix)
+    text_feature = TextFeaturizer(args.unit_type, "", args.spm_model_prefix)
     counter = Counter()
 
     for manifest_path in args.manifest_paths:

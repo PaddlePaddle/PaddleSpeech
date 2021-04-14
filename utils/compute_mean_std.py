@@ -46,7 +46,7 @@ args = parser.parse_args()
 
 
 def main():
-    print_arguments(args)
+    print_arguments(args, globals())
 
     augmentation_pipeline = AugmentationPipeline('{}')
     audio_featurizer = AudioFeaturizer(

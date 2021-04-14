@@ -168,7 +168,7 @@ if __name__ == "__main__":
                         default=False,
                         help="Whether use gpu.")
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     print(config)
 
     args.warmup_manifest = config.data.test_manifest
-    print_arguments(args)
+    print_arguments(args, globals())
 
     if args.dump_config:
         with open(args.dump_config, 'w') as f:

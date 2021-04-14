@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains common utility functions."""
 
+import os
 import math
 import distutils.util
 from typing import List
@@ -20,7 +21,7 @@ from typing import List
 __all__ = ['print_arguments', 'add_arguments', "log_add"]
 
 
-def print_arguments(args):
+def print_arguments(args, info=None):
     """Print argparse's arguments.
 
     Usage:
@@ -35,10 +36,14 @@ def print_arguments(args):
     :param args: Input argparse.Namespace for printing.
     :type args: argparse.Namespace
     """
-    print("-----------  Configuration Arguments -----------")
+    filename = ""
+    if info:
+        filename = info["__file__"]
+    filename = os.path.basename(filename)
+    print(f"----------- {filename} Configuration Arguments -----------")
     for arg, value in sorted(vars(args).items()):
         print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
+    print("-----------------------------------------------------------")
 
 
 def add_arguments(argname, type, default, help, argparser, **kwargs):

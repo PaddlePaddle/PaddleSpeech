@@ -48,12 +48,12 @@ args = parser.parse_args()
 
 
 def main():
-    print_arguments(args)
+    print_arguments(args, globals())
     fout = open(args.output_path, 'w', encoding='utf-8')
 
     # get feat dim
     mean, std = load_cmvn(args.cmvn_path, filetype='npz')
-    feat_dim = mean.shape[0]
+    feat_dim = mean.shape[1] #(1, D)
     print(f"Feature dim: {feat_dim}")
 
     text_feature = TextFeaturizer(args.unit_type, args.vocab_path, args.spm_model_prefix)

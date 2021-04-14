@@ -21,25 +21,12 @@
 * python>=3.7
 * paddlepaddle>=2.0.0
 
-- Run the setup script for the remaining dependencies
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- Source venv before do experiment.
-
-```bash
-source tools/venv/bin/activate
-```
+Please see [install](docs/install.md).
 
 ## Getting Started
 
 Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples/tiny/README.md).
+
 
 ## More Information  
 
@@ -56,7 +43,7 @@ Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples
 
 ## Questions and Help
 
-You are welcome to submit questions and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
+You are welcome to submit questions in [Github Discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [Github Issues](https://github.com/PaddlePaddle/DeepSpeech/issues). You are also welcome to contribute to this project.
 
 
 ## License

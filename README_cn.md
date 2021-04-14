@@ -18,24 +18,11 @@
 
 
 ## 安装
+
 * python>=3.7
 * paddlepaddle>=2.0.0
 
-- 安装依赖
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make; popd
-source tools/venv/bin/activate
-bash setup.sh
-```
-
-- 开始实验前要source环境.
-
-```bash
-source tools/venv/bin/activate
-```
+参看 [安装](docs/install.md)。
 
 ## 开始
 
@@ -55,7 +42,7 @@ source tools/venv/bin/activate
 
 ## 问题和帮助
 
-欢迎您在[Github问题](https://github.com/PaddlePaddle/models/issues)中提交问题和bug。也欢迎您为这个项目做出贡献。
+欢迎您在[Github讨论](https://github.com/PaddlePaddle/DeepSpeech/discussions)提交问题，[Github问题](https://github.com/PaddlePaddle/models/issues)中反馈bug。也欢迎您为这个项目做出贡献。
 
 ## License
 

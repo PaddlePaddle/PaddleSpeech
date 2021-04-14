@@ -54,4 +54,4 @@ class WarmupLR(LRScheduler):
             step_num**-0.5, step_num * self.warmup_steps**-1.5)
 
     def set_step(self, step: int):
-        self.last_epoch = step
+        self.step(step)

@@ -1,1 +1,1 @@
-* s0 for deepspeech2
+* s0 is for deepspeech

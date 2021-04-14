@@ -80,12 +80,15 @@ class U2Trainer(Trainer):
         self.model.train()
 
         start = time.time()
+        
         loss, attention_loss, ctc_loss = self.model(*batch_data)
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
+        
         if self.iteration % train_conf.accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()
+            self.lr_scheduler.step()
 
         iteration_time = time.time() - start
 
@@ -102,11 +105,49 @@ class U2Trainer(Trainer):
         if self.iteration % train_conf.log_interval == 0:
             self.logger.info(msg)
 
+        # display
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 self.visualizer.add_scalar("train/{}".format(k), v,
                                            self.iteration)
 
+    def train(self):
+        """The training process.
+        It includes forward/backward/update and periodical validation and 
+        saving.
+        """
+        # !!!IMPORTANT!!!
+        # Try to export the model by script, if fails, we should refine
+        # the code to satisfy the script export requirements
+        # script_model = paddle.jit.to_static(self.model)
+        # script_model_path = str(self.checkpoint_dir / 'init')
+        # paddle.jit.save(script_model, script_model_path)
+        
+        from_scratch = self.resume_or_scratch()
+        self.logger.info(
+            f"Train Total Examples: {len(self.train_loader.dataset)}")
+        
+        while self.epoch <= self.config.training.n_epoch:
+            try:
+                data_start_time = time.time()
+                for batch in self.train_loader:
+                    dataload_time = time.time() - data_start_time
+                    msg = "Train: Rank: {}, ".format(dist.get_rank())
+                    msg += "epoch: {}, ".format(self.epoch)
+                    msg += "step: {}, ".format(self.iteration)
+                    msg += "lr: {}, ".foramt(self.lr_scheduler())
+                    msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
+                    self.iteration += 1
+                    self.train_batch(batch, msg)
+                    data_start_time = time.time()
+            except Exception as e:
+                self.logger.error(e)
+                raise e
+            
+            self.valid()
+            self.save()
+            self.new_epoch()
+            
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
@@ -365,7 +406,7 @@ class U2Tester(U2Trainer):
         self.logger.info(msg)
 
     def run_test(self):
-        self.resume_or_load()
+        self.resume_or_scratch()
         try:
             self.test()
         except KeyboardInterrupt:

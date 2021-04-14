@@ -1,6 +1,8 @@
 # Prepare Language Model
 
-A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. Users can simply run this to download the preprared language models:
+A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. The bash script to download LM is example's `local/download_lm_*.sh`.
+
+For example, users can simply run this to download the preprared mandarin language models:
 
 ```bash
 cd examples/aishell
@@ -8,7 +10,9 @@ source path.sh
 bash local/download_lm_ch.sh
 ```
 
-If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials. Here we provide some tips to show how we preparing our English and Mandarin language models. You can take it as a reference when you train your own.
+If you wish to train your own better language model, please refer to [KenLM](https://github.com/kpu/kenlm) for tutorials.
+Here we provide some tips to show how we preparing our English and Mandarin language models.
+You can take it as a reference when you train your own.
 
 ## English LM
 

@@ -139,7 +139,7 @@ class Trainer():
         checkpoint.save_parameters(self.checkpoint_dir, self.iteration,
                                    self.model, self.optimizer, infos)
 
-    def resume_or_load(self):
+    def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output 
         directory or load a specified checkpoint.
         
@@ -152,8 +152,20 @@ class Trainer():
             checkpoint_dir=self.checkpoint_dir,
             checkpoint_path=self.args.checkpoint_path)
         if infos:
+            # restore from ckpt
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
+            self.lr_scheduler.step(self.iteration)
+            if self.parallel:
+                self.train_loader.batch_sampler.set_epoch(self.epoch)
+            return False
+        else:
+            # from scratch, epoch and iteration init with zero
+            # save init model, i.e. 0 epoch
+            self.save()
+            # self.epoch start from 1.
+            self.new_epoch()
+            return True
 
     def new_epoch(self):
         """Reset the train loader and increment ``epoch``.
@@ -166,22 +178,22 @@ class Trainer():
     def train(self):
         """The training process.
         
-        It includes forward/backward/update and periodical validation and 
-        saving.
         """
+        from_scratch = self.resume_or_scratch()
+         
         self.logger.info(
             f"Train Total Examples: {len(self.train_loader.dataset)}")
-        self.new_epoch()
         while self.epoch <= self.config.training.n_epoch:
             try:
                 data_start_time = time.time()
                 for batch in self.train_loader:
                     dataload_time = time.time() - data_start_time
+                    # iteration start from 1.
+                    self.iteration += 1
                     msg = "Train: Rank: {}, ".format(dist.get_rank())
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
                     msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
-                    self.iteration += 1
                     self.train_batch(batch, msg)
                     data_start_time = time.time()
             except Exception as e:
@@ -190,6 +202,7 @@ class Trainer():
 
             self.valid()
             self.save()
+            # lr control by epoch
             self.lr_scheduler.step()
             self.new_epoch()
 
@@ -197,7 +210,6 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        self.resume_or_load()
         try:
             self.train()
         except KeyboardInterrupt:
@@ -298,7 +310,7 @@ class Trainer():
 
         # global logger
         stdout = False
-        save_path = log_file
+        save_path = str(log_file)
         logging.basicConfig(
             level=logging.DEBUG if stdout else logging.INFO,
             format=format,

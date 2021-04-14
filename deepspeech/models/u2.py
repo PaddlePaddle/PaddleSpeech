@@ -834,7 +834,14 @@ class U2Model(U2BaseModel):
         decoder = TransformerDecoder(vocab_size,
                                      encoder.output_size(),
                                      **configs['decoder_conf'])
-        ctc = CTCDecoder(vocab_size, encoder.output_size())
+        ctc = CTCDecoder(
+            odim=vocab_size,
+            enc_n_units=encoder.output_size(),
+            blank_id=0,
+            dropout_rate=0.0,
+            reduction=True,  # sum
+            batch_average=True)  # sum / batch_size
+
         return vocab_size, encoder, decoder, ctc
 
     @classmethod

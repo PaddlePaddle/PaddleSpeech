@@ -11,6 +11,13 @@ abort(){
 
 unittest(){
     cd $1 > /dev/null
+    if [ -f "setup.sh" ]; then
+        bash setup.sh
+        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    fi
+    if [ $? != 0 ]; then
+        exit 1
+    fi
     find . -path ./tools/venv -prune -false -o -name 'tests' -type d -print0 | \
         xargs -0 -I{} -n1 bash -c \
         'python3 -m unittest discover -v -s {}'
@@ -19,6 +26,15 @@ unittest(){
 
 coverage(){
     cd $1 > /dev/null
+
+    if [ -f "setup.sh" ]; then
+        bash setup.sh
+        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    fi
+    if [ $? != 0 ]; then
+        exit 1
+    fi
+
     find . -path ./tools/venv -prune -false -o -name 'tests' -type d -print0 | \
         xargs -0 -I{} -n1 bash -c \
         'python3 -m coverage run --branch {}'

@@ -159,7 +159,8 @@ class DeepSpeech2Model(nn.Layer):
             enc_n_units=self.encoder.output_size,
             blank_id=dict_size,  # last token is <blank>
             dropout_rate=0.0,
-            reduction=True)
+            reduction=True,  # sum
+            batch_average=True)  # sum / batch_size
 
     def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss

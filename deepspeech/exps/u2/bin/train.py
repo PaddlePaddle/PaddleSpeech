@@ -13,6 +13,8 @@
 # limitations under the License.
 """Trainer for U2 model."""
 
+import os
+import cProfile
 from paddle import distributed as dist
 
 from deepspeech.utils.utility import print_arguments
@@ -52,4 +54,7 @@ if __name__ == "__main__":
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
 
-    main(config, args)
+    # Setting for profiling
+    pr = cProfile.Profile()
+    pr.runcall(main, config, args)
+    pr.dump_stats(os.path.join('.', 'train.profile'))

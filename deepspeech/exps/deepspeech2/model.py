@@ -45,9 +45,10 @@ class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def train_batch(self, batch_data):
-        start = time.time()
+    def train_batch(self, batch_data, msg):
         self.model.train()
+        start = time.time()
+
         loss = self.model(*batch_data)
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
@@ -59,10 +60,8 @@ class DeepSpeech2Trainer(Trainer):
         losses_np = {
             'train_loss': float(loss),
         }
-        msg = "Train: Rank: {}, ".format(dist.get_rank())
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
         msg += "time: {:>.3f}s, ".format(iteration_time)
+        msg += "batch size: {}, ".format(self.config.data.batch_size)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
         self.logger.info(msg)
@@ -71,6 +70,7 @@ class DeepSpeech2Trainer(Trainer):
             for k, v in losses_np.items():
                 self.visualizer.add_scalar("train/{}".format(k), v,
                                            self.iteration)
+        self.iteration += 1
 
     @mp_tools.rank_zero_only
     @paddle.no_grad()

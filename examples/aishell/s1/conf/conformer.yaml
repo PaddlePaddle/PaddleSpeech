@@ -6,7 +6,6 @@ data:
   vocab_filepath: data/vocab.txt 
   unit_type: 'char'
   spm_model_prefix: ''
-  mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
   batch_size: 64
   min_input_len: 0.5

@@ -16,6 +16,7 @@ import os
 import logging
 import re
 import json
+from typing import Union
 
 import paddle
 from paddle import distributed as dist
@@ -79,7 +80,7 @@ def load_parameters(model,
     configs = {}
 
     if checkpoint_path is not None:
-        iteration = int(os.path.basename(checkpoint_path).split(":")[-1])
+        tag = os.path.basename(checkpoint_path).split(":")[-1]
     elif checkpoint_dir is not None:
         iteration = _load_latest_checkpoint(checkpoint_dir)
         if iteration == -1:
@@ -113,14 +114,14 @@ def load_parameters(model,
 
 @mp_tools.rank_zero_only
 def save_parameters(checkpoint_dir: str,
-                    iteration: int,
+                    tag_or_iteration: Union[int, str],
                     model: paddle.nn.Layer,
                     optimizer: Optimizer=None,
                     infos: dict=None):
     """Checkpoint the latest trained model parameters.
     Args:
         checkpoint_dir (str): the directory where checkpoint is saved.
-        iteration (int): the latest iteration(step or epoch) number.
+        tag_or_iteration (int or str): the latest iteration(step or epoch) number.
         model (Layer): model to be checkpointed.
         optimizer (Optimizer, optional): optimizer to be checkpointed.
             Defaults to None.
@@ -128,7 +129,8 @@ def save_parameters(checkpoint_dir: str,
     Returns:
         None
     """
-    checkpoint_path = os.path.join(checkpoint_dir, "{}".format(iteration))
+    checkpoint_path = os.path.join(checkpoint_dir,
+                                   "{}".format(tag_or_iteration))
 
     model_dict = model.state_dict()
     params_path = checkpoint_path + ".pdparams"
@@ -142,10 +144,10 @@ def save_parameters(checkpoint_dir: str,
         logger.info("Saved optimzier state to {}".format(optimizer_path))
 
     info_path = re.sub('.pdparams$', '.json', params_path)
-    if infos is None:
-        infos = {}
+    infos = {} if infos is None else infos
     with open(info_path, 'w') as fout:
         data = json.dumps(infos)
         fout.write(data)
 
-    _save_checkpoint(checkpoint_dir, iteration)
+    if isinstance(tag_or_iteration, int):
+        _save_checkpoint(checkpoint_dir, tag_or_iteration)

@@ -127,7 +127,7 @@ class Trainer():
         dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
-    def save(self, infos=None):
+    def save(self, tag=None, infos=None):
         """Save checkpoint (model parameters and optimizer states).
         """
         if infos is None:
@@ -136,8 +136,9 @@ class Trainer():
                 "epoch": self.epoch,
                 "lr": self.optimizer.get_lr(),
             }
-        checkpoint.save_parameters(self.checkpoint_dir, self.iteration,
-                                   self.model, self.optimizer, infos)
+        checkpoint.save_parameters(self.checkpoint_dir, self.iteration
+                                   if tag is None else tag, self.model,
+                                   self.optimizer, infos)
 
     def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output 
@@ -146,6 +147,7 @@ class Trainer():
         If ``args.checkpoint_path`` is not None, load the checkpoint, else
         resume training.
         """
+        scratch = None
         infos = checkpoint.load_parameters(
             self.model,
             self.optimizer,
@@ -155,44 +157,41 @@ class Trainer():
             # restore from ckpt
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
-            self.lr_scheduler.step(self.iteration)
-            if self.parallel:
-                self.train_loader.batch_sampler.set_epoch(self.epoch)
-            return False
+            scratch = False
         else:
-            # from scratch, epoch and iteration init with zero
-            # save init model, i.e. 0 epoch
-            self.save()
-            # self.epoch start from 1.
-            self.new_epoch()
-            return True
+            scratch = True
+
+        return scratch
 
     def new_epoch(self):
-        """Reset the train loader and increment ``epoch``.
+        """Reset the train loader seed and increment `epoch`.
         """
-        if self.parallel:
-            # batch sampler epoch start from 0
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
         self.epoch += 1
+        if self.parallel:
+            self.train_loader.batch_sampler.set_epoch(self.epoch)
 
     def train(self):
-        """The training process.
-        
-        """
+        """The training process control by epoch."""
         from_scratch = self.resume_or_scratch()
-         
+        if from_scratch:
+            # save init model, i.e. 0 epoch
+            self.save(tag='init')
+
+        self.lr_scheduler.step(self.iteration)
+        if self.parallel:
+            self.train_loader.batch_sampler.set_epoch(self.epoch)
+
         self.logger.info(
             f"Train Total Examples: {len(self.train_loader.dataset)}")
-        while self.epoch <= self.config.training.n_epoch:
+        while self.epoch < self.config.training.n_epoch:
             try:
                 data_start_time = time.time()
                 for batch in self.train_loader:
                     dataload_time = time.time() - data_start_time
-                    # iteration start from 1.
-                    self.iteration += 1
                     msg = "Train: Rank: {}, ".format(dist.get_rank())
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
+                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                     msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
                     self.train_batch(batch, msg)
                     data_start_time = time.time()
@@ -202,7 +201,6 @@ class Trainer():
 
             self.valid()
             self.save()
-            # lr control by epoch
             self.lr_scheduler.step()
             self.new_epoch()
 

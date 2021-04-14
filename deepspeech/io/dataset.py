@@ -192,7 +192,7 @@ class ManifestDataset(Dataset):
 
         self._normalizer = FeatureNormalizer(
             mean_std_filepath) if mean_std_filepath else None
-        self._audio_augmentation_pipeline = AugmentationPipeline(
+        self._augmentation_pipeline = AugmentationPipeline(
             augmentation_config=augmentation_config, random_seed=random_seed)
         self._speech_featurizer = SpeechFeaturizer(
             unit_type=unit_type,
@@ -295,11 +295,14 @@ class ManifestDataset(Dataset):
                 self._subfile_from_tar(audio_file), transcript)
         else:
             speech_segment = SpeechSegment.from_file(audio_file, transcript)
-        self._audio_augmentation_pipeline.transform_audio(speech_segment)
+        # audio augment
+        self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         if self._normalizer:
             specgram = self._normalizer.apply(specgram)
+        # specgram augment
+        specgram = self._augmentation_pipeline.transform_feature(specgram)
         return specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):

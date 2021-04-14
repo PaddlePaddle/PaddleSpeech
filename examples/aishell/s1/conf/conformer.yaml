@@ -1,14 +1,14 @@
 # https://yaml.org/type/float.html
 data:
-  train_manifest: data/manifest.tiny
-  dev_manifest: data/manifest.tiny
-  test_manifest: data/manifest.tiny
+  train_manifest: data/manifest.train
+  dev_manifest: data/manifest.dev
+  test_manifest: data/manifest.test
   vocab_filepath: data/vocab.txt 
-  unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_200'
+  unit_type: 'char'
+  spm_model_prefix: ''
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
-  batch_size: 4
+  batch_size: 16
   min_input_len: 0.5
   max_input_len: 20.0
   min_output_len: 0.0
@@ -33,45 +33,6 @@ data:
   num_workers: 0
 
 
-#   # feature extraction
-# collate_conf:
-#     # waveform level config
-#     wav_distortion_conf:
-#         wav_dither: 0.1
-#         wav_distortion_rate: 0.0
-#         distortion_methods: []
-#     speed_perturb: true
-#     feature_extraction_conf:
-#         feature_type: 'fbank'
-#         mel_bins: 80
-#         frame_shift: 10
-#         frame_length: 25
-#         using_pitch: false
-#     # spec level config
-#     # spec_swap: false
-#     feature_dither: 0.0 # add dither [-feature_dither,feature_dither] on fbank feature
-#     spec_aug: true
-#     spec_aug_conf:
-#         warp_for_time: False
-#         num_t_mask: 2
-#         num_f_mask: 2
-#         max_t: 50
-#         max_f: 10
-#         max_w: 80
-
-
-# # dataset related
-# dataset_conf:
-#     max_length: 40960
-#     min_length: 0
-#     batch_type: 'static' # static or dynamic
-#     # the size of batch_size should be set according to your gpu memory size, here we used 2080ti gpu whose memory size is 11GB
-#     batch_size: 16
-#     sort: true
-
-
-
-
 # network architecture
 model:
     cmvn_file: "data/mean_std.npz"
@@ -87,7 +48,7 @@ model:
         positional_dropout_rate: 0.1
         attention_dropout_rate: 0.0
         input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-        normalize_before: true
+        normalize_before: True
         use_cnn_module: True
         cnn_module_kernel: 15
         activation_type: 'swish'
@@ -113,7 +74,7 @@ model:
 
 
 training:
-  n_epoch: 20
+  n_epoch: 240
   accum_grad: 4
   global_grad_clip: 5.0
   optim: adam

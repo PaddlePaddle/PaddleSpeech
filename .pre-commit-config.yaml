@@ -18,6 +18,9 @@
     -   id: check-yaml
     -   id: check-json
     -   id: pretty-format-json
+        args:
+        - --no-sort-keys
+        - --autofix
     -   id: check-merge-conflict
     -   id: flake8
         aergs:
@@ -49,3 +52,7 @@
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
         #exclude: (?=decoders/swig).*(\.cpp|\.h)$
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.4.0
+    hooks:
+      - id: reorder-python-imports

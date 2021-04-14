@@ -40,4 +40,4 @@ python3 utils/build_vocab.py \
 --manifest_paths examples/librispeech/data/manifest.train
 ```
 
-It will write a vocabuary file `examples/librispeech/data/eng_vocab.txt` with all transcription text in `examples/librispeech/data/manifest.train`, without vocabulary truncation (`--count_threshold 0`).
+It will write a vocabuary file `examples/librispeech/data/vocab.txt` with all transcription text in `examples/librispeech/data/manifest.train`, without vocabulary truncation (`--count_threshold 0`).

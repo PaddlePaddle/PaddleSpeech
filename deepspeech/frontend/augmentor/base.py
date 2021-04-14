@@ -43,15 +43,13 @@ class AugmentorBase():
         pass
 
     @abstractmethod
-    def transform_spectrogram(self, spec_segment):
-        """Adds various effects to the input spectrogram segment. Such effects
+    def transform_feature(self, spec_segment):
+        """Adds various effects to the input audo feature segment. Such effects
         will augment the training data to make the model invariant to certain
         types of time_mask or freq_mask in the real world, improving model's
         generalization ability.
         
-        Note that this is an in-place transformation.
-
-        :param spec_segment: Spectrogram segment to add effects to.
-        :type spec_segment: Spectrogram
+        Args:
+            spec_segment (Spectrogram): Spectrogram segment to add effects to.
         """
         pass

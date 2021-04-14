@@ -45,7 +45,7 @@ class NoisePerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        noise_json = self._rng.sample(self._noise_manifest, 1)[0]
+        noise_json = self._rng.choice(self._noise_manifest, 1, replace=False)[0]
         if noise_json['duration'] < audio_segment.duration:
             raise RuntimeError("The duration of sampled noise audio is smaller "
                                "than the audio segment to add effects to.")

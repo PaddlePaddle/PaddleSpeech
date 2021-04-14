@@ -7,7 +7,7 @@ fi
 
 if [ -e /etc/lsb-release ];then
     #${SUDO} apt-get update
-    ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    ${SUDO} apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 fi
 
 # install python dependencies

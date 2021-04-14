@@ -25,7 +25,7 @@ python3 ${MAIN_ROOT}/utils/build_vocab.py \
 --unit_type="char" \
 --count_threshold=0 \
 --vocab_path="data/vocab.txt" \
---manifest_paths "data/manifest.train.raw" "data/manifest.dev.raw"
+--manifest_paths "data/manifest.train.raw"
 
 if [ $? -ne 0 ]; then
     echo "Build vocabulary failed. Terminated."

@@ -14,7 +14,8 @@
     {
         "type": "speed",
         "params": {"min_speed_rate": 0.95,
-                   "max_speed_rate": 1.05},
+                   "max_speed_rate": 1.05,
+                   "num_rates": 3},
         "prob": 0.5
     },
     {

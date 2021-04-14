@@ -22,6 +22,7 @@ import resampy
 from scipy import signal
 import random
 import copy
+import sox
 
 
 class AudioSegment(object):
@@ -323,11 +324,15 @@ class AudioSegment(object):
         """
         if speed_rate <= 0:
             raise ValueError("speed_rate should be greater than zero.")
-        old_length = self._samples.shape[0]
-        new_length = int(old_length / speed_rate)
-        old_indices = np.arange(old_length)
-        new_indices = np.linspace(start=0, stop=old_length, num=new_length)
-        self._samples = np.interp(new_indices, old_indices, self._samples)
+        # old_length = self._samples.shape[0]
+        # new_length = int(old_length / speed_rate)
+        # old_indices = np.arange(old_length)
+        # new_indices = np.linspace(start=0, stop=old_length, num=new_length)
+        # self._samples = np.interp(new_indices, old_indices, self._samples)
+        tfm = sox.Transformer()
+        tfm.speed(speed_rate)
+        self._samples = tfm.build_array(
+            input_array=self._samples, sample_rate_in=self._sample_rate)
 
     def normalize(self, target_db=-20, max_gain_db=300.0):
         """Normalize audio to be of the desired RMS value in decibels.

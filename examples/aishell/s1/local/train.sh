@@ -1,9 +1,5 @@
 #! /usr/bin/env bash
 
-# train model
-# if you wish to resume from an exists model, uncomment --init_from_pretrained_model
-export FLAGS_sync_nccl_allreduce=0
-
 ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
 echo "using $ngpu gpus..."
 

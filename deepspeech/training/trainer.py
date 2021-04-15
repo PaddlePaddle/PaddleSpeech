@@ -92,7 +92,6 @@ class Trainer():
         self.visualizer = None
         self.output_dir = None
         self.checkpoint_dir = None
-        logger = None
         self.iteration = 0
         self.epoch = 0
 

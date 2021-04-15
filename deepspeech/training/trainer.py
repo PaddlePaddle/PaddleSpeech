@@ -92,7 +92,7 @@ class Trainer():
         self.visualizer = None
         self.output_dir = None
         self.checkpoint_dir = None
-        self.logger = None
+        logger = None
         self.iteration = 0
         self.epoch = 0
 
@@ -106,7 +106,6 @@ class Trainer():
         self.setup_output_dir()
         self.dump_config()
         self.setup_visualizer()
-        self.setup_logger()
         self.setup_checkpointer()
 
         self.setup_dataloader()
@@ -182,8 +181,7 @@ class Trainer():
         if self.parallel:
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 
-        self.logger.info(
-            f"Train Total Examples: {len(self.train_loader.dataset)}")
+        logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
             self.model.train()
             try:
@@ -198,7 +196,7 @@ class Trainer():
                     self.train_batch(batch_index, batch, msg)
                     data_start_time = time.time()
             except Exception as e:
-                self.logger.error(e)
+                logger.error(e)
                 raise e
 
             valid_losses = self.valid()
@@ -217,7 +215,7 @@ class Trainer():
             exit(-1)
         finally:
             self.destory()
-        self.logger.info("Training Done.")
+        logger.info("Training Done.")
 
     def setup_output_dir(self):
         """Create a directory used for output.
@@ -261,28 +259,6 @@ class Trainer():
         visualizer = SummaryWriter(logdir=str(self.output_dir))
 
         self.visualizer = visualizer
-
-    def setup_logger(self):
-        """Initialize a text logger to log the experiment.
-        
-        Each process has its own text logger. The logging message is write to 
-        the standard output and a text file named ``worker_n.log`` in the 
-        output directory, where ``n`` means the rank of the process. 
-        when - how to split the log file by time interval
-            'S' : Seconds
-            'M' : Minutes
-            'H' : Hours
-            'D' : Days
-            'W' : Week day
-            default value: 'D'
-        format - format of the log
-            default format:
-            %(levelname)s: %(asctime)s: %(filename)s:%(lineno)d * %(thread)d %(message)s
-            INFO: 12-09 18:02:42: log.py:40 * 139814749787872 HELLO WORLD
-        backup - how many backup file to keep
-            default value: 7
-        """
-        self.logger = logger
 
     @mp_tools.rank_zero_only
     def dump_config(self):

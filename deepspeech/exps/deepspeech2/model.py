@@ -63,7 +63,7 @@ class DeepSpeech2Trainer(Trainer):
         msg += "batch size: {}, ".format(self.config.data.batch_size)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
-        self.logger.info(msg)
+        logger.info(msg)
 
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
@@ -74,8 +74,7 @@ class DeepSpeech2Trainer(Trainer):
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
-        self.logger.info(
-            f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         self.model.eval()
         valid_losses = defaultdict(list)
         for i, batch in enumerate(self.valid_loader):
@@ -92,7 +91,7 @@ class DeepSpeech2Trainer(Trainer):
         msg += "step: {}, ".format(self.iteration)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in valid_losses.items())
-        self.logger.info(msg)
+        logger.info(msg)
 
         if self.visualizer:
             for k, v in valid_losses.items():
@@ -115,7 +114,7 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        layer_tools.print_params(model, self.logger.info)
+        layer_tools.print_params(model, logger.info)
 
         grad_clip = ClipGradByGlobalNormWithLog(
             config.training.global_grad_clip)
@@ -133,7 +132,7 @@ class DeepSpeech2Trainer(Trainer):
         self.model = model
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
-        self.logger.info("Setup model/optimizer/lr_scheduler!")
+        logger.info("Setup model/optimizer/lr_scheduler!")
 
     def setup_dataloader(self):
         config = self.config.clone()
@@ -178,7 +177,7 @@ class DeepSpeech2Trainer(Trainer):
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn)
-        self.logger.info("Setup train/valid Dataloader!")
+        logger.info("Setup train/valid Dataloader!")
 
 
 class DeepSpeech2Tester(DeepSpeech2Trainer):
@@ -221,11 +220,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
-            self.logger.info(
-                "\nTarget Transcription: %s\nOutput Transcription: %s" %
-                (target, result))
-            self.logger.info("Current error rate [%s] = %f" % (
-                cfg.error_rate_type, error_rate_func(target, result)))
+            logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
+                        (target, result))
+            logger.info("Current error rate [%s] = %f" %
+                        (cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
@@ -237,8 +235,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def test(self):
-        self.logger.info(
-            f"Test Total Examples: {len(self.test_loader.dataset)}")
+        logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
         self.model.eval()
         cfg = self.config
         error_rate_type = None
@@ -250,8 +247,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             len_refs += metrics['len_refs']
             num_ins += metrics['num_ins']
             error_rate_type = metrics['error_rate_type']
-            self.logger.info("Error rate [%s] (%d/?) = %f" %
-                             (error_rate_type, num_ins, errors_sum / len_refs))
+            logger.info("Error rate [%s] (%d/?) = %f" %
+                        (error_rate_type, num_ins, errors_sum / len_refs))
 
         # logging
         msg = "Test: "
@@ -259,7 +256,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg += "step: {}, ".format(self.iteration)
         msg += ", Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
-        self.logger.info(msg)
+        logger.info(msg)
 
     def run_test(self):
         self.resume_or_scratch()
@@ -298,7 +295,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         self.setup_output_dir()
         self.setup_checkpointer()
-        self.setup_logger()
 
         self.setup_dataloader()
         self.setup_model()
@@ -317,7 +313,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
         self.model = model
-        self.logger.info("Setup model!")
+        logger.info("Setup model!")
 
     def setup_dataloader(self):
         config = self.config.clone()
@@ -335,7 +331,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             shuffle=False,
             drop_last=False,
             collate_fn=SpeechCollator(keep_transcription_text=True))
-        self.logger.info("Setup test Dataloader!")
+        logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):
         """Create a directory used for output.
@@ -350,25 +346,3 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             output_dir.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = output_dir
-
-    def setup_logger(self):
-        """Initialize a text logger to log the experiment.
-        
-        Each process has its own text logger. The logging message is write to 
-        the standard output and a text file named ``worker_n.log`` in the 
-        output directory, where ``n`` means the rank of the process. 
-        """
-        format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
-
-        logger.setLevel("INFO")
-
-        # global logger
-        stdout = True
-        save_path = ""
-        logging.basicConfig(
-            level=logging.DEBUG if stdout else logging.INFO,
-            format=format,
-            datefmt='%Y/%m/%d %H:%M:%S',
-            filename=save_path if not stdout else None)
-        self.logger = logger

@@ -67,13 +67,17 @@ def unfreeze(layer: nn.Layer):
 
 
 def print_grads(model, print_func=print):
+    if print_func is None:
+        return
     for n, p in model.named_parameters():
         msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
-        if print_func:
-            print_func(msg)
+        print_func(msg)
 
 
 def print_params(model, print_func=print):
+    if print_func is None:
+        return
+
     total = 0.0
     for n, p in model.named_parameters():
         msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"

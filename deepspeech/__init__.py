@@ -22,6 +22,27 @@ from paddle import nn
 from paddle.nn import functional as F
 #TODO(Hui Zhang): remove  fluid import
 from paddle.fluid import core
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
+formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
+
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(formatter)
+root.addHandler(stream_handler)
+save_path = 'global.log'
+file_handler = logging.FileHandler(save_path)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+root.addHandler(file_handler)
+
+# stop propagate for propagating may print
+# log multiple times
+root.propagate = False
+
 logger = logging.getLogger(__name__)
 
 ########### hcak logging #############
@@ -409,13 +430,13 @@ def ctc_loss(logits,
                                            input_lengths, label_lengths)
 
     loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
-    logger.info(f"warpctc loss: {loss_out}/{loss_out.shape} ")
+    logger.debug(f"warpctc loss: {loss_out}/{loss_out.shape} ")
     assert reduction in ['mean', 'sum', 'none']
     if reduction == 'mean':
         loss_out = paddle.mean(loss_out / label_lengths)
     elif reduction == 'sum':
         loss_out = paddle.sum(loss_out)
-    logger.info(f"ctc loss: {loss_out}")
+    logger.debug(f"ctc loss: {loss_out}")
     return loss_out
 
 

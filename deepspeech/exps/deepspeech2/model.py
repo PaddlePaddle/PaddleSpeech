@@ -45,7 +45,7 @@ class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def train_batch(self, batch_data, msg):
+    def train_batch(self, batch_index, batch_data, msg):
         self.model.train()
         start = time.time()
 

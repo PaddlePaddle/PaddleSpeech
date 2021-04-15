@@ -18,9 +18,9 @@ from typeguard import check_argument_types
 
 from paddle.optimizer.lr import LRScheduler
 
-logger = logging.getLogger(__name__)
-
 __all__ = ["WarmupLR"]
+
+logger = logging.getLogger(__name__)
 
 
 class WarmupLR(LRScheduler):

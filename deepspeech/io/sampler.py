@@ -156,7 +156,7 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
-                logger.info(
+                logger.debug(
                     f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []
@@ -236,7 +236,7 @@ class SortagradBatchSampler(BatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
-                logger.info(
+                logger.debug(
                     f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []

@@ -16,6 +16,7 @@ Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recogni
 (https://arxiv.org/pdf/2012.05481.pdf)
 """
 
+import time
 import sys
 from collections import defaultdict
 import logging
@@ -156,7 +157,10 @@ class U2BaseModel(nn.Module):
                 text_lengths.shape[0]), (speech.shape, speech_lengths.shape,
                                          text.shape, text_lengths.shape)
         # 1. Encoder
+        start = time.time()
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
+        encoder_time = time.time() - start
+        logger.debug(f"encoder time: {encoder_time}")
         #TODO(Hui Zhang): sum not support bool type
         #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
         encoder_out_lens = encoder_mask.squeeze(1).cast(paddle.int64).sum(
@@ -165,14 +169,20 @@ class U2BaseModel(nn.Module):
         # 2a. Attention-decoder branch
         loss_att = None
         if self.ctc_weight != 1.0:
+            start = time.time()
             loss_att, acc_att = self._calc_att_loss(encoder_out, encoder_mask,
                                                     text, text_lengths)
+            decoder_time = time.time() - start
+            logger.debug(f"decoder time: {decoder_time}")
 
         # 2b. CTC branch
         loss_ctc = None
         if self.ctc_weight != 0.0:
+            start = time.time()
             loss_ctc = self.ctc(encoder_out, encoder_out_lens, text,
                                 text_lengths)
+            ctc_time = time.time() - start
+            logger.debug(f"ctc time: {ctc_time}")
 
         if loss_ctc is None:
             loss = loss_att

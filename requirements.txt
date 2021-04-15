@@ -4,6 +4,7 @@ python_speech_features
 resampy==0.2.2
 scipy==1.2.1
 sentencepiece
+snakeviz
 SoundFile==0.9.0.post1
 sox
 tensorboardX

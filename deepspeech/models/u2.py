@@ -821,7 +821,8 @@ class U2Model(U2BaseModel):
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
             global_cmvn = GlobalCMVN(
-                paddle.to_tensor(mean).float(), paddle.to_tensor(istd).float())
+                paddle.to_tensor(mean, dtype=paddle.float),
+                paddle.to_tensor(istd, dtype=paddle.float))
         else:
             global_cmvn = None
 

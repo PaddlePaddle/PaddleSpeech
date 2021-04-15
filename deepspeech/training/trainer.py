@@ -128,15 +128,15 @@ class Trainer():
         dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
-    def save(self, tag=None, infos=None):
+    def save(self, tag=None, infos: dict=None):
         """Save checkpoint (model parameters and optimizer states).
         """
-        if infos is None:
-            infos = {
-                "step": self.iteration,
-                "epoch": self.epoch,
-                "lr": self.optimizer.get_lr(),
-            }
+        infos = infos if infos else dict()
+        infos.update({
+            "step": self.iteration,
+            "epoch": self.epoch,
+            "lr": self.optimizer.get_lr()
+        })
         checkpoint.save_parameters(self.checkpoint_dir, self.iteration
                                    if tag is None else tag, self.model,
                                    self.optimizer, infos)
@@ -185,6 +185,7 @@ class Trainer():
         self.logger.info(
             f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
+            self.model.train()
             try:
                 data_start_time = time.time()
                 for batch_index, batch in enumerate(self.train_loader):
@@ -200,8 +201,8 @@ class Trainer():
                 self.logger.error(e)
                 raise e
 
-            self.valid()
-            self.save()
+            valid_losses = self.valid()
+            self.save(infos=valid_losses)
             self.lr_scheduler.step()
             self.new_epoch()
 

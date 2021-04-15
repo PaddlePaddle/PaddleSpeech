@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Evaluation for U2 model."""
+import os
+import cProfile
 
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.utility import print_arguments
@@ -48,4 +50,7 @@ if __name__ == "__main__":
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
 
-    main(config, args)
+    # Setting for profiling
+    pr = cProfile.Profile()
+    pr.runcall(main, config, args)
+    pr.dump_stats(os.path.join('.', 'test.profile'))

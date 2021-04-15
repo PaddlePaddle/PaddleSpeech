@@ -77,8 +77,6 @@ class U2Trainer(Trainer):
 
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
-        self.model.train()
-
         start = time.time()
 
         loss, attention_loss, ctc_loss = self.model(*batch_data)
@@ -134,6 +132,7 @@ class U2Trainer(Trainer):
         self.logger.info(
             f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
+            self.model.train()
             try:
                 data_start_time = time.time()
                 for batch_index, batch in enumerate(self.train_loader):
@@ -149,8 +148,8 @@ class U2Trainer(Trainer):
                 self.logger.error(e)
                 raise e
 
-            self.valid()
-            self.save()
+            valid_losses = self.valid()
+            self.save(infos=valid_losses)
             self.new_epoch()
 
     @mp_tools.rank_zero_only
@@ -182,6 +181,7 @@ class U2Trainer(Trainer):
             for k, v in valid_losses.items():
                 self.visualizer.add_scalar("valid/{}".format(k), v,
                                            self.iteration)
+        return valid_losses
 
     def setup_dataloader(self):
         config = self.config.clone()

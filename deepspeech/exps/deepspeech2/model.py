@@ -46,7 +46,6 @@ class DeepSpeech2Trainer(Trainer):
         super().__init__(config, args)
 
     def train_batch(self, batch_index, batch_data, msg):
-        self.model.train()
         start = time.time()
 
         loss = self.model(*batch_data)
@@ -99,6 +98,8 @@ class DeepSpeech2Trainer(Trainer):
             for k, v in valid_losses.items():
                 self.visualizer.add_scalar("valid/{}".format(k), v,
                                            self.iteration)
+
+        return valid_losses
 
     def setup_model(self):
         config = self.config

@@ -290,19 +290,34 @@ class ManifestDataset(Dataset):
                  where transcription part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
+        start_time = time.time()
         if isinstance(audio_file, str) and audio_file.startswith('tar:'):
             speech_segment = SpeechSegment.from_file(
                 self._subfile_from_tar(audio_file), transcript)
         else:
             speech_segment = SpeechSegment.from_file(audio_file, transcript)
+        load_wav_time = time.time() - start_time
+        logger.debug(f"load wav time: {load_wav_time}")
+
         # audio augment
+        start_time = time.time()
         self._augmentation_pipeline.transform_audio(speech_segment)
+        audio_aug_time = time.time() - start_time
+        logger.debug(f"audio augmentation time: {audio_aug_time}")
+
+        start_time = time.time()
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         if self._normalizer:
             specgram = self._normalizer.apply(specgram)
+        feature_time = time.time() - start_time
+        logger.debug(f"audio & test feature time: {feature_time}")
+
         # specgram augment
+        start_time = time.time()
         specgram = self._augmentation_pipeline.transform_feature(specgram)
+        feature_aug_time = time.time() - start_time
+        logger.debug(f"audio feature augmentation time: {feature_aug_time}")
         return specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):

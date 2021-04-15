@@ -83,7 +83,7 @@ def main():
         # train
         spm.SentencePieceTrainer.Train(
             input=fp.name,
-            vocab_size=args.vocab_size,
+            vocab_size=args.spm_vocab_size,
             model_type=args.spm_mode,
             model_prefix=args.spm_model_prefix,
             input_sentence_size=100000000,

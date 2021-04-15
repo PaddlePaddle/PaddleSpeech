@@ -43,10 +43,10 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
                 merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
             square = layers.square(merge_grad)
             sum_square = layers.reduce_sum(square)
-            logger.debug(
-                f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
             sum_square_list.append(sum_square)
+
+            # debug log
+            # logger.debug(f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
 
         # all parameters have been filterd out
         if len(sum_square_list) == 0:
@@ -55,6 +55,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
         global_norm_var = layers.concat(sum_square_list)
         global_norm_var = layers.reduce_sum(global_norm_var)
         global_norm_var = layers.sqrt(global_norm_var)
+        # debug log
         logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
         max_global_norm = layers.fill_constant(
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
@@ -68,9 +69,11 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
                 params_and_grads.append((p, g))
                 continue
             new_grad = layers.elementwise_mul(x=g, y=clip_var)
-            logger.debug(
-                f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
             params_and_grads.append((p, new_grad))
+
+            # debug log
+            # logger.debug(
+            #     f"Grad After Clip: {p.name}: {float(merge_grad.square().sum().sqrt())}"
+            # )
 
         return params_and_grads

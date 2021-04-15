@@ -11,23 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import time
 import io
 import random
 import tarfile
-from deepspeech.utils.log import Log
-from typing import Optional
-from yacs.config import CfgNode
+import time
 from collections import namedtuple
+from typing import Optional
 
 from paddle.io import Dataset
+from yacs.config import CfgNode
 
-from deepspeech.frontend.utility import read_manifest
 from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
 from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
-from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.normalizer import FeatureNormalizer
+from deepspeech.frontend.speech import SpeechSegment
+from deepspeech.frontend.utility import read_manifest
+from deepspeech.utils.log import Log
 
 __all__ = [
     "ManifestDataset",

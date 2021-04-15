@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contain the speech perturbation augmentation model."""
-
 import numpy as np
+
 from deepspeech.frontend.augmentor.base import AugmentorBase
 
 

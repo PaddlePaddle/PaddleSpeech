@@ -14,20 +14,19 @@
 """Build vocabulary from manifest files.
 Each item in vocabulary file is a character.
 """
-
 import argparse
 import functools
-from collections import Counter
 import os
 import tempfile
+from collections import Counter
 
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.utility import UNK
+from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.frontend.utility import BLANK
+from deepspeech.frontend.utility import read_manifest
 from deepspeech.frontend.utility import SOS
+from deepspeech.frontend.utility import UNK
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
-from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

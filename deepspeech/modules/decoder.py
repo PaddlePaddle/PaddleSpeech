@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Decoder definition."""
-from typing import Tuple, List, Optional
-from typeguard import check_argument_types
-from deepspeech.utils.log import Log
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import nn
+from typeguard import check_argument_types
 
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.decoder_layer import DecoderLayer
 from deepspeech.modules.embedding import PositionalEncoding
-from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
-from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.mask import make_non_pad_mask
+from deepspeech.modules.mask import subsequent_mask
+from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

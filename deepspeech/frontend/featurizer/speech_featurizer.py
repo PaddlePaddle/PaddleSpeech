@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the speech featurizer class."""
-
 from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 

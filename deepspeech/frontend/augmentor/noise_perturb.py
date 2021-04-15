@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the noise perturb augmentation model."""
-
+from deepspeech.frontend.audio import AudioSegment
 from deepspeech.frontend.augmentor.base import AugmentorBase
 from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.audio import AudioSegment
 
 
 class NoisePerturbAugmentor(AugmentorBase):

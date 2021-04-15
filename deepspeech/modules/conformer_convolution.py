@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ConvolutionModule definition."""
-from typing import Optional, Tuple
-from typeguard import check_argument_types
-
-from deepspeech.utils.log import Log
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import nn
+from typeguard import check_argument_types
+
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

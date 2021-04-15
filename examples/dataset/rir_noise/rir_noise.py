@@ -22,12 +22,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import codecs
-import soundfile
-import json
 import argparse
-from utils.utility import download, unzip
+import codecs
+import json
+import os
+
+import soundfile
+
+from utils.utility import download
+from utils.utility import unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 

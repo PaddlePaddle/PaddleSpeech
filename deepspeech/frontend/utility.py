@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains data helper functions."""
-import numpy as np
-import math
-import json
 import codecs
+import json
+import math
+
+import numpy as np
+
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()

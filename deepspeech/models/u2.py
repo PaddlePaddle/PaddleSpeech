@@ -15,40 +15,39 @@
 Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recognition 
 (https://arxiv.org/pdf/2012.05481.pdf)
 """
-
-import time
 import sys
+import time
 from collections import defaultdict
-from deepspeech.utils.log import Log
-from yacs.config import CfgNode
-from typing import List, Optional, Tuple, Dict
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import jit
 from paddle import nn
+from yacs.config import CfgNode
 
+from deepspeech.frontend.utility import IGNORE_ID
+from deepspeech.frontend.utility import load_cmvn
+from deepspeech.modules.cmvn import GlobalCMVN
+from deepspeech.modules.ctc import CTCDecoder
+from deepspeech.modules.decoder import TransformerDecoder
+from deepspeech.modules.encoder import ConformerEncoder
+from deepspeech.modules.encoder import TransformerEncoder
+from deepspeech.modules.loss import LabelSmoothingLoss
 from deepspeech.modules.mask import make_pad_mask
 from deepspeech.modules.mask import mask_finished_preds
 from deepspeech.modules.mask import mask_finished_scores
 from deepspeech.modules.mask import subsequent_mask
-
-from deepspeech.modules.cmvn import GlobalCMVN
-from deepspeech.modules.encoder import ConformerEncoder
-from deepspeech.modules.encoder import TransformerEncoder
-from deepspeech.modules.ctc import CTCDecoder
-from deepspeech.modules.decoder import TransformerDecoder
-from deepspeech.modules.loss import LabelSmoothingLoss
-
-from deepspeech.frontend.utility import load_cmvn
-from deepspeech.frontend.utility import IGNORE_ID
-
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
-from deepspeech.utils.utility import log_add
-from deepspeech.utils.tensor_utils import add_sos_eos
-from deepspeech.utils.tensor_utils import th_accuracy
-from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.ctc_utils import remove_duplicates_and_blank
+from deepspeech.utils.log import Log
+from deepspeech.utils.tensor_utils import add_sos_eos
+from deepspeech.utils.tensor_utils import pad_sequence
+from deepspeech.utils.tensor_utils import th_accuracy
+from deepspeech.utils.utility import log_add
 
 logger = Log(__name__).getlog()
 

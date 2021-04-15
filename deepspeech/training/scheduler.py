@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from deepspeech.utils.log import Log
 from typing import Union
-from typeguard import check_argument_types
 
 from paddle.optimizer.lr import LRScheduler
+from typeguard import check_argument_types
+
+from deepspeech.utils.log import Log
 
 __all__ = ["WarmupLR"]
 

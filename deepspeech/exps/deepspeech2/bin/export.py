@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Export for DeepSpeech2 model."""
-from deepspeech.training.cli import default_argument_parser
-from deepspeech.utils.utility import print_arguments
-
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.exps.deepspeech2.model import DeepSpeech2Tester as Tester
+from deepspeech.training.cli import default_argument_parser
+from deepspeech.utils.utility import print_arguments
 
 
 def main_sp(config, args):

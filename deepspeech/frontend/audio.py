@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the audio segment class."""
+import copy
+import io
+import random
+import re
+import struct
 
 import numpy as np
-import io
-import struct
-import re
-import soundfile
 import resampy
+import soundfile
 from scipy import signal
-import random
-import copy
 
 
 class AudioSegment(object):

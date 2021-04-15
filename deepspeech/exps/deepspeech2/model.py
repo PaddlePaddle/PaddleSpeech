@@ -12,31 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains DeepSpeech2 model."""
-
 import time
-from deepspeech.utils.log import Log
-import numpy as np
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
 import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
 
-from deepspeech.training.trainer import Trainer
-from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
-
-from deepspeech.utils import mp_tools
-from deepspeech.utils import layer_tools
-from deepspeech.utils import error_rate
-
 from deepspeech.io.collator import SpeechCollator
-from deepspeech.io.sampler import SortagradDistributedBatchSampler
-from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.io.sampler import SortagradBatchSampler
+from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
+from deepspeech.training.trainer import Trainer
+from deepspeech.utils import error_rate
+from deepspeech.utils import layer_tools
+from deepspeech.utils import mp_tools
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

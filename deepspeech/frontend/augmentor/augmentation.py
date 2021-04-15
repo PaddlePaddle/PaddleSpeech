@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the data augmentation pipeline."""
-
 import json
+
 import numpy as np
 
-# audio augment
-from deepspeech.frontend.augmentor.volume_perturb import VolumePerturbAugmentor
-from deepspeech.frontend.augmentor.shift_perturb import ShiftPerturbAugmentor
-from deepspeech.frontend.augmentor.speed_perturb import SpeedPerturbAugmentor
-from deepspeech.frontend.augmentor.noise_perturb import NoisePerturbAugmentor
 from deepspeech.frontend.augmentor.impulse_response import ImpulseResponseAugmentor
-from deepspeech.frontend.augmentor.resample import ResampleAugmentor
+from deepspeech.frontend.augmentor.noise_perturb import NoisePerturbAugmentor
 from deepspeech.frontend.augmentor.online_bayesian_normalization import \
     OnlineBayesianNormalizationAugmentor
-# feature augment
+from deepspeech.frontend.augmentor.resample import ResampleAugmentor
+from deepspeech.frontend.augmentor.shift_perturb import ShiftPerturbAugmentor
 from deepspeech.frontend.augmentor.spec_augment import SpecAugmentor
+from deepspeech.frontend.augmentor.speed_perturb import SpeedPerturbAugmentor
+from deepspeech.frontend.augmentor.volume_perturb import VolumePerturbAugmentor
 
 
 class AugmentationPipeline():

@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Encoder self-attention layer definition."""
-from typing import Optional, Tuple
-from deepspeech.utils.log import Log
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import nn
+
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

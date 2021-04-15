@@ -13,20 +13,19 @@
 # limitations under the License.
 """Server-end for the ASR demo."""
 import functools
-import paddle
+
 import numpy as np
+import paddle
 
-from deepspeech.utils.socket_server import warm_up_test
-from deepspeech.utils.socket_server import AsrTCPServer
-from deepspeech.utils.socket_server import AsrRequestHandler
-
-from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
-
-from deepspeech.utils.utility import add_arguments, print_arguments
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.io.dataset import ManifestDataset
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.training.cli import default_argument_parser
+from deepspeech.utils.socket_server import AsrRequestHandler
+from deepspeech.utils.socket_server import AsrTCPServer
+from deepspeech.utils.socket_server import warm_up_test
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 
 def start_server(config, args):

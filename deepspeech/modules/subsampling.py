@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Subsampling layer definition."""
-
 from typing import Tuple
-from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
 
 from deepspeech.modules.embedding import PositionalEncoding
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

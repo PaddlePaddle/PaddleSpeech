@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import paddle
-import numpy as np
 import unittest
-from deepspeech.modules.mask import sequence_mask
+
+import numpy as np
+import paddle
+
 from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.mask import make_pad_mask
+from deepspeech.modules.mask import sequence_mask
 
 
 class TestU2Model(unittest.TestCase):

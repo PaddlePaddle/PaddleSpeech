@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains feature normalizers."""
+import random
 
 import numpy as np
-import random
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.utility import load_cmvn
+
 from deepspeech.frontend.audio import AudioSegment
+from deepspeech.frontend.utility import load_cmvn
+from deepspeech.frontend.utility import read_manifest
 
 
 class FeatureNormalizer(object):

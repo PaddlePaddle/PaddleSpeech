@@ -11,13 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import paddle
+from paddle.fluid import core
+from paddle.fluid import layers
+from paddle.fluid.dygraph import base as imperative_base
 
 from deepspeech.utils.log import Log
-
-import paddle
-from paddle.fluid.dygraph import base as imperative_base
-from paddle.fluid import layers
-from paddle.fluid import core
 
 __all__ = ["ClipGradByGlobalNormWithLog"]
 

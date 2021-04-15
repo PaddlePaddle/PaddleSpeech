@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Unility functions for Transformer."""
-from deepspeech.utils.log import Log
-from typing import Tuple, List
+from typing import List
+from typing import Tuple
 
 import paddle
+
+from deepspeech.utils.log import Log
 
 __all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
 

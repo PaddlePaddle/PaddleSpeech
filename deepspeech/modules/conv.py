@@ -11,14 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from deepspeech.utils.log import Log
-
 from paddle import nn
 from paddle.nn import functional as F
 
-from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
+from deepspeech.modules.mask import sequence_mask
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

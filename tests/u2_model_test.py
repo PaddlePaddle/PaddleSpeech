@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import paddle
-
 import unittest
+
 import numpy as np
+import paddle
 from yacs.config import CfgNode as CN
 
 from deepspeech.models.u2 import U2Model

@@ -18,15 +18,17 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-
-import distutils.util
-import os
 import argparse
-import soundfile
-import json
 import codecs
+import distutils.util
 import io
-from utils.utility import download, unpack
+import json
+import os
+
+import soundfile
+
+from utils.utility import download
+from utils.utility import unpack
 
 URL_ROOT = "http://www.openslr.org/resources/12"
 #URL_ROOT = "https://openslr.magicdatatech.com/resources/12"

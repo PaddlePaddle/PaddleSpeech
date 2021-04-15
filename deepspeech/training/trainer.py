@@ -11,9 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import time
-from deepspeech.utils.log import Log
 from pathlib import Path
 
 import paddle
@@ -22,6 +20,7 @@ from tensorboardX import SummaryWriter
 
 from deepspeech.utils import checkpoint
 from deepspeech.utils import mp_tools
+from deepspeech.utils.log import Log
 
 __all__ = ["Trainer"]
 

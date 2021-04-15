@@ -12,28 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Encoder definition."""
-from deepspeech.utils.log import Log
-from typing import Tuple, List, Optional
-from typeguard import check_argument_types
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import nn
+from typeguard import check_argument_types
 
+from deepspeech.modules.activation import get_activation
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.attention import RelPositionMultiHeadedAttention
 from deepspeech.modules.conformer_convolution import ConvolutionModule
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.embedding import RelPositionalEncoding
-from deepspeech.modules.encoder_layer import TransformerEncoderLayer
 from deepspeech.modules.encoder_layer import ConformerEncoderLayer
+from deepspeech.modules.encoder_layer import TransformerEncoderLayer
+from deepspeech.modules.mask import add_optional_chunk_mask
+from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
 from deepspeech.modules.subsampling import Conv2dSubsampling4
 from deepspeech.modules.subsampling import Conv2dSubsampling6
 from deepspeech.modules.subsampling import Conv2dSubsampling8
 from deepspeech.modules.subsampling import LinearNoSubsampling
-from deepspeech.modules.mask import make_non_pad_mask
-from deepspeech.modules.mask import add_optional_chunk_mask
-from deepspeech.modules.activation import get_activation
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

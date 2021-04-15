@@ -11,13 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from yacs.config import CfgNode
 
+from deepspeech.exps.u2.model import U2Tester
+from deepspeech.exps.u2.model import U2Trainer
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2 import U2Model
-from deepspeech.exps.u2.model import U2Trainer
-from deepspeech.exps.u2.model import U2Tester
 
 _C = CfgNode()
 

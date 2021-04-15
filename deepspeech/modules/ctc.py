@@ -11,20 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from deepspeech.utils.log import Log
-from typeguard import check_argument_types
-
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
+from typeguard import check_argument_types
 
+from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
+from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
+from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.modules.loss import CTCLoss
 from deepspeech.utils import ctc_utils
-
-from deepspeech.decoders.swig_wrapper import Scorer
-from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
-from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

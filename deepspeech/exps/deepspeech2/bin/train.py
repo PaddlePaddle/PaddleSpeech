@@ -14,11 +14,10 @@
 """Trainer for DeepSpeech2 model."""
 from paddle import distributed as dist
 
-from deepspeech.utils.utility import print_arguments
-from deepspeech.training.cli import default_argument_parser
-
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.exps.deepspeech2.model import DeepSpeech2Trainer as Trainer
+from deepspeech.training.cli import default_argument_parser
+from deepspeech.utils.utility import print_arguments
 
 
 def main_sp(config, args):

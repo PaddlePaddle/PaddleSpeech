@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from yacs.config import CfgNode as CN
+
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 
 _C = CN()

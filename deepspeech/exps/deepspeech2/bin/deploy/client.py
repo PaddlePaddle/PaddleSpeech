@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Client-end for the ASR demo."""
-import keyboard
-import sys
 import argparse
+import sys
+
+import keyboard
 import pyaudio
 
 from deepspeech.utils.socket_server import socket_send

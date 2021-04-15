@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Positionwise feed forward layer definition."""
-from deepspeech.utils.log import Log
-
 import paddle
 from paddle import nn
+
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

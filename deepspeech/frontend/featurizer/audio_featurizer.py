@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the audio featurizer class."""
-
 import numpy as np
-from python_speech_features import mfcc
-from python_speech_features import logfbank
 from python_speech_features import delta
+from python_speech_features import logfbank
+from python_speech_features import mfcc
 
 
 class AudioFeaturizer(object):

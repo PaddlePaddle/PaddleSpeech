@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the speech segment class."""
-
 import numpy as np
+
 from deepspeech.frontend.audio import AudioSegment
 
 

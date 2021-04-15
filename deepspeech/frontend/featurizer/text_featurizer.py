@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the text featurizer class."""
-
 import sentencepiece as spm
 
-from deepspeech.frontend.utility import UNK
 from deepspeech.frontend.utility import EOS
+from deepspeech.frontend.utility import UNK
 
 
 class TextFeaturizer(object):

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains various CTC decoders."""
-
-from itertools import groupby
-import numpy as np
-from math import log
 import multiprocessing
+from itertools import groupby
+from math import log
+
+import numpy as np
 
 
 def ctc_greedy_decoder(probs_seq, vocabulary):

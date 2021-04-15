@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Compute mean and std for feature normalizer, and save to file."""
-
 import argparse
 import functools
-from deepspeech.frontend.normalizer import FeatureNormalizer
+
 from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
 from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
-from deepspeech.utils.utility import add_arguments, print_arguments
+from deepspeech.frontend.normalizer import FeatureNormalizer
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

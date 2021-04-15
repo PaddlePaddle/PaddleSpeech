@@ -13,12 +13,14 @@
 # limitations under the License.
 """Multi-Head Attention layer definition."""
 import math
-from deepspeech.utils.log import Log
-from typing import Optional, Tuple
+from typing import Optional
+from typing import Tuple
 
 import paddle
 from paddle import nn
 from paddle.nn import initializer as I
+
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

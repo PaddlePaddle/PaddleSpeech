@@ -11,18 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Union
+from typing import Any
 from typing import List
 from typing import Tuple
-from typing import Any
+from typing import Union
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-#TODO(Hui Zhang): remove  fluid import
 from paddle.fluid import core
+from paddle.nn import functional as F
 
 from deepspeech.utils.log import Log
+#TODO(Hui Zhang): remove  fluid import
 logger = Log(__name__).getlog()
 
 ########### hcak logging #############

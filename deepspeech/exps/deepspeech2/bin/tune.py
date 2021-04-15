@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Beam search parameters tuning for DeepSpeech2 model."""
-
-import sys
-import numpy as np
 import functools
+import sys
 
+import numpy as np
 from paddle.io import DataLoader
 
-from deepspeech.utils import error_rate
-from deepspeech.utils.utility import add_arguments, print_arguments
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.training.cli import default_argument_parser
-from deepspeech.exps.deepspeech2.config import get_cfg_defaults
+from deepspeech.utils import error_rate
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 
 def tune(config, args):

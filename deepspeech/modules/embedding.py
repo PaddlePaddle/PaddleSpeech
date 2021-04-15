@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Positonal Encoding Module."""
-
 import math
-from deepspeech.utils.log import Log
 from typing import Tuple
 
 import paddle
 from paddle import nn
+
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

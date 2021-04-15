@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Evaluation for U2 model."""
-import os
 import cProfile
+import os
 
+from deepspeech.exps.u2.config import get_cfg_defaults
+from deepspeech.exps.u2.model import U2Tester as Tester
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.utility import print_arguments
 
 # TODO(hui zhang): dynamic load 
-from deepspeech.exps.u2.config import get_cfg_defaults
-from deepspeech.exps.u2.model import U2Tester as Tester
 
 
 def main_sp(config, args):

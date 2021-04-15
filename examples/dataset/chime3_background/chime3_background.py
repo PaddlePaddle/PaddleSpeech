@@ -18,14 +18,14 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-
-import os
-import wget
-import zipfile
 import argparse
-import soundfile
-import json
 import io
+import json
+import os
+import zipfile
+
+import soundfile
+import wget
 from paddle.v2.dataset.common import md5file
 
 # DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')

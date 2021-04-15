@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """External Scorer for Beam Search Decoder."""
-
 import os
+
 import kenlm
 import numpy as np
 

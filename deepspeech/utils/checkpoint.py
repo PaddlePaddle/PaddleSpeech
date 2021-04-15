@@ -11,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import os
-from deepspeech.utils.log import Log
-import re
 import json
+import os
+import re
 from typing import Union
 
 import paddle
@@ -23,6 +21,7 @@ from paddle import distributed as dist
 from paddle.optimizer import Optimizer
 
 from deepspeech.utils import mp_tools
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

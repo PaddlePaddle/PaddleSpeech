@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Test decoders."""
-
 import unittest
+
 from deepspeech.decoders import decoders_deprecated as decoder
 
 

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the volume perturb augmentation model."""
-from deepspeech.utils.log import Log
 import numpy as np
 
 from deepspeech.frontend.augmentor.base import AugmentorBase
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

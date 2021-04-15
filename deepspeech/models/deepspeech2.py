@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-from deepspeech.utils.log import Log
 from typing import Optional
-from yacs.config import CfgNode
 
 import paddle
 from paddle import nn
+from yacs.config import CfgNode
 
 from deepspeech.modules.conv import ConvStack
-from deepspeech.modules.rnn import RNNStack
 from deepspeech.modules.ctc import CTCDecoder
-
+from deepspeech.modules.rnn import RNNStack
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 

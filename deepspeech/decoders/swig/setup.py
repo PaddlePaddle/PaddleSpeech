@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Script to build and install decoder package."""
-
-from setuptools import setup, Extension, distutils
-import glob
-import platform
-import os
-import sys
-import multiprocessing.pool
 import argparse
+import glob
+import multiprocessing.pool
+import os
+import platform
+import sys
+
+from setuptools import distutils
+from setuptools import Extension
+from setuptools import setup
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(

@@ -19,7 +19,7 @@ Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recogni
 import time
 import sys
 from collections import defaultdict
-import logging
+from deepspeech.utils.log import Log
 from yacs.config import CfgNode
 from typing import List, Optional, Tuple, Dict
 
@@ -50,7 +50,7 @@ from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.ctc_utils import remove_duplicates_and_blank
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["U2Model", "U2InferModel"]
 

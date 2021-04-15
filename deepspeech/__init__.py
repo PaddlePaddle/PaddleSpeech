@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import logging
 from typing import Union
 from typing import List
 from typing import Tuple
@@ -23,30 +22,11 @@ from paddle.nn import functional as F
 #TODO(Hui Zhang): remove  fluid import
 from paddle.fluid import core
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-
-format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
-
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
-stream_handler.setFormatter(formatter)
-root.addHandler(stream_handler)
-save_path = 'global.log'
-file_handler = logging.FileHandler(save_path)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-root.addHandler(file_handler)
-
-# stop propagate for propagating may print
-# log multiple times
-root.propagate = False
-
-logger = logging.getLogger(__name__)
+from deepspeech.utils.log import Log
+logger = Log(__name__).getlog()
 
 ########### hcak logging #############
-logger.warn = logging.warning
+logger.warn = logger.warning
 
 ########### hcak paddle #############
 paddle.bool = 'bool'

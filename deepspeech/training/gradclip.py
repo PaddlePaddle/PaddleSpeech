@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle.fluid.dygraph import base as imperative_base
 from paddle.fluid import layers
 from paddle.fluid import core
 
-logger = logging.getLogger(__name__)
-
 __all__ = ["ClipGradByGlobalNormWithLog"]
+
+logger = Log(__name__).getlog()
 
 
 class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):

@@ -13,19 +13,19 @@
 # limitations under the License.
 
 import math
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 
 from paddle.io import BatchSampler
 from paddle.io import DistributedBatchSampler
 from paddle import distributed as dist
 
-logger = logging.getLogger(__name__)
-
 __all__ = [
     "SortagradDistributedBatchSampler",
     "SortagradBatchSampler",
 ]
+
+logger = Log(__name__).getlog()
 
 
 def _batch_shuffle(indices, batch_size, epoch, clipped=False):

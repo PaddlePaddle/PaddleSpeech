@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 from typing import List
 
-logger = logging.getLogger(__name__)
-
 __all__ = ["pad_sequence"]
+
+logger = Log(__name__).getlog()
 
 
 def pad_sequence(sequences: List[np.ndarray],

@@ -14,7 +14,7 @@
 """Contains DeepSpeech2 model."""
 
 import time
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 from collections import defaultdict
 from pathlib import Path
@@ -38,7 +38,7 @@ from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 
 class DeepSpeech2Trainer(Trainer):

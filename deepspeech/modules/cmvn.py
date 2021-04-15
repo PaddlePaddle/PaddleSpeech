@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['GlobalCMVN']
 

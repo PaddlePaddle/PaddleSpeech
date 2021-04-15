@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 from typeguard import check_argument_types
 
 import paddle
@@ -26,7 +26,7 @@ from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
 from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['CTCDecoder']
 

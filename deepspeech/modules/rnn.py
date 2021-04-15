@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import math
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
@@ -23,7 +23,7 @@ from paddle.nn import initializer as I
 from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['RNNStack']
 

@@ -14,14 +14,14 @@
 """Subsampling layer definition."""
 
 from typing import Tuple
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
 
 from deepspeech.modules.embedding import PositionalEncoding
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = [
     "LinearNoSubsampling", "Conv2dSubsampling4", "Conv2dSubsampling6",

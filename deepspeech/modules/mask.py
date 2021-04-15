@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = [
     'sequence_mask', "make_pad_mask", "make_non_pad_mask", "subsequent_mask",

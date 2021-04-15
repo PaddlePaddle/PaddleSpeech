@@ -16,9 +16,9 @@ import numpy as np
 import math
 import json
 import codecs
-import logging
+from deepspeech.utils.log import Log
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = [
     "load_cmvn", "read_manifest", "rms_to_db", "rms_to_dbfs", "max_dbfs",

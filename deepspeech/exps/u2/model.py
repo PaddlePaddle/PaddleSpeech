@@ -15,7 +15,7 @@
 
 import sys
 import time
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 from collections import defaultdict
 from pathlib import Path
@@ -41,7 +41,7 @@ from deepspeech.io.dataset import ManifestDataset
 
 from deepspeech.models.u2 import U2Model
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 
 class U2Trainer(Trainer):

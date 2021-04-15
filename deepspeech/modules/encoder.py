@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Encoder definition."""
-import logging
+from deepspeech.utils.log import Log
 from typing import Tuple, List, Optional
 from typeguard import check_argument_types
 
@@ -35,7 +35,7 @@ from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.mask import add_optional_chunk_mask
 from deepspeech.modules.activation import get_activation
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["BaseEncoder", 'TransformerEncoder', "ConformerEncoder"]
 

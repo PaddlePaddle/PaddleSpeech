@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 
 from paddle import nn
 from paddle.nn import functional as F
@@ -20,7 +20,7 @@ from paddle.nn import functional as F
 from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['ConvStack', "conv_output_size"]
 

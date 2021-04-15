@@ -14,13 +14,13 @@
 """Positonal Encoding Module."""
 
 import math
-import logging
+from deepspeech.utils.log import Log
 from typing import Tuple
 
 import paddle
 from paddle import nn
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["PositionalEncoding", "RelPositionalEncoding"]
 

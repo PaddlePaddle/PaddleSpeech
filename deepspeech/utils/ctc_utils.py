@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 from typing import List
 
 import paddle
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["forced_align", "remove_duplicates_and_blank", "insert_blank"]
 

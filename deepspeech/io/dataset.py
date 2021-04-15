@@ -16,7 +16,7 @@ import time
 import io
 import random
 import tarfile
-import logging
+from deepspeech.utils.log import Log
 from typing import Optional
 from yacs.config import CfgNode
 from collections import namedtuple
@@ -29,11 +29,11 @@ from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
 from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.normalizer import FeatureNormalizer
 
-logger = logging.getLogger(__name__)
-
 __all__ = [
     "ManifestDataset",
 ]
+
+logger = Log(__name__).getlog()
 
 
 class ManifestDataset(Dataset):

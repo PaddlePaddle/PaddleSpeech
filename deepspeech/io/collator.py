@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from deepspeech.utils.log import Log
 import numpy as np
 
 from deepspeech.io.utility import pad_sequence
 from deepspeech.frontend.utility import IGNORE_ID
 
-logger = logging.getLogger(__name__)
-
 __all__ = ["SpeechCollator"]
+
+logger = Log(__name__).getlog()
 
 
 class SpeechCollator():

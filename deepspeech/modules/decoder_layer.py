@@ -13,12 +13,12 @@
 # limitations under the License.
 """Decoder self-attention layer definition."""
 from typing import Optional, Tuple
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["DecoderLayer"]
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-import logging
+from deepspeech.utils.log import Log
 import re
 import json
 from typing import Union
@@ -24,7 +24,7 @@ from paddle.optimizer import Optimizer
 
 from deepspeech.utils import mp_tools
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["load_parameters", "save_parameters"]
 

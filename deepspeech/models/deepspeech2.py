@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-import logging
+from deepspeech.utils.log import Log
 from typing import Optional
 from yacs.config import CfgNode
 
@@ -26,7 +26,7 @@ from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['DeepSpeech2Model']
 

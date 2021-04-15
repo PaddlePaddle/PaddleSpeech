@@ -15,12 +15,12 @@
 from typing import Optional, Tuple
 from typeguard import check_argument_types
 
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['ConvolutionModule']
 

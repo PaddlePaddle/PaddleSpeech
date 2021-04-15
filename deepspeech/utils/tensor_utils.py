@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Unility functions for Transformer."""
-import logging
+from deepspeech.utils.log import Log
 from typing import Tuple, List
 
 import paddle
 
-logger = logging.getLogger(__name__)
-
 __all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
+
+logger = Log(__name__).getlog()
 
 
 def pad_sequence(sequences: List[paddle.Tensor],

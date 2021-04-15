@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import time
-import logging
+from deepspeech.utils.log import Log
 from pathlib import Path
 
 import paddle
@@ -25,7 +25,7 @@ from deepspeech.utils import mp_tools
 
 __all__ = ["Trainer"]
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 
 class Trainer():

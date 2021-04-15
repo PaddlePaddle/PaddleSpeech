@@ -13,14 +13,14 @@
 # limitations under the License.
 """Multi-Head Attention layer definition."""
 import math
-import logging
+from deepspeech.utils.log import Log
 from typing import Optional, Tuple
 
 import paddle
 from paddle import nn
 from paddle.nn import initializer as I
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention"]
 

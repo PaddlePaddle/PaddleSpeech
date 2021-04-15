@@ -14,7 +14,7 @@
 """Decoder definition."""
 from typing import Tuple, List, Optional
 from typeguard import check_argument_types
-import logging
+from deepspeech.utils.log import Log
 
 import paddle
 from paddle import nn
@@ -26,7 +26,7 @@ from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
 from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.mask import make_non_pad_mask
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ["TransformerDecoder"]
 

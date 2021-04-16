@@ -89,9 +89,8 @@ class U2Trainer(Trainer):
 
         if (batch_index + 1) % train_conf.accum_grad == 0:
             if dist.get_rank() == 0 and self.visualizer:
-                for k, v in losses_np.items():
-                    self.visualizer.add_scalar("train/{}".format(k), v,
-                                               self.iteration)
+                losses_np.update({"lr": self.lr_scheduler()})
+                self.visualizer.add_scalars("step", losses_np, self.iteration)
             self.optimizer.step()
             self.optimizer.clear_grad()
             self.lr_scheduler.step()
@@ -144,7 +143,7 @@ class U2Trainer(Trainer):
                 raise e
 
             valid_losses = self.valid()
-            self.save(infos=valid_losses)
+            self.save(tag=self.epoch, infos=valid_losses)
             self.new_epoch()
 
     @mp_tools.rank_zero_only
@@ -172,9 +171,8 @@ class U2Trainer(Trainer):
         logger.info(msg)
 
         if self.visualizer:
-            for k, v in valid_losses.items():
-                self.visualizer.add_scalar("valid/{}".format(k), v,
-                                           self.iteration)
+            valid_losses.update({"lr": self.lr_scheduler()})
+            self.visualizer.add_scalars('epoch', valid_losses, self.epoch)
         return valid_losses
 
     def setup_dataloader(self):

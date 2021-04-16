@@ -132,7 +132,7 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
 
     ys_out = paddle.cat([ys_pad, _eos], dim=1)
     ys_out = ys_out.masked_fill(mask_pad, eos)
-    mask_eos = (ys_in == ignore_id)
+    mask_eos = (ys_out == ignore_id)
     ys_out = ys_out.masked_fill(mask_eos, eos)
     ys_out = ys_out.masked_fill(mask_pad, ignore_id)
     return ys_in, ys_out

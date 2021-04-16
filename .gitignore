@@ -9,3 +9,4 @@ tools/venv
 *.tar
 *.tar.gz
 .ipynb_checkpoints
+*.npz

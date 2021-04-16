@@ -36,10 +36,12 @@ fi
 # compute mean and stddev for normalizer
 python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
 --manifest_path="data/manifest.train.raw" \
---num_samples=2000 \
 --specgram_type="fbank" \
 --feat_dim=80 \
 --delta_delta=false \
+--stride_ms=10.0 \
+--window_ms=25.0 \
+--sample_rate=16000 \
 --output_path="data/mean_std.npz"
 
 if [ $? -ne 0 ]; then

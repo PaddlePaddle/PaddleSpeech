@@ -64,6 +64,7 @@ class SpecAugmentor(AugmentorBase):
         self.n_freq_masks = n_freq_masks
         self.n_time_masks = n_time_masks
         self.p = p
+        #logger.info(f"specaug: F-{F}, T-{T}, F-n-{n_freq_masks}, T-n-{n_time_masks}")
 
         # adaptive SpecAugment
         self.adaptive_number_ratio = adaptive_number_ratio

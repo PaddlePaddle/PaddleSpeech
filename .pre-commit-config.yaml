@@ -3,6 +3,7 @@
     hooks:
     -   id: yapf
         files: \.py$
+        exclude: (?=third_party).*(\.py)$
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     sha: a11d9314b22d8f8c7556443875b731ef05965464
     hooks:
@@ -15,6 +16,7 @@
     -   id: trailing-whitespace
         files: \.md$
     -   id: requirements-txt-fixer
+        exclude: (?=third_party).*$
     -   id: check-yaml
     -   id: check-json
     -   id: pretty-format-json
@@ -27,6 +29,7 @@
         -  --ignore=E501,E228,E226,E261,E266,E128,E402,W503
         -  --builtins=G,request
         -  --jobs=1
+        exclude: (?=third_party).*(\.py)$
 -   repo : https://github.com/Lucas-C/pre-commit-hooks
     sha: v1.0.1
     hooks:
@@ -51,8 +54,9 @@
         entry: python .pre-commit-hooks/copyright-check.hook
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
-        #exclude: (?=decoders/swig).*(\.cpp|\.h)$
+        exclude: (?=third_party).*(\.cpp|\.h|\.py)$
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0
     hooks:
       - id: reorder-python-imports
+        exclude: (?=third_party).*(\.py)$

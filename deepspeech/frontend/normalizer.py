@@ -82,13 +82,16 @@ class FeatureNormalizer(object):
     def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
         mean, std = load_cmvn(filepath, filetype='npz')
-        self._mean = mean
-        self._istd = 1.0 / std
+        self._mean = mean.T
+        self._istd = 1.0 / std.T
 
     def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
         """Compute mean and std from randomly sampled instances."""
         manifest = read_manifest(manifest_path)
-        sampled_manifest = self._rng.sample(manifest, num_samples)
+        if num_samples == -1:
+            sampled_manifest = manifest
+        else:
+            sampled_manifest = self._rng.sample(manifest, num_samples)
         features = []
         for instance in sampled_manifest:
             features.append(

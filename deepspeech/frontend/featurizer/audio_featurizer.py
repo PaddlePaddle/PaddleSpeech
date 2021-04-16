@@ -56,7 +56,8 @@ class AudioFeaturizer(object):
                  max_freq=None,
                  target_sample_rate=16000,
                  use_dB_normalization=True,
-                 target_dB=-20):
+                 target_dB=-20,
+                 dither=1.0):
         self._specgram_type = specgram_type
         # mfcc and fbank using `feat_dim`
         self._feat_dim = feat_dim
@@ -69,6 +70,7 @@ class AudioFeaturizer(object):
         self._use_dB_normalization = use_dB_normalization
         self._target_dB = target_dB
         self._fft_point = n_fft
+        self._dither = dither
 
     def featurize(self,
                   audio_segment,
@@ -101,8 +103,7 @@ class AudioFeaturizer(object):
         if self._use_dB_normalization:
             audio_segment.normalize(target_db=self._target_dB)
         # extract spectrogram
-        return self._compute_specgram(audio_segment.samples,
-                                      audio_segment.sample_rate)
+        return self._compute_specgram(audio_segment)
 
     @property
     def feature_size(self):
@@ -125,9 +126,11 @@ class AudioFeaturizer(object):
                              "Supported values: linear." % self._specgram_type)
         return feat_dim
 
-    def _compute_specgram(self, samples, sample_rate):
+    def _compute_specgram(self, audio_segment):
         """Extract various audio features."""
+        sample_rate = audio_segment.sample_rate
         if self._specgram_type == 'linear':
+            samples = audio_segment.samples
             return self._compute_linear_specgram(
                 samples,
                 sample_rate,
@@ -135,6 +138,7 @@ class AudioFeaturizer(object):
                 window_ms=self._window_ms,
                 max_freq=self._max_freq)
         elif self._specgram_type == 'mfcc':
+            samples = audio_segment.to('int16')
             return self._compute_mfcc(
                 samples,
                 sample_rate,
@@ -142,8 +146,10 @@ class AudioFeaturizer(object):
                 stride_ms=self._stride_ms,
                 window_ms=self._window_ms,
                 max_freq=self._max_freq,
+                dither=self._dither,
                 delta_delta=self._delta_delta)
         elif self._specgram_type == 'fbank':
+            samples = audio_segment.to('int16')
             return self._compute_fbank(
                 samples,
                 sample_rate,
@@ -151,6 +157,7 @@ class AudioFeaturizer(object):
                 stride_ms=self._stride_ms,
                 window_ms=self._window_ms,
                 max_freq=self._max_freq,
+                dither=self._dither,
                 delta_delta=self._delta_delta)
         else:
             raise ValueError("Unknown specgram_type %s. "
@@ -233,17 +240,18 @@ class AudioFeaturizer(object):
                       sample_rate,
                       feat_dim=13,
                       stride_ms=10.0,
-                      window_ms=20.0,
+                      window_ms=25.0,
                       max_freq=None,
+                      dither=1.0,
                       delta_delta=True):
         """Compute mfcc from samples.
 
         Args:
-            samples (np.ndarray): the audio signal from which to compute features. Should be an N*1 array
+            samples (np.ndarray, np.int16): the audio signal from which to compute features.
             sample_rate (float): the sample rate of the signal we are working with, in Hz.
             feat_dim (int): the number of cepstrum to return, default 13.
             stride_ms (float, optional): stride length in ms. Defaults to 10.0.
-            window_ms (float, optional): window length in ms. Defaults to 20.0.
+            window_ms (float, optional): window length in ms. Defaults to 25.0.
             max_freq ([type], optional): highest band edge of mel filters. In Hz, default is samplerate/2. Defaults to None.
             delta_delta (bool, optional): Whether with delta delta. Defaults to False.
 
@@ -270,14 +278,16 @@ class AudioFeaturizer(object):
             winlen=0.001 * window_ms,
             winstep=0.001 * stride_ms,
             numcep=feat_dim,
-            nfilt=2 * feat_dim,
-            nfft=None,
-            lowfreq=0,
+            nfilt=23,
+            nfft=512,
+            lowfreq=20,
             highfreq=max_freq,
+            dither=dither,
+            remove_dc_offset=True,
             preemph=0.97,
             ceplifter=22,
-            appendEnergy=True,
-            winfunc=lambda x: np.ones((x, )))
+            useEnergy=True,
+            winfunc='povey')
         mfcc_feat = np.transpose(mfcc_feat)
         if delta_delta:
             mfcc_feat = self._concat_delta_delta(mfcc_feat)
@@ -286,15 +296,16 @@ class AudioFeaturizer(object):
     def _compute_fbank(self,
                        samples,
                        sample_rate,
-                       feat_dim=26,
+                       feat_dim=40,
                        stride_ms=10.0,
-                       window_ms=20.0,
+                       window_ms=25.0,
                        max_freq=None,
+                       dither=1.0,
                        delta_delta=False):
         """Compute logfbank from samples.
         
         Args:
-            samples (np.ndarray): the audio signal from which to compute features. Should be an N*1 array
+            samples (np.ndarray, np.int16): the audio signal from which to compute features. Should be an N*1 array
             sample_rate (float): the sample rate of the signal we are working with, in Hz.
             feat_dim (int): the number of cepstrum to return, default 13.
             stride_ms (float, optional): stride length in ms. Defaults to 10.0.
@@ -325,9 +336,13 @@ class AudioFeaturizer(object):
             winstep=0.001 * stride_ms,
             nfilt=feat_dim,
             nfft=512,
-            lowfreq=0,
+            lowfreq=20,
             highfreq=max_freq,
-            preemph=0.97, )
+            dither=dither,
+            remove_dc_offset=True,
+            preemph=0.97,
+            wintype='povey')
+
         fbank_feat = np.transpose(fbank_feat)
         if delta_delta:
             fbank_feat = self._concat_delta_delta(fbank_feat)

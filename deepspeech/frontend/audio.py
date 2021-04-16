@@ -298,6 +298,18 @@ class AudioSegment(object):
         samples = self._convert_samples_from_float32(self._samples, dtype)
         return samples.tostring()
 
+    def to(self, dtype='int16'):
+        """Create a `dtype` audio content.
+        
+        :param dtype: Data type for export samples. Options: 'int16', 'int32',
+                      'float32', 'float64'. Default is 'float32'.
+        :type dtype: str
+        :return: np.ndarray containing `dtype` audio content.
+        :rtype: str
+        """
+        samples = self._convert_samples_from_float32(self._samples, dtype)
+        return samples
+
     def gain_db(self, gain):
         """Apply gain in decibels to samples.
 

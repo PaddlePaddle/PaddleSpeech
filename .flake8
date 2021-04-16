@@ -12,6 +12,7 @@ exclude =
     .git,
     # python cache
     __pycache__,
+    third_party/,
 # Provide a comma-separate list of glob patterns to include for checks.
 filename =
     *.py

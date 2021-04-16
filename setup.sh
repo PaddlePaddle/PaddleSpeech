@@ -54,4 +54,14 @@ if [ $? != 0 ]; then
    exit -1
 fi
 
+
+# install kaldi-comptiable feature 
+pushd third_party/python_kaldi_features/
+python setup.py install
+if [ $? != 0 ]; then
+   error_msg "Please check why kaldi feature install error!"
+   exit -1
+fi
+popd
+
 info_msg "Install all dependencies successfully."

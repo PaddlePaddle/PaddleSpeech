@@ -39,6 +39,10 @@ add_arg('sample_rate',    int, 16000,  "target sample rate.")
 add_arg('manifest_path',    str,
         'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
+add_arg('num_workers',
+                        default=0,
+                        type=int,
+                        help='num of subprocess workers for processing')
 add_arg('output_path',    str,
         'data/librispeech/mean_std.npz',
         "Filepath of write mean and stddev to (.npz).")
@@ -70,7 +74,8 @@ def main():
         mean_std_filepath=None,
         manifest_path=args.manifest_path,
         featurize_func=augment_and_featurize,
-        num_samples=args.num_samples)
+        num_samples=args.num_samples,
+        num_workers=args.num_workers)
     normalizer.write_to_file(args.output_path)
 
 

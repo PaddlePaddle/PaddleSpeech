@@ -22,8 +22,6 @@ __all__ = [
 
 def summary(layer: nn.Layer, print_func=print):
     num_params = num_elements = 0
-    if print_func:
-        print_func(f"{layer.__class__.__name__} summary:")
     for name, param in layer.state_dict().items():
         if print_func:
             print_func(
@@ -31,9 +29,7 @@ def summary(layer: nn.Layer, print_func=print):
         num_elements += np.prod(param.shape)
         num_params += 1
     if print_func:
-        print_func(
-            f"{layer.__class__.__name__} has {num_params} parameters, {num_elements} elements."
-        )
+        print_func(f"Total parameters: {num_params}, {num_elements} elements.")
 
 
 def gradient_norm(layer: nn.Layer):
@@ -43,6 +39,29 @@ def gradient_norm(layer: nn.Layer):
             grad = param.gradient()  # return numpy.ndarray
             grad_norm_dict[name] = np.linalg.norm(grad) / grad.size
     return grad_norm_dict
+
+
+def print_grads(model, print_func=print):
+    if print_func is None:
+        return
+    for n, p in model.named_parameters():
+        msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
+        print_func(msg)
+
+
+def print_params(model, print_func=print):
+    if print_func is None:
+        return
+    total = 0.0
+    num_params = 0.0
+    for n, p in model.named_parameters():
+        msg = f"{n} | {p.shape} | {np.prod(p.shape)} | {not p.stop_gradient}"
+        total += np.prod(p.shape)
+        num_params += 1
+        if print_func:
+            print_func(msg)
+    if print_func:
+        print_func(f"Total parameters: {num_params}, {total} elements.")
 
 
 def recursively_remove_weight_norm(layer: nn.Layer):
@@ -62,25 +81,3 @@ def freeze(layer: nn.Layer):
 def unfreeze(layer: nn.Layer):
     for param in layer.parameters():
         param.trainable = True
-
-
-def print_grads(model, print_func=print):
-    if print_func is None:
-        return
-    for n, p in model.named_parameters():
-        msg = f"param grad: {n}: shape: {p.shape} grad: {p.grad}"
-        print_func(msg)
-
-
-def print_params(model, print_func=print):
-    if print_func is None:
-        return
-
-    total = 0.0
-    for n, p in model.named_parameters():
-        msg = f"param: {n}: shape: {p.shape} stop_grad: {p.stop_gradient}"
-        total += np.prod(p.shape)
-        if print_func:
-            print_func(msg)
-    if print_func:
-        print_func(f"Total parameters: {total}!")

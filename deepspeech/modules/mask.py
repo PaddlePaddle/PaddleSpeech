@@ -25,7 +25,7 @@ __all__ = [
 
 
 def sequence_mask(x_len, max_len=None, dtype='float32'):
-    """[summary]
+    """batch sequence mask.
 
     Args:
         x_len ([paddle.Tensor]): xs lenght, [B]

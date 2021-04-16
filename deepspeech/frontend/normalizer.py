@@ -77,15 +77,19 @@ class FeatureNormalizer(object):
         :param filepath: File to write mean and stddev.
         :type filepath: str
         """
-        np.savez(filepath, mean=self._mean, std=self._std)
+        np.savez(filepath, mean=self._mean, istd=self._istd)
 
     def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
-        mean, std = load_cmvn(filepath, filetype='npz')
+        mean, istd = load_cmvn(filepath, filetype='npz')
         self._mean = mean.T
-        self._istd = 1.0 / std.T
+        self._istd = istd.T
 
-    def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
+    def _compute_mean_std(self,
+                          manifest_path,
+                          featurize_func,
+                          num_samples,
+                          eps=1e-20):
         """Compute mean and std from randomly sampled instances."""
         manifest = read_manifest(manifest_path)
         if num_samples == -1:
@@ -98,4 +102,6 @@ class FeatureNormalizer(object):
                 featurize_func(AudioSegment.from_file(instance["feat"])))
         features = np.hstack(features)  #(D, T)
         self._mean = np.mean(features, axis=1).reshape([1, -1])  #(1, D)
-        self._std = np.std(features, axis=1).reshape([1, -1])  #(1, D)
+        std = np.std(features, axis=1).reshape([1, -1])  #(1, D)
+        std = np.clip(std, eps, None)
+        self._istd = 1.0 / std

@@ -297,13 +297,13 @@ class ManifestDataset(Dataset):
         else:
             speech_segment = SpeechSegment.from_file(audio_file, transcript)
         load_wav_time = time.time() - start_time
-        logger.debug(f"load wav time: {load_wav_time}")
+        #logger.debug(f"load wav time: {load_wav_time}")
 
         # audio augment
         start_time = time.time()
         self._augmentation_pipeline.transform_audio(speech_segment)
         audio_aug_time = time.time() - start_time
-        logger.debug(f"audio augmentation time: {audio_aug_time}")
+        #logger.debug(f"audio augmentation time: {audio_aug_time}")
 
         start_time = time.time()
         specgram, transcript_part = self._speech_featurizer.featurize(
@@ -311,13 +311,13 @@ class ManifestDataset(Dataset):
         if self._normalizer:
             specgram = self._normalizer.apply(specgram)
         feature_time = time.time() - start_time
-        logger.debug(f"audio & test feature time: {feature_time}")
+        #logger.debug(f"audio & test feature time: {feature_time}")
 
         # specgram augment
         start_time = time.time()
         specgram = self._augmentation_pipeline.transform_feature(specgram)
         feature_aug_time = time.time() - start_time
-        logger.debug(f"audio feature augmentation time: {feature_aug_time}")
+        #logger.debug(f"audio feature augmentation time: {feature_aug_time}")
         return specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):

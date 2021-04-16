@@ -410,13 +410,11 @@ def ctc_loss(logits,
                                            input_lengths, label_lengths)
 
     loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
-    logger.debug(f"warpctc loss: {loss_out}/{loss_out.shape} ")
     assert reduction in ['mean', 'sum', 'none']
     if reduction == 'mean':
         loss_out = paddle.mean(loss_out / label_lengths)
     elif reduction == 'sum':
         loss_out = paddle.sum(loss_out)
-    logger.debug(f"ctc loss: {loss_out}")
     return loss_out
 
 

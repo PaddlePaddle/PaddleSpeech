@@ -74,8 +74,8 @@ data:
 
 # network architecture
 model:
-    cmvn_file: "data/mean_std.npz"
-    cmvn_file_type: "npz"
+    cmvn_file: "data/mean_std.json"
+    cmvn_file_type: "json"
     # encoder related
     encoder: conformer
     encoder_conf:

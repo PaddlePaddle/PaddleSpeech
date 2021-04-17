@@ -235,14 +235,6 @@ def _load_kaldi_cmvn(kaldi_cmvn_file):
     return cmvn
 
 
-def _load_npz_cmvn(npz_cmvn_file, eps=1e-20):
-    npzfile = np.load(npz_cmvn_file)
-    means = npzfile["mean"]  #(1, D)
-    istd = npzfile["istd"]  #(1, D)
-    cmvn = np.array([means, istd])
-    return cmvn
-
-
 def load_cmvn(cmvn_file: str, filetype: str):
     """load cmvn from file.
 
@@ -262,8 +254,6 @@ def load_cmvn(cmvn_file: str, filetype: str):
         cmvn = _load_json_cmvn(cmvn_file)
     elif filetype == "kaldi":
         cmvn = _load_kaldi_cmvn(cmvn_file)
-    elif filetype == "npz":
-        cmvn = _load_npz_cmvn(cmvn_file)
     else:
         raise ValueError(f"cmvn file type no support: {filetype}")
     return cmvn[0], cmvn[1]

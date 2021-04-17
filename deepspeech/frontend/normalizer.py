@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains feature normalizers."""
+import json
 import random
 
 import numpy as np
@@ -22,11 +23,8 @@ from paddle.io import Dataset
 from deepspeech.frontend.audio import AudioSegment
 from deepspeech.frontend.utility import load_cmvn
 from deepspeech.frontend.utility import read_manifest
-from deepspeech.utils.log import Log
 
 __all__ = ["FeatureNormalizer"]
-
-logger = Log(__name__).getlog()
 
 
 class CollateFunc(object):
@@ -171,7 +169,8 @@ class FeatureNormalizer(object):
 
         collate_func = CollateFunc()
 
-        dataset = AudioDataset(manifest_path, featurize_func, num_samples)
+        dataset = AudioDataset(manifest_path, featurize_func, num_samples,
+                               self._rng)
 
         batch_size = 20
         data_loader = DataLoader(
@@ -198,8 +197,8 @@ class FeatureNormalizer(object):
                 wav_number += batch_size
 
                 if wav_number % 1000 == 0:
-                    logger.info('process {} wavs,{} frames'.format(
-                        wav_number, int(all_number)))
+                    print('process {} wavs,{} frames'.format(wav_number,
+                                                             int(all_number)))
 
         self.cmvn_info = {
             'mean_stat': list(all_mean_stat.tolist()),

@@ -42,8 +42,9 @@ python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
 --stride_ms=10.0 \
 --window_ms=25.0 \
 --sample_rate=16000 \
+--num_samples=2000 \
 --num_workers=0 \
---output_path="data/mean_std.npz"
+--output_path="data/mean_std.json"
 
 if [ $? -ne 0 ]; then
     echo "Compute mean and stddev failed. Terminated."

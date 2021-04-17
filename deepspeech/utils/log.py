@@ -16,7 +16,6 @@ import logging
 import os
 import socket
 import sys
-import time
 
 
 def find_log_dir(log_dir=None):
@@ -106,16 +105,13 @@ class Log():
         actual_log_dir, file_prefix, symlink_prefix = find_log_dir_and_names(
             program_name=None, log_dir=self.log_dir)
 
-        basename = '%s.INFO.%s.%d' % (
-            file_prefix,
-            time.strftime('%Y%m%d-%H%M', time.localtime(time.time())),
-            os.getpid())
+        basename = '%s.DEBUG.%d' % (file_prefix, os.getpid())
         filename = os.path.join(actual_log_dir, basename)
         if Log.log_name is None:
             Log.log_name = filename
 
         # Create a symlink to the log file with a canonical name.
-        symlink = os.path.join(actual_log_dir, symlink_prefix + '.INFO')
+        symlink = os.path.join(actual_log_dir, symlink_prefix + '.DEBUG')
         try:
             if os.path.islink(symlink):
                 os.unlink(symlink)
@@ -126,26 +122,26 @@ class Log():
             # we can't modify it
             pass
 
-        fh = logging.FileHandler(Log.log_name)
-        fh.setLevel(logging.DEBUG)
+        if not self.logger.hasHandlers():
+            format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
+            formatter = logging.Formatter(
+                fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
+            fh = logging.FileHandler(Log.log_name)
+            fh.setFormatter(formatter)
+            fh.setLevel(logging.DEBUG)
+            self.logger.addHandler(fh)
 
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
+            ch = logging.StreamHandler()
+            ch.setLevel(logging.INFO)
+            ch.setFormatter(formatter)
+            self.logger.addHandler(ch)
 
-        format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
-        fh.setFormatter(formatter)
-        ch.setFormatter(formatter)
-
-        self.logger.addHandler(fh)
-        self.logger.addHandler(ch)
+            #fh.close()
+            #ch.close()
 
         # stop propagate for propagating may print
         # log multiple times
-        # self.logger.propagate = False
-
-        fh.close()
-        ch.close()
+        self.logger.propagate = False
 
     def getlog(self):
         return self.logger

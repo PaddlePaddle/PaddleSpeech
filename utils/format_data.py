@@ -27,7 +27,7 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kaldi")
 add_arg('cmvn_path',       str,
-        'examples/librispeech/data/mean_std.npz',
+        'examples/librispeech/data/mean_std.json',
         "Filepath of cmvn.")
 add_arg('unit_type', str, "char", "Unit type, e.g. char, word, spm")
 add_arg('vocab_path',       str,
@@ -52,8 +52,8 @@ def main():
     fout = open(args.output_path, 'w', encoding='utf-8')
 
     # get feat dim
-    mean, std = load_cmvn(args.cmvn_path, filetype='npz')
-    feat_dim = mean.shape[1] #(1, D)
+    mean, std = load_cmvn(args.cmvn_path, filetype='json')
+    feat_dim = mean.shape[0] #(D)
     print(f"Feature dim: {feat_dim}")
 
     text_feature = TextFeaturizer(args.unit_type, args.vocab_path, args.spm_model_prefix)

@@ -46,6 +46,8 @@ class CTCLoss(nn.Layer):
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
+        # (TODO:Hui Zhang) ctc loss does not support int64 labels
+        ys_pad = ys_pad.astype(paddle.int32)
         loss = self.loss(logits, ys_pad, hlens, ys_lens)
         if self.batch_average:
             # Batch-size average
@@ -123,9 +125,12 @@ class LabelSmoothingLoss(nn.Layer):
         true_dist = paddle.full_like(x, self.smoothing / (self.size - 1))
         ignore = target == self.padding_idx  # (B,)
 
-        #target = target * (1 - ignore)  # avoid -1 index
+        # target = target * (1 - ignore)  # avoid -1 index
         target = target.masked_fill(ignore, 0)  # avoid -1 index
-        true_dist += F.one_hot(target, self.size) * self.confidence
+        # true_dist.scatter_(1, target.unsqueeze(1), self.confidence)
+        target_mask = F.one_hot(target, self.size)
+        true_dist *= (1 - target_mask)
+        true_dist += target_mask * self.confidence
 
         kl = self.criterion(F.log_softmax(x, axis=1), true_dist)
 

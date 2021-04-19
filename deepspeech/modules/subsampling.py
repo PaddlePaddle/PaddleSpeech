@@ -104,7 +104,8 @@ class Conv2dSubsampling4(BaseSubsampling):
             nn.ReLU(),
             nn.Conv2D(odim, odim, 3, 2),
             nn.ReLU(), )
-        self.linear = nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim)
+        self.out = nn.Sequential(
+            nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim))
         self.subsampling_rate = 4
         # The right context for every conv layer is computed by:
         # (kernel_size - 1) / 2 * stride  * frame_rate_of_this_layer
@@ -128,7 +129,7 @@ class Conv2dSubsampling4(BaseSubsampling):
         x = x.unsqueeze(1)  # (b, c=1, t, f)
         x = self.conv(x)
         b, c, t, f = paddle.shape(x)
-        x = self.linear(x.transpose([0, 1, 2, 3]).reshape([b, t, c * f]))
+        x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2]
 
@@ -181,7 +182,7 @@ class Conv2dSubsampling6(BaseSubsampling):
         x = x.unsqueeze(1)  # (b, c, t, f)
         x = self.conv(x)
         b, c, t, f = paddle.shape(x)
-        x = self.linear(x.transpose([0, 1, 2, 3]).reshape([b, t, c * f]))
+        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-4:3]
 
@@ -233,6 +234,6 @@ class Conv2dSubsampling8(BaseSubsampling):
         """
         x = x.unsqueeze(1)  # (b, c, t, f)
         x = self.conv(x)
-        x = self.linear(x.transpose([0, 1, 2, 3]).reshape([b, t, c * f]))
+        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2][:, :, :-2:2]

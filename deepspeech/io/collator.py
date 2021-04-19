@@ -72,8 +72,7 @@ class SpeechCollator():
         padded_audios = pad_sequence(
             audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
         audio_lens = np.array(audio_lens).astype(np.int64)
-        # (TODO:Hui Zhang) ctc loss does not support int64 labels
         padded_texts = pad_sequence(
-            texts, padding_value=IGNORE_ID).astype(np.int32)
+            texts, padding_value=IGNORE_ID).astype(np.int64)
         text_lens = np.array(text_lens).astype(np.int64)
         return padded_audios, audio_lens, padded_texts, text_lens

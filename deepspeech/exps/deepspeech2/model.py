@@ -80,12 +80,11 @@ class DeepSpeech2Trainer(Trainer):
                 num_utts = batch[0].shape[0]
                 num_seen_utts += num_utts
                 total_loss += float(loss) * num_utts
-            valid_losses['val_loss'].append(float(loss))
+                valid_losses['val_loss'].append(float(loss))
 
             if (i + 1) % self.config.training.log_interval == 0:
-                valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
-
-                valid_losses['val_history_loss'] = total_loss / num_seen_utts
+                valid_dump = {k: np.mean(v) for k, v in valid_losses.items()}
+                valid_dump['val_history_loss'] = total_loss / num_seen_utts
 
                 # logging
                 msg = f"Valid: Rank: {dist.get_rank()}, "
@@ -93,13 +92,8 @@ class DeepSpeech2Trainer(Trainer):
                 msg += "step: {}, ".format(self.iteration)
                 msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                                 for k, v in valid_losses.items())
+                                 for k, v in valid_dump.items())
                 logger.info(msg)
-
-                if self.visualizer:
-                    for k, v in valid_losses.items():
-                        self.visualizer.add_scalar("valid/{}".format(k), v,
-                                                   self.iteration)
 
         logger.info('Rank {} Val info val_loss {}'.format(
             dist.get_rank(), total_loss / num_seen_utts))

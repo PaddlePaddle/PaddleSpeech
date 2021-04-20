@@ -73,28 +73,37 @@ class DeepSpeech2Trainer(Trainer):
         logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         self.model.eval()
         valid_losses = defaultdict(list)
+        num_seen_utts = 1
+        total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
             loss = self.model(*batch)
-
+            if paddle.isfinite(loss):
+                num_utts = batch[0].shape[0]
+                num_seen_utts += num_utts
+                total_loss += float(loss) * num_utts
             valid_losses['val_loss'].append(float(loss))
 
-        # write visual log
-        valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
+            if (i + 1) % self.config.training.log_interval == 0:
+                valid_losses['val_history_loss'] = total_loss / num_seen_utts
 
-        # logging
-        msg = f"Valid: Rank: {dist.get_rank()}, "
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in valid_losses.items())
-        logger.info(msg)
+                # write visual log
+                valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
 
-        if self.visualizer:
-            for k, v in valid_losses.items():
-                self.visualizer.add_scalar("valid/{}".format(k), v,
-                                           self.iteration)
+                # logging
+                msg = f"Valid: Rank: {dist.get_rank()}, "
+                msg += "epoch: {}, ".format(self.epoch)
+                msg += "step: {}, ".format(self.iteration)
+                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
+                msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                 for k, v in valid_losses.items())
+                logger.info(msg)
 
-        return valid_losses
+                if self.visualizer:
+                    for k, v in valid_losses.items():
+                        self.visualizer.add_scalar("valid/{}".format(k), v,
+                                                   self.iteration)
+
+        return total_loss, num_seen_utts
 
     def setup_model(self):
         config = self.config

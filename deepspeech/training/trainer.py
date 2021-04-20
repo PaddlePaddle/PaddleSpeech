@@ -157,6 +157,8 @@ class Trainer():
             self.epoch = infos["epoch"]
             scratch = False
         else:
+            self.iteration = 0
+            self.epoch = 0
             scratch = True
 
         return scratch
@@ -189,6 +191,8 @@ class Trainer():
                     msg = "Train: Rank: {}, ".format(dist.get_rank())
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
+                    msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                    len(self.train_loader))
                     msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                     msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
                     self.train_batch(batch_index, batch, msg)
@@ -197,8 +201,8 @@ class Trainer():
                 logger.error(e)
                 raise e
 
-            valid_losses = self.valid()
-            self.save(infos=valid_losses)
+            total_loss, num_seen_utts = self.valid()
+            self.save(infos={'val_loss': total_loss / num_seen_utts})
             self.lr_scheduler.step()
             self.new_epoch()
 

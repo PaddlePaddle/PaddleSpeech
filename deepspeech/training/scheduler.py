@@ -53,5 +53,14 @@ class WarmupLR(LRScheduler):
         return self.base_lr * self.warmup_steps**0.5 * min(
             step_num**-0.5, step_num * self.warmup_steps**-1.5)
 
-    def set_step(self, step: int):
-        self.step(step)
+    def set_step(self, step: int=None):
+        '''
+        It will update the learning rate in optimizer according to current ``epoch`` .  
+        The new learning rate will take effect on next ``optimizer.step`` .
+        
+        Args:
+            step (int, None): specify current epoch. Default: None. Auto-increment from last_epoch=-1.
+        Returns:
+            None
+        '''
+        self.step(epoch=step)

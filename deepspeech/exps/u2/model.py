@@ -81,11 +81,11 @@ class U2Trainer(Trainer):
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
 
-        losses_np = {
-            'train_loss': float(loss) * train_conf.accum_grad,
-            'train_att_loss': float(attention_loss),
-            'train_ctc_loss': float(ctc_loss),
-        }
+        losses_np = {'loss': float(loss) * train_conf.accum_grad}
+        if attention_loss:
+            losses_np['att_loss'] = float(attention_loss)
+        if ctc_loss:
+            losses_np['ctc_loss'] = float(ctc_loss)
 
         if (batch_index + 1) % train_conf.accum_grad == 0:
             if dist.get_rank() == 0 and self.visualizer:
@@ -135,6 +135,8 @@ class U2Trainer(Trainer):
                     msg = "Train: Rank: {}, ".format(dist.get_rank())
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
+                    msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                    len(self.train_loader))
                     msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                     msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
                     self.train_batch(batch_index, batch, msg)
@@ -143,8 +145,9 @@ class U2Trainer(Trainer):
                 logger.error(e)
                 raise e
 
-            valid_losses = self.valid()
-            self.save(tag=self.epoch, infos=valid_losses)
+            total_loss, num_seen_utts = self.valid()
+            self.save(
+                tag=self.epoch, infos={'val_loss': total_loss / num_seen_utts})
             self.new_epoch()
 
     @mp_tools.rank_zero_only
@@ -153,29 +156,42 @@ class U2Trainer(Trainer):
         self.model.eval()
         logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
+        num_seen_utts = 1
+        total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
-            total_loss, attention_loss, ctc_loss = self.model(*batch)
+            loss, attention_loss, ctc_loss = self.model(*batch)
+            if paddle.isfinite(loss):
+                num_utts = batch[0].shape[0]
+                num_seen_utts += num_utts
+                total_loss += float(loss) * num_utts
+            valid_losses = {'val_loss': float(loss)}
+            if attention_loss:
+                valid_losses['val_att_loss'] = float(attention_loss)
+            if ctc_loss:
+                valid_losses['val_ctc_loss'] = float(ctc_loss)
 
-            valid_losses['val_loss'].append(float(total_loss))
-            valid_losses['val_att_loss'].append(float(attention_loss))
-            valid_losses['val_ctc_loss'].append(float(ctc_loss))
+            if (i + 1) % self.config.training.log_interval == 0:
+                valid_losses['val_history_loss'] = total_loss / num_seen_utts
 
-        # write visual log
-        valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
+                # write visual log
+                valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
 
-        # logging
-        msg = f"Valid: Rank: {dist.get_rank()}, "
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in valid_losses.items())
-        logger.info(msg)
+                # logging
+                msg = f"Valid: Rank: {dist.get_rank()}, "
+                msg += "epoch: {}, ".format(self.epoch)
+                msg += "step: {}, ".format(self.iteration)
+                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
+                msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                 for k, v in valid_losses.items())
+                logger.info(msg)
 
-        if self.visualizer:
-            valid_losses_v = valid_losses.copy()
-            valid_losses_v.update({"lr": self.lr_scheduler()})
-            self.visualizer.add_scalars('epoch', valid_losses_v, self.epoch)
-        return valid_losses
+                if self.visualizer:
+                    valid_losses_v = valid_losses.copy()
+                    valid_losses_v.update({"lr": self.lr_scheduler()})
+                    self.visualizer.add_scalars('epoch', valid_losses_v,
+                                                self.epoch)
+
+        return total_loss, num_seen_utts
 
     def setup_dataloader(self):
         config = self.config.clone()

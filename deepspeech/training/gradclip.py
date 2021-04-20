@@ -56,6 +56,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
         global_norm_var = layers.sqrt(global_norm_var)
         # debug log
         logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
+
         max_global_norm = layers.fill_constant(
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
         clip_var = layers.elementwise_div(

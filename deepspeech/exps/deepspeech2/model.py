@@ -55,7 +55,7 @@ class DeepSpeech2Trainer(Trainer):
         losses_np = {
             'train_loss': float(loss),
         }
-        msg += "time: {:>.3f}s, ".format(iteration_time)
+        msg += "train time: {:>.3f}s, ".format(iteration_time)
         msg += "batch size: {}, ".format(self.config.data.batch_size)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())

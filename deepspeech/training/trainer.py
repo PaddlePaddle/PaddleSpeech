@@ -194,7 +194,7 @@ class Trainer():
                     msg += "batch : {}/{}, ".format(batch_index + 1,
                                                     len(self.train_loader))
                     msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
+                    msg += "data time: {:>.3f}s, ".format(dataload_time)
                     self.train_batch(batch_index, batch, msg)
                     data_start_time = time.time()
             except Exception as e:

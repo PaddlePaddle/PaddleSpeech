@@ -1,11 +1,13 @@
 #! /usr/bin/env bash
 
-CUDA_VISIBLE_DEVICES=0 \
+ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
+echo "using $ngpu gpus..."
+
 python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
---nproc 1 \
+--nproc ${ngpu} \
 --config conf/conformer.yaml \
---output ckpt
+--output ckpt-${1}
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

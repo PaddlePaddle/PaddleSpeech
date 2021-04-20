@@ -67,7 +67,6 @@ class DeepSpeech2Trainer(Trainer):
                                            self.iteration)
         self.iteration += 1
 
-    @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
         logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
@@ -84,10 +83,9 @@ class DeepSpeech2Trainer(Trainer):
             valid_losses['val_loss'].append(float(loss))
 
             if (i + 1) % self.config.training.log_interval == 0:
-                valid_losses['val_history_loss'] = total_loss / num_seen_utts
-
-                # write visual log
                 valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
+
+                valid_losses['val_history_loss'] = total_loss / num_seen_utts
 
                 # logging
                 msg = f"Valid: Rank: {dist.get_rank()}, "
@@ -103,6 +101,8 @@ class DeepSpeech2Trainer(Trainer):
                         self.visualizer.add_scalar("valid/{}".format(k), v,
                                                    self.iteration)
 
+        logger.info('Rank {} Val info val_loss {}'.format(
+            dist.get_rank(), total_loss / num_seen_utts))
         return total_loss, num_seen_utts
 
     def setup_model(self):

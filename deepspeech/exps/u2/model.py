@@ -109,6 +109,43 @@ class U2Trainer(Trainer):
                 self.visualizer.add_scalars("step", losses_np_v,
                                             self.iteration - 1)
 
+    @paddle.no_grad()
+    def valid(self):
+        self.model.eval()
+        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+        valid_losses = defaultdict(list)
+        num_seen_utts = 1
+        total_loss = 0.0
+        for i, batch in enumerate(self.valid_loader):
+            loss, attention_loss, ctc_loss = self.model(*batch)
+            if paddle.isfinite(loss):
+                num_utts = batch[0].shape[0]
+                num_seen_utts += num_utts
+                total_loss += float(loss) * num_utts
+                valid_losses['val_loss'].append(float(loss))
+                if attention_loss:
+                    valid_losses['val_att_loss'].append(float(attention_loss))
+                if ctc_loss:
+                    valid_losses['val_ctc_loss'].append(float(ctc_loss))
+
+            if (i + 1) % self.config.training.log_interval == 0:
+                valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
+
+                valid_losses['val_history_loss'] = total_loss / num_seen_utts
+
+                # logging
+                msg = f"Valid: Rank: {dist.get_rank()}, "
+                msg += "epoch: {}, ".format(self.epoch)
+                msg += "step: {}, ".format(self.iteration)
+                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
+                msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                 for k, v in valid_losses.items())
+                logger.info(msg)
+
+        logger.info('Rank {} Val info val_loss {}'.format(
+            dist.get_rank(), total_loss / num_seen_utts))
+        return total_loss, num_seen_utts
+
     def train(self):
         """The training process control by step."""
         # !!!IMPORTANT!!!
@@ -148,52 +185,25 @@ class U2Trainer(Trainer):
                 raise e
 
             total_loss, num_seen_utts = self.valid()
-            self.save(
-                tag=self.epoch, infos={'val_loss': total_loss / num_seen_utts})
+            if dist.get_world_size() > 1:
+                num_seen_utts = paddle.to_tensor(num_seen_utts)
+                # the default operator in all_reduce function is sum.
+                dist.all_reduce(num_seen_utts)
+                total_loss = paddle.to_tensor(total_loss)
+                dist.all_reduce(total_loss)
+                cv_loss = total_loss / num_seen_utts
+                cv_loss = float(cv_loss)
+            else:
+                cv_loss = total_loss / num_seen_utts
+
+            logger.info(
+                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            if self.visualizer:
+                self.visualizer.add_scalars(
+                    'epoch', {'cv_loss': cv_loss,
+                              'lr': self.lr_scheduler()}, self.epoch)
+            self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.new_epoch()
-
-    @mp_tools.rank_zero_only
-    @paddle.no_grad()
-    def valid(self):
-        self.model.eval()
-        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
-        valid_losses = defaultdict(list)
-        num_seen_utts = 1
-        total_loss = 0.0
-        for i, batch in enumerate(self.valid_loader):
-            loss, attention_loss, ctc_loss = self.model(*batch)
-            if paddle.isfinite(loss):
-                num_utts = batch[0].shape[0]
-                num_seen_utts += num_utts
-                total_loss += float(loss) * num_utts
-            valid_losses = {'val_loss': float(loss)}
-            if attention_loss:
-                valid_losses['val_att_loss'] = float(attention_loss)
-            if ctc_loss:
-                valid_losses['val_ctc_loss'] = float(ctc_loss)
-
-            if (i + 1) % self.config.training.log_interval == 0:
-                valid_losses['val_history_loss'] = total_loss / num_seen_utts
-
-                # write visual log
-                valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
-
-                # logging
-                msg = f"Valid: Rank: {dist.get_rank()}, "
-                msg += "epoch: {}, ".format(self.epoch)
-                msg += "step: {}, ".format(self.iteration)
-                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
-                msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                                 for k, v in valid_losses.items())
-                logger.info(msg)
-
-                if self.visualizer:
-                    valid_losses_v = valid_losses.copy()
-                    valid_losses_v.update({"lr": self.lr_scheduler()})
-                    self.visualizer.add_scalars('epoch', valid_losses_v,
-                                                self.epoch)
-
-        return total_loss, num_seen_utts
 
     def setup_dataloader(self):
         config = self.config.clone()

@@ -202,7 +202,25 @@ class Trainer():
                 raise e
 
             total_loss, num_seen_utts = self.valid()
-            self.save(infos={'val_loss': total_loss / num_seen_utts})
+            if dist.get_world_size() > 1:
+                num_seen_utts = paddle.to_tensor(num_seen_utts)
+                # the default operator in all_reduce function is sum.
+                dist.all_reduce(num_seen_utts)
+                total_loss = paddle.to_tensor(total_loss)
+                dist.all_reduce(total_loss)
+                cv_loss = total_loss / num_seen_utts
+                cv_loss = float(cv_loss)
+            else:
+                cv_loss = total_loss / num_seen_utts
+
+            logger.info(
+                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            if self.visualizer:
+                self.visualizer.add_scalars(
+                    'epoch', {'cv_loss': cv_loss,
+                              'lr': self.lr_scheduler()}, self.epoch)
+
+            self.save(infos={'val_loss': cv_loss})
             self.lr_scheduler.step()
             self.new_epoch()
 

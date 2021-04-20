@@ -46,8 +46,8 @@ def _load_latest_checkpoint(checkpoint_dir: str) -> int:
     return iteration
 
 
-def _save_checkpoint(checkpoint_dir: str, iteration: int):
-    """Save the iteration number of the latest model to be checkpointed.
+def _save_record(checkpoint_dir: str, iteration: int):
+    """Save the iteration number of the latest model to be checkpoint record.
     Args:
         checkpoint_dir (str): the directory where checkpoint is saved.
         iteration (int): the latest iteration number.
@@ -149,4 +149,4 @@ def save_parameters(checkpoint_dir: str,
         fout.write(data)
 
     if isinstance(tag_or_iteration, int):
-        _save_checkpoint(checkpoint_dir, tag_or_iteration)
+        _save_record(checkpoint_dir, tag_or_iteration)

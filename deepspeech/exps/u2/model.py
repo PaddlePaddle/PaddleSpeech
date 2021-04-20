@@ -88,10 +88,6 @@ class U2Trainer(Trainer):
             losses_np['ctc_loss'] = float(ctc_loss)
 
         if (batch_index + 1) % train_conf.accum_grad == 0:
-            if dist.get_rank() == 0 and self.visualizer:
-                losses_np_v = losses_np.copy()
-                losses_np_v.update({"lr": self.lr_scheduler()})
-                self.visualizer.add_scalars("step", losses_np_v, self.iteration)
             self.optimizer.step()
             self.optimizer.clear_grad()
             self.lr_scheduler.step()
@@ -106,6 +102,12 @@ class U2Trainer(Trainer):
             msg += ', '.join('{}: {:>.6f}'.format(k, v)
                              for k, v in losses_np.items())
             logger.info(msg)
+
+            if dist.get_rank() == 0 and self.visualizer:
+                losses_np_v = losses_np.copy()
+                losses_np_v.update({"lr": self.lr_scheduler()})
+                self.visualizer.add_scalars("step", losses_np_v,
+                                            self.iteration - 1)
 
     def train(self):
         """The training process control by step."""

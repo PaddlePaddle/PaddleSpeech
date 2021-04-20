@@ -21,6 +21,8 @@ __all__ = [
 
 
 def summary(layer: nn.Layer, print_func=print):
+    if print_func is None:
+        return
     num_params = num_elements = 0
     for name, param in layer.state_dict().items():
         if print_func:
@@ -30,15 +32,6 @@ def summary(layer: nn.Layer, print_func=print):
         num_params += 1
     if print_func:
         print_func(f"Total parameters: {num_params}, {num_elements} elements.")
-
-
-def gradient_norm(layer: nn.Layer):
-    grad_norm_dict = {}
-    for name, param in layer.state_dict().items():
-        if param.trainable:
-            grad = param.gradient()  # return numpy.ndarray
-            grad_norm_dict[name] = np.linalg.norm(grad) / grad.size
-    return grad_norm_dict
 
 
 def print_grads(model, print_func=print):
@@ -62,6 +55,15 @@ def print_params(model, print_func=print):
             print_func(msg)
     if print_func:
         print_func(f"Total parameters: {num_params}, {total} elements.")
+
+
+def gradient_norm(layer: nn.Layer):
+    grad_norm_dict = {}
+    for name, param in layer.state_dict().items():
+        if param.trainable:
+            grad = param.gradient()  # return numpy.ndarray
+            grad_norm_dict[name] = np.linalg.norm(grad) / grad.size
+    return grad_norm_dict
 
 
 def recursively_remove_weight_norm(layer: nn.Layer):

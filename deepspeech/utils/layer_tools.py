@@ -31,7 +31,8 @@ def summary(layer: nn.Layer, print_func=print):
         num_elements += np.prod(param.shape)
         num_params += 1
     if print_func:
-        print_func(f"Total parameters: {num_params}, {num_elements} elements.")
+        num_elements = num_elements / 1024**3
+        print_func(f"Total parameters: {num_params}, {num_elements}G elements.")
 
 
 def print_grads(model, print_func=print):
@@ -54,7 +55,8 @@ def print_params(model, print_func=print):
         if print_func:
             print_func(msg)
     if print_func:
-        print_func(f"Total parameters: {num_params}, {total} elements.")
+        total = total / 1024**3
+        print_func(f"Total parameters: {num_params}, {total}G elements.")
 
 
 def gradient_norm(layer: nn.Layer):

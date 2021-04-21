@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-import random
 import tarfile
 import time
 from collections import namedtuple
 from typing import Optional
 
+import numpy as np
 from paddle.io import Dataset
 from yacs.config import CfgNode
 
@@ -209,7 +209,7 @@ class ManifestDataset(Dataset):
             use_dB_normalization=use_dB_normalization,
             target_dB=target_dB)
 
-        self._rng = random.Random(random_seed)
+        self._rng = np.random.RandomState(random_seed)
         self._keep_transcription_text = keep_transcription_text
         # for caching tar files info
         self._local_data = namedtuple('local_data', ['tar2info', 'tar2object'])

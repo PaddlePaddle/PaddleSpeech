@@ -31,8 +31,9 @@ def summary(layer: nn.Layer, print_func=print):
         num_elements += np.prod(param.shape)
         num_params += 1
     if print_func:
-        num_elements = num_elements / 1024**3
-        print_func(f"Total parameters: {num_params}, {num_elements}G elements.")
+        num_elements = num_elements / 1024**2
+        print_func(
+            f"Total parameters: {num_params}, {num_elements:.4f}M elements.")
 
 
 def print_grads(model, print_func=print):

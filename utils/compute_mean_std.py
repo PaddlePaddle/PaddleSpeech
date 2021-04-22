@@ -64,7 +64,8 @@ def main():
         max_freq=None,
         target_sample_rate=args.sample_rate,
         use_dB_normalization=True,
-        target_dB=-20)
+        target_dB=-20,
+        dither=0.0)
 
     def augment_and_featurize(audio_segment):
         augmentation_pipeline.transform_audio(audio_segment)

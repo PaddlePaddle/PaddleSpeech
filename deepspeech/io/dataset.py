@@ -63,7 +63,7 @@ class ManifestDataset(Dataset):
                 specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
                 feat_dim=0,  # 'mfcc', 'fbank'
                 delta_delta=False,  # 'mfcc', 'fbank'
-                dither=1.0, # feature dither
+                dither=1.0,  # feature dither
                 target_sample_rate=16000,  # target sample rate
                 use_dB_normalization=True,
                 target_dB=-20,
@@ -188,8 +188,7 @@ class ManifestDataset(Dataset):
         super().__init__()
         self._stride_ms = stride_ms
         self._target_sample_rate = target_sample_rate
-        
-        
+
         self._normalizer = FeatureNormalizer(
             mean_std_filepath) if mean_std_filepath else None
         self._augmentation_pipeline = AugmentationPipeline(
@@ -251,7 +250,7 @@ class ManifestDataset(Dataset):
     @property
     def feature_size(self):
         return self._speech_featurizer.feature_size
-    
+
     @property
     def stride_ms(self):
         return self._speech_featurizer.stride_ms

@@ -123,11 +123,7 @@ if not hasattr(paddle, 'cat'):
 
 ########### hcak paddle.Tensor #############
 def item(x: paddle.Tensor):
-    if x.dtype == paddle.fluid.core_avx.VarDesc.VarType.FP32:
-        return float(x)
-    else:
-        raise ValueError("not support")
-
+    return x.numpy().item()
 
 if not hasattr(paddle.Tensor, 'item'):
     logger.warn(

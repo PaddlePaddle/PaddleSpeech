@@ -108,7 +108,7 @@ class AudioFeaturizer(object):
     @property
     def stride_ms(self):
         return self._stride_ms
-        
+
     @property
     def feature_size(self):
         """audio feature size"""

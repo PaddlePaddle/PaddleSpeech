@@ -381,8 +381,8 @@ class U2Tester(U2Trainer):
             decoding_chunk_size=cfg.decoding_chunk_size,
             num_decoding_left_chunks=cfg.num_decoding_left_chunks,
             simulate_streaming=cfg.simulate_streaming)
-        decode_time = time.time()
-        
+        decode_time = time.time() - start_time
+
         for target, result in zip(target_transcripts, result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
@@ -392,13 +392,13 @@ class U2Tester(U2Trainer):
                 fout.write(result + "\n")
             logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
                         (target, result))
-            logger.info("Current error rate [%s] = %f" %
+            logger.info("One example error rate [%s] = %f" %
                         (cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
             len_refs=len_refs,
-            num_ins=num_ins, # num examples
+            num_ins=num_ins,  # num examples
             error_rate=errors_sum / len_refs,
             error_rate_type=cfg.error_rate_type,
             num_frames=audio_len.sum().numpy().item(),
@@ -411,6 +411,7 @@ class U2Tester(U2Trainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
+        stride_ms = self.test_loader.dataset.stride_ms
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         num_frames = 0.0
@@ -424,11 +425,12 @@ class U2Tester(U2Trainer):
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']
                 error_rate_type = metrics['error_rate_type']
-                logger.info("Error rate [%s] (%d/?) = %f" %
-                            (error_rate_type, num_ins, errors_sum / len_refs))
+                rtf = num_time / (num_frames * stride_ms)
+                logger.info(
+                    "RTF: %f, Error rate [%s] (%d/?) = %f" %
+                    (rtf, error_rate_type, num_ins, errors_sum / len_refs))
 
-        rtf = num_time / (num_frames * self.test_loader.dataset.stride_ms / 1000.0)
-        # logging
+        rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)

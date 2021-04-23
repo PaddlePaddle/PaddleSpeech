@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 python3 -u ${BIN_DIR}/train.py \

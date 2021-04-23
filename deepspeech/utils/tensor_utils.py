@@ -66,7 +66,9 @@ def pad_sequence(sequences: List[paddle.Tensor],
     # assuming trailing dimensions and type of all the Tensors
     # in sequences are same and fetching those from sequences[0]
     max_size = sequences[0].size()
-    trailing_dims = max_size[1:]
+    # (TODO Hui Zhang): slice not supprot `end==start`
+    # trailing_dims = max_size[1:]
+    trailing_dims = max_size[1:] if max_size.ndim >= 2 else ()
     max_len = max([s.size(0) for s in sequences])
     if batch_first:
         out_dims = (len(sequences), max_len) + trailing_dims

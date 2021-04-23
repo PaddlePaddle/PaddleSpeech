@@ -49,9 +49,9 @@ from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.utility import log_add
 
-logger = Log(__name__).getlog()
-
 __all__ = ["U2Model", "U2InferModel"]
+
+logger = Log(__name__).getlog()
 
 
 class U2BaseModel(nn.Module):
@@ -398,14 +398,17 @@ class U2BaseModel(nn.Module):
         assert decoding_chunk_size != 0
         batch_size = speech.shape[0]
         # Let's assume B = batch_size
+        # encoder_out: (B, maxlen, encoder_dim)
+        # encoder_mask: (B, 1, Tmax)
         encoder_out, encoder_mask = self._forward_encoder(
             speech, speech_lengths, decoding_chunk_size,
-            num_decoding_left_chunks,
-            simulate_streaming)  # (B, maxlen, encoder_dim)
+            num_decoding_left_chunks, simulate_streaming)
         maxlen = encoder_out.size(1)
-        encoder_out_lens = encoder_mask.squeeze(1).sum(1)
+        # (TODO Hui Zhang): bool no support reduce_sum
+        # encoder_out_lens = encoder_mask.squeeze(1).sum(1)
+        encoder_out_lens = encoder_mask.squeeze(1).astype(paddle.int).sum(1)
         ctc_probs = self.ctc.log_softmax(encoder_out)  # (B, maxlen, vocab_size)
-        topk_prob, topk_index = ctc_probs.topk(1, dim=2)  # (B, maxlen, 1)
+        topk_prob, topk_index = ctc_probs.topk(1, axis=2)  # (B, maxlen, 1)
         topk_index = topk_index.view(batch_size, maxlen)  # (B, maxlen)
         pad_mask = make_pad_mask(encoder_out_lens)  # (B, maxlen)
         topk_index = topk_index.masked_fill_(pad_mask, self.eos)  # (B, maxlen)
@@ -573,11 +576,11 @@ class U2BaseModel(nn.Module):
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
         encoder_out = encoder_out.repeat(beam_size, 1, 1)
         encoder_mask = paddle.ones(
-            beam_size, 1, encoder_out.size(1), dtype=paddle.bool)
+            (beam_size, 1, encoder_out.size(1)), dtype=paddle.bool)
         decoder_out, _ = self.decoder(
             encoder_out, encoder_mask, hyps_pad,
             hyps_lens)  # (beam_size, max_hyps_len, vocab_size)
-        decoder_out = paddle.nn.functional.log_softmax(decoder_out, dim=-1)
+        decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
         decoder_out = decoder_out.numpy()
         # Only use decoder score for rescoring
         best_score = -float('inf')

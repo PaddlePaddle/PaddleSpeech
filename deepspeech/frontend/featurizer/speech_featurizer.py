@@ -148,7 +148,7 @@ class SpeechFeaturizer(object):
             float: time(ms)/frame
         """
         return self._audio_featurizer.stride_ms
-    
+
     @property
     def text_feature(self):
         """Return the text feature object.

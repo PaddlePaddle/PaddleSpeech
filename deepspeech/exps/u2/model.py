@@ -362,8 +362,8 @@ class U2Tester(U2Trainer):
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
+        start_time = time.time()
         text_feature = self.test_loader.dataset.text_feature
-
         target_transcripts = self.ordid2token(texts, texts_len)
         result_transcripts = self.model.decode(
             audio,
@@ -381,7 +381,8 @@ class U2Tester(U2Trainer):
             decoding_chunk_size=cfg.decoding_chunk_size,
             num_decoding_left_chunks=cfg.num_decoding_left_chunks,
             simulate_streaming=cfg.simulate_streaming)
-
+        decode_time = time.time()
+        
         for target, result in zip(target_transcripts, result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
@@ -397,9 +398,11 @@ class U2Tester(U2Trainer):
         return dict(
             errors_sum=errors_sum,
             len_refs=len_refs,
-            num_ins=num_ins,
+            num_ins=num_ins, # num examples
             error_rate=errors_sum / len_refs,
-            error_rate_type=cfg.error_rate_type)
+            error_rate_type=cfg.error_rate_type,
+            num_frames=audio_len.sum().numpy().item(),
+            decode_time=decode_time)
 
     @mp_tools.rank_zero_only
     @paddle.no_grad()
@@ -410,10 +413,13 @@ class U2Tester(U2Trainer):
 
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
-
+        num_frames = 0.0
+        num_time = 0.0
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 metrics = self.compute_metrics(*batch, fout=fout)
+                num_frames += metrics['num_frames']
+                num_time += metrics["decode_time"]
                 errors_sum += metrics['errors_sum']
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']
@@ -421,11 +427,13 @@ class U2Tester(U2Trainer):
                 logger.info("Error rate [%s] (%d/?) = %f" %
                             (error_rate_type, num_ins, errors_sum / len_refs))
 
+        rtf = num_time / (num_frames * self.test_loader.dataset.stride_ms / 1000.0)
         # logging
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
-        msg += ", Final error rate [%s] (%d/%d) = %f" % (
+        msg += "RTF: {}, ".format(rtf)
+        msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
 

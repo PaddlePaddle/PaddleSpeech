@@ -18,6 +18,7 @@ data:
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80
   delta_delta: False
+  dither: 1.0
   target_sample_rate: 16000
   max_freq: None
   n_fft: None

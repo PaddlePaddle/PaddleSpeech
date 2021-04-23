@@ -63,7 +63,8 @@ class SpeechFeaturizer(object):
                  max_freq=None,
                  target_sample_rate=16000,
                  use_dB_normalization=True,
-                 target_dB=-20):
+                 target_dB=-20,
+                 dither=1.0):
         self._audio_featurizer = AudioFeaturizer(
             specgram_type=specgram_type,
             feat_dim=feat_dim,
@@ -74,7 +75,8 @@ class SpeechFeaturizer(object):
             max_freq=max_freq,
             target_sample_rate=target_sample_rate,
             use_dB_normalization=use_dB_normalization,
-            target_dB=target_dB)
+            target_dB=target_dB,
+            dither=dither)
         self._text_featurizer = TextFeaturizer(unit_type, vocab_filepath,
                                                spm_model_prefix)
 
@@ -138,6 +140,15 @@ class SpeechFeaturizer(object):
         """
         return self._audio_featurizer.feature_size
 
+    @property
+    def stride_ms(self):
+        """time length in `ms` unit per frame
+
+        Returns:
+            float: time(ms)/frame
+        """
+        return self._audio_featurizer.stride_ms
+    
     @property
     def text_feature(self):
         """Return the text feature object.

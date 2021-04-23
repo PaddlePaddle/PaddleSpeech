@@ -106,6 +106,10 @@ class AudioFeaturizer(object):
         return self._compute_specgram(audio_segment)
 
     @property
+    def stride_ms(self):
+        return self._stride_ms
+        
+    @property
     def feature_size(self):
         """audio feature size"""
         feat_dim = 0

@@ -63,6 +63,7 @@ class ManifestDataset(Dataset):
                 specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
                 feat_dim=0,  # 'mfcc', 'fbank'
                 delta_delta=False,  # 'mfcc', 'fbank'
+                dither=1.0, # feature dither
                 target_sample_rate=16000,  # target sample rate
                 use_dB_normalization=True,
                 target_dB=-20,
@@ -123,6 +124,7 @@ class ManifestDataset(Dataset):
             specgram_type=config.data.specgram_type,
             feat_dim=config.data.feat_dim,
             delta_delta=config.data.delta_delta,
+            dither=config.data.dither,
             use_dB_normalization=config.data.use_dB_normalization,
             target_dB=config.data.target_dB,
             random_seed=config.data.random_seed,
@@ -150,6 +152,7 @@ class ManifestDataset(Dataset):
                  specgram_type='linear',
                  feat_dim=None,
                  delta_delta=False,
+                 dither=1.0,
                  use_dB_normalization=True,
                  target_dB=-20,
                  random_seed=0,
@@ -183,13 +186,10 @@ class ManifestDataset(Dataset):
             keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
         """
         super().__init__()
-        self._max_input_len = max_input_len,
-        self._min_input_len = min_input_len,
-        self._max_output_len = max_output_len,
-        self._min_output_len = min_output_len,
-        self._max_output_input_ratio = max_output_input_ratio,
-        self._min_output_input_ratio = min_output_input_ratio,
-
+        self._stride_ms = stride_ms
+        self._target_sample_rate = target_sample_rate
+        
+        
         self._normalizer = FeatureNormalizer(
             mean_std_filepath) if mean_std_filepath else None
         self._augmentation_pipeline = AugmentationPipeline(
@@ -207,7 +207,8 @@ class ManifestDataset(Dataset):
             max_freq=max_freq,
             target_sample_rate=target_sample_rate,
             use_dB_normalization=use_dB_normalization,
-            target_dB=target_dB)
+            target_dB=target_dB,
+            dither=dither)
 
         self._rng = np.random.RandomState(random_seed)
         self._keep_transcription_text = keep_transcription_text
@@ -250,6 +251,10 @@ class ManifestDataset(Dataset):
     @property
     def feature_size(self):
         return self._speech_featurizer.feature_size
+    
+    @property
+    def stride_ms(self):
+        return self._speech_featurizer.stride_ms
 
     def _parse_tar(self, file):
         """Parse a tar file to get a tarfile object

@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+if [ $# != 1 ];then
+    echo "usage: ${0} ckpt_tag"
+    exit -1
+fi
+
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 

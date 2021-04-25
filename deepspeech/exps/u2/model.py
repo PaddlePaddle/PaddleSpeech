@@ -136,7 +136,7 @@ class U2Trainer(Trainer):
                 msg = f"Valid: Rank: {dist.get_rank()}, "
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
-                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
+                msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)

@@ -7,7 +7,7 @@ fi
 
 ckpt_path=${1}
 average_num=${2}
-decode_checkpoint=${ckpt_path}/avg_${average_num}.pt
+decode_checkpoint=${ckpt_path}/avg_${average_num}.pdparams
 
 python3 -u ${MAIN_ROOT}/utils/avg_model.py \
 --dst_model ${decode_checkpoint} \

@@ -125,6 +125,7 @@ if not hasattr(paddle, 'cat'):
 def item(x: paddle.Tensor):
     return x.numpy().item()
 
+
 if not hasattr(paddle.Tensor, 'item'):
     logger.warn(
         "override item of paddle.Tensor if exists or register, remove this when fixed!"

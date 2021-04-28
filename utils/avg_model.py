@@ -21,14 +21,15 @@ import paddle
 
 
 def main(args):
-    checkpoints = []
     val_scores = []
-
+    beat_val_scores = []
+    selected_epochs = []
     if args.val_best:
         jsons = glob.glob(f'{args.ckpt_dir}/[!train]*.json')
         for y in jsons:
-            dic_json = json.load(y)
-            loss = dic_json['valid_loss']
+            with open(y, 'r') as f:
+                dic_json = json.load(f)
+            loss = dic_json['val_loss']
             epoch = dic_json['epoch']
             if epoch >= args.min_epoch and epoch <= args.max_epoch:
                 val_scores.append((epoch, loss))
@@ -40,9 +41,11 @@ def main(args):
             args.ckpt_dir + '/{}.pdparams'.format(int(epoch))
             for epoch in sorted_val_scores[:args.num, 0]
         ]
-        print("best val scores = " + str(sorted_val_scores[:args.num, 1]))
-        print("selected epochs = " + str(sorted_val_scores[:args.num, 0].astype(
-            np.int64)))
+
+        beat_val_scores = sorted_val_scores[:args.num, 1]
+        selected_epochs = sorted_val_scores[:args.num, 0].astype(np.int64)
+        print("best val scores = " + str(beat_val_scores))
+        print("selected epochs = " + str(selected_epochs))
     else:
         path_list = glob.glob(f'{args.ckpt_dir}/[!avg][!final]*.pdparams')
         path_list = sorted(path_list, key=os.path.getmtime)
@@ -64,10 +67,20 @@ def main(args):
     # average
     for k in avg.keys():
         if avg[k] is not None:
-            avg[k] = paddle.divide(avg[k], num)
+            avg[k] /= num
 
     paddle.save(avg, args.dst_model)
     print(f'Saving to {args.dst_model}')
+
+    meta_path = os.path.splitext(args.dst_model)[0] + '.avg.json'
+    with open(meta_path, 'w') as f:
+        data = json.dumps({
+            "avg_ckpt": args.dst_model,
+            "ckpt": path_list,
+            "epoch": selected_epochs.tolist(),
+            "val_loss": beat_val_scores.tolist(),
+        })
+        f.write(data + "\n")
 
 
 if __name__ == '__main__':

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains U2 model."""
+import json
+import os
 import sys
 import time
 from collections import defaultdict
@@ -438,6 +440,31 @@ class U2Tester(U2Trainer):
         msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
+
+        # test meta results
+        err_meta_path = os.path.splitext(self.args.checkpoint_path)[0] + '.err'
+        err_type_str = "{}".format(error_rate_type)
+        with open(err_meta_path, 'w') as f:
+            data = json.dumps({
+                "epoch":
+                self.epoch,
+                "step":
+                self.iteration,
+                "rtf":
+                rtf,
+                error_rate_type:
+                errors_sum / len_refs,
+                "dataset_hour": (num_frames * stride_ms) / 1000.0 / 3600.0,
+                "process_hour":
+                num_time / 1000.0 / 3600.0,
+                "num_examples":
+                num_ins,
+                "err_sum":
+                errors_sum,
+                "ref_len":
+                len_refs,
+            })
+            f.write(data + '\n')
 
     def run_test(self):
         self.resume_or_scratch()

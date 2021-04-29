@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-if [ $# != 2 ];then
+if [ $# != 2 ]; then
     echo "usage: ${0} ckpt_dir avg_num"
     exit -1
 fi
@@ -14,7 +14,7 @@ python3 -u ${MAIN_ROOT}/utils/avg_model.py \
 --ckpt_dir ${ckpt_dir}  \
 --num ${average_num} \
 --val_best
-            
+
 if [ $? -ne 0 ]; then
     echo "Failed in avg ckpt!"
     exit 1

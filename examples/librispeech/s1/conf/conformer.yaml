@@ -5,14 +5,14 @@ data:
   test_manifest: data/manifest.tiny
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_200'
+  spm_model_prefix: 'data/bpe_unigram_5000'
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
-  batch_size: 4
-  min_input_len: 0.5
-  max_input_len: 20.0
-  min_output_len: 0.0
-  max_output_len: 400.0
+  batch_size: 64
+  min_input_len: 0.5  # seconds
+  max_input_len: 20.0 # seconds
+  min_output_len: 0.0 # tokens
+  max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
   raw_wav: True  # use raw_wav or kaldi feature
@@ -49,7 +49,7 @@ model:
         positional_dropout_rate: 0.1
         attention_dropout_rate: 0.0
         input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-        normalize_before: true
+        normalize_before: True
         use_cnn_module: True
         cnn_module_kernel: 15
         activation_type: 'swish'
@@ -75,18 +75,18 @@ model:
 
 
 training:
-  n_epoch: 20
-  accum_grad: 4
+  n_epoch: 120
+  accum_grad: 2
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
-    lr: 0.002
+    lr: 0.004
     weight_decay: 1e-06
   scheduler: warmuplr     # pytorch v1.1.0+ required
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 1
+  log_interval: 100
 
 
 decoding:

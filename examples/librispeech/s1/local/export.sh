@@ -5,14 +5,24 @@ if [ $# != 3 ];then
     exit -1
 fi
 
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
+echo "using $ngpu gpus..."
+
 config_path=$1
 ckpt_path_prefix=$2
 jit_model_export_path=$3
 
+device=gpu
+if [ ngpu != 0 ];then
+    device=cpu
+fi
+
 python3 -u ${BIN_DIR}/export.py \
+--device ${device} \
+--nproc ${ngpu} \
 --config ${config_path} \
 --checkpoint_path ${ckpt_path_prefix} \
---export_path ${jit_model_export_path} 
+--export_path ${jit_model_export_path}
 
 
 if [ $? -ne 0 ]; then

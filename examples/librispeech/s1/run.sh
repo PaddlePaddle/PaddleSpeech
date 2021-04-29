@@ -1,20 +1,36 @@
 #!/bin/bash
 set -e
-
 source path.sh
-source ${MAIN_ROOT}/utils/parse_options.sh
 
-# prepare data
-bash ./local/data.sh
+stage=0
+stop_stage=100
+ckpt=conformer
+avg_num=30
+avg_ckpt=avg_${avg_num}
 
-# train model, all `ckpt` under `exp` dir
-CUDA_VISIBLE_DEVICES=0 ./local/train.sh conf/conformer.yaml test
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
-# test ckpt 1
-CUDA_VISIBLE_DEVICES=0 ./local/test.sh conf/conformer.yaml exp/test/checkpoints/1
+if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+    # prepare data
+    bash ./local/data.sh || exit -1
+fi
 
-# avg 1 best model
-./local/avg.sh exp/test/checkpoints 1
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # train model, all `ckpt` under `exp` dir
+    CUDA_VISIBLE_DEVICES=4,5,6,7 ./local/train.sh conf/conformer.yaml  ${ckpt}
+fi
 
-# export ckpt 1
-./local/export.sh conf/conformer.yaml exp/test/checkpoints/1 exp/test/checkpoints/1.jit.model
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    # avg n best model
+    ./local/avg.sh exp/${ckpt}/checkpoints ${avg_num}
+fi
+
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    # test ckpt avg_n
+    CUDA_VISIBLE_DEVICES=7 ./local/test.sh conf/conformer.yaml exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+fi
+
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+    # export ckpt avg_n
+    CUDA_VISIBLE_DEVICES= ./local/export.sh conf/conformer.yaml exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi

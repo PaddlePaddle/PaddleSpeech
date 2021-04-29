@@ -10,6 +10,7 @@ bpeprefix="data/bpe_${bpemode}_${nbpe}"
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
+
 mkdir -p data
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}

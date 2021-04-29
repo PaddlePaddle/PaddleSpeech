@@ -2,7 +2,7 @@
 set -e
 
 source path.sh
-source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+source ${MAIN_ROOT}/utils/parse_options.sh
 
 # prepare data
 bash ./local/data.sh

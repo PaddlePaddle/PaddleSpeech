@@ -10,6 +10,7 @@ echo "using $ngpu gpus..."
 
 config_path=$1
 ckpt_name=$2
+
 device=gpu
 if [ ngpu != 0 ];then
     device=cpu

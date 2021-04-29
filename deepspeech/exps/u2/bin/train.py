@@ -56,4 +56,4 @@ if __name__ == "__main__":
     # Setting for profiling
     pr = cProfile.Profile()
     pr.runcall(main, config, args)
-    pr.dump_stats(os.path.join('.', 'train.profile'))
+    pr.dump_stats(os.path.join(args.output, 'train.profile'))

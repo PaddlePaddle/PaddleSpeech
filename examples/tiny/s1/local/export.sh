@@ -1,18 +1,22 @@
 #! /usr/bin/env bash
 
-if [ $# != 2 ];then
-    echo "usage: export ckpt_path jit_model_path"
+if [ $# != 3 ];then
+    echo "usage: $0 config_path ckpt_prefix jit_model_path"
     exit -1
 fi
 
+config_path=$1
+ckpt_path_prefix=$2
+jit_model_export_path=$3
+
 python3 -u ${BIN_DIR}/export.py \
---config conf/conformer.yaml \
---checkpoint_path ${1} \
---export_path ${2} 
+--config ${config_path} \
+--checkpoint_path ${ckpt_path_prefix} \
+--export_path ${jit_model_export_path} 
 
 
 if [ $? -ne 0 ]; then
-    echo "Failed in evaluation!"
+    echo "Failed in export!"
     exit 1
 fi
 

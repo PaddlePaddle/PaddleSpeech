@@ -1,5 +1,13 @@
 [
   {
+    "type": "shift",
+    "params": {
+      "min_shift_ms": -5,
+      "max_shift_ms": 5
+    },
+    "prob": 1.0
+  },
+  {
     "type": "speed",
     "params": {
       "min_speed_rate": 0.9,
@@ -7,14 +15,6 @@
       "num_rates": 3
     },
     "prob": 0.0
-  },
-  {
-    "type": "shift",
-    "params": {
-      "min_shift_ms": -5,
-      "max_shift_ms": 5
-    },
-    "prob": 1.0
   },
   {
     "type": "specaug",

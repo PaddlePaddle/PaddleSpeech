@@ -1,1 +1,3 @@
-* s0 is for deepspeech
+# ASR
+* s0 is for deepspeech2
+* s1 is for U2

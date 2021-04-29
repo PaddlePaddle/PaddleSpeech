@@ -34,6 +34,9 @@ __all__ = [
 
 logger = Log(__name__).getlog()
 
+# namedtupe need global for pickle.
+TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
+
 
 class ManifestDataset(Dataset):
     @classmethod
@@ -212,9 +215,7 @@ class ManifestDataset(Dataset):
         self._rng = np.random.RandomState(random_seed)
         self._keep_transcription_text = keep_transcription_text
         # for caching tar files info
-        self._local_data = namedtuple('local_data', ['tar2info', 'tar2object'])
-        self._local_data.tar2info = {}
-        self._local_data.tar2object = {}
+        self._local_data = TarLocalData(tar2info={}, tar2object={})
 
         # read manifest
         self._manifest = read_manifest(

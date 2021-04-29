@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 if [ $# != 1 ];then
-    echo "usage: ${0} ckpt_path"
+    echo "usage: ${0} ckpt_path_prefix"
     exit -1
 fi
 

@@ -10,9 +10,11 @@ fi
 
 if [ -e /etc/lsb-release ];then
     #${SUDO} apt-get update
-    ${SUDO} apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
-    error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
-    exit -1
+    ${SUDO} apt-get install -y vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    if [ $? != 0 ]; then
+        error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
+        exit -1
+    fi
 fi
 
 # install python dependencies

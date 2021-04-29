@@ -142,7 +142,7 @@ class ConvolutionModule(nn.Layer):
 
         # GLU mechanism
         x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)
-        x = nn.functional.glu(x, dim=1)  # (batch, channel, dim)
+        x = nn.functional.glu(x, axis=1)  # (batch, channel, dim)
 
         # 1D Depthwise Conv
         x = self.depthwise_conv(x)

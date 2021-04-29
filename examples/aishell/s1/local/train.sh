@@ -5,6 +5,8 @@ if [ $# != 1 ];then
     exit -1
 fi
 
+mkdir -p exp
+
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
@@ -12,8 +14,7 @@ python3 -u ${BIN_DIR}/train.py \
 --device 'gpu' \
 --nproc ${ngpu} \
 --config conf/conformer.yaml \
---output ckpt-${1}
-
+--output exp/${1}
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

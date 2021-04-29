@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 if [ $# != 2 ];then
-    echo "usage: ${0} ckpt_path avg_num"
+    echo "usage: ${0} ckpt_dir avg_num"
     exit -1
 fi
 

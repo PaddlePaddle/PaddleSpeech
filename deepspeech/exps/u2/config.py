@@ -18,6 +18,7 @@ from deepspeech.exps.u2.model import U2Trainer
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2 import U2Model
 
+
 _C = CfgNode()
 
 _C.data = ManifestDataset.params()

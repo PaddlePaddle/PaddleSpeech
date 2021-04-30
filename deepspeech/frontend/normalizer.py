@@ -148,6 +148,8 @@ class FeatureNormalizer(object):
                           batch_size=64,
                           eps=1e-20):
         """Compute mean and std from randomly sampled instances."""
+        paddle.set_device('cpu')
+        
         collate_func = CollateFunc(featurize_func)
         dataset = AudioDataset(manifest_path, num_samples, self._rng)
         data_loader = DataLoader(

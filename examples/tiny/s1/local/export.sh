@@ -13,7 +13,7 @@ ckpt_path_prefix=$2
 jit_model_export_path=$3
 
 device=gpu
-if [ ngpu != 0 ];then
+if [ ngpu == 0 ];then
     device=cpu
 fi
 

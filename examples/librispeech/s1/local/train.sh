@@ -12,9 +12,10 @@ config_path=$1
 ckpt_name=$2
 
 device=gpu
-if [ ngpu != 0 ];then
+if [ ngpu == 0 ];then
     device=cpu
 fi
+echo "using ${device}..."
 
 mkdir -p exp
 

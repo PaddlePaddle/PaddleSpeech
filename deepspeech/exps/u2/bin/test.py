@@ -13,7 +13,6 @@
 # limitations under the License.
 """Evaluation for U2 model."""
 import cProfile
-import os
 
 from deepspeech.exps.u2.config import get_cfg_defaults
 from deepspeech.exps.u2.model import U2Tester as Tester
@@ -53,4 +52,4 @@ if __name__ == "__main__":
     # Setting for profiling
     pr = cProfile.Profile()
     pr.runcall(main, config, args)
-    pr.dump_stats(os.path.join(args.output, 'train.profile'))
+    pr.dump_stats('test.profile')

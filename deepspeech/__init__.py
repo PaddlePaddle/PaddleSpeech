@@ -357,9 +357,9 @@ if not hasattr(paddle.Tensor, 'tolist'):
 ########### hcak paddle.nn.functional #############
 
 
-def glu(x: paddle.Tensor, dim=-1) -> paddle.Tensor:
+def glu(x: paddle.Tensor, axis=-1) -> paddle.Tensor:
     """The gated linear unit (GLU) activation."""
-    a, b = x.split(2, axis=dim)
+    a, b = x.split(2, axis=axis)
     act_b = F.sigmoid(b)
     return a * act_b
 
@@ -458,8 +458,8 @@ class ConstantPad2d(nn.Layer):
     def __init__(self, padding: Union[tuple, list, int], value: float):
         """
         Args:
-            paddle ([tuple]): the size of the padding. 
-                If is int, uses the same padding in all boundaries. 
+            paddle ([tuple]): the size of the padding.
+                If is int, uses the same padding in all boundaries.
                 If a 4-tuple, uses (padding_left, padding_right, padding_top, padding_bottom)
             value ([flaot]): pad value
         """

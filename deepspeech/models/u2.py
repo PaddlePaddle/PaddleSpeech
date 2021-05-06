@@ -62,7 +62,6 @@ class U2BaseModel(nn.Module):
         # network architecture
         default = CfgNode()
         # allow add new item when merge_with_file
-        default.set_new_allowed(True)
         default.cmvn_file = ""
         default.cmvn_file_type = "npz"
         default.input_dim = 0
@@ -85,7 +84,7 @@ class U2BaseModel(nn.Module):
                 # activation_type='swish',
                 # pos_enc_layer_type='rel_pos',
                 # selfattention_layer_type='rel_selfattn', 
-                ))
+            ))
         # decoder related
         default.decoder = 'transformer'
         default.decoder_conf = CfgNode(

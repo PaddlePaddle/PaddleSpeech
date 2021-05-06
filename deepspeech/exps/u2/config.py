@@ -18,7 +18,6 @@ from deepspeech.exps.u2.model import U2Trainer
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2 import U2Model
 
-
 _C = CfgNode()
 
 _C.data = ManifestDataset.params()
@@ -34,4 +33,6 @@ def get_cfg_defaults():
     """Get a yacs CfgNode object with default values for my_project."""
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
-    return _C.clone()
+    config = _C.clone()
+    config.set_new_allowed(True)
+    return config

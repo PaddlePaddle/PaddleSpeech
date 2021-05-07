@@ -24,7 +24,7 @@ data:
   n_fft: None
   stride_ms: 10.0
   window_ms: 25.0
-  use_dB_normalization: True
+  use_dB_normalization: False 
   target_dB: -20
   random_seed: 0
   keep_transcription_text: False
@@ -74,7 +74,7 @@ model:
 
 
 training:
-  n_epoch: 240
+  n_epoch: 300
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam

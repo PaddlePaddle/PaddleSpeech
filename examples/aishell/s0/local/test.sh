@@ -1,19 +1,25 @@
 #! /usr/bin/env bash
 
+if [[ $# != 1 ]]; then
+    echo "usage: $0 ckpt-path"
+    exit -1
+fi
+
 # download language model
 bash local/download_lm_ch.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
-python3 -u ${BIN_DIR}/test.py \
+python3 -u ${BIN_DIR}/infer.py \
 --device 'gpu' \
 --nproc 1 \
 --config conf/deepspeech2.yaml \
---output ckpt
+--checkpoint_path ${1} 
+
 
 if [ $? -ne 0 ]; then
-    echo "Failed in evaluation!"
+    echo "Failed in inference!"
     exit 1
 fi
 

@@ -22,18 +22,21 @@ data:
   sortagrad: True
   shuffle_method: batch_shuffle
   num_workers: 0
+
 model:
   num_conv_layers: 2
   num_rnn_layers: 3
   rnn_layer_size: 1024
   use_gru: True 
   share_rnn_weights: False
+
 training:
   n_epoch: 50
   lr: 2e-3
   lr_decay: 0.83
   weight_decay: 1e-06
   global_grad_clip: 5.0
+  
 decoding:
   batch_size: 128
   error_rate_type: cer 

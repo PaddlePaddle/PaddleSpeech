@@ -21,6 +21,8 @@ import paddle
 
 
 def main(args):
+    paddle.set_device('cpu')
+
     val_scores = []
     beat_val_scores = []
     selected_epochs = []

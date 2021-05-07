@@ -57,6 +57,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --sample_rate=16000 \
     --stride_ms=10.0 \
     --window_ms=25.0 \
+    --use_dB_normalization=False \
     --num_workers=2 \
     --output_path="data/mean_std.json"
     

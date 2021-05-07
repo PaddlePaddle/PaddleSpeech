@@ -22,8 +22,11 @@ from paddle.io import Dataset
 from deepspeech.frontend.audio import AudioSegment
 from deepspeech.frontend.utility import load_cmvn
 from deepspeech.frontend.utility import read_manifest
+from deepspeech.utils.log import Log
 
 __all__ = ["FeatureNormalizer"]
+
+logger = Log(__name__).getlog()
 
 
 # https://github.com/PaddlePaddle/Paddle/pull/31481
@@ -176,8 +179,8 @@ class FeatureNormalizer(object):
                 wav_number += batch_size
 
                 if wav_number % 1000 == 0:
-                    print('process {} wavs,{} frames'.format(wav_number,
-                                                             all_number))
+                    logger.info('process {} wavs,{} frames'.format(wav_number,
+                                                                   all_number))
 
         self.cmvn_info = {
             'mean_stat': list(all_mean_stat.tolist()),

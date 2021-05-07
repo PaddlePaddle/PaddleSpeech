@@ -1,23 +1,32 @@
 #! /usr/bin/env bash
 
-# train model
-# if you wish to resume from an exists model, uncomment --init_from_pretrained_model
-#export FLAGS_sync_nccl_allreduce=0
+if [ $# != 2 ];then
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name"
+    exit -1
+fi
 
-ngpu=$(echo ${CUDA_VISIBLE_DEVICES} | python -c 'import sys; a = sys.stdin.read(); print(len(a.split(",")));')
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-python3 -u ${BIN_DIR}/train.py \
---device 'gpu' \
---nproc ${ngpu} \
---config conf/deepspeech2.yaml \
---output ckpt-${1}
+config_path=$1
+ckpt_name=$2
 
+device=gpu
+if [ ngpu == 0 ];then
+    device=cpu
+fi
+
+mkdir -p exp
+
+python3 -u ${BIN_DIR}/train.py \
+--device ${device} \
+--nproc ${ngpu} \
+--config ${config_path} \
+--output exp/${ckpt_name}
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"
     exit 1
 fi
-
 
 exit 0

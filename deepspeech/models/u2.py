@@ -63,7 +63,7 @@ class U2BaseModel(nn.Module):
         default = CfgNode()
         # allow add new item when merge_with_file
         default.cmvn_file = ""
-        default.cmvn_file_type = "npz"
+        default.cmvn_file_type = "json"
         default.input_dim = 0
         default.output_dim = 0
         # encoder related

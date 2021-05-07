@@ -23,6 +23,7 @@ import codecs
 import io
 import json
 import os
+from multiprocessing.pool import Pool
 
 import soundfile
 
@@ -103,16 +104,18 @@ def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    prepare_dataset(
-        url=URL_TRAIN_CLEAN,
-        md5sum=MD5_TRAIN_CLEAN,
-        target_dir=os.path.join(args.target_dir, "train-clean"),
-        manifest_path=args.manifest_prefix + ".train-clean")
-    prepare_dataset(
-        url=URL_DEV_CLEAN,
-        md5sum=MD5_DEV_CLEAN,
-        target_dir=os.path.join(args.target_dir, "dev-clean"),
-        manifest_path=args.manifest_prefix + ".dev-clean")
+    tasks = [
+        (URL_TRAIN_CLEAN, MD5_TRAIN_CLEAN,
+         os.path.join(args.target_dir, "train-clean"),
+         args.manifest_prefix + ".train-clean"),
+        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(
+            args.target_dir, "dev-clean"), args.manifest_prefix + ".dev-clean"),
+    ]
+
+    with Pool(2) as pool:
+        pool.starmap(prepare_dataset, tasks)
+
+    print("Data download and manifest prepare done!")
 
 
 if __name__ == '__main__':

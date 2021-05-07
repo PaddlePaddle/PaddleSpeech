@@ -7,14 +7,20 @@ data:
   vocab_filepath: data/vocab.txt 
   augmentation_config: conf/augmentation.json
   batch_size: 20
-  max_duration: 27.0
-  min_duration: 0.0
+  min_input_len: 0.0
+  max_input_len: 27.0 # second
+  min_output_len: 0.0
+  max_output_len: 400.0
+  min_output_input_ratio: 0.05
+  max_output_input_ratio: 10.0
   specgram_type: linear
   target_sample_rate: 16000
   max_freq: None
   n_fft: None
   stride_ms: 10.0
   window_ms: 20.0
+  delta_delta: False
+  dither: 1.0
   use_dB_normalization: True
   target_dB: -20
   random_seed: 0
@@ -22,18 +28,22 @@ data:
   sortagrad: True 
   shuffle_method: batch_shuffle
   num_workers: 0
+
 model:
   num_conv_layers: 2
   num_rnn_layers: 3
   rnn_layer_size: 2048
   use_gru: False 
-  share_rnn_weights: True 
+  share_rnn_weights: True
+
 training:
   n_epoch: 50
   lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06
   global_grad_clip: 5.0
+  log_interval: 100
+
 decoding:
   batch_size: 128
   error_rate_type: wer

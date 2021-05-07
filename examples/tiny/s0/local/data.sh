@@ -3,10 +3,7 @@
 stage=-1
 stop_stage=100
 
-# bpemode (unigram or bpe)
-nbpe=200
-bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
+unit_type=char
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
@@ -32,10 +29,8 @@ fi
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # build vocabulary
     python3 ${MAIN_ROOT}/utils/build_vocab.py \
-    --unit_type "spm" \
-    --spm_vocab_size=${nbpe} \
-    --spm_mode ${bpemode} \
-    --spm_model_prefix ${bpeprefix} \
+    --unit_type ${unit_type} \
+    --count_threshold=0 \
     --vocab_path="data/vocab.txt" \
     --manifest_paths="data/manifest.tiny.raw"
     
@@ -51,12 +46,11 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.tiny.raw" \
     --num_samples=64 \
-    --specgram_type="fbank" \
-    --feat_dim=80 \
+    --specgram_type="linear" \
     --delta_delta=false \
     --sample_rate=16000 \
     --stride_ms=10.0 \
-    --window_ms=25.0 \
+    --window_ms=20.0 \
     --use_dB_normalization=False \
     --num_workers=2 \
     --output_path="data/mean_std.json"
@@ -73,8 +67,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     python3 ${MAIN_ROOT}/utils/format_data.py \
     --feat_type "raw" \
     --cmvn_path "data/mean_std.json" \
-    --unit_type "spm" \
-    --spm_model_prefix ${bpeprefix} \
+    --unit_type ${unit_type} \
     --vocab_path="data/vocab.txt" \
     --manifest_path="data/manifest.tiny.raw" \
     --output_path="data/manifest.tiny"

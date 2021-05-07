@@ -24,6 +24,7 @@ import distutils.util
 import io
 import json
 import os
+from multiprocessing.pool import Pool
 
 import soundfile
 
@@ -122,42 +123,36 @@ def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    prepare_dataset(
-        url=URL_TEST_CLEAN,
-        md5sum=MD5_TEST_CLEAN,
-        target_dir=os.path.join(args.target_dir, "test-clean"),
-        manifest_path=args.manifest_prefix + ".test-clean")
-    prepare_dataset(
-        url=URL_DEV_CLEAN,
-        md5sum=MD5_DEV_CLEAN,
-        target_dir=os.path.join(args.target_dir, "dev-clean"),
-        manifest_path=args.manifest_prefix + ".dev-clean")
+    tasks = [
+        (URL_TEST_CLEAN, MD5_TEST_CLEAN, os.path.join(args.target_dir,
+                                                      "test-clean"),
+         args.manifest_prefix + ".test-clean"),
+        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(
+            args.target_dir, "dev-clean"), args.manifest_prefix + ".dev-clean"),
+    ]
     if args.full_download:
-        prepare_dataset(
-            url=URL_TRAIN_CLEAN_100,
-            md5sum=MD5_TRAIN_CLEAN_100,
-            target_dir=os.path.join(args.target_dir, "train-clean-100"),
-            manifest_path=args.manifest_prefix + ".train-clean-100")
-        prepare_dataset(
-            url=URL_TEST_OTHER,
-            md5sum=MD5_TEST_OTHER,
-            target_dir=os.path.join(args.target_dir, "test-other"),
-            manifest_path=args.manifest_prefix + ".test-other")
-        prepare_dataset(
-            url=URL_DEV_OTHER,
-            md5sum=MD5_DEV_OTHER,
-            target_dir=os.path.join(args.target_dir, "dev-other"),
-            manifest_path=args.manifest_prefix + ".dev-other")
-        prepare_dataset(
-            url=URL_TRAIN_CLEAN_360,
-            md5sum=MD5_TRAIN_CLEAN_360,
-            target_dir=os.path.join(args.target_dir, "train-clean-360"),
-            manifest_path=args.manifest_prefix + ".train-clean-360")
-        prepare_dataset(
-            url=URL_TRAIN_OTHER_500,
-            md5sum=MD5_TRAIN_OTHER_500,
-            target_dir=os.path.join(args.target_dir, "train-other-500"),
-            manifest_path=args.manifest_prefix + ".train-other-500")
+        tasks.extend([
+            (URL_TRAIN_CLEAN_100, MD5_TRAIN_CLEAN_100,
+             os.path.join(args.target_dir, "train-clean-100"),
+             args.manifest_prefix + ".train-clean-100"),
+            (URL_TEST_OTHER, MD5_TEST_OTHER, os.path.join(args.target_dir,
+                                                          "test-other"),
+             args.manifest_prefix + ".test-other"),
+            (URL_DEV_OTHER, MD5_DEV_OTHER, os.path.join(args.target_dir,
+                                                        "dev-other"),
+             args.manifest_prefix + ".dev-other"),
+            (URL_TRAIN_CLEAN_360, MD5_TRAIN_CLEAN_360,
+             os.path.join(args.target_dir, "train-clean-360"),
+             args.manifest_prefix + ".train-clean-360"),
+            (URL_TRAIN_OTHER_500, MD5_TRAIN_OTHER_500,
+             os.path.join(args.target_dir, "train-other-500"),
+             args.manifest_prefix + ".train-other-500"),
+        ])
+
+    with Pool(7) as pool:
+        pool.starmap(prepare_dataset, tasks)
+
+    print("Data download and manifest prepare done!")
 
 
 if __name__ == '__main__':

@@ -127,7 +127,12 @@ class Trainer():
     @mp_tools.rank_zero_only
     def save(self, tag=None, infos: dict=None):
         """Save checkpoint (model parameters and optimizer states).
+
+        Args:
+            tag (int or str, optional): None for step, else using tag, e.g epoch. Defaults to None.
+            infos (dict, optional): meta data to save. Defaults to None.
         """
+
         infos = infos if infos else dict()
         infos.update({
             "step": self.iteration,
@@ -220,7 +225,7 @@ class Trainer():
                     'epoch', {'cv_loss': cv_loss,
                               'lr': self.lr_scheduler()}, self.epoch)
 
-            self.save(infos={'val_loss': cv_loss})
+            self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.lr_scheduler.step()
             self.new_epoch()
 

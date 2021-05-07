@@ -40,7 +40,8 @@ def sequence_mask(x_len, max_len=None, dtype='float32'):
         [[1., 1., 0., 0.],
          [1., 1., 1., 1.]]
     """
-    assert x_len.dim() == 1
+    # (TODO: Hui Zhang): jit not support Tenosr.dim() and Tensor.ndim
+    # assert x_len.dim() == 1, (x_len.dim(), x_len)
     max_len = max_len or x_len.max()
     x_len = paddle.unsqueeze(x_len, -1)
     row_vector = paddle.arange(max_len)

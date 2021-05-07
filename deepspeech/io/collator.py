@@ -60,7 +60,7 @@ class SpeechCollator():
             # else text is string, convert to unicode ord
             tokens = []
             if self._keep_transcription_text:
-                assert isinstance(text, str), type(text)
+                assert isinstance(text, str), (type(text), text)
                 tokens = [ord(t) for t in text]
             else:
                 tokens = text  # token ids

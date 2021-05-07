@@ -113,6 +113,7 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
+        logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
         grad_clip = ClipGradByGlobalNormWithLog(
@@ -192,7 +193,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, audio, texts, audio_len, texts_len):
+    def compute_metrics(self, audio, audio_len, texts, texts_len):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -253,7 +254,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
-        msg += ", Final error rate [%s] (%d/%d) = %f" % (
+        msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
 
@@ -319,8 +320,9 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         config.defrost()
         # return raw text
 
-        config.data.manifest = config.data.test_manifest
+        config.data.keep_transcription_text = True
         config.data.augmentation_config = ""
+        config.data.manifest = config.data.test_manifest
         test_dataset = ManifestDataset.from_config(config)
 
         # return text ord id

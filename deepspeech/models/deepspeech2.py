@@ -154,9 +154,9 @@ class DeepSpeech2Model(nn.Layer):
         assert (self.encoder.output_size == rnn_size * 2)
 
         self.decoder = CTCDecoder(
-            odim=dict_size + 1,  # <blank> is append after vocab
+            odim=dict_size,  # <blank> is in  vocab
             enc_n_units=self.encoder.output_size,
-            blank_id=dict_size,  # last token is <blank>
+            blank_id=0,  # first token is <blank>
             dropout_rate=0.0,
             reduction=True,  # sum
             batch_average=True)  # sum / batch_size

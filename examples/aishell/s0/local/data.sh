@@ -14,7 +14,7 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     python3 ${TARGET_DIR}/aishell/aishell.py \
     --manifest_prefix="data/manifest" \
     --target_dir="${TARGET_DIR}/aishell"
-    
+
     if [ $? -ne 0 ]; then
         echo "Prepare Aishell failed. Terminated."
         exit 1
@@ -33,7 +33,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --count_threshold=0 \
     --vocab_path="data/vocab.txt" \
     --manifest_paths "data/manifest.train.raw"
-    
+
     if [ $? -ne 0 ]; then
         echo "Build vocabulary failed. Terminated."
         exit 1
@@ -43,19 +43,19 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # compute mean and stddev for normalizer
+    num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
-    --specgram_type="fbank" \
-    --feat_dim=80 \
+    --specgram_type="linear" \
     --delta_delta=false \
     --stride_ms=10.0 \
-    --window_ms=25.0 \
+    --window_ms=20.0 \
     --sample_rate=16000 \
     --use_dB_normalization=False \
     --num_samples=-1 \
-    --num_workers=16 \
+    --num_workers=${num_workers} \
     --output_path="data/mean_std.json"
-    
+
     if [ $? -ne 0 ]; then
         echo "Compute mean and stddev failed. Terminated."
         exit 1
@@ -74,7 +74,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --manifest_path="data/manifest.${dataset}.raw" \
         --output_path="data/manifest.${dataset}"
     done
-    
+
     if [ $? -ne 0 ]; then
         echo "Formt mnaifest failed. Terminated."
         exit 1

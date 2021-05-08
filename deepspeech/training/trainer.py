@@ -264,6 +264,7 @@ class Trainer():
 
     @mp_tools.rank_zero_only
     def destory(self):
+        """Close visualizer to avoid hanging after training"""
         # https://github.com/pytorch/fairseq/issues/2357
         if self.visualizer:
             self.visualizer.close()

@@ -144,12 +144,6 @@ class DeepSpeech2Trainer(Trainer):
 
         config.data.manifest = config.data.dev_manifest
         config.data.augmentation_config = ""
-        config.data.min_input_len = 0.0  # second
-        config.data.max_input_len = float('inf')  # second
-        config.data.min_output_len = 0.0  # tokens
-        config.data.max_output_len = float('inf')  # tokens
-        config.data.min_output_input_ratio = 0.00
-        config.data.max_output_input_ratio = float('inf')
         dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:

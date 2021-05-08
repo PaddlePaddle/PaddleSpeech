@@ -4,12 +4,13 @@ source path.sh
 
 stage=0
 stop_stage=100
-conf_path=conf/deepspeech2.yaml
-ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
-avg_num=1
-avg_ckpt=avg_${avg_num}
-
+conf_path=conf/transformer.yaml
+avg_num=30
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+avg_ckpt=avg_${avg_num}
+ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
+echo "checkpoint name ${ckpt}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

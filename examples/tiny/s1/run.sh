@@ -5,11 +5,13 @@ source path.sh
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
-ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 avg_num=1
-avg_ckpt=avg_${avg_num}
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+avg_ckpt=avg_${avg_num}
+ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
+echo "checkpoint name ${ckpt}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

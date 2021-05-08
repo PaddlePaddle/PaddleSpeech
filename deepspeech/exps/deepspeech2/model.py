@@ -323,6 +323,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         config.data.manifest = config.data.test_manifest
         config.data.keep_transcription_text = True
         config.data.augmentation_config = ""
+        # filter test examples, will cause less examples, but no mismatch with training
+        # and can use large batch size , save training time, so filter test egs now.
         # config.data.min_input_len = 0.0  # second
         # config.data.max_input_len = float('inf')  # second
         # config.data.min_output_len = 0.0  # tokens

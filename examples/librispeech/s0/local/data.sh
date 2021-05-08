@@ -27,6 +27,7 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
         mv data/manifest.${set} data/manifest.${set}.raw
     done
 
+    rm -rf data/manifest.train.raw data/manifest.dev.raw  data/manifest.test.raw
     for set in train-clean-100 train-clean-360 train-other-500; do
         cat data/manifest.${set}.raw >> data/manifest.train.raw
     done

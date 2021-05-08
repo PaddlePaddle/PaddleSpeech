@@ -144,6 +144,12 @@ class DeepSpeech2Trainer(Trainer):
 
         config.data.manifest = config.data.dev_manifest
         config.data.augmentation_config = ""
+        config.data.min_input_len = 0.0  # second
+        config.data.max_input_len: 100.0  # second
+        config.data.min_output_len: 0.0  # tokens
+        config.data.max_output_len: 400.0  # tokens
+        config.data.min_output_input_ratio: 0.00
+        config.data.max_output_input_ratio: 100.0
         dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:
@@ -320,9 +326,15 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         config.defrost()
         # return raw text
 
+        config.data.manifest = config.data.test_manifest
         config.data.keep_transcription_text = True
         config.data.augmentation_config = ""
-        config.data.manifest = config.data.test_manifest
+        config.data.min_input_len = 0.0  # second
+        config.data.max_input_len: 100.0  # second
+        config.data.min_output_len: 0.0  # tokens
+        config.data.max_output_len: 400.0  # tokens
+        config.data.min_output_input_ratio: 0.00
+        config.data.max_output_input_ratio: 100.0
         test_dataset = ManifestDataset.from_config(config)
 
         # return text ord id

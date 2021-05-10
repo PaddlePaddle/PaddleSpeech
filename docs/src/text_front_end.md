@@ -7,6 +7,7 @@
 * [Mmseg算法](https://www.jianshu.com/p/e4ae8d194487)
 * [浅谈中文分词](http://www.isnowfy.com/introduction-to-chinese-segmentation/)
 
+* [pymmseg-cpp](https://github.com/pluskid/pymmseg-cpp.git)
 * [ustcdane/mmseg](https://github.com/ustcdane/mmseg)
 * [jkom-cloud/mmseg](https://github.com/jkom-cloud/mmseg)
 

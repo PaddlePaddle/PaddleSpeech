@@ -29,6 +29,8 @@ In the Pinyin system there are 23 initials, 24 finals, 4 tones and a neutral ton
 ## Tones
 * [Four tones](https://resources.allsetlearning.com/chinese/pronunciation/Four_tones)
 * [Neutral tone](https://resources.allsetlearning.com/chinese/pronunciation/Neutral_tone)
+* [Where do the tone marks go?](http://www.pinyin.info/rules/where.html)
+* [声调符号标在哪儿？](http://www.hwjyw.com/resource/content/2010/06/04/8183.shtml)
 
 ## Zhuyin
 * [Bopomofo](https://en.wikipedia.org/wiki/Bopomofo)

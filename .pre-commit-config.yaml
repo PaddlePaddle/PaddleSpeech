@@ -54,7 +54,7 @@
         entry: python .pre-commit-hooks/copyright-check.hook
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
-        exclude: (?=third_party).*(\.cpp|\.h|\.py)$
+        exclude: (?=third_party|pypinyin).*(\.cpp|\.h|\.py)$
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0
     hooks:

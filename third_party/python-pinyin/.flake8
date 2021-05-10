@@ -1,0 +1,50 @@
+[flake8]
+
+########## OPTIONS ##########
+# Set the maximum length that any line (with some exceptions) may be.
+max-line-length = 120
+
+
+################### FILE PATTERNS ##########################
+# Provide a comma-separated list of glob patterns to exclude from checks.
+exclude =
+    # git folder
+    .git,
+    # python cache
+    __pycache__,
+    third_party/,
+# Provide a comma-separate list of glob patterns to include for checks.
+filename =
+    *.py
+
+
+########## RULES ##########
+
+# ERROR CODES
+#
+# E/W  - PEP8 errors/warnings (pycodestyle)
+# F    - linting errors (pyflakes)
+# C    - McCabe complexity error (mccabe)
+#
+# W503 - line break before binary operator
+
+# Specify a list of codes to ignore.
+ignore =
+    W503
+    E252,E262,E127,E265,E126,E266,E241,E261,E128,E125
+    W291,W293,W605
+    E203,E305,E402,E501,E721,E741,F403,F405,F821,F841,F999,W503,W504,C408,E302,W291,E303,
+    # shebang has extra meaning in fbcode lints, so I think it's not worth trying
+    # to line this up with executable bit
+    EXE001,
+    # these ignores are from flake8-bugbear; please fix!
+    B007,B008,
+    # these ignores are from flake8-comprehensions; please fix!
+    C400,C401,C402,C403,C404,C405,C407,C411,C413,C414,C415
+
+# Specify the list of error codes you wish Flake8 to report.
+select =
+    E,
+    W,
+    F,
+    C

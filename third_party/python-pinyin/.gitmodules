@@ -1,0 +1,6 @@
+[submodule "pinyin-data"]
+	path = pinyin-data
+	url = https://github.com/mozillazg/pinyin-data.git
+[submodule "phrase-pinyin-data"]
+	path = phrase-pinyin-data
+	url = https://github.com/mozillazg/phrase-pinyin-data.git

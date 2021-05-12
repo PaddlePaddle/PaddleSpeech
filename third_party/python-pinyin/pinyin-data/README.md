@@ -19,7 +19,7 @@
 
 [Unihan Database][unihan] 数据版本：
 
-> Date: 2020-02-18 18:27:33 GMT [JHJ]     
+> Date: 2020-02-18 18:27:33 GMT [JHJ]  
 > Unicode version: 13.0.0
 
 * `kTGHZ2013.txt`: [Unihan Database][unihan] 中 [kTGHZ2013](http://www.unicode.org/reports/tr38/#kTGHZ2013) 部分的拼音数据（来源于《通用规范汉字字典》的拼音数据）

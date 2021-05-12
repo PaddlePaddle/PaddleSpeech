@@ -47,7 +47,7 @@ pull_request_rules:
         add: ["README"]
   - name: "auto add label=Documentation"
     conditions:
-      - files~=^doc/
+      - files~=^docs/
     actions:
       label:
         add: ["Documentation"]

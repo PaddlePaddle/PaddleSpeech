@@ -73,7 +73,7 @@ mmseg.Dictionary.load_chars('customize_chars.dic')
 
 # REQUIREMENTS:
 
-* python 2.5+
+* python 3.7+
 * g++
 
 # INSTALLATION:

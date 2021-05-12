@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the impulse response augmentation model."""
-
+from deepspeech.frontend.audio import AudioSegment
 from deepspeech.frontend.augmentor.base import AugmentorBase
 from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.audio import AudioSegment
 
 
 class ImpulseResponseAugmentor(AugmentorBase):
@@ -39,6 +38,7 @@ class ImpulseResponseAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        impulse_json = self._rng.sample(self._impulse_manifest, 1)[0]
+        impulse_json = self._rng.choice(
+            self._impulse_manifest, 1, replace=False)[0]
         impulse_segment = AudioSegment.from_file(impulse_json['audio_filepath'])
         audio_segment.convolve(impulse_segment, allow_resample=True)

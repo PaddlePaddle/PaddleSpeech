@@ -18,18 +18,17 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-
-import distutils.util
-import os
-import wget
-import zipfile
 import argparse
-import soundfile
-import json
 import io
+import json
+import os
+import zipfile
+
+import soundfile
+import wget
 from paddle.v2.dataset.common import md5file
 
-#DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
+# DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 DATA_HOME = os.path.expanduser('.')
 
 URL = "https://d4s.myairbridge.com/packagev2/AG0Y3DNBE5IWRRTV/?dlid=W19XG7T0NNHB027139H0EQ"
@@ -51,9 +50,10 @@ args = parser.parse_args()
 
 def download(url, md5sum, target_dir, filename=None):
     """Download file from url to target_dir, and check md5sum."""
-    if filename == None:
+    if filename is None:
         filename = url.split("/")[-1]
-    if not os.path.exists(target_dir): os.makedirs(target_dir)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
     filepath = os.path.join(target_dir, filename)
     if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
         print("Downloading %s ..." % url)
@@ -95,11 +95,14 @@ def create_manifest(data_dir, manifest_path):
                 audio_data, samplerate = soundfile.read(filepath)
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(
-                    json.dumps({
-                        'audio_filepath': filepath,
-                        'duration': duration,
-                        'text': ''
-                    }))
+                    json.dumps(
+                        {
+                            'utt': os.path.splitext(os.path.basename(filepath))[
+                                0],
+                            'feat': filepath,
+                            'feat_shape': (duration, ),  # second
+                            'type': 'background'
+                        }))
     with io.open(manifest_path, mode='w', encoding='utf8') as out_file:
         for line in json_lines:
             out_file.write(line + '\n')

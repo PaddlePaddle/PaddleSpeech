@@ -12,46 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Server-end for the ASR demo."""
-import os
-import time
-import argparse
 import functools
-import paddle
+
 import numpy as np
+import paddle
 
-from deepspeech.utils.socket_server import warm_up_test
-from deepspeech.utils.socket_server import AsrTCPServer
-from deepspeech.utils.socket_server import AsrRequestHandler
-
-from deepspeech.training.cli import default_argument_parser
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
-
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.utils.utility import add_arguments, print_arguments
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.io.dataset import ManifestDataset
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.training.cli import default_argument_parser
+from deepspeech.utils.socket_server import AsrRequestHandler
+from deepspeech.utils.socket_server import AsrTCPServer
+from deepspeech.utils.socket_server import warm_up_test
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 
 def start_server(config, args):
     """Start the ASR server"""
-    dataset = ManifestDataset(
-        config.data.test_manifest,
-        config.data.vocab_filepath,
-        config.data.mean_std_filepath,
-        augmentation_config="{}",
-        max_duration=config.data.max_duration,
-        min_duration=config.data.min_duration,
-        stride_ms=config.data.stride_ms,
-        window_ms=config.data.window_ms,
-        n_fft=config.data.n_fft,
-        max_freq=config.data.max_freq,
-        target_sample_rate=config.data.target_sample_rate,
-        specgram_type=config.data.specgram_type,
-        use_dB_normalization=config.data.use_dB_normalization,
-        target_dB=config.data.target_dB,
-        random_seed=config.data.random_seed,
-        keep_transcription_text=True)
+    config.defrost()
+    config.data.manfiest = config.data.test_manifest
+    config.data.augmentation_config = ""
+    config.data.keep_transcription_text = True
+    dataset = ManifestDataset.from_config(config)
+
     model = DeepSpeech2Model.from_pretrained(dataset, config,
                                              args.checkpoint_path)
     model.eval()
@@ -111,9 +95,9 @@ if __name__ == "__main__":
     add_arg('speech_save_dir',  str,
             'demo_cache',
             "Directory to save demo audios.")
-    add_arg('warmup_manifest',  str, None, "Filepath of manifest to warm up.")
+    add_arg('warmup_manifest', str, None, "Filepath of manifest to warm up.")
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()
@@ -125,7 +109,7 @@ if __name__ == "__main__":
     print(config)
 
     args.warmup_manifest = config.data.test_manifest
-    print_arguments(args)
+    print_arguments(args, globals())
 
     if args.dump_config:
         with open(args.dump_config, 'w') as f:

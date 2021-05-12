@@ -1,0 +1,7 @@
+# 新增或纠正的拼音数据
+# 升级版本的时候会合并回 pinyin.txt
+# 示例
+斯事体大: sī shì tǐ dà
+朝阳: zhāo yáng
+朝阳_2: cháo yáng
+还君明珠: huán jūn míng zhū

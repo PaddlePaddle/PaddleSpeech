@@ -13,8 +13,9 @@
 # limitations under the License.
 """Record wav from Microphone"""
 # http://people.csail.mit.edu/hubert/pyaudio/
-import pyaudio
 import wave
+
+import pyaudio
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16

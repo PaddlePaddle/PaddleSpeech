@@ -18,13 +18,15 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-
-import os
-import codecs
-import soundfile
-import json
 import argparse
-from utils.utility import download, unpack
+import codecs
+import json
+import os
+
+import soundfile
+
+from utils.utility import download
+from utils.utility import unpack
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
@@ -55,16 +57,17 @@ def create_manifest(data_dir, manifest_path_prefix):
     transcript_dict = {}
     for line in codecs.open(transcript_path, 'r', 'utf-8'):
         line = line.strip()
-        if line == '': continue
+        if line == '':
+            continue
         audio_id, text = line.split(' ', 1)
         # remove withespace
         text = ''.join(text.split())
         transcript_dict[audio_id] = text
 
     data_types = ['train', 'dev', 'test']
-    for type in data_types:
+    for dtype in data_types:
         del json_lines[:]
-        audio_dir = os.path.join(data_dir, 'wav', type)
+        audio_dir = os.path.join(data_dir, 'wav', dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
                 audio_path = os.path.join(subfolder, fname)
@@ -78,12 +81,16 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json_lines.append(
                     json.dumps(
                         {
-                            'audio_filepath': audio_path,
-                            'duration': duration,
-                            'text': text
+                            'utt':
+                            os.path.splitext(os.path.basename(audio_path))[0],
+                            'feat':
+                            audio_path,
+                            'feat_shape': (duration, ),  # second
+                            'text':
+                            text
                         },
                         ensure_ascii=False))
-        manifest_path = manifest_path_prefix + '.' + type
+        manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')

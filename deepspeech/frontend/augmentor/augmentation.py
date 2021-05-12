@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the data augmentation pipeline."""
-
 import json
-import random
-from deepspeech.frontend.augmentor.volume_perturb import VolumePerturbAugmentor
-from deepspeech.frontend.augmentor.shift_perturb import ShiftPerturbAugmentor
-from deepspeech.frontend.augmentor.speed_perturb import SpeedPerturbAugmentor
-from deepspeech.frontend.augmentor.noise_perturb import NoisePerturbAugmentor
+
+import numpy as np
+
 from deepspeech.frontend.augmentor.impulse_response import ImpulseResponseAugmentor
-from deepspeech.frontend.augmentor.resample import ResampleAugmentor
+from deepspeech.frontend.augmentor.noise_perturb import NoisePerturbAugmentor
 from deepspeech.frontend.augmentor.online_bayesian_normalization import \
-     OnlineBayesianNormalizationAugmentor
+    OnlineBayesianNormalizationAugmentor
+from deepspeech.frontend.augmentor.resample import ResampleAugmentor
+from deepspeech.frontend.augmentor.shift_perturb import ShiftPerturbAugmentor
+from deepspeech.frontend.augmentor.spec_augment import SpecAugmentor
+from deepspeech.frontend.augmentor.speed_perturb import SpeedPerturbAugmentor
+from deepspeech.frontend.augmentor.volume_perturb import VolumePerturbAugmentor
 
 
 class AugmentationPipeline():
@@ -83,10 +85,13 @@ class AugmentationPipeline():
     :raises ValueError: If the augmentation json config is in incorrect format".
     """
 
-    def __init__(self, augmentation_config, random_seed=0):
-        self._rng = random.Random(random_seed)
+    def __init__(self, augmentation_config: str, random_seed=0):
+        self._rng = np.random.RandomState(random_seed)
+        self._spec_types = ('specaug')
         self._augmentors, self._rates = self._parse_pipeline_from(
-            augmentation_config)
+            augmentation_config, 'audio')
+        self._spec_augmentors, self._spec_rates = self._parse_pipeline_from(
+            augmentation_config, 'feature')
 
     def transform_audio(self, audio_segment):
         """Run the pre-processing pipeline for data augmentation.
@@ -100,15 +105,41 @@ class AugmentationPipeline():
             if self._rng.uniform(0., 1.) < rate:
                 augmentor.transform_audio(audio_segment)
 
-    def _parse_pipeline_from(self, config_json):
+    def transform_feature(self, spec_segment):
+        """spectrogram augmentation.
+         
+        Args:
+            spec_segment (np.ndarray): audio feature, (D, T).
+        """
+        for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
+            if self._rng.uniform(0., 1.) < rate:
+                spec_segment = augmentor.transform_feature(spec_segment)
+        return spec_segment
+
+    def _parse_pipeline_from(self, config_json, aug_type='audio'):
         """Parse the config json to build a augmentation pipelien."""
+        assert aug_type in ('audio', 'feature'), aug_type
         try:
             configs = json.loads(config_json)
+            audio_confs = []
+            feature_confs = []
+            for config in configs:
+                if config["type"] in self._spec_types:
+                    feature_confs.append(config)
+                else:
+                    audio_confs.append(config)
+
+            if aug_type == 'audio':
+                aug_confs = audio_confs
+            elif aug_type == 'feature':
+                aug_confs = feature_confs
+
             augmentors = [
                 self._get_augmentor(config["type"], config["params"])
-                for config in configs
+                for config in aug_confs
             ]
-            rates = [config["prob"] for config in configs]
+            rates = [config["prob"] for config in aug_confs]
+
         except Exception as e:
             raise ValueError("Failed to parse the augmentation config json: "
                              "%s" % str(e))
@@ -130,5 +161,7 @@ class AugmentationPipeline():
             return NoisePerturbAugmentor(self._rng, **params)
         elif augmentor_type == "impulse":
             return ImpulseResponseAugmentor(self._rng, **params)
+        elif augmentor_type == "specaug":
+            return SpecAugmentor(self._rng, **params)
         else:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)

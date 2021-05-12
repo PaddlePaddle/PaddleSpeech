@@ -1,0 +1,2 @@
+pyquery==1.2.13
+requests==2.20.0

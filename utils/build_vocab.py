@@ -14,54 +14,101 @@
 """Build vocabulary from manifest files.
 Each item in vocabulary file is a character.
 """
-
 import argparse
 import functools
-import codecs
-import json
+import os
+import tempfile
 from collections import Counter
-import os.path
 
+from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
+from deepspeech.frontend.utility import BLANK
 from deepspeech.frontend.utility import read_manifest
-from deepspeech.utils.utility import add_arguments, print_arguments
+from deepspeech.frontend.utility import SOS
+from deepspeech.frontend.utility import UNK
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
-add_arg('vocab_path',       str,
+add_arg('unit_type', str, "char", "Unit type, e.g. char, word, spm")
+add_arg('count_threshold', int, 0,
+        "Truncation threshold for char/word counts.Default 0, no truncate.")
+add_arg('vocab_path', str,
         'examples/librispeech/data/vocab.txt',
         "Filepath to write the vocabulary.")
-add_arg('manifest_paths',   str,
+add_arg('manifest_paths', str,
         None,
         "Filepaths of manifests for building vocabulary. "
         "You can provide multiple manifest files.",
         nargs='+',
         required=True)
+# bpe
+add_arg('spm_vocab_size', int, 0, "Vocab size for spm.")
+add_arg('spm_mode', str, 'unigram', "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
+add_arg('spm_model_prefix', str, "", "spm_model_%(spm_mode)_%(count_threshold), spm model prefix, only need when `unit_type` is spm")
 # yapf: disable
 args = parser.parse_args()
 
 
-def count_manifest(counter, manifest_path):
+def count_manifest(counter, text_feature, manifest_path):
     manifest_jsons = read_manifest(manifest_path)
     for line_json in manifest_jsons:
-        for char in line_json['text']:
-            counter.update(char)
+        line = text_feature.tokenize(line_json['text'])
+        counter.update(line)
 
+def dump_text_manifest(fileobj, manifest_path):
+    manifest_jsons = read_manifest(manifest_path)
+    for line_json in manifest_jsons:
+        fileobj.write(line_json['text'] + "\n")
 
 def main():
-    print_arguments(args)
+    print_arguments(args, globals())
 
+    fout = open(args.vocab_path, 'w', encoding='utf-8')
+    fout.write(BLANK + "\n")  # 0 will be used for "blank" in CTC
+    fout.write(UNK + '\n')  # <unk> must be 1
+
+    if args.unit_type == 'spm':
+        # tools/spm_train --input=$wave_data/lang_char/input.txt 
+        # --vocab_size=${nbpe} --model_type=${bpemode} 
+        # --model_prefix=${bpemodel} --input_sentence_size=100000000
+        import sentencepiece as spm
+
+        fp = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        for manifest_path in args.manifest_paths:
+            dump_text_manifest(fp, manifest_path)
+        fp.close()
+        # train
+        spm.SentencePieceTrainer.Train(
+            input=fp.name,
+            vocab_size=args.spm_vocab_size,
+            model_type=args.spm_mode,
+            model_prefix=args.spm_model_prefix,
+            input_sentence_size=100000000,
+            character_coverage=0.9995)
+        os.unlink(fp.name)
+
+    # encode
+    text_feature = TextFeaturizer(args.unit_type, "", args.spm_model_prefix)
     counter = Counter()
+
     for manifest_path in args.manifest_paths:
-        count_manifest(counter, manifest_path)
+        count_manifest(counter, text_feature, manifest_path)
 
     count_sorted = sorted(counter.items(), key=lambda x: x[1], reverse=True)
-    with codecs.open(args.vocab_path, 'w', 'utf-8') as fout:
-        fout.write('<unk>' + '\n')
-        for char, count in count_sorted:
-            if count < args.count_threshold: break
-            fout.write(char + '\n')
+    tokens = []
+    for token, count in count_sorted:
+        if count < args.count_threshold:
+            break
+        tokens.append(token)
+
+    tokens = sorted(tokens)
+    for token in tokens:
+        fout.write(token + '\n')
+
+    fout.write(SOS + "\n")  # <sos/eos>
+    fout.close()
 
 
 if __name__ == '__main__':

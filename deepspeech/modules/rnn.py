@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import math
-import logging
 
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
-from deepspeech.modules.mask import sequence_mask
 from deepspeech.modules.activation import brelu
+from deepspeech.modules.mask import sequence_mask
+from deepspeech.utils.log import Log
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['RNNStack']
 
@@ -41,7 +40,7 @@ class RNNCell(nn.RNNCellBase):
     """
 
     def __init__(self,
-                 hidden_size,
+                 hidden_size: int,
                  activation="tanh",
                  weight_ih_attr=None,
                  weight_hh_attr=None,
@@ -108,8 +107,8 @@ class GRUCell(nn.RNNCellBase):
     """
 
     def __init__(self,
-                 input_size,
-                 hidden_size,
+                 input_size: int,
+                 hidden_size: int,
                  weight_ih_attr=None,
                  weight_hh_attr=None,
                  bias_ih_attr=None,
@@ -132,7 +131,6 @@ class GRUCell(nn.RNNCellBase):
         self.input_size = input_size
         self._gate_activation = F.sigmoid
         self._activation = paddle.tanh
-        #self._activation = F.relu
 
     def forward(self, inputs, states=None):
         if states is None:
@@ -171,8 +169,6 @@ class BiRNNWithBN(nn.Layer):
     """Bidirectonal simple rnn layer with sequence-wise batch normalization.
     The batch normalization is only performed on input-state weights.
 
-    :param name: Name of the layer parameters.
-    :type name: string
     :param size: Dimension of RNN cells.
     :type size: int
     :param share_weights: Whether to share input-hidden weights between
@@ -182,7 +178,7 @@ class BiRNNWithBN(nn.Layer):
     :rtype: Variable
     """
 
-    def __init__(self, i_size, h_size, share_weights):
+    def __init__(self, i_size: int, h_size: int, share_weights: bool):
         super().__init__()
         self.share_weights = share_weights
         if self.share_weights:
@@ -208,7 +204,7 @@ class BiRNNWithBN(nn.Layer):
         self.bw_rnn = nn.RNN(
             self.fw_cell, is_reverse=True, time_major=False)  #[B, T, D]
 
-    def forward(self, x, x_len):
+    def forward(self, x: paddle.Tensor, x_len: paddle.Tensor):
         # x, shape [B, T, D]
         fw_x = self.fw_bn(self.fw_fc(x))
         bw_x = self.bw_bn(self.bw_fc(x))
@@ -234,7 +230,7 @@ class BiGRUWithBN(nn.Layer):
     :rtype: Variable
     """
 
-    def __init__(self, i_size, h_size, act):
+    def __init__(self, i_size: int, h_size: int):
         super().__init__()
         hidden_size = h_size * 3
 
@@ -281,23 +277,29 @@ class RNNStack(nn.Layer):
     :rtype: Variable
     """
 
-    def __init__(self, i_size, h_size, num_stacks, use_gru, share_rnn_weights):
+    def __init__(self,
+                 i_size: int,
+                 h_size: int,
+                 num_stacks: int,
+                 use_gru: bool,
+                 share_rnn_weights: bool):
         super().__init__()
-        self.rnn_stacks = nn.LayerList()
+        rnn_stacks = []
         for i in range(num_stacks):
             if use_gru:
                 #default:GRU using tanh
-                self.rnn_stacks.append(
-                    BiGRUWithBN(i_size=i_size, h_size=h_size, act="relu"))
+                rnn_stacks.append(BiGRUWithBN(i_size=i_size, h_size=h_size))
             else:
-                self.rnn_stacks.append(
+                rnn_stacks.append(
                     BiRNNWithBN(
                         i_size=i_size,
                         h_size=h_size,
                         share_weights=share_rnn_weights))
             i_size = h_size * 2
 
-    def forward(self, x, x_len):
+        self.rnn_stacks = nn.ModuleList(rnn_stacks)
+
+    def forward(self, x: paddle.Tensor, x_len: paddle.Tensor):
         """
         x: shape [B, T, D]
         x_len: shpae [B]

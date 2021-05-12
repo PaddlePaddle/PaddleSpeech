@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from yacs.config import CfgNode as CN
+
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 
 _C = CN()
@@ -21,7 +21,9 @@ _C.data = CN(
         train_manifest="",
         dev_manifest="",
         test_manifest="",
+        unit_type="char",
         vocab_filepath="",
+        spm_model_prefix="",
         mean_std_filepath="",
         augmentation_config="",
         max_duration=float('inf'),
@@ -30,8 +32,10 @@ _C.data = CN(
         window_ms=20.0,  # ms
         n_fft=None,  # fft points
         max_freq=None,  # None for samplerate/2
-        specgram_type='linear',  # 'linear', 'mfcc'
-        target_sample_rate=16000,  # sample rate
+        specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+        feat_dim=0,  # 'mfcc', 'fbank'
+        delat_delta=False,  # 'mfcc', 'fbank'
+        target_sample_rate=16000,  # target sample rate
         use_dB_normalization=True,
         target_dB=-20,
         random_seed=0,
@@ -81,4 +85,6 @@ def get_cfg_defaults():
     """Get a yacs CfgNode object with default values for my_project."""
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
-    return _C.clone()
+    config = _C.clone()
+    config.set_new_allowed(True)
+    return config

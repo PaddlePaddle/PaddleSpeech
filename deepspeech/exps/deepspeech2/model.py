@@ -12,46 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains DeepSpeech2 model."""
-
-import io
-import sys
-import os
 import time
-import logging
-import numpy as np
 from collections import defaultdict
-from functools import partial
 from pathlib import Path
 
+import numpy as np
 import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
 
-from deepspeech.training import Trainer
-from deepspeech.training.gradclip import MyClipGradByGlobalNorm
-
-from deepspeech.utils import mp_tools
-from deepspeech.utils import layer_tools
-from deepspeech.utils import error_rate
-
 from deepspeech.io.collator import SpeechCollator
-from deepspeech.io.sampler import SortagradDistributedBatchSampler
-from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.dataset import ManifestDataset
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.io.sampler import SortagradBatchSampler
+from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
+from deepspeech.training.trainer import Trainer
+from deepspeech.utils import error_rate
+from deepspeech.utils import layer_tools
+from deepspeech.utils import mp_tools
+from deepspeech.utils.log import Log
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 
 class DeepSpeech2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def train_batch(self, batch_data):
+    def train_batch(self, batch_index, batch_data, msg):
         start = time.time()
-        self.model.train()
+
         loss = self.model(*batch_data)
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
@@ -63,46 +55,49 @@ class DeepSpeech2Trainer(Trainer):
         losses_np = {
             'train_loss': float(loss),
         }
-        msg = "Train: Rank: {}, ".format(dist.get_rank())
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
-        msg += "time: {:>.3f}s, ".format(iteration_time)
+        msg += "train time: {:>.3f}s, ".format(iteration_time)
+        msg += "batch size: {}, ".format(self.config.data.batch_size)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)
                          for k, v in losses_np.items())
-        self.logger.info(msg)
+        logger.info(msg)
 
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 self.visualizer.add_scalar("train/{}".format(k), v,
                                            self.iteration)
+        self.iteration += 1
 
-    @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
-        self.logger.info(
-            f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         self.model.eval()
         valid_losses = defaultdict(list)
+        num_seen_utts = 1
+        total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
             loss = self.model(*batch)
+            if paddle.isfinite(loss):
+                num_utts = batch[0].shape[0]
+                num_seen_utts += num_utts
+                total_loss += float(loss) * num_utts
+                valid_losses['val_loss'].append(float(loss))
 
-            valid_losses['val_loss'].append(float(loss))
+            if (i + 1) % self.config.training.log_interval == 0:
+                valid_dump = {k: np.mean(v) for k, v in valid_losses.items()}
+                valid_dump['val_history_loss'] = total_loss / num_seen_utts
 
-        # write visual log
-        valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
+                # logging
+                msg = f"Valid: Rank: {dist.get_rank()}, "
+                msg += "epoch: {}, ".format(self.epoch)
+                msg += "step: {}, ".format(self.iteration)
+                msg += "batch : {}/{}, ".format(i + 1, len(self.valid_loader))
+                msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                 for k, v in valid_dump.items())
+                logger.info(msg)
 
-        # logging
-        msg = f"Valid: Rank: {dist.get_rank()}, "
-        msg += "epoch: {}, ".format(self.epoch)
-        msg += "step: {}, ".format(self.iteration)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in valid_losses.items())
-        self.logger.info(msg)
-
-        if self.visualizer:
-            for k, v in valid_losses.items():
-                self.visualizer.add_scalar("valid/{}".format(k), v,
-                                           self.iteration)
+        logger.info('Rank {} Val info val_loss {}'.format(
+            dist.get_rank(), total_loss / num_seen_utts))
+        return total_loss, num_seen_utts
 
     def setup_model(self):
         config = self.config
@@ -118,9 +113,11 @@ class DeepSpeech2Trainer(Trainer):
         if self.parallel:
             model = paddle.DataParallel(model)
 
-        layer_tools.print_params(model, self.logger.info)
+        logger.info(f"{model}")
+        layer_tools.print_params(model, logger.info)
 
-        grad_clip = MyClipGradByGlobalNorm(config.training.global_grad_clip)
+        grad_clip = ClipGradByGlobalNormWithLog(
+            config.training.global_grad_clip)
         lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
             learning_rate=config.training.lr,
             gamma=config.training.lr_decay,
@@ -135,48 +132,19 @@ class DeepSpeech2Trainer(Trainer):
         self.model = model
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
-        self.logger.info("Setup model/optimizer/lr_scheduler!")
+        logger.info("Setup model/optimizer/lr_scheduler!")
 
     def setup_dataloader(self):
-        config = self.config
+        config = self.config.clone()
+        config.defrost()
+        config.data.keep_transcription_text = False
 
-        train_dataset = ManifestDataset(
-            config.data.train_manifest,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            augmentation_config=io.open(
-                config.data.augmentation_config, mode='r',
-                encoding='utf8').read(),
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+        config.data.manifest = config.data.train_manifest
+        train_dataset = ManifestDataset.from_config(config)
 
-        dev_dataset = ManifestDataset(
-            config.data.dev_manifest,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            augmentation_config="{}",
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=False)
+        config.data.manifest = config.data.dev_manifest
+        config.data.augmentation_config = ""
+        dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
@@ -197,7 +165,7 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.data.sortagrad,
                 shuffle_method=config.data.shuffle_method)
 
-        collate_fn = SpeechCollator(is_training=True)
+        collate_fn = SpeechCollator(keep_transcription_text=False)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
@@ -209,7 +177,7 @@ class DeepSpeech2Trainer(Trainer):
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn)
-        self.logger.info("Setup train/valid Dataloader!")
+        logger.info("Setup train/valid Dataloader!")
 
 
 class DeepSpeech2Tester(DeepSpeech2Trainer):
@@ -225,7 +193,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, audio, texts, audio_len, texts_len):
+    def compute_metrics(self, audio, audio_len, texts, texts_len):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -252,11 +220,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
-            self.logger.info(
-                "\nTarget Transcription: %s\nOutput Transcription: %s" %
-                (target, result))
-            self.logger.info("Current error rate [%s] = %f" % (
-                cfg.error_rate_type, error_rate_func(target, result)))
+            logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
+                        (target, result))
+            logger.info("Current error rate [%s] = %f" %
+                        (cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
@@ -268,8 +235,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def test(self):
-        self.logger.info(
-            f"Test Total Examples: {len(self.test_loader.dataset)}")
+        logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
         self.model.eval()
         cfg = self.config
         error_rate_type = None
@@ -281,19 +247,19 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             len_refs += metrics['len_refs']
             num_ins += metrics['num_ins']
             error_rate_type = metrics['error_rate_type']
-            self.logger.info("Error rate [%s] (%d/?) = %f" %
-                             (error_rate_type, num_ins, errors_sum / len_refs))
+            logger.info("Error rate [%s] (%d/?) = %f" %
+                        (error_rate_type, num_ins, errors_sum / len_refs))
 
         # logging
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
-        msg += ", Final error rate [%s] (%d/%d) = %f" % (
+        msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
-        self.logger.info(msg)
+        logger.info(msg)
 
     def run_test(self):
-        self.resume_or_load()
+        self.resume_or_scratch()
         try:
             self.test()
         except KeyboardInterrupt:
@@ -329,7 +295,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         self.setup_output_dir()
         self.setup_checkpointer()
-        self.setup_logger()
 
         self.setup_dataloader()
         self.setup_model()
@@ -348,28 +313,25 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights)
         self.model = model
-        self.logger.info("Setup model!")
+        logger.info("Setup model!")
 
     def setup_dataloader(self):
-        config = self.config
+        config = self.config.clone()
+        config.defrost()
         # return raw text
-        test_dataset = ManifestDataset(
-            config.data.test_manifest,
-            config.data.vocab_filepath,
-            config.data.mean_std_filepath,
-            augmentation_config="{}",
-            max_duration=config.data.max_duration,
-            min_duration=config.data.min_duration,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=True)
+
+        config.data.manifest = config.data.test_manifest
+        config.data.keep_transcription_text = True
+        config.data.augmentation_config = ""
+        # filter test examples, will cause less examples, but no mismatch with training
+        # and can use large batch size , save training time, so filter test egs now.
+        # config.data.min_input_len = 0.0  # second
+        # config.data.max_input_len = float('inf')  # second
+        # config.data.min_output_len = 0.0  # tokens
+        # config.data.max_output_len = float('inf')  # tokens
+        # config.data.min_output_input_ratio = 0.00
+        # config.data.max_output_input_ratio = float('inf')
+        test_dataset = ManifestDataset.from_config(config)
 
         # return text ord id
         self.test_loader = DataLoader(
@@ -377,8 +339,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=SpeechCollator(is_training=False))
-        self.logger.info("Setup test Dataloader!")
+            collate_fn=SpeechCollator(keep_transcription_text=True))
+        logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):
         """Create a directory used for output.
@@ -393,25 +355,3 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             output_dir.mkdir(parents=True, exist_ok=True)
 
         self.output_dir = output_dir
-
-    def setup_logger(self):
-        """Initialize a text logger to log the experiment.
-        
-        Each process has its own text logger. The logging message is write to 
-        the standard output and a text file named ``worker_n.log`` in the 
-        output directory, where ``n`` means the rank of the process. 
-        """
-        format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
-
-        logger.setLevel("INFO")
-
-        # global logger
-        stdout = True
-        save_path = ""
-        logging.basicConfig(
-            level=logging.DEBUG if stdout else logging.INFO,
-            format=format,
-            datefmt='%Y/%m/%d %H:%M:%S',
-            filename=save_path if not stdout else None)
-        self.logger = logger

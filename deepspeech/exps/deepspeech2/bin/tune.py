@@ -12,26 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Beam search parameters tuning for DeepSpeech2 model."""
-
-import sys
-import os
-import numpy as np
-import argparse
 import functools
-import gzip
-import logging
+import sys
 
+import numpy as np
 from paddle.io import DataLoader
 
-from deepspeech.utils import error_rate
-from deepspeech.utils.utility import add_arguments, print_arguments
-
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-
+from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.training.cli import default_argument_parser
-from deepspeech.exps.deepspeech2.config import get_cfg_defaults
+from deepspeech.utils import error_rate
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 
 def tune(config, args):
@@ -40,31 +34,18 @@ def tune(config, args):
         raise ValueError("num_alphas must be non-negative!")
     if not args.num_betas >= 0:
         raise ValueError("num_betas must be non-negative!")
-
-    dev_dataset = ManifestDataset(
-        config.data.dev_manifest,
-        config.data.vocab_filepath,
-        config.data.mean_std_filepath,
-        augmentation_config="{}",
-        max_duration=config.data.max_duration,
-        min_duration=config.data.min_duration,
-        stride_ms=config.data.stride_ms,
-        window_ms=config.data.window_ms,
-        n_fft=config.data.n_fft,
-        max_freq=config.data.max_freq,
-        target_sample_rate=config.data.target_sample_rate,
-        specgram_type=config.data.specgram_type,
-        use_dB_normalization=config.data.use_dB_normalization,
-        target_dB=config.data.target_dB,
-        random_seed=config.data.random_seed,
-        keep_transcription_text=True)
+    config.defrost()
+    config.data.manfiest = config.data.dev_manifest
+    config.data.augmentation_config = ""
+    config.data.keep_transcription_text = True
+    dev_dataset = ManifestDataset.from_config(config)
 
     valid_loader = DataLoader(
         dev_dataset,
         batch_size=config.data.batch_size,
         shuffle=False,
         drop_last=False,
-        collate_fn=SpeechCollator(is_training=False))
+        collate_fn=SpeechCollator(keep_transcription_text=True))
 
     model = DeepSpeech2Model.from_pretrained(dev_dataset, config,
                                              args.checkpoint_path)
@@ -103,13 +84,13 @@ def tune(config, args):
                 trans.append(''.join([chr(i) for i in ids]))
             return trans
 
-        audio, text, audio_len, text_len = infer_data
+        audio, audio_len, text, text_len = infer_data
         target_transcripts = ordid2token(text, text_len)
         num_ins += audio.shape[0]
 
         # model infer
         eouts, eouts_len = model.encoder(audio, audio_len)
-        probs = model.decoder.probs(eouts)
+        probs = model.decoder.softmax(eouts)
 
         # grid search
         for index, (alpha, beta) in enumerate(params_grid):
@@ -134,7 +115,7 @@ def tune(config, args):
             if index % 2 == 0:
                 sys.stdout.write('.')
                 sys.stdout.flush()
-            print(f"tuneing: one grid done!")
+            print("tuneing: one grid done!")
 
         # output on-line tuning result at the end of current batch
         err_ave_min = min(err_ave)
@@ -185,7 +166,7 @@ if __name__ == "__main__":
     add_arg('cutoff_top_n', int, 40, "Cutoff number for pruning.")
 
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()

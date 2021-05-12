@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contain the resample augmentation model."""
-
 from deepspeech.frontend.augmentor.base import AugmentorBase
 
 

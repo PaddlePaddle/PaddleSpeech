@@ -11,26 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import math
-import random
-import tarfile
-import logging
-import numpy as np
-from collections import namedtuple
-from functools import partial
 
-import paddle
+import numpy as np
+from paddle import distributed as dist
 from paddle.io import BatchSampler
 from paddle.io import DistributedBatchSampler
-from paddle import distributed as dist
 
-logger = logging.getLogger(__name__)
+from deepspeech.utils.log import Log
 
 __all__ = [
     "SortagradDistributedBatchSampler",
     "SortagradBatchSampler",
 ]
+
+logger = Log(__name__).getlog()
 
 
 def _batch_shuffle(indices, batch_size, epoch, clipped=False):
@@ -59,7 +54,7 @@ def _batch_shuffle(indices, batch_size, epoch, clipped=False):
     batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
     rng.shuffle(batch_indices)
     batch_indices = [item for batch in batch_indices for item in batch]
-    assert (clipped == False)
+    assert clipped is False
     if not clipped:
         res_len = len(indices) - shift_len - len(batch_indices)
         # when res_len is 0, will return whole list, len(List[-0:]) = len(List[:])
@@ -161,7 +156,7 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
-                logger.info(
+                logger.debug(
                     f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []
@@ -195,13 +190,13 @@ class SortagradBatchSampler(BatchSampler):
         self.dataset = dataset
 
         assert isinstance(batch_size, int) and batch_size > 0, \
-                "batch_size should be a positive integer"
+            "batch_size should be a positive integer"
         self.batch_size = batch_size
         assert isinstance(shuffle, bool), \
-                "shuffle should be a boolean value"
+            "shuffle should be a boolean value"
         self.shuffle = shuffle
         assert isinstance(drop_last, bool), \
-                "drop_last should be a boolean number"
+            "drop_last should be a boolean number"
 
         self.drop_last = drop_last
         self.epoch = 0
@@ -241,7 +236,7 @@ class SortagradBatchSampler(BatchSampler):
         for idx in _sample_iter:
             batch_indices.append(idx)
             if len(batch_indices) == self.batch_size:
-                logger.info(
+                logger.debug(
                     f"rank: {dist.get_rank()} batch index: {batch_indices} ")
                 yield batch_indices
                 batch_indices = []

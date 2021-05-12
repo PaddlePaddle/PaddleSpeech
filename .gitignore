@@ -5,3 +5,8 @@ tools/venv
 *.log
 *.pdmodel
 *.pdiparams*
+*.zip
+*.tar
+*.tar.gz
+.ipynb_checkpoints
+*.npz

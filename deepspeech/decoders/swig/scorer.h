@@ -34,14 +34,14 @@ const std::string END_TOKEN = "</s>";
 
 // Implement a callback to retrive the dictionary of language model.
 class RetriveStrEnumerateVocab : public lm::EnumerateVocab {
-public:
-  RetriveStrEnumerateVocab() {}
+  public:
+    RetriveStrEnumerateVocab() {}
 
-  void Add(lm::WordIndex index, const StringPiece &str) {
-    vocabulary.push_back(std::string(str.data(), str.length()));
-  }
+    void Add(lm::WordIndex index, const StringPiece &str) {
+        vocabulary.push_back(std::string(str.data(), str.length()));
+    }
 
-  std::vector<std::string> vocabulary;
+    std::vector<std::string> vocabulary;
 };
 
 /* External scorer to query score for n-gram or sentence, including language
@@ -53,74 +53,74 @@ public:
  *     scorer.get_sent_log_prob({ "WORD1", "WORD2", "WORD3" });
  */
 class Scorer {
-public:
-  Scorer(double alpha,
-         double beta,
-         const std::string &lm_path,
-         const std::vector<std::string> &vocabulary);
-  ~Scorer();
+  public:
+    Scorer(double alpha,
+           double beta,
+           const std::string &lm_path,
+           const std::vector<std::string> &vocabulary);
+    ~Scorer();
 
-  double get_log_cond_prob(const std::vector<std::string> &words);
+    double get_log_cond_prob(const std::vector<std::string> &words);
 
-  double get_sent_log_prob(const std::vector<std::string> &words);
+    double get_sent_log_prob(const std::vector<std::string> &words);
 
-  // return the max order
-  size_t get_max_order() const { return max_order_; }
+    // return the max order
+    size_t get_max_order() const { return max_order_; }
 
-  // return the dictionary size of language model
-  size_t get_dict_size() const { return dict_size_; }
+    // return the dictionary size of language model
+    size_t get_dict_size() const { return dict_size_; }
 
-  // retrun true if the language model is character based
-  bool is_character_based() const { return is_character_based_; }
+    // retrun true if the language model is character based
+    bool is_character_based() const { return is_character_based_; }
 
-  // reset params alpha & beta
-  void reset_params(float alpha, float beta);
+    // reset params alpha & beta
+    void reset_params(float alpha, float beta);
 
-  // make ngram for a given prefix
-  std::vector<std::string> make_ngram(PathTrie *prefix);
+    // make ngram for a given prefix
+    std::vector<std::string> make_ngram(PathTrie *prefix);
 
-  // trransform the labels in index to the vector of words (word based lm) or
-  // the vector of characters (character based lm)
-  std::vector<std::string> split_labels(const std::vector<int> &labels);
+    // trransform the labels in index to the vector of words (word based lm) or
+    // the vector of characters (character based lm)
+    std::vector<std::string> split_labels(const std::vector<int> &labels);
 
-  // language model weight
-  double alpha;
-  // word insertion weight
-  double beta;
+    // language model weight
+    double alpha;
+    // word insertion weight
+    double beta;
 
-  // pointer to the dictionary of FST
-  void *dictionary;
+    // pointer to the dictionary of FST
+    void *dictionary;
 
-protected:
-  // necessary setup: load language model, set char map, fill FST's dictionary
-  void setup(const std::string &lm_path,
-             const std::vector<std::string> &vocab_list);
+  protected:
+    // necessary setup: load language model, set char map, fill FST's dictionary
+    void setup(const std::string &lm_path,
+               const std::vector<std::string> &vocab_list);
 
-  // load language model from given path
-  void load_lm(const std::string &lm_path);
+    // load language model from given path
+    void load_lm(const std::string &lm_path);
 
-  // fill dictionary for FST
-  void fill_dictionary(bool add_space);
+    // fill dictionary for FST
+    void fill_dictionary(bool add_space);
 
-  // set char map
-  void set_char_map(const std::vector<std::string> &char_list);
+    // set char map
+    void set_char_map(const std::vector<std::string> &char_list);
 
-  double get_log_prob(const std::vector<std::string> &words);
+    double get_log_prob(const std::vector<std::string> &words);
 
-  // translate the vector in index to string
-  std::string vec2str(const std::vector<int> &input);
+    // translate the vector in index to string
+    std::string vec2str(const std::vector<int> &input);
 
-private:
-  void *language_model_;
-  bool is_character_based_;
-  size_t max_order_;
-  size_t dict_size_;
+  private:
+    void *language_model_;
+    bool is_character_based_;
+    size_t max_order_;
+    size_t dict_size_;
 
-  int SPACE_ID_;
-  std::vector<std::string> char_list_;
-  std::unordered_map<std::string, int> char_map_;
+    int SPACE_ID_;
+    std::vector<std::string> char_list_;
+    std::unordered_map<std::string, int> char_map_;
 
-  std::vector<std::string> vocabulary_;
+    std::vector<std::string> vocabulary_;
 };
 
 #endif  // SCORER_H_

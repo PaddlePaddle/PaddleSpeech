@@ -16,8 +16,8 @@
 ---
 Language:        Cpp
 BasedOnStyle:  Google
-IndentWidth:     2
-TabWidth:        2
+IndentWidth:     4
+TabWidth:        4
 ContinuationIndentWidth: 4
 MaxEmptyLinesToKeep: 2
 AccessModifierOffset: -2  # The private/protected/public has no indent in class

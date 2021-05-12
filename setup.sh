@@ -8,11 +8,13 @@ if [ $(id -u) -eq 0 ]; then
   SUDO=''
 fi
 
-if [ -e /etc/lsb-release ]; then
-    ${SUDO} apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
-else
-    error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
-    exit -1
+if [ -e /etc/lsb-release ];then
+    #${SUDO} apt-get update
+    ${SUDO} apt-get install -y vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    if [ $? != 0 ]; then
+        error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
+        exit -1
+    fi
 fi
 
 # install python dependencies
@@ -53,5 +55,15 @@ if [ $? != 0 ]; then
    error_msg "Please check why decoder install error!"
    exit -1
 fi
+
+
+# install kaldi-comptiable feature 
+pushd third_party/python_kaldi_features/
+python setup.py install
+if [ $? != 0 ]; then
+   error_msg "Please check why kaldi feature install error!"
+   exit -1
+fi
+popd
 
 info_msg "Install all dependencies successfully."

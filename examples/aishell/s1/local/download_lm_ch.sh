@@ -1,0 +1,1 @@
+../../s0/local/download_lm_ch.sh

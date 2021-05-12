@@ -11,38 +11,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import logging
-from typeguard import check_argument_types
-
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from paddle.nn import initializer as I
+from typeguard import check_argument_types
 
-from deepspeech.decoders.swig_wrapper import Scorer
-from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
 from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
+from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
+from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.modules.loss import CTCLoss
+from deepspeech.utils import ctc_utils
+from deepspeech.utils.log import Log
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['CTCDecoder']
 
 
 class CTCDecoder(nn.Layer):
     def __init__(self,
-                 enc_n_units,
                  odim,
+                 enc_n_units,
                  blank_id=0,
                  dropout_rate: float=0.0,
                  reduction: bool=True,
-                 batch_average: bool=False):
+                 batch_average: bool=True):
         """CTC decoder
 
         Args:
+            odim ([int]): text vocabulary size
             enc_n_units ([int]): encoder output dimention
-            vocab_size ([int]): text vocabulary size
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
@@ -72,38 +70,31 @@ class CTCDecoder(nn.Layer):
             ys_pad (Tenosr): batch of padded character id sequence tensor (B, Lmax)
             ys_lens (Tensor): batch of lengths of character sequence (B)
         Returns:
-            loss (Tenosr): scalar.
+            loss (Tenosr): ctc loss value, scalar.
         """
         logits = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
         loss = self.criterion(logits, ys_pad, hlens, ys_lens)
         return loss
 
-    def probs(self, eouts: paddle.Tensor, temperature: float=1.0):
+    def softmax(self, eouts: paddle.Tensor, temperature: float=1.0):
         """Get CTC probabilities.
         Args:
             eouts (FloatTensor): `[B, T, enc_units]`
         Returns:
             probs (FloatTensor): `[B, T, odim]`
         """
-        return F.softmax(self.ctc_lo(eouts) / temperature, axis=-1)
+        self.probs = F.softmax(self.ctc_lo(eouts) / temperature, axis=2)
+        return self.probs
 
-    def scores(self, eouts: paddle.Tensor, temperature: float=1.0):
-        """Get log-scale CTC probabilities.
-        Args:
-            eouts (FloatTensor): `[B, T, enc_units]`
-        Returns:
-            log_probs (FloatTensor): `[B, T, odim]`
-        """
-        return F.log_softmax(self.ctc_lo(eouts) / temperature, axis=-1)
-
-    def log_softmax(self, hs_pad: paddle.Tensor) -> paddle.Tensor:
+    def log_softmax(self, hs_pad: paddle.Tensor,
+                    temperature: float=1.0) -> paddle.Tensor:
         """log_softmax of frame activations
         Args:
             Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
         Returns:
             paddle.Tensor: log softmax applied 3d tensor (B, Tmax, odim)
         """
-        return self.scores(hs_pad)
+        return F.log_softmax(self.ctc_lo(hs_pad) / temperature, axis=2)
 
     def argmax(self, hs_pad: paddle.Tensor) -> paddle.Tensor:
         """argmax of frame activations
@@ -113,6 +104,20 @@ class CTCDecoder(nn.Layer):
             paddle.Tensor: argmax applied 2d tensor (B, Tmax)
         """
         return paddle.argmax(self.ctc_lo(hs_pad), dim=2)
+
+    def forced_align(self,
+                     ctc_probs: paddle.Tensor,
+                     y: paddle.Tensor,
+                     blank_id=0) -> list:
+        """ctc forced alignment.
+        Args:
+            ctc_probs (paddle.Tensor): hidden state sequence, 2d tensor (T, D)
+            y (paddle.Tensor): label id sequence tensor, 1d tensor (L)
+            blank_id (int): blank symbol index
+        Returns:
+            paddle.Tensor: best alignment result, (T).
+        """
+        return ctc_utils.forced_align(ctc_probs, y, blank_id)
 
     def _decode_batch_greedy(self, probs_split, vocab_list):
         """Decode by best path for a batch of probs matrix input.
@@ -147,7 +152,7 @@ class CTCDecoder(nn.Layer):
         :type vocab_list: list
         """
         # init once
-        if self._ext_scorer != None:
+        if self._ext_scorer is not None:
             return
 
         if language_model_path != '':
@@ -195,7 +200,7 @@ class CTCDecoder(nn.Layer):
         :return: List of transcription texts.
         :rtype: List of str
         """
-        if self._ext_scorer != None:
+        if self._ext_scorer is not None:
             self._ext_scorer.reset_params(beam_alpha, beam_beta)
 
         # beam search decode
@@ -221,9 +226,28 @@ class CTCDecoder(nn.Layer):
     def decode_probs(self, probs, logits_lens, vocab_list, decoding_method,
                      lang_model_path, beam_alpha, beam_beta, beam_size,
                      cutoff_prob, cutoff_top_n, num_processes):
-        """ probs: activation after softmax 
-        logits_len: audio output lens
+        """ctc decoding with probs.
+
+        Args:
+            probs (Tenosr): activation after softmax 
+            logits_lens (Tenosr): audio output lens
+            vocab_list ([type]): [description]
+            decoding_method ([type]): [description]
+            lang_model_path ([type]): [description]
+            beam_alpha ([type]): [description]
+            beam_beta ([type]): [description]
+            beam_size ([type]): [description]
+            cutoff_prob ([type]): [description]
+            cutoff_top_n ([type]): [description]
+            num_processes ([type]): [description]
+
+        Raises:
+            ValueError: when decoding_method not support.
+
+        Returns:
+            List[str]: transcripts.
         """
+
         probs_split = [probs[i, :l, :] for i, l in enumerate(logits_lens)]
         if decoding_method == "ctc_greedy":
             result_transcripts = self._decode_batch_greedy(

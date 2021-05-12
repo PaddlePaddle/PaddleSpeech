@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import tarfile
 import zipfile
+
 from paddle.dataset.common import md5file
 
 
@@ -30,7 +30,8 @@ def getfile_insensitive(path):
 
 def download_multi(url, target_dir, extra_args):
     """Download multiple files from url to target_dir."""
-    if not os.path.exists(target_dir): os.makedirs(target_dir)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
     print("Downloading %s ..." % url)
     ret_code = os.system("wget -c " + url + ' ' + extra_args + " -P " +
                          target_dir)
@@ -39,7 +40,8 @@ def download_multi(url, target_dir, extra_args):
 
 def download(url, md5sum, target_dir):
     """Download file from url to target_dir, and check md5sum."""
-    if not os.path.exists(target_dir): os.makedirs(target_dir)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
     filepath = os.path.join(target_dir, url.split("/")[-1])
     if not (os.path.exists(filepath) and md5file(filepath) == md5sum):
         print("Downloading %s ..." % url)
@@ -58,7 +60,7 @@ def unpack(filepath, target_dir, rm_tar=False):
     tar = tarfile.open(filepath)
     tar.extractall(target_dir)
     tar.close()
-    if rm_tar == True:
+    if rm_tar:
         os.remove(filepath)
 
 
@@ -68,5 +70,5 @@ def unzip(filepath, target_dir, rm_tar=False):
     tar = zipfile.ZipFile(filepath, 'r')
     tar.extractall(target_dir)
     tar.close()
-    if rm_tar == True:
+    if rm_tar:
         os.remove(filepath)

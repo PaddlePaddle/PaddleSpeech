@@ -7,4 +7,4 @@ export LC_ALL=C
 export PYTHONIOENCODING=UTF-8 
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
-export export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/

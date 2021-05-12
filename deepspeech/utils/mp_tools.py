@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import paddle
-from paddle import distributed as dist
 from functools import wraps
+
+from paddle import distributed as dist
 
 __all__ = ["rank_zero_only"]
 

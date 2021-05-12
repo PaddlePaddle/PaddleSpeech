@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains common utility functions."""
-
-import numpy as np
 import distutils.util
+import math
+import os
+from typing import List
 
-__all__ = ['print_arguments', 'add_arguments']
+__all__ = ['print_arguments', 'add_arguments', "log_add"]
 
 
-def print_arguments(args):
+def print_arguments(args, info=None):
     """Print argparse's arguments.
 
     Usage:
@@ -34,10 +35,14 @@ def print_arguments(args):
     :param args: Input argparse.Namespace for printing.
     :type args: argparse.Namespace
     """
-    print("-----------  Configuration Arguments -----------")
+    filename = ""
+    if info:
+        filename = info["__file__"]
+    filename = os.path.basename(filename)
+    print(f"----------- {filename} Configuration Arguments -----------")
     for arg, value in sorted(vars(args).items()):
         print("%s: %s" % (arg, value))
-    print("------------------------------------------------")
+    print("-----------------------------------------------------------")
 
 
 def add_arguments(argname, type, default, help, argparser, **kwargs):
@@ -58,3 +63,19 @@ def add_arguments(argname, type, default, help, argparser, **kwargs):
         type=type,
         help=help + ' Default: %(default)s.',
         **kwargs)
+
+
+def log_add(args: List[int]) -> float:
+    """Stable log add
+
+    Args:
+        args (List[int]): log scores
+
+    Returns:
+        float: sum of log scores
+    """
+    if all(a == -float('inf') for a in args):
+        return -float('inf')
+    a_max = max(args)
+    lsp = math.log(sum(math.exp(a - a_max) for a in args))
+    return a_max + lsp

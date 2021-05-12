@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the speech featurizer class."""
-
 from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
@@ -52,25 +51,34 @@ class SpeechFeaturizer(object):
     """
 
     def __init__(self,
+                 unit_type,
                  vocab_filepath,
+                 spm_model_prefix=None,
                  specgram_type='linear',
+                 feat_dim=None,
+                 delta_delta=False,
                  stride_ms=10.0,
                  window_ms=20.0,
                  n_fft=None,
                  max_freq=None,
                  target_sample_rate=16000,
                  use_dB_normalization=True,
-                 target_dB=-20):
+                 target_dB=-20,
+                 dither=1.0):
         self._audio_featurizer = AudioFeaturizer(
             specgram_type=specgram_type,
+            feat_dim=feat_dim,
+            delta_delta=delta_delta,
             stride_ms=stride_ms,
             window_ms=window_ms,
             n_fft=n_fft,
             max_freq=max_freq,
             target_sample_rate=target_sample_rate,
             use_dB_normalization=use_dB_normalization,
-            target_dB=target_dB)
-        self._text_featurizer = TextFeaturizer(vocab_filepath)
+            target_dB=target_dB,
+            dither=dither)
+        self._text_featurizer = TextFeaturizer(unit_type, vocab_filepath,
+                                               spm_model_prefix)
 
     def featurize(self, speech_segment, keep_transcription_text):
         """Extract features for speech segment.
@@ -79,24 +87,29 @@ class SpeechFeaturizer(object):
         2. For transcript parts, keep the original text or convert text string
            to a list of token indices in char-level.
 
-        :param audio_segment: Speech segment to extract features from.
-        :type audio_segment: SpeechSegment
-        :return: A tuple of 1) spectrogram audio feature in 2darray, 2) list of
-                 char-level token indices.
-        :rtype: tuple
+        Args:
+            speech_segment (SpeechSegment): Speech segment to extract features from.
+            keep_transcription_text (bool): True, keep transcript text, False, token ids
+
+        Returns:
+            tuple: 1) spectrogram audio feature in 2darray, 2) list oftoken indices.
         """
-        audio_feature = self._audio_featurizer.featurize(speech_segment)
+        spec_feature = self._audio_featurizer.featurize(speech_segment)
         if keep_transcription_text:
-            return audio_feature, speech_segment.transcript
-        text_ids = self._text_featurizer.featurize(speech_segment.transcript)
-        return audio_feature, text_ids
+            return spec_feature, speech_segment.transcript
+        if speech_segment.has_token:
+            text_ids = speech_segment.token_ids
+        else:
+            text_ids = self._text_featurizer.featurize(
+                speech_segment.transcript)
+        return spec_feature, text_ids
 
     @property
     def vocab_size(self):
         """Return the vocabulary size.
 
-        :return: Vocabulary size.
-        :rtype: int
+        Returns:
+            int: Vocabulary size.
         """
         return self._text_featurizer.vocab_size
 
@@ -104,16 +117,43 @@ class SpeechFeaturizer(object):
     def vocab_list(self):
         """Return the vocabulary in list.
 
-        :return: Vocabulary in list.
-        :rtype: list
+        Returns:
+            List[str]: 
         """
         return self._text_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        """Return the vocabulary in dict.
+
+        Returns:
+            Dict[str, int]: 
+        """
+        return self._text_featurizer.vocab_dict
 
     @property
     def feature_size(self):
         """Return the audio feature size.
 
-        :return: audio feature size.
-        :rtype: int
+        Returns:
+            int: audio feature size.
         """
         return self._audio_featurizer.feature_size
+
+    @property
+    def stride_ms(self):
+        """time length in `ms` unit per frame
+
+        Returns:
+            float: time(ms)/frame
+        """
+        return self._audio_featurizer.stride_ms
+
+    @property
+    def text_feature(self):
+        """Return the text feature object.
+
+        Returns:
+            TextFeaturizer: object.
+        """
+        return self._text_featurizer

@@ -12,25 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Compute mean and std for feature normalizer, and save to file."""
-
 import argparse
 import functools
-from deepspeech.frontend.normalizer import FeatureNormalizer
+
 from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
 from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
-from deepspeech.utils.utility import add_arguments, print_arguments
+from deepspeech.frontend.normalizer import FeatureNormalizer
+from deepspeech.utils.utility import add_arguments
+from deepspeech.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('num_samples',      int,    2000,    "# of samples to for statistics.")
+add_arg('num_samples',      int,    -1,    "# of samples to for statistics.")
+
 add_arg('specgram_type',    str,
         'linear',
-        "Audio feature type. Options: linear, mfcc.",
-        choices=['linear', 'mfcc'])
+        "Audio feature type. Options: linear, mfcc, fbank.",
+        choices=['linear', 'mfcc', 'fbank'])
+add_arg('feat_dim',    int, 13, "Audio feature dim.")
+add_arg('delta_delta', bool,  False, "Audio feature with delta delta.")
+add_arg('stride_ms', float, 10.0,  "stride length in ms.")
+add_arg('window_ms', float, 20.0,  "stride length in ms.")
+add_arg('sample_rate',  int, 16000,  "target sample rate.")
+add_arg('use_dB_normalization', bool, False, "do dB normalization.")
+add_arg('target_dB',   int, -20,  "target dB.")
+
 add_arg('manifest_path',    str,
         'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
+add_arg('num_workers',
+                        default=0,
+                        type=int,
+                        help='num of subprocess workers for processing')
 add_arg('output_path',    str,
         'data/librispeech/mean_std.npz',
         "Filepath of write mean and stddev to (.npz).")
@@ -39,10 +53,21 @@ args = parser.parse_args()
 
 
 def main():
-    print_arguments(args)
+    print_arguments(args, globals())
 
     augmentation_pipeline = AugmentationPipeline('{}')
-    audio_featurizer = AudioFeaturizer(specgram_type=args.specgram_type)
+    audio_featurizer = AudioFeaturizer(
+        specgram_type=args.specgram_type,
+        feat_dim=args.feat_dim,
+        delta_delta=args.delta_delta,
+        stride_ms=args.stride_ms,
+        window_ms=args.window_ms,
+        n_fft=None,
+        max_freq=None,
+        target_sample_rate=args.sample_rate,
+        use_dB_normalization=args.use_dB_normalization,
+        target_dB=args.target_dB,
+        dither=0.0)
 
     def augment_and_featurize(audio_segment):
         augmentation_pipeline.transform_audio(audio_segment)
@@ -52,7 +77,8 @@ def main():
         mean_std_filepath=None,
         manifest_path=args.manifest_path,
         featurize_func=augment_and_featurize,
-        num_samples=args.num_samples)
+        num_samples=args.num_samples,
+        num_workers=args.num_workers)
     normalizer.write_to_file(args.output_path)
 
 

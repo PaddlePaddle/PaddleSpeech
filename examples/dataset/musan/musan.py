@@ -22,12 +22,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import codecs
-import soundfile
-import json
 import argparse
-from utils.utility import download, unpack
+import codecs
+import json
+import os
+
+import soundfile
+
+from utils.utility import download
+from utils.utility import unpack
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
@@ -53,9 +56,9 @@ def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
     data_types = ['music', 'noise', 'speech']
-    for type in data_types:
+    for dtype in data_types:
         del json_lines[:]
-        audio_dir = os.path.join(data_dir, type)
+        audio_dir = os.path.join(data_dir, dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             print('x, ', subfolder)
             for fname in filelist:
@@ -67,12 +70,16 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json_lines.append(
                     json.dumps(
                         {
-                            'audio_filepath': audio_path,
-                            'duration': duration,
-                            'type': type,
+                            'utt':
+                            os.path.splitext(os.path.basename(audio_path))[0],
+                            'feat':
+                            audio_path,
+                            'feat_shape': (duration, ),  #second
+                            'type':
+                            dtype,
                         },
                         ensure_ascii=False))
-        manifest_path = manifest_path_prefix + '.' + type
+        manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')

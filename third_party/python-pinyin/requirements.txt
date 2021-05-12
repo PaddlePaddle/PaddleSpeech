@@ -1,0 +1,12 @@
+argparse
+bumpversion
+mypy
+pre-commit
+pygments>=2.7.4 # not directly required, pinned by Snyk to avoid a vulnerability
+pytest
+pytest-cov
+pytest-random-order
+Sphinx
+tox
+twine
+wheel>=0.21

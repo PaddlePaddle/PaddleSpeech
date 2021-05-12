@@ -1,0 +1,48 @@
+[alias]
+  st = status
+  ci = commit
+  br = branch
+  co = checkout
+  df = diff
+  l = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  ll = log --stat
+
+[merge]
+  tool = vimdiff
+
+[core]
+  excludesfile = ~/.gitignore
+  editor = vim
+
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+
+[push]
+  default = matching
+
+[credential]
+  helper = store
+
+[user]
+  name =
+  email =
+
+

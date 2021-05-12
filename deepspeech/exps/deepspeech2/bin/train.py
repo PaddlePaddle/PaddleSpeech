@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
-
-import io
-import logging
-import argparse
-import functools
-
 from paddle import distributed as dist
-
-from deepspeech.utils.utility import print_arguments
-from deepspeech.training.cli import default_argument_parser
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.exps.deepspeech2.model import DeepSpeech2Trainer as Trainer
+from deepspeech.training.cli import default_argument_parser
+from deepspeech.utils.utility import print_arguments
 
 
 def main_sp(config, args):
@@ -43,7 +36,7 @@ def main(config, args):
 if __name__ == "__main__":
     parser = default_argument_parser()
     args = parser.parse_args()
-    print_arguments(args)
+    print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults()

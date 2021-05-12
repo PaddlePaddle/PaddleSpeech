@@ -18,16 +18,17 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-
-import distutils.util
-import os
-import sys
 import argparse
-import soundfile
-import json
 import codecs
 import io
-from utils.utility import download, unpack
+import json
+import os
+from multiprocessing.pool import Pool
+
+import soundfile
+
+from utils.utility import download
+from utils.utility import unpack
 
 URL_ROOT = "http://www.openslr.org/resources/31"
 URL_TRAIN_CLEAN = URL_ROOT + "/train-clean-5.tar.gz"
@@ -71,9 +72,13 @@ def create_manifest(data_dir, manifest_path):
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(
                     json.dumps({
-                        'audio_filepath': audio_filepath,
-                        'duration': duration,
-                        'text': text
+                        'utt':
+                        os.path.splitext(os.path.basename(audio_filepath))[0],
+                        'feat':
+                        audio_filepath,
+                        'feat_shape': (duration, ),  #second
+                        'text':
+                        text
                     }))
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:
@@ -99,16 +104,18 @@ def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    prepare_dataset(
-        url=URL_TRAIN_CLEAN,
-        md5sum=MD5_TRAIN_CLEAN,
-        target_dir=os.path.join(args.target_dir, "train-clean"),
-        manifest_path=args.manifest_prefix + ".train-clean")
-    prepare_dataset(
-        url=URL_DEV_CLEAN,
-        md5sum=MD5_DEV_CLEAN,
-        target_dir=os.path.join(args.target_dir, "dev-clean"),
-        manifest_path=args.manifest_prefix + ".dev-clean")
+    tasks = [
+        (URL_TRAIN_CLEAN, MD5_TRAIN_CLEAN,
+         os.path.join(args.target_dir, "train-clean"),
+         args.manifest_prefix + ".train-clean"),
+        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(
+            args.target_dir, "dev-clean"), args.manifest_prefix + ".dev-clean"),
+    ]
+
+    with Pool(2) as pool:
+        pool.starmap(prepare_dataset, tasks)
+
+    print("Data download and manifest prepare done!")
 
 
 if __name__ == '__main__':

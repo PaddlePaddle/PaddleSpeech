@@ -11,14 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import random
-import time
-from time import gmtime, strftime
+import socket
 import socketserver
 import struct
+import time
 import wave
+from time import gmtime
+from time import strftime
 
 from deepspeech.frontend.utility import read_manifest
 

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the abstract base class for augmentation models."""
-
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from abc import abstractmethod
 
 
 class AugmentorBase():
@@ -40,4 +40,16 @@ class AugmentorBase():
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        pass
+        raise NotImplementedError
+
+    @abstractmethod
+    def transform_feature(self, spec_segment):
+        """Adds various effects to the input audo feature segment. Such effects
+        will augment the training data to make the model invariant to certain
+        types of time_mask or freq_mask in the real world, improving model's
+        generalization ability.
+        
+        Args:
+            spec_segment (Spectrogram): Spectrogram segment to add effects to.
+        """
+        raise NotImplementedError

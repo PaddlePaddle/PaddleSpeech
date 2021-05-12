@@ -11,7 +11,10 @@
 
 ## Models
 
-* [Baidu's Deep Speech2](http://proceedings.mlr.press/v48/amodei16.pdf)
+* [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
+* [Transformer](https://arxiv.org/abs/1706.03762)
+* [Conformer](https://arxiv.org/abs/2005.08100)
+* [U2](https://arxiv.org/pdf/2012.05481.pdf)
 
 ## Setup
 
@@ -22,19 +25,20 @@ Please see [install](docs/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](docs/getting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples/tiny/README.md).
+
 
 ## More Information  
 
-* [Install](docs/install.md)  
-* [Getting Started](docs/getting_started.md)  
-* [Data Prepration](docs/data_preparation.md)  
-* [Data Augmentation](docs/augmentation.md)  
-* [Ngram LM](docs/ngram_lm.md)  
-* [Server Demo](docs/server.md)  
-* [Benchmark](docs/benchmark.md)  
-* [Relased Model](docs/released_model.md)  
-* [FAQ](docs/faq.md)  
+* [Install](docs/src/install.md)  
+* [Getting Started](docs/src/geting_stared.md)  
+* [Data Prepration](docs/src/data_preparation.md)  
+* [Data Augmentation](docs/src/augmentation.md)  
+* [Ngram LM](docs/src/ngram_lm.md)  
+* [Server Demo](docs/src/server.md)  
+* [Benchmark](docs/src/benchmark.md)  
+* [Relased Model](docs/src/released_model.md)  
+* [FAQ](docs/src/faq.md)  
 
 
 ## Questions and Help
@@ -45,3 +49,7 @@ You are welcome to submit questions in [Github Discussions](https://github.com/P
 ## License
 
 DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
+
+## Acknowledgement
+
+We depends on many open source repos. See [References](docs/src/reference.md) for more information.

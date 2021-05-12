@@ -11,18 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import logging
-
 import paddle
-from paddle.fluid.dygraph import base as imperative_base
-from paddle.fluid import layers
 from paddle.fluid import core
+from paddle.fluid import layers
+from paddle.fluid.dygraph import base as imperative_base
 
-logger = logging.getLogger(__name__)
+from deepspeech.utils.log import Log
+
+__all__ = ["ClipGradByGlobalNormWithLog"]
+
+logger = Log(__name__).getlog()
 
 
-class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
+class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
     def __init__(self, clip_norm):
         super().__init__(clip_norm)
 
@@ -41,10 +42,10 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
                 merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
             square = layers.square(merge_grad)
             sum_square = layers.reduce_sum(square)
-            logger.info(
-                f"Grad Before Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
             sum_square_list.append(sum_square)
+
+            # debug log
+            # logger.debug(f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
 
         # all parameters have been filterd out
         if len(sum_square_list) == 0:
@@ -53,7 +54,9 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
         global_norm_var = layers.concat(sum_square_list)
         global_norm_var = layers.reduce_sum(global_norm_var)
         global_norm_var = layers.sqrt(global_norm_var)
-        logger.info(f"Grad Global Norm: {float(global_norm_var)}!!!!")
+        # debug log
+        logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
+
         max_global_norm = layers.fill_constant(
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
         clip_var = layers.elementwise_div(
@@ -66,9 +69,11 @@ class MyClipGradByGlobalNorm(paddle.nn.ClipGradByGlobalNorm):
                 params_and_grads.append((p, g))
                 continue
             new_grad = layers.elementwise_mul(x=g, y=clip_var)
-            logger.info(
-                f"Grad After Clip: {p.name}: {float(layers.sqrt(layers.reduce_sum(layers.square(merge_grad))) ) }"
-            )
             params_and_grads.append((p, new_grad))
+
+            # debug log
+            # logger.debug(
+            #     f"Grad After Clip: {p.name}: {float(merge_grad.square().sum().sqrt())}"
+            # )
 
         return params_and_grads

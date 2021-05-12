@@ -11,29 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import math
-import collections
-import numpy as np
-import logging
+"""Deepspeech2 ASR Model"""
 from typing import Optional
-from yacs.config import CfgNode
 
 import paddle
 from paddle import nn
-from paddle.nn import functional as F
-from paddle.nn import initializer as I
+from yacs.config import CfgNode
 
-from deepspeech.modules.mask import sequence_mask
-from deepspeech.modules.activation import brelu
 from deepspeech.modules.conv import ConvStack
-from deepspeech.modules.rnn import RNNStack
 from deepspeech.modules.ctc import CTCDecoder
-
+from deepspeech.modules.rnn import RNNStack
 from deepspeech.utils import checkpoint
 from deepspeech.utils import layer_tools
+from deepspeech.utils.log import Log
 
-logger = logging.getLogger(__name__)
+logger = Log(__name__).getlog()
 
 __all__ = ['DeepSpeech2Model']
 
@@ -67,23 +59,19 @@ class CRNNEncoder(nn.Layer):
         return self.rnn_size * 2
 
     def forward(self, audio, audio_len):
-        """
-        audio: shape [B, D, T]
-        text: shape [B, T]
-        audio_len: shape [B]
-        text_len: shape [B]
-        """
         """Compute Encoder outputs
 
         Args:
-            audio (Tensor): [B, D, T]
-            text (Tensor): [B, T]
+            audio (Tensor): [B, Tmax, D]
+            text (Tensor): [B, Umax]
             audio_len (Tensor): [B]
             text_len (Tensor): [B]
         Returns:
             x (Tensor): encoder outputs, [B, T, D]
             x_lens (Tensor): encoder length, [B]
         """
+        # [B, T, D]  -> [B, D, T]
+        audio = audio.transpose([0, 2, 1])
         # [B, D, T] -> [B, C=1, D, T]
         x = audio.unsqueeze(1)
         x_lens = audio_len
@@ -166,26 +154,25 @@ class DeepSpeech2Model(nn.Layer):
         assert (self.encoder.output_size == rnn_size * 2)
 
         self.decoder = CTCDecoder(
+            odim=dict_size,  # <blank> is in  vocab
             enc_n_units=self.encoder.output_size,
-            odim=dict_size + 1,  # <blank> is append after vocab
-            blank_id=dict_size,  # last token is <blank>
+            blank_id=0,  # first token is <blank>
             dropout_rate=0.0,
             reduction=True,  # sum
             batch_average=True)  # sum / batch_size
 
-    def forward(self, audio, text, audio_len, text_len):
+    def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss
 
         Args:
-            audio (Tenosr): [B, D, T]
-            text (Tensor): [B, T]
+            audio (Tenosr): [B, T, D]
             audio_len (Tensor): [B]
+            text (Tensor): [B, U]
             text_len (Tensor): [B]
 
         Returns:
             loss (Tenosr): [1]
         """
-
         eouts, eouts_len = self.encoder(audio, audio_len)
         loss = self.decoder(eouts, eouts_len, text, text_len)
         return loss
@@ -204,7 +191,7 @@ class DeepSpeech2Model(nn.Layer):
             decoding_method=decoding_method)
 
         eouts, eouts_len = self.encoder(audio, audio_len)
-        probs = self.decoder.probs(eouts)
+        probs = self.decoder.softmax(eouts)
         return self.decoder.decode_probs(
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
@@ -235,7 +222,9 @@ class DeepSpeech2Model(nn.Layer):
                     rnn_size=config.model.rnn_layer_size,
                     use_gru=config.model.use_gru,
                     share_rnn_weights=config.model.share_rnn_weights)
-        checkpoint.load_parameters(model, checkpoint_path=checkpoint_path)
+        infos = checkpoint.load_parameters(
+            model, checkpoint_path=checkpoint_path)
+        logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
 
@@ -262,12 +251,12 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
         """export model function
 
         Args:
-            audio (Tensor): [B, D, T]
+            audio (Tensor): [B, T, D]
             audio_len (Tensor): [B]
 
         Returns:
             probs: probs after softmax
         """
         eouts, eouts_len = self.encoder(audio, audio_len)
-        probs = self.decoder.probs(eouts)
+        probs = self.decoder.softmax(eouts)
         return probs

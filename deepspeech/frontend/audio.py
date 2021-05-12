@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the audio segment class."""
-
-import numpy as np
-import io
-import struct
-import re
-import soundfile
-import resampy
-from scipy import signal
-import random
 import copy
 import io
+import random
+import re
+import struct
+
+import numpy as np
+import resampy
+import soundfile
+from scipy import signal
 
 
 class AudioSegment(object):
@@ -299,6 +298,18 @@ class AudioSegment(object):
         samples = self._convert_samples_from_float32(self._samples, dtype)
         return samples.tostring()
 
+    def to(self, dtype='int16'):
+        """Create a `dtype` audio content.
+        
+        :param dtype: Data type for export samples. Options: 'int16', 'int32',
+                      'float32', 'float64'. Default is 'float32'.
+        :type dtype: str
+        :return: np.ndarray containing `dtype` audio content.
+        :rtype: str
+        """
+        samples = self._convert_samples_from_float32(self._samples, dtype)
+        return samples
+
     def gain_db(self, gain):
         """Apply gain in decibels to samples.
 
@@ -322,13 +333,24 @@ class AudioSegment(object):
         :type speed_rate: float
         :raises ValueError: If speed_rate <= 0.0.
         """
+        if speed_rate == 1.0:
+            return
         if speed_rate <= 0:
             raise ValueError("speed_rate should be greater than zero.")
+
+        # numpy
         old_length = self._samples.shape[0]
         new_length = int(old_length / speed_rate)
         old_indices = np.arange(old_length)
         new_indices = np.linspace(start=0, stop=old_length, num=new_length)
         self._samples = np.interp(new_indices, old_indices, self._samples)
+
+        # sox, slow
+        # tfm = sox.Transformer()
+        # tfm.set_globals(multithread=False)
+        # tfm.speed(speed_rate)
+        # self._samples = tfm.build_array(
+        #     input_array=self._samples, sample_rate_in=self._sample_rate).copy()
 
     def normalize(self, target_db=-20, max_gain_db=300.0):
         """Normalize audio to be of the desired RMS value in decibels.

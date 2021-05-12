@@ -11,23 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import time
-import logging
-import logging.handlers
 from pathlib import Path
-import numpy as np
-from collections import defaultdict
 
 import paddle
 from paddle import distributed as dist
-from paddle.distributed.utils import get_gpus
 from tensorboardX import SummaryWriter
 
 from deepspeech.utils import checkpoint
 from deepspeech.utils import mp_tools
+from deepspeech.utils.log import Log
 
 __all__ = ["Trainer"]
+
+logger = Log(__name__).getlog()
 
 
 class Trainer():
@@ -94,7 +91,8 @@ class Trainer():
         self.visualizer = None
         self.output_dir = None
         self.checkpoint_dir = None
-        self.logger = None
+        self.iteration = 0
+        self.epoch = 0
 
     def setup(self):
         """Setup the experiment.
@@ -106,7 +104,6 @@ class Trainer():
         self.setup_output_dir()
         self.dump_config()
         self.setup_visualizer()
-        self.setup_logger()
         self.setup_checkpointer()
 
         self.setup_dataloader()
@@ -128,62 +125,107 @@ class Trainer():
         dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
-    def save(self):
+    def save(self, tag=None, infos: dict=None):
         """Save checkpoint (model parameters and optimizer states).
-        """
-        checkpoint.save_parameters(self.checkpoint_dir, self.iteration,
-                                   self.model, self.optimizer)
 
-    def resume_or_load(self):
+        Args:
+            tag (int or str, optional): None for step, else using tag, e.g epoch. Defaults to None.
+            infos (dict, optional): meta data to save. Defaults to None.
+        """
+
+        infos = infos if infos else dict()
+        infos.update({
+            "step": self.iteration,
+            "epoch": self.epoch,
+            "lr": self.optimizer.get_lr()
+        })
+        checkpoint.save_parameters(self.checkpoint_dir, self.iteration
+                                   if tag is None else tag, self.model,
+                                   self.optimizer, infos)
+
+    def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output 
         directory or load a specified checkpoint.
         
         If ``args.checkpoint_path`` is not None, load the checkpoint, else
         resume training.
         """
-        iteration = checkpoint.load_parameters(
+        scratch = None
+        infos = checkpoint.load_parameters(
             self.model,
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
             checkpoint_path=self.args.checkpoint_path)
-        self.iteration = iteration
+        if infos:
+            # restore from ckpt
+            self.iteration = infos["step"]
+            self.epoch = infos["epoch"]
+            scratch = False
+        else:
+            self.iteration = 0
+            self.epoch = 0
+            scratch = True
+
+        return scratch
 
     def new_epoch(self):
-        """Reset the train loader and increment ``epoch``.
+        """Reset the train loader seed and increment `epoch`.
         """
-        if self.parallel:
-            # batch sampler epoch start from 0
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
         self.epoch += 1
+        if self.parallel:
+            self.train_loader.batch_sampler.set_epoch(self.epoch)
 
     def train(self):
-        """The training process.
-        
-        It includes forward/backward/update and periodical validation and 
-        saving.
-        """
-        self.logger.info(
-            f"Train Total Examples: {len(self.train_loader.dataset)}")
-        self.new_epoch()
-        while self.epoch <= self.config.training.n_epoch:
+        """The training process control by epoch."""
+        from_scratch = self.resume_or_scratch()
+        if from_scratch:
+            # save init model, i.e. 0 epoch
+            self.save(tag='init')
+
+        self.lr_scheduler.step(self.iteration)
+        if self.parallel:
+            self.train_loader.batch_sampler.set_epoch(self.epoch)
+
+        logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+        while self.epoch < self.config.training.n_epoch:
+            self.model.train()
             try:
                 data_start_time = time.time()
-                for batch in self.train_loader:
+                for batch_index, batch in enumerate(self.train_loader):
                     dataload_time = time.time() - data_start_time
                     msg = "Train: Rank: {}, ".format(dist.get_rank())
                     msg += "epoch: {}, ".format(self.epoch)
                     msg += "step: {}, ".format(self.iteration)
-                    msg += "dataloader time: {:>.3f}s, ".format(dataload_time)
-                    self.logger.info(msg)
-                    self.iteration += 1
-                    self.train_batch(batch)
+                    msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                    len(self.train_loader))
+                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
+                    msg += "data time: {:>.3f}s, ".format(dataload_time)
+                    self.train_batch(batch_index, batch, msg)
                     data_start_time = time.time()
             except Exception as e:
-                self.logger.error(e)
-                pass
+                logger.error(e)
+                raise e
 
-            self.valid()
-            self.save()
+            total_loss, num_seen_utts = self.valid()
+            if dist.get_world_size() > 1:
+                num_seen_utts = paddle.to_tensor(num_seen_utts)
+                # the default operator in all_reduce function is sum.
+                dist.all_reduce(num_seen_utts)
+                total_loss = paddle.to_tensor(total_loss)
+                dist.all_reduce(total_loss)
+                cv_loss = total_loss / num_seen_utts
+                cv_loss = float(cv_loss)
+            else:
+                cv_loss = total_loss / num_seen_utts
+
+            logger.info(
+                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            if self.visualizer:
+                self.visualizer.add_scalars(
+                    'epoch', {'cv_loss': cv_loss,
+                              'lr': self.lr_scheduler()}, self.epoch)
+
+            self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.lr_scheduler.step()
             self.new_epoch()
 
@@ -191,7 +233,6 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        self.resume_or_load()
         try:
             self.train()
         except KeyboardInterrupt:
@@ -199,6 +240,7 @@ class Trainer():
             exit(-1)
         finally:
             self.destory()
+        logger.info("Training Done.")
 
     def setup_output_dir(self):
         """Create a directory used for output.
@@ -222,6 +264,7 @@ class Trainer():
 
     @mp_tools.rank_zero_only
     def destory(self):
+        """Close visualizer to avoid hanging after training"""
         # https://github.com/pytorch/fairseq/issues/2357
         if self.visualizer:
             self.visualizer.close()
@@ -242,63 +285,6 @@ class Trainer():
         visualizer = SummaryWriter(logdir=str(self.output_dir))
 
         self.visualizer = visualizer
-
-    def setup_logger(self):
-        """Initialize a text logger to log the experiment.
-        
-        Each process has its own text logger. The logging message is write to 
-        the standard output and a text file named ``worker_n.log`` in the 
-        output directory, where ``n`` means the rank of the process. 
-        when - how to split the log file by time interval
-            'S' : Seconds
-            'M' : Minutes
-            'H' : Hours
-            'D' : Days
-            'W' : Week day
-            default value: 'D'
-        format - format of the log
-            default format:
-            %(levelname)s: %(asctime)s: %(filename)s:%(lineno)d * %(thread)d %(message)s
-            INFO: 12-09 18:02:42: log.py:40 * 139814749787872 HELLO WORLD
-        backup - how many backup file to keep
-            default value: 7
-        """
-        when = 'D'
-        backup = 7
-        format = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-        formatter = logging.Formatter(fmt=format, datefmt='%Y/%m/%d %H:%M:%S')
-
-        logger = logging.getLogger(__name__)
-        logger.setLevel("INFO")
-
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
-
-        log_file = self.output_dir / 'worker_{}.log'.format(dist.get_rank())
-        # file_handler = logging.FileHandler(str(log_file))
-        # file_handler.setFormatter(formatter)
-        # logger.addHandler(file_handler)
-
-        # handler = logging.handlers.TimedRotatingFileHandler(
-        #     str(self.output_dir / "warning.log"), when=when, backupCount=backup)
-        # handler.setLevel(logging.WARNING)
-        # handler.setFormatter(formatter)
-        # logger.addHandler(handler)
-
-        # stop propagate for propagating may print
-        # log multiple times
-        logger.propagate = False
-
-        # global logger
-        stdout = False
-        save_path = log_file
-        logging.basicConfig(
-            level=logging.DEBUG if stdout else logging.INFO,
-            format=format,
-            datefmt='%Y/%m/%d %H:%M:%S',
-            filename=save_path if not stdout else None)
-        self.logger = logger
 
     @mp_tools.rank_zero_only
     def dump_config(self):

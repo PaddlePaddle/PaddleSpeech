@@ -52,7 +52,7 @@ Please notice that the released language models only contain Chinese simplified 
    boost:
    yum install boost
    yum install boost-devel
-   
+
    zlib:
    yum install zlib
    yum install zlib-devel
@@ -87,4 +87,4 @@ Please notice that the released language models only contain Chinese simplified 
    build/bin/build_binary ./result/people2014corpus_words.arps ./result/people2014corpus_words.klm
    ```
 
-   
+

@@ -40,13 +40,15 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
   size_t num_time_steps = probs_seq.size();
   for (size_t i = 0; i < num_time_steps; ++i) {
     VALID_CHECK_EQ(probs_seq[i].size(),
-                   vocabulary.size() + 1,
+                  // vocabulary.size() + 1,
+                  vocabulary.size(),
                    "The shape of probs_seq does not match with "
                    "the shape of the vocabulary");
   }
 
   // assign blank id
-  size_t blank_id = vocabulary.size();
+  //size_t blank_id = vocabulary.size();
+  size_t blank_id = 0;
 
   // assign space id
   auto it = std::find(vocabulary.begin(), vocabulary.end(), " ");

@@ -13,7 +13,7 @@
 
   There are a total of 410 common pinyin syllables.
 
-  
+
 
 * [Rare syllable](https://resources.allsetlearning.com/chinese/pronunciation/Rare_syllable)
 
@@ -27,7 +27,7 @@
   Each syllable is composed of three parts: initials, finals, and tones.
   In the Pinyin system there are 23 initials, 24 finals, 4 tones and a neutral tone.
 
-  
+
 
 ## Pinyin
 * [Pinyin](https://en.wikipedia.org/wiki/Pinyin)

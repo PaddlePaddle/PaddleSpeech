@@ -1,0 +1,77 @@
+pull_request_rules:
+  - name: automatic merge for develop when CI passes and 1 reviews
+    conditions:
+      - "approved-reviews-by>=1"
+      - check-success=Travis CI - Pull Request
+      - base=develop
+    actions:
+      merge:
+        method: merge
+  - name: automatic merge if label=auto-merge
+    conditions:
+      - "label=auto-merge"
+    actions:
+      merge:
+        method: merge
+        strict: false
+  - name: delete head branch after merged
+    conditions:
+      - merged
+    actions:
+      delete_head_branch: {}
+  - name: "add label=auto-merge for PR by mergify"
+    conditions:
+      - author=mergify[bot]
+    actions:
+      label:
+        add: ["auto-merge"]
+  - name: warn on conflicts
+    conditions:
+      - conflict
+    actions:
+      comment:
+        message: This pull request is now in conflict :(
+      label:
+        add: ["conflicts"]
+  - name: unlabel conflicts
+    conditions:
+      - -conflict
+    actions:
+      label:
+        remove: ["conflicts"]
+  - name: "auto add label=README"
+    conditions:
+      - files~=README.md
+    actions:
+      label:
+        add: ["README"]
+  - name: "auto add label=Documentation"
+    conditions:
+      - files~=^doc/
+    actions:
+      label:
+        add: ["Documentation"]
+  - name: "auto add label=CI"
+    conditions:
+      - files~=^(.circleci/|ci/|.github/|.travis.yml)
+    actions:
+      label:
+        add: ["CI"]
+  - name: "auto add label=Installation"
+    conditions:
+      - files~=^(tools/|setup.py|setup.sh|env.sh|.travis)
+    actions:
+      label:
+        add: ["Installation"]
+  - name: "auto add label=mergify"
+    conditions:
+      - files~=^.mergify.yml
+    actions:
+      label:
+        add: ["mergify"]
+  - name: "auto add label=Docker"
+    conditions:
+      - files~=^docker/
+    actions:
+      label:
+        add: ["Docker"]

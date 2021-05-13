@@ -31,7 +31,7 @@
 ## 更多信息
 
 * [安装](docs/src/install.md)  
-* [开始](docs/src/geting_stared.md)  
+* [开始](docs/src/getting_started.md)  
 * [数据处理](docs/src/data_preparation.md)  
 * [数据增强](docs/src/augmentation.md)  
 * [语言模型](docs/src/ngram_lm.md)  

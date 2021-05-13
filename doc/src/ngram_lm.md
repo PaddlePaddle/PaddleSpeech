@@ -86,5 +86,3 @@ Please notice that the released language models only contain Chinese simplified 
    ```
    build/bin/build_binary ./result/people2014corpus_words.arps ./result/people2014corpus_words.klm
    ```
-
-

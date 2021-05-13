@@ -31,7 +31,7 @@ Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples
 ## More Information  
 
 * [Install](docs/src/install.md)  
-* [Getting Started](docs/src/geting_stared.md)  
+* [Getting Started](docs/src/getting_started.md)  
 * [Data Prepration](docs/src/data_preparation.md)  
 * [Data Augmentation](docs/src/augmentation.md)  
 * [Ngram LM](docs/src/ngram_lm.md)  

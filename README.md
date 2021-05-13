@@ -21,24 +21,24 @@
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-Please see [install](docs/install.md).
+Please see [install](doc/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](docs/src/geting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples/tiny/README.md).
 
 
 ## More Information  
 
-* [Install](docs/src/install.md)  
-* [Getting Started](docs/src/getting_started.md)  
-* [Data Prepration](docs/src/data_preparation.md)  
-* [Data Augmentation](docs/src/augmentation.md)  
-* [Ngram LM](docs/src/ngram_lm.md)  
-* [Server Demo](docs/src/server.md)  
-* [Benchmark](docs/src/benchmark.md)  
-* [Relased Model](docs/src/released_model.md)  
-* [FAQ](docs/src/faq.md)  
+* [Install](doc/src/install.md)  
+* [Getting Started](doc/src/getting_started.md)  
+* [Data Prepration](doc/src/data_preparation.md)  
+* [Data Augmentation](doc/src/augmentation.md)  
+* [Ngram LM](doc/src/ngram_lm.md)  
+* [Server Demo](doc/src/server.md)  
+* [Benchmark](doc/src/benchmark.md)  
+* [Relased Model](doc/src/released_model.md)  
+* [FAQ](doc/src/faq.md)  
 
 
 ## Questions and Help
@@ -52,4 +52,4 @@ DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 
-We depends on many open source repos. See [References](docs/src/reference.md) for more information.
+We depends on many open source repos. See [References](doc/src/reference.md) for more information.

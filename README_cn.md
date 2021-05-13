@@ -22,23 +22,23 @@
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-参看 [安装](docs/install.md)。
+参看 [安装](doc/install.md)。
 
 ## 开始
 
-请查看 [Getting Started](docs/src/geting_started.md) 和 [tiny egs](examples/tiny/README.md)。
+请查看 [Getting Started](doc/src/getting_started.md) 和 [tiny egs](examples/tiny/README.md)。
 
 ## 更多信息
 
-* [安装](docs/src/install.md)  
-* [开始](docs/src/getting_started.md)  
-* [数据处理](docs/src/data_preparation.md)  
-* [数据增强](docs/src/augmentation.md)  
-* [语言模型](docs/src/ngram_lm.md)  
-* [服务部署](docs/src/server.md)  
-* [Benchmark](docs/src/benchmark.md)  
-* [Relased Model](docs/src/released_model.md)  
-* [FAQ](docs/src/faq.md)  
+* [安装](doc/src/install.md)  
+* [开始](doc/src/getting_started.md)  
+* [数据处理](doc/src/data_preparation.md)  
+* [数据增强](doc/src/augmentation.md)  
+* [语言模型](doc/src/ngram_lm.md)  
+* [服务部署](doc/src/server.md)  
+* [Benchmark](doc/src/benchmark.md)  
+* [Relased Model](doc/src/released_model.md)  
+* [FAQ](doc/src/faq.md)  
 
 ## 问题和帮助
 
@@ -50,4 +50,4 @@ DeepSpeech遵循[Apache-2.0开源协议](./LICENSE)。
 
 ## 感谢
 
-开发中参考一些优秀的仓库，详情参见 [References](docs/src/reference.md)。
+开发中参考一些优秀的仓库，详情参见 [References](doc/src/reference.md)。

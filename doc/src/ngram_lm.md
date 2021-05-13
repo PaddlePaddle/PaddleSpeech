@@ -1,7 +1,5 @@
 # Ngram LM
 
-
-
 ## Prepare Language Model
 
 A language model is required to improve the decoder's performance. We have prepared two language models (with lossy compression) for users to download and try. One is for English and the other is for Mandarin. The bash script to download LM is example's `local/download_lm_*.sh`.

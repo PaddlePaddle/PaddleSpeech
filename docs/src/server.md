@@ -25,7 +25,7 @@ Then to start the client, please run this in another console:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 bash local/client.sh
-```  
+```
 
 Now, in the client console, press the `whitespace` key, hold, and start speaking. Until finishing your utterance, release the key to let the speech-to-text results shown in the console. To quit the client, just press `ESC` key.
 

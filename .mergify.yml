@@ -47,19 +47,19 @@ pull_request_rules:
         add: ["README"]
   - name: "auto add label=Documentation"
     conditions:
-      - files~=^docs/
+      - files~=^doc/
     actions:
       label:
         add: ["Documentation"]
   - name: "auto add label=CI"
     conditions:
-      - files~=^(.circleci/|ci/|.github/|.travis.yml)
+      - files~=^(.circleci/|ci/|.github/|.travis.yml|.travis|env.sh)
     actions:
       label:
         add: ["CI"]
   - name: "auto add label=Installation"
     conditions:
-      - files~=^(tools/|setup.py|setup.sh|env.sh|.travis)
+      - files~=^(tools/|setup.py|setup.sh)
     actions:
       label:
         add: ["Installation"]

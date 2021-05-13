@@ -1,8 +1,9 @@
 # ASR PostProcess
 
-* Text Corrector
-* Text Filter
-* Add Punctuation
+1. [Text Segmentation](text_front_end#text segmentation)
+2. Text Corrector
+3. Add Punctuation
+4. Text Filter
 
 
 
@@ -10,6 +11,7 @@
 
 * [pycorrector](https://github.com/shibing624/pycorrector)
   本项目重点解决其中的谐音、混淆音、形似字错误、中文拼音全拼、语法错误带来的纠错任务。PS：[网友源码解读](https://zhuanlan.zhihu.com/p/138981644)
+* DeepCorrection [1](https://praneethbedapudi.medium.com/deepcorrection-1-sentence-segmentation-of-unpunctuated-text-a1dbc0db4e98) [2](https://praneethbedapudi.medium.com/deepcorrection2-automatic-punctuation-restoration-ac4a837d92d9) [3](https://praneethbedapudi.medium.com/deepcorrection-3-spell-correction-and-simple-grammar-correction-d033a52bc11d)  [4](https://praneethbedapudi.medium.com/deepsegment-2-0-multilingual-text-segmentation-with-vector-alignment-fd76ce62194f)
 
 
 
@@ -88,12 +90,12 @@
 
 
 
+## Add Punctuation
+
+* DeepCorrection [1](https://praneethbedapudi.medium.com/deepcorrection-1-sentence-segmentation-of-unpunctuated-text-a1dbc0db4e98) [2](https://praneethbedapudi.medium.com/deepcorrection2-automatic-punctuation-restoration-ac4a837d92d9) [3](https://praneethbedapudi.medium.com/deepcorrection-3-spell-correction-and-simple-grammar-correction-d033a52bc11d)  [4](https://praneethbedapudi.medium.com/deepsegment-2-0-multilingual-text-segmentation-with-vector-alignment-fd76ce62194f)
+
+
+
 ## Text Filter
 
 * 敏感词（黄暴、涉政、违法违禁等）
-
-
-
-
-
-## Add Punctuation

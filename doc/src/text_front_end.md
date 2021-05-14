@@ -101,7 +101,7 @@ LP -> LO -> L1(#1) -> L2(#2) -> L3(#3) -> L4(#4) -> L5 -> L6 -> L7
 
 常用方法使用的是级联CRF，首先预测如果是PW，再继续预测是否是PPH，再预测是否是IPH
 
-<img src="images/prosody.jpeg" width=450><br/>
+<img src="../images/prosody.jpeg" width=450><br/>
 
 
 论文: 2015 .Ding Et al. - Automatic Prosody Prediction For Chinese Speech Synthesis Using BLSTM-RNN and Embedding Features

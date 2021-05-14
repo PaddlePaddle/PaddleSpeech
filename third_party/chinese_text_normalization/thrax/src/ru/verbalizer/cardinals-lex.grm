@@ -1,0 +1,338 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AUTOMATICALLY GENERATED: DO NOT EDIT.
+import 'util/byte.grm' as b;
+
+# Utilities for insertion and deletion.
+
+func I[expr] {
+  return "" : expr;
+}
+
+func D[expr] {
+  return expr : "";
+}
+
+# Powers of base 10.
+export POWERS =
+    "[E15]"
+  | "[E14]"
+  | "[E13]"
+  | "[E12]"
+  | "[E11]"
+  | "[E10]"
+  | "[E9]"
+  | "[E8]"
+  | "[E7]"
+  | "[E6]"
+  | "[E5]"
+  | "[E4]"
+  | "[E3]"
+  | "[E2]"
+  | "[E1]"
+;
+
+export SIGMA = b.kBytes | POWERS;
+
+export SIGMA_STAR = SIGMA*;
+
+export SIGMA_PLUS = SIGMA+;
+
+################################################################################
+# BEGIN LANGUAGE SPECIFIC DATA
+revaluations =
+    ("[E4]" : "[E1]")
+  | ("[E5]" : "[E2]")
+  | ("[E7]" : "[E1]")
+  | ("[E8]" : "[E2]")
+;
+
+Ms = "[E3]" | "[E6]" | "[E9]";
+
+
+func Zero[expr] {
+  return expr : ("");
+}
+
+space = " ";
+
+lexset3 = Optimize[
+    ("1[E1]+1" : "одиннадцати")
+  | ("1[E1]+1" : "одиннадцать")
+  | ("1[E1]+1" : "одиннадцатью")
+  | ("1[E1]+2" : "двенадцати")
+  | ("1[E1]+2" : "двенадцать")
+  | ("1[E1]+2" : "двенадцатью")
+  | ("1[E1]+3" : "тринадцати")
+  | ("1[E1]+3" : "тринадцать")
+  | ("1[E1]+3" : "тринадцатью")
+  | ("1[E1]+4" : "четырнадцати")
+  | ("1[E1]+4" : "четырнадцать")
+  | ("1[E1]+4" : "четырнадцатью")
+  | ("1[E1]+5" : "пятнадцати")
+  | ("1[E1]+5" : "пятнадцать")
+  | ("1[E1]+5" : "пятнадцатью")
+  | ("1[E1]+6" : "шестнадцати")
+  | ("1[E1]+6" : "шестнадцать")
+  | ("1[E1]+6" : "шестнадцатью")
+  | ("1[E1]+7" : "семнадцати")
+  | ("1[E1]+7" : "семнадцать")
+  | ("1[E1]+7" : "семнадцатью")
+  | ("1[E1]+8" : "восемнадцати")
+  | ("1[E1]+8" : "восемнадцать")
+  | ("1[E1]+8" : "восемнадцатью")
+  | ("1[E1]+9" : "девятнадцати")
+  | ("1[E1]+9" : "девятнадцать")
+  | ("1[E1]+9" : "девятнадцатью")]
+;
+
+lex3 = CDRewrite[lexset3 I[space], "", "", SIGMA_STAR];
+
+lexset2 = Optimize[
+    ("1[E1]" : "десяти")
+  | ("1[E1]" : "десять")
+  | ("1[E1]" : "десятью")
+  | ("1[E2]" : "ста")
+  | ("1[E2]" : "сто")
+  | ("2[E1]" : "двадцати")
+  | ("2[E1]" : "двадцать")
+  | ("2[E1]" : "двадцатью")
+  | ("2[E2]" : "двести")
+  | ("2[E2]" : "двумстам")
+  | ("2[E2]" : "двумястами")
+  | ("2[E2]" : "двухсот")
+  | ("2[E2]" : "двухстах")
+  | ("3[E1]" : "тридцати")
+  | ("3[E1]" : "тридцать")
+  | ("3[E1]" : "тридцатью")
+  | ("3[E2]" : "тремстам")
+  | ("3[E2]" : "тремястами")
+  | ("3[E2]" : "трехсот")
+  | ("3[E2]" : "трехстах")
+  | ("3[E2]" : "триста")
+  | ("4[E1]" : "сорок")
+  | ("4[E1]" : "сорока")
+  | ("4[E2]" : "четыремстам")
+  | ("4[E2]" : "четыреста")
+  | ("4[E2]" : "четырехсот")
+  | ("4[E2]" : "четырехстах")
+  | ("4[E2]" : "четырьмястами")
+  | ("5[E1]" : "пятидесяти")
+  | ("5[E1]" : "пятьдесят")
+  | ("5[E1]" : "пятьюдесятью")
+  | ("5[E2]" : "пятисот")
+  | ("5[E2]" : "пятистам")
+  | ("5[E2]" : "пятистах")
+  | ("5[E2]" : "пятьсот")
+  | ("5[E2]" : "пятьюстами")
+  | ("6[E1]" : "шестидесяти")
+  | ("6[E1]" : "шестьдесят")
+  | ("6[E1]" : "шестьюдесятью")
+  | ("6[E2]" : "шестисот")
+  | ("6[E2]" : "шестистам")
+  | ("6[E2]" : "шестистах")
+  | ("6[E2]" : "шестьсот")
+  | ("6[E2]" : "шестьюстами")
+  | ("7[E1]" : "семидесяти")
+  | ("7[E1]" : "семьдесят")
+  | ("7[E1]" : "семьюдесятью")
+  | ("7[E2]" : "семисот")
+  | ("7[E2]" : "семистам")
+  | ("7[E2]" : "семистах")
+  | ("7[E2]" : "семьсот")
+  | ("7[E2]" : "семьюстами")
+  | ("8[E1]" : "восемьдесят")
+  | ("8[E1]" : "восьмидесяти")
+  | ("8[E1]" : "восьмьюдесятью")
+  | ("8[E2]" : "восемьсот")
+  | ("8[E2]" : "восемьюстами")
+  | ("8[E2]" : "восьмисот")
+  | ("8[E2]" : "восьмистам")
+  | ("8[E2]" : "восьмистах")
+  | ("8[E2]" : "восьмьюстами")
+  | ("9[E1]" : "девяноста")
+  | ("9[E1]" : "девяносто")
+  | ("9[E2]" : "девятисот")
+  | ("9[E2]" : "девятистам")
+  | ("9[E2]" : "девятистах")
+  | ("9[E2]" : "девятьсот")
+  | ("9[E2]" : "девятьюстами")]
+;
+
+lex2 = CDRewrite[lexset2 I[space], "", "", SIGMA_STAR];
+
+lexset1 = Optimize[
+    ("+" : "")
+  | ("1" : "один")
+  | ("1" : "одна")
+  | ("1" : "одни")
+  | ("1" : "одним")
+  | ("1" : "одними")
+  | ("1" : "одних")
+  | ("1" : "одно")
+  | ("1" : "одного")
+  | ("1" : "одной")
+  | ("1" : "одном")
+  | ("1" : "одному")
+  | ("1" : "одною")
+  | ("1" : "одну")
+  | ("2" : "два")
+  | ("2" : "две")
+  | ("2" : "двум")
+  | ("2" : "двумя")
+  | ("2" : "двух")
+  | ("3" : "трем")
+  | ("3" : "тремя")
+  | ("3" : "трех")
+  | ("3" : "три")
+  | ("4" : "четыре")
+  | ("4" : "четырем")
+  | ("4" : "четырех")
+  | ("4" : "четырьмя")
+  | ("5" : "пяти")
+  | ("5" : "пять")
+  | ("5" : "пятью")
+  | ("6" : "шести")
+  | ("6" : "шесть")
+  | ("6" : "шестью")
+  | ("7" : "семи")
+  | ("7" : "семь")
+  | ("7" : "семью")
+  | ("8" : "восемь")
+  | ("8" : "восьми")
+  | ("8" : "восьмью")
+  | ("9" : "девяти")
+  | ("9" : "девять")
+  | ("9" : "девятью")
+  | ("[E3]" : "тысяч")
+  | ("[E3]" : "тысяча")
+  | ("[E3]" : "тысячам")
+  | ("[E3]" : "тысячами")
+  | ("[E3]" : "тысячах")
+  | ("[E3]" : "тысяче")
+  | ("[E3]" : "тысячей")
+  | ("[E3]" : "тысячи")
+  | ("[E3]" : "тысячу")
+  | ("[E3]" : "тысячью")
+  | ("[E6]" : "миллион")
+  | ("[E6]" : "миллиона")
+  | ("[E6]" : "миллионам")
+  | ("[E6]" : "миллионами")
+  | ("[E6]" : "миллионах")
+  | ("[E6]" : "миллионе")
+  | ("[E6]" : "миллионов")
+  | ("[E6]" : "миллионом")
+  | ("[E6]" : "миллиону")
+  | ("[E6]" : "миллионы")
+  | ("[E9]" : "миллиард")
+  | ("[E9]" : "миллиарда")
+  | ("[E9]" : "миллиардам")
+  | ("[E9]" : "миллиардами")
+  | ("[E9]" : "миллиардах")
+  | ("[E9]" : "миллиарде")
+  | ("[E9]" : "миллиардов")
+  | ("[E9]" : "миллиардом")
+  | ("[E9]" : "миллиарду")
+  | ("[E9]" : "миллиарды")
+  | ("|0|" : "ноле")
+  | ("|0|" : "нолем")
+  | ("|0|" : "ноль")
+  | ("|0|" : "нолю")
+  | ("|0|" : "ноля")
+  | ("|0|" : "нуле")
+  | ("|0|" : "нулем")
+  | ("|0|" : "нуль")
+  | ("|0|" : "нулю")
+  | ("|0|" : "нуля")]
+;
+
+lex1 = CDRewrite[lexset1 I[space], "", "", SIGMA_STAR];
+
+export LEX = Optimize[lex3 @ lex2 @ lex1];
+
+export INDEPENDENT_EXPONENTS = "[E3]" | "[E6]" | "[E9]";
+
+# END LANGUAGE SPECIFIC DATA
+################################################################################
+# Inserts a marker after the Ms.
+export INSERT_BOUNDARY = CDRewrite["" : "%", Ms, "", SIGMA_STAR];
+
+# Deletes all powers and "+".
+export DELETE_POWERS = CDRewrite[D[POWERS | "+"], "", "", SIGMA_STAR];
+
+# Deletes trailing zeros at the beginning of a number, so that "0003" does not
+# get treated as an ordinary number.
+export DELETE_INITIAL_ZEROS =
+  CDRewrite[("0" POWERS "+") : "", "[BOS]", "", SIGMA_STAR]
+;
+
+NonMs = Optimize[POWERS - Ms];
+
+# Deletes (usually) zeros before a non-M. E.g., +0[E1] should be deleted.
+export DELETE_INTERMEDIATE_ZEROS1 =
+  CDRewrite[Zero["+0" NonMs], "", "", SIGMA_STAR]
+;
+
+# Deletes (usually) zeros before an M, if there is no non-zero element between
+# that and the previous boundary. Thus, if after the result of the rule above we
+# end up with "%+0[E3]", then that gets deleted. Also (really) deletes a final
+# zero.
+export DELETE_INTERMEDIATE_ZEROS2 = Optimize[
+   CDRewrite[Zero["%+0" Ms], "", "", SIGMA_STAR]
+ @ CDRewrite[D["+0"], "", "[EOS]", SIGMA_STAR]]
+;
+
+# Final clean up of stray zeros.
+export DELETE_REMAINING_ZEROS = Optimize[
+   CDRewrite[Zero["+0"], "", "", SIGMA_STAR]
+ @ CDRewrite[Zero["0"], "", "", SIGMA_STAR]]
+;
+
+# Applies the revaluation map. For example in English, changes [E4] to [E1] as a
+# modifier of [E3].
+export REVALUE = CDRewrite[revaluations, "", "", SIGMA_STAR];
+
+# Deletes the various marks and powers in the input and output.
+export DELETE_MARKS = CDRewrite[D["%" | "+" | POWERS], "", "", SIGMA_STAR];
+
+export CLEAN_SPACES = Optimize[
+   CDRewrite[" "+ : " ", b.kNotSpace, b.kNotSpace, SIGMA_STAR]
+ @ CDRewrite[" "* : "", "[BOS]", "", SIGMA_STAR]
+ @ CDRewrite[" "* : "", "", "[EOS]", SIGMA_STAR]]
+;
+
+d = b.kDigit;
+
+# Germanic inversion rule.
+germanic =
+    (I["1+"] d "[E1]" D["+1"])
+  | (I["2+"] d "[E1]" D["+2"])
+  | (I["3+"] d "[E1]" D["+3"])
+  | (I["4+"] d "[E1]" D["+4"])
+  | (I["5+"] d "[E1]" D["+5"])
+  | (I["6+"] d "[E1]" D["+6"])
+  | (I["7+"] d "[E1]" D["+7"])
+  | (I["8+"] d "[E1]" D["+8"])
+  | (I["9+"] d "[E1]" D["+9"])
+;
+
+germanic_inversion =
+  CDRewrite[germanic, "", "", SIGMA_STAR, 'ltr', 'opt']
+;
+
+export GERMANIC_INVERSION = SIGMA_STAR;
+export ORDINAL_RESTRICTION = SIGMA_STAR;
+nondigits = b.kBytes - b.kDigit;
+export ORDINAL_SUFFIX = D[nondigits*];

@@ -1,0 +1,74 @@
+@@CONNECTOR_RANGE@@	to
+@@CONNECTOR_RATIO@@	to
+@@CONNECTOR_BY@@	by
+@@CONNECTOR_CONSECUTIVE_YEAR@@	to
+@@JANUARY@@	january
+@@FEBRUARY@@	february
+@@MARCH@@	march
+@@APRIL@@	april
+@@MAY@@	may
+@@JUNE@@	june
+@@JULY@@	july
+@@AUGUST@@	august
+@@SEPTEMBER@@	september
+@@OCTOBER@@	october
+@@NOVEMBER@@	november
+@@DECEMBER@@	december
+@@MINUS@@	minus
+@@DECIMAL_DOT_EXPRESSION@@	point
+@@URL_DOT_EXPRESSION@@	dot
+@@DECIMAL_EXPONENT@@	to the
+@@DECIMAL_EXPONENT@@	to the power of
+@@COLON@@	colon
+@@SLASH@@	slash
+@@SLASH@@	forward slash
+@@DASH@@	dash
+@@PASSWORD@@	password
+@@AT@@	at
+@@PORT@@	port
+@@QUESTION_MARK@@	question mark
+@@HASH@@	hash
+@@HASH@@	hash tag
+@@FRACTION_OVER@@	over
+@@MONEY_AND@@	and
+@@AND@@	and
+@@PHONE_PLUS@@	plus
+@@PHONE_EXTENSION@@	extension
+@@TIME_AM@@		a m
+@@TIME_PM@@		p m
+@@HOUR@@		o'clock
+@@MINUTE@@		minute
+@@MINUTE@@		minutes
+@@TIME_AFTER@@		after
+@@TIME_AFTER@@		past
+@@TIME_BEFORE@@		to
+@@TIME_BEFORE@@		till
+@@TIME_QUARTER@@	quarter
+@@TIME_HALF@@		half
+@@TIME_ZERO@@		oh
+@@TIME_THREE_QUARTER@@	three quarters
+@@ARITHMETIC_PLUS@@	plus
+@@ARITHMETIC_TIMES@@	times
+@@ARITHMETIC_TIMES@@	multiplied by
+@@ARITHMETIC_MINUS@@	minus
+@@ARITHMETIC_DIVISION@@	divided by
+@@ARITHMETIC_DIVISION@@	over
+@@ARITHMETIC_EQUALS@@	equals
+@@PERCENT@@		percent
+@@DEGREE@@		degree
+@@DEGREE@@		degrees
+@@SQUARE_ROOT@@		square root of
+@@SQUARE_ROOT@@		the square root of
+@@STAR@@		star
+@@HYPHEN@@		hyphen
+@@AT@@			at
+@@PER@@			per
+@@PERIOD@@		period
+@@PERIOD@@		full stop
+@@PERIOD@@		dot
+@@EXCLAMATION_MARK@@	exclamation mark
+@@EXCLAMATION_MARK@@	exclamation point
+@@COMMA@@		comma
+@@POSITIVE@@		positive
+@@NEGATIVE@@		negative
+@@OTHER_ZERO_VERBALIZATIONS@@	oh

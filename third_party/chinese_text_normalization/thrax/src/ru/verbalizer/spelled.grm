@@ -1,0 +1,77 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# This verbalizer is used whenever there is an LM symbol that consists of
+# letters immediately followed by "{spelled}". This strips the "{spelled}"
+# suffix.
+
+import 'util/byte.grm' as b;
+import 'ru/classifier/cyrillic.grm' as c;
+import 'ru/verbalizer/lexical_map.grm' as l;
+import 'ru/verbalizer/numbers.grm' as n;
+
+digit = b.kDigit @ n.CARDINAL_NUMBERS;
+
+char_set = (("a" | "A") : "letter-a")
+        | (("b" | "B") : "letter-b")
+        | (("c" | "C") : "letter-c")
+        | (("d" | "D") : "letter-d")
+        | (("e" | "E") : "letter-e")
+        | (("f" | "F") : "letter-f")
+        | (("g" | "G") : "letter-g")
+        | (("h" | "H") : "letter-h")
+        | (("i" | "I") : "letter-i")
+        | (("j" | "J") : "letter-j")
+        | (("k" | "K") : "letter-k")
+        | (("l" | "L") : "letter-l")
+        | (("m" | "M") : "letter-m")
+        | (("n" | "N") : "letter-n")
+        | (("o" | "O") : "letter-o")
+        | (("p" | "P") : "letter-p")
+        | (("q" | "Q") : "letter-q")
+        | (("r" | "R") : "letter-r")
+        | (("s" | "S") : "letter-s")
+        | (("t" | "T") : "letter-t")
+        | (("u" | "U") : "letter-u")
+        | (("v" | "V") : "letter-v")
+        | (("w" | "W") : "letter-w")
+        | (("x" | "X") : "letter-x")
+        | (("y" | "Y") : "letter-y")
+        | (("z" | "Z") : "letter-z")
+        | (digit)
+        | ("&" : "@@AND@@")
+        | ("." : "")
+        | ("-" : "")
+        | ("_" : "")
+        | ("/" : "")
+        | (n.I["letter-"] c.kCyrillicAlpha)
+        ;
+
+ins_space = "" : " ";
+
+suffix = "{spelled}" : "";
+
+spelled = Optimize[char_set (ins_space char_set)* suffix];
+
+export SPELLED = Optimize[spelled @ l.LEXICAL_MAP];
+
+sigma_star = b.kBytes*;
+
+# Gets rid of the letter- prefix since in some cases we don't want it.
+
+del_letter = CDRewrite[n.D["letter-"], "", "", sigma_star];
+
+spelled_no_tag = Optimize[char_set (ins_space char_set)*];
+
+export SPELLED_NO_LETTER = Optimize[spelled_no_tag @ del_letter];

@@ -1,0 +1,9 @@
+import 'byte.grm' as b;
+import 'number.grm' as number;
+import 'hotfix.grm' as hotfix;
+import 'percentage.grm' as percentage;
+import 'date.grm' as date;
+import 'amount.grm' as amount; # seems not useful for now
+
+export ITN = Optimize[percentage.PERCENTAGE @ (date.DATE <-1>) @ number.NUMBER @ hotfix.HOTFIX];
+

@@ -1,0 +1,68 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Rules for URLs and email addresses.
+
+import 'util/byte.grm' as bytelib;
+import 'en/verbalizer/lexical_map.grm' as l;
+
+ins_space = "" : " ";
+dot = "." : "@@URL_DOT_EXPRESSION@@";
+at = "@" : "@@AT@@";
+
+url_suffix =
+  (".com" : dot ins_space "com") |
+  (".gov" : dot ins_space "gov") |
+  (".edu" : dot ins_space "e d u") |
+  (".org" : dot ins_space "org") |
+  (".net" : dot ins_space "net")
+;
+
+letter_string = (bytelib.kAlnum)* bytelib.kAlnum;
+
+letter_string_dot =
+  ((letter_string ins_space dot ins_space)* letter_string)
+;
+
+# Rules for URLs.
+export URL = Optimize[
+ ((letter_string_dot) (ins_space)
+  (url_suffix)) @ l.LEXICAL_MAP
+];
+
+# Rules for email addresses.
+letter_by_letter = ((bytelib.kAlnum ins_space)* bytelib.kAlnum);
+
+letter_by_letter_dot =
+  ((letter_by_letter ins_space dot ins_space)*
+  letter_by_letter)
+;
+
+export EMAIL1 = Optimize[
+ ((letter_by_letter) (ins_space)
+  (at) (ins_space)
+  (letter_by_letter_dot) (ins_space)
+  (url_suffix)) @ l.LEXICAL_MAP
+];
+
+export EMAIL2 = Optimize[
+ ((letter_by_letter) (ins_space)
+  (at) (ins_space)
+  (letter_string_dot) (ins_space)
+  (url_suffix)) @ l.LEXICAL_MAP
+];
+
+export EMAILS = Optimize[
+  EMAIL1 | EMAIL2
+];

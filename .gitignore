@@ -1,6 +1,5 @@
 .DS_Store
 *.pyc
-tools/venv
 .vscode
 *.log
 *.pdmodel
@@ -10,3 +9,6 @@ tools/venv
 *.tar.gz
 .ipynb_checkpoints
 *.npz
+
+tools/venv
+tools/kenlm

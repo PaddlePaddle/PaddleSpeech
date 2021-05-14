@@ -57,11 +57,11 @@ if [ $? != 0 ]; then
 fi
 
 
-# install kaldi-comptiable feature 
-pushd third_party/python_kaldi_features/
-python setup.py install
+# install third_party
+pushd third_party
+bash install.sh
 if [ $? != 0 ]; then
-   error_msg "Please check why kaldi feature install error!"
+   error_msg "Please check why third_party install error!"
    exit -1
 fi
 popd

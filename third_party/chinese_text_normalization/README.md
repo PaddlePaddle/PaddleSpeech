@@ -45,7 +45,7 @@ This project sets up a ready-to-use TN module for **Chinese**. Since my backgrou
     acknowledgement: the NSW normalization codes are based on [Zhiyang Zhou's work here](https://github.com/Joee1995/chn_text_norm.git)
 
 1. punctuation removal
-    
+
     For Chinese, it removes punctuation list collected in [Zhon](https://github.com/tsroten/zhon) project, containing
     * non-stop puncs
         ```

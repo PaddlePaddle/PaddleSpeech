@@ -27,11 +27,11 @@ arpa=$3
 if [ $stage -le 0 ] && [ $stop_stage -ge 0 ];then
     # text tn & wordseg preprocess
     echo "process text."
-    python3 local/zh_preprocess.py ${type} ${text} ${text}.${type}.tn
+    python3 ${MAIN_ROOT}/utils/zh_tn.py ${type} ${text} ${text}.${type}.tn
 fi
 
 if [ $stage -le 1 ] && [ $stop_stage -ge 1 ];then
     # train ngram lm
     echo "build lm."
-    bash local/ngram_train.sh --order ${order} --mem ${mem} --prune "${prune}" ${text}.${type}.tn ${arpa}
+    bash ${MAIN_ROOT}/utils/ngram_train.sh --order ${order} --mem ${mem} --prune "${prune}" ${text}.${type}.tn ${arpa}
 fi

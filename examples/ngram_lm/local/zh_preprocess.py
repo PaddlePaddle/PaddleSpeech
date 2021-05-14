@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
-
-from typing import List, Text
-import sys
-import jieba
-import string
 import re
+import string
+import sys
+from typing import List
+from typing import Text
+
+import jieba
 from zhon import hanzi
+
 
 def char_token(s: Text) -> List[Text]:
     return list(s)
 
+
 def word_token(s: Text) -> List[Text]:
     return jieba.lcut(s)
+
 
 def tn(s: Text) -> Text:
     s = s.strip()
     s = s.replace('*', '')
     # rm english punctuations
-    s = re.sub(f'[re.escape(string.punctuation)]' , "", s)
+    s = re.sub(f'[re.escape(string.punctuation)]', "", s)
     # rm chinese punctuations
     s = re.sub(f'[{hanzi.punctuation}]', "", s)
     # text normalization
-    
+
     # rm english
     s = ''.join(re.findall(hanzi.sent, s))
     return s
+
 
 def main(infile, outfile, tokenizer=None):
     with open(infile, 'rt') as fin, open(outfile, 'wt') as fout:
@@ -35,6 +40,7 @@ def main(infile, outfile, tokenizer=None):
                 l = ' '.join(tokenizer(l))
             fout.write(l)
             fout.write('\n')
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:

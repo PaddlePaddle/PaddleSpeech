@@ -95,7 +95,7 @@ decoding:
   cutoff_prob: 1.0
   cutoff_top_n: 0
   num_proc_bsearch: 8
-  ctc_weight: 0.0 # ctc weight for attention rescoring decode mode.
+  ctc_weight: 0.5 # ctc weight for attention rescoring decode mode.
   decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
       # <0: for decoding, use full chunk.
       # >0: for decoding, use fixed chunk size as set.

@@ -14,7 +14,7 @@ data:
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05
-  max_output_input_ratio: 10.0
+  max_output_input_ratio: .inf
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80
@@ -77,7 +77,7 @@ model:
 training:
   n_epoch: 120
   accum_grad: 8
-  global_grad_clip: 5.0
+  global_grad_clip: 3.0
   optim: adam
   optim_conf:
     lr: 0.004

@@ -32,7 +32,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --unit_type="char" \
     --count_threshold=0 \
     --vocab_path="data/vocab.txt" \
-    --manifest_paths "data/manifest.train.raw"
+    --manifest_paths "data/manifest.train.raw" "data/manifest.dev.raw"
 
     if [ $? -ne 0 ]; then
         echo "Build vocabulary failed. Terminated."
@@ -51,8 +51,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --stride_ms=10.0 \
     --window_ms=20.0 \
     --sample_rate=16000 \
-    --use_dB_normalization=False \
-    --num_samples=-1 \
+    --use_dB_normalization=True \
+    --num_samples=2000 \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"
 

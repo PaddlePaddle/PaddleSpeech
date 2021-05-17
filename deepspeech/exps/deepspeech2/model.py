@@ -43,13 +43,11 @@ class DeepSpeech2Trainer(Trainer):
 
     def train_batch(self, batch_index, batch_data, msg):
         start = time.time()
-
         loss = self.model(*batch_data)
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
         self.optimizer.step()
         self.optimizer.clear_grad()
-
         iteration_time = time.time() - start
 
         losses_np = {

@@ -31,7 +31,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
     def _dygraph_clip(self, params_grads):
         params_and_grads = []
         sum_square_list = []
-        for p, g in params_grads:
+        for i, (p, g) in enumerate(params_grads):
             if g is None:
                 continue
             if getattr(p, 'need_clip', True) is False:
@@ -45,7 +45,8 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             sum_square_list.append(sum_square)
 
             # debug log
-            # logger.debug(f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
+            if i < 10:
+                logger.debug(f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
 
         # all parameters have been filterd out
         if len(sum_square_list) == 0:
@@ -62,7 +63,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
         clip_var = layers.elementwise_div(
             x=max_global_norm,
             y=layers.elementwise_max(x=global_norm_var, y=max_global_norm))
-        for p, g in params_grads:
+        for i, (p, g) in enumerate(params_grads):
             if g is None:
                 continue
             if getattr(p, 'need_clip', True) is False:
@@ -72,8 +73,9 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             params_and_grads.append((p, new_grad))
 
             # debug log
-            # logger.debug(
-            #     f"Grad After Clip: {p.name}: {float(merge_grad.square().sum().sqrt())}"
-            # )
+            if i < 10:
+                logger.debug(
+                    f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"
+                )
 
         return params_and_grads

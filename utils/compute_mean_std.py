@@ -24,7 +24,7 @@ from deepspeech.utils.utility import print_arguments
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('num_samples',      int,    -1,    "# of samples to for statistics.")
+add_arg('num_samples',      int,    2000,    "# of samples to for statistics.")
 
 add_arg('specgram_type',    str,
         'linear',
@@ -35,7 +35,7 @@ add_arg('delta_delta', bool,  False, "Audio feature with delta delta.")
 add_arg('stride_ms', float, 10.0,  "stride length in ms.")
 add_arg('window_ms', float, 20.0,  "stride length in ms.")
 add_arg('sample_rate',  int, 16000,  "target sample rate.")
-add_arg('use_dB_normalization', bool, False, "do dB normalization.")
+add_arg('use_dB_normalization', bool, True, "do dB normalization.")
 add_arg('target_dB',   int, -20,  "target dB.")
 
 add_arg('manifest_path',    str,

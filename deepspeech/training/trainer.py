@@ -226,6 +226,7 @@ class Trainer():
                               'lr': self.lr_scheduler()}, self.epoch)
 
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
+            # step lr every epoch
             self.lr_scheduler.step()
             self.new_epoch()
 
@@ -283,7 +284,6 @@ class Trainer():
         """
         # visualizer
         visualizer = SummaryWriter(logdir=str(self.output_dir))
-
         self.visualizer = visualizer
 
     @mp_tools.rank_zero_only
@@ -301,7 +301,6 @@ class Trainer():
         """
         raise NotImplementedError("train_batch should be implemented.")
 
-    @mp_tools.rank_zero_only
     @paddle.no_grad()
     def valid(self):
         """The validation. A subclass should implement this method.

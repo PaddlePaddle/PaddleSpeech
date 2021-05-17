@@ -13,7 +13,7 @@ There are various libraries including some of the most popular ones like NLTK, S
 
 ## Text Normalization(文本正则)
 
-The **basic preprocessing steps** that occur in English NLP, including data cleaning,stemming/lemmatization, tokenization and stop words. **not all of these steps are necessary for Chinese text data!**  
+The **basic preprocessing steps** that occur in English NLP, including data cleaning, stemming/lemmatization, tokenization and stop words.  **not all of these steps are necessary for Chinese text data!**  
 
 ### Lexicon Normalization
 
@@ -33,7 +33,7 @@ These “tags” label the part of speech. There are 24 part of speech tags and 
 
 In NLP, **stop words are “meaningless” words** that make the data too noisy or ambiguous. 
 
-Instead of manually removing them, could import the `**stopwordsiso**` package for a full list of Chinese stop words.More information can be found [here](https://pypi.org/project/stopwordsiso/).And with this, we can easily create code to filter out any stop words in large text data.
+Instead of manually removing them, you could import the `**stopwordsiso**` package for a full list of Chinese stop words. More information can be found [here](https://pypi.org/project/stopwordsiso/). And with this, we can easily create code to filter out any stop words in large text data.
 
 ```python
 !pip install stopwordsiso

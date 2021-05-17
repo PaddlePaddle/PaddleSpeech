@@ -1,0 +1,528 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Utility functions.
+
+import 'util/byte.grm' as bytelib;
+import 'util/case.grm' as case;
+
+# A simplification helper function that encapsulates the left-to-right and
+# obligatory options.
+func CDR[t, l, r, s] {
+  return CDRewrite[t, l, r, s, 'ltr', 'obl'];
+}
+
+# Useful insertion and deletion functions.
+
+func I[expr] {
+  return "" : expr;
+}
+
+func D[expr] {
+  return expr : "";
+}
+
+# A machine that accepts nothing.
+export NULL = Optimize["" - ""];
+
+export d1to9 = Optimize[bytelib.kDigit - "0"];
+export d02to9 = Optimize[bytelib.kDigit - "1"];
+export d2to9 = Optimize[d02to9 - "0"];
+# Any number that isn't zero. May have leading zeroes.
+export non_zero_number = Optimize["0"* d1to9 bytelib.kDigit*];
+# Any number, allowing for factorization markers.
+export factorized_number = Optimize[(bytelib.kDigit | "\[" | "E" | "\]")*];
+export non_zero_factorized_number = Optimize["0"* d1to9 factorized_number];
+
+export ins_space = "" : " ";
+export ins_sil = "" : " sil ";
+export ins_short_sil = "" : " sil|short ";
+export ins_quote = "" : "\"";
+
+# Caveat: pass_anything does not pass stuff like "[~~]".
+export pass_anything = bytelib.kBytes*;
+export pass_any_word = bytelib.kNotSpace+;
+
+export pass_space_plus = bytelib.kSpace+;
+export pass_space_star = bytelib.kSpace*;
+
+export clear_space = bytelib.kSpace : "";
+export clear_space_plus = bytelib.kSpace+ : "";
+export clear_space_star = bytelib.kSpace* : "";
+
+export space_to_underscore = (bytelib.kAlnum | (" " : "_"))*;
+export one_space = clear_space_star ins_space;
+
+export CLEAN_SPACES = Optimize[
+  "" | (clear_space_star
+        (pass_any_word (bytelib.kSpace+ : " "))*
+        pass_any_word clear_space_star)]
+;
+
+export del_space_star = " "* : "";
+export del_space_plus = " "+ : "";
+
+export sigma_star = Optimize[pass_anything];
+
+export DELETE_SPACES =
+  CDRewrite[clear_space_plus, "", "", sigma_star];
+
+export REMOVE_LEADING_SPACES =
+  CDRewrite[clear_space_plus, "[BOS]", "", sigma_star];
+
+export REMOVE_FINAL_SPACES =
+  CDRewrite[clear_space_plus, "", "[EOS]", sigma_star];
+
+export REMOVE_BOUNDARY_SPACES = REMOVE_LEADING_SPACES @ REMOVE_FINAL_SPACES;
+
+export delete_initial_zero =
+  CDRewrite["0" : "", "[BOS]", bytelib.kDigit, sigma_star];
+
+export lower_case_letter = Optimize[case.tolower | case.LOWER | bytelib.kLower];
+export lower_case = Optimize[lower_case_letter+];
+export lower_case_anything = case.TOLOWER;
+
+export upper_case_letter = Optimize[case.toupper | case.UPPER | bytelib.kUpper];
+export upper_case = Optimize[upper_case_letter+];
+export upper_case_anything = case.TOUPPER;
+
+export opening_brace = del_space_star ("{" : "") del_space_star;
+export closing_brace = del_space_star ("}" : "") del_space_star;
+
+export quote = del_space_star ("\"" : "") del_space_star;
+export double_quote = del_space_star ("\"\"" : "") del_space_star;
+
+export VOWELS = Optimize["a" | "e" | "i" | "o" | "u"];
+export VOWELS_Y = Optimize["a" | "e" | "i" | "o" | "u" | "y"];
+export VOWELS_INSENSITIVE = Optimize[VOWELS_Y | "A" | "E" | "I"
+                                              | "O" | "U" | "Y"];
+export CONSONANTS = Optimize[bytelib.kLower - VOWELS];
+export CONSONANTS_INSENSITIVE = Optimize[bytelib.kAlpha - VOWELS_INSENSITIVE];
+
+# LSEQs that can be used for URL verbalization for all languages;
+# mainly protocol names & file extensions.
+export URL_LSEQS = Optimize["www" | "edu" | "ftp" | "htm" | "html" | "imdb" |
+                            "php" | "asp" | "aspx" | "bbc" | "cgi" | "xhtml" |
+                            "shtml" | "jsp"];
+
+# Rule for swapping cardinal to decimal; useful for measures where
+# both can appear in the proto but may be handled similarly.
+export CARDINAL_TO_DECIMAL = Optimize[
+  CDRewrite["cardinal" : "decimal", "", "", sigma_star] @
+  CDRewrite["integer:" : "integer_part:", "", "", sigma_star]
+];
+
+export escape_quotes_and_backslashes =
+  ((bytelib.kBytes - "\"" - "\\") | ("\"" : "\\\"") | ("\\" : "\\\\"))*
+;
+
+## Generally useful definition:
+
+export hours =
+    "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "11"
+  | "12"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21"
+  | "22"
+  | "23"
+  | "24"
+;
+
+export hours_shift =
+    ("0" : "1")
+  | ("1" : "2")
+  | ("2" : "3")
+  | ("3" : "4")
+  | ("4" : "5")
+  | ("5" : "6")
+  | ("6" : "7")
+  | ("7" : "8")
+  | ("8" : "9")
+  | ("9" : "10")
+  | ("10" : "11")
+  | ("11" : "12")
+  | ("12" : "13")
+  | ("13" : "14")
+  | ("14" : "15")
+  | ("15" : "16")
+  | ("16" : "17")
+  | ("17" : "18")
+  | ("18" : "19")
+  | ("19" : "20")
+  | ("20" : "21")
+  | ("21" : "22")
+  | ("22" : "23")
+  | ("23" : "24")
+  | ("24" : "1")
+;
+
+export hours_24_to_12 =
+    ("0" : "12")
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "11"
+  | "12"
+  | ("13" : "1")
+  | ("14" : "2")
+  | ("15" : "3")
+  | ("16" : "4")
+  | ("17" : "5")
+  | ("18" : "6")
+  | ("19" : "7")
+  | ("20" : "8")
+  | ("21" : "9")
+  | ("22" : "10")
+  | ("23" : "11")
+  | ("24" : "12")
+;
+
+export hours_24_to_12_next =
+    ("0" : "1")
+  | ("1" : "2")
+  | ("2" : "3")
+  | ("3" : "4")
+  | ("4" : "5")
+  | ("5" : "6")
+  | ("6" : "7")
+  | ("7" : "8")
+  | ("8" : "9")
+  | ("9" : "10")
+  | ("10" : "11")
+  | ("11" : "12")
+  | ("12" : "1")
+  | ("13" : "2")
+  | ("14" : "3")
+  | ("15" : "4")
+  | ("16" : "5")
+  | ("17" : "6")
+  | ("18" : "7")
+  | ("19" : "8")
+  | ("20" : "9")
+  | ("21" : "10")
+  | ("22" : "11")
+  | ("23" : "12")
+  | ("24" : "1")
+;
+
+export minutes =
+    "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "11"
+  | "12"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21"
+  | "22"
+  | "23"
+  | "24"
+  | "25"
+  | "26"
+  | "27"
+  | "28"
+  | "29"
+  | "30"
+  | "31"
+  | "32"
+  | "33"
+  | "34"
+  | "35"
+  | "36"
+  | "37"
+  | "38"
+  | "39"
+  | "40"
+  | "41"
+  | "42"
+  | "43"
+  | "44"
+  | "45"
+  | "46"
+  | "47"
+  | "48"
+  | "49"
+  | "50"
+  | "51"
+  | "52"
+  | "53"
+  | "54"
+  | "55"
+  | "56"
+  | "57"
+  | "58"
+  | "59"
+;
+
+export round_minutes =
+    ("1" : "0")
+  | ("2" : "0")
+  | ("3" : "5")
+  | ("4" : "5")
+  | ("6" : "5")
+  | ("7" : "5")
+  | ("8" : "10")
+  | ("9" : "10")
+  | ("11" : "10")
+  | ("12" : "10")
+  | ("13" : "15")
+  | ("14" : "15")
+  | ("16" : "15")
+  | ("17" : "15")
+  | ("18" : "20")
+  | ("19" : "20")
+  | ("21" : "20")
+  | ("22" : "20")
+  | ("23" : "25")
+  | ("24" : "25")
+  | ("26" : "25")
+  | ("27" : "25")
+  | ("28" : "30")
+  | ("29" : "30")
+  | ("31" : "30")
+  | ("32" : "30")
+  | ("33" : "35")
+  | ("34" : "35")
+  | ("36" : "35")
+  | ("37" : "35")
+  | ("38" : "40")
+  | ("39" : "40")
+  | ("41" : "40")
+  | ("42" : "40")
+  | ("43" : "45")
+  | ("44" : "45")
+  | ("46" : "45")
+  | ("47" : "45")
+  | ("48" : "50")
+  | ("49" : "50")
+  | ("51" : "50")
+  | ("52" : "50")
+  | ("53" : "55")
+  | ("54" : "55")
+  | ("56" : "55")
+  | ("57" : "55")
+;
+
+export unrounded_minutes =
+    ("0" : "0")
+  | ("5" : "5")
+  | ("10" : "10")
+  | ("15" : "15")
+  | ("20" : "20")
+  | ("25" : "25")
+  | ("30" : "30")
+  | ("35" : "35")
+  | ("40" : "40")
+  | ("45" : "45")
+  | ("50" : "50")
+  | ("55" : "55")
+;
+
+export round_minutes_next_hour =
+    ("58" : "0")
+  | ("59" : "0")
+;
+
+export subtract_from_60 =
+    "30"
+  | ("31" : "29" )
+  | ("32" : "28" )
+  | ("33" : "27" )
+  | ("34" : "26" )
+  | ("35" : "25" )
+  | ("36" : "24" )
+  | ("37" : "23" )
+  | ("38" : "22" )
+  | ("39" : "21" )
+  | ("40" : "20" )
+  | ("41" : "19" )
+  | ("42" : "18" )
+  | ("43" : "17" )
+  | ("44" : "16" )
+  | ("45" : "15" )
+  | ("46" : "14" )
+  | ("47" : "13" )
+  | ("48" : "12" )
+  | ("49" : "11" )
+  | ("50" : "10" )
+  | ("51" : "9" )
+  | ("52" : "8" )
+  | ("53" : "7" )
+  | ("54" : "6" )
+  | ("55" : "5" )
+  | ("56" : "4" )
+  | ("57" : "3" )
+  | ("58" : "2" )
+  | ("59" : "1" )
+;
+
+export any_month =
+  (("0" : "")?
+  (
+    "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  ))
+  | "10"
+  | "11"
+  | "12"
+;
+
+export any_day =
+  (("0" : "")?
+  (
+    "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  ))
+  | "10"
+  | "11"
+  | "12"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21"
+  | "22"
+  | "23"
+  | "24"
+  | "25"
+  | "26"
+  | "27"
+  | "28"
+  | "29"
+  | "30"
+  | "31"
+;
+
+## TODO: These rules need to be coordinated with the markup since that may
+## change.
+
+export approximately = "[~~]";
+
+## Rounded: say "approximately".
+
+approx1 = Optimize[
+  "minutes:"
+  ("" : approximately) (minutes @ round_minutes)
+  "|"
+  "hours:"
+  hours
+  "|"
+  pass_anything]
+;
+
+## Rounded to next hour.
+
+approx2 = Optimize[
+  "minutes:"
+  ("" : approximately) round_minutes_next_hour
+  "|"
+  "hours:"
+  hours_shift
+  "|"
+  pass_anything]
+;
+
+## Not rounded: don't say "approximately".
+
+approx3 = Optimize[
+  "minutes:"
+  (minutes @ unrounded_minutes)
+  "|"
+  "hours:"
+  hours
+  "|"
+  pass_anything]
+;
+
+export approx = Optimize[
+  approx1 | approx2 | approx3
+];
+
+# "|" and "\" are escaped in the new serialization scheme using a backslash, so
+# we need to adjust these in the verbatim mappings.
+
+func EscapedMappings[raw_mappings] {
+  escapes = ("\\\\" : "\\") | ("\\|" : "|");
+  return Optimize[
+    ((Project[raw_mappings, 'input'] - Project[escapes, 'output']) | escapes)
+    @ raw_mappings
+  ];
+}
+
+# Allows verbatim grammars to be more permissive by accepting all inputs, it
+# simply consumes the input if it is not present in the raw mappings.
+
+func ConsumeUnmapped[raw_mappings] {
+  unmapped = bytelib.kBytes - Project[raw_mappings, 'input'];
+  return Optimize[
+    D[unmapped]<20>
+  ];
+}

@@ -1,0 +1,133 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Grammar for things built mostly on numbers.
+
+import 'en/verbalizer/factorization.grm' as f;
+import 'en/verbalizer/lexical_map.grm' as l;
+import 'en/verbalizer/numbers.grm' as n;
+
+num = n.CARDINAL_NUMBERS;
+ord = n.ORDINAL_NUMBERS_UNMARKED;
+digits = f.FRACTIONAL_PART_UNGROUPED;
+
+# Various symbols.
+
+plus = "+" : "@@ARITHMETIC_PLUS@@";
+minus = "-" : "@@ARITHMETIC_MINUS@@";
+slash = "/" : "@@SLASH@@";
+dot = "." : "@@URL_DOT_EXPRESSION@@";
+dash = "-" : "@@DASH@@";
+equals = "=" : "@@ARITHMETIC_EQUALS@@";
+
+degree = "°" : "@@DEGREE@@";
+
+division = ("/" | "÷") : "@@ARITHMETIC_DIVISION@@";
+
+times = ("x" | "*") : "@@ARITHMETIC_TIMES@@";
+
+power = "^" : "@@DECIMAL_EXPONENT@@";
+
+square_root = "√" : "@@SQUARE_ROOT@@";
+
+percent = "%" : "@@PERCENT@@";
+
+# Safe roman numbers.
+
+# NB: Do not change the formatting here. NO_EDIT must be on the same
+# line as the path.
+rfile = 
+  'universal/roman_numerals.tsv' # NO_EDIT
+;
+
+roman = StringFile[rfile];
+
+## Main categories.
+
+cat_dot_number =
+   num
+   n.I[" "] dot n.I[" "] num
+   (n.I[" "] dot n.I[" "] num)+
+;
+
+cat_slash_number =
+   num
+   n.I[" "] slash n.I[" "] num
+   (n.I[" "] slash n.I[" "] num)*
+;
+
+cat_dash_number =
+   num
+   n.I[" "] dash n.I[" "] num
+   (n.I[" "] dash n.I[" "] num)*
+;
+
+cat_signed_number = ((plus | minus) n.I[" "])? num;
+
+cat_degree = cat_signed_number n.I[" "] degree;
+
+cat_country_code = plus n.I[" "] (num | digits);
+
+cat_math_operations =
+     plus
+   | minus
+   | division
+   | times
+   | equals
+   | percent
+   | power
+   | square_root
+;
+
+# Roman numbers are often either cardinals or ordinals in various languages.
+cat_roman = roman @ (num | ord);
+
+# Allow
+#
+# number:number
+# number-number
+#
+# to just be
+#
+# number number.
+
+cat_number_number =
+   num ((":" | "-") : " ") num
+;
+
+# Some additional readings for these symbols.
+
+cat_additional_readings =
+  ("/" : "@@PER@@") |
+  ("+" : "@@AND@@") |
+  ("-" : ("@@HYPHEN@@" | "@@CONNECTOR_TO@@")) |
+  ("*" : "@@STAR@@") |
+  ("x" : ("x" | "@@CONNECTOR_BY@@")) |
+  ("@" : "@@AT@@")
+;
+
+numbers_plus = Optimize[
+   cat_dot_number
+ | cat_slash_number
+ | cat_dash_number
+ | cat_signed_number
+ | cat_degree
+ | cat_country_code
+ | cat_math_operations
+ | cat_roman
+ | cat_number_number
+ | cat_additional_readings
+];
+
+export NUMBERS_PLUS = Optimize[numbers_plus @ l.LEXICAL_MAP];

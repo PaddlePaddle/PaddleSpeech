@@ -1,0 +1,10 @@
+import 'byte.grm' as b;
+import 'number.grm' as n;
+
+date_day = n.number_1_to_99 ("日"|"号");
+date_month_day = n.number_1_to_99 "月" date_day;
+date_year_month_day = ((n.number_0_to_9){2,4} | n.number) "年" date_month_day;
+
+date = date_year_month_day | date_month_day | date_day;
+
+export DATE = CDRewrite[date, "", "", b.kBytes*];

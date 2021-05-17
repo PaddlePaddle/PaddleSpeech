@@ -1,0 +1,108 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import 'util/byte.grm' as b;
+import 'en/verbalizer/lexical_map.grm' as l;
+import 'en/verbalizer/numbers.grm' as n;
+
+# Only handles 24-hour time with quarter-to, half-past and quarter-past.
+
+increment_hour =
+    ("0" : "1")
+  | ("1" : "2")
+  | ("2" : "3")
+  | ("3" : "4")
+  | ("4" : "5")
+  | ("5" : "6")
+  | ("6" : "7")
+  | ("7" : "8")
+  | ("8" : "9")
+  | ("9" : "10")
+  | ("10" : "11")
+  | ("11" : "12")
+  | ("12" : "1")  # If someone uses 12, we assume 12-hour by default.
+  | ("13" : "14")
+  | ("14" : "15")
+  | ("15" : "16")
+  | ("16" : "17")
+  | ("17" : "18")
+  | ("18" : "19")
+  | ("19" : "20")
+  | ("20" : "21")
+  | ("21" : "22")
+  | ("22" : "23")
+  | ("23" : "12")
+;
+
+hours = Project[increment_hour, 'input'];
+
+d = b.kDigit;
+D = d - "0";
+
+minutes09 = "0" D;
+
+minutes = ("1" | "2" | "3" | "4" | "5") d;
+
+__sep__ = ":";
+sep_space = __sep__ : " ";
+
+verbalize_hours = hours @ n.CARDINAL_NUMBERS;
+
+verbalize_minutes =
+   ("00" : "@@HOUR@@")
+ | (minutes09 @ (("0" : "@@TIME_ZERO@@") n.I[" "] n.CARDINAL_NUMBERS))
+ | (minutes @ n.CARDINAL_NUMBERS)
+;
+
+time_basic = Optimize[verbalize_hours sep_space verbalize_minutes];
+
+# Special cases we handle right now.
+# TODO: Need to allow for cases like
+#
+#   half twelve (in the UK English sense)
+#   half twaalf (in the Dutch sense)
+
+time_quarter_past =
+   n.I["@@TIME_QUARTER@@ @@TIME_AFTER@@ "]
+   verbalize_hours
+   n.D[__sep__ "15"];
+
+time_half_past =
+   n.I["@@TIME_HALF@@ @@TIME_AFTER@@ "]
+   verbalize_hours
+   n.D[__sep__ "30"];
+
+time_quarter_to =
+   n.I["@@TIME_QUARTER@@ @@TIME_BEFORE@@ "]
+   (increment_hour @ verbalize_hours)
+   n.D[__sep__ "45"];
+
+time_extra = Optimize[
+  time_quarter_past | time_half_past | time_quarter_to]
+;
+
+# Basic time periods which most languages can be expected to have.
+__am__ = "a.m." | "am" | "AM";
+__pm__ = "p.m." | "pm" | "PM";
+
+period = (__am__ : "@@TIME_AM@@") | (__pm__ : "@@TIME_PM@@");
+
+time_variants = time_basic | time_extra;
+
+time = Optimize[
+    (period (" " | n.I[" "]))? time_variants
+ |  time_variants ((" " | n.I[" "]) period)?]
+;
+
+export TIME = Optimize[time @ l.LEXICAL_MAP];

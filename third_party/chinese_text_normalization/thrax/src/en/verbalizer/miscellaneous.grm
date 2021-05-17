@@ -1,0 +1,78 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import 'util/byte.grm' as b;
+import 'ru/classifier/cyrillic.grm' as c;
+import 'en/verbalizer/extra_numbers.grm' as e;
+import 'en/verbalizer/lexical_map.grm' as l;
+import 'en/verbalizer/numbers.grm' as n;
+import 'en/verbalizer/spelled.grm' as s;
+
+letter = b.kAlpha | c.kCyrillicAlpha;
+dash   = "-";
+word = letter+;
+possibly_split_word = word (((dash | ".") : " ") word)* n.D["."]?;
+
+post_word_symbol =
+   ("+" : ("@@ARITHMETIC_PLUS@@" | "@@POSITIVE@@")) |
+   ("-" : ("@@ARITHMETIC_MINUS@@" | "@@NEGATIVE@@")) |
+   ("*" : "@@STAR@@")
+;
+
+pre_word_symbol =
+   ("@" : "@@AT@@") |
+   ("/" : "@@SLASH@@") |
+   ("#" : "@@HASH@@")
+;
+
+post_word = possibly_split_word n.I[" "] post_word_symbol;
+
+pre_word = pre_word_symbol n.I[" "] possibly_split_word;
+
+## Number/digit sequence combos, maybe with a dash
+
+spelled_word = word @ s.SPELLED_NO_LETTER;
+
+word_number =
+  (word | spelled_word)
+  (n.I[" "] | (dash : " "))
+  (e.DIGITS | n.CARDINAL_NUMBERS | e.MIXED_NUMBERS)
+;
+
+number_word =
+  (e.DIGITS | n.CARDINAL_NUMBERS | e.MIXED_NUMBERS)
+  (n.I[" "] | (dash : " "))
+  (word | spelled_word)
+;
+
+## Two-digit year.
+
+# Note that in this case to be fair we really have to allow ordinals too since
+# in some languages that's what you would have.
+
+two_digit_year = n.D["'"] (b.kDigit{2} @ (n.CARDINAL_NUMBERS | e.DIGITS));
+
+dot_com = ("." : "@@URL_DOT_EXPRESSION@@") n.I[" "] "com";
+
+miscellaneous = Optimize[
+    possibly_split_word
+  | post_word
+  | pre_word
+  | word_number
+  | number_word
+  | two_digit_year
+  | dot_com
+];
+
+export MISCELLANEOUS = Optimize[miscellaneous @ l.LEXICAL_MAP];

@@ -1,0 +1,58 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+export kRussianLowerAlpha = Optimize[
+    "а" | "б" | "в" | "г" | "д" | "е" | "ё" | "ж" | "з" | "и" | "й" |
+    "к" | "л" | "м" | "н" | "о" | "п" | "р" | "с" | "т" | "у" | "ф" |
+    "х" | "ц" | "ч" | "ш" | "щ" | "ъ" | "ы" | "ь" | "э" | "ю" | "я" ];
+
+export kRussianUpperAlpha = Optimize[
+    "А" | "Б" | "В" | "Г" | "Д" | "Е" | "Ё" | "Ж" | "З" | "И" | "Й" |
+    "К" | "Л" | "М" | "Н" | "О" | "П" | "Р" | "С" | "Т" | "У" | "Ф" |
+    "Х" | "Ц" | "Ч" | "Ш" | "Щ" | "Ъ" | "Ы" | "Ь" | "Э" | "Ю" | "Я" ];
+
+export kRussianLowerAlphaStressed = Optimize[
+    "а́" | "е́" | "ё́" | "и́" | "о́" | "у́" | "ы́" | "э́" | "ю́" | "я́" ];
+
+export kRussianUpperAlphaStressed = Optimize[
+    "А́" | "Е́" | "Ё́" | "И́" | "О́" | "У́" | "Ы́" | "Э́" | "Ю́" | "Я́" ];
+
+export kRussianRewriteStress = Optimize[
+    ("А́" : "А'") | ("Е́" : "Е'") | ("Ё́" : "Ё'") | ("И́" : "И'") |
+    ("О́" : "О'") | ("У́" : "У'") | ("Ы́" : "Ы'") | ("Э́" : "Э'") |
+    ("Ю́" : "Ю'") | ("Я́" : "Я'") |
+    ("а́" : "а'") | ("е́" : "е'") | ("ё́" : "ё'") | ("и́" : "и'") |
+    ("о́" : "о'") | ("у́" : "у'") | ("ы́" : "ы'") | ("э́" : "э'") |
+    ("ю́" : "ю'") | ("я́" : "я'")
+];
+
+export kRussianRemoveStress = Optimize[
+    ("А́" : "А") | ("Е́" : "Е") | ("Ё́" : "Ё") | ("И́" : "И") | ("О́" : "О") |
+    ("У́" : "У") | ("Ы́" : "Ы") | ("Э́" : "Э") | ("Ю́" : "Ю") | ("Я́" : "Я") |
+    ("а́" : "а") | ("е́" : "е") | ("ё́" : "ё") | ("и́" : "и") | ("о́" : "о") |
+    ("у́" : "у") | ("ы́" : "ы") | ("э́" : "э") | ("ю́" : "ю") | ("я́" : "я")
+];
+
+# Pre-reform characters, just in case.
+export kRussianPreReform = Optimize[
+    "ѣ" | "Ѣ"   # http://en.wikipedia.org/wiki/Yat
+];
+
+export kCyrillicAlphaStressed = Optimize[
+  kRussianLowerAlphaStressed | kRussianUpperAlphaStressed
+];
+
+export kCyrillicAlpha = Optimize[
+    kRussianLowerAlpha | kRussianUpperAlpha | kRussianPreReform
+];

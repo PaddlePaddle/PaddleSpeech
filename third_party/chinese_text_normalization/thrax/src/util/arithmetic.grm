@@ -1,0 +1,326 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Basic arithmetic on S-expressions. Exported arithmetic transducers may either:
+#
+# * Support weak vigesimal addition and multiplication...
+#
+#   (+ 20 17 +) -> 37
+#   (+ 20 10 7 +) -> 37
+#   (* 4 20 *) -> 80
+#
+#   ...or not.
+#
+# * Support "Germanic decade flop" addition....
+#
+#   (+ 8 20 +) -> 28
+#   (+ 4 60 +) -> 64
+#
+#   ...or not.
+#
+# * Support multiplication where the left-hand side multiplicand is of a higher
+#   order than the right-hand side multiplicand.
+#
+#   (* 1000 100) -> 100000
+#
+#   ...or not.
+#
+# However, modulo these exceptions, arithmetic transducers do not support
+# addition that requires "carrying", or multiplication where the right-hand
+# side multiplicand is not a power of ten. So this is not a *generic*
+# S-expression evaluator.
+#
+# LEAVES is a transducer that accepts symbols in delta but deletes symbols
+# in sigma - delta. So it essentially removes markup.
+#
+# REPEAT_FILTER is an acceptor which blocks derivations of the form
+#
+#   (+ (* 50 1000 *) (* 4 1000) ...)   "fifty thousand four thousand..."
+#
+# in languages where that is not licensed.
+
+import 'util/byte.grm' as b;
+
+# Deleter FST.
+func D[expr] {
+  return expr : "";
+}
+
+delta = b.kDigit;
+sigma = delta | " " | "(" | ")" | "+" | "*";
+
+sigmastar = sigma*;
+deltastar = delta*;
+
+rparen = Optimize["+)" | "*)"];
+space_or_rparen = Optimize[" " | rparen];
+
+## Multiplication.
+
+# Generic multiplication where the RHS is a power of ten.
+
+del_one = Optimize[delta+ D[" 1"] "0"+];
+
+test1_1 = AssertEqual["2 10"      @ del_one,      "20"];
+test1_2 = AssertEqual["20 10"     @ del_one,     "200"];
+test1_3 = AssertEqual["2 100"     @ del_one,     "200"];
+test1_4 = AssertEqual["20 100"    @ del_one,    "2000"];
+test1_5 = AssertEqual["200 100"   @ del_one,   "20000"];
+test1_6 = AssertEqual["2 1000"    @ del_one,    "2000"];
+test1_7 = AssertEqual["20 1000"   @ del_one,   "20000"];
+test1_8 = AssertEqual["200 1000"  @ del_one,  "200000"];
+test1_9 = AssertEqual["2000 1000" @ del_one, "2000000"];
+
+# Generic multiplication where the RHS is a power of ten and the LHS has fewer
+# trailing zeros than the RHS.
+del_one_restricted = Optimize[ # e.g., "2 x 10", "2 x 100", etc.
+                               delta      D[" 1"]        "0"+ |
+                               # e.g., "20 x 100", etc.
+                               delta{1,2} D[" 1"] "0"    "0"+ |
+                               # e.g., "200" x 1000", etc.
+                               delta{2,3} D[" 1"] "0"{2} "0"+ |
+                               delta{3,4} D[" 1"] "0"{3} "0"+ |
+                               delta{4,5} D[" 1"] "0"{4} "0"+];
+
+test2_01 = AssertEqual["2 10"     @ del_one_restricted,               "20"];
+test2_02 = AssertNull["20 10"     @ del_one_restricted];
+test2_03 = AssertEqual["2 100"    @ del_one_restricted,              "200"];
+test2_04 = AssertEqual["20 100"   @ del_one_restricted,             "2000"];
+test2_05 = AssertNull[ "200 100"  @ del_one_restricted];
+test2_06 = AssertEqual["2 1000"   @ del_one_restricted,             "2000"];
+test2_07 = AssertEqual["20 1000"  @ del_one_restricted,            "20000"];
+test2_08 = AssertEqual["200 1000" @ del_one_restricted,           "200000"];
+test2_09 = AssertNull["2000 1000" @ del_one_restricted];
+test2_10 = AssertEqual["1000 10000000" @ del_one_restricted, "10000000000"];
+
+# Multiplication of vigesimal base for weak vigesimal systems
+
+vigesimal_times_map = ("1" : "2") | ("2" : "4") | ("3" : "6") | ("4" : "8");
+
+del_two = Optimize[vigesimal_times_map D[" 2"] "0"+];
+
+test3_1 = AssertEqual["1 20" @ del_two, "20"];
+test3_2 = AssertEqual["2 20" @ del_two, "40"];
+test3_3 = AssertEqual["3 20" @ del_two, "60"];
+test3_4 = AssertEqual["4 20" @ del_two, "80"];
+
+# Multiplication of vigesimal base restricted to cases where the LHS is [1-4]
+# and the RHS is a power of ten.
+
+del_two_restricted = Optimize[vigesimal_times_map D[" 2"] "0"+];
+
+test4_1 = AssertEqual["1 20" @ del_two_restricted, "20"];
+test4_2 = AssertEqual["2 20" @ del_two_restricted, "40"];
+test4_3 = AssertEqual["3 20" @ del_two_restricted, "60"];
+test4_4 = AssertEqual["4 20" @ del_two_restricted, "80"];
+test4_5 = AssertNull["5 20" @ del_two_restricted];
+test4_6 = AssertNull["10 20" @ del_two_restricted];
+
+products = del_one | del_two;
+products_restricted = del_one_restricted | del_two_restricted;
+
+multiplication = CDRewrite[D["(* "] products D[" *)"], "", "", sigmastar];
+multiplication_restricted = CDRewrite[D["(* "] products_restricted D[" *)"],
+                                      "", "", sigmastar];
+
+test5_1 = AssertEqual["(* 8 100 *)"    @ multiplication, "800"];
+test5_2 = AssertEqual["(* 1 100 *)"    @ multiplication, "100"];
+test5_3 = AssertEqual["(* 4 20 *)"     @ multiplication, "80"];
+test5_4 = AssertEqual["(* 13 1000 *)"  @ multiplication, "13000"];
+test5_5 = AssertEqual["(* 13000 10 *)" @ multiplication, "130000"];
+test5_6 = AssertEqual["(* 13000 10 *)" @ multiplication_restricted,
+                      "(* 13000 10 *)"];  # Can't reduce this.
+
+## Addition.
+
+insum = "+" (sigma - "(")*;
+rcon = insum deltastar;
+
+# Generic zero deletion up to 12.
+del_zero = Optimize[
+   # Handles lone zero inside a plus statement.
+   CDRewrite[D[" 0"], rcon, space_or_rparen, sigmastar] @
+   # If we need to go any larger, we probably should switch to a PDT.
+   CDRewrite[D["0"{12} " "] delta{12}, rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{11} " "] delta{11}, rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{10} " "] delta{10}, rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{9} " "]  delta{9},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{8} " "]  delta{8},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{7} " "]  delta{7},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{6} " "]  delta{6},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{5} " "]  delta{5},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{4} " "]  delta{4},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{3} " "]  delta{3},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0"{2} " "]  delta{2},  rcon, space_or_rparen, sigmastar] @
+   CDRewrite[D["0" " "]     delta,     rcon, space_or_rparen, sigmastar]];
+
+## Weak vigesimal cases involving scores and teens.
+
+vigesimal_plus_map = Optimize[("20 1" : "3") delta |
+                              ("40 1" : "5") delta |
+                              ("60 1" : "7") delta |
+                              ("80 1" : "9") delta];
+
+vigesimal = CDRewrite[vigesimal_plus_map, insum, space_or_rparen, sigmastar];
+
+## Germanic decade flop.
+
+germanic_map = StringFile['util/germanic.tsv'];
+
+germanic = CDRewrite[germanic_map, insum, space_or_rparen, sigmastar];
+
+sums = Optimize[germanic @ vigesimal @ del_zero];
+
+# Deletes the surrounding "(+ +)" around a successful reduction.
+
+del_plus = CDRewrite[D["(+ "] delta+ D[" +)"], "", "", sigmastar];
+
+addition = Optimize[sums @ del_plus];
+
+test6_1 = AssertEqual["(+ 30 2 +)" @ addition, "32"];
+test6_2 = AssertEqual["(+ 300 20 1 +)" @ addition, "321"];
+test6_3 = AssertEqual["(+ 80 17 +)" @ addition, "97"];
+test6_4 = AssertEqual["(+ 4 50 +)" @ addition, "54"];
+test6_5 = AssertEqual["(+ 3000 80 17 +)" @ addition, "3097"];
+test6_6 = AssertEqual["(+ 3000 4 50 +)" @ addition, "3054"];
+test6_7 = AssertEqual["(+ 0 10 +)" @ addition, "10"];
+test6_8 = AssertEqual["(+ 0 20 +)" @ addition, "20"];
+test6_9 = AssertEqual["(+ 200 (+ 0 20 +) +)" @ addition @ addition, "220"];
+
+## Export statements.
+
+export ARITHMETIC = Optimize[multiplication @ addition];
+export ARITHMETIC_RESTRICTED = Optimize[multiplication_restricted @ addition];
+
+# Lightweight versions that lack the vigesimal /vɪˈdʒɛsɪməl/ or Germanic decade
+# flop, or both.
+
+export ARITHMETIC_BASIC = Optimize[multiplication @ del_zero @ del_plus];
+export ARITHMETIC_BASIC_RESTRICTED = Optimize[multiplication_restricted @
+                                              del_zero @ del_plus];
+
+export ARITHMETIC_GERMANIC = Optimize[multiplication @ germanic @ del_zero @
+                                      del_plus];
+
+export ARITHMETIC_GERMANIC_RESTRICTED = Optimize[multiplication_restricted @
+                                                 germanic @ del_zero @
+                                                 del_plus];
+
+export ARITHMETIC_VIGESIMAL = Optimize[multiplication @ vigesimal @ del_zero @
+                                       del_plus];
+export ARITHMETIC_VIGESIMAL_RESTRICTED = Optimize[multiplication_restricted @
+                                                  vigesimal @ del_zero @
+                                                  del_plus];
+
+## LEAVES transducer.
+
+nonterm = "+" | "*";
+export LEAVES = Optimize[CDRewrite["(" nonterm " " | " " nonterm ")" : "",
+                                   "", "", sigmastar]];
+
+test7 = AssertEqual["(* (+ (* 4 20 *) 10 7 +) 1000 *)" @ LEAVES,
+                    "4 20 10 7 1000"];
+
+## Optional filter for repeated large powers of ten, to be applied to leaves.
+
+func Filter[expr, sigstar] {
+  return Optimize[sigstar - (sigstar expr sigstar)];
+}
+
+func FilterMoreThanOne[expr, sigstar] {
+  return Filter[expr " " (sigstar " ")? expr, sigstar];
+}
+
+filter_sigstar = (delta | " ")*;
+
+export REPEAT_FILTER =
+  Optimize[FilterMoreThanOne["1000", filter_sigstar] @
+           FilterMoreThanOne["10000", filter_sigstar] @
+           FilterMoreThanOne["100000", filter_sigstar] @
+           FilterMoreThanOne["1000000", filter_sigstar] @
+           FilterMoreThanOne["1000000000", filter_sigstar] @
+           FilterMoreThanOne["1000000000000", filter_sigstar]];
+
+test8_1 = AssertNull["50 1000 4 1000" @ REPEAT_FILTER];
+test8_2 = AssertNull["50 1000000 4 1000000" @ REPEAT_FILTER];
+test8_3 = AssertEqual["50 100 1000" @ REPEAT_FILTER, "50 100 1000"];
+test8_4 = AssertNull["20 1000 1000 20" @ REPEAT_FILTER];
+test8_5 = AssertEqual[
+    "70 1000000 400 0 70 0 7 1000 100 0 70" @ REPEAT_FILTER,
+    "70 1000000 400 0 70 0 7 1000 100 0 70" @ REPEAT_FILTER];
+test8_6 = AssertNull[
+    "70 1000000 400 0 70 1000 0 7 1000 100 0 70" @ REPEAT_FILTER];
+
+# Filters to force the output of *inverting* the arithmetic as applied to a
+# digit string to be a well-formed sexpr:
+
+not_space = b.kNotSpace;
+
+# Things like (+ 1 +)(+ 9 +).
+
+bad_parens  =
+     sigmastar ")" not_space sigmastar
+ |   sigmastar not_space "("  sigmastar
+;
+
+no_bad_parens = sigmastar - bad_parens;
+
+# Things like (+ 1 +) or (* 3 *).
+
+spurious_operators =
+    sigmastar "(+ " delta+ " +)" sigmastar
+  | sigmastar "(* " delta+ " *)" sigmastar
+;
+
+no_spurious_operators = sigmastar - spurious_operators;
+
+no_strings_of_zeros =
+  sigmastar - (sigmastar " " "0"+ " " "0"+ " " sigmastar)
+;
+
+no_bad_sequences =
+  Optimize[no_bad_parens @ no_strings_of_zeros]
+;
+
+export SEXP_FILTER = Optimize[
+ (  delta+
+  | "(* " no_bad_sequences " *)"
+  | "(+ " no_bad_sequences " +)") @ no_spurious_operators]
+;
+
+# For convenience adds inverses of the arithmetic rules:
+
+export IARITHMETIC = Invert[ARITHMETIC];
+
+export IARITHMETIC_RESTRICTED = Invert[ARITHMETIC_RESTRICTED];
+
+export IARITHMETIC_BASIC = Invert[ARITHMETIC_BASIC];
+
+export IARITHMETIC_BASIC_RESTRICTED = Invert[ARITHMETIC_BASIC_RESTRICTED];
+
+export IARITHMETIC_GERMANIC = Invert[ARITHMETIC_GERMANIC];
+
+export IARITHMETIC_GERMANIC_RESTRICTED =
+  Invert[ARITHMETIC_GERMANIC_RESTRICTED]
+;
+
+export IARITHMETIC_VIGESIMAL = Invert[ARITHMETIC_VIGESIMAL];
+
+export IARITHMETIC_VIGESIMAL_RESTRICTED =
+    Invert[ARITHMETIC_VIGESIMAL_RESTRICTED]
+;
+
+## This should be applied on the lefthand side of FG to ensure that the only
+## digit input nis permitted.
+export DELTA_STAR = deltastar;

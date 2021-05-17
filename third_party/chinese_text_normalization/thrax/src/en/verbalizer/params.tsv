@@ -1,0 +1,7 @@
+float.grm	__fractional_part__ = fractional_part_ungrouped | fractional_part_unparsed;
+telephone.grm	__grouping__ = f.UNGROUPED;
+measure.grm	__measure__ = StringFile['en/verbalizer/measures.tsv'];
+money.grm	__currency__ = StringFile['en/verbalizer/money.tsv'];
+time.grm	__sep__ = ":";
+time.grm	__am__ = "a.m." | "am" | "AM";
+time.grm	__pm__ = "p.m." | "pm" | "PM";

@@ -1,0 +1,8 @@
+import 'byte.grm' as b;
+import 'number.grm' as n;
+
+percentage = (
+  ("百分之":"") n.number_1_to_99 ("":"%")
+);
+
+export PERCENTAGE = CDRewrite[percentage, "", "", b.kBytes*];

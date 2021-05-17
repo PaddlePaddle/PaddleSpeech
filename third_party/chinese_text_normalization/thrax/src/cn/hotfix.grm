@@ -1,0 +1,5 @@
+import 'byte.grm' as b;
+hotfix = StringFile['hotfix.list'];
+
+export HOTFIX = CDRewrite[hotfix, "", "", b.kBytes*];
+

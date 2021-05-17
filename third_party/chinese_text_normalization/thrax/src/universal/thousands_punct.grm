@@ -1,0 +1,126 @@
+# Copyright 2017 Google Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Specifies common ways of delimiting thousands in digit strings.
+
+import 'util/byte.grm' as bytelib;
+import 'util/util.grm' as util;
+
+killcomma = "," : "";
+dot2comma = "." : ",";
+spaces2comma = " "+ : ",";
+
+zero = "0";
+
+# no_delimiter = zero | "[1-9][0-9]*";
+export no_delimiter = zero | (util.d1to9 bytelib.kDigit*);
+
+# delim_map_dot = ("[0-9]" | ("\." : ","))*;
+delim_map_dot = (bytelib.kDigit | dot2comma)*;
+
+# delim_map_space = ("[0-9]" | (" +" : ","))*;
+delim_map_space = (bytelib.kDigit | spaces2comma)*;
+
+## Western systems group thousands. Korean goes this way too.
+
+# comma_thousands = zero | ("[1-9][0-9]?[0-9]?" (("," : "") "[0-9][0-9][0-9]")*);
+export comma_thousands = zero | (util.d1to9 bytelib.kDigit{0,2} (killcomma bytelib.kDigit{3})*);
+
+# ComposeFst: 1st argument cannot match on output labels and 2nd argument
+# cannot match on input labels (sort?).
+export dot_thousands = delim_map_dot @ comma_thousands;
+
+# ComposeFst: 1st argument cannot match on output labels and 2nd argument
+# cannot match on input labels (sort?).
+export space_thousands = delim_map_space @ comma_thousands;
+
+## Chinese prefers grouping by fours (by ten-thousands).
+
+# chinese_comma =
+#   zero | ("[1-9][0-9]?[0-9]?[0-9]?" (("," : "") "[0-9][0-9][0-9][0-9]")*);
+export chinese_comma = zero | (util.d1to9 (bytelib.kDigit{0,3}) (killcomma bytelib.kDigit{4})*);
+
+## The Indian system is more complex because of the Stravinskian alternation
+## between lakhs and crores.
+##
+## According to Wikipedia:
+##
+## Indian English       Value
+## One                  1
+## Ten                  10
+## Hundred              100
+## Thousand             1,000
+## Lakh                 1,00,000
+## Crore                1,00,00,000
+## Arab                 1,00,00,00,000
+## Kharab               1,00,00,00,00,000
+
+# indian_hundreds = "[1-9][0-9]?[0-9]?";
+indian_hundreds = util.d1to9 bytelib.kDigit{0,2};
+
+## Up to 99,999.
+
+# indian_comma_thousands = "[1-9][0-9]?" ("," : "") "[0-9][0-9][0-9]";
+indian_comma_thousands = util.d1to9 bytelib.kDigit? killcomma bytelib.kDigit{3};
+
+## Up to 99,99,999.
+
+# indian_comma_lakhs = "[1-9][0-9]?" ("," : "") "[0-9][0-9]" ("," : "") "[0-9][0-9][0-9]";
+indian_comma_lakhs = util.d1to9 bytelib.kDigit? killcomma bytelib.kDigit{2} killcomma bytelib.kDigit{3};
+
+## Up to 999,99,99,999
+
+indian_comma_crores =
+    util.d1to9 bytelib.kDigit? bytelib.kDigit? killcomma
+    (bytelib.kDigit{2} killcomma)?
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{3}
+;
+
+## Up to 99,999,99,99,999.
+
+indian_comma_thousand_crores =
+    util.d1to9 bytelib.kDigit? killcomma
+    bytelib.kDigit{3} killcomma
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{3}
+;
+
+## Up to 999,99,999,99,99,999.
+
+indian_comma_lakh_crores =
+    util.d1to9 bytelib.kDigit? bytelib.kDigit? killcomma
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{3} killcomma
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{2} killcomma
+    bytelib.kDigit{3}
+;
+
+export indian_comma =
+    zero
+  | indian_hundreds
+  | indian_comma_thousands
+  | indian_comma_lakhs
+  | indian_comma_crores
+  | indian_comma_thousand_crores
+  | indian_comma_lakh_crores
+;
+
+# Indian number system with dots.
+export indian_dot_number = delim_map_dot @ indian_comma;
+
+# Indian number system with spaces.
+export indian_space_number = delim_map_space @ indian_comma;

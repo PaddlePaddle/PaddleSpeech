@@ -39,6 +39,18 @@ pull_request_rules:
     actions:
       label:
         remove: ["conflicts"]
+  - name: "auto add label=enhancement"
+    conditions:
+      - files~=^deepspeech/
+    actions:
+      label:
+        add: ["enhancement"]
+  - name: "auto add label=Example"
+    conditions:
+      - files~=^examples/
+    actions:
+      label:
+        add: ["Example"]
   - name: "auto add label=README"
     conditions:
       - files~=README.md

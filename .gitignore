@@ -9,6 +9,9 @@
 *.tar.gz
 .ipynb_checkpoints
 *.npz
+*.done
 
 tools/venv
 tools/kenlm
+tools/sox-14.4.2
+tools/soxbindings

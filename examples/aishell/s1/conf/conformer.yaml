@@ -74,13 +74,13 @@ model:
 
 
 training:
-  n_epoch: 300
+  n_epoch: 240 
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
     lr: 0.002
-    weight_decay: 1e-06
+    weight_decay: 1e-6
   scheduler: warmuplr     # pytorch v1.1.0+ required
   scheduler_conf:
     warmup_steps: 25000
@@ -99,7 +99,7 @@ decoding:
   cutoff_prob: 1.0
   cutoff_top_n: 0
   num_proc_bsearch: 8
-  ctc_weight: 0.0 # ctc weight for attention rescoring decode mode.
+  ctc_weight: 0.5 # ctc weight for attention rescoring decode mode.
   decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
       # <0: for decoding, use full chunk.
       # >0: for decoding, use fixed chunk size as set.

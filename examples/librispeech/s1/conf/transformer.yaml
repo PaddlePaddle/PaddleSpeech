@@ -2,7 +2,7 @@
 data:
   train_manifest: data/manifest.train
   dev_manifest: data/manifest.dev
-  test_manifest: data/manifest.test
+  test_manifest: data/manifest.test-clean
   vocab_filepath: data/vocab.txt
   unit_type: 'spm'
   spm_model_prefix: 'data/bpe_unigram_5000'

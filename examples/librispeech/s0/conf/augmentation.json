@@ -1,5 +1,14 @@
 [
   {
+    "type": "speed",
+    "params": {
+      "min_speed_rate": 0.9,
+      "max_speed_rate": 1.1,
+      "num_rates": 3
+    },
+    "prob": 0.0
+  },
+  {
     "type": "shift",
     "params": {
       "min_shift_ms": -5,

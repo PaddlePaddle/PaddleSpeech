@@ -35,10 +35,3 @@ python3 local/extract_pinyin.py --use-jieba ${EXP_DIR}/${FILENAME} ${EXP_DIR}/"p
 
 echo "done"
 exit 0
-
-
-    
-    
-    
-    
-    

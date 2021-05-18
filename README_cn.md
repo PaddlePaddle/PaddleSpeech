@@ -22,11 +22,11 @@
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-参看 [安装](doc/install.md)。
+参看 [安装](doc/src/install.md)。
 
 ## 开始
 
-请查看 [Getting Started](doc/src/getting_started.md) 和 [tiny egs](examples/tiny/README.md)。
+请查看 [Getting Started](doc/src/getting_started.md) 和 [tiny egs](examples/tiny/s0/README.md)。
 
 ## 更多信息
 

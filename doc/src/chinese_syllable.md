@@ -13,8 +13,6 @@
 
   There are a total of 410 common pinyin syllables.
 
-
-
 * [Rare syllable](https://resources.allsetlearning.com/chinese/pronunciation/Rare_syllable)
 
 * [Chinese Pronunciation: The Complete Guide for Beginner](https://www.digmandarin.com/chinese-pronunciation-guide.html)

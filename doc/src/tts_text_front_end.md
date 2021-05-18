@@ -13,6 +13,37 @@ There are various libraries including some of the most popular ones like NLTK, S
 
 ## Text Normalization(文本正则)
 
+The **basic preprocessing steps** that occur in English NLP, including data cleaning, stemming/lemmatization, tokenization and stop words.  **not all of these steps are necessary for Chinese text data!**  
+
+### Lexicon Normalization
+
+There’s a concept similar to stems in this language, and they’re called Radicals. **Radicals are basically the building blocks of Chinese characters.** All Chinese characters are made up of a finite number of components which are put together in different orders and combinations. Radicals are usually the leftmost part of the character. There are around 200 radicals in Chinese, and they are used to index and categorize characters.  
+
+Therefore, procedures like stemming and lemmatization are not useful for Chinese text data because seperating the radicals would **change the word’s meaning entirely**.  
+
+### Tokenization
+
+**Tokenizing breaks up text data into shorter pre-set strings**, which help build context and meaning for the machine learning model.   
+
+These “tags” label the part of speech. There are 24 part of speech tags and 4 proper name category labels in the `**jieba**` package’s existing dictionary.
+
+<img src="../images/jieba_tags.png" width=650>
+
+### Stop Words
+
+In NLP, **stop words are “meaningless” words** that make the data too noisy or ambiguous. 
+
+Instead of manually removing them, you could import the `**stopwordsiso**` package for a full list of Chinese stop words. More information can be found [here](https://pypi.org/project/stopwordsiso/). And with this, we can easily create code to filter out any stop words in large text data.
+
+```python
+!pip install stopwordsiso
+import stopwordsiso
+from stopwordsiso import stopwords
+stopwords(["zh"])  # Chinese
+```
+
+
+
 文本正则化 文本正则化主要是讲非标准词(NSW)进行转化，比如：  
 
 数字、电话号码:  10086 -> 一千零八十六/幺零零八六  
@@ -24,6 +55,14 @@ There are various libraries including some of the most popular ones like NLTK, S
 * https://github.com/google/re2
 
 * https://github.com/speechio/chinese_text_normalization
+
+* [vinorm](https://github.com/NoahDrisort/vinorm) [cpp_verion](https://github.com/NoahDrisort/vinorm_cpp_version)
+
+  Python package for text normalization, use for frontend of Text-to-speech Reseach
+
+* https://github.com/candlewill/CNTN
+
+  This is a ChiNese Text Normalization (CNTN) tool for Text-to-speech system, which is based on [sparrowhawk](https://github.com/google/sparrowhawk).
 
 
 
@@ -42,6 +81,7 @@ There are various libraries including some of the most popular ones like NLTK, S
 * https://github.com/thunlp/THULAC-Python
 * https://github.com/fxsjy/jieba
 * CRF++
+* https://github.com/isnowfy/snownlp
 
 ### MMSEG
 * [MMSEG: A Word Identification System for Mandarin Chinese Text Based on Two Variants of the Maximum Matching Algorithm](http://technology.chtsai.org/mmseg/)
@@ -101,8 +141,7 @@ LP -> LO -> L1(#1) -> L2(#2) -> L3(#3) -> L4(#4) -> L5 -> L6 -> L7
 
 常用方法使用的是级联CRF，首先预测如果是PW，再继续预测是否是PPH，再预测是否是IPH
 
-<img src="../images/prosody.jpeg" width=450><br/>
-
+<img src="../images/prosody.jpeg" width=450>
 
 论文: 2015 .Ding Et al. - Automatic Prosody Prediction For Chinese Speech Synthesis Using BLSTM-RNN and Embedding Features
 
@@ -148,3 +187,5 @@ TN: 基于规则的方法
 
 ## Reference
 * [Text Front End](https://slyne.github.io/%E5%85%AC%E5%BC%80%E8%AF%BE/2020/10/03/TTS1/)
+* [Chinese Natural Language (Pre)processing: An Introduction](https://towardsdatascience.com/chinese-natural-language-pre-processing-an-introduction-995d16c2705f)
+* [Beginner’s Guide to Sentiment Analysis for Simplified Chinese using SnowNLP](https://towardsdatascience.com/beginners-guide-to-sentiment-analysis-for-simplified-chinese-using-snownlp-ce88a8407efb)

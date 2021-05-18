@@ -48,7 +48,9 @@ class TestU2Model(unittest.TestCase):
 
     def test_make_pad_mask(self):
         res = make_pad_mask(self.lengths)
+        res1 = make_non_pad_mask(self.lengths).logical_not()
         self.assertSequenceEqual(res.numpy().tolist(), self.pad_masks.tolist())
+        self.assertSequenceEqual(res.numpy().tolist(), res1.tolist())
 
 
 if __name__ == '__main__':

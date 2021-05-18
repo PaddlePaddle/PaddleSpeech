@@ -170,7 +170,7 @@ class DeepSpeech2Trainer(Trainer):
             train_dataset,
             batch_sampler=batch_sampler,
             collate_fn=collate_fn,
-            num_workers=config.data.num_workers, )
+            num_workers=config.data.num_workers)
         self.valid_loader = DataLoader(
             dev_dataset,
             batch_size=config.data.batch_size,

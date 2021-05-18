@@ -17,12 +17,12 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     --manifest_prefix="data/manifest" \
     --target_dir="${TARGET_DIR}/librispeech" \
     --full_download="True"
-    
+
     if [ $? -ne 0 ]; then
         echo "Prepare LibriSpeech failed. Terminated."
         exit 1
     fi
-    
+
     for set in train-clean-100 train-clean-360 train-other-500 dev-clean dev-other test-clean test-other; do
         mv data/manifest.${set} data/manifest.${set}.raw
     done
@@ -48,7 +48,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --count_threshold=0 \
     --vocab_path="data/vocab.txt" \
     --manifest_paths="data/manifest.train.raw"
-    
+
     if [ $? -ne 0 ]; then
         echo "Build vocabulary failed. Terminated."
         exit 1
@@ -61,16 +61,16 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
-    --num_samples=-1 \
+    --num_samples=2000 \
     --specgram_type="linear" \
     --delta_delta=false \
     --sample_rate=16000 \
     --stride_ms=10.0 \
     --window_ms=20.0 \
-    --use_dB_normalization=False \
+    --use_dB_normalization=True \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"
-    
+
     if [ $? -ne 0 ]; then
         echo "Compute mean and stddev failed. Terminated."
         exit 1

@@ -21,11 +21,11 @@
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-Please see [install](doc/install.md).
+Please see [install](doc/src/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples/tiny/s0/README.md).
 
 
 ## More Information  

@@ -450,7 +450,7 @@ class U2Tester(U2Trainer):
         logger.info(msg)
 
         # test meta results
-        err_meta_path = os.path.splitext(self.args.checkpoint_path)[0] + '.err'
+        err_meta_path = os.path.splitext(self.args.result_file)[0] + '.err'
         err_type_str = "{}".format(error_rate_type)
         with open(err_meta_path, 'w') as f:
             data = json.dumps({
@@ -471,6 +471,8 @@ class U2Tester(U2Trainer):
                 errors_sum,
                 "ref_len":
                 len_refs,
+                "decode_method":
+                self.config.decoding.decoding_method,
             })
             f.write(data + '\n')
 

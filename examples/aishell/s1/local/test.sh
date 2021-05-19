@@ -21,17 +21,39 @@ ckpt_prefix=$2
 #    exit 1
 #fi
 
-python3 -u ${BIN_DIR}/test.py \
---device ${device} \
---nproc 1 \
---config ${config_path} \
---result_file ${ckpt_prefix}.rsl \
---checkpoint_path ${ckpt_prefix}
 
-if [ $? -ne 0 ]; then
-    echo "Failed in evaluation!"
-    exit 1
-fi
+for type in attention ctc_greedy_search; do
+    echo "decoding ${type}"
+    batch_size=64
+    python3 -u ${BIN_DIR}/test.py \
+    --device ${device} \
+    --nproc 1 \
+    --config ${config_path} \
+    --result_file ${ckpt_prefix}.${type}.rsl \
+    --checkpoint_path ${ckpt_prefix} \
+    --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
 
+    if [ $? -ne 0 ]; then
+        echo "Failed in evaluation!"
+        exit 1
+    fi
+done
+
+for type in ctc_prefix_beam_search attention_rescoring; do
+    echo "decoding ${type}"
+    batch_size=1
+    python3 -u ${BIN_DIR}/test.py \
+    --device ${device} \
+    --nproc 1 \
+    --config ${config_path} \
+    --result_file ${ckpt_prefix}.${type}.rsl \
+    --checkpoint_path ${ckpt_prefix} \
+    --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
+
+    if [ $? -ne 0 ]; then
+        echo "Failed in evaluation!"
+        exit 1
+    fi
+done
 
 exit 0

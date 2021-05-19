@@ -14,7 +14,7 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     python3 ${TARGET_DIR}/aishell/aishell.py \
     --manifest_prefix="data/manifest" \
     --target_dir="${TARGET_DIR}/aishell"
-    
+
     if [ $? -ne 0 ]; then
         echo "Prepare Aishell failed. Terminated."
         exit 1
@@ -33,7 +33,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --count_threshold=0 \
     --vocab_path="data/vocab.txt" \
     --manifest_paths "data/manifest.train.raw"
-    
+
     if [ $? -ne 0 ]; then
         echo "Build vocabulary failed. Terminated."
         exit 1
@@ -56,7 +56,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --num_samples=-1 \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"
-    
+
     if [ $? -ne 0 ]; then
         echo "Compute mean and stddev failed. Terminated."
         exit 1
@@ -67,19 +67,22 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size
     for dataset in train dev test; do
+    {
         python3 ${MAIN_ROOT}/utils/format_data.py \
-        --feat_type "raw" \
-        --cmvn_path "data/mean_std.json" \
-        --unit_type "char" \
-        --vocab_path="data/vocab.txt" \
-        --manifest_path="data/manifest.${dataset}.raw" \
-        --output_path="data/manifest.${dataset}"
+            --feat_type "raw" \
+            --cmvn_path "data/mean_std.json" \
+            --unit_type "char" \
+            --vocab_path="data/vocab.txt" \
+            --manifest_path="data/manifest.${dataset}.raw" \
+            --output_path="data/manifest.${dataset}"
+
+        if [ $? -ne 0 ]; then
+            echo "Formt mnaifest failed. Terminated."
+            exit 1
+        fi
+    } &
     done
-    
-    if [ $? -ne 0 ]; then
-        echo "Formt mnaifest failed. Terminated."
-        exit 1
-    fi
+    wait
 fi
 
 echo "Aishell data preparation done."

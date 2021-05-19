@@ -9,3 +9,4 @@ sox
 tensorboardX
 typeguard
 yacs
+pybind11

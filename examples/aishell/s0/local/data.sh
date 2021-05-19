@@ -66,19 +66,22 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size
     for dataset in train dev test; do
+    {
         python3 ${MAIN_ROOT}/utils/format_data.py \
-        --feat_type "raw" \
-        --cmvn_path "data/mean_std.json" \
-        --unit_type "char" \
-        --vocab_path="data/vocab.txt" \
-        --manifest_path="data/manifest.${dataset}.raw" \
-        --output_path="data/manifest.${dataset}"
-    done
+                --feat_type "raw" \
+                --cmvn_path "data/mean_std.json" \
+                --unit_type "char" \
+                --vocab_path="data/vocab.txt" \
+                --manifest_path="data/manifest.${dataset}.raw" \
+                --output_path="data/manifest.${dataset}"
 
-    if [ $? -ne 0 ]; then
-        echo "Formt mnaifest failed. Terminated."
-        exit 1
-    fi
+        if [ $? -ne 0 ]; then
+                echo "Formt mnaifest failed. Terminated."
+                exit 1
+        fi
+    } &
+    done
+    wait
 fi
 
 echo "Aishell data preparation done."

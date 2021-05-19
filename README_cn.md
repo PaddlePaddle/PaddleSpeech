@@ -11,7 +11,7 @@
 
 ## 特性
 
- 参看 [特性列表](doc/src/feature_list)。
+ 参看 [特性列表](doc/src/feature_list.md)。
 
 
 ## 安装

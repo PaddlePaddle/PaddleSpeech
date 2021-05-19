@@ -26,25 +26,27 @@ class TestU2Model(unittest.TestCase):
         paddle.set_device('cpu')
         self.lengths = paddle.to_tensor([5, 3, 2])
         self.masks = np.array([
-            [1, 1, 1, 1, 1],
-            [1, 1, 1, 0, 0],
-            [1, 1, 0, 0, 0],
+            [True, True, True, True, True],
+            [True, True, True, False, False],
+            [True, True, False, False, False],
         ])
         self.pad_masks = np.array([
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1],
-            [0, 0, 1, 1, 1],
+            [False, False, False, False, False],
+            [False, False, False, True, True],
+            [False, False, True, True, True],
         ])
 
     def test_sequence_mask(self):
-        res = sequence_mask(self.lengths)
+        res = sequence_mask(self.lengths, dtype='bool')
         self.assertSequenceEqual(res.numpy().tolist(), self.masks.tolist())
 
     def test_make_non_pad_mask(self):
         res = make_non_pad_mask(self.lengths)
-        res1 = sequence_mask(self.lengths)
+        res1 = sequence_mask(self.lengths, dtype='bool')
+        res2 = make_pad_mask(self.lengths).logical_not()
         self.assertSequenceEqual(res.numpy().tolist(), self.masks.tolist())
         self.assertSequenceEqual(res.numpy().tolist(), res1.numpy().tolist())
+        self.assertSequenceEqual(res.numpy().tolist(), res2.numpy().tolist())
 
     def test_make_pad_mask(self):
         res = make_pad_mask(self.lengths)

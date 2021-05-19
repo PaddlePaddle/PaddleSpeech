@@ -10,9 +10,9 @@ data:
   min_input_len: 0.0
   max_input_len: 27.0 # second
   min_output_len: 0.0
-  max_output_len: 400.0
-  min_output_input_ratio: 0.05
-  max_output_input_ratio: 10.0
+  max_output_len: .inf
+  min_output_input_ratio: 0.00
+  max_output_input_ratio: .inf
   specgram_type: linear
   target_sample_rate: 16000
   max_freq: None
@@ -21,7 +21,7 @@ data:
   window_ms: 20.0
   delta_delta: False
   dither: 1.0
-  use_dB_normalization: True
+  use_dB_normalization: True 
   target_dB: -20
   random_seed: 0
   keep_transcription_text: False
@@ -41,7 +41,7 @@ training:
   lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06
-  global_grad_clip: 5.0
+  global_grad_clip: 3.0
   log_interval: 100
 
 decoding:

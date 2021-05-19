@@ -351,7 +351,9 @@ class AudioSegment(object):
         tfm.set_globals(multithread=False)
         tfm.speed(speed_rate)
         self._samples = tfm.build_array(
-            input_array=self._samples, sample_rate_in=self._sample_rate).copy()
+            input_array=self._samples,
+            sample_rate_in=self._sample_rate).squeeze(-1).astype(
+                np.float32).copy()
 
     def normalize(self, target_db=-20, max_gain_db=300.0):
         """Normalize audio to be of the desired RMS value in decibels.

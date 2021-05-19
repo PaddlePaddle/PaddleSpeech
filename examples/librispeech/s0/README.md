@@ -1,6 +1,6 @@
 # LibriSpeech
 
-## CTC
+## Deepspeech2 
 | Model | Config | Test set |  WER |
 | --- | --- | --- | --- |
 | DeepSpeech2 | conf/deepspeech2.yaml | test-clean | 0.073973 |

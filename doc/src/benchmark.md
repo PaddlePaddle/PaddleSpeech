@@ -14,4 +14,3 @@ We compare the training time with 1, 2, 4, 8 Tesla V100 GPUs (with a subset of L
 | 8         | 6.95 X |
 
 `utils/profile.sh` provides such a demo profiling tool, you can change it as need.
-

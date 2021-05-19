@@ -34,9 +34,11 @@ from deepspeech.models.u2 import U2Model
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.scheduler import WarmupLR
 from deepspeech.training.trainer import Trainer
+from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
+from deepspeech.utils import text_grid
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -480,6 +482,67 @@ class U2Tester(U2Trainer):
         self.resume_or_scratch()
         try:
             self.test()
+        except KeyboardInterrupt:
+            sys.exit(-1)
+
+    @paddle.no_grad()
+    def align(self):
+        if self.config.decoding.batch_size > 1:
+            logger.fatal('alignment mode must be running with batch_size == 1')
+            sys.exit(1)
+
+        # xxx.align
+        assert self.args.result_file
+
+        self.model.eval()
+        logger.info(f"Align Total Examples: {len(self.test_loader.dataset)}")
+
+        stride_ms = self.test_loader.dataset.stride_ms
+        token_dict = self.test_loader.dataset.vocab_list
+        with open(self.args.result_file, 'w') as fout:
+            for i, batch in enumerate(self.test_loader):
+                key, feat, feats_length, target, target_length = batch
+                # 1. Encoder
+                encoder_out, encoder_mask = self.model._forward_encoder(
+                    feat, feats_length)  # (B, maxlen, encoder_dim)
+                maxlen = encoder_out.size(1)
+                ctc_probs = self.model.ctc.log_softmax(
+                    encoder_out)  # (1, maxlen, vocab_size)
+
+                # 2. alignment
+                # print(ctc_probs.size(1))
+                ctc_probs = ctc_probs.squeeze(0)
+                target = target.squeeze(0)
+                alignment = ctc_utils.forced_align(ctc_probs, target)
+                print(alignment)
+                fout.write('{} {}\n'.format(key[0], alignment))
+
+                # 3. gen praat
+                # segment alignment
+                align_segs = text_grid.segment_alignment(alignment)
+                print(align_segs)
+                # IntervalTier, List["start end token\n"]
+                subsample = get_subsample(self.config)
+                tierformat = text_grid.align_to_tierformat(
+                    align_segs, subsample, token_dict)
+                tier_path = os.path.join(
+                    os.path.dirname(args.result_file), key[0] + ".tier")
+                with open(tier_path, 'w') as f:
+                    f.writelines(tierformat)
+
+                textgrid_path = s.path.join(
+                    os.path.dirname(args.result_file), key[0] + ".TextGrid")
+                second_per_frame = 1. / (1000. / stride_ms
+                                         )  # 25ms window, 10ms stride
+                text_grid.generate_textgrid(
+                    maxtime=(len(alignment) + 1) * subsample * second_per_frame,
+                    lines=tierformat,
+                    output=textgrid_path)
+
+    def run_align(self):
+        self.resume_or_scratch()
+        try:
+            self.align()
         except KeyboardInterrupt:
             sys.exit(-1)
 

@@ -13,8 +13,10 @@ bash local/prepare_dataset.sh --exp-dir ${exp_dir} --data-dir ${data_dir}
 # convert transcription in chinese into pinyin with pypinyin or jieba+pypinyin
 filename="000001-010000.txt"
 echo "Processing transcriptions..."
-python3 local/extract_pinyin.py ${exp_dir}/${filename} ${exp_dir}/"pypinyin_result.txt"
-python3 local/extract_pinyin.py --use-jieba ${exp_dir}/${filename} ${exp_dir}/"pypinyin_with_jieba_result.txt"
+
+python3 local/extract_pinyin_label.py ${exp_dir}/${filename} ${exp_dir}/"pinyin_baker.py"
+python3 local/convert_transcription.py ${exp_dir}/${filename} ${exp_dir}/"result_pypinyin.txt"
+python3 local/convert_transcription.py --use-jieba ${exp_dir}/${filename} ${exp_dir}/"result_pypinyin_with_jieba.txt"
 
 echo "done"
 exit 0

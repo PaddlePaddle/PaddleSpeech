@@ -21,7 +21,8 @@ fi
 label_file='ProsodyLabeling/000001-010000.txt'
 filename='000001-010000.txt'
 unrar e ${archive} ${label_file}
-mv ${filename} ${exp_dir}
+cp ${filename} ${exp_dir}
+rm -f ${filename}
 
 if [ ! -f ${exp_dir}/${filename} ];then
     echo "File extraction failed!"

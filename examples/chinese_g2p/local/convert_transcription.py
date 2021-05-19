@@ -24,7 +24,6 @@ def extract_pinyin(source, target, use_jieba=False):
         with open(target, 'wt', encoding='utf-8') as fout:
             for i, line in enumerate(fin):
                 if i % 2 == 0:
-                    fout.write(line)
                     sentence_id, raw_text = line.strip().split()
                     raw_text = re.sub(r'#\d', '', raw_text)
                     if use_jieba:
@@ -35,7 +34,7 @@ def extract_pinyin(source, target, use_jieba=False):
                         style=Style.TONE3,
                         neutral_tone_with_five=True)
                     transcription = ' '.join(syllables)
-                    fout.write(f'\t{transcription}\n')
+                    fout.write(f'{sentence_id}\t{transcription}\n')
                 else:
                     continue
 

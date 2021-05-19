@@ -10,3 +10,4 @@ tensorboardX
 typeguard
 yacs
 pybind11
+textgrid

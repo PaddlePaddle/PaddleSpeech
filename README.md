@@ -11,7 +11,7 @@
 
 ## Features
 
- See [feature list](doc/src/feature_list.md) for more information. 
+ See [feature list](doc/src/feature_list.md) for more information.
 
 ## Setup
 

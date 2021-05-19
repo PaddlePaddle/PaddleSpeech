@@ -23,7 +23,7 @@ Therefore, procedures like stemming and lemmatization are not useful for Chinese
 
 ### Tokenization
 
-**Tokenizing breaks up text data into shorter pre-set strings**, which help build context and meaning for the machine learning model.   
+**Tokenizing breaks up text data into shorter pre-set strings**, which help build context and meaning for the machine learning model.  
 
 These “tags” label the part of speech. There are 24 part of speech tags and 4 proper name category labels in the `**jieba**` package’s existing dictionary.
 
@@ -31,7 +31,7 @@ These “tags” label the part of speech. There are 24 part of speech tags and 
 
 ### Stop Words
 
-In NLP, **stop words are “meaningless” words** that make the data too noisy or ambiguous. 
+In NLP, **stop words are “meaningless” words** that make the data too noisy or ambiguous.
 
 Instead of manually removing them, you could import the `**stopwordsiso**` package for a full list of Chinese stop words. More information can be found [here](https://pypi.org/project/stopwordsiso/). And with this, we can easily create code to filter out any stop words in large text data.
 

@@ -1,6 +1,6 @@
 # Aishell-1
 
-## Deepspeech2 
+## Deepspeech2
 | Model | release | Config | Test set |  CER |
 | --- | --- | --- | --- | --- |
 | DeepSpeech2 | 2.1 | conf/deepspeech2.yaml | test | 0.078671 |

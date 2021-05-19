@@ -46,7 +46,7 @@ def remove_duplicates_and_blank(hyp: List[int], blank_id=0) -> List[int]:
     return new_hyp
 
 
-def insert_blank(label: np.ndarray, blank_id: int=0):
+def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
     """Insert blank token between every two label token.
 
     "abcdefg" -> "-a-b-c-d-e-f-g-"
@@ -67,7 +67,7 @@ def insert_blank(label: np.ndarray, blank_id: int=0):
 
 
 def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
-                 blank_id=0) -> list:
+                 blank_id=0) -> List[int]:
     """ctc forced alignment.
 
     https://distill.pub/2017/ctc/
@@ -77,7 +77,7 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
         y (paddle.Tensor): label id sequence tensor, 1d tensor (L)
         blank_id (int): blank symbol index
     Returns:
-        paddle.Tensor: best alignment result, (T).
+        List[int]: best alignment result, (T).
     """
     y_insert_blank = insert_blank(y, blank_id)
 

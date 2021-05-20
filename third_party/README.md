@@ -18,3 +18,7 @@ licence: MIT
 * [chinese_text_normalization](https://github.com/speechio/chinese_text_normalization.git)
 commit: 9e92c7bf2d6b5a7974305406d8e240045beac51c
 licence: MIT
+
+* [phkit](https://github.com/KuangDD/phkit.git)
+commit: b2100293c1e36da531d7f30bd52c9b955a649522
+licence: None

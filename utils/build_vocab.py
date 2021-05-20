@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,8 +71,8 @@ def main():
     fout.write(UNK + '\n')  # <unk> must be 1
 
     if args.unit_type == 'spm':
-        # tools/spm_train --input=$wave_data/lang_char/input.txt 
-        # --vocab_size=${nbpe} --model_type=${bpemode} 
+        # tools/spm_train --input=$wave_data/lang_char/input.txt
+        # --vocab_size=${nbpe} --model_type=${bpemode}
         # --model_prefix=${bpemodel} --input_sentence_size=100000000
         import sentencepiece as spm
 

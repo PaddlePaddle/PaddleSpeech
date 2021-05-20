@@ -1,7 +1,8 @@
-echo "Extracting Prosody Labeling"
+#!/bin/bash
 
 exp_dir="exp"
 data_dir="data"
+
 source ${MAIN_ROOT}/utils/parse_options.sh || exit -1
 
 archive=${data_dir}/"BZNSYP.rar"
@@ -17,7 +18,7 @@ if [ ${md5_result} != ${MD5} ]; then
     exit -1
 fi
 
-   
+
 label_file='ProsodyLabeling/000001-010000.txt'
 filename='000001-010000.txt'
 unrar e ${archive} ${label_file}

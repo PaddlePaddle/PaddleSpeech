@@ -19,6 +19,14 @@ _number_group_re = re.compile(r"([0-9]+)")
 
 
 def say_digit(num: str):
+    """123 -> 一二三
+
+    Args:
+        num (str): [description]
+
+    Returns:
+        [type]: [description]
+    """
     outs = []
     for zi in num:
         outs.append(_number_cn[int(zi)])
@@ -31,6 +39,7 @@ def say_number(num: str):
         return _number_cn[0]
     elif len(x) > 16:
         return num
+    
     length = len(x)
     outs = []
     for num, zi in enumerate(x):

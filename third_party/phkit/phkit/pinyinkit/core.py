@@ -6,11 +6,8 @@
 Base on python-pinyin(pypinyin), phrase-pinyin-data, pinyin-data and jieba.
 """
 
-from __future__ import unicode_literals
-
 from itertools import chain
 
-from pypinyin.compat import text_type
 from pypinyin.constants import (
     PHRASES_DICT, PINYIN_DICT, Style
 )
@@ -28,7 +25,6 @@ _ziyin_re = re.compile(r"^U\+(\w+?):(.+?)#(.+)$")
 _true_pin_re = re.compile(r"[^a-zA-Z]+")
 
 is_initialized = False
-
 
 def load_single_dict(pinyin_dict, style='default'):
     """载入用户自定义的单字拼音库
@@ -152,7 +148,7 @@ class Pinyin(object):
 
         """
         # 对字符串进行分词处理
-        if isinstance(hans, text_type):
+        if isinstance(hans, str):
             han_list = self.seg(hans)
         else:
             han_list = chain(*(self.seg(x) for x in hans))

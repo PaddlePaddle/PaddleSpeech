@@ -8,9 +8,9 @@
 
 全角半角转换，简体繁体转换。
 """
-from hanziconv import hanziconv
+from .hanziconv import HanziConv
 
-hc = hanziconv.HanziConv()
+hc = HanziConv()
 
 # 繁体转简体
 fan2jian = hc.toSimplified

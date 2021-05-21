@@ -421,6 +421,7 @@ logger.warn(
 )
 F.ctc_loss = ctc_loss
 
+
 ########### hcak paddle.nn #############
 if not hasattr(paddle.nn, 'Module'):
     logger.warn("register user Module to paddle.nn, remove this when fixed!")

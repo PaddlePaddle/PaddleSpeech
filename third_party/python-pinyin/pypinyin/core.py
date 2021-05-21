@@ -16,6 +16,7 @@ from pypinyin.converter import DefaultConverter
 from pypinyin.seg import mmseg
 from pypinyin.seg import simpleseg
 from pypinyin.utils import (_replace_tone2_style_dict_to_default)
+import jieba
 
 TStyle = Style
 TErrors = Union[Callable[[Text], Text], Text]
@@ -139,7 +140,8 @@ class Pinyin():
         :param hans: 分词前的字符串
         :return: ``None`` or ``list``
         """
-        pass
+        outs = list(jieba.cut(hans))  # 默认用jieba分词，从语义角度分词。
+        return outs
 
     def post_seg(self, hans: Text, seg_data: List[Text],
                  **kwargs: Any) -> Optional[List[Text]]:

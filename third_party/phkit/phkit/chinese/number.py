@@ -18,14 +18,14 @@ _grade_level = {'万', '亿', '个'}
 _number_group_re = re.compile(r"([0-9]+)")
 
 
-def say_digit(num: str):
+def say_digit(num: str) -> str:
     """123 -> 一二三
 
     Args:
-        num (str): [description]
+        num (str): digit
 
     Returns:
-        [type]: [description]
+        str: hanzi number
     """
     outs = []
     for zi in num:

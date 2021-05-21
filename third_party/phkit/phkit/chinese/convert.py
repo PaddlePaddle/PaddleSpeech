@@ -48,4 +48,4 @@ if __name__ == "__main__":
     assert ban2quan("aA1 ,:$。、") == "ａＡ１　，：＄。、"
     assert quan2ban("ａＡ１　，：＄。、") == "aA1 ,:$。、"
     assert jian2fan("中国语言") == "中國語言"
-    assert jian2fan("中國語言") == "中国语言"
+    assert fan2jian("中國語言") == "中国语言"

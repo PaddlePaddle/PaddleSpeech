@@ -179,7 +179,8 @@ class FeatureNormalizer(object):
                 wav_number += batch_size
 
                 if wav_number % 1000 == 0:
-                    logger.info(f'process {wav_number} wavs,{all_number} frames.')
+                    logger.info(
+                        f'process {wav_number} wavs,{all_number} frames.')
 
         self.cmvn_info = {
             'mean_stat': list(all_mean_stat.tolist()),

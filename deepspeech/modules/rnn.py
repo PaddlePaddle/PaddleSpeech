@@ -19,7 +19,7 @@ from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
 from deepspeech.modules.activation import brelu
-from deepspeech.modules.mask import sequence_mask
+from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -306,7 +306,9 @@ class RNNStack(nn.Layer):
         """
         for i, rnn in enumerate(self.rnn_stacks):
             x, x_len = rnn(x, x_len)
-            masks = sequence_mask(x_len)  #[B, T]
+            masks = make_non_pad_mask(x_len)  #[B, T]
             masks = masks.unsqueeze(-1)  # [B, T, 1]
+            # TODO(Hui Zhang): not support bool multiply
+            masks = masks.type_as(x)
             x = x.multiply(masks)
         return x, x_len

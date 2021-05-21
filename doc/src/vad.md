@@ -29,4 +29,3 @@
 * [Endpoint 检测](https://mp.weixin.qq.com/s?__biz=MzU2NjUwMTgxOQ==&mid=2247484024&idx=1&sn=12da2ee76347de4a18856274ba6ba61f&chksm=fcaacaaccbdd43ba6b3e996bbf1e2ac6d5f1b449dfd80fcaccfbbe0a240fa1668b931dbf4bd5&scene=21#wechat_redirect)
 * Kaldi: *https://github.com/kaldi-asr/kaldi/blob/6260b27d146e466c7e1e5c60858e8da9fd9c78ae/src/online2/online-endpoint.h#L132-L150*
 * End-to-End Automatic Speech Recognition Integrated with CTC-Based Voice Activity Detection: *https://arxiv.org/pdf/2002.00551.pdf*
-

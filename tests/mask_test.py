@@ -18,7 +18,6 @@ import paddle
 
 from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.mask import make_pad_mask
-from deepspeech.modules.mask import sequence_mask
 
 
 class TestU2Model(unittest.TestCase):
@@ -36,16 +35,10 @@ class TestU2Model(unittest.TestCase):
             [False, False, True, True, True],
         ])
 
-    def test_sequence_mask(self):
-        res = sequence_mask(self.lengths, dtype='bool')
-        self.assertSequenceEqual(res.numpy().tolist(), self.masks.tolist())
-
     def test_make_non_pad_mask(self):
         res = make_non_pad_mask(self.lengths)
-        res1 = sequence_mask(self.lengths, dtype='bool')
         res2 = make_pad_mask(self.lengths).logical_not()
         self.assertSequenceEqual(res.numpy().tolist(), self.masks.tolist())
-        self.assertSequenceEqual(res.numpy().tolist(), res1.numpy().tolist())
         self.assertSequenceEqual(res.numpy().tolist(), res2.numpy().tolist())
 
     def test_make_pad_mask(self):

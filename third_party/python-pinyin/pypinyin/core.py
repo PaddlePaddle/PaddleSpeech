@@ -140,7 +140,7 @@ class Pinyin():
         :param hans: 分词前的字符串
         :return: ``None`` or ``list``
         """
-        outs = list(jieba.cut(hans))  # 默认用jieba分词，从语义角度分词。
+        outs = jieba.lcut(hans)  # 默认用jieba分词，从语义角度分词。
         return outs
 
     def post_seg(self, hans: Text, seg_data: List[Text],

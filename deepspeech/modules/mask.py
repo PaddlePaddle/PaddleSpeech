@@ -23,6 +23,7 @@ __all__ = [
     "mask_finished_preds"
 ]
 
+
 def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
     """Make mask tensor containing indices of padded part.
     See description of make_non_pad_mask.

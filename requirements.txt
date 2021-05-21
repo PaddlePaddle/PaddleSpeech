@@ -1,5 +1,6 @@
 coverage
 pre-commit
+pybind11
 resampy==0.2.2
 scipy==1.2.1
 sentencepiece
@@ -7,7 +8,6 @@ snakeviz
 SoundFile==0.9.0.post1
 sox
 tensorboardX
+textgrid
 typeguard
 yacs
-pybind11
-textgrid

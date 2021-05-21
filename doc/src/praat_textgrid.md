@@ -76,7 +76,7 @@ pip3 install textgrid
    tg.read('file.TextGrid')  # 'file.TextGrid' 是文件名
    ```
 
-   tg.tiers属性: 
+   tg.tiers属性:
    会把文件中的所有item打印出来, print(tg.tiers) 的结果如下:
 
    ```text
@@ -86,7 +86,7 @@ pip3 install textgrid
            Interval(1361.89250, 1362.01250, R),
            Interval(1362.01250, 1362.13250, AY1),
            Interval(1362.13250, 1362.16250, T),
-   
+
    ...
            ]
        )
@@ -113,7 +113,7 @@ pip3 install textgrid
    Interval  可以理解为时长
    ```
 
-   
+
 
 2. textgrid库中的对象
    **IntervalTier** 对象:
@@ -148,7 +148,7 @@ pip3 install textgrid
    strict  -- > 返回bool值, 表示是否严格TextGrid格式
    ```
 
-   ​      
+   ​  
 
    **PointTier** 对象:
    方法
@@ -174,7 +174,7 @@ pip3 install textgrid
    name    返回name
    ```
 
-   
+
 
    **Point** 对象:
        支持比较大小, 支持加减运算
@@ -185,7 +185,7 @@ pip3 install textgrid
    time:
    ```
 
-   ​       
+   ​  
 
    **Interval** 对象:
        支持比较大小, 支持加减运算
@@ -250,10 +250,9 @@ pip3 install textgrid
    grids:  --> 返回读取的grids的列表
    ```
 
-   
+
 
 ## Reference
 
 * https://zh.wikipedia.org/wiki/Praat%E8%AF%AD%E9%9F%B3%E5%AD%A6%E8%BD%AF%E4%BB%B6
 * https://blog.csdn.net/duxin_csdn/article/details/88966295
-

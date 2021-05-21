@@ -272,8 +272,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             infer_model,
             input_spec=[
                 paddle.static.InputSpec(
-                    shape=[None, feat_dim, None],
-                    dtype='float32'),  # audio, [B,D,T]
+                    shape=[None, None, feat_dim],
+                    dtype='float32'),  # audio, [B,T,D]
                 paddle.static.InputSpec(shape=[None],
                                         dtype='int64'),  # audio_length, [B]
             ])

@@ -49,3 +49,22 @@
 
 * [Bopomofo](https://en.wikipedia.org/wiki/Bopomofo)
 * [Zhuyin table](https://en.wikipedia.org/wiki/Zhuyin_table)
+
+
+
+## Tone sandhi
+
+* https://zh.wikipedia.org/wiki/%E8%AE%8A%E8%AA%BF
+
+* https://github.com/mozillazg/python-pinyin/issues/133
+
+  pypinyin关于变调错误的评估
+
+
+
+## tools
+
+* https://github.com/KuangDD/phkit
+* https://github.com/mozillazg/python-pinyin
+* https://github.com/Kyubyong/g2pC
+* https://github.com/kakaobrain/g2pM

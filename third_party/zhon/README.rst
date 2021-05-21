@@ -61,4 +61,3 @@ Getting Started
 * `Install Zhon <http://zhon.readthedocs.org/en/latest/#installation>`_
 * Read `Zhon's introduction <http://zhon.readthedocs.org/en/latest/#using-zhon>`_
 * Learn from the `API documentation <http://zhon.readthedocs.org/en/latest/#zhon-hanzi>`_
-* `Contribute <https://github.com/tsroten/zhon/blob/develop/CONTRIBUTING.rst>`_ documentation, code, or feedback

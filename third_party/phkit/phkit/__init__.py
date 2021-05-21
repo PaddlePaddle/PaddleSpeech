@@ -100,7 +100,7 @@ readme_docs = [__doc__, version_doc,
 
 from .chinese import text_to_sequence as chinese_text_to_sequence, sequence_to_text as chinese_sequence_to_text
 from .english import text_to_sequence as english_text_to_sequence, sequence_to_text as english_sequence_to_text
-from .pinyinkit import lazy_pinyin, pinyin, slug, initialize
+from .pinyinkit import lazy_pinyin
 
 # 兼容0.1.0之前的版本，python3.7以上版本支持。
 from .chinese import convert, number, phoneme, sequence, symbol, style

@@ -46,6 +46,16 @@ def test_phkit():
     assert result == target
 
 
+def test_convert():
+    from phkit import ban2quan, quan2ban, jian2fan, fan2jian
+    assert ban2quan("aA1 ,:$。、") == "ａＡ１　，：＄。、"
+    assert quan2ban("ａＡ１　，：＄。、") == "aA1 ,:$。、"
+    assert jian2fan("中国语言") == "中國語言"
+    assert fan2jian("中國語言") == "中国语言"
+    print(fan2jian("中國語言"))
+    print(jian2fan("中国语言"))
+
 if __name__ == "__main__":
     print(__file__)
     test_phkit()
+    test_convert()

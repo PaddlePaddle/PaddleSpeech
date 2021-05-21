@@ -1,5 +1,3 @@
-pypinyin
-hanziconv
 jieba
 inflect
 unidecode

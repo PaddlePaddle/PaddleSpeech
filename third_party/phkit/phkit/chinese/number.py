@@ -18,7 +18,15 @@ _grade_level = {'万', '亿', '个'}
 _number_group_re = re.compile(r"([0-9]+)")
 
 
-def say_digit(num: str):
+def say_digit(num: str) -> str:
+    """123 -> 一二三
+
+    Args:
+        num (str): digit
+
+    Returns:
+        str: hanzi number
+    """
     outs = []
     for zi in num:
         outs.append(_number_cn[int(zi)])
@@ -31,6 +39,7 @@ def say_number(num: str):
         return _number_cn[0]
     elif len(x) > 16:
         return num
+    
     length = len(x)
     outs = []
     for num, zi in enumerate(x):

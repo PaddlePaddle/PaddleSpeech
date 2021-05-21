@@ -3,8 +3,7 @@
 文本转拼音的模块，依赖python-pinyin，jieba，phrase-pinyin-data模块。
 """
 import re
-from .core import lazy_pinyin, pinyin, slug, Style, initialize
-from pypinyin.style import convert
+from pypinyin import lazy_pinyin, Style
 
 # 兼容0.1.0之前的版本。
 # 音调：5为轻声

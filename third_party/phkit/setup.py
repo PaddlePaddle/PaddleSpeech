@@ -28,7 +28,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(os.path.splitext(os.path.basename(__name__))[0])
-install_requires = ['pypinyin>=0.41.0', 'hanziconv', 'jieba>=0.42.1', 'tqdm', 'inflect', 'unidecode']
+install_requires = ['jieba>=0.42.1', 'tqdm', 'inflect', 'unidecode']
 requires = install_requires
 
 

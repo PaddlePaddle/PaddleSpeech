@@ -1,4 +1,4 @@
-PYTHON:= python3.8
+PYTHON:= python3.7
 .PHONY: all clean
 
 all: virtualenv kenlm.done sox.done soxbindings.done

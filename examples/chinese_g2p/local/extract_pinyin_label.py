@@ -21,7 +21,7 @@ def extract_pinyin_lables(source, target):
             for i, line in enumerate(fin):
                 if i % 2 == 0:
                     sentence_id, raw_text = line.strip().split()
-                    fout.write(f'{sentence_id}\t')
+                    fout.write(f'{sentence_id} ')
                 else:
                     transcription = line.strip()
                     fout.write(f'{transcription}\n')

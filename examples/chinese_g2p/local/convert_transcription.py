@@ -34,7 +34,7 @@ def extract_pinyin(source, target, use_jieba=False):
                         style=Style.TONE3,
                         neutral_tone_with_five=True)
                     transcription = ' '.join(syllables)
-                    fout.write(f'{sentence_id}\t{transcription}\n')
+                    fout.write(f'{sentence_id} {transcription}\n')
                 else:
                     continue
 

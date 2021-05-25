@@ -43,13 +43,11 @@ class DeepSpeech2Trainer(Trainer):
 
     def train_batch(self, batch_index, batch_data, msg):
         start = time.time()
-
         loss = self.model(*batch_data)
         loss.backward()
         layer_tools.print_grads(self.model, print_func=None)
         self.optimizer.step()
         self.optimizer.clear_grad()
-
         iteration_time = time.time() - start
 
         losses_np = {
@@ -274,8 +272,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             infer_model,
             input_spec=[
                 paddle.static.InputSpec(
-                    shape=[None, feat_dim, None],
-                    dtype='float32'),  # audio, [B,D,T]
+                    shape=[None, None, feat_dim],
+                    dtype='float32'),  # audio, [B,T,D]
                 paddle.static.InputSpec(shape=[None],
                                         dtype='int64'),  # audio_length, [B]
             ])

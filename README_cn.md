@@ -9,12 +9,9 @@
 *PaddleASR*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，
 我们的愿景是为语音识别在工业应用和学术研究上，提供易于使用、高效、小型化和可扩展的工具，包括训练，推理，以及  部署。
 
-## 模型
+## 特性
 
-* [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
-* [Transformer](https://arxiv.org/abs/1706.03762)
-* [Conformer](https://arxiv.org/abs/2005.08100)
-* [U2](https://arxiv.org/pdf/2012.05481.pdf)
+ 参看 [特性列表](doc/src/feature_list.md)。
 
 
 ## 安装
@@ -22,16 +19,14 @@
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-参看 [安装](doc/install.md)。
+参看 [安装](doc/src/install.md)。
 
 ## 开始
 
-请查看 [Getting Started](doc/src/getting_started.md) 和 [tiny egs](examples/tiny/README.md)。
+请查看 [开始](doc/src/getting_started.md) 和 [tiny egs](examples/tiny/s0/README.md)。
 
 ## 更多信息
 
-* [安装](doc/src/install.md)  
-* [开始](doc/src/getting_started.md)  
 * [数据处理](doc/src/data_preparation.md)  
 * [数据增强](doc/src/augmentation.md)  
 * [语言模型](doc/src/ngram_lm.md)  
@@ -46,7 +41,7 @@
 
 ## License
 
-DeepSpeech遵循[Apache-2.0开源协议](./LICENSE)。
+DeepASR 遵循[Apache-2.0开源协议](./LICENSE)。
 
 ## 感谢
 

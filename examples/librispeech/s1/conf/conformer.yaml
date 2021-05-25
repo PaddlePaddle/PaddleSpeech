@@ -77,7 +77,7 @@ model:
 training:
   n_epoch: 120
   accum_grad: 8
-  global_grad_clip: 5.0
+  global_grad_clip: 3.0
   optim: adam
   optim_conf:
     lr: 0.004

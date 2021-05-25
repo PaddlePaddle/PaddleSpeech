@@ -4,7 +4,7 @@ source path.sh
 
 stage=0
 stop_stage=100
-conf_path=conf/transformer.yaml
+conf_path=conf/deepspeech2.yaml
 avg_num=30
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -19,7 +19,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=4,5,6,7 ./local/train.sh ${conf_path}  ${ckpt}
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 ./local/train.sh ${conf_path}  ${ckpt}
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

@@ -9,29 +9,24 @@
 *PaddleASR* is an open-source implementation of end-to-end Automatic Speech Recognition (ASR) engine, with [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform. Our vision is to empower both industrial application and academic research on speech recognition, via an easy-to-use, efficient, samller and scalable implementation, including training, inference & testing module, and deployment.
 
 
-## Models
+## Features
 
-* [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
-* [Transformer](https://arxiv.org/abs/1706.03762)
-* [Conformer](https://arxiv.org/abs/2005.08100)
-* [U2](https://arxiv.org/pdf/2012.05481.pdf)
+ See [feature list](doc/src/feature_list.md) for more information.
 
 ## Setup
 
 * python>=3.7
 * paddlepaddle>=2.1.0
 
-Please see [install](doc/install.md).
+Please see [install](doc/src/install.md).
 
 ## Getting Started
 
-Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples/tiny/README.md).
+Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples/tiny/s0/README.md).
 
 
 ## More Information  
 
-* [Install](doc/src/install.md)  
-* [Getting Started](doc/src/getting_started.md)  
 * [Data Prepration](doc/src/data_preparation.md)  
 * [Data Augmentation](doc/src/augmentation.md)  
 * [Ngram LM](doc/src/ngram_lm.md)  
@@ -48,7 +43,7 @@ You are welcome to submit questions in [Github Discussions](https://github.com/P
 
 ## License
 
-DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
+DeepASR is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 

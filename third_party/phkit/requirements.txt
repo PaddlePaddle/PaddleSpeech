@@ -1,0 +1,4 @@
+jieba
+inflect
+unidecode
+tqdm

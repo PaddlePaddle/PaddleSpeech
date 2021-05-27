@@ -2029,11 +2029,7 @@ Matrix类模板中可以设定存储的方向，RowMajor表示行优先，ColMaj
 
 本来想春节前任务比较少，翻译完所有的Eigen系列的。但是我的目的是为了使用google的非线性优化库[ceres](http://ceres-solver.org/installation.html#getting-the-source-code)，介绍了这些基本知识也够用了，如果遇到不清楚的函数可以直接到Eigen的官网查询。
 
-c
 
-
-
-这个系列很简单，只是入门。有更深理解了再续写。
 
 ## Reference
 

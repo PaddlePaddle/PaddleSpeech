@@ -41,7 +41,7 @@ training:
   lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06
-  global_grad_clip: 3.0
+  global_grad_clip: 5.0
   log_interval: 100
 
 decoding:

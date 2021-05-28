@@ -2029,8 +2029,6 @@ Matrix类模板中可以设定存储的方向，RowMajor表示行优先，ColMaj
 
 本来想春节前任务比较少，翻译完所有的Eigen系列的。但是我的目的是为了使用google的非线性优化库[ceres](http://ceres-solver.org/installation.html#getting-the-source-code)，介绍了这些基本知识也够用了，如果遇到不清楚的函数可以直接到Eigen的官网查询。
 
-
-
 ## Reference
 
 * https://www.cnblogs.com/houkai/p/6347408.html
@@ -2044,3 +2042,5 @@ Matrix类模板中可以设定存储的方向，RowMajor表示行优先，ColMaj
 * https://www.cnblogs.com/houkai/p/6349988.html
 * https://www.cnblogs.com/houkai/p/6349990.html
 * https://www.cnblogs.com/houkai/p/6349991.html
+* [**Eigen Cheat sheet**](https://gist.github.com/gocarlos/c91237b02c120c6319612e42fa196d77#file-eigen-cheat-sheet)
+

@@ -17,7 +17,7 @@ packages = [
     'pypinyin.style',
 ]
 
-requirements = []
+requirements = ["jieba"]
 if sys.version_info[:2] < (3, 4):
     requirements.append('enum34')
 if sys.version_info[:2] < (3, 5):

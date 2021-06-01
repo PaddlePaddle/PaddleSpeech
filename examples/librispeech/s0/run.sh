@@ -4,7 +4,7 @@ source path.sh
 
 stage=0
 stop_stage=100
-conf_path=conf/transformer.yaml
+conf_path=conf/deepspeech2.yaml
 avg_num=30
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

@@ -9,7 +9,7 @@ ckpt_dir=${1}
 average_num=${2}
 decode_checkpoint=${ckpt_dir}/avg_${average_num}.pdparams
 
-python3 -u ${MAIN_ROOT}/utils/avg_model.py \
+avg_model.py \
 --dst_model ${decode_checkpoint} \
 --ckpt_dir ${ckpt_dir}  \
 --num ${average_num} \

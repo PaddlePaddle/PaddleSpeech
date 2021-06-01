@@ -10,3 +10,4 @@ Sphinx
 tox
 twine
 wheel>=0.21
+jieba

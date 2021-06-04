@@ -161,7 +161,7 @@ class DeepSpeech2Model(nn.Layer):
             reduction=True,  # sum
             batch_average=True)  # sum / batch_size
 
-    def forward(self, audio, audio_len, text, text_len):
+    def forward(self, utt, audio, audio_len, text, text_len):
         """Compute Model loss
 
         Args:

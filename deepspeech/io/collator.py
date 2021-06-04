@@ -51,7 +51,7 @@ class SpeechCollator():
         audio_lens = []
         texts = []
         text_lens = []
-        for audio, text in batch:
+        for utt, audio, text in batch:
             # audio
             audios.append(audio.T)  # [T, D]
             audio_lens.append(audio.shape[1])
@@ -75,4 +75,4 @@ class SpeechCollator():
         padded_texts = pad_sequence(
             texts, padding_value=IGNORE_ID).astype(np.int64)
         text_lens = np.array(text_lens).astype(np.int64)
-        return padded_audios, audio_lens, padded_texts, text_lens
+        return utt, padded_audios, audio_lens, padded_texts, text_lens

@@ -2,6 +2,7 @@
 `opencc <https://github.com/BYVoid/OpenCC>`_.
 """
 
+
 import opencc
 
 _t2s_converter = opencc.OpenCC("t2s.json")

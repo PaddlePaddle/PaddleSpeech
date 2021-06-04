@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 source path.sh
 
 stage=-1

@@ -2,6 +2,7 @@ import string
 import re
 from pypinyin.constants import SUPPORT_UCS4
 
+
 # 全角半角转换
 # 英文字符全角 -> 半角映射表 (num: 52)
 F2H_ASCII_LETTERS = {

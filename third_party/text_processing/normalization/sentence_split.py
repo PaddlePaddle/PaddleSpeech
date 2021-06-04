@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+
 SENTENCE_SPLITOR = re.compile(r'([。！？][”’]?)')
 
 def split(text: str) -> List[str]:

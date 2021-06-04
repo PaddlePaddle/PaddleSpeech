@@ -1,6 +1,7 @@
 import re
 from .num import verbalize_cardinal, verbalize_digit, num2str, DIGITS
 
+
 def _time_num2str(num_string: str) -> str:
     """A special case for verbalizing number in time."""
     result = num2str(num_string.lstrip('0'))

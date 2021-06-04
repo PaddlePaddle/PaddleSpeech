@@ -1,6 +1,7 @@
 import re
 from .num import verbalize_digit
 
+
 # 规范化固话/手机号码
 # 手机
 # http://www.jihaoba.com/news/show/13680

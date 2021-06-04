@@ -2,6 +2,7 @@
 Rules to verbalize numbers into Chinese characters.
 https://zh.wikipedia.org/wiki/中文数字#現代中文
 """
+
 import re
 from typing import List
 from collections import OrderedDict

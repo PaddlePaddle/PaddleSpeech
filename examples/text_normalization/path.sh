@@ -1,5 +1,4 @@
 export MAIN_ROOT=${PWD}/../../
-
 export PATH=${MAIN_ROOT}:${MAIN_ROOT}/utils:${PATH}
 export LC_ALL=C
 

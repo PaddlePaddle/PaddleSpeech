@@ -56,7 +56,7 @@ model:
         pos_enc_layer_type: 'rel_pos'
         selfattention_layer_type: 'rel_selfattn'
         causal: True
-        use_dynamic_chunk: True
+        use_dynamic_chunk: true
         cnn_module_norm: 'layer_norm' # using nn.LayerNorm makes model converge faster
         use_dynamic_left_chunk: false
 
@@ -110,6 +110,6 @@ decoding:
       # >0: for decoding, use fixed chunk size as set.
       # 0: used for training, it's prohibited here. 
   num_decoding_left_chunks: -1  # number of left chunks for decoding. Defaults to -1.
-  simulate_streaming: False  # simulate streaming inference. Defaults to False.
+  simulate_streaming: true  # simulate streaming inference. Defaults to False.
 
 

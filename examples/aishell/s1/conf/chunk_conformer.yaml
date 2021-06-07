@@ -79,7 +79,7 @@ model:
 
 training:
   n_epoch: 180
-  accum_grad: 1
+  accum_grad: 4
   global_grad_clip: 5.0
   optim: adam
   optim_conf:

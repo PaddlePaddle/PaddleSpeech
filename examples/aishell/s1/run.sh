@@ -25,7 +25,7 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # avg n best model
-    ./local/avg.sh exp/${ckpt}/checkpoints ${avg_num}
+    avg.sh exp/${ckpt}/checkpoints ${avg_num}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

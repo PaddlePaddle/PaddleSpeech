@@ -8,7 +8,7 @@ data:
   spm_model_prefix: 'data/bpe_unigram_200'
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
-  batch_size: 4
+  batch_size: 2 #4
   min_input_len: 0.5  # second
   max_input_len: 20.0 # second
   min_output_len: 0.0 # tokens
@@ -31,7 +31,7 @@ data:
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 2
+  num_workers: 0 #2
 
 
 # network architecture
@@ -70,7 +70,7 @@ model:
 
 
 training:
-  n_epoch: 20
+  n_epoch: 2
   accum_grad: 1
   global_grad_clip: 5.0
   optim: adam
@@ -85,7 +85,7 @@ training:
 
 
 decoding:
-  batch_size: 64
+  batch_size: 8 #64
   error_rate_type: wer
   decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
   lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm

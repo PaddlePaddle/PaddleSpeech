@@ -905,6 +905,7 @@ class U2InferModel(U2Model):
     def __init__(self, configs: dict):
         super().__init__(configs)
 
+
     def forward(self,
                 feats,
                 feats_lengths,

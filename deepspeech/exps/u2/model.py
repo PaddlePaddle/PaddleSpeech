@@ -76,8 +76,9 @@ class U2Trainer(Trainer):
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
         start = time.time()
+        utt, audio, audio_len, text, text_len = batch_data
 
-        loss, attention_loss, ctc_loss = self.model(*batch_data)
+        loss, attention_loss, ctc_loss = self.model(audio, audio_len, text, text_len)
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
         loss.backward()
@@ -119,9 +120,10 @@ class U2Trainer(Trainer):
         num_seen_utts = 1
         total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
-            loss, attention_loss, ctc_loss = self.model(*batch)
+            utt, audio, audio_len, text, text_len = batch
+            loss, attention_loss, ctc_loss = self.model(audio, audio_len, text, text_len)
             if paddle.isfinite(loss):
-                num_utts = batch[0].shape[0]
+                num_utts = batch[1].shape[0]
                 num_seen_utts += num_utts
                 total_loss += float(loss) * num_utts
                 valid_losses['val_loss'].append(float(loss))
@@ -366,7 +368,7 @@ class U2Tester(U2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, audio, audio_len, texts, texts_len, fout=None):
+    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout=None, fref=None):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -393,13 +395,15 @@ class U2Tester(U2Trainer):
             simulate_streaming=cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
-        for target, result in zip(target_transcripts, result_transcripts):
+        for utt, target, result in zip(utts, target_transcripts, result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write(result + "\n")
+                fout.write(utt + " " + result + "\n")
+            if fref:
+                fref.write(utt + " " + target + "\n")
             logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
                         (target, result))
             logger.info("One example error rate [%s] = %f" %
@@ -428,6 +432,7 @@ class U2Tester(U2Trainer):
         num_time = 0.0
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
+                # utt, audio, audio_len, text, text_len = batch
                 metrics = self.compute_metrics(*batch, fout=fout)
                 num_frames += metrics['num_frames']
                 num_time += metrics["decode_time"]

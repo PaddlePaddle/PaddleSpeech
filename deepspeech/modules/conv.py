@@ -115,7 +115,7 @@ class ConvBn(nn.Layer):
         masks = masks.unsqueeze(1).unsqueeze(1)  # [B, 1, 1, T]
         # TODO(Hui Zhang): not support bool multiply
         # masks = masks.type_as(x)
-        masks = masks.astype(x)
+        masks = masks.astype(x.dtype)
         x = x.multiply(masks)
 
         return x, x_len

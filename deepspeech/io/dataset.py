@@ -34,9 +34,6 @@ __all__ = [
 
 logger = Log(__name__).getlog()
 
-# namedtupe need global for pickle.
-TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
-
 
 class ManifestDataset(Dataset):
     @classmethod
@@ -192,10 +189,6 @@ class ManifestDataset(Dataset):
         self._stride_ms = stride_ms
         self._target_sample_rate = target_sample_rate
 
-        self._normalizer = FeatureNormalizer(
-            mean_std_filepath) if mean_std_filepath else None
-        self._augmentation_pipeline = AugmentationPipeline(
-            augmentation_config=augmentation_config, random_seed=random_seed)
         self._speech_featurizer = SpeechFeaturizer(
             unit_type=unit_type,
             vocab_filepath=vocab_filepath,
@@ -214,8 +207,6 @@ class ManifestDataset(Dataset):
 
         self._rng = np.random.RandomState(random_seed)
         self._keep_transcription_text = keep_transcription_text
-        # for caching tar files info
-        self._local_data = TarLocalData(tar2info={}, tar2object={})
 
         # read manifest
         self._manifest = read_manifest(
@@ -256,74 +247,7 @@ class ManifestDataset(Dataset):
     def stride_ms(self):
         return self._speech_featurizer.stride_ms
 
-    def _parse_tar(self, file):
-        """Parse a tar file to get a tarfile object
-        and a map containing tarinfoes
-        """
-        result = {}
-        f = tarfile.open(file)
-        for tarinfo in f.getmembers():
-            result[tarinfo.name] = tarinfo
-        return f, result
 
-    def _subfile_from_tar(self, file):
-        """Get subfile object from tar.
-
-        It will return a subfile object from tar file
-        and cached tar file info for next reading request.
-        """
-        tarpath, filename = file.split(':', 1)[1].split('#', 1)
-        if 'tar2info' not in self._local_data.__dict__:
-            self._local_data.tar2info = {}
-        if 'tar2object' not in self._local_data.__dict__:
-            self._local_data.tar2object = {}
-        if tarpath not in self._local_data.tar2info:
-            object, infoes = self._parse_tar(tarpath)
-            self._local_data.tar2info[tarpath] = infoes
-            self._local_data.tar2object[tarpath] = object
-        return self._local_data.tar2object[tarpath].extractfile(
-            self._local_data.tar2info[tarpath][filename])
-
-    def process_utterance(self, utt, audio_file, transcript):
-        """Load, augment, featurize and normalize for speech data.
-
-        :param audio_file: Filepath or file object of audio file.
-        :type audio_file: str | file
-        :param transcript: Transcription text.
-        :type transcript: str
-        :return: Tuple of audio feature tensor and data of transcription part,
-                 where transcription part could be token ids or text.
-        :rtype: tuple of (2darray, list)
-        """
-        start_time = time.time()
-        if isinstance(audio_file, str) and audio_file.startswith('tar:'):
-            speech_segment = SpeechSegment.from_file(
-                self._subfile_from_tar(audio_file), transcript)
-        else:
-            speech_segment = SpeechSegment.from_file(audio_file, transcript)
-        load_wav_time = time.time() - start_time
-        #logger.debug(f"load wav time: {load_wav_time}")
-
-        # audio augment
-        start_time = time.time()
-        self._augmentation_pipeline.transform_audio(speech_segment)
-        audio_aug_time = time.time() - start_time
-        #logger.debug(f"audio augmentation time: {audio_aug_time}")
-
-        start_time = time.time()
-        specgram, transcript_part = self._speech_featurizer.featurize(
-            speech_segment, self._keep_transcription_text)
-        if self._normalizer:
-            specgram = self._normalizer.apply(specgram)
-        feature_time = time.time() - start_time
-        #logger.debug(f"audio & test feature time: {feature_time}")
-
-        # specgram augment
-        start_time = time.time()
-        specgram = self._augmentation_pipeline.transform_feature(specgram)
-        feature_aug_time = time.time() - start_time
-        #logger.debug(f"audio feature augmentation time: {feature_aug_time}")
-        return utt, specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):
         """
@@ -336,8 +260,6 @@ class ManifestDataset(Dataset):
 
         def reader():
             for instance in manifest:
-                # inst = self.process_utterance(instance["feat"],
-                #                               instance["text"])
                 inst = self.process_utterance(instance["utt"], instance["feat"],
                                               instance["text"])
                 yield inst
@@ -349,6 +271,4 @@ class ManifestDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self._manifest[idx]
-        return self.process_utterance(instance["utt"], instance["feat"],
-                                      instance["text"])
-        # return self.process_utterance(instance["feat"], instance["text"])
+        return(instance["utt"], instance["feat"], instance["text"])

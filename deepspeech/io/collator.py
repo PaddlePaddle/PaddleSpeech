@@ -23,6 +23,8 @@ from deepspeech.frontend.speech import SpeechSegment
 import io
 import time
 
+from collections import namedtuple
+
 __all__ = ["SpeechCollator"]
 
 logger = Log(__name__).getlog()
@@ -50,7 +52,7 @@ class SpeechCollator():
             aug_file = config.data.augmentation_config
             assert isinstance(aug_file, io.StringIO)
 
-        self._local_data = TarLocalData(tar2info={}, tar2object={}）
+        self._local_data = TarLocalData(tar2info={}, tar2object={})
         self._augmentation_pipeline = AugmentationPipeline(
             augmentation_config=aug_file.read(), 
             random_seed=config.data.random_seed)

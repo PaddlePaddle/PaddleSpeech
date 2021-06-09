@@ -368,7 +368,7 @@ class U2Tester(U2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout=None, fref=None):
+    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout=None):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -402,8 +402,6 @@ class U2Tester(U2Trainer):
             num_ins += 1
             if fout:
                 fout.write(utt + " " + result + "\n")
-            if fref:
-                fref.write(utt + " " + target + "\n")
             logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
                         (target, result))
             logger.info("One example error rate [%s] = %f" %
@@ -432,7 +430,6 @@ class U2Tester(U2Trainer):
         num_time = 0.0
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
-                # utt, audio, audio_len, text, text_len = batch
                 metrics = self.compute_metrics(*batch, fout=fout)
                 num_frames += metrics['num_frames']
                 num_time += metrics["decode_time"]

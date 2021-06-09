@@ -284,7 +284,7 @@ class ManifestDataset(Dataset):
         return self._local_data.tar2object[tarpath].extractfile(
             self._local_data.tar2info[tarpath][filename])
 
-    def process_utterance(self, utt, audio_file, transcript):
+    def process_utterance(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
 
         :param audio_file: Filepath or file object of audio file.
@@ -323,7 +323,7 @@ class ManifestDataset(Dataset):
         specgram = self._augmentation_pipeline.transform_feature(specgram)
         feature_aug_time = time.time() - start_time
         #logger.debug(f"audio feature augmentation time: {feature_aug_time}")
-        return utt, specgram, transcript_part
+        return specgram, transcript_part
 
     def _instance_reader_creator(self, manifest):
         """
@@ -336,9 +336,7 @@ class ManifestDataset(Dataset):
 
         def reader():
             for instance in manifest:
-                # inst = self.process_utterance(instance["feat"],
-                #                               instance["text"])
-                inst = self.process_utterance(instance["utt"], instance["feat"],
+                inst = self.process_utterance(instance["feat"],
                                               instance["text"])
                 yield inst
 
@@ -349,6 +347,6 @@ class ManifestDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self._manifest[idx]
-        return self.process_utterance(instance["utt"], instance["feat"],
+        feat, text =self.process_utterance(instance["feat"],
                                       instance["text"])
-        # return self.process_utterance(instance["feat"], instance["text"])
+        return instance["utt"], feat, text

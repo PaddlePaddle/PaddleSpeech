@@ -38,8 +38,6 @@ _C.data = CN(
         target_sample_rate=16000,  # target sample rate
         use_dB_normalization=True,
         target_dB=-20,
-        random_seed=0,
-        keep_transcription_text=False,
         batch_size=32,  # batch size
         num_workers=0,  # data loader workers
         sortagrad=False,  # sorted in first epoch when True
@@ -53,6 +51,28 @@ _C.model = CN(
         rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
         use_gru=True,  #Use gru if set True. Use simple rnn if set False.
         share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
+    ))
+
+_C.collator =CN(
+    dict(
+        augmentation_config="",
+        random_seed=0,
+        mean_std_filepath="",
+        unit_type="char",
+        vocab_filepath="",
+        spm_model_prefix="",
+        specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+        feat_dim=0,  # 'mfcc', 'fbank'
+        delta_delta=False,  # 'mfcc', 'fbank'
+        stride_ms=10.0,  # ms
+        window_ms=20.0,  # ms
+        n_fft=None,  # fft points
+        max_freq=None,  # None for samplerate/2
+        target_sample_rate=16000,  # target sample rate
+        use_dB_normalization=True,
+        target_dB=-20,
+        dither=1.0,  # feature dither
+        keep_transcription_text=True
     ))
 
 DeepSpeech2Model.params(_C.model)

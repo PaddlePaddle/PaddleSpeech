@@ -223,33 +223,9 @@ class ManifestDataset(Dataset):
     def manifest(self):
         return self._manifest
 
-    @property
-    def vocab_size(self):
-        return self._speech_featurizer.vocab_size
-
-    @property
-    def vocab_list(self):
-        return self._speech_featurizer.vocab_list
-
-    @property
-    def vocab_dict(self):
-        return self._speech_featurizer.vocab_dict
-
-    @property
-    def text_feature(self):
-        return self._speech_featurizer.text_feature
-
-    @property
-    def feature_size(self):
-        return self._speech_featurizer.feature_size
-
-    @property
-    def stride_ms(self):
-        return self._speech_featurizer.stride_ms
-
     def __len__(self):
         return len(self._manifest)
 
     def __getitem__(self, idx):
         instance = self._manifest[idx]
-        return(instance["utt"], instance["feat"], instance["text"])
+        return instance["utt"], instance["feat"], instance["text"]

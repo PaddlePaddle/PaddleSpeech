@@ -347,4 +347,6 @@ class ManifestDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self._manifest[idx]
-        return self.process_utterance(instance["feat"], instance["text"])
+        feat, text =self.process_utterance(instance["feat"],
+                                      instance["text"])
+        return instance["utt"], feat, text

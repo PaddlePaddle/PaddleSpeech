@@ -209,7 +209,9 @@ class BaseEncoder(nn.Layer):
         """
         assert xs.size(0) == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
-        tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        # TODO(Hui Zhang): stride_slice not support bool tensor
+        # tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.int32)
         tmp_masks = tmp_masks.unsqueeze(1)  #[B=1, C=1, T]
 
         if self.global_cmvn is not None:

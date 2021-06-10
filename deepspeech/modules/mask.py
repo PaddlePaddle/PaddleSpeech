@@ -121,7 +121,7 @@ def subsequent_chunk_mask(
          [1, 1, 1, 1],
          [1, 1, 1, 1]]
     """
-    ret = torch.zeros([size, size], dtype=paddle.bool)
+    ret = paddle.zeros([size, size], dtype=paddle.bool)
     for i in range(size):
         if num_left_chunks < 0:
             start = 0
@@ -186,13 +186,15 @@ def add_optional_chunk_mask(xs: paddle.Tensor,
         chunk_masks = subsequent_chunk_mask(xs.shape[1], chunk_size,
                                             num_left_chunks)  # (L, L)
         chunk_masks = chunk_masks.unsqueeze(0)  # (1, L, L)
-        chunk_masks = masks & chunk_masks  # (B, L, L)
+        # chunk_masks = masks & chunk_masks  # (B, L, L)
+        chunk_masks = masks.logical_and(chunk_masks)  # (B, L, L)
     elif static_chunk_size > 0:
         num_left_chunks = num_decoding_left_chunks
         chunk_masks = subsequent_chunk_mask(xs.shape[1], static_chunk_size,
                                             num_left_chunks)  # (L, L)
         chunk_masks = chunk_masks.unsqueeze(0)  # (1, L, L)
-        chunk_masks = masks & chunk_masks  # (B, L, L)
+        # chunk_masks = masks & chunk_masks  # (B, L, L)
+        chunk_masks = masks.logical_and(chunk_masks)  # (B, L, L)
     else:
         chunk_masks = masks
     return chunk_masks

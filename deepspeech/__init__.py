@@ -345,6 +345,15 @@ if not hasattr(paddle.Tensor, 'float'):
     setattr(paddle.Tensor, 'float', func_float)
 
 
+def func_int(x: paddle.Tensor) -> paddle.Tensor:
+    return x.astype(paddle.int)
+
+
+if not hasattr(paddle.Tensor, 'int'):
+    logger.warn("register user int to paddle.Tensor, remove this when fixed!")
+    setattr(paddle.Tensor, 'int', func_int)
+
+
 def tolist(x: paddle.Tensor) -> List[Any]:
     return x.numpy().tolist()
 

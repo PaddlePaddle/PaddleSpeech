@@ -247,25 +247,6 @@ class ManifestDataset(Dataset):
     def stride_ms(self):
         return self._speech_featurizer.stride_ms
 
-
-
-    # def _instance_reader_creator(self, manifest):
-    #     """
-    #     Instance reader creator. Create a callable function to produce
-    #     instances of data.
-
-    #     Instance: a tuple of ndarray of audio spectrogram and a list of
-    #     token indices for transcript.
-    #     """
-
-    #     def reader():
-    #         for instance in manifest:
-    #             inst = self.process_utterance(instance["utt"], instance["feat"],
-    #                                           instance["text"])
-    #             yield inst
-
-    #     return reader
-
     def __len__(self):
         return len(self._manifest)
 

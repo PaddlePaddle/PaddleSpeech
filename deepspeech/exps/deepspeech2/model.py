@@ -137,7 +137,7 @@ class DeepSpeech2Trainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()
-        config.data.keep_transcription_text = False
+        config.collator.keep_transcription_text = False
 
         config.data.manifest = config.data.train_manifest
         train_dataset = ManifestDataset.from_config(config)
@@ -165,7 +165,7 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.data.sortagrad,
                 shuffle_method=config.data.shuffle_method)
 
-        collate_fn = SpeechCollator(config=config, keep_transcription_text=False)
+        collate_fn = SpeechCollator.from_config(config)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,

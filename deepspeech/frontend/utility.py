@@ -82,7 +82,7 @@ def read_manifest(
         ]
         if all(conditions):
             manifest.append(json_data)
-    return manifest
+    return manifest, json_data["feat_shape"][-1]
 
 
 def rms_to_db(rms: float):

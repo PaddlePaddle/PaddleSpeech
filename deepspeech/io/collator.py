@@ -22,6 +22,8 @@ from deepspeech.frontend.normalizer import FeatureNormalizer
 from deepspeech.frontend.speech import SpeechSegment
 import io
 import time
+from yacs.config import CfgNode
+from typing import Optional
 
 from collections import namedtuple
 
@@ -33,7 +35,100 @@ logger = Log(__name__).getlog()
 TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
 
 class SpeechCollator():
-    def __init__(self, config, keep_transcription_text=True):
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        default = CfgNode(
+            dict(
+                augmentation_config="",
+                random_seed=0,
+                mean_std_filepath="",
+                unit_type="char",
+                vocab_filepath="",
+                spm_model_prefix="",
+                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+                feat_dim=0,  # 'mfcc', 'fbank'
+                delta_delta=False,  # 'mfcc', 'fbank'
+                stride_ms=10.0,  # ms
+                window_ms=20.0,  # ms
+                n_fft=None,  # fft points
+                max_freq=None,  # None for samplerate/2
+                target_sample_rate=16000,  # target sample rate
+                use_dB_normalization=True,
+                target_dB=-20,
+                dither=1.0,  # feature dither
+                keep_transcription_text=True
+            ))
+
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
+    @classmethod
+    def from_config(cls, config):
+        """Build a SpeechCollator object from a config.
+
+        Args:
+            config (yacs.config.CfgNode): configs object.
+
+        Returns:
+            SpeechCollator: collator object.
+        """
+        assert 'augmentation_config' in config.collator
+        assert 'keep_transcription_text' in config.collator
+        assert 'mean_std_filepath' in config.collator
+        assert 'vocab_filepath' in config.data
+        assert 'specgram_type' in config.collator
+        assert 'n_fft' in config.collator
+        assert config.collator
+
+        if isinstance(config.collator.augmentation_config, (str, bytes)):
+            if config.collator.augmentation_config:
+                aug_file = io.open(
+                    config.collator.augmentation_config, mode='r', encoding='utf8')
+            else:
+                aug_file = io.StringIO(initial_value='{}', newline='')
+        else:
+            aug_file = config.collator.augmentation_config
+            assert isinstance(aug_file, io.StringIO)
+
+        speech_collator = cls(
+                aug_file=aug_file,
+                random_seed=0,
+                mean_std_filepath=config.collator.mean_std_filepath,
+                unit_type=config.collator.unit_type,
+                vocab_filepath=config.data.vocab_filepath,
+                spm_model_prefix=config.collator.spm_model_prefix,
+                specgram_type=config.collator.specgram_type, 
+                feat_dim=config.collator.feat_dim, 
+                delta_delta=config.collator.delta_delta, 
+                stride_ms=config.collator.stride_ms, 
+                window_ms=config.collator.window_ms, 
+                n_fft=config.collator.n_fft, 
+                max_freq=config.collator.max_freq, 
+                target_sample_rate=config.collator.target_sample_rate, 
+                use_dB_normalization=config.collator.use_dB_normalization,
+                target_dB=config.collator.target_dB,
+                dither=config.collator.dither, 
+                keep_transcription_text=config.collator.keep_transcription_text
+            )
+        return speech_collator
+
+    def __init__(self, aug_file, mean_std_filepath,  
+                vocab_filepath, spm_model_prefix,
+                random_seed=0,
+                unit_type="char",
+                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+                feat_dim=0,  # 'mfcc', 'fbank'
+                delta_delta=False,  # 'mfcc', 'fbank'
+                stride_ms=10.0,  # ms
+                window_ms=20.0,  # ms
+                n_fft=None,  # fft points
+                max_freq=None,  # None for samplerate/2
+                target_sample_rate=16000,  # target sample rate
+                use_dB_normalization=True,
+                target_dB=-20,
+                dither=1.0,
+                keep_transcription_text=True):
         """
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one bach.
@@ -42,42 +137,32 @@ class SpeechCollator():
         """
         self._keep_transcription_text = keep_transcription_text
 
-        if isinstance(config.data.augmentation_config, (str, bytes)):
-            if config.data.augmentation_config:
-                aug_file = io.open(
-                    config.data.augmentation_config, mode='r', encoding='utf8')
-            else:
-                aug_file = io.StringIO(initial_value='{}', newline='')
-        else:
-            aug_file = config.data.augmentation_config
-            assert isinstance(aug_file, io.StringIO)
-
         self._local_data = TarLocalData(tar2info={}, tar2object={})
         self._augmentation_pipeline = AugmentationPipeline(
             augmentation_config=aug_file.read(), 
-            random_seed=config.data.random_seed)
+            random_seed=random_seed)
         
         self._normalizer = FeatureNormalizer(
-            config.data.mean_std_filepath) if config.data.mean_std_filepath else None
+            mean_std_filepath) if mean_std_filepath else None
 
-        self._stride_ms = config.data.stride_ms
-        self._target_sample_rate = config.data.target_sample_rate
+        self._stride_ms = stride_ms
+        self._target_sample_rate = target_sample_rate
 
         self._speech_featurizer = SpeechFeaturizer(
-            unit_type=config.data.unit_type,
-            vocab_filepath=config.data.vocab_filepath,
-            spm_model_prefix=config.data.spm_model_prefix,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delta_delta,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            dither=config.data.dither)
+            unit_type=unit_type,
+            vocab_filepath=vocab_filepath,
+            spm_model_prefix=spm_model_prefix,
+            specgram_type=specgram_type,
+            feat_dim=feat_dim,
+            delta_delta=delta_delta,
+            stride_ms=stride_ms,
+            window_ms=window_ms,
+            n_fft=n_fft,
+            max_freq=max_freq,
+            target_sample_rate=target_sample_rate,
+            use_dB_normalization=use_dB_normalization,
+            target_dB=target_dB,
+            dither=dither)
 
     def _parse_tar(self, file):
         """Parse a tar file to get a tarfile object
@@ -196,3 +281,28 @@ class SpeechCollator():
             texts, padding_value=IGNORE_ID).astype(np.int64)
         text_lens = np.array(text_lens).astype(np.int64)
         return utts, padded_audios, audio_lens, padded_texts, text_lens
+
+    @property
+    def vocab_size(self):
+        return self._speech_featurizer.vocab_size
+
+    @property
+    def vocab_list(self):
+        return self._speech_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        return self._speech_featurizer.vocab_dict
+
+    @property
+    def text_feature(self):
+        return self._text_featurizer
+        self._speech_featurizer.text_feature
+
+    @property
+    def feature_size(self):
+        return self._speech_featurizer.feature_size
+
+    @property
+    def stride_ms(self):
+        return self._speech_featurizer.stride_ms

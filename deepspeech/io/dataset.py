@@ -55,20 +55,6 @@ class ManifestDataset(Dataset):
                 min_output_len=0.0,
                 max_output_input_ratio=float('inf'),
                 min_output_input_ratio=0.0,
-                stride_ms=10.0,  # ms
-                window_ms=20.0,  # ms
-                n_fft=None,  # fft points
-                max_freq=None,  # None for samplerate/2
-                raw_wav=True,  # use raw_wav or kaldi feature
-                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
-                feat_dim=0,  # 'mfcc', 'fbank'
-                delta_delta=False,  # 'mfcc', 'fbank'
-                dither=1.0,  # feature dither
-                target_sample_rate=16000,  # target sample rate
-                use_dB_normalization=True,
-                target_dB=-20,
-                random_seed=0,
-                keep_transcription_text=False,
                 batch_size=32,  # batch size
                 num_workers=0,  # data loader workers
                 sortagrad=False,  # sorted in first epoch when True
@@ -116,20 +102,18 @@ class ManifestDataset(Dataset):
             min_output_len=config.data.min_output_len,
             max_output_input_ratio=config.data.max_output_input_ratio,
             min_output_input_ratio=config.data.min_output_input_ratio,
-            stride_ms=config.data.stride_ms,
-            window_ms=config.data.window_ms,
-            n_fft=config.data.n_fft,
-            max_freq=config.data.max_freq,
-            target_sample_rate=config.data.target_sample_rate,
-            specgram_type=config.data.specgram_type,
-            feat_dim=config.data.feat_dim,
-            delta_delta=config.data.delta_delta,
-            dither=config.data.dither,
-            use_dB_normalization=config.data.use_dB_normalization,
-            target_dB=config.data.target_dB,
-            random_seed=config.data.random_seed,
-            keep_transcription_text=config.data.keep_transcription_text)
+            )
         return dataset
+
+    
+    def _read_vocab(self, vocab_filepath):
+        """Load vocabulary from file."""
+        vocab_lines = []
+        with open(vocab_filepath, 'r', encoding='utf-8') as file:
+            vocab_lines.extend(file.readlines())
+        vocab_list = [line[:-1] for line in vocab_lines]
+        return vocab_list
+
 
     def __init__(self,
                  manifest_path,
@@ -143,20 +127,7 @@ class ManifestDataset(Dataset):
                  max_output_len=float('inf'),
                  min_output_len=0.0,
                  max_output_input_ratio=float('inf'),
-                 min_output_input_ratio=0.0,
-                 stride_ms=10.0,
-                 window_ms=20.0,
-                 n_fft=None,
-                 max_freq=None,
-                 target_sample_rate=16000,
-                 specgram_type='linear',
-                 feat_dim=None,
-                 delta_delta=False,
-                 dither=1.0,
-                 use_dB_normalization=True,
-                 target_dB=-20,
-                 random_seed=0,
-                 keep_transcription_text=False):
+                 min_output_input_ratio=0.0):
         """Manifest Dataset
 
         Args:
@@ -186,30 +157,11 @@ class ManifestDataset(Dataset):
             keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
         """
         super().__init__()
-        self._stride_ms = stride_ms
-        self._target_sample_rate = target_sample_rate
 
-        self._speech_featurizer = SpeechFeaturizer(
-            unit_type=unit_type,
-            vocab_filepath=vocab_filepath,
-            spm_model_prefix=spm_model_prefix,
-            specgram_type=specgram_type,
-            feat_dim=feat_dim,
-            delta_delta=delta_delta,
-            stride_ms=stride_ms,
-            window_ms=window_ms,
-            n_fft=n_fft,
-            max_freq=max_freq,
-            target_sample_rate=target_sample_rate,
-            use_dB_normalization=use_dB_normalization,
-            target_dB=target_dB,
-            dither=dither)
-
-        self._rng = np.random.RandomState(random_seed)
-        self._keep_transcription_text = keep_transcription_text
+        # self._rng = np.random.RandomState(random_seed)
 
         # read manifest
-        self._manifest = read_manifest(
+        self._manifest, self._feature_size = read_manifest(
             manifest_path=manifest_path,
             max_input_len=max_input_len,
             min_input_len=min_input_len,
@@ -219,9 +171,59 @@ class ManifestDataset(Dataset):
             min_output_input_ratio=min_output_input_ratio)
         self._manifest.sort(key=lambda x: x["feat_shape"][0])
 
+        self._vocab_list = self._read_vocab(vocab_filepath)
+
     @property
     def manifest(self):
         return self._manifest
+    
+    @property
+    def vocab_size(self):
+        """Return the vocabulary size.
+
+        Returns:
+            int: Vocabulary size.
+        """
+        return len(self._vocab_list)
+
+    @property
+    def vocab_list(self):
+        """Return the vocabulary in list.
+
+        Returns:
+            List[str]: 
+        """
+        return self._vocab_list
+
+    @property
+    def vocab_dict(self):
+        """Return the vocabulary in dict.
+
+        Returns:
+            Dict[str, int]: 
+        """
+        vocab_dict = dict(
+            [(token, idx) for (idx, token) in enumerate(self._vocab_list)])
+        return vocab_dict
+
+    @property
+    def feature_size(self):
+        """Return the audio feature size.
+
+        Returns:
+            int: audio feature size.
+        """
+        return self._feature_size
+
+    @property
+    def stride_ms(self):
+        """time length in `ms` unit per frame
+
+        Returns:
+            float: time(ms)/frame
+        """
+        return self._audio_featurizer.stride_ms
+    
 
     def __len__(self):
         return len(self._manifest)

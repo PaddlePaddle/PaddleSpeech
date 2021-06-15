@@ -28,8 +28,8 @@ def read(wavpath:str, sr:int = None, start=0, stop=None, dtype='int16', always_2
 
 def write(wavpath:str, wav:np.ndarray, sr:int, dtype='PCM_16'):
     sf.write(wavpath, wav, sr, subtype=dtype)
-    
- 
+
+
 def frames(x: Tensor,
           num_samples: Tensor,
           sr: int,
@@ -51,7 +51,7 @@ def frames(x: Tensor,
     stride_length : float
         Stride length in ms.
     clip : bool, optional
-        Whether to clip audio that does not fit into the last frame, by 
+        Whether to clip audio that does not fit into the last frame, by
         default True
 
     Returns
@@ -64,7 +64,7 @@ def frames(x: Tensor,
     assert stride_length <= win_length
     stride_length = int(stride_length * sr)
     win_length = int(win_length * sr)
-    
+
     num_frames = (num_samples - win_length) // stride_length
     padding = (0, 0)
     if not clip:
@@ -92,10 +92,11 @@ def dither(signal:Tensor, dither_value=1.0)->Tensor:
     Returns:
         Tensor: [B, T, D]
     """
-    signal += paddle.normal(shape=[1, 1, signal.shape[-1]]) * dither_value
+    D = paddle.shape(signal)[-1]
+    signal += paddle.normal(shape=[1, 1, D]) * dither_value
     return signal
-    
-    
+
+
 def remove_dc_offset(signal:Tensor)->Tensor:
     """remove dc.
 
@@ -105,7 +106,7 @@ def remove_dc_offset(signal:Tensor)->Tensor:
     Returns:
         Tensor: [B, T, D]
     """
-    signal -= paddle.mean(signal, axis=-1)
+    signal -= paddle.mean(signal, axis=-1, keepdim=True)
     return signal
 
 def preemphasis(signal:Tensor, coeff=0.97)->Tensor:
@@ -125,21 +126,21 @@ def preemphasis(signal:Tensor, coeff=0.97)->Tensor:
 
 
 class STFT(nn.Layer):
-    """A module for computing stft transformation in a differentiable way. 
-    
+    """A module for computing stft transformation in a differentiable way.
+
     http://practicalcryptography.com/miscellaneous/machine-learning/intuitive-guide-discrete-fourier-transform/
-    
+
     Parameters
-    ------------ 
+    ------------
     n_fft : int
         Number of samples in a frame.
-        
+
     sr: int
         Number of Samplilng rate.
-        
+
     stride_length : float
         Number of samples shifted between adjacent frames.
-        
+
     win_length : float
         Length of the window.
 
@@ -151,7 +152,7 @@ class STFT(nn.Layer):
                  sr: int,
                  win_length: float,
                  stride_length: float,
-                 dither:float=1.0,
+                 dither:float=0.0,
                  preemph_coeff:float=0.97,
                  remove_dc_offset:bool=True,
                  window_type: str = 'povey',
@@ -165,17 +166,17 @@ class STFT(nn.Layer):
         self.remove_dc_offset = remove_dc_offset
         self.window_type = window_type
         self.clip = clip
-        
+
         self.n_fft = n_fft
         self.n_bin = 1 + n_fft // 2
 
         w_real, w_imag, kernel_size = dft_matrix(
             self.n_fft, int(self.win_length * self.sr), self.n_bin
         )
-        
+
         # calculate window
         window = get_window(window_type, kernel_size)
-        
+
         # (2 * n_bins, kernel_size)
         w = np.concatenate([w_real, w_imag], axis=0)
         w = w * window
@@ -203,7 +204,7 @@ class STFT(nn.Layer):
         batch_size = paddle.shape(num_samples)
         F, nframe = frames(x, num_samples, self.sr, self.win_length, self.stride_length, clip=self.clip)
         if self.dither:
-            F = dither(F, dither)
+            F = dither(F, self.dither)
         if self.remove_dc_offset:
             F = remove_dc_offset(F)
         if self.preemph_coeff:
@@ -215,7 +216,7 @@ class STFT(nn.Layer):
 
 
 def powspec(C:Tensor) -> Tensor:
-    """Compute the power spectrum. 
+    """Compute the power spectrum.
 
     Args:
         C (Tensor): [B, T, C, 2]
@@ -225,10 +226,10 @@ def powspec(C:Tensor) -> Tensor:
     """
     real, imag = paddle.chunk(C, 2, axis=-1)
     return paddle.square(real.squeeze(-1)) + paddle.square(imag.squeeze(-1))
-    
-    
+
+
 def magspec(C: Tensor, eps=1e-10) -> Tensor:
-    """Compute the magnitude spectrum. 
+    """Compute the magnitude spectrum.
 
     Args:
         C (Tensor): [B, T, C, 2]

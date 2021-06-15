@@ -193,7 +193,13 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout = None):
+    def compute_metrics(self,
+                        utts,
+                        audio,
+                        audio_len,
+                        texts,
+                        texts_len,
+                        fout=None):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -215,7 +221,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
 
-        for utt, target, result in zip(utts, target_transcripts, result_transcripts):
+        for utt, target, result in zip(utts, target_transcripts,
+                                       result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -245,7 +252,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
-                metrics = self.compute_metrics(utts, audio, audio_len, texts, texts_len, fout)
+                metrics = self.compute_metrics(utts, audio, audio_len, texts,
+                                               texts_len, fout)
                 errors_sum += metrics['errors_sum']
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']

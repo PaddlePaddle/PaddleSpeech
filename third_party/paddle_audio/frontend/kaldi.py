@@ -225,7 +225,7 @@ class STFT(nn.Layer):
 
 
 def powspec(C:Tensor) -> Tensor:
-    """Compute the power spectrum.
+    """Compute the power spectrum |X_k|^2.
 
     Args:
         C (Tensor): [B, T, C, 2]
@@ -238,7 +238,7 @@ def powspec(C:Tensor) -> Tensor:
 
 
 def magspec(C: Tensor, eps=1e-10) -> Tensor:
-    """Compute the magnitude spectrum.
+    """Compute the magnitude spectrum |X_k|.
 
     Args:
         C (Tensor): [B, T, C, 2]
@@ -250,4 +250,17 @@ def magspec(C: Tensor, eps=1e-10) -> Tensor:
     pspec = powspec(C)
     return paddle.sqrt(pspec + eps)
 
+
+def logspec(C: Tensor, eps=1e-10) -> Tensor:
+    """Compute log-spectrum  20log10∣X_k∣.
+
+    Args:
+        C (Tensor): [description]
+        eps ([type], optional): [description]. Defaults to 1e-10.
+
+    Returns:
+        Tensor: [description]
+    """
+    spec = magspec(C)
+    return 20 * paddle.log10(spec + eps)
 

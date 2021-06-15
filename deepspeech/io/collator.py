@@ -56,7 +56,7 @@ class SpeechCollator():
                 use_dB_normalization=True,
                 target_dB=-20,
                 dither=1.0,  # feature dither
-                keep_transcription_text=True
+                keep_transcription_text=False
             ))
 
         if config is not None:
@@ -75,7 +75,7 @@ class SpeechCollator():
         """
         assert 'augmentation_config' in config.collator
         assert 'keep_transcription_text' in config.collator
-        assert 'mean_std_filepath' in config.collator
+        assert 'mean_std_filepath' in config.data
         assert 'vocab_filepath' in config.data
         assert 'specgram_type' in config.collator
         assert 'n_fft' in config.collator
@@ -94,7 +94,7 @@ class SpeechCollator():
         speech_collator = cls(
                 aug_file=aug_file,
                 random_seed=0,
-                mean_std_filepath=config.collator.mean_std_filepath,
+                mean_std_filepath=config.data.mean_std_filepath,
                 unit_type=config.collator.unit_type,
                 vocab_filepath=config.data.vocab_filepath,
                 spm_model_prefix=config.collator.spm_model_prefix,
@@ -282,26 +282,11 @@ class SpeechCollator():
         text_lens = np.array(text_lens).astype(np.int64)
         return utts, padded_audios, audio_lens, padded_texts, text_lens
 
-    @property
-    def vocab_size(self):
-        return self._speech_featurizer.vocab_size
-
-    @property
-    def vocab_list(self):
-        return self._speech_featurizer.vocab_list
-
-    @property
-    def vocab_dict(self):
-        return self._speech_featurizer.vocab_dict
 
     @property
     def text_feature(self):
-        return self._text_featurizer
-        self._speech_featurizer.text_feature
+        return self._speech_featurizer.text_feature
 
-    @property
-    def feature_size(self):
-        return self._speech_featurizer.feature_size
 
     @property
     def stride_ms(self):

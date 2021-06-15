@@ -161,7 +161,7 @@ class ManifestDataset(Dataset):
         # self._rng = np.random.RandomState(random_seed)
 
         # read manifest
-        self._manifest, self._feature_size = read_manifest(
+        self._manifest = read_manifest(
             manifest_path=manifest_path,
             max_input_len=max_input_len,
             min_input_len=min_input_len,
@@ -213,16 +213,8 @@ class ManifestDataset(Dataset):
         Returns:
             int: audio feature size.
         """
-        return self._feature_size
+        return self._manifest[0]["feat_shape"][-1]
 
-    @property
-    def stride_ms(self):
-        """time length in `ms` unit per frame
-
-        Returns:
-            float: time(ms)/frame
-        """
-        return self._audio_featurizer.stride_ms
     
 
     def __len__(self):

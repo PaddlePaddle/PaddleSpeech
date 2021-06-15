@@ -72,7 +72,7 @@ _C.collator =CN(
         use_dB_normalization=True,
         target_dB=-20,
         dither=1.0,  # feature dither
-        keep_transcription_text=True
+        keep_transcription_text=False
     ))
 
 DeepSpeech2Model.params(_C.model)

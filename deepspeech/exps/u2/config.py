@@ -22,6 +22,13 @@ _C = CfgNode()
 
 _C.data = ManifestDataset.params()
 
+_C.collator =CfgNode(
+    dict(
+        augmentation_config="",
+        unit_type="char",
+        keep_transcription_text=False
+    ))
+
 _C.model = U2Model.params()
 
 _C.training = U2Trainer.params()

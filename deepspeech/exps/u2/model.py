@@ -221,7 +221,7 @@ class U2Trainer(Trainer):
         config.data.augmentation_config = ""
         dev_dataset = ManifestDataset.from_config(config)
 
-        collate_fn = SpeechCollator(keep_transcription_text=False)
+        collate_fn = SpeechCollator.from_config(config)
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
@@ -266,12 +266,13 @@ class U2Trainer(Trainer):
         # config.data.max_output_input_ratio = float('inf')
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
+        config.collator.keep_transcription_text = True
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=SpeechCollator(keep_transcription_text=True))
+            collate_fn=SpeechCollator.from_config(config))
         logger.info("Setup train/valid/test Dataloader!")
 
     def setup_model(self):
@@ -375,7 +376,7 @@ class U2Tester(U2Trainer):
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
         start_time = time.time()
-        text_feature = self.test_loader.dataset.text_feature
+        text_feature = self.test_loader.collate_fn.text_feature
         target_transcripts = self.ordid2token(texts, texts_len)
         result_transcripts = self.model.decode(
             audio,
@@ -423,7 +424,7 @@ class U2Tester(U2Trainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
-        stride_ms = self.test_loader.dataset.stride_ms
+        stride_ms = self.config.collator.stride_ms
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         num_frames = 0.0

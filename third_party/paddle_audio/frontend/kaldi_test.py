@@ -369,6 +369,8 @@ class TestKaldiFE(unittest.TestCase):
         self.wintype='hamm'
         self.nfilt=40
         
+        paddle.set_device('cpu')
+        
         
     def test_read(self):
         import scipy.io.wavfile as wav
@@ -484,7 +486,7 @@ class TestKaldiFE(unittest.TestCase):
 
             self.assertEqual(t_nframe.item(), stft_win.shape[0])
             
-            self.assertLess(np.sum(t_spec.numpy() - stft_win), 2e4)
+            self.assertLess(np.sum(t_spec.numpy() - stft_win), 5e4)
             print(np.sum(t_spec.numpy()))
             print(np.sum(stft_win))
             self.assertTrue(np.allclose(t_spec.numpy(), stft_win, atol=1e2))

@@ -32,7 +32,19 @@ def hamm_window(frame_len:int) -> np.ndarray:
         win[i] = 0.54 - 0.46 * np.cos(a * i)
     return win
 
-def get_window(wintype:Optional[None, str], winlen:int) -> np.ndarray:
+def get_window(wintype:Optional[str], winlen:int) -> np.ndarray:
+    """get window function
+
+    Args:
+        wintype (Optional[str]): window type.
+        winlen (int): window length in samples.
+
+    Raises:
+        ValueError: not support window.
+
+    Returns:
+        np.ndarray: window coeffs.
+    """
     # calculate window
     if not wintype or wintype == 'rectangular':
         window = np.ones(winlen)

@@ -376,11 +376,13 @@ class TestKaldiFE(unittest.TestCase):
         import scipy.io.wavfile as wav
         rate, sig = wav.read(self.wavpath)
         sr, wav = kaldi.read(self.wavpath)
+        wav = wav[:, 0]
         self.assertTrue(np.all(sig == wav))
         self.assertEqual(rate, sr)
         
     def test_frames(self):
         sr, wav = kaldi.read(self.wavpath)
+        wav = wav[:, 0]
         _, fs = frames(wav, samplerate=sr, 
                             winlen=self.winlen, winstep=self.winstep, 
                             nfilt=self.nfilt, nfft=self.nfft, 
@@ -397,6 +399,7 @@ class TestKaldiFE(unittest.TestCase):
         
     def test_stft(self):
         sr, wav = kaldi.read(self.wavpath)
+        wav = wav[:, 0]
         
         for wintype in ['', 'hamm', 'hann', 'povey']:
             print(wintype)
@@ -412,7 +415,7 @@ class TestKaldiFE(unittest.TestCase):
             t_wav = paddle.to_tensor([wav], dtype='float32')
             t_wavlen = paddle.to_tensor([len(wav)])
             
-            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
+            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, dither=0.0, preemph_coeff=0.0, remove_dc_offset=False, clip=False)
             t_stft, t_nframe = stft_class(t_wav, t_wavlen)
             t_stft = t_stft.astype(stft_c_win.real.dtype)[0]
             t_real = t_stft[:, :, 0]
@@ -434,7 +437,7 @@ class TestKaldiFE(unittest.TestCase):
         
     def test_magspec(self):
         sr, wav = kaldi.read(self.wavpath)
-        
+        wav = wav[:, 0]
         for wintype in ['', 'hamm', 'hann', 'povey']:
             print(wintype)
             self.wintype=wintype
@@ -448,7 +451,7 @@ class TestKaldiFE(unittest.TestCase):
             t_wav = paddle.to_tensor([wav], dtype='float32')
             t_wavlen = paddle.to_tensor([len(wav)])
             
-            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
+            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, dither=0.0, preemph_coeff=0.0, remove_dc_offset=False, clip=False)
             t_stft, t_nframe = stft_class(t_wav, t_wavlen)
             t_stft = t_stft.astype(stft_win.dtype)
             t_spec = kaldi.magspec(t_stft)[0]
@@ -463,7 +466,7 @@ class TestKaldiFE(unittest.TestCase):
             
     def test_powspec(self):
         sr, wav = kaldi.read(self.wavpath)
-        
+        wav = wav[:, 0]
         for wintype in ['', 'hamm', 'hann', 'povey']:
             print(wintype)
             self.wintype=wintype
@@ -478,7 +481,7 @@ class TestKaldiFE(unittest.TestCase):
             t_wav = paddle.to_tensor([wav], dtype='float32')
             t_wavlen = paddle.to_tensor([len(wav)])
             
-            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
+            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, dither=0.0, preemph_coeff=0.0, remove_dc_offset=False, clip=False)
             t_stft, t_nframe = stft_class(t_wav, t_wavlen)
             t_stft = t_stft.astype(stft_win.dtype)
             t_spec = kaldi.powspec(t_stft)[0]

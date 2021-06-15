@@ -6,7 +6,8 @@ from paddle import nn
 from paddle.nn import functional as F
 import soundfile as sf
 
-from .common import get_window, dft_matrix
+from .common import get_window
+from .common import dft_matrix
 
 
 def read(wavpath:str, sr:int = None, start=0, stop=None, dtype='int16', always_2d=True)->Tuple[int, np.ndarray]:
@@ -27,6 +28,14 @@ def read(wavpath:str, sr:int = None, start=0, stop=None, dtype='int16', always_2
 
 
 def write(wavpath:str, wav:np.ndarray, sr:int, dtype='PCM_16'):
+    """write wav file.
+
+    Args:
+        wavpath (str): file path to save.
+        wav (np.ndarray): wav data.
+        sr (int): data samplerate.
+        dtype (str, optional): wav bit format. Defaults to 'PCM_16'.
+    """
     sf.write(wavpath, wav, sr, subtype=dtype)
 
 

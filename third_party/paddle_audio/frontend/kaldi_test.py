@@ -13,7 +13,6 @@ from scipy.fftpack import dct
 
 from third_party.paddle_audio.frontend import kaldi
 
-
 def round_half_up(number):
     return int(decimal.Decimal(number).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_HALF_UP))
 

@@ -336,13 +336,14 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         # config.data.max_output_input_ratio = float('inf')
         test_dataset = ManifestDataset.from_config(config)
 
+        config.collator.keep_transcription_text = True
         # return text ord id
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=SpeechCollator(config=config, keep_transcription_text=True))
+            collate_fn=SpeechCollator.from_config(config))
         logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):

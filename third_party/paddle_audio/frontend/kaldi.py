@@ -6,6 +6,9 @@ from paddle import nn
 from paddle.nn import functional as F
 import soundfile as sf
 
+from .common import get_window, dft_matrix
+
+
 def read(wavpath:str, sr:int = None, dtype='int16')->Tuple[int, np.ndarray]:
     wav, r_sr = sf.read(wavpath, dtype=dtype)
     if sr:
@@ -65,13 +68,6 @@ def frames(x: Tensor,
     return frames, num_frames
 
 
-def _povey_window(frame_len:int) -> np.ndarray:
-    win = np.empty(frame_len)
-    for i in range(frame_len):
-        win[i] = (0.5 - 0.5 * np.cos(2 * np.pi * i / (frame_len - 1)) )**0.85 
-    return win
-
-
 class STFT(nn.Layer):
     """A module for computing stft transformation in a differentiable way. 
     
@@ -110,38 +106,10 @@ class STFT(nn.Layer):
         self.n_fft = n_fft
         self.n_bin = 1 + n_fft // 2
 
-        # https://github.com/numpy/numpy/blob/v1.20.0/numpy/fft/_pocketfft.py#L49
-        kernel_size = min(self.n_fft, self.win_length)
+        w_real, w_imag, kernel_size = dft_matrix(self.n_fft, self.win_length, self.n_bin)
         
         # calculate window
-        if not window_type:
-            window = np.ones(kernel_size)
-        elif window_type == "hann":
-            window = np.hanning(kernel_size)
-        elif window_type == "hamm":
-            window = np.hamming(kernel_size)
-        elif window_type == "povey":
-            window = _povey_window(kernel_size)
-        else:
-            msg = f"{window_type} Not supported yet!"
-            raise ValueError(msg)
-
-        # https://en.wikipedia.org/wiki/Discrete_Fourier_transform
-        # (n_bins, n_fft) complex
-        n = np.arange(0, self.n_fft, 1.)
-        wsin = np.empty((self.n_bin, kernel_size)) #[Cout, kernel_size]
-        wcos = np.empty((self.n_bin, kernel_size)) #[Cout, kernel_size]
-        for k in range(self.n_bin): # Only half of the bins contain useful info
-            wsin[k,:] = -np.sin(2*np.pi*k*n/self.n_fft)[:kernel_size]
-            wcos[k,:] = np.cos(2*np.pi*k*n/self.n_fft)[:kernel_size]
-        w_real = wcos
-        w_imag = wsin
-        
-        # https://en.wikipedia.org/wiki/DFT_matrix
-        # https://ccrma.stanford.edu/~jos/st/Matrix_Formulation_DFT.html
-        # weight = np.fft.fft(np.eye(n_fft))[:self.n_bin, :kernel_size]
-        # w_real = weight.real
-        # w_imag = weight.imag
+        window = get_window(window_type, kernel_size)
 
         # (2 * n_bins, kernel_size)
         w = np.concatenate([w_real, w_imag], axis=0)
@@ -211,3 +179,5 @@ def magspec(C: Tensor, eps=1e-10) -> Tensor:
     """
     pspec = powspec(C)
     return paddle.sqrt(pspec + eps)
+
+

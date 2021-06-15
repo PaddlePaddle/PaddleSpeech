@@ -1,6 +1,6 @@
 import paddle
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Optional
 
 
 # https://github.com/kaldi-asr/kaldi/blob/cbed4ff688/src/feat/feature-window.cc#L109
@@ -32,7 +32,7 @@ def hamm_window(frame_len:int) -> np.ndarray:
         win[i] = 0.54 - 0.46 * np.cos(a * i)
     return win
 
-def get_window(wintype:str, winlen:int) -> np.ndarray:
+def get_window(wintype:Optional[None, str], winlen:int) -> np.ndarray:
     # calculate window
     if not wintype or wintype == 'rectangular':
         window = np.ones(winlen)

@@ -68,6 +68,29 @@ def frames(x: Tensor,
     return frames, num_frames
 
 
+def do_dither(signal, dither_value=1.0):
+    signal += paddle.normal(shape=signal.shape) * dither_value
+    return signal
+    
+    
+def do_remove_dc_offset(signal):
+    signal -= paddle.mean(signal)
+    return signal
+
+
+def do_preemphasis(signal, coeff=0.97):
+    """perform preemphasis on the input signal.
+
+    :param signal: The signal to filter.
+    :param coeff: The preemphasis coefficient. 0 is no filter, default is 0.95.
+    :returns: the filtered signal.
+    """
+    return paddle.concat([
+        (1-coeff)*signal[0:1],
+        signal[1:] - coeff * signal[:-1]
+    ])
+
+
 class STFT(nn.Layer):
     """A module for computing stft transformation in a differentiable way. 
     

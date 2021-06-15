@@ -235,33 +235,95 @@ class TestKaldiFE(unittest.TestCase):
         for wintype in ['', 'hamm', 'hann', 'povey']:
             print(wintype)
             self.wintype=wintype
-            sftf_win, stft_c_win, _, stft_c = stft_with_window(wav, samplerate=sr, 
+            _, stft_c_win, _, _ = stft_with_window(wav, samplerate=sr, 
                                 winlen=self.winlen, winstep=self.winstep, 
                                 nfilt=self.nfilt, nfft=self.nfft, 
                                 lowfreq=self.lowfreq, highfreq=self.highfreq, 
                                 wintype=self.wintype)
             print('py', stft_c_win.real)
-            #print(stft_c_win.imag)
+            print('py', stft_c_win.imag)
             
             t_wav = paddle.to_tensor([wav], dtype='float32')
             t_wavlen = paddle.to_tensor([len(wav)])
             
             stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
             t_stft, t_nframe = stft_class(t_wav, t_wavlen)
-            t_stft = t_stft.astype(sftf_win.dtype)[0]
+            t_stft = t_stft.astype(stft_c_win.real.dtype)[0]
             t_real = t_stft[:, :, 0]
-            #t_imag = t_stft[:, :, 1]
+            t_imag = t_stft[:, :, 1]
             print('pd', t_real.numpy())
-            #print(t_imag.numpy())
+            print('pd', t_imag.numpy())
             
-            self.assertEqual(t_nframe.item(), sftf_win.shape[0])
+            self.assertEqual(t_nframe.item(), stft_c_win.real.shape[0])
 
             self.assertLess(np.sum(t_real.numpy()) - np.sum(stft_c_win.real), 1)
             print(np.sum(t_real.numpy()))
             print(np.sum(stft_c_win.real))
             self.assertTrue(np.allclose(t_real.numpy(), stft_c_win.real, atol=1e-1))
-            #self.assertTrue(np.allclose(t_imag.numpy(), stft_c_win.imag))
+            
+            self.assertLess(np.sum(t_imag.numpy()) - np.sum(stft_c_win.imag), 1)
+            print(np.sum(t_imag.numpy()))
+            print(np.sum(stft_c_win.imag))
+            self.assertTrue(np.allclose(t_imag.numpy(), stft_c_win.imag, atol=1e-1))
         
+    def test_magspec(self):
+        sr, wav = kaldi.read(self.wavpath)
+        
+        for wintype in ['', 'hamm', 'hann', 'povey']:
+            print(wintype)
+            self.wintype=wintype
+            stft_win, _, _, _ = stft_with_window(wav, samplerate=sr, 
+                                winlen=self.winlen, winstep=self.winstep, 
+                                nfilt=self.nfilt, nfft=self.nfft, 
+                                lowfreq=self.lowfreq, highfreq=self.highfreq, 
+                                wintype=self.wintype)
+            print('py', stft_win)
+
+            t_wav = paddle.to_tensor([wav], dtype='float32')
+            t_wavlen = paddle.to_tensor([len(wav)])
+            
+            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
+            t_stft, t_nframe = stft_class(t_wav, t_wavlen)
+            t_stft = t_stft.astype(stft_win.dtype)
+            t_spec = kaldi.magspec(t_stft)[0]
+            print('pd', t_spec.numpy())
+
+            self.assertEqual(t_nframe.item(), stft_win.shape[0])
+            
+            self.assertLess(np.sum(t_spec.numpy()) - np.sum(stft_win), 1)
+            print(np.sum(t_spec.numpy()))
+            print(np.sum(stft_win))
+            self.assertTrue(np.allclose(t_spec.numpy(), stft_win, atol=1e-1))
+            
+    def test_powspec(self):
+        sr, wav = kaldi.read(self.wavpath)
+        
+        for wintype in ['', 'hamm', 'hann', 'povey']:
+            print(wintype)
+            self.wintype=wintype
+            stft_win, _, _, _ = stft_with_window(wav, samplerate=sr, 
+                                winlen=self.winlen, winstep=self.winstep, 
+                                nfilt=self.nfilt, nfft=self.nfft, 
+                                lowfreq=self.lowfreq, highfreq=self.highfreq, 
+                                wintype=self.wintype)
+            stft_win = np.square(stft_win)
+            print('py', stft_win)
+
+            t_wav = paddle.to_tensor([wav], dtype='float32')
+            t_wavlen = paddle.to_tensor([len(wav)])
+            
+            stft_class = kaldi.STFT(self.nfft, sr, self.winlen, self.winstep, window_type=self.wintype, clip=False)
+            t_stft, t_nframe = stft_class(t_wav, t_wavlen)
+            t_stft = t_stft.astype(stft_win.dtype)
+            t_spec = kaldi.powspec(t_stft)[0]
+            print('pd', t_spec.numpy())
+
+            self.assertEqual(t_nframe.item(), stft_win.shape[0])
+            
+            self.assertLess(np.sum(t_spec.numpy() - stft_win), 2e4)
+            print(np.sum(t_spec.numpy()))
+            print(np.sum(stft_win))
+            self.assertTrue(np.allclose(t_spec.numpy(), stft_win, atol=1e2))
 
 
 # from python_speech_features import mfcc

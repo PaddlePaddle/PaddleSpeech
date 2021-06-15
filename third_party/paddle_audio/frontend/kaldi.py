@@ -132,7 +132,7 @@ class STFT(nn.Layer):
         wsin = np.empty((self.n_bin, kernel_size)) #[Cout, kernel_size]
         wcos = np.empty((self.n_bin, kernel_size)) #[Cout, kernel_size]
         for k in range(self.n_bin): # Only half of the bins contain useful info
-            wsin[k,:] = np.sin(2*np.pi*k*n/self.n_fft)[:kernel_size]
+            wsin[k,:] = -np.sin(2*np.pi*k*n/self.n_fft)[:kernel_size]
             wcos[k,:] = np.cos(2*np.pi*k*n/self.n_fft)[:kernel_size]
         w_real = wcos
         w_imag = wsin
@@ -144,8 +144,7 @@ class STFT(nn.Layer):
         # w_imag = weight.imag
 
         # (2 * n_bins, kernel_size)
-        #w = np.concatenate([w_real, w_imag], axis=0)
-        w = w_real
+        w = np.concatenate([w_real, w_imag], axis=0)
         w = w * window
 
         # (2 * n_bins, 1, kernel_size) # (C_out, C_in, kernel_size)
@@ -163,7 +162,7 @@ class STFT(nn.Layer):
             Number of samples of each waveform.
         Returns
         ------------
-        D : Tensor
+        C : Tensor
             Shape(B, T', n_bins, 2) Spectrogram.
 
         num_frames: Tensor
@@ -178,11 +177,37 @@ class STFT(nn.Layer):
 
         batch_size, _ = paddle.shape(x)
         x = x.unsqueeze(-1)
-        D = F.conv1d(x, self.weight,
+        C = F.conv1d(x, self.weight,
                      stride=(self.stride_length, ),
                      padding=padding,
                      data_format="NLC")
-        #D = paddle.reshape(D, [batch_size, -1, self.n_bin, 2])
-        D = paddle.reshape(D, [batch_size, -1, self.n_bin, 1])
-        return D, num_frames
+        C = paddle.reshape(C, [batch_size, -1, 2, self.n_bin])
+        C = C.transpose([0, 1, 3, 2])
+        return C, num_frames
 
+
+def powspec(C:Tensor) -> Tensor:
+    """Compute the power spectrum. 
+
+    Args:
+        C (Tensor): [B, T, C, 2]
+
+    Returns:
+        Tensor: [B, T, C]
+    """
+    real, imag = paddle.chunk(C, 2, axis=-1)
+    return paddle.square(real.squeeze(-1)) + paddle.square(imag.squeeze(-1))
+    
+    
+def magspec(C: Tensor, eps=1e-10) -> Tensor:
+    """Compute the magnitude spectrum. 
+
+    Args:
+        C (Tensor): [B, T, C, 2]
+        eps (float): epsilon.
+
+    Returns:
+        Tensor: [B, T, C]
+    """
+    pspec = powspec(C)
+    return paddle.sqrt(pspec + eps)

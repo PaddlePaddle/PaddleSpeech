@@ -87,3 +87,9 @@ pull_request_rules:
     actions:
       label:
         add: ["Docker"]
+  - name: "auto add label=Deployment"
+    conditions:
+      - files~=^speechnn/
+    actions:
+      label:
+        add: ["Deployment"]

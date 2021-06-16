@@ -279,8 +279,8 @@ class U2Trainer(Trainer):
         config = self.config
         model_conf = config.model
         model_conf.defrost()
-        model_conf.input_dim = self.train_loader.dataset.feature_size
-        model_conf.output_dim = self.train_loader.dataset.vocab_size
+        model_conf.input_dim = self.train_loader.collate_fn.feature_size
+        model_conf.output_dim = self.train_loader.collate_fn.vocab_size
         model_conf.freeze()
         model = U2Model.from_config(model_conf)
 
@@ -497,7 +497,7 @@ class U2Tester(U2Trainer):
         infer_model = U2InferModel.from_pretrained(self.test_loader.dataset,
                                                    self.config.model.clone(),
                                                    self.args.checkpoint_path)
-        feat_dim = self.test_loader.dataset.feature_size
+        feat_dim = self.test_loader.collate_fn.feature_size
         input_spec = [
             paddle.static.InputSpec(
                 shape=[None, feat_dim, None],

@@ -55,10 +55,6 @@ class ManifestDataset(Dataset):
                 min_output_len=0.0,
                 max_output_input_ratio=float('inf'),
                 min_output_input_ratio=0.0,
-                batch_size=32,  # batch size
-                num_workers=0,  # data loader workers
-                sortagrad=False,  # sorted in first epoch when True
-                shuffle_method="batch_shuffle",  # 'batch_shuffle', 'instance_shuffle'
             ))
 
         if config is not None:
@@ -77,7 +73,7 @@ class ManifestDataset(Dataset):
         """
         assert 'manifest' in config.data
         assert config.data.manifest
-        assert 'keep_transcription_text' in config.data
+        assert 'keep_transcription_text' in config.collator
 
         if isinstance(config.data.augmentation_config, (str, bytes)):
             if config.data.augmentation_config:
@@ -171,51 +167,51 @@ class ManifestDataset(Dataset):
             min_output_input_ratio=min_output_input_ratio)
         self._manifest.sort(key=lambda x: x["feat_shape"][0])
 
-        self._vocab_list = self._read_vocab(vocab_filepath)
+        # self._vocab_list = self._read_vocab(vocab_filepath)
 
-    @property
-    def manifest(self):
-        return self._manifest
+
+    # @property
+    # def manifest(self):
+    #     return self._manifest
     
-    @property
-    def vocab_size(self):
-        """Return the vocabulary size.
+    # @property
+    # def vocab_size(self):
+    #     """Return the vocabulary size.
 
-        Returns:
-            int: Vocabulary size.
-        """
-        return len(self._vocab_list)
+    #     Returns:
+    #         int: Vocabulary size.
+    #     """
+    #     return len(self._vocab_list)
 
-    @property
-    def vocab_list(self):
-        """Return the vocabulary in list.
+    # @property
+    # def vocab_list(self):
+    #     """Return the vocabulary in list.
 
-        Returns:
-            List[str]: 
-        """
-        return self._vocab_list
+    #     Returns:
+    #         List[str]: 
+    #     """
+    #     return self._vocab_list
 
-    @property
-    def vocab_dict(self):
-        """Return the vocabulary in dict.
+    # @property
+    # def vocab_dict(self):
+    #     """Return the vocabulary in dict.
 
-        Returns:
-            Dict[str, int]: 
-        """
-        vocab_dict = dict(
-            [(token, idx) for (idx, token) in enumerate(self._vocab_list)])
-        return vocab_dict
+    #     Returns:
+    #         Dict[str, int]: 
+    #     """
+    #     vocab_dict = dict(
+    #         [(token, idx) for (idx, token) in enumerate(self._vocab_list)])
+    #     return vocab_dict
 
-    @property
-    def feature_size(self):
-        """Return the audio feature size.
+    # @property
+    # def feature_size(self):
+    #     """Return the audio feature size.
 
-        Returns:
-            int: audio feature size.
-        """
-        return self._manifest[0]["feat_shape"][-1]
+    #     Returns:
+    #         int: audio feature size.
+    #     """
+    #     return self._manifest[0]["feat_shape"][-1]
 
-    
 
     def __len__(self):
         return len(self._manifest)

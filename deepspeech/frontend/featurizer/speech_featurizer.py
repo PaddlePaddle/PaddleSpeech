@@ -104,13 +104,60 @@ class SpeechFeaturizer(object):
                 speech_segment.transcript)
         return spec_feature, text_ids
 
+    @property
+    def vocab_size(self):
+        """Return the vocabulary size.
+        Returns:
+            int: Vocabulary size.
+        """
+        return self._text_featurizer.vocab_size
 
+    @property
+    def vocab_list(self):
+        """Return the vocabulary in list.
+        Returns:
+            List[str]: 
+        """
+        return self._text_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        """Return the vocabulary in dict.
+        Returns:
+            Dict[str, int]: 
+        """
+        return self._text_featurizer.vocab_dict
+
+    @property
+    def feature_size(self):
+        """Return the audio feature size.
+        Returns:
+            int: audio feature size.
+        """
+        return self._audio_featurizer.feature_size
+
+    @property
+    def stride_ms(self):
+        """time length in `ms` unit per frame
+        Returns:
+            float: time(ms)/frame
+        """
+        return self._audio_featurizer.stride_ms
 
     @property
     def text_feature(self):
         """Return the text feature object.
-
         Returns:
             TextFeaturizer: object.
         """
         return self._text_featurizer
+        
+
+    # @property
+    # def text_feature(self):
+    #     """Return the text feature object.
+
+    #     Returns:
+    #         TextFeaturizer: object.
+    #     """
+    #     return self._text_featurizer

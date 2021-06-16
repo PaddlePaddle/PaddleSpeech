@@ -1,6 +1,6 @@
 import paddle
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 
 
 # https://github.com/kaldi-asr/kaldi/blob/cbed4ff688/src/feat/feature-window.cc#L109

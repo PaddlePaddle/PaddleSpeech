@@ -424,7 +424,7 @@ class U2Tester(U2Trainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
-        stride_ms = self.config.collator.stride_ms
+        stride_ms = self.test_loader.collate_fn.stride_ms
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         num_frames = 0.0

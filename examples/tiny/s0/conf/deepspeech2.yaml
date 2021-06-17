@@ -6,16 +6,13 @@ data:
   mean_std_filepath: data/mean_std.json
   unit_type: char
   vocab_filepath: data/vocab.txt 
-  batch_size: 4
   min_input_len: 0.0
   max_input_len: 27.0
   min_output_len: 0.0
   max_output_len: 400.0
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
-  sortagrad: True 
-  shuffle_method: batch_shuffle
-  num_workers: 0
+
 
 collator:
   augmentation_config: conf/augmentation.json
@@ -33,6 +30,10 @@ collator:
   target_dB: -20
   dither: 1.0
   keep_transcription_text: False
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 0
+  batch_size: 4
   
 model:
   num_conv_layers: 2

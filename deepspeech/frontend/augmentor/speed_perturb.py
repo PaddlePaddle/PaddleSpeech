@@ -79,7 +79,21 @@ class SpeedPerturbAugmentor(AugmentorBase):
             self._rates = np.linspace(
                 self._min_rate, self._max_rate, self._num_rates, endpoint=True)
 
-    def transform_audio(self, audio_segment):
+
+    def randomize_parameters(self):
+        if self._num_rates < 0:
+            self.speed_rate = self._rng.uniform(self._min_rate, self._max_rate)
+        else:
+            self.speed_rate = self._rng.choice(self._rates)
+
+    def apply(self, audio_segment):
+        # Skip perturbation in case of identity speed rate
+        if speed_rate == 1.0:
+            return
+
+        audio_segment.change_speed(speed_rate)
+    
+    def transform_audio(self, audio_segment,single=True):
         """Sample a new speed rate from the given range and
         changes the speed of the given audio clip.
 
@@ -88,13 +102,26 @@ class SpeedPerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegment|SpeechSegment
         """
-        if self._num_rates < 0:
-            speed_rate = self._rng.uniform(self._min_rate, self._max_rate)
-        else:
-            speed_rate = self._rng.choice(self._rates)
+        if(single):
+            self.randomize_parameters()
+        self.apply(audio_segment)
 
-        # Skip perturbation in case of identity speed rate
-        if speed_rate == 1.0:
-            return
+    # def transform_audio(self, audio_segment):
+    #     """Sample a new speed rate from the given range and
+    #     changes the speed of the given audio clip.
 
-        audio_segment.change_speed(speed_rate)
+    #     Note that this is an in-place transformation.
+
+    #     :param audio_segment: Audio segment to add effects to.
+    #     :type audio_segment: AudioSegment|SpeechSegment
+    #     """
+    #     if self._num_rates < 0:
+    #         speed_rate = self._rng.uniform(self._min_rate, self._max_rate)
+    #     else:
+    #         speed_rate = self._rng.choice(self._rates)
+
+    #     # Skip perturbation in case of identity speed rate
+    #     if speed_rate == 1.0:
+    #         return
+
+    #     audio_segment.change_speed(speed_rate)

@@ -192,7 +192,7 @@ class SpeechCollator():
         return self._local_data.tar2object[tarpath].extractfile(
             self._local_data.tar2info[tarpath][filename])
 
-    def process_utterance(self, audio_file, transcript):
+    def process_utterance(self, audio_file, transcript, single=True):
         """Load, augment, featurize and normalize for speech data.
 
         :param audio_file: Filepath or file object of audio file.
@@ -214,7 +214,7 @@ class SpeechCollator():
 
         # audio augment
         start_time = time.time()
-        self._augmentation_pipeline.transform_audio(speech_segment)
+        self._augmentation_pipeline.transform_audio(speech_segment, single)
         audio_aug_time = time.time() - start_time
         #logger.debug(f"audio augmentation time: {audio_aug_time}")
 
@@ -228,7 +228,7 @@ class SpeechCollator():
 
         # specgram augment
         start_time = time.time()
-        specgram = self._augmentation_pipeline.transform_feature(specgram)
+        specgram = self._augmentation_pipeline.transform_feature(specgram, single)
         feature_aug_time = time.time() - start_time
         #logger.debug(f"audio feature augmentation time: {feature_aug_time}")
         return specgram, transcript_part
@@ -253,8 +253,14 @@ class SpeechCollator():
         texts = []
         text_lens = []
         utts = []
+        # print('----debug---')
+        # print(batch)
+        # print(type(batch))
+        # print(len(batch))
+        resample=True
         for utt, audio, text in batch:
-            audio, text = self.process_utterance(audio, text)
+            audio, text = self.process_utterance(audio, text, single=resample)
+            # resample=False
             #utt
             utts.append(utt)
             # audio

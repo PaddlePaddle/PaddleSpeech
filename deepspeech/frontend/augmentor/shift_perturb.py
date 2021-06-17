@@ -31,7 +31,13 @@ class ShiftPerturbAugmentor(AugmentorBase):
         self._max_shift_ms = max_shift_ms
         self._rng = rng
 
-    def transform_audio(self, audio_segment):
+    def randomize_parameters(self):
+        self.shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
+
+    def apply(self, audio_segment):
+        audio_segment.shift(self.shift_ms)
+
+    def transform_audio(self, audio_segment, single):
         """Shift audio.
 
         Note that this is an in-place transformation.
@@ -39,5 +45,20 @@ class ShiftPerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
-        audio_segment.shift(shift_ms)
+        if(single):
+            self.randomize_parameters()
+        self.apply(audio_segment)
+
+
+    # def transform_audio(self, audio_segment):
+    #     """Shift audio.
+
+    #     Note that this is an in-place transformation.
+
+    #     :param audio_segment: Audio segment to add effects to.
+    #     :type audio_segment: AudioSegmenet|SpeechSegment
+    #     """
+    #     shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
+    #     audio_segment.shift(shift_ms)
+
+

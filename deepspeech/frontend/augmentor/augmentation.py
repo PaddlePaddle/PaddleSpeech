@@ -93,7 +93,7 @@ class AugmentationPipeline():
         self._spec_augmentors, self._spec_rates = self._parse_pipeline_from(
             augmentation_config, 'feature')
 
-    def transform_audio(self, audio_segment):
+    def transform_audio(self, audio_segment, single=True):
         """Run the pre-processing pipeline for data augmentation.
 
         Note that this is an in-place transformation.
@@ -103,9 +103,9 @@ class AugmentationPipeline():
         """
         for augmentor, rate in zip(self._augmentors, self._rates):
             if self._rng.uniform(0., 1.) < rate:
-                augmentor.transform_audio(audio_segment)
+                augmentor.transform_audio(audio_segment, single)
 
-    def transform_feature(self, spec_segment):
+    def transform_feature(self, spec_segment, single=True):
         """spectrogram augmentation.
          
         Args:
@@ -113,7 +113,7 @@ class AugmentationPipeline():
         """
         for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
             if self._rng.uniform(0., 1.) < rate:
-                spec_segment = augmentor.transform_feature(spec_segment)
+                spec_segment = augmentor.transform_feature(spec_segment, single)
         return spec_segment
 
     def _parse_pipeline_from(self, config_json, aug_type='audio'):

@@ -28,20 +28,6 @@ _C.data = CN(
         augmentation_config="",
         max_duration=float('inf'),
         min_duration=0.0,
-        stride_ms=10.0,  # ms
-        window_ms=20.0,  # ms
-        n_fft=None,  # fft points
-        max_freq=None,  # None for samplerate/2
-        specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
-        feat_dim=0,  # 'mfcc', 'fbank'
-        delat_delta=False,  # 'mfcc', 'fbank'
-        target_sample_rate=16000,  # target sample rate
-        use_dB_normalization=True,
-        target_dB=-20,
-        batch_size=32,  # batch size
-        num_workers=0,  # data loader workers
-        sortagrad=False,  # sorted in first epoch when True
-        shuffle_method="batch_shuffle",  # 'batch_shuffle', 'instance_shuffle'
     ))
 
 _C.model = CN(
@@ -72,7 +58,11 @@ _C.collator =CN(
         use_dB_normalization=True,
         target_dB=-20,
         dither=1.0,  # feature dither
-        keep_transcription_text=False
+        keep_transcription_text=False,
+        batch_size=32,  # batch size
+        num_workers=0,  # data loader workers
+        sortagrad=False,  # sorted in first epoch when True
+        shuffle_method="batch_shuffle",  # 'batch_shuffle', 'instance_shuffle'
     ))
 
 DeepSpeech2Model.params(_C.model)

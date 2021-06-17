@@ -26,7 +26,11 @@ _C.collator =CfgNode(
     dict(
         augmentation_config="",
         unit_type="char",
-        keep_transcription_text=False
+        keep_transcription_text=False,
+        batch_size=32,  # batch size
+        num_workers=0,  # data loader workers
+        sortagrad=False,  # sorted in first epoch when True
+        shuffle_method="batch_shuffle"  # 'batch_shuffle', 'instance_shuffle'
     ))
 
 _C.model = U2Model.params()

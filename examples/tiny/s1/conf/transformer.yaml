@@ -3,35 +3,37 @@ data:
   train_manifest: data/manifest.tiny
   dev_manifest: data/manifest.tiny
   test_manifest: data/manifest.tiny
-  vocab_filepath: data/vocab.txt 
-  unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_200'
-  mean_std_filepath: ""
-  augmentation_config: conf/augmentation.json
-  batch_size: 4
   min_input_len: 0.5  # second
   max_input_len: 20.0 # second
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
-  raw_wav: True  # use raw_wav or kaldi feature
-  specgram_type: fbank #linear, mfcc, fbank
+  
+collator:
+  vocab_filepath: data/vocab.txt 
+  mean_std_filepath: ""
+  augmentation_config: conf/augmentation.json
+  random_seed: 0
+  unit_type: 'spm'
+  spm_model_prefix: 'data/bpe_unigram_200'
+  specgram_type: fbank
   feat_dim: 80
   delta_delta: False
-  dither: 1.0
-  target_sample_rate: 16000
-  max_freq: None
-  n_fft: None
   stride_ms: 10.0
-  window_ms: 25.0
+  window_ms: 20.0
+  n_fft: None
+  max_freq: None
+  target_sample_rate: 16000
   use_dB_normalization: True
   target_dB: -20
-  random_seed: 0
+  dither: 1.0
   keep_transcription_text: False
+  batch_size: 4
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 2
+  num_workers: 0 #2
+  raw_wav: True  # use raw_wav or kaldi feature
 
 
 # network architecture
@@ -70,7 +72,7 @@ model:
 
 
 training:
-  n_epoch: 2
+  n_epoch: 21
   accum_grad: 1
   global_grad_clip: 5.0
   optim: adam

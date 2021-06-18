@@ -75,8 +75,8 @@ class SpeechCollator():
         """
         assert 'augmentation_config' in config.collator
         assert 'keep_transcription_text' in config.collator
-        assert 'mean_std_filepath' in config.data
-        assert 'vocab_filepath' in config.data
+        assert 'mean_std_filepath' in config.collator
+        assert 'vocab_filepath' in config.collator
         assert 'specgram_type' in config.collator
         assert 'n_fft' in config.collator
         assert config.collator
@@ -94,9 +94,9 @@ class SpeechCollator():
         speech_collator = cls(
                 aug_file=aug_file,
                 random_seed=0,
-                mean_std_filepath=config.data.mean_std_filepath,
+                mean_std_filepath=config.collator.mean_std_filepath,
                 unit_type=config.collator.unit_type,
-                vocab_filepath=config.data.vocab_filepath,
+                vocab_filepath=config.collator.vocab_filepath,
                 spm_model_prefix=config.collator.spm_model_prefix,
                 specgram_type=config.collator.specgram_type, 
                 feat_dim=config.collator.feat_dim, 
@@ -129,11 +129,31 @@ class SpeechCollator():
                 target_dB=-20,
                 dither=1.0,
                 keep_transcription_text=True):
-        """
-        Padding audio features with zeros to make them have the same shape (or
-        a user-defined shape) within one bach.
+        """SpeechCollator Collator
 
-        if ``keep_transcription_text`` is False, text is token ids else is raw string.
+        Args:
+            unit_type(str): token unit type, e.g. char, word, spm
+            vocab_filepath (str): vocab file path.
+            mean_std_filepath (str): mean and std file path, which suffix is *.npy
+            spm_model_prefix (str): spm model prefix, need if `unit_type` is spm.
+            augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
+            stride_ms (float, optional): stride size in ms. Defaults to 10.0.
+            window_ms (float, optional): window size in ms. Defaults to 20.0.
+            n_fft (int, optional): fft points for rfft. Defaults to None.
+            max_freq (int, optional): max cut freq. Defaults to None.
+            target_sample_rate (int, optional): target sample rate which used for training. Defaults to 16000.
+            specgram_type (str, optional): 'linear', 'mfcc' or 'fbank'. Defaults to 'linear'.
+            feat_dim (int, optional): audio feature dim, using by 'mfcc' or 'fbank'. Defaults to None.
+            delta_delta (bool, optional): audio feature with delta-delta, using by 'fbank' or 'mfcc'. Defaults to False.
+            use_dB_normalization (bool, optional): do dB normalization. Defaults to True.
+            target_dB (int, optional): target dB. Defaults to -20.
+            random_seed (int, optional): for random generator. Defaults to 0.
+            keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
+            if ``keep_transcription_text`` is False, text is token ids else is raw string.
+        
+        Do augmentations 
+        Padding audio features with zeros to make them have the same shape (or
+        a user-defined shape) within one batch.
         """
         self._keep_transcription_text = keep_transcription_text
 

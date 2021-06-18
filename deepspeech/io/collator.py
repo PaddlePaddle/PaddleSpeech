@@ -11,21 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
+import io
+import time
+from collections import namedtuple
+from typing import Optional
 
-from deepspeech.frontend.utility import IGNORE_ID
-from deepspeech.io.utility import pad_sequence
-from deepspeech.utils.log import Log
+import numpy as np
+from yacs.config import CfgNode
+
 from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
 from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
 from deepspeech.frontend.normalizer import FeatureNormalizer
 from deepspeech.frontend.speech import SpeechSegment
-import io
-import time
-from yacs.config import CfgNode
-from typing import Optional
-
-from collections import namedtuple
+from deepspeech.frontend.utility import IGNORE_ID
+from deepspeech.io.utility import pad_sequence
+from deepspeech.utils.log import Log
 
 __all__ = ["SpeechCollator"]
 
@@ -33,6 +33,7 @@ logger = Log(__name__).getlog()
 
 # namedtupe need global for pickle.
 TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
+
 
 class SpeechCollator():
     @classmethod
@@ -56,8 +57,7 @@ class SpeechCollator():
                 use_dB_normalization=True,
                 target_dB=-20,
                 dither=1.0,  # feature dither
-                keep_transcription_text=False
-            ))
+                keep_transcription_text=False))
 
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -84,7 +84,9 @@ class SpeechCollator():
         if isinstance(config.collator.augmentation_config, (str, bytes)):
             if config.collator.augmentation_config:
                 aug_file = io.open(
-                    config.collator.augmentation_config, mode='r', encoding='utf8')
+                    config.collator.augmentation_config,
+                    mode='r',
+                    encoding='utf8')
             else:
                 aug_file = io.StringIO(initial_value='{}', newline='')
         else:
@@ -92,43 +94,46 @@ class SpeechCollator():
             assert isinstance(aug_file, io.StringIO)
 
         speech_collator = cls(
-                aug_file=aug_file,
-                random_seed=0,
-                mean_std_filepath=config.collator.mean_std_filepath,
-                unit_type=config.collator.unit_type,
-                vocab_filepath=config.collator.vocab_filepath,
-                spm_model_prefix=config.collator.spm_model_prefix,
-                specgram_type=config.collator.specgram_type, 
-                feat_dim=config.collator.feat_dim, 
-                delta_delta=config.collator.delta_delta, 
-                stride_ms=config.collator.stride_ms, 
-                window_ms=config.collator.window_ms, 
-                n_fft=config.collator.n_fft, 
-                max_freq=config.collator.max_freq, 
-                target_sample_rate=config.collator.target_sample_rate, 
-                use_dB_normalization=config.collator.use_dB_normalization,
-                target_dB=config.collator.target_dB,
-                dither=config.collator.dither, 
-                keep_transcription_text=config.collator.keep_transcription_text
-            )
+            aug_file=aug_file,
+            random_seed=0,
+            mean_std_filepath=config.collator.mean_std_filepath,
+            unit_type=config.collator.unit_type,
+            vocab_filepath=config.collator.vocab_filepath,
+            spm_model_prefix=config.collator.spm_model_prefix,
+            specgram_type=config.collator.specgram_type,
+            feat_dim=config.collator.feat_dim,
+            delta_delta=config.collator.delta_delta,
+            stride_ms=config.collator.stride_ms,
+            window_ms=config.collator.window_ms,
+            n_fft=config.collator.n_fft,
+            max_freq=config.collator.max_freq,
+            target_sample_rate=config.collator.target_sample_rate,
+            use_dB_normalization=config.collator.use_dB_normalization,
+            target_dB=config.collator.target_dB,
+            dither=config.collator.dither,
+            keep_transcription_text=config.collator.keep_transcription_text)
         return speech_collator
 
-    def __init__(self, aug_file, mean_std_filepath,  
-                vocab_filepath, spm_model_prefix,
-                random_seed=0,
-                unit_type="char",
-                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
-                feat_dim=0,  # 'mfcc', 'fbank'
-                delta_delta=False,  # 'mfcc', 'fbank'
-                stride_ms=10.0,  # ms
-                window_ms=20.0,  # ms
-                n_fft=None,  # fft points
-                max_freq=None,  # None for samplerate/2
-                target_sample_rate=16000,  # target sample rate
-                use_dB_normalization=True,
-                target_dB=-20,
-                dither=1.0,
-                keep_transcription_text=True):
+    def __init__(
+            self,
+            aug_file,
+            mean_std_filepath,
+            vocab_filepath,
+            spm_model_prefix,
+            random_seed=0,
+            unit_type="char",
+            specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+            feat_dim=0,  # 'mfcc', 'fbank'
+            delta_delta=False,  # 'mfcc', 'fbank'
+            stride_ms=10.0,  # ms
+            window_ms=20.0,  # ms
+            n_fft=None,  # fft points
+            max_freq=None,  # None for samplerate/2
+            target_sample_rate=16000,  # target sample rate
+            use_dB_normalization=True,
+            target_dB=-20,
+            dither=1.0,
+            keep_transcription_text=True):
         """SpeechCollator Collator
 
         Args:
@@ -159,9 +164,8 @@ class SpeechCollator():
 
         self._local_data = TarLocalData(tar2info={}, tar2object={})
         self._augmentation_pipeline = AugmentationPipeline(
-            augmentation_config=aug_file.read(), 
-            random_seed=random_seed)
-        
+            augmentation_config=aug_file.read(), random_seed=random_seed)
+
         self._normalizer = FeatureNormalizer(
             mean_std_filepath) if mean_std_filepath else None
 
@@ -290,8 +294,6 @@ class SpeechCollator():
         text_lens = np.array(text_lens).astype(np.int64)
         return utts, padded_audios, audio_lens, padded_texts, text_lens
 
-
-    
     @property
     def manifest(self):
         return self._manifest

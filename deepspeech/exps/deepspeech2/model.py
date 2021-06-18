@@ -15,11 +15,13 @@
 import time
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
+from yacs.config import CfgNode
 
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
@@ -33,9 +35,6 @@ from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Log
-
-from typing import Optional
-from yacs.config import CfgNode
 logger = Log(__name__).getlog()
 
 
@@ -44,13 +43,13 @@ class DeepSpeech2Trainer(Trainer):
     def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
         # training config
         default = CfgNode(
-                    dict(
-                        lr=5e-4,  # learning rate
-                        lr_decay=1.0,  # learning rate decay
-                        weight_decay=1e-6,  # the coeff of weight decay
-                        global_grad_clip=5.0,  # the global norm clip
-                        n_epoch=50,  # train epochs
-                    ))
+            dict(
+                lr=5e-4,  # learning rate
+                lr_decay=1.0,  # learning rate decay
+                weight_decay=1e-6,  # the coeff of weight decay
+                global_grad_clip=5.0,  # the global norm clip
+                n_epoch=50,  # train epochs
+            ))
 
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -184,7 +183,6 @@ class DeepSpeech2Trainer(Trainer):
 
         collate_fn_train = SpeechCollator.from_config(config)
 
-
         config.collator.augmentation_config = ""
         collate_fn_dev = SpeechCollator.from_config(config)
         self.train_loader = DataLoader(
@@ -206,18 +204,18 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
         # testing config
         default = CfgNode(
-                dict(
-                    alpha=2.5,  # Coef of LM for beam search.
-                    beta=0.3,  # Coef of WC for beam search.
-                    cutoff_prob=1.0,  # Cutoff probability for pruning.
-                    cutoff_top_n=40,  # Cutoff number for pruning.
-                    lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
-                    decoding_method='ctc_beam_search',  # Decoding method. Options: ctc_beam_search, ctc_greedy
-                    error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
-                    num_proc_bsearch=8,  # # of CPUs for beam search.
-                    beam_size=500,  # Beam search width.
-                    batch_size=128,  # decoding batch size
-                ))
+            dict(
+                alpha=2.5,  # Coef of LM for beam search.
+                beta=0.3,  # Coef of WC for beam search.
+                cutoff_prob=1.0,  # Cutoff probability for pruning.
+                cutoff_top_n=40,  # Cutoff number for pruning.
+                lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
+                decoding_method='ctc_beam_search',  # Decoding method. Options: ctc_beam_search, ctc_greedy
+                error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
+                num_proc_bsearch=8,  # # of CPUs for beam search.
+                beam_size=500,  # Beam search width.
+                batch_size=128,  # decoding batch size
+            ))
 
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -235,7 +233,13 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout = None):
+    def compute_metrics(self,
+                        utts,
+                        audio,
+                        audio_len,
+                        texts,
+                        texts_len,
+                        fout=None):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -257,7 +261,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
 
-        for utt, target, result in zip(utts, target_transcripts, result_transcripts):
+        for utt, target, result in zip(utts, target_transcripts,
+                                       result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -287,7 +292,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
-                metrics = self.compute_metrics(utts, audio, audio_len, texts, texts_len, fout)
+                metrics = self.compute_metrics(utts, audio, audio_len, texts,
+                                               texts_len, fout)
                 errors_sum += metrics['errors_sum']
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']

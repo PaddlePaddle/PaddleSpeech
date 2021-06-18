@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-import tarfile
-import time
-from collections import namedtuple
 from typing import Optional
 
-import numpy as np
 from paddle.io import Dataset
 from yacs.config import CfgNode
 
-from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
-from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
-from deepspeech.frontend.normalizer import FeatureNormalizer
-from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.log import Log
 
@@ -46,8 +38,7 @@ class ManifestDataset(Dataset):
                 max_output_len=float('inf'),
                 min_output_len=0.0,
                 max_output_input_ratio=float('inf'),
-                min_output_input_ratio=0.0,
-            ))
+                min_output_input_ratio=0.0, ))
 
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -66,7 +57,6 @@ class ManifestDataset(Dataset):
         assert 'manifest' in config.data
         assert config.data.manifest
 
-
         dataset = cls(
             manifest_path=config.data.manifest,
             max_input_len=config.data.max_input_len,
@@ -74,8 +64,7 @@ class ManifestDataset(Dataset):
             max_output_len=config.data.max_output_len,
             min_output_len=config.data.min_output_len,
             max_output_input_ratio=config.data.max_output_input_ratio,
-            min_output_input_ratio=config.data.min_output_input_ratio,
-            )
+            min_output_input_ratio=config.data.min_output_input_ratio, )
         return dataset
 
     def __init__(self,
@@ -110,7 +99,6 @@ class ManifestDataset(Dataset):
             max_output_input_ratio=max_output_input_ratio,
             min_output_input_ratio=min_output_input_ratio)
         self._manifest.sort(key=lambda x: x["feat_shape"][0])
-
 
     def __len__(self):
         return len(self._manifest)

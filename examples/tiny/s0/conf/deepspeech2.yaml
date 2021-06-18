@@ -2,32 +2,38 @@
 data:
   train_manifest: data/manifest.tiny
   dev_manifest: data/manifest.tiny
-  test_manifest: data/manifest.tiny
-  mean_std_filepath: data/mean_std.json
-  vocab_filepath: data/vocab.txt 
-  augmentation_config: conf/augmentation.json
-  batch_size: 4
+  test_manifest: data/manifest.tiny 
   min_input_len: 0.0
   max_input_len: 27.0
   min_output_len: 0.0
   max_output_len: 400.0
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
+
+
+collator:
+  mean_std_filepath: data/mean_std.json
+  unit_type: char
+  vocab_filepath: data/vocab.txt
+  augmentation_config: conf/augmentation.json
+  random_seed: 0
+  spm_model_prefix: 
   specgram_type: linear
-  target_sample_rate: 16000
-  max_freq: None
-  n_fft: None
+  feat_dim: 
+  delta_delta: False
   stride_ms: 10.0
   window_ms: 20.0
-  delta_delta: False
-  dither: 1.0
+  n_fft: None
+  max_freq: None
+  target_sample_rate: 16000
   use_dB_normalization: True
   target_dB: -20
-  random_seed: 0
+  dither: 1.0
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
   num_workers: 0
+  batch_size: 4
   
 model:
   num_conv_layers: 2
@@ -37,7 +43,7 @@ model:
   share_rnn_weights: True 
 
 training:
-  n_epoch: 20
+  n_epoch: 24
   lr: 1e-5 
   lr_decay: 1.0 
   weight_decay: 1e-06

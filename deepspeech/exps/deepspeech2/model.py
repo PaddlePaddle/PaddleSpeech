@@ -143,7 +143,6 @@ class DeepSpeech2Trainer(Trainer):
         train_dataset = ManifestDataset.from_config(config)
 
         config.data.manifest = config.data.dev_manifest
-        config.data.augmentation_config = ""
         dev_dataset = ManifestDataset.from_config(config)
 
         if self.parallel:
@@ -165,18 +164,22 @@ class DeepSpeech2Trainer(Trainer):
                 sortagrad=config.collator.sortagrad,
                 shuffle_method=config.collator.shuffle_method)
 
-        collate_fn = SpeechCollator.from_config(config)
+        collate_fn_train = SpeechCollator.from_config(config)
+
+
+        config.collator.augmentation_config = ""
+        collate_fn_dev = SpeechCollator.from_config(config)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
-            collate_fn=collate_fn,
+            collate_fn=collate_fn_train,
             num_workers=config.collator.num_workers)
         self.valid_loader = DataLoader(
             dev_dataset,
             batch_size=config.collator.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn)
+            collate_fn=collate_fn_dev)
         logger.info("Setup train/valid Dataloader!")
 
 
@@ -324,8 +327,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         # return raw text
 
         config.data.manifest = config.data.test_manifest
-        config.data.keep_transcription_text = True
-        config.data.augmentation_config = ""
         # filter test examples, will cause less examples, but no mismatch with training
         # and can use large batch size , save training time, so filter test egs now.
         # config.data.min_input_len = 0.0  # second
@@ -337,6 +338,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         test_dataset = ManifestDataset.from_config(config)
 
         config.collator.keep_transcription_text = True
+        config.collator.augmentation_config = ""
         # return text ord id
         self.test_loader = DataLoader(
             test_dataset,

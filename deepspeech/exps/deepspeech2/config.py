@@ -21,32 +21,18 @@ _C.data = CN(
         train_manifest="",
         dev_manifest="",
         test_manifest="",
-        unit_type="char",
-        vocab_filepath="",
-        spm_model_prefix="",
-        mean_std_filepath="",
-        augmentation_config="",
         max_duration=float('inf'),
         min_duration=0.0,
     ))
 
-_C.model = CN(
-    dict(
-        num_conv_layers=2,  #Number of stacking convolution layers.
-        num_rnn_layers=3,  #Number of stacking RNN layers.
-        rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-        use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-        share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-    ))
-
 _C.collator =CN(
     dict(
-        augmentation_config="",
-        random_seed=0,
-        mean_std_filepath="",
         unit_type="char",
         vocab_filepath="",
         spm_model_prefix="",
+        mean_std_filepath="",
+        augmentation_config="",
+        random_seed=0,
         specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
         feat_dim=0,  # 'mfcc', 'fbank'
         delta_delta=False,  # 'mfcc', 'fbank'
@@ -64,6 +50,16 @@ _C.collator =CN(
         sortagrad=False,  # sorted in first epoch when True
         shuffle_method="batch_shuffle",  # 'batch_shuffle', 'instance_shuffle'
     ))
+
+_C.model = CN(
+    dict(
+        num_conv_layers=2,  #Number of stacking convolution layers.
+        num_rnn_layers=3,  #Number of stacking RNN layers.
+        rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
+        use_gru=True,  #Use gru if set True. Use simple rnn if set False.
+        share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
+    ))
+
 
 DeepSpeech2Model.params(_C.model)
 

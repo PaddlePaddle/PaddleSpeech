@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-import time
 from collections import namedtuple
 from typing import Optional
 

@@ -34,10 +34,28 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Log
 
+from typing import Optional
+from yacs.config import CfgNode
 logger = Log(__name__).getlog()
 
 
 class DeepSpeech2Trainer(Trainer):
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        # training config
+        default = CfgNode(
+                    dict(
+                        lr=5e-4,  # learning rate
+                        lr_decay=1.0,  # learning rate decay
+                        weight_decay=1e-6,  # the coeff of weight decay
+                        global_grad_clip=5.0,  # the global norm clip
+                        n_epoch=50,  # train epochs
+                    ))
+
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
     def __init__(self, config, args):
         super().__init__(config, args)
 
@@ -184,6 +202,27 @@ class DeepSpeech2Trainer(Trainer):
 
 
 class DeepSpeech2Tester(DeepSpeech2Trainer):
+    @classmethod
+    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
+        # testing config
+        default = CfgNode(
+                dict(
+                    alpha=2.5,  # Coef of LM for beam search.
+                    beta=0.3,  # Coef of WC for beam search.
+                    cutoff_prob=1.0,  # Cutoff probability for pruning.
+                    cutoff_top_n=40,  # Cutoff number for pruning.
+                    lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
+                    decoding_method='ctc_beam_search',  # Decoding method. Options: ctc_beam_search, ctc_greedy
+                    error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
+                    num_proc_bsearch=8,  # # of CPUs for beam search.
+                    beam_size=500,  # Beam search width.
+                    batch_size=128,  # decoding batch size
+                ))
+
+        if config is not None:
+            config.merge_from_other_cfg(default)
+        return default
+
     def __init__(self, config, args):
         super().__init__(config, args)
 

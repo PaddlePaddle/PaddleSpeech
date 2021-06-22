@@ -3,17 +3,20 @@ data:
   train_manifest: data/manifest.train
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
-  vocab_filepath: data/vocab.txt 
-  unit_type: 'char'
-  spm_model_prefix: ''
-  augmentation_config: conf/augmentation.json
-  batch_size: 32
   min_input_len: 0.5
   max_input_len: 20.0 # second
   min_output_len: 0.0
   max_output_len: 400.0
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
+  
+
+collator:
+  vocab_filepath: data/vocab.txt 
+  unit_type: 'char'
+  spm_model_prefix: ''
+  augmentation_config: conf/augmentation.json
+  batch_size: 32
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80
@@ -30,7 +33,7 @@ data:
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 0
+  num_workers: 2
 
 
 # network architecture
@@ -78,7 +81,7 @@ model:
 
 
 training:
-  n_epoch: 180
+  n_epoch: 240
   accum_grad: 4
   global_grad_clip: 5.0
   optim: adam

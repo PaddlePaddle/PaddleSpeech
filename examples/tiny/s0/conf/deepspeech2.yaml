@@ -43,12 +43,15 @@ model:
   share_rnn_weights: True 
 
 training:
-  n_epoch: 24
+  n_epoch: 6
   lr: 1e-5 
   lr_decay: 1.0 
   weight_decay: 1e-06
   global_grad_clip: 5.0
   log_interval: 1
+  max_epoch: 3
+  last_epoch: 2
+
 
 decoding:
   batch_size: 128

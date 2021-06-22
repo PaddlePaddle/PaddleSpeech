@@ -18,8 +18,11 @@ function clean() {
 }
 trap clean EXIT
 
-# ckpt_prfix.{json,...} and ckpt_prfix dir
-cp -r ${ckpt_prefix}* ${output}
+# ckpt_prfix dir
+cp -r ${ckpt_prefix} ${output}
+# ckpt_prfix.{json,...}
+cp ${ckpt_prefix}.*  ${output}
+# model config, mean std, vocab
 cp ${model_config} ${mean_std} ${vocab} ${output}
 
 tar zcvf release.tar.gz ${output}

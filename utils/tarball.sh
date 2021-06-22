@@ -19,7 +19,9 @@ function clean() {
 trap clean EXIT
 
 # ckpt_prfix dir
-cp -r ${ckpt_prefix} ${output}
+if [ -d ${ckpt_prefix} ];then
+    cp -r ${ckpt_prefix} ${output}
+fi
 # ckpt_prfix.{json,...}
 cp ${ckpt_prefix}.*  ${output}
 # model config, mean std, vocab

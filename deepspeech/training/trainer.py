@@ -266,8 +266,8 @@ class Trainer():
 
         self.checkpoint_dir = checkpoint_dir
 
-        self.checkpoint = KBestCheckpoint(max_size=self.config.training.max_epoch, 
-                            last_size=self.config.training.last_epoch)
+        self.checkpoint = KBestCheckpoint(max_size=self.config.training.checkpoint.kbest_n, 
+                            last_size=self.config.training.checkpoint.latest_n)
 
     @mp_tools.rank_zero_only
     def destory(self):

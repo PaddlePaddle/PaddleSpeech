@@ -78,7 +78,8 @@ class U2Trainer(Trainer):
         start = time.time()
         utt, audio, audio_len, text, text_len = batch_data
 
-        loss, attention_loss, ctc_loss = self.model(audio, audio_len, text, text_len)
+        loss, attention_loss, ctc_loss = self.model(audio, audio_len, text,
+                                                    text_len)
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
         loss.backward()
@@ -100,7 +101,7 @@ class U2Trainer(Trainer):
 
         if (batch_index + 1) % train_conf.log_interval == 0:
             msg += "train time: {:>.3f}s, ".format(iteration_time)
-            msg += "batch size: {}, ".format(self.config.data.batch_size)
+            msg += "batch size: {}, ".format(self.config.collator.batch_size)
             msg += "accum: {}, ".format(train_conf.accum_grad)
             msg += ', '.join('{}: {:>.6f}'.format(k, v)
                              for k, v in losses_np.items())
@@ -121,7 +122,8 @@ class U2Trainer(Trainer):
         total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
             utt, audio, audio_len, text, text_len = batch
-            loss, attention_loss, ctc_loss = self.model(audio, audio_len, text, text_len)
+            loss, attention_loss, ctc_loss = self.model(audio, audio_len, text,
+                                                        text_len)
             if paddle.isfinite(loss):
                 num_utts = batch[1].shape[0]
                 num_seen_utts += num_utts
@@ -211,51 +213,52 @@ class U2Trainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()
-        config.data.keep_transcription_text = False
+        config.collator.keep_transcription_text = False
 
         # train/valid dataset, return token ids
         config.data.manifest = config.data.train_manifest
         train_dataset = ManifestDataset.from_config(config)
 
         config.data.manifest = config.data.dev_manifest
-        config.data.augmentation_config = ""
         dev_dataset = ManifestDataset.from_config(config)
 
-        collate_fn = SpeechCollator.from_config(config)
+        collate_fn_train = SpeechCollator.from_config(config)
+
+        config.collator.augmentation_config = ""
+        collate_fn_dev = SpeechCollator.from_config(config)
+
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
-                batch_size=config.data.batch_size,
+                batch_size=config.collator.batch_size,
                 num_replicas=None,
                 rank=None,
                 shuffle=True,
                 drop_last=True,
-                sortagrad=config.data.sortagrad,
-                shuffle_method=config.data.shuffle_method)
+                sortagrad=config.collator.sortagrad,
+                shuffle_method=config.collator.shuffle_method)
         else:
             batch_sampler = SortagradBatchSampler(
                 train_dataset,
                 shuffle=True,
-                batch_size=config.data.batch_size,
+                batch_size=config.collator.batch_size,
                 drop_last=True,
-                sortagrad=config.data.sortagrad,
-                shuffle_method=config.data.shuffle_method)
+                sortagrad=config.collator.sortagrad,
+                shuffle_method=config.collator.shuffle_method)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
-            collate_fn=collate_fn,
-            num_workers=config.data.num_workers, )
+            collate_fn=collate_fn_train,
+            num_workers=config.collator.num_workers, )
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=config.data.batch_size,
+            batch_size=config.collator.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn)
+            collate_fn=collate_fn_dev)
 
         # test dataset, return raw text
         config.data.manifest = config.data.test_manifest
-        config.data.keep_transcription_text = True
-        config.data.augmentation_config = ""
         # filter test examples, will cause less examples, but no mismatch with training
         # and can use large batch size , save training time, so filter test egs now.
         # config.data.min_input_len = 0.0  # second
@@ -264,9 +267,11 @@ class U2Trainer(Trainer):
         # config.data.max_output_len = float('inf')  # tokens
         # config.data.min_output_input_ratio = 0.00
         # config.data.max_output_input_ratio = float('inf')
+
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
         config.collator.keep_transcription_text = True
+        config.collator.augmentation_config = ""
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
@@ -369,7 +374,13 @@ class U2Tester(U2Trainer):
             trans.append(''.join([chr(i) for i in ids]))
         return trans
 
-    def compute_metrics(self, utts, audio, audio_len, texts, texts_len, fout=None):
+    def compute_metrics(self,
+                        utts,
+                        audio,
+                        audio_len,
+                        texts,
+                        texts_len,
+                        fout=None):
         cfg = self.config.decoding
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
@@ -396,7 +407,8 @@ class U2Tester(U2Trainer):
             simulate_streaming=cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
-        for utt, target, result in zip(utts, target_transcripts, result_transcripts):
+        for utt, target, result in zip(utts, target_transcripts,
+                                       result_transcripts):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref

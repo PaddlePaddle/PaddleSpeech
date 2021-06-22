@@ -151,13 +151,3 @@ class SpeechFeaturizer(object):
             TextFeaturizer: object.
         """
         return self._text_featurizer
-        
-
-    # @property
-    # def text_feature(self):
-    #     """Return the text feature object.
-
-    #     Returns:
-    #         TextFeaturizer: object.
-    #     """
-    #     return self._text_featurizer

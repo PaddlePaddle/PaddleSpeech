@@ -15,6 +15,7 @@ from yacs.config import CfgNode
 
 from deepspeech.exps.u2.model import U2Tester
 from deepspeech.exps.u2.model import U2Trainer
+from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2 import U2Model
 
@@ -22,12 +23,7 @@ _C = CfgNode()
 
 _C.data = ManifestDataset.params()
 
-_C.collator =CfgNode(
-    dict(
-        augmentation_config="",
-        unit_type="char",
-        keep_transcription_text=False
-    ))
+_C.collator = SpeechCollator.params()
 
 _C.model = U2Model.params()
 

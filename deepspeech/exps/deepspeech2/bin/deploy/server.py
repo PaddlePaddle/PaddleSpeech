@@ -16,8 +16,10 @@ import functools
 
 import numpy as np
 import paddle
+from paddle.io import DataLoader
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
+from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.training.cli import default_argument_parser
@@ -28,9 +30,6 @@ from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
 
 
-from paddle.io import DataLoader
-from deepspeech.io.collator import SpeechCollator
-
 def start_server(config, args):
     """Start the ASR server"""
     config.defrost()
@@ -39,8 +38,8 @@ def start_server(config, args):
 
     config.collator.augmentation_config = ""
     config.collator.keep_transcription_text = True
-    config.collator.batch_size=1
-    config.collator.num_workers=0
+    config.collator.batch_size = 1
+    config.collator.num_workers = 0
     collate_fn = SpeechCollator.from_config(config)
     test_loader = DataLoader(dataset, collate_fn=collate_fn, num_workers=0)
 

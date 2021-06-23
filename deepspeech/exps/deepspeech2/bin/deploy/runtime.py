@@ -18,8 +18,10 @@ import numpy as np
 import paddle
 from paddle.inference import Config
 from paddle.inference import create_predictor
+from paddle.io import DataLoader
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
+from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.deepspeech2 import DeepSpeech2Model
 from deepspeech.training.cli import default_argument_parser
@@ -28,9 +30,6 @@ from deepspeech.utils.socket_server import AsrTCPServer
 from deepspeech.utils.socket_server import warm_up_test
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
-
-from paddle.io import DataLoader
-from deepspeech.io.collator import SpeechCollator
 
 
 def init_predictor(args):
@@ -83,11 +82,11 @@ def start_server(config, args):
     config.defrost()
     config.data.manifest = config.data.test_manifest
     dataset = ManifestDataset.from_config(config)
-    
+
     config.collator.augmentation_config = ""
     config.collator.keep_transcription_text = True
-    config.collator.batch_size=1
-    config.collator.num_workers=0
+    config.collator.batch_size = 1
+    config.collator.num_workers = 0
     collate_fn = SpeechCollator.from_config(config)
     test_loader = DataLoader(dataset, collate_fn=collate_fn, num_workers=0)
 

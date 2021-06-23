@@ -48,7 +48,7 @@ def warm_up_test(audio_process_handler,
     rng = random.Random(random_seed)
     samples = rng.sample(manifest, num_test_cases)
     for idx, sample in enumerate(samples):
-        print("Warm-up Test Case %d: %s"%(idx, sample['feat']))
+        print("Warm-up Test Case %d: %s" % (idx, sample['feat']))
         start_time = time.time()
         transcript = audio_process_handler(sample['feat'])
         finish_time = time.time()

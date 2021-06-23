@@ -242,7 +242,7 @@ class SpeechCollator():
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
-        specgram=specgram.transpose([1,0])
+        specgram = specgram.transpose([1, 0])
         return specgram, transcript_part
 
     def __call__(self, batch):

@@ -29,6 +29,9 @@ from deepspeech.utils.socket_server import warm_up_test
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
 
+from paddle.io import DataLoader
+from deepspeech.io.collator import SpeechCollator
+
 
 def init_predictor(args):
     if args.model_dir is not None:
@@ -83,7 +86,12 @@ def start_server(config, args):
     config.data.keep_transcription_text = True
     dataset = ManifestDataset.from_config(config)
 
-    model = DeepSpeech2Model.from_pretrained(dataset, config,
+    config.collator.batch_size=1
+    config.collator.num_workers=0
+    collate_fn = SpeechCollator.from_config(config)
+    test_loader = DataLoader(dataset_dataset, collate_fn=collate_fn, num_workers=0)
+
+    model = DeepSpeech2Model.from_pretrained(test_loader, config,
                                              args.checkpoint_path)
     model.eval()
 

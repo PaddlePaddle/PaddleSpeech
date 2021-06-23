@@ -506,7 +506,7 @@ class U2Tester(U2Trainer):
             List[paddle.static.InputSpec]: input spec.
         """
         from deepspeech.models.u2 import U2InferModel
-        infer_model = U2InferModel.from_pretrained(self.test_loader.dataset,
+        infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.model.clone(),
                                                    self.args.checkpoint_path)
         feat_dim = self.test_loader.collate_fn.feature_size

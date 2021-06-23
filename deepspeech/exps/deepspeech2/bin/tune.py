@@ -47,7 +47,7 @@ def tune(config, args):
         drop_last=False,
         collate_fn=SpeechCollator(keep_transcription_text=True))
 
-    model = DeepSpeech2Model.from_pretrained(dev_dataset, config,
+    model = DeepSpeech2Model.from_pretrained(valid_loader, config,
                                              args.checkpoint_path)
     model.eval()
 

@@ -31,5 +31,5 @@ sox.done:
 
 soxbindings.done:
 	test -d soxbindings || git clone https://github.com/pseeth/soxbindings.git
-	source venv/bin/activate; cd soxbindings && python3 setup.py install
+	source venv/bin/activate; cd soxbindings && python setup.py install
 	touch soxbindings.done

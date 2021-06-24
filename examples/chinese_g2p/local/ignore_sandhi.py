@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-from typing import List, Union
 from pathlib import Path
+from typing import List
+from typing import Union
 
 
 def erized(syllable: str) -> bool:
@@ -67,7 +68,9 @@ def ignore_sandhi(reference: List[str], generated: List[str]) -> List[str]:
     return result
 
 
-def convert_transcriptions(reference: Union[str, Path], generated: Union[str, Path], output: Union[str, Path]):
+def convert_transcriptions(reference: Union[str, Path],
+                           generated: Union[str, Path],
+                           output: Union[str, Path]):
     with open(reference, 'rt') as f_ref:
         with open(generated, 'rt') as f_gen:
             with open(output, 'wt') as f_out:

@@ -126,7 +126,7 @@ class ConvolutionModule(nn.Layer):
         if self.lorder > 0:
             if cache is None:
                 x = nn.functional.pad(
-                    x, (self.lorder, 0), 'constant', 0.0, data_format='NCL')
+                    x, [self.lorder, 0], 'constant', 0.0, data_format='NCL')
             else:
                 assert cache.shape[0] == x.shape[0]  # B
                 assert cache.shape[1] == x.shape[1]  # C

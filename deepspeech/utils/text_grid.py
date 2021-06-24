@@ -22,11 +22,13 @@ def segment_alignment(alignment: List[int], blank_id=0) -> List[List[int]]:
     """segment ctc alignment ids by continuous blank and repeat label.
 
     Args:
-        alignment (List[int]): ctc alignment id sequence. e.g. [0, 0, 0, 1, 1, 1, 2, 0, 0, 3]
+        alignment (List[int]): ctc alignment id sequence. 
+            e.g. [0, 0, 0, 1, 1, 1, 2, 0, 0, 3]
         blank_id (int, optional): blank id. Defaults to 0.
 
     Returns:
-        List[List[int]]: segment aligment id sequence. e.g. [[0, 0, 0, 1, 1, 1], [2], [0, 0, 3]]
+        List[List[int]]: token align, segment aligment id sequence. 
+            e.g. [[0, 0, 0, 1, 1, 1], [2], [0, 0, 3]]
     """
     # convert alignment to a praat format, which is a doing phonetics
     # by computer and helps analyzing alignment
@@ -61,7 +63,7 @@ def align_to_tierformat(align_segs: List[List[int]],
         token_dict (Dict[int, Text]): int -> str map.
 
     Returns:
-        List[Text]: list of textgrid.Interval.
+        List[Text]: list of textgrid.Interval text, str(start, end, text).
     """
     hop_length = 10  # ms
     second_ms = 1000  # ms

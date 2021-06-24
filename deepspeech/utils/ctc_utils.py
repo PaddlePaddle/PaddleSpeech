@@ -38,8 +38,10 @@ def remove_duplicates_and_blank(hyp: List[int], blank_id=0) -> List[int]:
     new_hyp: List[int] = []
     cur = 0
     while cur < len(hyp):
+        # add non-blank into new_hyp
         if hyp[cur] != blank_id:
             new_hyp.append(hyp[cur])
+        # skip repeat label
         prev = cur
         while cur < len(hyp) and hyp[cur] == hyp[prev]:
             cur += 1
@@ -52,7 +54,7 @@ def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
     "abcdefg" -> "-a-b-c-d-e-f-g-"
 
     Args:
-        label ([np.ndarray]): label ids, (L).
+        label ([np.ndarray]): label ids, List[int], (L).
         blank_id (int, optional): blank id. Defaults to 0.
 
     Returns:
@@ -61,8 +63,8 @@ def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
     label = np.expand_dims(label, 1)  #[L, 1]
     blanks = np.zeros((label.shape[0], 1), dtype=np.int64) + blank_id
     label = np.concatenate([blanks, label], axis=1)  #[L, 2]
-    label = label.reshape(-1)  #[2L]
-    label = np.append(label, label[0])  #[2L + 1]
+    label = label.reshape(-1)  #[2L], -l-l-l
+    label = np.append(label, label[0])  #[2L + 1], -l-l-l-
     return label
 
 
@@ -79,21 +81,21 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     Returns:
         List[int]: best alignment result, (T).
     """
-    y_insert_blank = insert_blank(y, blank_id)
+    y_insert_blank = insert_blank(y, blank_id)  #(2L+1)
 
     log_alpha = paddle.zeros(
         (ctc_probs.size(0), len(y_insert_blank)))  #(T, 2L+1)
     log_alpha = log_alpha - float('inf')  # log of zero
     state_path = (paddle.zeros(
         (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int16) - 1
-                  )  # state path
+                  )  # state path, Tuple((T, 2L+1))
 
     # init start state
-    log_alpha[0, 0] = ctc_probs[0][y_insert_blank[0]]  # Sb
-    log_alpha[0, 1] = ctc_probs[0][y_insert_blank[1]]  # Snb
+    log_alpha[0, 0] = ctc_probs[0][y_insert_blank[0]]  # State-b, Sb
+    log_alpha[0, 1] = ctc_probs[0][y_insert_blank[1]]  # State-nb, Snb
 
-    for t in range(1, ctc_probs.size(0)):
-        for s in range(len(y_insert_blank)):
+    for t in range(1, ctc_probs.size(0)):  # T
+        for s in range(len(y_insert_blank)):  # 2L+1
             if y_insert_blank[s] == blank_id or s < 2 or y_insert_blank[
                     s] == y_insert_blank[s - 2]:
                 candidates = paddle.to_tensor(

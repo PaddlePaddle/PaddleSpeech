@@ -107,7 +107,6 @@ class SpeechFeaturizer(object):
     @property
     def vocab_size(self):
         """Return the vocabulary size.
-
         Returns:
             int: Vocabulary size.
         """
@@ -116,7 +115,6 @@ class SpeechFeaturizer(object):
     @property
     def vocab_list(self):
         """Return the vocabulary in list.
-
         Returns:
             List[str]: 
         """
@@ -125,7 +123,6 @@ class SpeechFeaturizer(object):
     @property
     def vocab_dict(self):
         """Return the vocabulary in dict.
-
         Returns:
             Dict[str, int]: 
         """
@@ -134,7 +131,6 @@ class SpeechFeaturizer(object):
     @property
     def feature_size(self):
         """Return the audio feature size.
-
         Returns:
             int: audio feature size.
         """
@@ -143,7 +139,6 @@ class SpeechFeaturizer(object):
     @property
     def stride_ms(self):
         """time length in `ms` unit per frame
-
         Returns:
             float: time(ms)/frame
         """
@@ -152,7 +147,6 @@ class SpeechFeaturizer(object):
     @property
     def text_feature(self):
         """Return the text feature object.
-
         Returns:
             TextFeaturizer: object.
         """

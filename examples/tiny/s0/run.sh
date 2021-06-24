@@ -11,7 +11,7 @@ avg_num=1
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
-ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
+ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}') ###ckpt = deepspeech2
 echo "checkpoint name ${ckpt}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
@@ -26,7 +26,7 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # avg n best model
-    ./local/avg.sh exp/${ckpt}/checkpoints ${avg_num}
+    avg.sh exp/${ckpt}/checkpoints ${avg_num}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

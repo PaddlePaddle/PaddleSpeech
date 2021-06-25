@@ -18,8 +18,8 @@ import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
-from deepspeech.utils.checkpoint import KBestCheckpoint
 from deepspeech.utils import mp_tools
+from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 
 __all__ = ["Trainer"]
@@ -64,7 +64,7 @@ class Trainer():
         The parsed command line arguments.
     Examples
     --------
-    >>> def main_sp(config, args):
+    >>> def p(config, args):
     >>>     exp = Trainer(config, args)
     >>>     exp.setup()
     >>>     exp.run()
@@ -140,11 +140,8 @@ class Trainer():
             "lr": self.optimizer.get_lr()
         })
         self.checkpoint.add_checkpoint(self.checkpoint_dir, self.iteration
-                                   if tag is None else tag, self.model,
-                                   self.optimizer, infos)
-        # checkpoint.save_parameters(self.checkpoint_dir, self.iteration
-        #                            if tag is None else tag, self.model,
-        #                            self.optimizer, infos)
+                                       if tag is None else tag, self.model,
+                                       self.optimizer, infos)
 
     def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output 
@@ -154,7 +151,7 @@ class Trainer():
         resume training.
         """
         scratch = None
-        infos = self.checkpoint.load_parameters(
+        infos = self.checkpoint.load_last_parameters(
             self.model,
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
@@ -266,8 +263,9 @@ class Trainer():
 
         self.checkpoint_dir = checkpoint_dir
 
-        self.checkpoint = KBestCheckpoint(max_size=self.config.training.checkpoint.kbest_n, 
-                            last_size=self.config.training.checkpoint.latest_n)
+        self.checkpoint = Checkpoint(
+            kbest_n=self.config.training.checkpoint.kbest_n,
+            latest_n=self.config.training.checkpoint.latest_n)
 
     @mp_tools.rank_zero_only
     def destory(self):

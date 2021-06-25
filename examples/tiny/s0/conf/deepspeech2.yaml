@@ -43,7 +43,7 @@ model:
   share_rnn_weights: True 
 
 training:
-  n_epoch: 6
+  n_epoch: 10
   lr: 1e-5 
   lr_decay: 1.0 
   weight_decay: 1e-06

@@ -24,20 +24,22 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Log
 
 import glob
+# import operator
+from pathlib import Path
 
 logger = Log(__name__).getlog()
 
-__all__ = ["load_parameters", "save_parameters"]
+__all__ = ["Checkpoint"]
 
-class KBestCheckpoint(object):
+class Checkpoint(object):
     def __init__(self,
-                 max_size: int=5,
-                 last_size: int=1):
+                 kbest_n: int=5,
+                 latest_n: int=1):
         self.best_records: Mapping[Path, float] = {}
-        self.last_records = []
-        self.max_size = max_size
-        self.last_size = last_size
-        self._save_all = (max_size == -1)
+        self.latest_records = []
+        self.kbest_n = kbest_n
+        self.latest_n = latest_n
+        self._save_all = (kbest_n == -1)
     
     def should_save_best(self, metric: float) -> bool:
         if not self.best_full():
@@ -45,36 +47,36 @@ class KBestCheckpoint(object):
 
         # already full
         worst_record_path = max(self.best_records, key=self.best_records.get)
+        # worst_record_path = max(self.best_records.iteritems(), key=operator.itemgetter(1))[0]
         worst_metric = self.best_records[worst_record_path]
         return metric < worst_metric
 
     def best_full(self):
-        return (not self._save_all) and len(self.best_records) == self.max_size
+        return (not self._save_all) and len(self.best_records) == self.kbest_n
     
-    def last_full(self):
-        return len(self.last_records) == self.last_size
+    def latest_full(self):
+        return len(self.latest_records) == self.latest_n
 
-    def add_checkpoint(self,
-                        checkpoint_dir, tag_or_iteration,
-                        model, optimizer, infos):
-        if("val_loss" not in infos.keys()):
+    def add_checkpoint(self, checkpoint_dir, tag_or_iteration,
+                        model, optimizer, infos, metric_type = "val_loss"):
+        if(metric_type not in infos.keys()):
             self.save_parameters(checkpoint_dir, tag_or_iteration, 
                                 model, optimizer, infos)
             return
 
         #save best
-        if self.should_save_best(infos["val_loss"]):
-            self.save_checkpoint_and_update(infos["val_loss"], 
+        if self.should_save_best(infos[metric_type]):
+            self.save_best_checkpoint_and_update(infos[metric_type], 
                         checkpoint_dir, tag_or_iteration,
                         model, optimizer, infos)
-        #save last
-        self.save_last_checkpoint_and_update(checkpoint_dir, tag_or_iteration,
+        #save latest
+        self.save_latest_checkpoint_and_update(checkpoint_dir, tag_or_iteration,
                         model, optimizer, infos)
         
         if isinstance(tag_or_iteration, int):
-            self._save_record(checkpoint_dir, tag_or_iteration)
+            self.save_checkpoint_record(checkpoint_dir, tag_or_iteration)
     
-    def save_checkpoint_and_update(self, metric, 
+    def save_best_checkpoint_and_update(self, metric, 
                         checkpoint_dir, tag_or_iteration,
                         model, optimizer, infos):
         # remove the worst
@@ -82,9 +84,8 @@ class KBestCheckpoint(object):
             worst_record_path = max(self.best_records,
                                     key=self.best_records.get)
             self.best_records.pop(worst_record_path)
-            if(worst_record_path not in self.last_records):
-                print('----to remove (best)----')
-                print(worst_record_path)
+            if(worst_record_path not in self.latest_records):
+                logger.info("remove the worst checkpoint: {}".format(worst_record_path))
                 self.del_checkpoint(checkpoint_dir, worst_record_path)
 
         # add the new one
@@ -92,22 +93,18 @@ class KBestCheckpoint(object):
                         model, optimizer, infos)
         self.best_records[tag_or_iteration] = metric
  
-    def save_last_checkpoint_and_update(self, checkpoint_dir, tag_or_iteration,
+    def save_latest_checkpoint_and_update(self, checkpoint_dir, tag_or_iteration,
                         model, optimizer, infos):
         # remove the old
-        if self.last_full():
-            to_del_fn = self.last_records.pop(0)
+        if self.latest_full():
+            to_del_fn = self.latest_records.pop(0)
             if(to_del_fn not in self.best_records.keys()):
-                print('----to remove (last)----')
-                print(to_del_fn)
+                logger.info("remove the latest checkpoint: {}".format(to_del_fn))
                 self.del_checkpoint(checkpoint_dir, to_del_fn)
-        self.last_records.append(tag_or_iteration)
+        self.latest_records.append(tag_or_iteration)
 
         self.save_parameters(checkpoint_dir, tag_or_iteration,
                     model, optimizer, infos)
-            # with open(os.path.join(checkpoint_dir, "checkpoint"), "w") as handle:
-            #     for iteration in self.best_records
-            #     handle.write("model_checkpoint_path:{}\n".format(iteration))
 
 
     def del_checkpoint(self, checkpoint_dir, tag_or_iteration):
@@ -115,18 +112,17 @@ class KBestCheckpoint(object):
                                     "{}".format(tag_or_iteration))
         for filename in glob.glob(checkpoint_path+".*"):
             os.remove(filename)
-            print("delete file: "+filename)
+            logger.info("delete file: {}".format(filename))
         
 
 
-    def _load_latest_checkpoint(self, checkpoint_dir: str) -> int:
+    def load_checkpoint_idx(self, checkpoint_record: str) -> int:
         """Get the iteration number corresponding to the latest saved checkpoint.
         Args:
-            checkpoint_dir (str): the directory where checkpoint is saved.
+            checkpoint_path (str): the saved path of checkpoint.
         Returns:
             int: the latest iteration number. -1 for no checkpoint to load.
         """
-        checkpoint_record = os.path.join(checkpoint_dir, "checkpoint_last")
         if not os.path.isfile(checkpoint_record):
             return -1
 
@@ -135,9 +131,9 @@ class KBestCheckpoint(object):
             latest_checkpoint = handle.readlines()[-1].strip()
             iteration = int(latest_checkpoint.split(":")[-1])
         return iteration
+    
 
-
-    def _save_record(self, checkpoint_dir: str, iteration: int):
+    def save_checkpoint_record(self, checkpoint_dir: str, iteration: int):
         """Save the iteration number of the latest model to be checkpoint record.
         Args:
             checkpoint_dir (str): the directory where checkpoint is saved.
@@ -145,24 +141,22 @@ class KBestCheckpoint(object):
         Returns:
             None
         """
-        checkpoint_record_last = os.path.join(checkpoint_dir, "checkpoint_last")
+        checkpoint_record_latest = os.path.join(checkpoint_dir, "checkpoint_latest")
         checkpoint_record_best = os.path.join(checkpoint_dir, "checkpoint_best")
-        # Update the latest checkpoint index.
-        # with open(checkpoint_record, "a+") as handle:
-        #     handle.write("model_checkpoint_path:{}\n".format(iteration))
+        
         with open(checkpoint_record_best, "w") as handle:
             for i in self.best_records.keys():
                 handle.write("model_checkpoint_path:{}\n".format(i))
-        with open(checkpoint_record_last, "w") as handle:
-            for i in self.last_records:
+        with open(checkpoint_record_latest, "w") as handle:
+            for i in self.latest_records:
                 handle.write("model_checkpoint_path:{}\n".format(i))
 
 
-    def load_parameters(self, model,
+    def load_last_parameters(self, model,
                         optimizer=None,
                         checkpoint_dir=None,
                         checkpoint_path=None):
-        """Load a specific model checkpoint from disk. 
+        """Load a last model checkpoint from disk. 
         Args:
             model (Layer): model to load parameters.
             optimizer (Optimizer, optional): optimizer to load states if needed.
@@ -179,7 +173,8 @@ class KBestCheckpoint(object):
         if checkpoint_path is not None:
             tag = os.path.basename(checkpoint_path).split(":")[-1]
         elif checkpoint_dir is not None:
-            iteration = self._load_latest_checkpoint(checkpoint_dir)
+            checkpoint_record = os.path.join(checkpoint_dir, "checkpoint_latest")
+            iteration = self.load_checkpoint_idx(checkpoint_record)
             if iteration == -1:
                 return configs
             checkpoint_path = os.path.join(checkpoint_dir, "{}".format(iteration))
@@ -207,6 +202,59 @@ class KBestCheckpoint(object):
             with open(info_path, 'r') as fin:
                 configs = json.load(fin)
         return configs
+
+
+    def load_best_parameters(self, model,
+                        optimizer=None,
+                        checkpoint_dir=None,
+                        checkpoint_path=None):
+        """Load a last model checkpoint from disk. 
+        Args:
+            model (Layer): model to load parameters.
+            optimizer (Optimizer, optional): optimizer to load states if needed.
+                Defaults to None.
+            checkpoint_dir (str, optional): the directory where checkpoint is saved.
+            checkpoint_path (str, optional): if specified, load the checkpoint
+                stored in the checkpoint_path(prefix) and the argument 'checkpoint_dir' will 
+                be ignored. Defaults to None. 
+        Returns:
+            configs (dict): epoch or step, lr and other meta info should be saved.
+        """
+        configs = {}
+
+        if checkpoint_path is not None:
+            tag = os.path.basename(checkpoint_path).split(":")[-1]
+        elif checkpoint_dir is not None:
+            checkpoint_record = os.path.join(checkpoint_dir, "checkpoint_best")
+            iteration = self.load_checkpoint_idx(checkpoint_record)
+            if iteration == -1:
+                return configs
+            checkpoint_path = os.path.join(checkpoint_dir, "{}".format(iteration))
+        else:
+            raise ValueError(
+                "At least one of 'checkpoint_dir' and 'checkpoint_path' should be specified!"
+            )
+
+        rank = dist.get_rank()
+
+        params_path = checkpoint_path + ".pdparams"
+        model_dict = paddle.load(params_path)
+        model.set_state_dict(model_dict)
+        logger.info("Rank {}: loaded model from {}".format(rank, params_path))
+
+        optimizer_path = checkpoint_path + ".pdopt"
+        if optimizer and os.path.isfile(optimizer_path):
+            optimizer_dict = paddle.load(optimizer_path)
+            optimizer.set_state_dict(optimizer_dict)
+            logger.info("Rank {}: loaded optimizer state from {}".format(
+                rank, optimizer_path))
+
+        info_path = re.sub('.pdparams$', '.json', params_path)
+        if os.path.exists(info_path):
+            with open(info_path, 'r') as fin:
+                configs = json.load(fin)
+        return configs
+
 
 
     @mp_tools.rank_zero_only

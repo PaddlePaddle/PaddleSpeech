@@ -242,6 +242,7 @@ class SpeechCollator():
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
+        specgram = specgram.transpose([1, 0])
         return specgram, transcript_part
 
     def __call__(self, batch):
@@ -269,7 +270,7 @@ class SpeechCollator():
             #utt
             utts.append(utt)
             # audio
-            audios.append(audio.T)  # [T, D]
+            audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[1])
             # text
             # for training, text is token ids

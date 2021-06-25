@@ -96,7 +96,7 @@ def start_server(config, args):
 
     # prepare ASR inference handler
     def file_to_transcript(filename):
-        feature = collate_fn.process_utterance(filename, "")
+        feature = test_loader.collate_fn.process_utterance(filename, "")
         audio = np.array([feature[0]]).astype('float32')  #[1, T, D]
         audio_len = feature[0].shape[0]
         audio_len = np.array([audio_len]).astype('int64')  # [1]

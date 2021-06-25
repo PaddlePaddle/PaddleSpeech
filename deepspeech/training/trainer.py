@@ -64,7 +64,7 @@ class Trainer():
         The parsed command line arguments.
     Examples
     --------
-    >>> def p(config, args):
+    >>> def main_sp(config, args):
     >>>     exp = Trainer(config, args)
     >>>     exp.setup()
     >>>     exp.run()

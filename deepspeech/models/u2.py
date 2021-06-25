@@ -876,11 +876,11 @@ class U2Model(U2BaseModel):
         return model
 
     @classmethod
-    def from_pretrained(cls, dataset, config, checkpoint_path):
+    def from_pretrained(cls, dataloader, config, checkpoint_path):
         """Build a DeepSpeech2Model model from a pretrained model.
 
         Args:
-            dataset (paddle.io.Dataset): not used.
+            dataloader (paddle.io.DataLoader): not used.
             config (yacs.config.CfgNode):  model configs
             checkpoint_path (Path or str): the path of pretrained model checkpoint, without extension name
 
@@ -888,8 +888,8 @@ class U2Model(U2BaseModel):
             DeepSpeech2Model: The model built from pretrained result.
         """
         config.defrost()
-        config.input_dim = dataset.feature_size
-        config.output_dim = dataset.vocab_size
+        config.input_dim = dataloader.collate_fn.feature_size
+        config.output_dim = dataloader.collate_fn.vocab_size
         config.freeze()
         model = cls.from_config(config)
 

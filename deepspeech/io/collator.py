@@ -215,7 +215,21 @@ class SpeechCollator():
         return self._local_data.tar2object[tarpath].extractfile(
             self._local_data.tar2info[tarpath][filename])
 
-    def process_utterance(self, audio_file, transcript, single=True):
+    def load_audio(self, audio_file, transcript):
+        if isinstance(audio_file, str) and audio_file.startswith('tar:'):
+            speech_segment = SpeechSegment.from_file(
+                self._subfile_from_tar(audio_file), transcript)
+        else:
+            speech_segment = SpeechSegment.from_file(audio_file, transcript)
+        return speech_segment
+
+    def randomize_audio_parameters(self):
+        self._augmentation_pipeline.andomize_parameters_audio_transform()
+    
+    def randomize_feature_parameters(self, n_bins, n_frames):
+        self._augmentation_pipeline.andomize_parameters_feature_transform(n_bins, n_frames)
+
+    def process_utterance(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
 
         :param audio_file: Filepath or file object of audio file.
@@ -226,24 +240,55 @@ class SpeechCollator():
                  where transcription part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
-        if isinstance(audio_file, str) and audio_file.startswith('tar:'):
-            speech_segment = SpeechSegment.from_file(
-                self._subfile_from_tar(audio_file), transcript)
-        else:
-            speech_segment = SpeechSegment.from_file(audio_file, transcript)
+        speech_segment = self.load_audio(audio_file, transcript)
 
-        # audio augment
-        self._augmentation_pipeline.transform_audio(speech_segment)
+        # apply audio augment
+        self._augmentation_pipeline.apply_audio_transform(speech_segment)
 
+        # Spectrum transform
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
+        
         if self._normalizer:
             specgram = self._normalizer.apply(specgram)
 
-        # specgram augment
-
-        specgram = self._augmentation_pipeline.transform_feature(specgram)
+        # # apply specgram augment
+        # specgram = self._augmentation_pipeline.apply_feature_transform(specgram)
         return specgram, transcript_part
+
+
+    # def process_utterance(self, audio_file, transcript, single=True):
+    #     """Load, augment, featurize and normalize for speech data.
+
+    #     :param audio_file: Filepath or file object of audio file.
+    #     :type audio_file: str | file
+    #     :param transcript: Transcription text.
+    #     :type transcript: str
+    #     :return: Tuple of audio feature tensor and data of transcription part,
+    #              where transcription part could be token ids or text.
+    #     :rtype: tuple of (2darray, list)
+    #     """
+    #     if isinstance(audio_file, str) and audio_file.startswith('tar:'):
+    #         speech_segment = SpeechSegment.from_file(
+    #             self._subfile_from_tar(audio_file), transcript)
+    #     else:
+    #         speech_segment = SpeechSegment.from_file(audio_file, transcript)
+
+    #     # audio augment
+    #     self._augmentation_pipeline.transform_audio(speech_segment)
+
+
+    #     # Spectrum transform
+    #     specgram, transcript_part = self._speech_featurizer.featurize(
+    #         speech_segment, self._keep_transcription_text)
+        
+    #     if self._normalizer:
+    #         specgram = self._normalizer.apply(specgram)
+
+    #     # specgram augment
+
+    #     specgram = self._augmentation_pipeline.transform_feature(specgram)
+    #     return specgram, transcript_part
 
     def __call__(self, batch):
         """batch examples
@@ -269,10 +314,11 @@ class SpeechCollator():
         # print(batch)
         # print(type(batch))
         # print(len(batch))
-        resample=True
+        self.randomize_audio_parameters()
         for utt, audio, text in batch:
-            audio, text = self.process_utterance(audio, text, single=resample)
-            # resample=False
+            if not self.config.randomize_each_batch:
+                self.randomize_audio_parameters()
+            audio, text = self.process_utterance(audio, text)
             #utt
             utts.append(utt)
             # audio
@@ -298,6 +344,15 @@ class SpeechCollator():
         padded_texts = pad_sequence(
             texts, padding_value=IGNORE_ID).astype(np.int64)
         text_lens = np.array(text_lens).astype(np.int64)
+        
+        #spec augment
+        n_bins=padded_audios[0]
+        self.randomize_feature_parameters(n_bins, min(audio_lens))
+        for i in range(len(padded_audios)):
+            if not self.config.randomize_each_batch: 
+                self.randomize_feature_parameters(n_bins, audio_lens[i])
+            padded_audios[i] = self._augmentation_pipeline.apply_feature_transform(padded_audios[i])
+
         return utts, padded_audios, audio_lens, padded_texts, text_lens
 
     @property

@@ -124,9 +124,9 @@ class SpecAugmentor(AugmentorBase):
     def time_warp(xs, W=40):
         raise NotImplementedError
     
-    def randomize_parameters(self, xs):
-        n_bins = xs.shape[0]
-        n_frames = xs.shape[1]
+    def randomize_parameters(self, n_bins, n_frame):
+        # n_bins = xs.shape[0]
+        # n_frames = xs.shape[1]
 
         self.f=[]
         self.f_0=[]

@@ -93,7 +93,29 @@ class AugmentationPipeline():
         self._spec_augmentors, self._spec_rates = self._parse_pipeline_from(
             augmentation_config, 'feature')
 
-    def transform_audio(self, audio_segment, single=True):
+    def randomize_parameters_audio_transform(self):
+        """Run the pre-processing pipeline for data augmentation.
+
+        Note that this is an in-place transformation.
+        
+        :param audio_segment: Audio segment to process.
+        :type audio_segment: AudioSegmenet|SpeechSegment
+        """
+        for augmentor, rate in zip(self._augmentors, self._rates):
+            augmentor.randomize_parameters()
+    
+    def randomize_parameters_feature_transform(self, audio):
+        """Run the pre-processing pipeline for data augmentation.
+
+        Note that this is an in-place transformation.
+        
+        :param audio_segment: Audio segment to process.
+        :type audio_segment: AudioSegmenet|SpeechSegment
+        """
+        for augmentor, rate in zip(self._augmentors, self._rates):
+            augmentor.randomize_parameters(audio)
+
+    def apply_audio_transform(self, audio_segment):
         """Run the pre-processing pipeline for data augmentation.
 
         Note that this is an in-place transformation.
@@ -103,9 +125,9 @@ class AugmentationPipeline():
         """
         for augmentor, rate in zip(self._augmentors, self._rates):
             if self._rng.uniform(0., 1.) < rate:
-                augmentor.transform_audio(audio_segment, single)
+                augmentor.apply(audio_segment)
 
-    def transform_feature(self, spec_segment, single=True):
+    def apply_feature_transform(self, spec_segment):
         """spectrogram augmentation.
          
         Args:
@@ -113,8 +135,31 @@ class AugmentationPipeline():
         """
         for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
             if self._rng.uniform(0., 1.) < rate:
-                spec_segment = augmentor.transform_feature(spec_segment, single)
+                spec_segment = augmentor.apply(spec_segment)
         return spec_segment
+
+    # def transform_audio(self, audio_segment, single=True):
+    #     """Run the pre-processing pipeline for data augmentation.
+
+    #     Note that this is an in-place transformation.
+        
+    #     :param audio_segment: Audio segment to process.
+    #     :type audio_segment: AudioSegmenet|SpeechSegment
+    #     """
+    #     for augmentor, rate in zip(self._augmentors, self._rates):
+    #         if self._rng.uniform(0., 1.) < rate:
+    #             augmentor.transform_audio(audio_segment, single)
+
+    # def transform_feature(self, spec_segment, single=True):
+    #     """spectrogram augmentation.
+         
+    #     Args:
+    #         spec_segment (np.ndarray): audio feature, (D, T).
+    #     """
+    #     for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
+    #         if self._rng.uniform(0., 1.) < rate:
+    #             spec_segment = augmentor.transform_feature(spec_segment, single)
+    #     return spec_segment
 
     def _parse_pipeline_from(self, config_json, aug_type='audio'):
         """Parse the config json to build a augmentation pipelien."""

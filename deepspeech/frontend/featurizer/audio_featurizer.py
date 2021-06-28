@@ -221,17 +221,19 @@ class AudioFeaturizer(object):
         """append delat, delta-delta feature.
 
         Args:
-            feat (np.ndarray): (D, T)
+            feat (np.ndarray): (T, D)
 
         Returns:
-            np.ndarray: feat with delta-delta, (3*D, T)
+            np.ndarray: feat with delta-delta, (T, 3*D)
         """
+        # transpose (T, D) --> (D, T)
         feat = np.transpose(feat)
         # Deltas
         d_feat = delta(feat, 2)
         # Deltas-Deltas
         dd_feat = delta(feat, 2)
         # transpose
+        # transpose (D, T) --> (T, D)
         feat = np.transpose(feat)
         d_feat = np.transpose(d_feat)
         dd_feat = np.transpose(dd_feat)
@@ -264,7 +266,7 @@ class AudioFeaturizer(object):
             ValueError: stride_ms > window_ms
 
         Returns:
-            np.ndarray: mfcc feature, (D, T).
+            np.ndarray: mfcc feature, (T, D).
         """
         if max_freq is None:
             max_freq = sample_rate / 2
@@ -322,7 +324,7 @@ class AudioFeaturizer(object):
             ValueError: stride_ms > window_ms
 
         Returns:
-            np.ndarray: mfcc feature, (D, T).
+            np.ndarray: mfcc feature, (T, D).
         """
         if max_freq is None:
             max_freq = sample_rate / 2

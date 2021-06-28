@@ -229,7 +229,7 @@ class SpeechCollator():
     def randomize_feature_parameters(self, n_bins, n_frames):
         self._augmentation_pipeline.andomize_parameters_feature_transform(n_bins, n_frames)
 
-    def process_utterance(self, audio_file, transcript):
+    def process_feature_and_transform(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
 
         :param audio_file: Filepath or file object of audio file.
@@ -254,6 +254,7 @@ class SpeechCollator():
 
         # # apply specgram augment
         # specgram = self._augmentation_pipeline.apply_feature_transform(specgram)
+
         return specgram, transcript_part
 
 
@@ -318,12 +319,12 @@ class SpeechCollator():
         for utt, audio, text in batch:
             if not self.config.randomize_each_batch:
                 self.randomize_audio_parameters()
-            audio, text = self.process_utterance(audio, text)
+            audio, text = self.process_feature_and_transform(audio, text)
             #utt
             utts.append(utt)
             # audio
-            audios.append(audio.T)  # [T, D]
-            audio_lens.append(audio.shape[1])
+            audios.append(audio)  # [T, D]
+            audio_lens.append(audio.shape[0])
             # text
             # for training, text is token ids
             # else text is string, convert to unicode ord
@@ -346,8 +347,8 @@ class SpeechCollator():
         text_lens = np.array(text_lens).astype(np.int64)
         
         #spec augment
-        n_bins=padded_audios[0]
-        self.randomize_feature_parameters(n_bins, min(audio_lens))
+        n_bins=padded_audios.shape[2]
+        self.randomize_feature_parameters(min(audio_lens), n_bins)
         for i in range(len(padded_audios)):
             if not self.config.randomize_each_batch: 
                 self.randomize_feature_parameters(n_bins, audio_lens[i])

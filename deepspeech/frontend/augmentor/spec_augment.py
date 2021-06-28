@@ -124,7 +124,7 @@ class SpecAugmentor(AugmentorBase):
     def time_warp(xs, W=40):
         raise NotImplementedError
     
-    def randomize_parameters(self, n_bins, n_frame):
+    def randomize_parameters(self, n_frame, n_bins):
         # n_bins = xs.shape[0]
         # n_frames = xs.shape[1]
 
@@ -156,66 +156,69 @@ class SpecAugmentor(AugmentorBase):
             self.t_0.append(int(self._rng.uniform(low=0, high=n_frames - t)))
 
     def apply(self, xs: np.ndarray):
-        n_bins = xs.shape[0]
-        n_frames = xs.shape[1]
+        '''
+        input xs [T, D]
+        '''
+        n_frames = xs.shape[0]
+        n_bins = xs.shape[1]
         for i in range(0, self.n_freq_masks):
             f = self.f[i]
             f_0 = self.f_0[i]
-            xs[f_0:f_0 + f, :] = 0
+            xs[:, f_0:f_0 + f] = 0
             assert f_0 <= f_0 + f
         
         for i in range(self.n_masks):
             t = self.t[i]
             t_0 = self.t_0[i]
-            xs[:, t_0:t_0 + t] = 0
+            xs[t_0:t_0 + t, :] = 0
             assert t_0 <= t_0 + t
         return xs
 
 
-    def mask_freq(self, xs, replace_with_zero=False):
-        n_bins = xs.shape[0]
-        for i in range(0, self.n_freq_masks):
-            f = int(self._rng.uniform(low=0, high=self.F))
-            f_0 = int(self._rng.uniform(low=0, high=n_bins - f))
-            xs[f_0:f_0 + f, :] = 0
-            assert f_0 <= f_0 + f
-            self._freq_mask = (f_0, f_0 + f)
-        return xs
+    # def mask_freq(self, xs, replace_with_zero=False):
+    #     n_bins = xs.shape[0]
+    #     for i in range(0, self.n_freq_masks):
+    #         f = int(self._rng.uniform(low=0, high=self.F))
+    #         f_0 = int(self._rng.uniform(low=0, high=n_bins - f))
+    #         xs[f_0:f_0 + f, :] = 0
+    #         assert f_0 <= f_0 + f
+    #         self._freq_mask = (f_0, f_0 + f)
+    #     return xs
 
-    def mask_time(self, xs, replace_with_zero=False):
-        n_frames = xs.shape[1]
+    # def mask_time(self, xs, replace_with_zero=False):
+    #     n_frames = xs.shape[1]
 
-        if self.adaptive_number_ratio > 0:
-            n_masks = int(n_frames * self.adaptive_number_ratio)
-            n_masks = min(n_masks, self.max_n_time_masks)
-        else:
-            n_masks = self.n_time_masks
+    #     if self.adaptive_number_ratio > 0:
+    #         n_masks = int(n_frames * self.adaptive_number_ratio)
+    #         n_masks = min(n_masks, self.max_n_time_masks)
+    #     else:
+    #         n_masks = self.n_time_masks
 
-        if self.adaptive_size_ratio > 0:
-            T = self.adaptive_size_ratio * n_frames
-        else:
-            T = self.T
+    #     if self.adaptive_size_ratio > 0:
+    #         T = self.adaptive_size_ratio * n_frames
+    #     else:
+    #         T = self.T
 
-        for i in range(n_masks):
-            t = int(self._rng.uniform(low=0, high=T))
-            t = min(t, int(n_frames * self.p))
-            t_0 = int(self._rng.uniform(low=0, high=n_frames - t))
-            xs[:, t_0:t_0 + t] = 0
-            assert t_0 <= t_0 + t
-            self._time_mask = (t_0, t_0 + t)
-        return xs
+    #     for i in range(n_masks):
+    #         t = int(self._rng.uniform(low=0, high=T))
+    #         t = min(t, int(n_frames * self.p))
+    #         t_0 = int(self._rng.uniform(low=0, high=n_frames - t))
+    #         xs[:, t_0:t_0 + t] = 0
+    #         assert t_0 <= t_0 + t
+    #         self._time_mask = (t_0, t_0 + t)
+    #     return xs
 
 
-    def transform_feature(self, xs: np.ndarray, single=True):
-        """
-        Args:
-            xs (FloatTensor): `[F, T]`
-        Returns:
-            xs (FloatTensor): `[F, T]`
-        """
-        if(single):
-            self.randomize_parameters(xs)
-        return self.apply(xs)
+    # def transform_feature(self, xs: np.ndarray, single=True):
+    #     """
+    #     Args:
+    #         xs (FloatTensor): `[F, T]`
+    #     Returns:
+    #         xs (FloatTensor): `[F, T]`
+    #     """
+    #     if(single):
+    #         self.randomize_parameters(xs)
+    #     return self.apply(xs)
 
     # def transform_feature(self, xs: np.ndarray):
     #     """

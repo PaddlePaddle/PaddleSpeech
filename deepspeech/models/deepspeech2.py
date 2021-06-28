@@ -198,11 +198,11 @@ class DeepSpeech2Model(nn.Layer):
             cutoff_top_n, num_processes)
 
     @classmethod
-    def from_pretrained(cls, dataset, config, checkpoint_path):
+    def from_pretrained(cls, dataloader, config, checkpoint_path):
         """Build a DeepSpeech2Model model from a pretrained model.
         Parameters
         ----------
-        dataset: paddle.io.Dataset
+        dataloader: paddle.io.DataLoader
 
         config: yacs.config.CfgNode
             model configs
@@ -215,8 +215,8 @@ class DeepSpeech2Model(nn.Layer):
         DeepSpeech2Model
             The model built from pretrained result.
         """
-        model = cls(feat_size=dataset.feature_size,
-                    dict_size=dataset.vocab_size,
+        model = cls(feat_size=dataloader.collate_fn.feature_size,
+                    dict_size=dataloader.collate_fn.vocab_size,
                     num_conv_layers=config.model.num_conv_layers,
                     num_rnn_layers=config.model.num_rnn_layers,
                     rnn_size=config.model.rnn_layer_size,

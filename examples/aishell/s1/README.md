@@ -9,6 +9,7 @@
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug + shift | test | ctc_prefix_beam_search | - | 0.062196 |  
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug + shift | test | attention_rescoring | - | 0.054694 |  
 
+
 ## Chunk Conformer
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk | Loss | WER |  

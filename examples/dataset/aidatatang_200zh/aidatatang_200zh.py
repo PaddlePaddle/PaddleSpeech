@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Prepare THCHS-30 mandarin dataset
+"""Prepare aidatatang_200zh mandarin dataset
 
 Download, unpack and create manifest files.
 Manifest file is a json-format file with each line containing the
@@ -22,8 +22,6 @@ import argparse
 import codecs
 import json
 import os
-from multiprocessing.pool import Pool
-from pathlib import Path
 
 import soundfile
 
@@ -32,19 +30,15 @@ from utils.utility import unpack
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
-URL_ROOT = 'http://www.openslr.org/resources/18'
-# URL_ROOT = 'https://openslr.magicdatatech.com/resources/18'
-DATA_URL = URL_ROOT + '/data_thchs30.tgz'
-TEST_NOISE_URL = URL_ROOT + '/test-noise.tgz'
-RESOURCE_URL = URL_ROOT + '/resource.tgz'
-MD5_DATA = '2d2252bde5c8429929e1841d4cb95e90'
-MD5_TEST_NOISE = '7e8a985fb965b84141b68c68556c2030'
-MD5_RESOURCE = 'c0b2a565b4970a0c4fe89fefbf2d97e1'
+URL_ROOT = 'http://www.openslr.org/resources/62'
+# URL_ROOT = 'https://openslr.magicdatatech.com/resources/62'
+DATA_URL = URL_ROOT + '/aidatatang_200zh.tgz'
+MD5_DATA = '6e0f4f39cd5f667a7ee53c397c8d0949'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--target_dir",
-    default=DATA_HOME + "/THCHS30",
+    default=DATA_HOME + "/aidatatang_200zh",
     type=str,
     help="Directory to save the dataset. (default: %(default)s)")
 parser.add_argument(
@@ -55,110 +49,100 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def read_trn(filepath):
-    """read trn file.
-    word text in first line.
-    syllable text in second line.
-    phoneme text in third line.
-
-    Args:
-        filepath (str): trn path.
-
-    Returns:
-        list(str): (word, syllable, phone)
-    """
-    texts = []
-    with open(filepath, 'r') as f:
-        lines = f.read().strip().split('\n')
-        assert len(lines) == 3, lines
-    # charactor text, remove withespace
-    texts.append(''.join(lines[0].split()))
-    texts.extend(lines[1:])
-    return texts
-
-
-def resolve_symlink(filepath):
-    """resolve symlink which content is norm file.
-
-    Args:
-        filepath (str): norm file symlink.
-    """
-    sym_path = Path(filepath)
-    relative_link = sym_path.read_text().strip()
-    relative = Path(relative_link)
-    relpath = sym_path.parent / relative
-    return relpath.resolve()
-
-
 def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
+    transcript_path = os.path.join(data_dir, 'transcript',
+                                   'aidatatang_200_zh_transcript.txt')
+    transcript_dict = {}
+    for line in codecs.open(transcript_path, 'r', 'utf-8'):
+        line = line.strip()
+        if line == '':
+            continue
+        audio_id, text = line.split(' ', 1)
+        # remove withespace, charactor text
+        text = ''.join(text.split())
+        transcript_dict[audio_id] = text
+
     data_types = ['train', 'dev', 'test']
     for dtype in data_types:
         del json_lines[:]
-        audio_dir = os.path.join(data_dir, dtype)
+        total_sec = 0.0
+        total_text = 0.0
+        total_num = 0
+
+        audio_dir = os.path.join(data_dir, 'corpus/', dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
-                file_path = os.path.join(subfolder, fname)
-                if file_path.endswith('.wav'):
-                    audio_path = os.path.abspath(file_path)
-                    text_path = resolve_symlink(audio_path + '.trn')
-                else:
+                if not fname.endswith('.wav'):
                     continue
 
-                assert os.path.exists(audio_path) and os.path.exists(text_path)
+                audio_path = os.path.abspath(os.path.join(subfolder, fname))
+                audio_id = os.path.basename(fname)[:-4]
 
-                audio_id = os.path.basename(audio_path)[:-4]
-                word_text, syllable_text, phone_text = read_trn(text_path)
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
-
+                text = transcript_dict[audio_id]
                 json_lines.append(
                     json.dumps(
                         {
                             'utt': audio_id,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
-                            'text': word_text,
-                            'syllable': syllable_text,
-                            'phone': phone_text,
+                            'text': text,
                         },
                         ensure_ascii=False))
+
+                total_sec += duration
+                total_text += len(text)
+                total_num += 1
 
         manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')
 
+        with open(dtype + '.meta', 'w') as f:
+            print(f"{dtype}:", file=f)
+            print(f"{total_num} utts", file=f)
+            print(f"{total_sec / (60*60)} h", file=f)
+            print(f"{total_text} text", file=f)
+            print(f"{total_text / total_sec} text/sec", file=f)
+            print(f"{total_sec / total_num} sec/utt", file=f)
+
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path, subset):
     """Download, unpack and create manifest file."""
-    datadir = os.path.join(target_dir, subset)
-    if not os.path.exists(datadir):
+    data_dir = os.path.join(target_dir, subset)
+    if not os.path.exists(data_dir):
         filepath = download(url, md5sum, target_dir)
         unpack(filepath, target_dir)
+        # unpack all audio tar files
+        audio_dir = os.path.join(data_dir, 'corpus')
+        for subfolder, dirlist, filelist in sorted(os.walk(audio_dir)):
+            for sub in dirlist:
+                print(f"unpack dir {sub}...")
+                for folder, _, filelist in sorted(
+                        os.walk(os.path.join(subfolder, sub))):
+                    for ftar in filelist:
+                        unpack(os.path.join(folder, ftar), folder, True)
     else:
         print("Skip downloading and unpacking. Data already exists in %s." %
               target_dir)
 
-    if subset == 'data_thchs30':
-        create_manifest(datadir, manifest_path)
+    create_manifest(data_dir, manifest_path)
 
 
 def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    tasks = [
-        (DATA_URL, MD5_DATA, args.target_dir, args.manifest_prefix,
-         "data_thchs30"),
-        (TEST_NOISE_URL, MD5_TEST_NOISE, args.target_dir, args.manifest_prefix,
-         "test-noise"),
-        (RESOURCE_URL, MD5_RESOURCE, args.target_dir, args.manifest_prefix,
-         "resource"),
-    ]
-    with Pool(7) as pool:
-        pool.starmap(prepare_dataset, tasks)
+    prepare_dataset(
+        url=DATA_URL,
+        md5sum=MD5_DATA,
+        target_dir=args.target_dir,
+        manifest_path=args.manifest_prefix,
+        subset='aidatatang_200zh')
 
     print("Data download and manifest prepare done!")
 

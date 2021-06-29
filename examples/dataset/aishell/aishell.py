@@ -31,7 +31,7 @@ from utils.utility import unpack
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
 URL_ROOT = 'http://www.openslr.org/resources/33'
-URL_ROOT = 'https://openslr.magicdatatech.com/resources/33'
+# URL_ROOT = 'https://openslr.magicdatatech.com/resources/33'
 DATA_URL = URL_ROOT + '/data_aishell.tgz'
 MD5_DATA = '2f494334227864a8a8fec932999db9d8'
 
@@ -67,11 +67,15 @@ def create_manifest(data_dir, manifest_path_prefix):
     data_types = ['train', 'dev', 'test']
     for dtype in data_types:
         del json_lines[:]
+        total_sec = 0.0
+        total_text = 0.0
+        total_num = 0
+
         audio_dir = os.path.join(data_dir, 'wav', dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
-                audio_path = os.path.join(subfolder, fname)
-                audio_id = fname[:-4]
+                audio_path = os.path.abspath(os.path.join(subfolder, fname))
+                audio_id = os.path.basename(fname)[:-4]
                 # if no transcription for audio then skipped
                 if audio_id not in transcript_dict:
                     continue
@@ -81,19 +85,29 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json_lines.append(
                     json.dumps(
                         {
-                            'utt':
-                            os.path.splitext(os.path.basename(audio_path))[0],
-                            'feat':
-                            audio_path,
+                            'utt': audio_id,
+                            'feat': audio_path,
                             'feat_shape': (duration, ),  # second
-                            'text':
-                            text
+                            'text': text
                         },
                         ensure_ascii=False))
+
+                total_sec += duration
+                total_text += len(text)
+                total_num += 1
+
         manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')
+
+        with open(dtype + '.meta', 'w') as f:
+            print(f"{dtype}:", file=f)
+            print(f"{total_num} utts", file=f)
+            print(f"{total_sec / (60*60)} h", file=f)
+            print(f"{total_text} text", file=f)
+            print(f"{total_text / total_sec} text/sec", file=f)
+            print(f"{total_sec / total_num} sec/utt", file=f)
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):

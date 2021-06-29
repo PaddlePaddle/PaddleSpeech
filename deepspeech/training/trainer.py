@@ -151,11 +151,12 @@ class Trainer():
         resume training.
         """
         scratch = None
-        infos = self.checkpoint.load_last_parameters(
+        infos = self.checkpoint._load_parameters(
             self.model,
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
-            checkpoint_path=self.args.checkpoint_path)
+            checkpoint_path=self.args.checkpoint_path,
+            checkpoint_file='checkpoint_latest')
         if infos:
             # restore from ckpt
             self.iteration = infos["step"]

@@ -1,0 +1,5 @@
+*.tgz
+manifest.*
+data_thchs30
+resource
+test-noise

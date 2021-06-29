@@ -154,8 +154,8 @@ class SpeechCollator():
             random_seed (int, optional): for random generator. Defaults to 0.
             keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
             if ``keep_transcription_text`` is False, text is token ids else is raw string.
-        
-        Do augmentations 
+
+        Do augmentations
         Padding audio features with zeros to make them have the same shape (or
         a user-defined shape) within one batch.
         """
@@ -242,6 +242,7 @@ class SpeechCollator():
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
+        specgram = specgram.transpose([1, 0])
         return specgram, transcript_part
 
     def __call__(self, batch):
@@ -269,8 +270,8 @@ class SpeechCollator():
             #utt
             utts.append(utt)
             # audio
-            audios.append(audio.T)  # [T, D]
-            audio_lens.append(audio.shape[1])
+            audios.append(audio)  # [T, D]
+            audio_lens.append(audio.shape[0])
             # text
             # for training, text is token ids
             # else text is string, convert to unicode ord

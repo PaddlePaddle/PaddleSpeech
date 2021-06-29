@@ -104,7 +104,7 @@ class AugmentationPipeline():
         for augmentor, rate in zip(self._augmentors, self._rates):
             augmentor.randomize_parameters()
     
-    def randomize_parameters_feature_transform(self, audio):
+    def randomize_parameters_feature_transform(self, n_frames, n_bins):
         """Run the pre-processing pipeline for data augmentation.
 
         Note that this is an in-place transformation.
@@ -112,8 +112,8 @@ class AugmentationPipeline():
         :param audio_segment: Audio segment to process.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        for augmentor, rate in zip(self._augmentors, self._rates):
-            augmentor.randomize_parameters(audio)
+        for augmentor, rate in zip(self._spec_augmentors, self._rates):
+            augmentor.randomize_parameters(n_frames, n_bins)
 
     def apply_audio_transform(self, audio_segment):
         """Run the pre-processing pipeline for data augmentation.

@@ -110,7 +110,8 @@ class SpeechCollator():
             use_dB_normalization=config.collator.use_dB_normalization,
             target_dB=config.collator.target_dB,
             dither=config.collator.dither,
-            keep_transcription_text=config.collator.keep_transcription_text)
+            keep_transcription_text=config.collator.keep_transcription_text,
+            randomize_each_batch=config.collator.randomize_each_batch)
         return speech_collator
 
     def __init__(
@@ -132,7 +133,8 @@ class SpeechCollator():
             use_dB_normalization=True,
             target_dB=-20,
             dither=1.0,
-            keep_transcription_text=True):
+            keep_transcription_text=True,
+            randomize_each_batch=False):
         """SpeechCollator Collator
 
         Args:
@@ -160,6 +162,7 @@ class SpeechCollator():
         a user-defined shape) within one batch.
         """
         self._keep_transcription_text = keep_transcription_text
+        self._randomize_each_batch = randomize_each_batch
 
         self._local_data = TarLocalData(tar2info={}, tar2object={})
         self._augmentation_pipeline = AugmentationPipeline(
@@ -170,6 +173,7 @@ class SpeechCollator():
 
         self._stride_ms = stride_ms
         self._target_sample_rate = target_sample_rate
+        
 
         self._speech_featurizer = SpeechFeaturizer(
             unit_type=unit_type,
@@ -224,10 +228,10 @@ class SpeechCollator():
         return speech_segment
 
     def randomize_audio_parameters(self):
-        self._augmentation_pipeline.andomize_parameters_audio_transform()
+        self._augmentation_pipeline.randomize_parameters_audio_transform()
     
-    def randomize_feature_parameters(self, n_bins, n_frames):
-        self._augmentation_pipeline.andomize_parameters_feature_transform(n_bins, n_frames)
+    def randomize_feature_parameters(self, n_frames, n_bins):
+        self._augmentation_pipeline.randomize_parameters_feature_transform(n_frames, n_bins)
 
     def process_feature_and_transform(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -317,12 +321,15 @@ class SpeechCollator():
         # print(len(batch))
         self.randomize_audio_parameters()
         for utt, audio, text in batch:
-            if not self.config.randomize_each_batch:
+            if not self._randomize_each_batch:
                 self.randomize_audio_parameters()
             audio, text = self.process_feature_and_transform(audio, text)
             #utt
             utts.append(utt)
             # audio
+            # print("---debug---")
+            # print(audio.shape)
+            audio=audio.T
             audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[0])
             # text
@@ -350,7 +357,7 @@ class SpeechCollator():
         n_bins=padded_audios.shape[2]
         self.randomize_feature_parameters(min(audio_lens), n_bins)
         for i in range(len(padded_audios)):
-            if not self.config.randomize_each_batch: 
+            if not self._randomize_each_batch: 
                 self.randomize_feature_parameters(n_bins, audio_lens[i])
             padded_audios[i] = self._augmentation_pipeline.apply_feature_transform(padded_audios[i])
 

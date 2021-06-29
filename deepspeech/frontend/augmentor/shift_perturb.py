@@ -37,17 +37,17 @@ class ShiftPerturbAugmentor(AugmentorBase):
     def apply(self, audio_segment):
         audio_segment.shift(self.shift_ms)
 
-    def transform_audio(self, audio_segment, single):
-        """Shift audio.
+    # def transform_audio(self, audio_segment, single):
+    #     """Shift audio.
 
-        Note that this is an in-place transformation.
+    #     Note that this is an in-place transformation.
 
-        :param audio_segment: Audio segment to add effects to.
-        :type audio_segment: AudioSegmenet|SpeechSegment
-        """
-        if(single):
-            self.randomize_parameters()
-        self.apply(audio_segment)
+    #     :param audio_segment: Audio segment to add effects to.
+    #     :type audio_segment: AudioSegmenet|SpeechSegment
+    #     """
+    #     if(single):
+    #         self.randomize_parameters()
+    #     self.apply(audio_segment)
 
 
     # def transform_audio(self, audio_segment):

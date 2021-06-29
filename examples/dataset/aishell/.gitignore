@@ -1,1 +1,4 @@
 data_aishell*
+*.meta
+manifest.*
+*.tgz

@@ -10,8 +10,8 @@ data:
   min_output_input_ratio: 0.00
   max_output_input_ratio: .inf
 
-
 collator:
+  batch_size: 64 # one gpu
   mean_std_filepath: data/mean_std.json
   unit_type: char
   vocab_filepath: data/vocab.txt 
@@ -33,7 +33,6 @@ collator:
   sortagrad: True
   shuffle_method: batch_shuffle
   num_workers: 0
-  batch_size: 64 # one gpu
 
 model:
   num_conv_layers: 2

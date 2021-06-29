@@ -60,7 +60,7 @@ def create_manifest(data_dir, manifest_path_prefix):
         if line == '':
             continue
         audio_id, text = line.split(' ', 1)
-        # remove withespace
+        # remove withespace, charactor text
         text = ''.join(text.split())
         transcript_dict[audio_id] = text
 
@@ -122,6 +122,8 @@ def main():
         md5sum=MD5_DATA,
         target_dir=args.target_dir,
         manifest_path=args.manifest_prefix)
+
+    print("Data download and manifest prepare done!")
 
 
 if __name__ == '__main__':

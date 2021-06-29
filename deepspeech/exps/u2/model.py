@@ -511,10 +511,9 @@ class U2Tester(U2Trainer):
                                                    self.args.checkpoint_path)
         feat_dim = self.test_loader.collate_fn.feature_size
         input_spec = [
-            paddle.static.InputSpec(
-                shape=[None, feat_dim, None],
-                dtype='float32'),  # audio, [B,D,T]
-            paddle.static.InputSpec(shape=[None],
+            paddle.static.InputSpec(shape=[1, None, feat_dim],
+                                    dtype='float32'),  # audio, [B,T,D]
+            paddle.static.InputSpec(shape=[1],
                                     dtype='int64'),  # audio_length, [B]
         ]
         return infer_model, input_spec

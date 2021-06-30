@@ -69,9 +69,7 @@ def read_trn(filepath):
     """
     texts = []
     with open(filepath, 'r') as f:
-        lines = f.read().split('\n')
-        # last line is `empty`
-        lines = lines[:3]
+        lines = f.read().strip().split('\n')
         assert len(lines) == 3, lines
     # charactor text, remove withespace
     texts.append(''.join(lines[0].split()))
@@ -98,6 +96,10 @@ def create_manifest(data_dir, manifest_path_prefix):
     data_types = ['train', 'dev', 'test']
     for dtype in data_types:
         del json_lines[:]
+        total_sec = 0.0
+        total_text = 0.0
+        total_num = 0
+
         audio_dir = os.path.join(data_dir, dtype)
         for subfolder, _, filelist in sorted(os.walk(audio_dir)):
             for fname in filelist:
@@ -127,10 +129,22 @@ def create_manifest(data_dir, manifest_path_prefix):
                         },
                         ensure_ascii=False))
 
+                total_sec += duration
+                total_text += len(text)
+                total_num += 1
+
         manifest_path = manifest_path_prefix + '.' + dtype
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')
+
+        with open(dtype + '.meta', 'w') as f:
+            print(f"{dtype}:", file=f)
+            print(f"{total_num} utts", file=f)
+            print(f"{total_sec / (60*60)} h", file=f)
+            print(f"{total_text} text", file=f)
+            print(f"{total_text / total_sec} text/sec", file=f)
+            print(f"{total_sec / total_num} sec/utt", file=f)
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path, subset):

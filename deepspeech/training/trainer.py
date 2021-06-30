@@ -18,8 +18,8 @@ import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
-from deepspeech.utils import checkpoint
 from deepspeech.utils import mp_tools
+from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 
 __all__ = ["Trainer"]
@@ -139,9 +139,9 @@ class Trainer():
             "epoch": self.epoch,
             "lr": self.optimizer.get_lr()
         })
-        checkpoint.save_parameters(self.checkpoint_dir, self.iteration
-                                   if tag is None else tag, self.model,
-                                   self.optimizer, infos)
+        self.checkpoint.add_checkpoint(self.checkpoint_dir, self.iteration
+                                       if tag is None else tag, self.model,
+                                       self.optimizer, infos)
 
     def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output 
@@ -151,7 +151,7 @@ class Trainer():
         resume training.
         """
         scratch = None
-        infos = checkpoint.load_parameters(
+        infos = self.checkpoint.load_latest_parameters(
             self.model,
             self.optimizer,
             checkpoint_dir=self.checkpoint_dir,
@@ -180,7 +180,7 @@ class Trainer():
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # save init model, i.e. 0 epoch
-            self.save(tag='init')
+            self.save(tag='init', infos=None)
 
         self.lr_scheduler.step(self.iteration)
         if self.parallel:
@@ -262,6 +262,10 @@ class Trainer():
         checkpoint_dir.mkdir(exist_ok=True)
 
         self.checkpoint_dir = checkpoint_dir
+
+        self.checkpoint = Checkpoint(
+            kbest_n=self.config.training.checkpoint.kbest_n,
+            latest_n=self.config.training.checkpoint.latest_n)
 
     @mp_tools.rank_zero_only
     def destory(self):

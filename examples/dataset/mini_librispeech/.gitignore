@@ -2,3 +2,4 @@ dev-clean/
 manifest.dev-clean
 manifest.train-clean
 train-clean/
+*.meta

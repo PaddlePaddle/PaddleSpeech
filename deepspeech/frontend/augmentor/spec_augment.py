@@ -123,18 +123,18 @@ class SpecAugmentor(AugmentorBase):
 
     def time_warp(xs, W=40):
         raise NotImplementedError
-    
+
     def randomize_parameters(self, n_frames, n_bins):
         # n_bins = xs.shape[0]
         # n_frames = xs.shape[1]
 
-        self.f=[]
-        self.f_0=[]
-        self.t=[]
-        self.t_0=[]
+        self.f = []
+        self.f_0 = []
+        self.t = []
+        self.t_0 = []
 
         for i in range(0, self.n_freq_masks):
-            f=int(self._rng.uniform(low=0, high=self.F))
+            f = int(self._rng.uniform(low=0, high=self.F))
             self.f.append(f)
             self.f_0.append(int(self._rng.uniform(low=0, high=n_bins - f)))
 
@@ -166,14 +166,13 @@ class SpecAugmentor(AugmentorBase):
             f_0 = self.f_0[i]
             xs[:, f_0:f_0 + f] = 0
             assert f_0 <= f_0 + f
-        
+
         for i in range(self.n_masks):
             t = self.t[i]
             t_0 = self.t_0[i]
             xs[t_0:t_0 + t, :] = 0
             assert t_0 <= t_0 + t
         return xs
-
 
     # def mask_freq(self, xs, replace_with_zero=False):
     #     n_bins = xs.shape[0]
@@ -207,7 +206,6 @@ class SpecAugmentor(AugmentorBase):
     #         assert t_0 <= t_0 + t
     #         self._time_mask = (t_0, t_0 + t)
     #     return xs
-
 
     # def transform_feature(self, xs: np.ndarray, single=True):
     #     """

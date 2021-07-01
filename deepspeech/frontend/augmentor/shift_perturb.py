@@ -32,7 +32,8 @@ class ShiftPerturbAugmentor(AugmentorBase):
         self._rng = rng
 
     def randomize_parameters(self):
-        self.shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
+        self.shift_ms = self._rng.uniform(self._min_shift_ms,
+                                          self._max_shift_ms)
 
     def apply(self, audio_segment):
         audio_segment.shift(self.shift_ms)
@@ -49,7 +50,6 @@ class ShiftPerturbAugmentor(AugmentorBase):
     #         self.randomize_parameters()
     #     self.apply(audio_segment)
 
-
     # def transform_audio(self, audio_segment):
     #     """Shift audio.
 
@@ -60,5 +60,3 @@ class ShiftPerturbAugmentor(AugmentorBase):
     #     """
     #     shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
     #     audio_segment.shift(shift_ms)
-
-

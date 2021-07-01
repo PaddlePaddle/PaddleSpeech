@@ -79,7 +79,6 @@ class SpeedPerturbAugmentor(AugmentorBase):
             self._rates = np.linspace(
                 self._min_rate, self._max_rate, self._num_rates, endpoint=True)
 
-
     def randomize_parameters(self):
         if self._num_rates < 0:
             self.speed_rate = self._rng.uniform(self._min_rate, self._max_rate)
@@ -92,8 +91,8 @@ class SpeedPerturbAugmentor(AugmentorBase):
             return
 
         audio_segment.change_speed(speed_rate)
-    
-    def transform_audio(self, audio_segment,single=True):
+
+    def transform_audio(self, audio_segment, single=True):
         """Sample a new speed rate from the given range and
         changes the speed of the given audio clip.
 
@@ -102,7 +101,7 @@ class SpeedPerturbAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegment|SpeechSegment
         """
-        if(single):
+        if (single):
             self.randomize_parameters()
         self.apply(audio_segment)
 

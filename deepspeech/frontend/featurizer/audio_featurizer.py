@@ -195,7 +195,7 @@ class AudioFeaturizer(object):
         ind = np.where(freqs <= max_freq)[0][-1] + 1
         specgram = np.log(specgram[:ind, :] + eps)
 
-        specgram = np.transpose(specgram) #T,D
+        specgram = np.transpose(specgram)  #T,D
         return specgram
 
     def _specgram_real(self, samples, window_size, stride_size, sample_rate):
@@ -299,7 +299,7 @@ class AudioFeaturizer(object):
             ceplifter=22,
             useEnergy=True,
             winfunc='povey')
-        
+
         mfcc_feat = np.transpose(mfcc_feat)
         if delta_delta:
             mfcc_feat = self._concat_delta_delta(mfcc_feat)

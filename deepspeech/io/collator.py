@@ -173,7 +173,6 @@ class SpeechCollator():
 
         self._stride_ms = stride_ms
         self._target_sample_rate = target_sample_rate
-        
 
         self._speech_featurizer = SpeechFeaturizer(
             unit_type=unit_type,
@@ -229,9 +228,10 @@ class SpeechCollator():
 
     def randomize_audio_parameters(self):
         self._augmentation_pipeline.randomize_parameters_audio_transform()
-    
+
     def randomize_feature_parameters(self, n_frames, n_bins):
-        self._augmentation_pipeline.randomize_parameters_feature_transform(n_frames, n_bins)
+        self._augmentation_pipeline.randomize_parameters_feature_transform(
+            n_frames, n_bins)
 
     def process_feature_and_transform(self, audio_file, transcript):
         """Load, augment, featurize and normalize for speech data.
@@ -252,7 +252,7 @@ class SpeechCollator():
         # Spectrum transform
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
-        
+
         if self._normalizer:
             specgram = self._normalizer.apply(specgram)
 
@@ -260,7 +260,6 @@ class SpeechCollator():
         # specgram = self._augmentation_pipeline.apply_feature_transform(specgram)
 
         return specgram, transcript_part
-
 
     # def process_utterance(self, audio_file, transcript, single=True):
     #     """Load, augment, featurize and normalize for speech data.
@@ -282,11 +281,10 @@ class SpeechCollator():
     #     # audio augment
     #     self._augmentation_pipeline.transform_audio(speech_segment)
 
-
     #     # Spectrum transform
     #     specgram, transcript_part = self._speech_featurizer.featurize(
     #         speech_segment, self._keep_transcription_text)
-        
+
     #     if self._normalizer:
     #         specgram = self._normalizer.apply(specgram)
 
@@ -350,14 +348,16 @@ class SpeechCollator():
         padded_texts = pad_sequence(
             texts, padding_value=IGNORE_ID).astype(np.int64)
         text_lens = np.array(text_lens).astype(np.int64)
-        
+
         #spec augment
-        n_bins=padded_audios.shape[2]
+        n_bins = padded_audios.shape[2]
         self.randomize_feature_parameters(min(audio_lens), n_bins)
         for i in range(len(padded_audios)):
-            if not self._randomize_each_batch: 
+            if not self._randomize_each_batch:
                 self.randomize_feature_parameters(audio_lens[i], n_bins)
-            padded_audios[i] = self._augmentation_pipeline.apply_feature_transform(padded_audios[i])
+            padded_audios[
+                i] = self._augmentation_pipeline.apply_feature_transform(
+                    padded_audios[i])
 
         return utts, padded_audios, audio_lens, padded_texts, text_lens
 

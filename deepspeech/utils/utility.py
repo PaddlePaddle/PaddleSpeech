@@ -79,3 +79,22 @@ def log_add(args: List[int]) -> float:
     a_max = max(args)
     lsp = math.log(sum(math.exp(a - a_max) for a in args))
     return a_max + lsp
+
+
+def get_subsample(config):
+    """Subsample rate from config.
+
+    Args:
+        config (yacs.config.CfgNode): yaml config
+
+    Returns:
+        int: subsample rate.
+    """
+    input_layer = config["model"]["encoder_conf"]["input_layer"]
+    assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
+    if input_layer == "conv2d":
+        return 4
+    elif input_layer == "conv2d6":
+        return 6
+    elif input_layer == "conv2d8":
+        return 8

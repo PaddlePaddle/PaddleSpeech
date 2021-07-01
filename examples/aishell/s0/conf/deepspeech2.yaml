@@ -11,7 +11,7 @@ data:
   max_output_input_ratio: .inf
 
 collator:
-  batch_size: 32 #64 # one gpu
+  batch_size: 64 # one gpu
   randomize_each_batch: False
   mean_std_filepath: data/mean_std.json
   unit_type: char

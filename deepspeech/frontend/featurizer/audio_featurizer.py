@@ -175,6 +175,7 @@ class AudioFeaturizer(object):
                                  max_freq=None,
                                  eps=1e-14):
         """Compute the linear spectrogram from FFT energy."""
+        # return T,D
         if max_freq is None:
             max_freq = sample_rate / 2
         if max_freq > sample_rate / 2:
@@ -190,8 +191,12 @@ class AudioFeaturizer(object):
             window_size=window_size,
             stride_size=stride_size,
             sample_rate=sample_rate)
+
         ind = np.where(freqs <= max_freq)[0][-1] + 1
-        return np.log(specgram[:ind, :] + eps)
+        specgram = np.log(specgram[:ind, :] + eps)
+
+        specgram = np.transpose(specgram) #T,D
+        return specgram
 
     def _specgram_real(self, samples, window_size, stride_size, sample_rate):
         """Compute the spectrogram for samples from a real signal."""
@@ -294,6 +299,7 @@ class AudioFeaturizer(object):
             ceplifter=22,
             useEnergy=True,
             winfunc='povey')
+        
         mfcc_feat = np.transpose(mfcc_feat)
         if delta_delta:
             mfcc_feat = self._concat_delta_delta(mfcc_feat)

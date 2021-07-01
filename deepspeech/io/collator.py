@@ -326,10 +326,8 @@ class SpeechCollator():
             audio, text = self.process_feature_and_transform(audio, text)
             #utt
             utts.append(utt)
-            # audio
             # print("---debug---")
             # print(audio.shape)
-            audio=audio.T
             audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[0])
             # text
@@ -358,7 +356,7 @@ class SpeechCollator():
         self.randomize_feature_parameters(min(audio_lens), n_bins)
         for i in range(len(padded_audios)):
             if not self._randomize_each_batch: 
-                self.randomize_feature_parameters(n_bins, audio_lens[i])
+                self.randomize_feature_parameters(audio_lens[i], n_bins)
             padded_audios[i] = self._augmentation_pipeline.apply_feature_transform(padded_audios[i])
 
         return utts, padded_audios, audio_lens, padded_texts, text_lens

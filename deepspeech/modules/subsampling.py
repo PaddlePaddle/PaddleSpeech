@@ -128,7 +128,8 @@ class Conv2dSubsampling4(BaseSubsampling):
         """
         x = x.unsqueeze(1)  # (b, c=1, t, f)
         x = self.conv(x)
-        b, c, t, f = paddle.shape(x)
+        #import pdb;pdb.set_trace()
+        b, c, t, f = x.shape
         x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2]

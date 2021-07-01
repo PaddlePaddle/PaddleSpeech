@@ -599,30 +599,30 @@ class U2BaseModel(nn.Module):
                 best_index = i
         return hyps[best_index][0]
 
-    @jit.export
-    def subsampling_rate(self) -> int:
-        """ Export interface for c++ call, return subsampling_rate of the
-            model
-        """
-        return self.encoder.embed.subsampling_rate
+    # @jit.export
+    # def subsampling_rate(self) -> int:
+    #     """ Export interface for c++ call, return subsampling_rate of the
+    #         model
+    #     """
+    #     return self.encoder.embed.subsampling_rate
 
-    @jit.export
-    def right_context(self) -> int:
-        """ Export interface for c++ call, return right_context of the model
-        """
-        return self.encoder.embed.right_context
+    # @jit.export
+    # def right_context(self) -> int:
+    #     """ Export interface for c++ call, return right_context of the model
+    #     """
+    #     return self.encoder.embed.right_context
 
-    @jit.export
-    def sos_symbol(self) -> int:
-        """ Export interface for c++ call, return sos symbol id of the model
-        """
-        return self.sos
+    # @jit.export
+    # def sos_symbol(self) -> int:
+    #     """ Export interface for c++ call, return sos symbol id of the model
+    #     """
+    #     return self.sos
 
-    @jit.export
-    def eos_symbol(self) -> int:
-        """ Export interface for c++ call, return eos symbol id of the model
-        """
-        return self.eos
+    # @jit.export
+    # def eos_symbol(self) -> int:
+    #     """ Export interface for c++ call, return eos symbol id of the model
+    #     """
+    #     return self.eos
 
     @jit.export
     def forward_encoder_chunk(
@@ -654,16 +654,16 @@ class U2BaseModel(nn.Module):
             xs, offset, required_cache_size, subsampling_cache,
             elayers_output_cache, conformer_cnn_cache)
 
-    @jit.export
-    def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
-        """ Export interface for c++ call, apply linear transform and log
-            softmax before ctc
-        Args:
-            xs (paddle.Tensor): encoder output
-        Returns:
-            paddle.Tensor: activation before ctc
-        """
-        return self.ctc.log_softmax(xs)
+    # @jit.export
+    # def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
+    #     """ Export interface for c++ call, apply linear transform and log
+    #         softmax before ctc
+    #     Args:
+    #         xs (paddle.Tensor): encoder output
+    #     Returns:
+    #         paddle.Tensor: activation before ctc
+    #     """
+    #     return self.ctc.log_softmax(xs)
 
     @jit.export
     def forward_attention_decoder(
@@ -878,12 +878,10 @@ class U2Model(U2BaseModel):
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):
         """Build a DeepSpeech2Model model from a pretrained model.
-
         Args:
             dataloader (paddle.io.DataLoader): not used.
             config (yacs.config.CfgNode):  model configs
             checkpoint_path (Path or str): the path of pretrained model checkpoint, without extension name
-
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """

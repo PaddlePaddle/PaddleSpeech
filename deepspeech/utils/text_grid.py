@@ -110,7 +110,7 @@ def generate_textgrid(maxtime: float,
     """
     # Download Praat: https://www.fon.hum.uva.nl/praat/
     avg_interval = maxtime / (len(intervals) + 1)
-    print(f"average duration per {name}: {avg_interval}")
+    print(f"average second/token: {avg_interval}")
     margin = 0.0001
 
     tg = textgrid.TextGrid(maxTime=maxtime)

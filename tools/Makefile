@@ -1,7 +1,8 @@
+SHELL:= /bin/bash
 PYTHON:= python3.7
 .PHONY: all clean
 
-all: virtualenv kenlm.done sox.done soxbindings.done
+all: virtualenv kenlm.done sox.done soxbindings.done mfa.done
 
 virtualenv:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -19,7 +20,7 @@ kenlm.done:
 	apt-get install -y gcc-5 g++-5 && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
 	test -d kenlm || wget -O - https://kheafield.com/code/kenlm.tar.gz | tar xz
 	mkdir -p kenlm/build && cd kenlm/build && cmake .. && make -j4 && make install
-	cd kenlm && python setup.py install
+	source venv/bin/activate; cd kenlm && python setup.py install
 	touch kenlm.done
 
 sox.done:
@@ -33,3 +34,8 @@ soxbindings.done:
 	test -d soxbindings || git clone https://github.com/pseeth/soxbindings.git
 	source venv/bin/activate; cd soxbindings && python setup.py install
 	touch soxbindings.done
+
+mfa.done:
+	test -d montreal-forced-aligner || wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
+	tar xvf montreal-forced-aligner_linux.tar.gz
+	touch mfa.done

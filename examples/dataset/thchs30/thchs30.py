@@ -130,7 +130,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                         ensure_ascii=False))
 
                 total_sec += duration
-                total_text += len(text)
+                total_text += len(word_text)
                 total_num += 1
 
         manifest_path = manifest_path_prefix + '.' + dtype

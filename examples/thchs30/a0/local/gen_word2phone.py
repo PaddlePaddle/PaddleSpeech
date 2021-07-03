@@ -53,9 +53,9 @@ def gen_lexicon(root_dir: Union[str, Path], output_dir: Union[str, Path]):
     root_dir = Path(root_dir).expanduser()
     output_dir = Path(output_dir).expanduser()
     output_dir.mkdir(parents=True, exist_ok=True)
-    file1 = root_dir / "data_thchs30/lm_word/lexicon.txt"
-    file2 = root_dir / "resource/dict/lexicon.txt"
-    write_file = output_dir / "thchs30_cn2phone"
+    file1 = root_dir / "lm_word_lexicon_1"
+    file2 = root_dir / "lm_word_lexicon_2"
+    write_file = output_dir / "word.lexicon"
 
     with open(file1, "r") as f1:
         for line in f1:
@@ -87,10 +87,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Gen Chinese characters to phone lexicon for THCHS-30 dataset"
     )
-    parser.add_argument("--root-dir", type=str, help="path to thchs30 dataset.")
     parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs(audio and transcriptions)")
+        "--root-dir", type=str, help="dir to thchs30 lm_word_lexicons")
+    parser.add_argument("--output-dir", type=str, help="path to save outputs")
     args = parser.parse_args()
     gen_lexicon(args.root_dir, args.output_dir)

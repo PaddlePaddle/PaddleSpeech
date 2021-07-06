@@ -27,8 +27,9 @@ touch "python/.use_default_python"
 
 make -j4
 
-cd ../src
-./configure --shared --use-cuda=no --static-math
+pushd ../src
+./configure --shared --use-cuda=no --static-math --mathlib=OPENBLAS --openblas-root=${KALDI_DIR}/../OpenBLAS/install
 make clean -j && make depend -j && make -j4
+popd
 
 echo "Done installing Kaldi."

@@ -117,20 +117,21 @@ def create_manifest(data_dir, manifest_path_prefix):
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
 
+                # not dump alignment infos
                 json_lines.append(
                     json.dumps(
                         {
                             'utt': audio_id,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
-                            'text': word_text,
+                            'text': word_text,  # charactor
                             'syllable': syllable_text,
                             'phone': phone_text,
                         },
                         ensure_ascii=False))
 
                 total_sec += duration
-                total_text += len(text)
+                total_text += len(word_text)
                 total_num += 1
 
         manifest_path = manifest_path_prefix + '.' + dtype

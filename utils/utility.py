@@ -14,8 +14,14 @@
 import os
 import tarfile
 import zipfile
+from typing import Text
 
 from paddle.dataset.common import md5file
+
+__all__ = [
+    "check_md5sum", "getfile_insensitive", "download_multi", "download",
+    "unpack", "unzip"
+]
 
 
 def getfile_insensitive(path):
@@ -52,6 +58,19 @@ def download(url, md5sum, target_dir):
     else:
         print("File exists, skip downloading. (%s)" % filepath)
     return filepath
+
+
+def check_md5sum(filepath: Text, md5sum: Text) -> bool:
+    """check md5sum of file.
+
+    Args:
+        filepath (Text): [description]
+        md5sum (Text): [description]
+
+    Returns:
+        bool: same or not.
+    """
+    return md5file(filepath) == md5sum
 
 
 def unpack(filepath, target_dir, rm_tar=False):

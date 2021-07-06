@@ -38,21 +38,23 @@ def remove_duplicates_and_blank(hyp: List[int], blank_id=0) -> List[int]:
     new_hyp: List[int] = []
     cur = 0
     while cur < len(hyp):
+        # add non-blank into new_hyp
         if hyp[cur] != blank_id:
             new_hyp.append(hyp[cur])
+        # skip repeat label
         prev = cur
         while cur < len(hyp) and hyp[cur] == hyp[prev]:
             cur += 1
     return new_hyp
 
 
-def insert_blank(label: np.ndarray, blank_id: int=0):
+def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
     """Insert blank token between every two label token.
 
     "abcdefg" -> "-a-b-c-d-e-f-g-"
 
     Args:
-        label ([np.ndarray]): label ids, (L).
+        label ([np.ndarray]): label ids, List[int], (L).
         blank_id (int, optional): blank id. Defaults to 0.
 
     Returns:
@@ -61,13 +63,13 @@ def insert_blank(label: np.ndarray, blank_id: int=0):
     label = np.expand_dims(label, 1)  #[L, 1]
     blanks = np.zeros((label.shape[0], 1), dtype=np.int64) + blank_id
     label = np.concatenate([blanks, label], axis=1)  #[L, 2]
-    label = label.reshape(-1)  #[2L]
-    label = np.append(label, label[0])  #[2L + 1]
+    label = label.reshape(-1)  #[2L], -l-l-l
+    label = np.append(label, label[0])  #[2L + 1], -l-l-l-
     return label
 
 
 def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
-                 blank_id=0) -> list:
+                 blank_id=0) -> List[int]:
     """ctc forced alignment.
 
     https://distill.pub/2017/ctc/
@@ -77,23 +79,25 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
         y (paddle.Tensor): label id sequence tensor, 1d tensor (L)
         blank_id (int): blank symbol index
     Returns:
-        paddle.Tensor: best alignment result, (T).
+        List[int]: best alignment result, (T).
     """
-    y_insert_blank = insert_blank(y, blank_id)
+    y_insert_blank = insert_blank(y, blank_id)  #(2L+1)
 
     log_alpha = paddle.zeros(
         (ctc_probs.size(0), len(y_insert_blank)))  #(T, 2L+1)
     log_alpha = log_alpha - float('inf')  # log of zero
+    # TODO(Hui Zhang): zeros not support paddle.int16
     state_path = (paddle.zeros(
-        (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int16) - 1
-                  )  # state path
+        (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int32) - 1
+                  )  # state path, Tuple((T, 2L+1))
 
     # init start state
-    log_alpha[0, 0] = ctc_probs[0][y_insert_blank[0]]  # Sb
-    log_alpha[0, 1] = ctc_probs[0][y_insert_blank[1]]  # Snb
+    # TODO(Hui Zhang): VarBase.__getitem__() not support np.int64
+    log_alpha[0, 0] = ctc_probs[0][int(y_insert_blank[0])]  # State-b, Sb
+    log_alpha[0, 1] = ctc_probs[0][int(y_insert_blank[1])]  # State-nb, Snb
 
-    for t in range(1, ctc_probs.size(0)):
-        for s in range(len(y_insert_blank)):
+    for t in range(1, ctc_probs.size(0)):  # T
+        for s in range(len(y_insert_blank)):  # 2L+1
             if y_insert_blank[s] == blank_id or s < 2 or y_insert_blank[
                     s] == y_insert_blank[s - 2]:
                 candidates = paddle.to_tensor(
@@ -106,11 +110,13 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
                     log_alpha[t - 1, s - 2],
                 ])
                 prev_state = [s, s - 1, s - 2]
-            log_alpha[t, s] = paddle.max(candidates) + ctc_probs[t][
-                y_insert_blank[s]]
+            # TODO(Hui Zhang): VarBase.__getitem__() not support np.int64
+            log_alpha[t, s] = paddle.max(candidates) + ctc_probs[t][int(
+                y_insert_blank[s])]
             state_path[t, s] = prev_state[paddle.argmax(candidates)]
 
-    state_seq = -1 * paddle.ones((ctc_probs.size(0), 1), dtype=paddle.int16)
+    # TODO(Hui Zhang): zeros not support paddle.int16
+    state_seq = -1 * paddle.ones((ctc_probs.size(0), 1), dtype=paddle.int32)
 
     candidates = paddle.to_tensor([
         log_alpha[-1, len(y_insert_blank) - 1],  # Sb

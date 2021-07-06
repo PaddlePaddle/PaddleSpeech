@@ -599,26 +599,26 @@ class U2BaseModel(nn.Module):
                 best_index = i
         return hyps[best_index][0]
 
-    @jit.export
+    #@jit.export
     def subsampling_rate(self) -> int:
         """ Export interface for c++ call, return subsampling_rate of the
             model
         """
         return self.encoder.embed.subsampling_rate
 
-    @jit.export
+    #@jit.export
     def right_context(self) -> int:
         """ Export interface for c++ call, return right_context of the model
         """
         return self.encoder.embed.right_context
 
-    @jit.export
+    #@jit.export
     def sos_symbol(self) -> int:
         """ Export interface for c++ call, return sos symbol id of the model
         """
         return self.sos
 
-    @jit.export
+    #@jit.export
     def eos_symbol(self) -> int:
         """ Export interface for c++ call, return eos symbol id of the model
         """
@@ -654,12 +654,14 @@ class U2BaseModel(nn.Module):
             xs, offset, required_cache_size, subsampling_cache,
             elayers_output_cache, conformer_cnn_cache)
 
-    @jit.export
+    # @jit.export([
+    #         paddle.static.InputSpec(shape=[1, None, feat_dim],dtype='float32'),  # audio feat, [B,T,D]
+    #     ])
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
         """ Export interface for c++ call, apply linear transform and log
             softmax before ctc
         Args:
-            xs (paddle.Tensor): encoder output
+            xs (paddle.Tensor): encoder output, (B, T, D)
         Returns:
             paddle.Tensor: activation before ctc
         """
@@ -894,7 +896,7 @@ class U2Model(U2BaseModel):
         model = cls.from_config(config)
 
         if checkpoint_path:
-            infos = checkpoint.load_parameters(
+            infos = checkpoint.Checkpoint().load_parameters(
                 model, checkpoint_path=checkpoint_path)
             logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)

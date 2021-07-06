@@ -34,9 +34,12 @@ from deepspeech.models.u2 import U2Model
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.scheduler import WarmupLR
 from deepspeech.training.trainer import Trainer
+from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
+from deepspeech.utils import text_grid
+from deepspeech.utils import utility
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -278,7 +281,15 @@ class U2Trainer(Trainer):
             shuffle=False,
             drop_last=False,
             collate_fn=SpeechCollator.from_config(config))
-        logger.info("Setup train/valid/test Dataloader!")
+        # return text token id
+        config.collator.keep_transcription_text = False
+        self.align_loader = DataLoader(
+            test_dataset,
+            batch_size=config.decoding.batch_size,
+            shuffle=False,
+            drop_last=False,
+            collate_fn=SpeechCollator.from_config(config))
+        logger.info("Setup train/valid/test/align Dataloader!")
 
     def setup_model(self):
         config = self.config
@@ -353,7 +364,7 @@ class U2Tester(U2Trainer):
                 decoding_chunk_size=-1,  # decoding chunk size. Defaults to -1.
                 # <0: for decoding, use full chunk.
                 # >0: for decoding, use fixed chunk size as set.
-                # 0: used for training, it's prohibited here. 
+                # 0: used for training, it's prohibited here.
                 num_decoding_left_chunks=-1,  # number of left chunks for decoding. Defaults to -1.
                 simulate_streaming=False,  # simulate streaming inference. Defaults to False.
             ))
@@ -498,6 +509,73 @@ class U2Tester(U2Trainer):
         except KeyboardInterrupt:
             sys.exit(-1)
 
+    @paddle.no_grad()
+    def align(self):
+        if self.config.decoding.batch_size > 1:
+            logger.fatal('alignment mode must be running with batch_size == 1')
+            sys.exit(1)
+
+        # xxx.align
+        assert self.args.result_file and self.args.result_file.endswith(
+            '.align')
+
+        self.model.eval()
+        logger.info(f"Align Total Examples: {len(self.align_loader.dataset)}")
+
+        stride_ms = self.align_loader.collate_fn.stride_ms
+        token_dict = self.align_loader.collate_fn.vocab_list
+        with open(self.args.result_file, 'w') as fout:
+            # one example in batch
+            for i, batch in enumerate(self.align_loader):
+                key, feat, feats_length, target, target_length = batch
+
+                # 1. Encoder
+                encoder_out, encoder_mask = self.model._forward_encoder(
+                    feat, feats_length)  # (B, maxlen, encoder_dim)
+                maxlen = encoder_out.size(1)
+                ctc_probs = self.model.ctc.log_softmax(
+                    encoder_out)  # (1, maxlen, vocab_size)
+
+                # 2. alignment
+                ctc_probs = ctc_probs.squeeze(0)
+                target = target.squeeze(0)
+                alignment = ctc_utils.forced_align(ctc_probs, target)
+                logger.info("align ids", key[0], alignment)
+                fout.write('{} {}\n'.format(key[0], alignment))
+
+                # 3. gen praat
+                # segment alignment
+                align_segs = text_grid.segment_alignment(alignment)
+                logger.info("align tokens", key[0], align_segs)
+                # IntervalTier, List["start end token\n"]
+                subsample = utility.get_subsample(self.config)
+                tierformat = text_grid.align_to_tierformat(
+                    align_segs, subsample, token_dict)
+                # write tier
+                align_output_path = os.path.join(
+                    os.path.dirname(self.args.result_file), "align")
+                tier_path = os.path.join(align_output_path, key[0] + ".tier")
+                with open(tier_path, 'w') as f:
+                    f.writelines(tierformat)
+                # write textgrid
+                textgrid_path = os.path.join(align_output_path,
+                                             key[0] + ".TextGrid")
+                second_per_frame = 1. / (1000. /
+                                         stride_ms)  # 25ms window, 10ms stride
+                second_per_example = (
+                    len(alignment) + 1) * subsample * second_per_frame
+                text_grid.generate_textgrid(
+                    maxtime=second_per_example,
+                    intervals=tierformat,
+                    output=textgrid_path)
+
+    def run_align(self):
+        self.resume_or_scratch()
+        try:
+            self.align()
+        except KeyboardInterrupt:
+            sys.exit(-1)
+
     def load_inferspec(self):
         """infer model and input spec.
 
@@ -511,10 +589,9 @@ class U2Tester(U2Trainer):
                                                    self.args.checkpoint_path)
         feat_dim = self.test_loader.collate_fn.feature_size
         input_spec = [
-            paddle.static.InputSpec(
-                shape=[None, feat_dim, None],
-                dtype='float32'),  # audio, [B,D,T]
-            paddle.static.InputSpec(shape=[None],
+            paddle.static.InputSpec(shape=[1, None, feat_dim],
+                                    dtype='float32'),  # audio, [B,T,D]
+            paddle.static.InputSpec(shape=[1],
                                     dtype='int64'),  # audio_length, [B]
         ]
         return infer_model, input_spec

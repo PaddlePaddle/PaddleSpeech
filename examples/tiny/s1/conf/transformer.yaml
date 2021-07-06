@@ -84,6 +84,9 @@ training:
     warmup_steps: 25000
     lr_decay: 1.0
   log_interval: 1
+  checkpoint:
+    kbest_n: 10
+    latest_n: 1
 
 
 decoding:

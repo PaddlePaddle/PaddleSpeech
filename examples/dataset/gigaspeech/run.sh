@@ -5,6 +5,10 @@ set -e
 curdir=$PWD
 
 test -d GigaSpeech || git clone https://github.com/SpeechColab/GigaSpeech.git
-cd GigaSpeech
+
+
+pushd GigaSpeech
 source env_vars.sh
-utils/gigaspeech_download.sh ${curdir}/
+./utils/download_gigaspeech.sh ${curdir}/
+#toolkits/kaldi/gigaspeech_data_prep.sh --train-subset XL /disk1/audio_data/gigaspeech ../data
+popd

@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 stage=-1
 stop_stage=100

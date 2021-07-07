@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 # grid-search for hyper-parameters in language model
 python3 -u ${BIN_DIR}/tune.py \

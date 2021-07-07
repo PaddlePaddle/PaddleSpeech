@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 # TODO: replace the model with a mandarin model
 
 if [[ $# != 1 ]];then

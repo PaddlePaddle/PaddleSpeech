@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 if [ $# != 2 ];then
     echo "usage: ${0} config_path ckpt_path_prefix"
@@ -9,7 +9,7 @@ ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 device=gpu
-if [ ngpu == 0 ];then
+if [ ${ngpu} == 0 ];then
     device=cpu
 fi
 config_path=$1

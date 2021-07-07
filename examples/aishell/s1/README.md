@@ -12,12 +12,12 @@
 
 ## Chunk Conformer
 
-| Model | Params | Config | Augmentation| Test set | Decode method | Chunk | Loss | WER |  
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention | 16 | - | 0.061939 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_greedy_search | 16 | - | 0.070806 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_prefix_beam_search | 16 | - | 0.070739 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention_rescoring | 16 |  - | 0.059400 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention | 16, -1 | - | 0.061939 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_greedy_search | 16, -1 | - | 0.070806 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_prefix_beam_search | 16, -1 | - | 0.070739 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention_rescoring | 16, -1 |  - | 0.059400 |  
 
 
 ## Transformer

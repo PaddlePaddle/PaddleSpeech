@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 if [ $# != 1 ];then
     echo "usage: tune ckpt_path"

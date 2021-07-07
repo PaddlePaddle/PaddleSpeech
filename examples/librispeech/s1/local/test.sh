@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 if [ $# != 2 ];then
     echo "usage: ${0} config_path ckpt_path_prefix"
@@ -9,11 +9,18 @@ ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 device=gpu
-if [ ngpu == 0 ];then
+if [ ${ngpu} == 0 ];then
     device=cpu
 fi
+
 config_path=$1
 ckpt_prefix=$2
+
+chunk_mode=false
+if [[ ${config_path} =~ ^chunk_ ]];then
+    chunk_mode=true
+fi
+
 
 # download language model
 #bash local/download_lm_en.sh
@@ -23,7 +30,12 @@ ckpt_prefix=$2
 
 for type in attention ctc_greedy_search; do
     echo "decoding ${type}"
-    batch_size=64
+    if [ ${chunk_mode} == true ];then
+        # stream decoding only support batchsize=1
+        batch_size=1
+    else
+        batch_size=64
+    fi
     python3 -u ${BIN_DIR}/test.py \
     --device ${device} \
     --nproc 1 \

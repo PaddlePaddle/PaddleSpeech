@@ -219,11 +219,14 @@ class BaseEncoder(nn.Layer):
 
         xs, pos_emb, _ = self.embed(
             xs, tmp_masks, offset=offset)  #xs=(B, T, D), pos_emb=(B=1, T, D)
+
         if subsampling_cache is not None:
             cache_size = subsampling_cache.size(1)  #T
             xs = paddle.cat((subsampling_cache, xs), dim=1)
         else:
             cache_size = 0
+
+        # only used when using `RelPositionMultiHeadedAttention`
         pos_emb = self.embed.position_encoding(
             offset=offset - cache_size, size=xs.size(1))
 
@@ -237,7 +240,7 @@ class BaseEncoder(nn.Layer):
 
         # Real mask for transformer/conformer layers
         masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
-        masks = masks.unsqueeze(1)  #[B=1, C=1, T]
+        masks = masks.unsqueeze(1)  #[B=1, L'=1, T]
         r_elayers_output_cache = []
         r_conformer_cnn_cache = []
         for i, layer in enumerate(self.encoders):

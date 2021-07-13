@@ -15,5 +15,20 @@
       "max_shift_ms": 5
     },
     "prob": 1.0
+  },
+  {
+    "type": "specaug",
+    "params": {
+      "F": 10,
+      "T": 50,
+      "n_freq_masks": 2,
+      "n_time_masks": 2,
+      "p": 1.0,
+      "W": 80,
+      "adaptive_number_ratio": 0,
+      "adaptive_size_ratio": 0,
+      "max_n_time_masks": 20
+    },
+    "prob": 1.0
   }
 ]

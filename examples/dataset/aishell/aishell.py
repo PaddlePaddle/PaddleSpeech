@@ -34,6 +34,8 @@ URL_ROOT = 'http://www.openslr.org/resources/33'
 # URL_ROOT = 'https://openslr.magicdatatech.com/resources/33'
 DATA_URL = URL_ROOT + '/data_aishell.tgz'
 MD5_DATA = '2f494334227864a8a8fec932999db9d8'
+RESOURCE_URL = URL_ROOT + '/resource_aishell.tgz'
+MD5_RESOURCE = '957d480a0fcac85fc18e550756f624e5'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -110,7 +112,7 @@ def create_manifest(data_dir, manifest_path_prefix):
             print(f"{total_sec / total_num} sec/utt", file=f)
 
 
-def prepare_dataset(url, md5sum, target_dir, manifest_path):
+def prepare_dataset(url, md5sum, target_dir, manifest_path=None):
     """Download, unpack and create manifest file."""
     data_dir = os.path.join(target_dir, 'data_aishell')
     if not os.path.exists(data_dir):
@@ -124,7 +126,9 @@ def prepare_dataset(url, md5sum, target_dir, manifest_path):
     else:
         print("Skip downloading and unpacking. Data already exists in %s." %
               target_dir)
-    create_manifest(data_dir, manifest_path)
+
+    if manifest_path:
+        create_manifest(data_dir, manifest_path)
 
 
 def main():
@@ -136,6 +140,12 @@ def main():
         md5sum=MD5_DATA,
         target_dir=args.target_dir,
         manifest_path=args.manifest_prefix)
+
+    prepare_dataset(
+        url=RESOURCE_URL,
+        md5sum=MD5_RESOURCE,
+        target_dir=args.target_dir,
+        manifest_path=None)
 
     print("Data download and manifest prepare done!")
 

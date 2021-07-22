@@ -300,7 +300,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
-                logger.info("batch: {}".format(i))
                 utts, audio, audio_len, texts, texts_len = batch
                 metrics = self.compute_metrics(utts, audio, audio_len, texts,
                                                texts_len, fout)

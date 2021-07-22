@@ -2,7 +2,7 @@
 set -e
 source path.sh
 
-gpus=2
+gpus=0
 stage=0
 stop_stage=100
 conf_path=conf/deepspeech2.yaml

@@ -15,8 +15,13 @@ local=`pwd`/local
 utils=`pwd`/utils
 conf=`pwd`/conf
 
-[ -f $conf/test_spk.list ] || error_exit "$PROG: Eval-set speaker list not found.";
-[ -f $conf/dev_spk.list ] || error_exit "$PROG: dev-set speaker list not found.";
+function error_exit () {
+  echo -e "$@" >&2; exit 1;
+}
+PROG=$(basename $0)
+
+[ -f $conf/test_spk.list ] || error_exit "$PROG line $LINENO: Eval-set speaker list not found.";
+[ -f $conf/dev_spk.list ] || error_exit "$PROG line $LINENO: dev-set speaker list not found.";
 
 # First check if the train & test directories exist (these can either be upper-
 # or lower-cased

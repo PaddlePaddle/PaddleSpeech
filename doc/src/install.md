@@ -42,6 +42,13 @@ bash setup.sh
 ```bash
 source tools/venv/bin/activate
 ```
+## install AutoLog
+```bash
+git clone https://github.com/LDOUBLEV/AutoLog
+pip3 install -r requirements.txt
+python3 setup.py bdist_wheel
+pip3 install ./dist/AutoLog-1.0.0-py3-none-any.whl
+```bash
 
 ## Running in Docker Container (optional)
 

@@ -42,8 +42,8 @@ bash setup.sh
 ```bash
 source tools/venv/bin/activate
 ```
-## Install AutoLog
-Installing AutoLog via `git`:
+
+- Installing AutoLog via `git`:
 ```bash
 git clone https://github.com/LDOUBLEV/AutoLog
 pip3 install -r requirements.txt

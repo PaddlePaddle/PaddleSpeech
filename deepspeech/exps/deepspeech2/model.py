@@ -35,12 +35,12 @@ from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Log
-logger = Log(__name__).getlog()
 
 import auto_log
 import os
 from paddle import inference
 
+logger = Log(__name__).getlog()
 
 
 class DeepSpeech2Trainer(Trainer):
@@ -228,13 +228,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
-        # added by hyx
         pid = os.getpid()
+        gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
         infer_config = inference.Config()
-        infer_config.enable_use_gpu(10000, 2)
-        logger = None
+        infer_config.enable_use_gpu(100, gpu_id)
         autolog = auto_log.AutoLogger(
-             model_name="tiny_s0",
+             model_name="deepspeech2",
              model_precision="fp32",
              batch_size=config.decoding.batch_size,
              data_shape="dynamic",
@@ -242,13 +241,14 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
              inference_config=infer_config,
              pids=pid,
              process_name=None,
-             gpu_ids=2,
+             gpu_ids=gpu_id,
              time_keys=[
                      'preprocess_time', 'inference_time', 'postprocess_time'
              ],
              warmup=0)
         self.autolog = autolog
         logger = autolog.logger
+        logger.info("gpu_id:{}".format(gpu_id))
 
     def ordid2token(self, texts, texts_len):
         """ ord() id to chr() chr """
@@ -291,6 +291,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         self.autolog.times.stamp()
         self.autolog.times.stamp()
         self.autolog.times.end()
+
         for utt, target, result in zip(utts, target_transcripts,
                                        result_transcripts):
             errors, len_ref = errors_func(target, result)

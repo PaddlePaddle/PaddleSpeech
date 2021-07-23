@@ -34,9 +34,8 @@ from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
-from deepspeech.utils.log import Log
 from deepspeech.utils.log import Autolog
-
+from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
@@ -226,8 +225,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
-        self.autolog = Autolog(batch_size = config.decoding.batch_size, model_name = "deepspeech2", model_precision = "fp32").getlog()
-    
+
     def ordid2token(self, texts, texts_len):
         """ ord() id to chr() chr """
         trans = []
@@ -294,6 +292,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     @paddle.no_grad()
     def test(self):
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
+        self.autolog = Autolog(
+            batch_size=self.config.decoding.batch_size,
+            model_name="deepspeech2",
+            model_precision="fp32").getlog()
         self.model.eval()
         cfg = self.config
         error_rate_type = None

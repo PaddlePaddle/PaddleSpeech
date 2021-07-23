@@ -16,3 +16,5 @@ tools/kenlm
 tools/sox-14.4.2
 tools/soxbindings
 tools/Montreal-Forced-Aligner/
+
+*output/

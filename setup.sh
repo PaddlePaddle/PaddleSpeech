@@ -44,18 +44,17 @@ if [ $? != 0 ]; then
 fi
 
 #install auto-log
-python3 -c "import auto_log"
+python -c "import auto_log"
 if [ $? != 0 ]; then
     info_msg "Install auto_log into default system path"
-    git clone https://github.com/LDOUBLEV/AutoLog
+    test -d AutoLog || git clone https://github.com/LDOUBLEV/AutoLog
     if [ $? != 0 ]; then
         error_msg "Download auto_log failed !!!"
         exit 1
     fi
     cd AutoLog
-    pip3 install -r requirements.txt
-    python3 setup.py bdist_wheel
-    pip3 install ./dist/[Aa]uto*.whl
+    pip install -r requirements.txt
+    python setup.py install 
     cd ..
     rm -rf AutoLog
 fi 

@@ -50,36 +50,36 @@ def create_manifest(data_dir, manifest_path_prefix):
         total_text = 0.0
         total_num = 0
 
-        phn_path = os.path.join(data_dir, dtype+'.text')
+        phn_path = os.path.join(data_dir, dtype + '.text')
         phn_dict = {}
         for line in codecs.open(phn_path, 'r', 'utf-8'):
             line = line.strip()
             if line == '':
                 continue
             audio_id, text = line.split(' ', 1)
-            phn_dict[audio_id] = text        
+            phn_dict[audio_id] = text
 
-        audio_dir = os.path.join(data_dir, dtype+'_sph.scp')
+        audio_dir = os.path.join(data_dir, dtype + '_sph.scp')
         for line in codecs.open(audio_dir, 'r', 'utf-8'):
-                audio_id, audio_path = line.strip().split()
-                # if no transcription for audio then raise error
-                assert audio_id in phn_dict
-                audio_data, samplerate = soundfile.read(audio_path)
-                duration = float(len(audio_data) / samplerate)
-                text = phn_dict[audio_id]
-                json_lines.append(
-                    json.dumps(
-                        {
-                            'utt': audio_id,
-                            'feat': audio_path,
-                            'feat_shape': (duration, ),  # second
-                            'text': text
-                        },
-                        ensure_ascii=False))
+            audio_id, audio_path = line.strip().split()
+            # if no transcription for audio then raise error
+            assert audio_id in phn_dict
+            audio_data, samplerate = soundfile.read(audio_path)
+            duration = float(len(audio_data) / samplerate)
+            text = phn_dict[audio_id]
+            json_lines.append(
+                json.dumps(
+                    {
+                        'utt': audio_id,
+                        'feat': audio_path,
+                        'feat_shape': (duration, ),  # second
+                        'text': text
+                    },
+                    ensure_ascii=False))
 
-                total_sec += duration
-                total_text += len(text)
-                total_num += 1
+            total_sec += duration
+            total_text += len(text)
+            total_num += 1
 
         manifest_path = manifest_path_prefix + '.' + dtype + '.raw'
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
@@ -99,9 +99,7 @@ def main():
     if args.src_dir.startswith('~'):
         args.src_dir = os.path.expanduser(args.src_dir)
 
-    prepare_dataset(
-        src_dir=args.src_dir,
-        manifest_path=args.manifest_prefix)
+    prepare_dataset(src_dir=args.src_dir, manifest_path=args.manifest_prefix)
 
     print("manifest prepare done!")
 

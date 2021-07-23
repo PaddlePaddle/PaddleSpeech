@@ -18,10 +18,7 @@ import socket
 import sys
 
 import auto_log
-import os
 from paddle import inference
-
-
 
 FORMAT_STR = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
 DATE_FMT_STR = '%Y/%m/%d %H:%M:%S'
@@ -153,28 +150,29 @@ class Log():
     def getlog(self):
         return self.logger
 
-class Autolog:
 
-    def __init__(self, batch_size, model_name = "DeepSpeech", model_precision = "fp32"):    
+class Autolog:
+    def __init__(self,
+                 batch_size,
+                 model_name="DeepSpeech",
+                 model_precision="fp32"):
         pid = os.getpid()
         gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
         infer_config = inference.Config()
         infer_config.enable_use_gpu(100, gpu_id)
         autolog = auto_log.AutoLogger(
-            model_name = model_name,
-            model_precision = model_precision,
-            batch_size = batch_size,
+            model_name=model_name,
+            model_precision=model_precision,
+            batch_size=batch_size,
             data_shape="dynamic",
             save_path="./output/auto_log.lpg",
-            inference_config = infer_config,
-            pids = pid,
-            process_name = None,
-            gpu_ids = gpu_id,
-            time_keys=[
-                    'preprocess_time', 'inference_time', 'postprocess_time'
-            ],
+            inference_config=infer_config,
+            pids=pid,
+            process_name=None,
+            gpu_ids=gpu_id,
+            time_keys=['preprocess_time', 'inference_time', 'postprocess_time'],
             warmup=0)
         self.autolog = autolog
-    
+
     def getlog(self):
         return self.autolog

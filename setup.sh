@@ -43,6 +43,23 @@ if [ $? != 0 ]; then
     rm libsndfile-1.0.28.tar.gz
 fi
 
+#install auto-log
+python3 -c "import auto_log"
+if [ $? != 0 ]; then
+    info_msg "Install auto_log into default system path"
+    git clone https://github.com/LDOUBLEV/AutoLog
+    if [ $? != 0 ]; then
+        error_msg "Download auto_log failed !!!"
+        exit 1
+    fi
+    cd AutoLog
+    pip3 install -r requirements.txt
+    python3 setup.py bdist_wheel
+    pip3 install ./dist/[Aa]uto*.whl
+    cd ..
+    rm -rf AutoLog
+fi 
+
 # install decoders
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"
 if [ $? != 0 ]; then
@@ -65,5 +82,6 @@ if [ $? != 0 ]; then
    exit -1
 fi
 popd
+
 
 info_msg "Install all dependencies successfully."

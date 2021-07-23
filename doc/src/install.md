@@ -43,14 +43,6 @@ bash setup.sh
 source tools/venv/bin/activate
 ```
 
-- Besides, installing AutoLog via `git`:
-```bash
-git clone https://github.com/LDOUBLEV/AutoLog
-pip3 install -r requirements.txt
-python3 setup.py bdist_wheel
-pip3 install ./dist/AutoLog-1.0.0-py3-none-any.whl
-```
-
 ## Running in Docker Container (optional)
 
 Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.

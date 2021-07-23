@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(deepspeech VERSION 0.1)
+project(speechnn VERSION 0.1)
+
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE PATH "Install path prefix." FORCE)
+endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+# include file 
+include(cmake/third_party.cmake)
+
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 # set std-14
 set(CMAKE_CXX_STANDARD 14)
 
-# include file 
-include(FetchContent)
-include(ExternalProject)
+
 # fc_patch dir
 set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
@@ -20,34 +27,6 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 ###############################################################################
 # option configurations 
 option(TEST_DEBUG "option for debug" OFF)
-
-
-###############################################################################
-# Include third party
-###############################################################################
-# #example for include third party
-# FetchContent_Declare()
-# # FetchContent_MakeAvailable was not added until CMake 3.14
-# FetchContent_MakeAvailable()
-# include_directories()
-
-# ABSEIL-CPP
-include(FetchContent)
-FetchContent_Declare(
-  absl
-  GIT_REPOSITORY "https://github.com/abseil/abseil-cpp.git"
-  GIT_TAG "20210324.1"
-)
-FetchContent_MakeAvailable(absl)
-
-# libsndfile
-include(FetchContent)
-FetchContent_Declare(
-  libsndfile
-  GIT_REPOSITORY "https://github.com/libsndfile/libsndfile.git"
-  GIT_TAG "1.0.31"
-)
-FetchContent_MakeAvailable(libsndfile)
 
 
 ###############################################################################

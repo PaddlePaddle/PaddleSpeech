@@ -17,7 +17,6 @@ import os
 import socket
 import sys
 
-import auto_log
 from paddle import inference
 
 FORMAT_STR = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
@@ -156,6 +155,7 @@ class Autolog:
                  batch_size,
                  model_name="DeepSpeech",
                  model_precision="fp32"):
+        import auto_log
         pid = os.getpid()
         gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
         infer_config = inference.Config()

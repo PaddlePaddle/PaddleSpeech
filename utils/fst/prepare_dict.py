@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import sys
-
-
-def contain_oov(units):
-    for unit in units:
-        if unit not in unit_table:
-            return True
-    return False
 
 
 def main(args):
@@ -18,6 +10,12 @@ def main(args):
             unit = line.strip()
             unit_table.add(unit)
 
+    def contain_oov(units):
+        for unit in units:
+            if unit not in unit_table:
+                return True
+        return False
+
     # load spm model
     bpemode = args.bpemodel
     if bpemode:
@@ -27,8 +25,8 @@ def main(args):
 
     # used to filter polyphone
     lexicon_table = set()
-    with open(sys.in_lexicon, 'r') as fin, \
-            open(sys.out_lexicon, 'w') as fout:
+    with open(args.in_lexicon, 'r') as fin, \
+            open(args.out_lexicon, 'w') as fout:
         for line in fin:
             word = line.split()[0]
             if word == 'SIL' and not bpemode:  # `sil` might be a valid piece in bpemodel

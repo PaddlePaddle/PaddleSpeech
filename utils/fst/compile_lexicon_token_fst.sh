@@ -57,7 +57,7 @@ cat $srcdir/units.txt | awk '{print $1}' > $tmpdir/units.list
 
 # ctc_token_fst_corrected is too big and too slow for character based chinese modeling,
 # so here just use simple ctc_token_fst
-utils/fst/ctc_token_fst.py $dir/tokens.txt | \
+utils/fst/ctc_token_fst.py --token_file $dir/tokens.txt | \
   fstcompile --isymbols=$dir/tokens.txt --osymbols=$dir/tokens.txt --keep_isymbols=false --keep_osymbols=false | \
   fstarcsort --sort_type=olabel > $dir/T.fst || exit 1;
 

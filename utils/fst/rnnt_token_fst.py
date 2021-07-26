@@ -31,8 +31,6 @@ if __name__ == "__main__":
         '--token_file',
         required=True,
         help='e2e model token file. line: token(char/phone/spm/disambigous)')
-
     args = parser.parse_args()
-    print(args)
 
     main(args)

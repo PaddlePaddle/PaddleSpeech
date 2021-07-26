@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import sys
 
 
 def main(args):
@@ -14,7 +13,7 @@ def main(args):
     print('2 0 <eps> <eps>')
 
     # linking `token` between node 1 and node 2
-    with open(sys.token_file, 'r') as fin:
+    with open(args.token_file, 'r') as fin:
         node = 3
         for entry in fin:
             fields = entry.strip().split(' ')
@@ -46,6 +45,5 @@ if __name__ == '__main__':
         help='e2e model token file. line: token(char/phone/spm/disambigous)')
 
     args = parser.parse_args()
-    print(args)
 
     main(args)

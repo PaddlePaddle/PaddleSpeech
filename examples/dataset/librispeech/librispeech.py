@@ -114,8 +114,10 @@ def create_manifest(data_dir, manifest_path):
         for line in json_lines:
             out_file.write(line + '\n')
 
-    subset = manifest_path
-    with open(subset + '.meta', 'w') as f:
+    subset = os.path.splitext(manifest_path)[1][1:]
+    manifest_dir = os.path.dirname(manifest_path)
+    meta_path = os.path.join(manifest_dir, dtype) + '.meta'
+    with open(meta_path, 'w') as f:
         print(f"{subset}:", file=f)
         print(f"{total_num} utts", file=f)
         print(f"{total_sec / (60*60)} h", file=f)

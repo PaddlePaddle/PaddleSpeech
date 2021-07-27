@@ -103,7 +103,9 @@ def create_manifest(data_dir, manifest_path_prefix):
             for line in json_lines:
                 fout.write(line + '\n')
 
-        with open(dtype + '.meta', 'w') as f:
+        manifest_dir = os.path.dirname(manifest_path_prefix)
+        meta_path = os.path.join(manifest_dir, dtype) + '.meta'
+        with open(meta_path, 'w') as f:
             print(f"{dtype}:", file=f)
             print(f"{total_num} utts", file=f)
             print(f"{total_sec / (60*60)} h", file=f)

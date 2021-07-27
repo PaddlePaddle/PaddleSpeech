@@ -17,7 +17,7 @@ from deepspeech.exps.deepspeech2.model import DeepSpeech2Tester
 from deepspeech.exps.deepspeech2.model import DeepSpeech2Trainer
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.models.ds2 import DeepSpeech2Model
 
 _C = CfgNode()
 

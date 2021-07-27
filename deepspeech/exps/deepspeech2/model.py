@@ -27,8 +27,8 @@ from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
-from deepspeech.models.deepspeech2 import DeepSpeech2InferModel
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.models.ds2 import DeepSpeech2InferModel
+from deepspeech.models.ds2 import DeepSpeech2Model
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate

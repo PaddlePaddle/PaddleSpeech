@@ -17,9 +17,10 @@ config_path=$1
 ckpt_prefix=$2
 
 chunk_mode=false
-if [[ ${config_path} =~ ^chunk_ ]];then
+if [[ ${config_path} =~ ^.*chunk_.*yaml$ ]];then
     chunk_mode=true
 fi
+echo "chunk mode ${chunk_mode}"
 
 
 # download language model

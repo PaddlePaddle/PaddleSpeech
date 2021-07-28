@@ -15,24 +15,22 @@
 from typing import Optional
 
 import paddle
-from paddle import nn
 import paddle.nn.functional as F
-
+from paddle import nn
+from paddle.fluid.layers import fc
+from paddle.nn import GRU
+from paddle.nn import LayerList
+from paddle.nn import LayerNorm
+from paddle.nn import Linear
+from paddle.nn import LSTM
 from yacs.config import CfgNode
 
 from deepspeech.models.ds2_online.conv import ConvStack
-from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.models.ds2_online.rnn import RNNStack
+from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.utils import layer_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
-
-from paddle.nn import LSTM, GRU, Linear
-from paddle.nn import LayerNorm
-from paddle.nn import LayerList
-
-from paddle.fluid.layers import fc
-
 
 logger = Log(__name__).getlog()
 
@@ -68,20 +66,39 @@ class CRNNEncoder(nn.Layer):
         layernorm_size = rnn_size
 
         if use_gru == True:
-            self.rnn.append(GRU(input_size=i_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
+            self.rnn.append(
+                GRU(input_size=i_size,
+                    hidden_size=rnn_size,
+                    num_layers=1,
+                    direction=rnn_direction))
             self.layernorm_list.append(LayerNorm(layernorm_size))
             for i in range(1, num_rnn_layers):
-                self.rnn.append(GRU(input_size=layernorm_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
+                self.rnn.append(
+                    GRU(input_size=layernorm_size,
+                        hidden_size=rnn_size,
+                        num_layers=1,
+                        direction=rnn_direction))
                 self.layernorm_list.append(LayerNorm(layernorm_size))
         else:
-            self.rnn.append(LSTM(input_size=i_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
+            self.rnn.append(
+                LSTM(
+                    input_size=i_size,
+                    hidden_size=rnn_size,
+                    num_layers=1,
+                    direction=rnn_direction))
             self.layernorm_list.append(LayerNorm(layernorm_size))
             for i in range(1, num_rnn_layers):
-                self.rnn.append(LSTM(input_size=layernorm_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
+                self.rnn.append(
+                    LSTM(
+                        input_size=layernorm_size,
+                        hidden_size=rnn_size,
+                        num_layers=1,
+                        direction=rnn_direction))
                 self.layernorm_list.append(LayerNorm(layernorm_size))
         fc_input_size = layernorm_size
         for i in range(self.num_fc_layers):
-            self.fc_layers_list.append(nn.Linear(fc_input_size, fc_layers_size_list[i]))
+            self.fc_layers_list.append(
+                nn.Linear(fc_input_size, fc_layers_size_list[i]))
             fc_input_size = fc_layers_size_list[i]
 
     @property
@@ -119,7 +136,7 @@ class CRNNEncoder(nn.Layer):
         x, output_state = self.rnn[0](x, None, x_lens)
         x = self.layernorm_list[0](x)
         for i in range(1, self.num_rnn_layers):
-            x, output_state = self.rnn[i](x, output_state, x_lens)    #[B, T, D]
+            x, output_state = self.rnn[i](x, output_state, x_lens)  #[B, T, D]
             x = self.layernorm_list[i](x)
 
         for i in range(self.num_fc_layers):
@@ -166,7 +183,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
                 num_rnn_layers=4,  #Number of stacking RNN layers.
                 rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
                 num_fc_layers=2,
-                fc_layers_size_list = [512,256],
+                fc_layers_size_list=[512, 256],
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
             ))

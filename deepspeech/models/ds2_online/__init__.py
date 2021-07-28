@@ -1,7 +1,7 @@
-from .deepspeech2 import DeepSpeech2Model
-from .deepspeech2 import DeepSpeech2InferModel
+from .deepspeech2 import DeepSpeech2ModelOnline
+from .deepspeech2 import DeepSpeech2InferModelOnline
 
-__all__ = ['DeepSpeech2Model', 'DeepSpeech2InferModel']
+__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModelOnline']
 
 
 

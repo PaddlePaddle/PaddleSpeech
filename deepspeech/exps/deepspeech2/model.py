@@ -127,7 +127,8 @@ class DeepSpeech2Trainer(Trainer):
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
             use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
+            share_rnn_weights=config.model.share_rnn_weights,
+            apply_online=config.model.apply_online)
 
         if self.parallel:
             model = paddle.DataParallel(model)
@@ -374,7 +375,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
             use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
+            share_rnn_weights=config.model.share_rnn_weights,
+            apply_online=config.model.apply_online)
         self.model = model
         logger.info("Setup model!")
 

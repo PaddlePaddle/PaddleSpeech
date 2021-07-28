@@ -16,23 +16,27 @@ from typing import Optional
 
 import paddle
 from paddle import nn
+import paddle.nn.functional as F
+
 from yacs.config import CfgNode
 
-from deepspeech.models.ds2.conv import ConvStack
+from deepspeech.models.ds2_online.conv import ConvStack
 from deepspeech.modules.ctc import CTCDecoder
-from deepspeech.models.ds2.rnn import RNNStack
+from deepspeech.models.ds2_online.rnn import RNNStack
 from deepspeech.utils import layer_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 
-from paddle.nn import LSTM, GRU
+from paddle.nn import LSTM, GRU, Linear
 from paddle.nn import LayerNorm
 from paddle.nn import LayerList
+
+from paddle.fluid.layers import fc
 
 
 logger = Log(__name__).getlog()
 
-__all__ = ['DeepSpeech2Model', 'DeepSpeech2InferMode']
+__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModeOnline']
 
 
 class CRNNEncoder(nn.Layer):
@@ -40,31 +44,28 @@ class CRNNEncoder(nn.Layer):
                  feat_size,
                  dict_size,
                  num_conv_layers=2,
-                 num_rnn_layers=3,
+                 num_rnn_layers=4,
                  rnn_size=1024,
+                 num_fc_layers=2,
+                 fc_layers_size_list=[512, 256],
                  use_gru=False,
-                 share_rnn_weights=True,
-                 apply_online=True):
+                 share_rnn_weights=True):
         super().__init__()
         self.rnn_size = rnn_size
         self.feat_size = feat_size  # 161 for linear
         self.dict_size = dict_size
         self.num_rnn_layers = num_rnn_layers
-        self.apply_online = apply_online
+        self.num_fc_layers = num_fc_layers
+        self.fc_layers_size_list = fc_layers_size_list
         self.conv = ConvStack(feat_size, num_conv_layers)
 
         i_size = self.conv.output_height  # H after conv stack
-        
-    
+
         self.rnn = LayerList()
         self.layernorm_list = LayerList()
-
-        if (apply_online == True):
-            rnn_direction = 'forward'
-            layernorm_size = rnn_size
-        else:
-            rnn_direction = 'bidirect'        
-            layernorm_size = 2 * rnn_size
+        self.fc_layers_list = LayerList()
+        rnn_direction = 'forward'
+        layernorm_size = rnn_size
 
         if use_gru == True:
             self.rnn.append(GRU(input_size=i_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
@@ -78,20 +79,14 @@ class CRNNEncoder(nn.Layer):
             for i in range(1, num_rnn_layers):
                 self.rnn.append(LSTM(input_size=layernorm_size, hidden_size=rnn_size, num_layers=1, direction = rnn_direction))
                 self.layernorm_list.append(LayerNorm(layernorm_size))
-        """
-        self.rnn = RNNStack(
-            i_size=i_size,
-            h_size=rnn_size,
-            num_stacks=num_rnn_layers,
-            use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights)
-        """
+        fc_input_size = layernorm_size
+        for i in range(self.num_fc_layers):
+            self.fc_layers_list.append(nn.Linear(fc_input_size, fc_layers_size_list[i]))
+            fc_input_size = fc_layers_size_list[i]
+
     @property
     def output_size(self):
-        if (self.apply_online == True):
-            return self.rnn_size
-        else:
-            return 2 * self.rnn_size
+        return self.fc_layers_size_list[-1]
 
     def forward(self, audio, audio_len):
         """Compute Encoder outputs
@@ -126,14 +121,15 @@ class CRNNEncoder(nn.Layer):
         for i in range(1, self.num_rnn_layers):
             x, output_state = self.rnn[i](x, output_state, x_lens)    #[B, T, D]
             x = self.layernorm_list[i](x)
-        """
-        x, x_lens = self.rnn(x, x_lens)          
-        """
+
+        for i in range(self.num_fc_layers):
+            x = self.fc_layers_list[i](x)
+            x = F.relu(x)
         return x, x_lens
 
 
-class DeepSpeech2Model(nn.Layer):
-    """The DeepSpeech2 network structure.
+class DeepSpeech2ModelOnline(nn.Layer):
+    """The DeepSpeech2 network structure for online.
 
     :param audio_data: Audio spectrogram data layer.
     :type audio_data: Variable
@@ -159,7 +155,7 @@ class DeepSpeech2Model(nn.Layer):
     :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
-    :rtype: tuple of LayerOutput    
+    :rtype: tuple of LayerOutput
     """
 
     @classmethod
@@ -167,8 +163,10 @@ class DeepSpeech2Model(nn.Layer):
         default = CfgNode(
             dict(
                 num_conv_layers=2,  #Number of stacking convolution layers.
-                num_rnn_layers=3,  #Number of stacking RNN layers.
+                num_rnn_layers=4,  #Number of stacking RNN layers.
                 rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
+                num_fc_layers=2,
+                fc_layers_size_list = [512,256],
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
             ))
@@ -182,23 +180,22 @@ class DeepSpeech2Model(nn.Layer):
                  num_conv_layers=2,
                  num_rnn_layers=3,
                  rnn_size=1024,
+                 num_fc_layers=2,
+                 fc_layers_size_list=[512, 256],
                  use_gru=False,
-                 share_rnn_weights=True,
-                 apply_online = True):
+                 share_rnn_weights=True):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
             dict_size=dict_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
+            num_fc_layers=num_fc_layers,
+            fc_layers_size_list=fc_layers_size_list,
             rnn_size=rnn_size,
             use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights,
-            apply_online=apply_online)
-        if (apply_online == True):
-           assert (self.encoder.output_size == rnn_size)
-        else:
-           assert (self.encoder.output_size == 2 * rnn_size)
+            share_rnn_weights=share_rnn_weights)
+        assert (self.encoder.output_size == fc_layers_size_list[-1])
 
         self.decoder = CTCDecoder(
             odim=dict_size,  # <blank> is in  vocab
@@ -253,10 +250,10 @@ class DeepSpeech2Model(nn.Layer):
 
         config: yacs.config.CfgNode
             model configs
-        
+
         checkpoint_path: Path or str
             the path of pretrained model checkpoint, without extension name
-        
+
         Returns
         -------
         DeepSpeech2Model
@@ -267,9 +264,10 @@ class DeepSpeech2Model(nn.Layer):
                     num_conv_layers=config.model.num_conv_layers,
                     num_rnn_layers=config.model.num_rnn_layers,
                     rnn_size=config.model.rnn_layer_size,
+                    num_fc_layers=config.model.num_fc_layers,
+                    fc_layers_size_list=config.model.fc_layers_size_list,
                     use_gru=config.model.use_gru,
-                    share_rnn_weights=config.model.share_rnn_weights,
-                    apply_online=config.model.apply_online)
+                    share_rnn_weights=config.model.share_rnn_weights)
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -277,25 +275,27 @@ class DeepSpeech2Model(nn.Layer):
         return model
 
 
-class DeepSpeech2InferModel(DeepSpeech2Model):
+class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
     def __init__(self,
                  feat_size,
                  dict_size,
                  num_conv_layers=2,
                  num_rnn_layers=3,
                  rnn_size=1024,
+                 num_fc_layers=2,
+                 fc_layers_size_list=[512, 256],
                  use_gru=False,
-                 share_rnn_weights=True,
-                 apply_online = True):
+                 share_rnn_weights=True):
         super().__init__(
             feat_size=feat_size,
             dict_size=dict_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
             rnn_size=rnn_size,
+            num_fc_layers=num_fc_layers,
+            fc_layers_size_list=fc_layers_size_list,
             use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights,
-            apply_online=apply_online)
+            share_rnn_weights=share_rnn_weights)
 
     def forward(self, audio, audio_len):
         """export model function

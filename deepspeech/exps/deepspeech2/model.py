@@ -332,7 +332,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def export(self):
         infer_model = DeepSpeech2InferModel.from_pretrained(
-             self.test_loader, self.config, self.args.checkpoint_path)
+            self.test_loader, self.config, self.args.checkpoint_path)
 
         infer_model.eval()
         feat_dim = self.test_loader.collate_fn.feature_size

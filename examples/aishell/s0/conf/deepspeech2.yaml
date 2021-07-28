@@ -36,10 +36,11 @@ collator:
 
 model:
   num_conv_layers: 2
-  num_rnn_layers: 3
+  num_rnn_layers: 4
   rnn_layer_size: 1024
   use_gru: True 
   share_rnn_weights: False
+  apply_online: False
 
 training:
   n_epoch: 50

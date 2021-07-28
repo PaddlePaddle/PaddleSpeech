@@ -331,12 +331,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             exit(-1)
 
     def export(self):
-        if self.config.model.apply_online == False:
-            infer_model = DeepSpeech2InferModel.from_pretrained(
-                self.test_loader, self.config, self.args.checkpoint_path)
-        else:
-            infer_model = DeepSpeech2InferModelOnline.from_pretrained(
-                self.test_loader, self.config, self.args.checkpoint_path)
+        infer_model = DeepSpeech2InferModel.from_pretrained(
+             self.test_loader, self.config, self.args.checkpoint_path)
 
         infer_model.eval()
         feat_dim = self.test_loader.collate_fn.feature_size

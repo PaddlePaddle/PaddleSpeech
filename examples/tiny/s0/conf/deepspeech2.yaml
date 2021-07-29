@@ -41,7 +41,6 @@ model:
   rnn_layer_size: 2048
   use_gru: False 
   share_rnn_weights: True 
-  apply_online: True
 
 training:
   n_epoch: 10

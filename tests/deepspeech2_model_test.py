@@ -16,8 +16,8 @@ import unittest
 import numpy as np
 import paddle
 
-#from deepspeech.models.deepspeech2 import DeepSpeech2Model
-from deepspeech.models.ds2_online import DeepSpeech2ModelOnline as DeepSpeech2Model
+from deepspeech.models.ds2 import DeepSpeech2Model
+
 
 class TestDeepSpeech2Model(unittest.TestCase):
     def setUp(self):

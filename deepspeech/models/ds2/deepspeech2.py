@@ -19,8 +19,8 @@ from paddle import nn
 from yacs.config import CfgNode
 
 from deepspeech.models.ds2.conv import ConvStack
-from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.models.ds2.rnn import RNNStack
+from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.utils import layer_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log

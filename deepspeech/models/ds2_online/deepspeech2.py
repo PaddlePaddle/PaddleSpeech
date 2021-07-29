@@ -11,27 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Deepspeech2 ASR Model"""
+"""Deepspeech2 ASR Online Model"""
 from typing import Optional
 
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-from paddle.fluid.layers import fc
-from paddle.nn import GRU
-from paddle.nn import LayerList
-from paddle.nn import LayerNorm
-from paddle.nn import Linear
-from paddle.nn import LSTM
 from yacs.config import CfgNode
 
-from deepspeech.models.ds2_online.conv import ConvStack
-from deepspeech.models.ds2_online.rnn import RNNStack
+from deepspeech.models.ds2_online.conv import Conv2dSubsampling4Online
 from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.utils import layer_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
-
 logger = Log(__name__).getlog()
 
 __all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModeOnline']
@@ -55,46 +47,48 @@ class CRNNEncoder(nn.Layer):
         self.num_rnn_layers = num_rnn_layers
         self.num_fc_layers = num_fc_layers
         self.fc_layers_size_list = fc_layers_size_list
-        self.conv = ConvStack(feat_size, num_conv_layers)
+        self.conv = Conv2dSubsampling4Online(feat_size, 32, dropout_rate=0.0)
 
-        i_size = self.conv.output_height  # H after conv stack
+        i_size = self.conv.output_dim
 
-        self.rnn = LayerList()
-        self.layernorm_list = LayerList()
-        self.fc_layers_list = LayerList()
+        self.rnn = nn.LayerList()
+        self.layernorm_list = nn.LayerList()
+        self.fc_layers_list = nn.LayerList()
         rnn_direction = 'forward'
         layernorm_size = rnn_size
 
         if use_gru == True:
             self.rnn.append(
-                GRU(input_size=i_size,
-                    hidden_size=rnn_size,
-                    num_layers=1,
-                    direction=rnn_direction))
-            self.layernorm_list.append(LayerNorm(layernorm_size))
-            for i in range(1, num_rnn_layers):
-                self.rnn.append(
-                    GRU(input_size=layernorm_size,
-                        hidden_size=rnn_size,
-                        num_layers=1,
-                        direction=rnn_direction))
-                self.layernorm_list.append(LayerNorm(layernorm_size))
-        else:
-            self.rnn.append(
-                LSTM(
+                nn.GRU(
                     input_size=i_size,
                     hidden_size=rnn_size,
                     num_layers=1,
                     direction=rnn_direction))
-            self.layernorm_list.append(LayerNorm(layernorm_size))
+            self.layernorm_list.append(nn.LayerNorm(layernorm_size))
             for i in range(1, num_rnn_layers):
                 self.rnn.append(
-                    LSTM(
+                    nn.GRU(
                         input_size=layernorm_size,
                         hidden_size=rnn_size,
                         num_layers=1,
                         direction=rnn_direction))
-                self.layernorm_list.append(LayerNorm(layernorm_size))
+                self.layernorm_list.append(nn.LayerNorm(layernorm_size))
+        else:
+            self.rnn.append(
+                nn.LSTM(
+                    input_size=i_size,
+                    hidden_size=rnn_size,
+                    num_layers=1,
+                    direction=rnn_direction))
+            self.layernorm_list.append(nn.LayerNorm(layernorm_size))
+            for i in range(1, num_rnn_layers):
+                self.rnn.append(
+                    nn.LSTM(
+                        input_size=layernorm_size,
+                        hidden_size=rnn_size,
+                        num_layers=1,
+                        direction=rnn_direction))
+                self.layernorm_list.append(nn.LayerNorm(layernorm_size))
         fc_input_size = layernorm_size
         for i in range(self.num_fc_layers):
             self.fc_layers_list.append(
@@ -117,20 +111,16 @@ class CRNNEncoder(nn.Layer):
             x (Tensor): encoder outputs, [B, T, D]
             x_lens (Tensor): encoder length, [B]
         """
-        # [B, T, D]  -> [B, D, T]
-        audio = audio.transpose([0, 2, 1])
-        # [B, D, T] -> [B, C=1, D, T]
-        x = audio.unsqueeze(1)
+        # [B, T, D]
+        x = audio
         x_lens = audio_len
-
         # convolution group
         x, x_lens = self.conv(x, x_lens)
-
         # convert data from convolution feature map to sequence of vectors
         #B, C, D, T = paddle.shape(x)  # not work under jit
-        x = x.transpose([0, 3, 1, 2])  #[B, T, C, D]
+        #x = x.transpose([0, 3, 1, 2])  #[B, T, C, D]
         #x = x.reshape([B, T, C * D])  #[B, T, C*D]  # not work under jit
-        x = x.reshape([0, 0, -1])  #[B, T, C*D]
+        #x = x.reshape([0, 0, -1])  #[B, T, C*D]
 
         # remove padding part
         x, output_state = self.rnn[0](x, None, x_lens)

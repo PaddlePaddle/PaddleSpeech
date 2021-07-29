@@ -15,10 +15,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # download well-trained model
-bash local/download_model.sh
-if [ $? -ne 0 ]; then
-    exit 1
-fi
+#bash local/download_model.sh
+#if [ $? -ne 0 ]; then
+#    exit 1
+#fi
 
 # start demo server
 CUDA_VISIBLE_DEVICES=0 \
@@ -29,7 +29,7 @@ python3 -u ${BIN_DIR}/deploy/server.py \
 --host_ip="localhost" \
 --host_port=8086 \
 --speech_save_dir="demo_cache" \
---checkpoint_path ${1} 
+--checkpoint_path ${1}
 
 if [ $? -ne 0 ]; then
     echo "Failed in starting demo server!"

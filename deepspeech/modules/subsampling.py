@@ -92,7 +92,7 @@ class Conv2dSubsampling4(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling4 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.
@@ -143,7 +143,7 @@ class Conv2dSubsampling6(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling6 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.
@@ -196,7 +196,7 @@ class Conv2dSubsampling8(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling8 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.

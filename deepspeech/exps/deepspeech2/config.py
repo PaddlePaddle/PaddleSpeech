@@ -18,21 +18,31 @@ from deepspeech.exps.deepspeech2.model import DeepSpeech2Trainer
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.ds2 import DeepSpeech2Model
-
-_C = CfgNode()
-
-_C.data = ManifestDataset.params()
-
-_C.collator = SpeechCollator.params()
-
-_C.model = DeepSpeech2Model.params()
-
-_C.training = DeepSpeech2Trainer.params()
-
-_C.decoding = DeepSpeech2Tester.params()
+from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 
 
-def get_cfg_defaults():
+def get_cfg_defaults(model_type):
+    _C = CfgNode()
+    if (model_type == 'offline'):
+        _C.data = ManifestDataset.params()
+
+        _C.collator = SpeechCollator.params()
+
+        _C.model = DeepSpeech2Model.params()
+
+        _C.training = DeepSpeech2Trainer.params()
+
+        _C.decoding = DeepSpeech2Tester.params()
+    else:
+        _C.data = ManifestDataset.params()
+
+        _C.collator = SpeechCollator.params()
+
+        _C.model = DeepSpeech2ModelOnline.params()
+
+        _C.training = DeepSpeech2Trainer.params()
+
+        _C.decoding = DeepSpeech2Tester.params()
     """Get a yacs CfgNode object with default values for my_project."""
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern

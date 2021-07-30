@@ -29,8 +29,6 @@ from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.ds2 import DeepSpeech2InferModel
 from deepspeech.models.ds2 import DeepSpeech2Model
-#from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
-#from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
@@ -38,6 +36,8 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Autolog
 from deepspeech.utils.log import Log
+#from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
+#from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 
 logger = Log(__name__).getlog()
 
@@ -128,9 +128,7 @@ class DeepSpeech2Trainer(Trainer):
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
-
+            use_gru=config.model.use_gru)
         if self.parallel:
             model = paddle.DataParallel(model)
 
@@ -376,8 +374,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
+            use_gru=config.model.use_gru)
 
         self.model = model
         logger.info("Setup model!")

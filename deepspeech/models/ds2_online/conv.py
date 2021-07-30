@@ -19,12 +19,8 @@ from deepspeech.modules.subsampling import Conv2dSubsampling4
 
 
 class Conv2dSubsampling4Online(Conv2dSubsampling4):
-    def __init__(self,
-                 idim: int,
-                 odim: int,
-                 dropout_rate: float,
-                 pos_enc_class: nn.Layer=PositionalEncoding):
-        super().__init__(idim, odim, dropout_rate, pos_enc_class)
+    def __init__(self, idim: int, odim: int, dropout_rate: float):
+        super().__init__(idim, odim, dropout_rate, None)
         self.output_dim = ((idim - 1) // 2 - 1) // 2 * odim
 
     def forward(self, x: paddle.Tensor,

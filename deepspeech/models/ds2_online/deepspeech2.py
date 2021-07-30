@@ -36,16 +36,17 @@ class CRNNEncoder(nn.Layer):
                  num_conv_layers=2,
                  num_rnn_layers=4,
                  rnn_size=1024,
+                 rnn_direction='forward',
                  num_fc_layers=2,
                  fc_layers_size_list=[512, 256],
-                 use_gru=False,
-                 share_rnn_weights=True):
+                 use_gru=False):
         super().__init__()
         self.rnn_size = rnn_size
         self.feat_size = feat_size  # 161 for linear
         self.dict_size = dict_size
         self.num_rnn_layers = num_rnn_layers
         self.num_fc_layers = num_fc_layers
+        self.rnn_direction = rnn_direction
         self.fc_layers_size_list = fc_layers_size_list
         self.conv = Conv2dSubsampling4Online(feat_size, 32, dropout_rate=0.0)
 
@@ -54,7 +55,6 @@ class CRNNEncoder(nn.Layer):
         self.rnn = nn.LayerList()
         self.layernorm_list = nn.LayerList()
         self.fc_layers_list = nn.LayerList()
-        rnn_direction = 'forward'
         layernorm_size = rnn_size
 
         if use_gru == True:
@@ -99,21 +99,18 @@ class CRNNEncoder(nn.Layer):
     def output_size(self):
         return self.fc_layers_size_list[-1]
 
-    def forward(self, audio, audio_len):
+    def forward(self, x, x_lens):
         """Compute Encoder outputs
 
         Args:
-            audio (Tensor): [B, Tmax, D]
-            text (Tensor): [B, Umax]
-            audio_len (Tensor): [B]
-            text_len (Tensor): [B]
+            x (Tensor): [B, T_input, D]
+            x_lens (Tensor): [B]
         Returns:
-            x (Tensor): encoder outputs, [B, T, D]
+            x (Tensor): encoder outputs, [B, T_output, D]
             x_lens (Tensor): encoder length, [B]
+            rnn_final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
         """
         # [B, T, D]
-        x = audio
-        x_lens = audio_len
         # convolution group
         x, x_lens = self.conv(x, x_lens)
         # convert data from convolution feature map to sequence of vectors
@@ -123,16 +120,47 @@ class CRNNEncoder(nn.Layer):
         #x = x.reshape([0, 0, -1])  #[B, T, C*D]
 
         # remove padding part
-        x, output_state = self.rnn[0](x, None, x_lens)
+        init_state = None
+        rnn_final_state_list = []
+        x, final_state = self.rnn[0](x, init_state, x_lens)
+        rnn_final_state_list.append(final_state)
         x = self.layernorm_list[0](x)
         for i in range(1, self.num_rnn_layers):
-            x, output_state = self.rnn[i](x, output_state, x_lens)  #[B, T, D]
+            x, final_state = self.rnn[i](x, init_state, x_lens)  #[B, T, D]
+            rnn_final_state_list.append(final_state)
             x = self.layernorm_list[i](x)
 
         for i in range(self.num_fc_layers):
             x = self.fc_layers_list[i](x)
             x = F.relu(x)
-        return x, x_lens
+        return x, x_lens, rnn_final_state_list
+
+    def forward(self, x, x_lens, init_state_list):
+        """Compute Encoder outputs
+
+        Args:
+            x (Tensor): [B, feature_chunk_size, D]
+            x_lens (Tensor): [B]
+            init_state_list (list of Tensors): [ num_directions, batch_size, hidden_size] * num_rnn_layers
+        Returns:
+            x (Tensor): encoder outputs, [B, chunk_size, D]
+            x_lens (Tensor): encoder length, [B]
+            rnn_final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
+        """
+        rnn_final_state_list = []
+        x, final_state = self.rnn[0](x, init_state_list[0], x_lens)
+        rnn_final_state_list.append(final_state)
+        x = self.layernorm_list[0](x)
+        for i in range(1, self.num_rnn_layers):
+            x, final_state = self.rnn[i](x, init_state_list[i],
+                                         x_lens)  #[B, T, D]
+            rnn_final_state_list.append(final_state)
+            x = self.layernorm_list[i](x)
+
+        for i in range(self.num_fc_layers):
+            x = self.fc_layers_list[i](x)
+            x = F.relu(x)
+        return x, x_lens, rnn_final_state_list
 
 
 class DeepSpeech2ModelOnline(nn.Layer):
@@ -156,9 +184,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
     :type rnn_size: int
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool
-    :param share_rnn_weights: Whether to share input-hidden weights between
-                              forward and backward direction RNNs.
-                              It is only available when use_gru=False.
     :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
@@ -175,7 +200,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
                 num_fc_layers=2,
                 fc_layers_size_list=[512, 256],
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-                share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
             ))
         if config is not None:
             config.merge_from_other_cfg(default)
@@ -187,21 +211,21 @@ class DeepSpeech2ModelOnline(nn.Layer):
                  num_conv_layers=2,
                  num_rnn_layers=3,
                  rnn_size=1024,
+                 rnn_direction='forward',
                  num_fc_layers=2,
                  fc_layers_size_list=[512, 256],
-                 use_gru=False,
-                 share_rnn_weights=True):
+                 use_gru=False):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
             dict_size=dict_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
+            rnn_direction=rnn_direction,
             num_fc_layers=num_fc_layers,
             fc_layers_size_list=fc_layers_size_list,
             rnn_size=rnn_size,
-            use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights)
+            use_gru=use_gru)
         assert (self.encoder.output_size == fc_layers_size_list[-1])
 
         self.decoder = CTCDecoder(
@@ -224,7 +248,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
         Returns:
             loss (Tenosr): [1]
         """
-        eouts, eouts_len = self.encoder(audio, audio_len)
+        eouts, eouts_len, rnn_final_state_list = self.encoder(audio, audio_len)
         loss = self.decoder(eouts, eouts_len, text, text_len)
         return loss
 
@@ -271,10 +295,10 @@ class DeepSpeech2ModelOnline(nn.Layer):
                     num_conv_layers=config.model.num_conv_layers,
                     num_rnn_layers=config.model.num_rnn_layers,
                     rnn_size=config.model.rnn_layer_size,
+                    rnn_direction=config.model.rnn_direction,
                     num_fc_layers=config.model.num_fc_layers,
                     fc_layers_size_list=config.model.fc_layers_size_list,
-                    use_gru=config.model.use_gru,
-                    share_rnn_weights=config.model.share_rnn_weights)
+                    use_gru=config.model.use_gru)
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -289,20 +313,20 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
                  num_conv_layers=2,
                  num_rnn_layers=3,
                  rnn_size=1024,
+                 rnn_direction='forward',
                  num_fc_layers=2,
                  fc_layers_size_list=[512, 256],
-                 use_gru=False,
-                 share_rnn_weights=True):
+                 use_gru=False):
         super().__init__(
             feat_size=feat_size,
             dict_size=dict_size,
             num_conv_layers=num_conv_layers,
             num_rnn_layers=num_rnn_layers,
             rnn_size=rnn_size,
+            rnn_direction=rnn_direction,
             num_fc_layers=num_fc_layers,
             fc_layers_size_list=fc_layers_size_list,
-            use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights)
+            use_gru=use_gru)
 
     def forward(self, audio, audio_len):
         """export model function
@@ -314,6 +338,26 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
         Returns:
             probs: probs after softmax
         """
-        eouts, eouts_len = self.encoder(audio, audio_len)
+        eouts, eouts_len, rnn_final_state_list = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
         return probs
+
+    def forward(self, eouts_chunk_prefix, eouts_chunk_lens_prefix, audio_chunk,
+                audio_chunk_len, init_state_list):
+        """export model function
+
+        Args:
+            audio_chunk (Tensor): [B, T, D]
+            audio_chunk_len (Tensor): [B]
+
+        Returns:
+            probs: probs after softmax
+        """
+        eouts_chunk, eouts_chunk_lens, rnn_final_state_list = self.encoder(
+            audio_chunk, audio_chunk_len, init_state_list)
+        eouts_chunk_new_prefix = paddle.concat(
+            [eouts_chunk_prefix, eouts_chunk], axis=1)
+        eouts_chunk_lens_new_prefix = paddle.add(eouts_chunk_lens_prefix,
+                                                 eouts_chunk_lens)
+        probs_chunk = self.decoder.softmax(eouts_chunk_new_prefix)
+        return probs_chunk, eouts_chunk_new_prefix, eouts_chunk_lens_new_prefix, rnn_final_state_list

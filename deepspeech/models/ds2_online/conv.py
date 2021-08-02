@@ -22,6 +22,8 @@ class Conv2dSubsampling4Online(Conv2dSubsampling4):
     def __init__(self, idim: int, odim: int, dropout_rate: float):
         super().__init__(idim, odim, dropout_rate, None)
         self.output_dim = ((idim - 1) // 2 - 1) // 2 * odim
+        self.receptive_field_length = 2 * (
+            3 - 1) + 3  # stride_1 * (kernel_size_2 - 1) + kerel_size_1
 
     def forward(self, x: paddle.Tensor,
                 x_len: paddle.Tensor) -> [paddle.Tensor, paddle.Tensor]:

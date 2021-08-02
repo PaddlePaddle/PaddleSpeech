@@ -108,7 +108,7 @@ class CRNNEncoder(nn.Layer):
         Returns:
             x (Tensor): encoder outputs, [B, T_output, D]
             x_lens (Tensor): encoder length, [B]
-            rnn_final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
+            final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
         """
         # [B, T, D]
         # convolution group
@@ -121,21 +121,21 @@ class CRNNEncoder(nn.Layer):
 
         # remove padding part
         init_state = None
-        rnn_final_state_list = []
+        final_state_list = []
         x, final_state = self.rnn[0](x, init_state, x_lens)
-        rnn_final_state_list.append(final_state)
+        final_state_list.append(final_state)
         x = self.layernorm_list[0](x)
         for i in range(1, self.num_rnn_layers):
             x, final_state = self.rnn[i](x, init_state, x_lens)  #[B, T, D]
-            rnn_final_state_list.append(final_state)
+            final_state_list.append(final_state)
             x = self.layernorm_list[i](x)
 
         for i in range(self.num_fc_layers):
             x = self.fc_layers_list[i](x)
             x = F.relu(x)
-        return x, x_lens, rnn_final_state_list
+        return x, x_lens, final_state_list
 
-    def forward(self, x, x_lens, init_state_list):
+    def forward_chunk(self, x, x_lens, init_state_list):
         """Compute Encoder outputs
 
         Args:
@@ -145,22 +145,59 @@ class CRNNEncoder(nn.Layer):
         Returns:
             x (Tensor): encoder outputs, [B, chunk_size, D]
             x_lens (Tensor): encoder length, [B]
-            rnn_final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
+            chunk_final_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
         """
-        rnn_final_state_list = []
+        x, x_lens = self.conv(x, x_lens)
+        chunk_final_state_list = []
         x, final_state = self.rnn[0](x, init_state_list[0], x_lens)
-        rnn_final_state_list.append(final_state)
+        chunk_final_state_list.append(final_state)
         x = self.layernorm_list[0](x)
         for i in range(1, self.num_rnn_layers):
             x, final_state = self.rnn[i](x, init_state_list[i],
                                          x_lens)  #[B, T, D]
-            rnn_final_state_list.append(final_state)
+            chunk_final_state_list.append(final_state)
             x = self.layernorm_list[i](x)
 
         for i in range(self.num_fc_layers):
             x = self.fc_layers_list[i](x)
             x = F.relu(x)
-        return x, x_lens, rnn_final_state_list
+        return x, x_lens, chunk_final_state_list
+
+    def forward_chunk_by_chunk(self, x, x_lens, decoder_chunk_size=8):
+        subsampling_rate = self.conv.subsampling_rate
+        receptive_field_length = self.conv.receptive_field_length
+        chunk_size = (decoder_chunk_size - 1
+                      ) * subsampling_rate + receptive_field_length
+        chunk_stride = subsampling_rate * decoder_chunk_size
+        max_len = x.shape[1]
+        assert (chunk_size <= max_len)
+
+        eouts_chunk_list = []
+        eouts_chunk_lens_list = []
+
+        padding_len = chunk_stride - (max_len - chunk_size) % chunk_stride
+        padding = paddle.zeros((x.shape[0], padding_len, x.shape[2]))
+        x_padded = paddle.concat([x, padding], axis=1)
+        num_chunk = (max_len + padding_len - chunk_size) / chunk_stride + 1
+        num_chunk = int(num_chunk)
+        chunk_init_state_list = [None] * self.num_rnn_layers
+        for i in range(0, num_chunk):
+            start = i * chunk_stride
+            end = start + chunk_size
+            x_chunk = x_padded[:, start:end, :]
+            x_len_left = x_lens - i * chunk_stride
+            x_chunk_len_tmp = paddle.ones_like(x_lens) * chunk_size
+            x_chunk_lens = paddle.where(x_len_left < x_chunk_len_tmp,
+                                        x_len_left, x_chunk_len_tmp)
+
+            eouts_chunk, eouts_chunk_lens, chunk_final_state_list = self.forward_chunk(
+                x_chunk, x_chunk_lens, chunk_init_state_list)
+
+            chunk_init_state_list = chunk_final_state_list
+            eouts_chunk_list.append(eouts_chunk)
+            eouts_chunk_lens_list.append(eouts_chunk_lens)
+
+        return eouts_chunk_list, eouts_chunk_lens_list, chunk_final_state_list
 
 
 class DeepSpeech2ModelOnline(nn.Layer):
@@ -248,7 +285,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
         Returns:
             loss (Tenosr): [1]
         """
-        eouts, eouts_len, rnn_final_state_list = self.encoder(audio, audio_len)
+        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
         loss = self.decoder(eouts, eouts_len, text, text_len)
         return loss
 
@@ -265,12 +302,53 @@ class DeepSpeech2ModelOnline(nn.Layer):
             vocab_list=vocab_list,
             decoding_method=decoding_method)
 
-        eouts, eouts_len = self.encoder(audio, audio_len)
+        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
         return self.decoder.decode_probs(
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
+
+    @paddle.no_grad()
+    def decode_chunk_by_chunk(self, audio, audio_len, vocab_list,
+                              decoding_method, lang_model_path, beam_alpha,
+                              beam_beta, beam_size, cutoff_prob, cutoff_top_n,
+                              num_processes):
+        # init once
+        # decoders only accept string encoded in utf-8
+        self.decoder.init_decode(
+            beam_alpha=beam_alpha,
+            beam_beta=beam_beta,
+            lang_model_path=lang_model_path,
+            vocab_list=vocab_list,
+            decoding_method=decoding_method)
+
+        eouts_chunk_list, eouts_chunk_len_list, final_state_list = self.encoder.forward_chunk_by_chunk(
+            audio, audio_len)
+        eouts = paddle.concat(eouts_chunk_list, axis=1)
+        eouts_len = paddle.add_n(eouts_chunk_len_list)
+
+        probs = self.decoder.softmax(eouts)
+        return self.decoder.decode_probs(
+            probs.numpy(), eouts_len, vocab_list, decoding_method,
+            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
+            cutoff_top_n, num_processes)
+
+    @paddle.no_grad()
+    def decode_prob(self, audio, audio_len):
+        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
+        probs = self.decoder.softmax(eouts)
+        return probs, eouts, eouts_len, final_state_list
+
+    @paddle.no_grad()
+    def decode_prob_chunk_by_chunk(self, audio, audio_len):
+
+        eouts_chunk_list, eouts_chunk_len_list, final_state_list = self.encoder.forward_chunk_by_chunk(
+            audio, audio_len)
+        eouts = paddle.concat(eouts_chunk_list, axis=1)
+        eouts_len = paddle.add_n(eouts_chunk_len_list)
+        probs = self.decoder.softmax(eouts)
+        return probs, eouts, eouts_len, final_state_list
 
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):
@@ -338,7 +416,14 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
         Returns:
             probs: probs after softmax
         """
-        eouts, eouts_len, rnn_final_state_list = self.encoder(audio, audio_len)
+        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
+        probs = self.decoder.softmax(eouts)
+        return probs
+
+    def forward_chunk_by_chunk(self, audio, audio_len):
+        eouts_chunk_list, eouts_chunk_lens_list, final_state_list = self.encoder.forward_chunk_by_chunk(
+            audio_chunk, audio_chunk_len)
+        eouts = paddle.concat(eouts_chunk_list, axis=1)
         probs = self.decoder.softmax(eouts)
         return probs
 
@@ -353,11 +438,11 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
         Returns:
             probs: probs after softmax
         """
-        eouts_chunk, eouts_chunk_lens, rnn_final_state_list = self.encoder(
+        eouts_chunk, eouts_chunk_lens, final_state_list = self.encoder(
             audio_chunk, audio_chunk_len, init_state_list)
         eouts_chunk_new_prefix = paddle.concat(
             [eouts_chunk_prefix, eouts_chunk], axis=1)
         eouts_chunk_lens_new_prefix = paddle.add(eouts_chunk_lens_prefix,
                                                  eouts_chunk_lens)
         probs_chunk = self.decoder.softmax(eouts_chunk_new_prefix)
-        return probs_chunk, eouts_chunk_new_prefix, eouts_chunk_lens_new_prefix, rnn_final_state_list
+        return probs_chunk, eouts_chunk_new_prefix, eouts_chunk_lens_new_prefix, final_state_list

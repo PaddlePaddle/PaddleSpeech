@@ -116,7 +116,8 @@ def create_manifest(data_dir, manifest_path):
 
     subset = os.path.splitext(manifest_path)[1][1:]
     manifest_dir = os.path.dirname(manifest_path)
-    meta_path = os.path.join(manifest_dir, dtype) + '.meta'
+    data_dir_name = os.path.split(data_dir)[-1]
+    meta_path = os.path.join(manifest_dir, data_dir_name) + '.meta'
     with open(meta_path, 'w') as f:
         print(f"{subset}:", file=f)
         print(f"{total_num} utts", file=f)

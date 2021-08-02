@@ -157,7 +157,7 @@ class Autolog:
                  model_precision="fp32"):
         import auto_log
         pid = os.getpid()
-        if (os.environ['CUDA_VISIBLE_DEVICES'] != ''):
+        if (os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
             gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
             infer_config = inference.Config()
             infer_config.enable_use_gpu(100, gpu_id)

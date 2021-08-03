@@ -4,30 +4,30 @@ data:
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
   min_input_len: 0.5
-  max_input_len: 20.0
+  max_input_len: 20.0 # second
   min_output_len: 0.0
   max_output_len: 400.0
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
+  
 
 collator:
   vocab_filepath: data/vocab.txt 
-  unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_5000'
-  mean_std_filepath: ""
+  unit_type: 'char'
+  spm_model_prefix: ''
   augmentation_config: conf/augmentation.json
-  batch_size: 16
+  batch_size: 32
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80
   delta_delta: False
   dither: 1.0
-  target_sample_rate: 16000
+  target_sample_rate: 8000
   max_freq: None
   n_fft: None
   stride_ms: 10.0
   window_ms: 25.0
-  use_dB_normalization: True
+  use_dB_normalization: True 
   target_dB: -20
   random_seed: 0
   keep_transcription_text: False
@@ -57,7 +57,7 @@ model:
         activation_type: 'swish'
         pos_enc_layer_type: 'rel_pos'
         selfattention_layer_type: 'rel_selfattn'
-        causal: True
+        causal: true
         use_dynamic_chunk: true
         cnn_module_norm: 'layer_norm' # using nn.LayerNorm makes model converge faster
         use_dynamic_left_chunk: false
@@ -82,12 +82,12 @@ model:
 
 training:
   n_epoch: 240
-  accum_grad: 8
+  accum_grad: 4
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
     lr: 0.001
-    weight_decay: 1e-06
+    weight_decay: 1e-6
   scheduler: warmuplr     # pytorch v1.1.0+ required
   scheduler_conf:
     warmup_steps: 25000
@@ -100,8 +100,8 @@ training:
 
 decoding:
   batch_size: 128
-  error_rate_type: wer
-  decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
+  error_rate_type: cer 
+  decoding_method: attention # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
   lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
   alpha: 2.5
   beta: 0.3

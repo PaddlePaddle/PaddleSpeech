@@ -17,6 +17,11 @@ if [ -e /etc/lsb-release ];then
     fi
 fi
 
+
+# tools/make
+rm tools/*.done
+pushd tools && make && popd
+
 # install python dependencies
 if [ -f "requirements.txt" ]; then
     pip3 install -r requirements.txt

@@ -24,7 +24,6 @@ from typing import Tuple
 
 import numpy as np
 import paddle
-import sacrebleu
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from yacs.config import CfgNode
@@ -32,6 +31,7 @@ from yacs.config import CfgNode
 from deepspeech.io.collator_st import KaldiPrePorocessedCollator
 from deepspeech.io.collator_st import SpeechCollator
 from deepspeech.io.collator_st import TripletKaldiPrePorocessedCollator
+from deepspeech.io.collator_st import TripletSpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.dataset import TripletManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
@@ -40,6 +40,7 @@ from deepspeech.models.u2_st import U2STModel
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.scheduler import WarmupLR
 from deepspeech.training.trainer import Trainer
+from deepspeech.utils import bleu_score
 from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
@@ -248,7 +249,11 @@ class U2STTrainer(Trainer):
         dev_dataset = Dataset.from_config(config)
 
         if config.collator.raw_wav:
-            TestCollator = Collator = SpeechCollator
+            if config.model.model_conf.asr_weight > 0.:
+                Collator = TripletSpeechCollator
+                TestCollator = SpeechCollator
+            else:
+                TestCollator = Collator = SpeechCollator
             # Not yet implement the mtl loader for raw_wav.
         else:
             if config.model.model_conf.asr_weight > 0.:
@@ -393,7 +398,7 @@ class U2STTester(U2STTrainer):
                 lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
                 decoding_method='attention',  # Decoding method. Options: 'attention', 'ctc_greedy_search',
                 # 'ctc_prefix_beam_search', 'attention_rescoring'
-                error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
+                error_rate_type='bleu',  # Error rate type for evaluation. Options `bleu`, 'char_bleu'
                 num_proc_bsearch=8,  # # of CPUs for beam search.
                 beam_size=10,  # Beam search width.
                 batch_size=16,  # decoding batch size
@@ -428,10 +433,10 @@ class U2STTester(U2STTrainer):
                                     audio_len,
                                     texts,
                                     texts_len,
+                                    bleu_func,
                                     fout=None):
         cfg = self.config.decoding
         len_refs, num_ins = 0, 0
-        bleu_func = sacrebleu.corpus_bleu
 
         start_time = time.time()
         text_feature = self.test_loader.collate_fn.text_feature
@@ -487,6 +492,9 @@ class U2STTester(U2STTrainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
+        cfg = self.config.decoding
+        bleu_func = bleu_score.char_bleu if cfg.error_rate_type == 'char-bleu' else bleu_score.bleu
+
         stride_ms = self.test_loader.collate_fn.stride_ms
         hyps, refs = [], []
         len_refs, num_ins = 0, 0
@@ -495,7 +503,7 @@ class U2STTester(U2STTrainer):
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 metrics = self.compute_translation_metrics(
-                    *batch, fout=fout)
+                    *batch, bleu_func=bleu_func, fout=fout)
                 hyps += metrics['hyps']
                 refs += metrics['refs']
                 bleu = metrics['bleu']
@@ -504,19 +512,16 @@ class U2STTester(U2STTrainer):
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']
                 rtf = num_time / (num_frames * stride_ms)
-                logger.info("RTF: %f, BELU (%d) = %f" %
-                            (rtf, num_ins, bleu))
+                logger.info("RTF: %f, BELU (%d) = %f" % (rtf, num_ins, bleu))
 
         rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
         msg += "step: {}, ".format(self.iteration)
         msg += "RTF: {}, ".format(rtf)
-        msg += "Test set [%s]: %s" % (
-            len(hyps), str(sacrebleu.corpus_bleu(hyps, [refs])))
+        msg += "Test set [%s]: %s" % (len(hyps), str(bleu_func(hyps, [refs])))
         logger.info(msg)
-        bleu_meta_path = os.path.splitext(
-            self.args.result_file)[0] + '.bleu'
+        bleu_meta_path = os.path.splitext(self.args.result_file)[0] + '.bleu'
         err_type_str = "BLEU"
         with open(bleu_meta_path, 'w') as f:
             data = json.dumps({
@@ -527,7 +532,7 @@ class U2STTester(U2STTrainer):
                 "rtf":
                 rtf,
                 err_type_str:
-                sacrebleu.corpus_bleu(hyps, [refs]).score,
+                bleu_func(hyps, [refs]).score,
                 "dataset_hour": (num_frames * stride_ms) / 1000.0 / 3600.0,
                 "process_hour":
                 num_time / 1000.0 / 3600.0,

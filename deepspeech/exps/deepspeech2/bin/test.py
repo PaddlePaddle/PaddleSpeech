@@ -33,6 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("--model_type")
     args = parser.parse_args()
     print_arguments(args, globals())
+    if args.model_type is None:
+        args.model_type = 'offline'
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults(args.model_type)

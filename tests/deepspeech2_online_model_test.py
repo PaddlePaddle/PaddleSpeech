@@ -119,14 +119,14 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         paddle.device.set_device("cpu")
         de_ch_size = 9
 
-        eouts, eouts_lens, final_state_list = model.encoder(
-            self.audio, self.audio_len)
+        eouts, eouts_lens, final_state_list = model.encoder(self.audio,
+                                                            self.audio_len)
         eouts_by_chk_list, eouts_lens_by_chk_list, final_state_list_by_chk = model.encoder.forward_chunk_by_chunk(
             self.audio, self.audio_len, de_ch_size)
-        eouts_by_chk = paddle.concat(eouts_by_chk_list, axis = 1)
+        eouts_by_chk = paddle.concat(eouts_by_chk_list, axis=1)
         eouts_lens_by_chk = paddle.add_n(eouts_lens_by_chk_list)
         decode_max_len = eouts.shape[1]
-        print ("dml", decode_max_len)
+        print("dml", decode_max_len)
         eouts_by_chk = eouts_by_chk[:, :decode_max_len, :]
         self.assertEqual(
             paddle.sum(
@@ -149,6 +149,7 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         print (paddle.sum(paddle.abs(paddle.subtract(eouts, eouts_by_chk))))
         print (paddle.allclose(eouts[:,:,:], eouts_by_chk[:,:,:]))
         """
+
     """
     def split_into_chunk(self, x, x_lens, decoder_chunk_size, subsampling_rate,
                          receptive_field_length):

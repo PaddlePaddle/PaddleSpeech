@@ -4,10 +4,10 @@ source path.sh
 
 gpus=7
 stage=1
-stop_stage=100
-conf_path=conf/deepspeech2.yaml
+stop_stage=1
+conf_path=conf/deepspeech2_online.yaml
 avg_num=1
-model_type=online
+model_type=online #online | offline
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

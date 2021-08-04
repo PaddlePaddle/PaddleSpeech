@@ -44,6 +44,11 @@ add_arg('manifest_paths', str,
         "You can provide multiple manifest files.",
         nargs='+',
         required=True)
+add_arg('text_keys', str,
+        'text',
+        "keys of the text in manifest for building vocabulary. "
+        "You can provide multiple k.",
+        nargs='+')
 # bpe
 add_arg('spm_vocab_size', int, 0, "Vocab size for spm.")
 add_arg('spm_mode', str, 'unigram', "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
@@ -58,10 +63,10 @@ def count_manifest(counter, text_feature, manifest_path):
         line = text_feature.tokenize(line_json['text'])
         counter.update(line)
 
-def dump_text_manifest(fileobj, manifest_path):
+def dump_text_manifest(fileobj, manifest_path, key='text'):
     manifest_jsons = read_manifest(manifest_path)
     for line_json in manifest_jsons:
-        fileobj.write(line_json['text'] + "\n")
+        fileobj.write(line_json[key] + "\n")
 
 def main():
     print_arguments(args, globals())
@@ -78,7 +83,9 @@ def main():
 
         fp = tempfile.NamedTemporaryFile(mode='w', delete=False)
         for manifest_path in args.manifest_paths:
-            dump_text_manifest(fp, manifest_path)
+            text_keys = [args.text_keys] if type(args.text_keys) is not list else args.text_keys
+            for text_key in text_keys:
+                dump_text_manifest(fp, manifest_path, key=text_key)
         fp.close()
         # train
         spm.SentencePieceTrainer.Train(

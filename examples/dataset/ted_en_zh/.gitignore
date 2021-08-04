@@ -1,0 +1,6 @@
+*.tar.gz.*
+manifest.*
+*.md
+EN-ZH/
+train-split/
+test-segment/

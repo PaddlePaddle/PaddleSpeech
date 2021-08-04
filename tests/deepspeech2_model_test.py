@@ -19,6 +19,7 @@ import paddle
 from deepspeech.models.ds2 import DeepSpeech2Model
 
 
+
 class TestDeepSpeech2Model(unittest.TestCase):
     def setUp(self):
         paddle.set_device('cpu')

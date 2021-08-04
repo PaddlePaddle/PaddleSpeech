@@ -19,15 +19,15 @@ from paddle import nn
 from yacs.config import CfgNode
 
 from deepspeech.models.ds2.conv import ConvStack
-from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.models.ds2.rnn import RNNStack
+from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.utils import layer_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ['DeepSpeech2Model', 'DeepSpeech2InferMode']
+__all__ = ['DeepSpeech2Model', 'DeepSpeech2InferModel']
 
 
 class CRNNEncoder(nn.Layer):
@@ -117,7 +117,7 @@ class DeepSpeech2Model(nn.Layer):
     :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
-    :rtype: tuple of LayerOutput    
+    :rtype: tuple of LayerOutput
     """
 
     @classmethod
@@ -206,10 +206,10 @@ class DeepSpeech2Model(nn.Layer):
 
         config: yacs.config.CfgNode
             model configs
-        
+
         checkpoint_path: Path or str
             the path of pretrained model checkpoint, without extension name
-        
+
         Returns
         -------
         DeepSpeech2Model

@@ -295,7 +295,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
-
+    """
     @paddle.no_grad()
     def decode_by_chunk(self, eouts_prefix, eouts_len_prefix, chunk_state_list,
                         audio_chunk, audio_len_chunk, vocab_list,
@@ -349,14 +349,14 @@ class DeepSpeech2ModelOnline(nn.Layer):
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
-
+    """
     """
     decocd_prob,
     decode_prob_chunk_by_chunk
     decode_prob_by_chunk
     is only used for test
     """
-
+    """
     @paddle.no_grad()
     def decode_prob(self, audio, audio_len):
         eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
@@ -385,6 +385,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             eouts_lens = eouts_chunk_lens
         probs = self.decoder.softmax(eouts)
         return probs, eouts, eouts_lens, final_state_list
+    """
 
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):

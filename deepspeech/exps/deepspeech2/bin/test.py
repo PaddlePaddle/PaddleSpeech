@@ -35,6 +35,7 @@ if __name__ == "__main__":
     print_arguments(args, globals())
     if args.model_type is None:
         args.model_type = 'offline'
+    print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
     config = get_cfg_defaults(args.model_type)

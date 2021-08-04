@@ -134,7 +134,6 @@ class DeepSpeech2Trainer(Trainer):
                 use_gru=config.model.use_gru,
                 share_rnn_weights=config.model.share_rnn_weights)
         elif self.args.model_type == 'online':
-            print("fc_layers_size_list", config.model.fc_layers_size_list)
             model = DeepSpeech2ModelOnline(
                 feat_size=self.train_loader.collate_fn.feature_size,
                 dict_size=self.train_loader.collate_fn.vocab_size,

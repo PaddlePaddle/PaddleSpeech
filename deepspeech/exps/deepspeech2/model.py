@@ -134,6 +134,7 @@ class DeepSpeech2Trainer(Trainer):
                 use_gru=config.model.use_gru,
                 share_rnn_weights=config.model.share_rnn_weights)
         elif self.args.model_type == 'online':
+            print("fc_layers_size_list", config.model.fc_layers_size_list)
             model = DeepSpeech2ModelOnline(
                 feat_size=self.train_loader.collate_fn.feature_size,
                 dict_size=self.train_loader.collate_fn.vocab_size,
@@ -352,19 +353,43 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             infer_model = DeepSpeech2InferModelOnline.from_pretrained(
                 self.test_loader, self.config, self.args.checkpoint_path)
         else:
-            raise Exception("wrong model tyep")
+            raise Exception("wrong model type")
 
         infer_model.eval()
         feat_dim = self.test_loader.collate_fn.feature_size
-        static_model = paddle.jit.to_static(
-            infer_model,
-            input_spec=[
-                paddle.static.InputSpec(
-                    shape=[None, None, feat_dim],
-                    dtype='float32'),  # audio, [B,T,D]
-                paddle.static.InputSpec(shape=[None],
-                                        dtype='int64'),  # audio_length, [B]
-            ])
+        if self.args.model_type == 'offline':
+            static_model = paddle.jit.to_static(
+                infer_model,
+                input_spec=[
+                    paddle.static.InputSpec(
+                        shape=[None, None, feat_dim],
+                        dtype='float32'),  # audio, [B,T,D]
+                    paddle.static.InputSpec(shape=[None],
+                                            dtype='int64'),  # audio_length, [B]
+                ])
+        elif self.args.model_type == 'online':
+            static_model = paddle.jit.to_static(
+                infer_model,
+                input_spec=[
+                    paddle.static.InputSpec(
+                        shape=[None, None,
+                               feat_dim],  #[B, chunk_size, feat_dim]
+                        dtype='float32'),  # audio, [B,T,D]
+                    paddle.static.InputSpec(shape=[None],
+                                            dtype='int64'),  # audio_length, [B]
+                    [
+                        (
+                            paddle.static.InputSpec(
+                                shape=[None, None, None], dtype='float32'
+                            ),  #num_rnn_layers * num_dirctions, rnn_size
+                            paddle.static.InputSpec(
+                                shape=[None, None, None], dtype='float32'
+                            )  #num_rnn_layers * num_dirctions, rnn_size
+                        ) for i in range(self.config.model.num_rnn_layers)
+                    ]
+                ])
+        else:
+            raise Exception("wrong model type")
         logger.info(f"Export code: {static_model.forward.code}")
         paddle.jit.save(static_model, self.args.export_path)
 

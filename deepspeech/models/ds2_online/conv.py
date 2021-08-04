@@ -29,7 +29,7 @@ class Conv2dSubsampling4Online(Conv2dSubsampling4):
                 x_len: paddle.Tensor) -> [paddle.Tensor, paddle.Tensor]:
         x = x.unsqueeze(1)  # (b, c=1, t, f)
         x = self.conv(x)
-        b, c, t, f = paddle.shape(x)
-        x = x.transpose([0, 2, 1, 3]).reshape([b, t, c * f])
+        #b, c, t, f = paddle.shape(x) #not work under jit
+        x = x.transpose([0, 2, 1, 3]).reshape([0, 0, -1])
         x_len = ((x_len - 1) // 2 - 1) // 2
         return x, x_len

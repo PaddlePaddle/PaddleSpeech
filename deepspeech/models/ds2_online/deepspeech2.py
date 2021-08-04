@@ -61,7 +61,7 @@ class CRNNEncoder(nn.Layer):
                 rnn_input_size = i_size
             else:
                 rnn_input_size = rnn_size
-            if (use_gru == True):
+            if use_gru == True:
                 self.rnn.append(
                     nn.GRU(
                         input_size=rnn_input_size,
@@ -146,6 +146,17 @@ class CRNNEncoder(nn.Layer):
         return x, x_lens, chunk_final_state_list
 
     def forward_chunk_by_chunk(self, x, x_lens, decoder_chunk_size=8):
+        """Compute Encoder outputs
+
+        Args:
+            x (Tensor): [B, T, D]
+            x_lens (Tensor): [B]
+            decoder_chunk_size: The chunk size of decoder
+        Returns:
+            eouts_chunk_list (List of Tensor): The list of encoder outputs in chunk_size, [B, chunk_size, D] * num_chunks
+            eouts_chunk_lens_list (List of Tensor): The list of  encoder length in chunk_size, [B] * num_chunks
+            final_chunk_state_list: list of final_states for RNN layers, [num_directions, batch_size, hidden_size] * num_rnn_layers
+        """
         subsampling_rate = self.conv.subsampling_rate
         receptive_field_length = self.conv.receptive_field_length
         chunk_size = (decoder_chunk_size - 1
@@ -183,8 +194,8 @@ class CRNNEncoder(nn.Layer):
 
             eouts_chunk_list.append(eouts_chunk)
             eouts_chunk_lens_list.append(eouts_chunk_lens)
-
-        return eouts_chunk_list, eouts_chunk_lens_list, chunk_state_list
+            final_chunk_state_list = chunk_state_list
+        return eouts_chunk_list, eouts_chunk_lens_list, final_chunk_state_list
 
 
 class DeepSpeech2ModelOnline(nn.Layer):
@@ -208,7 +219,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
     :type rnn_size: int
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool
-    :type share_weights: bool
     :return: A tuple of an output unnormalized log probability layer (
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
@@ -295,97 +305,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
             probs.numpy(), eouts_len, vocab_list, decoding_method,
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
-    """
-    @paddle.no_grad()
-    def decode_by_chunk(self, eouts_prefix, eouts_len_prefix, chunk_state_list,
-                        audio_chunk, audio_len_chunk, vocab_list,
-                        decoding_method, lang_model_path, beam_alpha, beam_beta,
-                        beam_size, cutoff_prob, cutoff_top_n, num_processes):
-        # init once
-        # decoders only accept string encoded in utf-8
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-
-        eouts_chunk, eouts_chunk_len, final_state_list = self.encoder.forward_chunk(
-            audio_chunk, audio_len_chunk, chunk_state_list)
-        if eouts_prefix is not None:
-            eouts = paddle.concat([eouts_prefix, eouts_chunk], axis=1)
-            eouts_len = paddle.add_n([eouts_len_prefix, eouts_chunk_len])
-        else:
-            eouts = eouts_chunk
-            eouts_len = eouts_chunk_len
-
-        probs = self.decoder.softmax(eouts)
-        return self.decoder.decode_probs(
-            probs.numpy(), eouts_len, vocab_list, decoding_method,
-            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, num_processes), eouts, eouts_len, final_state_list
-
-    @paddle.no_grad()
-    def decode_chunk_by_chunk(self, audio, audio_len, vocab_list,
-                              decoding_method, lang_model_path, beam_alpha,
-                              beam_beta, beam_size, cutoff_prob, cutoff_top_n,
-                              num_processes):
-        # init once
-        # decoders only accept string encoded in utf-8
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-
-        eouts_chunk_list, eouts_chunk_len_list, final_state_list = self.encoder.forward_chunk_by_chunk(
-            audio, audio_len)
-        eouts = paddle.concat(eouts_chunk_list, axis=1)
-        eouts_len = paddle.add_n(eouts_chunk_len_list)
-
-        probs = self.decoder.softmax(eouts)
-        return self.decoder.decode_probs(
-            probs.numpy(), eouts_len, vocab_list, decoding_method,
-            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, num_processes)
-    """
-    """
-    decocd_prob,
-    decode_prob_chunk_by_chunk
-    decode_prob_by_chunk
-    is only used for test
-    """
-    """
-    @paddle.no_grad()
-    def decode_prob(self, audio, audio_len):
-        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
-        probs = self.decoder.softmax(eouts)
-        return probs, eouts, eouts_len, final_state_list
-
-    @paddle.no_grad()
-    def decode_prob_chunk_by_chunk(self, audio, audio_len, decoder_chunk_size):
-        eouts_chunk_list, eouts_chunk_len_list, final_state_list = self.encoder.forward_chunk_by_chunk(
-            audio, audio_len, decoder_chunk_size)
-        eouts = paddle.concat(eouts_chunk_list, axis=1)
-        eouts_len = paddle.add_n(eouts_chunk_len_list)
-        probs = self.decoder.softmax(eouts)
-        return probs, eouts, eouts_len, final_state_list
-
-    @paddle.no_grad()
-    def decode_prob_by_chunk(self, audio, audio_len, eouts_prefix,
-                             eouts_lens_prefix, chunk_state_list):
-        eouts_chunk, eouts_chunk_lens, final_state_list = self.encoder.forward_chunk(
-            audio, audio_len, chunk_state_list)
-        if eouts_prefix is not None:
-            eouts = paddle.concat([eouts_prefix, eouts_chunk], axis=1)
-            eouts_lens = paddle.add_n([eouts_lens_prefix, eouts_chunk_lens])
-        else:
-            eouts = eouts_chunk
-            eouts_lens = eouts_chunk_lens
-        probs = self.decoder.softmax(eouts)
-        return probs, eouts, eouts_lens, final_state_list
-    """
 
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):
@@ -443,42 +362,8 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
             fc_layers_size_list=fc_layers_size_list,
             use_gru=use_gru)
 
-    def forward(self, audio, audio_len):
-        """export model function
-
-        Args:
-            audio (Tensor): [B, T, D]
-            audio_len (Tensor): [B]
-
-        Returns:
-            probs: probs after softmax
-        """
-        eouts, eouts_len, final_state_list = self.encoder(audio, audio_len)
-        probs = self.decoder.softmax(eouts)
-        return probs
-
-    def forward_chunk(self, audio_chunk, audio_chunk_lens):
-        eouts_chunkt, eouts_chunk_lens, final_state_list = self.encoder.forward_chunk(
-            audio_chunk, audio_chunk_lens)
-        probs = self.decoder.softmax(eouts)
-        return probs
-
-    def forward(self, eouts_chunk_prefix, eouts_chunk_lens_prefix, audio_chunk,
-                audio_chunk_lens, chunk_state_list):
-        """export model function
-
-        Args:
-            audio_chunk (Tensor): [B, T, D]
-            audio_chunk_len (Tensor): [B]
-
-        Returns:
-            probs: probs after softmax
-        """
+    def forward(self, audio_chunk, audio_chunk_lens, chunk_state_list):
         eouts_chunk, eouts_chunk_lens, final_state_list = self.encoder.forward_chunk(
             audio_chunk, audio_chunk_lens, chunk_state_list)
-        eouts_chunk_new_prefix = paddle.concat(
-            [eouts_chunk_prefix, eouts_chunk], axis=1)
-        eouts_chunk_lens_new_prefix = paddle.add(eouts_chunk_lens_prefix,
-                                                 eouts_chunk_lens)
-        probs_chunk = self.decoder.softmax(eouts_chunk_new_prefix)
-        return probs_chunk, eouts_chunk_new_prefix, eouts_chunk_lens_new_prefix, final_state_list
+        probs_chunk = self.decoder.softmax(eouts_chunk)
+        return probs_chunk, final_state_list

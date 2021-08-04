@@ -7,7 +7,7 @@ stage=0
 stop_stage=100
 conf_path=conf/deepspeech2.yaml
 avg_num=1
-model_type=online
+model_type=offline
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

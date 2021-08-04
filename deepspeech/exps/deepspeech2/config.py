@@ -21,7 +21,7 @@ from deepspeech.models.ds2 import DeepSpeech2Model
 from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 
 
-def get_cfg_defaults(model_type):
+def get_cfg_defaults(model_type='offline'):
     _C = CfgNode()
     if (model_type == 'offline'):
         _C.data = ManifestDataset.params()

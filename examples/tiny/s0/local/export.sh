@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# != 4 ];then
-    echo "usage: $0 config_path ckpt_prefix jit_model_path"
+    echo "usage: $0 config_path ckpt_prefix jit_model_path model_type"
     exit -1
 fi
 

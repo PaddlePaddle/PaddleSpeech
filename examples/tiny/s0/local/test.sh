@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# != 3 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix"
+    echo "usage: ${0} config_path ckpt_path_prefix model_type"
     exit -1
 fi
 

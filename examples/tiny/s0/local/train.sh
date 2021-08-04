@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# != 3 ];then
-    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name"
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name model_type"
     exit -1
 fi
 

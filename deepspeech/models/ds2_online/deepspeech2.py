@@ -174,6 +174,7 @@ class CRNNEncoder(nn.Layer):
         num_chunk = (max_len + padding_len - chunk_size) / chunk_stride + 1
         num_chunk = int(num_chunk)
         chunk_state_list = [None] * self.num_rnn_layers
+        final_chunk_state_list = None
         for i in range(0, num_chunk):
             start = i * chunk_stride
             end = start + chunk_size
@@ -366,4 +367,4 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
         eouts_chunk, eouts_chunk_lens, final_state_list = self.encoder.forward_chunk(
             audio_chunk, audio_chunk_lens, chunk_state_list)
         probs_chunk = self.decoder.softmax(eouts_chunk)
-        return probs_chunk, final_state_list
+        return probs_chunk, eouts_chunk_lens, final_state_list

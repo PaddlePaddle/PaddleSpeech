@@ -376,16 +376,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                         dtype='float32'),  # audio, [B,T,D]
                     paddle.static.InputSpec(shape=[None],
                                             dtype='int64'),  # audio_length, [B]
-                    [
-                        (
-                            paddle.static.InputSpec(
-                                shape=[None, None, None], dtype='float32'
-                            ),  #num_rnn_layers * num_dirctions, rnn_size
-                            paddle.static.InputSpec(
-                                shape=[None, None, None], dtype='float32'
-                            )  #num_rnn_layers * num_dirctions, rnn_size
-                        ) for i in range(self.config.model.num_rnn_layers)
-                    ]
+                    paddle.static.InputSpec(
+                        shape=[None, None, None], dtype='float32'),
+                    paddle.static.InputSpec(
+                        shape=[None, None, None], dtype='float32')
                 ])
         else:
             raise Exception("wrong model type")

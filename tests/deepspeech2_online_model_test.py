@@ -119,9 +119,9 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         paddle.device.set_device("cpu")
         de_ch_size = 9
 
-        eouts, eouts_lens, final_state_list = model.encoder(self.audio,
-                                                            self.audio_len)
-        eouts_by_chk_list, eouts_lens_by_chk_list, final_state_list_by_chk = model.encoder.forward_chunk_by_chunk(
+        eouts, eouts_lens, final_state_h_box, final_state_c_box = model.encoder(
+            self.audio, self.audio_len)
+        eouts_by_chk_list, eouts_lens_by_chk_list, final_state_h_box_chk, final_state_c_box_chk = model.encoder.forward_chunk_by_chunk(
             self.audio, self.audio_len, de_ch_size)
         eouts_by_chk = paddle.concat(eouts_by_chk_list, axis=1)
         eouts_lens_by_chk = paddle.add_n(eouts_lens_by_chk_list)
@@ -134,6 +134,10 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         self.assertEqual(
             paddle.sum(paddle.abs(paddle.subtract(eouts, eouts_by_chk))), 0)
         self.assertEqual(paddle.allclose(eouts_by_chk, eouts), True)
+        self.assertEqual(
+            paddle.allclose(final_state_h_box, final_state_h_box_chk), True)
+        self.assertEqual(
+            paddle.allclose(final_state_c_box, final_state_c_box_chk), True)
         """
         print ("conv_x", conv_x)
         print ("conv_x_by_chk", conv_x_by_chk)

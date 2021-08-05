@@ -44,9 +44,11 @@ def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
 
-    data_types_infos = [('train', 'train-split/train-segment', 'En-Zh/train.en-zh'), 
-                ('dev', 'test-segment/tst2010', 'En-Zh/tst2010.en-zh'), 
-                ('test', 'test-segment/tst2015', 'En-Zh/tst2015.en-zh')]
+    data_types_infos = [
+        ('train', 'train-split/train-segment', 'En-Zh/train.en-zh'),
+        ('dev', 'test-segment/tst2010', 'En-Zh/tst2010.en-zh'),
+        ('test', 'test-segment/tst2015', 'En-Zh/tst2015.en-zh')
+    ]
     for data_info in data_types_infos:
         dtype, audio_relative_dir, text_relative_path = data_info
         del json_lines[:]
@@ -63,7 +65,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                 continue
             audio_id, trancription, translation = line.split('\t')
             utt = audio_id.split('.')[0]
-            
+
             audio_path = os.path.join(audio_dir, audio_id)
             if os.path.exists(audio_path):
                 if os.path.getsize(audio_path) < 30000:

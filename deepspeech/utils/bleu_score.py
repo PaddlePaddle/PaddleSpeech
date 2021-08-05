@@ -14,7 +14,6 @@
 """This module provides functions to calculate bleu score in different level.
 e.g. wer for word-level, cer for char-level.
 """
-import numpy as np
 import sacrebleu
 
 __all__ = ['bleu', 'char_bleu']

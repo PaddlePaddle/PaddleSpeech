@@ -39,4 +39,3 @@
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention | | |  
-

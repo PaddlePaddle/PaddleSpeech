@@ -14,7 +14,6 @@
 import io
 from collections import namedtuple
 from typing import Optional
-from typing import Tuple
 
 import kaldiio
 import numpy as np

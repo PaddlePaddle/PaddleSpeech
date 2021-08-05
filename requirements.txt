@@ -1,7 +1,9 @@
 coverage
+gpustat
 pre-commit
 pybind11
 resampy==0.2.2
+sacrebleu
 scipy==1.2.1
 sentencepiece
 snakeviz

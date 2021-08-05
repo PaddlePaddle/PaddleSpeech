@@ -424,3 +424,20 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
             audio_chunk, audio_chunk_lens, chunk_state_h_box, chunk_state_c_box)
         probs_chunk = self.decoder.softmax(eouts_chunk)
         return probs_chunk, eouts_chunk_lens, final_state_h_box, final_state_c_box
+
+    @classmethod
+    def export(self, infer_model, feat_dim):
+        static_model = paddle.jit.to_static(
+            infer_model,
+            input_spec=[
+                paddle.static.InputSpec(
+                    shape=[None, None, feat_dim],  #[B, chunk_size, feat_dim]
+                    dtype='float32'),  # audio, [B,T,D]
+                paddle.static.InputSpec(shape=[None],
+                                        dtype='int64'),  # audio_length, [B]
+                paddle.static.InputSpec(
+                    shape=[None, None, None], dtype='float32'),
+                paddle.static.InputSpec(
+                    shape=[None, None, None], dtype='float32')
+            ])
+        return static_model

@@ -367,20 +367,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                                             dtype='int64'),  # audio_length, [B]
                 ])
         elif self.args.model_type == 'online':
-            static_model = paddle.jit.to_static(
-                infer_model,
-                input_spec=[
-                    paddle.static.InputSpec(
-                        shape=[None, None,
-                               feat_dim],  #[B, chunk_size, feat_dim]
-                        dtype='float32'),  # audio, [B,T,D]
-                    paddle.static.InputSpec(shape=[None],
-                                            dtype='int64'),  # audio_length, [B]
-                    paddle.static.InputSpec(
-                        shape=[None, None, None], dtype='float32'),
-                    paddle.static.InputSpec(
-                        shape=[None, None, None], dtype='float32')
-                ])
+            static_model = DeepSpeech2InferModelOnline.export(infer_model,
+                                                              feat_dim)
         else:
             raise Exception("wrong model type")
         logger.info(f"Export code: {static_model.forward.code}")

@@ -563,7 +563,7 @@ class KaldiPrePorocessedCollator(SpeechCollator):
     @property
     def feature_size(self):
         return self._feat_dim
-    
+
     @property
     def stride_ms(self):
         return self._stride_ms

@@ -35,6 +35,7 @@ def bleu(hypothesis, reference):
 
     return sacrebleu.corpus_bleu(hypothesis, reference)
 
+
 def char_bleu(hypothesis, reference):
     """Calculate BLEU. BLEU compares reference text and
     hypothesis text in char-level using scarebleu.
@@ -47,7 +48,8 @@ def char_bleu(hypothesis, reference):
     :type hypothesis: list[str]
     :raises ValueError: If the reference number is zero.
     """
-    hypothesis =[' '.join(list(hyp.replace(' ', ''))) for hyp in hypothesis]
-    reference = [[' '.join(list(ref_i.replace(' ', ''))) for ref_i in ref ]for ref in reference ]
+    hypothesis = [' '.join(list(hyp.replace(' ', ''))) for hyp in hypothesis]
+    reference = [[' '.join(list(ref_i.replace(' ', ''))) for ref_i in ref]
+                 for ref in reference]
 
     return sacrebleu.corpus_bleu(hypothesis, reference)

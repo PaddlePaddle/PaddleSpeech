@@ -9,7 +9,7 @@ if [ $(id -u) -eq 0 ]; then
 fi
 
 if [ -e /etc/lsb-release ];then
-    #${SUDO} apt-get update
+    ${SUDO} apt-get update -y
     ${SUDO} apt-get install -y jq vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
     if [ $? != 0 ]; then
         error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
@@ -21,6 +21,8 @@ fi
 # tools/make
 rm tools/*.done
 pushd tools && make && popd
+
+source tools/venv/bin/activate
 
 # install python dependencies
 if [ -f "requirements.txt" ]; then

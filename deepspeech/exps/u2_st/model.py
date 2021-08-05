@@ -18,9 +18,7 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
-from typing import List
 from typing import Optional
-from typing import Tuple
 
 import numpy as np
 import paddle
@@ -42,7 +40,6 @@ from deepspeech.training.scheduler import WarmupLR
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import bleu_score
 from deepspeech.utils import ctc_utils
-from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid

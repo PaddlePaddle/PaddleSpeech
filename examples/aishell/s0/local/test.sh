@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 2 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix"
+if [ $# != 3 ];then
+    echo "usage: ${0} config_path ckpt_path_prefix model_type"
     exit -1
 fi
 
@@ -14,6 +14,7 @@ if [ ${ngpu} == 0 ];then
 fi
 config_path=$1
 ckpt_prefix=$2
+model_type=$3
 
 # download language model
 bash local/download_lm_ch.sh
@@ -26,7 +27,8 @@ python3 -u ${BIN_DIR}/test.py \
 --nproc 1 \
 --config ${config_path} \
 --result_file ${ckpt_prefix}.rsl \
---checkpoint_path ${ckpt_prefix}
+--checkpoint_path ${ckpt_prefix} \
+--model_type ${model_type}
 
 if [ $? -ne 0 ]; then
     echo "Failed in evaluation!"

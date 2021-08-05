@@ -31,8 +31,8 @@ from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2 import U2Model
-from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
-from deepspeech.training.scheduler import WarmupLR
+from deepspeech.training.optimizer import OptimizerFactory
+from deepspeech.training.scheduler import LRSchedulerFactory
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
@@ -41,6 +41,8 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+# from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
+# from deepspeech.training.scheduler import WarmupLR
 
 logger = Log(__name__).getlog()
 
@@ -312,30 +314,63 @@ class U2Trainer(Trainer):
         scheduler_type = train_config.scheduler
         scheduler_conf = train_config.scheduler_conf
 
-        grad_clip = ClipGradByGlobalNormWithLog(train_config.global_grad_clip)
-        weight_decay = paddle.regularizer.L2Decay(optim_conf.weight_decay)
+        scheduler_args = {
+            "learning_rate":
+            optim_conf.lr,
+            "verbose":
+            False,
+            "warmup_steps":
+            scheduler_conf.warmup_steps
+            if "warmup_steps" in scheduler_conf else None,
+            "gamma":
+            scheduler_conf.lr_decay if "lr_decay" in scheduler_conf else None,
+        }
+        lr_scheduler = LRSchedulerFactory.from_args(scheduler_type,
+                                                    scheduler_args)
 
-        if scheduler_type == 'expdecaylr':
-            lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
-                learning_rate=optim_conf.lr,
-                gamma=scheduler_conf.lr_decay,
-                verbose=False)
-        elif scheduler_type == 'warmuplr':
-            lr_scheduler = WarmupLR(
-                learning_rate=optim_conf.lr,
-                warmup_steps=scheduler_conf.warmup_steps,
-                verbose=False)
-        else:
-            raise ValueError(f"Not support scheduler: {scheduler_type}")
+        # if scheduler_type == 'expdecaylr':
+        #     lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
+        #         learning_rate=optim_conf.lr,
+        #         gamma=scheduler_conf.lr_decay,
+        #         verbose=False)
+        # elif scheduler_type == 'warmuplr':
+        #     lr_scheduler = WarmupLR(
+        #         learning_rate=optim_conf.lr,
+        #         warmup_steps=scheduler_conf.warmup_steps,
+        #         verbose=False)
+        # else:
+        #     raise ValueError(f"Not support scheduler: {scheduler_type}")
 
-        if optim_type == 'adam':
-            optimizer = paddle.optimizer.Adam(
-                learning_rate=lr_scheduler,
-                parameters=model.parameters(),
-                weight_decay=weight_decay,
-                grad_clip=grad_clip)
-        else:
-            raise ValueError(f"Not support optim: {optim_type}")
+        def optimizer_args(
+                config,
+                parameters,
+                lr_scheduler=None, ):
+            train_config = config.training
+            optim_type = train_config.optim
+            optim_conf = train_config.optim_conf
+            scheduler_type = train_config.scheduler
+            scheduler_conf = train_config.scheduler_conf
+            return {
+                "grad_clip": train_config.global_grad_clip,
+                "weight_decay": optim_conf.weight_decay,
+                "learning_rate": lr_scheduler
+                if lr_scheduler else optim_conf.lr,
+                "parameters": parameters,
+            }
+
+        optimzer_args = optimizer_args(config, model.parameters(), lr_scheduler)
+        optimizer = OptimizerFactory.from_args(optim_type, optimzer_args)
+
+        # grad_clip = ClipGradByGlobalNormWithLog(train_config.global_grad_clip)
+        # weight_decay = paddle.regularizer.L2Decay(optim_conf.weight_decay)
+        # if optim_type == 'adam':
+        #     optimizer = paddle.optimizer.Adam(
+        #         learning_rate=lr_scheduler,
+        #         parameters=model.parameters(),
+        #         weight_decay=weight_decay,
+        #         grad_clip=grad_clip)
+        # else:
+        #     raise ValueError(f"Not support optim: {optim_type}")
 
         self.model = model
         self.optimizer = optimizer

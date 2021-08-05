@@ -3,8 +3,8 @@ data:
   train_manifest: data/manifest.train.tiny
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
-  min_input_len: 0.5  # second
-  max_input_len: 3000.0 # second
+  min_input_len: 0.05  # second
+  max_input_len: 30.0 # second
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.01

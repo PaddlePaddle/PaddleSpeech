@@ -9,7 +9,7 @@ ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 device=gpu
-if [ ngpu == 0 ];then
+if [ ${ngpu} == 0 ];then
     device=cpu
 fi
 config_path=$1

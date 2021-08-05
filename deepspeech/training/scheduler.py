@@ -11,18 +11,53 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Any
+from typing import Dict
+from typing import Text
 from typing import Union
 
 from paddle.optimizer.lr import LRScheduler
 from typeguard import check_argument_types
 
+from deepspeech.utils.dynamic_import import dynamic_import
+from deepspeech.utils.dynamic_import import instance_class
 from deepspeech.utils.log import Log
 
-__all__ = ["WarmupLR"]
+__all__ = ["WarmupLR", "LRSchedulerFactory"]
 
 logger = Log(__name__).getlog()
 
+SCHEDULER_DICT = {
+    "noam": "paddle.optimizer.lr:NoamDecay",
+    "expdecaylr": "paddle.optimizer.lr:ExponentialDecay",
+    "piecewisedecay": "paddle.optimizer.lr:PiecewiseDecay",
+}
 
+
+def register_scheduler(cls):
+    """Register scheduler."""
+    alias = cls.__name__.lower()
+    SCHEDULER_DICT[cls.__name__.lower()] = cls.__module__ + ":" + cls.__name__
+    return cls
+
+
+def dynamic_import_scheduler(module):
+    """Import Scheduler class dynamically.
+
+    Args:
+        module (str): module_name:class_name or alias in `SCHEDULER_DICT`
+
+    Returns:
+        type: Scheduler class
+
+    """
+    module_class = dynamic_import(module, SCHEDULER_DICT)
+    assert issubclass(module_class,
+                      LRScheduler), f"{module} does not implement LRScheduler"
+    return module_class
+
+
+@register_scheduler
 class WarmupLR(LRScheduler):
     """The WarmupLR scheduler
     This scheduler is almost same as NoamLR Scheduler except for following
@@ -40,7 +75,8 @@ class WarmupLR(LRScheduler):
                  warmup_steps: Union[int, float]=25000,
                  learning_rate=1.0,
                  last_epoch=-1,
-                 verbose=False):
+                 verbose=False,
+                 **kwargs):
         assert check_argument_types()
         self.warmup_steps = warmup_steps
         super().__init__(learning_rate, last_epoch, verbose)
@@ -64,3 +100,10 @@ class WarmupLR(LRScheduler):
             None
         '''
         self.step(epoch=step)
+
+
+class LRSchedulerFactory():
+    @classmethod
+    def from_args(cls, name: str, args: Dict[Text, Any]):
+        module_class = dynamic_import_scheduler(name.lower())
+        return instance_class(module_class, args)

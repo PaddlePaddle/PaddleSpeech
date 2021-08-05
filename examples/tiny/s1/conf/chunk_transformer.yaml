@@ -3,18 +3,20 @@ data:
   train_manifest: data/manifest.tiny
   dev_manifest: data/manifest.tiny
   test_manifest: data/manifest.tiny
-  vocab_filepath: data/vocab.txt 
-  unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_200'
-  mean_std_filepath: ""
-  augmentation_config: conf/augmentation.json
-  batch_size: 4
   min_input_len: 0.5  # second
   max_input_len: 20.0 # second
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05
   max_output_input_ratio: 10.0
+  
+collator:
+  mean_std_filepath: ""
+  vocab_filepath: data/vocab.txt 
+  unit_type: 'spm'
+  spm_model_prefix: 'data/bpe_unigram_202'
+  augmentation_config: conf/augmentation.json
+  batch_size: 4
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80

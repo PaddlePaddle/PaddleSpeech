@@ -20,6 +20,7 @@ from paddle.regularizer import L2Decay
 
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.utils.dynamic_import import dynamic_import
+from deepspeech.utils.dynamic_import import filter_valid_args
 from deepspeech.utils.log import Log
 
 __all__ = ["OptimizerFactory"]
@@ -78,4 +79,6 @@ class OptimizerFactory():
             f"Optimizer: {module_class.__name__} {args['learning_rate']}")
 
         args.update({"grad_clip": grad_clip, "weight_decay": weight_decay})
+
+        args = filter_valid_args(args)
         return module_class(**args)

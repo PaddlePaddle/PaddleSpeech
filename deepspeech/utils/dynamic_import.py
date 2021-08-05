@@ -20,7 +20,7 @@ from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["dynamic_import", "instance_class"]
+__all__ = ["dynamic_import", "instance_class", "filter_valid_args"]
 
 
 def dynamic_import(import_path, alias=dict()):
@@ -43,8 +43,14 @@ def dynamic_import(import_path, alias=dict()):
     return getattr(m, objname)
 
 
-def instance_class(module_class, args: Dict[Text, Any]):
+def filter_valid_args(args: Dict[Text, Any]):
     # filter out `val` which is None
     new_args = {key: val for key, val in args.items() if val is not None}
+    return new_args
+
+
+def instance_class(module_class, args: Dict[Text, Any]):
+    # filter out `val` which is None
+    new_args = filter_valid_args(args)
     logger.info(f"Instance: {module_class.__name__} {new_args}.")
     return module_class(**new_args)

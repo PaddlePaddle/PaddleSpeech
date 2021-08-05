@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import importlib
+import inspect
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Text
 
 from deepspeech.utils.log import Log
+from deepspeech.utils.tensor_utils import has_tensor
 
 logger = Log(__name__).getlog()
 
-__all__ = ["dynamic_import", "instance_class", "filter_valid_args"]
+__all__ = ["dynamic_import", "instance_class"]
 
 
 def dynamic_import(import_path, alias=dict()):
@@ -43,14 +46,22 @@ def dynamic_import(import_path, alias=dict()):
     return getattr(m, objname)
 
 
-def filter_valid_args(args: Dict[Text, Any]):
-    # filter out `val` which is None
-    new_args = {key: val for key, val in args.items() if val is not None}
+def filter_valid_args(args: Dict[Text, Any], valid_keys: List[Text]):
+    # filter by `valid_keys` and filter `val` is not None
+    new_args = {
+        key: val
+        for key, val in args.items() if (key in valid_keys and val is not None)
+    }
     return new_args
 
 
+def filter_out_tenosr(args: Dict[Text, Any]):
+    return {key: val for key, val in args.items() if not has_tensor(val)}
+
+
 def instance_class(module_class, args: Dict[Text, Any]):
-    # filter out `val` which is None
-    new_args = filter_valid_args(args)
-    logger.info(f"Instance: {module_class.__name__} {new_args}.")
+    valid_keys = inspect.signature(module_class).parameters.keys()
+    new_args = filter_valid_args(args, valid_keys)
+    logger.info(
+        f"Instance: {module_class.__name__} {filter_out_tenosr(new_args)}.")
     return module_class(**new_args)

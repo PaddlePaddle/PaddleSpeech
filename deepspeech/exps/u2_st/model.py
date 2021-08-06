@@ -345,9 +345,6 @@ class U2STTrainer(Trainer):
         scheduler_type = train_config.scheduler
         scheduler_conf = train_config.scheduler_conf
 
-        grad_clip = ClipGradByGlobalNormWithLog(train_config.global_grad_clip)
-        weight_decay = paddle.regularizer.L2Decay(optim_conf.weight_decay)
-
         if scheduler_type == 'expdecaylr':
             lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
                 learning_rate=optim_conf.lr,
@@ -367,6 +364,8 @@ class U2STTrainer(Trainer):
         else:
             raise ValueError(f"Not support scheduler: {scheduler_type}")
 
+        grad_clip = ClipGradByGlobalNormWithLog(train_config.global_grad_clip)
+        weight_decay = paddle.regularizer.L2Decay(optim_conf.weight_decay)
         if optim_type == 'adam':
             optimizer = paddle.optimizer.Adam(
                 learning_rate=lr_scheduler,

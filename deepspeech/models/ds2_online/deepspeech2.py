@@ -56,12 +56,17 @@ class CRNNEncoder(nn.Layer):
         self.rnn = nn.LayerList()
         self.layernorm_list = nn.LayerList()
         self.fc_layers_list = nn.LayerList()
-        layernorm_size = rnn_size
+        if rnn_direction == 'bidirect' or rnn_direction == 'bidirectional':
+            layernorm_size = 2 * rnn_size
+        elif rnn_direction == 'forward':
+            layernorm_size = rnn_size
+        else:
+            raise Exception("Wrong rnn direction")
         for i in range(0, num_rnn_layers):
             if i == 0:
                 rnn_input_size = i_size
             else:
-                rnn_input_size = rnn_size
+                rnn_input_size = layernorm_size
             if use_gru == True:
                 self.rnn.append(
                     nn.GRU(
@@ -78,7 +83,7 @@ class CRNNEncoder(nn.Layer):
                         direction=rnn_direction))
             self.layernorm_list.append(nn.LayerNorm(layernorm_size))
 
-        fc_input_size = rnn_size
+        fc_input_size = layernorm_size
         for i in range(self.num_fc_layers):
             self.fc_layers_list.append(
                 nn.Linear(fc_input_size, fc_layers_size_list[i]))
@@ -385,8 +390,8 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
             self,
             input_spec=[
                 paddle.static.InputSpec(
-                    shape=[None, None, self.encoder.feat_size
-                           ],  #[B, chunk_size, feat_dim]
+                    shape=[None, None,
+                           self.encoder.feat_size],  #[B, chunk_size, feat_dim]
                     dtype='float32'),  # audio, [B,T,D]
                 paddle.static.InputSpec(shape=[None],
                                         dtype='int64'),  # audio_length, [B]

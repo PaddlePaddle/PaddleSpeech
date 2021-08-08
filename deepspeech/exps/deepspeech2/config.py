@@ -27,7 +27,7 @@ def get_cfg_defaults(model_type='offline'):
     _C.collator = SpeechCollator.params()
     _C.training = DeepSpeech2Trainer.params()
     _C.decoding = DeepSpeech2Tester.params()
-    if (model_type == 'offline'):
+    if model_type == 'offline':
         _C.model = DeepSpeech2Model.params()
     else:
         _C.model = DeepSpeech2ModelOnline.params()

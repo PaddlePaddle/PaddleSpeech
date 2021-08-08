@@ -124,10 +124,23 @@ class DeepSpeech2Trainer(Trainer):
 
     def setup_model(self):
         config = self.config
+        if hasattr(self, "train_loader"):
+            config.defrost()
+            config.model.feat_size = self.train_loader.collate_fn.feature_size
+            config.model.dict_size = self.train_loader.collate_fn.vocab_size
+            config.freeze()
+        elif hasattr(self, "test_loader"):
+            config.defrost()
+            config.model.feat_size = self.test_loader.collate_fn.feature_size
+            config.model.dict_size = self.test_loader.collate_fn.vocab_size
+            config.freeze()
+        else:
+            raise Exception("Please setup the dataloader first")
+
         if self.args.model_type == 'offline':
             model = DeepSpeech2Model(
-                feat_size=self.train_loader.collate_fn.feature_size,
-                dict_size=self.train_loader.collate_fn.vocab_size,
+                feat_size=config.model.feat_size,
+                dict_size=config.model.dict_size,
                 num_conv_layers=config.model.num_conv_layers,
                 num_rnn_layers=config.model.num_rnn_layers,
                 rnn_size=config.model.rnn_layer_size,
@@ -135,8 +148,8 @@ class DeepSpeech2Trainer(Trainer):
                 share_rnn_weights=config.model.share_rnn_weights)
         elif self.args.model_type == 'online':
             model = DeepSpeech2ModelOnline(
-                feat_size=self.train_loader.collate_fn.feature_size,
-                dict_size=self.train_loader.collate_fn.vocab_size,
+                feat_size=config.model.feat_size,
+                dict_size=config.model.dict_size,
                 num_conv_layers=config.model.num_conv_layers,
                 num_rnn_layers=config.model.num_rnn_layers,
                 rnn_size=config.model.rnn_layer_size,
@@ -209,6 +222,7 @@ class DeepSpeech2Trainer(Trainer):
             batch_sampler=batch_sampler,
             collate_fn=collate_fn_train,
             num_workers=config.collator.num_workers)
+        print("feature_size", self.train_loader.collate_fn.feature_size)
         self.valid_loader = DataLoader(
             dev_dataset,
             batch_size=config.collator.batch_size,
@@ -368,8 +382,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                                             dtype='int64'),  # audio_length, [B]
                 ])
         elif self.args.model_type == 'online':
-            static_model = DeepSpeech2InferModelOnline.export(infer_model,
-                                                              feat_dim)
+            static_model = infer_model.export()
         else:
             raise Exception("wrong model type")
         logger.info(f"Export code: {static_model.forward.code}")
@@ -395,6 +408,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         self.iteration = 0
         self.epoch = 0
 
+    '''
     def setup_model(self):
         config = self.config
         if self.args.model_type == 'offline':
@@ -422,6 +436,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         self.model = model
         logger.info("Setup model!")
+    '''
 
     def setup_dataloader(self):
         config = self.config.clone()

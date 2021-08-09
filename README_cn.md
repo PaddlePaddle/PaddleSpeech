@@ -17,7 +17,7 @@
 ## 安装
 
 * python>=3.7
-* paddlepaddle>=2.1.0
+* paddlepaddle>=2.1.2
 
 参看 [安装](doc/src/install.md)。
 

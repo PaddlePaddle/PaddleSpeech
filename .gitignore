@@ -10,6 +10,7 @@
 .ipynb_checkpoints
 *.npz
 *.done
+*.whl
 
 tools/venv
 tools/kenlm

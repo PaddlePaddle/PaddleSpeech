@@ -14,7 +14,7 @@ collator:
   mean_std_filepath: ""
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_202'
+  spm_model_prefix: 'data/bpe_unigram_200'
   augmentation_config: conf/augmentation.json
   batch_size: 4
   raw_wav: True  # use raw_wav or kaldi feature

@@ -32,7 +32,7 @@ collator:
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 0
+  num_workers: 2
 
 model:
   num_conv_layers: 2

@@ -36,17 +36,17 @@ collator:
 
 model:
   num_conv_layers: 2
-  num_rnn_layers: 4
+  num_rnn_layers: 3
   rnn_layer_size: 1024
-  rnn_direction: bidirect
-  num_fc_layers: 2
-  fc_layers_size_list: 512, 256
+  rnn_direction: forward # [forward, bidirect]
+  num_fc_layers: 1
+  fc_layers_size_list: 512,
   use_gru: True 
 
 training:
   n_epoch: 50
   lr: 2e-3
-  lr_decay: 0.83
+  lr_decay: 0.83  # 0.83
   weight_decay: 1e-06
   global_grad_clip: 3.0
   log_interval: 100
@@ -55,7 +55,7 @@ training:
     latest_n: 5
   
 decoding:
-  batch_size: 64
+  batch_size: 32
   error_rate_type: cer 
   decoding_method: ctc_beam_search
   lang_model_path: data/lm/zh_giga.no_cna_cmn.prune01244.klm

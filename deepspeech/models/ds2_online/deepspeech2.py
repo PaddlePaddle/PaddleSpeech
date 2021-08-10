@@ -51,8 +51,9 @@ class CRNNEncoder(nn.Layer):
         self.use_gru = use_gru
         self.conv = Conv2dSubsampling4Online(feat_size, 32, dropout_rate=0.0)
 
-        i_size = self.conv.output_dim
+        self.output_dim = self.conv.output_dim
 
+        i_size = self.conv.output_dim
         self.rnn = nn.LayerList()
         self.layernorm_list = nn.LayerList()
         self.fc_layers_list = nn.LayerList()
@@ -82,16 +83,18 @@ class CRNNEncoder(nn.Layer):
                         num_layers=1,
                         direction=rnn_direction))
             self.layernorm_list.append(nn.LayerNorm(layernorm_size))
+            self.output_dim = layernorm_size
 
         fc_input_size = layernorm_size
         for i in range(self.num_fc_layers):
             self.fc_layers_list.append(
                 nn.Linear(fc_input_size, fc_layers_size_list[i]))
             fc_input_size = fc_layers_size_list[i]
+            self.output_dim = fc_layers_size_list[i]
 
     @property
     def output_size(self):
-        return self.fc_layers_size_list[-1]
+        return self.output_dim
 
     def forward(self, x, x_lens, init_state_h_box=None, init_state_c_box=None):
         """Compute Encoder outputs
@@ -190,9 +193,6 @@ class CRNNEncoder(nn.Layer):
         for i in range(0, num_chunk):
             start = i * chunk_stride
             end = start + chunk_size
-            #   end = min(start + chunk_size, max_len)
-            #   if (end - start < receptive_field_length):
-            #       break
             x_chunk = padded_x[:, start:end, :]
 
             x_len_left = paddle.where(x_lens - i * chunk_stride < 0,
@@ -221,8 +221,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
     :type text_data: Variable
     :param audio_len: Valid sequence length data layer.
     :type audio_len: Variable
-    :param masks: Masks data layer to reset padding.
-    :type masks: Variable
     :param dict_size: Dictionary size for tokenized transcription.
     :type dict_size: int
     :param num_conv_layers: Number of stacking convolution layers.
@@ -231,6 +229,10 @@ class DeepSpeech2ModelOnline(nn.Layer):
     :type num_rnn_layers: int
     :param rnn_size: RNN layer size (dimension of RNN cells).
     :type rnn_size: int
+    :param num_fc_layers: Number of stacking FC layers.
+    :type num_fc_layers: int
+    :param fc_layers_size_list: The list of FC layer sizes.
+    :type fc_layers_size_list: [int,]
     :param use_gru: Use gru if set True. Use simple rnn if set False.
     :type use_gru: bool
     :return: A tuple of an output unnormalized log probability layer (
@@ -274,7 +276,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
             fc_layers_size_list=fc_layers_size_list,
             rnn_size=rnn_size,
             use_gru=use_gru)
-        assert (self.encoder.output_size == fc_layers_size_list[-1])
 
         self.decoder = CTCDecoder(
             odim=dict_size,  # <blank> is in  vocab
@@ -337,7 +338,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
 
         Returns
         -------
-        DeepSpeech2Model
+        DeepSpeech2ModelOnline
             The model built from pretrained result.
         """
         model = cls(feat_size=dataloader.collate_fn.feature_size,
@@ -353,6 +354,29 @@ class DeepSpeech2ModelOnline(nn.Layer):
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
+        return model
+
+    @classmethod
+    def from_config(cls, config):
+        """Build a DeepSpeec2ModelOnline from config
+        Parameters
+
+        config: yacs.config.CfgNode
+            config.model
+        Returns
+        -------
+        DeepSpeech2ModelOnline
+            The model built from config.
+        """
+        model = cls(feat_size=config.feat_size,
+                    dict_size=config.dict_size,
+                    num_conv_layers=config.num_conv_layers,
+                    num_rnn_layers=config.num_rnn_layers,
+                    rnn_size=config.rnn_layer_size,
+                    rnn_direction=config.rnn_direction,
+                    num_fc_layers=config.num_fc_layers,
+                    fc_layers_size_list=config.fc_layers_size_list,
+                    use_gru=config.use_gru)
         return model
 
 
@@ -392,7 +416,7 @@ class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
                 paddle.static.InputSpec(
                     shape=[None, None,
                            self.encoder.feat_size],  #[B, chunk_size, feat_dim]
-                    dtype='float32'),  # audio, [B,T,D]
+                    dtype='float32'),
                 paddle.static.InputSpec(shape=[None],
                                         dtype='int64'),  # audio_length, [B]
                 paddle.static.InputSpec(

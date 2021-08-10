@@ -228,6 +228,27 @@ class DeepSpeech2Model(nn.Layer):
         layer_tools.summary(model)
         return model
 
+    @classmethod
+    def from_config(cls, config):
+        """Build a DeepSpeec2Model from config
+        Parameters
+
+        config: yacs.config.CfgNode
+            config.model
+        Returns
+        -------
+        DeepSpeech2Model
+            The model built from config.
+        """
+        model = cls(feat_size=config.feat_size,
+                    dict_size=config.dict_size,
+                    num_conv_layers=config.num_conv_layers,
+                    num_rnn_layers=config.num_rnn_layers,
+                    rnn_size=config.rnn_layer_size,
+                    use_gru=config.use_gru,
+                    share_rnn_weights=config.share_rnn_weights)
+        return model
+
 
 class DeepSpeech2InferModel(DeepSpeech2Model):
     def __init__(self,
@@ -260,3 +281,15 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
         eouts, eouts_len = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
         return probs
+
+    def export(self):
+        static_model = paddle.jit.to_static(
+            self,
+            input_spec=[
+                paddle.static.InputSpec(
+                    shape=[None, None, self.encoder.feat_size],
+                    dtype='float32'),  # audio, [B,T,D]
+                paddle.static.InputSpec(shape=[None],
+                                        dtype='int64'),  # audio_length, [B]
+            ])
+        return static_model

@@ -9,13 +9,20 @@ if [ $(id -u) -eq 0 ]; then
 fi
 
 if [ -e /etc/lsb-release ];then
-    #${SUDO} apt-get update
-    ${SUDO} apt-get install -y vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    ${SUDO} apt-get update -y
+    ${SUDO} apt-get install -y jq vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
     if [ $? != 0 ]; then
         error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
         exit -1
     fi
 fi
+
+
+# tools/make
+rm tools/*.done
+pushd tools && make && popd
+
+source tools/venv/bin/activate
 
 # install python dependencies
 if [ -f "requirements.txt" ]; then
@@ -54,10 +61,10 @@ if [ $? != 0 ]; then
     fi
     cd AutoLog
     pip install -r requirements.txt
-    python setup.py install 
+    python setup.py install
     cd ..
     rm -rf AutoLog
-fi 
+fi
 
 # install decoders
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"

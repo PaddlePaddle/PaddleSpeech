@@ -19,9 +19,23 @@ import paddle
 
 from deepspeech.utils.log import Log
 
-__all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
+__all__ = ["pad_sequence", "add_sos_eos", "th_accuracy", "has_tensor"]
 
 logger = Log(__name__).getlog()
+
+
+def has_tensor(val):
+    if isinstance(val, (list, tuple)):
+        for item in val:
+            if has_tensor(item):
+                return True
+    elif isinstance(val, dict):
+        for k, v in val.items():
+            print(k)
+            if has_tensor(v):
+                return True
+    else:
+        return paddle.is_tensor(val)
 
 
 def pad_sequence(sequences: List[paddle.Tensor],

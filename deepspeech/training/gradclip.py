@@ -27,6 +27,9 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
     def __init__(self, clip_norm):
         super().__init__(clip_norm)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(global_clip_norm={self.clip_norm})"
+
     @imperative_base.no_grad
     def _dygraph_clip(self, params_grads):
         params_and_grads = []

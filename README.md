@@ -16,7 +16,7 @@
 ## Setup
 
 * python>=3.7
-* paddlepaddle>=2.1.0
+* paddlepaddle>=2.1.2
 
 Please see [install](doc/src/install.md).
 

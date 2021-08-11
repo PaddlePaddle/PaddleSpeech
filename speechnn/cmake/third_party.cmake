@@ -190,9 +190,8 @@ endif()
 
 ########################### include third_party according to flags ###############################
 include(third_party/libsndfile)      # download, build, install libsndfile 
-include(third_party/zlib)      # download, build, install zlib
 include(third_party/boost)     # download boost
 include(third_party/eigen)     # download eigen3
-include(third_party/threadpool)# download threadpool
+include(third_party/threadpool)     # download threadpool 
 
 

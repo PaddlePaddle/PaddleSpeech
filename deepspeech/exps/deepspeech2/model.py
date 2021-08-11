@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Contains DeepSpeech2 model."""
+"""Contains DeepSpeech2 and DeepSpeech2Online model."""
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -29,6 +29,8 @@ from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.ds2 import DeepSpeech2InferModel
 from deepspeech.models.ds2 import DeepSpeech2Model
+from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
+from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
@@ -119,16 +121,22 @@ class DeepSpeech2Trainer(Trainer):
         return total_loss, num_seen_utts
 
     def setup_model(self):
-        config = self.config
-        model = DeepSpeech2Model(
-            feat_size=self.train_loader.collate_fn.feature_size,
-            dict_size=self.train_loader.collate_fn.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
+        config = self.config.clone()
+        config.defrost()
+        assert (self.train_loader.collate_fn.feature_size ==
+                self.test_loader.collate_fn.feature_size)
+        assert (self.train_loader.collate_fn.vocab_size ==
+                self.test_loader.collate_fn.vocab_size)
+        config.model.feat_size = self.train_loader.collate_fn.feature_size
+        config.model.dict_size = self.train_loader.collate_fn.vocab_size
+        config.freeze()
 
+        if self.args.model_type == 'offline':
+            model = DeepSpeech2Model.from_config(config.model)
+        elif self.args.model_type == 'online':
+            model = DeepSpeech2ModelOnline.from_config(config.model)
+        else:
+            raise Exception("wrong model type")
         if self.parallel:
             model = paddle.DataParallel(model)
 
@@ -164,6 +172,9 @@ class DeepSpeech2Trainer(Trainer):
         config.data.manifest = config.data.dev_manifest
         dev_dataset = ManifestDataset.from_config(config)
 
+        config.data.manifest = config.data.test_manifest
+        test_dataset = ManifestDataset.from_config(config)
+
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
@@ -187,6 +198,11 @@ class DeepSpeech2Trainer(Trainer):
 
         config.collator.augmentation_config = ""
         collate_fn_dev = SpeechCollator.from_config(config)
+
+        config.collator.keep_transcription_text = True
+        config.collator.augmentation_config = ""
+        collate_fn_test = SpeechCollator.from_config(config)
+
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
@@ -198,7 +214,13 @@ class DeepSpeech2Trainer(Trainer):
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn_dev)
-        logger.info("Setup train/valid Dataloader!")
+        self.test_loader = DataLoader(
+            test_dataset,
+            batch_size=config.decoding.batch_size,
+            shuffle=False,
+            drop_last=False,
+            collate_fn=collate_fn_test)
+        logger.info("Setup train/valid/test  Dataloader!")
 
 
 class DeepSpeech2Tester(DeepSpeech2Trainer):
@@ -329,19 +351,18 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             exit(-1)
 
     def export(self):
-        infer_model = DeepSpeech2InferModel.from_pretrained(
-            self.test_loader, self.config, self.args.checkpoint_path)
+        if self.args.model_type == 'offline':
+            infer_model = DeepSpeech2InferModel.from_pretrained(
+                self.test_loader, self.config, self.args.checkpoint_path)
+        elif self.args.model_type == 'online':
+            infer_model = DeepSpeech2InferModelOnline.from_pretrained(
+                self.test_loader, self.config, self.args.checkpoint_path)
+        else:
+            raise Exception("wrong model type")
+
         infer_model.eval()
         feat_dim = self.test_loader.collate_fn.feature_size
-        static_model = paddle.jit.to_static(
-            infer_model,
-            input_spec=[
-                paddle.static.InputSpec(
-                    shape=[None, None, feat_dim],
-                    dtype='float32'),  # audio, [B,T,D]
-                paddle.static.InputSpec(shape=[None],
-                                        dtype='int64'),  # audio_length, [B]
-            ])
+        static_model = infer_model.export()
         logger.info(f"Export code: {static_model.forward.code}")
         paddle.jit.save(static_model, self.args.export_path)
 
@@ -364,46 +385,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         self.iteration = 0
         self.epoch = 0
-
-    def setup_model(self):
-        config = self.config
-        model = DeepSpeech2Model(
-            feat_size=self.test_loader.collate_fn.feature_size,
-            dict_size=self.test_loader.collate_fn.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights)
-        self.model = model
-        logger.info("Setup model!")
-
-    def setup_dataloader(self):
-        config = self.config.clone()
-        config.defrost()
-        # return raw text
-
-        config.data.manifest = config.data.test_manifest
-        # filter test examples, will cause less examples, but no mismatch with training
-        # and can use large batch size , save training time, so filter test egs now.
-        # config.data.min_input_len = 0.0  # second
-        # config.data.max_input_len = float('inf')  # second
-        # config.data.min_output_len = 0.0  # tokens
-        # config.data.max_output_len = float('inf')  # tokens
-        # config.data.min_output_input_ratio = 0.00
-        # config.data.max_output_input_ratio = float('inf')
-        test_dataset = ManifestDataset.from_config(config)
-
-        config.collator.keep_transcription_text = True
-        config.collator.augmentation_config = ""
-        # return text ord id
-        self.test_loader = DataLoader(
-            test_dataset,
-            batch_size=config.decoding.batch_size,
-            shuffle=False,
-            drop_last=False,
-            collate_fn=SpeechCollator.from_config(config))
-        logger.info("Setup test Dataloader!")
 
     def setup_output_dir(self):
         """Create a directory used for output.

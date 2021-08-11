@@ -16,41 +16,41 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_STANDARD 14)
 
 
-# fc_patch dir
-set(FETCHCONTENT_QUIET off)
-get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
-set(FETCHCONTENT_BASE_DIR ${fc_patch})
-
-
-###############################################################################
-# Option Configurations
-###############################################################################
-# option configurations 
-option(TEST_DEBUG "option for debug" OFF)
-
-
-###############################################################################
-# Add local library
-###############################################################################
-# system lib 
-find_package()
-# if dir have CmakeLists.txt 
-add_subdirectory()
-# if dir do not have CmakeLists.txt 
-add_library(lib_name STATIC file.cc)
-target_link_libraries(lib_name item0 item1)
-add_dependencies(lib_name depend-target)
-
-
-###############################################################################
-# Library installation
-###############################################################################
-install()
-
-
-###############################################################################
-# Build binary file
-###############################################################################
-add_executable()
-target_link_libraries()
-
+# # fc_patch dir
+# set(FETCHCONTENT_QUIET off)
+# get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
+# set(FETCHCONTENT_BASE_DIR ${fc_patch})
+# 
+# 
+# ###############################################################################
+# # Option Configurations
+# ###############################################################################
+# # option configurations 
+# option(TEST_DEBUG "option for debug" OFF)
+# 
+# 
+# ###############################################################################
+# # Add local library
+# ###############################################################################
+# # system lib 
+# find_package()
+# # if dir have CmakeLists.txt 
+# add_subdirectory()
+# # if dir do not have CmakeLists.txt 
+# add_library(lib_name STATIC file.cc)
+# target_link_libraries(lib_name item0 item1)
+# add_dependencies(lib_name depend-target)
+# 
+# 
+# ###############################################################################
+# # Library installation
+# ###############################################################################
+# install()
+# 
+# 
+# ###############################################################################
+# # Build binary file
+# ###############################################################################
+# add_executable()
+# target_link_libraries()
+# 

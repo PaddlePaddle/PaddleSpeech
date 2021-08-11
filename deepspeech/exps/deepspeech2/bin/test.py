@@ -30,11 +30,15 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
+    parser.add_argument("--model_type")
     args = parser.parse_args()
     print_arguments(args, globals())
+    if args.model_type is None:
+        args.model_type = 'offline'
+    print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults()
+    config = get_cfg_defaults(args.model_type)
     if args.config:
         config.merge_from_file(args.config)
     if args.opts:

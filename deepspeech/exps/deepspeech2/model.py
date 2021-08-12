@@ -123,10 +123,6 @@ class DeepSpeech2Trainer(Trainer):
     def setup_model(self):
         config = self.config.clone()
         config.defrost()
-        assert (self.train_loader.collate_fn.feature_size ==
-                self.test_loader.collate_fn.feature_size)
-        assert (self.train_loader.collate_fn.vocab_size ==
-                self.test_loader.collate_fn.vocab_size)
         config.model.feat_size = self.train_loader.collate_fn.feature_size
         config.model.dict_size = self.train_loader.collate_fn.vocab_size
         config.freeze()

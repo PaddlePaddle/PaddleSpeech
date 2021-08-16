@@ -7,37 +7,37 @@ stop_stage=100
 nbpe=8000
 bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
-DATA_DIR= 
+data_dir=/mnt/dataset/TED_EnZh
 
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
-
-mkdir -p data
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
+mkdir -p data
 
-if [ ! -d ${SOURCE_DIR} ]; then
-    echo "Error: Dataset is not avaiable. Please download and unzip the dataset"
-    echo "Download Link: https://pan.baidu.com/s/18L-59wgeS96WkObISrytQQ Passwd: bva0"
-    echo "The tree of the directory should be:"
-    echo "."
-    echo "|-- En-Zh"
-    echo "|-- test-segment"
-    echo "    |-- tst2010"
-    echo "    |-- ..."
-    echo "|-- train-split"
-    echo "    |-- train-segment"
-    echo "|-- README.md"
-
-    exit 1
-fi
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
+    if [ ! -e ${data_dir} ]; then
+        echo "Error: Dataset is not avaiable. Please download and unzip the dataset"
+        echo "Download Link: https://pan.baidu.com/s/18L-59wgeS96WkObISrytQQ Passwd: bva0"
+        echo "The tree of the directory should be:"
+        echo "."
+        echo "|-- En-Zh"
+        echo "|-- test-segment"
+        echo "    |-- tst2010"
+        echo "    |-- ..."
+        echo "|-- train-split"
+        echo "    |-- train-segment"
+        echo "|-- README.md"
+
+        exit 1
+    fi
+
     # generate manifests
     python3 ${TARGET_DIR}/ted_en_zh/ted_en_zh.py \
     --manifest_prefix="data/manifest" \
-    --src_dir="${DATA_DIR}" 
+    --src_dir="${data_dir}"
 
     echo "Complete raw data pre-process."
 fi

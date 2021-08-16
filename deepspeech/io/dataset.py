@@ -19,7 +19,7 @@ from yacs.config import CfgNode
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.log import Log
 
-__all__ = ["ManifestDataset", "TripletManifestDataset"]
+__all__ = ["ManifestDataset", "TripletManifestDataset", "TransformDataset"]
 
 logger = Log(__name__).getlog()
 
@@ -116,3 +116,27 @@ class TripletManifestDataset(ManifestDataset):
         instance = self._manifest[idx]
         return instance["utt"], instance["feat"], instance["text"], instance[
             "text1"]
+
+
+class TransformDataset(Dataset):
+    """Transform Dataset.
+
+    Args:
+        data: list object from make_batchset
+        transfrom: transform function
+
+    """
+
+    def __init__(self, data, transform):
+        """Init function."""
+        super().__init__()
+        self.data = data
+        self.transform = transform
+
+    def __len__(self):
+        """Len function."""
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        """[] operator."""
+        return self.transform(self.data[idx])

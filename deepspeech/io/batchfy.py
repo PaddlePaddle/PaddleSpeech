@@ -13,7 +13,6 @@
 # limitations under the License.
 import itertools
 
-import logger
 import numpy as np
 
 from deepspeech.utils.log import Log

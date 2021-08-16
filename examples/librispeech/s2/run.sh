@@ -5,7 +5,7 @@ source path.sh
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
-avg_num=30
+avg_num=5
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}

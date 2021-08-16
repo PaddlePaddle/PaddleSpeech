@@ -38,5 +38,7 @@
 ### Test w/o length filter
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention | 6.98 | 0.066500 |  
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention | 7.63 | 0.056832 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_greedy_search | 7.63 | 0.059742 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_prefix_beam_search | 7.63 | 0.059057 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention_rescoring | 7.63 | 0.047417 |  

@@ -13,3 +13,4 @@ tensorboardX
 textgrid
 typeguard
 yacs
+kaldiio

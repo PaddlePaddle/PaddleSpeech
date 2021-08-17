@@ -23,7 +23,7 @@ from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
 from deepspeech.frontend.normalizer import FeatureNormalizer
 from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.utility import IGNORE_ID
-from deepspeech.io.utility import pad_sequence
+from deepspeech.io.utility import pad_list
 from deepspeech.utils.log import Log
 
 __all__ = ["SpeechCollator"]
@@ -286,13 +286,12 @@ class SpeechCollator():
             texts.append(tokens)
             text_lens.append(tokens.shape[0])
 
-        padded_audios = pad_sequence(
-            audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
-        audio_lens = np.array(audio_lens).astype(np.int64)
-        padded_texts = pad_sequence(
-            texts, padding_value=IGNORE_ID).astype(np.int64)
-        text_lens = np.array(text_lens).astype(np.int64)
-        return utts, padded_audios, audio_lens, padded_texts, text_lens
+        #[B, T, D]
+        xs_pad = pad_list(audios, 0.0).astype(np.float32)
+        ilens = np.array(audio_lens).astype(np.int64)
+        ys_pad = pad_list(texts, IGNORE_ID).astype(np.int64)
+        olens = np.array(text_lens).astype(np.int64)
+        return utts, xs_pad, ilens, ys_pad, olens
 
     @property
     def manifest(self):

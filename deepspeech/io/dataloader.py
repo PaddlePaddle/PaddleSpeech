@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import numpy as np
 from paddle.io import DataLoader
 
 from deepspeech.frontend.utility import read_manifest
@@ -30,11 +31,11 @@ class CustomConverter():
 
     Args:
         subsampling_factor (int): The subsampling factor.
-        dtype (paddle.dtype): Data type to convert.
-
+        dtype (np.dtype): Data type to convert.
+        
     """
 
-    def __init__(self, subsampling_factor=1, dtype=paddle.float32):
+    def __init__(self, subsampling_factor=1, dtype=np.float32):
         """Construct a CustomConverter object."""
         self.subsampling_factor = subsampling_factor
         self.ignore_id = -1
@@ -52,7 +53,7 @@ class CustomConverter():
         """
         # batch should be located in list
         assert len(batch) == 1
-        xs, ys = batch[0]
+        (xs, ys), utts = batch[0]
 
         # perform subsampling
         if self.subsampling_factor > 1:
@@ -74,15 +75,14 @@ class CustomConverter():
         else:
             xs_pad = pad_list(xs, 0).astype(self.dtype)
 
-        ilens = paddle.to_tensor(ilens)
-
         # NOTE: this is for multi-output (e.g., speech translation)
         ys_pad = pad_list(
             [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys],
             self.ignore_id)
 
-        olens = np.array([y.shape[0] for y in ys])
-        return xs_pad, ilens, ys_pad, olens
+        olens = np.array(
+            [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys])
+        return utts, xs_pad, ilens, ys_pad, olens
 
 
 class BatchDataLoader():
@@ -166,7 +166,7 @@ class BatchDataLoader():
         # we used an empty collate function instead which returns list
         self.train_loader = DataLoader(
             dataset=TransformDataset(
-                self.data, lambda data: self.converter([self.load(data)])),
+                self.data, lambda data: self.converter([self.load(data, return_uttid=True)])),
             batch_size=1,
             shuffle=not use_sortagrad if train_mode else False,
             collate_fn=lambda x: x[0],

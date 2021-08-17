@@ -31,6 +31,11 @@ class ShiftPerturbAugmentor(AugmentorBase):
         self._max_shift_ms = max_shift_ms
         self._rng = rng
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return
+        self.transform_audio(x)
+
     def transform_audio(self, audio_segment):
         """Shift audio.
 

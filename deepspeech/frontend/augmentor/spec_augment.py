@@ -157,6 +157,11 @@ class SpecAugmentor(AugmentorBase):
             self._time_mask = (t_0, t_0 + t)
         return xs
 
+    def __call__(self, x, train=True):
+        if not train:
+            return
+        self.transform_audio(x)
+
     def transform_feature(self, xs: np.ndarray):
         """
         Args:

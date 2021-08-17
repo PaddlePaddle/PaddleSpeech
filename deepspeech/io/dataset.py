@@ -17,9 +17,13 @@ from paddle.io import Dataset
 from yacs.config import CfgNode
 
 from deepspeech.frontend.utility import read_manifest
+from deepspeech.io.utility import pad_list
 from deepspeech.utils.log import Log
 
-__all__ = ["ManifestDataset", "TripletManifestDataset", "TransformDataset"]
+__all__ = [
+    "ManifestDataset", "TripletManifestDataset", "TransformDataset",
+    "CustomConverter"
+]
 
 logger = Log(__name__).getlog()
 
@@ -76,12 +80,18 @@ class ManifestDataset(Dataset):
 
         Args:
             manifest_path (str): manifest josn file path
-            max_input_len ([type], optional): maximum output seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
-            min_input_len (float, optional): minimum input seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
-            max_output_len (float, optional): maximum input seq length, in modeling units. Defaults to 500.0.
-            min_output_len (float, optional): minimum input seq length, in modeling units. Defaults to 0.0.
-            max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. Defaults to 10.0.
-            min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio. Defaults to 0.05.
+            max_input_len ([type], optional): maximum output seq length, 
+                in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
+            min_input_len (float, optional): minimum input seq length, 
+                in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
+            max_output_len (float, optional): maximum input seq length, 
+                in modeling units. Defaults to 500.0.
+            min_output_len (float, optional): minimum input seq length, 
+                in modeling units. Defaults to 0.0.
+            max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. 
+                Defaults to 10.0.
+            min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio.
+                Defaults to 0.05.
         
         """
         super().__init__()
@@ -116,6 +126,65 @@ class TripletManifestDataset(ManifestDataset):
         instance = self._manifest[idx]
         return instance["utt"], instance["feat"], instance["text"], instance[
             "text1"]
+
+
+class CustomConverter():
+    """Custom batch converter.
+
+    Args:
+        subsampling_factor (int): The subsampling factor.
+        dtype (np.dtype): Data type to convert.
+        
+    """
+
+    def __init__(self, subsampling_factor=1, dtype=np.float32):
+        """Construct a CustomConverter object."""
+        self.subsampling_factor = subsampling_factor
+        self.ignore_id = -1
+        self.dtype = dtype
+
+    def __call__(self, batch):
+        """Transform a batch and send it to a device.
+
+        Args:
+            batch (list): The batch to transform.
+
+        Returns:
+            tuple(paddle.Tensor, paddle.Tensor, paddle.Tensor)
+
+        """
+        # batch should be located in list
+        assert len(batch) == 1
+        (xs, ys), utts = batch[0]
+
+        # perform subsampling
+        if self.subsampling_factor > 1:
+            xs = [x[::self.subsampling_factor, :] for x in xs]
+
+        # get batch of lengths of input sequences
+        ilens = np.array([x.shape[0] for x in xs])
+
+        # perform padding and convert to tensor
+        # currently only support real number
+        if xs[0].dtype.kind == "c":
+            xs_pad_real = pad_list([x.real for x in xs], 0).astype(self.dtype)
+            xs_pad_imag = pad_list([x.imag for x in xs], 0).astype(self.dtype)
+            # Note(kamo):
+            # {'real': ..., 'imag': ...} will be changed to ComplexTensor in E2E.
+            # Don't create ComplexTensor and give it E2E here
+            # because torch.nn.DataParellel can't handle it.
+            xs_pad = {"real": xs_pad_real, "imag": xs_pad_imag}
+        else:
+            xs_pad = pad_list(xs, 0).astype(self.dtype)
+
+        # NOTE: this is for multi-output (e.g., speech translation)
+        ys_pad = pad_list(
+            [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys],
+            self.ignore_id)
+
+        olens = np.array(
+            [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys])
+        return utts, xs_pad, ilens, ys_pad, olens
 
 
 class TransformDataset(Dataset):

@@ -16,6 +16,7 @@ from typing import Optional
 from paddle.io import Dataset
 from yacs.config import CfgNode
 
+from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.log import Log
 
 __all__ = ["ManifestDataset", "TripletManifestDataset", "TransformDataset"]

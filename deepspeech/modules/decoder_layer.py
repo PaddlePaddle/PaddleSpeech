@@ -25,15 +25,15 @@ logger = Log(__name__).getlog()
 __all__ = ["DecoderLayer"]
 
 
-class DecoderLayer(nn.Module):
+class DecoderLayer(nn.Layer):
     """Single decoder layer module.
     Args:
         size (int): Input dimension.
-        self_attn (nn.Module): Self-attention module instance.
+        self_attn (nn.Layer): Self-attention module instance.
             `MultiHeadedAttention` instance can be used as the argument.
-        src_attn (nn.Module): Self-attention module instance.
+        src_attn (nn.Layer): Self-attention module instance.
             `MultiHeadedAttention` instance can be used as the argument.
-        feed_forward (nn.Module): Feed-forward module instance.
+        feed_forward (nn.Layer): Feed-forward module instance.
             `PositionwiseFeedForward` instance can be used as the argument.
         dropout_rate (float): Dropout rate.
         normalize_before (bool):
@@ -48,9 +48,9 @@ class DecoderLayer(nn.Module):
     def __init__(
             self,
             size: int,
-            self_attn: nn.Module,
-            src_attn: nn.Module,
-            feed_forward: nn.Module,
+            self_attn: nn.Layer,
+            src_attn: nn.Layer,
+            feed_forward: nn.Layer,
             dropout_rate: float,
             normalize_before: bool=True,
             concat_after: bool=False, ):

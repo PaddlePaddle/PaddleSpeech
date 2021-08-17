@@ -164,8 +164,6 @@ class AugmentationPipeline():
         :param audio_segment: Audio segment to process.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        if not self._train:
-            return
         for augmentor, rate in zip(self._audio_augmentors, self._audio_rates):
             if self._rng.uniform(0., 1.) < rate:
                 augmentor.transform_audio(audio_segment)
@@ -176,8 +174,6 @@ class AugmentationPipeline():
         Args:
             spec_segment (np.ndarray): audio feature, (D, T).
         """
-        if not self._train:
-            return
         for augmentor, rate in zip(self._spec_augmentors, self._spec_rates):
             if self._rng.uniform(0., 1.) < rate:
                 spec_segment = augmentor.transform_feature(spec_segment)
@@ -217,3 +213,4 @@ class AugmentationPipeline():
             obj = class_obj(self._rng, **params)
         except Exception:
             raise ValueError("Unknown augmentor type [%s]." % augmentor_type)
+        return obj

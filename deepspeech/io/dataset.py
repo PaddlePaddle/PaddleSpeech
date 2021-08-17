@@ -13,6 +13,7 @@
 # limitations under the License.
 from typing import Optional
 
+import numpy as np
 from paddle.io import Dataset
 from yacs.config import CfgNode
 

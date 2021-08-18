@@ -15,8 +15,8 @@ from paddle.io import DataLoader
 
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.io.batchfy import make_batchset
-from deepspeech.io.dataset import CustomConverter
 from deepspeech.io.dataset import TransformDataset
+from deepspeech.io.reader import CustomConverter
 from deepspeech.io.reader import LoadInputsAndTargets
 from deepspeech.utils.log import Log
 

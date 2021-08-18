@@ -337,10 +337,10 @@ def make_batchset(
 
     if utts have "category" value,
 
-        >>> data = {'utt1': {'category': 'A', 'input': ...},
-        ...         'utt2': {'category': 'B', 'input': ...},
-        ...         'utt3': {'category': 'B', 'input': ...},
-        ...         'utt4': {'category': 'A', 'input': ...}}
+        >>> data = [{'category': 'A', 'input': ..., 'utt':'utt1'},
+        ...         {'category': 'B', 'input': ..., 'utt':'utt2'},
+        ...         {'category': 'B', 'input': ..., 'utt':'utt3'},
+        ...         {'category': 'A', 'input': ..., 'utt':'utt4'}]
         >>> make_batchset(data, batchsize=2, ...)
         [[('utt1', ...), ('utt4', ...)], [('utt2', ...), ('utt3': ...)]]
 

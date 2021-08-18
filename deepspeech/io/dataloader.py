@@ -11,6 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Text
+
+import numpy as np
 from paddle.io import DataLoader
 
 from deepspeech.frontend.utility import read_manifest
@@ -23,6 +29,18 @@ from deepspeech.utils.log import Log
 __all__ = ["BatchDataLoader"]
 
 logger = Log(__name__).getlog()
+
+
+def feat_dim_and_vocab_size(data_json: List[Dict[Text, Any]],
+                            mode: Text="asr",
+                            iaxis=0,
+                            oaxis=0):
+    if mode == 'asr':
+        feat_dim = data_json[0]['input'][oaxis]['shape'][1]
+        vocab_size = data_json[0]['output'][oaxis]['shape'][1]
+    else:
+        raise ValueError(f"{mode} mode not support!")
+    return feat_dim, vocab_size
 
 
 class BatchDataLoader():
@@ -62,6 +80,8 @@ class BatchDataLoader():
 
         # read json data
         self.data_json = read_manifest(json_file)
+        self.feat_dim, self.vocab_size = feat_dim_and_vocab_size(
+            self.data_json, mode='asr')
 
         # make minibatch list (variable length)
         self.minibaches = make_batchset(
@@ -106,7 +126,7 @@ class BatchDataLoader():
         self.dataloader = DataLoader(
             dataset=self.dataset,
             batch_size=1,
-            shuffle=not use_sortagrad if train_mode else False,
+            shuffle=not self.use_sortagrad if train_mode else False,
             collate_fn=lambda x: x[0],
             num_workers=n_iter_processes, )
 

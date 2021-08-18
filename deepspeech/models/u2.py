@@ -54,7 +54,7 @@ __all__ = ["U2Model", "U2InferModel"]
 logger = Log(__name__).getlog()
 
 
-class U2BaseModel(nn.Module):
+class U2BaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
     @classmethod

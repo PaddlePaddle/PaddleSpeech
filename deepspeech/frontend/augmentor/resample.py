@@ -31,6 +31,11 @@ class ResampleAugmentor(AugmentorBase):
         self._new_sample_rate = new_sample_rate
         self._rng = rng
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return
+        self.transform_audio(x)
+
     def transform_audio(self, audio_segment):
         """Resamples the input audio to a target sample rate.
 

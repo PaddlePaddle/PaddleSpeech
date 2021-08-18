@@ -48,7 +48,7 @@ __all__ = ["U2STModel", "U2STInferModel"]
 logger = Log(__name__).getlog()
 
 
-class U2STBaseModel(nn.Module):
+class U2STBaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
     @classmethod

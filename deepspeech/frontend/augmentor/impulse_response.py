@@ -30,6 +30,11 @@ class ImpulseResponseAugmentor(AugmentorBase):
         self._rng = rng
         self._impulse_manifest = read_manifest(impulse_manifest_path)
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return
+        self.transform_audio(x)
+
     def transform_audio(self, audio_segment):
         """Add impulse response effect.
 

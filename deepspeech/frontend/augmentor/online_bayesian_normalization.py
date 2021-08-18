@@ -44,6 +44,11 @@ class OnlineBayesianNormalizationAugmentor(AugmentorBase):
         self._rng = rng
         self._startup_delay = startup_delay
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return
+        self.transform_audio(x)
+
     def transform_audio(self, audio_segment):
         """Normalizes the input audio using the online Bayesian approach.
 

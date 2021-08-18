@@ -1,5 +1,6 @@
 coverage
 gpustat
+kaldiio
 pre-commit
 pybind11
 resampy==0.2.2

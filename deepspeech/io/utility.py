@@ -17,9 +17,14 @@ import numpy as np
 
 from deepspeech.utils.log import Log
 
-__all__ = ["pad_sequence"]
+__all__ = ["pad_list", "pad_sequence"]
 
 logger = Log(__name__).getlog()
+
+
+def pad_list(sequences: List[np.ndarray],
+             padding_value: float=0.0) -> np.ndarray:
+    return pad_sequence(sequences, True, padding_value)
 
 
 def pad_sequence(sequences: List[np.ndarray],

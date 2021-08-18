@@ -29,6 +29,10 @@ class AugmentorBase():
         pass
 
     @abstractmethod
+    def __call__(self, xs):
+        raise NotImplementedError
+
+    @abstractmethod
     def transform_audio(self, audio_segment):
         """Adds various effects to the input audio segment. Such effects
         will augment the training data to make the model invariant to certain

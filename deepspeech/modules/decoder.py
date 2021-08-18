@@ -33,7 +33,7 @@ logger = Log(__name__).getlog()
 __all__ = ["TransformerDecoder"]
 
 
-class TransformerDecoder(nn.Module):
+class TransformerDecoder(nn.Layer):
     """Base class of Transfomer decoder module.
     Args:
         vocab_size: output dim
@@ -86,7 +86,7 @@ class TransformerDecoder(nn.Module):
         self.use_output_layer = use_output_layer
         self.output_layer = nn.Linear(attention_dim, vocab_size)
 
-        self.decoders = nn.ModuleList([
+        self.decoders = nn.LayerList([
             DecoderLayer(
                 size=attention_dim,
                 self_attn=MultiHeadedAttention(attention_heads, attention_dim,

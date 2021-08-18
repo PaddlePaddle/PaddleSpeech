@@ -297,7 +297,7 @@ class RNNStack(nn.Layer):
                         share_weights=share_rnn_weights))
             i_size = h_size * 2
 
-        self.rnn_stacks = nn.ModuleList(rnn_stacks)
+        self.rnn_stacks = nn.LayerList(rnn_stacks)
 
     def forward(self, x: paddle.Tensor, x_len: paddle.Tensor):
         """

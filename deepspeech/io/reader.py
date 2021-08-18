@@ -66,8 +66,9 @@ class LoadInputsAndTargets():
             raise ValueError("Only asr are allowed: mode={}".format(mode))
 
         if preprocess_conf is not None:
-            self.preprocessing = AugmentationPipeline(preprocess_conf)
-            logging.warning(
+            with open(preprocess_conf, 'r') as fin:
+                self.preprocessing = AugmentationPipeline(fin.read())
+            logger.warning(
                 "[Experimental feature] Some preprocessing will be done "
                 "for the mini-batch creation using {}".format(
                     self.preprocessing))
@@ -197,7 +198,7 @@ class LoadInputsAndTargets():
             nonzero_sorted_idx = nonzero_idx
 
         if len(nonzero_sorted_idx) != len(xs[0]):
-            logging.warning(
+            logger.warning(
                 "Target sequences include empty tokenid (batch {} -> {}).".
                 format(len(xs[0]), len(nonzero_sorted_idx)))
 

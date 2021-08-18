@@ -11,7 +11,7 @@ data:
   max_output_input_ratio: .inf
 
 collator:
-  batch_size: 32 # one gpu
+  batch_size: 64 # one gpu
   mean_std_filepath: data/mean_std.json
   unit_type: char
   vocab_filepath: data/vocab.txt 
@@ -41,12 +41,12 @@ model:
   rnn_direction: forward # [forward, bidirect]
   num_fc_layers: 1
   fc_layers_size_list: 512,
-  use_gru: True 
+  use_gru: False 
 
 training:
   n_epoch: 50
   lr: 2e-3
-  lr_decay: 0.83  # 0.83
+  lr_decay: 0.9  # 0.83
   weight_decay: 1e-06
   global_grad_clip: 3.0
   log_interval: 100

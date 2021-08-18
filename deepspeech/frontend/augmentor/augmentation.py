@@ -18,6 +18,7 @@ from inspect import signature
 
 import numpy as np
 
+from deepspeech.frontend.augmentor.base import AugmentorBase
 from deepspeech.utils.dynamic_import import dynamic_import
 from deepspeech.utils.log import Log
 
@@ -209,6 +210,7 @@ class AugmentationPipeline():
     def _get_augmentor(self, augmentor_type, params):
         """Return an augmentation model by the type name, and pass in params."""
         class_obj = dynamic_import(augmentor_type, import_alias)
+        assert issubclass(class_obj, AugmentorBase)
         try:
             obj = class_obj(self._rng, **params)
         except Exception:

@@ -1,4 +1,4 @@
-# Featrues
+# Features
 
 ### Speech Recognition
 

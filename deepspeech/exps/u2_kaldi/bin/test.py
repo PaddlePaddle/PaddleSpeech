@@ -18,17 +18,23 @@ from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.dynamic_import import dynamic_import
 from deepspeech.utils.utility import print_arguments
 
-model_alias = {
+model_test_alias = {
     "u2": "deepspeech.exps.u2.model:U2Tester",
     "u2_kaldi": "deepspeech.exps.u2_kaldi.model:U2Tester",
 }
 
 
 def main_sp(config, args):
-    class_obj = dynamic_import(args.model_name, model_alias)
+    class_obj = dynamic_import(args.model_name, model_test_alias)
     exp = class_obj(config, args)
     exp.setup()
-    exp.run_test()
+
+    if args.run_mode == 'test':
+        exp.run_test()
+    elif args.run_mode == 'export':
+        exp.run_export()
+    elif args.run_mode == 'align':
+        exp.run_align()
 
 
 def main(config, args):
@@ -42,6 +48,11 @@ if __name__ == "__main__":
         type=str,
         default='u2_kaldi',
         help='model name, e.g: deepspeech2, u2, u2_kaldi, u2_st')
+    parser.add_argument(
+        '--run-mode',
+        type=str,
+        default='test',
+        help='run mode, e.g. test, align, export')
     args = parser.parse_args()
     print_arguments(args, globals())
 

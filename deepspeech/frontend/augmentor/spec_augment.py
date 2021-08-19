@@ -163,7 +163,7 @@ class SpecAugmentor(AugmentorBase):
     def __call__(self, x, train=True):
         if not train:
             return
-        self.transform_feature(x)
+        return self.transform_feature(x)
 
     def transform_feature(self, xs: np.ndarray):
         """

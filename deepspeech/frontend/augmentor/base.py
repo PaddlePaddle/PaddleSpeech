@@ -30,7 +30,7 @@ class AugmentorBase():
 
     @abstractmethod
     def __call__(self, xs):
-        raise NotImplementedError
+        raise NotImplementedError("AugmentorBase: Not impl __call__")
 
     @abstractmethod
     def transform_audio(self, audio_segment):
@@ -44,7 +44,7 @@ class AugmentorBase():
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        raise NotImplementedError
+        raise NotImplementedError("AugmentorBase: Not impl transform_audio")
 
     @abstractmethod
     def transform_feature(self, spec_segment):
@@ -56,4 +56,4 @@ class AugmentorBase():
         Args:
             spec_segment (Spectrogram): Spectrogram segment to add effects to.
         """
-        raise NotImplementedError
+        raise NotImplementedError("AugmentorBase: Not impl transform_feature")

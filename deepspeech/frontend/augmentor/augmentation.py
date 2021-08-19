@@ -186,7 +186,7 @@ class AugmentationPipeline():
         audio_confs = []
         feature_confs = []
         all_confs = []
-        for config in self.conf:
+        for config in self.conf['process']:
             all_confs.append(config)
             if config["type"] in self.SPEC_TYPES:
                 feature_confs.append(config)

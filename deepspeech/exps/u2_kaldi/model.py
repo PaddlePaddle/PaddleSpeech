@@ -233,7 +233,7 @@ class U2Trainer(Trainer):
             batch_frames_inout=0,
             preprocess_conf=config.collator.augmentation_config,
             n_iter_processes=config.collator.num_workers,
-            subsampling_factor=0,
+            subsampling_factor=1,
             num_encs=1)
 
         self.valid_loader = BatchDataLoader(

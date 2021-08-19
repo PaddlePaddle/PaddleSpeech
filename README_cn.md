@@ -16,6 +16,8 @@
 
 ## 安装
 
+在以下环境测试验证过：    
+
 * Ubuntu 16.04
 * python>=3.7
 * paddlepaddle>=2.1.2

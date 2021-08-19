@@ -49,14 +49,13 @@ class CustomConverter():
         # batch should be located in list
         assert len(batch) == 1
         (xs, ys), utts = batch[0]
+        assert xs[0] is not None, "please check Reader and Augmentation impl."
 
         # perform subsampling
         if self.subsampling_factor > 1:
             xs = [x[::self.subsampling_factor, :] for x in xs]
 
         # get batch of lengths of input sequences
-        print(xs)
-        print(ys)
         ilens = np.array([x.shape[0] for x in xs])
 
         # perform padding and convert to tensor

@@ -55,6 +55,8 @@ class CustomConverter():
             xs = [x[::self.subsampling_factor, :] for x in xs]
 
         # get batch of lengths of input sequences
+        print(xs)
+        print(ys)
         ilens = np.array([x.shape[0] for x in xs])
 
         # perform padding and convert to tensor

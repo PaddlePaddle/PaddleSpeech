@@ -15,6 +15,7 @@
 
 ## Setup
 
+All tested under:  
 * Ubuntu 16.04
 * python>=3.7
 * paddlepaddle>=2.1.2

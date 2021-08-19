@@ -97,7 +97,7 @@ class AugmentationPipeline():
         ValueError: If the augmentation json config is in incorrect format".
     """
 
-    SPEC_TYPES = ('specaug')
+    SPEC_TYPES = {'specaug'}
 
     def __init__(self, augmentation_config: str, random_seed: int=0):
         self._rng = np.random.RandomState(random_seed)

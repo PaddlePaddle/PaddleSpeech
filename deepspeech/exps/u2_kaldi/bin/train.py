@@ -29,8 +29,8 @@ model_alias = {
 
 
 def main_sp(config, args):
-    trainer_cls = dynamic_import(args.model_name, model_alias)
-    exp = trainer_cls(config, args)
+    class_obj = dynamic_import(args.model_name, model_alias)
+    exp = class_obj(config, args)
     exp.setup()
     exp.run()
 

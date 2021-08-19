@@ -64,7 +64,6 @@ class SpecAugmentor(AugmentorBase):
         self.n_freq_masks = n_freq_masks
         self.n_time_masks = n_time_masks
         self.p = p
-        #logger.info(f"specaug: F-{F}, T-{T}, F-n-{n_freq_masks}, T-n-{n_time_masks}")
 
         # adaptive SpecAugment
         self.adaptive_number_ratio = adaptive_number_ratio
@@ -121,6 +120,9 @@ class SpecAugmentor(AugmentorBase):
     def time_mask(self):
         return self._time_mask
 
+    def __repr__(self):
+        return f"specaug: F-{F}, T-{T}, F-n-{n_freq_masks}, T-n-{n_time_masks}"
+
     def time_warp(xs, W=40):
         raise NotImplementedError
 
@@ -160,7 +162,7 @@ class SpecAugmentor(AugmentorBase):
     def __call__(self, x, train=True):
         if not train:
             return
-        self.transform_audio(x)
+        return self.transform_feature(x)
 
     def transform_feature(self, xs: np.ndarray):
         """

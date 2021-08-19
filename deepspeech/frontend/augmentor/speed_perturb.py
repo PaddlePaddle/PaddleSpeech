@@ -83,6 +83,7 @@ class SpeedPerturbAugmentor(AugmentorBase):
         if not train:
             return
         self.transform_audio(x)
+        return x
 
     def transform_audio(self, audio_segment):
         """Sample a new speed rate from the given range and

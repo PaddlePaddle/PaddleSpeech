@@ -97,14 +97,14 @@ class AugmentationPipeline():
         ValueError: If the augmentation json config is in incorrect format".
     """
 
+    SPEC_TYPES = {'specaug'}
+
     def __init__(self, augmentation_config: str, random_seed: int=0):
         self._rng = np.random.RandomState(random_seed)
-        self._spec_types = ('specaug')
-
-        if augmentation_config is None:
-            self.conf = {}
-        else:
-            self.conf = json.loads(augmentation_config)
+        self.conf = {'mode': 'sequential', 'process': []}
+        if augmentation_config:
+            process = json.loads(augmentation_config)
+            self.conf['process'] += process
 
         self._augmentors, self._rates = self._parse_pipeline_from('all')
         self._audio_augmentors, self._audio_rates = self._parse_pipeline_from(
@@ -186,9 +186,9 @@ class AugmentationPipeline():
         audio_confs = []
         feature_confs = []
         all_confs = []
-        for config in self.conf:
+        for config in self.conf['process']:
             all_confs.append(config)
-            if config["type"] in self._spec_types:
+            if config["type"] in self.SPEC_TYPES:
                 feature_confs.append(config)
             else:
                 audio_confs.append(config)

@@ -1,12 +1,12 @@
 [English](README.md)
 
-# PaddlePaddle ASR toolkit
+# PaddlePaddle Speech to Any toolkit
 
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
-*PaddleASR*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别（ASR）引擎的开源项目，
+*DeepSpeech*是一个采用[PaddlePaddle](https://github.com/PaddlePaddle/Paddle)平台的端到端自动语音识别引擎的开源项目，
 我们的愿景是为语音识别在工业应用和学术研究上，提供易于使用、高效、小型化和可扩展的工具，包括训练，推理，以及  部署。
 
 ## 特性
@@ -16,6 +16,9 @@
 
 ## 安装
 
+在以下环境测试验证过：  
+
+* Ubuntu 16.04
 * python>=3.7
 * paddlepaddle>=2.1.2
 

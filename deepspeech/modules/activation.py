@@ -69,7 +69,7 @@ class ConvGLUBlock(nn.Layer):
                 dim=0)
             self.dropout_residual = nn.Dropout(p=dropout)
 
-        self.pad_left = ConstantPad2d((0, 0, kernel_size - 1, 0), 0)
+        self.pad_left = nn.Pad2d((0, 0, kernel_size - 1, 0), 0)
 
         layers = OrderedDict()
         if bottlececk_dim == 0:

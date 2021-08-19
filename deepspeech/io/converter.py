@@ -49,6 +49,7 @@ class CustomConverter():
         # batch should be located in list
         assert len(batch) == 1
         (xs, ys), utts = batch[0]
+        assert xs[0] is not None, "please check Reader and Augmentation impl."
 
         # perform subsampling
         if self.subsampling_factor > 1:

@@ -38,6 +38,7 @@ for type in attention ctc_greedy_search; do
         batch_size=64
     fi
     python3 -u ${BIN_DIR}/test.py \
+    --run_mode test \
     --device ${device} \
     --nproc 1 \
     --config ${config_path} \
@@ -55,6 +56,7 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     echo "decoding ${type}"
     batch_size=1
     python3 -u ${BIN_DIR}/test.py \
+    --run_mode test \
     --device ${device} \
     --nproc 1 \
     --config ${config_path} \

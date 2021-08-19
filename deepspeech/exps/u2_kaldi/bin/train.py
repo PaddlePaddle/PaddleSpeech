@@ -22,14 +22,14 @@ from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.dynamic_import import dynamic_import
 from deepspeech.utils.utility import print_arguments
 
-model_alias = {
+model_train_alias = {
     "u2": "deepspeech.exps.u2.model:U2Trainer",
     "u2_kaldi": "deepspeech.exps.u2_kaldi.model:U2Trainer",
 }
 
 
 def main_sp(config, args):
-    class_obj = dynamic_import(args.model_name, model_alias)
+    class_obj = dynamic_import(args.model_name, model_train_alias)
     exp = class_obj(config, args)
     exp.setup()
     exp.run()

@@ -21,7 +21,8 @@ mkdir -p ${output_dir}
 
 # align dump in `result_file`
 # .tier, .TextGrid dump in `dir of result_file`
-python3 -u ${BIN_DIR}/alignment.py \
+python3 -u ${BIN_DIR}/test.py \
+--run_mode 'align' \
 --device ${device} \
 --nproc 1 \
 --config ${config_path} \

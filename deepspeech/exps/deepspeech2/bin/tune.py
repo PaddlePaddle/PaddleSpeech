@@ -21,7 +21,7 @@ from paddle.io import DataLoader
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-from deepspeech.models.deepspeech2 import DeepSpeech2Model
+from deepspeech.models.ds2 import DeepSpeech2Model
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils import error_rate
 from deepspeech.utils.utility import add_arguments

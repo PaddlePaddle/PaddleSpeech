@@ -60,7 +60,8 @@
       "W": 80,
       "adaptive_number_ratio": 0,
       "adaptive_size_ratio": 0,
-      "max_n_time_masks": 20
+      "max_n_time_masks": 20,
+      "replace_with_zero": true
     },
     "prob": 0.0
   }

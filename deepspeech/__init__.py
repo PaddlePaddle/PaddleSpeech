@@ -352,45 +352,6 @@ if not hasattr(paddle.Tensor, 'tolist'):
         "register user tolist to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'tolist', tolist)
 
-########### hcak paddle.nn.functional #############
-
-
-def glu(x: paddle.Tensor, axis=-1) -> paddle.Tensor:
-    """The gated linear unit (GLU) activation."""
-    a, b = x.split(2, axis=axis)
-    act_b = F.sigmoid(b)
-    return a * act_b
-
-
-if not hasattr(paddle.nn.functional, 'glu'):
-    logger.warn(
-        "register user glu to paddle.nn.functional, remove this when fixed!")
-    setattr(paddle.nn.functional, 'glu', glu)
-
-# def softplus(x):
-#     """Softplus function."""
-#     if hasattr(paddle.nn.functional, 'softplus'):
-#         #return paddle.nn.functional.softplus(x.float()).type_as(x)
-#         return paddle.nn.functional.softplus(x)
-#     else:
-#         raise NotImplementedError
-
-# def gelu_accurate(x):
-#     """Gaussian Error Linear Units (GELU) activation."""
-#     # [reference] https://github.com/pytorch/fairseq/blob/e75cff5f2c1d62f12dc911e0bf420025eb1a4e33/fairseq/modules/gelu.py
-#     if not hasattr(gelu_accurate, "_a"):
-#         gelu_accurate._a = math.sqrt(2 / math.pi)
-#     return 0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
-#                                       (x + 0.044715 * paddle.pow(x, 3))))
-
-# def gelu(x):
-#     """Gaussian Error Linear Units (GELU) activation."""
-#     if hasattr(nn.functional, 'gelu'):
-#         #return nn.functional.gelu(x.float()).type_as(x)
-#         return nn.functional.gelu(x)
-#     else:
-#         return x * 0.5 * (1.0 + paddle.erf(x / math.sqrt(2.0)))
-
 
 ########### hcak paddle.nn #############
 class GLU(nn.Layer):
@@ -401,7 +362,7 @@ class GLU(nn.Layer):
         self.dim = dim
 
     def forward(self, xs):
-        return glu(xs, dim=self.dim)
+        return F.glu(xs, dim=self.dim)
 
 
 if not hasattr(paddle.nn, 'GLU'):

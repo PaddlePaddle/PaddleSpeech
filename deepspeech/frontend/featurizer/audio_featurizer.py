@@ -167,32 +167,6 @@ class AudioFeaturizer(object):
             raise ValueError("Unknown specgram_type %s. "
                              "Supported values: linear." % self._specgram_type)
 
-    def _compute_linear_specgram(self,
-                                 samples,
-                                 sample_rate,
-                                 stride_ms=10.0,
-                                 window_ms=20.0,
-                                 max_freq=None,
-                                 eps=1e-14):
-        """Compute the linear spectrogram from FFT energy."""
-        if max_freq is None:
-            max_freq = sample_rate / 2
-        if max_freq > sample_rate / 2:
-            raise ValueError("max_freq must not be greater than half of "
-                             "sample rate.")
-        if stride_ms > window_ms:
-            raise ValueError("Stride size must not be greater than "
-                             "window size.")
-        stride_size = int(0.001 * sample_rate * stride_ms)
-        window_size = int(0.001 * sample_rate * window_ms)
-        specgram, freqs = self._specgram_real(
-            samples,
-            window_size=window_size,
-            stride_size=stride_size,
-            sample_rate=sample_rate)
-        ind = np.where(freqs <= max_freq)[0][-1] + 1
-        return np.log(specgram[:ind, :] + eps)
-
     def _specgram_real(self, samples, window_size, stride_size, sample_rate):
         """Compute the spectrogram for samples from a real signal."""
         # extract strided windows
@@ -217,26 +191,65 @@ class AudioFeaturizer(object):
         freqs = float(sample_rate) / window_size * np.arange(fft.shape[0])
         return fft, freqs
 
+    def _compute_linear_specgram(self,
+                                 samples,
+                                 sample_rate,
+                                 stride_ms=10.0,
+                                 window_ms=20.0,
+                                 max_freq=None,
+                                 eps=1e-14):
+        """Compute the linear spectrogram from FFT energy.
+
+        Args:
+            samples ([type]): [description]
+            sample_rate ([type]): [description]
+            stride_ms (float, optional): [description]. Defaults to 10.0.
+            window_ms (float, optional): [description]. Defaults to 20.0.
+            max_freq ([type], optional): [description]. Defaults to None.
+            eps ([type], optional): [description]. Defaults to 1e-14.
+
+        Raises:
+            ValueError: [description]
+            ValueError: [description]
+
+        Returns:
+            np.ndarray: log spectrogram, (time, freq)
+        """
+        if max_freq is None:
+            max_freq = sample_rate / 2
+        if max_freq > sample_rate / 2:
+            raise ValueError("max_freq must not be greater than half of "
+                             "sample rate.")
+        if stride_ms > window_ms:
+            raise ValueError("Stride size must not be greater than "
+                             "window size.")
+        stride_size = int(0.001 * sample_rate * stride_ms)
+        window_size = int(0.001 * sample_rate * window_ms)
+        specgram, freqs = self._specgram_real(
+            samples,
+            window_size=window_size,
+            stride_size=stride_size,
+            sample_rate=sample_rate)
+        ind = np.where(freqs <= max_freq)[0][-1] + 1
+        # (freq, time)
+        spec = np.log(specgram[:ind, :] + eps)
+        return np.transpose(spec)
+
     def _concat_delta_delta(self, feat):
         """append delat, delta-delta feature.
 
         Args:
-            feat (np.ndarray): (D, T)
+            feat (np.ndarray): (T, D)
 
         Returns:
-            np.ndarray: feat with delta-delta, (3*D, T)
+            np.ndarray: feat with delta-delta, (T, 3*D)
         """
-        feat = np.transpose(feat)
         # Deltas
         d_feat = delta(feat, 2)
         # Deltas-Deltas
         dd_feat = delta(feat, 2)
-        # transpose
-        feat = np.transpose(feat)
-        d_feat = np.transpose(d_feat)
-        dd_feat = np.transpose(dd_feat)
         # concat above three features
-        concat_feat = np.concatenate((feat, d_feat, dd_feat))
+        concat_feat = np.concatenate((feat, d_feat, dd_feat), axis=1)
         return concat_feat
 
     def _compute_mfcc(self,
@@ -292,7 +305,6 @@ class AudioFeaturizer(object):
             ceplifter=22,
             useEnergy=True,
             winfunc='povey')
-        mfcc_feat = np.transpose(mfcc_feat)
         if delta_delta:
             mfcc_feat = self._concat_delta_delta(mfcc_feat)
         return mfcc_feat
@@ -346,8 +358,6 @@ class AudioFeaturizer(object):
             remove_dc_offset=True,
             preemph=0.97,
             wintype='povey')
-
-        fbank_feat = np.transpose(fbank_feat)
         if delta_delta:
             fbank_feat = self._concat_delta_delta(fbank_feat)
         return fbank_feat

@@ -217,6 +217,34 @@ class SpeechCollator():
         return self._local_data.tar2object[tarpath].extractfile(
             self._local_data.tar2info[tarpath][filename])
 
+    @property
+    def manifest(self):
+        return self._manifest
+
+    @property
+    def vocab_size(self):
+        return self._speech_featurizer.vocab_size
+
+    @property
+    def vocab_list(self):
+        return self._speech_featurizer.vocab_list
+
+    @property
+    def vocab_dict(self):
+        return self._speech_featurizer.vocab_dict
+
+    @property
+    def text_feature(self):
+        return self._speech_featurizer.text_feature
+
+    @property
+    def feature_size(self):
+        return self._speech_featurizer.feature_size
+
+    @property
+    def stride_ms(self):
+        return self._speech_featurizer.stride_ms
+
     def process_utterance(self, audio_file, translation):
         """Load, augment, featurize and normalize for speech data.
 
@@ -244,7 +272,6 @@ class SpeechCollator():
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
-        specgram = specgram.transpose([1, 0])
         return specgram, translation_part
 
     def __call__(self, batch):
@@ -252,7 +279,7 @@ class SpeechCollator():
 
         Args:
             batch ([List]): batch is (audio, text)
-                audio (np.ndarray) shape (D, T)
+                audio (np.ndarray) shape (T, D)
                 text (List[int] or str): shape (U,)
 
         Returns:
@@ -296,34 +323,6 @@ class SpeechCollator():
         text_lens = np.array(text_lens).astype(np.int64)
         return utts, padded_audios, audio_lens, padded_texts, text_lens
 
-    @property
-    def manifest(self):
-        return self._manifest
-
-    @property
-    def vocab_size(self):
-        return self._speech_featurizer.vocab_size
-
-    @property
-    def vocab_list(self):
-        return self._speech_featurizer.vocab_list
-
-    @property
-    def vocab_dict(self):
-        return self._speech_featurizer.vocab_dict
-
-    @property
-    def text_feature(self):
-        return self._speech_featurizer.text_feature
-
-    @property
-    def feature_size(self):
-        return self._speech_featurizer.feature_size
-
-    @property
-    def stride_ms(self):
-        return self._speech_featurizer.stride_ms
-
 
 class TripletSpeechCollator(SpeechCollator):
     def process_utterance(self, audio_file, translation, transcript):
@@ -355,7 +354,6 @@ class TripletSpeechCollator(SpeechCollator):
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
-        specgram = specgram.transpose([1, 0])
         return specgram, translation_part, transcript_part
 
     def __call__(self, batch):
@@ -363,7 +361,7 @@ class TripletSpeechCollator(SpeechCollator):
 
         Args:
             batch ([List]): batch is (audio, text)
-                audio (np.ndarray) shape (D, T)
+                audio (np.ndarray) shape (T, D)
                 text (List[int] or str): shape (U,)
 
         Returns:
@@ -524,48 +522,18 @@ class KaldiPrePorocessedCollator(SpeechCollator):
         :rtype: tuple of (2darray, list)
         """
         specgram = kaldiio.load_mat(audio_file)
-        specgram = specgram.transpose([1, 0])
         assert specgram.shape[
-            0] == self._feat_dim, 'expect feat dim {}, but got {}'.format(
-                self._feat_dim, specgram.shape[0])
+            1] == self._feat_dim, 'expect feat dim {}, but got {}'.format(
+                self._feat_dim, specgram.shape[1])
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
 
-        specgram = specgram.transpose([1, 0])
         if self._keep_transcription_text:
             return specgram, translation
         else:
             text_ids = self._text_featurizer.featurize(translation)
             return specgram, text_ids
-
-    @property
-    def manifest(self):
-        return self._manifest
-
-    @property
-    def vocab_size(self):
-        return self._text_featurizer.vocab_size
-
-    @property
-    def vocab_list(self):
-        return self._text_featurizer.vocab_list
-
-    @property
-    def vocab_dict(self):
-        return self._text_featurizer.vocab_dict
-
-    @property
-    def text_feature(self):
-        return self._text_featurizer
-
-    @property
-    def feature_size(self):
-        return self._feat_dim
-
-    @property
-    def stride_ms(self):
-        return self._stride_ms
 
 
 class TripletKaldiPrePorocessedCollator(KaldiPrePorocessedCollator):
@@ -583,15 +551,13 @@ class TripletKaldiPrePorocessedCollator(KaldiPrePorocessedCollator):
         :rtype: tuple of (2darray, (list, list))
         """
         specgram = kaldiio.load_mat(audio_file)
-        specgram = specgram.transpose([1, 0])
         assert specgram.shape[
-            0] == self._feat_dim, 'expect feat dim {}, but got {}'.format(
-                self._feat_dim, specgram.shape[0])
+            1] == self._feat_dim, 'expect feat dim {}, but got {}'.format(
+                self._feat_dim, specgram.shape[1])
 
         # specgram augment
         specgram = self._augmentation_pipeline.transform_feature(specgram)
 
-        specgram = specgram.transpose([1, 0])
         if self._keep_transcription_text:
             return specgram, translation, transcript
         else:
@@ -604,7 +570,7 @@ class TripletKaldiPrePorocessedCollator(KaldiPrePorocessedCollator):
 
         Args:
             batch ([List]): batch is (audio, text)
-                audio (np.ndarray) shape (D, T)
+                audio (np.ndarray) shape (T, D)
                 translation (List[int] or str): shape (U,)
                 transcription (List[int] or str): shape (V,)
 

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains DeepSpeech2 and DeepSpeech2Online model."""
+import os
+import random
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -53,6 +55,7 @@ class DeepSpeech2Trainer(Trainer):
                 weight_decay=1e-6,  # the coeff of weight decay
                 global_grad_clip=5.0,  # the global norm clip
                 n_epoch=50,  # train epochs
+                seed=1024,  #train seed
             ))
 
         if config is not None:
@@ -61,6 +64,13 @@ class DeepSpeech2Trainer(Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
+        if config.training.seed != None:
+            self.set_seed(config.training.seed)
+
+    def set_seed(self, seed):
+        np.random.seed(seed)
+        random.seed(seed)
+        paddle.seed(seed)
 
     def train_batch(self, batch_index, batch_data, msg):
         start = time.time()

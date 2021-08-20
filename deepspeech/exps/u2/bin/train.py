@@ -52,7 +52,10 @@ if __name__ == "__main__":
     if args.dump_config:
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
+    if config.training.seed != None:
+        os.environ.setdefault('FLAGS_cudnn_deterministic', 'True')
 
+    main(config, args)
     # Setting for profiling
     pr = cProfile.Profile()
     pr.runcall(main, config, args)

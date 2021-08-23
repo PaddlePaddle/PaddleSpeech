@@ -13,6 +13,7 @@
 # limitations under the License.
 """Evaluation for U2 model."""
 import cProfile
+from yacs.config import CfgNode
 
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.dynamic_import import dynamic_import

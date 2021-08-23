@@ -15,6 +15,9 @@
 import codecs
 import json
 import math
+from typing import List
+from typing import Optional
+from typing import Text
 
 import numpy as np
 
@@ -23,16 +26,35 @@ from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = [
-    "load_cmvn", "read_manifest", "rms_to_db", "rms_to_dbfs", "max_dbfs",
-    "mean_dbfs", "gain_db_to_ratio", "normalize_audio", "SOS", "EOS", "UNK",
-    "BLANK"
+    "load_dict", "load_cmvn", "read_manifest", "rms_to_db", "rms_to_dbfs",
+    "max_dbfs", "mean_dbfs", "gain_db_to_ratio", "normalize_audio", "SOS",
+    "EOS", "UNK", "BLANK", "MASKCTC"
 ]
 
 IGNORE_ID = -1
-SOS = "<sos/eos>"
+# `sos` and `eos` using same token
+SOS = "<eos>"
 EOS = SOS
 UNK = "<unk>"
 BLANK = "<blank>"
+MASKCTC = "<mask>"
+
+
+def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:
+    if dict_path is None:
+        return None
+
+    with open(dict_path, "r") as f:
+        dictionary = f.readlines()
+    char_list = [entry.split(" ")[0] for entry in dictionary]
+    if BLANK not in char_list:
+        char_list.insert(0, BLANK)
+    if EOS not in char_list:
+        char_list.append(EOS)
+    # for non-autoregressive maskctc model
+    if maskctc and MASKCTC not in char_list:
+        char_list.append(MASKCTC)
+    return char_list
 
 
 def read_manifest(
@@ -47,12 +69,20 @@ def read_manifest(
 
     Args:
         manifest_path ([type]): Manifest file to load and parse.
-        max_input_len ([type], optional): maximum output seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
-        min_input_len (float, optional): minimum input seq length, in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
-        max_output_len (float, optional): maximum input seq length, in modeling units. Defaults to 500.0.
-        min_output_len (float, optional): minimum input seq length, in modeling units. Defaults to 0.0.
-        max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. Defaults to 10.0.
-        min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio. Defaults to 0.05.
+        max_input_len ([type], optional): maximum output seq length, 
+            in seconds for raw wav, in frame numbers for feature data. 
+            Defaults to float('inf').
+        min_input_len (float, optional): minimum input seq length, 
+            in seconds for raw wav, in frame numbers for feature data. 
+            Defaults to 0.0.
+        max_output_len (float, optional): maximum input seq length, 
+            in modeling units. Defaults to 500.0.
+        min_output_len (float, optional): minimum input seq length, 
+            in modeling units. Defaults to 0.0.
+        max_output_input_ratio (float, optional): 
+            maximum output seq length/output seq length ratio. Defaults to 10.0.
+        min_output_input_ratio (float, optional): 
+            minimum output seq length/output seq length ratio. Defaults to 0.05.
 
     Raises:
         IOError: If failed to parse the manifest.

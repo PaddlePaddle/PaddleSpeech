@@ -18,7 +18,8 @@ if [ ${ngpu} == 0 ];then
 fi
 
 python3 -u ${BIN_DIR}/test.py \
---run_mode 'export' \
+--model-name 'u2_kaldi' \
+--run-mode 'export' \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \

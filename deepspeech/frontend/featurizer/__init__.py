@@ -11,3 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from .audio_featurizer import AudioFeaturizer  #noqa: F401
+from .speech_featurizer import SpeechFeaturizer
+from .text_featurizer import TextFeaturizer

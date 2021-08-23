@@ -245,6 +245,8 @@ class SpecAugmentor(AugmentorBase):
         Returns:
             x (np.ndarray): `[T, F]`
         """
+        assert isinstance(x, np.ndarray)
+        assert x.ndim == 2
         x = self.time_warp(x, self.mode)
         x = self.mask_freq(x, self.replace_with_zero)
         x = self.mask_time(x, self.replace_with_zero)

@@ -55,7 +55,7 @@ if __name__ == "__main__":
     if args.dump_config:
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
-    if config.training.seed != None:
+    if config.training.seed is not None:
         os.environ.setdefault('FLAGS_cudnn_deterministic', 'True')
 
     main(config, args)

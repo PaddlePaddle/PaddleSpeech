@@ -46,7 +46,7 @@ model:
 training:
   n_epoch: 50
   lr: 2e-3
-  lr_decay: 0.9  # 0.83
+  lr_decay: 0.91  # 0.83
   weight_decay: 1e-06
   global_grad_clip: 3.0
   log_interval: 100

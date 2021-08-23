@@ -51,7 +51,7 @@ def _batch_shuffle(indices, batch_size, epoch, clipped=False):
     """
     rng = np.random.RandomState(epoch)
     shift_len = rng.randint(0, batch_size - 1)
-    batch_indices = list(zip(*[iter(indices[shift_len:])] * batch_size))
+    batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
     rng.shuffle(batch_indices)
     batch_indices = [item for batch in batch_indices for item in batch]
     assert clipped is False

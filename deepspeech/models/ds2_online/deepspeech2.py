@@ -26,7 +26,7 @@ from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
-__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModeOnline']
+__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModelOnline']
 
 
 class CRNNEncoder(nn.Layer):
@@ -68,7 +68,7 @@ class CRNNEncoder(nn.Layer):
                 rnn_input_size = i_size
             else:
                 rnn_input_size = layernorm_size
-            if use_gru == True:
+            if use_gru is True:
                 self.rnn.append(
                     nn.GRU(
                         input_size=rnn_input_size,
@@ -113,7 +113,7 @@ class CRNNEncoder(nn.Layer):
         if init_state_h_box is not None:
             init_state_list = None
 
-            if self.use_gru == True:
+            if self.use_gru is True:
                 init_state_h_list = paddle.split(
                     init_state_h_box, self.num_rnn_layers, axis=0)
                 init_state_list = init_state_h_list
@@ -139,7 +139,7 @@ class CRNNEncoder(nn.Layer):
             x = self.fc_layers_list[i](x)
             x = F.relu(x)
 
-        if self.use_gru == True:
+        if self.use_gru is True:
             final_chunk_state_h_box = paddle.concat(
                 final_chunk_state_list, axis=0)
             final_chunk_state_c_box = init_state_c_box

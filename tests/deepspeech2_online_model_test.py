@@ -143,10 +143,10 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         eouts_lens_by_chk = paddle.add_n(eouts_lens_by_chk_list)
         decode_max_len = eouts.shape[1]
         eouts_by_chk = eouts_by_chk[:, :decode_max_len, :]
-        self.assertEqual(paddle.allclose(eouts_by_chk, eouts, atol=1e-5), True)
+        self.assertEqual(paddle.allclose(eouts_by_chk, eouts), True)
         self.assertEqual(
             paddle.allclose(final_state_h_box, final_state_h_box_chk), True)
-        if use_gru == False:
+        if use_gru is False:
             self.assertEqual(
                 paddle.allclose(final_state_c_box, final_state_c_box_chk), True)
 
@@ -177,7 +177,7 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         self.assertEqual(paddle.allclose(eouts_by_chk, eouts), True)
         self.assertEqual(
             paddle.allclose(final_state_h_box, final_state_h_box_chk), True)
-        if use_gru == False:
+        if use_gru is False:
             self.assertEqual(
                 paddle.allclose(final_state_c_box, final_state_c_box_chk), True)
 

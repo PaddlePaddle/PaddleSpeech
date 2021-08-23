@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains DeepSpeech2 and DeepSpeech2Online model."""
-import os
 import random
 import time
 from collections import defaultdict
@@ -64,7 +63,7 @@ class DeepSpeech2Trainer(Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
-        if config.training.seed != None:
+        if config.training.seed is not None:
             self.set_seed(config.training.seed)
 
     def set_seed(self, seed):

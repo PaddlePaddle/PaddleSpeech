@@ -4,7 +4,7 @@
 
 test -d Montreal-Forced-Aligner || git clone https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner.git
 
-pushd Montreal-Forced-Aligner && git checkout v2.0.0a7 &&  python setup.py install
+pushd Montreal-Forced-Aligner &&  python setup.py install && popd
 
 test -d kaldi || { echo "need install kaldi first"; exit 1;}
 

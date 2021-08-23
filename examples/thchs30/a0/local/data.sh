@@ -20,27 +20,33 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
         echo "Prepare THCHS-30 failed. Terminated."
         exit 1
     fi
-    
 fi
 
-# dump manifest to data/
-python3 ${MAIN_ROOT}/utils/dump_manifest.py --manifest-path=data/manifest.train --output-dir=data
+if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+    # dump manifest to data/
+    python3 ${MAIN_ROOT}/utils/dump_manifest.py --manifest-path=data/manifest.train --output-dir=data
+fi
 
-# copy files to data/dict to gen word.lexicon
-cp  ${TARGET_DIR}/thchs30/data_thchs30/lm_word/lexicon.txt data/dict/lm_word_lexicon_1
-cp  ${TARGET_DIR}/thchs30/resource/dict/lexicon.txt data/dict/lm_word_lexicon_2
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # copy files to data/dict to gen word.lexicon
+    cp  ${TARGET_DIR}/thchs30/data_thchs30/lm_word/lexicon.txt data/dict/lm_word_lexicon_1
+    cp  ${TARGET_DIR}/thchs30/resource/dict/lexicon.txt data/dict/lm_word_lexicon_2
+    # copy phone.lexicon to data/dict
+    cp  ${TARGET_DIR}/thchs30/data_thchs30/lm_phone/lexicon.txt data/dict/phone.lexicon
+fi
 
-# copy phone.lexicon to data/dict
-cp  ${TARGET_DIR}/thchs30/data_thchs30/lm_phone/lexicon.txt data/dict/phone.lexicon
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    # gen word.lexicon
+    python local/gen_word2phone.py  --lexicon-files="data/dict/lm_word_lexicon_1 data/dict/lm_word_lexicon_2" --output-path=data/dict/word.lexicon
+fi
 
-# gen word.lexicon
-python local/gen_word2phone.py  --root-dir=data/dict --output-dir=data/dict
-
-# reorganize dataset for MFA
-if [ ! -d $EXP_DIR/thchs30_corpus ]; then
-    echo "reorganizing thchs30 corpus..."
-    python local/reorganize_thchs30.py --root-dir=data --output-dir=data/thchs30_corpus --script-type=$LEXICON_NAME
-    echo "reorganization done."
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    # reorganize dataset for MFA
+    if [ ! -d $EXP_DIR/thchs30_corpus ]; then
+        echo "reorganizing thchs30 corpus..."
+        python local/reorganize_thchs30.py --root-dir=data --output-dir=data/thchs30_corpus --script-type=$LEXICON_NAME
+        echo "reorganization done."
+    fi
 fi
 
 echo "THCHS-30  data preparation done."

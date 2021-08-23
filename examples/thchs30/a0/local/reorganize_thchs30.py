@@ -58,8 +58,6 @@ def write_lab(root_dir: Union[str, Path],
 def reorganize_thchs30(root_dir: Union[str, Path],
                        output_dir: Union[str, Path]=None,
                        script_type='phone'):
-    root_dir = Path(root_dir).expanduser()
-    output_dir = Path(output_dir).expanduser()
     output_dir.mkdir(parents=True, exist_ok=True)
     link_wav(root_dir, output_dir)
     write_lab(root_dir, output_dir, script_type)
@@ -72,12 +70,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output-dir",
         type=str,
-        help="path to save outputs(audio and transcriptions)")
+        help="path to save outputs (audio and transcriptions)")
 
     parser.add_argument(
         "--script-type",
         type=str,
         default="phone",
         help="type of lab ('word'/'syllable'/'phone')")
+
     args = parser.parse_args()
-    reorganize_thchs30(args.root_dir, args.output_dir, args.script_type)
+    root_dir = Path(args.root_dir).expanduser()
+    output_dir = Path(args.output_dir).expanduser()
+    reorganize_thchs30(root_dir, output_dir, args.script_type)

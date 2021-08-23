@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
+import os
+
 from paddle import distributed as dist
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
@@ -53,5 +55,7 @@ if __name__ == "__main__":
     if args.dump_config:
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
+    if config.training.seed is not None:
+        os.environ.setdefault('FLAGS_cudnn_deterministic', 'True')
 
     main(config, args)

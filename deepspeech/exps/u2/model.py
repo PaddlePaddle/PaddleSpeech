@@ -55,7 +55,7 @@ class U2Trainer(Trainer):
                 log_interval=100,  # steps
                 accum_grad=1,  # accum grad by # steps
                 global_grad_clip=5.0,  # the global norm clip
-                seed=1024, ))
+            ))
         default.optim = 'adam'
         default.optim_conf = CfgNode(
             dict(
@@ -75,12 +75,6 @@ class U2Trainer(Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
-        if config.training.seed != None:
-            self.set_seed(config.training.seed)
-
-    def set_seed(self, seed):
-        np.random.seed(seed)
-        paddle.seed(seed)
 
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training

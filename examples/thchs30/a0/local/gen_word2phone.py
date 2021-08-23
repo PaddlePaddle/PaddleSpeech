@@ -18,6 +18,7 @@ file2: THCHS-30/resource/dict/lexicon.txt
 import argparse
 from collections import defaultdict
 from pathlib import Path
+from typing import List
 from typing import Union
 
 # key: (cn, ('ee', 'er4'))，value: count
@@ -34,7 +35,7 @@ def is_Chinese(ch):
     return False
 
 
-def proc_line(line):
+def proc_line(line: str):
     line = line.strip()
     if is_Chinese(line[0]):
         line_list = line.split()
@@ -49,20 +50,25 @@ def proc_line(line):
                 cn_phones_counter[(cn, phones)] += 1
 
 
-def gen_lexicon(root_dir: Union[str, Path], output_dir: Union[str, Path]):
-    root_dir = Path(root_dir).expanduser()
-    output_dir = Path(output_dir).expanduser()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    file1 = root_dir / "lm_word_lexicon_1"
-    file2 = root_dir / "lm_word_lexicon_2"
-    write_file = output_dir / "word.lexicon"
+"""
+example lines of output
+the first column is a Chinese character
+the second is the probability of this pronunciation
+and the rest are the phones of this pronunciation
+一 0.22 ii i1↩
+一 0.45 ii i4↩
+一 0.32 ii i2↩
+一 0.01 ii i5
+"""
 
-    with open(file1, "r") as f1:
-        for line in f1:
-            proc_line(line)
-    with open(file2, "r") as f2:
-        for line in f2:
-            proc_line(line)
+
+def gen_lexicon(lexicon_files: List[Union[str, Path]],
+                output_path: Union[str, Path]):
+    for file_path in lexicon_files:
+        with open(file_path, "r") as f1:
+            for line in f1:
+                proc_line(line)
+
     for key in cn_phones_counter:
         cn = key[0]
         cn_counter[cn].append((key[1], cn_phones_counter[key]))
@@ -75,7 +81,8 @@ def gen_lexicon(root_dir: Union[str, Path], output_dir: Union[str, Path]):
             p = round(p, 2)
             if p > 0:
                 cn_counter_p[key].append((item[0], p))
-    with open(write_file, "w") as wf:
+
+    with open(output_path, "w") as wf:
         for key in cn_counter_p:
             phone_p_list = cn_counter_p[key]
             for item in phone_p_list:
@@ -87,8 +94,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Gen Chinese characters to phone lexicon for THCHS-30 dataset"
     )
+    # A line of word_lexicon:
+    # 一丁点 ii i4 d ing1 d ian3
+    # the first is word, and the rest are the phones of the word, and the len of phones is twice of the word's len
     parser.add_argument(
-        "--root-dir", type=str, help="dir to thchs30 lm_word_lexicons")
-    parser.add_argument("--output-dir", type=str, help="path to save outputs")
+        "--lexicon-files",
+        type=str,
+        default="data/dict/lm_word_lexicon_1 data/dict/lm_word_lexicon_2",
+        help="lm_word_lexicon files")
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="data/dict/word.lexicon",
+        help="path to save output word2phone lexicon")
     args = parser.parse_args()
-    gen_lexicon(args.root_dir, args.output_dir)
+    lexicon_files = args.lexicon_files.split(" ")
+    output_path = Path(args.output_path).expanduser()
+
+    gen_lexicon(lexicon_files, output_path)

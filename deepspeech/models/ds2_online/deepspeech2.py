@@ -26,7 +26,7 @@ from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
-__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModeOnline']
+__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModelOnline']
 
 
 class CRNNEncoder(nn.Layer):
@@ -68,7 +68,7 @@ class CRNNEncoder(nn.Layer):
                 rnn_input_size = i_size
             else:
                 rnn_input_size = layernorm_size
-            if use_gru == True:
+            if use_gru is True:
                 self.rnn.append(
                     nn.GRU(
                         input_size=rnn_input_size,
@@ -102,18 +102,18 @@ class CRNNEncoder(nn.Layer):
         Args:
             x (Tensor): [B, feature_size, D]
             x_lens (Tensor): [B]
-            init_state_h_box(Tensor): init_states h for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
-            init_state_c_box(Tensor): init_states c for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
-        Returns:
+            init_state_h_box(Tensor): init_states h for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
+            init_state_c_box(Tensor): init_states c for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
+        Return:
             x (Tensor): encoder outputs, [B, size, D]
             x_lens (Tensor): encoder length, [B]
-            final_state_h_box(Tensor): final_states h for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
-            final_state_c_box(Tensor): final_states c for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
+            final_state_h_box(Tensor): final_states h for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
+            final_state_c_box(Tensor): final_states c for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
         """
         if init_state_h_box is not None:
             init_state_list = None
 
-            if self.use_gru == True:
+            if self.use_gru is True:
                 init_state_h_list = paddle.split(
                     init_state_h_box, self.num_rnn_layers, axis=0)
                 init_state_list = init_state_h_list
@@ -139,10 +139,10 @@ class CRNNEncoder(nn.Layer):
             x = self.fc_layers_list[i](x)
             x = F.relu(x)
 
-        if self.use_gru == True:
+        if self.use_gru is True:
             final_chunk_state_h_box = paddle.concat(
                 final_chunk_state_list, axis=0)
-            final_chunk_state_c_box = init_state_c_box  #paddle.zeros_like(final_chunk_state_h_box)
+            final_chunk_state_c_box = init_state_c_box
         else:
             final_chunk_state_h_list = [
                 final_chunk_state_list[i][0] for i in range(self.num_rnn_layers)
@@ -165,10 +165,10 @@ class CRNNEncoder(nn.Layer):
             x_lens (Tensor): [B]
             decoder_chunk_size: The chunk size of decoder
         Returns:
-            eouts_list (List of Tensor): The list of encoder outputs in chunk_size, [B, chunk_size, D] * num_chunks
-            eouts_lens_list (List of Tensor): The list of  encoder length in chunk_size, [B] * num_chunks
-            final_state_h_box(Tensor): final_states h for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
-            final_state_c_box(Tensor): final_states c for RNN layers, num_rnn_layers * num_directions, batch_size, hidden_size
+            eouts_list (List of Tensor): The list of encoder outputs in chunk_size: [B, chunk_size, D] * num_chunks
+            eouts_lens_list (List of Tensor): The list of  encoder length in chunk_size: [B] * num_chunks
+            final_state_h_box(Tensor): final_states h for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
+            final_state_c_box(Tensor): final_states c for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
         """
         subsampling_rate = self.conv.subsampling_rate
         receptive_field_length = self.conv.receptive_field_length
@@ -215,12 +215,14 @@ class CRNNEncoder(nn.Layer):
 class DeepSpeech2ModelOnline(nn.Layer):
     """The DeepSpeech2 network structure for online.
 
-    :param audio_data: Audio spectrogram data layer.
-    :type audio_data: Variable
-    :param text_data: Transcription text data layer.
-    :type text_data: Variable
+    :param audio: Audio spectrogram data layer.
+    :type audio: Variable
+    :param text: Transcription text data layer.
+    :type text: Variable
     :param audio_len: Valid sequence length data layer.
     :type audio_len: Variable
+    :param feat_size: feature size for audio.
+    :type feat_size: int
     :param dict_size: Dictionary size for tokenized transcription.
     :type dict_size: int
     :param num_conv_layers: Number of stacking convolution layers.

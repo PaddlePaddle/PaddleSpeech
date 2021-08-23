@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import paddle
-from paddle import nn
 
-from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.subsampling import Conv2dSubsampling4
 
 

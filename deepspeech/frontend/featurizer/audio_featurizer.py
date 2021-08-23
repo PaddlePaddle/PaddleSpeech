@@ -18,7 +18,7 @@ from python_speech_features import logfbank
 from python_speech_features import mfcc
 
 
-class AudioFeaturizer(object):
+class AudioFeaturizer():
     """Audio featurizer, for extracting features from audio contents of
     AudioSegment or SpeechSegment.
 

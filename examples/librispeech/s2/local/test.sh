@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 2 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix"
+if [ $# != 3 ];then
+    echo "usage: ${0} config_path dict_path ckpt_path_prefix"
     exit -1
 fi
 
@@ -14,7 +14,8 @@ if [ ${ngpu} == 0 ];then
 fi
 
 config_path=$1
-ckpt_prefix=$2
+dict_path=$2
+ckpt_prefix=$3
 
 chunk_mode=false
 if [[ ${config_path} =~ ^.*chunk_.*yaml$ ]];then
@@ -38,10 +39,13 @@ for type in attention ctc_greedy_search; do
         batch_size=64
     fi
     python3 -u ${BIN_DIR}/test.py \
+    --model-name u2_kaldi \
+    --run-mode test \
+    --dict-path ${dict_path} \
     --device ${device} \
     --nproc 1 \
     --config ${config_path} \
-    --result_file ${ckpt_prefix}.${type}.rsl \
+    --result-file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
     --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
 
@@ -55,10 +59,13 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     echo "decoding ${type}"
     batch_size=1
     python3 -u ${BIN_DIR}/test.py \
+    --model-name u2_kaldi \
+    --run-mode test \
+    --dict-path ${dict_path} \
     --device ${device} \
     --nproc 1 \
     --config ${config_path} \
-    --result_file ${ckpt_prefix}.${type}.rsl \
+    --result-file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
     --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
 

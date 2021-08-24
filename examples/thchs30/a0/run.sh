@@ -14,14 +14,17 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 # gen lexicon relink gen dump
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
-    bash ./local/data.sh $LEXICON_NAME|| exit -1
+    echo "Start prepare thchs30 data for MFA ..."
+    bash ./local/data.sh $LEXICON_NAME || exit -1
 fi
 
-# run MFA
-if [ ! -d "$EXP_DIR/thchs30_alignment" ]; then
-    echo "Start MFA training..."
-    mfa_train_and_align data/thchs30_corpus data/dict/$LEXICON_NAME.lexicon $EXP_DIR/thchs30_alignment -o $EXP_DIR/thchs30_model --clean --verbose --temp_directory exp/.mfa_train_and_align --num_jobs $NUM_JOBS
-    echo "training done! \nresults: $EXP_DIR/thchs30_alignment \nmodel: $EXP_DIR/thchs30_model\n"
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # run MFA
+    if [ ! -d "$EXP_DIR/thchs30_alignment" ]; then
+        echo "Start MFA training ..."
+        mfa_train_and_align data/thchs30_corpus data/dict/$LEXICON_NAME.lexicon $EXP_DIR/thchs30_alignment -o $EXP_DIR/thchs30_model --clean --verbose --temp_directory exp/.mfa_train_and_align --num_jobs $NUM_JOBS
+        echo "MFA training done! \nresults: $EXP_DIR/thchs30_alignment \nmodel: $EXP_DIR/thchs30_model\n"
+    fi
 fi
 
 

@@ -84,8 +84,9 @@ FILES = glob.glob('kenlm/util/*.cc') \
 FILES += glob.glob('openfst-1.6.3/src/lib/*.cc')
 
 FILES = [
-    fn for fn in FILES if not (fn.endswith('main.cc') or fn.endswith('test.cc')
-                               or fn.endswith('unittest.cc'))
+    fn for fn in FILES
+    if not (fn.endswith('main.cc') or fn.endswith('test.cc') or fn.endswith(
+        'unittest.cc'))
 ]
 
 LIBS = ['stdc++']

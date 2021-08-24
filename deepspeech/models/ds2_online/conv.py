@@ -30,6 +30,4 @@ class Conv2dSubsampling4Online(Conv2dSubsampling4):
         #b, c, t, f = paddle.shape(x) #not work under jit
         x = x.transpose([0, 2, 1, 3]).reshape([0, 0, -1])
         x_len = ((x_len - 1) // 2 - 1) // 2
-        x_len = paddle.where(x_len >= 0, x_len,
-                             paddle.zeros_like(x_len.shape, "int64"))
         return x, x_len

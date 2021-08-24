@@ -17,7 +17,9 @@ if [ ${ngpu} == 0 ];then
     device=cpu
 fi
 
-python3 -u ${BIN_DIR}/export.py \
+python3 -u ${BIN_DIR}/test.py \
+--model-name 'u2_kaldi' \
+--run-mode 'export' \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \

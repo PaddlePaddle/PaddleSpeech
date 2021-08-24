@@ -25,6 +25,7 @@ if [ ${seed} ]; then
 fi
 
 python3 -u ${BIN_DIR}/train.py \
+--model-name u2_kaldi \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \

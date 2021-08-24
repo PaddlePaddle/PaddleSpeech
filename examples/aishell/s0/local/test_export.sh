@@ -26,7 +26,7 @@ python3 -u ${BIN_DIR}/test_export.py \
 --device ${device} \
 --nproc 1 \
 --config ${config_path} \
---result_file ${ckpt_prefix}.rsl \
+--result_file ${jit_model_export_path}.rsl \
 --export_path ${jit_model_export_path} \
 --model_type ${model_type}
 

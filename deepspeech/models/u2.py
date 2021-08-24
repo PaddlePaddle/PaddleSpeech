@@ -54,7 +54,7 @@ __all__ = ["U2Model", "U2InferModel"]
 logger = Log(__name__).getlog()
 
 
-class U2BaseModel(nn.Module):
+class U2BaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
     @classmethod
@@ -612,32 +612,32 @@ class U2BaseModel(nn.Module):
                 best_index = i
         return hyps[best_index][0]
 
-    #@jit.export
+    #@jit.to_static
     def subsampling_rate(self) -> int:
         """ Export interface for c++ call, return subsampling_rate of the
             model
         """
         return self.encoder.embed.subsampling_rate
 
-    #@jit.export
+    #@jit.to_static
     def right_context(self) -> int:
         """ Export interface for c++ call, return right_context of the model
         """
         return self.encoder.embed.right_context
 
-    #@jit.export
+    #@jit.to_static
     def sos_symbol(self) -> int:
         """ Export interface for c++ call, return sos symbol id of the model
         """
         return self.sos
 
-    #@jit.export
+    #@jit.to_static
     def eos_symbol(self) -> int:
         """ Export interface for c++ call, return eos symbol id of the model
         """
         return self.eos
 
-    @jit.export
+    @jit.to_static
     def forward_encoder_chunk(
             self,
             xs: paddle.Tensor,
@@ -667,7 +667,7 @@ class U2BaseModel(nn.Module):
             xs, offset, required_cache_size, subsampling_cache,
             elayers_output_cache, conformer_cnn_cache)
 
-    # @jit.export([
+    # @jit.to_static([
     #         paddle.static.InputSpec(shape=[1, None, feat_dim],dtype='float32'),  # audio feat, [B,T,D]
     #     ])
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
@@ -680,7 +680,7 @@ class U2BaseModel(nn.Module):
         """
         return self.ctc.log_softmax(xs)
 
-    @jit.export
+    @jit.to_static
     def forward_attention_decoder(
             self,
             hyps: paddle.Tensor,

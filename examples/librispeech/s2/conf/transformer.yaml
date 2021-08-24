@@ -3,23 +3,17 @@ data:
   train_manifest: data/manifest.train
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test-clean
-  min_input_len: 0.5  # second
-  max_input_len: 20.0 # second
-  min_output_len: 0.0 # tokens
-  max_output_len: 400.0 # tokens
-  min_output_input_ratio: 0.05
-  max_output_input_ratio: 10.0
 
 collator:
-  vocab_filepath: data/vocab.txt
+  vocab_filepath: data/train_960_unigram5000_units.txt
   unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_5000'
+  spm_model_prefix: 'data/train_960_unigram5000'
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
   batch_size: 64
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
-  feat_dim: 80
+  feat_dim: 83
   delta_delta: False
   dither: 1.0
   target_sample_rate: 16000
@@ -38,7 +32,7 @@ collator:
 
 # network architecture
 model:
-    cmvn_file: "data/mean_std.json"
+    cmvn_file:  
     cmvn_file_type: "json"
     # encoder related
     encoder: transformer
@@ -74,20 +68,20 @@ model:
 training:
   n_epoch: 120
   accum_grad: 2
-  global_grad_clip: 5.0
-  optim: adam
-  optim_conf:
-    lr: 0.004
-    weight_decay: 1e-06
-  scheduler: warmuplr     # pytorch v1.1.0+ required
-  scheduler_conf:
-    warmup_steps: 25000
-    lr_decay: 1.0
   log_interval: 100
   checkpoint:
     kbest_n: 50
     latest_n: 5
 
+optim: adam
+optim_conf:
+  global_grad_clip: 5.0
+  weight_decay: 1.0e-06
+scheduler: warmuplr     # pytorch v1.1.0+ required
+scheduler_conf:
+  lr: 0.004
+  warmup_steps: 25000
+  lr_decay: 1.0
 
 decoding:
   batch_size: 64

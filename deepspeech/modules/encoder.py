@@ -358,7 +358,7 @@ class TransformerEncoder(BaseEncoder):
                          pos_enc_layer_type, normalize_before, concat_after,
                          static_chunk_size, use_dynamic_chunk, global_cmvn,
                          use_dynamic_left_chunk)
-        self.encoders = nn.ModuleList([
+        self.encoders = nn.LayerList([
             TransformerEncoderLayer(
                 size=output_size,
                 self_attn=MultiHeadedAttention(attention_heads, output_size,
@@ -438,7 +438,7 @@ class ConformerEncoder(BaseEncoder):
         convolution_layer_args = (output_size, cnn_module_kernel, activation,
                                   cnn_module_norm, causal)
 
-        self.encoders = nn.ModuleList([
+        self.encoders = nn.LayerList([
             ConformerEncoderLayer(
                 size=output_size,
                 self_attn=encoder_selfattn_layer(*encoder_selfattn_layer_args),

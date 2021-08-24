@@ -171,10 +171,7 @@ class U2Trainer(Trainer):
         if from_scratch:
             # save init model, i.e. 0 epoch
             self.save(tag='init')
-
         self.lr_scheduler.step(self.iteration)
-        if self.parallel:
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:

@@ -129,15 +129,16 @@ class TransformDataset(Dataset):
 
     Args:
         data: list object from make_batchset
-        transfrom: transform function
-
+        converter: batch function
+        reader: read data
     """
 
-    def __init__(self, data, transform):
+    def __init__(self, data, converter, reader):
         """Init function."""
         super().__init__()
         self.data = data
-        self.transform = transform
+        self.converter = converter
+        self.reader = reader
 
     def __len__(self):
         """Len function."""
@@ -145,4 +146,4 @@ class TransformDataset(Dataset):
 
     def __getitem__(self, idx):
         """[] operator."""
-        return self.transform(self.data[idx])
+        return self.converter([self.reader(self.data[idx], return_uttid=True)])

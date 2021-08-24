@@ -153,7 +153,7 @@ class SpecAugmentor(AugmentorBase):
         window = max_time_warp = self.W
         if window == 0:
             return x
-        
+
         if mode == "PIL":
             t = x.shape[0]
             if t - window <= window:

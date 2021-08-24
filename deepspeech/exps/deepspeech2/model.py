@@ -146,7 +146,7 @@ class DeepSpeech2Trainer(Trainer):
             learning_rate=config.training.lr,
             gamma=config.training.lr_decay,
             verbose=True)
-        optimizer = paddle.optimizer.SGD(  #Adam
+        optimizer = paddle.optimizer.Adam(
             learning_rate=lr_scheduler,
             parameters=model.parameters(),
             weight_decay=paddle.regularizer.L2Decay(

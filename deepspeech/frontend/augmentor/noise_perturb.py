@@ -36,6 +36,12 @@ class NoisePerturbAugmentor(AugmentorBase):
         self._rng = rng
         self._noise_manifest = read_manifest(manifest_path=noise_manifest_path)
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return x
+        self.transform_audio(x)
+        return x
+
     def transform_audio(self, audio_segment):
         """Add background noise audio.
 

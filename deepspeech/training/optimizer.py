@@ -15,6 +15,7 @@ from typing import Any
 from typing import Dict
 from typing import Text
 
+import paddle
 from paddle.optimizer import Optimizer
 from paddle.regularizer import L2Decay
 
@@ -43,6 +44,40 @@ def register_optimizer(cls):
     return cls
 
 
+@register_optimizer
+class Noam(paddle.optimizer.Adam):
+    """Seem to: espnet/nets/pytorch_backend/transformer/optimizer.py """
+
+    def __init__(self,
+                 learning_rate=0,
+                 beta1=0.9,
+                 beta2=0.98,
+                 epsilon=1e-9,
+                 parameters=None,
+                 weight_decay=None,
+                 grad_clip=None,
+                 lazy_mode=False,
+                 multi_precision=False,
+                 name=None):
+        super().__init__(
+            learning_rate=learning_rate,
+            beta1=beta1,
+            beta2=beta2,
+            epsilon=epsilon,
+            parameters=parameters,
+            weight_decay=weight_decay,
+            grad_clip=grad_clip,
+            lazy_mode=lazy_mode,
+            multi_precision=multi_precision,
+            name=name)
+
+    def __repr__(self):
+        echo = f"<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}> "
+        echo += f"learning_rate: {self._learning_rate}, "
+        echo += f"(beta1: {self._beta1} beta2: {self._beta2}), "
+        echo += f"epsilon: {self._epsilon}"
+
+
 def dynamic_import_optimizer(module):
     """Import Optimizer class dynamically.
 
@@ -69,15 +104,18 @@ class OptimizerFactory():
             args['grad_clip']) if "grad_clip" in args else None
         weight_decay = L2Decay(
             args['weight_decay']) if "weight_decay" in args else None
-        module_class = dynamic_import_optimizer(name.lower())
-
         if weight_decay:
-            logger.info(f'WeightDecay: {weight_decay}')
+            logger.info(f'<WeightDecay - {weight_decay}>')
         if grad_clip:
-            logger.info(f'GradClip: {grad_clip}')
-        logger.info(
-            f"Optimizer: {module_class.__name__} {args['learning_rate']}")
+            logger.info(f'<GradClip - {grad_clip}>')
 
+        module_class = dynamic_import_optimizer(name.lower())
         args.update({"grad_clip": grad_clip, "weight_decay": weight_decay})
-
-        return instance_class(module_class, args)
+        opt = instance_class(module_class, args)
+        if "__repr__" in vars(opt):
+            logger.info(f"{opt}")
+        else:
+            logger.info(
+                f"<Optimizer {module_class.__module__}.{module_class.__name__}> LR: {args['learning_rate']}"
+            )
+        return opt

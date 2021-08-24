@@ -47,17 +47,10 @@ def default_argument_parser():
     # data and output
     parser.add_argument("--config", metavar="FILE", help="path of the config file to overwrite to default config with.")
     parser.add_argument("--dump-config", metavar="FILE", help="dump config to yaml file.")
-    # parser.add_argument("--data", metavar="DATA_DIR", help="path to the datatset.")
     parser.add_argument("--output", metavar="OUTPUT_DIR", help="path to save checkpoint and logs.")
 
     # load from saved checkpoint
     parser.add_argument("--checkpoint_path", type=str, help="path of the checkpoint to load")
-
-    # save jit model to
-    parser.add_argument("--export_path", type=str, help="path of the jit model to save")
-
-    # save asr result to
-    parser.add_argument("--result_file", type=str, help="path of save the asr result")
 
     # running
     parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],

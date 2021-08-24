@@ -37,6 +37,12 @@ class VolumePerturbAugmentor(AugmentorBase):
         self._max_gain_dBFS = max_gain_dBFS
         self._rng = rng
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return x
+        self.transform_audio(x)
+        return x
+
     def transform_audio(self, audio_segment):
         """Change audio loadness.
 

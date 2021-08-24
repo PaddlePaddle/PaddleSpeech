@@ -10,5 +10,5 @@ export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 
 
-MODEL=u2
+MODEL=u2_kaldi
 export BIN_DIR=${MAIN_ROOT}/deepspeech/exps/${MODEL}/bin

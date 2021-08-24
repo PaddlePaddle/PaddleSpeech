@@ -79,6 +79,12 @@ class SpeedPerturbAugmentor(AugmentorBase):
             self._rates = np.linspace(
                 self._min_rate, self._max_rate, self._num_rates, endpoint=True)
 
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return x
+        self.transform_audio(x)
+        return x
+
     def transform_audio(self, audio_segment):
         """Sample a new speed rate from the given range and
         changes the speed of the given audio clip.

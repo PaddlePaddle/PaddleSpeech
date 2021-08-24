@@ -16,7 +16,7 @@ from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
 
-class SpeechFeaturizer(object):
+class SpeechFeaturizer():
     """Speech featurizer, for extracting features from both audio and transcript
     contents of SpeechSegment.
 

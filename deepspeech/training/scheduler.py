@@ -41,22 +41,6 @@ def register_scheduler(cls):
     return cls
 
 
-def dynamic_import_scheduler(module):
-    """Import Scheduler class dynamically.
-
-    Args:
-        module (str): module_name:class_name or alias in `SCHEDULER_DICT`
-
-    Returns:
-        type: Scheduler class
-
-    """
-    module_class = dynamic_import(module, SCHEDULER_DICT)
-    assert issubclass(module_class,
-                      LRScheduler), f"{module} does not implement LRScheduler"
-    return module_class
-
-
 @register_scheduler
 class WarmupLR(LRScheduler):
     """The WarmupLR scheduler
@@ -100,6 +84,41 @@ class WarmupLR(LRScheduler):
             None
         '''
         self.step(epoch=step)
+
+
+@register_scheduler
+class ConstantLR(LRScheduler):
+    """
+    Args:
+        learning_rate (float): The initial learning rate. It is a python float number.
+        last_epoch (int, optional):  The index of last epoch. Can be set to restart training. Default: -1, means initial learning rate.
+        verbose (bool, optional): If ``True``, prints a message to stdout for each update. Default: ``False`` .
+    
+    Returns:
+        ``ConstantLR`` instance to schedule learning rate.
+    """
+
+    def __init__(self, learning_rate, last_epoch=-1, verbose=False):
+        super().__init__(learning_rate, last_epoch, verbose)
+
+    def get_lr(self):
+        return self.base_lr
+
+
+def dynamic_import_scheduler(module):
+    """Import Scheduler class dynamically.
+
+    Args:
+        module (str): module_name:class_name or alias in `SCHEDULER_DICT`
+
+    Returns:
+        type: Scheduler class
+
+    """
+    module_class = dynamic_import(module, SCHEDULER_DICT)
+    assert issubclass(module_class,
+                      LRScheduler), f"{module} does not implement LRScheduler"
+    return module_class
 
 
 class LRSchedulerFactory():

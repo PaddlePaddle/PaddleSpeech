@@ -43,7 +43,7 @@ class CustomConverter():
             batch (list): The batch to transform.
 
         Returns:
-            tuple(paddle.Tensor, paddle.Tensor, paddle.Tensor)
+            tuple(np.ndarray, nn.ndarray, nn.ndarray)
 
         """
         # batch should be located in list

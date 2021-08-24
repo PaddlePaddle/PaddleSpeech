@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import random
 import time
 from pathlib import Path
 
+import numpy as np
 import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
@@ -93,6 +95,13 @@ class Trainer():
         self.checkpoint_dir = None
         self.iteration = 0
         self.epoch = 0
+        if args.seed is not None:
+            self.set_seed(args.seed)
+
+    def set_seed(self, seed):
+        np.random.seed(seed)
+        random.seed(seed)
+        paddle.seed(seed)
 
     def setup(self):
         """Setup the experiment.

@@ -1,5 +1,6 @@
 coverage
 gpustat
+jsonlines
 kaldiio
 Pillow
 pre-commit
@@ -15,4 +16,3 @@ tensorboardX
 textgrid
 typeguard
 yacs
-jsonlines

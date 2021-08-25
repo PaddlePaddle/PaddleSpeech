@@ -15,9 +15,19 @@
 import distutils.util
 import math
 import os
+import random
 from typing import List
 
-__all__ = ['print_arguments', 'add_arguments', "log_add"]
+import numpy as np
+import paddle
+
+__all__ = ["seed_all", 'print_arguments', 'add_arguments', "log_add"]
+
+
+def seed_all(seed: int=210329):
+    np.random.seed(seed)
+    random.seed(seed)
+    paddle.seed(seed)
 
 
 def print_arguments(args, info=None):

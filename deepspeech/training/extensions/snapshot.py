@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import os
 from datetime import datetime
 from pathlib import Path
@@ -7,11 +20,10 @@ from typing import List
 
 import jsonlines
 
-from deepspeech.training.updaters.trainer import Trainer
 from deepspeech.training.extensions import extension
-from deepspeech.utils.mp_tools import rank_zero_only
-
+from deepspeech.training.updaters.trainer import Trainer
 from deepspeech.utils.log import Log
+from deepspeech.utils.mp_tools import rank_zero_only
 
 logger = Log(__name__).getlog()
 
@@ -75,7 +87,7 @@ class Snapshot(extension.Extension):
         """Saving new snapshot and remove the oldest snapshot if needed."""
         iteration = trainer.updater.state.iteration
         epoch = trainer.updater.state.epoch
-        num = epoch if self.trigger[1] is 'epoch' else iteration
+        num = epoch if self.trigger[1] == 'epoch' else iteration
         path = self.checkpoint_dir / f"{num}.pdz"
 
         # add the new one

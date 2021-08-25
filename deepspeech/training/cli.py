@@ -64,7 +64,7 @@ def default_argument_parser():
                         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
 
     parser.add_argument("--seed", type=int, default=None,
-                        help="seed to use for paddle, np and random. The default value is None")
+                        help="seed to use for paddle, np and random. None or 0 for random, else set seed.")
     # yapd: enable
 
     return parser

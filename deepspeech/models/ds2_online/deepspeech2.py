@@ -325,24 +325,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
             lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
             cutoff_top_n, num_processes)
 
-    @paddle.no_grad()
-    def decode_by_probs(self, probs, probs_len, vocab_list, decoding_method,
-                        lang_model_path, beam_alpha, beam_beta, beam_size,
-                        cutoff_prob, cutoff_top_n, num_processes):
-        # init once
-        # decoders only accept string encoded in utf-8
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-
-        return self.decoder.decode_probs(
-            probs.numpy(), probs_len, vocab_list, decoding_method,
-            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, num_processes)
-
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):
         """Build a DeepSpeech2Model model from a pretrained model.

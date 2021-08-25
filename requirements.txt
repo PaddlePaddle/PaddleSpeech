@@ -15,3 +15,4 @@ tensorboardX
 textgrid
 typeguard
 yacs
+jsonlines

@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from typing import Dict
 from typing import Optional
 
@@ -11,12 +24,12 @@ from timer import timer
 from deepspeech.training.reporter import report
 from deepspeech.training.updaters.updater import UpdaterBase
 from deepspeech.training.updaters.updater import UpdaterState
-
 from deepspeech.utils.log import Log
 
 __all__ = ["StandardUpdater"]
 
 logger = Log(__name__).getlog()
+
 
 class StandardUpdater(UpdaterBase):
     """An example of over-simplification. Things may not be that simple, but
@@ -142,7 +155,7 @@ class StandardUpdater(UpdaterBase):
         """Start a new epoch."""
         # NOTE: all batch sampler for distributed training should
         # subclass DistributedBatchSampler and implement `set_epoch` method
-        if hasattr(self.dataloader, "batch_sampler")
+        if hasattr(self.dataloader, "batch_sampler"):
             batch_sampler = self.dataloader.batch_sampler
             if isinstance(batch_sampler, DistributedBatchSampler):
                 batch_sampler.set_epoch(self.state.epoch)

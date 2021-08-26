@@ -14,6 +14,8 @@
 """Evaluation for U2 model."""
 import cProfile
 
+from yacs.config import CfgNode
+
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.dynamic_import import dynamic_import
 from deepspeech.utils.utility import print_arguments
@@ -53,6 +55,14 @@ if __name__ == "__main__":
         type=str,
         default='test',
         help='run mode, e.g. test, align, export')
+    parser.add_argument(
+        '--dict-path', type=str, default=None, help='dict path.')
+    # save asr result to 
+    parser.add_argument(
+        "--result-file", type=str, help="path of save the asr result")
+    # save jit model to 
+    parser.add_argument(
+        "--export-path", type=str, help="path of the jit model to save")
     args = parser.parse_args()
     print_arguments(args, globals())
 

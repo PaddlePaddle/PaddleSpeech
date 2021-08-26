@@ -14,12 +14,19 @@
 """Contains the text featurizer class."""
 import sentencepiece as spm
 
-from deepspeech.frontend.utility import EOS
-from deepspeech.frontend.utility import UNK
+from ..utility import EOS
+from ..utility import load_dict
+from ..utility import UNK
+
+__all__ = ["TextFeaturizer"]
 
 
-class TextFeaturizer(object):
-    def __init__(self, unit_type, vocab_filepath, spm_model_prefix=None):
+class TextFeaturizer():
+    def __init__(self,
+                 unit_type,
+                 vocab_filepath,
+                 spm_model_prefix=None,
+                 maskctc=False):
         """Text featurizer, for processing or extracting features from text.
 
         Currently, it supports char/word/sentence-piece level tokenizing and conversion into
@@ -34,11 +41,12 @@ class TextFeaturizer(object):
         assert unit_type in ('char', 'spm', 'word')
         self.unit_type = unit_type
         self.unk = UNK
+        self.maskctc = maskctc
+
         if vocab_filepath:
-            self._vocab_dict, self._id2token, self._vocab_list = self._load_vocabulary_from_file(
-                vocab_filepath)
-            self.unk_id = self._vocab_list.index(self.unk)
-            self.eos_id = self._vocab_list.index(EOS)
+            self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id = self._load_vocabulary_from_file(
+                vocab_filepath, maskctc)
+            self.vocab_size = len(self.vocab_list)
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'
@@ -67,7 +75,7 @@ class TextFeaturizer(object):
         """Convert text string to a list of token indices.
 
         Args:
-            text (str): Text to process.
+            text (str): Text.
         
         Returns:
             List[int]: List of token indices.
@@ -75,8 +83,8 @@ class TextFeaturizer(object):
         tokens = self.tokenize(text)
         ids = []
         for token in tokens:
-            token = token if token in self._vocab_dict else self.unk
-            ids.append(self._vocab_dict[token])
+            token = token if token in self.vocab_dict else self.unk
+            ids.append(self.vocab_dict[token])
         return ids
 
     def defeaturize(self, idxs):
@@ -87,7 +95,7 @@ class TextFeaturizer(object):
             idxs (List[int]): List of token indices.
 
         Returns:
-            str: Text to process.
+            str: Text.
         """
         tokens = []
         for idx in idxs:
@@ -96,33 +104,6 @@ class TextFeaturizer(object):
             tokens.append(self._id2token[idx])
         text = self.detokenize(tokens)
         return text
-
-    @property
-    def vocab_size(self):
-        """Return the vocabulary size.
-
-        :return: Vocabulary size.
-        :rtype: int
-        """
-        return len(self._vocab_list)
-
-    @property
-    def vocab_list(self):
-        """Return the vocabulary in list.
-
-        Returns:
-            List[str]: tokens.
-        """
-        return self._vocab_list
-
-    @property
-    def vocab_dict(self):
-        """Return the vocabulary in dict.
-
-        Returns:
-            Dict[str, int]: token str -> int
-        """
-        return self._vocab_dict
 
     def char_tokenize(self, text):
         """Character tokenizer.
@@ -206,14 +187,16 @@ class TextFeaturizer(object):
 
         return decode(tokens)
 
-    def _load_vocabulary_from_file(self, vocab_filepath):
+    def _load_vocabulary_from_file(self, vocab_filepath: str, maskctc: bool):
         """Load vocabulary from file."""
-        vocab_lines = []
-        with open(vocab_filepath, 'r', encoding='utf-8') as file:
-            vocab_lines.extend(file.readlines())
-        vocab_list = [line[:-1] for line in vocab_lines]
+        vocab_list = load_dict(vocab_filepath, maskctc)
+        assert vocab_list is not None
+
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])
         token2id = dict(
             [(token, idx) for (idx, token) in enumerate(vocab_list)])
-        return token2id, id2token, vocab_list
+
+        unk_id = vocab_list.index(UNK)
+        eos_id = vocab_list.index(EOS)
+        return token2id, id2token, vocab_list, unk_id, eos_id

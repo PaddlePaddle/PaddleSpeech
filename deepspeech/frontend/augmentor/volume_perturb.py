@@ -39,7 +39,7 @@ class VolumePerturbAugmentor(AugmentorBase):
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
-            return
+            return x
         self.transform_audio(x)
         return x
 

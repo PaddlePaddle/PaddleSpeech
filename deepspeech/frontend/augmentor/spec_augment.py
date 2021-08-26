@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the volume perturb augmentation model."""
+import random
+
 import numpy as np
+from PIL import Image
+from PIL.Image import BICUBIC
 
 from deepspeech.frontend.augmentor.base import AugmentorBase
 from deepspeech.utils.log import Log
@@ -41,7 +45,9 @@ class SpecAugmentor(AugmentorBase):
                  W=40,
                  adaptive_number_ratio=0,
                  adaptive_size_ratio=0,
-                 max_n_time_masks=20):
+                 max_n_time_masks=20,
+                 replace_with_zero=True,
+                 warp_mode='PIL'):
         """SpecAugment class.
         Args:
             rng (random.Random): random generator object.
@@ -54,10 +60,16 @@ class SpecAugmentor(AugmentorBase):
             adaptive_number_ratio (float): adaptive multiplicity ratio for time masking
             adaptive_size_ratio (float): adaptive size ratio for time masking
             max_n_time_masks (int): maximum number of time masking
+            replace_with_zero (bool): pad zero on mask if true else use mean
+            warp_mode (str):  "PIL" (default, fast, not differentiable) 
+                 or "sparse_image_warp" (slow, differentiable)
         """
         super().__init__()
         self._rng = rng
+        self.inplace = True
+        self.replace_with_zero = replace_with_zero
 
+        self.mode = warp_mode
         self.W = W
         self.F = F
         self.T = T
@@ -123,21 +135,83 @@ class SpecAugmentor(AugmentorBase):
     def __repr__(self):
         return f"specaug: F-{F}, T-{T}, F-n-{n_freq_masks}, T-n-{n_time_masks}"
 
-    def time_warp(xs, W=40):
-        raise NotImplementedError
+    def time_warp(self, x, mode='PIL'):
+        """time warp for spec augment
+        move random center frame by the random width ~ uniform(-window, window)
 
-    def mask_freq(self, xs, replace_with_zero=False):
-        n_bins = xs.shape[0]
+        Args:
+            x (np.ndarray): spectrogram (time, freq)
+            mode (str): PIL or sparse_image_warp
+
+        Raises:
+            NotImplementedError: [description]
+            NotImplementedError: [description]
+
+        Returns:
+            np.ndarray: time warped spectrogram (time, freq)
+        """
+        window = max_time_warp = self.W
+        if window == 0:
+            return x
+
+        if mode == "PIL":
+            t = x.shape[0]
+            if t - window <= window:
+                return x
+            # NOTE: randrange(a, b) emits a, a + 1, ..., b - 1
+            center = random.randrange(window, t - window)
+            warped = random.randrange(center - window, center +
+                                      window) + 1  # 1 ... t - 1
+
+            left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
+                                                      BICUBIC)
+            right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped),
+                                                       BICUBIC)
+            if self.inplace:
+                x[:warped] = left
+                x[warped:] = right
+                return x
+            return np.concatenate((left, right), 0)
+        elif mode == "sparse_image_warp":
+            raise NotImplementedError('sparse_image_warp')
+        else:
+            raise NotImplementedError(
+                "unknown resize mode: " + mode +
+                ", choose one from (PIL, sparse_image_warp).")
+
+    def mask_freq(self, x, replace_with_zero=False):
+        """freq mask
+
+        Args:
+            x (np.ndarray): spectrogram (time, freq)
+            replace_with_zero (bool, optional): Defaults to False.
+
+        Returns:
+            np.ndarray: freq mask spectrogram (time, freq)
+        """
+        n_bins = x.shape[1]
         for i in range(0, self.n_freq_masks):
             f = int(self._rng.uniform(low=0, high=self.F))
             f_0 = int(self._rng.uniform(low=0, high=n_bins - f))
-            xs[f_0:f_0 + f, :] = 0
             assert f_0 <= f_0 + f
+            if replace_with_zero:
+                x[:, f_0:f_0 + f] = 0
+            else:
+                x[:, f_0:f_0 + f] = x.mean()
             self._freq_mask = (f_0, f_0 + f)
-        return xs
+        return x
 
-    def mask_time(self, xs, replace_with_zero=False):
-        n_frames = xs.shape[1]
+    def mask_time(self, x, replace_with_zero=False):
+        """time mask
+
+        Args:
+            x (np.ndarray): spectrogram (time, freq)
+            replace_with_zero (bool, optional): Defaults to False.
+
+        Returns:
+            np.ndarray: time mask spectrogram (time, freq)
+        """
+        n_frames = x.shape[0]
 
         if self.adaptive_number_ratio > 0:
             n_masks = int(n_frames * self.adaptive_number_ratio)
@@ -154,24 +228,29 @@ class SpecAugmentor(AugmentorBase):
             t = int(self._rng.uniform(low=0, high=T))
             t = min(t, int(n_frames * self.p))
             t_0 = int(self._rng.uniform(low=0, high=n_frames - t))
-            xs[:, t_0:t_0 + t] = 0
             assert t_0 <= t_0 + t
+            if replace_with_zero:
+                x[t_0:t_0 + t, :] = 0
+            else:
+                x[t_0:t_0 + t, :] = x.mean()
             self._time_mask = (t_0, t_0 + t)
-        return xs
+        return x
 
     def __call__(self, x, train=True):
         if not train:
-            return
+            return x
         return self.transform_feature(x)
 
-    def transform_feature(self, xs: np.ndarray):
+    def transform_feature(self, x: np.ndarray):
         """
         Args:
-            xs (FloatTensor): `[F, T]`
+            x (np.ndarray): `[T, F]`
         Returns:
-            xs (FloatTensor): `[F, T]`
+            x (np.ndarray): `[T, F]`
         """
-        # xs = self.time_warp(xs)
-        xs = self.mask_freq(xs)
-        xs = self.mask_time(xs)
-        return xs
+        assert isinstance(x, np.ndarray)
+        assert x.ndim == 2
+        x = self.time_warp(x, self.mode)
+        x = self.mask_freq(x, self.replace_with_zero)
+        x = self.mask_time(x, self.replace_with_zero)
+        return x

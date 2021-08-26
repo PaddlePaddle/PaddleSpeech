@@ -16,23 +16,23 @@ import argparse
 
 def default_argument_parser():
     r"""A simple yet genral argument parser for experiments with parakeet.
-    
-    This is used in examples with parakeet. And it is intended to be used by 
-    other experiments with parakeet. It requires a minimal set of command line 
+
+    This is used in examples with parakeet. And it is intended to be used by
+    other experiments with parakeet. It requires a minimal set of command line
     arguments to start a training script.
-    
-    The ``--config`` and ``--opts`` are used for overwrite the deault 
+
+    The ``--config`` and ``--opts`` are used for overwrite the deault
     configuration.
-    
-    The ``--data`` and ``--output`` specifies the data path and output path. 
-    Resuming training from existing progress at the output directory is the 
+
+    The ``--data`` and ``--output`` specifies the data path and output path.
+    Resuming training from existing progress at the output directory is the
     intended default behavior.
-    
+
     The ``--checkpoint_path`` specifies the checkpoint to load from.
-    
+
     The ``--device`` and ``--nprocs`` specifies how to run the training.
-    
-    
+
+
     See Also
     --------
     parakeet.training.experiment
@@ -47,17 +47,10 @@ def default_argument_parser():
     # data and output
     parser.add_argument("--config", metavar="FILE", help="path of the config file to overwrite to default config with.")
     parser.add_argument("--dump-config", metavar="FILE", help="dump config to yaml file.")
-    # parser.add_argument("--data", metavar="DATA_DIR", help="path to the datatset.")
     parser.add_argument("--output", metavar="OUTPUT_DIR", help="path to save checkpoint and logs.")
 
     # load from saved checkpoint
     parser.add_argument("--checkpoint_path", type=str, help="path of the checkpoint to load")
-
-    # save jit model to 
-    parser.add_argument("--export_path", type=str, help="path of the jit model to save")
-
-    # save asr result to 
-    parser.add_argument("--result_file", type=str, help="path of save the asr result")
 
     # running
     parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
@@ -65,10 +58,13 @@ def default_argument_parser():
     parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
 
     # overwrite extra config and default config
-    # parser.add_argument("--opts", nargs=argparse.REMAINDER, 
+    # parser.add_argument("--opts", nargs=argparse.REMAINDER,
     # help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
     parser.add_argument("--opts", type=str, default=[], nargs='+',
                         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
+
+    parser.add_argument("--seed", type=int, default=None,
+                        help="seed to use for paddle, np and random. None or 0 for random, else set seed.")
     # yapd: enable
 
     return parser

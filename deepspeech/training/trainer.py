@@ -21,6 +21,7 @@ from tensorboardX import SummaryWriter
 from deepspeech.utils import mp_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import seed_all
 
 __all__ = ["Trainer"]
 
@@ -93,6 +94,10 @@ class Trainer():
         self.checkpoint_dir = None
         self.iteration = 0
         self.epoch = 0
+
+        if args.seed:
+            seed_all(args.seed)
+            logger.info(f"Set seed {args.seed}")
 
     def setup(self):
         """Setup the experiment.
@@ -172,8 +177,10 @@ class Trainer():
         """Reset the train loader seed and increment `epoch`.
         """
         self.epoch += 1
-        if self.parallel:
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        if self.parallel and hasattr(self.train_loader, "batch_sampler"):
+            batch_sampler = self.train_loader.batch_sampler
+            if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
+                batch_sampler.set_epoch(self.epoch)
 
     def train(self):
         """The training process control by epoch."""
@@ -182,7 +189,7 @@ class Trainer():
             # save init model, i.e. 0 epoch
             self.save(tag='init', infos=None)
         self.lr_scheduler.step(self.epoch)
-        if self.parallel:
+        if self.parallel and hasattr(self.train_loader, "batch_sampler"):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")

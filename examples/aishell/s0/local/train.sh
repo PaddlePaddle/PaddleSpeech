@@ -19,12 +19,22 @@ fi
 
 mkdir -p exp
 
+seed=1024
+if [ ${seed} ]; then
+    export FLAGS_cudnn_deterministic=True
+fi
+
 python3 -u ${BIN_DIR}/train.py \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---model_type ${model_type}
+--model_type ${model_type} \
+--seed ${seed}
+
+if [ ${seed} ]; then
+    unset FLAGS_cudnn_deterministic
+fi
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

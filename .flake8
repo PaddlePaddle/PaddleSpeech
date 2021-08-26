@@ -42,6 +42,10 @@ ignore =
     # these ignores are from flake8-comprehensions; please fix!
     C400,C401,C402,C403,C404,C405,C407,C411,C413,C414,C415
 
+
+per-file-ignores =
+    */__init__.py: F401
+
 # Specify the list of error codes you wish Flake8 to report.
 select =
     E,

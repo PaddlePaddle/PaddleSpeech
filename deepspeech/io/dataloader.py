@@ -43,6 +43,18 @@ def feat_dim_and_vocab_size(data_json: List[Dict[Text, Any]],
     return feat_dim, vocab_size
 
 
+def batch_collate(x):
+    """de-tuple.
+
+    Args:
+        x (List[Tuple]): [(utts, xs, ilens, ys, olens)]
+
+    Returns:
+        Tuple: (utts, xs, ilens, ys, olens)
+    """
+    return x[0]
+
+
 class BatchDataLoader():
     def __init__(self,
                  json_file: str,
@@ -120,15 +132,15 @@ class BatchDataLoader():
         # actual bathsize is included in a list
         # default collate function converts numpy array to pytorch tensor
         # we used an empty collate function instead which returns list
-        self.dataset = TransformDataset(
-            self.minibaches,
-            lambda data: self.converter([self.reader(data, return_uttid=True)]))
+        self.dataset = TransformDataset(self.minibaches, self.converter,
+                                        self.reader)
+
         self.dataloader = DataLoader(
             dataset=self.dataset,
             batch_size=1,
-            shuffle=not self.use_sortagrad if train_mode else False,
-            collate_fn=lambda x: x[0],
-            num_workers=n_iter_processes, )
+            shuffle=not self.use_sortagrad if self.train_mode else False,
+            collate_fn=batch_collate,
+            num_workers=self.n_iter_processes, )
 
     def __repr__(self):
         echo = f"<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}> "

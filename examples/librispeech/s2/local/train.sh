@@ -19,12 +19,22 @@ echo "using ${device}..."
 
 mkdir -p exp
 
+seed=1024
+if [ ${seed} ]; then
+    export FLAGS_cudnn_deterministic=True
+fi
+
 python3 -u ${BIN_DIR}/train.py \
 --model-name u2_kaldi \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
---output exp/${ckpt_name}
+--output exp/${ckpt_name} \
+--seed ${seed}
+
+if [ ${seed} ]; then
+    unset FLAGS_cudnn_deterministic
+fi
 
 if [ $? -ne 0 ]; then
     echo "Failed in training!"

@@ -40,21 +40,21 @@ class CollateFunc(object):
         number = 0
         for item in batch:
             audioseg = AudioSegment.from_file(item['feat'])
-            feat = self.feature_func(audioseg)  #(D, T)
+            feat = self.feature_func(audioseg)  #(T, D)
 
-            sums = np.sum(feat, axis=1)
+            sums = np.sum(feat, axis=0)
             if mean_stat is None:
                 mean_stat = sums
             else:
                 mean_stat += sums
 
-            square_sums = np.sum(np.square(feat), axis=1)
+            square_sums = np.sum(np.square(feat), axis=0)
             if var_stat is None:
                 var_stat = square_sums
             else:
                 var_stat += square_sums
 
-            number += feat.shape[1]
+            number += feat.shape[0]
         return number, mean_stat, var_stat
 
 
@@ -120,7 +120,7 @@ class FeatureNormalizer(object):
         """Normalize features to be of zero mean and unit stddev.
 
         :param features: Input features to be normalized.
-        :type features: ndarray, shape (D, T)
+        :type features: ndarray, shape (T, D)
         :param eps:  added to stddev to provide numerical stablibity.
         :type eps: float
         :return: Normalized features.
@@ -131,8 +131,8 @@ class FeatureNormalizer(object):
     def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
         mean, istd = load_cmvn(filepath, filetype='json')
-        self._mean = np.expand_dims(mean, axis=-1)
-        self._istd = np.expand_dims(istd, axis=-1)
+        self._mean = np.expand_dims(mean, axis=0)
+        self._istd = np.expand_dims(istd, axis=0)
 
     def write_to_file(self, filepath):
         """Write the mean and stddev to the file.

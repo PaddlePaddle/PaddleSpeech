@@ -180,8 +180,10 @@ class CRNNEncoder(nn.Layer):
 
         eouts_chunk_list = []
         eouts_chunk_lens_list = []
-
-        padding_len = chunk_stride - (max_len - chunk_size) % chunk_stride
+        if (max_len - chunk_size) % chunk_stride != 0:
+            padding_len = chunk_stride - (max_len - chunk_size) % chunk_stride
+        else:
+            padding_len = 0
         padding = paddle.zeros((x.shape[0], padding_len, x.shape[2]))
         padded_x = paddle.concat([x, padding], axis=1)
         num_chunk = (max_len + padding_len - chunk_size) / chunk_stride + 1

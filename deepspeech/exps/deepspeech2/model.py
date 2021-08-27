@@ -455,10 +455,12 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         x_batch = audio.numpy()
         batch_size, Tmax, x_dim = x_batch.shape
         x_len_batch = audio_len.numpy().astype(np.int64)
-
-        padding_len_batch = chunk_stride - (
-            Tmax - chunk_size
-        ) % chunk_stride  # The length of padding for the batch
+        if (Tmax - chunk_size) % chunk_stride != 0:
+            padding_len_batch = chunk_stride - (
+                Tmax - chunk_size
+            ) % chunk_stride  # The length of padding for the batch
+        else:
+            padding_len_batch = 0
         x_list = np.split(x_batch, batch_size, axis=0)
         x_len_list = np.split(x_len_batch, batch_size, axis=0)
 

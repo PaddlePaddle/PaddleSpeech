@@ -41,13 +41,6 @@ def conv_output_size(I, F, P, S):
     return (I - F + 2 * P - S) // S
 
 
-# receptive field calculator
-# https://fomoro.com/research/article/receptive-field-calculator
-# https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-convolutional-neural-networks#hyperparameters
-# https://distill.pub/2019/computing-receptive-fields/
-# Rl-1 = Sl * Rl + (Kl - Sl) 
-
-
 class ConvBn(nn.Layer):
     """Convolution layer with batch normalization.
 

@@ -39,3 +39,8 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # export ckpt avg_n
     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}
 fi
+
+if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+    # test export ckpt avg_n
+    CUDA_VISIBLE_DEVICES=0 ./local/test_export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}|| exit -1
+fi

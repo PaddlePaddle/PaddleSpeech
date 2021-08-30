@@ -100,12 +100,12 @@ class CRNNEncoder(nn.Layer):
         """Compute Encoder outputs
 
         Args:
-            x (Tensor): [B, feature_size, D]
+            x (Tensor): [B, T, D]
             x_lens (Tensor): [B]
             init_state_h_box(Tensor): init_states h for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
             init_state_c_box(Tensor): init_states c for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
         Return:
-            x (Tensor): encoder outputs, [B, size, D]
+            x (Tensor): encoder outputs, [B, T, D]
             x_lens (Tensor): encoder length, [B]
             final_state_h_box(Tensor): final_states h for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]
             final_state_c_box(Tensor): final_states c for RNN layers: [num_rnn_layers * num_directions, batch_size, hidden_size]

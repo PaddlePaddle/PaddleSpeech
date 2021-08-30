@@ -280,7 +280,7 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
         """
         eouts, eouts_len = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
-        return probs
+        return probs, eouts_len
 
     def export(self):
         static_model = paddle.jit.to_static(

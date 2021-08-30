@@ -19,7 +19,7 @@ fi
 
 mkdir -p exp
 
-seed=1024
+seed=10086
 if [ ${seed} ]; then
     export FLAGS_cudnn_deterministic=True
 fi

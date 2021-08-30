@@ -362,7 +362,7 @@ class GLU(nn.Layer):
         self.dim = dim
 
     def forward(self, xs):
-        return F.glu(xs, dim=self.dim)
+        return F.glu(xs, axis=self.dim)
 
 
 if not hasattr(paddle.nn, 'GLU'):

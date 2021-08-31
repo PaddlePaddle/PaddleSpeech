@@ -16,9 +16,6 @@ from paddle import nn
 from paddle.nn import functional as F
 from typeguard import check_argument_types
 
-from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
-from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
-from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.modules.loss import CTCLoss
 from deepspeech.utils import ctc_utils
 from deepspeech.utils.log import Log
@@ -219,6 +216,10 @@ class CTCDecoder(nn.Layer):
 
     def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
                     decoding_method):
+        from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
+        from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder  # noqa: F401
+        from deepspeech.decoders.swig_wrapper import Scorer  # noqa: F401
+
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
@@ -229,7 +230,7 @@ class CTCDecoder(nn.Layer):
         """ctc decoding with probs.
 
         Args:
-            probs (Tenosr): activation after softmax 
+            probs (Tenosr): activation after softmax
             logits_lens (Tenosr): audio output lens
             vocab_list ([type]): [description]
             decoding_method ([type]): [description]

@@ -109,8 +109,8 @@ class MultiHeadedAttention(nn.Layer):
 
         p_attn = self.dropout(attn)
         x = paddle.matmul(p_attn, value)  # (batch, head, time1, d_k)
-        x = x.transpose([0, 2, 1, 3]).contiguous().view(
-            n_batch, -1, self.h * self.d_k)  # (batch, time1, d_model)
+        x = x.transpose([0, 2, 1, 3]).view(n_batch, -1, self.h *
+                                           self.d_k)  # (batch, time1, d_model)
 
         return self.linear_out(x)  # (batch, time1, d_model)
 

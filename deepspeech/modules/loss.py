@@ -124,9 +124,9 @@ class LabelSmoothingLoss(nn.Layer):
         # use zeros_like instead of torch.no_grad() for true_dist,
         # since no_grad() can not be exported by JIT
         true_dist = paddle.full_like(x, self.smoothing / (self.size - 1))
-        ignore = target == self.padding_idx  # (B,)
+        ignore = (target == self.padding_idx)  # (B,)
 
-        # target = target * (1 - ignore)  # avoid -1 index
+        #TODO(Hui Zhang): target = target * (1 - ignore)  # avoid -1 index
         target = target.masked_fill(ignore, 0)  # avoid -1 index
         # true_dist.scatter_(1, target.unsqueeze(1), self.confidence)
         target_mask = F.one_hot(target, self.size)
@@ -135,10 +135,8 @@ class LabelSmoothingLoss(nn.Layer):
 
         kl = self.criterion(F.log_softmax(x, axis=1), true_dist)
 
-        #TODO(Hui Zhang): sum not support bool type
-        #total = len(target) - int(ignore.sum())
-        total = len(target) - int(ignore.type_as(target).sum())
+        total = len(target) - int(ignore.sum())
         denom = total if self.normalize_length else B
-        #numer = (kl * (1 - ignore)).sum()
+        #TODO(Hui Zhang): numer = (kl * (1 - ignore)).sum()
         numer = kl.masked_fill(ignore.unsqueeze(1), 0).sum()
         return numer / denom

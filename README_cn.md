@@ -20,7 +20,7 @@
 
 * Ubuntu 16.04
 * python>=3.7
-* paddlepaddle>=2.1.2
+* paddlepaddle>=2.2.0rc
 
 参看 [安装](doc/src/install.md)。
 

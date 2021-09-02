@@ -22,6 +22,13 @@ from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
+try:
+    from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
+    from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder  # noqa: F401
+    from deepspeech.decoders.swig_wrapper import Scorer  # noqa: F401
+except Exception as e:
+    logger.info("ctcdecoder not installed!")
+
 __all__ = ['CTCDecoder']
 
 
@@ -216,9 +223,6 @@ class CTCDecoder(nn.Layer):
 
     def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
                     decoding_method):
-        from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
-        from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder  # noqa: F401
-        from deepspeech.decoders.swig_wrapper import Scorer  # noqa: F401
 
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,

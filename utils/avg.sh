@@ -5,8 +5,8 @@ if [ $# != 3 ]; then
     exit -1
 fi
 
-ckpt_dir=${1}
-avg_mode=${2} # best,latest
+avg_mode=${1} # best,latest
+ckpt_dir=${2}
 average_num=${3}
 decode_checkpoint=${ckpt_dir}/avg_${average_num}.pdparams
 

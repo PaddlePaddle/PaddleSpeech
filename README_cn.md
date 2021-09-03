@@ -33,10 +33,8 @@
 * [数据处理](doc/src/data_preparation.md)  
 * [数据增强](doc/src/augmentation.md)  
 * [语言模型](doc/src/ngram_lm.md)  
-* [服务部署](doc/src/server.md)  
 * [Benchmark](doc/src/benchmark.md)  
 * [Relased Model](doc/src/released_model.md)  
-* [FAQ](doc/src/faq.md)  
 
 ## 问题和帮助
 

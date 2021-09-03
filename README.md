@@ -32,10 +32,8 @@ Please see [Getting Started](doc/src/getting_started.md) and [tiny egs](examples
 * [Data Prepration](doc/src/data_preparation.md)  
 * [Data Augmentation](doc/src/augmentation.md)  
 * [Ngram LM](doc/src/ngram_lm.md)  
-* [Server Demo](doc/src/server.md)  
 * [Benchmark](doc/src/benchmark.md)  
 * [Relased Model](doc/src/released_model.md)  
-* [FAQ](doc/src/faq.md)  
 
 
 ## Questions and Help

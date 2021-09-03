@@ -1,13 +1,20 @@
 # Features
 
+### Dataset
+* Aishell
+* Librispeech
+* THCHS30
+* TIMIT
+
 ### Speech Recognition
 
-* Offline
+* Non-Streaming
   * [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
   * [Transformer](https://arxiv.org/abs/1706.03762)
   * [Conformer](https://arxiv.org/abs/2005.08100)
 
-* Online
+* Streaming
+  * [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf)
   * [U2](https://arxiv.org/pdf/2012.05481.pdf)
 
 ### Language Model
@@ -21,6 +28,15 @@
 * greedy
 * beam search
 * attention rescore
+
+### Deployment
+
+* Paddle Inference
+
+### Aligment  
+
+* MFA  
+* CTC Aligment  
 
 ### Speech Frontend
 

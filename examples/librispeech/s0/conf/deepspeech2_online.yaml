@@ -42,6 +42,7 @@ model:
   num_fc_layers: 2
   fc_layers_size_list: 512, 256
   use_gru: False 
+  blank_id: 0
 
 training:
   n_epoch: 50

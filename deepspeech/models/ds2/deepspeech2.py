@@ -141,7 +141,8 @@ class DeepSpeech2Model(nn.Layer):
                  num_rnn_layers=3,
                  rnn_size=1024,
                  use_gru=False,
-                 share_rnn_weights=True):
+                 share_rnn_weights=True,
+                 blank_id=0):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
@@ -156,7 +157,7 @@ class DeepSpeech2Model(nn.Layer):
         self.decoder = CTCDecoder(
             odim=dict_size,  # <blank> is in  vocab
             enc_n_units=self.encoder.output_size,
-            blank_id=0,  # first token is <blank>
+            blank_id=blank_id,
             dropout_rate=0.0,
             reduction=True,  # sum
             batch_average=True)  # sum / batch_size
@@ -221,7 +222,8 @@ class DeepSpeech2Model(nn.Layer):
                     num_rnn_layers=config.model.num_rnn_layers,
                     rnn_size=config.model.rnn_layer_size,
                     use_gru=config.model.use_gru,
-                    share_rnn_weights=config.model.share_rnn_weights)
+                    share_rnn_weights=config.model.share_rnn_weights,
+                    blank_id=config.model.blank_id)
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -246,7 +248,8 @@ class DeepSpeech2Model(nn.Layer):
                     num_rnn_layers=config.num_rnn_layers,
                     rnn_size=config.rnn_layer_size,
                     use_gru=config.use_gru,
-                    share_rnn_weights=config.share_rnn_weights)
+                    share_rnn_weights=config.share_rnn_weights,
+                    blank_id=config.blank_id)
         return model
 
 
@@ -258,7 +261,8 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
                  num_rnn_layers=3,
                  rnn_size=1024,
                  use_gru=False,
-                 share_rnn_weights=True):
+                 share_rnn_weights=True,
+                 blank_id=0):
         super().__init__(
             feat_size=feat_size,
             dict_size=dict_size,
@@ -266,7 +270,8 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
             num_rnn_layers=num_rnn_layers,
             rnn_size=rnn_size,
             use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights)
+            share_rnn_weights=share_rnn_weights,
+            blank_id=blank_id)
 
     def forward(self, audio, audio_len):
         """export model function

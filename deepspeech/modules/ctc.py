@@ -136,7 +136,7 @@ class CTCDecoder(nn.Layer):
         results = []
         for i, probs in enumerate(probs_split):
             output_transcription = ctc_greedy_decoder(
-                probs_seq=probs, vocabulary=vocab_list)
+                probs_seq=probs, vocabulary=vocab_list, blank_id=self.blank_id)
             results.append(output_transcription)
         return results
 
@@ -216,7 +216,8 @@ class CTCDecoder(nn.Layer):
             num_processes=num_processes,
             ext_scoring_func=self._ext_scorer,
             cutoff_prob=cutoff_prob,
-            cutoff_top_n=cutoff_top_n)
+            cutoff_top_n=cutoff_top_n,
+            blank_id=self.blank_id)
 
         results = [result[0][1] for result in beam_search_results]
         return results

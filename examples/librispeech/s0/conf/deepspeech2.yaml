@@ -4,7 +4,7 @@ data:
   dev_manifest: data/manifest.dev-clean
   test_manifest: data/manifest.test-clean
   min_input_len: 0.0
-  max_input_len: 27.0 # second
+  max_input_len: 30.0 # second
   min_output_len: 0.0
   max_output_len: .inf
   min_output_input_ratio: 0.00

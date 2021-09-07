@@ -19,8 +19,8 @@ echo "using ${device}..."
 
 mkdir -p exp
 
-seed=1024
-if [ ${seed} ]; then
+seed=10086
+if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 
@@ -32,7 +32,7 @@ python3 -u ${BIN_DIR}/train.py \
 --output exp/${ckpt_name} \
 --seed ${seed}
 
-if [ ${seed} ]; then
+if [ ${seed} != 0 ]; then
     unset FLAGS_cudnn_deterministic
 fi
 

@@ -4,7 +4,7 @@ data:
   dev_manifest: data/manifest.tiny
   test_manifest: data/manifest.tiny
   min_input_len: 0.5  # second
-  max_input_len: 20.0 # second
+  max_input_len: 30.0 # second
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05

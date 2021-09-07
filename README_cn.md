@@ -42,7 +42,7 @@
 
 ## License
 
-DeepASR 遵循[Apache-2.0开源协议](./LICENSE)。
+DeepSpeech 遵循[Apache-2.0开源协议](./LICENSE)。
 
 ## 感谢
 

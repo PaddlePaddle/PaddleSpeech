@@ -45,6 +45,7 @@ model:
 
 training:
   n_epoch: 10
+  accum_grad: 1
   lr: 1e-5 
   lr_decay: 1.0 
   weight_decay: 1e-06

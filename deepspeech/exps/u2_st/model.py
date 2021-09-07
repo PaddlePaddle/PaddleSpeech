@@ -17,6 +17,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
@@ -83,6 +84,7 @@ class U2STTrainer(Trainer):
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
         start = time.time()
+        # forward
         utt, audio, audio_len, text, text_len = batch_data
         if isinstance(text, list) and isinstance(text_len, list):
             # joint training with ASR. Two decoding texts [translation, transcription]
@@ -94,18 +96,30 @@ class U2STTrainer(Trainer):
         else:
             loss, st_loss, attention_loss, ctc_loss = self.model(
                 audio, audio_len, text, text_len)
+
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
-        loss.backward()
-        layer_tools.print_grads(self.model, print_func=None)
-
         losses_np = {'loss': float(loss) * train_conf.accum_grad}
-        losses_np['st_loss'] = float(st_loss)
         if attention_loss:
             losses_np['att_loss'] = float(attention_loss)
         if ctc_loss:
             losses_np['ctc_loss'] = float(ctc_loss)
 
+        # loss backward
+        if (batch_index + 1) % train_conf.accum_grad != 0:
+            # Disable gradient synchronizations across DDP processes.
+            # Within this context, gradients will be accumulated on module
+            # variables, which will later be synchronized.
+            context = self.model.no_sync
+        else:
+            # Used for single gpu training and DDP gradient synchronization
+            # processes.
+            context = nullcontext
+        with context():
+            loss.backward()
+            layer_tools.print_grads(self.model, print_func=None)
+
+        # optimizer step
         if (batch_index + 1) % train_conf.accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()

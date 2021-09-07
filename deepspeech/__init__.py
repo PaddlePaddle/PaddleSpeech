@@ -351,20 +351,3 @@ if not hasattr(paddle.Tensor, 'tolist'):
     logger.warn(
         "register user tolist to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'tolist', tolist)
-
-
-########### hcak paddle.nn #############
-class GLU(nn.Layer):
-    """Gated Linear Units (GLU) Layer"""
-
-    def __init__(self, dim: int=-1):
-        super().__init__()
-        self.dim = dim
-
-    def forward(self, xs):
-        return F.glu(xs, axis=self.dim)
-
-
-if not hasattr(paddle.nn, 'GLU'):
-    logger.warn("register user GLU to paddle.nn, remove this when fixed!")
-    setattr(paddle.nn, 'GLU', GLU)

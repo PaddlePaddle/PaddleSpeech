@@ -11,7 +11,7 @@ data:
   max_output_input_ratio: .inf
 
 collator:
-  batch_size: 20
+  batch_size: 15
   mean_std_filepath: data/mean_std.json
   unit_type: char
   vocab_filepath: data/vocab.txt 
@@ -46,6 +46,7 @@ model:
 
 training:
   n_epoch: 50
+  accum_grad: 4
   lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06

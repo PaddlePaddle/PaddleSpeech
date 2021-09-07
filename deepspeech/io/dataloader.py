@@ -44,7 +44,7 @@ def feat_dim_and_vocab_size(data_json: List[Dict[Text, Any]],
 
 
 def batch_collate(x):
-    """de-tuple.
+    """de-minibatch, since user compose batch.
 
     Args:
         x (List[Tuple]): [(utts, xs, ilens, ys, olens)]

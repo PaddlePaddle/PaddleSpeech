@@ -22,7 +22,7 @@ collator:
   batch_frames_out: 0
   batch_frames_inout: 0
   augmentation_config: conf/augmentation.json
-  num_workers: 2
+  num_workers: 0
   subsampling_factor: 1
   num_encs: 1
 

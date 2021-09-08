@@ -18,6 +18,7 @@ import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
+from deepspeech.training.timer import Timer
 from deepspeech.utils import mp_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
@@ -184,13 +185,14 @@ class Trainer():
 
     def train(self):
         """The training process control by epoch."""
-        from_scratch = self.resume_or_scratch()
-        if from_scratch:
-            # save init model, i.e. 0 epoch
-            self.save(tag='init', infos=None)
-        self.lr_scheduler.step(self.epoch)
-        if self.parallel and hasattr(self.train_loader, "batch_sampler"):
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        with Timer("Load/Init Model: {}"):
+            from_scratch = self.resume_or_scratch()
+            if from_scratch:
+                # save init model, i.e. 0 epoch
+                self.save(tag='init', infos=None)
+            self.lr_scheduler.step(self.epoch)
+            if self.parallel and hasattr(self.train_loader, "batch_sampler"):
+                self.train_loader.batch_sampler.set_epoch(self.epoch)
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
@@ -240,14 +242,14 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        try:
-            self.train()
-        except KeyboardInterrupt:
-            self.save()
-            exit(-1)
-        finally:
-            self.destory()
-        logger.info("Training Done.")
+        with Timer("Training Done: {}"):
+            try:
+                self.train()
+            except KeyboardInterrupt:
+                self.save()
+                exit(-1)
+            finally:
+                self.destory()
 
     def setup_output_dir(self):
         """Create a directory used for output.

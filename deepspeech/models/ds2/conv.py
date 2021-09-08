@@ -106,11 +106,9 @@ class ConvBn(nn.Layer):
         # reset padding part to 0
         masks = make_non_pad_mask(x_len)  #[B, T]
         masks = masks.unsqueeze(1).unsqueeze(1)  # [B, 1, 1, T]
-        # TODO(Hui Zhang): not support bool multiply
-        # masks = masks.type_as(x)
-        masks = masks.astype(x.dtype)
-        x = x.multiply(masks)
-
+        # https://github.com/PaddlePaddle/Paddle/pull/29265
+        # rhs will type promote to lhs
+        x = x * masks
         return x, x_len
 
 

@@ -48,9 +48,8 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             sum_square_list.append(sum_square)
 
             # debug log
-            if i < 10:
-                logger.debug(
-                    f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
+            logger.debug(
+                f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
 
         # all parameters have been filterd out
         if len(sum_square_list) == 0:
@@ -77,9 +76,8 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             params_and_grads.append((p, new_grad))
 
             # debug log
-            if i < 10:
-                logger.debug(
-                    f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"
-                )
+            logger.debug(
+                f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"
+            )
 
         return params_and_grads

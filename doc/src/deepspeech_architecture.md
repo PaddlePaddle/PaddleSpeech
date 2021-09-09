@@ -8,6 +8,7 @@ To illustrate the model implementation clearly, 3 parts are described in detail.
 - Data Preparation
 - Encoder
 - Decoder
+
 In addition, the training process and the testing process are also introduced.
 
 The arcitecture of the model is shown in Fig.1. 
@@ -58,17 +59,13 @@ python3 ../../../utils/compute_mean_std.py \
 #### Feature Extraction
  For feature extraction, three methods are implemented, which are linear (FFT without using filter bank), fbank and mfcc.
  Currently, the released deepspeech2 online model use the linear feature extraction method.
- <!--
-For a single utterance $x^i$ sampled from the training set $S$,
- $ S= {(x^1,y^1),(x^2,y^2),...,(x^m,y^m)}$, where $y^i$ is the label correspodding to the ${x^i}
--->
  ```
  The code for feature extraction
  vi deepspeech/frontend/featurizer/audio_featurizer.py 
  ```
 
 ### Encoder
-The Backbone is composed of two 2D convolution subsampling layers and a number of stacked single direction rnn layers. The 2D convolution subsampling layers extract feature represention from the raw audio feature and reduce the length of audio feature at the same time. After passing through the convolution subsampling layers, then the feature represention are input into the stacked rnn layers. For rnn layers, LSTM cell and GRU cell are provided.
+The Backbone is composed of two 2D convolution subsampling layers and a number of stacked single direction rnn layers. The 2D convolution subsampling layers extract feature represention from the raw audio feature and reduce the length of audio feature at the same time. After passing through the convolution subsampling layers, then the feature represention are input into the stacked rnn layers. For rnn layers, LSTM cell and GRU cell are provided. Adding one fully connected (fc) layer after rnn layer is optional, if the number of rnn layers is less than 5, adding one fc layer after rnn layers is recommand.
 
 ### Decoder
 To got the character possibilities of each frame, the feature represention of each frame output from the backbone are input into a projection layer which is implemented as a dense layer to do projection. The output dim of the projection layer is same with the vocabulary size. After projection layer, the softmax function is used to make frame-level feature representation be the possibilities of characters. While making model inference, the character possibilities of each frame are input into the CTC decoder to get the final speech recognition results.
@@ -77,7 +74,7 @@ To got the character possibilities of each frame, the feature represention of ea
 Using the command below, you can train the deepspeech2 online model.
 ```
  cd examples/aishell/s0
- bash run.sh --stage 0 --stop_stage 2
+ bash run.sh --stage 0 --stop_stage 2 --model_type online --conf_path conf/deepspeech2_online.yaml
 ```
 The detail commands are:
 ```  
@@ -88,9 +85,9 @@ source path.sh
 gpus=2,3,5,7
 stage=0
 stop_stage=5
-conf_path=conf/deepspeech2_online.yaml
+conf_path=conf/deepspeech2_online.yaml     # conf/deepspeech2.yaml | conf/deepspeech2_online.yaml
 avg_num=1
-model_type=online
+model_type=online    # online | offline
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -118,15 +115,16 @@ By using the command above, the training process can be started. There are 5 sta
 ## Testing Process
 Using the command below, you can test the deepspeech2 online model.
  ```
- bash run.sh --stage 3 --stop_stage 5
+ bash run.sh --stage 3 --stop_stage 5 --model_type online --conf_path conf/deepspeech2_online.yaml
 ```
 The detail commands are:
 ```
 conf_path=conf/deepspeech2_online.yaml
 avg_num=1 
 model_type=online
- 
-if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+avg_ckpt=avg_${avg_num}
+
+ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # test ckpt avg_n
     CUDA_VISIBLE_DEVICES=2 ./local/test.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type}|| exit -1
 fi
@@ -146,3 +144,24 @@ After the training process, we use stage 3,4,5 for testing process. The stage 3 
  
 ## No Streaming
 The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers. The arcitecture of the model is shown in Fig.2.
+<p align="center">
+<img src="../images/ds2offlineModel.png" width=800> 
+<br/>Fig.2 The Arcitecture of deepspeech2 offline model
+</p>
+ 
+For data preparation, decoder, the deepspeech2 offline model is same with the deepspeech2 online model.
+The training process and testing process of deepspeech2 offline model is very similary to deepspeech2 online model.
+Only some changes should be noticed.
+
+For training and testing, the "model_type" and the "conf_path" must be set. 
+ ```
+ # Training offline
+ cd examples/aishell/s0
+ bash run.sh --stage 0 --stop_stage 2 --model_type offline --conf_path conf/deepspeech2.yaml
+```
+ 
+ ```
+ # Testing offline
+ cd examples/aishell/s0
+ bash run.sh --stage 3 --stop_stage 5 --model_type offline --conf_path conf/deepspeech2.yaml
+```

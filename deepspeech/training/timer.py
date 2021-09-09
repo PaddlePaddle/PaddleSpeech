@@ -27,7 +27,7 @@ class Timer():
             do some thing
     """
 
-    def __init__(self, message):
+    def __init__(self, message=None):
         self.message = message
 
     def duration(self) -> str:
@@ -40,7 +40,8 @@ class Timer():
         return self
 
     def __exit__(self, type, value, traceback):
-        logger.info(self.message.format(self.duration()))
+        if self.message:
+            logger.info(self.message.format(self.duration()))
 
     def __call__(self) -> float:
         return time.time() - self.start

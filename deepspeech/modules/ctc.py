@@ -39,7 +39,8 @@ class CTCDecoder(nn.Layer):
                  blank_id=0,
                  dropout_rate: float=0.0,
                  reduction: bool=True,
-                 batch_average: bool=True):
+                 batch_average: bool=True,
+                 grad_norm_type: str="instance"):
         """CTC decoder
 
         Args:
@@ -48,6 +49,7 @@ class CTCDecoder(nn.Layer):
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
+            grad_norm_type (str): one of 'instance', 'batchsize', 'frame', None.
         """
         assert check_argument_types()
         super().__init__()
@@ -60,7 +62,8 @@ class CTCDecoder(nn.Layer):
         self.criterion = CTCLoss(
             blank=self.blank_id,
             reduction=reduction_type,
-            batch_average=batch_average)
+            batch_average=batch_average,
+            grad_norm_type=grad_norm_type)
 
         # CTCDecoder LM Score handle
         self._ext_scorer = None

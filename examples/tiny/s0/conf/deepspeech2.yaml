@@ -42,6 +42,7 @@ model:
   use_gru: False 
   share_rnn_weights: True 
   blank_id: 0
+  ctc_grad_norm_type: instance
 
 training:
   n_epoch: 10

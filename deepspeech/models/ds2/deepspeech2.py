@@ -128,8 +128,8 @@ class DeepSpeech2Model(nn.Layer):
                 num_rnn_layers=3,  #Number of stacking RNN layers.
                 rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-                share_rnn_weights=True  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-            ))
+                share_rnn_weights=True,  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
+                ctc_grad_norm_type='instance', ))
         if config is not None:
             config.merge_from_other_cfg(default)
         return default
@@ -142,7 +142,8 @@ class DeepSpeech2Model(nn.Layer):
                  rnn_size=1024,
                  use_gru=False,
                  share_rnn_weights=True,
-                 blank_id=0):
+                 blank_id=0,
+                 ctc_grad_norm_type='instance'):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
@@ -160,7 +161,8 @@ class DeepSpeech2Model(nn.Layer):
             blank_id=blank_id,
             dropout_rate=0.0,
             reduction=True,  # sum
-            batch_average=True)  # sum / batch_size
+            batch_average=True,  # sum / batch_size
+            grad_norm_type=ctc_grad_norm_type)
 
     def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss

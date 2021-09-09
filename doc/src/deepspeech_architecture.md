@@ -151,7 +151,7 @@ fi
 After the training process, we use stage 3,4,5 for testing process. The stage 3 is for testing the model generated in the stage 2 and provided the CER index of the test set. The stage 4 is for transforming the model from dynamic graph to static graph by using "paddle.jit" library. The stage 5 is for testing the model in static graph.
 
  
-## No Streaming
+## Non-Streaming
 The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers and the fc layer is not used.
 
 The arcitecture of the model is shown in Fig.2.

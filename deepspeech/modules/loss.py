@@ -46,7 +46,6 @@ class CTCLoss(nn.Layer):
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
-        # (TODO:Hui Zhang) ctc loss does not support int64 labels
         ys_pad = ys_pad.astype(paddle.int32)
         loss = self.loss(
             logits, ys_pad, hlens, ys_lens, norm_by_times=self.batch_average)

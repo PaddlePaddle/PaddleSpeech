@@ -864,7 +864,8 @@ class U2Model(U2BaseModel):
             blank_id=0,
             dropout_rate=0.0,
             reduction=True,  # sum
-            batch_average=True)  # sum / batch_size
+            batch_average=True,  # sum / batch_size
+            grad_norm_type='instance')
 
         return vocab_size, encoder, decoder, ctc
 

@@ -8,7 +8,7 @@ To illustrate the model implementation clearly, 3 parts are described in detail.
 - Data Preparation
 - Encoder
 - Decoder
-
+In addition, the training process and the testing process are also introduced.
 
 The arcitecture of the model is shown in Fig.1. 
 
@@ -145,4 +145,4 @@ After the training process, we use stage 3,4,5 for testing process. The stage 3 
 
  
 ## No Streaming
-The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers.
+The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers. The arcitecture of the model is shown in Fig.2.

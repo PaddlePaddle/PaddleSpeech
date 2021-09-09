@@ -66,10 +66,19 @@ python3 ../../../utils/compute_mean_std.py \
 
 ### Encoder
 The Backbone is composed of two 2D convolution subsampling layers and a number of stacked single direction rnn layers. The 2D convolution subsampling layers extract feature represention from the raw audio feature and reduce the length of audio feature at the same time. After passing through the convolution subsampling layers, then the feature represention are input into the stacked rnn layers. For rnn layers, LSTM cell and GRU cell are provided. Adding one fully connected (fc) layer after rnn layer is optional, if the number of rnn layers is less than 5, adding one fc layer after rnn layers is recommand.
-
+The code of Encoder is in:
+```
+vi deepspeech/models/ds2_online/deepspeech2.py
+```
+ 
 ### Decoder
 To got the character possibilities of each frame, the feature represention of each frame output from the backbone are input into a projection layer which is implemented as a dense layer to do projection. The output dim of the projection layer is same with the vocabulary size. After projection layer, the softmax function is used to make frame-level feature representation be the possibilities of characters. While making model inference, the character possibilities of each frame are input into the CTC decoder to get the final speech recognition results.
-
+The code of Encoder is in:
+```
+vi deepspeech/models/ds2_online/deepspeech2.py
+vi deepspeech/modules/ctc.py
+```
+ 
 ## Training Process
 Using the command below, you can train the deepspeech2 online model.
 ```
@@ -143,25 +152,36 @@ After the training process, we use stage 3,4,5 for testing process. The stage 3 
 
  
 ## No Streaming
-The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers. The arcitecture of the model is shown in Fig.2.
+The deepspeech2 offline model is similarity to the deepspeech2 online model. The main difference between them is the offline model use the bi-directional rnn layers while the online model use the single direction rnn layers and the fc layer is not used.
+
+The arcitecture of the model is shown in Fig.2.
 <p align="center">
 <img src="../images/ds2offlineModel.png" width=800> 
 <br/>Fig.2 The Arcitecture of deepspeech2 offline model
 </p>
+
+
  
 For data preparation, decoder, the deepspeech2 offline model is same with the deepspeech2 online model.
+
+ The code of encoder and decoder for deepspeech2 offline model is in:
+```
+vi deepspeech/models/ds2/deepspeech2.py
+```
+ 
 The training process and testing process of deepspeech2 offline model is very similary to deepspeech2 online model.
 Only some changes should be noticed.
 
 For training and testing, the "model_type" and the "conf_path" must be set. 
  ```
- # Training offline
- cd examples/aishell/s0
- bash run.sh --stage 0 --stop_stage 2 --model_type offline --conf_path conf/deepspeech2.yaml
+# Training offline
+cd examples/aishell/s0
+bash run.sh --stage 0 --stop_stage 2 --model_type offline --conf_path conf/deepspeech2.yaml
 ```
+```
+# Testing offline
+cd examples/aishell/s0
+bash run.sh --stage 3 --stop_stage 5 --model_type offline --conf_path conf/deepspeech2.yaml
+```
+
  
- ```
- # Testing offline
- cd examples/aishell/s0
- bash run.sh --stage 3 --stop_stage 5 --model_type offline --conf_path conf/deepspeech2.yaml
-```

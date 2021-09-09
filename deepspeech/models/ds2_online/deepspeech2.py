@@ -289,7 +289,8 @@ class DeepSpeech2ModelOnline(nn.Layer):
             blank_id=blank_id,
             dropout_rate=0.0,
             reduction=True,  # sum
-            batch_average=True)  # sum / batch_size
+            batch_average=True,  # sum / batch_size
+            grad_norm_type='instance')
 
     def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss

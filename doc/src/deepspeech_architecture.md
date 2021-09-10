@@ -183,5 +183,3 @@ bash run.sh --stage 0 --stop_stage 2 --model_type offline --conf_path conf/deeps
 cd examples/aishell/s0
 bash run.sh --stage 3 --stop_stage 5 --model_type offline --conf_path conf/deepspeech2.yaml
 ```
-
-

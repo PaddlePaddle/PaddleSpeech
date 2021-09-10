@@ -413,26 +413,26 @@ class U2STBaseModel(nn.Layer):
         best_hyps = best_hyps[:, 1:]
         return best_hyps
 
-    @jit.to_static
+    # @jit.to_static
     def subsampling_rate(self) -> int:
         """ Export interface for c++ call, return subsampling_rate of the
             model
         """
         return self.encoder.embed.subsampling_rate
 
-    @jit.to_static
+    # @jit.to_static
     def right_context(self) -> int:
         """ Export interface for c++ call, return right_context of the model
         """
         return self.encoder.embed.right_context
 
-    @jit.to_static
+    # @jit.to_static
     def sos_symbol(self) -> int:
         """ Export interface for c++ call, return sos symbol id of the model
         """
         return self.sos
 
-    @jit.to_static
+    # @jit.to_static
     def eos_symbol(self) -> int:
         """ Export interface for c++ call, return eos symbol id of the model
         """
@@ -468,7 +468,7 @@ class U2STBaseModel(nn.Layer):
             xs, offset, required_cache_size, subsampling_cache,
             elayers_output_cache, conformer_cnn_cache)
 
-    @jit.to_static
+    # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
         """ Export interface for c++ call, apply linear transform and log
             softmax before ctc
@@ -643,14 +643,16 @@ class U2STModel(U2STBaseModel):
             decoder = TransformerDecoder(vocab_size,
                                          encoder.output_size(),
                                          **configs['decoder_conf'])
+            # ctc decoder and ctc loss
+            model_conf = configs['model_conf']
             ctc = CTCDecoder(
                 odim=vocab_size,
                 enc_n_units=encoder.output_size(),
                 blank_id=0,
-                dropout_rate=0.0,
+                dropout_rate=model_conf['ctc_dropout_rate'],
                 reduction=True,  # sum
                 batch_average=True,  # sum / batch_size
-                grad_norm_type='instance')
+                grad_norm_type=model_conf['ctc_grad_norm_type'])
 
             return vocab_size, encoder, (st_decoder, decoder, ctc)
         else:

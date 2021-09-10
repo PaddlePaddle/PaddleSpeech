@@ -20,7 +20,7 @@ echo "using ${device}..."
 mkdir -p exp
 
 seed=10086
-if [ ${seed} != 0]; then
+if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 

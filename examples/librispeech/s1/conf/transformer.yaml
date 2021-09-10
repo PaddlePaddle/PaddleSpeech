@@ -33,7 +33,7 @@ collator:
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 2
+  num_workers: 0
 
 
 # network architecture
@@ -67,6 +67,8 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
+        ctc_dropoutrate: 0.0
+        ctc_grad_norm_type: instance
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 

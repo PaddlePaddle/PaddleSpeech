@@ -867,7 +867,7 @@ class U2Model(U2BaseModel):
             odim=vocab_size,
             enc_n_units=encoder.output_size(),
             blank_id=0,
-            dropout_rate=model_conf['ctc_dropout_rate'],
+            dropout_rate=model_conf['ctc_dropoutrate'],
             reduction=True,  # sum
             batch_average=True,  # sum / batch_size
             grad_norm_type=model_conf['ctc_grad_norm_type'])

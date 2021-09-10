@@ -36,16 +36,16 @@ class CTCLoss(nn.Layer):
             f"CTCLoss Loss reduction: {reduction}, div-bs: {batch_average}")
 
         # instance for norm_by_times
-        # batchsize for norm_by_batchsize
+        # batch for norm_by_batchsize
         # frame for norm_by_total_logits_len
-        assert grad_norm_type in ('instance', 'batchsize', 'frame', None)
+        assert grad_norm_type in ('instance', 'batch', 'frame', None)
         self.norm_by_times = False
         self.norm_by_batchsize = False
         self.norm_by_total_logits_len = False
         logger.info(f"CTCLoss Grad Norm Type: {grad_norm_type}")
         if grad_norm_type == 'instance':
             self.norm_by_times = True
-        if grad_norm_type == 'batchsize':
+        if grad_norm_type == 'batch':
             self.norm_by_times = True
         if grad_norm_type == 'frame':
             self.norm_by_total_logits_len = True

@@ -115,7 +115,8 @@ class U2BaseModel(nn.Layer):
                  ctc_weight: float=0.5,
                  ignore_id: int=IGNORE_ID,
                  lsm_weight: float=0.0,
-                 length_normalized_loss: bool=False):
+                 length_normalized_loss: bool=False,
+                 **kwargs):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
         super().__init__()

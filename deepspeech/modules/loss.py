@@ -46,7 +46,7 @@ class CTCLoss(nn.Layer):
         if grad_norm_type == 'instance':
             self.norm_by_times = True
         if grad_norm_type == 'batch':
-            self.norm_by_times = True
+            self.norm_by_batchsize = True
         if grad_norm_type == 'frame':
             self.norm_by_total_logits_len = True
 

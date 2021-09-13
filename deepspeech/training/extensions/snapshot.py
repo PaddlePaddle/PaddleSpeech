@@ -20,8 +20,9 @@ from typing import List
 
 import jsonlines
 
-from deepspeech.training.extensions import extension
-from deepspeech.training.updaters.trainer import Trainer
+from . import extension
+from ..reporter import get_observations
+from ..updaters.trainer import Trainer
 from deepspeech.utils.log import Log
 from deepspeech.utils.mp_tools import rank_zero_only
 
@@ -52,8 +53,19 @@ class Snapshot(extension.Extension):
     priority = -100
     default_name = "snapshot"
 
-    def __init__(self, max_size: int=5, snapshot_on_error: bool=False):
+    def __init__(self,
+                 mode='latest',
+                 max_size: int=5,
+                 indicator=None,
+                 less_better=True,
+                 snapshot_on_error: bool=False):
         self.records: List[Dict[str, Any]] = []
+        assert mode in ('latest', 'kbest'), mode
+        if mode == 'kbest':
+            assert indicator is not None
+        self.mode = mode
+        self.indicator = indicator
+        self.less_is_better = less_better
         self.max_size = max_size
         self._snapshot_on_error = snapshot_on_error
         self._save_all = (max_size == -1)
@@ -66,16 +78,17 @@ class Snapshot(extension.Extension):
         # load existing records
         record_path: Path = self.checkpoint_dir / "records.jsonl"
         if record_path.exists():
-            logger.debug("Loading from an existing checkpoint dir")
             self.records = load_records(record_path)
-            trainer.updater.load(self.records[-1]['path'])
+            ckpt_path = self.records[-1]['path']
+            logger.info(f"Loading from an existing checkpoint {ckpt_path}")
+            trainer.updater.load(ckpt_path)
 
     def on_error(self, trainer, exc, tb):
         if self._snapshot_on_error:
-            self.save_checkpoint_and_update(trainer)
+            self.save_checkpoint_and_update(trainer, 'latest')
 
     def __call__(self, trainer: Trainer):
-        self.save_checkpoint_and_update(trainer)
+        self.save_checkpoint_and_update(trainer, self.mode)
 
     def full(self):
         """Whether the number of snapshots it keeps track of is greater
@@ -83,7 +96,7 @@ class Snapshot(extension.Extension):
         return (not self._save_all) and len(self.records) > self.max_size
 
     @rank_zero_only
-    def save_checkpoint_and_update(self, trainer: Trainer):
+    def save_checkpoint_and_update(self, trainer: Trainer, mode: str):
         """Saving new snapshot and remove the oldest snapshot if needed."""
         iteration = trainer.updater.state.iteration
         epoch = trainer.updater.state.epoch
@@ -97,11 +110,17 @@ class Snapshot(extension.Extension):
             'path': str(path.resolve()),  # use absolute path
             'iteration': iteration,
             'epoch': epoch,
+            'indicator': get_observations()[self.indicator]
         }
         self.records.append(record)
 
         # remove the earist
         if self.full():
+            if mode == 'kbest':
+                self.records = sorted(
+                    self.records,
+                    key=lambda record: record['indicator'],
+                    reverse=not self.less_is_better)
             eariest_record = self.records[0]
             os.remove(eariest_record["path"])
             self.records.pop(0)

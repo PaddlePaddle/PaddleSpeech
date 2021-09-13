@@ -171,7 +171,7 @@ class Trainer():
             self.iteration = 0
             self.epoch = 0
             scratch = True
-
+        logger.info("Restore/Init checkpoint!")
         return scratch
 
     def new_epoch(self):

@@ -14,12 +14,12 @@
 from typing import Dict
 from typing import Optional
 
-from paddle import Tensor
+import paddle
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
-from timer import timer
+from paddle.optimizer.lr import LRScheduler
 
 from deepspeech.training.reporter import report
 from deepspeech.training.updaters.updater import UpdaterBase
@@ -39,8 +39,10 @@ class StandardUpdater(UpdaterBase):
     def __init__(self,
                  model: Layer,
                  optimizer: Optimizer,
+                 scheduler: LRScheduler,
                  dataloader: DataLoader,
                  init_state: Optional[UpdaterState]=None):
+        super().__init__(init_state)
         # it is designed to hold multiple models
         models = {"main": model}
         self.models: Dict[str, Layer] = models
@@ -51,14 +53,13 @@ class StandardUpdater(UpdaterBase):
         self.optimizer = optimizer
         self.optimizers: Dict[str, Optimizer] = optimizers
 
+        # it is designed to hold multiple scheduler
+        schedulers = {"main": scheduler}
+        self.scheduler = scheduler
+        self.schedulers: Dict[str, LRScheduler] = schedulers
+
         # dataloaders
         self.dataloader = dataloader
-
-        # init state
-        if init_state is None:
-            self.state = UpdaterState()
-        else:
-            self.state = init_state
 
         self.train_iterator = iter(dataloader)
 
@@ -103,8 +104,10 @@ class StandardUpdater(UpdaterBase):
             model.train()
 
         # training for a step is implemented here
-        batch = self.read_batch()
-        self.update_core(batch)
+        with Timier("data time cost:{}"):
+            batch = self.read_batch()
+        with Timier("step time cost:{}"):
+            self.update_core(batch)
 
         self.state.iteration += 1
         if self.updates_per_epoch is not None:
@@ -115,13 +118,14 @@ class StandardUpdater(UpdaterBase):
         """A simple case for a training step. Basic assumptions are:
         Single model;
         Single optimizer;
+        Single scheduler, and update learning rate each step;
         A batch from the dataloader is just the input of the model;
         The model return a single loss, or a dict containing serval losses.
         Parameters updates at every batch, no gradient accumulation.
         """
         loss = self.model(*batch)
 
-        if isinstance(loss, Tensor):
+        if isinstance(loss, paddle.Tensor):
             loss_dict = {"main": loss}
         else:
             # Dict[str, Tensor]
@@ -135,14 +139,15 @@ class StandardUpdater(UpdaterBase):
         for name, loss_item in loss_dict.items():
             report(name, float(loss_item))
 
-        self.optimizer.clear_gradient()
+        self.optimizer.clear_grad()
         loss_dict["main"].backward()
-        self.optimizer.update()
+        self.optimizer.step()
+        self.scheduler.step()
 
     @property
     def updates_per_epoch(self):
-        """Number of updater per epoch, determined by the length of the
-        dataloader."""
+        """Number of steps per epoch, 
+        determined by the length of the dataloader."""
         length_of_dataloader = None
         try:
             length_of_dataloader = len(self.dataloader)
@@ -163,18 +168,16 @@ class StandardUpdater(UpdaterBase):
 
     def read_batch(self):
         """Read a batch from the data loader, auto renew when data is exhausted."""
-        with timer() as t:
-            try:
-                batch = next(self.train_iterator)
-            except StopIteration:
-                self.new_epoch()
-                batch = next(self.train_iterator)
-            logger.debug(
-                f"Read a batch takes {t.elapse}s.")  # replace it with logger
+        try:
+            batch = next(self.train_iterator)
+        except StopIteration:
+            self.new_epoch()
+            batch = next(self.train_iterator)
         return batch
 
     def state_dict(self):
-        """State dict of a Updater, model, optimizer and updater state are included."""
+        """State dict of a Updater, model, optimizers/schedulers 
+        and updater state are included."""
         state_dict = super().state_dict()
         for name, model in self.models.items():
             state_dict[f"{name}_params"] = model.state_dict()
@@ -184,7 +187,7 @@ class StandardUpdater(UpdaterBase):
 
     def set_state_dict(self, state_dict):
         """Set state dict for a Updater. Parameters of models, states for
-        optimizers and UpdaterState are restored."""
+        optimizers/schedulers and UpdaterState are restored."""
         for name, model in self.models.items():
             model.set_state_dict(state_dict[f"{name}_params"])
         for name, optim in self.optimizers.items():

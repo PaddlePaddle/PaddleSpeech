@@ -140,8 +140,8 @@ class Trainer():
         try:
             while not stop_trigger(self):
                 self.observation = {}
-                # set observation as the report target
-                # you can use report freely in Updater.update()
+                # set observation as the `report` target
+                # you can use `report` freely in Updater.update()
 
                 # updating parameters and state
                 with scope(self.observation):

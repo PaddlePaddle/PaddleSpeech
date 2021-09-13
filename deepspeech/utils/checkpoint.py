@@ -114,13 +114,13 @@ class Checkpoint():
         params_path = checkpoint_path + ".pdparams"
         model_dict = paddle.load(params_path)
         model.set_state_dict(model_dict)
-        logger.info("Rank {}: loaded model from {}".format(rank, params_path))
+        logger.info("Rank {}: Restore model from {}".format(rank, params_path))
 
         optimizer_path = checkpoint_path + ".pdopt"
         if optimizer and os.path.isfile(optimizer_path):
             optimizer_dict = paddle.load(optimizer_path)
             optimizer.set_state_dict(optimizer_dict)
-            logger.info("Rank {}: loaded optimizer state from {}".format(
+            logger.info("Rank {}: Restore optimizer state from {}".format(
                 rank, optimizer_path))
 
         info_path = re.sub('.pdparams$', '.json', params_path)

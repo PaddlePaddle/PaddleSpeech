@@ -63,7 +63,7 @@ class ProfilerOptions(object):
     def _parse_from_string(self, options_str):
         if not options_str:
             return
-            
+
         for kv in options_str.replace(' ', '').split(';'):
             key, value = kv.split('=')
             if key == 'batch_range':

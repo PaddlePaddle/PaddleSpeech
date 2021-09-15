@@ -17,17 +17,18 @@
 
 std::string ctc_greedy_decoder(
     const std::vector<std::vector<double>> &probs_seq,
-    const std::vector<std::string> &vocabulary) {
+    const std::vector<std::string> &vocabulary,
+    size_t blank_id) {
     // dimension check
     size_t num_time_steps = probs_seq.size();
     for (size_t i = 0; i < num_time_steps; ++i) {
         VALID_CHECK_EQ(probs_seq[i].size(),
-                       vocabulary.size() + 1,
+                       vocabulary.size(),
                        "The shape of probs_seq does not match with "
                        "the shape of the vocabulary");
     }
 
-    size_t blank_id = vocabulary.size();
+    // size_t blank_id = vocabulary.size();
 
     std::vector<size_t> max_idx_vec(num_time_steps, 0);
     std::vector<size_t> idx_vec;

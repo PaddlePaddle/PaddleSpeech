@@ -4,14 +4,14 @@ data:
   dev_manifest: data/manifest.dev-clean
   test_manifest: data/manifest.test-clean
   min_input_len: 0.0
-  max_input_len: 27.0 # second
+  max_input_len: 30.0 # second
   min_output_len: 0.0
   max_output_len: .inf
   min_output_input_ratio: 0.00
   max_output_input_ratio: .inf
 
 collator:
-  batch_size: 20
+  batch_size: 15
   mean_std_filepath: data/mean_std.json
   unit_type: char
   vocab_filepath: data/vocab.txt 
@@ -40,9 +40,12 @@ model:
   rnn_layer_size: 2048
   use_gru: False 
   share_rnn_weights: True
+  blank_id: 0
+  ctc_grad_norm_type: instance
 
 training:
   n_epoch: 50
+  accum_grad: 4
   lr: 1e-3
   lr_decay: 0.83
   weight_decay: 1e-06

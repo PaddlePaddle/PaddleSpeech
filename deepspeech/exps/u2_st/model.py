@@ -17,6 +17,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
@@ -37,6 +38,7 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2_st import U2STModel
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.scheduler import WarmupLR
+from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import bleu_score
 from deepspeech.utils import ctc_utils
@@ -83,6 +85,7 @@ class U2STTrainer(Trainer):
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
         start = time.time()
+        # forward
         utt, audio, audio_len, text, text_len = batch_data
         if isinstance(text, list) and isinstance(text_len, list):
             # joint training with ASR. Two decoding texts [translation, transcription]
@@ -94,18 +97,30 @@ class U2STTrainer(Trainer):
         else:
             loss, st_loss, attention_loss, ctc_loss = self.model(
                 audio, audio_len, text, text_len)
+
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
-        loss.backward()
-        layer_tools.print_grads(self.model, print_func=None)
-
         losses_np = {'loss': float(loss) * train_conf.accum_grad}
-        losses_np['st_loss'] = float(st_loss)
         if attention_loss:
             losses_np['att_loss'] = float(attention_loss)
         if ctc_loss:
             losses_np['ctc_loss'] = float(ctc_loss)
 
+        # loss backward
+        if (batch_index + 1) % train_conf.accum_grad != 0:
+            # Disable gradient synchronizations across DDP processes.
+            # Within this context, gradients will be accumulated on module
+            # variables, which will later be synchronized.
+            context = self.model.no_sync
+        else:
+            # Used for single gpu training and DDP gradient synchronization
+            # processes.
+            context = nullcontext
+        with context():
+            loss.backward()
+            layer_tools.print_grads(self.model, print_func=None)
+
+        # optimizer step
         if (batch_index + 1) % train_conf.accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()
@@ -193,35 +208,37 @@ class U2STTrainer(Trainer):
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
-            self.model.train()
-            try:
-                data_start_time = time.time()
-                for batch_index, batch in enumerate(self.train_loader):
-                    dataload_time = time.time() - data_start_time
-                    msg = "Train: Rank: {}, ".format(dist.get_rank())
-                    msg += "epoch: {}, ".format(self.epoch)
-                    msg += "step: {}, ".format(self.iteration)
-                    msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                    len(self.train_loader))
-                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "data time: {:>.3f}s, ".format(dataload_time)
-                    self.train_batch(batch_index, batch, msg)
+            with Timer("Epoch-Train Time Cost: {}"):
+                self.model.train()
+                try:
                     data_start_time = time.time()
-            except Exception as e:
-                logger.error(e)
-                raise e
+                    for batch_index, batch in enumerate(self.train_loader):
+                        dataload_time = time.time() - data_start_time
+                        msg = "Train: Rank: {}, ".format(dist.get_rank())
+                        msg += "epoch: {}, ".format(self.epoch)
+                        msg += "step: {}, ".format(self.iteration)
+                        msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                        len(self.train_loader))
+                        msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
+                        msg += "data time: {:>.3f}s, ".format(dataload_time)
+                        self.train_batch(batch_index, batch, msg)
+                        data_start_time = time.time()
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            total_loss, num_seen_utts = self.valid()
-            if dist.get_world_size() > 1:
-                num_seen_utts = paddle.to_tensor(num_seen_utts)
-                # the default operator in all_reduce function is sum.
-                dist.all_reduce(num_seen_utts)
-                total_loss = paddle.to_tensor(total_loss)
-                dist.all_reduce(total_loss)
-                cv_loss = total_loss / num_seen_utts
-                cv_loss = float(cv_loss)
-            else:
-                cv_loss = total_loss / num_seen_utts
+            with Timer("Eval Time Cost: {}"):
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = total_loss / num_seen_utts
 
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))

@@ -4,7 +4,7 @@ data:
   dev_manifest: data/manifest.tiny
   test_manifest: data/manifest.tiny 
   min_input_len: 0.0
-  max_input_len: 27.0
+  max_input_len: 30.0
   min_output_len: 0.0
   max_output_len: 400.0
   min_output_input_ratio: 0.05
@@ -41,9 +41,12 @@ model:
   rnn_layer_size: 2048
   use_gru: False 
   share_rnn_weights: True 
+  blank_id: 0
+  ctc_grad_norm_type: instance
 
 training:
   n_epoch: 10
+  accum_grad: 1
   lr: 1e-5 
   lr_decay: 1.0 
   weight_decay: 1e-06

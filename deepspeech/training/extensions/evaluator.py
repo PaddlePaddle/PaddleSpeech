@@ -13,14 +13,18 @@
 # limitations under the License.
 from typing import Dict
 
-import extension
 import paddle
+from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn import Layer
 
+from . import extension
 from ..reporter import DictSummary
 from ..reporter import report
 from ..reporter import scope
+from ..timer import Timer
+from deepspeech.utils.log import Log
+logger = Log(__name__).getlog()
 
 
 class StandardEvaluator(extension.Extension):
@@ -43,6 +47,27 @@ class StandardEvaluator(extension.Extension):
     def evaluate_core(self, batch):
         # compute
         self.model(batch)  # you may report here
+        return
+
+    def evaluate_sync(self, data):
+        # dist sync `evaluate_core` outputs
+        if data is None:
+            return
+
+        numerator, denominator = data
+        if dist.get_world_size() > 1:
+            numerator = paddle.to_tensor(numerator)
+            denominator = paddle.to_tensor(denominator)
+            # the default operator in all_reduce function is sum.
+            dist.all_reduce(numerator)
+            dist.all_reduce(denominator)
+            value = numerator / denominator
+            value = float(value)
+        else:
+            value = numerator / denominator
+        # used for `snapshort` to do kbest save.
+        report("VALID/LOSS", value)
+        logger.info(f"Valid: all-reduce loss {value}")
 
     def evaluate(self):
         # switch to eval mode
@@ -56,9 +81,13 @@ class StandardEvaluator(extension.Extension):
             with scope(observation):
                 # main evaluation computation here.
                 with paddle.no_grad():
-                    self.evaluate_core(batch)
+                    self.evaluate_sync(self.evaluate_core(batch))
             summary.add(observation)
         summary = summary.compute_mean()
+
+        # switch to train mode
+        for model in self.models.values():
+            model.train()
         return summary
 
     def __call__(self, trainer=None):
@@ -66,6 +95,7 @@ class StandardEvaluator(extension.Extension):
         # if it is used to extend a trainer, the metrics is reported to
         # to observation of the trainer
         # or otherwise, you can use your own observation
-        summary = self.evaluate()
+        with Timer("Eval Time Cost: {}"):
+            summary = self.evaluate()
         for k, v in summary.items():
             report(k, v)

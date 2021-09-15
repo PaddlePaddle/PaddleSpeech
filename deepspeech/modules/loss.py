@@ -23,11 +23,32 @@ __all__ = ['CTCLoss', "LabelSmoothingLoss"]
 
 
 class CTCLoss(nn.Layer):
-    def __init__(self, blank=0, reduction='sum', batch_average=False):
+    def __init__(self,
+                 blank=0,
+                 reduction='sum',
+                 batch_average=False,
+                 grad_norm_type=None):
         super().__init__()
         # last token id as blank id
         self.loss = nn.CTCLoss(blank=blank, reduction=reduction)
         self.batch_average = batch_average
+        logger.info(
+            f"CTCLoss Loss reduction: {reduction}, div-bs: {batch_average}")
+
+        # instance for norm_by_times
+        # batch for norm_by_batchsize
+        # frame for norm_by_total_logits_len
+        assert grad_norm_type in ('instance', 'batch', 'frame', None)
+        self.norm_by_times = False
+        self.norm_by_batchsize = False
+        self.norm_by_total_logits_len = False
+        logger.info(f"CTCLoss Grad Norm Type: {grad_norm_type}")
+        if grad_norm_type == 'instance':
+            self.norm_by_times = True
+        if grad_norm_type == 'batch':
+            self.norm_by_batchsize = True
+        if grad_norm_type == 'frame':
+            self.norm_by_total_logits_len = True
 
     def forward(self, logits, ys_pad, hlens, ys_lens):
         """Compute CTC loss.
@@ -46,10 +67,15 @@ class CTCLoss(nn.Layer):
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
-        # (TODO:Hui Zhang) ctc loss does not support int64 labels
         ys_pad = ys_pad.astype(paddle.int32)
         loss = self.loss(
-            logits, ys_pad, hlens, ys_lens, norm_by_times=self.batch_average)
+            logits,
+            ys_pad,
+            hlens,
+            ys_lens,
+            norm_by_times=self.norm_by_times,
+            norm_by_batchsize=self.norm_by_batchsize,
+            norm_by_total_logits_len=self.norm_by_total_logits_len)
         if self.batch_average:
             # Batch-size average
             loss = loss / B

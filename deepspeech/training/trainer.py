@@ -18,6 +18,7 @@ import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
+from deepspeech.training.timer import Timer
 from deepspeech.utils import mp_tools
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
@@ -170,7 +171,7 @@ class Trainer():
             self.iteration = 0
             self.epoch = 0
             scratch = True
-
+        logger.info("Restore/Init checkpoint!")
         return scratch
 
     def new_epoch(self):
@@ -194,35 +195,37 @@ class Trainer():
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
-            self.model.train()
-            try:
-                data_start_time = time.time()
-                for batch_index, batch in enumerate(self.train_loader):
-                    dataload_time = time.time() - data_start_time
-                    msg = "Train: Rank: {}, ".format(dist.get_rank())
-                    msg += "epoch: {}, ".format(self.epoch)
-                    msg += "step: {}, ".format(self.iteration)
-                    msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                    len(self.train_loader))
-                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "data time: {:>.3f}s, ".format(dataload_time)
-                    self.train_batch(batch_index, batch, msg)
+            with Timer("Epoch-Train Time Cost: {}"):
+                self.model.train()
+                try:
                     data_start_time = time.time()
-            except Exception as e:
-                logger.error(e)
-                raise e
+                    for batch_index, batch in enumerate(self.train_loader):
+                        dataload_time = time.time() - data_start_time
+                        msg = "Train: Rank: {}, ".format(dist.get_rank())
+                        msg += "epoch: {}, ".format(self.epoch)
+                        msg += "step: {}, ".format(self.iteration)
+                        msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                        len(self.train_loader))
+                        msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
+                        msg += "data time: {:>.3f}s, ".format(dataload_time)
+                        self.train_batch(batch_index, batch, msg)
+                        data_start_time = time.time()
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            total_loss, num_seen_utts = self.valid()
-            if dist.get_world_size() > 1:
-                num_seen_utts = paddle.to_tensor(num_seen_utts)
-                # the default operator in all_reduce function is sum.
-                dist.all_reduce(num_seen_utts)
-                total_loss = paddle.to_tensor(total_loss)
-                dist.all_reduce(total_loss)
-                cv_loss = total_loss / num_seen_utts
-                cv_loss = float(cv_loss)
-            else:
-                cv_loss = total_loss / num_seen_utts
+            with Timer("Eval Time Cost: {}"):
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = total_loss / num_seen_utts
 
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
@@ -240,14 +243,14 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        try:
-            self.train()
-        except KeyboardInterrupt:
-            self.save()
-            exit(-1)
-        finally:
-            self.destory()
-        logger.info("Training Done.")
+        with Timer("Training Done: {}"):
+            try:
+                self.train()
+            except KeyboardInterrupt:
+                self.save()
+                exit(-1)
+            finally:
+                self.destory()
 
     def setup_output_dir(self):
         """Create a directory used for output.

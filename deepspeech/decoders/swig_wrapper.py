@@ -32,7 +32,7 @@ class Scorer(swig_decoders.Scorer):
         swig_decoders.Scorer.__init__(self, alpha, beta, model_path, vocabulary)
 
 
-def ctc_greedy_decoder(probs_seq, vocabulary):
+def ctc_greedy_decoder(probs_seq, vocabulary, blank_id):
     """Wrapper for ctc best path decoder in swig.
 
     :param probs_seq: 2-D list of probability distributions over each time
@@ -44,7 +44,8 @@ def ctc_greedy_decoder(probs_seq, vocabulary):
     :return: Decoding result string.
     :rtype: str
     """
-    result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary)
+    result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary,
+                                              blank_id)
     return result
 
 
@@ -53,7 +54,8 @@ def ctc_beam_search_decoder(probs_seq,
                             beam_size,
                             cutoff_prob=1.0,
                             cutoff_top_n=40,
-                            ext_scoring_func=None):
+                            ext_scoring_func=None,
+                            blank_id=0):
     """Wrapper for the CTC Beam Search Decoder.
 
     :param probs_seq: 2-D list of probability distributions over each time
@@ -81,7 +83,7 @@ def ctc_beam_search_decoder(probs_seq,
     """
     beam_results = swig_decoders.ctc_beam_search_decoder(
         probs_seq.tolist(), vocabulary, beam_size, cutoff_prob, cutoff_top_n,
-        ext_scoring_func)
+        ext_scoring_func, blank_id)
     beam_results = [(res[0], res[1].decode('utf-8')) for res in beam_results]
     return beam_results
 
@@ -92,7 +94,8 @@ def ctc_beam_search_decoder_batch(probs_split,
                                   num_processes,
                                   cutoff_prob=1.0,
                                   cutoff_top_n=40,
-                                  ext_scoring_func=None):
+                                  ext_scoring_func=None,
+                                  blank_id=0):
     """Wrapper for the batched CTC beam search decoder.
 
     :param probs_seq: 3-D list with each element as an instance of 2-D list
@@ -125,7 +128,7 @@ def ctc_beam_search_decoder_batch(probs_split,
 
     batch_beam_results = swig_decoders.ctc_beam_search_decoder_batch(
         probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
-        cutoff_top_n, ext_scoring_func)
+        cutoff_top_n, ext_scoring_func, blank_id)
     batch_beam_results = [[(res[0], res[1]) for res in beam_results]
                           for beam_results in batch_beam_results]
     return batch_beam_results

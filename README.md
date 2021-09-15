@@ -43,7 +43,7 @@ You are welcome to submit questions in [Github Discussions](https://github.com/P
 
 ## License
 
-DeepASR is provided under the [Apache-2.0 License](./LICENSE).
+DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 

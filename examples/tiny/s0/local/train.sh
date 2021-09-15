@@ -38,7 +38,7 @@ python3 -u ${BIN_DIR}/train.py \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --model_type ${model_type} \
---profiler_options ${profiler_options} \
+--profiler_options "${profiler_options}" \
 --seed ${seed}
 
 if [ ${seed} != 0  ]; then

@@ -6,13 +6,14 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 - Python >= 3.7
 - PaddlePaddle 2.0.0 or later (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
-## Setup
+## Setup (Important)
 
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost`, `sox, and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
 sudo apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
 ```
+The version of `swig` should >= 3.0
 
 or, installing them via `yum`:
 

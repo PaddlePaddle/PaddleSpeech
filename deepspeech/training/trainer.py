@@ -20,6 +20,7 @@ from tensorboardX import SummaryWriter
 
 from deepspeech.training.timer import Timer
 from deepspeech.utils import mp_tools
+from deepspeech.utils import profiler
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import seed_all
@@ -183,6 +184,9 @@ class Trainer():
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
                 batch_sampler.set_epoch(self.epoch)
 
+    def after_train_batch(self):
+        profiler.add_profiler_step(self.args.profiler_options)
+
     def train(self):
         """The training process control by epoch."""
         from_scratch = self.resume_or_scratch()
@@ -209,6 +213,7 @@ class Trainer():
                         msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                         msg += "data time: {:>.3f}s, ".format(dataload_time)
                         self.train_batch(batch_index, batch, msg)
+                        self.after_train_batch()
                         data_start_time = time.time()
                 except Exception as e:
                     logger.error(e)

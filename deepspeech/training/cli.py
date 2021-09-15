@@ -63,8 +63,13 @@ def default_argument_parser():
     parser.add_argument("--opts", type=str, default=[], nargs='+',
                         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
 
+    # random seed
     parser.add_argument("--seed", type=int, default=None,
                         help="seed to use for paddle, np and random. None or 0 for random, else set seed.")
+
+    # profiler
+    parser.add_argument('--profiler_options', type=str, default=None,
+        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".')
     # yapd: enable
 
     return parser

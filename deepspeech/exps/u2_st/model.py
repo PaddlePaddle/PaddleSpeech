@@ -222,6 +222,7 @@ class U2STTrainer(Trainer):
                         msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                         msg += "data time: {:>.3f}s, ".format(dataload_time)
                         self.train_batch(batch_index, batch, msg)
+                        self.after_train_batch()
                         data_start_time = time.time()
                 except Exception as e:
                     logger.error(e)

@@ -66,6 +66,7 @@ python3 ../../../utils/compute_mean_std.py \
 
 ### Encoder
 The Backbone is composed of two 2D convolution subsampling layers and a number of stacked single direction rnn layers. The 2D convolution subsampling layers extract feature represention from the raw audio feature and reduce the length of audio feature at the same time. After passing through the convolution subsampling layers, then the feature represention are input into the stacked rnn layers. For the stacked rnn layers, LSTM cell and GRU cell are provided to use. Adding one fully connected (fc) layer after the stacked rnn layers is optional. If the number of stacked rnn layers is less than 5, adding one fc layer after stacked rnn layers is recommand.
+
 The code of Encoder is in:
 ```
 vi deepspeech/models/ds2_online/deepspeech2.py
@@ -73,7 +74,8 @@ vi deepspeech/models/ds2_online/deepspeech2.py
 
 ### Decoder
 To got the character possibilities of each frame, the feature represention of each frame output from the encoder are input into a projection layer which is implemented as a dense layer to do feature projection. The output dim of the projection layer is same with the vocabulary size. After projection layer, the softmax function is used to transform the frame-level feature representation be the possibilities of characters. While making model inference, the character possibilities of each frame are input into the CTC decoder to get the final speech recognition results.
-The code of Decoder is in:
+
+The code of the decoder is in:
 ```
 # The code of constructing the decoder in model
 vi deepspeech/models/ds2_online/deepspeech2.py

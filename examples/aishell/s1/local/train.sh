@@ -1,7 +1,8 @@
 #!/bin/bash
 
-
 profiler_options=
+benchmark_batch_size=
+benchmark_max_step=
 
 # seed may break model convergence
 seed=0
@@ -32,12 +33,15 @@ ckpt_name=$2
 mkdir -p exp
 
 python3 -u ${BIN_DIR}/train.py \
+--seed ${seed} \
 --device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---profiler_options ${profiler_options} \
---seed ${seed}
+--profiler-options "${profiler-options}" \
+--benchmark-batch-size ${benchmark_batch_size} \
+--benchmark-max-step ${benchmark_max_step}
+
 
 if [ ${seed} != 0  ]; then
     unset FLAGS_cudnn_deterministic

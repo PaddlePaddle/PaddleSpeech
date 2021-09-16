@@ -100,7 +100,8 @@ class U2Trainer(Trainer):
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
-            context = self.model.no_sync
+            # When using cpu w/o DDP, model does not have `no_sync`
+            context = self.model.no_sync if self.parallel else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.

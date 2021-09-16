@@ -185,7 +185,8 @@ class Trainer():
                 batch_sampler.set_epoch(self.epoch)
 
     def after_train_batch(self):
-        profiler.add_profiler_step(self.args.profiler_options)
+        if self.args.profiler_options:
+            profiler.add_profiler_step(self.args.profiler_options)
 
     def train(self):
         """The training process control by epoch."""
@@ -193,7 +194,9 @@ class Trainer():
         if from_scratch:
             # save init model, i.e. 0 epoch
             self.save(tag='init', infos=None)
-        self.lr_scheduler.step(self.epoch)
+
+        # lr will resotre from optimizer ckpt
+        # self.lr_scheduler.step(self.epoch)
         if self.parallel and hasattr(self.train_loader, "batch_sampler"):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 

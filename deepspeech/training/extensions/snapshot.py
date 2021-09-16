@@ -101,7 +101,7 @@ class Snapshot(extension.Extension):
         iteration = trainer.updater.state.iteration
         epoch = trainer.updater.state.epoch
         num = epoch if self.trigger[1] == 'epoch' else iteration
-        path = self.checkpoint_dir / f"{num}.pdz"
+        path = self.checkpoint_dir / f"{num}.np"
 
         # add the new one
         trainer.updater.save(path)

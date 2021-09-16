@@ -48,6 +48,7 @@ from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.utility import log_add
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["U2Model", "U2InferModel"]
 
@@ -903,10 +904,10 @@ class U2Model(U2BaseModel):
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """
-        config.defrost()
-        config.input_dim = dataloader.collate_fn.feature_size
-        config.output_dim = dataloader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.input_dim = dataloader.collate_fn.feature_size
+            config.output_dim = dataloader.collate_fn.vocab_size
+
         model = cls.from_config(config)
 
         if checkpoint_path:

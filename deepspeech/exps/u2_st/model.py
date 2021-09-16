@@ -47,6 +47,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -345,10 +346,10 @@ class U2STTrainer(Trainer):
     def setup_model(self):
         config = self.config
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.collate_fn.feature_size
-        model_conf.output_dim = self.train_loader.collate_fn.vocab_size
-        model_conf.freeze()
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.collate_fn.feature_size
+            model_conf.output_dim = self.train_loader.collate_fn.vocab_size
+
         model = U2STModel.from_config(model_conf)
 
         if self.parallel:

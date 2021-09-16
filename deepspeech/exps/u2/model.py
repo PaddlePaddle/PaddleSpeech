@@ -182,9 +182,10 @@ class U2Trainer(Trainer):
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # save init model, i.e. 0 epoch
-            self.save(tag='init')
+            self.save(tag='init', infos=None)
 
-        self.lr_scheduler.step(self.iteration)
+        # lr will resotre from optimizer ckpt
+        # self.lr_scheduler.step(self.iteration)
         if self.parallel and hasattr(self.train_loader, 'batch_sampler'):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 

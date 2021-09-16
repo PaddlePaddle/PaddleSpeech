@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 import time
 from pathlib import Path
 
@@ -24,6 +25,7 @@ from deepspeech.utils import profiler
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import seed_all
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["Trainer"]
 
@@ -100,6 +102,12 @@ class Trainer():
         if args.seed:
             seed_all(args.seed)
             logger.info(f"Set seed {args.seed}")
+
+        if self.args.benchmark_batch_size:
+            with UpdateConfig(self.config):
+                self.config.collator.batch_size = self.args.benchmark_batch_size
+            logger.info(
+                f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 
     def setup(self):
         """Setup the experiment.
@@ -187,6 +195,12 @@ class Trainer():
     def after_train_batch(self):
         if self.args.profiler_options:
             profiler.add_profiler_step(self.args.profiler_options)
+
+        if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
+            logger.info(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+            sys.exit(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
 
     def train(self):
         """The training process control by epoch."""

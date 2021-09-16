@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -xe
+
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}
 # 参数说明
 function _set_params(){
@@ -17,6 +18,7 @@ function _set_params(){
     num_gpu_devices=${#arr[*]}
     log_file=${run_log_path}/${model_name}_${run_mode}_bs${batch_size}_${fp_item}_${num_gpu_devices}
 }
+
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"

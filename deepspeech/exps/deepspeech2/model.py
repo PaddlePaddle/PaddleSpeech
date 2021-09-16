@@ -41,6 +41,7 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Autolog
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -147,10 +148,9 @@ class DeepSpeech2Trainer(Trainer):
 
     def setup_model(self):
         config = self.config.clone()
-        config.defrost()
-        config.model.feat_size = self.train_loader.collate_fn.feature_size
-        config.model.dict_size = self.train_loader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.model.feat_size = self.train_loader.collate_fn.feature_size
+            config.model.dict_size = self.train_loader.collate_fn.vocab_size
 
         if self.args.model_type == 'offline':
             model = DeepSpeech2Model.from_config(config.model)

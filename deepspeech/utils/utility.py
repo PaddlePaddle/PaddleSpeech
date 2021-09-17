@@ -16,15 +16,27 @@ import distutils.util
 import math
 import os
 import random
+from contextlib import contextmanager
 from typing import List
 
 import numpy as np
 import paddle
 
-__all__ = ["seed_all", 'print_arguments', 'add_arguments', "log_add"]
+__all__ = [
+    "UpdateConfig", "seed_all", 'print_arguments', 'add_arguments', "log_add"
+]
+
+
+@contextmanager
+def UpdateConfig(config):
+    """Update yacs config"""
+    config.defrost()
+    yield
+    config.freeze()
 
 
 def seed_all(seed: int=210329):
+    """freeze random generator seed."""
     np.random.seed(seed)
     random.seed(seed)
     paddle.seed(seed)

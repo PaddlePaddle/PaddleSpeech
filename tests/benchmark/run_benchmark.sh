@@ -23,19 +23,19 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
 
-    train_cmd="--model_name=${model_name}
-               --batch_size=${batch_size}
-               --fp=${fp_item} \
-               --max_iter=${max_iter} "
+    train_cmd="--benchmark-batch-size ${batch_size}
+               --benchmark-max-step ${max_iter}
+               conf/${model_name}.yaml ${model_name}"
+
     case ${run_mode} in
-    sp) train_cmd="python -u tools/train.py "${train_cmd}" ;;
+    sp) train_cmd="bash local/train.sh "${train_cmd}"" ;;
     mp)
-        train_cmd="python -m paddle.distributed.launch --log_dir=./mylog --gpus=$CUDA_VISIBLE_DEVICES tools/train.py "${train_cmd}"
-        log_parse_file="mylog/workerlog.0" ;;
+        train_cmd="bash local/train.sh "${train_cmd}"" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-# 以下不用修改
-    timeout 15m ${train_cmd} > ${log_file} 2>&1
+
+    # 以下不用修改
+    CUDA_VISIBLE_DEVICES=${device} timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then
         echo -e "${model_name}, FAIL"
         export job_fail_flag=1
@@ -43,7 +43,8 @@ function _train(){
         echo -e "${model_name}, SUCCESS"
         export job_fail_flag=0
     fi
-    kill -9 `ps -ef|grep 'python'|awk '{print $2}'`
+
+    trap 'for pid in $(jobs -pr); do kill -KILL $pid; done' INT QUIT TERM
 
     if [ $run_mode = "mp" -a -d mylog ]; then
         rm ${log_file}

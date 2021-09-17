@@ -42,6 +42,7 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils.log import Log
 from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import th_accuracy
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]
 
@@ -686,10 +687,10 @@ class U2STModel(U2STBaseModel):
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """
-        config.defrost()
-        config.input_dim = dataloader.collate_fn.feature_size
-        config.output_dim = dataloader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.input_dim = dataloader.collate_fn.feature_size
+            config.output_dim = dataloader.collate_fn.vocab_size
+
         model = cls.from_config(config)
 
         if checkpoint_path:

@@ -579,7 +579,7 @@ class U2Tester(U2Trainer):
                 # 1. Encoder
                 encoder_out, encoder_mask = self.model._forward_encoder(
                     feat, feats_length)  # (B, maxlen, encoder_dim)
-                maxlen = encoder_out.size(1)
+                maxlen = encoder_out.shape[1]
                 ctc_probs = self.model.ctc.log_softmax(
                     encoder_out)  # (1, maxlen, vocab_size)
 

@@ -84,11 +84,11 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     y_insert_blank = insert_blank(y, blank_id)  #(2L+1)
 
     log_alpha = paddle.zeros(
-        (ctc_probs.size(0), len(y_insert_blank)))  #(T, 2L+1)
+        (ctc_probs.shape[0], len(y_insert_blank)))  #(T, 2L+1)
     log_alpha = log_alpha - float('inf')  # log of zero
     # TODO(Hui Zhang): zeros not support paddle.int16
     state_path = (paddle.zeros(
-        (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int32) - 1
+        (ctc_probs.shape[0], len(y_insert_blank)), dtype=paddle.int32) - 1
                   )  # state path, Tuple((T, 2L+1))
 
     # init start state
@@ -96,7 +96,7 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     log_alpha[0, 0] = ctc_probs[0][int(y_insert_blank[0])]  # State-b, Sb
     log_alpha[0, 1] = ctc_probs[0][int(y_insert_blank[1])]  # State-nb, Snb
 
-    for t in range(1, ctc_probs.size(0)):  # T
+    for t in range(1, ctc_probs.shape[0]):  # T
         for s in range(len(y_insert_blank)):  # 2L+1
             if y_insert_blank[s] == blank_id or s < 2 or y_insert_blank[
                     s] == y_insert_blank[s - 2]:
@@ -116,7 +116,7 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
             state_path[t, s] = prev_state[paddle.argmax(candidates)]
 
     # TODO(Hui Zhang): zeros not support paddle.int16
-    state_seq = -1 * paddle.ones((ctc_probs.size(0), 1), dtype=paddle.int32)
+    state_seq = -1 * paddle.ones((ctc_probs.shape[0], 1), dtype=paddle.int32)
 
     candidates = paddle.to_tensor([
         log_alpha[-1, len(y_insert_blank) - 1],  # Sb
@@ -124,11 +124,11 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     ])
     prev_state = [len(y_insert_blank) - 1, len(y_insert_blank) - 2]
     state_seq[-1] = prev_state[paddle.argmax(candidates)]
-    for t in range(ctc_probs.size(0) - 2, -1, -1):
+    for t in range(ctc_probs.shape[0] - 2, -1, -1):
         state_seq[t] = state_path[t + 1, state_seq[t + 1, 0]]
 
     output_alignment = []
-    for t in range(0, ctc_probs.size(0)):
+    for t in range(0, ctc_probs.shape[0]):
         output_alignment.append(y_insert_blank[state_seq[t, 0]])
 
     return output_alignment

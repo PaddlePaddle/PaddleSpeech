@@ -122,7 +122,7 @@ class TransformerDecoder(nn.Layer):
         # tgt_mask: (B, 1, L)
         tgt_mask = (make_non_pad_mask(ys_in_lens).unsqueeze(1))
         # m: (1, L, L)
-        m = subsequent_mask(tgt_mask.size(-1)).unsqueeze(0)
+        m = subsequent_mask(tgt_mask.shape[-1]).unsqueeze(0)
         # tgt_mask: (B, L, L)
         tgt_mask = tgt_mask & m
 

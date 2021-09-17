@@ -19,7 +19,7 @@ OBSERVATIONS = None
 
 
 @contextlib.contextmanager
-def scope(observations):
+def ObsScope(observations):
     # make `observation` the target to report to.
     # it is basically a dictionary that stores temporary observations
     global OBSERVATIONS

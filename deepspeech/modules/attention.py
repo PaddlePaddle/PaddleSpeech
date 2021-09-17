@@ -70,7 +70,7 @@ class MultiHeadedAttention(nn.Layer):
             paddle.Tensor: Transformed value tensor, size
                 (#batch, n_head, time2, d_k).
         """
-        n_batch = query.size(0)
+        n_batch = query.shape[0]
         q = self.linear_q(query).view(n_batch, -1, self.h, self.d_k)
         k = self.linear_k(key).view(n_batch, -1, self.h, self.d_k)
         v = self.linear_v(value).view(n_batch, -1, self.h, self.d_k)
@@ -96,7 +96,7 @@ class MultiHeadedAttention(nn.Layer):
             paddle.Tensor: Transformed value weighted 
                 by the attention score, (#batch, time1, d_model).
         """
-        n_batch = value.size(0)
+        n_batch = value.shape[0]
         if mask is not None:
             mask = mask.unsqueeze(1).eq(0)  # (batch, 1, *, time2)
             scores = scores.masked_fill(mask, -float('inf'))
@@ -172,15 +172,16 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
             paddle.Tensor: Output tensor. (batch, head, time1, time1)
         """
         zero_pad = paddle.zeros(
-            (x.size(0), x.size(1), x.size(2), 1), dtype=x.dtype)
+            (x.shape[0], x.shape[1], x.shape[2], 1), dtype=x.dtype)
         x_padded = paddle.cat([zero_pad, x], dim=-1)
 
-        x_padded = x_padded.view(x.size(0), x.size(1), x.size(3) + 1, x.size(2))
+        x_padded = x_padded.view(x.shape[0], x.shape[1], x.shape[3] + 1,
+                                 x.shape[2])
         x = x_padded[:, :, 1:].view_as(x)  # [B, H, T1, T1]
 
         if zero_triu:
-            ones = paddle.ones((x.size(2), x.size(3)))
-            x = x * paddle.tril(ones, x.size(3) - x.size(2))[None, None, :, :]
+            ones = paddle.ones((x.shape[2], x.shape[3]))
+            x = x * paddle.tril(ones, x.shape[3] - x.shape[2])[None, None, :, :]
 
         return x
 
@@ -205,7 +206,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         q, k, v = self.forward_qkv(query, key, value)
         q = q.transpose([0, 2, 1, 3])  # (batch, time1, head, d_k)
 
-        n_batch_pos = pos_emb.size(0)
+        n_batch_pos = pos_emb.shape[0]
         p = self.linear_pos(pos_emb).view(n_batch_pos, -1, self.h, self.d_k)
         p = p.transpose([0, 2, 1, 3])  # (batch, head, time1, d_k)
 

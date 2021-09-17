@@ -1,8 +1,8 @@
 #!/bin/bash
 
 profiler_options=
-benchmark_batch_size=
-benchmark_max_step=
+benchmark_batch_size=0
+benchmark_max_step=0
 
 # seed may break model convergence
 seed=0

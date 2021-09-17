@@ -206,11 +206,11 @@ class BaseEncoder(nn.Layer):
                 chunk computation
             List[paddle.Tensor]: conformer cnn cache
         """
-        assert xs.size(0) == 1  # batch size must be one
+        assert xs.shape[0] == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
         # TODO(Hui Zhang): stride_slice not support bool tensor
         # tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
-        tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.int32)
+        tmp_masks = paddle.ones([1, xs.shape[1]], dtype=paddle.int32)
         tmp_masks = tmp_masks.unsqueeze(1)  #[B=1, C=1, T]
 
         if self.global_cmvn is not None:
@@ -220,25 +220,25 @@ class BaseEncoder(nn.Layer):
             xs, tmp_masks, offset=offset)  #xs=(B, T, D), pos_emb=(B=1, T, D)
 
         if subsampling_cache is not None:
-            cache_size = subsampling_cache.size(1)  #T
+            cache_size = subsampling_cache.shape[1]  #T
             xs = paddle.cat((subsampling_cache, xs), dim=1)
         else:
             cache_size = 0
 
         # only used when using `RelPositionMultiHeadedAttention`
         pos_emb = self.embed.position_encoding(
-            offset=offset - cache_size, size=xs.size(1))
+            offset=offset - cache_size, size=xs.shape[1])
 
         if required_cache_size < 0:
             next_cache_start = 0
         elif required_cache_size == 0:
-            next_cache_start = xs.size(1)
+            next_cache_start = xs.shape[1]
         else:
-            next_cache_start = xs.size(1) - required_cache_size
+            next_cache_start = xs.shape[1] - required_cache_size
         r_subsampling_cache = xs[:, next_cache_start:, :]
 
         # Real mask for transformer/conformer layers
-        masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        masks = paddle.ones([1, xs.shape[1]], dtype=paddle.bool)
         masks = masks.unsqueeze(1)  #[B=1, L'=1, T]
         r_elayers_output_cache = []
         r_conformer_cnn_cache = []
@@ -302,7 +302,7 @@ class BaseEncoder(nn.Layer):
         stride = subsampling * decoding_chunk_size
         decoding_window = (decoding_chunk_size - 1) * subsampling + context
 
-        num_frames = xs.size(1)
+        num_frames = xs.shape[1]
         required_cache_size = decoding_chunk_size * num_decoding_left_chunks
         subsampling_cache: Optional[paddle.Tensor] = None
         elayers_output_cache: Optional[List[paddle.Tensor]] = None
@@ -318,10 +318,10 @@ class BaseEncoder(nn.Layer):
                  chunk_xs, offset, required_cache_size, subsampling_cache,
                  elayers_output_cache, conformer_cnn_cache)
             outputs.append(y)
-            offset += y.size(1)
+            offset += y.shape[1]
         ys = paddle.cat(outputs, 1)
         # fake mask, just for jit script and compatibility with `forward` api
-        masks = paddle.ones([1, ys.size(1)], dtype=paddle.bool)
+        masks = paddle.ones([1, ys.shape[1]], dtype=paddle.bool)
         masks = masks.unsqueeze(1)
         return ys, masks
 

@@ -21,7 +21,7 @@ from paddle.nn import Layer
 from . import extension
 from ..reporter import DictSummary
 from ..reporter import report
-from ..reporter import scope
+from ..reporter import ObsScope
 from ..timer import Timer
 from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
@@ -78,7 +78,7 @@ class StandardEvaluator(extension.Extension):
         summary = DictSummary()
         for batch in self.dataloader:
             observation = {}
-            with scope(observation):
+            with ObsScope(observation):
                 # main evaluation computation here.
                 with paddle.no_grad():
                     self.evaluate_sync(self.evaluate_core(batch))

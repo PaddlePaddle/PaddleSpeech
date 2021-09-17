@@ -34,11 +34,11 @@ from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2 import U2Model
 from deepspeech.training.optimizer import OptimizerFactory
+from deepspeech.training.reporter import ObsScope
+from deepspeech.training.reporter import report
 from deepspeech.training.scheduler import LRSchedulerFactory
 from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
-from deepspeech.training.reporter import report
-from deepspeech.training.reporter import ObsScope
 from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
@@ -207,17 +207,21 @@ class U2Trainer(Trainer):
                             report("Rank", dist.get_rank())
                             report("epoch", self.epoch)
                             report('step', self.iteration)
-                            report('step/total', (batch_index + 1) / len(self.train_loader))
+                            report('step/total',
+                                   (batch_index + 1) / len(self.train_loader))
                             report("lr", self.lr_scheduler())
                             self.train_batch(batch_index, batch, msg)
                             self.after_train_batch()
                             report('reader_cost', dataload_time)
-                        observation['batch_cost'] = observation['reader_cost']+observation['step_cost']
+                        observation['batch_cost'] = observation[
+                            'reader_cost'] + observation['step_cost']
                         observation['samples'] = observation['batch_size']
-                        observation['ips[sent./sec]'] = observation['batch_size'] / observation['batch_cost']
+                        observation['ips[sent./sec]'] = observation[
+                            'batch_size'] / observation['batch_cost']
                         for k, v in observation.items():
                             msg += f" {k}: "
-                            msg += f"{v:>.8f}" if isinstance(v, float) else f"{v}"
+                            msg += f"{v:>.8f}" if isinstance(v,
+                                                             float) else f"{v}"
                             msg += ","
                         logger.info(msg)
                         data_start_time = time.time()

@@ -20,8 +20,8 @@ from paddle.nn import Layer
 
 from . import extension
 from ..reporter import DictSummary
-from ..reporter import report
 from ..reporter import ObsScope
+from ..reporter import report
 from ..timer import Timer
 from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()

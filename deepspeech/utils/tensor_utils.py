@@ -19,9 +19,23 @@ import paddle
 
 from deepspeech.utils.log import Log
 
-__all__ = ["pad_sequence", "add_sos_eos", "th_accuracy"]
+__all__ = ["pad_sequence", "add_sos_eos", "th_accuracy", "has_tensor"]
 
 logger = Log(__name__).getlog()
+
+
+def has_tensor(val):
+    if isinstance(val, (list, tuple)):
+        for item in val:
+            if has_tensor(item):
+                return True
+    elif isinstance(val, dict):
+        for k, v in val.items():
+            print(k)
+            if has_tensor(v):
+                return True
+    else:
+        return paddle.is_tensor(val)
 
 
 def pad_sequence(sequences: List[paddle.Tensor],
@@ -154,13 +168,7 @@ def th_accuracy(pad_outputs: paddle.Tensor,
     pad_pred = pad_outputs.view(
         pad_targets.size(0), pad_targets.size(1), pad_outputs.size(1)).argmax(2)
     mask = pad_targets != ignore_label
-    #TODO(Hui Zhang): sum not support bool type
-    # numerator = paddle.sum(
-    #     pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
-    numerator = (
+    numerator = paddle.sum(
         pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
-    numerator = paddle.sum(numerator.type_as(pad_targets))
-    #TODO(Hui Zhang): sum not support bool type
-    # denominator = paddle.sum(mask)
-    denominator = paddle.sum(mask.type_as(pad_targets))
+    denominator = paddle.sum(mask)
     return float(numerator) / float(denominator)

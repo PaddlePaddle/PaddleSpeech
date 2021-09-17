@@ -15,9 +15,31 @@
 import distutils.util
 import math
 import os
+import random
+from contextlib import contextmanager
 from typing import List
 
-__all__ = ['print_arguments', 'add_arguments', "log_add"]
+import numpy as np
+import paddle
+
+__all__ = [
+    "UpdateConfig", "seed_all", 'print_arguments', 'add_arguments', "log_add"
+]
+
+
+@contextmanager
+def UpdateConfig(config):
+    """Update yacs config"""
+    config.defrost()
+    yield
+    config.freeze()
+
+
+def seed_all(seed: int=210329):
+    """freeze random generator seed."""
+    np.random.seed(seed)
+    random.seed(seed)
+    paddle.seed(seed)
 
 
 def print_arguments(args, info=None):
@@ -79,3 +101,22 @@ def log_add(args: List[int]) -> float:
     a_max = max(args)
     lsp = math.log(sum(math.exp(a - a_max) for a in args))
     return a_max + lsp
+
+
+def get_subsample(config):
+    """Subsample rate from config.
+
+    Args:
+        config (yacs.config.CfgNode): yaml config
+
+    Returns:
+        int: subsample rate.
+    """
+    input_layer = config["model"]["encoder_conf"]["input_layer"]
+    assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
+    if input_layer == "conv2d":
+        return 4
+    elif input_layer == "conv2d6":
+        return 6
+    elif input_layer == "conv2d8":
+        return 8

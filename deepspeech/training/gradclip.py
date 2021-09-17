@@ -27,6 +27,9 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
     def __init__(self, clip_norm):
         super().__init__(clip_norm)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(global_clip_norm={self.clip_norm})"
+
     @imperative_base.no_grad
     def _dygraph_clip(self, params_grads):
         params_and_grads = []
@@ -44,7 +47,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             sum_square = layers.reduce_sum(square)
             sum_square_list.append(sum_square)
 
-            # debug log
+            # debug log, not dump all since slow down train process
             if i < 10:
                 logger.debug(
                     f"Grad Before Clip: {p.name}: {float(sum_square.sqrt()) }")
@@ -73,7 +76,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             new_grad = layers.elementwise_mul(x=g, y=clip_var)
             params_and_grads.append((p, new_grad))
 
-            # debug log
+            # debug log, not dump all since slow down train process
             if i < 10:
                 logger.debug(
                     f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"

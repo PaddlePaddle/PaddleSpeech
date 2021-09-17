@@ -17,6 +17,8 @@ import os
 import sys
 import time
 from collections import defaultdict
+from collections import OrderedDict
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
@@ -31,13 +33,20 @@ from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2 import U2Model
-from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
-from deepspeech.training.scheduler import WarmupLR
+from deepspeech.training.optimizer import OptimizerFactory
+from deepspeech.training.reporter import ObsScope
+from deepspeech.training.reporter import report
+from deepspeech.training.scheduler import LRSchedulerFactory
+from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
+from deepspeech.utils import ctc_utils
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
+from deepspeech.utils import text_grid
+from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -76,21 +85,36 @@ class U2Trainer(Trainer):
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
         start = time.time()
-        utt, audio, audio_len, text, text_len = batch_data
 
+        # forward
+        utt, audio, audio_len, text, text_len = batch_data
         loss, attention_loss, ctc_loss = self.model(audio, audio_len, text,
                                                     text_len)
+
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
-        loss.backward()
-        layer_tools.print_grads(self.model, print_func=None)
-
         losses_np = {'loss': float(loss) * train_conf.accum_grad}
         if attention_loss:
             losses_np['att_loss'] = float(attention_loss)
         if ctc_loss:
             losses_np['ctc_loss'] = float(ctc_loss)
 
+        # loss backward
+        if (batch_index + 1) % train_conf.accum_grad != 0:
+            # Disable gradient synchronizations across DDP processes.
+            # Within this context, gradients will be accumulated on module
+            # variables, which will later be synchronized.
+            # When using cpu w/o DDP, model does not have `no_sync`
+            context = self.model.no_sync if self.parallel else nullcontext
+        else:
+            # Used for single gpu training and DDP gradient synchronization
+            # processes.
+            context = nullcontext
+        with context():
+            loss.backward()
+            layer_tools.print_grads(self.model, print_func=None)
+
+        # optimizer step
         if (batch_index + 1) % train_conf.accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()
@@ -100,12 +124,11 @@ class U2Trainer(Trainer):
         iteration_time = time.time() - start
 
         if (batch_index + 1) % train_conf.log_interval == 0:
-            msg += "train time: {:>.3f}s, ".format(iteration_time)
-            msg += "batch size: {}, ".format(self.config.data.batch_size)
-            msg += "accum: {}, ".format(train_conf.accum_grad)
-            msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                             for k, v in losses_np.items())
-            logger.info(msg)
+            for k, v in losses_np.items():
+                report(k, v)
+            report("batch_size", self.config.collator.batch_size)
+            report("accum", train_conf.accum_grad)
+            report("step_cost", iteration_time)
 
             if dist.get_rank() == 0 and self.visualizer:
                 losses_np_v = losses_np.copy()
@@ -163,43 +186,61 @@ class U2Trainer(Trainer):
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # save init model, i.e. 0 epoch
-            self.save(tag='init')
+            self.save(tag='init', infos=None)
 
-        self.lr_scheduler.step(self.iteration)
-        if self.parallel:
+        # lr will resotre from optimizer ckpt
+        # self.lr_scheduler.step(self.iteration)
+        if self.parallel and hasattr(self.train_loader, 'batch_sampler'):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
-            self.model.train()
-            try:
-                data_start_time = time.time()
-                for batch_index, batch in enumerate(self.train_loader):
-                    dataload_time = time.time() - data_start_time
-                    msg = "Train: Rank: {}, ".format(dist.get_rank())
-                    msg += "epoch: {}, ".format(self.epoch)
-                    msg += "step: {}, ".format(self.iteration)
-                    msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                    len(self.train_loader))
-                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "data time: {:>.3f}s, ".format(dataload_time)
-                    self.train_batch(batch_index, batch, msg)
+            with Timer("Epoch-Train Time Cost: {}"):
+                self.model.train()
+                try:
                     data_start_time = time.time()
-            except Exception as e:
-                logger.error(e)
-                raise e
+                    for batch_index, batch in enumerate(self.train_loader):
+                        dataload_time = time.time() - data_start_time
+                        msg = "Train:"
+                        observation = OrderedDict()
+                        with ObsScope(observation):
+                            report("Rank", dist.get_rank())
+                            report("epoch", self.epoch)
+                            report('step', self.iteration)
+                            report('step/total',
+                                   (batch_index + 1) / len(self.train_loader))
+                            report("lr", self.lr_scheduler())
+                            self.train_batch(batch_index, batch, msg)
+                            self.after_train_batch()
+                            report('reader_cost', dataload_time)
+                        observation['batch_cost'] = observation[
+                            'reader_cost'] + observation['step_cost']
+                        observation['samples'] = observation['batch_size']
+                        observation['ips[sent./sec]'] = observation[
+                            'batch_size'] / observation['batch_cost']
+                        for k, v in observation.items():
+                            msg += f" {k}: "
+                            msg += f"{v:>.8f}" if isinstance(v,
+                                                             float) else f"{v}"
+                            msg += ","
+                        logger.info(msg)
+                        data_start_time = time.time()
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            total_loss, num_seen_utts = self.valid()
-            if dist.get_world_size() > 1:
-                num_seen_utts = paddle.to_tensor(num_seen_utts)
-                # the default operator in all_reduce function is sum.
-                dist.all_reduce(num_seen_utts)
-                total_loss = paddle.to_tensor(total_loss)
-                dist.all_reduce(total_loss)
-                cv_loss = total_loss / num_seen_utts
-                cv_loss = float(cv_loss)
-            else:
-                cv_loss = total_loss / num_seen_utts
+            with Timer("Eval Time Cost: {}"):
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = total_loss / num_seen_utts
 
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
@@ -213,76 +254,89 @@ class U2Trainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()
-        config.data.keep_transcription_text = False
+        config.collator.keep_transcription_text = False
 
         # train/valid dataset, return token ids
         config.data.manifest = config.data.train_manifest
         train_dataset = ManifestDataset.from_config(config)
 
         config.data.manifest = config.data.dev_manifest
-        config.data.augmentation_config = ""
         dev_dataset = ManifestDataset.from_config(config)
 
-        collate_fn = SpeechCollator(keep_transcription_text=False)
+        collate_fn_train = SpeechCollator.from_config(config)
+
+        config.collator.augmentation_config = ""
+        collate_fn_dev = SpeechCollator.from_config(config)
+
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
-                batch_size=config.data.batch_size,
+                batch_size=config.collator.batch_size,
                 num_replicas=None,
                 rank=None,
                 shuffle=True,
                 drop_last=True,
-                sortagrad=config.data.sortagrad,
-                shuffle_method=config.data.shuffle_method)
+                sortagrad=config.collator.sortagrad,
+                shuffle_method=config.collator.shuffle_method)
         else:
             batch_sampler = SortagradBatchSampler(
                 train_dataset,
                 shuffle=True,
-                batch_size=config.data.batch_size,
+                batch_size=config.collator.batch_size,
                 drop_last=True,
-                sortagrad=config.data.sortagrad,
-                shuffle_method=config.data.shuffle_method)
+                sortagrad=config.collator.sortagrad,
+                shuffle_method=config.collator.shuffle_method)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
-            collate_fn=collate_fn,
-            num_workers=config.data.num_workers, )
+            collate_fn=collate_fn_train,
+            num_workers=config.collator.num_workers, )
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=config.data.batch_size,
+            batch_size=config.collator.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn)
+            collate_fn=collate_fn_dev)
 
         # test dataset, return raw text
         config.data.manifest = config.data.test_manifest
-        config.data.keep_transcription_text = True
-        config.data.augmentation_config = ""
         # filter test examples, will cause less examples, but no mismatch with training
         # and can use large batch size , save training time, so filter test egs now.
-        # config.data.min_input_len = 0.0  # second
-        # config.data.max_input_len = float('inf')  # second
-        # config.data.min_output_len = 0.0  # tokens
-        # config.data.max_output_len = float('inf')  # tokens
-        # config.data.min_output_input_ratio = 0.00
-        # config.data.max_output_input_ratio = float('inf')
+        config.data.min_input_len = 0.0  # second
+        config.data.max_input_len = float('inf')  # second
+        config.data.min_output_len = 0.0  # tokens
+        config.data.max_output_len = float('inf')  # tokens
+        config.data.min_output_input_ratio = 0.00
+        config.data.max_output_input_ratio = float('inf')
+
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
+        config.collator.keep_transcription_text = True
+        config.collator.augmentation_config = ""
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=SpeechCollator(keep_transcription_text=True))
-        logger.info("Setup train/valid/test Dataloader!")
+            collate_fn=SpeechCollator.from_config(config))
+        # return text token id
+        config.collator.keep_transcription_text = False
+        self.align_loader = DataLoader(
+            test_dataset,
+            batch_size=config.decoding.batch_size,
+            shuffle=False,
+            drop_last=False,
+            collate_fn=SpeechCollator.from_config(config))
+        logger.info("Setup train/valid/test/align Dataloader!")
 
     def setup_model(self):
         config = self.config
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.dataset.feature_size
-        model_conf.output_dim = self.train_loader.dataset.vocab_size
-        model_conf.freeze()
+
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.collate_fn.feature_size
+            model_conf.output_dim = self.train_loader.collate_fn.vocab_size
+
         model = U2Model.from_config(model_conf)
 
         if self.parallel:
@@ -297,30 +351,38 @@ class U2Trainer(Trainer):
         scheduler_type = train_config.scheduler
         scheduler_conf = train_config.scheduler_conf
 
-        grad_clip = ClipGradByGlobalNormWithLog(train_config.global_grad_clip)
-        weight_decay = paddle.regularizer.L2Decay(optim_conf.weight_decay)
+        scheduler_args = {
+            "learning_rate": optim_conf.lr,
+            "verbose": False,
+            "warmup_steps": scheduler_conf.warmup_steps,
+            "gamma": scheduler_conf.lr_decay,
+            "d_model": model_conf.encoder_conf.output_size,
+        }
+        lr_scheduler = LRSchedulerFactory.from_args(scheduler_type,
+                                                    scheduler_args)
 
-        if scheduler_type == 'expdecaylr':
-            lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
-                learning_rate=optim_conf.lr,
-                gamma=scheduler_conf.lr_decay,
-                verbose=False)
-        elif scheduler_type == 'warmuplr':
-            lr_scheduler = WarmupLR(
-                learning_rate=optim_conf.lr,
-                warmup_steps=scheduler_conf.warmup_steps,
-                verbose=False)
-        else:
-            raise ValueError(f"Not support scheduler: {scheduler_type}")
+        def optimizer_args(
+                config,
+                parameters,
+                lr_scheduler=None, ):
+            train_config = config.training
+            optim_type = train_config.optim
+            optim_conf = train_config.optim_conf
+            scheduler_type = train_config.scheduler
+            scheduler_conf = train_config.scheduler_conf
+            return {
+                "grad_clip": train_config.global_grad_clip,
+                "weight_decay": optim_conf.weight_decay,
+                "learning_rate": lr_scheduler
+                if lr_scheduler else optim_conf.lr,
+                "parameters": parameters,
+                "epsilon": 1e-9 if optim_type == 'noam' else None,
+                "beta1": 0.9 if optim_type == 'noam' else None,
+                "beat2": 0.98 if optim_type == 'noam' else None,
+            }
 
-        if optim_type == 'adam':
-            optimizer = paddle.optimizer.Adam(
-                learning_rate=lr_scheduler,
-                parameters=model.parameters(),
-                weight_decay=weight_decay,
-                grad_clip=grad_clip)
-        else:
-            raise ValueError(f"Not support optim: {optim_type}")
+        optimzer_args = optimizer_args(config, model.parameters(), lr_scheduler)
+        optimizer = OptimizerFactory.from_args(optim_type, optimzer_args)
 
         self.model = model
         self.optimizer = optimizer
@@ -349,7 +411,7 @@ class U2Tester(U2Trainer):
                 decoding_chunk_size=-1,  # decoding chunk size. Defaults to -1.
                 # <0: for decoding, use full chunk.
                 # >0: for decoding, use fixed chunk size as set.
-                # 0: used for training, it's prohibited here. 
+                # 0: used for training, it's prohibited here.
                 num_decoding_left_chunks=-1,  # number of left chunks for decoding. Defaults to -1.
                 simulate_streaming=False,  # simulate streaming inference. Defaults to False.
             ))
@@ -383,7 +445,7 @@ class U2Tester(U2Trainer):
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
         start_time = time.time()
-        text_feature = self.test_loader.dataset.text_feature
+        text_feature = self.test_loader.collate_fn.text_feature
         target_transcripts = self.ordid2token(texts, texts_len)
         result_transcripts = self.model.decode(
             audio,
@@ -432,7 +494,7 @@ class U2Tester(U2Trainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
-        stride_ms = self.test_loader.dataset.stride_ms
+        stride_ms = self.test_loader.collate_fn.stride_ms
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         num_frames = 0.0
@@ -494,6 +556,73 @@ class U2Tester(U2Trainer):
         except KeyboardInterrupt:
             sys.exit(-1)
 
+    @paddle.no_grad()
+    def align(self):
+        if self.config.decoding.batch_size > 1:
+            logger.fatal('alignment mode must be running with batch_size == 1')
+            sys.exit(1)
+
+        # xxx.align
+        assert self.args.result_file and self.args.result_file.endswith(
+            '.align')
+
+        self.model.eval()
+        logger.info(f"Align Total Examples: {len(self.align_loader.dataset)}")
+
+        stride_ms = self.align_loader.collate_fn.stride_ms
+        token_dict = self.align_loader.collate_fn.vocab_list
+        with open(self.args.result_file, 'w') as fout:
+            # one example in batch
+            for i, batch in enumerate(self.align_loader):
+                key, feat, feats_length, target, target_length = batch
+
+                # 1. Encoder
+                encoder_out, encoder_mask = self.model._forward_encoder(
+                    feat, feats_length)  # (B, maxlen, encoder_dim)
+                maxlen = encoder_out.size(1)
+                ctc_probs = self.model.ctc.log_softmax(
+                    encoder_out)  # (1, maxlen, vocab_size)
+
+                # 2. alignment
+                ctc_probs = ctc_probs.squeeze(0)
+                target = target.squeeze(0)
+                alignment = ctc_utils.forced_align(ctc_probs, target)
+                logger.info("align ids", key[0], alignment)
+                fout.write('{} {}\n'.format(key[0], alignment))
+
+                # 3. gen praat
+                # segment alignment
+                align_segs = text_grid.segment_alignment(alignment)
+                logger.info("align tokens", key[0], align_segs)
+                # IntervalTier, List["start end token\n"]
+                subsample = utility.get_subsample(self.config)
+                tierformat = text_grid.align_to_tierformat(
+                    align_segs, subsample, token_dict)
+                # write tier
+                align_output_path = os.path.join(
+                    os.path.dirname(self.args.result_file), "align")
+                tier_path = os.path.join(align_output_path, key[0] + ".tier")
+                with open(tier_path, 'w') as f:
+                    f.writelines(tierformat)
+                # write textgrid
+                textgrid_path = os.path.join(align_output_path,
+                                             key[0] + ".TextGrid")
+                second_per_frame = 1. / (1000. /
+                                         stride_ms)  # 25ms window, 10ms stride
+                second_per_example = (
+                    len(alignment) + 1) * subsample * second_per_frame
+                text_grid.generate_textgrid(
+                    maxtime=second_per_example,
+                    intervals=tierformat,
+                    output=textgrid_path)
+
+    def run_align(self):
+        self.resume_or_scratch()
+        try:
+            self.align()
+        except KeyboardInterrupt:
+            sys.exit(-1)
+
     def load_inferspec(self):
         """infer model and input spec.
 
@@ -502,15 +631,14 @@ class U2Tester(U2Trainer):
             List[paddle.static.InputSpec]: input spec.
         """
         from deepspeech.models.u2 import U2InferModel
-        infer_model = U2InferModel.from_pretrained(self.test_loader.dataset,
+        infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.model.clone(),
                                                    self.args.checkpoint_path)
-        feat_dim = self.test_loader.dataset.feature_size
+        feat_dim = self.test_loader.collate_fn.feature_size
         input_spec = [
-            paddle.static.InputSpec(
-                shape=[None, feat_dim, None],
-                dtype='float32'),  # audio, [B,D,T]
-            paddle.static.InputSpec(shape=[None],
+            paddle.static.InputSpec(shape=[1, None, feat_dim],
+                                    dtype='float32'),  # audio, [B,T,D]
+            paddle.static.InputSpec(shape=[1],
                                     dtype='int64'),  # audio_length, [B]
         ]
         return infer_model, input_spec

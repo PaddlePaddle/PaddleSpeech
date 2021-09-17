@@ -12,16 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import getpass
-import logging
 import os
 import socket
 import sys
 
-FORMAT_STR = '[%(levelname)s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
-DATE_FMT_STR = '%Y/%m/%d %H:%M:%S'
-
-logging.basicConfig(
-    level=logging.DEBUG, format=FORMAT_STR, datefmt=DATE_FMT_STR)
+from loguru import logger
+from paddle import inference
 
 
 def find_log_dir(log_dir=None):
@@ -96,53 +92,54 @@ def find_log_dir_and_names(program_name=None, log_dir=None):
 
 
 class Log():
+    """Default Logger for all."""
+    logger.remove()
+    logger.add(
+        sys.stdout,
+        level='INFO',
+        enqueue=True,
+        filter=lambda record: record['level'].no >= 20)
+    _, file_prefix, _ = find_log_dir_and_names()
+    sink_prefix = os.path.join("exp/log", file_prefix)
+    sink_path = sink_prefix[:-3] + "{time}.log"
+    logger.add(sink_path, level='DEBUG', enqueue=True, rotation="500 MB")
 
-    log_name = None
-
-    def __init__(self, logger=None):
-        self.logger = logging.getLogger(logger)
-        self.logger.setLevel(logging.DEBUG)
-
-        file_dir = os.getcwd() + '/log'
-        if not os.path.exists(file_dir):
-            os.mkdir(file_dir)
-        self.log_dir = file_dir
-
-        actual_log_dir, file_prefix, symlink_prefix = find_log_dir_and_names(
-            program_name=None, log_dir=self.log_dir)
-
-        basename = '%s.DEBUG.%d' % (file_prefix, os.getpid())
-        filename = os.path.join(actual_log_dir, basename)
-        if Log.log_name is None:
-            Log.log_name = filename
-
-        # Create a symlink to the log file with a canonical name.
-        symlink = os.path.join(actual_log_dir, symlink_prefix + '.DEBUG')
-        try:
-            if os.path.islink(symlink):
-                os.unlink(symlink)
-            os.symlink(os.path.basename(Log.log_name), symlink)
-        except EnvironmentError:
-            # If it fails, we're sad but it's no error.  Commonly, this
-            # fails because the symlink was created by another user and so
-            # we can't modify it
-            pass
-
-        if not self.logger.hasHandlers():
-            formatter = logging.Formatter(fmt=FORMAT_STR, datefmt=DATE_FMT_STR)
-            fh = logging.FileHandler(Log.log_name)
-            fh.setLevel(logging.DEBUG)
-            fh.setFormatter(formatter)
-            self.logger.addHandler(fh)
-
-            ch = logging.StreamHandler()
-            ch.setLevel(logging.INFO)
-            ch.setFormatter(formatter)
-            self.logger.addHandler(ch)
-
-        # stop propagate for propagating may print
-        # log multiple times
-        self.logger.propagate = False
+    def __init__(self, name=None):
+        pass
 
     def getlog(self):
-        return self.logger
+        return logger
+
+
+class Autolog:
+    """Just used by fullchain project"""
+
+    def __init__(self,
+                 batch_size,
+                 model_name="DeepSpeech",
+                 model_precision="fp32"):
+        import auto_log
+        pid = os.getpid()
+        if (os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
+            gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
+            infer_config = inference.Config()
+            infer_config.enable_use_gpu(100, gpu_id)
+        else:
+            gpu_id = None
+            infer_config = inference.Config()
+        autolog = auto_log.AutoLogger(
+            model_name=model_name,
+            model_precision=model_precision,
+            batch_size=batch_size,
+            data_shape="dynamic",
+            save_path="./output/auto_log.lpg",
+            inference_config=infer_config,
+            pids=pid,
+            process_name=None,
+            gpu_ids=gpu_id,
+            time_keys=['preprocess_time', 'inference_time', 'postprocess_time'],
+            warmup=0)
+        self.autolog = autolog
+
+    def getlog(self):
+        return self.autolog

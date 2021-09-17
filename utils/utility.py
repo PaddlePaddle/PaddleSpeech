@@ -11,11 +11,93 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import hashlib
+import json
 import os
 import tarfile
 import zipfile
+from typing import Text
 
-from paddle.dataset.common import md5file
+__all__ = [
+    "check_md5sum", "getfile_insensitive", "download_multi", "download",
+    "unpack", "unzip", "md5file", "print_arguments", "add_arguments",
+    "read_manifest"
+]
+
+
+def read_manifest(manifest_path):
+    """Load and parse manifest file.
+    Args:
+        manifest_path ([type]): Manifest file to load and parse.
+
+    Raises:
+        IOError: If failed to parse the manifest.
+
+    Returns:
+        List[dict]: Manifest parsing results.
+    """
+
+    manifest = []
+    for json_line in open(manifest_path, 'r'):
+        try:
+            json_data = json.loads(json_line)
+        except Exception as e:
+            raise IOError("Error reading manifest: %s" % str(e))
+    return manifest
+
+
+def print_arguments(args, info=None):
+    """Print argparse's arguments.
+
+    Usage:
+
+    .. code-block:: python
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("name", default="Jonh", type=str, help="User name.")
+        args = parser.parse_args()
+        print_arguments(args)
+
+    :param args: Input argparse.Namespace for printing.
+    :type args: argparse.Namespace
+    """
+    filename = ""
+    if info:
+        filename = info["__file__"]
+    filename = os.path.basename(filename)
+    print(f"----------- {filename} Configuration Arguments -----------")
+    for arg, value in sorted(vars(args).items()):
+        print("%s: %s" % (arg, value))
+    print("-----------------------------------------------------------")
+
+
+def add_arguments(argname, type, default, help, argparser, **kwargs):
+    """Add argparse's argument.
+
+    Usage:
+
+    .. code-block:: python
+
+        parser = argparse.ArgumentParser()
+        add_argument("name", str, "Jonh", "User name.", parser)
+        args = parser.parse_args()
+    """
+    type = distutils.util.strtobool if type == bool else type
+    argparser.add_argument(
+        "--" + argname,
+        default=default,
+        type=type,
+        help=help + ' Default: %(default)s.',
+        **kwargs)
+
+
+def md5file(fname):
+    hash_md5 = hashlib.md5()
+    f = open(fname, "rb")
+    for chunk in iter(lambda: f.read(4096), b""):
+        hash_md5.update(chunk)
+    f.close()
+    return hash_md5.hexdigest()
 
 
 def getfile_insensitive(path):
@@ -52,6 +134,19 @@ def download(url, md5sum, target_dir):
     else:
         print("File exists, skip downloading. (%s)" % filepath)
     return filepath
+
+
+def check_md5sum(filepath: Text, md5sum: Text) -> bool:
+    """check md5sum of file.
+
+    Args:
+        filepath (Text): [description]
+        md5sum (Text): [description]
+
+    Returns:
+        bool: same or not.
+    """
+    return md5file(filepath) == md5sum
 
 
 def unpack(filepath, target_dir, rm_tar=False):

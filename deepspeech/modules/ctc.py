@@ -16,14 +16,18 @@ from paddle import nn
 from paddle.nn import functional as F
 from typeguard import check_argument_types
 
-from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch
-from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder
-from deepspeech.decoders.swig_wrapper import Scorer
 from deepspeech.modules.loss import CTCLoss
 from deepspeech.utils import ctc_utils
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
+
+try:
+    from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
+    from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder  # noqa: F401
+    from deepspeech.decoders.swig_wrapper import Scorer  # noqa: F401
+except Exception as e:
+    logger.info("ctcdecoder not installed!")
 
 __all__ = ['CTCDecoder']
 
@@ -35,7 +39,8 @@ class CTCDecoder(nn.Layer):
                  blank_id=0,
                  dropout_rate: float=0.0,
                  reduction: bool=True,
-                 batch_average: bool=True):
+                 batch_average: bool=True,
+                 grad_norm_type: str="instance"):
         """CTC decoder
 
         Args:
@@ -44,6 +49,7 @@ class CTCDecoder(nn.Layer):
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
+            grad_norm_type (str): one of 'instance', 'batchsize', 'frame', None.
         """
         assert check_argument_types()
         super().__init__()
@@ -56,7 +62,8 @@ class CTCDecoder(nn.Layer):
         self.criterion = CTCLoss(
             blank=self.blank_id,
             reduction=reduction_type,
-            batch_average=batch_average)
+            batch_average=batch_average,
+            grad_norm_type=grad_norm_type)
 
         # CTCDecoder LM Score handle
         self._ext_scorer = None
@@ -132,7 +139,7 @@ class CTCDecoder(nn.Layer):
         results = []
         for i, probs in enumerate(probs_split):
             output_transcription = ctc_greedy_decoder(
-                probs_seq=probs, vocabulary=vocab_list)
+                probs_seq=probs, vocabulary=vocab_list, blank_id=self.blank_id)
             results.append(output_transcription)
         return results
 
@@ -212,13 +219,15 @@ class CTCDecoder(nn.Layer):
             num_processes=num_processes,
             ext_scoring_func=self._ext_scorer,
             cutoff_prob=cutoff_prob,
-            cutoff_top_n=cutoff_top_n)
+            cutoff_top_n=cutoff_top_n,
+            blank_id=self.blank_id)
 
         results = [result[0][1] for result in beam_search_results]
         return results
 
     def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
                     decoding_method):
+
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
@@ -229,7 +238,7 @@ class CTCDecoder(nn.Layer):
         """ctc decoding with probs.
 
         Args:
-            probs (Tenosr): activation after softmax 
+            probs (Tenosr): activation after softmax
             logits_lens (Tenosr): audio output lens
             vocab_list ([type]): [description]
             decoding_method ([type]): [description]

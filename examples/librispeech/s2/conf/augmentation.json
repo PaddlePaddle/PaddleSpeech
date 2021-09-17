@@ -1,0 +1,19 @@
+[
+  {
+    "type": "specaug",
+    "params": {
+      "W": 5,
+      "warp_mode": "PIL",
+      "F": 30,
+      "n_freq_masks": 2,
+      "T": 40,
+      "n_time_masks": 2,
+      "p": 1.0,
+      "adaptive_number_ratio": 0,
+      "adaptive_size_ratio": 0,
+      "max_n_time_masks": 20,
+      "replace_with_zero": false
+    },
+    "prob": 1.0
+  }
+]

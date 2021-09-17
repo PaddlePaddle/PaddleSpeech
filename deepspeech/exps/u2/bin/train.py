@@ -22,6 +22,8 @@ from deepspeech.exps.u2.model import U2Trainer as Trainer
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.utility import print_arguments
 
+# from deepspeech.exps.u2.trainer import U2Trainer as Trainer
+
 
 def main_sp(config, args):
     exp = Trainer(config, args)

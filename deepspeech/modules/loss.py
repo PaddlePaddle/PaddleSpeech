@@ -23,11 +23,32 @@ __all__ = ['CTCLoss', "LabelSmoothingLoss"]
 
 
 class CTCLoss(nn.Layer):
-    def __init__(self, blank=0, reduction='sum', batch_average=False):
+    def __init__(self,
+                 blank=0,
+                 reduction='sum',
+                 batch_average=False,
+                 grad_norm_type=None):
         super().__init__()
         # last token id as blank id
         self.loss = nn.CTCLoss(blank=blank, reduction=reduction)
         self.batch_average = batch_average
+        logger.info(
+            f"CTCLoss Loss reduction: {reduction}, div-bs: {batch_average}")
+
+        # instance for norm_by_times
+        # batch for norm_by_batchsize
+        # frame for norm_by_total_logits_len
+        assert grad_norm_type in ('instance', 'batch', 'frame', None)
+        self.norm_by_times = False
+        self.norm_by_batchsize = False
+        self.norm_by_total_logits_len = False
+        logger.info(f"CTCLoss Grad Norm Type: {grad_norm_type}")
+        if grad_norm_type == 'instance':
+            self.norm_by_times = True
+        if grad_norm_type == 'batch':
+            self.norm_by_batchsize = True
+        if grad_norm_type == 'frame':
+            self.norm_by_total_logits_len = True
 
     def forward(self, logits, ys_pad, hlens, ys_lens):
         """Compute CTC loss.
@@ -46,9 +67,15 @@ class CTCLoss(nn.Layer):
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
         logits = logits.transpose([1, 0, 2])
-        # (TODO:Hui Zhang) ctc loss does not support int64 labels
         ys_pad = ys_pad.astype(paddle.int32)
-        loss = self.loss(logits, ys_pad, hlens, ys_lens)
+        loss = self.loss(
+            logits,
+            ys_pad,
+            hlens,
+            ys_lens,
+            norm_by_times=self.norm_by_times,
+            norm_by_batchsize=self.norm_by_batchsize,
+            norm_by_total_logits_len=self.norm_by_total_logits_len)
         if self.batch_average:
             # Batch-size average
             loss = loss / B
@@ -123,9 +150,9 @@ class LabelSmoothingLoss(nn.Layer):
         # use zeros_like instead of torch.no_grad() for true_dist,
         # since no_grad() can not be exported by JIT
         true_dist = paddle.full_like(x, self.smoothing / (self.size - 1))
-        ignore = target == self.padding_idx  # (B,)
+        ignore = (target == self.padding_idx)  # (B,)
 
-        # target = target * (1 - ignore)  # avoid -1 index
+        #TODO(Hui Zhang): target = target * (1 - ignore)  # avoid -1 index
         target = target.masked_fill(ignore, 0)  # avoid -1 index
         # true_dist.scatter_(1, target.unsqueeze(1), self.confidence)
         target_mask = F.one_hot(target, self.size)
@@ -134,10 +161,8 @@ class LabelSmoothingLoss(nn.Layer):
 
         kl = self.criterion(F.log_softmax(x, axis=1), true_dist)
 
-        #TODO(Hui Zhang): sum not support bool type
-        #total = len(target) - int(ignore.sum())
-        total = len(target) - int(ignore.type_as(target).sum())
+        total = len(target) - int(ignore.sum())
         denom = total if self.normalize_length else B
-        #numer = (kl * (1 - ignore)).sum()
+        #TODO(Hui Zhang): numer = (kl * (1 - ignore)).sum()
         numer = kl.masked_fill(ignore.unsqueeze(1), 0).sum()
         return numer / denom

@@ -1,7 +1,14 @@
 coverage
+gpustat
+jsonlines
+jsonlines
+kaldiio
+loguru
+Pillow
 pre-commit
 pybind11
 resampy==0.2.2
+sacrebleu
 scipy==1.2.1
 sentencepiece
 snakeviz
@@ -9,5 +16,7 @@ SoundFile==0.9.0.post1
 sox
 tensorboardX
 textgrid
+tqdm
 typeguard
+visualdl==2.2.0
 yacs

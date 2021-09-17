@@ -33,7 +33,7 @@ logger = Log(__name__).getlog()
 __all__ = ["TransformerDecoder"]
 
 
-class TransformerDecoder(nn.Module):
+class TransformerDecoder(nn.Layer):
     """Base class of Transfomer decoder module.
     Args:
         vocab_size: output dim
@@ -86,7 +86,7 @@ class TransformerDecoder(nn.Module):
         self.use_output_layer = use_output_layer
         self.output_layer = nn.Linear(attention_dim, vocab_size)
 
-        self.decoders = nn.ModuleList([
+        self.decoders = nn.LayerList([
             DecoderLayer(
                 size=attention_dim,
                 self_attn=MultiHeadedAttention(attention_heads, attention_dim,
@@ -124,9 +124,7 @@ class TransformerDecoder(nn.Module):
         # m: (1, L, L)
         m = subsequent_mask(tgt_mask.size(-1)).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        # TODO(Hui Zhang): not support & for tensor
-        # tgt_mask = tgt_mask & m
-        tgt_mask = tgt_mask.logical_and(m)
+        tgt_mask = tgt_mask & m
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -137,9 +135,7 @@ class TransformerDecoder(nn.Module):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        # TODO(Hui Zhang): reduce_sum not support bool type
-        # olens = tgt_mask.sum(1)
-        olens = tgt_mask.astype(paddle.int).sum(1)
+        olens = tgt_mask.sum(1)
         return x, olens
 
     def forward_one_step(

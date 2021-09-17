@@ -162,8 +162,7 @@ class BaseEncoder(nn.Layer):
         xs, pos_emb, masks = self.embed(xs, masks.type_as(xs), offset=0)
         #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
         masks = masks.astype(paddle.bool)
-        #TODO(Hui Zhang): mask_pad = ~masks
-        mask_pad = masks.logical_not()
+        mask_pad = ~masks
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
             decoding_chunk_size, self.static_chunk_size,
@@ -219,11 +218,14 @@ class BaseEncoder(nn.Layer):
 
         xs, pos_emb, _ = self.embed(
             xs, tmp_masks, offset=offset)  #xs=(B, T, D), pos_emb=(B=1, T, D)
+
         if subsampling_cache is not None:
             cache_size = subsampling_cache.size(1)  #T
             xs = paddle.cat((subsampling_cache, xs), dim=1)
         else:
             cache_size = 0
+
+        # only used when using `RelPositionMultiHeadedAttention`
         pos_emb = self.embed.position_encoding(
             offset=offset - cache_size, size=xs.size(1))
 
@@ -237,7 +239,7 @@ class BaseEncoder(nn.Layer):
 
         # Real mask for transformer/conformer layers
         masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
-        masks = masks.unsqueeze(1)  #[B=1, C=1, T]
+        masks = masks.unsqueeze(1)  #[B=1, L'=1, T]
         r_elayers_output_cache = []
         r_conformer_cnn_cache = []
         for i, layer in enumerate(self.encoders):
@@ -355,7 +357,7 @@ class TransformerEncoder(BaseEncoder):
                          pos_enc_layer_type, normalize_before, concat_after,
                          static_chunk_size, use_dynamic_chunk, global_cmvn,
                          use_dynamic_left_chunk)
-        self.encoders = nn.ModuleList([
+        self.encoders = nn.LayerList([
             TransformerEncoderLayer(
                 size=output_size,
                 self_attn=MultiHeadedAttention(attention_heads, output_size,
@@ -435,7 +437,7 @@ class ConformerEncoder(BaseEncoder):
         convolution_layer_args = (output_size, cnn_module_kernel, activation,
                                   cnn_module_norm, causal)
 
-        self.encoders = nn.ModuleList([
+        self.encoders = nn.LayerList([
             ConformerEncoderLayer(
                 size=output_size,
                 self_attn=encoder_selfattn_layer(*encoder_selfattn_layer_args),

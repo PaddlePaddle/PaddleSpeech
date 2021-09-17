@@ -77,6 +77,10 @@ def create_manifest(data_dir, manifest_path):
     """
     print("Creating manifest %s ..." % manifest_path)
     json_lines = []
+    total_sec = 0.0
+    total_text = 0.0
+    total_num = 0
+
     for subfolder, _, filelist in sorted(os.walk(data_dir)):
         text_filelist = [
             filename for filename in filelist if filename.endswith('trans.txt')
@@ -86,7 +90,9 @@ def create_manifest(data_dir, manifest_path):
             for line in io.open(text_filepath, encoding="utf8"):
                 segments = line.strip().split()
                 text = ' '.join(segments[1:]).lower()
-                audio_filepath = os.path.join(subfolder, segments[0] + '.flac')
+
+                audio_filepath = os.path.abspath(
+                    os.path.join(subfolder, segments[0] + '.flac'))
                 audio_data, samplerate = soundfile.read(audio_filepath)
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(
@@ -99,9 +105,26 @@ def create_manifest(data_dir, manifest_path):
                         'text':
                         text
                     }))
+
+                total_sec += duration
+                total_text += len(text)
+                total_num += 1
+
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:
             out_file.write(line + '\n')
+
+    subset = os.path.splitext(manifest_path)[1][1:]
+    manifest_dir = os.path.dirname(manifest_path)
+    data_dir_name = os.path.split(data_dir)[-1]
+    meta_path = os.path.join(manifest_dir, data_dir_name) + '.meta'
+    with open(meta_path, 'w') as f:
+        print(f"{subset}:", file=f)
+        print(f"{total_num} utts", file=f)
+        print(f"{total_sec / (60*60)} h", file=f)
+        print(f"{total_text} text", file=f)
+        print(f"{total_text / total_sec} text/sec", file=f)
+        print(f"{total_sec / total_num} sec/utt", file=f)
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):

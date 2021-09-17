@@ -3,18 +3,20 @@ data:
   train_manifest: data/manifest.tiny
   dev_manifest: data/manifest.tiny
   test_manifest: data/manifest.tiny
+  min_input_len: 0.5  # second
+  max_input_len: 30.0 # second
+  min_output_len: 0.0 # tokens
+  max_output_len: 400.0 # tokens
+  min_output_input_ratio: 0.05
+  max_output_input_ratio: 10.0
+  
+collator:
+  mean_std_filepath: ""
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
   spm_model_prefix: 'data/bpe_unigram_200'
-  mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
   batch_size: 4
-  min_input_len: 0.5
-  max_input_len: 20.0
-  min_output_len: 0.0
-  max_output_len: 400.0
-  min_output_input_ratio: 0.05
-  max_output_input_ratio: 10.0
   raw_wav: True  # use raw_wav or kaldi feature
   specgram_type: fbank #linear, mfcc, fbank
   feat_dim: 80
@@ -74,6 +76,8 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
+        ctc_dropoutrate: 0.0
+        ctc_grad_norm_type: instance
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
@@ -91,6 +95,9 @@ training:
     warmup_steps: 25000
     lr_decay: 1.0
   log_interval: 1
+  checkpoint:
+    kbest_n: 10
+    latest_n: 1
 
 
 decoding:

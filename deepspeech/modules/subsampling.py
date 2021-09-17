@@ -92,7 +92,7 @@ class Conv2dSubsampling4(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling4 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.
@@ -108,8 +108,8 @@ class Conv2dSubsampling4(BaseSubsampling):
             nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim))
         self.subsampling_rate = 4
         # The right context for every conv layer is computed by:
-        # (kernel_size - 1) / 2 * stride  * frame_rate_of_this_layer
-        # 6 = (3 - 1) / 2 * 2 * 1 + (3 - 1) / 2 * 2 * 2
+        # (kernel_size - 1) * frame_rate_of_this_layer
+        # 6 = (3 - 1) * 1 + (3 - 1) * 2
         self.right_context = 6
 
     def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
@@ -143,7 +143,7 @@ class Conv2dSubsampling6(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling6 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.
@@ -160,10 +160,10 @@ class Conv2dSubsampling6(BaseSubsampling):
         # when Padding == 0, O = (I - F - S) // S
         self.linear = nn.Linear(odim * (((idim - 1) // 2 - 2) // 3), odim)
         # The right context for every conv layer is computed by:
-        # (kernel_size - 1) / 2 * stride  * frame_rate_of_this_layer
-        # 14 = (3 - 1) / 2 * 2 * 1 + (5 - 1) / 2 * 3 * 2
+        # (kernel_size - 1) * frame_rate_of_this_layer
+        # 10 = (3 - 1) * 1 + (5 - 1) * 2
         self.subsampling_rate = 6
-        self.right_context = 14
+        self.right_context = 10
 
     def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
                 ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
@@ -196,7 +196,7 @@ class Conv2dSubsampling8(BaseSubsampling):
                  dropout_rate: float,
                  pos_enc_class: nn.Layer=PositionalEncoding):
         """Construct an Conv2dSubsampling8 object.
-        
+
         Args:
             idim (int): Input dimension.
             odim (int): Output dimension.
@@ -214,8 +214,8 @@ class Conv2dSubsampling8(BaseSubsampling):
                                 odim)
         self.subsampling_rate = 8
         # The right context for every conv layer is computed by:
-        # (kernel_size - 1) / 2 * stride  * frame_rate_of_this_layer
-        # 14 = (3 - 1) / 2 * 2 * 1 + (3 - 1) / 2 * 2 * 2 + (3 - 1) / 2 * 2 * 4
+        # (kernel_size - 1) * frame_rate_of_this_layer
+        # 14 = (3 - 1) * 1 + (3 - 1) * 2 + (3 - 1) * 4
         self.right_context = 14
 
     def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0

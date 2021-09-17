@@ -16,23 +16,23 @@ import argparse
 
 def default_argument_parser():
     r"""A simple yet genral argument parser for experiments with parakeet.
-    
-    This is used in examples with parakeet. And it is intended to be used by 
-    other experiments with parakeet. It requires a minimal set of command line 
+
+    This is used in examples with parakeet. And it is intended to be used by
+    other experiments with parakeet. It requires a minimal set of command line
     arguments to start a training script.
-    
-    The ``--config`` and ``--opts`` are used for overwrite the deault 
+
+    The ``--config`` and ``--opts`` are used for overwrite the deault
     configuration.
-    
-    The ``--data`` and ``--output`` specifies the data path and output path. 
-    Resuming training from existing progress at the output directory is the 
+
+    The ``--data`` and ``--output`` specifies the data path and output path.
+    Resuming training from existing progress at the output directory is the
     intended default behavior.
-    
+
     The ``--checkpoint_path`` specifies the checkpoint to load from.
-    
+
     The ``--device`` and ``--nprocs`` specifies how to run the training.
-    
-    
+
+
     See Also
     --------
     parakeet.training.experiment
@@ -43,32 +43,57 @@ def default_argument_parser():
     """
     parser = argparse.ArgumentParser()
 
-    # yapf: disable
-    # data and output
-    parser.add_argument("--config", metavar="FILE", help="path of the config file to overwrite to default config with.")
-    parser.add_argument("--dump-config", metavar="FILE", help="dump config to yaml file.")
-    # parser.add_argument("--data", metavar="DATA_DIR", help="path to the datatset.")
-    parser.add_argument("--output", metavar="OUTPUT_DIR", help="path to save checkpoint and logs.")
+    train_group = parser.add_argument_group(
+        title='Train Options', description=None)
+    train_group.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="seed to use for paddle, np and random. None or 0 for random, else set seed."
+    )
+    train_group.add_argument(
+        "--device",
+        type=str,
+        default='gpu',
+        choices=["cpu", "gpu"],
+        help="device cpu and gpu are supported.")
+    train_group.add_argument(
+        "--nprocs",
+        type=int,
+        default=1,
+        help="number of parallel processes. 0 for cpu.")
+    train_group.add_argument(
+        "--config", metavar="CONFIG_FILE", help="config file.")
+    train_group.add_argument(
+        "--output", metavar="CKPT_DIR", help="path to save checkpoint.")
+    train_group.add_argument(
+        "--checkpoint_path", type=str, help="path to load checkpoint")
+    train_group.add_argument(
+        "--opts",
+        type=str,
+        default=[],
+        nargs='+',
+        help="overwrite --config file, passing in LIST[KEY VALUE] pairs")
+    train_group.add_argument(
+        "--dump-config", metavar="FILE", help="dump config to `this` file.")
 
-    # load from saved checkpoint
-    parser.add_argument("--checkpoint_path", type=str, help="path of the checkpoint to load")
-
-    # save jit model to 
-    parser.add_argument("--export_path", type=str, help="path of the jit model to save")
-
-    # save asr result to 
-    parser.add_argument("--result_file", type=str, help="path of save the asr result")
-
-    # running
-    parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
-                        help="device type to use, cpu and gpu are supported.")
-    parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
-
-    # overwrite extra config and default config
-    # parser.add_argument("--opts", nargs=argparse.REMAINDER, 
-    # help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
-    parser.add_argument("--opts", type=str, default=[], nargs='+',
-                        help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
-    # yapd: enable
+    profile_group = parser.add_argument_group(
+        title='Benchmark Options', description=None)
+    profile_group.add_argument(
+        '--profiler-options',
+        type=str,
+        default=None,
+        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".'
+    )
+    profile_group.add_argument(
+        '--benchmark-batch-size',
+        type=int,
+        default=None,
+        help='batch size for benchmark.')
+    profile_group.add_argument(
+        '--benchmark-max-step',
+        type=int,
+        default=None,
+        help='max iteration for benchmark.')
 
     return parser

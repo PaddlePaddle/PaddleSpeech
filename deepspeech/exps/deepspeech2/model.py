@@ -36,6 +36,7 @@ from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
 from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.trainer import Trainer
+from deepspeech.training.reporter import report
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
@@ -67,7 +68,9 @@ class DeepSpeech2Trainer(Trainer):
         super().__init__(config, args)
 
     def train_batch(self, batch_index, batch_data, msg):
-        train_conf = self.config.training
+        batch_size = self.config.collator.batch_size
+        accum_grad = self.config.training.accum_grad
+
         start = time.time()
 
         # forward
@@ -78,7 +81,7 @@ class DeepSpeech2Trainer(Trainer):
         }
 
         # loss backward
-        if (batch_index + 1) % train_conf.accum_grad != 0:
+        if (batch_index + 1) % accum_grad != 0:
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
@@ -93,20 +96,19 @@ class DeepSpeech2Trainer(Trainer):
             layer_tools.print_grads(self.model, print_func=None)
 
         # optimizer step
-        if (batch_index + 1) % train_conf.accum_grad == 0:
+        if (batch_index + 1) % accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()
             self.iteration += 1
 
         iteration_time = time.time() - start
 
-        msg += "batch cost: {:>.3f}s, ".format(iteration_time)
-        msg += "batch size: {}, ".format(self.config.collator.batch_size)
-        msg += "accum: {}, ".format(train_conf.accum_grad)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in losses_np.items())
-        logger.info(msg)
-
+        for k, v in losses_np.items():
+            report(k, v)
+        report("batch_size", batch_size)
+        report("accum", accum_grad)
+        report("step_cost", iteration_time)
+        
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 # `step -1` since we update `step` after optimizer.step().

@@ -43,25 +43,57 @@ def default_argument_parser():
     """
     parser = argparse.ArgumentParser()
 
-    # yapf: disable
-    train_group = parser.add_argument_group(title='Train Options', description=None)
-    train_group.add_argument("--seed", type=int, default=None,
-                        help="seed to use for paddle, np and random. None or 0 for random, else set seed.")
-    train_group.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
+    train_group = parser.add_argument_group(
+        title='Train Options', description=None)
+    train_group.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="seed to use for paddle, np and random. None or 0 for random, else set seed."
+    )
+    train_group.add_argument(
+        "--device",
+        type=str,
+        default='gpu',
+        choices=["cpu", "gpu"],
         help="device cpu and gpu are supported.")
-    train_group.add_argument("--nprocs", type=int, default=1, help="number of parallel processes. 0 for cpu.")
-    train_group.add_argument("--config", metavar="CONFIG_FILE", help="config file.")
-    train_group.add_argument("--output", metavar="CKPT_DIR", help="path to save checkpoint.")
-    train_group.add_argument("--checkpoint_path", type=str, help="path to load checkpoint")
-    train_group.add_argument("--opts", type=str, default=[], nargs='+',
-                        help="overwrite --config file, passing in LIST[KEY VALUE] pairs")
-    train_group.add_argument("--dump-config", metavar="FILE", help="dump config to `this` file.")
+    train_group.add_argument(
+        "--nprocs",
+        type=int,
+        default=1,
+        help="number of parallel processes. 0 for cpu.")
+    train_group.add_argument(
+        "--config", metavar="CONFIG_FILE", help="config file.")
+    train_group.add_argument(
+        "--output", metavar="CKPT_DIR", help="path to save checkpoint.")
+    train_group.add_argument(
+        "--checkpoint_path", type=str, help="path to load checkpoint")
+    train_group.add_argument(
+        "--opts",
+        type=str,
+        default=[],
+        nargs='+',
+        help="overwrite --config file, passing in LIST[KEY VALUE] pairs")
+    train_group.add_argument(
+        "--dump-config", metavar="FILE", help="dump config to `this` file.")
 
-    bech_group = parser.add_argument_group(title='Benchmark Options', description=None)
-    bech_group.add_argument('--profiler-options', type=str, default=None,
-        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".')
-    bech_group.add_argument('--benchmark-batch-size', type=int, default=None, help='batch size for benchmark.')
-    bech_group.add_argument('--benchmark-max-step', type=int, default=None, help='max iteration for benchmark.')
-    # yapd: enable
+    profile_group = parser.add_argument_group(
+        title='Benchmark Options', description=None)
+    profile_group.add_argument(
+        '--profiler-options',
+        type=str,
+        default=None,
+        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".'
+    )
+    profile_group.add_argument(
+        '--benchmark-batch-size',
+        type=int,
+        default=None,
+        help='batch size for benchmark.')
+    profile_group.add_argument(
+        '--benchmark-max-step',
+        type=int,
+        default=None,
+        help='max iteration for benchmark.')
 
     return parser

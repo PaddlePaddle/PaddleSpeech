@@ -38,7 +38,7 @@ python3 -u ${BIN_DIR}/train.py \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---profiler-options "${profiler-options}" \
+--profiler-options "${profiler_options}" \
 --benchmark-batch-size ${benchmark_batch_size} \
 --benchmark-max-step ${benchmark_max_step}
 

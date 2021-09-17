@@ -76,19 +76,19 @@ class ManifestDataset(Dataset):
 
         Args:
             manifest_path (str): manifest josn file path
-            max_input_len ([type], optional): maximum output seq length, 
+            max_input_len ([type], optional): maximum output seq length,
                 in seconds for raw wav, in frame numbers for feature data. Defaults to float('inf').
-            min_input_len (float, optional): minimum input seq length, 
+            min_input_len (float, optional): minimum input seq length,
                 in seconds for raw wav, in frame numbers for feature data. Defaults to 0.0.
-            max_output_len (float, optional): maximum input seq length, 
+            max_output_len (float, optional): maximum input seq length,
                 in modeling units. Defaults to 500.0.
-            min_output_len (float, optional): minimum input seq length, 
+            min_output_len (float, optional): minimum input seq length,
                 in modeling units. Defaults to 0.0.
-            max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio. 
+            max_output_input_ratio (float, optional): maximum output seq length/output seq length ratio.
                 Defaults to 10.0.
             min_output_input_ratio (float, optional): minimum output seq length/output seq length ratio.
                 Defaults to 0.05.
-        
+
         """
         super().__init__()
 

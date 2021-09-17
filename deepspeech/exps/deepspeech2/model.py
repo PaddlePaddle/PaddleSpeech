@@ -100,7 +100,7 @@ class DeepSpeech2Trainer(Trainer):
 
         iteration_time = time.time() - start
 
-        msg += "train time: {:>.3f}s, ".format(iteration_time)
+        msg += "batch cost: {:>.3f}s, ".format(iteration_time)
         msg += "batch size: {}, ".format(self.config.collator.batch_size)
         msg += "accum: {}, ".format(train_conf.accum_grad)
         msg += ', '.join('{}: {:>.6f}'.format(k, v)

@@ -106,6 +106,7 @@ class Trainer():
         if self.args.benchmark_batch_size:
             with UpdateConfig(self.config):
                 self.config.collator.batch_size = self.args.benchmark_batch_size
+                self.config.training.log_interval = 1
             logger.info(
                 f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 

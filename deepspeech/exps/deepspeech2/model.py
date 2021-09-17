@@ -35,8 +35,8 @@ from deepspeech.models.ds2 import DeepSpeech2Model
 from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
 from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
-from deepspeech.training.trainer import Trainer
 from deepspeech.training.reporter import report
+from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
@@ -108,7 +108,7 @@ class DeepSpeech2Trainer(Trainer):
         report("batch_size", batch_size)
         report("accum", accum_grad)
         report("step_cost", iteration_time)
-        
+
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
                 # `step -1` since we update `step` after optimizer.step().

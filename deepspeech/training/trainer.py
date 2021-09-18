@@ -303,7 +303,6 @@ class Trainer():
             try:
                 self.train()
             except KeyboardInterrupt:
-                self.save()
                 exit(-1)
             finally:
                 self.destory()

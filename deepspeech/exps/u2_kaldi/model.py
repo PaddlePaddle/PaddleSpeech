@@ -41,6 +41,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -319,10 +320,10 @@ class U2Trainer(Trainer):
 
         # model
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.feat_dim
-        model_conf.output_dim = self.train_loader.vocab_size
-        model_conf.freeze()
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.feat_dim
+            model_conf.output_dim = self.train_loader.vocab_size
+
         model = U2Model.from_config(model_conf)
         if self.parallel:
             model = paddle.DataParallel(model)
@@ -555,7 +556,7 @@ class U2Tester(U2Trainer):
                 # 1. Encoder
                 encoder_out, encoder_mask = self.model._forward_encoder(
                     feat, feats_length)  # (B, maxlen, encoder_dim)
-                maxlen = encoder_out.size(1)
+                maxlen = encoder_out.shape[1]
                 ctc_probs = self.model.ctc.log_softmax(
                     encoder_out)  # (1, maxlen, vocab_size)
 

@@ -42,6 +42,7 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils.log import Log
 from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import th_accuracy
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]
 
@@ -339,8 +340,8 @@ class U2STBaseModel(nn.Layer):
             speech, speech_lengths, decoding_chunk_size,
             num_decoding_left_chunks,
             simulate_streaming)  # (B, maxlen, encoder_dim)
-        maxlen = encoder_out.size(1)
-        encoder_dim = encoder_out.size(2)
+        maxlen = encoder_out.shape[1]
+        encoder_dim = encoder_out.shape[2]
         running_size = batch_size * beam_size
         encoder_out = encoder_out.unsqueeze(1).repeat(1, beam_size, 1, 1).view(
             running_size, maxlen, encoder_dim)  # (B*N, maxlen, encoder_dim)
@@ -495,13 +496,13 @@ class U2STBaseModel(nn.Layer):
         Returns:
             paddle.Tensor: decoder output, (B, L)
         """
-        assert encoder_out.size(0) == 1
-        num_hyps = hyps.size(0)
-        assert hyps_lens.size(0) == num_hyps
+        assert encoder_out.shape[0] == 1
+        num_hyps = hyps.shape[0]
+        assert hyps_lens.shape[0] == num_hyps
         encoder_out = encoder_out.repeat(num_hyps, 1, 1)
         # (B, 1, T)
         encoder_mask = paddle.ones(
-            [num_hyps, 1, encoder_out.size(1)], dtype=paddle.bool)
+            [num_hyps, 1, encoder_out.shape[1]], dtype=paddle.bool)
         # (num_hyps, max_hyps_len, vocab_size)
         decoder_out, _ = self.decoder(encoder_out, encoder_mask, hyps,
                                       hyps_lens)
@@ -556,7 +557,7 @@ class U2STBaseModel(nn.Layer):
         Returns:
             List[List[int]]: transcripts.
         """
-        batch_size = feats.size(0)
+        batch_size = feats.shape[0]
 
         if decoding_method == 'fullsentence':
             hyps = self.translate(
@@ -686,10 +687,10 @@ class U2STModel(U2STBaseModel):
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """
-        config.defrost()
-        config.input_dim = dataloader.collate_fn.feature_size
-        config.output_dim = dataloader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.input_dim = dataloader.collate_fn.feature_size
+            config.output_dim = dataloader.collate_fn.vocab_size
+
         model = cls.from_config(config)
 
         if checkpoint_path:

@@ -184,11 +184,13 @@ class Trainer():
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
             scratch = False
+            logger.info(
+                f"Restore ckpt: epoch {self.epoch }, step {self.iteration}!")
         else:
             self.iteration = 0
             self.epoch = 0
             scratch = True
-        logger.info("Restore/Init checkpoint!")
+            logger.info("Init from scratch!")
         return scratch
 
     def maybe_batch_sampler_step(self):
@@ -207,6 +209,8 @@ class Trainer():
             # resume: train next_epoch and next_iteration
             self.epoch += 1
             self.iteration += 1
+            logger.info(
+                f"Resume train: epoch {self.epoch }, step {self.iteration}!")
 
         self.maybe_batch_sampler_step()
 

@@ -200,7 +200,7 @@ class Trainer():
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
                 batch_sampler.set_epoch(self.epoch)
 
-    def before_train(self, from_scratch):
+    def before_train(self):
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # scratch: save init model, i.e. 0 epoch

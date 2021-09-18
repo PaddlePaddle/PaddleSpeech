@@ -104,8 +104,8 @@ def add_profiler_step(options_str=None):
 
     if _profiler_options is None:
         _profiler_options = ProfilerOptions(options_str)
-        logger.info(f"{options_str}")
-        logger.info(f"{_profiler_options._options}")
+        logger.info(f"Profiler: {options_str}")
+        logger.info(f"Profiler: {_profiler_options._options}")
 
     if _profiler_step_id == _profiler_options['batch_range'][0]:
         paddle.utils.profiler.start_profiler(_profiler_options['state'],

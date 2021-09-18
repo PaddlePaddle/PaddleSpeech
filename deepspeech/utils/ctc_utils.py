@@ -86,8 +86,10 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     log_alpha = paddle.zeros(
         (ctc_probs.size(0), len(y_insert_blank)))  #(T, 2L+1)
     log_alpha = log_alpha - float('inf')  # log of zero
+
+    # self.__setitem_varbase__(item, value) When assign a value to a paddle.Tensor, the data type of the paddle.Tensor not support int16
     state_path = (paddle.zeros(
-        (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int16) - 1
+        (ctc_probs.size(0), len(y_insert_blank)), dtype=paddle.int32) - 1
                   )  # state path, Tuple((T, 2L+1))
 
     # init start state
@@ -111,8 +113,8 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
             log_alpha[t, s] = paddle.max(candidates) + ctc_probs[t][
                 y_insert_blank[s]]
             state_path[t, s] = prev_state[paddle.argmax(candidates)]
-
-    state_seq = -1 * paddle.ones((ctc_probs.size(0), 1), dtype=paddle.int16)
+    # self.__setitem_varbase__(item, value) When assign a value to a paddle.Tensor, the data type of the paddle.Tensor not support int16
+    state_seq = -1 * paddle.ones((ctc_probs.size(0), 1), dtype=paddle.int32)
 
     candidates = paddle.to_tensor([
         log_alpha[-1, len(y_insert_blank) - 1],  # Sb

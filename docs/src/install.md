@@ -4,7 +4,7 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 
 ## Prerequisites
 - Python >= 3.7
-- PaddlePaddle 2.0.0 or later (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
+- PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
 ## Setup (Important)
 

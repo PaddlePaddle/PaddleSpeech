@@ -17,6 +17,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from collections import OrderedDict
 from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
@@ -33,6 +34,8 @@ from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2 import U2Model
 from deepspeech.training.optimizer import OptimizerFactory
+from deepspeech.training.reporter import ObsScope
+from deepspeech.training.reporter import report
 from deepspeech.training.scheduler import LRSchedulerFactory
 from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
@@ -43,6 +46,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -100,7 +104,8 @@ class U2Trainer(Trainer):
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
-            context = self.model.no_sync
+            # When using cpu w/o DDP, model does not have `no_sync`
+            context = self.model.no_sync if self.parallel else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -118,14 +123,13 @@ class U2Trainer(Trainer):
 
         iteration_time = time.time() - start
 
-        if (batch_index + 1) % train_conf.log_interval == 0:
-            msg += "train time: {:>.3f}s, ".format(iteration_time)
-            msg += "batch size: {}, ".format(self.config.collator.batch_size)
-            msg += "accum: {}, ".format(train_conf.accum_grad)
-            msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                             for k, v in losses_np.items())
-            logger.info(msg)
+        for k, v in losses_np.items():
+            report(k, v)
+        report("batch_size", self.config.collator.batch_size)
+        report("accum", train_conf.accum_grad)
+        report("step_cost", iteration_time)
 
+        if (batch_index + 1) % train_conf.accum_grad == 0:
             if dist.get_rank() == 0 and self.visualizer:
                 losses_np_v = losses_np.copy()
                 losses_np_v.update({"lr": self.lr_scheduler()})
@@ -182,9 +186,10 @@ class U2Trainer(Trainer):
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # save init model, i.e. 0 epoch
-            self.save(tag='init')
+            self.save(tag='init', infos=None)
 
-        self.lr_scheduler.step(self.iteration)
+        # lr will resotre from optimizer ckpt
+        # self.lr_scheduler.step(self.iteration)
         if self.parallel and hasattr(self.train_loader, 'batch_sampler'):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 
@@ -196,14 +201,31 @@ class U2Trainer(Trainer):
                     data_start_time = time.time()
                     for batch_index, batch in enumerate(self.train_loader):
                         dataload_time = time.time() - data_start_time
-                        msg = "Train: Rank: {}, ".format(dist.get_rank())
-                        msg += "epoch: {}, ".format(self.epoch)
-                        msg += "step: {}, ".format(self.iteration)
-                        msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                        len(self.train_loader))
-                        msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                        msg += "data time: {:>.3f}s, ".format(dataload_time)
-                        self.train_batch(batch_index, batch, msg)
+                        msg = "Train:"
+                        observation = OrderedDict()
+                        with ObsScope(observation):
+                            report("Rank", dist.get_rank())
+                            report("epoch", self.epoch)
+                            report('step', self.iteration)
+                            report('step/total',
+                                   (batch_index + 1) / len(self.train_loader))
+                            report("lr", self.lr_scheduler())
+                            self.train_batch(batch_index, batch, msg)
+                            self.after_train_batch()
+                            report('reader_cost', dataload_time)
+                        observation['batch_cost'] = observation[
+                            'reader_cost'] + observation['step_cost']
+                        observation['samples'] = observation['batch_size']
+                        observation['ips[sent./sec]'] = observation[
+                            'batch_size'] / observation['batch_cost']
+                        for k, v in observation.items():
+                            msg += f" {k}: "
+                            msg += f"{v:>.8f}" if isinstance(v,
+                                                             float) else f"{v}"
+                            msg += ","
+                        if (batch_index + 1
+                            ) % self.config.training.log_interval == 0:
+                            logger.info(msg)
                         data_start_time = time.time()
                 except Exception as e:
                     logger.error(e)
@@ -312,10 +334,11 @@ class U2Trainer(Trainer):
     def setup_model(self):
         config = self.config
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.collate_fn.feature_size
-        model_conf.output_dim = self.train_loader.collate_fn.vocab_size
-        model_conf.freeze()
+
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.collate_fn.feature_size
+            model_conf.output_dim = self.train_loader.collate_fn.vocab_size
+
         model = U2Model.from_config(model_conf)
 
         if self.parallel:
@@ -558,7 +581,7 @@ class U2Tester(U2Trainer):
                 # 1. Encoder
                 encoder_out, encoder_mask = self.model._forward_encoder(
                     feat, feats_length)  # (B, maxlen, encoder_dim)
-                maxlen = encoder_out.size(1)
+                maxlen = encoder_out.shape[1]
                 ctc_probs = self.model.ctc.log_softmax(
                     encoder_out)  # (1, maxlen, vocab_size)
 
@@ -566,26 +589,25 @@ class U2Tester(U2Trainer):
                 ctc_probs = ctc_probs.squeeze(0)
                 target = target.squeeze(0)
                 alignment = ctc_utils.forced_align(ctc_probs, target)
-                logger.info("align ids", key[0], alignment)
+                logger.info(f"align ids: {key[0]} {alignment}")
                 fout.write('{} {}\n'.format(key[0], alignment))
 
                 # 3. gen praat
                 # segment alignment
                 align_segs = text_grid.segment_alignment(alignment)
-                logger.info("align tokens", key[0], align_segs)
+                logger.info(f"align tokens: {key[0]}, {align_segs}")
                 # IntervalTier, List["start end token\n"]
                 subsample = utility.get_subsample(self.config)
                 tierformat = text_grid.align_to_tierformat(
                     align_segs, subsample, token_dict)
                 # write tier
-                align_output_path = os.path.join(
-                    os.path.dirname(self.args.result_file), "align")
-                tier_path = os.path.join(align_output_path, key[0] + ".tier")
-                with open(tier_path, 'w') as f:
+                align_output_path = Path(self.args.result_file).parent / "align"
+                align_output_path.mkdir(parents=True, exist_ok=True)
+                tier_path = align_output_path / (key[0] + ".tier")
+                with tier_path.open('w') as f:
                     f.writelines(tierformat)
                 # write textgrid
-                textgrid_path = os.path.join(align_output_path,
-                                             key[0] + ".TextGrid")
+                textgrid_path = align_output_path / (key[0] + ".TextGrid")
                 second_per_frame = 1. / (1000. /
                                          stride_ms)  # 25ms window, 10ms stride
                 second_per_example = (
@@ -593,7 +615,7 @@ class U2Tester(U2Trainer):
                 text_grid.generate_textgrid(
                     maxtime=second_per_example,
                     intervals=tierformat,
-                    output=textgrid_path)
+                    output=str(textgrid_path))
 
     def run_align(self):
         self.resume_or_scratch()

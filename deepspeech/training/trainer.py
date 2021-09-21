@@ -11,18 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 import time
+from collections import OrderedDict
 from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
+from deepspeech.training.reporter import ObsScope
+from deepspeech.training.reporter import report
 from deepspeech.training.timer import Timer
 from deepspeech.utils import mp_tools
+from deepspeech.utils import profiler
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import seed_all
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["Trainer"]
 
@@ -95,10 +101,20 @@ class Trainer():
         self.checkpoint_dir = None
         self.iteration = 0
         self.epoch = 0
+        self.rank = dist.get_rank()
+
+        logger.info(f"Rank: {self.rank}/{dist.get_world_size()}")
 
         if args.seed:
             seed_all(args.seed)
             logger.info(f"Set seed {args.seed}")
+
+        if self.args.benchmark_batch_size:
+            with UpdateConfig(self.config):
+                self.config.collator.batch_size = self.args.benchmark_batch_size
+                self.config.training.log_interval = 1
+            logger.info(
+                f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 
     def setup(self):
         """Setup the experiment.
@@ -183,13 +199,23 @@ class Trainer():
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
                 batch_sampler.set_epoch(self.epoch)
 
+    def after_train_batch(self):
+        if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
+            profiler.add_profiler_step(self.args.profiler_options)
+            logger.info(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+            sys.exit(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+
     def train(self):
         """The training process control by epoch."""
         from_scratch = self.resume_or_scratch()
         if from_scratch:
             # save init model, i.e. 0 epoch
             self.save(tag='init', infos=None)
-        self.lr_scheduler.step(self.epoch)
+
+        # lr will resotre from optimizer ckpt
+        # self.lr_scheduler.step(self.epoch)
         if self.parallel and hasattr(self.train_loader, "batch_sampler"):
             self.train_loader.batch_sampler.set_epoch(self.epoch)
 
@@ -201,14 +227,29 @@ class Trainer():
                     data_start_time = time.time()
                     for batch_index, batch in enumerate(self.train_loader):
                         dataload_time = time.time() - data_start_time
-                        msg = "Train: Rank: {}, ".format(dist.get_rank())
-                        msg += "epoch: {}, ".format(self.epoch)
-                        msg += "step: {}, ".format(self.iteration)
-                        msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                        len(self.train_loader))
-                        msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                        msg += "data time: {:>.3f}s, ".format(dataload_time)
-                        self.train_batch(batch_index, batch, msg)
+                        msg = "Train:"
+                        observation = OrderedDict()
+                        with ObsScope(observation):
+                            report("Rank", dist.get_rank())
+                            report("epoch", self.epoch)
+                            report('step', self.iteration)
+                            report('step/total',
+                                   (batch_index + 1) / len(self.train_loader))
+                            report("lr", self.lr_scheduler())
+                            self.train_batch(batch_index, batch, msg)
+                            self.after_train_batch()
+                            report('reader_cost', dataload_time)
+                        observation['batch_cost'] = observation[
+                            'reader_cost'] + observation['step_cost']
+                        observation['samples'] = observation['batch_size']
+                        observation['ips[sent./sec]'] = observation[
+                            'batch_size'] / observation['batch_cost']
+                        for k, v in observation.items():
+                            msg += f" {k}: "
+                            msg += f"{v:>.8f}" if isinstance(v,
+                                                             float) else f"{v}"
+                            msg += ","
+                        logger.info(msg)
                         data_start_time = time.time()
                 except Exception as e:
                     logger.error(e)

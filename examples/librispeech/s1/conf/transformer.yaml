@@ -33,7 +33,7 @@ collator:
   keep_transcription_text: False
   sortagrad: True 
   shuffle_method: batch_shuffle
-  num_workers: 0
+  num_workers: 2
 
 
 # network architecture
@@ -74,7 +74,7 @@ model:
 
 
 training:
-  n_epoch: 120
+  n_epoch: 120 
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam

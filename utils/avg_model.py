@@ -80,8 +80,8 @@ def main(args):
         data = json.dumps({
             "avg_ckpt": args.dst_model,
             "ckpt": path_list,
-            "epoch": selected_epochs.tolist(),
-            "val_loss": beat_val_scores.tolist(),
+            "epoch": selected_epochs,
+            "val_loss": beat_val_scores,
         })
         f.write(data + "\n")
 

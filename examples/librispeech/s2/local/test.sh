@@ -36,7 +36,7 @@ for type in attention ctc_greedy_search; do
         # stream decoding only support batchsize=1
         batch_size=1
     else
-        batch_size=64
+        batch_size=1
     fi
     python3 -u ${BIN_DIR}/test.py \
     --model-name u2_kaldi \

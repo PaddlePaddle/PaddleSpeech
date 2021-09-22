@@ -6,7 +6,7 @@ stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
 dict_path=data/train_960_unigram5000_units.txt
-avg_num=5
+avg_num=10
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
@@ -20,12 +20,12 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=0,1,2,3 ./local/train.sh ${conf_path}  ${ckpt}
+    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 ./local/train.sh ${conf_path}  ${ckpt}
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # avg n best model
-    avg.sh best exp/${ckpt}/checkpoints ${avg_num}
+    avg.sh latest exp/${ckpt}/checkpoints ${avg_num}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

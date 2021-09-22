@@ -12,5 +12,4 @@ export PYTHONPATH=${LOCAL_DEEPSPEECH2}:${PYTHONPATH}
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 
 MODEL=deepspeech2
-export BIN_DIR=${LOCAL_DEEPSPEECH2}/deepspeech2x/bin
-echo "BIN_DIR "${BIN_DIR}
+export BIN_DIR=${LOCAL_DEEPSPEECH2}/src_deepspeech2x/bin

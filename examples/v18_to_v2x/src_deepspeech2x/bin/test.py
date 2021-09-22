@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Evaluation for DeepSpeech2 model."""
-from deepspeech2x.model import DeepSpeech2Tester as Tester
+from src_deepspeech2x.test_model import DeepSpeech2Tester as Tester
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.training.cli import default_argument_parser

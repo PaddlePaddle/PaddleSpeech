@@ -1,7 +1,14 @@
 #!/bin/bash
+if [ $# != 1 ];then
+    echo "usage: ${0} ckpt_dir"
+    exit -1
+fi
+
+ckpt_dir=$1
 
 stage=-1
 stop_stage=100
+unit_type=char
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
@@ -10,17 +17,17 @@ TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 
 
-bash local/download_model.sh
+bash local/download_model.sh ${ckpt_dir}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
+cd ${ckpt_dir}
 tar xzvf baidu_en8k_v1.8_to_v2.x.tar.gz
-mv baidu_en8k_v1.8.pdparams exp/deepspeech2/checkpoints/
-mv README.md exp/deepspeech2/
-mv mean_std.npz data/
-mv vocab.txt data/
-rm baidu_en8k_v1.8_to_v2.x.tar.gz -f
+cd -
+mv ${ckpt_dir}/mean_std.npz data/
+mv ${ckpt_dir}/vocab.txt data/
+
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     # download data, generate manifests
@@ -53,35 +60,13 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 fi
 
 
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # compute mean and stddev for normalizer
-    num_workers=$(nproc)
-    python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
-    --manifest_path="data/manifest.train.raw" \
-    --num_samples=2000 \
-    --specgram_type="linear" \
-    --delta_delta=false \
-    --sample_rate=16000 \
-    --stride_ms=10.0 \
-    --window_ms=20.0 \
-    --use_dB_normalization=True \
-    --num_workers=${num_workers} \
-    --output_path="data/mean_std.json"
-
-    if [ $? -ne 0 ]; then
-        echo "Compute mean and stddev failed. Terminated."
-        exit 1
-    fi
-fi
-
-
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size
     for set in train dev test dev-clean dev-other test-clean test-other; do
     {
         python3 ${MAIN_ROOT}/utils/format_data.py \
         --feat_type "raw" \
-        --cmvn_path "data/mean_std.json" \
+        --cmvn_path "data/mean_std.npz" \
         --unit_type ${unit_type} \
         --vocab_path="data/vocab.txt" \
         --manifest_path="data/manifest.${set}.raw" \

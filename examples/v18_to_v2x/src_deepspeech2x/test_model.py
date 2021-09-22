@@ -20,10 +20,10 @@ from typing import Optional
 
 import numpy as np
 import paddle
-from deepspeech2x.models.ds2 import DeepSpeech2InferModel
-from deepspeech2x.models.ds2 import DeepSpeech2Model
 from paddle import distributed as dist
 from paddle.io import DataLoader
+from src_deepspeech2x.models.ds2 import DeepSpeech2InferModel
+from src_deepspeech2x.models.ds2 import DeepSpeech2Model
 from yacs.config import CfgNode
 
 from deepspeech.io.collator import SpeechCollator

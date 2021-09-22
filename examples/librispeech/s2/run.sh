@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
-source path.sh
+
+. ./path.sh || exit 1;
+. ./cmd.sh || exit 1;
 
 stage=0
 stop_stage=100

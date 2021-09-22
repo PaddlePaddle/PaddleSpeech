@@ -119,7 +119,7 @@ class Trainer():
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device('gpu' self.args.nprocs > 0 else 'cpu')
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
         if self.parallel:
             self.init_parallel()
 
@@ -139,7 +139,7 @@ class Trainer():
         """A flag indicating whether the experiment should run with
         multiprocessing.
         """
-        return elf.args.nprocs > 0
+        return self.args.nprocs > 0
 
     def init_parallel(self):
         """Init environment for multiprocess training.

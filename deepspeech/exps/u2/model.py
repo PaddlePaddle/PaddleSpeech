@@ -183,15 +183,7 @@ class U2Trainer(Trainer):
         # script_model_path = str(self.checkpoint_dir / 'init')
         # paddle.jit.save(script_model, script_model_path)
 
-        from_scratch = self.resume_or_scratch()
-        if from_scratch:
-            # save init model, i.e. 0 epoch
-            self.save(tag='init', infos=None)
-
-        # lr will resotre from optimizer ckpt
-        # self.lr_scheduler.step(self.iteration)
-        if self.parallel and hasattr(self.train_loader, 'batch_sampler'):
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
@@ -207,8 +199,8 @@ class U2Trainer(Trainer):
                             report("Rank", dist.get_rank())
                             report("epoch", self.epoch)
                             report('step', self.iteration)
-                            report('step/total',
-                                   (batch_index + 1) / len(self.train_loader))
+                            report('iter', batch_index + 1)
+                            report('total',len(self.train_loader))
                             report("lr", self.lr_scheduler())
                             self.train_batch(batch_index, batch, msg)
                             self.after_train_batch()

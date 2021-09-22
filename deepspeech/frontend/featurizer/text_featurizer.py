@@ -83,6 +83,8 @@ class TextFeaturizer():
         tokens = self.tokenize(text)
         ids = []
         for token in tokens:
+            if '' in self.vocab_dict and token == ' ':
+                token = ''
             token = token if token in self.vocab_dict else self.unk
             ids.append(self.vocab_dict[token])
         return ids

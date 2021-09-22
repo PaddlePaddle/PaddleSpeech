@@ -76,7 +76,7 @@ class TextFeaturizer():
 
         Args:
             text (str): Text.
-        
+
         Returns:
             List[int]: List of token indices.
         """
@@ -89,7 +89,7 @@ class TextFeaturizer():
 
     def defeaturize(self, idxs):
         """Convert a list of token indices to text string,
-        ignore index after eos_id. 
+        ignore index after eos_id.
 
         Args:
             idxs (List[int]): List of token indices.
@@ -196,7 +196,12 @@ class TextFeaturizer():
             [(idx, token) for (idx, token) in enumerate(vocab_list)])
         token2id = dict(
             [(token, idx) for (idx, token) in enumerate(vocab_list)])
-
-        unk_id = vocab_list.index(UNK)
-        eos_id = vocab_list.index(EOS)
+        if UNK in vocab_list:
+            unk_id = vocab_list.index(UNK)
+        else:
+            unk_id = -1
+        if EOS in vocab_list:
+            eos_id = vocab_list.index(EOS)
+        else:
+            eos_id = -1
         return token2id, id2token, vocab_list, unk_id, eos_id

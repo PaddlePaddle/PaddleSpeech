@@ -401,7 +401,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
 
         self.setup_output_dir()
         self.setup_checkpointer()

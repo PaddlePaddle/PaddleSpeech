@@ -247,11 +247,11 @@ class Trainer():
                             report("Rank", dist.get_rank())
                             report("epoch", self.epoch)
                             report('step', self.iteration)
-                            report('iter', batch_index + 1)
-                            report('total',len(self.train_loader))
                             report("lr", self.lr_scheduler())
                             self.train_batch(batch_index, batch, msg)
                             self.after_train_batch()
+                            report('iter', batch_index + 1)
+                            report('total', len(self.train_loader))
                             report('reader_cost', dataload_time)
                         observation['batch_cost'] = observation[
                             'reader_cost'] + observation['step_cost']

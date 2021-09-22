@@ -14,6 +14,20 @@
 import argparse
 
 
+class ExtendAction(argparse.Action):
+    """
+    [Since Python 3.8, the "extend" is available directly in stdlib]
+    (https://docs.python.org/3.8/library/argparse.html#action).
+    If you only have to support 3.8+ then defining it yourself is no longer required. 
+    Usage of stdlib "extend" action is exactly the same way as this answer originally described:
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
 def default_argument_parser():
     r"""A simple yet genral argument parser for experiments with parakeet.
 
@@ -42,6 +56,7 @@ def default_argument_parser():
         the parser
     """
     parser = argparse.ArgumentParser()
+    parser.register('action', 'extend', ExtendAction)
 
     train_group = parser.add_argument_group(
         title='Train Options', description=None)
@@ -64,10 +79,10 @@ def default_argument_parser():
         "--checkpoint_path", type=str, help="path to load checkpoint")
     train_group.add_argument(
         "--opts",
-        type=str,
-        default=[],
-        nargs='+',
-        help="overwrite --config file, passing in LIST[KEY VALUE] pairs")
+        action='extend',
+        nargs=2,
+        metavar=('key', 'val'),
+        help="overwrite --config field, passing (KEY VALUE) pairs")
     train_group.add_argument(
         "--dump-config", metavar="FILE", help="dump config to `this` file.")
 

@@ -198,14 +198,7 @@ class U2STTrainer(Trainer):
         # script_model_path = str(self.checkpoint_dir / 'init')
         # paddle.jit.save(script_model, script_model_path)
 
-        from_scratch = self.resume_or_scratch()
-        if from_scratch:
-            # save init model, i.e. 0 epoch
-            self.save(tag='init')
-
-        self.lr_scheduler.step(self.iteration)
-        if self.parallel:
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:

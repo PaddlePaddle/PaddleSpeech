@@ -20,6 +20,7 @@ from collections import defaultdict
 from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
+import jsonlines
 
 import numpy as np
 import paddle
@@ -479,8 +480,10 @@ class U2STTester(U2STTrainer):
             len_refs += len(target.split())
             num_ins += 1
             if fout:
-                fout.write(utt + " " + result + "\n")
-            logger.info("\nReference: %s\nHypothesis: %s" % (target, result))
+                fout.write({"utt": utt, "ref", target, "hyp": result})
+            logger.info(f"Utt: {utt}")
+            logger.info(f"Ref: {target}")
+            logger.info(f"Hyp: {result}")
             logger.info("One example BLEU = %s" %
                         (bleu_func([result], [[target]]).prec_str))
 
@@ -508,7 +511,7 @@ class U2STTester(U2STTrainer):
         len_refs, num_ins = 0, 0
         num_frames = 0.0
         num_time = 0.0
-        with open(self.args.result_file, 'w') as fout:
+        with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 metrics = self.compute_translation_metrics(
                     *batch, bleu_func=bleu_func, fout=fout)

@@ -21,6 +21,7 @@ from collections import OrderedDict
 from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
+import jsonlines
 
 import numpy as np
 import paddle
@@ -466,9 +467,10 @@ class U2Tester(U2Trainer):
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write(utt + " " + result + "\n")
-            logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
-                        (target, result))
+                fout.write({"utt": utt, "ref", target, "hyp": result})
+            logger.info(f"Utt: {utt}")
+            logger.info(f"Ref: {target}")
+            logger.info(f"Hyp: {result}")
             logger.info("One example error rate [%s] = %f" %
                         (cfg.error_rate_type, error_rate_func(target, result)))
 
@@ -493,7 +495,7 @@ class U2Tester(U2Trainer):
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         num_frames = 0.0
         num_time = 0.0
-        with open(self.args.result_file, 'w') as fout:
+        with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 metrics = self.compute_metrics(*batch, fout=fout)
                 num_frames += metrics['num_frames']

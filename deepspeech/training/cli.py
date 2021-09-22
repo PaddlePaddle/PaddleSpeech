@@ -30,7 +30,7 @@ def default_argument_parser():
 
     The ``--checkpoint_path`` specifies the checkpoint to load from.
 
-    The ``--device`` and ``--nprocs`` specifies how to run the training.
+    The ``--nprocs`` specifies how to run the training.
 
 
     See Also
@@ -51,12 +51,6 @@ def default_argument_parser():
         default=None,
         help="seed to use for paddle, np and random. None or 0 for random, else set seed."
     )
-    train_group.add_argument(
-        "--device",
-        type=str,
-        default='gpu',
-        choices=["cpu", "gpu"],
-        help="device cpu and gpu are supported.")
     train_group.add_argument(
         "--nprocs",
         type=int,

@@ -39,3 +39,39 @@ mfa.done:
 	test -d montreal-forced-aligner || wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
+
+
+# Keep the existing target 'sclite' to avoid breaking the users who might have
+# scripted it in.
+.PHONY: sclite sctk_cleaned sctk_made
+
+sclite sctk_made: sctk/.compiled
+
+sctk/.compiled: sctk
+	rm -f sctk/.compiled
+	$(SCTK_MKENV) $(MAKE) -C sctk config
+	$(SCTK_MKENV) $(MAKE) -C sctk all doc
+	$(MAKE) -C sctk install
+	touch sctk/.compiled
+
+# The GitHub archive unpacks into SCTK-{40-character-long-hash}/
+sctk: sctk-$(SCTK_GITHASH).tar.gz
+	tar zxvf sctk-$(SCTK_GITHASH).tar.gz
+	rm -rf sctk-$(SCTK_GITHASH) sctk
+	mv SCTK-$(SCTK_GITHASH)* sctk-$(SCTK_GITHASH)
+	ln -s sctk-$(SCTK_GITHASH) sctk
+	touch sctk-$(SCTK_GITHASH).tar.gz
+
+sctk-$(SCTK_GITHASH).tar.gz:
+	if [ -d '$(DOWNLOAD_DIR)' ]; then \
+	  cp -p '$(DOWNLOAD_DIR)/sctk-$(SCTK_GITHASH).tar.gz' .; \
+	else \
+	  $(WGET) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
+	    https://github.com/usnistgov/SCTK/archive/$(SCTK_GITHASH).tar.gz; \
+	fi
+
+sctk_cleaned:
+	-for d in sctk/ sctk-*/; do \
+	   [ ! -f $$d/.compiled ] || $(MAKE) -C $$d clean; \
+	   rm -f $$d/.compiled; \
+	done

@@ -5,6 +5,7 @@
 
 [ -f ./path.sh ] && . ./path.sh
 
+# non language symbol
 nlsyms=""
 wer=false
 bpe=""
@@ -24,7 +25,7 @@ fi
 dir=$1
 dic=$2
 
-concatjson.py ${dir}/data.*.json > ${dir}/data.json
+cat ${dir}/data.*.json > ${dir}/data.json
 
 if [ $num_spkrs -eq 1 ]; then
   json2trn.py ${dir}/data.json ${dic} --num-spkrs ${num_spkrs} --refs ${dir}/ref.trn --hyps ${dir}/hyp.trn

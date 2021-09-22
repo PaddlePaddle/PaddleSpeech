@@ -47,6 +47,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -222,6 +223,7 @@ class U2STTrainer(Trainer):
                         msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                         msg += "data time: {:>.3f}s, ".format(dataload_time)
                         self.train_batch(batch_index, batch, msg)
+                        self.after_train_batch()
                         data_start_time = time.time()
                 except Exception as e:
                     logger.error(e)
@@ -344,10 +346,10 @@ class U2STTrainer(Trainer):
     def setup_model(self):
         config = self.config
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.collate_fn.feature_size
-        model_conf.output_dim = self.train_loader.collate_fn.vocab_size
-        model_conf.freeze()
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.collate_fn.feature_size
+            model_conf.output_dim = self.train_loader.collate_fn.vocab_size
+
         model = U2STModel.from_config(model_conf)
 
         if self.parallel:
@@ -586,7 +588,7 @@ class U2STTester(U2STTrainer):
                 # 1. Encoder
                 encoder_out, encoder_mask = self.model._forward_encoder(
                     feat, feats_length)  # (B, maxlen, encoder_dim)
-                maxlen = encoder_out.size(1)
+                maxlen = encoder_out.shape[1]
                 ctc_probs = self.model.ctc.log_softmax(
                     encoder_out)  # (1, maxlen, vocab_size)
 
@@ -594,26 +596,25 @@ class U2STTester(U2STTrainer):
                 ctc_probs = ctc_probs.squeeze(0)
                 target = target.squeeze(0)
                 alignment = ctc_utils.forced_align(ctc_probs, target)
-                logger.info("align ids", key[0], alignment)
+                logger.info(f"align ids: {key[0]} {alignment}")
                 fout.write('{} {}\n'.format(key[0], alignment))
 
                 # 3. gen praat
                 # segment alignment
                 align_segs = text_grid.segment_alignment(alignment)
-                logger.info("align tokens", key[0], align_segs)
+                logger.info(f"align tokens: {key[0]}, {align_segs}")
                 # IntervalTier, List["start end token\n"]
                 subsample = utility.get_subsample(self.config)
                 tierformat = text_grid.align_to_tierformat(
                     align_segs, subsample, token_dict)
                 # write tier
-                align_output_path = os.path.join(
-                    os.path.dirname(self.args.result_file), "align")
-                tier_path = os.path.join(align_output_path, key[0] + ".tier")
-                with open(tier_path, 'w') as f:
+                align_output_path = Path(self.args.result_file).parent / "align"
+                align_output_path.mkdir(parents=True, exist_ok=True)
+                tier_path = align_output_path / (key[0] + ".tier")
+                with tier_path.open('w') as f:
                     f.writelines(tierformat)
                 # write textgrid
-                textgrid_path = os.path.join(align_output_path,
-                                             key[0] + ".TextGrid")
+                textgrid_path = align_output_path / (key[0] + ".TextGrid")
                 second_per_frame = 1. / (1000. /
                                          stride_ms)  # 25ms window, 10ms stride
                 second_per_example = (
@@ -621,7 +622,7 @@ class U2STTester(U2STTrainer):
                 text_grid.generate_textgrid(
                     maxtime=second_per_example,
                     intervals=tierformat,
-                    output=textgrid_path)
+                    output=str(textgrid_path))
 
     def run_align(self):
         self.resume_or_scratch()

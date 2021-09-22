@@ -68,7 +68,7 @@ class PositionalEncoding(nn.Layer):
             paddle.Tensor: for compatibility to RelPositionalEncoding, (batch=1, time, ...)
         """
         T = x.shape[1]
-        assert offset + x.size(1) < self.max_len
+        assert offset + x.shape[1] < self.max_len
         #TODO(Hui Zhang): using T = x.size(1), __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + T]
         x = x * self.xscale + pos_emb
@@ -114,7 +114,7 @@ class RelPositionalEncoding(PositionalEncoding):
             paddle.Tensor: Encoded tensor (batch, time, `*`).
             paddle.Tensor: Positional embedding tensor (1, time, `*`).
         """
-        assert offset + x.size(1) < self.max_len
+        assert offset + x.shape[1] < self.max_len
         x = x * self.xscale
         #TODO(Hui Zhang): using x.size(1), __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + x.shape[1]]

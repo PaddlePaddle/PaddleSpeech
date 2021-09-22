@@ -6,16 +6,19 @@ stage=-1
 stop_stage=100
 
 exp_dir=exp
-data_dir=data
+data=data
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit -1
 
 mkdir -p ${exp_dir}
 
+if [ $stage -le -1 ] && [ $stop_stage -ge -1 ];then
+    test -e ${data}/BZNSYP.rar || { echo "Please download BZNSYP.rar and put it in ${data}; exit -1; }
+fi
 
 if [ $stage -le 0 ] && [ $stop_stage -ge 0 ];then
     echo "stage 0: Extracting Prosody Labeling"
-    bash local/prepare_dataset.sh --exp-dir ${exp_dir} --data-dir ${data_dir}
+    bash local/prepare_dataset.sh --exp-dir ${exp_dir} --data-dir ${data}
 fi
 
 # convert transcription in chinese into pinyin with pypinyin or jieba+pypinyin

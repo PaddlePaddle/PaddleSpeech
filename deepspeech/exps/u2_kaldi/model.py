@@ -20,8 +20,8 @@ from collections import defaultdict
 from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
-import jsonlines
 
+import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
@@ -446,7 +446,7 @@ class U2Tester(U2Trainer):
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write({"utt": utt, "ref", target, "hyp": result})
+                fout.write({"utt": utt, "ref": target, "hyp": result})
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")

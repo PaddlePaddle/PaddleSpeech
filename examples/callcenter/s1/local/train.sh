@@ -11,27 +11,23 @@ echo "using $ngpu gpus..."
 config_path=$1
 ckpt_name=$2
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
 echo "using ${device}..."
 
 mkdir -p exp
 
-seed=1024
-if [ ${seed} ]; then
+# seed may break model convergence
+seed=0
+if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 
 python3 -u ${BIN_DIR}/train.py \
---device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --seed ${seed}
 
-if [ ${seed} ]; then
+if [ ${seed} != 0 ]; then
     unset FLAGS_cudnn_deterministic
 fi
 

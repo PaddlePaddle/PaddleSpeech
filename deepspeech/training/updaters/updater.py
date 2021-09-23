@@ -52,6 +52,7 @@ class UpdaterBase():
     """
 
     def __init__(self, init_state=None):
+        # init state
         if init_state is None:
             self.state = UpdaterState()
         else:

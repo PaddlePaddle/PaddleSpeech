@@ -11,17 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 import time
+from collections import OrderedDict
 from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
 from tensorboardX import SummaryWriter
 
+from deepspeech.training.reporter import ObsScope
+from deepspeech.training.reporter import report
+from deepspeech.training.timer import Timer
 from deepspeech.utils import mp_tools
+from deepspeech.utils import profiler
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import seed_all
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["Trainer"]
 
@@ -79,7 +86,7 @@ class Trainer():
     >>>     config.merge_from_list(args.opts)
     >>> config.freeze()
     >>>
-    >>> if args.nprocs > 1 and args.device == "gpu":
+    >>> if args.nprocs > 0:
     >>>     dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
     >>> else:
     >>>     main_sp(config, args)
@@ -94,15 +101,25 @@ class Trainer():
         self.checkpoint_dir = None
         self.iteration = 0
         self.epoch = 0
+        self.rank = dist.get_rank()
+
+        logger.info(f"Rank: {self.rank}/{dist.get_world_size()}")
 
         if args.seed:
             seed_all(args.seed)
             logger.info(f"Set seed {args.seed}")
 
+        if self.args.benchmark_batch_size:
+            with UpdateConfig(self.config):
+                self.config.collator.batch_size = self.args.benchmark_batch_size
+                self.config.training.log_interval = 1
+            logger.info(
+                f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
+
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
         if self.parallel:
             self.init_parallel()
 
@@ -122,7 +139,7 @@ class Trainer():
         """A flag indicating whether the experiment should run with
         multiprocessing.
         """
-        return self.args.device == "gpu" and self.args.nprocs > 1
+        return self.args.nprocs > 0
 
     def init_parallel(self):
         """Init environment for multiprocess training.
@@ -162,67 +179,108 @@ class Trainer():
             checkpoint_dir=self.checkpoint_dir,
             checkpoint_path=self.args.checkpoint_path)
         if infos:
-            # restore from ckpt
+            # just restore ckpt
+            # lr will resotre from optimizer ckpt
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
             scratch = False
+            logger.info(
+                f"Restore ckpt: epoch {self.epoch }, step {self.iteration}!")
         else:
             self.iteration = 0
             self.epoch = 0
             scratch = True
-
+            logger.info("Init from scratch!")
         return scratch
 
-    def new_epoch(self):
-        """Reset the train loader seed and increment `epoch`.
-        """
-        self.epoch += 1
-        if self.parallel and hasattr(self.train_loader, "batch_sampler"):
+    def maybe_batch_sampler_step(self):
+        """ batch_sampler seed by epoch """
+        if hasattr(self.train_loader, "batch_sampler"):
             batch_sampler = self.train_loader.batch_sampler
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
                 batch_sampler.set_epoch(self.epoch)
 
-    def train(self):
-        """The training process control by epoch."""
+    def before_train(self):
         from_scratch = self.resume_or_scratch()
         if from_scratch:
-            # save init model, i.e. 0 epoch
+            # scratch: save init model, i.e. 0 epoch
             self.save(tag='init', infos=None)
-        self.lr_scheduler.step(self.epoch)
-        if self.parallel and hasattr(self.train_loader, "batch_sampler"):
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        else:
+            # resume: train next_epoch and next_iteration
+            self.epoch += 1
+            self.iteration += 1
+            logger.info(
+                f"Resume train: epoch {self.epoch }, step {self.iteration}!")
+
+        self.maybe_batch_sampler_step()
+
+    def new_epoch(self):
+        """Reset the train loader seed and increment `epoch`.
+        """
+        # `iteration` increased by train step
+        self.epoch += 1
+        self.maybe_batch_sampler_step()
+
+    def after_train_batch(self):
+        if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
+            profiler.add_profiler_step(self.args.profiler_options)
+            logger.info(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+            sys.exit(
+                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+
+    def train(self):
+        """The training process control by epoch."""
+        self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
-            self.model.train()
-            try:
-                data_start_time = time.time()
-                for batch_index, batch in enumerate(self.train_loader):
-                    dataload_time = time.time() - data_start_time
-                    msg = "Train: Rank: {}, ".format(dist.get_rank())
-                    msg += "epoch: {}, ".format(self.epoch)
-                    msg += "step: {}, ".format(self.iteration)
-                    msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                    len(self.train_loader))
-                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "data time: {:>.3f}s, ".format(dataload_time)
-                    self.train_batch(batch_index, batch, msg)
+            with Timer("Epoch-Train Time Cost: {}"):
+                self.model.train()
+                try:
                     data_start_time = time.time()
-            except Exception as e:
-                logger.error(e)
-                raise e
+                    for batch_index, batch in enumerate(self.train_loader):
+                        dataload_time = time.time() - data_start_time
+                        msg = "Train:"
+                        observation = OrderedDict()
+                        with ObsScope(observation):
+                            report("Rank", dist.get_rank())
+                            report("epoch", self.epoch)
+                            report('step', self.iteration)
+                            report("lr", self.lr_scheduler())
+                            self.train_batch(batch_index, batch, msg)
+                            self.after_train_batch()
+                            report('iter', batch_index + 1)
+                            report('total', len(self.train_loader))
+                            report('reader_cost', dataload_time)
+                        observation['batch_cost'] = observation[
+                            'reader_cost'] + observation['step_cost']
+                        observation['samples'] = observation['batch_size']
+                        observation['ips[sent./sec]'] = observation[
+                            'batch_size'] / observation['batch_cost']
+                        for k, v in observation.items():
+                            msg += f" {k}: "
+                            msg += f"{v:>.8f}" if isinstance(v,
+                                                             float) else f"{v}"
+                            msg += ","
+                        logger.info(msg)
+                        data_start_time = time.time()
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            total_loss, num_seen_utts = self.valid()
-            if dist.get_world_size() > 1:
-                num_seen_utts = paddle.to_tensor(num_seen_utts)
-                # the default operator in all_reduce function is sum.
-                dist.all_reduce(num_seen_utts)
-                total_loss = paddle.to_tensor(total_loss)
-                dist.all_reduce(total_loss)
-                cv_loss = total_loss / num_seen_utts
-                cv_loss = float(cv_loss)
-            else:
-                cv_loss = total_loss / num_seen_utts
+            with Timer("Eval Time Cost: {}"):
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = total_loss / num_seen_utts
 
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
@@ -231,6 +289,7 @@ class Trainer():
                     'epoch', {'cv_loss': cv_loss,
                               'lr': self.lr_scheduler()}, self.epoch)
 
+            # after epoch
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             # step lr every epoch
             self.lr_scheduler.step()
@@ -240,14 +299,13 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        try:
-            self.train()
-        except KeyboardInterrupt:
-            self.save()
-            exit(-1)
-        finally:
-            self.destory()
-        logger.info("Training Done.")
+        with Timer("Training Done: {}"):
+            try:
+                self.train()
+            except KeyboardInterrupt:
+                exit(-1)
+            finally:
+                self.destory()
 
     def setup_output_dir(self):
         """Create a directory used for output.

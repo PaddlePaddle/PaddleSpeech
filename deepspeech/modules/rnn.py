@@ -308,7 +308,7 @@ class RNNStack(nn.Layer):
             x, x_len = rnn(x, x_len)
             masks = make_non_pad_mask(x_len)  #[B, T]
             masks = masks.unsqueeze(-1)  # [B, T, 1]
-            # TODO(Hui Zhang): not support bool multiply
-            masks = masks.astype(x.dtype)
-            x = x.multiply(masks)
+            # https://github.com/PaddlePaddle/Paddle/pull/29265
+            # rhs will type promote to lhs
+            x = x * masks
         return x, x_len

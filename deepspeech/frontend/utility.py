@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains data helper functions."""
-import codecs
 import json
 import math
 from typing import List
 from typing import Optional
 from typing import Text
 
+import jsonlines
 import numpy as np
 
 from deepspeech.utils.log import Log
@@ -69,19 +69,19 @@ def read_manifest(
 
     Args:
         manifest_path ([type]): Manifest file to load and parse.
-        max_input_len ([type], optional): maximum output seq length, 
-            in seconds for raw wav, in frame numbers for feature data. 
+        max_input_len ([type], optional): maximum output seq length,
+            in seconds for raw wav, in frame numbers for feature data.
             Defaults to float('inf').
-        min_input_len (float, optional): minimum input seq length, 
-            in seconds for raw wav, in frame numbers for feature data. 
+        min_input_len (float, optional): minimum input seq length,
+            in seconds for raw wav, in frame numbers for feature data.
             Defaults to 0.0.
-        max_output_len (float, optional): maximum input seq length, 
+        max_output_len (float, optional): maximum input seq length,
             in modeling units. Defaults to 500.0.
-        min_output_len (float, optional): minimum input seq length, 
+        min_output_len (float, optional): minimum input seq length,
             in modeling units. Defaults to 0.0.
-        max_output_input_ratio (float, optional): 
+        max_output_input_ratio (float, optional):
             maximum output seq length/output seq length ratio. Defaults to 10.0.
-        min_output_input_ratio (float, optional): 
+        min_output_input_ratio (float, optional):
             minimum output seq length/output seq length ratio. Defaults to 0.05.
 
     Raises:
@@ -92,26 +92,22 @@ def read_manifest(
     """
 
     manifest = []
-    for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
-        try:
-            json_data = json.loads(json_line)
-        except Exception as e:
-            raise IOError("Error reading manifest: %s" % str(e))
-
-        feat_len = json_data["feat_shape"][
-            0] if 'feat_shape' in json_data else 1.0
-        token_len = json_data["token_shape"][
-            0] if 'token_shape' in json_data else 1.0
-        conditions = [
-            feat_len >= min_input_len,
-            feat_len <= max_input_len,
-            token_len >= min_output_len,
-            token_len <= max_output_len,
-            token_len / feat_len >= min_output_input_ratio,
-            token_len / feat_len <= max_output_input_ratio,
-        ]
-        if all(conditions):
-            manifest.append(json_data)
+    with jsonlines.open(manifest_path, 'r') as reader:
+        for json_data in reader:
+            feat_len = json_data["feat_shape"][
+                0] if 'feat_shape' in json_data else 1.0
+            token_len = json_data["token_shape"][
+                0] if 'token_shape' in json_data else 1.0
+            conditions = [
+                feat_len >= min_input_len,
+                feat_len <= max_input_len,
+                token_len >= min_output_len,
+                token_len <= max_output_len,
+                token_len / feat_len >= min_output_input_ratio,
+                token_len / feat_len <= max_output_input_ratio,
+            ]
+            if all(conditions):
+                manifest.append(json_data)
     return manifest
 
 
@@ -131,7 +127,7 @@ def rms_to_dbfs(rms: float):
     """Root Mean Square to dBFS.
     https://fireattack.wordpress.com/2017/02/06/replaygain-loudness-normalization-and-applications/
     Audio is mix of sine wave, so 1 amp sine wave's Full scale is 0.7071, equal to -3.0103dB.
-   
+
     dB = dBFS + 3.0103
     dBFS = db - 3.0103
     e.g. 0 dB = -3.0103 dBFS
@@ -146,26 +142,26 @@ def rms_to_dbfs(rms: float):
 
 
 def max_dbfs(sample_data: np.ndarray):
-    """Peak dBFS based on the maximum energy sample. 
+    """Peak dBFS based on the maximum energy sample.
 
     Args:
         sample_data ([np.ndarray]): float array, [-1, 1].
 
     Returns:
-        float: dBFS 
+        float: dBFS
     """
     # Peak dBFS based on the maximum energy sample. Will prevent overdrive if used for normalization.
     return rms_to_dbfs(max(abs(np.min(sample_data)), abs(np.max(sample_data))))
 
 
 def mean_dbfs(sample_data):
-    """Peak dBFS based on the RMS energy. 
+    """Peak dBFS based on the RMS energy.
 
     Args:
         sample_data ([np.ndarray]): float array, [-1, 1].
 
     Returns:
-        float: dBFS 
+        float: dBFS
     """
     return rms_to_dbfs(
         math.sqrt(np.mean(np.square(sample_data, dtype=np.float64))))
@@ -185,7 +181,7 @@ def gain_db_to_ratio(gain_db: float):
 
 def normalize_audio(sample_data: np.ndarray, dbfs: float=-3.0103):
     """Nomalize audio to dBFS.
-    
+
     Args:
         sample_data (np.ndarray): input wave samples, [-1, 1].
         dbfs (float, optional): target dBFS. Defaults to -3.0103.
@@ -284,6 +280,13 @@ def load_cmvn(cmvn_file: str, filetype: str):
         cmvn = _load_json_cmvn(cmvn_file)
     elif filetype == "kaldi":
         cmvn = _load_kaldi_cmvn(cmvn_file)
+    elif filetype == "npz":
+        eps = 1e-14
+        npzfile = np.load(cmvn_file)
+        mean = np.squeeze(npzfile["mean"])
+        std = np.squeeze(npzfile["std"])
+        istd = 1 / (std + eps)
+        cmvn = [mean, istd]
     else:
         raise ValueError(f"cmvn file type no support: {filetype}")
     return cmvn[0], cmvn[1]

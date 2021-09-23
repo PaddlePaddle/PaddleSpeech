@@ -15,9 +15,11 @@
 import os
 import time
 from collections import defaultdict
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
+import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
@@ -34,12 +36,14 @@ from deepspeech.models.ds2 import DeepSpeech2Model
 from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
 from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
+from deepspeech.training.reporter import report
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Autolog
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -65,29 +69,52 @@ class DeepSpeech2Trainer(Trainer):
         super().__init__(config, args)
 
     def train_batch(self, batch_index, batch_data, msg):
+        batch_size = self.config.collator.batch_size
+        accum_grad = self.config.training.accum_grad
+
         start = time.time()
+
+        # forward
         utt, audio, audio_len, text, text_len = batch_data
         loss = self.model(audio, audio_len, text, text_len)
-        loss.backward()
-        layer_tools.print_grads(self.model, print_func=None)
-        self.optimizer.step()
-        self.optimizer.clear_grad()
-        iteration_time = time.time() - start
-
         losses_np = {
             'train_loss': float(loss),
         }
-        msg += "train time: {:>.3f}s, ".format(iteration_time)
-        msg += "batch size: {}, ".format(self.config.collator.batch_size)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in losses_np.items())
-        logger.info(msg)
+
+        # loss backward
+        if (batch_index + 1) % accum_grad != 0:
+            # Disable gradient synchronizations across DDP processes.
+            # Within this context, gradients will be accumulated on module
+            # variables, which will later be synchronized.
+            context = self.model.no_sync
+        else:
+            # Used for single gpu training and DDP gradient synchronization
+            # processes.
+            context = nullcontext
+
+        with context():
+            loss.backward()
+            layer_tools.print_grads(self.model, print_func=None)
+
+        # optimizer step
+        if (batch_index + 1) % accum_grad == 0:
+            self.optimizer.step()
+            self.optimizer.clear_grad()
+            self.iteration += 1
+
+        iteration_time = time.time() - start
+
+        for k, v in losses_np.items():
+            report(k, v)
+        report("batch_size", batch_size)
+        report("accum", accum_grad)
+        report("step_cost", iteration_time)
 
         if dist.get_rank() == 0 and self.visualizer:
             for k, v in losses_np.items():
+                # `step -1` since we update `step` after optimizer.step().
                 self.visualizer.add_scalar("train/{}".format(k), v,
-                                           self.iteration)
-        self.iteration += 1
+                                           self.iteration - 1)
 
     @paddle.no_grad()
     def valid(self):
@@ -124,10 +151,9 @@ class DeepSpeech2Trainer(Trainer):
 
     def setup_model(self):
         config = self.config.clone()
-        config.defrost()
-        config.model.feat_size = self.train_loader.collate_fn.feature_size
-        config.model.dict_size = self.train_loader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.model.feat_size = self.train_loader.collate_fn.feature_size
+            config.model.dict_size = self.train_loader.collate_fn.vocab_size
 
         if self.args.model_type == 'offline':
             model = DeepSpeech2Model.from_config(config.model)
@@ -280,9 +306,10 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write(utt + " " + result + "\n")
-            logger.info("\nTarget Transcription: %s\nOutput Transcription: %s" %
-                        (target, result))
+                fout.write({"utt": utt, "ref": target, "hyp": result})
+            logger.info(f"Utt: {utt}")
+            logger.info(f"Ref: {target}")
+            logger.info(f"Hyp: {result}")
             logger.info("Current error rate [%s] = %f" %
                         (cfg.error_rate_type, error_rate_func(target, result)))
 
@@ -325,7 +352,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         cfg = self.config
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
-        with open(self.args.result_file, 'w') as fout:
+        with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
                 metrics = self.compute_metrics(utts, audio, audio_len, texts,
@@ -378,7 +405,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
 
         self.setup_output_dir()
         self.setup_checkpointer()
@@ -610,7 +637,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
 
         self.setup_output_dir()
 

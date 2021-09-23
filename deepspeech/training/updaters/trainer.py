@@ -24,7 +24,7 @@ import tqdm
 
 from deepspeech.training.extensions.extension import Extension
 from deepspeech.training.extensions.extension import PRIORITY_READER
-from deepspeech.training.reporter import scope
+from deepspeech.training.reporter import ObsScope
 from deepspeech.training.triggers import get_trigger
 from deepspeech.training.triggers.limit_trigger import LimitTrigger
 from deepspeech.training.updaters.updater import UpdaterBase
@@ -140,11 +140,11 @@ class Trainer():
         try:
             while not stop_trigger(self):
                 self.observation = {}
-                # set observation as the report target
-                # you can use report freely in Updater.update()
+                # set observation as the `report` target
+                # you can use `report` freely in Updater.update()
 
                 # updating parameters and state
-                with scope(self.observation):
+                with ObsScope(self.observation):
                     update()
                     p.update()
 

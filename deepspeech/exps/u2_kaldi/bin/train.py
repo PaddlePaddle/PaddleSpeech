@@ -36,7 +36,7 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    if args.device == "gpu" and args.nprocs > 1:
+    if args.nprocs > 0:
         dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
     else:
         main_sp(config, args)

@@ -8,10 +8,6 @@ fi
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
 config_path=$1
 ckpt_prefix=$2
 model_type=$3
@@ -23,8 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 python3 -u ${BIN_DIR}/test.py \
---device ${device} \
---nproc 1 \
+--nproc ${ngpu} \
 --config ${config_path} \
 --result_file ${ckpt_prefix}.rsl \
 --checkpoint_path ${ckpt_prefix} \

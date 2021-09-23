@@ -12,11 +12,6 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
-
 if [ ${seed} != 0  ]; then
     export FLAGS_cudnn_deterministic=True
     echo "using seed $seed & FLAGS_cudnn_deterministic=True ..."
@@ -34,7 +29,6 @@ mkdir -p exp
 
 python3 -u ${BIN_DIR}/train.py \
 --seed ${seed} \
---device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \

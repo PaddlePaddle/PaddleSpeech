@@ -54,9 +54,9 @@ class TextFeaturizer():
             self.sp = spm.SentencePieceProcessor()
             self.sp.Load(spm_model)
 
-    def tokenize(self, text):
+    def tokenize(self, text, replace_space=True):
         if self.unit_type == 'char':
-            tokens = self.char_tokenize(text)
+            tokens = self.char_tokenize(text, replace_space)
         elif self.unit_type == 'word':
             tokens = self.word_tokenize(text)
         else:  # spm
@@ -106,17 +106,19 @@ class TextFeaturizer():
         text = self.detokenize(tokens)
         return text
 
-    def char_tokenize(self, text):
+    def char_tokenize(self, text, replace_space=True):
         """Character tokenizer.
 
         Args:
             text (str): text string.
+            replace_space (bool): False only used by build_vocab.py.
 
         Returns:
             List[str]: tokens.
         """
         text = text.strip()
-        text = text.replace(" ", SPACE)
+        if replace_space:
+            text = text.replace(" ", SPACE)
         return list(text)
 
     def char_detokenize(self, tokens):

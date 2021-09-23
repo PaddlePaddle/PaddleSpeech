@@ -61,7 +61,7 @@ args = parser.parse_args()
 def count_manifest(counter, text_feature, manifest_path):
     manifest_jsons = read_manifest(manifest_path)
     for line_json in manifest_jsons:
-        line = text_feature.tokenize(line_json['text'])
+        line = text_feature.tokenize(line_json['text'], replace_space=False)
         counter.update(line)
 
 def dump_text_manifest(fileobj, manifest_path, key='text'):

@@ -11,12 +11,6 @@ echo "using $ngpu gpus..."
 config_path=$1
 ckpt_name=$2
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
-echo "using ${device}..."
-
 mkdir -p exp
 
 # seed may break model convergence
@@ -27,7 +21,6 @@ fi
 
 python3 -u ${BIN_DIR}/train.py \
 --model-name u2_kaldi \
---device ${device} \
 --nproc ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \

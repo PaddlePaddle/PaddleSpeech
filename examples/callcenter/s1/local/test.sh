@@ -8,10 +8,6 @@ fi
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
 config_path=$1
 ckpt_prefix=$2
 
@@ -32,8 +28,7 @@ for type in attention ctc_greedy_search; do
     output_dir=${ckpt_prefix}
     mkdir -p ${output_dir}
     python3 -u ${BIN_DIR}/test.py \
-    --device ${device} \
-    --nproc 1 \
+    --nproc ${ngpu} \
     --config ${config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
@@ -51,8 +46,7 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     output_dir=${ckpt_prefix}
     mkdir -p ${output_dir}
     python3 -u ${BIN_DIR}/test.py \
-    --device ${device} \
-    --nproc 1 \
+    --nproc ${ngpu} \
     --config ${config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \

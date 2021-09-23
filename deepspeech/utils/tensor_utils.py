@@ -94,9 +94,19 @@ def pad_sequence(sequences: List[paddle.Tensor],
         length = tensor.shape[0]
         # use index notation to prevent duplicate references to the tensor
         if batch_first:
-            out_tensor[i, :length, ...] = tensor
+            # TODO (Hui Zhang): set_value op not supprot `end==start`
+            # out_tensor[i, :length, ...] = tensor
+            if length != 0:
+                out_tensor[i, :length, ...] = tensor
+            else:
+                out_tensor[i, length, ...] = tensor
         else:
-            out_tensor[:length, i, ...] = tensor
+            # TODO (Hui Zhang): set_value op not supprot `end==start`
+            # out_tensor[:length, i, ...] = tensor
+            if length != 0:
+                out_tensor[:length, i, ...] = tensor
+            else:
+                out_tensor[length, i, ...] = tensor
 
     return out_tensor
 

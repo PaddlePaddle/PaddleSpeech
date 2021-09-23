@@ -66,6 +66,8 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
+        ctc_dropoutrate: 0.0
+        ctc_grad_norm_type: instance
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
@@ -84,7 +86,7 @@ training:
     lr_decay: 1.0
   log_interval: 1
   checkpoint:
-    kbest_n: 10
+    kbest_n: 2
     latest_n: 1
 
 

@@ -1,8 +1,16 @@
 SHELL:= /bin/bash
 PYTHON:= python3.7
+
+CXX ?= g++
+CC ?= gcc        # used for sph2pipe
+# CXX = clang++  # Uncomment these lines...
+# CC = clang     # ...to build with Clang.
+
+WGET ?= wget
+
 .PHONY: all clean
 
-all: virtualenv kenlm.done sox.done soxbindings.done mfa.done
+all: virtualenv kenlm.done sox.done soxbindings.done mfa.done sclite.done
 
 virtualenv:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -39,3 +47,50 @@ mfa.done:
 	test -d montreal-forced-aligner || wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
+
+
+#== SCTK ===============================================================================
+# SCTK official repo does not have version tags. Here's the mapping:
+# # 2.4.9 = 659bc36; 2.4.10 = d914e1b; 2.4.11 = 20159b5.
+SCTK_GITHASH = 20159b5
+
+SCTK_CXFLAGS = -w -march=native
+SCTK_MKENV = CFLAGS="$(CFLAGS) $(SCTK_CXFLAGS)" \
+			              CXXFLAGS="$(CXXFLAGS) -std=c++11 $(SCTK_CXFLAGS)" \
+
+
+# Keep the existing target 'sclite' to avoid breaking the users who might have
+# scripted it in.
+.PHONY: sclite.done sctk_cleaned sctk_made
+
+sclite.done sctk_made: sctk/.compiled
+	touch sclite.done
+
+sctk/.compiled: sctk
+	rm -f sctk/.compiled
+	$(SCTK_MKENV) $(MAKE) -C sctk config
+	$(SCTK_MKENV) $(MAKE) -C sctk all doc
+	$(MAKE) -C sctk install
+	touch sctk/.compiled
+
+# The GitHub archive unpacks into SCTK-{40-character-long-hash}/
+sctk: sctk-$(SCTK_GITHASH).tar.gz
+	tar zxvf sctk-$(SCTK_GITHASH).tar.gz
+	rm -rf sctk-$(SCTK_GITHASH) sctk
+	mv SCTK-$(SCTK_GITHASH)* sctk-$(SCTK_GITHASH)
+	ln -s sctk-$(SCTK_GITHASH) sctk
+	touch sctk-$(SCTK_GITHASH).tar.gz
+
+sctk-$(SCTK_GITHASH).tar.gz:
+	if [ -d '$(DOWNLOAD_DIR)' ]; then \
+	  cp -p '$(DOWNLOAD_DIR)/sctk-$(SCTK_GITHASH).tar.gz' .; \
+	else \
+	  $(WGET) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
+	    https://github.com/usnistgov/SCTK/archive/$(SCTK_GITHASH).tar.gz; \
+	fi
+
+sctk_cleaned:
+	-for d in sctk/ sctk-*/; do \
+	   [ ! -f $$d/.compiled ] || $(MAKE) -C $$d clean; \
+	   rm -f $$d/.compiled; \
+	done

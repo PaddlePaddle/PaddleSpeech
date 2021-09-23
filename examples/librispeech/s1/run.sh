@@ -1,12 +1,15 @@
 #!/bin/bash
 set -e
-source path.sh
+
+. ./path.sh || exit 1;
+. ./cmd.sh || exit 1;
 
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
 avg_num=5
-source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+. ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
@@ -24,7 +27,7 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # avg n best model
-    avg.sh exp/${ckpt}/checkpoints ${avg_num}
+    avg.sh best exp/${ckpt}/checkpoints ${avg_num}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

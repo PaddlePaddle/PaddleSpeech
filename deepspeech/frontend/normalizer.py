@@ -130,7 +130,8 @@ class FeatureNormalizer(object):
 
     def _read_mean_std_from_file(self, filepath, eps=1e-20):
         """Load mean and std from file."""
-        mean, istd = load_cmvn(filepath, filetype='json')
+        filetype = filepath.split(".")[-1]
+        mean, istd = load_cmvn(filepath, filetype=filetype)
         self._mean = np.expand_dims(mean, axis=0)
         self._istd = np.expand_dims(istd, axis=0)
 

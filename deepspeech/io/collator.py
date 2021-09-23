@@ -293,10 +293,6 @@ class SpeechCollator():
         return utts, xs_pad, ilens, ys_pad, olens
 
     @property
-    def manifest(self):
-        return self._manifest
-
-    @property
     def vocab_size(self):
         return self._speech_featurizer.vocab_size
 

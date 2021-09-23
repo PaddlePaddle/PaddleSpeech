@@ -42,6 +42,7 @@ from deepspeech.utils import layer_tools
 from deepspeech.utils.log import Log
 from deepspeech.utils.tensor_utils import add_sos_eos
 from deepspeech.utils.tensor_utils import th_accuracy
+from deepspeech.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]
 
@@ -163,10 +164,7 @@ class U2STBaseModel(nn.Layer):
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
         encoder_time = time.time() - start
         #logger.debug(f"encoder time: {encoder_time}")
-        #TODO(Hui Zhang): sum not support bool type
-        #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
-        encoder_out_lens = encoder_mask.squeeze(1).cast(paddle.int64).sum(
-            1)  #[B, 1, T] -> [B]
+        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
 
         # 2a. ST-decoder branch
         start = time.time()
@@ -342,8 +340,8 @@ class U2STBaseModel(nn.Layer):
             speech, speech_lengths, decoding_chunk_size,
             num_decoding_left_chunks,
             simulate_streaming)  # (B, maxlen, encoder_dim)
-        maxlen = encoder_out.size(1)
-        encoder_dim = encoder_out.size(2)
+        maxlen = encoder_out.shape[1]
+        encoder_dim = encoder_out.shape[2]
         running_size = batch_size * beam_size
         encoder_out = encoder_out.unsqueeze(1).repeat(1, beam_size, 1, 1).view(
             running_size, maxlen, encoder_dim)  # (B*N, maxlen, encoder_dim)
@@ -363,8 +361,7 @@ class U2STBaseModel(nn.Layer):
         # 2. Decoder forward step by step
         for i in range(1, maxlen + 1):
             # Stop if all batch and all beam produce eos
-            # TODO(Hui Zhang): if end_flag.sum() == running_size:
-            if end_flag.cast(paddle.int64).sum() == running_size:
+            if end_flag.sum() == running_size:
                 break
 
             # 2.1 Forward decoder step
@@ -417,26 +414,26 @@ class U2STBaseModel(nn.Layer):
         best_hyps = best_hyps[:, 1:]
         return best_hyps
 
-    @jit.to_static
+    # @jit.to_static
     def subsampling_rate(self) -> int:
         """ Export interface for c++ call, return subsampling_rate of the
             model
         """
         return self.encoder.embed.subsampling_rate
 
-    @jit.to_static
+    # @jit.to_static
     def right_context(self) -> int:
         """ Export interface for c++ call, return right_context of the model
         """
         return self.encoder.embed.right_context
 
-    @jit.to_static
+    # @jit.to_static
     def sos_symbol(self) -> int:
         """ Export interface for c++ call, return sos symbol id of the model
         """
         return self.sos
 
-    @jit.to_static
+    # @jit.to_static
     def eos_symbol(self) -> int:
         """ Export interface for c++ call, return eos symbol id of the model
         """
@@ -472,7 +469,7 @@ class U2STBaseModel(nn.Layer):
             xs, offset, required_cache_size, subsampling_cache,
             elayers_output_cache, conformer_cnn_cache)
 
-    @jit.to_static
+    # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
         """ Export interface for c++ call, apply linear transform and log
             softmax before ctc
@@ -499,13 +496,13 @@ class U2STBaseModel(nn.Layer):
         Returns:
             paddle.Tensor: decoder output, (B, L)
         """
-        assert encoder_out.size(0) == 1
-        num_hyps = hyps.size(0)
-        assert hyps_lens.size(0) == num_hyps
+        assert encoder_out.shape[0] == 1
+        num_hyps = hyps.shape[0]
+        assert hyps_lens.shape[0] == num_hyps
         encoder_out = encoder_out.repeat(num_hyps, 1, 1)
         # (B, 1, T)
         encoder_mask = paddle.ones(
-            [num_hyps, 1, encoder_out.size(1)], dtype=paddle.bool)
+            [num_hyps, 1, encoder_out.shape[1]], dtype=paddle.bool)
         # (num_hyps, max_hyps_len, vocab_size)
         decoder_out, _ = self.decoder(encoder_out, encoder_mask, hyps,
                                       hyps_lens)
@@ -560,7 +557,7 @@ class U2STBaseModel(nn.Layer):
         Returns:
             List[List[int]]: transcripts.
         """
-        batch_size = feats.size(0)
+        batch_size = feats.shape[0]
 
         if decoding_method == 'fullsentence':
             hyps = self.translate(
@@ -647,13 +644,16 @@ class U2STModel(U2STBaseModel):
             decoder = TransformerDecoder(vocab_size,
                                          encoder.output_size(),
                                          **configs['decoder_conf'])
+            # ctc decoder and ctc loss
+            model_conf = configs['model_conf']
             ctc = CTCDecoder(
                 odim=vocab_size,
                 enc_n_units=encoder.output_size(),
                 blank_id=0,
-                dropout_rate=0.0,
+                dropout_rate=model_conf['ctc_dropout_rate'],
                 reduction=True,  # sum
-                batch_average=True)  # sum / batch_size
+                batch_average=True,  # sum / batch_size
+                grad_norm_type=model_conf['ctc_grad_norm_type'])
 
             return vocab_size, encoder, (st_decoder, decoder, ctc)
         else:
@@ -687,10 +687,10 @@ class U2STModel(U2STBaseModel):
         Returns:
             DeepSpeech2Model: The model built from pretrained result.
         """
-        config.defrost()
-        config.input_dim = dataloader.collate_fn.feature_size
-        config.output_dim = dataloader.collate_fn.vocab_size
-        config.freeze()
+        with UpdateConfig(config):
+            config.input_dim = dataloader.collate_fn.feature_size
+            config.output_dim = dataloader.collate_fn.vocab_size
+
         model = cls.from_config(config)
 
         if checkpoint_path:

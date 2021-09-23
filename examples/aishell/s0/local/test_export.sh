@@ -8,10 +8,6 @@ fi
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
 config_path=$1
 jit_model_export_path=$2
 model_type=$3
@@ -23,8 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 python3 -u ${BIN_DIR}/test_export.py \
---device ${device} \
---nproc 1 \
+--nproc ${ngpu} \
 --config ${config_path} \
 --result_file ${jit_model_export_path}.rsl \
 --export_path ${jit_model_export_path} \

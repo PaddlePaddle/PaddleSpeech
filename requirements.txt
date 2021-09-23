@@ -2,6 +2,7 @@ coverage
 gpustat
 jsonlines
 kaldiio
+loguru
 Pillow
 pre-commit
 pybind11
@@ -14,5 +15,7 @@ SoundFile==0.9.0.post1
 sox
 tensorboardX
 textgrid
+tqdm
 typeguard
+visualdl==2.2.0
 yacs

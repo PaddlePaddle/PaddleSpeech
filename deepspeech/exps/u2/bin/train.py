@@ -22,6 +22,8 @@ from deepspeech.exps.u2.model import U2Trainer as Trainer
 from deepspeech.training.cli import default_argument_parser
 from deepspeech.utils.utility import print_arguments
 
+# from deepspeech.exps.u2.trainer import U2Trainer as Trainer
+
 
 def main_sp(config, args):
     exp = Trainer(config, args)
@@ -30,7 +32,7 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    if args.device == "gpu" and args.nprocs > 1:
+    if args.nprocs > 0:
         dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
     else:
         main_sp(config, args)

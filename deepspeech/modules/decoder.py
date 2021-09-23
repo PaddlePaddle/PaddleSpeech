@@ -122,11 +122,9 @@ class TransformerDecoder(nn.Layer):
         # tgt_mask: (B, 1, L)
         tgt_mask = (make_non_pad_mask(ys_in_lens).unsqueeze(1))
         # m: (1, L, L)
-        m = subsequent_mask(tgt_mask.size(-1)).unsqueeze(0)
+        m = subsequent_mask(tgt_mask.shape[-1]).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        # TODO(Hui Zhang): not support & for tensor
-        # tgt_mask = tgt_mask & m
-        tgt_mask = tgt_mask.logical_and(m)
+        tgt_mask = tgt_mask & m
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -137,9 +135,7 @@ class TransformerDecoder(nn.Layer):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        # TODO(Hui Zhang): reduce_sum not support bool type
-        # olens = tgt_mask.sum(1)
-        olens = tgt_mask.astype(paddle.int).sum(1)
+        olens = tgt_mask.sum(1)
         return x, olens
 
     def forward_one_step(

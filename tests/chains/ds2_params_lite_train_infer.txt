@@ -13,7 +13,7 @@ null:null
 null:null
 ##
 trainer:norm_train
-norm_train: ../../../deepspeech/exps/deepspeech2/bin/train.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline --device gpu
+norm_train: ../../../deepspeech/exps/deepspeech2/bin/train.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline
 pact_train:null
 fpgm_train:null
 distill_train:null
@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval: ../../../deepspeech/exps/deepspeech2/bin/test.py --nproc 1 --config conf/deepspeech2.yaml --result_file tests/9.rsl  --model_type offline --device gpu
+eval: ../../../deepspeech/exps/deepspeech2/bin/test.py --nproc 1 --config conf/deepspeech2.yaml --result_file tests/9.rsl  --model_type offline
 null:null
 ##
 ===========================infer_params===========================

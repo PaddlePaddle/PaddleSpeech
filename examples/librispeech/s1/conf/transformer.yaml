@@ -67,12 +67,14 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
+        ctc_dropoutrate: 0.0
+        ctc_grad_norm_type: instance
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
 
 training:
-  n_epoch: 120
+  n_epoch: 120 
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam

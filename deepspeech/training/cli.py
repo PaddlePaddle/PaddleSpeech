@@ -14,6 +14,20 @@
 import argparse
 
 
+class ExtendAction(argparse.Action):
+    """
+    [Since Python 3.8, the "extend" is available directly in stdlib]
+    (https://docs.python.org/3.8/library/argparse.html#action).
+    If you only have to support 3.8+ then defining it yourself is no longer required. 
+    Usage of stdlib "extend" action is exactly the same way as this answer originally described:
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
 def default_argument_parser():
     r"""A simple yet genral argument parser for experiments with parakeet.
 
@@ -30,7 +44,7 @@ def default_argument_parser():
 
     The ``--checkpoint_path`` specifies the checkpoint to load from.
 
-    The ``--device`` and ``--nprocs`` specifies how to run the training.
+    The ``--nprocs`` specifies how to run the training.
 
 
     See Also
@@ -42,29 +56,53 @@ def default_argument_parser():
         the parser
     """
     parser = argparse.ArgumentParser()
+    parser.register('action', 'extend', ExtendAction)
 
-    # yapf: disable
-    # data and output
-    parser.add_argument("--config", metavar="FILE", help="path of the config file to overwrite to default config with.")
-    parser.add_argument("--dump-config", metavar="FILE", help="dump config to yaml file.")
-    parser.add_argument("--output", metavar="OUTPUT_DIR", help="path to save checkpoint and logs.")
+    train_group = parser.add_argument_group(
+        title='Train Options', description=None)
+    train_group.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="seed to use for paddle, np and random. None or 0 for random, else set seed."
+    )
+    train_group.add_argument(
+        "--nprocs",
+        type=int,
+        default=1,
+        help="number of parallel processes. 0 for cpu.")
+    train_group.add_argument(
+        "--config", metavar="CONFIG_FILE", help="config file.")
+    train_group.add_argument(
+        "--output", metavar="CKPT_DIR", help="path to save checkpoint.")
+    train_group.add_argument(
+        "--checkpoint_path", type=str, help="path to load checkpoint")
+    train_group.add_argument(
+        "--opts",
+        action='extend',
+        nargs=2,
+        metavar=('key', 'val'),
+        help="overwrite --config field, passing (KEY VALUE) pairs")
+    train_group.add_argument(
+        "--dump-config", metavar="FILE", help="dump config to `this` file.")
 
-    # load from saved checkpoint
-    parser.add_argument("--checkpoint_path", type=str, help="path of the checkpoint to load")
-
-    # running
-    parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
-                        help="device type to use, cpu and gpu are supported.")
-    parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
-
-    # overwrite extra config and default config
-    # parser.add_argument("--opts", nargs=argparse.REMAINDER,
-    # help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
-    parser.add_argument("--opts", type=str, default=[], nargs='+',
-                        help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")
-
-    parser.add_argument("--seed", type=int, default=None,
-                        help="seed to use for paddle, np and random. None or 0 for random, else set seed.")
-    # yapd: enable
+    profile_group = parser.add_argument_group(
+        title='Benchmark Options', description=None)
+    profile_group.add_argument(
+        '--profiler-options',
+        type=str,
+        default=None,
+        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".'
+    )
+    profile_group.add_argument(
+        '--benchmark-batch-size',
+        type=int,
+        default=None,
+        help='batch size for benchmark.')
+    profile_group.add_argument(
+        '--benchmark-max-step',
+        type=int,
+        default=None,
+        help='max iteration for benchmark.')
 
     return parser

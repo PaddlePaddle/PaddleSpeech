@@ -8,10 +8,6 @@ fi
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
 config_path=$1
 dict_path=$2
 ckpt_prefix=$3
@@ -26,8 +22,7 @@ python3 -u ${BIN_DIR}/test.py \
 --model-name 'u2_kaldi' \
 --run-mode 'align' \
 --dict-path ${dict_path} \
---device ${device} \
---nproc 1 \
+--nproc ${ngpu} \
 --config ${config_path} \
 --result-file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \

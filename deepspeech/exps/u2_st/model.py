@@ -17,9 +17,11 @@ import os
 import sys
 import time
 from collections import defaultdict
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
+import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
@@ -37,6 +39,7 @@ from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2_st import U2STModel
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.scheduler import WarmupLR
+from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import bleu_score
 from deepspeech.utils import ctc_utils
@@ -45,6 +48,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import text_grid
 from deepspeech.utils import utility
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
@@ -83,6 +87,7 @@ class U2STTrainer(Trainer):
     def train_batch(self, batch_index, batch_data, msg):
         train_conf = self.config.training
         start = time.time()
+        # forward
         utt, audio, audio_len, text, text_len = batch_data
         if isinstance(text, list) and isinstance(text_len, list):
             # joint training with ASR. Two decoding texts [translation, transcription]
@@ -94,18 +99,30 @@ class U2STTrainer(Trainer):
         else:
             loss, st_loss, attention_loss, ctc_loss = self.model(
                 audio, audio_len, text, text_len)
+
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
-        loss.backward()
-        layer_tools.print_grads(self.model, print_func=None)
-
         losses_np = {'loss': float(loss) * train_conf.accum_grad}
-        losses_np['st_loss'] = float(st_loss)
         if attention_loss:
             losses_np['att_loss'] = float(attention_loss)
         if ctc_loss:
             losses_np['ctc_loss'] = float(ctc_loss)
 
+        # loss backward
+        if (batch_index + 1) % train_conf.accum_grad != 0:
+            # Disable gradient synchronizations across DDP processes.
+            # Within this context, gradients will be accumulated on module
+            # variables, which will later be synchronized.
+            context = self.model.no_sync
+        else:
+            # Used for single gpu training and DDP gradient synchronization
+            # processes.
+            context = nullcontext
+        with context():
+            loss.backward()
+            layer_tools.print_grads(self.model, print_func=None)
+
+        # optimizer step
         if (batch_index + 1) % train_conf.accum_grad == 0:
             self.optimizer.step()
             self.optimizer.clear_grad()
@@ -182,46 +199,42 @@ class U2STTrainer(Trainer):
         # script_model_path = str(self.checkpoint_dir / 'init')
         # paddle.jit.save(script_model, script_model_path)
 
-        from_scratch = self.resume_or_scratch()
-        if from_scratch:
-            # save init model, i.e. 0 epoch
-            self.save(tag='init')
-
-        self.lr_scheduler.step(self.iteration)
-        if self.parallel:
-            self.train_loader.batch_sampler.set_epoch(self.epoch)
+        self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.training.n_epoch:
-            self.model.train()
-            try:
-                data_start_time = time.time()
-                for batch_index, batch in enumerate(self.train_loader):
-                    dataload_time = time.time() - data_start_time
-                    msg = "Train: Rank: {}, ".format(dist.get_rank())
-                    msg += "epoch: {}, ".format(self.epoch)
-                    msg += "step: {}, ".format(self.iteration)
-                    msg += "batch : {}/{}, ".format(batch_index + 1,
-                                                    len(self.train_loader))
-                    msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
-                    msg += "data time: {:>.3f}s, ".format(dataload_time)
-                    self.train_batch(batch_index, batch, msg)
+            with Timer("Epoch-Train Time Cost: {}"):
+                self.model.train()
+                try:
                     data_start_time = time.time()
-            except Exception as e:
-                logger.error(e)
-                raise e
+                    for batch_index, batch in enumerate(self.train_loader):
+                        dataload_time = time.time() - data_start_time
+                        msg = "Train: Rank: {}, ".format(dist.get_rank())
+                        msg += "epoch: {}, ".format(self.epoch)
+                        msg += "step: {}, ".format(self.iteration)
+                        msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                        len(self.train_loader))
+                        msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
+                        msg += "data time: {:>.3f}s, ".format(dataload_time)
+                        self.train_batch(batch_index, batch, msg)
+                        self.after_train_batch()
+                        data_start_time = time.time()
+                except Exception as e:
+                    logger.error(e)
+                    raise e
 
-            total_loss, num_seen_utts = self.valid()
-            if dist.get_world_size() > 1:
-                num_seen_utts = paddle.to_tensor(num_seen_utts)
-                # the default operator in all_reduce function is sum.
-                dist.all_reduce(num_seen_utts)
-                total_loss = paddle.to_tensor(total_loss)
-                dist.all_reduce(total_loss)
-                cv_loss = total_loss / num_seen_utts
-                cv_loss = float(cv_loss)
-            else:
-                cv_loss = total_loss / num_seen_utts
+            with Timer("Eval Time Cost: {}"):
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = total_loss / num_seen_utts
 
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
@@ -327,10 +340,10 @@ class U2STTrainer(Trainer):
     def setup_model(self):
         config = self.config
         model_conf = config.model
-        model_conf.defrost()
-        model_conf.input_dim = self.train_loader.collate_fn.feature_size
-        model_conf.output_dim = self.train_loader.collate_fn.vocab_size
-        model_conf.freeze()
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.train_loader.collate_fn.feature_size
+            model_conf.output_dim = self.train_loader.collate_fn.vocab_size
+
         model = U2STModel.from_config(model_conf)
 
         if self.parallel:
@@ -467,8 +480,10 @@ class U2STTester(U2STTrainer):
             len_refs += len(target.split())
             num_ins += 1
             if fout:
-                fout.write(utt + " " + result + "\n")
-            logger.info("\nReference: %s\nHypothesis: %s" % (target, result))
+                fout.write({"utt": utt, "ref": target, "hyp": result})
+            logger.info(f"Utt: {utt}")
+            logger.info(f"Ref: {target}")
+            logger.info(f"Hyp: {result}")
             logger.info("One example BLEU = %s" %
                         (bleu_func([result], [[target]]).prec_str))
 
@@ -496,7 +511,7 @@ class U2STTester(U2STTrainer):
         len_refs, num_ins = 0, 0
         num_frames = 0.0
         num_time = 0.0
-        with open(self.args.result_file, 'w') as fout:
+        with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 metrics = self.compute_translation_metrics(
                     *batch, bleu_func=bleu_func, fout=fout)
@@ -569,7 +584,7 @@ class U2STTester(U2STTrainer):
                 # 1. Encoder
                 encoder_out, encoder_mask = self.model._forward_encoder(
                     feat, feats_length)  # (B, maxlen, encoder_dim)
-                maxlen = encoder_out.size(1)
+                maxlen = encoder_out.shape[1]
                 ctc_probs = self.model.ctc.log_softmax(
                     encoder_out)  # (1, maxlen, vocab_size)
 
@@ -577,26 +592,25 @@ class U2STTester(U2STTrainer):
                 ctc_probs = ctc_probs.squeeze(0)
                 target = target.squeeze(0)
                 alignment = ctc_utils.forced_align(ctc_probs, target)
-                logger.info("align ids", key[0], alignment)
+                logger.info(f"align ids: {key[0]} {alignment}")
                 fout.write('{} {}\n'.format(key[0], alignment))
 
                 # 3. gen praat
                 # segment alignment
                 align_segs = text_grid.segment_alignment(alignment)
-                logger.info("align tokens", key[0], align_segs)
+                logger.info(f"align tokens: {key[0]}, {align_segs}")
                 # IntervalTier, List["start end token\n"]
                 subsample = utility.get_subsample(self.config)
                 tierformat = text_grid.align_to_tierformat(
                     align_segs, subsample, token_dict)
                 # write tier
-                align_output_path = os.path.join(
-                    os.path.dirname(self.args.result_file), "align")
-                tier_path = os.path.join(align_output_path, key[0] + ".tier")
-                with open(tier_path, 'w') as f:
+                align_output_path = Path(self.args.result_file).parent / "align"
+                align_output_path.mkdir(parents=True, exist_ok=True)
+                tier_path = align_output_path / (key[0] + ".tier")
+                with tier_path.open('w') as f:
                     f.writelines(tierformat)
                 # write textgrid
-                textgrid_path = os.path.join(align_output_path,
-                                             key[0] + ".TextGrid")
+                textgrid_path = align_output_path / (key[0] + ".TextGrid")
                 second_per_frame = 1. / (1000. /
                                          stride_ms)  # 25ms window, 10ms stride
                 second_per_example = (
@@ -604,7 +618,7 @@ class U2STTester(U2STTrainer):
                 text_grid.generate_textgrid(
                     maxtime=second_per_example,
                     intervals=tierformat,
-                    output=textgrid_path)
+                    output=str(textgrid_path))
 
     def run_align(self):
         self.resume_or_scratch()
@@ -650,7 +664,7 @@ class U2STTester(U2STTrainer):
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
 
         self.setup_output_dir()
         self.setup_checkpointer()

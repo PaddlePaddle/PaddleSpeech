@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -e
+
 expdir=exp
 datadir=data
+nj=32
 
 lmtag=
 

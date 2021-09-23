@@ -2,7 +2,7 @@
 set -o errexit
 
 if [ $# != 2 ]; then
-  echo "Usage: split_data.sh manifest num-to-split"
+  echo "Usage: split_json.sh manifest num-to-split"
   exit 1
 fi
 

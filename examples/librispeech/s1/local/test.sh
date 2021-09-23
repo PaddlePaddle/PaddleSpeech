@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -e
+
 expdir=exp
 datadir=data
+nj=32
 
 lmtag=
 
@@ -60,13 +63,10 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
         batch_size=1
         ${decode_cmd} JOB=1:${nj} ${expdir}/${decode_dir}/log/decode.JOB.log \
             python3 -u ${BIN_DIR}/test.py \
-            --model-name u2_kaldi \
-            --run-mode test \
             --nproc ${ngpu} \
-            --dict-path ${dict} \
             --config ${config_path} \
+            --result_file ${expdir}/${decode_dir}/data.JOB.json \
             --checkpoint_path ${ckpt_prefix} \
-            --result-file ${expdir}/${decode_dir}/data.JOB.json \
             --opts decoding.decoding_method ${dmethd} \
             --opts decoding.batch_size ${batch_size} \
             --opts data.test_manifest ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask}

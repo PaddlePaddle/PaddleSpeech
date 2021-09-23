@@ -18,6 +18,7 @@ from typing import List
 from typing import Optional
 from typing import Text
 
+import jsonlines
 import numpy as np
 
 from deepspeech.utils.log import Log

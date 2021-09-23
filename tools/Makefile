@@ -1,8 +1,16 @@
 SHELL:= /bin/bash
 PYTHON:= python3.7
+
+CXX ?= g++
+CC ?= gcc        # used for sph2pipe
+# CXX = clang++  # Uncomment these lines...
+# CC = clang     # ...to build with Clang.
+
+WGET ?= wget
+
 .PHONY: all clean
 
-all: virtualenv kenlm.done sox.done soxbindings.done mfa.done
+all: virtualenv kenlm.done sox.done soxbindings.done mfa.done sclite.done
 
 virtualenv:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -41,11 +49,22 @@ mfa.done:
 	touch mfa.done
 
 
+#== SCTK ===============================================================================
+# SCTK official repo does not have version tags. Here's the mapping:
+# # 2.4.9 = 659bc36; 2.4.10 = d914e1b; 2.4.11 = 20159b5.
+SCTK_GITHASH = 20159b5
+
+SCTK_CXFLAGS = -w -march=native
+SCTK_MKENV = CFLAGS="$(CFLAGS) $(SCTK_CXFLAGS)" \
+			              CXXFLAGS="$(CXXFLAGS) -std=c++11 $(SCTK_CXFLAGS)" \
+
+
 # Keep the existing target 'sclite' to avoid breaking the users who might have
 # scripted it in.
-.PHONY: sclite sctk_cleaned sctk_made
+.PHONY: sclite.done sctk_cleaned sctk_made
 
-sclite sctk_made: sctk/.compiled
+sclite.done sctk_made: sctk/.compiled
+	touch sclite.done
 
 sctk/.compiled: sctk
 	rm -f sctk/.compiled

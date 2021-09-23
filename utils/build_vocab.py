@@ -25,6 +25,7 @@ from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.frontend.utility import BLANK
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.frontend.utility import SOS
+from deepspeech.frontend.utility import SPACE
 from deepspeech.frontend.utility import UNK
 from deepspeech.utils.utility import add_arguments
 from deepspeech.utils.utility import print_arguments
@@ -109,6 +110,8 @@ def main():
     for token, count in count_sorted:
         if count < args.count_threshold:
             break
+        # replace space by `<space>`
+        token = SPACE if token == ' ' else token
         tokens.append(token)
 
     tokens = sorted(tokens)

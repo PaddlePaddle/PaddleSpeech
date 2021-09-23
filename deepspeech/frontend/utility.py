@@ -38,6 +38,7 @@ EOS = SOS
 UNK = "<unk>"
 BLANK = "<blank>"
 MASKCTC = "<mask>"
+SPACE = "<space>"
 
 
 def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:

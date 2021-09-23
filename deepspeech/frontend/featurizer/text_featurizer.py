@@ -16,6 +16,7 @@ import sentencepiece as spm
 
 from ..utility import EOS
 from ..utility import load_dict
+from ..utility import SPACE
 from ..utility import UNK
 
 __all__ = ["TextFeaturizer"]
@@ -114,7 +115,9 @@ class TextFeaturizer():
         Returns:
             List[str]: tokens.
         """
-        return list(text.strip())
+        text = text.strip()
+        text = text.replace(" ", SPACE)
+        return list(text)
 
     def char_detokenize(self, tokens):
         """Character detokenizer.
@@ -125,6 +128,7 @@ class TextFeaturizer():
         Returns:
            str: text string.
         """
+        tokens = tokens.replace(SPACE, " ")
         return "".join(tokens)
 
     def word_tokenize(self, text):
@@ -191,17 +195,14 @@ class TextFeaturizer():
         """Load vocabulary from file."""
         vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
+        assert SPACE in vocab_list
 
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])
         token2id = dict(
             [(token, idx) for (idx, token) in enumerate(vocab_list)])
-        if UNK in vocab_list:
-            unk_id = vocab_list.index(UNK)
-        else:
-            unk_id = -1
-        if EOS in vocab_list:
-            eos_id = vocab_list.index(EOS)
-        else:
-            eos_id = -1
+
+        unk_id = vocab_list.index(UNK) if UNK in vocab_list else -1
+        eos_id = vocab_list.index(EOS) if EOS in vocab_list else -1
+
         return token2id, id2token, vocab_list, unk_id, eos_id

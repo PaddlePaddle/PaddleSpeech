@@ -28,7 +28,7 @@ logger = Log(__name__).getlog()
 __all__ = [
     "load_dict", "load_cmvn", "read_manifest", "rms_to_db", "rms_to_dbfs",
     "max_dbfs", "mean_dbfs", "gain_db_to_ratio", "normalize_audio", "SOS",
-    "EOS", "UNK", "BLANK", "MASKCTC"
+    "EOS", "UNK", "BLANK", "MASKCTC", "SPACE"
 ]
 
 IGNORE_ID = -1
@@ -38,6 +38,7 @@ EOS = SOS
 UNK = "<unk>"
 BLANK = "<blank>"
 MASKCTC = "<mask>"
+SPACE = "<space>"
 
 
 def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:

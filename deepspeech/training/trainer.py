@@ -139,7 +139,7 @@ class Trainer():
         """A flag indicating whether the experiment should run with
         multiprocessing.
         """
-        return self.args.nprocs > 0
+        return self.args.nprocs > 1
 
     def init_parallel(self):
         """Init environment for multiprocess training.

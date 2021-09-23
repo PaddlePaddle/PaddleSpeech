@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains data helper functions."""
-import codecs
 import json
 import math
 from typing import List
@@ -92,26 +91,22 @@ def read_manifest(
     """
 
     manifest = []
-    for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
-        try:
-            json_data = json.loads(json_line)
-        except Exception as e:
-            raise IOError("Error reading manifest: %s" % str(e))
-
-        feat_len = json_data["feat_shape"][
-            0] if 'feat_shape' in json_data else 1.0
-        token_len = json_data["token_shape"][
-            0] if 'token_shape' in json_data else 1.0
-        conditions = [
-            feat_len >= min_input_len,
-            feat_len <= max_input_len,
-            token_len >= min_output_len,
-            token_len <= max_output_len,
-            token_len / feat_len >= min_output_input_ratio,
-            token_len / feat_len <= max_output_input_ratio,
-        ]
-        if all(conditions):
-            manifest.append(json_data)
+    with jsonlines.open(manifest_path, 'r') as reader:
+        for json_data in reader:
+            feat_len = json_data["feat_shape"][
+                0] if 'feat_shape' in json_data else 1.0
+            token_len = json_data["token_shape"][
+                0] if 'token_shape' in json_data else 1.0
+            conditions = [
+                feat_len >= min_input_len,
+                feat_len <= max_input_len,
+                token_len >= min_output_len,
+                token_len <= max_output_len,
+                token_len / feat_len >= min_output_input_ratio,
+                token_len / feat_len <= max_output_input_ratio,
+            ]
+            if all(conditions):
+                manifest.append(json_data)
     return manifest
 
 

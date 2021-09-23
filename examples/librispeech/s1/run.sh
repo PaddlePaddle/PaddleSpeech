@@ -1,12 +1,15 @@
 #!/bin/bash
 set -e
-source path.sh
+
+. ./path.sh || exit 1;
+. ./cmd.sh || exit 1;
 
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
 avg_num=5
-source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+. ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')

@@ -28,7 +28,7 @@
 #include "path_trie.h"
 
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
-constexpr kSPACE = "<space>"
+const std::string kSPACE = "<space>";
 
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,

@@ -120,8 +120,10 @@ class TextFeaturizer():
         """
         text = text.strip()
         if replace_space:
-            text = text.replace(" ", SPACE)
-        return list(text)
+            text_list = [SPACE if item == " " else item for item in list(text)]
+        else:
+            text_list = list(text)
+        return text_list
 
     def char_detokenize(self, tokens):
         """Character detokenizer.

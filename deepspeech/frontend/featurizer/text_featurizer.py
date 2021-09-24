@@ -84,8 +84,6 @@ class TextFeaturizer():
         tokens = self.tokenize(text)
         ids = []
         for token in tokens:
-            if '' in self.vocab_dict and token == ' ':
-                token = ''
             token = token if token in self.vocab_dict else self.unk
             ids.append(self.vocab_dict[token])
         return ids
@@ -201,7 +199,6 @@ class TextFeaturizer():
         """Load vocabulary from file."""
         vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
-        assert SPACE in vocab_list
 
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])

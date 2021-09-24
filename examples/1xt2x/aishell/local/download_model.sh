@@ -10,7 +10,7 @@ ckpt_dir=$1
 . ${MAIN_ROOT}/utils/utility.sh
 
 URL='https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_v1.8_to_v2.x.tar.gz'
-MD5=4ade113c69ea291b8ce5ec6a03296659
+MD5=87e7577d4bea737dbf3e8daab37aa808
 TARGET=${ckpt_dir}/aishell_model_v1.8_to_v2.x.tar.gz
 
 

@@ -16,6 +16,7 @@ import sentencepiece as spm
 
 from ..utility import EOS
 from ..utility import load_dict
+from ..utility import SPACE
 from ..utility import UNK
 
 __all__ = ["TextFeaturizer"]
@@ -53,9 +54,9 @@ class TextFeaturizer():
             self.sp = spm.SentencePieceProcessor()
             self.sp.Load(spm_model)
 
-    def tokenize(self, text):
+    def tokenize(self, text, replace_space=True):
         if self.unit_type == 'char':
-            tokens = self.char_tokenize(text)
+            tokens = self.char_tokenize(text, replace_space)
         elif self.unit_type == 'word':
             tokens = self.word_tokenize(text)
         else:  # spm
@@ -107,16 +108,20 @@ class TextFeaturizer():
         text = self.detokenize(tokens)
         return text
 
-    def char_tokenize(self, text):
+    def char_tokenize(self, text, replace_space=True):
         """Character tokenizer.
 
         Args:
             text (str): text string.
+            replace_space (bool): False only used by build_vocab.py.
 
         Returns:
             List[str]: tokens.
         """
-        return list(text.strip())
+        text = text.strip()
+        if replace_space:
+            text = text.replace(" ", SPACE)
+        return list(text)
 
     def char_detokenize(self, tokens):
         """Character detokenizer.
@@ -127,6 +132,7 @@ class TextFeaturizer():
         Returns:
            str: text string.
         """
+        tokens = tokens.replace(SPACE, " ")
         return "".join(tokens)
 
     def word_tokenize(self, text):
@@ -193,17 +199,14 @@ class TextFeaturizer():
         """Load vocabulary from file."""
         vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
+        assert SPACE in vocab_list
 
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])
         token2id = dict(
             [(token, idx) for (idx, token) in enumerate(vocab_list)])
-        if UNK in vocab_list:
-            unk_id = vocab_list.index(UNK)
-        else:
-            unk_id = -1
-        if EOS in vocab_list:
-            eos_id = vocab_list.index(EOS)
-        else:
-            eos_id = -1
+
+        unk_id = vocab_list.index(UNK) if UNK in vocab_list else -1
+        eos_id = vocab_list.index(EOS) if EOS in vocab_list else -1
+
         return token2id, id2token, vocab_list, unk_id, eos_id

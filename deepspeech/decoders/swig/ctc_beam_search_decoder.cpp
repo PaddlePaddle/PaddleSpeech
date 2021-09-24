@@ -28,6 +28,7 @@
 #include "path_trie.h"
 
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
+constexpr kSPACE = "<space>"
 
 std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     const std::vector<std::vector<double>> &probs_seq,
@@ -46,13 +47,8 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
                        "The shape of probs_seq does not match with "
                        "the shape of the vocabulary");
     }
-
-    // assign blank id
-    // size_t blank_id = vocabulary.size();
-    // size_t blank_id = 0;
-
     // assign space id
-    auto it = std::find(vocabulary.begin(), vocabulary.end(), " ");
+    auto it = std::find(vocabulary.begin(), vocabulary.end(), kSPACE);
     int space_id = it - vocabulary.begin();
     // if no space in vocabulary
     if ((size_t)space_id >= vocabulary.size()) {

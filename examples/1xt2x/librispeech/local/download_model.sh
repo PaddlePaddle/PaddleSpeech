@@ -10,7 +10,7 @@ ckpt_dir=$1
 . ${MAIN_ROOT}/utils/utility.sh
 
 URL='https://deepspeech.bj.bcebos.com/eng_models/librispeech_v1.8_to_v2.x.tar.gz'
-MD5=7b0f582fe2f5a840b840e7ee52246bc5
+MD5=a06d9aadb560ea113984dc98d67232c8
 TARGET=${ckpt_dir}/librispeech_v1.8_to_v2.x.tar.gz
 
 

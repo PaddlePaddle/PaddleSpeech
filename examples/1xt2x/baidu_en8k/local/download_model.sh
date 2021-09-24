@@ -10,7 +10,7 @@ ckpt_dir=$1
 . ${MAIN_ROOT}/utils/utility.sh
 
 URL='https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz'
-MD5=fdabeb6c96963ac85d9188f0275c6a1b
+MD5=c1676be8505cee436e6f312823e9008c
 TARGET=${ckpt_dir}/baidu_en8k_v1.8_to_v2.x.tar.gz
 
 

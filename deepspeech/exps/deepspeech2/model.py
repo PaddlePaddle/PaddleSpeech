@@ -27,6 +27,7 @@ from paddle import inference
 from paddle.io import DataLoader
 from yacs.config import CfgNode
 
+from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
@@ -271,6 +272,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
+        self._text_featurizer = TextFeaturizer(
+            unit_type=config.collator.unit_type, vocab_filepath=None)
 
     def ordid2token(self, texts, texts_len):
         """ ord() id to chr() chr """
@@ -299,6 +302,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
         result_transcripts = self.compute_result_transcripts(audio, audio_len,
                                                              vocab_list, cfg)
+
         for utt, target, result in zip(utts, target_transcripts,
                                        result_transcripts):
             errors, len_ref = errors_func(target, result)
@@ -335,6 +339,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             cutoff_prob=cfg.cutoff_prob,
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
+        #replace the <space> with ' '
+        result_transcripts = [
+            self._text_featurizer.detokenize(sentence)
+            for sentence in result_transcripts
+        ]
+
         self.autolog.times.stamp()
         self.autolog.times.stamp()
         self.autolog.times.end()
@@ -455,6 +465,11 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
             output_probs, output_lens, vocab_list, cfg.decoding_method,
             cfg.lang_model_path, cfg.alpha, cfg.beta, cfg.beam_size,
             cfg.cutoff_prob, cfg.cutoff_top_n, cfg.num_proc_bsearch)
+        #replace the <space> with ' '
+        result_transcripts = [
+            self._text_featurizer.detokenize(sentence)
+            for sentence in result_transcripts
+        ]
 
         return result_transcripts
 

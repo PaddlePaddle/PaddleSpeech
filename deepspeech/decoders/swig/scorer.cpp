@@ -26,6 +26,7 @@
 #include "decoder_utils.h"
 
 using namespace lm::ngram;
+const std::string kSPACE = "<space>";
 
 Scorer::Scorer(double alpha,
                double beta,
@@ -165,7 +166,7 @@ void Scorer::set_char_map(const std::vector<std::string>& char_list) {
 
     // Set the char map for the FST for spelling correction
     for (size_t i = 0; i < char_list_.size(); i++) {
-        if (char_list_[i] == " ") {
+        if (char_list_[i] == kSPACE) {
             SPACE_ID_ = i;
         }
         // The initial state of FST is state 0, hence the index of chars in

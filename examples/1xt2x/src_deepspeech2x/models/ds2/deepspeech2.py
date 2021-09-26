@@ -15,8 +15,8 @@
 from typing import Optional
 
 import paddle
-from deepspeech2x.models.ds2.rnn import RNNStack
 from paddle import nn
+from src_deepspeech2x.models.ds2.rnn import RNNStack
 from yacs.config import CfgNode
 
 from deepspeech.models.ds2.conv import ConvStack

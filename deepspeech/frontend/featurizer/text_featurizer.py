@@ -199,7 +199,6 @@ class TextFeaturizer():
         """Load vocabulary from file."""
         vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
-        assert SPACE in vocab_list
 
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])

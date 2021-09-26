@@ -45,9 +45,9 @@ class CTCLoss(nn.Layer):
         logger.info(f"CTCLoss Grad Norm Type: {grad_norm_type}")
         if grad_norm_type == 'instance':
             self.norm_by_times = True
-        if grad_norm_type == 'batch':
+        elif grad_norm_type == 'batch':
             self.norm_by_batchsize = True
-        if grad_norm_type == 'frame':
+        elif grad_norm_type == 'frame':
             self.norm_by_total_logits_len = True
 
     def forward(self, logits, ys_pad, hlens, ys_lens):

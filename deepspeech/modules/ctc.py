@@ -56,7 +56,7 @@ class CTCDecoder(nn.Layer):
 
         self.blank_id = blank_id
         self.odim = odim
-        self.dropout_rate = dropout_rate
+        self.dropout = nn.Dropout(dropout_rate)
         self.ctc_lo = nn.Linear(enc_n_units, self.odim)
         reduction_type = "sum" if reduction else "none"
         self.criterion = CTCLoss(
@@ -79,7 +79,7 @@ class CTCDecoder(nn.Layer):
         Returns:
             loss (Tenosr): ctc loss value, scalar.
         """
-        logits = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
+        logits = self.ctc_lo(self.dropout(hs_pad))
         loss = self.criterion(logits, ys_pad, hlens, ys_lens)
         return loss
 

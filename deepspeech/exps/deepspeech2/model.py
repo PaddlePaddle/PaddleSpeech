@@ -235,7 +235,7 @@ class DeepSpeech2Trainer(Trainer):
             num_workers=config.collator.num_workers)
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=config.collator.batch_size,
+            batch_size=int(config.collator.batch_size / 4),
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn_dev)

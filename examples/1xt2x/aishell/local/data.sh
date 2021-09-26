@@ -1,4 +1,10 @@
 #!/bin/bash
+if [ $# != 1 ];then
+    echo "usage: ${0} ckpt_dir"
+    exit -1
+fi
+
+ckpt_dir=$1
 
 stage=-1
 stop_stage=100
@@ -9,17 +15,16 @@ mkdir -p data
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 
-bash local/download_model.sh
+bash local/download_model.sh ${ckpt_dir}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
+cd ${ckpt_dir}
 tar xzvf aishell_model_v1.8_to_v2.x.tar.gz
-mv aishell_v1.8.pdparams exp/deepspeech2/checkpoints/
-mv README.md exp/deepspeech2/
-mv mean_std.npz data/
-mv vocab.txt data/
-rm aishell_model_v1.8_to_v2.x.tar.gz -f
+cd -
+mv ${ckpt_dir}/mean_std.npz data/
+mv ${ckpt_dir}/vocab.txt data/
 
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
@@ -39,27 +44,6 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 fi
 
 
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # compute mean and stddev for normalizer
-    num_workers=$(nproc)
-    python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
-    --manifest_path="data/manifest.train.raw" \
-    --specgram_type="linear" \
-    --delta_delta=false \
-    --stride_ms=10.0 \
-    --window_ms=20.0 \
-    --sample_rate=16000 \
-    --use_dB_normalization=True \
-    --num_samples=2000 \
-    --num_workers=${num_workers} \
-    --output_path="data/mean_std.json"
-
-    if [ $? -ne 0 ]; then
-        echo "Compute mean and stddev failed. Terminated."
-        exit 1
-    fi
-fi
-
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size
@@ -67,7 +51,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     {
         python3 ${MAIN_ROOT}/utils/format_data.py \
                 --feat_type "raw" \
-                --cmvn_path "data/mean_std.json" \
+                --cmvn_path "data/mean_std.npz" \
                 --unit_type "char" \
                 --vocab_path="data/vocab.txt" \
                 --manifest_path="data/manifest.${dataset}.raw" \

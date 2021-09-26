@@ -53,7 +53,8 @@ def main():
     fout = open(args.output_path, 'w', encoding='utf-8')
 
     # get feat dim
-    mean, std = load_cmvn(args.cmvn_path, filetype='json')
+    filetype = args.cmvn_path.split(".")[-1]
+    mean, istd = load_cmvn(args.cmvn_path, filetype=filetype)
     feat_dim = mean.shape[0] #(D)
     print(f"Feature dim: {feat_dim}")
 

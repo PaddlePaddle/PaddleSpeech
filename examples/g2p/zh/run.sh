@@ -13,7 +13,13 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit -1
 mkdir -p ${exp_dir}
 
 if [ $stage -le -1 ] && [ $stop_stage -ge -1 ];then
-    test -e ${data}/BZNSYP.rar || { echo "Please download BZNSYP.rar and put it in ${data}; exit -1; }
+    mkdir -p ${data}
+    cd ${data}
+    if [ ! -f BZNSYP.rar ]; then
+        wget https://paddlespeech.bj.bcebos.com/datasets/BZNSYP.rar
+    fi
+    cd -
+    test -e ${data}/BZNSYP.rar || { echo "Please download BZNSYP.rar and put it in "${data}; exit -1; }
 fi
 
 if [ $stage -le 0 ] && [ $stop_stage -ge 0 ];then

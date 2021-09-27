@@ -49,6 +49,8 @@ class CTCLoss(nn.Layer):
             self.norm_by_batchsize = True
         elif grad_norm_type == 'frame':
             self.norm_by_total_logits_len = True
+        else:
+            raise ValueError(f"CTCLoss Grad Norm no support {grad_norm_type}")
 
     def forward(self, logits, ys_pad, hlens, ys_lens):
         """Compute CTC loss.

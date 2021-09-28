@@ -19,7 +19,7 @@ from yacs.config import CfgNode
 from deepspeech.frontend.utility import read_manifest
 from deepspeech.utils.log import Log
 
-__all__ = ["ManifestDataset", "TripletManifestDataset", "TransformDataset"]
+__all__ = ["ManifestDataset", "TransformDataset"]
 
 logger = Log(__name__).getlog()
 
@@ -107,21 +107,7 @@ class ManifestDataset(Dataset):
         return len(self._manifest)
 
     def __getitem__(self, idx):
-        instance = self._manifest[idx]
-        return instance["utt"], instance["feat"], instance["text"]
-
-
-class TripletManifestDataset(ManifestDataset):
-    """
-        For Joint Training of Speech Translation and ASR.
-        text: translation,
-        text1: transcript.
-    """
-
-    def __getitem__(self, idx):
-        instance = self._manifest[idx]
-        return instance["utt"], instance["feat"], instance["text"], instance[
-            "text1"]
+        return self._manifest[idx]
 
 
 class TransformDataset(Dataset):
@@ -273,5 +259,4 @@ class AudioDataset(Dataset):
         return len(self.minibatch)
 
     def __getitem__(self, idx):
-        instance = self.minibatch[idx]
-        return instance["utt"], instance["feat"], instance["text"]
+        return self.minibatch[idx]

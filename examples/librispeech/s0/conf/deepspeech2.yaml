@@ -18,7 +18,7 @@ collator:
   augmentation_config: conf/augmentation.json
   random_seed: 0
   spm_model_prefix: 
-  specgram_type: linear
+  spectrum_type: linear
   target_sample_rate: 16000
   max_freq: None
   n_fft: None

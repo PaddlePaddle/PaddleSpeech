@@ -32,6 +32,19 @@ __all__ = ["SpeechCollator", "TripletSpeechCollator"]
 logger = Log(__name__).getlog()
 
 
+def tokenids(text, keep_transcription_text):
+    # for training text is token ids 
+    tokens = text  # token ids
+
+    if keep_transcription_text:
+        # text is string, convert to unicode ord
+        assert isinstance(text, str), (type(text), text)
+        tokens = [ord(t) for t in text]
+
+    tokens = np.array(tokens, dtype=np.int64)
+    return tokens
+
+
 class SpeechCollatorBase():
     def __init__(
             self,
@@ -150,7 +163,6 @@ class SpeechCollatorBase():
             # extract speech feature
             spectrum, transcript_part = self._speech_featurizer.featurize(
                 speech_segment, self.keep_transcription_text)
-
             # CMVN spectrum
             if self._normalizer:
                 spectrum = self._normalizer.apply(spectrum)
@@ -163,38 +175,35 @@ class SpeechCollatorBase():
         """batch examples
 
         Args:
-            batch ([List]): batch is (audio, text)
+            batch (List[Dict]): batch is [dict(audio, text, ...)]
                 audio (np.ndarray) shape (T, D)
                 text (List[int] or str): shape (U,)
 
         Returns:
-            tuple(audio, text, audio_lens, text_lens): batched data.
-                audio : (B, Tmax, D)
-                audio_lens: (B)
-                text : (B, Umax)
-                text_lens: (B)
+            tuple(utts, xs_pad, ilens, ys_pad, olens): batched data.
+                utts: (B,)
+                xs_pad : (B, Tmax, D)
+                ilens: (B,)
+                ys_pad : (B, Umax)
+                olens: (B,)
         """
         audios = []
         audio_lens = []
         texts = []
         text_lens = []
         utts = []
-        for utt, audio, text in batch:
+
+        for idx, item in enumerate(batch):
+            utts.append(item['utt'])
+
+            audio = item['feat']
+            text = item['text']
             audio, text = self.process_utterance(audio, text)
-            #utt
-            utts.append(utt)
-            # audio
+
             audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[0])
-            # text
-            # for training, text is token ids, else text is string, convert to unicode ord
-            tokens = []
-            if self.keep_transcription_text:
-                assert isinstance(text, str), (type(text), text)
-                tokens = [ord(t) for t in text]
-            else:
-                tokens = text  # token ids
-            tokens = np.array(tokens, dtype=np.int64)
+
+            tokens = tokenids(text, self.keep_transcription_text)
             texts.append(tokens)
             text_lens.append(tokens.shape[0])
 
@@ -308,17 +317,19 @@ class TripletSpeechCollator(SpeechCollator):
         """batch examples
 
         Args:
-            batch ([List]): batch is (audio, text)
+            batch (List[Dict]): batch is [dict(audio, text, ...)]
                 audio (np.ndarray) shape (T, D)
                 text (List[int] or str): shape (U,)
 
         Returns:
-            tuple(audio, text, audio_lens, text_lens): batched data.
-                audio : (B, Tmax, D)
-                audio_lens: (B)
-                text : (B, Umax)
-                text_lens: (B)
+            tuple(utts, xs_pad, ilens, ys_pad, olens): batched data.
+                utts: (B,)
+                xs_pad : (B, Tmax, D)
+                ilens: (B,)
+                ys_pad : [(B, Umax), (B, Umax)]
+                olens: [(B,), (B,)]
         """
+        utts = []
         audios = []
         audio_lens = []
         translation_text = []
@@ -326,41 +337,38 @@ class TripletSpeechCollator(SpeechCollator):
         transcription_text = []
         transcription_text_lens = []
 
-        utts = []
-        for utt, audio, translation, transcription in batch:
+        for idx, item in enumerate(batch):
+            utts.append(item['utt'])
+
+            audio = item['feat']
+            translation = item['text']
+            transcription = item['text1']
             audio, translation, transcription = self.process_utterance(
                 audio, translation, transcription)
-            #utt
-            utts.append(utt)
-            # audio
+
             audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[0])
-            # text
-            # for training, text is token ids
-            # else text is string, convert to unicode ord
+
             tokens = [[], []]
             for idx, text in enumerate([translation, transcription]):
-                if self.keep_transcription_text:
-                    assert isinstance(text, str), (type(text), text)
-                    tokens[idx] = [ord(t) for t in text]
-                else:
-                    tokens[idx] = text  # token ids
-                tokens[idx] = np.array(tokens[idx], dtype=np.int64)
+                tokens[idx] = tokenids(text, self.keep_transcription_text)
 
             translation_text.append(tokens[0])
             translation_text_lens.append(tokens[0].shape[0])
             transcription_text.append(tokens[1])
             transcription_text_lens.append(tokens[1].shape[0])
 
-        padded_audios = pad_sequence(
-            audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
-        audio_lens = np.array(audio_lens).astype(np.int64)
-        padded_translation = pad_sequence(
-            translation_text, padding_value=IGNORE_ID).astype(np.int64)
+        xs_pad = pad_list(audios, 0.0).astype(np.float32)  #[B, T, D]
+        ilens = np.array(audio_lens).astype(np.int64)
+
+        padded_translation = pad_list(translation_text,
+                                      IGNORE_ID).astype(np.int64)
         translation_lens = np.array(translation_text_lens).astype(np.int64)
-        padded_transcription = pad_sequence(
-            transcription_text, padding_value=IGNORE_ID).astype(np.int64)
+
+        padded_transcription = pad_list(transcription_text,
+                                        IGNORE_ID).astype(np.int64)
         transcription_lens = np.array(transcription_text_lens).astype(np.int64)
-        return utts, padded_audios, audio_lens, (
-            padded_translation, padded_transcription), (translation_lens,
-                                                        transcription_lens)
+
+        ys_pad = (padded_translation, padded_transcription)
+        olens = (translation_lens, transcription_lens)
+        return utts, xs_pad, ilens, ys_pad, olens

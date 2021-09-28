@@ -44,7 +44,7 @@ For CMVN, a subset or the full of traininig set is chosed and be used to compute
 cd examples/aishell/s0
 python3 ../../../utils/compute_mean_std.py \
      --manifest_path="data/manifest.train.raw" \
-     --specgram_type="linear" \
+     --spectrum_type="linear" \
      --delta_delta=false \
      --stride_ms=10.0 \
      --window_ms=20.0 \

@@ -322,7 +322,7 @@ class LoadInputsAndTargets():
                 "Not supported: loader_type={}".format(filetype))
 
     def file_type(self, filepath):
-        suffix = filepath.split(":")[0].split('.')[1]
+        suffix = filepath.split(":")[0].split('.')[-1]
         if suffix == 'ark':
             return 'mat'
         elif suffix == 'scp':

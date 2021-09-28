@@ -31,7 +31,6 @@ from yacs.config import CfgNode
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.collator import TripletSpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-from deepspeech.io.dataset import TripletManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2_st import U2STModel
@@ -249,12 +248,11 @@ class U2STTrainer(Trainer):
         config.collator.keep_transcription_text = False
 
         # train/valid dataset, return token ids
-        Dataset = TripletManifestDataset if config.model.model_conf.asr_weight > 0. else ManifestDataset
         config.data.manifest = config.data.train_manifest
-        train_dataset = Dataset.from_config(config)
+        train_dataset = ManifestDataset.from_config(config)
 
         config.data.manifest = config.data.dev_manifest
-        dev_dataset = Dataset.from_config(config)
+        dev_dataset = ManifestDataset.from_config(config)
 
         if config.model.model_conf.asr_weight > 0.:
             Collator = TripletSpeechCollator

@@ -68,7 +68,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
     --num_samples=-1 \
-    --specgram_type="fbank" \
+    --spectrum_type="fbank" \
     --feat_dim=80 \
     --delta_delta=false \
     --sample_rate=16000 \

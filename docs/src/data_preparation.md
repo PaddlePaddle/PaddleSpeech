@@ -21,7 +21,7 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 ```bash
 python3 utils/compute_mean_std.py \
 --num_samples 2000 \
---specgram_type linear \
+--spectrum_type linear \
 --manifest_path examples/librispeech/data/manifest.train \
 --output_path examples/librispeech/data/mean_std.npz
 ```

@@ -35,7 +35,8 @@ for type in attention ctc_greedy_search; do
     --config ${config_path} \
     --result_file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-    --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
+    --opts decoding.decoding_method ${type} \
+    --opts decoding.batch_size ${batch_size}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"
@@ -51,7 +52,8 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     --config ${config_path} \
     --result_file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-    --opts decoding.decoding_method ${type} decoding.batch_size ${batch_size}
+    --opts decoding.decoding_method ${type} \
+    --opts decoding.batch_size ${batch_size}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-from collections import namedtuple
 from typing import Optional
 
 import numpy as np
@@ -23,18 +22,191 @@ from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
 from deepspeech.frontend.normalizer import FeatureNormalizer
 from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.utility import IGNORE_ID
+from deepspeech.frontend.utility import TarLocalData
+from deepspeech.io.reader import LoadInputsAndTargets
 from deepspeech.io.utility import pad_list
 from deepspeech.utils.log import Log
 
-__all__ = ["SpeechCollator"]
+__all__ = ["SpeechCollator", "TripletSpeechCollator"]
 
 logger = Log(__name__).getlog()
 
-# namedtupe need global for pickle.
-TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
+
+class SpeechCollatorBase():
+    def __init__(
+            self,
+            aug_file,
+            mean_std_filepath,
+            vocab_filepath,
+            spm_model_prefix,
+            random_seed=0,
+            unit_type="char",
+            spectrum_type='linear',  # 'linear', 'mfcc', 'fbank'
+            feat_dim=0,  # 'mfcc', 'fbank'
+            delta_delta=False,  # 'mfcc', 'fbank'
+            stride_ms=10.0,  # ms
+            window_ms=20.0,  # ms
+            n_fft=None,  # fft points
+            max_freq=None,  # None for samplerate/2
+            target_sample_rate=16000,  # target sample rate
+            use_dB_normalization=True,
+            target_dB=-20,
+            dither=1.0,
+            keep_transcription_text=True):
+        """SpeechCollator Collator
+
+        Args:
+            unit_type(str): token unit type, e.g. char, word, spm
+            vocab_filepath (str): vocab file path.
+            mean_std_filepath (str): mean and std file path, which suffix is *.npy
+            spm_model_prefix (str): spm model prefix, need if `unit_type` is spm.
+            augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
+            stride_ms (float, optional): stride size in ms. Defaults to 10.0.
+            window_ms (float, optional): window size in ms. Defaults to 20.0.
+            n_fft (int, optional): fft points for rfft. Defaults to None.
+            max_freq (int, optional): max cut freq. Defaults to None.
+            target_sample_rate (int, optional): target sample rate which used for training. Defaults to 16000.
+            spectrum_type (str, optional): 'linear', 'mfcc' or 'fbank'. Defaults to 'linear'.
+            feat_dim (int, optional): audio feature dim, using by 'mfcc' or 'fbank'. Defaults to None.
+            delta_delta (bool, optional): audio feature with delta-delta, using by 'fbank' or 'mfcc'. Defaults to False.
+            use_dB_normalization (bool, optional): do dB normalization. Defaults to True.
+            target_dB (int, optional): target dB. Defaults to -20.
+            random_seed (int, optional): for random generator. Defaults to 0.
+            keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
+            if ``keep_transcription_text`` is False, text is token ids else is raw string.
+
+        Do augmentations
+        Padding audio features with zeros to make them have the same shape (or
+        a user-defined shape) within one batch.
+        """
+        self.keep_transcription_text = keep_transcription_text
+        self.stride_ms = stride_ms
+        self.window_ms = window_ms
+        self.feat_dim = feat_dim
+
+        self.loader = LoadInputsAndTargets()
+
+        # only for tar filetype
+        self._local_data = TarLocalData(tar2info={}, tar2object={})
+
+        self.augmentation = AugmentationPipeline(
+            augmentation_config=aug_file.read(), random_seed=random_seed)
+
+        self._normalizer = FeatureNormalizer(
+            mean_std_filepath) if mean_std_filepath else None
+
+        self._speech_featurizer = SpeechFeaturizer(
+            unit_type=unit_type,
+            vocab_filepath=vocab_filepath,
+            spm_model_prefix=spm_model_prefix,
+            spectrum_type=spectrum_type,
+            feat_dim=feat_dim,
+            delta_delta=delta_delta,
+            stride_ms=stride_ms,
+            window_ms=window_ms,
+            n_fft=n_fft,
+            max_freq=max_freq,
+            target_sample_rate=target_sample_rate,
+            use_dB_normalization=use_dB_normalization,
+            target_dB=target_dB,
+            dither=dither)
+
+        self.feature_size = self._speech_featurizer.audio_feature.feature_size
+        self.text_feature = self._speech_featurizer.text_feature
+        self.vocab_dict = self.text_feature.vocab_dict
+        self.vocab_list = self.text_feature.vocab_list
+        self.vocab_size = self.text_feature.vocab_size
+
+    def process_utterance(self, audio_file, transcript):
+        """Load, augment, featurize and normalize for speech data.
+
+        :param audio_file: Filepath or file object of audio file.
+        :type audio_file: str | file
+        :param transcript: Transcription text.
+        :type transcript: str
+        :return: Tuple of audio feature tensor and data of transcription part,
+                 where transcription part could be token ids or text.
+        :rtype: tuple of (2darray, list)
+        """
+        filetype = self.loader.file_type(audio_file)
+
+        if filetype != 'sound':
+            spectrum = self.loader._get_from_loader(audio_file, filetype)
+            feat_dim = spectrum.shape[1]
+            assert feat_dim == self.feat_dim, f"expect feat dim {self.feat_dim}, but got {feat_dim}"
+
+            if self.keep_transcription_text:
+                transcript_part = transcript
+            else:
+                text_ids = self.text_feature.featurize(transcript)
+                transcript_part = text_ids
+        else:
+            # read audio
+            speech_segment = SpeechSegment.from_file(
+                audio_file, transcript, infos=self._local_data)
+            # audio augment
+            self.augmentation.transform_audio(speech_segment)
+
+            # extract speech feature
+            spectrum, transcript_part = self._speech_featurizer.featurize(
+                speech_segment, self.keep_transcription_text)
+
+            # CMVN spectrum
+            if self._normalizer:
+                spectrum = self._normalizer.apply(spectrum)
+
+        # spectrum augment
+        spectrum = self.augmentation.transform_feature(spectrum)
+        return spectrum, transcript_part
+
+    def __call__(self, batch):
+        """batch examples
+
+        Args:
+            batch ([List]): batch is (audio, text)
+                audio (np.ndarray) shape (T, D)
+                text (List[int] or str): shape (U,)
+
+        Returns:
+            tuple(audio, text, audio_lens, text_lens): batched data.
+                audio : (B, Tmax, D)
+                audio_lens: (B)
+                text : (B, Umax)
+                text_lens: (B)
+        """
+        audios = []
+        audio_lens = []
+        texts = []
+        text_lens = []
+        utts = []
+        for utt, audio, text in batch:
+            audio, text = self.process_utterance(audio, text)
+            #utt
+            utts.append(utt)
+            # audio
+            audios.append(audio)  # [T, D]
+            audio_lens.append(audio.shape[0])
+            # text
+            # for training, text is token ids, else text is string, convert to unicode ord
+            tokens = []
+            if self.keep_transcription_text:
+                assert isinstance(text, str), (type(text), text)
+                tokens = [ord(t) for t in text]
+            else:
+                tokens = text  # token ids
+            tokens = np.array(tokens, dtype=np.int64)
+            texts.append(tokens)
+            text_lens.append(tokens.shape[0])
+
+        #[B, T, D]
+        xs_pad = pad_list(audios, 0.0).astype(np.float32)
+        ilens = np.array(audio_lens).astype(np.int64)
+        ys_pad = pad_list(texts, IGNORE_ID).astype(np.int64)
+        olens = np.array(text_lens).astype(np.int64)
+        return utts, xs_pad, ilens, ys_pad, olens
 
 
-class SpeechCollator():
+class SpeechCollator(SpeechCollatorBase):
     @classmethod
     def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
         default = CfgNode(
@@ -45,7 +217,7 @@ class SpeechCollator():
                 unit_type="char",
                 vocab_filepath="",
                 spm_model_prefix="",
-                specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
+                spectrum_type='linear',  # 'linear', 'mfcc', 'fbank'
                 feat_dim=0,  # 'mfcc', 'fbank'
                 delta_delta=False,  # 'mfcc', 'fbank'
                 stride_ms=10.0,  # ms
@@ -76,7 +248,7 @@ class SpeechCollator():
         assert 'keep_transcription_text' in config.collator
         assert 'mean_std_filepath' in config.collator
         assert 'vocab_filepath' in config.collator
-        assert 'specgram_type' in config.collator
+        assert 'spectrum_type' in config.collator
         assert 'n_fft' in config.collator
         assert config.collator
 
@@ -99,7 +271,7 @@ class SpeechCollator():
             unit_type=config.collator.unit_type,
             vocab_filepath=config.collator.vocab_filepath,
             spm_model_prefix=config.collator.spm_model_prefix,
-            specgram_type=config.collator.specgram_type,
+            spectrum_type=config.collator.spectrum_type,
             feat_dim=config.collator.feat_dim,
             delta_delta=config.collator.delta_delta,
             stride_ms=config.collator.stride_ms,
@@ -113,136 +285,24 @@ class SpeechCollator():
             keep_transcription_text=config.collator.keep_transcription_text)
         return speech_collator
 
-    def __init__(
-            self,
-            aug_file,
-            mean_std_filepath,
-            vocab_filepath,
-            spm_model_prefix,
-            random_seed=0,
-            unit_type="char",
-            specgram_type='linear',  # 'linear', 'mfcc', 'fbank'
-            feat_dim=0,  # 'mfcc', 'fbank'
-            delta_delta=False,  # 'mfcc', 'fbank'
-            stride_ms=10.0,  # ms
-            window_ms=20.0,  # ms
-            n_fft=None,  # fft points
-            max_freq=None,  # None for samplerate/2
-            target_sample_rate=16000,  # target sample rate
-            use_dB_normalization=True,
-            target_dB=-20,
-            dither=1.0,
-            keep_transcription_text=True):
-        """SpeechCollator Collator
 
-        Args:
-            unit_type(str): token unit type, e.g. char, word, spm
-            vocab_filepath (str): vocab file path.
-            mean_std_filepath (str): mean and std file path, which suffix is *.npy
-            spm_model_prefix (str): spm model prefix, need if `unit_type` is spm.
-            augmentation_config (str, optional): augmentation json str. Defaults to '{}'.
-            stride_ms (float, optional): stride size in ms. Defaults to 10.0.
-            window_ms (float, optional): window size in ms. Defaults to 20.0.
-            n_fft (int, optional): fft points for rfft. Defaults to None.
-            max_freq (int, optional): max cut freq. Defaults to None.
-            target_sample_rate (int, optional): target sample rate which used for training. Defaults to 16000.
-            specgram_type (str, optional): 'linear', 'mfcc' or 'fbank'. Defaults to 'linear'.
-            feat_dim (int, optional): audio feature dim, using by 'mfcc' or 'fbank'. Defaults to None.
-            delta_delta (bool, optional): audio feature with delta-delta, using by 'fbank' or 'mfcc'. Defaults to False.
-            use_dB_normalization (bool, optional): do dB normalization. Defaults to True.
-            target_dB (int, optional): target dB. Defaults to -20.
-            random_seed (int, optional): for random generator. Defaults to 0.
-            keep_transcription_text (bool, optional): True, when not in training mode, will not do tokenizer; Defaults to False.
-            if ``keep_transcription_text`` is False, text is token ids else is raw string.
-
-        Do augmentations
-        Padding audio features with zeros to make them have the same shape (or
-        a user-defined shape) within one batch.
-        """
-        self._keep_transcription_text = keep_transcription_text
-
-        self._local_data = TarLocalData(tar2info={}, tar2object={})
-        self._augmentation_pipeline = AugmentationPipeline(
-            augmentation_config=aug_file.read(), random_seed=random_seed)
-
-        self._normalizer = FeatureNormalizer(
-            mean_std_filepath) if mean_std_filepath else None
-
-        self._stride_ms = stride_ms
-        self._target_sample_rate = target_sample_rate
-
-        self._speech_featurizer = SpeechFeaturizer(
-            unit_type=unit_type,
-            vocab_filepath=vocab_filepath,
-            spm_model_prefix=spm_model_prefix,
-            specgram_type=specgram_type,
-            feat_dim=feat_dim,
-            delta_delta=delta_delta,
-            stride_ms=stride_ms,
-            window_ms=window_ms,
-            n_fft=n_fft,
-            max_freq=max_freq,
-            target_sample_rate=target_sample_rate,
-            use_dB_normalization=use_dB_normalization,
-            target_dB=target_dB,
-            dither=dither)
-
-    def _parse_tar(self, file):
-        """Parse a tar file to get a tarfile object
-        and a map containing tarinfoes
-        """
-        result = {}
-        f = tarfile.open(file)
-        for tarinfo in f.getmembers():
-            result[tarinfo.name] = tarinfo
-        return f, result
-
-    def _subfile_from_tar(self, file):
-        """Get subfile object from tar.
-
-        It will return a subfile object from tar file
-        and cached tar file info for next reading request.
-        """
-        tarpath, filename = file.split(':', 1)[1].split('#', 1)
-        if 'tar2info' not in self._local_data.__dict__:
-            self._local_data.tar2info = {}
-        if 'tar2object' not in self._local_data.__dict__:
-            self._local_data.tar2object = {}
-        if tarpath not in self._local_data.tar2info:
-            object, infoes = self._parse_tar(tarpath)
-            self._local_data.tar2info[tarpath] = infoes
-            self._local_data.tar2object[tarpath] = object
-        return self._local_data.tar2object[tarpath].extractfile(
-            self._local_data.tar2info[tarpath][filename])
-
-    def process_utterance(self, audio_file, transcript):
+class TripletSpeechCollator(SpeechCollator):
+    def process_utterance(self, audio_file, translation, transcript):
         """Load, augment, featurize and normalize for speech data.
 
         :param audio_file: Filepath or file object of audio file.
         :type audio_file: str | file
-        :param transcript: Transcription text.
-        :type transcript: str
-        :return: Tuple of audio feature tensor and data of transcription part,
-                 where transcription part could be token ids or text.
+        :param translation: translation text.
+        :type translation: str
+        :return: Tuple of audio feature tensor and data of translation part,
+                    where translation part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
-        if isinstance(audio_file, str) and audio_file.startswith('tar:'):
-            speech_segment = SpeechSegment.from_file(
-                self._subfile_from_tar(audio_file), transcript)
-        else:
-            speech_segment = SpeechSegment.from_file(audio_file, transcript)
-
-        # audio augment
-        self._augmentation_pipeline.transform_audio(speech_segment)
-
-        specgram, transcript_part = self._speech_featurizer.featurize(
-            speech_segment, self._keep_transcription_text)
-        if self._normalizer:
-            specgram = self._normalizer.apply(specgram)
-
-        # specgram augment
-        specgram = self._augmentation_pipeline.transform_feature(specgram)
-        return specgram, transcript_part
+        spectrum, translation_part = super().process_utterance(audio_file,
+                                                               translation)
+        transcript_part = self._speech_featurizer.text_featurize(
+            transcript, self.keep_transcription_text)
+        return spectrum, translation_part, transcript_part
 
     def __call__(self, batch):
         """batch examples
@@ -261,11 +321,15 @@ class SpeechCollator():
         """
         audios = []
         audio_lens = []
-        texts = []
-        text_lens = []
+        translation_text = []
+        translation_text_lens = []
+        transcription_text = []
+        transcription_text_lens = []
+
         utts = []
-        for utt, audio, text in batch:
-            audio, text = self.process_utterance(audio, text)
+        for utt, audio, translation, transcription in batch:
+            audio, translation, transcription = self.process_utterance(
+                audio, translation, transcription)
             #utt
             utts.append(utt)
             # audio
@@ -274,44 +338,29 @@ class SpeechCollator():
             # text
             # for training, text is token ids
             # else text is string, convert to unicode ord
-            tokens = []
-            if self._keep_transcription_text:
-                assert isinstance(text, str), (type(text), text)
-                tokens = [ord(t) for t in text]
-            else:
-                tokens = text  # token ids
-            tokens = tokens if isinstance(tokens, np.ndarray) else np.array(
-                tokens, dtype=np.int64)
-            texts.append(tokens)
-            text_lens.append(tokens.shape[0])
+            tokens = [[], []]
+            for idx, text in enumerate([translation, transcription]):
+                if self.keep_transcription_text:
+                    assert isinstance(text, str), (type(text), text)
+                    tokens[idx] = [ord(t) for t in text]
+                else:
+                    tokens[idx] = text  # token ids
+                tokens[idx] = np.array(tokens[idx], dtype=np.int64)
 
-        #[B, T, D]
-        xs_pad = pad_list(audios, 0.0).astype(np.float32)
-        ilens = np.array(audio_lens).astype(np.int64)
-        ys_pad = pad_list(texts, IGNORE_ID).astype(np.int64)
-        olens = np.array(text_lens).astype(np.int64)
-        return utts, xs_pad, ilens, ys_pad, olens
+            translation_text.append(tokens[0])
+            translation_text_lens.append(tokens[0].shape[0])
+            transcription_text.append(tokens[1])
+            transcription_text_lens.append(tokens[1].shape[0])
 
-    @property
-    def vocab_size(self):
-        return self._speech_featurizer.vocab_size
-
-    @property
-    def vocab_list(self):
-        return self._speech_featurizer.vocab_list
-
-    @property
-    def vocab_dict(self):
-        return self._speech_featurizer.vocab_dict
-
-    @property
-    def text_feature(self):
-        return self._speech_featurizer.text_feature
-
-    @property
-    def feature_size(self):
-        return self._speech_featurizer.feature_size
-
-    @property
-    def stride_ms(self):
-        return self._speech_featurizer.stride_ms
+        padded_audios = pad_sequence(
+            audios, padding_value=0.0).astype(np.float32)  #[B, T, D]
+        audio_lens = np.array(audio_lens).astype(np.int64)
+        padded_translation = pad_sequence(
+            translation_text, padding_value=IGNORE_ID).astype(np.int64)
+        translation_lens = np.array(translation_text_lens).astype(np.int64)
+        padded_transcription = pad_sequence(
+            transcription_text, padding_value=IGNORE_ID).astype(np.int64)
+        transcription_lens = np.array(transcription_text_lens).astype(np.int64)
+        return utts, padded_audios, audio_lens, (
+            padded_translation, padded_transcription), (translation_lens,
+                                                        transcription_lens)

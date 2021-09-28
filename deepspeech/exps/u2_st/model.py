@@ -28,10 +28,8 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 from yacs.config import CfgNode
 
-from deepspeech.io.collator_st import KaldiPrePorocessedCollator
-from deepspeech.io.collator_st import SpeechCollator
-from deepspeech.io.collator_st import TripletKaldiPrePorocessedCollator
-from deepspeech.io.collator_st import TripletSpeechCollator
+from deepspeech.io.collator import SpeechCollator
+from deepspeech.io.collator import TripletSpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.io.dataset import TripletManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
@@ -258,22 +256,13 @@ class U2STTrainer(Trainer):
         config.data.manifest = config.data.dev_manifest
         dev_dataset = Dataset.from_config(config)
 
-        if config.collator.raw_wav:
-            if config.model.model_conf.asr_weight > 0.:
-                Collator = TripletSpeechCollator
-                TestCollator = SpeechCollator
-            else:
-                TestCollator = Collator = SpeechCollator
-            # Not yet implement the mtl loader for raw_wav.
+        if config.model.model_conf.asr_weight > 0.:
+            Collator = TripletSpeechCollator
+            TestCollator = SpeechCollator
         else:
-            if config.model.model_conf.asr_weight > 0.:
-                Collator = TripletKaldiPrePorocessedCollator
-                TestCollator = KaldiPrePorocessedCollator
-            else:
-                TestCollator = Collator = KaldiPrePorocessedCollator
+            TestCollator = Collator = SpeechCollator
 
         collate_fn_train = Collator.from_config(config)
-
         config.collator.augmentation_config = ""
         collate_fn_dev = Collator.from_config(config)
 

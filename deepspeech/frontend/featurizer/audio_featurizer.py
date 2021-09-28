@@ -24,15 +24,15 @@ class AudioFeaturizer():
 
     Currently, it supports feature types of linear spectrogram and mfcc.
 
-    :param specgram_type: Specgram feature type. Options: 'linear'.
-    :type specgram_type: str
+    :param spectrum_type: Specgram feature type. Options: 'linear'.
+    :type spectrum_type: str
     :param stride_ms: Striding size (in milliseconds) for generating frames.
     :type stride_ms: float
     :param window_ms: Window size (in milliseconds) for generating frames.
     :type window_ms: float
-    :param max_freq: When specgram_type is 'linear', only FFT bins
+    :param max_freq: When spectrum_type is 'linear', only FFT bins
                      corresponding to frequencies between [0, max_freq] are
-                     returned; when specgram_type is 'mfcc', max_feq is the
+                     returned; when spectrum_type is 'mfcc', max_feq is the
                      highest band edge of mel filters.
     :types max_freq: None|float
     :param target_sample_rate: Audio are resampled (if upsampling or
@@ -47,7 +47,7 @@ class AudioFeaturizer():
     """
 
     def __init__(self,
-                 specgram_type: str='linear',
+                 spectrum_type: str='linear',
                  feat_dim: int=None,
                  delta_delta: bool=False,
                  stride_ms=10.0,
@@ -58,7 +58,7 @@ class AudioFeaturizer():
                  use_dB_normalization=True,
                  target_dB=-20,
                  dither=1.0):
-        self._specgram_type = specgram_type
+        self._spectrum_type = spectrum_type
         # mfcc and fbank using `feat_dim`
         self._feat_dim = feat_dim
         # mfcc and fbank using `delta-delta`
@@ -113,27 +113,27 @@ class AudioFeaturizer():
     def feature_size(self):
         """audio feature size"""
         feat_dim = 0
-        if self._specgram_type == 'linear':
+        if self._spectrum_type == 'linear':
             fft_point = self._window_ms if self._fft_point is None else self._fft_point
             feat_dim = int(fft_point * (self._target_sample_rate / 1000) / 2 +
                            1)
-        elif self._specgram_type == 'mfcc':
+        elif self._spectrum_type == 'mfcc':
             # mfcc, delta, delta-delta
             feat_dim = int(self._feat_dim *
                            3) if self._delta_delta else int(self._feat_dim)
-        elif self._specgram_type == 'fbank':
+        elif self._spectrum_type == 'fbank':
             # fbank, delta, delta-delta
             feat_dim = int(self._feat_dim *
                            3) if self._delta_delta else int(self._feat_dim)
         else:
-            raise ValueError("Unknown specgram_type %s. "
-                             "Supported values: linear." % self._specgram_type)
+            raise ValueError("Unknown spectrum_type %s. "
+                             "Supported values: linear." % self._spectrum_type)
         return feat_dim
 
     def _compute_specgram(self, audio_segment):
         """Extract various audio features."""
         sample_rate = audio_segment.sample_rate
-        if self._specgram_type == 'linear':
+        if self._spectrum_type == 'linear':
             samples = audio_segment.samples
             return self._compute_linear_specgram(
                 samples,
@@ -141,7 +141,7 @@ class AudioFeaturizer():
                 stride_ms=self._stride_ms,
                 window_ms=self._window_ms,
                 max_freq=self._max_freq)
-        elif self._specgram_type == 'mfcc':
+        elif self._spectrum_type == 'mfcc':
             samples = audio_segment.to('int16')
             return self._compute_mfcc(
                 samples,
@@ -152,7 +152,7 @@ class AudioFeaturizer():
                 max_freq=self._max_freq,
                 dither=self._dither,
                 delta_delta=self._delta_delta)
-        elif self._specgram_type == 'fbank':
+        elif self._spectrum_type == 'fbank':
             samples = audio_segment.to('int16')
             return self._compute_fbank(
                 samples,
@@ -164,8 +164,8 @@ class AudioFeaturizer():
                 dither=self._dither,
                 delta_delta=self._delta_delta)
         else:
-            raise ValueError("Unknown specgram_type %s. "
-                             "Supported values: linear." % self._specgram_type)
+            raise ValueError("Unknown spectrum_type %s. "
+                             "Supported values: linear." % self._spectrum_type)
 
     def _specgram_real(self, samples, window_size, stride_size, sample_rate):
         """Compute the spectrogram for samples from a real signal."""

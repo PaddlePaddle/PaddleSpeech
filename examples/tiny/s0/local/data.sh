@@ -46,7 +46,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.tiny.raw" \
     --num_samples=64 \
-    --specgram_type="linear" \
+    --spectrum_type="linear" \
     --delta_delta=false \
     --sample_rate=16000 \
     --stride_ms=10.0 \

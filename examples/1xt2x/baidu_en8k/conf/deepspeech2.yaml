@@ -18,7 +18,7 @@ collator:
   augmentation_config: conf/augmentation.json
   random_seed: 0
   spm_model_prefix: 
-  specgram_type: linear
+  spectrum_type: linear
   feat_dim: 
   delta_delta: False
   stride_ms: 10.0

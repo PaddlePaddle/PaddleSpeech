@@ -15,6 +15,7 @@
 import json
 import math
 import tarfile
+from collections import namedtuple
 from typing import List
 from typing import Optional
 from typing import Text

@@ -17,44 +17,14 @@ from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
 
 class SpeechFeaturizer():
-    """Speech featurizer, for extracting features from both audio and transcript
-    contents of SpeechSegment.
-
-    Currently, for audio parts, it supports feature types of linear
-    spectrogram and mfcc; for transcript parts, it only supports char-level
-    tokenizing and conversion into a list of token indices. Note that the
-    token indexing order follows the given vocabulary file.
-
-    :param vocab_filepath: Filepath to load vocabulary for token indices
-                           conversion.
-    :type specgram_type: str
-    :param specgram_type: Specgram feature type. Options: 'linear', 'mfcc'.
-    :type specgram_type: str
-    :param stride_ms: Striding size (in milliseconds) for generating frames.
-    :type stride_ms: float
-    :param window_ms: Window size (in milliseconds) for generating frames.
-    :type window_ms: float
-    :param max_freq: When specgram_type is 'linear', only FFT bins
-                     corresponding to frequencies between [0, max_freq] are
-                     returned; when specgram_type is 'mfcc', max_freq is the
-                     highest band edge of mel filters.
-    :types max_freq: None|float
-    :param target_sample_rate: Speech are resampled (if upsampling or
-                               downsampling is allowed) to this before
-                               extracting spectrogram features.
-    :type target_sample_rate: float
-    :param use_dB_normalization: Whether to normalize the audio to a certain
-                                 decibels before extracting the features.
-    :type use_dB_normalization: bool
-    :param target_dB: Target audio decibels for normalization.
-    :type target_dB: float
+    """Speech and Text feature extraction.
     """
 
     def __init__(self,
                  unit_type,
                  vocab_filepath,
                  spm_model_prefix=None,
-                 specgram_type='linear',
+                 spectrum_type='linear',
                  feat_dim=None,
                  delta_delta=False,
                  stride_ms=10.0,
@@ -70,7 +40,7 @@ class SpeechFeaturizer():
         self.window_ms = window_ms
 
         self.audio_feature = AudioFeaturizer(
-            specgram_type=specgram_type,
+            spectrum_type=spectrum_type,
             feat_dim=feat_dim,
             delta_delta=delta_delta,
             stride_ms=stride_ms,

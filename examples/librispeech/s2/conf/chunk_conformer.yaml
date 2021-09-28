@@ -18,7 +18,7 @@ collator:
   augmentation_config: conf/augmentation.json
   batch_size: 16
   raw_wav: True  # use raw_wav or kaldi feature
-  specgram_type: fbank #linear, mfcc, fbank
+  spectrum_type: fbank #linear, mfcc, fbank
   feat_dim: 80
   delta_delta: False
   dither: 1.0

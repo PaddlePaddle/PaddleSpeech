@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 import paddle
+import soundfile
 
 from deepspeech.exps.deepspeech2.config import get_cfg_defaults
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
@@ -150,6 +151,20 @@ class DeepSpeech2Tester_hub():
         self.model.set_state_dict(model_dict)
 
 
+def check(audio_file):
+    logger.info("checking the audio file format......")
+    try:
+        sig, sample_rate = soundfile.read(audio_file)
+    except Exception as e:
+        logger.error(str(e))
+        logger.error(
+            "can not open the wav file, please check the audio file format")
+        sys.exit(-1)
+    logger.info("The sample rate is %d" % sample_rate)
+    assert (sample_rate == 16000)
+    logger.info("The audio file format is right")
+
+
 def main_sp(config, args):
     exp = DeepSpeech2Tester_hub(config, args)
     exp.setup()
@@ -174,6 +189,7 @@ if __name__ == "__main__":
     if not os.path.isfile(args.audio_file):
         print("Please input the audio file path")
         sys.exit(-1)
+    check(args.audio_file)
     print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html

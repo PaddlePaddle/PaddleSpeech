@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
-source path.sh
+
+. path.sh || exit 1;
 
 stage=0
 stop_stage=50
 conf_path=conf/transformer.yaml
 avg_num=10
-TIMIT_path= #path of TIMIT (Required, e.g. /export/corpora5/LDC/LDC93S1/timit/TIMIT)
-source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+TIMIT_path=/workspace/zhanghui/dataset/data/lisa/data/timit/raw/TIMIT
+
+. ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')

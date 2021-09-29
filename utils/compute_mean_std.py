@@ -27,7 +27,7 @@ add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
 add_arg('num_samples',      int,    2000,    "# of samples to for statistics.")
 
-add_arg('specgram_type',    str,
+add_arg('spectrum_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc, fbank.",
         choices=['linear', 'mfcc', 'fbank'])
@@ -58,7 +58,7 @@ def main():
 
     augmentation_pipeline = AugmentationPipeline('{}')
     audio_featurizer = AudioFeaturizer(
-        specgram_type=args.specgram_type,
+        spectrum_type=args.spectrum_type,
         feat_dim=args.feat_dim,
         delta_delta=args.delta_delta,
         stride_ms=args.stride_ms,

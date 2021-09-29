@@ -263,6 +263,7 @@ class Trainer():
                             msg += f"{v:>.8f}" if isinstance(v,
                                                              float) else f"{v}"
                             msg += ","
+                        msg = msg[:-1]  # remove the last ","
                         logger.info(msg)
                         data_start_time = time.time()
                 except Exception as e:

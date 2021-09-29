@@ -46,7 +46,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
-    --specgram_type="linear" \
+    --spectrum_type="linear" \
     --delta_delta=false \
     --stride_ms=10.0 \
     --window_ms=20.0 \

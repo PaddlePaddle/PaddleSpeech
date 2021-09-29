@@ -49,7 +49,7 @@ class CTCDecoder(nn.Layer):
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
-            grad_norm_type (str): one of 'instance', 'batchsize', 'frame', None.
+            grad_norm_type (str): one of 'instance', 'batch', 'frame', None.
         """
         assert check_argument_types()
         super().__init__()

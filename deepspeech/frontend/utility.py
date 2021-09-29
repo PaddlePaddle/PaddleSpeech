@@ -14,6 +14,8 @@
 """Contains data helper functions."""
 import json
 import math
+import tarfile
+from collections import namedtuple
 from typing import List
 from typing import Optional
 from typing import Text
@@ -110,6 +112,51 @@ def read_manifest(
             if all(conditions):
                 manifest.append(json_data)
     return manifest
+
+
+# Tar File read
+TarLocalData = namedtuple('TarLocalData', ['tar2info', 'tar2object'])
+
+
+def parse_tar(file):
+    """Parse a tar file to get a tarfile object
+    and a map containing tarinfoes
+    """
+    result = {}
+    f = tarfile.open(file)
+    for tarinfo in f.getmembers():
+        result[tarinfo.name] = tarinfo
+    return f, result
+
+
+def subfile_from_tar(file, local_data=None):
+    """Get subfile object from tar.
+
+    tar:tarpath#filename
+
+    It will return a subfile object from tar file
+    and cached tar file info for next reading request.
+    """
+    tarpath, filename = file.split(':', 1)[1].split('#', 1)
+
+    if local_data is None:
+        local_data = TarLocalData(tar2info={}, tar2object={})
+
+    assert isinstance(local_data, TarLocalData)
+
+    if 'tar2info' not in local_data.__dict__:
+        local_data.tar2info = {}
+    if 'tar2object' not in local_data.__dict__:
+        local_data.tar2object = {}
+
+    if tarpath not in local_data.tar2info:
+        fobj, infos = parse_tar(tarpath)
+        local_data.tar2info[tarpath] = infos
+        local_data.tar2object[tarpath] = fobj
+    else:
+        fobj = local_data.tar2object[tarpath]
+        infos = local_data.tar2info[tarpath]
+    return fobj.extractfile(infos[filename])
 
 
 def rms_to_db(rms: float):

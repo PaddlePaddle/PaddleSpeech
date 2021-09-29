@@ -24,8 +24,10 @@ import soundfile
 import soxbindings as sox
 from scipy import signal
 
+from .utility import subfile_from_tar
 
-class AudioSegment(object):
+
+class AudioSegment():
     """Monaural audio segment abstraction.
 
     :param samples: Audio samples [num_samples x num_channels].
@@ -68,16 +70,20 @@ class AudioSegment(object):
                                 self.duration, self.rms_db))
 
     @classmethod
-    def from_file(cls, file):
+    def from_file(cls, file, infos=None):
         """Create audio segment from audio file.
-        
-        :param filepath: Filepath or file object to audio file.
-        :type filepath: str|file
-        :return: Audio segment instance.
-        :rtype: AudioSegment
+
+        Args:
+            filepath (str|file): Filepath or file object to audio file.
+            infos (TarLocalData, optional): tar2obj and tar2infos. Defaults to None.
+
+        Returns:
+            AudioSegment: Audio segment instance.
         """
         if isinstance(file, str) and re.findall(r".seqbin_\d+$", file):
             return cls.from_sequence_file(file)
+        elif isinstance(file, str) and file.startswith('tar:'):
+            return cls.from_file(subfile_from_tar(file, infos))
         else:
             samples, sample_rate = soundfile.read(file, dtype='float32')
             return cls(samples, sample_rate)

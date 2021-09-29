@@ -28,12 +28,9 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 from yacs.config import CfgNode
 
-from deepspeech.io.collator_st import KaldiPrePorocessedCollator
-from deepspeech.io.collator_st import SpeechCollator
-from deepspeech.io.collator_st import TripletKaldiPrePorocessedCollator
-from deepspeech.io.collator_st import TripletSpeechCollator
+from deepspeech.io.collator import SpeechCollator
+from deepspeech.io.collator import TripletSpeechCollator
 from deepspeech.io.dataset import ManifestDataset
-from deepspeech.io.dataset import TripletManifestDataset
 from deepspeech.io.sampler import SortagradBatchSampler
 from deepspeech.io.sampler import SortagradDistributedBatchSampler
 from deepspeech.models.u2_st import U2STModel
@@ -251,29 +248,19 @@ class U2STTrainer(Trainer):
         config.collator.keep_transcription_text = False
 
         # train/valid dataset, return token ids
-        Dataset = TripletManifestDataset if config.model.model_conf.asr_weight > 0. else ManifestDataset
         config.data.manifest = config.data.train_manifest
-        train_dataset = Dataset.from_config(config)
+        train_dataset = ManifestDataset.from_config(config)
 
         config.data.manifest = config.data.dev_manifest
-        dev_dataset = Dataset.from_config(config)
+        dev_dataset = ManifestDataset.from_config(config)
 
-        if config.collator.raw_wav:
-            if config.model.model_conf.asr_weight > 0.:
-                Collator = TripletSpeechCollator
-                TestCollator = SpeechCollator
-            else:
-                TestCollator = Collator = SpeechCollator
-            # Not yet implement the mtl loader for raw_wav.
+        if config.model.model_conf.asr_weight > 0.:
+            Collator = TripletSpeechCollator
+            TestCollator = SpeechCollator
         else:
-            if config.model.model_conf.asr_weight > 0.:
-                Collator = TripletKaldiPrePorocessedCollator
-                TestCollator = KaldiPrePorocessedCollator
-            else:
-                TestCollator = Collator = KaldiPrePorocessedCollator
+            TestCollator = Collator = SpeechCollator
 
         collate_fn_train = Collator.from_config(config)
-
         config.collator.augmentation_config = ""
         collate_fn_dev = Collator.from_config(config)
 
@@ -305,7 +292,8 @@ class U2STTrainer(Trainer):
             batch_size=config.collator.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn_dev)
+            collate_fn=collate_fn_dev,
+            num_workers=config.collator.num_workers, )
 
         # test dataset, return raw text
         config.data.manifest = config.data.test_manifest
@@ -326,7 +314,8 @@ class U2STTrainer(Trainer):
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=TestCollator.from_config(config))
+            collate_fn=TestCollator.from_config(config),
+            num_workers=config.collator.num_workers, )
         # return text token id
         config.collator.keep_transcription_text = False
         self.align_loader = DataLoader(
@@ -334,7 +323,8 @@ class U2STTrainer(Trainer):
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=TestCollator.from_config(config))
+            collate_fn=TestCollator.from_config(config),
+            num_workers=config.collator.num_workers, )
         logger.info("Setup train/valid/test/align Dataloader!")
 
     def setup_model(self):

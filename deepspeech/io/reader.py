@@ -321,6 +321,22 @@ class LoadInputsAndTargets():
             raise NotImplementedError(
                 "Not supported: loader_type={}".format(filetype))
 
+    def file_type(self, filepath):
+        suffix = filepath.split(":")[0].split('.')[-1]
+        if suffix == 'ark':
+            return 'mat'
+        elif suffix == 'scp':
+            return 'scp'
+        elif suffix == 'npy':
+            return 'npy'
+        elif suffix == 'npz':
+            return 'npz'
+        elif suffix in ['wav', 'flac']:
+            # PCM16
+            return 'sound'
+        else:
+            raise ValueError(f"Not support filetype: {suffix}")
+
 
 class SoundHDF5File():
     """Collecting sound files to a HDF5 file

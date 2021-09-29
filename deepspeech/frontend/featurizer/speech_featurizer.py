@@ -17,44 +17,14 @@ from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 
 
 class SpeechFeaturizer():
-    """Speech featurizer, for extracting features from both audio and transcript
-    contents of SpeechSegment.
-
-    Currently, for audio parts, it supports feature types of linear
-    spectrogram and mfcc; for transcript parts, it only supports char-level
-    tokenizing and conversion into a list of token indices. Note that the
-    token indexing order follows the given vocabulary file.
-
-    :param vocab_filepath: Filepath to load vocabulary for token indices
-                           conversion.
-    :type specgram_type: str
-    :param specgram_type: Specgram feature type. Options: 'linear', 'mfcc'.
-    :type specgram_type: str
-    :param stride_ms: Striding size (in milliseconds) for generating frames.
-    :type stride_ms: float
-    :param window_ms: Window size (in milliseconds) for generating frames.
-    :type window_ms: float
-    :param max_freq: When specgram_type is 'linear', only FFT bins
-                     corresponding to frequencies between [0, max_freq] are
-                     returned; when specgram_type is 'mfcc', max_freq is the
-                     highest band edge of mel filters.
-    :types max_freq: None|float
-    :param target_sample_rate: Speech are resampled (if upsampling or
-                               downsampling is allowed) to this before
-                               extracting spectrogram features.
-    :type target_sample_rate: float
-    :param use_dB_normalization: Whether to normalize the audio to a certain
-                                 decibels before extracting the features.
-    :type use_dB_normalization: bool
-    :param target_dB: Target audio decibels for normalization.
-    :type target_dB: float
+    """Speech and Text feature extraction.
     """
 
     def __init__(self,
                  unit_type,
                  vocab_filepath,
                  spm_model_prefix=None,
-                 specgram_type='linear',
+                 spectrum_type='linear',
                  feat_dim=None,
                  delta_delta=False,
                  stride_ms=10.0,
@@ -64,9 +34,13 @@ class SpeechFeaturizer():
                  target_sample_rate=16000,
                  use_dB_normalization=True,
                  target_dB=-20,
-                 dither=1.0):
-        self._audio_featurizer = AudioFeaturizer(
-            specgram_type=specgram_type,
+                 dither=1.0,
+                 maskctc=False):
+        self.stride_ms = stride_ms
+        self.window_ms = window_ms
+
+        self.audio_feature = AudioFeaturizer(
+            spectrum_type=spectrum_type,
             feat_dim=feat_dim,
             delta_delta=delta_delta,
             stride_ms=stride_ms,
@@ -77,8 +51,12 @@ class SpeechFeaturizer():
             use_dB_normalization=use_dB_normalization,
             target_dB=target_dB,
             dither=dither)
-        self._text_featurizer = TextFeaturizer(unit_type, vocab_filepath,
-                                               spm_model_prefix)
+
+        self.text_feature = TextFeaturizer(
+            unit_type=unit_type,
+            vocab_filepath=vocab_filepath,
+            spm_model_prefix=spm_model_prefix,
+            maskctc=maskctc)
 
     def featurize(self, speech_segment, keep_transcription_text):
         """Extract features for speech segment.
@@ -94,60 +72,33 @@ class SpeechFeaturizer():
         Returns:
             tuple: 1) spectrogram audio feature in 2darray, 2) list oftoken indices.
         """
-        spec_feature = self._audio_featurizer.featurize(speech_segment)
+        spec_feature = self.audio_feature.featurize(speech_segment)
+
         if keep_transcription_text:
             return spec_feature, speech_segment.transcript
+
         if speech_segment.has_token:
             text_ids = speech_segment.token_ids
         else:
-            text_ids = self._text_featurizer.featurize(
-                speech_segment.transcript)
+            text_ids = self.text_feature.featurize(speech_segment.transcript)
         return spec_feature, text_ids
 
-    @property
-    def vocab_size(self):
-        """Return the vocabulary size.
-        Returns:
-            int: Vocabulary size.
-        """
-        return self._text_featurizer.vocab_size
+    def text_featurize(self, text, keep_transcription_text):
+        """Extract features for speech segment.
 
-    @property
-    def vocab_list(self):
-        """Return the vocabulary in list.
-        Returns:
-            List[str]: 
-        """
-        return self._text_featurizer.vocab_list
+        1. For audio parts, extract the audio features.
+        2. For transcript parts, keep the original text or convert text string
+           to a list of token indices in char-level.
 
-    @property
-    def vocab_dict(self):
-        """Return the vocabulary in dict.
-        Returns:
-            Dict[str, int]: 
-        """
-        return self._text_featurizer.vocab_dict
+        Args:
+            text (str): text.
+            keep_transcription_text (bool): True, keep transcript text, False, token ids
 
-    @property
-    def feature_size(self):
-        """Return the audio feature size.
         Returns:
-            int: audio feature size.
+            (str|List[int]): text, or list of token indices.
         """
-        return self._audio_featurizer.feature_size
+        if keep_transcription_text:
+            return text
 
-    @property
-    def stride_ms(self):
-        """time length in `ms` unit per frame
-        Returns:
-            float: time(ms)/frame
-        """
-        return self._audio_featurizer.stride_ms
-
-    @property
-    def text_feature(self):
-        """Return the text feature object.
-        Returns:
-            TextFeaturizer: object.
-        """
-        return self._text_featurizer
+        text_ids = self.text_feature.featurize(text)
+        return text_ids

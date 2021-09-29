@@ -235,16 +235,18 @@ class DeepSpeech2Trainer(Trainer):
             num_workers=config.collator.num_workers)
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=int(config.collator.batch_size / 4),
+            batch_size=int(config.collator.batch_size),
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn_dev)
+            collate_fn=collate_fn_dev,
+            num_workers=config.collator.num_workers)
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decoding.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn_test)
+            collate_fn=collate_fn_test,
+            num_workers=config.collator.num_workers)
         logger.info("Setup train/valid/test  Dataloader!")
 
 

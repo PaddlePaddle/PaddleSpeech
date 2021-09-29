@@ -68,7 +68,12 @@ class SpeechSegment(AudioSegment):
         return not self.__eq__(other)
 
     @classmethod
-    def from_file(cls, filepath, transcript, tokens=None, token_ids=None):
+    def from_file(cls,
+                  filepath,
+                  transcript,
+                  tokens=None,
+                  token_ids=None,
+                  infos=None):
         """Create speech segment from audio file and corresponding transcript.
 
         Args:
@@ -76,12 +81,12 @@ class SpeechSegment(AudioSegment):
             transcript (str): Transcript text for the speech.
             tokens (List[str], optional): text tokens. Defaults to None.
             token_ids (List[int], optional): text token ids. Defaults to None.
+            infos (TarLocalData, optional): tar2obj and tar2infos. Defaults to None.
 
         Returns:
             SpeechSegment: Speech segment instance.
         """
-
-        audio = AudioSegment.from_file(filepath)
+        audio = AudioSegment.from_file(filepath, infos)
         return cls(audio.samples, audio.sample_rate, transcript, tokens,
                    token_ids)
 

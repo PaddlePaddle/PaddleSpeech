@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 stage=-1
 stop_stage=100
 

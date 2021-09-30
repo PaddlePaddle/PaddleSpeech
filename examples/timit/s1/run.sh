@@ -7,7 +7,7 @@ stage=0
 stop_stage=50
 conf_path=conf/transformer.yaml
 avg_num=10
-TIMIT_path=/workspace/zhanghui/dataset/data/lisa/data/timit/raw/TIMIT
+TIMIT_path=/path/to/TIMIT
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

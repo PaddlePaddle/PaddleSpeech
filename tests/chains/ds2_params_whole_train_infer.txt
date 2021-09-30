@@ -1,19 +1,19 @@
 ===========================train_params===========================
 model_name:deepspeech2
-python:python3.8
-gpu_list:0
+python:python3.7
+gpu_list:0,1|0
 null:null
 null:null
 null:null
---output:null
 null:null
---checkpoint_path:
-train_model_name:checkpoints/1
+null:null
+null:null
+null:null
 null:null
 null:null
 ##
 trainer:norm_train
-norm_train: ../../../deepspeech/exps/deepspeech2/bin/train.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline --device gpu
+norm_train: ../../../deepspeech/exps/deepspeech2/bin/train.py --config conf/deepspeech2.yaml --model_type offline --profiler-options "" --output exp/deepspeech_whole --seed 0
 pact_train:null
 fpgm_train:null
 distill_train:null
@@ -21,13 +21,13 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval: ../../../deepspeech/exps/deepspeech2/bin/test.py --nproc 1 --config conf/deepspeech2.yaml --result_file tests/1.rsl  --model_type offline --device gpu
+eval: ../../../deepspeech/exps/deepspeech2/bin/test.py --nproc 1 --config conf/deepspeech2.yaml --result_file tests/49.rsl --checkpoint_path exp/deepspeech_whole/checkpoints/49 --model_type offline
 null:null
 ##
 ===========================infer_params===========================
---export_path:checkpoints/1.jit
---checkpoint_path:checkpoints/1
-norm_export: ../../../deepspeech/exps/deepspeech2/bin/export.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline
+null:null
+null:null
+norm_export: ../../../deepspeech/exps/deepspeech2/bin/export.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline  --checkpoint_path exp/deepspeech_whole/checkpoints/49 --export_path exp/deepspeech_whole/checkpoints/49.jit
 quant_export:null
 fpgm_export:null
 distill_export:null

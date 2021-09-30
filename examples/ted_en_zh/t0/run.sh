@@ -6,7 +6,7 @@ stage=0
 stop_stage=100
 conf_path=conf/transformer_joint_noam.yaml
 avg_num=5
-data_path=./TED-En-Zh # path to unzipped data
+data_path=./TED_EnZh # path to unzipped data
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}

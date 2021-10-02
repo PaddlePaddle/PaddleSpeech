@@ -27,6 +27,7 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils import profiler
 from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
+from deepspeech.utils.utility import all_version
 from deepspeech.utils.utility import seed_all
 from deepspeech.utils.utility import UpdateConfig
 
@@ -103,6 +104,7 @@ class Trainer():
         self.epoch = 0
         self.rank = dist.get_rank()
 
+        all_version()
         logger.info(f"Rank: {self.rank}/{dist.get_world_size()}")
 
         if args.seed:

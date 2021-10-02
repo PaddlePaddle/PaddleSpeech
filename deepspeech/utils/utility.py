@@ -16,15 +16,34 @@ import distutils.util
 import math
 import os
 import random
+import sys
 from contextlib import contextmanager
 from typing import List
 
 import numpy as np
 import paddle
+import soundfile
+
+from deepspeech.utils.log import Log
+
+logger = Log(__name__).getlog()
 
 __all__ = [
-    "UpdateConfig", "seed_all", 'print_arguments', 'add_arguments', "log_add"
+    "all_version", "UpdateConfig", "seed_all", 'print_arguments',
+    'add_arguments', "log_add"
 ]
+
+
+def all_version():
+    vers = {
+        "python": sys.version,
+        "paddle": paddle.__version__,
+        "paddle_commit": paddle.version.commit,
+        "soundfile": soundfile.__version__,
+    }
+    logger.info("Deps Module Version:")
+    for k, v in vers.items():
+        logger.info(f"{k}: {v}")
 
 
 @contextmanager

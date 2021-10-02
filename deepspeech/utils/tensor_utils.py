@@ -183,7 +183,13 @@ def th_accuracy(pad_outputs: paddle.Tensor,
     pad_pred = pad_outputs.view(pad_targets.shape[0], pad_targets.shape[1],
                                 pad_outputs.shape[1]).argmax(2)
     mask = pad_targets != ignore_label
-    numerator = paddle.sum(
+    #TODO(Hui Zhang): sum not support bool type
+    # numerator = paddle.sum(
+    #     pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
+    numerator = (
         pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
-    denominator = paddle.sum(mask)
+    numerator = paddle.sum(numerator.type_as(pad_targets))
+    #TODO(Hui Zhang): sum not support bool type
+    # denominator = paddle.sum(mask)
+    denominator = paddle.sum(mask.type_as(pad_targets))
     return float(numerator) / float(denominator)

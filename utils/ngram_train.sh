@@ -22,7 +22,7 @@ lmbin=${2}.klm.bin
 
 # https://kheafield.com/code/kenlm/estimation/
 echo "build arpa lm."
-lmplz -o ${order} -S ${mem} --prune ${prune} < ${text} >${arpa} || { echo "train kenlm error!"; exit -1; }
+lmplz -o ${order} -S ${mem} --prune ${prune} < ${text} > ${arpa} || { echo "train kenlm error!"; exit -1; }
 
 # https://kheafield.com/code/kenlm/
 echo "build binary lm."

@@ -1,0 +1,69 @@
+[
+  {
+    "type": "noise",
+    "params": {
+      "min_snr_dB": 40,
+      "max_snr_dB": 50,
+      "noise_manifest_path": "datasets/manifest.noise"
+    },
+    "prob": 0.6
+  },
+  {
+    "type": "impulse",
+    "params": {
+      "impulse_manifest_path": "datasets/manifest.impulse"
+    },
+    "prob": 0.5
+  },
+  {
+    "type": "speed",
+    "params": {
+      "min_speed_rate": 0.95,
+      "max_speed_rate": 1.05,
+      "num_rates": 3
+    },
+    "prob": 0.5
+  },
+  {
+    "type": "shift",
+    "params": {
+      "min_shift_ms": -5,
+      "max_shift_ms": 5
+    },
+    "prob": 1.0
+  },
+  {
+    "type": "volume",
+    "params": {
+      "min_gain_dBFS": -10,
+      "max_gain_dBFS": 10
+    },
+    "prob": 0.0
+  },
+  {
+    "type": "bayesian_normal",
+    "params": {
+      "target_db": -20,
+      "prior_db": -20,
+      "prior_samples": 100
+    },
+    "prob": 0.0
+  },
+  {
+    "type": "specaug",
+    "params": {
+      "W": 80,
+      "warp_mode": "PIL",
+      "F": 10,
+      "n_freq_masks": 2,
+      "T": 50,
+      "n_time_masks": 2,
+      "p": 1.0,
+      "adaptive_number_ratio": 0,
+      "adaptive_size_ratio": 0,
+      "max_n_time_masks": 20,
+      "replace_with_zero": false
+    },
+    "prob": 1.0
+  }
+]

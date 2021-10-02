@@ -26,7 +26,7 @@ from deepspeech.utils.utility import print_arguments
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kaldi")
+add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), mat(ark), scp")
 add_arg('cmvn_path',       str,
         'examples/librispeech/data/mean_std.json',
         "Filepath of cmvn.")
@@ -53,7 +53,8 @@ def main():
     fout = open(args.output_path, 'w', encoding='utf-8')
 
     # get feat dim
-    mean, std = load_cmvn(args.cmvn_path, filetype='json')
+    filetype = args.cmvn_path.split(".")[-1]
+    mean, istd = load_cmvn(args.cmvn_path, filetype=filetype)
     feat_dim = mean.shape[0] #(D)
     print(f"Feature dim: {feat_dim}")
 
@@ -75,6 +76,7 @@ def main():
             assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
             if args.feat_type == 'raw':
                 feat_shape.append(feat_dim)
+                line_json['filetype'] = 'sound'
             else: # kaldi
                 raise NotImplementedError('no support kaldi feat now!')
             fout.write(json.dumps(line_json) + '\n')

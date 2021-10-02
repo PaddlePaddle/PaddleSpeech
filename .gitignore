@@ -10,8 +10,15 @@
 .ipynb_checkpoints
 *.npz
 *.done
+*.whl
 
 tools/venv
 tools/kenlm
 tools/sox-14.4.2
 tools/soxbindings
+tools/montreal-forced-aligner/
+tools/Montreal-Forced-Aligner/
+tools/sctk
+tools/sctk-20159b5/
+
+*output/

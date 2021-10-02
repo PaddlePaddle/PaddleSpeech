@@ -87,14 +87,16 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
         (ctc_probs.shape[0], len(y_insert_blank)))  #(T, 2L+1)
     log_alpha = log_alpha - float('inf')  # log of zero
 
+    # TODO(Hui Zhang): zeros not support paddle.int16
     # self.__setitem_varbase__(item, value) When assign a value to a paddle.Tensor, the data type of the paddle.Tensor not support int16
     state_path = (paddle.zeros(
         (ctc_probs.shape[0], len(y_insert_blank)), dtype=paddle.int32) - 1
                   )  # state path, Tuple((T, 2L+1))
 
     # init start state
-    log_alpha[0, 0] = ctc_probs[0][y_insert_blank[0]]  # State-b, Sb
-    log_alpha[0, 1] = ctc_probs[0][y_insert_blank[1]]  # State-nb, Snb
+    # TODO(Hui Zhang): VarBase.__getitem__() not support np.int64
+    log_alpha[0, 0] = ctc_probs[0][int(y_insert_blank[0])]  # State-b, Sb
+    log_alpha[0, 1] = ctc_probs[0][int(y_insert_blank[1])]  # State-nb, Snb
 
     for t in range(1, ctc_probs.shape[0]):  # T
         for s in range(len(y_insert_blank)):  # 2L+1
@@ -110,9 +112,11 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
                     log_alpha[t - 1, s - 2],
                 ])
                 prev_state = [s, s - 1, s - 2]
-            log_alpha[t, s] = paddle.max(candidates) + ctc_probs[t][
-                y_insert_blank[s]]
+            # TODO(Hui Zhang): VarBase.__getitem__() not support np.int64
+            log_alpha[t, s] = paddle.max(candidates) + ctc_probs[t][int(
+                y_insert_blank[s])]
             state_path[t, s] = prev_state[paddle.argmax(candidates)]
+    # TODO(Hui Zhang): zeros not support paddle.int16
     # self.__setitem_varbase__(item, value) When assign a value to a paddle.Tensor, the data type of the paddle.Tensor not support int16
     state_seq = -1 * paddle.ones((ctc_probs.shape[0], 1), dtype=paddle.int32)
 

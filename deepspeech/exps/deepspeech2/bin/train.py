@@ -35,10 +35,9 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument("--model_type")
+    parser.add_argument(
+        "--model_type", type=str, default='offline', help='offline/online')
     args = parser.parse_args()
-    if args.model_type is None:
-        args.model_type = 'offline'
     print("model_type:{}".format(args.model_type))
     print_arguments(args, globals())
 

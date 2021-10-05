@@ -120,14 +120,14 @@ class Autolog:
                  model_precision="fp32"):
         import auto_log
         pid = os.getpid()
-        if (os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
+        if os.environ.get('CUDA_VISIBLE_DEVICES', None):
             gpu_id = int(os.environ['CUDA_VISIBLE_DEVICES'].split(',')[0])
             infer_config = inference.Config()
             infer_config.enable_use_gpu(100, gpu_id)
         else:
             gpu_id = None
             infer_config = inference.Config()
-        autolog = auto_log.AutoLogger(
+        self.autolog = auto_log.AutoLogger(
             model_name=model_name,
             model_precision=model_precision,
             batch_size=batch_size,
@@ -139,7 +139,6 @@ class Autolog:
             gpu_ids=gpu_id,
             time_keys=['preprocess_time', 'inference_time', 'postprocess_time'],
             warmup=0)
-        self.autolog = autolog
 
     def getlog(self):
         return self.autolog

@@ -39,13 +39,13 @@ class Checkpoint():
         self.latest_n = latest_n
         self._save_all = (kbest_n == -1)
 
-    def add_checkpoint(self,
-                       checkpoint_dir,
-                       tag_or_iteration: Union[int, Text],
-                       model: paddle.nn.Layer,
-                       optimizer: Optimizer=None,
-                       infos: dict=None,
-                       metric_type="val_loss"):
+    def save_parameters(self,
+                        checkpoint_dir,
+                        tag_or_iteration: Union[int, Text],
+                        model: paddle.nn.Layer,
+                        optimizer: Optimizer=None,
+                        infos: dict=None,
+                        metric_type="val_loss"):
         """Save checkpoint in best_n and latest_n.
 
         Args:

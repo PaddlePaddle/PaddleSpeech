@@ -353,3 +353,31 @@ if not hasattr(paddle.Tensor, 'tolist'):
     logger.debug(
         "register user tolist to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'tolist', tolist)
+
+
+# hack loss
+def ctc_loss(logits,
+             labels,
+             input_lengths,
+             label_lengths,
+             blank=0,
+             reduction='mean',
+             norm_by_times=True):
+    #logger.info("my ctc loss with norm by times")
+    ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
+    loss_out = paddle.fluid.layers.warpctc(logits, labels, blank, norm_by_times,
+                                           input_lengths, label_lengths)
+
+    loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
+    assert reduction in ['mean', 'sum', 'none']
+    if reduction == 'mean':
+        loss_out = paddle.mean(loss_out / label_lengths)
+    elif reduction == 'sum':
+        loss_out = paddle.sum(loss_out)
+    return loss_out
+
+
+logger.debug(
+    "override ctc_loss of paddle.nn.functional if exists, remove this when fixed!"
+)
+F.ctc_loss = ctc_loss

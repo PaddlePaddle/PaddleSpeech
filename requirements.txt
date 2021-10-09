@@ -19,3 +19,4 @@ tqdm
 typeguard
 visualdl==2.2.0
 yacs
+editdistance

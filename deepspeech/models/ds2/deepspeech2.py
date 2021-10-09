@@ -218,14 +218,18 @@ class DeepSpeech2Model(nn.Layer):
         DeepSpeech2Model
             The model built from pretrained result.
         """
-        model = cls(feat_size=dataloader.collate_fn.feature_size,
-                    dict_size=dataloader.collate_fn.vocab_size,
-                    num_conv_layers=config.model.num_conv_layers,
-                    num_rnn_layers=config.model.num_rnn_layers,
-                    rnn_size=config.model.rnn_layer_size,
-                    use_gru=config.model.use_gru,
-                    share_rnn_weights=config.model.share_rnn_weights,
-                    blank_id=config.model.blank_id)
+        model = cls(
+            #feat_size=dataloader.collate_fn.feature_size,
+            feat_size=dataloader.dataset.feature_size,
+            #dict_size=dataloader.collate_fn.vocab_size,
+            dict_size=dataloader.dataset.vocab_size,
+            num_conv_layers=config.model.num_conv_layers,
+            num_rnn_layers=config.model.num_rnn_layers,
+            rnn_size=config.model.rnn_layer_size,
+            use_gru=config.model.use_gru,
+            share_rnn_weights=config.model.share_rnn_weights,
+            blank_id=config.model.blank_id,
+            ctc_grad_norm_type=config.model.ctc_grad_norm_type, )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -244,36 +248,22 @@ class DeepSpeech2Model(nn.Layer):
         DeepSpeech2Model
             The model built from config.
         """
-        model = cls(feat_size=config.feat_size,
-                    dict_size=config.dict_size,
-                    num_conv_layers=config.num_conv_layers,
-                    num_rnn_layers=config.num_rnn_layers,
-                    rnn_size=config.rnn_layer_size,
-                    use_gru=config.use_gru,
-                    share_rnn_weights=config.share_rnn_weights,
-                    blank_id=config.blank_id)
+        model = cls(
+            feat_size=config.feat_size,
+            dict_size=config.dict_size,
+            num_conv_layers=config.num_conv_layers,
+            num_rnn_layers=config.num_rnn_layers,
+            rnn_size=config.rnn_layer_size,
+            use_gru=config.use_gru,
+            share_rnn_weights=config.share_rnn_weights,
+            blank_id=config.blank_id,
+            ctc_grad_norm_type=config.ctc_grad_norm_type, )
         return model
 
 
 class DeepSpeech2InferModel(DeepSpeech2Model):
-    def __init__(self,
-                 feat_size,
-                 dict_size,
-                 num_conv_layers=2,
-                 num_rnn_layers=3,
-                 rnn_size=1024,
-                 use_gru=False,
-                 share_rnn_weights=True,
-                 blank_id=0):
-        super().__init__(
-            feat_size=feat_size,
-            dict_size=dict_size,
-            num_conv_layers=num_conv_layers,
-            num_rnn_layers=num_rnn_layers,
-            rnn_size=rnn_size,
-            use_gru=use_gru,
-            share_rnn_weights=share_rnn_weights,
-            blank_id=blank_id)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def forward(self, audio, audio_len):
         """export model function

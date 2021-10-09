@@ -29,10 +29,10 @@ class SpecAugmentor(AugmentorBase):
 
     SpecAugment: A Simple Data Augmentation Method for Automatic Speech Recognition
         https://arxiv.org/abs/1904.08779
-        
+
     SpecAugment on Large Scale Datasets
         https://arxiv.org/abs/1912.05533
-    
+
     """
 
     def __init__(self,
@@ -61,7 +61,7 @@ class SpecAugmentor(AugmentorBase):
             adaptive_size_ratio (float): adaptive size ratio for time masking
             max_n_time_masks (int): maximum number of time masking
             replace_with_zero (bool): pad zero on mask if true else use mean
-            warp_mode (str):  "PIL" (default, fast, not differentiable) 
+            warp_mode (str):  "PIL" (default, fast, not differentiable)
                  or "sparse_image_warp" (slow, differentiable)
         """
         super().__init__()
@@ -133,7 +133,7 @@ class SpecAugmentor(AugmentorBase):
         return self._time_mask
 
     def __repr__(self):
-        return f"specaug: F-{F}, T-{T}, F-n-{n_freq_masks}, T-n-{n_time_masks}"
+        return f"specaug: F-{self.F}, T-{self.T}, F-n-{self.n_freq_masks}, T-n-{self.n_time_masks}"
 
     def time_warp(self, x, mode='PIL'):
         """time warp for spec augment

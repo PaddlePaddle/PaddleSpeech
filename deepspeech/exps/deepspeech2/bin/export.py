@@ -34,7 +34,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--export_path", type=str, help="path of the jit model to save")
     parser.add_argument(
-        "--model_type", type=str, default='offline', help='offline/online')
+        "--model_type", type=str, default='offline', help="offline/online")
     args = parser.parse_args()
     print("model_type:{}".format(args.model_type))
     print_arguments(args)

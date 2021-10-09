@@ -15,10 +15,12 @@
 #ifndef DECODER_UTILS_H_
 #define DECODER_UTILS_H_
 
+#include <string>
 #include <utility>
 #include "fst/log.h"
 #include "path_trie.h"
 
+const std::string kSPACE = "<space>";
 const float NUM_FLT_INF = std::numeric_limits<float>::max();
 const float NUM_FLT_MIN = std::numeric_limits<float>::min();
 

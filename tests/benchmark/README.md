@@ -1,11 +1,22 @@
-# Benchmark Test
+### Prepare the environment
+Please follow the instructions shown in [here](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/docs/src/install.md) to install the Deepspeech first.
 
-## Data
-
-* Aishell
-
-## Docker
-
+### Prepare the benchmark environment
 ```
-registry.baidubce.com/paddlepaddle/paddle   2.1.1-gpu-cuda10.2-cudnn7   59d5ec1de486  
+bash prepare.sh
+```
+
+### Start benchmarking
+```
+bash run.sh
+```
+
+### Analyse the sp
+```
+bash run_analysis_sp.sh
+```
+
+### Analyse the mp
+```
+bash run_analysis_mp.sh
 ```

@@ -93,20 +93,25 @@ def pad_sequence(sequences: List[paddle.Tensor],
     for i, tensor in enumerate(sequences):
         length = tensor.shape[0]
         # use index notation to prevent duplicate references to the tensor
+        logger.info(
+            f"length {length}, out_tensor {out_tensor.shape}, tensor {tensor.shape}"
+        )
         if batch_first:
             # TODO (Hui Zhang): set_value op not supprot `end==start`
+            # TODO (Hui Zhang): set_value op not support int16
+            # TODO (Hui Zhang): set_varbase 2 rank not support [0,0,...] 
             # out_tensor[i, :length, ...] = tensor
             if length != 0:
-                out_tensor[i, :length, ...] = tensor
+                out_tensor[i, :length] = tensor
             else:
-                out_tensor[i, length, ...] = tensor
+                out_tensor[i, length] = tensor
         else:
             # TODO (Hui Zhang): set_value op not supprot `end==start`
             # out_tensor[:length, i, ...] = tensor
             if length != 0:
-                out_tensor[:length, i, ...] = tensor
+                out_tensor[:length, i] = tensor
             else:
-                out_tensor[length, i, ...] = tensor
+                out_tensor[length, i] = tensor
 
     return out_tensor
 

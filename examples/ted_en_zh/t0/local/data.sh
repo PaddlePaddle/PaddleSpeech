@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 stage=-1
 stop_stage=100
 
@@ -7,7 +9,7 @@ stop_stage=100
 nbpe=8000
 bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
-data_dir=/mnt/dataset/TED_EnZh
+data_dir=./TED_EnZh
 
 
 source ${MAIN_ROOT}/utils/parse_options.sh

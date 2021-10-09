@@ -15,7 +15,7 @@ from yacs.config import CfgNode
 
 from deepspeech.exps.u2_st.model import U2STTester
 from deepspeech.exps.u2_st.model import U2STTrainer
-from deepspeech.io.collator_st import SpeechCollator
+from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
 from deepspeech.models.u2_st import U2STModel
 

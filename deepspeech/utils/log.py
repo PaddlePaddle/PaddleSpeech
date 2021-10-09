@@ -127,6 +127,7 @@ class Autolog:
         else:
             gpu_id = None
             infer_config = inference.Config()
+
         self.autolog = auto_log.AutoLogger(
             model_name=model_name,
             model_precision=model_precision,

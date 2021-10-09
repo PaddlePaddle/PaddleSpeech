@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import inspect
-from functools import partial
 
 import paddle
 from paddle import nn

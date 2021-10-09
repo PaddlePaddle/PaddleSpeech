@@ -525,13 +525,6 @@ class U2Tester(U2Trainer):
             })
             f.write(data + '\n')
 
-    def run_test(self):
-        self.resume_or_scratch()
-        try:
-            self.test()
-        except KeyboardInterrupt:
-            sys.exit(-1)
-
     @paddle.no_grad()
     def align(self):
         if self.config.decoding.batch_size > 1:
@@ -591,13 +584,6 @@ class U2Tester(U2Trainer):
                     intervals=tierformat,
                     output=str(textgrid_path))
 
-    def run_align(self):
-        self.resume_or_scratch()
-        try:
-            self.align()
-        except KeyboardInterrupt:
-            sys.exit(-1)
-
     def load_inferspec(self):
         """infer model and input spec.
 
@@ -626,43 +612,11 @@ class U2Tester(U2Trainer):
         logger.info(f"Export code: {static_model.forward.code}")
         paddle.jit.save(static_model, self.args.export_path)
 
-    def run_export(self):
-        try:
-            self.export()
-        except KeyboardInterrupt:
-            sys.exit(-1)
-
     def setup_dict(self):
         # load dictionary for debug log
         self.args.char_list = load_dict(self.args.dict_path,
                                         "maskctc" in self.args.model_name)
 
     def setup(self):
-        """Setup the experiment.
-        """
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
-
-        self.setup_output_dir()
-        self.setup_checkpointer()
-
-        self.setup_dataloader()
-        self.setup_model()
-
+        super().setup()
         self.setup_dict()
-
-        self.iteration = 0
-        self.epoch = 0
-
-    def setup_output_dir(self):
-        """Create a directory used for output.
-        """
-        # output dir
-        if self.args.output:
-            output_dir = Path(self.args.output).expanduser()
-            output_dir.mkdir(parents=True, exist_ok=True)
-        else:
-            output_dir = Path(
-                self.args.checkpoint_path).expanduser().parent.parent
-            output_dir.mkdir(parents=True, exist_ok=True)
-
-        self.output_dir = output_dir

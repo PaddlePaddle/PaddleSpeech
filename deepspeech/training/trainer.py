@@ -14,6 +14,7 @@
 import sys
 import time
 from collections import OrderedDict
+from contextlib import contextmanager
 from pathlib import Path
 
 import paddle
@@ -103,14 +104,28 @@ class Trainer():
         self.iteration = 0
         self.epoch = 0
         self.rank = dist.get_rank()
+        self.world_size = dist.get_world_size()
+        self._train = True
 
+        # print deps version
         all_version()
-        logger.info(f"Rank: {self.rank}/{dist.get_world_size()}")
+        logger.info(f"Rank: {self.rank}/{self.world_size}")
 
+        # set device
+        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
+        if self.parallel:
+            self.init_parallel()
+
+        self.checkpoint = Checkpoint(
+            kbest_n=self.config.training.checkpoint.kbest_n,
+            latest_n=self.config.training.checkpoint.latest_n)
+
+        # set random seed if needed
         if args.seed:
             seed_all(args.seed)
             logger.info(f"Set seed {args.seed}")
 
+        # profiler and benchmark options
         if self.args.benchmark_batch_size:
             with UpdateConfig(self.config):
                 self.config.collator.batch_size = self.args.benchmark_batch_size
@@ -118,17 +133,18 @@ class Trainer():
             logger.info(
                 f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 
+    @contextmanager
+    def eval(self):
+        self._train = False
+        yield
+        self._train = True
+
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
-        if self.parallel:
-            self.init_parallel()
-
         self.setup_output_dir()
         self.dump_config()
         self.setup_visualizer()
-        self.setup_checkpointer()
 
         self.setup_dataloader()
         self.setup_model()
@@ -183,8 +199,8 @@ class Trainer():
         if infos:
             # just restore ckpt
             # lr will resotre from optimizer ckpt
-            self.iteration = infos["step"]
-            self.epoch = infos["epoch"]
+            self.iteration = infos["step"] + 1
+            self.epoch = infos["epoch"] + 1
             scratch = False
             logger.info(
                 f"Restore ckpt: epoch {self.epoch }, step {self.iteration}!")
@@ -302,37 +318,74 @@ class Trainer():
         """The routine of the experiment after setup. This method is intended
         to be used by the user.
         """
-        with Timer("Training Done: {}"):
-            try:
+        try:
+            with Timer("Training Done: {}"):
                 self.train()
-            except KeyboardInterrupt:
-                exit(-1)
-            finally:
-                self.destory()
+        except KeyboardInterrupt:
+            exit(-1)
+        finally:
+            self.destory()
+
+    def run_test(self):
+        """Do Test/Decode"""
+        try:
+            with Timer("Test/Decode Done: {}"):
+                with self.eval():
+                    self.resume_or_scratch()
+                    self.test()
+        except KeyboardInterrupt:
+            exit(-1)
+
+    def run_export(self):
+        """Do Model Export"""
+        try:
+            with Timer("Export Done: {}"):
+                with self.eval():
+                    self.export()
+        except KeyboardInterrupt:
+            exit(-1)
+
+    def run_align(self):
+        """Do CTC alignment"""
+        try:
+            with Timer("Align Done: {}"):
+                with self.eval():
+                    self.resume_or_scratch()
+                    self.align()
+        except KeyboardInterrupt:
+            sys.exit(-1)
 
     def setup_output_dir(self):
         """Create a directory used for output.
         """
-        # output dir
-        output_dir = Path(self.args.output).expanduser()
-        output_dir.mkdir(parents=True, exist_ok=True)
-
+        if self.args.output:
+            output_dir = Path(self.args.output).expanduser()
+        elif self.args.checkpoint_path:
+            output_dir = Path(
+                self.args.checkpoint_path).expanduser().parent.parent
         self.output_dir = output_dir
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def setup_checkpointer(self):
-        """Create a directory used to save checkpoints into.
+        self.checkpoint_dir = self.output_dir / "checkpoints"
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-        It is "checkpoints" inside the output directory.
-        """
-        # checkpoint dir
-        checkpoint_dir = self.output_dir / "checkpoints"
-        checkpoint_dir.mkdir(exist_ok=True)
+        self.log_dir = output_dir / "log"
+        self.log_dir.mkdir(parents=True, exist_ok=True)
 
-        self.checkpoint_dir = checkpoint_dir
+        self.test_dir = output_dir / "test"
+        self.test_dir.mkdir(parents=True, exist_ok=True)
 
-        self.checkpoint = Checkpoint(
-            kbest_n=self.config.training.checkpoint.kbest_n,
-            latest_n=self.config.training.checkpoint.latest_n)
+        self.decode_dir = output_dir / "decode"
+        self.decode_dir.mkdir(parents=True, exist_ok=True)
+
+        self.export_dir = output_dir / "export"
+        self.export_dir.mkdir(parents=True, exist_ok=True)
+
+        self.visual_dir = output_dir / "visual"
+        self.visual_dir.mkdir(parents=True, exist_ok=True)
+
+        self.config_dir = output_dir / "conf"
+        self.config_dir.mkdir(parents=True, exist_ok=True)
 
     @mp_tools.rank_zero_only
     def destory(self):
@@ -354,7 +407,7 @@ class Trainer():
         unexpected behaviors.
         """
         # visualizer
-        visualizer = SummaryWriter(logdir=str(self.output_dir))
+        visualizer = SummaryWriter(logdir=str(self.visual_dir))
         self.visualizer = visualizer
 
     @mp_tools.rank_zero_only
@@ -364,7 +417,14 @@ class Trainer():
         It is saved in to ``config.yaml`` in the output directory at the
         beginning of the experiment.
         """
-        with open(self.output_dir / "config.yaml", 'wt') as f:
+        config_file = self.config_dir / "config.yaml"
+        if self._train and config_file.exists():
+            time_stamp = time.strftime("%Y_%m_%d_%H_%M_%s", time.gmtime())
+            target_path = self.config_dir / ".".join(
+                [time_stamp, "config.yaml"])
+            config_file.rename(target_path)
+
+        with open(config_file, 'wt') as f:
             print(self.config, file=f)
 
     def train_batch(self):
@@ -377,6 +437,24 @@ class Trainer():
         """The validation. A subclass should implement this method.
         """
         raise NotImplementedError("valid should be implemented.")
+
+    @paddle.no_grad()
+    def test(self):
+        """The test. A subclass should implement this method in Tester.
+        """
+        raise NotImplementedError("test should be implemented.")
+
+    @paddle.no_grad()
+    def export(self):
+        """The test. A subclass should implement this method in Tester.
+        """
+        raise NotImplementedError("export should be implemented.")
+
+    @paddle.no_grad()
+    def align(self):
+        """The align. A subclass should implement this method in Tester.
+        """
+        raise NotImplementedError("align should be implemented.")
 
     def setup_model(self):
         """Setup model, criterion and optimizer, etc. A subclass should

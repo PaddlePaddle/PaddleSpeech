@@ -386,13 +386,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         logger.info(msg)
         self.autolog.report()
 
-    def run_test(self):
-        self.resume_or_scratch()
-        try:
-            self.test()
-        except KeyboardInterrupt:
-            exit(-1)
-
     def export(self):
         if self.args.model_type == 'offline':
             infer_model = DeepSpeech2InferModel.from_pretrained(
@@ -408,40 +401,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         static_model = infer_model.export()
         logger.info(f"Export code: {static_model.forward.code}")
         paddle.jit.save(static_model, self.args.export_path)
-
-    def run_export(self):
-        try:
-            self.export()
-        except KeyboardInterrupt:
-            exit(-1)
-
-    def setup(self):
-        """Setup the experiment.
-        """
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
-
-        self.setup_output_dir()
-        self.setup_checkpointer()
-
-        self.setup_dataloader()
-        self.setup_model()
-
-        self.iteration = 0
-        self.epoch = 0
-
-    def setup_output_dir(self):
-        """Create a directory used for output.
-        """
-        # output dir
-        if self.args.output:
-            output_dir = Path(self.args.output).expanduser()
-            output_dir.mkdir(parents=True, exist_ok=True)
-        else:
-            output_dir = Path(
-                self.args.checkpoint_path).expanduser().parent.parent
-            output_dir.mkdir(parents=True, exist_ok=True)
-
-        self.output_dir = output_dir
 
 
 class DeepSpeech2ExportTester(DeepSpeech2Tester):
@@ -645,38 +604,6 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         output_probs = output_handle.copy_to_cpu()
         output_lens = output_lens_handle.copy_to_cpu()
         return output_probs, output_lens
-
-    def run_test(self):
-        try:
-            self.test()
-        except KeyboardInterrupt:
-            exit(-1)
-
-    def setup(self):
-        """Setup the experiment.
-        """
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
-
-        self.setup_output_dir()
-
-        self.setup_dataloader()
-        self.setup_model()
-
-        self.iteration = 0
-        self.epoch = 0
-
-    def setup_output_dir(self):
-        """Create a directory used for output.
-        """
-        # output dir
-        if self.args.output:
-            output_dir = Path(self.args.output).expanduser()
-            output_dir.mkdir(parents=True, exist_ok=True)
-        else:
-            output_dir = Path(self.args.export_path).expanduser().parent.parent
-            output_dir.mkdir(parents=True, exist_ok=True)
-
-        self.output_dir = output_dir
 
     def setup_model(self):
         super().setup_model()

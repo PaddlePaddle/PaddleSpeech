@@ -16,7 +16,6 @@ import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
-from pathlib import Path
 from typing import Optional
 
 import jsonlines
@@ -386,6 +385,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         logger.info(msg)
         self.autolog.report()
 
+    @paddle.no_grad()
     def export(self):
         if self.args.model_type == 'offline':
             infer_model = DeepSpeech2InferModel.from_pretrained(

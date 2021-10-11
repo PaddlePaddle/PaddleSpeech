@@ -124,7 +124,9 @@ class TransformerDecoder(nn.Layer):
         # m: (1, L, L)
         m = subsequent_mask(tgt_mask.shape[-1]).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        tgt_mask = tgt_mask & m
+        # TODO(Hui Zhang): not support & for tensor
+        # tgt_mask = tgt_mask & m
+        tgt_mask = tgt_mask.logical_and(m)
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -135,7 +137,9 @@ class TransformerDecoder(nn.Layer):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        olens = tgt_mask.sum(1)
+        # TODO(Hui Zhang): reduce_sum not support bool type
+        # olens = tgt_mask.sum(1)
+        olens = tgt_mask.astype(paddle.int).sum(1)
         return x, olens
 
     def forward_one_step(

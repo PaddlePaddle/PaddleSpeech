@@ -16,15 +16,33 @@ import distutils.util
 import math
 import os
 import random
+import sys
 from contextlib import contextmanager
+from pprint import pformat
 from typing import List
 
 import numpy as np
 import paddle
+import soundfile
+
+from deepspeech.utils.log import Log
+
+logger = Log(__name__).getlog()
 
 __all__ = [
-    "UpdateConfig", "seed_all", 'print_arguments', 'add_arguments', "log_add"
+    "all_version", "UpdateConfig", "seed_all", 'print_arguments',
+    'add_arguments', "log_add"
 ]
+
+
+def all_version():
+    vers = {
+        "python": sys.version,
+        "paddle": paddle.__version__,
+        "paddle_commit": paddle.version.commit,
+        "soundfile": soundfile.__version__,
+    }
+    logger.info(f"Deps Module Version:{pformat(vers.items())}")
 
 
 @contextmanager
@@ -35,7 +53,7 @@ def UpdateConfig(config):
     config.freeze()
 
 
-def seed_all(seed: int=210329):
+def seed_all(seed: int=20210329):
     """freeze random generator seed."""
     np.random.seed(seed)
     random.seed(seed)
@@ -61,7 +79,7 @@ def print_arguments(args, info=None):
     if info:
         filename = info["__file__"]
     filename = os.path.basename(filename)
-    print(f"----------- {filename} Configuration Arguments -----------")
+    print(f"----------- {filename} Arguments -----------")
     for arg, value in sorted(vars(args).items()):
         print("%s: %s" % (arg, value))
     print("-----------------------------------------------------------")

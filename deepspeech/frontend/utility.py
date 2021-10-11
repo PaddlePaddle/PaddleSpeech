@@ -49,7 +49,11 @@ def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:
 
     with open(dict_path, "r") as f:
         dictionary = f.readlines()
-    char_list = [entry.strip().split(" ")[0] for entry in dictionary]
+    # first token is `<blank>`
+    # multi line: `<blank> 0\n`
+    # one line: `<blank>`
+    # space is relpace with <space>
+    char_list = [entry[:-1].split(" ")[0] for entry in dictionary]
     if BLANK not in char_list:
         char_list.insert(0, BLANK)
     if EOS not in char_list:

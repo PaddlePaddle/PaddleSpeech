@@ -15,6 +15,7 @@
 import json
 from collections.abc import Sequence
 from inspect import signature
+from pprint import pformat
 
 import numpy as np
 
@@ -22,9 +23,9 @@ from deepspeech.frontend.augmentor.base import AugmentorBase
 from deepspeech.utils.dynamic_import import dynamic_import
 from deepspeech.utils.log import Log
 
-__all__ = ["AugmentationPipeline"]
-
 logger = Log(__name__).getlog()
+
+__all__ = ["AugmentationPipeline"]
 
 import_alias = dict(
     volume="deepspeech.frontend.augmentor.impulse_response:VolumePerturbAugmentor",
@@ -111,6 +112,8 @@ class AugmentationPipeline():
             'audio')
         self._spec_augmentors, self._spec_rates = self._parse_pipeline_from(
             'feature')
+        logger.info(
+            f"Augmentation: {pformat(list(zip(self._augmentors, self._rates)))}")
 
     def __call__(self, xs, uttid_list=None, **kwargs):
         if not isinstance(xs, Sequence):
@@ -197,8 +200,10 @@ class AugmentationPipeline():
             aug_confs = audio_confs
         elif aug_type == 'feature':
             aug_confs = feature_confs
-        else:
+        elif aug_type == 'all':
             aug_confs = all_confs
+        else:
+            raise ValueError(f"Not support: {aug_type}")
 
         augmentors = [
             self._get_augmentor(config["type"], config["params"])

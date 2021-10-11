@@ -255,22 +255,24 @@ class DeepSpeech2ModelOnline(nn.Layer):
                 fc_layers_size_list=[512, 256],
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 blank_id=0,  # index of blank in vocob.txt
-            ))
+                ctc_grad_norm_type='instance', ))
         if config is not None:
             config.merge_from_other_cfg(default)
         return default
 
-    def __init__(self,
-                 feat_size,
-                 dict_size,
-                 num_conv_layers=2,
-                 num_rnn_layers=4,
-                 rnn_size=1024,
-                 rnn_direction='forward',
-                 num_fc_layers=2,
-                 fc_layers_size_list=[512, 256],
-                 use_gru=False,
-                 blank_id=0):
+    def __init__(
+            self,
+            feat_size,
+            dict_size,
+            num_conv_layers=2,
+            num_rnn_layers=4,
+            rnn_size=1024,
+            rnn_direction='forward',
+            num_fc_layers=2,
+            fc_layers_size_list=[512, 256],
+            use_gru=False,
+            blank_id=0,
+            ctc_grad_norm_type='instance', ):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
@@ -290,7 +292,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             dropout_rate=0.0,
             reduction=True,  # sum
             batch_average=True,  # sum / batch_size
-            grad_norm_type='instance')
+            grad_norm_type=ctc_grad_norm_type)
 
     def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss
@@ -348,16 +350,18 @@ class DeepSpeech2ModelOnline(nn.Layer):
         DeepSpeech2ModelOnline
             The model built from pretrained result.
         """
-        model = cls(feat_size=dataloader.collate_fn.feature_size,
-                    dict_size=dataloader.collate_fn.vocab_size,
-                    num_conv_layers=config.model.num_conv_layers,
-                    num_rnn_layers=config.model.num_rnn_layers,
-                    rnn_size=config.model.rnn_layer_size,
-                    rnn_direction=config.model.rnn_direction,
-                    num_fc_layers=config.model.num_fc_layers,
-                    fc_layers_size_list=config.model.fc_layers_size_list,
-                    use_gru=config.model.use_gru,
-                    blank_id=config.model.blank_id)
+        model = cls(
+            feat_size=dataloader.collate_fn.feature_size,
+            dict_size=dataloader.collate_fn.vocab_size,
+            num_conv_layers=config.model.num_conv_layers,
+            num_rnn_layers=config.model.num_rnn_layers,
+            rnn_size=config.model.rnn_layer_size,
+            rnn_direction=config.model.rnn_direction,
+            num_fc_layers=config.model.num_fc_layers,
+            fc_layers_size_list=config.model.fc_layers_size_list,
+            use_gru=config.model.use_gru,
+            blank_id=config.model.blank_id,
+            ctc_grad_norm_type=config.model.ctc_grad_norm_type, )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -376,42 +380,24 @@ class DeepSpeech2ModelOnline(nn.Layer):
         DeepSpeech2ModelOnline
             The model built from config.
         """
-        model = cls(feat_size=config.feat_size,
-                    dict_size=config.dict_size,
-                    num_conv_layers=config.num_conv_layers,
-                    num_rnn_layers=config.num_rnn_layers,
-                    rnn_size=config.rnn_layer_size,
-                    rnn_direction=config.rnn_direction,
-                    num_fc_layers=config.num_fc_layers,
-                    fc_layers_size_list=config.fc_layers_size_list,
-                    use_gru=config.use_gru,
-                    blank_id=config.blank_id)
+        model = cls(
+            feat_size=config.feat_size,
+            dict_size=config.dict_size,
+            num_conv_layers=config.num_conv_layers,
+            num_rnn_layers=config.num_rnn_layers,
+            rnn_size=config.rnn_layer_size,
+            rnn_direction=config.rnn_direction,
+            num_fc_layers=config.num_fc_layers,
+            fc_layers_size_list=config.fc_layers_size_list,
+            use_gru=config.use_gru,
+            blank_id=config.blank_id,
+            ctc_grad_norm_type=config.ctc_grad_norm_type, )
         return model
 
 
 class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
-    def __init__(self,
-                 feat_size,
-                 dict_size,
-                 num_conv_layers=2,
-                 num_rnn_layers=4,
-                 rnn_size=1024,
-                 rnn_direction='forward',
-                 num_fc_layers=2,
-                 fc_layers_size_list=[512, 256],
-                 use_gru=False,
-                 blank_id=0):
-        super().__init__(
-            feat_size=feat_size,
-            dict_size=dict_size,
-            num_conv_layers=num_conv_layers,
-            num_rnn_layers=num_rnn_layers,
-            rnn_size=rnn_size,
-            rnn_direction=rnn_direction,
-            num_fc_layers=num_fc_layers,
-            fc_layers_size_list=fc_layers_size_list,
-            use_gru=use_gru,
-            blank_id=blank_id)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def forward(self, audio_chunk, audio_chunk_lens, chunk_state_h_box,
                 chunk_state_c_box):

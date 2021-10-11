@@ -199,8 +199,8 @@ class Trainer():
         if infos:
             # just restore ckpt
             # lr will resotre from optimizer ckpt
-            self.iteration = infos["step"] + 1
-            self.epoch = infos["epoch"] + 1
+            self.iteration = infos["step"]
+            self.epoch = infos["epoch"]
             scratch = False
             logger.info(
                 f"Restore ckpt: epoch {self.epoch }, step {self.iteration}!")

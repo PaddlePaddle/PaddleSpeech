@@ -16,7 +16,7 @@
 All tested under:  
 * Ubuntu 16.04
 * python>=3.7
-* paddlepaddle>=2.2.0rc
+* paddlepaddle==2.1.2
 
 Please see [install](docs/src/install.md).
 

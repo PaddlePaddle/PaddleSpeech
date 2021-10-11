@@ -26,7 +26,6 @@
 #include "decoder_utils.h"
 
 using namespace lm::ngram;
-const std::string kSPACE = "<space>";
 
 Scorer::Scorer(double alpha,
                double beta,

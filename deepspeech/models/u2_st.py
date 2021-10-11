@@ -165,7 +165,10 @@ class U2STBaseModel(nn.Layer):
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
         encoder_time = time.time() - start
         #logger.debug(f"encoder time: {encoder_time}")
-        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
+        #TODO(Hui Zhang): sum not support bool type
+        #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
+        encoder_out_lens = encoder_mask.squeeze(1).cast(paddle.int64).sum(
+            1)  #[B, 1, T] -> [B]
 
         # 2a. ST-decoder branch
         start = time.time()
@@ -362,7 +365,8 @@ class U2STBaseModel(nn.Layer):
         # 2. Decoder forward step by step
         for i in range(1, maxlen + 1):
             # Stop if all batch and all beam produce eos
-            if end_flag.sum() == running_size:
+            # TODO(Hui Zhang): if end_flag.sum() == running_size:
+            if end_flag.cast(paddle.int64).sum() == running_size:
                 break
 
             # 2.1 Forward decoder step

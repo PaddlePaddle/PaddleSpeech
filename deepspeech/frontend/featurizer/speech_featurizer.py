@@ -51,12 +51,14 @@ class SpeechFeaturizer():
             use_dB_normalization=use_dB_normalization,
             target_dB=target_dB,
             dither=dither)
+        self.feature_size = self.audio_feature.feature_size
 
         self.text_feature = TextFeaturizer(
             unit_type=unit_type,
             vocab_filepath=vocab_filepath,
             spm_model_prefix=spm_model_prefix,
             maskctc=maskctc)
+        self.vocab_size = self.text_feature.vocab_size
 
     def featurize(self, speech_segment, keep_transcription_text):
         """Extract features for speech segment.

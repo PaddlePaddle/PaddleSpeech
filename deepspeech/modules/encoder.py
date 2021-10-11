@@ -162,7 +162,8 @@ class BaseEncoder(nn.Layer):
         xs, pos_emb, masks = self.embed(xs, masks.astype(xs.dtype), offset=0)
         #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
         masks = masks.astype(paddle.bool)
-        mask_pad = ~masks
+        #TODO(Hui Zhang): mask_pad = ~masks
+        mask_pad = masks.logical_not()
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
             decoding_chunk_size, self.static_chunk_size,

@@ -1,6 +1,6 @@
 export MAIN_ROOT=${PWD}
 
-export PATH=${MAIN_ROOT}:${MAIN_ROOT}/utils:/usr/local/bin:${PATH}
+export PATH=${MAIN_ROOT}:${MAIN_ROOT}/utils:${PATH}:/usr/local/bin/
 export LC_ALL=C
 
 # Use UTF-8 in Python to avoid UnicodeDecodeError when LC_ALL=C

@@ -67,14 +67,14 @@ model:
     model_conf:
         ctc_weight: 0.5
         ctc_dropoutrate: 0.0
-        ctc_grad_norm_type: batch
+        ctc_grad_norm_type: instance
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
 
 training:
   n_epoch: 200
-  accum_grad: 2
+  accum_grad: 1
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
@@ -82,7 +82,7 @@ training:
     weight_decay: 1e-06
   scheduler: warmuplr     # pytorch v1.1.0+ required
   scheduler_conf:
-    warmup_steps: 2000
+    warmup_steps: 1200
     lr_decay: 1.0
   log_interval: 10
   checkpoint:

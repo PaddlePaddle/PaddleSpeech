@@ -32,7 +32,7 @@ except Exception as e:
 __all__ = ['CTCDecoder']
 
 
-class CTCDecoder(nn.Layer):
+class CTCDecoderBase(nn.Layer):
     def __init__(self,
                  odim,
                  enc_n_units,
@@ -64,9 +64,6 @@ class CTCDecoder(nn.Layer):
             reduction=reduction_type,
             batch_average=batch_average,
             grad_norm_type=grad_norm_type)
-
-        # CTCDecoder LM Score handle
-        self._ext_scorer = None
 
     def forward(self, hs_pad, hlens, ys_pad, ys_lens):
         """Calculate CTC loss.
@@ -125,6 +122,13 @@ class CTCDecoder(nn.Layer):
             paddle.Tensor: best alignment result, (T).
         """
         return ctc_utils.forced_align(ctc_probs, y, blank_id)
+
+
+class CTCDecoder(CTCDecoderBase):
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # CTCDecoder LM Score handle
+        self._ext_scorer = None
 
     def _decode_batch_greedy(self, probs_split, vocab_list):
         """Decode by best path for a batch of probs matrix input.

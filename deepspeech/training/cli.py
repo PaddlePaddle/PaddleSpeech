@@ -28,6 +28,13 @@ class ExtendAction(argparse.Action):
         setattr(namespace, self.dest, items)
 
 
+class LoadFromFile(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        with values as f:
+            # parse arguments in the file and store them in the target namespace
+            parser.parse_args(f.read().split(), namespace)
+
+
 def default_argument_parser():
     r"""A simple yet genral argument parser for experiments with parakeet.
 
@@ -57,6 +64,8 @@ def default_argument_parser():
     """
     parser = argparse.ArgumentParser()
     parser.register('action', 'extend', ExtendAction)
+    parser.add_argument(
+        '--conf', type=open, action=LoadFromFile, help="config file.")
 
     train_group = parser.add_argument_group(
         title='Train Options', description=None)

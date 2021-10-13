@@ -54,6 +54,7 @@ bash run_analysis_mp.sh
 ```
 
 ### The log
+```
 {"log_file": "recoder_sp_bs16_fp32_ngpu1.txt",
  "model_name": "Conformer",
  "mission_name": "one gpu",
@@ -67,3 +68,4 @@ bash run_analysis_mp.sh
  "profiler_path": null,
  "UNIT": "sent./sec"
 }
+```

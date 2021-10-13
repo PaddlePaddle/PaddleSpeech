@@ -9,4 +9,4 @@ python analysis.py \
     --gpu_num 1 \
     --use_num 60 \
     --separator " " \
-
+    --direction_id "1"

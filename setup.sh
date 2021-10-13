@@ -69,8 +69,8 @@ fi
 # install decoders
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"
 if [ $? != 0 ]; then
-    cd deepspeech/decoders/swig > /dev/null
-    sh setup.sh
+    cd deepspeech/decoders/ctcdecoder/swig > /dev/null
+    bash setup.sh
     cd - > /dev/null
 fi
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"

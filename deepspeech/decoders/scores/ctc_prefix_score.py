@@ -40,7 +40,6 @@ class CTCPrefixScorePD():
         self.input_length = x.size(1)
         self.odim = x.size(2)
         self.dtype = x.dtype
-        self.device = x.place
 
         # Pad the rest of posteriors in the batch
         # TODO(takaaki-hori): need a better way without for-loops
@@ -62,7 +61,7 @@ class CTCPrefixScorePD():
         # B idx, hyp idx. shape (B*W, 1)
         self.idx_bh = None 
         # B idx. shape (B,)
-        self.idx_b = paddle.arange(self.batch, place=self.device)
+        self.idx_b = paddle.arange(self.batch)
         # B idx, O idx. shape (B, 1)
         self.idx_bo = (self.idx_b * self.odim).unsqueeze(1)
 

@@ -4,7 +4,7 @@ import numpy as np
 import paddle
 
 from .ctc_prefix_score import CTCPrefixScore
-from .ctc_prefix_score import CTCPrefixScoreTH
+from .ctc_prefix_score import CTCPrefixScorePD
 from .scorer_interface import BatchPartialScorerInterface
 
 
@@ -34,7 +34,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
 
         """
         logp = self.ctc.log_softmax(x.unsqueeze(0)).squeeze(0).numpy()
-        # TODO(karita): use CTCPrefixScoreTH
+        # TODO(karita): use CTCPrefixScorePD
         self.impl = CTCPrefixScore(logp, 0, self.eos, np)
         return 0, self.impl.initial_state()
 
@@ -54,7 +54,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
             if len(state) == 2:  # for CTCPrefixScore
                 sc, st = state
                 return sc[i], st[i]
-            else:  # for CTCPrefixScoreTH (need new_id > 0)
+            else:  # for CTCPrefixScorePD (need new_id > 0)
                 r, log_psi, f_min, f_max, scoring_idmap = state
                 s = log_psi[i, new_id].expand(log_psi.size(1))
                 if scoring_idmap is not None:
@@ -96,7 +96,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         """
         logp = self.ctc.log_softmax(x.unsqueeze(0))  # assuming batch_size = 1
         xlen = paddle.to_tensor([logp.size(1)])
-        self.impl = CTCPrefixScoreTH(logp, xlen, 0, self.eos)
+        self.impl = CTCPrefixScorePD(logp, xlen, 0, self.eos)
         return None
 
     def batch_score_partial(self, y, ids, state, x):

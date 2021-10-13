@@ -1,5 +1,17 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """ScorerInterface implementation for CTC."""
-
 import numpy as np
 import paddle
 
@@ -81,8 +93,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         prev_score, state = state
         presub_score, new_st = self.impl(y.cpu(), ids.cpu(), state)
         tscore = paddle.to_tensor(
-            presub_score - prev_score, place=x.place, dtype=x.dtype
-        )
+            presub_score - prev_score, place=x.place, dtype=x.dtype)
         return tscore, (presub_score, new_st)
 
     def batch_init_state(self, x: paddle.Tensor):
@@ -115,15 +126,9 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
 
         """
         batch_state = (
-            (
-                paddle.stack([s[0] for s in state], axis=2),
-                paddle.stack([s[1] for s in state]),
-                state[0][2],
-                state[0][3],
-            )
-            if state[0] is not None
-            else None
-        )
+            (paddle.stack([s[0] for s in state], axis=2),
+             paddle.stack([s[1] for s in state]), state[0][2], state[0][3], )
+            if state[0] is not None else None)
         return self.impl(y, batch_state, ids)
 
     def extend_prob(self, x: paddle.Tensor):

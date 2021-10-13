@@ -125,7 +125,7 @@ class CTCDecoderBase(nn.Layer):
 
 
 class CTCDecoder(CTCDecoderBase):
-    def __init__(self,*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # CTCDecoder LM Score handle
         self._ext_scorer = None

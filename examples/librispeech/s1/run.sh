@@ -7,7 +7,7 @@ set -e
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
-avg_num=5
+avg_num=30
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

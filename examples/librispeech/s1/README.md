@@ -31,6 +31,8 @@
 
 
 ## Transformer
+
+### Test w/ 20s length filter
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean | attention | 6.98 | 0.036 |  
@@ -38,7 +40,7 @@
 ### Test w/o length filter
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention | 7.63 | 0.056832 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_greedy_search | 7.63 | 0.059742 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_prefix_beam_search | 7.63 | 0.059057 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention_rescoring | 7.63 | 0.047417 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention | 7.404532432556152 | 0.056204 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_greedy_search | 7.404532432556152 | 0.058658 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | ctc_prefix_beam_search | 7.404532432556152 | 0.058278 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug + shift | test-clean-all | attention_rescoring | 7.404532432556152 | 0.045591 |  

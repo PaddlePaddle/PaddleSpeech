@@ -1,11 +1,23 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Scorer interface module."""
-
+import warnings
 from typing import Any
 from typing import List
 from typing import Tuple
 
 import paddle
-import warnings
 
 
 class ScorerInterface:
@@ -37,7 +49,7 @@ class ScorerInterface:
         """
         return None
 
-    def select_state(self, state: Any, i: int, new_id: int = None) -> Any:
+    def select_state(self, state: Any, i: int, new_id: int=None) -> Any:
         """Select state with relative ids in the main beam search.
 
         Args:
@@ -51,9 +63,8 @@ class ScorerInterface:
         """
         return None if state is None else state[i]
 
-    def score(
-        self, y: paddle.Tensor, state: Any, x: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, Any]:
+    def score(self, y: paddle.Tensor, state: Any,
+              x: paddle.Tensor) -> Tuple[paddle.Tensor, Any]:
         """Score new token (required).
 
         Args:
@@ -96,9 +107,10 @@ class BatchScorerInterface(ScorerInterface):
         """
         return self.init_state(x)
 
-    def batch_score(
-        self, ys: paddle.Tensor, states: List[Any], xs: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, List[Any]]:
+    def batch_score(self,
+                    ys: paddle.Tensor,
+                    states: List[Any],
+                    xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
         Args:
@@ -114,10 +126,8 @@ class BatchScorerInterface(ScorerInterface):
 
         """
         warnings.warn(
-            "{} batch score is implemented through for loop not parallelized".format(
-                self.__class__.__name__
-            )
-        )
+            "{} batch score is implemented through for loop not parallelized".
+            format(self.__class__.__name__))
         scores = list()
         outstates = list()
         for i, (y, state, x) in enumerate(zip(ys, states, xs)):
@@ -141,9 +151,11 @@ class PartialScorerInterface(ScorerInterface):
 
     """
 
-    def score_partial(
-        self, y: paddle.Tensor, next_tokens: paddle.Tensor, state: Any, x: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, Any]:
+    def score_partial(self,
+                      y: paddle.Tensor,
+                      next_tokens: paddle.Tensor,
+                      state: Any,
+                      x: paddle.Tensor) -> Tuple[paddle.Tensor, Any]:
         """Score new token (required).
 
         Args:
@@ -165,12 +177,11 @@ class BatchPartialScorerInterface(BatchScorerInterface, PartialScorerInterface):
     """Batch partial scorer interface for beam search."""
 
     def batch_score_partial(
-        self,
-        ys: paddle.Tensor,
-        next_tokens: paddle.Tensor,
-        states: List[Any],
-        xs: paddle.Tensor,
-    ) -> Tuple[paddle.Tensor, Any]:
+            self,
+            ys: paddle.Tensor,
+            next_tokens: paddle.Tensor,
+            states: List[Any],
+            xs: paddle.Tensor, ) -> Tuple[paddle.Tensor, Any]:
         """Score new token (required).
 
         Args:

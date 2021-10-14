@@ -86,7 +86,8 @@ class U2Trainer(Trainer):
             batch_size=config.collator.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn_dev)
+            collate_fn=collate_fn_dev,
+            num_workers=config.collator.num_workers, )
 
         # test dataset, return raw text
         config.data.manifest = config.data.test_manifest

@@ -26,14 +26,14 @@ kenlm.done:
 	# it seems that boost (1.54.0) requires higher version. After I switched to g++-5 it compiles normally.
 	apt install -y build-essential cmake libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libeigen3-dev zlib1g-dev libbz2-dev liblzma-dev
 	apt-get install -y gcc-5 g++-5 && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
-	test -d kenlm || wget -O - https://kheafield.com/code/kenlm.tar.gz | tar xz
+	test -d kenlm || wget -O - https://kheafield.com/code/kenlm.tar.gz --no-check-certificate | tar xz
 	rm -rf kenlm/build && mkdir -p kenlm/build && cd kenlm/build && cmake .. && make -j4 && make install
 	source venv/bin/activate; cd kenlm && python setup.py install
 	touch kenlm.done
 
 sox.done:
 	apt install -y libvorbis-dev libmp3lame-dev libmad-ocaml-dev
-	test -d sox-14.4.2 || wget https://nchc.dl.sourceforge.net/project/sox/sox/14.4.2/sox-14.4.2.tar.gz
+	test -d sox-14.4.2 || wget https://nchc.dl.sourceforge.net/project/sox/sox/14.4.2/sox-14.4.2.tar.gz --no-check-certificate
 	tar -xvzf sox-14.4.2.tar.gz -C .
 	cd sox-14.4.2 && ./configure --prefix=/usr/ && make -j4 && make install
 	touch sox.done
@@ -44,7 +44,7 @@ soxbindings.done:
 	touch soxbindings.done
 
 mfa.done:
-	test -d montreal-forced-aligner || wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
+	test -d montreal-forced-aligner || wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz --no-check-certificate
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 

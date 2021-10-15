@@ -10,7 +10,7 @@ fi
 
 if [ ! -d openfst-1.6.3 ]; then
     echo "Download and extract openfst ..."
-    wget http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.3.tar.gz
+    wget http://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.6.3.tar.gz --no-check-certificate
     tar -xzvf openfst-1.6.3.tar.gz
     echo -e "\n"
 fi

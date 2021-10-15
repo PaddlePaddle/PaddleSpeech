@@ -14,22 +14,6 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    # download data, generate manifests
-    # build vocabulary
-    python3 ${MAIN_ROOT}/utils/build_vocab.py \
-    --unit_type="char" \
-    --count_threshold=0 \
-    --vocab_path="data/vocab.txt" \
-    --manifest_paths "data/manifest.train.raw"
-
-    if [ $? -ne 0 ]; then
-        echo "Build vocabulary failed. Terminated."
-        exit 1
-    fi
-fi
-
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # compute mean and stddev for normalizer
     num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
@@ -51,6 +35,20 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     fi
 fi
 
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # download data, generate manifests
+    # build vocabulary
+    python3 ${MAIN_ROOT}/utils/build_vocab.py \
+    --unit_type="char" \
+    --count_threshold=0 \
+    --vocab_path="data/vocab.txt" \
+    --manifest_paths "data/manifest.train.raw"
+
+    if [ $? -ne 0 ]; then
+        echo "Build vocabulary failed. Terminated."
+        exit 1
+    fi
+fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size

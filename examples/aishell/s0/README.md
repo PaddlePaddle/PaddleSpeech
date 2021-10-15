@@ -1,11 +1,5 @@
 # Aishell-1
 
-## Data
-| Data Subset | Duration in Seconds |
-| data/manifest.train |  1.23 ~ 14.53125 |
-| data/manifest.dev  | 1.645 ~ 12.533 |  
-| data/manifest.test | 1.859125 ~ 14.6999375 |
-
 ## Deepspeech2
 
 | Model | Params | Release | Config | Test set | Loss | CER |  

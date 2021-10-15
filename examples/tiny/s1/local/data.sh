@@ -30,23 +30,6 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    # build vocabulary
-    python3 ${MAIN_ROOT}/utils/build_vocab.py \
-    --unit_type "spm" \
-    --spm_vocab_size=${nbpe} \
-    --spm_mode ${bpemode} \
-    --spm_model_prefix ${bpeprefix} \
-    --vocab_path="data/vocab.txt" \
-    --manifest_paths="data/manifest.tiny.raw"
-    
-    if [ $? -ne 0 ]; then
-        echo "Build vocabulary failed. Terminated."
-        exit 1
-    fi
-fi
-
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # compute mean and stddev for normalizer
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.tiny.raw" \
@@ -67,6 +50,21 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     fi
 fi
 
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # build vocabulary
+    python3 ${MAIN_ROOT}/utils/build_vocab.py \
+    --unit_type "spm" \
+    --spm_vocab_size=${nbpe} \
+    --spm_mode ${bpemode} \
+    --spm_model_prefix ${bpeprefix} \
+    --vocab_path="data/vocab.txt" \
+    --manifest_paths="data/manifest.tiny.raw"
+    
+    if [ $? -ne 0 ]; then
+        echo "Build vocabulary failed. Terminated."
+        exit 1
+    fi
+fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size

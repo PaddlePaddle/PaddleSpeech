@@ -1,0 +1,7 @@
+myst_parser
+numpydoc
+recommonmark>=0.5.0
+sphinx
+sphinx-autobuild
+sphinx-markdown-tables
+sphinx_rtd_theme

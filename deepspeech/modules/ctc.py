@@ -23,9 +23,9 @@ from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
 try:
-    from deepspeech.decoders.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
-    from deepspeech.decoders.swig_wrapper import ctc_greedy_decoder  # noqa: F401
-    from deepspeech.decoders.swig_wrapper import Scorer  # noqa: F401
+    from deepspeech.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
+    from deepspeech.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoder  # noqa: F401
+    from deepspeech.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
 except Exception as e:
     logger.info("ctcdecoder not installed!")
 

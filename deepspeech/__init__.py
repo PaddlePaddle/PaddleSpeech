@@ -362,19 +362,11 @@ def ctc_loss(logits,
              label_lengths,
              blank=0,
              reduction='mean',
-             norm_by_times=True,
-             norm_by_batchsize=False,
-             norm_by_total_logits_len=False):
+             norm_by_times=True):
     #logger.info("my ctc loss with norm by times")
     ## https://github.com/PaddlePaddle/Paddle/blob/f5ca2db2cc/paddle/fluid/operators/warpctc_op.h#L403
-    loss_out = paddle.fluid.layers.warpctc(
-        logits,
-        labels,
-        blank,
-        norm_by_times,
-        input_lengths,
-        label_lengths,
-        norm_by_batchsize, )
+    loss_out = paddle.fluid.layers.warpctc(logits, labels, blank, norm_by_times,
+                                           input_lengths, label_lengths)
 
     loss_out = paddle.fluid.layers.squeeze(loss_out, [-1])
     assert reduction in ['mean', 'sum', 'none']

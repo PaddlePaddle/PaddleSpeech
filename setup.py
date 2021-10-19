@@ -20,67 +20,33 @@ from setuptools import setup
 
 
 def read(*names, **kwargs):
-    with io.open(
-            os.path.join(os.path.dirname(__file__), *names),
-            encoding=kwargs.get("encoding", "utf8")) as fp:
+    with io.open(os.path.join(os.path.dirname(__file__), *names),
+                 encoding=kwargs.get("encoding", "utf8")) as fp:
         return fp.read()
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
-
-
-VERSION = find_version('parakeet', '__init__.py')
+VERSION = '2.1.2'
 long_description = read("README.md")
+deps = [d.strip() for d in read('requirements.txt').split()]
 
 setup_info = dict(
     # Metadata
-    name='paddle-parakeet',
+    name='paddle-speech',
     version=VERSION,
-    author='PaddleSL Team',
+    author='PaddleSL Speech Team',
     author_email='',
-    url='https://github.com/PaddlePaddle',
-    description='Speech synthesis tools and models based on Paddlepaddle',
+    url='https://github.com/PaddlePaddle/DeepSpeech',
+    description='Speech tools and models based on Paddlepaddle',
     long_description=long_description,
     long_description_content_type="text/markdown",
     license='Apache 2',
     python_requires='>=3.6',
-    install_requires=[
-        'numpy',
-        'nltk',
-        'inflect',
-        'librosa',
-        'unidecode',
-        'numba',
-        'tqdm',
-        'llvmlite',
-        'matplotlib',
-        'visualdl==2.2.0',
-        'scipy',
-        'pandas',
-        'sox',
-        'soundfile~=0.10',
-        'g2p_en',
-        'yacs',
-        'pypinyin',
-        'webrtcvad',
-        'g2pM',
-        'praatio~=4.1',
-        "h5py",
-        "timer",
-        'jsonlines',
-        'pyworld',
-        'typeguard',
-        'jieba',
-        "phkit",
-    ],
+    install_requires=deps,
     extras_require={
-        'doc': ["sphinx", "sphinx-rtd-theme", "numpydoc"],
+        'doc': [
+            "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
+            "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
+        ],
     },
 
     # Package info
@@ -94,6 +60,8 @@ setup_info = dict(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-    ], )
+        'Programming Language :: Python :: 3.8',
+    ],
+)
 
 setup(**setup_info)

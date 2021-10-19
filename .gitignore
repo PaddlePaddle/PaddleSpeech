@@ -11,6 +11,9 @@
 *.npz
 *.done
 *.whl
+*.egg-info
+
+docs/build/
 
 tools/venv
 tools/kenlm

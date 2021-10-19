@@ -25,7 +25,7 @@ import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'paddle deepspeech'
+project = 'paddle speech'
 copyright = '2021, Deepspeech-developers'
 author = 'Deepspeech-developers'
 

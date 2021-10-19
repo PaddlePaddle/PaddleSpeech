@@ -81,7 +81,7 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
     ) &
     pids+=($!) # store background pids
     i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
-    [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
+    [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." || true
     done
 )
 done

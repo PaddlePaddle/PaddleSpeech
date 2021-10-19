@@ -1,5 +1,5 @@
 ### Prepare the environment
-Please follow the instructions shown in [here](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/docs/src/install.md) to install the Deepspeech first.
+Please follow the instructions shown in [here](../../docs/source/install.md) to install the Deepspeech first.
 
 ### File list
 └── benchmark                  # 模型名  

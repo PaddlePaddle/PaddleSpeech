@@ -11,6 +11,7 @@
 
 
 ## Chunk Conformer
+Need set `decoding.decoding_chunk_size=16` when decoding.
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  
@@ -18,10 +19,3 @@
 | conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_greedy_search | 16, -1 | - | 0.070806 |  
 | conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_prefix_beam_search | 16, -1 | - | 0.070739 |  
 | conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention_rescoring | 16, -1 |  - | 0.059400 |  
-
-
-## Transformer
-
-| Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
-| --- | --- | --- | --- | --- | --- | --- | ---|  
-| transformer | - | conf/transformer.yaml | spec_aug + shift | test | attention | - | - |  

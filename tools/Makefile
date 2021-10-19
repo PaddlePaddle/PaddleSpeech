@@ -6,7 +6,7 @@ CC ?= gcc        # used for sph2pipe
 # CXX = clang++  # Uncomment these lines...
 # CC = clang     # ...to build with Clang.
 
-WGET ?= wget
+WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 

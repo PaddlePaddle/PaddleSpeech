@@ -14,6 +14,7 @@
 import hashlib
 import json
 import os
+import sys
 import tarfile
 import zipfile
 from typing import Text
@@ -21,7 +22,7 @@ from typing import Text
 __all__ = [
     "check_md5sum", "getfile_insensitive", "download_multi", "download",
     "unpack", "unzip", "md5file", "print_arguments", "add_arguments",
-    "read_manifest"
+    "read_manifest", "get_commandline_args"
 ]
 
 
@@ -44,6 +45,40 @@ def read_manifest(manifest_path):
         except Exception as e:
             raise IOError("Error reading manifest: %s" % str(e))
     return manifest
+
+
+def get_commandline_args():
+    extra_chars = [
+        " ",
+        ";",
+        "&",
+        "(",
+        ")",
+        "|",
+        "^",
+        "<",
+        ">",
+        "?",
+        "*",
+        "[",
+        "]",
+        "$",
+        "`",
+        '"',
+        "\\",
+        "!",
+        "{",
+        "}",
+    ]
+
+    # Escape the extra characters for shell
+    argv = [
+        arg.replace("'", "'\\''") if all(char not in arg
+                                         for char in extra_chars) else
+        "'" + arg.replace("'", "'\\''") + "'" for arg in sys.argv
+    ]
+
+    return sys.executable + " " + " ".join(argv)
 
 
 def print_arguments(args, info=None):

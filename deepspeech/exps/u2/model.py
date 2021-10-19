@@ -444,7 +444,7 @@ class U2Tester(U2Trainer):
         start_time = time.time()
         text_feature = self.test_loader.collate_fn.text_feature
         target_transcripts = self.ordid2token(texts, texts_len)
-        result_transcripts = self.model.decode(
+        result_transcripts, result_tokenids = self.model.decode(
             audio,
             audio_len,
             text_feature=text_feature,
@@ -462,14 +462,19 @@ class U2Tester(U2Trainer):
             simulate_streaming=cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
-        for utt, target, result in zip(utts, target_transcripts,
-                                       result_transcripts):
+        for utt, target, result, rec_tids in zip(
+                utts, target_transcripts, result_transcripts, result_tokenids):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write({"utt": utt, "ref": target, "hyp": result})
+                fout.write({
+                    "utt": utt,
+                    "refs": [target],
+                    "hyps": [result],
+                    "hyps_tokenid": [rec_tids],
+                })
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")

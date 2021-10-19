@@ -390,6 +390,10 @@ class U2Tester(U2Trainer):
 
     def __init__(self, config, args):
         super().__init__(config, args)
+        self.text_feature = TextFeaturizer(
+            unit_type=self.config.collator.unit_type,
+            vocab_filepath=self.config.collator.vocab_filepath,
+            spm_model_prefix=self.config.collator.spm_model_prefix)
 
     def id2token(self, texts, texts_len, text_feature):
         """ ord() id to chr() chr """
@@ -413,15 +417,11 @@ class U2Tester(U2Trainer):
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
         start_time = time.time()
-        text_feature = TextFeaturizer(
-            unit_type=self.config.collator.unit_type,
-            vocab_filepath=self.config.collator.vocab_filepath,
-            spm_model_prefix=self.config.collator.spm_model_prefix)
-        target_transcripts = self.id2token(texts, texts_len, text_feature)
-        result_transcripts = self.model.decode(
+        target_transcripts = self.id2token(texts, texts_len, self.text_feature)
+        result_transcripts, result_tokenids = self.model.decode(
             audio,
             audio_len,
-            text_feature=text_feature,
+            text_feature=self.text_feature,
             decoding_method=cfg.decoding_method,
             lang_model_path=cfg.lang_model_path,
             beam_alpha=cfg.alpha,
@@ -436,14 +436,19 @@ class U2Tester(U2Trainer):
             simulate_streaming=cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
-        for utt, target, result in zip(utts, target_transcripts,
-                                       result_transcripts):
+        for i, (utt, target, result, rec_tids) in enumerate(zip(
+                utts, target_transcripts, result_transcripts, result_tokenids)):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write({"utt": utt, "ref": target, "hyp": result})
+                fout.write({
+                    "utt": utt,
+                    "refs": [target],
+                    "hyps": [result],
+                    "hyps_tokenid": [rec_tids],
+                })
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")

@@ -1,4 +1,4 @@
-# PaddlePaddle Speech to Any toolkit
+# PaddlePaddle Speech toolkit
 
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)

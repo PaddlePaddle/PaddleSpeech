@@ -12,6 +12,7 @@
 *.done
 *.whl
 *.egg-info
+build
 
 docs/build/
 

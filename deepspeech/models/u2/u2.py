@@ -809,7 +809,8 @@ class U2BaseModel(nn.Layer):
             raise ValueError(f"Not support decoding method: {decoding_method}")
 
         res = [text_feature.defeaturize(hyp) for hyp in hyps]
-        return res
+        res_tokenids = [hyp for hyp in hyps]
+        return res, res_tokenids
 
 
 class U2Model(U2BaseModel):

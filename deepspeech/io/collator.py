@@ -32,7 +32,7 @@ __all__ = ["SpeechCollator", "TripletSpeechCollator"]
 logger = Log(__name__).getlog()
 
 
-def tokenids(text, keep_transcription_text):
+def _tokenids(text, keep_transcription_text):
     # for training text is token ids 
     tokens = text  # token ids
 
@@ -93,6 +93,8 @@ class SpeechCollatorBase():
         a user-defined shape) within one batch.
         """
         self.keep_transcription_text = keep_transcription_text
+        self.train_mode = not keep_transcription_text
+
         self.stride_ms = stride_ms
         self.window_ms = window_ms
         self.feat_dim = feat_dim
@@ -192,6 +194,7 @@ class SpeechCollatorBase():
         texts = []
         text_lens = []
         utts = []
+        tids = [] # tokenids
 
         for idx, item in enumerate(batch):
             utts.append(item['utt'])
@@ -203,7 +206,7 @@ class SpeechCollatorBase():
             audios.append(audio)  # [T, D]
             audio_lens.append(audio.shape[0])
 
-            tokens = tokenids(text, self.keep_transcription_text)
+            tokens = _tokenids(text, self.keep_transcription_text)
             texts.append(tokens)
             text_lens.append(tokens.shape[0])
 

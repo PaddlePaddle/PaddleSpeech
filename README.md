@@ -4,7 +4,7 @@
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
-> Notes: 1.Here place an icon/image as the logo at the beginning like PaddleOCR or PaddleNLP; 2. Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 
+> Notes: 1.Here place an icon/image as the logo at the beginning like PaddleOCR or PaddleNLP; 2. Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 3. **It is strongly recommended to refer to [PaddleHub](https://github.com/PaddlePaddle/PaddleHub) documents.**
 
 
 <!---
@@ -117,6 +117,6 @@ DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 DeepSpeech depends on many open source repos. See [References](docs/source/asr/reference.md) for more information.
 
-<code> **Updates on 2021/10/20**: This [README.md](README.md) outline is not completed, especially *from section **Getting Started***. </code>
+<code> **Updates on 2021/10/20**: This [README.md](README.md) outline is not completed, especially *from section **Getting Started***. Besides, this document needs to be further adjusted with reference to PaddleHub. </code>
 
 

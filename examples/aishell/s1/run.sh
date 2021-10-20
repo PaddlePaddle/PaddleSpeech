@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
 source path.sh
+set -e
 
 stage=0
 stop_stage=100
@@ -46,5 +46,5 @@ fi
  # Optionally, you can add LM and test it with runtime.
  if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     # train lm and build TLG
-    ./local/tlg.sh --corpus aishell --lmtype srilm 
+    ./local/tlg.sh --corpus aishell --lmtype srilm
  fi

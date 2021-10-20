@@ -14,6 +14,9 @@
 import io
 import os
 import re
+from pathlib import Path
+import contextlib
+import inspect
 
 from setuptools import find_packages
 from setuptools import setup
@@ -22,7 +25,7 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 import subprocess as sp
 
-HERE = os.path.abspath(os.path.dirname(__file__))
+HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
 
 def read(*names, **kwargs):
@@ -36,16 +39,52 @@ long_description = read("README.md")
 deps = [d.strip() for d in read('requirements.txt').split()]
 
 
+@contextlib.contextmanager
+def pushd(new_dir):
+    old_dir = os.getcwd()
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(old_dir)
+
+
+def check_call(cmd: str, shell=False, executable=None):
+    try:
+        sp.check_call(cmd.split(),
+                      shell=shell,
+                      executable="/bin/bash" if shell else executable)
+    except sp.CalledProcessError as e:
+        print(
+            f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
+            e.output,
+            file=sys.stderr)
+
+
 def _pre_install():
-    sp.check_call("apt-get update -y".split())
-    sp.check_call("apt-get install -y".split() +
-                  'vim tig tree sox pkg-config'.split() +
-                  'libsndfile1 libflac-dev libogg-dev'.split() +
-                  'libvorbis-dev libboost-dev swig python3-dev'.split())
+    # apt
+    check_call("apt-get update -y")
+    check_call("apt-get install -y " + 'vim tig tree sox pkg-config ' +
+               'libsndfile1 libflac-dev libogg-dev ' +
+               'libvorbis-dev libboost-dev swig python3-dev ')
+    # tools/make
+    tool_dir = HERE / "tools"
+    for f in tool_dir.glob("*.done"):
+        f.unlink()
+    with pushd(tool_dir):
+        check_call("make", True)
 
 
 def _post_install(install_lib_dir):
-    pass
+    # ctcdecoder
+    check_call(
+        "pushd deepspeech/decoders/ctcdecoder/swig && bash setup.sh && popd")
+
+    # install third_party
+    check_call("pushd third_party && bash install.sh && popd")
+
+    # install autolog
+    check_call("pushd tools/extras && bash install_autolog.sh && popd")
 
 
 class DevelopCommand(develop):
@@ -76,7 +115,7 @@ class UploadCommand(Command):
     def run(self):
         try:
             print("Removing previous dist/ ...")
-            shutil.rmtree(os.path.join(HERE, "dist"))
+            shutil.rmtree(str(HERE / "dist"))
         except OSError:
             pass
         print("Building source distribution...")

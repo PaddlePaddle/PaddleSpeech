@@ -29,14 +29,14 @@ model_test_alias = {
 def main_sp(config, args):
     class_obj = dynamic_import(args.model_name, model_test_alias)
     exp = class_obj(config, args)
-    exp.setup()
-
-    if args.run_mode == 'test':
-        exp.run_test()
-    elif args.run_mode == 'export':
-        exp.run_export()
-    elif args.run_mode == 'align':
-        exp.run_align()
+    with exp.eval():
+        exp.setup()
+        if args.run_mode == 'test':
+            exp.run_test()
+        elif args.run_mode == 'export':
+            exp.run_export()
+        elif args.run_mode == 'align':
+            exp.run_align()
 
 
 def main(config, args):

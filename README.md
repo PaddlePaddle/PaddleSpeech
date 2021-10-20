@@ -4,13 +4,10 @@
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
-<!---
-Here place an icon/image as the logo at the beginning like PaddleOCR/PaddleNLP.
-Is there any idea to add Parakeet logo(https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 
--->
+> Notes: 1.Here place an icon/image as the logo at the beginning like PaddleOCR or PaddleNLP; 2. Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 
+
 
 <!---
-README.me should include:
 why they should use your module, 
 how they can install it, 
 how they can use it
@@ -19,23 +16,23 @@ how they can use it
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - Automatic Speech Recognition (ASR) and Text-To-Speech Synthesis (TTS), with modules involving state-of-art and influential models.
 
 ## Table of Contents
+
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
-- [Guidelines of DeepSpeech Pipeline](#guidelines-of-deepspeech-pipeline)
+- [Example Overview](#example-overview)
+- [Guidelines of Pipeline](#guidelines-of-pipeline)
 - [FAQ and Contributing](#faq-and-contributing)
+- [License](#license)
 - [Acknowledgement](#acknowledgement)
-- [License](#license) 
 
 ## Features
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment.
 
-<!---
-1.The following features are summarized from docs/source/asr/feature_list.md, please add the features of Parakeet @yt605155624 :-) 
-2.Better add hyperlinks for code path/dir
--->
+> Note: 1.Better add hyperlinks for code path; 2.The current `Features` is a bit long. Is there any idea to shorten this section?
+
 
 The features of **ASR** are summarized as follows:
 - **Used datasets**
@@ -58,21 +55,43 @@ The features of **ASR** are summarized as follows:
 
 The features of **TTS** are summarized as follows:
 
-- **Blabla**
-  - Blabla ...
+<!---
+Reference docs/source/tts/introduction.md
+-->
+- **Text FrontEnd**: Rule based Chinese frontend.
+- **Acoustic Models**: FastSpeech2, SpeedySpeech, TransformerTTS, Tacotron2
+- **Vocoders**: Parallel WaveGAN, WaveFlow
+- **Voice Cloning**: Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis, GE2E
 
 ## Installation
 
-All tested under:  
+> Note: The installation guidance of TTS and ASR is now separated.
+
+Base environment:  
 * Ubuntu 16.04
 * python>=3.7
 * paddlepaddle==2.1.2
 
-Please see the [installation](docs/source/asr/install.md) doc for all the alternatives.
+Please see the [ASR installation](docs/source/asr/install.md) and [TTS installation](docs/source/tts/install.md) documents for all the alternatives.
 
 ## Getting Started
 
-Please see [Getting Started](docs/source/asr/getting_started.md) and [tiny egs](examples/tiny/s0/README.md).
+Please see [ASR getting started](docs/source/asr/getting_started.md) ([tiny test](examples/tiny/s0/README.md)) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
+
+## Example Overview
+
+<!---
+1.The current hyperlink of parallelwave_gan-ljspeech is not correct.
+2.This table needs to be fulfilled later.
+-->
+
+| Task | Models           | Dataset  | Performance Summary | Link |
+| ---- | ---------------- | -------- | ------------------- | ---- |
+| ASR  | Ds2              | Aishell  | ...                 | [Ds2 Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz)      |
+| TTS  | Parallel WaveGAN | LJSpeech | ...                 | [parallelwave_gan-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech)     |
+
+
+For more detailed description, please refer to [ASR released models](docs/source/asr/released_model.md) and [TTS released models](docs/source/tts/released_models.md) 
 
 
 ## Guidelines of Pipeline  
@@ -98,4 +117,6 @@ DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 DeepSpeech depends on many open source repos. See [References](docs/source/asr/reference.md) for more information.
 
-<code> **Updates on 2021/10/20**: This [README.md](README.md) outline is not completed, especially for TTS module *from section **Features***. </code>
+<code> **Updates on 2021/10/20**: This [README.md](README.md) outline is not completed, especially *from section **Getting Started***. </code>
+
+

@@ -19,12 +19,12 @@ tqdm
 typeguard
 visualdl==2.2.0
 yacs
-numpy
+numpy==1.20.0
+numba
 nltk
 inflect
 librosa
 unidecode
-numba
 llvmlite
 matplotlib
 pandas

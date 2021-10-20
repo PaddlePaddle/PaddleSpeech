@@ -167,8 +167,9 @@ def check(audio_file):
 
 def main_sp(config, args):
     exp = DeepSpeech2Tester_hub(config, args)
-    exp.setup()
-    exp.run_test()
+    with exp.eval():
+        exp.setup()
+        exp.run_test()
 
 
 def main(config, args):

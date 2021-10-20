@@ -27,18 +27,6 @@ import subprocess as sp
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-
-def read(*names, **kwargs):
-    with io.open(os.path.join(os.path.dirname(__file__), *names),
-                 encoding=kwargs.get("encoding", "utf8")) as fp:
-        return fp.read()
-
-
-VERSION = '2.1.2'
-long_description = read("README.md")
-deps = [d.strip() for d in read('requirements.txt').split()]
-
-
 @contextlib.contextmanager
 def pushd(new_dir):
     old_dir = os.getcwd()
@@ -49,7 +37,13 @@ def pushd(new_dir):
         os.chdir(old_dir)
 
 
-def check_call(cmd: str, shell=False, executable=None):
+def read(*names, **kwargs):
+    with io.open(os.path.join(os.path.dirname(__file__), *names),
+                 encoding=kwargs.get("encoding", "utf8")) as fp:
+        return fp.read()
+
+
+def check_call(cmd: str, shell=True, executable=None):
     try:
         sp.check_call(cmd.split(),
                       shell=shell,
@@ -69,22 +63,27 @@ def _pre_install():
                'libvorbis-dev libboost-dev swig python3-dev ')
     # tools/make
     tool_dir = HERE / "tools"
-    for f in tool_dir.glob("*.done"):
-        f.unlink()
+    # for f in tool_dir.glob("*.done"):
+    #     f.unlink()
     with pushd(tool_dir):
-        check_call("make", True)
+        check_call("make")
 
 
 def _post_install(install_lib_dir):
     # ctcdecoder
-    check_call(
-        "pushd deepspeech/decoders/ctcdecoder/swig && bash setup.sh && popd")
+    ctcdecoder_dir = HERE/ 'deepspeech/decoders/ctcdecoder/swig'
+    with puahd(ctcdecoder_dir):
+        check_call("setup.sh")
 
     # install third_party
-    check_call("pushd third_party && bash install.sh && popd")
+    third_party_dir = HERE / 'third_party'
+    with puahd(third_party_dir):
+        check_call("bash install.sh")
 
     # install autolog
-    check_call("pushd tools/extras && bash install_autolog.sh && popd")
+    tools_extrs_dir = HERE / 'tools/extras'
+    with puahd(tools_extrs_dir):
+        check_call("bash install_autolog.sh")
 
 
 class DevelopCommand(develop):
@@ -128,13 +127,13 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddle-speech',
-    version=VERSION,
+    version='2.1.2',
     author='PaddleSL Speech Team',
     author_email='',
     url='https://github.com/PaddlePaddle/DeepSpeech',
     license='Apache 2',
     description='Speech tools and models based on Paddlepaddle',
-    long_description=long_description,
+    long_description=read("README.md"),
     long_description_content_type="text/markdown",
     keywords=[
         "speech",
@@ -151,7 +150,7 @@ setup_info = dict(
         "gan",
     ],
     python_requires='>=3.6',
-    install_requires=deps,
+    install_requires=[d.strip() for d in read('requirements.txt').split()],
     extras_require={
         'doc': [
             "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",

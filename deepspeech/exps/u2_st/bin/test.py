@@ -24,8 +24,9 @@ from deepspeech.utils.utility import print_arguments
 
 def main_sp(config, args):
     exp = Tester(config, args)
-    exp.setup()
-    exp.run_test()
+    with exp.eval():
+        exp.setup()
+        exp.run_test()
 
 
 def main(config, args):

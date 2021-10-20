@@ -194,7 +194,7 @@ class SpeechCollatorBase():
         texts = []
         text_lens = []
         utts = []
-        tids = [] # tokenids
+        tids = []  # tokenids
 
         for idx, item in enumerate(batch):
             utts.append(item['utt'])
@@ -354,7 +354,7 @@ class TripletSpeechCollator(SpeechCollator):
 
             tokens = [[], []]
             for idx, text in enumerate([translation, transcription]):
-                tokens[idx] = tokenids(text, self.keep_transcription_text)
+                tokens[idx] = _tokenids(text, self.keep_transcription_text)
 
             translation_text.append(tokens[0])
             translation_text_lens.append(tokens[0].shape[0])

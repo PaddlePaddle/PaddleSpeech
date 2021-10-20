@@ -14,6 +14,7 @@
 import io
 import os
 import re
+import sys
 from pathlib import Path
 import contextlib
 import inspect
@@ -31,10 +32,8 @@ HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 def pushd(new_dir):
     old_dir = os.getcwd()
     os.chdir(new_dir)
-    try:
-        yield
-    finally:
-        os.chdir(old_dir)
+    yield
+    os.chdir(old_dir)
 
 
 def read(*names, **kwargs):
@@ -43,7 +42,7 @@ def read(*names, **kwargs):
         return fp.read()
 
 
-def check_call(cmd: str, shell=True, executable=None):
+def check_call(cmd: str, shell=False, executable=None):
     try:
         sp.check_call(cmd.split(),
                       shell=shell,
@@ -53,49 +52,55 @@ def check_call(cmd: str, shell=True, executable=None):
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
             e.output,
             file=sys.stderr)
+        raise e
 
 
-def _pre_install():
+def _pre_install(install_lib_dir):
     # apt
-    check_call("apt-get update -y")
+    check_call("apt-get update -y", False)
     check_call("apt-get install -y " + 'vim tig tree sox pkg-config ' +
                'libsndfile1 libflac-dev libogg-dev ' +
-               'libvorbis-dev libboost-dev swig python3-dev ')
+               'libvorbis-dev libboost-dev swig python3-dev ', False)
+    print("apt install.")
     # tools/make
     tool_dir = HERE / "tools"
-    # for f in tool_dir.glob("*.done"):
-    #     f.unlink()
+    for f in tool_dir.glob("*.done"):
+        f.unlink()
     with pushd(tool_dir):
         check_call("make")
-
-
-def _post_install(install_lib_dir):
-    # ctcdecoder
-    ctcdecoder_dir = HERE/ 'deepspeech/decoders/ctcdecoder/swig'
-    with puahd(ctcdecoder_dir):
-        check_call("setup.sh")
-
-    # install third_party
-    third_party_dir = HERE / 'third_party'
-    with puahd(third_party_dir):
-        check_call("bash install.sh")
+    print("tools install.")
 
     # install autolog
     tools_extrs_dir = HERE / 'tools/extras'
-    with puahd(tools_extrs_dir):
-        check_call("bash install_autolog.sh")
+    with pushd(tools_extrs_dir):
+        check_call(f"bash -e install_autolog.sh")
+    print("autolog install.")
+
+    # ctcdecoder
+    ctcdecoder_dir = HERE/ 'deepspeech/decoders/ctcdecoder/swig'
+    with pushd(ctcdecoder_dir):
+        check_call("bash -e setup.sh")
+    print("ctcdecoder install.")
+
+
+def _post_install(install_lib_dir):
+    # install third_party
+    third_party_dir = HERE / 'third_party'
+    with pushd(third_party_dir):
+        check_call("bash -e install.sh")
+    print("third_party install.")
 
 
 class DevelopCommand(develop):
     def run(self):
-        _pre_install()
+        self.execute(_pre_install, (self.install_lib, ), msg="Pre Install...")
         develop.run(self)
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 
 class InstallCommand(install):
     def run(self):
-        _pre_install()
+        self.execute(_pre_install, (self.install_lib, ), msg="Pre Install...")
         install.run(self)
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 

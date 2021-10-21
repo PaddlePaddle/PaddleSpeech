@@ -85,7 +85,7 @@ sctk-$(SCTK_GITHASH).tar.gz:
 	if [ -d '$(DOWNLOAD_DIR)' ]; then \
 	  cp -p '$(DOWNLOAD_DIR)/sctk-$(SCTK_GITHASH).tar.gz' .; \
 	else \
-	  $($(WGET)) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
+	  $(WGET) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
 	    https://github.com/usnistgov/SCTK/archive/$(SCTK_GITHASH).tar.gz; \
 	fi
 

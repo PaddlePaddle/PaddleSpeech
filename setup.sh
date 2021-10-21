@@ -26,7 +26,7 @@ source tools/venv/bin/activate
 
 # install python dependencies
 if [ -f "requirements.txt" ]; then
-    pip3 install -r requirements.txt
+    pip3 install . 
 fi
 if [ $? != 0 ]; then
     error_msg "Install python dependencies failed !!!"

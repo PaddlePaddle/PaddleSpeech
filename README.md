@@ -4,6 +4,10 @@
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
+<p align="center">
+  <img src="./docs/images/PaddleSpeech_log.png"  />
+</p>
+
 > Notes: 1.Here place an icon/image as the logo at the beginning like PaddleOCR or PaddleNLP; 2. Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 3. **It is strongly recommended to refer to [PaddleHub](https://github.com/PaddlePaddle/PaddleHub) documents.**
 
 

@@ -354,7 +354,7 @@ def make_batchset(
     :param int batch_frames_out: maximum number of output frames in a minibatch.
     :param int batch_frames_out: maximum number of input+output frames in a minibatch.
     :param str count: strategy to count maximum size of batch.
-        For choices, see espnet.asr.batchfy.BATCH_COUNT_CHOICES
+        For choices, see io.batchfy.BATCH_COUNT_CHOICES
 
     :param int max_length_in: maximum length of input to decide adaptive batch size
     :param int max_length_out: maximum length of output to decide adaptive batch size

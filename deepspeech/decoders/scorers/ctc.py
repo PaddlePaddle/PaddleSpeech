@@ -15,8 +15,8 @@
 import numpy as np
 import paddle
 
-from .ctc_prefix_score import CTCPrefixScore
-from .ctc_prefix_score import CTCPrefixScorePD
+from .ctc_prefix_score import CTCPrefixScorer
+from .ctc_prefix_score import CTCPrefixScorerPD
 from .scorer_interface import BatchPartialScorerInterface
 
 

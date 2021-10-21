@@ -8,9 +8,9 @@
 <div align="center">  
 
   <h3> 
-  <a href="https://github.com/Mingxue-Xu/DeepSpeech#getting-started"> Getting Started </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#guidelines-of-pipeline"> Tutorials </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#example-overview"> Models List </a> 
+  <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a> 
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a> 
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a> 
   
 </div>
   
@@ -19,8 +19,7 @@
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
-> Notes: 1.Here place an icon/image as the logo at the beginning like PaddleOCR or PaddleNLP; 2. Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document? 3. **It is strongly recommended to refer to [PaddleHub](https://github.com/PaddlePaddle/PaddleHub) documents.**
-
+> Notes: Is there any idea to add [Parakeet logo](https://github.com/PaddlePaddle/Parakeet/blob/develop/docs/images/logo.png) into this .md document?
 
 <!---
 why they should use your module, 
@@ -35,9 +34,9 @@ how they can use it
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Installation](#installation)
-- [Getting Started](#getting-started)
-- [Example Overview](#example-overview)
-- [Guidelines of Pipeline](#guidelines-of-pipeline)
+- [Quick Start](#quick-start)
+- [Models List](#models-list)
+- [Tutorials](#tutorials)
 - [FAQ and Contributing](#faq-and-contributing)
 - [License](#license)
 - [Acknowledgement](#acknowledgement)
@@ -73,7 +72,7 @@ The features of **TTS** are summarized as follows:
 <!---
 Reference docs/source/tts/introduction.md
 -->
-- **Text FrontEnd**: Rule based Chinese frontend.
+- **Text FrontEnd**: Rule based *Chinese* frontend.
 - **Acoustic Models**: FastSpeech2, SpeedySpeech, TransformerTTS, Tacotron2
 - **Vocoders**: Parallel WaveGAN, WaveFlow
 - **Voice Cloning**: Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis, GE2E
@@ -89,33 +88,44 @@ Base environment:
 
 Please see the [ASR installation](docs/source/asr/install.md) and [TTS installation](docs/source/tts/install.md) documents for all the alternatives.
 
-## Getting Started
+## Quick Start
 
 Please see [ASR getting started](docs/source/asr/getting_started.md) ([tiny test](examples/tiny/s0/README.md)) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
 
-## Example Overview
+## Models List
+
+PaddleSpeech ASR supports a lot of mainstream models. For more information, please refer to [ASRModels](./docs/source/asr/released_model.md).
 
 <!---
-1.The current hyperlink of parallelwave_gan-ljspeech is not correct.
-2.This table needs to be fulfilled later.
+The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
 -->
 
-| Task | Models           | Dataset  | Performance Summary | Link |
-| ---- | ---------------- | -------- | ------------------- | ---- |
-| ASR  | Ds2              | Aishell  | ...                 | [Ds2 Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz)      |
-| TTS  | Parallel WaveGAN | LJSpeech | ...                 | [parallelwave_gan-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech)     |
+PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Models for each are listed as follow:
+
+| Type                  | Dataset   | Model Type            | Link                                                                                                                  |
+| --------------------- | --------- | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Vocoder               | LJSpeech  | Parallel WaveGAN      | [pwGAN-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech) |
+| Vocoder               | CSMSC     | Parallel WaveGAN      | [pwGAN-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/baker)       |
+| Vocoder               | LJSpeech  | WaveFlow              | [waveflow-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/waveflow)                          |
+| Acoustic Model        | LJSpeech  | FastSpeech2/FastPitch | [fastspeech2-ljspeech](https://github.com/PaddlePaddle/Parakeet/blob/develop/examples/fastspeech2/ljspeech)           |
+| Acoustic Model        |  LJSpeech  | TransformerTTS        | [transformer-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/transformer_tts/ljspeech)       |
+| Acoustic Model        | AISHELL-3 | FastSpeech2/FastPitch | [fastspeech2-aishell3](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/aishell3)           |
+| Acoustic Model        | CSMSC     | FastSpeech2/FastPitch | [fastspeech2-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/baker)                 |
+| Acoustic Model        | CSMSC     | Speedyspeech          | [speedyspeech-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/speedyspeech/baker)               |
+| Chinese Text Frontend | BZNSYP    | g2p                   | [chinese-fronted](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/text_frontend)                       |
 
 
-For more detailed description, please refer to [ASR released models](docs/source/asr/released_model.md) and [TTS released models](docs/source/tts/released_models.md) 
+## Tutorials 
 
-
-## Guidelines of Pipeline  
+More background information for ASR, please refer to:
 
 * [Data Prepration](docs/source/asr/data_preparation.md)  
 * [Data Augmentation](docs/source/asr/augmentation.md)  
 * [Ngram LM](docs/source/asr/ngram_lm.md)  
 * [Benchmark](docs/source/asr/benchmark.md)  
 * [Relased Model](docs/source/asr/released_model.md)  
+
+For TTS, [TTS Document](https://paddleparakeet.readthedocs.io/en/latest/) is a good guideline.
 
 
 ## FAQ and Contributing
@@ -132,6 +142,6 @@ DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 DeepSpeech depends on many open source repos. See [References](docs/source/asr/reference.md) for more information.
 
-<code> **Updates on 2021/10/20**: This [README.md](README.md) outline is not completed, especially *from section **Getting Started***. Besides, this document needs to be further adjusted with reference to PaddleHub. </code>
+<code> **Updates on 2021/10/21**: This [README.md](README.md) outline is not completed, especially *from section **Quick Start***.</code>
 
 

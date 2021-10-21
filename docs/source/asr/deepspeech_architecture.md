@@ -14,9 +14,10 @@ In addition, the training process and the testing process are also introduced.
 The arcitecture of the model is shown in Fig.1.
 
 <p align="center">
-<img src="../images/ds2onlineModel.png" width=800>
+<img src="../../images/ds2onlineModel.png" width=800>
 <br/>Fig.1 The Arcitecture of deepspeech2 online model
 </p>
+
 
 ### Data Preparation
 #### Vocabulary
@@ -130,7 +131,7 @@ By using the command above, the training process can be started. There are 5 sta
 Using the command below, you can test the deepspeech2 online model.
  ```
  bash run.sh --stage 3 --stop_stage 5 --model_type online --conf_path conf/deepspeech2_online.yaml
-```
+ ```
 The detail commands are:
 ```
 conf_path=conf/deepspeech2_online.yaml
@@ -152,7 +153,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # test export ckpt avg_n
     CUDA_VISIBLE_DEVICES=0 ./local/test_export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}|| exit -1
 fi
- ```
+```
 After the training process, we use stage 3,4,5 for testing process. The stage 3 is for testing the model generated in the stage 2 and provided the CER index of the test set. The stage 4 is for transforming the model from dynamic graph to static graph by using "paddle.jit" library. The stage 5 is for testing the model in static graph.
 
 
@@ -161,9 +162,10 @@ The deepspeech2 offline model is similarity to the deepspeech2 online model. The
 
 The arcitecture of the model is shown in Fig.2.
 <p align="center">
-<img src="../images/ds2offlineModel.png" width=800>
+<img src="../../images/ds2offlineModel.png" width=800>
 <br/>Fig.2 The Arcitecture of deepspeech2 offline model
 </p>
+
 
 
 
@@ -182,7 +184,7 @@ For training and testing, the "model_type" and the "conf_path" must be set.
 # Training offline
 cd examples/aishell/s0
 bash run.sh --stage 0 --stop_stage 2 --model_type offline --conf_path conf/deepspeech2.yaml
-```
+ ```
 ```
 # Testing offline
 cd examples/aishell/s0

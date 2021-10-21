@@ -11,43 +11,81 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Evaluation for DeepSpeech2 model."""
+"""Evaluation for U2 model."""
+import cProfile
 import os
 import sys
-from pathlib import Path
 
 import paddle
 import soundfile
 
-from deepspeech.exps.deepspeech2.config import get_cfg_defaults
+from deepspeech.exps.u2.config import get_cfg_defaults
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.io.collator import SpeechCollator
-from deepspeech.models.ds2 import DeepSpeech2Model
-from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
+from deepspeech.models.u2 import U2Model
 from deepspeech.training.cli import default_argument_parser
+from deepspeech.training.trainer import Trainer
+from deepspeech.utils import layer_tools
 from deepspeech.utils import mp_tools
-from deepspeech.utils.checkpoint import Checkpoint
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import print_arguments
 from deepspeech.utils.utility import UpdateConfig
-
 logger = Log(__name__).getlog()
 
+# TODO(hui zhang): dynamic load
 
-class DeepSpeech2Tester_hub():
+
+class U2Tester_Hub(Trainer):
     def __init__(self, config, args):
+        # super().__init__(config, args)
         self.args = args
         self.config = config
         self.audio_file = args.audio_file
         self.collate_fn_test = SpeechCollator.from_config(config)
         self._text_featurizer = TextFeaturizer(
-            unit_type=config.collator.unit_type, vocab_filepath=None)
+            unit_type=config.collator.unit_type,
+            vocab_filepath=None,
+            spm_model_prefix=config.collator.spm_model_prefix)
 
-    def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
+    def setup_model(self):
+        config = self.config
+        model_conf = config.model
+
+        with UpdateConfig(model_conf):
+            model_conf.input_dim = self.collate_fn_test.feature_size
+            model_conf.output_dim = self.collate_fn_test.vocab_size
+
+        model = U2Model.from_config(model_conf)
+
+        if self.parallel:
+            model = paddle.DataParallel(model)
+
+        logger.info(f"{model}")
+        layer_tools.print_params(model, logger.info)
+
+        self.model = model
+        logger.info("Setup model")
+
+    @mp_tools.rank_zero_only
+    @paddle.no_grad()
+    def test(self):
+        self.model.eval()
+        cfg = self.config.decoding
+        audio_file = self.audio_file
+        collate_fn_test = self.collate_fn_test
+        audio, _ = collate_fn_test.process_utterance(
+            audio_file=audio_file, transcript="Hello")
+        audio_len = audio.shape[0]
+        audio = paddle.to_tensor(audio, dtype='float32')
+        audio_len = paddle.to_tensor(audio_len)
+        audio = paddle.unsqueeze(audio, axis=0)
+        vocab_list = collate_fn_test.vocab_list
+
+        text_feature = self.collate_fn_test.text_feature
         result_transcripts = self.model.decode(
             audio,
             audio_len,
-            vocab_list,
+            text_feature=text_feature,
             decoding_method=cfg.decoding_method,
             lang_model_path=cfg.lang_model_path,
             beam_alpha=cfg.alpha,
@@ -55,92 +93,33 @@ class DeepSpeech2Tester_hub():
             beam_size=cfg.beam_size,
             cutoff_prob=cfg.cutoff_prob,
             cutoff_top_n=cfg.cutoff_top_n,
-            num_processes=cfg.num_proc_bsearch)
-        #replace the '<space>' with ' '
-        result_transcripts = [
-            self._text_featurizer.detokenize2(sentence)
-            for sentence in result_transcripts
-        ]
-
-        return result_transcripts
-
-    @mp_tools.rank_zero_only
-    @paddle.no_grad()
-    def test(self):
-        self.model.eval()
-        cfg = self.config
-        audio_file = self.audio_file
-        collate_fn_test = self.collate_fn_test
-        audio, _ = collate_fn_test.process_utterance(
-            audio_file=audio_file, transcript=" ")
-        audio_len = audio.shape[0]
-        audio = paddle.to_tensor(audio, dtype='float32')
-        audio_len = paddle.to_tensor(audio_len)
-        audio = paddle.unsqueeze(audio, axis=0)
-        vocab_list = collate_fn_test.vocab_list
-        result_transcripts = self.compute_result_transcripts(
-            audio, audio_len, vocab_list, cfg.decoding)
-        logger.info("result_transcripts: " + result_transcripts[0])
+            num_processes=cfg.num_proc_bsearch,
+            ctc_weight=cfg.ctc_weight,
+            decoding_chunk_size=cfg.decoding_chunk_size,
+            num_decoding_left_chunks=cfg.num_decoding_left_chunks,
+            simulate_streaming=cfg.simulate_streaming)
+        logger.info("The result_transcripts: " + result_transcripts[0])
 
     def run_test(self):
         self.resume()
         try:
             self.test()
         except KeyboardInterrupt:
-            exit(-1)
+            sys.exit(-1)
 
     def setup(self):
         """Setup the experiment.
         """
         paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
 
-        self.setup_output_dir()
-        self.setup_checkpointer()
+        #self.setup_output_dir()
+        #self.setup_checkpointer()
 
+        #self.setup_dataloader()
         self.setup_model()
 
-    def setup_output_dir(self):
-        """Create a directory used for output.
-        """
-        # output dir
-        if self.args.output:
-            output_dir = Path(self.args.output).expanduser()
-            output_dir.mkdir(parents=True, exist_ok=True)
-        else:
-            output_dir = Path(
-                self.args.checkpoint_path).expanduser().parent.parent
-            output_dir.mkdir(parents=True, exist_ok=True)
-        self.output_dir = output_dir
-
-    def setup_model(self):
-        config = self.config.clone()
-        with UpdateConfig(config):
-            config.model.feat_size = self.collate_fn_test.feature_size
-            config.model.dict_size = self.collate_fn_test.vocab_size
-
-        if self.args.model_type == 'offline':
-            model = DeepSpeech2Model.from_config(config.model)
-        elif self.args.model_type == 'online':
-            model = DeepSpeech2ModelOnline.from_config(config.model)
-        else:
-            raise Exception("wrong model type")
-
-        self.model = model
-
-    def setup_checkpointer(self):
-        """Create a directory used to save checkpoints into.
-
-        It is "checkpoints" inside the output directory.
-        """
-        # checkpoint dir
-        checkpoint_dir = self.output_dir / "checkpoints"
-        checkpoint_dir.mkdir(exist_ok=True)
-
-        self.checkpoint_dir = checkpoint_dir
-
-        self.checkpoint = Checkpoint(
-            kbest_n=self.config.training.checkpoint.kbest_n,
-            latest_n=self.config.training.checkpoint.latest_n)
+        self.iteration = 0
+        self.epoch = 0
 
     def resume(self):
         """Resume from the checkpoint at checkpoints in the output
@@ -166,7 +145,7 @@ def check(audio_file):
 
 
 def main_sp(config, args):
-    exp = DeepSpeech2Tester_hub(config, args)
+    exp = U2Tester_Hub(config, args)
     exp.setup()
     exp.run_test()
 
@@ -177,23 +156,20 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument("--model_type")
-    parser.add_argument("--audio_file")
     # save asr result to
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
+    parser.add_argument(
+        "--audio_file", type=str, help="path of the input audio file")
     args = parser.parse_args()
     print_arguments(args, globals())
-    if args.model_type is None:
-        args.model_type = 'offline'
+
     if not os.path.isfile(args.audio_file):
-        print("Please input the audio file path")
+        print("Please input the right audio file path")
         sys.exit(-1)
     check(args.audio_file)
-    print("model_type:{}".format(args.model_type))
-
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults(args.model_type)
+    config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
     if args.opts:
@@ -204,4 +180,7 @@ if __name__ == "__main__":
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
 
-    main(config, args)
+    # Setting for profiling
+    pr = cProfile.Profile()
+    pr.runcall(main, config, args)
+    pr.dump_stats('test.profile')

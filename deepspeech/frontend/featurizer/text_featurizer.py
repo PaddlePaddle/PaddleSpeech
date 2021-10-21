@@ -63,6 +63,11 @@ class TextFeaturizer():
             tokens = self.spm_tokenize(text)
         return tokens
 
+    def detokenize2(self, tokens):
+        if self.unit_type == 'char':
+            text = self.char_detokenize2(tokens)
+        return text
+
     def detokenize(self, tokens):
         if self.unit_type == 'char':
             text = self.char_detokenize(tokens)
@@ -123,6 +128,18 @@ class TextFeaturizer():
             text_list = list(text)
         return text_list
 
+    def char_detokenize2(self, tokens):
+        """Character detokenizer.
+
+        Args:
+            tokens (str): tokens.
+
+        Returns:
+           str: text string.
+        """
+        tokens = tokens.replace(SPACE, " ")
+        return tokens
+
     def char_detokenize(self, tokens):
         """Character detokenizer.
 
@@ -132,7 +149,7 @@ class TextFeaturizer():
         Returns:
            str: text string.
         """
-        tokens = tokens.replace(SPACE, " ")
+        tokens = [token.replace(SPACE, " ") for token in tokens]
         return "".join(tokens)
 
     def word_tokenize(self, text):

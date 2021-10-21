@@ -28,12 +28,15 @@ import subprocess as sp
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
+
 @contextlib.contextmanager
 def pushd(new_dir):
     old_dir = os.getcwd()
     os.chdir(new_dir)
+    print(new_dir)
     yield
     os.chdir(old_dir)
+    print(old_dir)
 
 
 def read(*names, **kwargs):
@@ -55,17 +58,22 @@ def check_call(cmd: str, shell=False, executable=None):
         raise e
 
 
-def _pre_install(install_lib_dir):
+def _remove(files: str):
+    for f in files:
+        f.unlink()
+
+
+def _post_install(install_lib_dir):
     # apt
-    check_call("apt-get update -y", False)
+    check_call("apt-get update -y")
     check_call("apt-get install -y " + 'vim tig tree sox pkg-config ' +
                'libsndfile1 libflac-dev libogg-dev ' +
-               'libvorbis-dev libboost-dev swig python3-dev ', False)
+               'libvorbis-dev libboost-dev swig python3-dev ')
     print("apt install.")
+
     # tools/make
     tool_dir = HERE / "tools"
-    for f in tool_dir.glob("*.done"):
-        f.unlink()
+    _remove(tool_dir.glob("*.done"))
     with pushd(tool_dir):
         check_call("make")
     print("tools install.")
@@ -73,17 +81,16 @@ def _pre_install(install_lib_dir):
     # install autolog
     tools_extrs_dir = HERE / 'tools/extras'
     with pushd(tools_extrs_dir):
-        check_call(f"bash -e install_autolog.sh")
+        print(os.getcwd())
+        check_call(f"./install_autolog.sh")
     print("autolog install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE/ 'deepspeech/decoders/ctcdecoder/swig'
+    ctcdecoder_dir = HERE / 'deepspeech/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
 
-
-def _post_install(install_lib_dir):
     # install third_party
     third_party_dir = HERE / 'third_party'
     with pushd(third_party_dir):
@@ -93,15 +100,15 @@ def _post_install(install_lib_dir):
 
 class DevelopCommand(develop):
     def run(self):
-        self.execute(_pre_install, (self.install_lib, ), msg="Pre Install...")
         develop.run(self)
+        # must after develop.run, or pkg install by shell will not see
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 
 class InstallCommand(install):
     def run(self):
-        self.execute(_pre_install, (self.install_lib, ), msg="Pre Install...")
         install.run(self)
+        # must after install.run, or pkg install by shell will not see
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 

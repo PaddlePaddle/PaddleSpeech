@@ -2,6 +2,7 @@
 
 #install auto-log
 echo "Install auto_log into default system path"
+rm -rf AutoLog || true
 test -d AutoLog || git clone https://github.com/LDOUBLEV/AutoLog
 if [ $? != 0 ]; then
     error_msg "Download auto_log failed !!!"
@@ -9,8 +10,8 @@ if [ $? != 0 ]; then
 fi
 
 pushd AutoLog
-pip install -r requirements.txt
-python setup.py install
+pip3 install -r requirements.txt
+python3 setup.py install
 popd
 
-rm -rf AutoLog
+rm -rf AutoLog || true

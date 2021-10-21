@@ -102,7 +102,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 
 PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Models for each are listed as follow:
 
-| Type                  | Dataset   | Model Type            | Link                                                                                                                  |
+| TTS Module Type                  | Dataset   | Model Type            | Link                                                                                                                  |
 | --------------------- | --------- | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Vocoder               | LJSpeech  | Parallel WaveGAN      | [pwGAN-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech) |
 | Vocoder               | CSMSC     | Parallel WaveGAN      | [pwGAN-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/baker)       |
@@ -125,7 +125,7 @@ More background information for ASR, please refer to:
 * [Benchmark](docs/source/asr/benchmark.md)  
 * [Relased Model](docs/source/asr/released_model.md)  
 
-For TTS, [TTS Document](https://paddleparakeet.readthedocs.io/en/latest/) is a good guideline.
+For TTS, [this document](https://paddleparakeet.readthedocs.io/en/latest/) is a good guideline.
 
 
 ## FAQ and Contributing

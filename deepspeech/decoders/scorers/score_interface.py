@@ -145,9 +145,11 @@ class PartialScorerInterface(ScorerInterface):
     and receives pre-pruned next tokens to score because it is too heavy to score
     all the tokens.
 
+    Score sub-set of tokens, not all.
+
     Examples:
          * Prefix search for connectionist-temporal-classification models
-             * :class:`espnet.nets.scorers.ctc.CTCPrefixScorer`
+             * :class:`decoders.scorers.ctc.CTCPrefixScorer`
 
     """
 

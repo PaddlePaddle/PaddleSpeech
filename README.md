@@ -102,19 +102,79 @@ PaddleSpeech ASR supports a lot of mainstream models. For more information, plea
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
 -->
 
-PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Models for each are listed as follow:
+PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 
-| TTS Module Type                  | Dataset   | Model Type            | Link                                                                                                                  |
-| --------------------- | --------- | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Vocoder               | LJSpeech  | Parallel WaveGAN      | [pwGAN-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech) |
-| Vocoder               | CSMSC     | Parallel WaveGAN      | [pwGAN-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/baker)       |
-| Vocoder               | LJSpeech  | WaveFlow              | [waveflow-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/waveflow)                          |
-| Acoustic Model        | LJSpeech  | FastSpeech2/FastPitch | [fastspeech2-ljspeech](https://github.com/PaddlePaddle/Parakeet/blob/develop/examples/fastspeech2/ljspeech)           |
-| Acoustic Model        |  LJSpeech  | TransformerTTS        | [transformer-ljspeech](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/transformer_tts/ljspeech)       |
-| Acoustic Model        | AISHELL-3 | FastSpeech2/FastPitch | [fastspeech2-aishell3](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/aishell3)           |
-| Acoustic Model        | CSMSC     | FastSpeech2/FastPitch | [fastspeech2-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/baker)                 |
-| Acoustic Model        | CSMSC     | Speedyspeech          | [speedyspeech-csmsc](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/speedyspeech/baker)               |
-| Chinese Text Frontend | BZNSYP    | g2p                   | [chinese-fronted](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/text_frontend)                       |
+<table>
+  <thead>
+    <tr>
+      <th>TTS Module Type</th>
+      <th>Model Type</th>
+      <th>Dataset</th>
+      <th>Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="6">Acoustic Model</td>
+      <td >Tacotron2</td>
+      <td rowspan="2" >LJSpeech</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/vctk">tacotron2-vctk</a>
+      </td>
+    </tr>
+    <tr>
+      <td>TransformerTTS</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/transformer_tts/ljspeech">transformer-ljspeech</a>
+      </td>
+    </tr>
+    <tr>
+      <td>SpeedySpeech</td>
+      <td>CSMSC</td>
+      <td >
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/speedyspeech/baker">speedyspeech-csmsc</a>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="3">FastSpeech2</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/aishell3">fastspeech2-aishell3</a>
+      </td>
+    </tr>
+      <tr>
+      <td>VCTK</td>
+      <td> <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/vctk">fastspeech2-vctk</a> </td>
+    </tr>
+    <tr>
+      <td>CSMSC</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/baker">fastspeech2-csmsc</a>
+      </td>
+    </tr>
+   <tr>
+      <td rowspan="3">Vocoder</td>
+      <td >WaveFlow</td>
+      <td >LJSpeech</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/ljspeech">waveflow-ljspeech</a>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="2">Parallel WaveGAN</td>
+      <td >LJSpeech</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/fastspeech2/baker">pwGAN-ljspeech</a>
+      </td>
+    </tr>
+    <tr>
+      <td >CSMSC</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/GANVocoder/parallelwave_gan/baker">pwGAN-csmsc</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 ## Tutorials 

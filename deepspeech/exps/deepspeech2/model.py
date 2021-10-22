@@ -341,11 +341,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             cutoff_prob=cfg.cutoff_prob,
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
-        #replace the <space> with ' '
-        result_transcripts = [
-            self._text_featurizer.detokenize(sentence)
-            for sentence in result_transcripts
-        ]
 
         self.autolog.times.stamp()
         self.autolog.times.stamp()

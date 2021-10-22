@@ -5,9 +5,9 @@ data:
   test_manifest: data/manifest.test-clean
 
 collator:
-  vocab_filepath: data/train_960_unigram5000_units.txt
-  unit_type: 'spm'
-  spm_model_prefix: 'data/train_960_unigram5000'
+  vocab_filepath: data/bpe_unigram_5000_units.txt
+  unit_type: spm
+  spm_model_prefix: data/bpe_unigram_5000
   feat_dim: 83
   stride_ms: 10.0
   window_ms: 25.0

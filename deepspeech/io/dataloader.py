@@ -142,6 +142,15 @@ class BatchDataLoader():
             collate_fn=batch_collate,
             num_workers=self.n_iter_processes, )
 
+    def __len__(self):
+        return len(self.dataloader)
+
+    def __iter__(self):
+        return self.dataloader.__iter__()
+
+    def __call__(self):
+        return self.__iter__()
+
     def __repr__(self):
         echo = f"<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}> "
         echo += f"train_mode: {self.train_mode}, "
@@ -159,12 +168,3 @@ class BatchDataLoader():
         echo += f"num_workers: {self.n_iter_processes}, "
         echo += f"file: {self.json_file}"
         return echo
-
-    def __len__(self):
-        return len(self.dataloader)
-
-    def __iter__(self):
-        return self.dataloader.__iter__()
-
-    def __call__(self):
-        return self.__iter__()

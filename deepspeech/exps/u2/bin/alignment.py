@@ -20,8 +20,9 @@ from deepspeech.utils.utility import print_arguments
 
 def main_sp(config, args):
     exp = Tester(config, args)
-    exp.setup()
-    exp.run_align()
+    with exp.eval():
+        exp.setup()
+        exp.run_align()
 
 
 def main(config, args):

@@ -63,7 +63,7 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
         mkdir -p ${feat_recog_dir}
 
         # split data
-        split_json.sh ${feat_recog_dir}/manifest.${rtask} ${nj}
+        split_json.sh ${datadir}/manifest.${rtask} ${nj}
 
         #### use CPU for decoding
         ngpu=0
@@ -83,17 +83,16 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
             --opts decoding.batch_size ${batch_size} \
             --opts data.test_manifest ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask}
 
-        score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel}.model --wer true ${expdir}/${decode_dir} ${dict}
+        score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel} --wer false ${expdir}/${decode_dir} ${dict}
 
     ) &
     pids+=($!) # store background pids
+    i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
+    [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." || true
     done
-) &
-pids+=($!) # store background pids
+)
 done
 
-i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
-[ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
 echo "Finished"
 
 exit 0

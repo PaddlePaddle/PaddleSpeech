@@ -4,11 +4,11 @@ data:
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test-clean
   min_input_len: 0.5  # seconds
-  max_input_len: 20.0 # seconds
+  max_input_len: 30.0 # seconds
   min_output_len: 0.0 # tokens
   max_output_len: 400.0 # tokens
   min_output_input_ratio: 0.05
-  max_output_input_ratio: 10.0
+  max_output_input_ratio: 100.0
 
 collator:
   vocab_filepath: data/vocab.txt 
@@ -16,7 +16,7 @@ collator:
   spm_model_prefix: 'data/bpe_unigram_5000'
   mean_std_filepath: ""
   augmentation_config: conf/augmentation.json
-  batch_size: 32
+  batch_size: 16
   raw_wav: True  # use raw_wav or kaldi feature
   spectrum_type: fbank #linear, mfcc, fbank
   feat_dim: 80
@@ -80,7 +80,7 @@ model:
 
 training:
   n_epoch: 120
-  accum_grad: 4
+  accum_grad: 8
   global_grad_clip: 3.0
   optim: adam
   optim_conf:

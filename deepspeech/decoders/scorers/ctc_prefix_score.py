@@ -6,7 +6,7 @@ import paddle
 import six
 
 
-class CTCPrefixScorerPD():
+class CTCPrefixScorePD():
     """Batch processing of CTCPrefixScore
 
     which is based on Algorithm 2 in WATANABE et al.
@@ -267,7 +267,7 @@ class CTCPrefixScorerPD():
             return (r_prev_new, s_prev, f_min_prev, f_max_prev)
 
 
-class CTCPrefixScorer():
+class CTCPrefixScore():
     """Compute CTC label sequence scores
 
     which is based on Algorithm 2 in WATANABE et al.

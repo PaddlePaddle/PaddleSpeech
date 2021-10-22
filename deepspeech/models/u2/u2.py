@@ -50,7 +50,7 @@ from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.utility import log_add
 from deepspeech.utils.utility import UpdateConfig
 from deepspeech.models.asr_interface import ASRInterface
-from deepspeech.decoders.scorers.ctc_prefix_score import CTCPrefixScorer
+from deepspeech.decoders.scorers.ctc import CTCPrefixScorer
 
 __all__ = ["U2Model", "U2InferModel"]
 

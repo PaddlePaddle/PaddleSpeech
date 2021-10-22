@@ -233,7 +233,7 @@ def is_broadcastable(shp1, shp2):
 def masked_fill(xs: paddle.Tensor,
                 mask: paddle.Tensor,
                 value: Union[float, int]):
-    assert is_broadcastable(xs.shape, mask.shape) is True
+    assert is_broadcastable(xs.shape, mask.shape) is True, (xs.shape, mask.shape)
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value
@@ -312,18 +312,18 @@ if not hasattr(paddle.Tensor, 'type_as'):
 
 
 def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
-    assert len(args) == 1
-    if isinstance(args[0], str):  # dtype
-        return x.astype(args[0])
-    elif isinstance(args[0], paddle.Tensor):  #Tensor
-        return x.astype(args[0].dtype)
-    else:  # Device
-        return x
+   assert len(args) == 1
+   if isinstance(args[0], str):  # dtype
+       return x.astype(args[0])
+   elif isinstance(args[0], paddle.Tensor):  # Tensor
+       return x.astype(args[0].dtype)
+   else:  # Device
+       return x
 
 
 if not hasattr(paddle.Tensor, 'to'):
-    logger.debug("register user to to paddle.Tensor, remove this when fixed!")
-    setattr(paddle.Tensor, 'to', to)
+   logger.debug("register user to to paddle.Tensor, remove this when fixed!")
+   setattr(paddle.Tensor, 'to', to)
 
 
 def func_float(x: paddle.Tensor) -> paddle.Tensor:

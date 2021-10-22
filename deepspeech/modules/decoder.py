@@ -28,7 +28,7 @@ from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.mask import make_xs_mask
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
-from deepspeech.decoders.scorers.score_interface import BatchScorerInterface
+from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -191,8 +191,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         ys: (ylen,)
         x: (xlen, n_feat)
         """
-        ys_mask = subsequent_mask(len(ys)).unsqueeze(0)
-        x_mask = make_xs_mask(x.unsqueeze(0))
+        ys_mask = subsequent_mask(len(ys)).unsqueeze(0) # (B,L,L)
+        x_mask = make_xs_mask(x.unsqueeze(0)).unsqueeze(1) # (B,1,T)
         if self.selfattention_layer_type != "selfattn":
             # TODO(karita): implement cache
             logging.warning(
@@ -237,9 +237,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0)
-
-        xs_mask = make_xs_mask(xs)
+        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0) # (B,L,L)
+        xs_mask = make_xs_mask(xs).unsqueeze(1) # (B,1,T)
         logp, states = self.forward_one_step(xs, xs_mask, ys, ys_mask, cache=batch_state)
 
         # transpose state of [layer, batch] into [batch, layer]

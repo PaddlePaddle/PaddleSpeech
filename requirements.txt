@@ -40,3 +40,4 @@ pyworld
 jieba
 phkit
 yq
+ConfigArgParse

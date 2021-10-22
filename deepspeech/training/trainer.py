@@ -126,7 +126,7 @@ class Trainer():
             logger.info(f"Set seed {args.seed}")
 
         # profiler and benchmark options
-        if self.args.benchmark_batch_size:
+        if hasattr(self.args, "benchmark_batch_size") and self.args.benchmark_batch_size:
             with UpdateConfig(self.config):
                 self.config.collator.batch_size = self.args.benchmark_batch_size
                 self.config.training.log_interval = 1
@@ -326,12 +326,25 @@ class Trainer():
         finally:
             self.destory()
 
+    def restore(self):
+        """Resume from latest checkpoint at checkpoints in the output
+        directory or load a specified checkpoint.
+
+        If ``args.checkpoint_path`` is not None, load the checkpoint, else
+        resume training.
+        """
+        assert self.args.checkpoint_path
+        infos = self.checkpoint.load_latest_parameters(
+            self.model,
+            checkpoint_path=self.args.checkpoint_path)
+        return infos
+
     def run_test(self):
         """Do Test/Decode"""
         try:
             with Timer("Test/Decode Done: {}"):
                 with self.eval():
-                    self.resume_or_scratch()
+                    self.restore()
                     self.test()
         except KeyboardInterrupt:
             exit(-1)
@@ -341,6 +354,7 @@ class Trainer():
         try:
             with Timer("Export Done: {}"):
                 with self.eval():
+                    self.restore()
                     self.export()
         except KeyboardInterrupt:
             exit(-1)
@@ -350,7 +364,7 @@ class Trainer():
         try:
             with Timer("Align Done: {}"):
                 with self.eval():
-                    self.resume_or_scratch()
+                    self.restore()
                     self.align()
         except KeyboardInterrupt:
             sys.exit(-1)

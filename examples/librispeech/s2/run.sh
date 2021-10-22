@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 . ./path.sh || exit 1;
@@ -7,8 +8,9 @@ set -e
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
-dict_path=data/train_960_unigram5000_units.txt
+dict_path=data/bpe_unigram_5000_units.txt
 avg_num=10
+
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}

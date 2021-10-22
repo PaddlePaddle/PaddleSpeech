@@ -6,7 +6,7 @@ expdir=exp
 datadir=data
 nj=32
 
-lmtag=
+lmtag='nolm'
 
 recog_set="test-clean test-other dev-clean dev-other"
 recog_set="test-clean"
@@ -29,11 +29,18 @@ config_path=$1
 dict=$2
 ckpt_prefix=$3
 
+
+ckpt_dir=$(dirname `dirname ${ckpt_prefix}`)
+echo "ckpt dir: ${ckpt_dir}"
+
+ckpt_tag=$(basename ${ckpt_prefix})
+echo "ckpt tag: ${ckpt_tag}"
+
 chunk_mode=false
 if [[ ${config_path} =~ ^.*chunk_.*yaml$ ]];then
     chunk_mode=true
 fi
-echo "chunk mode ${chunk_mode}"
+echo "chunk mode: ${chunk_mode}"
 
 
 # download language model
@@ -46,11 +53,13 @@ pids=() # initialize pids
 
 for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
 (
+    echo "decode method: ${dmethd}"
     for rtask in ${recog_set}; do
     (
-        decode_dir=decode_${rtask}_${dmethd}_$(basename ${config_path%.*})_${lmtag}
+        echo "dataset: ${rtask}"
+        decode_dir=${ckpt_dir}/decode/decode_${rtask/-/_}_${dmethd}_$(basename ${config_path%.*})_${lmtag}_${ckpt_tag}
         feat_recog_dir=${datadir}
-        mkdir -p ${expdir}/${decode_dir}
+        mkdir -p ${decode_dir}
         mkdir -p ${feat_recog_dir}
 
         # split data
@@ -61,7 +70,7 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
 
         # set batchsize 0 to disable batch decoding
         batch_size=1
-        ${decode_cmd} JOB=1:${nj} ${expdir}/${decode_dir}/log/decode.JOB.log \
+        ${decode_cmd} JOB=1:${nj} ${decode_dir}/log/decode.JOB.log \
             python3 -u ${BIN_DIR}/test.py \
             --model-name u2_kaldi \
             --run-mode test \
@@ -69,7 +78,7 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
             --dict-path ${dict} \
             --config ${config_path} \
             --checkpoint_path ${ckpt_prefix} \
-            --result-file ${expdir}/${decode_dir}/data.JOB.json \
+            --result-file ${decode_dir}/data.JOB.json \
             --opts decoding.decoding_method ${dmethd} \
             --opts decoding.batch_size ${batch_size} \
             --opts data.test_manifest ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask}

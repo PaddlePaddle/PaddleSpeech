@@ -21,6 +21,7 @@
 #include "path_trie.h"
 
 const std::string kSPACE = "<space>";
+const std::string tSPACE = " ";
 const float NUM_FLT_INF = std::numeric_limits<float>::max();
 const float NUM_FLT_MIN = std::numeric_limits<float>::min();
 

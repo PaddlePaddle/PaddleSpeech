@@ -56,10 +56,6 @@ class DeepSpeech2Tester_hub():
             cutoff_prob=cfg.cutoff_prob,
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
-        #replace the '<space>' with ' '
-        result_transcripts = [
-            sentence.replace("<space>", " ") for sentence in result_transcripts
-        ]
 
         return result_transcripts
 

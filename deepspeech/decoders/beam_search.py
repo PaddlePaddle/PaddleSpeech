@@ -1,7 +1,6 @@
 """Beam search module."""
 
 from itertools import chain
-import logger
 from typing import Any
 from typing import Dict
 from typing import List
@@ -141,7 +140,7 @@ class BeamSearch(paddle.nn.Layer):
         ]
 
     @staticmethod
-    def append_token(xs: paddle.Tensor, x: int) -> paddle.Tensor:
+    def append_token(xs: paddle.Tensor, x: Union[int, paddle.Tensor]) -> paddle.Tensor:
         """Append new token to prefix tokens.
 
         Args:
@@ -152,8 +151,8 @@ class BeamSearch(paddle.nn.Layer):
             paddle.Tensor: (T+1,), New tensor contains: xs + [x] with xs.dtype and xs.device
 
         """
-        x = paddle.to_tensor([x], dtype=xs.dtype, place=xs.place)
-        return paddle.cat((xs, x))
+        x = paddle.to_tensor([x], dtype=xs.dtype) if isinstance(x, int) else x
+        return paddle.concat((xs, x))
 
     def score_full(
         self, hyp: Hypothesis, x: paddle.Tensor
@@ -306,7 +305,7 @@ class BeamSearch(paddle.nn.Layer):
         part_ids = paddle.arange(self.n_vocab)  # no pre-beam
         for hyp in running_hyps:
             # scoring
-            weighted_scores = paddle.zeros(self.n_vocab, dtype=x.dtype)
+            weighted_scores = paddle.zeros([self.n_vocab], dtype=x.dtype)
             scores, states = self.score_full(hyp, x)
             for k in self.full_scorers:
                 weighted_scores += self.weights[k] * scores[k]
@@ -410,15 +409,20 @@ class BeamSearch(paddle.nn.Layer):
         best = nbest_hyps[0]
         for k, v in best.scores.items():
             logger.info(
-                f"{v:6.2f} * {self.weights[k]:3} = {v * self.weights[k]:6.2f} for {k}"
+                f"{float(v):6.2f} * {self.weights[k]:3} = {float(v) * self.weights[k]:6.2f} for {k}"
             )
-        logger.info(f"total log probability: {best.score:.2f}")
-        logger.info(f"normalized log probability: {best.score / len(best.yseq):.2f}")
+        logger.info(f"total log probability: {float(best.score):.2f}")
+        logger.info(f"normalized log probability: {float(best.score) / len(best.yseq):.2f}")
         logger.info(f"total number of ended hypotheses: {len(nbest_hyps)}")
         if self.token_list is not None:
+            # logger.info(
+            #     "best hypo: "
+            #     + "".join([self.token_list[x] for x in best.yseq[1:-1]])
+            #     + "\n"
+            # )
             logger.info(
                 "best hypo: "
-                + "".join([self.token_list[x] for x in best.yseq[1:-1]])
+                + "".join([self.token_list[x] for x in best.yseq[1:]])
                 + "\n"
             )
         return nbest_hyps

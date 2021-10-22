@@ -24,15 +24,16 @@ __all__ = [
 ]
 
 
-def make_xs_mask(xs:paddle.Tensor) -> paddle.Tensor:
+def make_xs_mask(xs:paddle.Tensor, pad_value=0.0) -> paddle.Tensor:
     """Maks mask tensor containing indices of non-padded part.
     Args:
         xs (paddle.Tensor): (B, T, D), zeros for pad.
     Returns:
-        paddle.Tensor: Mask Tensor indices of non-padded part. (B, T, D)
+        paddle.Tensor: Mask Tensor indices of non-padded part. (B, T)
     """
-    pad_frame = paddle.zeros([1, 1, xs.shape[-1]], dtype=xs.dtype)
+    pad_frame = paddle.full([1, 1, xs.shape[-1]], pad_value, dtype=xs.dtype)
     mask = xs != pad_frame
+    mask = mask.all(axis=-1)
     return mask
 
 

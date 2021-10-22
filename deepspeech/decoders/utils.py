@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["end_detect"]
+import numpy as np
+from deepspeech.utils.log import Log
+logger = Log(__name__).getlog()
+
+__all__ = ["end_detect", "parse_hypothesis", "add_results_to_json"]
 
 
 def end_detect(ended_hyps, i, M=3, D_end=np.log(1 * np.exp(-10))):
@@ -118,7 +122,7 @@ def add_results_to_json(js, nbest_hyps, char_list):
         # show 1-best result
         if n == 1:
             if "text" in out_dic.keys():
-                logging.info("groundtruth: %s" % out_dic["text"])
-            logging.info("prediction : %s" % out_dic["rec_text"])
+                logger.info("groundtruth: %s" % out_dic["text"])
+            logger.info("prediction : %s" % out_dic["rec_text"])
 
     return new_js

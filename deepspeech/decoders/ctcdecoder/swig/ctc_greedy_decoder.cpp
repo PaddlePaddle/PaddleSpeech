@@ -53,7 +53,8 @@ std::string ctc_greedy_decoder(
     std::string best_path_result;
     for (size_t i = 0; i < idx_vec.size(); ++i) {
         if (idx_vec[i] != blank_id) {
-            best_path_result += vocabulary[idx_vec[i]];
+            std::string ch = vocabulary[idx_vec[i]];
+            best_path_result += (ch == kSPACE) ? tSPACE : ch;
         }
     }
     return best_path_result;

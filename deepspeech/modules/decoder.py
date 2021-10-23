@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Decoder definition."""
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import Any
 
 import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
+from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.decoder_layer import DecoderLayer
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.mask import make_non_pad_mask
-from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.mask import make_xs_mask
+from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
-from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -191,8 +191,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         ys: (ylen,)
         x: (xlen, n_feat)
         """
-        ys_mask = subsequent_mask(len(ys)).unsqueeze(0) # (B,L,L)
-        x_mask = make_xs_mask(x.unsqueeze(0)).unsqueeze(1) # (B,1,T)
+        ys_mask = subsequent_mask(len(ys)).unsqueeze(0)  # (B,L,L)
+        x_mask = make_xs_mask(x.unsqueeze(0)).unsqueeze(1)  # (B,1,T)
         if self.selfattention_layer_type != "selfattn":
             # TODO(karita): implement cache
             logging.warning(
@@ -200,16 +200,14 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             )
             state = None
         logp, state = self.forward_one_step(
-            x.unsqueeze(0), x_mask, 
-            ys.unsqueeze(0), ys_mask,
-            cache=state
-        )
+            x.unsqueeze(0), x_mask, ys.unsqueeze(0), ys_mask, cache=state)
         return logp.squeeze(0), state
 
     # batch beam search API (see BatchScorerInterface)
-    def batch_score(
-        self, ys: paddle.Tensor, states: List[Any], xs: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, List[Any]]:
+    def batch_score(self,
+                    ys: paddle.Tensor,
+                    states: List[Any],
+                    xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
         Args:
@@ -237,10 +235,12 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0) # (B,L,L)
-        xs_mask = make_xs_mask(xs).unsqueeze(1) # (B,1,T)
-        logp, states = self.forward_one_step(xs, xs_mask, ys, ys_mask, cache=batch_state)
+        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0)  # (B,L,L)
+        xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
+        logp, states = self.forward_one_step(
+            xs, xs_mask, ys, ys_mask, cache=batch_state)
 
         # transpose state of [layer, batch] into [batch, layer]
-        state_list = [[states[i][b] for i in range(n_layers)] for b in range(n_batch)]
+        state_list = [[states[i][b] for i in range(n_layers)]
+                      for b in range(n_batch)]
         return logp, state_list

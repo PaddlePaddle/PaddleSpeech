@@ -5,11 +5,14 @@ set -e
 expdir=exp
 datadir=data
 nj=32
+tag=
 
+# decode config
 decode_config=conf/decode/decode.yaml
+
+# lm params
 lang_model=rnnlm.model.best
 lmexpdir=exp/train_rnnlm_pytorch_lm_transformer_cosine_batchsize32_lr1e-4_layer16_unigram5000_ngpu4/
-
 lmtag='nolm'
 
 recog_set="test-clean test-other dev-clean dev-other"
@@ -21,17 +24,20 @@ bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
 bpemodel=${bpeprefix}.model
 
-if [ $# != 3 ];then
-    echo "usage: ${0} config_path dict_path ckpt_path_prefix"
-    exit -1
+# bin params
+config_path=conf/transformer.yaml
+dict=data/bpe_unigram_5000_units.txt
+ckpt_prefix=
+
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+if [ -z ${ckpt_prefix} ]; then
+    echo "usage: $0 --ckpt_prefix ckpt_prefix"
+    exit 1
 fi
 
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
-
-config_path=$1
-dict=$2
-ckpt_prefix=$3
 
 ckpt_dir=$(dirname `dirname ${ckpt_prefix}`)
 echo "ckpt dir: ${ckpt_dir}"
@@ -61,7 +67,7 @@ for dmethd in join_ctc; do
     for rtask in ${recog_set}; do
     (
         echo "${rtask} dataset"
-        decode_dir=${ckpt_dir}/decode/decode_${rtask/-/_}_${dmethd}_$(basename ${config_path%.*})_${lmtag}_${ckpt_tag}
+        decode_dir=${ckpt_dir}/decode/decode_${rtask/-/_}_${dmethd}_$(basename ${config_path%.*})_${lmtag}_${ckpt_tag}_${tag}
         feat_recog_dir=${datadir}
         mkdir -p ${decode_dir}
         mkdir -p ${feat_recog_dir}

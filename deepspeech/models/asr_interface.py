@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """ASR Interface module."""
 import argparse
 
@@ -72,7 +85,8 @@ class ASRInterface:
         :return: attention weights (B, Lmax, Tmax)
         :rtype: float ndarray
         """
-        raise NotImplementedError("calculate_all_attentions method is not implemented")
+        raise NotImplementedError(
+            "calculate_all_attentions method is not implemented")
 
     def calculate_all_ctc_probs(self, xs, ilens, ys):
         """Calculate CTC probability.
@@ -83,7 +97,8 @@ class ASRInterface:
         :return: CTC probabilities (B, Tmax, vocab)
         :rtype: float ndarray
         """
-        raise NotImplementedError("calculate_all_ctc_probs method is not implemented")
+        raise NotImplementedError(
+            "calculate_all_ctc_probs method is not implemented")
 
     @property
     def attention_plot_class(self):
@@ -102,8 +117,7 @@ class ASRInterface:
     def get_total_subsampling_factor(self):
         """Get total subsampling factor."""
         raise NotImplementedError(
-            "get_total_subsampling_factor method is not implemented"
-        )
+            "get_total_subsampling_factor method is not implemented")
 
     def encode(self, feat):
         """Encode feature in `beam_search` (optional).
@@ -126,23 +140,22 @@ class ASRInterface:
 
 
 predefined_asr = {
-        "transformer": "deepspeech.models.u2:E2E",
-        "conformer": "deepspeech.models.u2:E2E",
+    "transformer": "deepspeech.models.u2:U2Model",
+    "conformer": "deepspeech.models.u2:U2Model",
 }
 
-def dynamic_import_asr(module, name):
+
+def dynamic_import_asr(module):
     """Import ASR models dynamically.
 
     Args:
-        module (str): module_name:class_name or alias in `predefined_asr`
-        name (str): asr name. e.g., transformer, conformer
+        module (str): asr name. e.g., transformer, conformer
 
     Returns:
         type: ASR class
 
     """
-    model_class = dynamic_import(module, predefined_asr.get(name, ""))
-    assert issubclass(
-        model_class, ASRInterface
-    ), f"{module} does not implement ASRInterface"
+    model_class = dynamic_import(module, predefined_asr)
+    assert issubclass(model_class,
+                      ASRInterface), f"{module} does not implement ASRInterface"
     return model_class

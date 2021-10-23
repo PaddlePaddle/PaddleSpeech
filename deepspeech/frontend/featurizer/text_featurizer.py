@@ -140,7 +140,7 @@ class TextFeaturizer():
         Returns:
            str: text string.
         """
-        tokens = [t.replace(SPACE, " ") for t in tokens ]
+        tokens = [t.replace(SPACE, " ") for t in tokens]
         return "".join(tokens)
 
     def word_tokenize(self, text):

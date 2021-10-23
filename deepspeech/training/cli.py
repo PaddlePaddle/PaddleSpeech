@@ -64,7 +64,7 @@ def default_argument_parser(parser=None):
     """
     if parser is None:
         parser = argparse.ArgumentParser()
-        
+
     parser.register('action', 'extend', ExtendAction)
     parser.add_argument(
         '--conf', type=open, action=LoadFromFile, help="config file.")

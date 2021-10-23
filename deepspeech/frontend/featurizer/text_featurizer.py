@@ -135,13 +135,13 @@ class TextFeaturizer():
         """Character detokenizer.
 
         Args:
-            tokens (str): tokens.
+            tokens (List[str]): tokens.
 
         Returns:
            str: text string.
         """
-        tokens = tokens.replace(SPACE, " ")
-        return tokens
+        tokens = [t.replace(SPACE, " ") for t in tokens]
+        return "".join(tokens)
 
     def word_tokenize(self, text):
         """Word tokenizer, separate by <space>."""

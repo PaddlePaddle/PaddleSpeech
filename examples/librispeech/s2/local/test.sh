@@ -17,18 +17,19 @@ bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
 bpemodel=${bpeprefix}.model
 
-if [ $# != 3 ];then
-    echo "usage: ${0} config_path dict_path ckpt_path_prefix"
-    exit -1
+config_path=conf/transformer.yaml
+dict=data/bpe_unigram_5000_units.txt
+ckpt_prefix=
+
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
+if [ -z ${ckpt_prefix} ]; then
+    echo "usage: $0 --ckpt_prefix ckpt_prefix"
+    exit 1
 fi
 
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
-
-config_path=$1
-dict=$2
-ckpt_prefix=$3
-
 
 ckpt_dir=$(dirname `dirname ${ckpt_prefix}`)
 echo "ckpt dir: ${ckpt_dir}"

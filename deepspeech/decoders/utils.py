@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import numpy as np
+
 from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
@@ -98,7 +98,8 @@ def add_results_to_json(js, nbest_hyps, char_list):
 
     for n, hyp in enumerate(nbest_hyps, 1):
         # parse hypothesis
-        rec_text, rec_token, rec_tokenid, score = parse_hypothesis(hyp, char_list)
+        rec_text, rec_token, rec_tokenid, score = parse_hypothesis(hyp,
+                                                                   char_list)
 
         # copy ground-truth
         if len(js["output"]) > 0:

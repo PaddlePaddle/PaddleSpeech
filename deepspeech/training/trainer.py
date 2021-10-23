@@ -126,7 +126,8 @@ class Trainer():
             logger.info(f"Set seed {args.seed}")
 
         # profiler and benchmark options
-        if hasattr(self.args, "benchmark_batch_size") and self.args.benchmark_batch_size:
+        if hasattr(self.args,
+                   "benchmark_batch_size") and self.args.benchmark_batch_size:
             with UpdateConfig(self.config):
                 self.config.collator.batch_size = self.args.benchmark_batch_size
                 self.config.training.log_interval = 1
@@ -335,8 +336,7 @@ class Trainer():
         """
         assert self.args.checkpoint_path
         infos = self.checkpoint.load_latest_parameters(
-            self.model,
-            checkpoint_path=self.args.checkpoint_path)
+            self.model, checkpoint_path=self.args.checkpoint_path)
         return infos
 
     def run_test(self):

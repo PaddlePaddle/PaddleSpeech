@@ -28,8 +28,10 @@ from paddle import jit
 from paddle import nn
 from yacs.config import CfgNode
 
+from deepspeech.decoders.scorers.ctc import CTCPrefixScorer
 from deepspeech.frontend.utility import IGNORE_ID
 from deepspeech.frontend.utility import load_cmvn
+from deepspeech.models.asr_interface import ASRInterface
 from deepspeech.modules.cmvn import GlobalCMVN
 from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.modules.decoder import TransformerDecoder
@@ -49,8 +51,6 @@ from deepspeech.utils.tensor_utils import pad_sequence
 from deepspeech.utils.tensor_utils import th_accuracy
 from deepspeech.utils.utility import log_add
 from deepspeech.utils.utility import UpdateConfig
-from deepspeech.models.asr_interface import ASRInterface
-from deepspeech.decoders.scorers.ctc import CTCPrefixScorer
 
 __all__ = ["U2Model", "U2InferModel"]
 
@@ -816,10 +816,10 @@ class U2BaseModel(ASRInterface, nn.Layer):
 
 
 class U2DecodeModel(U2BaseModel):
-
     def scorers(self):
         """Scorers."""
-        return dict(decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
+        return dict(
+            decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
 
     def encode(self, x):
         """Encode acoustic features.

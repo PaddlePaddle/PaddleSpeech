@@ -60,7 +60,8 @@ class LinearNoSubsampling(BaseSubsampling):
         self.out = nn.Sequential(
             nn.Linear(idim, odim),
             nn.LayerNorm(odim, epsilon=1e-12),
-            nn.Dropout(dropout_rate), )
+            nn.Dropout(dropout_rate), 
+            nn.ReLU(),)
         self.right_context = 0
         self.subsampling_rate = 1
 

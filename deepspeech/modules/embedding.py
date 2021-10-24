@@ -22,8 +22,23 @@ from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["PositionalEncoding", "RelPositionalEncoding"]
+__all__ = ["NonePositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"]
 
+class NonePositionalEncoding(nn.Layer):
+    def __init__(self,
+                 d_model: int,
+                 dropout_rate: float,
+                 max_len: int=5000,
+                 reverse: bool=False):
+        super().__init__()
+
+    def forward(self, x: paddle.Tensor,
+                offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        return x, None
+
+    def position_encoding(self, offset: int, size: int) -> paddle.Tensor:
+        return None
+        
 
 class PositionalEncoding(nn.Layer):
     def __init__(self,

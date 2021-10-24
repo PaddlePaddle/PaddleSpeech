@@ -26,6 +26,7 @@ from deepspeech.modules.attention import RelPositionMultiHeadedAttention
 from deepspeech.modules.conformer_convolution import ConvolutionModule
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.embedding import RelPositionalEncoding
+from deepspeech.modules.embedding import NonePositionalEncoding
 from deepspeech.modules.encoder_layer import ConformerEncoderLayer
 from deepspeech.modules.encoder_layer import TransformerEncoderLayer
 from deepspeech.modules.mask import add_optional_chunk_mask
@@ -55,7 +56,7 @@ class BaseEncoder(nn.Layer):
             positional_dropout_rate: float=0.1,
             attention_dropout_rate: float=0.0,
             input_layer: str="conv2d",
-            pos_enc_layer_type: str="abs_pos",
+            pos_enc_layer_type: Optional[str, None]="abs_pos",
             normalize_before: bool=True,
             concat_after: bool=False,
             static_chunk_size: int=0,
@@ -76,8 +77,8 @@ class BaseEncoder(nn.Layer):
                 positional encoding
             input_layer (str): input layer type.
                 optional [linear, conv2d, conv2d6, conv2d8]
-            pos_enc_layer_type (str): Encoder positional encoding layer type.
-                opitonal [abs_pos, scaled_abs_pos, rel_pos]
+            pos_enc_layer_type (str, or None): Encoder positional encoding layer type.
+                opitonal [abs_pos, scaled_abs_pos, rel_pos, None]
             normalize_before (bool):
                 True: use layer_norm before each sub-block of a layer.
                 False: use layer_norm after each sub-block of a layer.
@@ -102,6 +103,8 @@ class BaseEncoder(nn.Layer):
             pos_enc_class = PositionalEncoding
         elif pos_enc_layer_type == "rel_pos":
             pos_enc_class = RelPositionalEncoding
+        elif pos_enc_layer_type is None:
+            pos_enc_class = NonePositionalEncoding
         else:
             raise ValueError("unknown pos_enc_layer: " + pos_enc_layer_type)
 

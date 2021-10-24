@@ -45,8 +45,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         if pos_enc == "sinusoidal":
             pos_enc_layer_type = "abs_pos"
         elif pos_enc is None:
-            #TODO
-            pos_enc_layer_type = "None"
+            pos_enc_layer_type = "no_pos"
         else:
             raise ValueError(f"unknown pos-enc option: {pos_enc}")
 

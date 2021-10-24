@@ -384,7 +384,7 @@ class TransformerEncoder(BaseEncoder):
 
         Args:
             xs (paddle.Tensor): Input tensor. (B, T, D)
-            masks (paddle.Tensor): Mask tensor. (B, 1, T)
+            masks (paddle.Tensor): Mask tensor. (B, T, T)
             cache (List[paddle.Tensor]): List of cache tensors.
 
         Returns:

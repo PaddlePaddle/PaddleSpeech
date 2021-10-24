@@ -22,6 +22,8 @@ import paddle.nn.functional as F
 
 from deepspeech.modules.encoder import TransformerEncoder
 
+#LMInterface, BatchScorerInterface
+
 
 class TransformerLM(nn.Layer):
     def __init__(
@@ -39,7 +41,7 @@ class TransformerLM(nn.Layer):
             pos_enc_layer_type = "abs_pos"
         elif pos_enc is None:
             #TODO
-            raise ValueError(f"unknown pos-enc option: {pos_enc}")
+            pos_enc_layer_type = "None"
         else:
             raise ValueError(f"unknown pos-enc option: {pos_enc}")
 
@@ -66,8 +68,15 @@ class TransformerLM(nn.Layer):
         model_dict = paddle.load("transformerLM.pdparams")
         self.set_state_dict(model_dict)
 
+    def _target_len(self, ys_in_pad):
+        ys_len_tmp = paddle.where(
+            paddle.to_tensor(ys_in_pad != 0),
+            paddle.ones_like(ys_in_pad), paddle.zeros_like(ys_in_pad))
+        ys_len = paddle.sum(ys_len_tmp, axis=-1)
+        return ys_len
+
     def forward(self, input: paddle.Tensor,
-                hidden: None) -> Tuple[paddle.Tensor, None]:
+                x_len: paddle.Tensor) -> Tuple[paddle.Tensor, None]:
 
         x = self.embed(input)
         x_len = self._target_len(input)
@@ -75,61 +84,46 @@ class TransformerLM(nn.Layer):
         y = self.decoder(h)
         return y, None
 
-    def score(
-            self,
-            y: paddle.Tensor,
-            subsampling_cache,
-            state: Any,
-            offset: int, ) -> Tuple[paddle.Tensor, Any]:
+    def score(self, y: paddle.Tensor, state: Any,
+              x: paddle.Tensor) -> Tuple[paddle.Tensor, Any]:
         # y, the chunk input
         y = y.unsqueeze(0)
-        subsampling_cache = subsampling_cache
-        conformer_cnn_cache = None
-        elayers_output_cache = state
+        #subsampling_cache, elayers_output_cache, conformer_cnn_cache, offset = state
         required_cache_size = -1
         y = self.embed(y)
-        h, r_subsampling_cache, r_elayers_output_cache, r_conformer_cnn_cache = self.encoder.forward_chunk(
-            y, offset, required_cache_size, subsampling_cache,
-            elayers_output_cache, conformer_cnn_cache)
+        h, state = self.encoder.forward_one_step(y, required_cache_size, state)
         h = self.decoder(h[:, -1])
         logp = F.log_softmax(h).squeeze(0)
-        return h, r_subsampling_cache, r_elayers_output_cache
+        return h, state
 
     def batch_score(
             self,
             ys: paddle.Tensor,
-            subsampling_caches: List[Any],
-            encoder_states: List[Any],
-            offset: int, ) -> Tuple[paddle.Tensor, List[Any]]:
+            states: List[Any], ) -> Tuple[paddle.Tensor, List[Any]]:
         #ys, the batch chunk input
         n_batch = ys.shape[0]
         n_layers = len(self.encoder.encoders)
         hs = []
-        new_subsampling_states = []
-        new_encoder_states = []
+        new_states = []
         for i in range(n_batch):
             y = ys[i:i + 1, :]
-            subsampling_cache = subsampling_caches[i]
-            elayers_output_cache = encoder_states[i]
-            conformer_cnn_cache = None
+            state = states[i]
             required_cache_size = -1
             y = self.embed(y)
-            h, r_subsampling_cache, r_elayers_output_cache, r_conformer_cnn_cache = self.encoder.forward_chunk(
-                y, offset, required_cache_size, subsampling_cache,
-                elayers_output_cache, conformer_cnn_cache)
+            h, state = self.encoder.forward_one_step(y, required_cache_size,
+                                                     state)
             h = self.decoder(h[:, -1])
             hs.append(h)
-            new_subsampling_states.append(r_subsampling_cache)
-            new_encoder_states.append(r_elayers_output_cache)
+            new_states.append(state)
         hs = paddle.concat(hs, axis=0)
         hs = F.log_softmax(hs)
-        return hs, new_subsampling_states, new_encoder_states
+        return hs, new_states
 
 
 if __name__ == "__main__":
     tlm = TransformerLM(
         vocab_size=5002,
-        pos_enc='sinusoidal',
+        pos_enc=None,
         embed_unit=128,
         att_unit=512,
         head=8,
@@ -139,34 +133,33 @@ if __name__ == "__main__":
     paddle.set_device("cpu")
 
     tlm.eval()
-    """
     #Test the score
     input2 = np.array([5])
     input2 = paddle.to_tensor(input2)
-    output, sub_cache, cache =tlm.score(input2, None, None, 0)
+    state = (None, None, 0)
+    output, state = tlm.score(input2, state, None)
 
     input3 = np.array([10])
     input3 = paddle.to_tensor(input3)
-    output, sub_cache, cache = tlm.score(input3, sub_cache, cache, 1)
+    output, state = tlm.score(input3, state, None)
 
-    input4 = np.array([7])
+    input4 = np.array([0])
     input4 = paddle.to_tensor(input4)
-    output, sub_cache, cache = tlm.score(input4, sub_cache, cache, 2)
-    print ("output", output)
+    output, state = tlm.score(input4, state, None)
+    print("output", output)
     """
     #Test the batch score
     batch_size = 2
-    offset = 0
     inp2 = np.array([[5], [10]])
     inp2 = paddle.to_tensor(inp2)
-    output, subsampling_caches, encoder_caches = tlm.batch_score(
-        inp2, [None] * batch_size, [None] * batch_size, offset)
+    output, states = tlm.batch_score(
+        inp2, [(None,None,0)] * batch_size)
 
-    offset += 1
     inp3 = np.array([[100], [30]])
     inp3 = paddle.to_tensor(inp3)
-    output, subsampling_caches, encoder_caches = tlm.batch_score(
-        inp3, subsampling_caches, encoder_caches, offset)
+    output, states = tlm.batch_score(
+        inp3, states)
     print("output", output)
     #print("cache", cache)
     #np.save("output_pd.npy", output)
+    """

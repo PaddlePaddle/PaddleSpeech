@@ -31,6 +31,7 @@ from deepspeech.modules.encoder_layer import TransformerEncoderLayer
 from deepspeech.modules.mask import add_optional_chunk_mask
 from deepspeech.modules.mask import make_non_pad_mask
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
+from deepspeech.modules.subsampling import Conv2dSubsampling
 from deepspeech.modules.subsampling import Conv2dSubsampling4
 from deepspeech.modules.subsampling import Conv2dSubsampling6
 from deepspeech.modules.subsampling import Conv2dSubsampling8
@@ -369,6 +370,46 @@ class TransformerEncoder(BaseEncoder):
                 normalize_before=normalize_before,
                 concat_after=concat_after) for _ in range(num_blocks)
         ])
+
+    def forward_one_step(
+            self,
+            xs: paddle.Tensor,
+            masks: paddle.Tensor,
+            cache=None,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        """Encode input frame.
+
+        Args:
+            xs (paddle.Tensor): Input tensor. (B, T, D)
+            masks (paddle.Tensor): Mask tensor. (B, 1, T)
+            cache (List[paddle.Tensor]): List of cache tensors.
+
+        Returns:
+            paddle.Tensor: Output tensor.
+            paddle.Tensor: Mask tensor.
+            List[paddle.Tensor]: List of new cache tensors.
+        """
+        if self.global_cmvn is not None:
+            xs = self.global_cmvn(xs)
+
+        if isinstance(self.embed, Conv2dSubsampling):
+            # xs, masks = self.embed(xs, masks)
+            #TODO(Hui Zhang): self.embed(xs, masks, offset=0), stride_slice not support bool tensor
+            xs, pos_emb, masks = self.embed(xs, masks.astype(xs.dtype), offset=0)
+        else:
+            xs = self.embed(xs)
+        #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
+        masks = masks.astype(paddle.bool)
+
+        if cache is None:
+            cache = [None for _ in range(len(self.encoders))]
+        new_cache = []
+        for c, e in zip(cache, self.encoders):
+            xs, masks, _ = e(xs, masks, output_cache=c)
+            new_cache.append(xs)
+        if self.normalize_before:
+            xs = self.after_norm(xs)
+        return xs, masks, new_cache
 
 
 class ConformerEncoder(BaseEncoder):

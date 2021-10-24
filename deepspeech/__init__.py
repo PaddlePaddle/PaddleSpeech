@@ -233,7 +233,8 @@ def is_broadcastable(shp1, shp2):
 def masked_fill(xs: paddle.Tensor,
                 mask: paddle.Tensor,
                 value: Union[float, int]):
-    assert is_broadcastable(xs.shape, mask.shape) is True
+    assert is_broadcastable(xs.shape, mask.shape) is True, (xs.shape,
+                                                            mask.shape)
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
     mask = mask.broadcast_to(bshape)
     trues = paddle.ones_like(xs) * value
@@ -315,7 +316,7 @@ def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
     assert len(args) == 1
     if isinstance(args[0], str):  # dtype
         return x.astype(args[0])
-    elif isinstance(args[0], paddle.Tensor):  #Tensor
+    elif isinstance(args[0], paddle.Tensor):  # Tensor
         return x.astype(args[0].dtype)
     else:  # Device
         return x
@@ -364,6 +365,7 @@ from typing import Tuple
 from typing import Iterator
 from collections import OrderedDict, abc as container_abcs
 
+
 class LayerDict(paddle.nn.Layer):
     r"""Holds submodules in a dictionary.
 
@@ -408,7 +410,7 @@ class LayerDict(paddle.nn.Layer):
                 return x
     """
 
-    def __init__(self, modules: Optional[Mapping[str, Layer]] = None) -> None:
+    def __init__(self, modules: Optional[Mapping[str, Layer]]=None) -> None:
         super(LayerDict, self).__init__()
         if modules is not None:
             self.update(modules)
@@ -475,10 +477,11 @@ class LayerDict(paddle.nn.Layer):
         """
         if not isinstance(modules, container_abcs.Iterable):
             raise TypeError("LayerDict.update should be called with an "
-                            "iterable of key/value pairs, but got " +
-                            type(modules).__name__)
+                            "iterable of key/value pairs, but got " + type(
+                                modules).__name__)
 
-        if isinstance(modules, (OrderedDict, LayerDict, container_abcs.Mapping)):
+        if isinstance(modules,
+                      (OrderedDict, LayerDict, container_abcs.Mapping)):
             for key, module in modules.items():
                 self[key] = module
         else:
@@ -490,13 +493,14 @@ class LayerDict(paddle.nn.Layer):
                                     type(m).__name__)
                 if not len(m) == 2:
                     raise ValueError("LayerDict update sequence element "
-                                     "#" + str(j) + " has length " + str(len(m)) +
-                                     "; 2 is required")
+                                     "#" + str(j) + " has length " + str(
+                                         len(m)) + "; 2 is required")
                 # modules can be Mapping (what it's typed at), or a list: [(name1, module1), (name2, module2)]
                 # that's too cumbersome to type correctly with overloads, so we add an ignore here
                 self[m[0]] = m[1]  # type: ignore[assignment]
 
     # remove forward alltogether to fallback on Module's _forward_unimplemented
+
 
 if not hasattr(paddle.nn, 'LayerDict'):
     logger.debug(

@@ -140,7 +140,7 @@ class TextFeaturizer():
         Returns:
            str: text string.
         """
-        tokens = [t.replace(SPACE, " ") for t in tokens ]
+        tokens = [t.replace(SPACE, " ") for t in tokens]
         return "".join(tokens)
 
     def word_tokenize(self, text):
@@ -207,7 +207,7 @@ class TextFeaturizer():
         """Load vocabulary from file."""
         vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
-        logger.info(f"Vocab: {pformat(vocab_list)}")
+        logger.debug(f"Vocab: {pformat(vocab_list)}")
 
         id2token = dict(
             [(idx, token) for (idx, token) in enumerate(vocab_list)])

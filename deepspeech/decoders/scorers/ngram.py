@@ -85,8 +85,9 @@ class NgramFullScorer(Ngrambase, BatchScorerInterface):
                 and next state list for ys.
 
         """
-        return self.score_partial_(
-            y, paddle.to_tensor(range(self.charlen)), state, x)
+        return self.score_partial_(y,
+                                   paddle.to_tensor(range(self.charlen)), state,
+                                   x)
 
 
 class NgramPartScorer(Ngrambase, PartialScorerInterface):

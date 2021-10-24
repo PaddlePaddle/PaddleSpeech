@@ -317,11 +317,9 @@ class U2Trainer(Trainer):
         with UpdateConfig(model_conf):
             model_conf.input_dim = self.train_loader.feat_dim
             model_conf.output_dim = self.train_loader.vocab_size
-
         model = U2Model.from_config(model_conf)
         if self.parallel:
             model = paddle.DataParallel(model)
-        logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
         # lr
@@ -436,8 +434,9 @@ class U2Tester(U2Trainer):
             simulate_streaming=cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
-        for i, (utt, target, result, rec_tids) in enumerate(zip(
-                utts, target_transcripts, result_transcripts, result_tokenids)):
+        for i, (utt, target, result, rec_tids) in enumerate(
+                zip(utts, target_transcripts, result_transcripts,
+                    result_tokenids)):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref

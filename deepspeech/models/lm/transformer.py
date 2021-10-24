@@ -23,9 +23,10 @@ import paddle.nn.functional as F
 from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
+from deepspeech.models.lm_interface import 
 #LMInterface
 
-class TransformerLM(nn.Layer, BatchScorerInterface):
+class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(
             self,
             n_vocab: int,
@@ -90,7 +91,7 @@ class TransformerLM(nn.Layer, BatchScorerInterface):
         return ys_mask.unsqueeze(-2) & m
 
     def forward(
-        self, x: paddle.Tensor, xlens, t: paddle.Tensor
+        self, x: paddle.Tensor, t: paddle.Tensor
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute LM loss value from buffer sequences.
 
@@ -110,11 +111,11 @@ class TransformerLM(nn.Layer, BatchScorerInterface):
 
         """
         xm = x != 0
+        xlen = xm.sum(axis=1)
         if self.embed_drop is not None:
             emb = self.embed_drop(self.embed(x))
         else:
             emb = self.embed(x)
-        xlen = xm.sum(axis=1)
         h, _ = self.encoder(emb, xlen)
         y = self.decoder(h)
         loss = F.cross_entropy(y.view(-1, y.shape[-1]), t.view(-1), reduction="none")

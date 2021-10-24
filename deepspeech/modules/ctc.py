@@ -13,6 +13,7 @@
 # limitations under the License.
 import paddle
 from paddle import nn
+from typing import Union
 from paddle.nn import functional as F
 from typeguard import check_argument_types
 
@@ -40,7 +41,7 @@ class CTCDecoderBase(nn.Layer):
                  dropout_rate: float=0.0,
                  reduction: bool=True,
                  batch_average: bool=True,
-                 grad_norm_type: str="instance"):
+                 grad_norm_type: Union[str, None]=None):
         """CTC decoder
 
         Args:
@@ -49,7 +50,7 @@ class CTCDecoderBase(nn.Layer):
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
-            grad_norm_type (str): one of 'instance', 'batch', 'frame', None.
+            grad_norm_type (str): Default, None. one of 'instance', 'batch', 'frame', None. 
         """
         assert check_argument_types()
         super().__init__()

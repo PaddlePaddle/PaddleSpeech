@@ -29,12 +29,20 @@ how they can install it,
 how they can use it
 -->
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - Automatic Speech Recognition (ASR) and Text-To-Speech Synthesis (TTS), with modules involving state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - Automatic Speech Recognition (ASR) and Text-To-Speech Synthesis (TTS), with modules involving state-of-art and influential models. 
+
+Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment. Besides, this toolkit also features at:
+- **Rule-based Chinese frontend**: we utilize plenty of Chinese datasets and corpora to enhance user experience, including CSMSC and Baidu Internal Corpus.
+- **Supporting of ASR streaming and non-streaming data**: This toolkit contains non-streaming models like [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf), [Transformer](https://arxiv.org/abs/1706.03762) and [Conformer](https://arxiv.org/abs/2005.08100). And for streaming models, we have [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf) and [U2](https://arxiv.org/pdf/2012.05481.pdf).
+- **Varieties of mainstream models**: The toolkit integrates modules that participate in the whole pipeline of both ASR and TTS, [See also model lists](#models-list).
+  
+> Notes: It is better to add a brief getting started.
 
 ## Table of Contents
 
+The contents of this README is as follow:
+
 - [Table of Contents](#table-of-contents)
-- [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Models List](#models-list)
@@ -42,42 +50,6 @@ how they can use it
 - [FAQ and Contributing](#faq-and-contributing)
 - [License](#license)
 - [Acknowledgement](#acknowledgement)
-
-## Features
-
-Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment.
-
-> Note: 1.Better add hyperlinks for code path; 2.The current `Features` is a bit long. Is there any idea to shorten this section?
-
-
-The features of **ASR** are summarized as follows:
-- **Used datasets**
-  - Aishell, THCHS30, TIMIT and Librispeech
-- **Model support of streaming and non-streaming data**
-  - Non-streaming: [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf), [Transformer](https://arxiv.org/abs/1706.03762) and [Conformer](https://arxiv.org/abs/2005.08100)
-  - Streaming:  [Baidu's DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf) and [U2](https://arxiv.org/pdf/2012.05481.pdf)
-- **Language Model**: Ngram
-- **Decoder**: ctc greedy, ctc prefix beam search, greedy, beam search, attention rescore
-- **Aligment**: MFA, CTC Aligment
-- **Speech Frontend**
-  - Audio: Auto Gain
-  - Feature: kaldi fbank, kaldi mfcc, linear, delta detla
-- **Speech Augmentation**
-  - Audio: Auto Gain
-  - Feature: Volume Perturbation, Speed Perturbation, Shifting Perturbation, Online Bayesian normalization, Noise Perturbation, Impulse Response,Spectrum, SpecAugment, Adaptive SpecAugment
-- **Tokenizer**: Chinese/English Character, English Word, Sentence Piece
-
-- **Word Segmentation**: [mmseg](http://technology.chtsai.org/mmseg/)
-
-The features of **TTS** are summarized as follows:
-
-<!---
-Reference docs/source/tts/introduction.md
--->
-- **Text FrontEnd**: Rule based *Chinese* frontend.
-- **Acoustic Models**: FastSpeech2, SpeedySpeech, TransformerTTS, Tacotron2
-- **Vocoders**: Parallel WaveGAN, WaveFlow
-- **Voice Cloning**: Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis, GE2E
 
 ## Installation
 
@@ -92,15 +64,89 @@ Please see the [ASR installation](docs/source/asr/install.md) and [TTS installat
 
 ## Quick Start
 
+> Note: It is better to use code blocks rather than hyperlinks.
+
 Please see [ASR getting started](docs/source/asr/getting_started.md) ([tiny test](examples/tiny/s0/README.md)) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
 
 ## Models List
 
-PaddleSpeech ASR supports a lot of mainstream models. For more information, please refer to [ASRModels](./docs/source/asr/released_model.md).
+PaddleSpeech ASR supports a lot of mainstream models, which are summarized as follow. For more information, please refer to [ASRModels](./docs/source/asr/released_model.md).
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
 -->
+
+<table>
+  <thead>
+    <tr>
+      <th>ASR Module Type</th>
+      <th>Model Type</th>
+      <th>Dataset</th>
+      <th>Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="6">Acoustic Model</td>
+      <td >2 Conv + 5 LSTM layers with only forward direction	</td>
+      <td rowspan="4" >Aishell</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz">Ds2 Online Aishell Model</a>
+      </td>
+    </tr>
+    <tr>
+      <td>2 Conv + 3 bidirectional GRU layers</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz">Ds2 Offline Aishell Model</a>
+      </td>
+    </tr>
+    <tr>
+      <td>Encoder:Conformer, Decoder:Transformer, Decoding method: Attention + CTC</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz">Conformer Offline Aishell Model</a>
+      </td>
+    </tr>
+    <tr>
+      <td >Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Conformer Librispeech Model</a>
+      </td>
+    </tr>
+      <tr>
+      <td >Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
+      <td rowspan="2"> Librispeech</td>
+      <td> <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Conformer Librispeech Model</a> </td>
+    </tr>
+    <tr>
+      <td>Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/transformer.release.tar.gz">Transformer Librispeech Model</a>
+      </td>
+    </tr>
+   <tr>
+      <td rowspan="3">Language Model</td>
+      <td >English LM</td>
+      <td >CommonCrawl(en.00)</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm">English LM</a>
+      </td>
+    </tr>
+    <tr>
+      <td>Mandarin LM Small</td>
+      <td rowspan="2">Baidu Internal Corpus</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm">Mandarin LM Small</a>
+      </td>
+    </tr>
+    <tr>
+      <td >Mandarin LM Large</td>
+      <td >
+      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm">Mandarin LM Large</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
 PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 

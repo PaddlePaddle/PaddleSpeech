@@ -21,8 +21,6 @@ from distutils.util import strtobool
 import configargparse
 import numpy as np
 
-from .recog import recog_v2
-
 
 def get_parser():
     """Get default arguments."""

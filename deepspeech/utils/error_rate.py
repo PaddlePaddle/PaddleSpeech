@@ -14,11 +14,10 @@
 """This module provides functions to calculate error rate in different level.
 e.g. wer for word-level, cer for char-level.
 """
+from itertools import groupby
+
 import editdistance
 import numpy as np
-import logging
-import sys
-from itertools import groupby
 
 __all__ = ['word_errors', 'char_errors', 'wer', 'cer', "ErrorCalculator"]
 
@@ -225,9 +224,12 @@ class ErrorCalculator():
     :return:
     """
 
-    def __init__(
-        self, char_list, sym_space, sym_blank, report_cer=False, report_wer=False
-    ):
+    def __init__(self,
+                 char_list,
+                 sym_space,
+                 sym_blank,
+                 report_cer=False,
+                 report_wer=False):
         """Construct an ErrorCalculator object."""
         super().__init__()
 
@@ -317,7 +319,9 @@ class ErrorCalculator():
             ymax = eos_true[0] if len(eos_true) > 0 else len(y_true)
             # NOTE: padding index (-1) in y_true is used to pad y_hat
             seq_hat = [self.char_list[int(idx)] for idx in y_hat[:ymax]]
-            seq_true = [self.char_list[int(idx)] for idx in y_true if int(idx) != -1]
+            seq_true = [
+                self.char_list[int(idx)] for idx in y_true if int(idx) != -1
+            ]
             seq_hat_text = "".join(seq_hat).replace(self.space, " ")
             seq_hat_text = seq_hat_text.replace(self.blank, "")
             seq_true_text = "".join(seq_true).replace(self.space, " ")

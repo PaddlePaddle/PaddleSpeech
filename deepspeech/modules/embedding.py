@@ -22,7 +22,10 @@ from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["NoPositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"]
+__all__ = [
+    "NoPositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"
+]
+
 
 class NoPositionalEncoding(nn.Layer):
     def __init__(self,

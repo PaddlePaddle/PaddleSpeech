@@ -103,7 +103,7 @@ class BaseEncoder(nn.Layer):
             pos_enc_class = PositionalEncoding
         elif pos_enc_layer_type == "rel_pos":
             pos_enc_class = RelPositionalEncoding
-        elif pos_enc_layer_type is "no_pos":
+        elif pos_enc_layer_type == "no_pos":
             pos_enc_class = NoPositionalEncoding
         else:
             raise ValueError("unknown pos_enc_layer: " + pos_enc_layer_type)

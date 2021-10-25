@@ -30,3 +30,12 @@ class TimeTrigger():
             return True
         else:
             return False
+
+    def state_dict(self):
+        state_dict = {
+            "next_time": self._next_time,
+        }
+        return state_dict
+
+    def set_state_dict(self, state_dict):
+        self._next_time = state_dict['next_time']

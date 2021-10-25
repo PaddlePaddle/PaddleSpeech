@@ -23,9 +23,9 @@ import paddle.nn.functional as F
 from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
-from deepspeech.models.lm_interface import 
-#LMInterface
+from deepspeech.models.lm_interface import LMInterface
 
+import logging
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(
             self,
@@ -36,7 +36,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             head: int=2,
             unit: int=1024,
             layer: int=4,
-            dropout_rate: float=0.5, 
+            dropout_rate: float=0.5,
             emb_dropout_rate: float = 0.0,
             att_dropout_rate: float = 0.0,
             tie_weights: bool = False,):
@@ -83,6 +83,8 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
                 att_unit == embed_unit
             ), "Tie Weights: True need embedding and final dimensions to match"
             self.decoder.weight = self.embed.weight
+
+
 
     def _target_mask(self, ys_in_pad):
         ys_mask = ys_in_pad != 0
@@ -151,7 +153,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb, self._target_mask(y), cache=state
         )
         h = self.decoder(h[:, -1])
-        logp = h.log_softmax(axis=-1).squeeze(0)
+        logp = F.log_softmax(h).squeeze(0)
         return logp, cache
 
     # batch beam search API (see BatchScorerInterface)
@@ -194,7 +196,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb, self._target_mask(ys), cache=batch_state
         )
         h = self.decoder(h[:, -1])
-        logp = h.log_softmax(axi=-1)
+        logp = F.log_softmax(h)
 
         # transpose state of [layer, batch] into [batch, layer]
         state_list = [[states[i][b] for i in range(n_layers)] for b in range(n_batch)]
@@ -219,7 +221,7 @@ if __name__ == "__main__":
             # head: int=2,
             # unit: int=1024,
             # layer: int=4,
-            # dropout_rate: float=0.5, 
+            # dropout_rate: float=0.5,
             # emb_dropout_rate: float = 0.0,
             # att_dropout_rate: float = 0.0,
             # tie_weights: bool = False,):
@@ -231,14 +233,14 @@ if __name__ == "__main__":
     #Test the score
     input2 = np.array([5])
     input2 = paddle.to_tensor(input2)
-    state = (None, None, 0)
+    state = None
     output, state = tlm.score(input2, state, None)
 
-    input3 = np.array([10])
+    input3 = np.array([5,10])
     input3 = paddle.to_tensor(input3)
     output, state = tlm.score(input3, state, None)
 
-    input4 = np.array([0])
+    input4 = np.array([5,10,0])
     input4 = paddle.to_tensor(input4)
     output, state = tlm.score(input4, state, None)
     print("output", output)

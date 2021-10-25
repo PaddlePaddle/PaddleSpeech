@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """V2 backend for `asr_recog.py` using py:class:`decoders.beam_search.BeamSearch`."""
-import json
-from pathlib import Path
-
 import jsonlines
 import paddle
-import yaml
 from yacs.config import CfgNode
 
 from .beam_search import BatchBeamSearch

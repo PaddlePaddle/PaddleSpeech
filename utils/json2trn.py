@@ -4,7 +4,6 @@
 #           2018 Xuankai Chang (Shanghai Jiao Tong University)
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 import argparse
-import json
 import logging
 import sys
 

@@ -14,9 +14,9 @@
 """This module provides functions to calculate bleu score in different level.
 e.g. wer for word-level, cer for char-level.
 """
-import sacrebleu
 import nltk
 import numpy as np
+import sacrebleu
 
 __all__ = ['bleu', 'char_bleu', "ErrorCalculator"]
 
@@ -106,11 +106,14 @@ class ErrorCalculator():
             # NOTE: padding index (-1) in y_true is used to pad y_hat
             # because y_hats is not padded with -1
             seq_hat = [self.char_list[int(idx)] for idx in y_hat[:ymax]]
-            seq_true = [self.char_list[int(idx)] for idx in y_true if int(idx) != -1]
+            seq_true = [
+                self.char_list[int(idx)] for idx in y_true if int(idx) != -1
+            ]
             seq_hat_text = "".join(seq_hat).replace(self.space, " ")
             seq_hat_text = seq_hat_text.replace(self.pad, "")
             seq_true_text = "".join(seq_true).replace(self.space, " ")
             seqs_hat.append(seq_hat_text)
             seqs_true.append(seq_true_text)
-        bleu = nltk.bleu_score.corpus_bleu([[ref] for ref in seqs_true], seqs_hat)
+        bleu = nltk.bleu_score.corpus_bleu([[ref] for ref in seqs_true],
+                                           seqs_hat)
         return bleu * 100

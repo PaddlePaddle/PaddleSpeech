@@ -1,9 +1,22 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Language model interface."""
-
 import argparse
 
 from deepspeech.decoders.scorers.scorer_interface import ScorerInterface
 from deepspeech.utils.dynamic_import import dynamic_import
+
 
 class LMInterface(ScorerInterface):
     """LM Interface model implementation."""
@@ -52,6 +65,7 @@ predefined_lms = {
     "transformer": "deepspeech.models.lm.transformer:TransformerLM",
 }
 
+
 def dynamic_import_lm(module):
     """Import LM class dynamically.
 
@@ -63,7 +77,6 @@ def dynamic_import_lm(module):
 
     """
     model_class = dynamic_import(module, predefined_lms)
-    assert issubclass(
-        model_class, LMInterface
-    ), f"{module} does not implement LMInterface"
+    assert issubclass(model_class,
+                      LMInterface), f"{module} does not implement LMInterface"
     return model_class

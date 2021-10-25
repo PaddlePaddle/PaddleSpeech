@@ -110,7 +110,7 @@ class ASRInterface:
     @property
     def ctc_plot_class(self):
         """Get CTC plot class."""
-         from deepspeech.training.extensions.plot import PlotCTCReport
+        from deepspeech.training.extensions.plot import PlotCTCReport
 
         return PlotCTCReport
 

@@ -1,9 +1,20 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """ST Interface module."""
-
-
-import argparse
-from deepspeech.utils.dynamic_import import dynamic_import
 from .asr_interface import ASRInterface
+from deepspeech.utils.dynamic_import import dynamic_import
+
 
 class STInterface(ASRInterface):
     """ST Interface model implementation.
@@ -13,7 +24,12 @@ class STInterface(ASRInterface):
 
     """
 
-    def translate(self, x, trans_args, char_list=None, rnnlm=None, ensemble_models=[]):
+    def translate(self,
+                  x,
+                  trans_args,
+                  char_list=None,
+                  rnnlm=None,
+                  ensemble_models=[]):
         """Recognize x for evaluation.
 
         :param ndarray x: input acouctic feature (B, T, D) or (T, D)
@@ -42,6 +58,7 @@ predefined_st = {
     "transformer": "deepspeech.models.u2_st:U2STModel",
 }
 
+
 def dynamic_import_st(module):
     """Import ST models dynamically.
 
@@ -53,7 +70,6 @@ def dynamic_import_st(module):
 
     """
     model_class = dynamic_import(module, predefined_st)
-    assert issubclass(
-        model_class, STInterface
-    ), f"{module} does not implement STInterface"
+    assert issubclass(model_class,
+                      STInterface), f"{module} does not implement STInterface"
     return model_class

@@ -24,10 +24,10 @@ from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.models.lm_interface import LMInterface
 from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.modules.mask import subsequent_mask
-
 from deepspeech.utils.log import Log
 
 logger = Log(__name__).getlog()
+
 
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(

@@ -24,6 +24,7 @@ __all__ = ["LoadInputsAndTargets"]
 
 logger = Log(__name__).getlog()
 
+
 class LoadInputsAndTargets():
     """Create a mini-batch from a list of dicts
 

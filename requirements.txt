@@ -23,6 +23,7 @@ praatio~=4.1
 pre-commit
 pybind11
 pypinyin
+python-dateutil
 pyworld
 resampy==0.2.2
 sacrebleu

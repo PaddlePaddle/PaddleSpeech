@@ -19,44 +19,42 @@ def get_parser():
         "If wspecifier provided: per-utterance by default, "
         "or per-speaker if"
         "spk2utt option provided; if wxfilename: global",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
     parser.add_argument(
         "--spk2utt",
         type=str,
         help="A text file of speaker to utterance-list map. "
         "(Don't give rspecifier format, such as "
-        '"ark:utt2spk")',
-    )
-    parser.add_argument("--verbose", "-V", default=0, type=int, help="Verbose option")
+        '"ark:utt2spk")', )
+    parser.add_argument(
+        "--verbose", "-V", default=0, type=int, help="Verbose option")
     parser.add_argument(
         "--in-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "sound.hdf5", "sound"],
         help="Specify the file format for the rspecifier. "
-        '"mat" is the matrix format in kaldi',
-    )
+        '"mat" is the matrix format in kaldi', )
     parser.add_argument(
         "--out-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "npy"],
         help="Specify the file format for the wspecifier. "
-        '"mat" is the matrix format in kaldi',
-    )
+        '"mat" is the matrix format in kaldi', )
     parser.add_argument(
         "--preprocess-conf",
         type=str,
         default=None,
-        help="The configuration file for the pre-processing",
-    )
+        help="The configuration file for the pre-processing", )
     parser.add_argument(
-        "rspecifier", type=str, help="Read specifier for feats. e.g. ark:some.ark"
-    )
+        "rspecifier",
+        type=str,
+        help="Read specifier for feats. e.g. ark:some.ark")
     parser.add_argument(
-        "wspecifier_or_wxfilename", type=str, help="Write specifier. e.g. ark:some.ark"
-    )
+        "wspecifier_or_wxfilename",
+        type=str,
+        help="Write specifier. e.g. ark:some.ark")
     return parser
 
 
@@ -92,10 +90,8 @@ def main():
                 return x
 
         if args.out_filetype == "npy":
-            logging.warning(
-                "--out-filetype npy is allowed only for "
-                "Global CMVN mode, changing to hdf5"
-            )
+            logging.warning("--out-filetype npy is allowed only for "
+                            "Global CMVN mode, changing to hdf5")
             args.out_filetype = "hdf5"
 
     else:
@@ -107,10 +103,8 @@ def main():
             return None
 
         if args.out_filetype == "hdf5":
-            logging.warning(
-                "--out-filetype hdf5 is not allowed for "
-                "Global CMVN mode, changing to npy"
-            )
+            logging.warning("--out-filetype hdf5 is not allowed for "
+                            "Global CMVN mode, changing to npy")
             args.out_filetype = "npy"
 
     if args.preprocess_conf is not None:
@@ -126,8 +120,7 @@ def main():
 
     idx = 0
     for idx, (utt, matrix) in enumerate(
-        file_reader_helper(args.rspecifier, args.in_filetype), 1
-    ):
+            file_reader_helper(args.rspecifier, args.in_filetype), 1):
         if is_scipy_wav_style(matrix):
             # If data is sound file, then got as Tuple[int, ndarray]
             rate, matrix = matrix
@@ -146,7 +139,7 @@ def main():
 
         counts[spk] += matrix.shape[0]
         sum_feats[spk] += matrix.sum(axis=0)
-        square_sum_feats[spk] += (matrix ** 2).sum(axis=0)
+        square_sum_feats[spk] += (matrix**2).sum(axis=0)
     logging.info("Processed {} utterances".format(idx))
     assert idx > 0, idx
 
@@ -171,8 +164,8 @@ def main():
     # Per utterance or speaker CMVN
     if is_wspecifier:
         with file_writer_helper(
-            args.wspecifier_or_wxfilename, filetype=args.out_filetype
-        ) as writer:
+                args.wspecifier_or_wxfilename,
+                filetype=args.out_filetype) as writer:
             for spk, mat in cmvn_stats.items():
                 writer[spk] = mat
 
@@ -186,8 +179,7 @@ def main():
             kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
         else:
             raise RuntimeError(
-                "Not supporting: --out-filetype {}".format(args.out_filetype)
-            )
+                "Not supporting: --out-filetype {}".format(args.out_filetype))
 
 
 if __name__ == "__main__":

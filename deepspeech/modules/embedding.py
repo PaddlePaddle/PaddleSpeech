@@ -23,12 +23,14 @@ from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = [
-    "PositionalEncodingInterface", "NoPositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"
+    "PositionalEncodingInterface", "NoPositionalEncoding", "PositionalEncoding",
+    "RelPositionalEncoding"
 ]
 
-class PositionalEncodingInterface:
 
-    def forward(self, x:paddle.Tensor, offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
+class PositionalEncodingInterface:
+    def forward(self, x: paddle.Tensor,
+                offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute positional encoding.
         Args:
             x (paddle.Tensor): Input tensor (batch, time, `*`).
@@ -37,8 +39,8 @@ class PositionalEncodingInterface:
             paddle.Tensor: Positional embedding tensor (1, time, `*`).
         """
         raise NotImplementedError("forward method is not implemented")
-    
-    def position_encoding(self, offset:int, size:int) -> paddle.Tensor:
+
+    def position_encoding(self, offset: int, size: int) -> paddle.Tensor:
         """ For getting encoding in a streaming fashion
         Args:
             offset (int): start offset

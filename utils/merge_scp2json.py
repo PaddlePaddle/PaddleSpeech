@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-
-
 import argparse
 import codecs
-from distutils.util import strtobool
-from io import open
 import json
 import logging
 import sys
+from distutils.util import strtobool
+from io import open
 
 from deepspeech.utils.cli_utils import get_commandline_args
 
@@ -47,45 +45,41 @@ def get_parser():
         "--input-scps feat:data/feats2.scp shape:data/utt2feat2_shape:shape "
         "--output-scps text:data/text shape:data/utt2text_shape:shape "
         "--scps utt2spk:data/utt2spk".format(sys.argv[0]),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
     parser.add_argument(
         "--input-scps",
         type=str,
         nargs="*",
         action="append",
         default=[],
-        help="Json files for the inputs",
-    )
+        help="Json files for the inputs", )
     parser.add_argument(
         "--output-scps",
         type=str,
         nargs="*",
         action="append",
         default=[],
-        help="Json files for the outputs",
-    )
+        help="Json files for the outputs", )
     parser.add_argument(
         "--scps",
         type=str,
         nargs="+",
         default=[],
-        help="The json files except for the input and outputs",
-    )
-    parser.add_argument("--verbose", "-V", default=1, type=int, help="Verbose option")
+        help="The json files except for the input and outputs", )
+    parser.add_argument(
+        "--verbose", "-V", default=1, type=int, help="Verbose option")
     parser.add_argument(
         "--allow-one-column",
         type=strtobool,
         default=False,
         help="Allow one column in input scp files. "
-        "In this case, the value will be empty string.",
-    )
+        "In this case, the value will be empty string.", )
     parser.add_argument(
         "--out",
         "-O",
         type=str,
-        help="The output filename. " "If omitted, then output to sys.stdout",
-    )
+        help="The output filename. "
+        "If omitted, then output to sys.stdout", )
     return parser
 
 
@@ -128,37 +122,33 @@ if __name__ == "__main__":
                         # e.g. type_func_str = "int" -> type_func = int
                         type_func = eval(type_func_str)
                     except Exception:
-                        raise RuntimeError("Unknown type: {}".format(type_func_str))
+                        raise RuntimeError(
+                            "Unknown type: {}".format(type_func_str))
 
                     if not callable(type_func):
-                        raise RuntimeError("Unknown type: {}".format(type_func_str))
+                        raise RuntimeError(
+                            "Unknown type: {}".format(type_func_str))
 
                 else:
                     raise RuntimeError(
                         "Format <key>:<filepath> "
                         "or <key>:<filepath>:<type>  "
                         "e.g. feat:data/feat.scp "
-                        "or shape:data/feat.scp:shape: {}".format(key_scp)
-                    )
+                        "or shape:data/feat.scp:shape: {}".format(key_scp))
 
                 for item in lis:
                     if key == item[0]:
-                        raise RuntimeError(
-                            'The key "{}" is duplicated: {} {}'.format(
-                                key, item[3], key_scp
-                            )
-                        )
+                        raise RuntimeError('The key "{}" is duplicated: {} {}'.
+                                           format(key, item[3], key_scp))
 
                 lis.append((key, scp, type_func, key_scp, type_func_str))
             lis_list.append(lis)
 
     # Open  scp files
-    input_fscps = [
-        [open(i[1], "r", encoding="utf-8") for i in il] for il in input_infos
-    ]
-    output_fscps = [
-        [open(i[1], "r", encoding="utf-8") for i in il] for il in output_infos
-    ]
+    input_fscps = [[open(i[1], "r", encoding="utf-8") for i in il]
+                   for il in input_infos]
+    output_fscps = [[open(i[1], "r", encoding="utf-8") for i in il]
+                    for il in output_infos]
     fscps = [[open(i[1], "r", encoding="utf-8") for i in il] for il in infos]
 
     # Note(kamo): What is done here?
@@ -200,12 +190,10 @@ if __name__ == "__main__":
                     if line == "" or first == "":
                         if line != first:
                             concat = sum(input_infos + output_infos + infos, [])
-                            raise RuntimeError(
-                                "The number of lines mismatch "
-                                'between: "{}" and "{}"'.format(
-                                    concat[0][1], concat[count][1]
-                                )
-                            )
+                            raise RuntimeError("The number of lines mismatch "
+                                               'between: "{}" and "{}"'.format(
+                                                   concat[0][1],
+                                                   concat[count][1]))
 
                     elif line.split()[0] != first.split()[0]:
                         concat = sum(input_infos + output_infos + infos, [])
@@ -216,9 +204,7 @@ if __name__ == "__main__":
                                 concat[0][1],
                                 concat[count][1],
                                 first.rstrip(),
-                                line.rstrip(),
-                            )
-                        )
+                                line.rstrip(), ))
                     count += 1
 
         # The end of file
@@ -237,7 +223,8 @@ if __name__ == "__main__":
         ]:
 
             lis = []
-            for idx, (line_list, info_list) in enumerate(zip(_lines, _infos), 1):
+            for idx, (line_list, info_list) in enumerate(
+                    zip(_lines, _infos), 1):
                 if inout == "input":
                     d = {"name": "input{}".format(idx)}
                 elif inout == "output":
@@ -254,9 +241,7 @@ if __name__ == "__main__":
                             raise RuntimeError(
                                 "Format error {}th line in {}: "
                                 ' Expecting "<key> <value>":\n>>> {}'.format(
-                                    nutt, info[1], line
-                                )
-                            )
+                                    nutt, info[1], line))
                         uttid = sps[0]
                         value = ""
                     else:
@@ -274,9 +259,7 @@ if __name__ == "__main__":
                             logging.error(
                                 '"{}" is an invalid function '
                                 "for the {} th line in {}: \n>>> {}".format(
-                                    info[4], nutt, info[1], line
-                                )
-                            )
+                                    info[4], nutt, info[1], line))
                             raise
 
                     d[key] = value
@@ -289,8 +272,11 @@ if __name__ == "__main__":
                 entry.update(lis[0])
 
         entry = json.dumps(
-            entry, indent=4, ensure_ascii=False, sort_keys=True, separators=(",", ": ")
-        )
+            entry,
+            indent=4,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ": "))
         # Add indent
         indent = "    " * 2
         entry = ("\n" + indent).join(entry.split("\n"))

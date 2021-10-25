@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import io
 import logging
 import sys
@@ -10,11 +23,10 @@ from deepspeech.io.reader import SoundHDF5File
 
 
 def file_reader_helper(
-    rspecifier: str,
-    filetype: str = "mat",
-    return_shape: bool = False,
-    segments: str = None,
-):
+        rspecifier: str,
+        filetype: str="mat",
+        return_shape: bool=False,
+        segments: str=None, ):
     """Read uttid and array in kaldi style
 
     This function might be a bit confusing as "ark" is used
@@ -44,7 +56,8 @@ def file_reader_helper(
 
     """
     if filetype == "mat":
-        return KaldiReader(rspecifier, return_shape=return_shape, segments=segments)
+        return KaldiReader(
+            rspecifier, return_shape=return_shape, segments=segments)
     elif filetype == "hdf5":
         return HDF5Reader(rspecifier, return_shape=return_shape)
     elif filetype == "sound.hdf5":
@@ -62,7 +75,8 @@ class KaldiReader:
         self.segments = segments
 
     def __iter__(self):
-        with kaldiio.ReadHelper(self.rspecifier, segments=self.segments) as reader:
+        with kaldiio.ReadHelper(
+                self.rspecifier, segments=self.segments) as reader:
             for key, array in reader:
                 if self.return_shape:
                     array = array.shape
@@ -72,9 +86,8 @@ class KaldiReader:
 class HDF5Reader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError(
-                'Give "rspecifier" such as "ark:some.ark: {}"'.format(self.rspecifier)
-            )
+            raise ValueError('Give "rspecifier" such as "ark:some.ark: {}"'.
+                             format(self.rspecifier))
         self.rspecifier = rspecifier
         self.ark_or_scp, self.filepath = self.rspecifier.split(":", 1)
         if self.ark_or_scp not in ["ark", "scp"]:
@@ -93,9 +106,7 @@ class HDF5Reader:
                         raise RuntimeError(
                             "scp file for hdf5 should be like: "
                             '"uttid filepath.h5:key": {}({})'.format(
-                                line, self.filepath
-                            )
-                        )
+                                line, self.filepath))
                     path, h5_key = value.split(":", 1)
 
                     hdf5_file = hdf5_dict.get(path)
@@ -110,9 +121,8 @@ class HDF5Reader:
                     try:
                         data = hdf5_file[h5_key]
                     except Exception:
-                        logging.error(
-                            "Error when loading {} with key={}".format(path, h5_key)
-                        )
+                        logging.error("Error when loading {} with key={}".
+                                      format(path, h5_key))
                         raise
 
                     if self.return_shape:
@@ -144,9 +154,8 @@ class HDF5Reader:
 class SoundHDF5Reader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError(
-                'Give "rspecifier" such as "ark:some.ark: {}"'.format(rspecifier)
-            )
+            raise ValueError('Give "rspecifier" such as "ark:some.ark: {}"'.
+                             format(rspecifier))
         self.ark_or_scp, self.filepath = rspecifier.split(":", 1)
         if self.ark_or_scp not in ["ark", "scp"]:
             raise ValueError(f"Must be scp or ark: {self.ark_or_scp}")
@@ -163,9 +172,7 @@ class SoundHDF5Reader:
                         raise RuntimeError(
                             "scp file for hdf5 should be like: "
                             '"uttid filepath.h5:key": {}({})'.format(
-                                line, self.filepath
-                            )
-                        )
+                                line, self.filepath))
                     path, h5_key = value.split(":", 1)
 
                     hdf5_file = hdf5_dict.get(path)
@@ -180,9 +187,8 @@ class SoundHDF5Reader:
                     try:
                         data = hdf5_file[h5_key]
                     except Exception:
-                        logging.error(
-                            "Error when loading {} with key={}".format(path, h5_key)
-                        )
+                        logging.error("Error when loading {} with key={}".
+                                      format(path, h5_key))
                         raise
 
                     # Change Tuple[ndarray, int] -> Tuple[int, ndarray]
@@ -214,14 +220,12 @@ class SoundHDF5Reader:
 class SoundReader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError(
-                'Give "rspecifier" such as "scp:some.scp: {}"'.format(rspecifier)
-            )
+            raise ValueError('Give "rspecifier" such as "scp:some.scp: {}"'.
+                             format(rspecifier))
         self.ark_or_scp, self.filepath = rspecifier.split(":", 1)
         if self.ark_or_scp != "scp":
-            raise ValueError(
-                'Only supporting "scp" for sound file: {}'.format(self.ark_or_scp)
-            )
+            raise ValueError('Only supporting "scp" for sound file: {}'.format(
+                self.ark_or_scp))
         self.return_shape = return_shape
 
     def __iter__(self):

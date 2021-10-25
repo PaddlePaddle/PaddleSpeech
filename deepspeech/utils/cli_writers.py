@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from pathlib import Path
 from typing import Dict
 
@@ -6,18 +19,17 @@ import kaldiio
 import numpy
 import soundfile
 
-from deepspeech.utils.cli_utils import assert_scipy_wav_style
 from deepspeech.io.reader import SoundHDF5File
+from deepspeech.utils.cli_utils import assert_scipy_wav_style
 
 
 def file_writer_helper(
-    wspecifier: str,
-    filetype: str = "mat",
-    write_num_frames: str = None,
-    compress: bool = False,
-    compression_method: int = 2,
-    pcm_format: str = "wav",
-):
+        wspecifier: str,
+        filetype: str="mat",
+        write_num_frames: str=None,
+        compress: bool=False,
+        compression_method: int=2,
+        pcm_format: str="wav", ):
     """Write matrices in kaldi style
 
     Args:
@@ -61,20 +73,20 @@ def file_writer_helper(
             wspecifier,
             write_num_frames=write_num_frames,
             compress=compress,
-            compression_method=compression_method,
-        )
+            compression_method=compression_method, )
     elif filetype == "hdf5":
         return HDF5Writer(
-            wspecifier, write_num_frames=write_num_frames, compress=compress
-        )
+            wspecifier, write_num_frames=write_num_frames, compress=compress)
     elif filetype == "sound.hdf5":
         return SoundHDF5Writer(
-            wspecifier, write_num_frames=write_num_frames, pcm_format=pcm_format
-        )
+            wspecifier,
+            write_num_frames=write_num_frames,
+            pcm_format=pcm_format)
     elif filetype == "sound":
         return SoundWriter(
-            wspecifier, write_num_frames=write_num_frames, pcm_format=pcm_format
-        )
+            wspecifier,
+            write_num_frames=write_num_frames,
+            pcm_format=pcm_format)
     else:
         raise NotImplementedError(f"filetype={filetype}")
 
@@ -116,29 +128,27 @@ def get_num_frames_writer(write_num_frames: str):
     """
     if write_num_frames is not None:
         if ":" not in write_num_frames:
-            raise ValueError(
-                'Must include ":", write_num_frames={}'.format(write_num_frames)
-            )
+            raise ValueError('Must include ":", write_num_frames={}'.format(
+                write_num_frames))
 
         nframes_type, nframes_file = write_num_frames.split(":", 1)
         if nframes_type != "ark,t":
-            raise ValueError(
-                "Only supporting text mode. "
-                "e.g. --write-num-frames=ark,t:foo.txt :"
-                "{}".format(nframes_type)
-            )
+            raise ValueError("Only supporting text mode. "
+                             "e.g. --write-num-frames=ark,t:foo.txt :"
+                             "{}".format(nframes_type))
 
     return open(nframes_file, "w", encoding="utf-8")
 
 
 class KaldiWriter(BaseWriter):
-    def __init__(
-        self, wspecifier, write_num_frames=None, compress=False, compression_method=2
-    ):
+    def __init__(self,
+                 wspecifier,
+                 write_num_frames=None,
+                 compress=False,
+                 compression_method=2):
         if compress:
             self.writer = kaldiio.WriteHelper(
-                wspecifier, compression_method=compression_method
-            )
+                wspecifier, compression_method=compression_method)
         else:
             self.writer = kaldiio.WriteHelper(wspecifier)
         self.writer_scp = None
@@ -220,7 +230,8 @@ class SoundHDF5Writer(BaseWriter):
         self.pcm_format = pcm_format
         spec_dict = parse_wspecifier(wspecifier)
         self.filename = spec_dict["ark"]
-        self.writer = SoundHDF5File(spec_dict["ark"], "w", format=self.pcm_format)
+        self.writer = SoundHDF5File(
+            spec_dict["ark"], "w", format=self.pcm_format)
         if "scp" in spec_dict:
             self.writer_scp = open(spec_dict["scp"], "w", encoding="utf-8")
         else:

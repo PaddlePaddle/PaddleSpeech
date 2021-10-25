@@ -1,3 +1,16 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import io
 
 import h5py
@@ -9,16 +22,15 @@ class CMVN():
     "Apply Global/Spk CMVN/iverserCMVN."
 
     def __init__(
-        self,
-        stats,
-        norm_means=True,
-        norm_vars=False,
-        filetype="mat",
-        utt2spk=None,
-        spk2utt=None,
-        reverse=False,
-        std_floor=1.0e-20,
-    ):
+            self,
+            stats,
+            norm_means=True,
+            norm_vars=False,
+            filetype="mat",
+            utt2spk=None,
+            spk2utt=None,
+            reverse=False,
+            std_floor=1.0e-20, ):
         self.stats_file = stats
         self.norm_means = norm_means
         self.norm_vars = norm_vars
@@ -84,17 +96,14 @@ class CMVN():
             self.scale[spk] = 1 / std
 
     def __repr__(self):
-        return (
-            "{name}(stats_file={stats_file}, "
-            "norm_means={norm_means}, norm_vars={norm_vars}, "
-            "reverse={reverse})".format(
-                name=self.__class__.__name__,
-                stats_file=self.stats_file,
-                norm_means=self.norm_means,
-                norm_vars=self.norm_vars,
-                reverse=self.reverse,
-            )
-        )
+        return ("{name}(stats_file={stats_file}, "
+                "norm_means={norm_means}, norm_vars={norm_vars}, "
+                "reverse={reverse})".format(
+                    name=self.__class__.__name__,
+                    stats_file=self.stats_file,
+                    norm_means=self.norm_means,
+                    norm_vars=self.norm_vars,
+                    reverse=self.reverse, ))
 
     def __call__(self, x, uttid=None):
         if self.utt2spk is not None:
@@ -121,6 +130,7 @@ class CMVN():
 
 class UtteranceCMVN():
     "Apply Utterance CMVN"
+
     def __init__(self, norm_means=True, norm_vars=False, std_floor=1.0e-20):
         self.norm_means = norm_means
         self.norm_vars = norm_vars
@@ -130,19 +140,18 @@ class UtteranceCMVN():
         return "{name}(norm_means={norm_means}, norm_vars={norm_vars})".format(
             name=self.__class__.__name__,
             norm_means=self.norm_means,
-            norm_vars=self.norm_vars,
-        )
+            norm_vars=self.norm_vars, )
 
     def __call__(self, x, uttid=None):
         # x: [Time, Dim]
-        square_sums = (x ** 2).sum(axis=0)
+        square_sums = (x**2).sum(axis=0)
         mean = x.mean(axis=0)
 
         if self.norm_means:
             x = np.subtract(x, mean)
 
         if self.norm_vars:
-            var = square_sums / x.shape[0] - mean ** 2
+            var = square_sums / x.shape[0] - mean**2
             std = np.maximum(np.sqrt(var), self.std_floor)
             x = np.divide(x, std)
 

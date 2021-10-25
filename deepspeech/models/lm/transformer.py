@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import logging
 from typing import Any
 from typing import List
 from typing import Tuple
@@ -26,6 +25,9 @@ from deepspeech.models.lm_interface import LMInterface
 from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.modules.mask import subsequent_mask
 
+from deepspeech.utils.log import Log
+
+logger = Log(__name__).getlog()
 
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(
@@ -74,10 +76,10 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
 
         self.decoder = nn.Linear(att_unit, n_vocab)
 
-        logging.info("Tie weights set to {}".format(tie_weights))
-        logging.info("Dropout set to {}".format(dropout_rate))
-        logging.info("Emb Dropout set to {}".format(emb_dropout_rate))
-        logging.info("Att Dropout set to {}".format(att_dropout_rate))
+        logger.info("Tie weights set to {}".format(tie_weights))
+        logger.info("Dropout set to {}".format(dropout_rate))
+        logger.info("Emb Dropout set to {}".format(emb_dropout_rate))
+        logger.info("Att Dropout set to {}".format(att_dropout_rate))
 
         if tie_weights:
             assert (

@@ -23,17 +23,39 @@ from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = [
-    "NoPositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"
+    "PositionalEncodingInterface", "NoPositionalEncoding", "PositionalEncoding", "RelPositionalEncoding"
 ]
 
+class PositionalEncodingInterface:
 
-class NoPositionalEncoding(nn.Layer):
+    def forward(self, x:paddle.Tensor, offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        """Compute positional encoding.
+        Args:
+            x (paddle.Tensor): Input tensor (batch, time, `*`).
+        Returns:
+            paddle.Tensor: Encoded tensor (batch, time, `*`).
+            paddle.Tensor: Positional embedding tensor (1, time, `*`).
+        """
+        raise NotImplementedError("forward method is not implemented")
+    
+    def position_encoding(self, offset:int, size:int) -> paddle.Tensor:
+        """ For getting encoding in a streaming fashion
+        Args:
+            offset (int): start offset
+            size (int): requried size of position encoding
+        Returns:
+            paddle.Tensor: Corresponding position encoding
+        """
+        raise NotImplementedError("position_encoding method is not implemented")
+
+
+class NoPositionalEncoding(nn.Layer, PositionalEncodingInterface):
     def __init__(self,
                  d_model: int,
                  dropout_rate: float,
                  max_len: int=5000,
                  reverse: bool=False):
-        super().__init__()
+        nn.Layer.__init__(self)
 
     def forward(self, x: paddle.Tensor,
                 offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
@@ -43,7 +65,7 @@ class NoPositionalEncoding(nn.Layer):
         return None
 
 
-class PositionalEncoding(nn.Layer):
+class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
     def __init__(self,
                  d_model: int,
                  dropout_rate: float,
@@ -58,7 +80,7 @@ class PositionalEncoding(nn.Layer):
             max_len (int, optional): maximum input length. Defaults to 5000.
             reverse (bool, optional): Not used. Defaults to False.
         """
-        super().__init__()
+        nn.Layer.__init__(self)
         self.d_model = d_model
         self.max_len = max_len
         self.xscale = paddle.to_tensor(math.sqrt(self.d_model))
@@ -103,7 +125,7 @@ class PositionalEncoding(nn.Layer):
             offset (int): start offset
             size (int): requried size of position encoding
         Returns:
-            paddle.Tensor: Corresponding encoding
+            paddle.Tensor: Corresponding position encoding
         """
         assert offset + size < self.max_len
         return self.dropout(self.pe[:, offset:offset + size])

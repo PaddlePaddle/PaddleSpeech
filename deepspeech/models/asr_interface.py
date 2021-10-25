@@ -18,7 +18,7 @@ from deepspeech.utils.dynamic_import import dynamic_import
 
 
 class ASRInterface:
-    """ASR Interface for ESPnet model implementation."""
+    """ASR Interface model implementation."""
 
     @staticmethod
     def add_arguments(parser):
@@ -103,14 +103,14 @@ class ASRInterface:
     @property
     def attention_plot_class(self):
         """Get attention plot class."""
-        from espnet.asr.asr_utils import PlotAttentionReport
+        from deepspeech.training.extensions.plot import PlotAttentionReport
 
         return PlotAttentionReport
 
     @property
     def ctc_plot_class(self):
         """Get CTC plot class."""
-        from espnet.asr.asr_utils import PlotCTCReport
+         from deepspeech.training.extensions.plot import PlotCTCReport
 
         return PlotCTCReport
 

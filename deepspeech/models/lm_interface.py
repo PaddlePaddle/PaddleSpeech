@@ -6,7 +6,7 @@ from deepspeech.decoders.scorers.scorer_interface import ScorerInterface
 from deepspeech.utils.dynamic_import import dynamic_import
 
 class LMInterface(ScorerInterface):
-    """LM Interface for ESPnet model implementation."""
+    """LM Interface model implementation."""
 
     @staticmethod
     def add_arguments(parser):

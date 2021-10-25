@@ -355,7 +355,6 @@ if not hasattr(paddle.Tensor, 'tolist'):
         "register user tolist to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'tolist', tolist)
 
-
 ########### hack paddle.nn #############
 from paddle.nn import Layer
 from typing import Optional
@@ -506,5 +505,3 @@ if not hasattr(paddle.nn, 'LayerDict'):
     logger.debug(
         "register user LayerDict to paddle.nn, remove this when fixed!")
     setattr(paddle.nn, 'LayerDict', LayerDict)
-
-

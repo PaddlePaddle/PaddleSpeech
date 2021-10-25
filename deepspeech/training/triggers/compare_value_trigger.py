@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from .utils import get_trigger
 from ..reporter import DictSummary
+from .utils import get_trigger
+
 
 class CompareValueTrigger():
     """Trigger invoked when key value getting bigger or lower than before.
@@ -24,6 +24,7 @@ class CompareValueTrigger():
         trigger (tuple(int, str)) : Trigger that decide the comparison interval.
 
     """
+
     def __init__(self, key, compare_fn, trigger=(1, "epoch")):
         self._key = key
         self._best_value = None

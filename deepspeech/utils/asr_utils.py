@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
+
 import numpy as np
 
 __all__ = ["label_smoothing_dist"]
@@ -33,8 +34,7 @@ def label_smoothing_dist(odim, lsm_type, transcript=None, blank=0):
 
     if lsm_type == "unigram":
         assert transcript is not None, (
-            "transcript is required for %s label smoothing" % lsm_type
-        )
+            "transcript is required for %s label smoothing" % lsm_type)
         labelcount = np.zeros(odim)
         for k, v in trans_json.items():
             ids = np.array([int(n) for n in v["output"][0]["tokenid"].split()])

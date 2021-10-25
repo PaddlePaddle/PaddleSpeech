@@ -24,5 +24,6 @@ tools/montreal-forced-aligner/
 tools/Montreal-Forced-Aligner/
 tools/sctk
 tools/sctk-20159b5/
+tools/kaldi
 
 *output/

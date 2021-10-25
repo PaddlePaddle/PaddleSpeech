@@ -48,6 +48,9 @@ mfa.done:
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 
+kaldi.done:
+	test -d kaldi || git clone --depth 1 https://github.com/kaldi-asr/kaldi
+	touch kaldi.done
 
 #== SCTK ===============================================================================
 # SCTK official repo does not have version tags. Here's the mapping:

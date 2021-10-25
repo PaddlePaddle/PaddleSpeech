@@ -28,8 +28,8 @@ from .utils import add_results_to_json
 from deepspeech.exps import dynamic_import_tester
 from deepspeech.io.reader import LoadInputsAndTargets
 from deepspeech.models.asr_interface import ASRInterface
-from deepspeech.utils.log import Log
 from deepspeech.models.lm.transformer import TransformerLM
+from deepspeech.utils.log import Log
 # from espnet.asr.asr_utils import get_model_conf
 # from espnet.asr.asr_utils import torch_load
 # from espnet.nets.lm_interface import dynamic_import_lm
@@ -80,8 +80,7 @@ def recog_v2(args):
         sort_in_input_length=False,
         preprocess_conf=confs.collator.augmentation_config
         if args.preprocess_conf is None else args.preprocess_conf,
-        preprocess_args={"train": False},
-    )
+        preprocess_args={"train": False}, )
 
     if args.rnnlm:
         lm_path = args.rnnlm
@@ -120,8 +119,7 @@ def recog_v2(args):
         ctc=args.ctc_weight,
         lm=args.lm_weight,
         ngram=args.ngram_weight,
-        length_bonus=args.penalty,
-    )
+        length_bonus=args.penalty, )
     beam_search = BeamSearch(
         beam_size=args.beam_size,
         vocab_size=len(char_list),
@@ -130,8 +128,7 @@ def recog_v2(args):
         sos=model.sos,
         eos=model.eos,
         token_list=char_list,
-        pre_beam_score_key=None if args.ctc_weight == 1.0 else "full",
-    )
+        pre_beam_score_key=None if args.ctc_weight == 1.0 else "full", )
 
     # TODO(karita): make all scorers batchfied
     if args.batchsize == 1:
@@ -178,9 +175,10 @@ def recog_v2(args):
                 logger.info(f'feat: {feat.shape}')
                 enc = model.encode(paddle.to_tensor(feat).to(dtype))
                 logger.info(f'eout: {enc.shape}')
-                nbest_hyps = beam_search(x=enc,
-                                         maxlenratio=args.maxlenratio,
-                                         minlenratio=args.minlenratio)
+                nbest_hyps = beam_search(
+                    x=enc,
+                    maxlenratio=args.maxlenratio,
+                    minlenratio=args.minlenratio)
                 nbest_hyps = [
                     h.asdict()
                     for h in nbest_hyps[:min(len(nbest_hyps), args.nbest)]
@@ -190,9 +188,8 @@ def recog_v2(args):
 
                 item = new_js[name]['output'][0]  # 1-best
                 ref = item['text']
-                rec_text = item['rec_text'].replace('▁',
-                                                    ' ').replace('<eos>',
-                                                                 '').strip()
+                rec_text = item['rec_text'].replace('▁', ' ').replace(
+                    '<eos>', '').strip()
                 rec_tokenid = list(map(int, item['rec_tokenid'].split()))
                 f.write({
                     "utt": name,

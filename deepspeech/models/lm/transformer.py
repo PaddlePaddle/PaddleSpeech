@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 from typing import Any
 from typing import List
 from typing import Tuple
@@ -20,12 +21,12 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from deepspeech.modules.mask import subsequent_mask
-from deepspeech.modules.encoder import TransformerEncoder
 from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.models.lm_interface import LMInterface
+from deepspeech.modules.encoder import TransformerEncoder
+from deepspeech.modules.mask import subsequent_mask
 
-import logging
+
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(
             self,
@@ -37,9 +38,9 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             unit: int=1024,
             layer: int=4,
             dropout_rate: float=0.5,
-            emb_dropout_rate: float = 0.0,
-            att_dropout_rate: float = 0.0,
-            tie_weights: bool = False,):
+            emb_dropout_rate: float=0.0,
+            att_dropout_rate: float=0.0,
+            tie_weights: bool=False, ):
         nn.Layer.__init__(self)
 
         if pos_enc == "sinusoidal":
@@ -84,16 +85,13 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             ), "Tie Weights: True need embedding and final dimensions to match"
             self.decoder.weight = self.embed.weight
 
-
-
     def _target_mask(self, ys_in_pad):
         ys_mask = ys_in_pad != 0
         m = subsequent_mask(ys_mask.size(-1)).unsqueeze(0)
         return ys_mask.unsqueeze(-2) & m
 
-    def forward(
-        self, x: paddle.Tensor, t: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(self, x: paddle.Tensor, t: paddle.Tensor
+                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute LM loss value from buffer sequences.
 
         Args:
@@ -119,7 +117,8 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb = self.embed(x)
         h, _ = self.encoder(emb, xlen)
         y = self.decoder(h)
-        loss = F.cross_entropy(y.view(-1, y.shape[-1]), t.view(-1), reduction="none")
+        loss = F.cross_entropy(
+            y.view(-1, y.shape[-1]), t.view(-1), reduction="none")
         mask = xm.to(dtype=loss.dtype)
         logp = loss * mask.view(-1)
         logp = logp.sum()
@@ -150,16 +149,16 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb = self.embed(y)
 
         h, _, cache = self.encoder.forward_one_step(
-            emb, self._target_mask(y), cache=state
-        )
+            emb, self._target_mask(y), cache=state)
         h = self.decoder(h[:, -1])
         logp = F.log_softmax(h).squeeze(0)
         return logp, cache
 
     # batch beam search API (see BatchScorerInterface)
-    def batch_score(
-        self, ys: paddle.Tensor, states: List[Any], xs: paddle.Tensor
-    ) -> Tuple[paddle.Tensor, List[Any]]:
+    def batch_score(self,
+                    ys: paddle.Tensor,
+                    states: List[Any],
+                    xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
         Args:
@@ -193,13 +192,13 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
 
         # batch decoding
         h, _, states = self.encoder.forward_one_step(
-            emb, self._target_mask(ys), cache=batch_state
-        )
+            emb, self._target_mask(ys), cache=batch_state)
         h = self.decoder(h[:, -1])
         logp = F.log_softmax(h)
 
         # transpose state of [layer, batch] into [batch, layer]
-        state_list = [[states[i][b] for i in range(n_layers)] for b in range(n_batch)]
+        state_list = [[states[i][b] for i in range(n_layers)]
+                      for b in range(n_batch)]
         return logp, state_list
 
 
@@ -214,17 +213,17 @@ if __name__ == "__main__":
         layer=16,
         dropout_rate=0.5, )
 
-            #     n_vocab: int,
-            # pos_enc: str=None,
-            # embed_unit: int=128,
-            # att_unit: int=256,
-            # head: int=2,
-            # unit: int=1024,
-            # layer: int=4,
-            # dropout_rate: float=0.5,
-            # emb_dropout_rate: float = 0.0,
-            # att_dropout_rate: float = 0.0,
-            # tie_weights: bool = False,):
+    #     n_vocab: int,
+    # pos_enc: str=None,
+    # embed_unit: int=128,
+    # att_unit: int=256,
+    # head: int=2,
+    # unit: int=1024,
+    # layer: int=4,
+    # dropout_rate: float=0.5,
+    # emb_dropout_rate: float = 0.0,
+    # att_dropout_rate: float = 0.0,
+    # tie_weights: bool = False,):
     paddle.set_device("cpu")
     model_dict = paddle.load("transformerLM.pdparams")
     tlm.set_state_dict(model_dict)
@@ -236,11 +235,11 @@ if __name__ == "__main__":
     state = None
     output, state = tlm.score(input2, state, None)
 
-    input3 = np.array([5,10])
+    input3 = np.array([5, 10])
     input3 = paddle.to_tensor(input3)
     output, state = tlm.score(input3, state, None)
 
-    input4 = np.array([5,10,0])
+    input4 = np.array([5, 10, 0])
     input4 = paddle.to_tensor(input4)
     output, state = tlm.score(input4, state, None)
     print("output", output)

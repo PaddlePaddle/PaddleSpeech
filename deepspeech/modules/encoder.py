@@ -24,9 +24,9 @@ from deepspeech.modules.activation import get_activation
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.attention import RelPositionMultiHeadedAttention
 from deepspeech.modules.conformer_convolution import ConvolutionModule
+from deepspeech.modules.embedding import NoPositionalEncoding
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.embedding import RelPositionalEncoding
-from deepspeech.modules.embedding import NoPositionalEncoding
 from deepspeech.modules.encoder_layer import ConformerEncoderLayer
 from deepspeech.modules.encoder_layer import TransformerEncoderLayer
 from deepspeech.modules.mask import add_optional_chunk_mask
@@ -378,8 +378,7 @@ class TransformerEncoder(BaseEncoder):
             self,
             xs: paddle.Tensor,
             masks: paddle.Tensor,
-            cache=None,
-    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+            cache=None, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Encode input frame.
 
         Args:
@@ -397,9 +396,11 @@ class TransformerEncoder(BaseEncoder):
 
         if isinstance(self.embed, Conv2dSubsampling):
             #TODO(Hui Zhang): self.embed(xs, masks, offset=0), stride_slice not support bool tensor
-            xs, pos_emb, masks = self.embed(xs, masks.astype(xs.dtype), offset=0)
+            xs, pos_emb, masks = self.embed(
+                xs, masks.astype(xs.dtype), offset=0)
         else:
-            xs , pos_emb, masks= self.embed(xs, masks.astype(xs.dtype), offset=0)
+            xs, pos_emb, masks = self.embed(
+                xs, masks.astype(xs.dtype), offset=0)
         #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
         masks = masks.astype(paddle.bool)
 

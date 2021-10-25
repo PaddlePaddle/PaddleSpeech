@@ -399,7 +399,8 @@ class TransformerEncoder(BaseEncoder):
             xs, pos_emb, masks = self.embed(
                 xs, masks.astype(xs.dtype), offset=0)
         else:
-            xs = self.embed(xs)
+            xs, pos_emb, masks = self.embed(
+                xs, masks.astype(xs.dtype), offset=0)
         #TODO(Hui Zhang): remove mask.astype, stride_slice not support bool tensor
         masks = masks.astype(paddle.bool)
 

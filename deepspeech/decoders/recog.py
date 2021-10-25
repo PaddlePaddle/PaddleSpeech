@@ -24,6 +24,7 @@ from .utils import add_results_to_json
 from deepspeech.exps import dynamic_import_tester
 from deepspeech.io.reader import LoadInputsAndTargets
 from deepspeech.models.asr_interface import ASRInterface
+from deepspeech.models.lm.transformer import TransformerLM
 from deepspeech.utils.log import Log
 # from espnet.asr.asr_utils import get_model_conf
 # from espnet.asr.asr_utils import torch_load
@@ -78,12 +79,18 @@ def recog_v2(args):
         preprocess_args={"train": False}, )
 
     if args.rnnlm:
-        lm_args = get_model_conf(args.rnnlm, args.rnnlm_conf)
-        # NOTE: for a compatibility with less than 0.5.0 version models
-        lm_model_module = getattr(lm_args, "model_module", "default")
-        lm_class = dynamic_import_lm(lm_model_module, lm_args.backend)
-        lm = lm_class(len(char_list), lm_args)
-        torch_load(args.rnnlm, lm)
+        lm_path = args.rnnlm
+        lm = TransformerLM(
+            n_vocab=5002,
+            pos_enc=None,
+            embed_unit=128,
+            att_unit=512,
+            head=8,
+            unit=2048,
+            layer=16,
+            dropout_rate=0.5, )
+        model_dict = paddle.load(lm_path)
+        lm.set_state_dict(model_dict)
         lm.eval()
     else:
         lm = None

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 from typing import Any
 from typing import List
 from typing import Tuple
@@ -150,7 +151,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         h, _, cache = self.encoder.forward_one_step(
             emb, self._target_mask(y), cache=state)
         h = self.decoder(h[:, -1])
-        logp = h.log_softmax(axis=-1).squeeze(0)
+        logp = F.log_softmax(h).squeeze(0)
         return logp, cache
 
     # batch beam search API (see BatchScorerInterface)
@@ -193,7 +194,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         h, _, states = self.encoder.forward_one_step(
             emb, self._target_mask(ys), cache=batch_state)
         h = self.decoder(h[:, -1])
-        logp = h.log_softmax(axi=-1)
+        logp = F.log_softmax(h)
 
         # transpose state of [layer, batch] into [batch, layer]
         state_list = [[states[i][b] for i in range(n_layers)]
@@ -219,7 +220,7 @@ if __name__ == "__main__":
     # head: int=2,
     # unit: int=1024,
     # layer: int=4,
-    # dropout_rate: float=0.5, 
+    # dropout_rate: float=0.5,
     # emb_dropout_rate: float = 0.0,
     # att_dropout_rate: float = 0.0,
     # tie_weights: bool = False,):
@@ -231,14 +232,14 @@ if __name__ == "__main__":
     #Test the score
     input2 = np.array([5])
     input2 = paddle.to_tensor(input2)
-    state = (None, None, 0)
+    state = None
     output, state = tlm.score(input2, state, None)
 
-    input3 = np.array([10])
+    input3 = np.array([5, 10])
     input3 = paddle.to_tensor(input3)
     output, state = tlm.score(input3, state, None)
 
-    input4 = np.array([0])
+    input4 = np.array([5, 10, 0])
     input4 = paddle.to_tensor(input4)
     output, state = tlm.score(input4, state, None)
     print("output", output)

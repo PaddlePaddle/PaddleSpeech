@@ -19,8 +19,8 @@ from paddle.io import Dataset
 
 from parakeet.data import batch_spec
 from parakeet.data import batch_text_id
-from parakeet.exps.tacotron2_ge2e.preprocess_transcription import _phones
-from parakeet.exps.tacotron2_ge2e.preprocess_transcription import _tones
+from parakeet.exps.voice_cloning.tacotron2_ge2e.preprocess_transcription import _phones
+from parakeet.exps.voice_cloning.tacotron2_ge2e.preprocess_transcription import _tones
 from parakeet.frontend import Vocab
 
 voc_phones = Vocab(sorted(list(_phones)))

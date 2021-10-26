@@ -17,7 +17,7 @@ from typing import Tuple
 from pypinyin import lazy_pinyin
 from pypinyin import Style
 
-from parakeet.exps.tacotron2_ge2e.preprocess_transcription import split_syllable
+from parakeet.exps.voice_cloning.tacotron2_ge2e.preprocess_transcription import split_syllable
 
 
 def convert_to_pinyin(text: str) -> List[str]:

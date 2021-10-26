@@ -47,8 +47,10 @@ def main(args):
 
     beat_val_scores = sorted_val_scores[:args.num, 1]
     selected_epochs = sorted_val_scores[:args.num, 0].astype(np.int64)
+    avg_val_score = np.mean(beat_val_scores)
     print("selected val scores = " + str(beat_val_scores))
     print("selected epochs = " + str(selected_epochs))
+    print("averaged val score = " + str(avg_val_score))
 
     path_list = [
         args.ckpt_dir + '/{}.pdparams'.format(int(epoch))
@@ -80,7 +82,7 @@ def main(args):
         data = json.dumps({
             "mode": 'val_best' if args.val_best else 'latest',
             "avg_ckpt": args.dst_model,
-            "val_loss_mean": np.mean(beat_val_scores),
+            "val_loss_mean": avg_val_score,
             "ckpts": path_list,
             "epochs": selected_epochs.tolist(),
             "val_losses": beat_val_scores.tolist(),

@@ -24,7 +24,7 @@ clean:
 
 apt.done:
 	apt update -y
-	apt install -y flac jq vim tig tree pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
+	apt install -y bc flac jq vim tig tree pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
 	echo "check_certificate = off" >> ~/.wgetrc
 	touch apt.done
 

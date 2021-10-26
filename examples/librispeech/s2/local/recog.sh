@@ -15,18 +15,19 @@ lang_model=rnnlm.model.best
 lmexpdir=exp/train_rnnlm_pytorch_lm_transformer_cosine_batchsize32_lr1e-4_layer16_unigram5000_ngpu4/
 lmtag='nolm'
 
+train_set=train_960
 recog_set="test-clean test-other dev-clean dev-other"
 recog_set="test-clean"
 
 # bpemode (unigram or bpe)
 nbpe=5000
 bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
+bpeprefix=data/lang_char/${train_set}_${bpemode}${nbpe}
 bpemodel=${bpeprefix}.model
 
 # bin params
 config_path=conf/transformer.yaml
-dict=data/bpe_unigram_5000_units.txt
+dict=data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 ckpt_prefix=
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

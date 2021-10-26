@@ -20,7 +20,6 @@ datadir=${MAIN_ROOT}/examples/dataset/
 # bpemode (unigram or bpe)
 nbpe=5000
 bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
@@ -153,26 +152,15 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    # format manifest with tokenids, vocab size
-    for set in train dev test dev-clean dev-other test-clean test-other; do
-    {
-        python3 ${MAIN_ROOT}/utils/format_data.py \
-        --feat_type "raw" \
-        --cmvn_path "data/mean_std.json" \
-        --unit_type "spm" \
-        --spm_model_prefix ${bpeprefix} \
-        --vocab_path="data/vocab.txt" \
-        --manifest_path="data/manifest.${set}.raw" \
-        --output_path="data/manifest.${set}"
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    # make json labels
+    python3 local/espnet_json_to_manifest.py --json-file ${feat_sp_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.train
+    python3 local/espnet_json_to_manifest.py --json-file ${feat_dt_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.dev
 
-        if [ $? -ne 0 ]; then
-            echo "Formt mnaifest failed. Terminated."
-            exit 1
-        fi
-    }&
+    for rtask in ${recog_set}; do
+        feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}
+        python3 local/espnet_json_to_manifest.py --json-file ${feat_recog_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.${rtask//_/-}
     done
-    wait
 fi
 
 echo "LibriSpeech Data preparation done."

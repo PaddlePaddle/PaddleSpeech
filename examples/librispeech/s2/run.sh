@@ -10,6 +10,7 @@ stop_stage=100
 conf_path=conf/transformer.yaml
 dict_path=data/bpe_unigram_5000_units.txt
 avg_num=10
+use_lm=true
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -45,4 +46,12 @@ fi
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # export ckpt avg_n
     CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi
+
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ] && ${use_lm} == true; then
+    # use transformerlm to score
+    if [ ! -f exp/lm/transformer/transformerLM.pdparams ]; then
+        wget https://deepspeech.bj.bcebos.com/transformer_lm/transformerLM.pdparams exp/lm/transformer/
+    fi
+    bash local/recog.sh  --ckpt_prefix exp/${ckpt}/checkpoints/${avg_ckpt}
 fi

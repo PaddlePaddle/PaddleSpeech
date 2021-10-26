@@ -30,11 +30,10 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
-    --spectrum_type="fbank" \
-    --feat_dim=80 \
+    --spectrum_type="linear" \
     --delta_delta=false \
     --stride_ms=10.0 \
-    --window_ms=25.0 \
+    --window_ms=20.0 \
     --sample_rate=16000 \
     --use_dB_normalization=True \
     --num_samples=2000 \

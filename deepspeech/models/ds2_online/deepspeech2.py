@@ -397,7 +397,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
 
 class DeepSpeech2InferModelOnline(DeepSpeech2ModelOnline):
     def __init__(self, *args, **kwargs):
-        print("*args", *args)
         super().__init__(*args, **kwargs)
 
     def forward(self, audio_chunk, audio_chunk_lens, chunk_state_h_box,

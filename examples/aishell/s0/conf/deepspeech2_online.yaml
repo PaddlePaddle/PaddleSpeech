@@ -18,11 +18,11 @@ collator:
   augmentation_config: conf/augmentation.json
   random_seed: 0
   spm_model_prefix: 
-  spectrum_type: fbank #linear, mfcc, fbank
-  feat_dim: 80 
+  spectrum_type: linear #linear, mfcc, fbank
+  feat_dim: 
   delta_delta: False
   stride_ms: 10.0
-  window_ms: 25.0
+  window_ms: 20.0
   n_fft: None
   max_freq: None
   target_sample_rate: 16000
@@ -36,17 +36,17 @@ collator:
 
 model:
   num_conv_layers: 2
-  num_rnn_layers: 4
+  num_rnn_layers: 5
   rnn_layer_size: 1024
   rnn_direction: forward # [forward, bidirect]
-  num_fc_layers: 1
-  fc_layers_size_list: 1024,
+  num_fc_layers: 0
+  fc_layers_size_list: -1,
   use_gru: False 
   blank_id: 0
   ctc_grad_norm_type: null
   
 training:
-  n_epoch: 80
+  n_epoch: 50
   accum_grad: 1
   lr: 2e-3
   lr_decay: 0.9  # 0.83

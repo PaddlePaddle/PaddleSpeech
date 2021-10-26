@@ -15,10 +15,11 @@
 from typing import Dict
 from typing import Sequence
 from typing import Tuple
+
 import numpy
 import paddle
-from paddle import nn
 import paddle.nn.functional as F
+from paddle import nn
 from typeguard import check_argument_types
 
 from parakeet.modules.fastspeech2_transformer.attention import MultiHeadedAttention
@@ -27,13 +28,13 @@ from parakeet.modules.fastspeech2_transformer.embedding import PositionalEncodin
 from parakeet.modules.fastspeech2_transformer.embedding import ScaledPositionalEncoding
 from parakeet.modules.fastspeech2_transformer.encoder import Encoder
 from parakeet.modules.fastspeech2_transformer.mask import subsequent_mask
+from parakeet.modules.nets_utils import initialize
+from parakeet.modules.nets_utils import make_non_pad_mask
+from parakeet.modules.nets_utils import make_pad_mask
 from parakeet.modules.style_encoder import StyleEncoder
 from parakeet.modules.tacotron2.decoder import Postnet
 from parakeet.modules.tacotron2.decoder import Prenet as DecoderPrenet
 from parakeet.modules.tacotron2.encoder import Encoder as EncoderPrenet
-from parakeet.modules.nets_utils import initialize
-from parakeet.modules.nets_utils import make_non_pad_mask
-from parakeet.modules.nets_utils import make_pad_mask
 
 
 class TransformerTTS(nn.Layer):

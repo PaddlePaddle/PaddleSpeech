@@ -20,9 +20,8 @@ than words are used in transcriptions produced by `reorganize_baker.py`.
 We make this choice to better leverage other software for chinese text to 
 pinyin tools like pypinyin. This is the convention for G2P in Chinese.
 """
-
-import re
 import argparse
+import re
 from collections import OrderedDict
 
 INITIALS = [

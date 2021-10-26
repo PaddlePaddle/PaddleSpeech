@@ -17,9 +17,9 @@ from abc import abstractmethod
 from g2p_en import G2p
 from g2pM import G2pM
 
-from parakeet.frontend.vocab import Vocab
 from parakeet.frontend.normalizer.normalizer import normalize
 from parakeet.frontend.punctuation import get_punctuations
+from parakeet.frontend.vocab import Vocab
 
 # discard opencc untill we find an easy solution to install it on windows
 # from opencc import OpenCC

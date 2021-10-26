@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tacotron2 decoder related modules."""
-
-import six
 import paddle.nn.functional as F
+import six
 from paddle import nn
 
 

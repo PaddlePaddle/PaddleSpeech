@@ -17,7 +17,7 @@ import kaldiio
 import numpy as np
 import soundfile
 
-from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
+from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline as Transformation
 from deepspeech.utils.log import Log
 
 __all__ = ["LoadInputsAndTargets"]
@@ -66,8 +66,7 @@ class LoadInputsAndTargets():
             raise ValueError("Only asr are allowed: mode={}".format(mode))
 
         if preprocess_conf is not None:
-            with open(preprocess_conf, 'r') as fin:
-                self.preprocessing = AugmentationPipeline(fin.read())
+            self.preprocessing = Transformation(preprocess_conf)
             logger.warning(
                 "[Experimental feature] Some preprocessing will be done "
                 "for the mini-batch creation using {}".format(

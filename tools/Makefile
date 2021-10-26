@@ -25,6 +25,7 @@ clean:
 apt.done:
 	apt update -y
 	apt install -y flac jq vim tig tree pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
+	echo "check_certificate = off" >> ~/.wgetrc
 	touch apt.done
 
 kenlm.done:
@@ -55,7 +56,7 @@ mfa.done:
 	touch mfa.done
 
 kaldi.done:
-	test -d kaldi || git clone --depth 1 https://github.com/kaldi-asr/kaldi
+	bash extras/install_kaldi.sh
 	touch kaldi.done
 
 #== SCTK ===============================================================================

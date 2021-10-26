@@ -10,7 +10,7 @@ WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
-all: virtualenv.done apt.done kenlm.done sox.done soxbindings.done mfa.done sclite.done kaldi.done
+all: virtualenv.done apt.done kenlm.done sox.done soxbindings.done mfa.done sclite.done
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -55,7 +55,11 @@ mfa.done:
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 
-kaldi.done:
+openblas.done:
+	bash extras/install_openblas.sh
+	touch openblas.done
+
+kaldi.done: openblas.done
 	bash extras/install_kaldi.sh
 	touch kaldi.done
 

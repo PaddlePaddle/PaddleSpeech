@@ -23,9 +23,9 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 
 from parakeet.data import dataset
-from parakeet.exps.tacotron2_ge2e.aishell3 import AiShell3
-from parakeet.exps.tacotron2_ge2e.aishell3 import collate_aishell3_examples
-from parakeet.exps.tacotron2_ge2e.config import get_cfg_defaults
+from parakeet.exps.voice_cloning.tacotron2_ge2e.aishell3 import AiShell3
+from parakeet.exps.voice_cloning.tacotron2_ge2e.aishell3 import collate_aishell3_examples
+from parakeet.exps.voice_cloning.tacotron2_ge2e.config import get_cfg_defaults
 from parakeet.models.tacotron2 import Tacotron2
 from parakeet.models.tacotron2 import Tacotron2Loss
 from parakeet.training.cli import default_argument_parser

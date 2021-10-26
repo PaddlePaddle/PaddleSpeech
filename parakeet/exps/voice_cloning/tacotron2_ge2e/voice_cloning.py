@@ -21,9 +21,9 @@ import soundfile as sf
 from matplotlib import pyplot as plt
 
 from parakeet.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
-from parakeet.exps.tacotron2_ge2e.aishell3 import voc_phones
-from parakeet.exps.tacotron2_ge2e.aishell3 import voc_tones
-from parakeet.exps.tacotron2_ge2e.chinese_g2p import convert_sentence
+from parakeet.exps.voice_cloning.tacotron2_ge2e.aishell3 import voc_phones
+from parakeet.exps.voice_cloning.tacotron2_ge2e.aishell3 import voc_tones
+from parakeet.exps.voice_cloning.tacotron2_ge2e.chinese_g2p import convert_sentence
 from parakeet.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 from parakeet.models.tacotron2 import Tacotron2
 from parakeet.models.waveflow import ConditionalWaveFlow

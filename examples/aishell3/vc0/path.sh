@@ -9,5 +9,5 @@ export PYTHONDONTWRITEBYTECODE=1
 export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
-MODEL=tacotron2_ge2e
+MODEL=voice_cloning/tacotron2_ge2e
 export BIN_DIR=${MAIN_ROOT}/parakeet/exps/${MODEL}

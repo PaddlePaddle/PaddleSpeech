@@ -11,6 +11,11 @@ preprocess_path=preprocessed_ljspeech
 train_output_path=output
 ckpt_name=step-35000
 
+# with the following command, you can choice the stage range you want to run
+# such as `./run.sh --stage 0 --stop-stage 0`
+# this can not be mixed use with `$1`, `$2` ...
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
+
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
     ./local/preprocess.sh ${preprocess_path} || exit -1

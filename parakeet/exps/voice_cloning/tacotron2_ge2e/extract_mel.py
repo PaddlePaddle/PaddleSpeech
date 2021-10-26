@@ -22,7 +22,7 @@ import tqdm
 from parakeet.audio import AudioProcessor
 from parakeet.audio.spec_normalizer import LogMagnitude
 from parakeet.audio.spec_normalizer import NormalizerBase
-from parakeet.exps.tacotron2_ge2e.config import get_cfg_defaults
+from parakeet.exps.voice_cloning.tacotron2_ge2e.config import get_cfg_defaults
 
 
 def extract_mel(fname: Path,

@@ -1,8 +1,8 @@
 # Tacotron2 + AISHELL-3 Voice Cloning
 This example contains code used to train a [Tacotron2 ](https://arxiv.org/abs/1712.05884) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf) . The general steps are as follows:
-1. Speaker Encoder: We  use a Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in Tacotron2, because the  transcriptions are not needed, we use more datasets, refer to  [ge2e](../../other/ge2e).
+1. Speaker Encoder: We  use a Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in Tacotron2, because the  transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e).
 2. Synthesizer: Then, we use the trained speaker encoder to generate utterance embedding for each  sentence in AISHELL-3. This embedding is a extra input of  Tacotron2 which will be concated with encoder outputs.
-3. Vocoder: We use WaveFlow as the neural Vocoder, refer to [waveflow](../../ljspeech/voc0).
+3. Vocoder: We use WaveFlow as the neural Vocoder, refer to [waveflow](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0).
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -39,9 +39,9 @@ There are silence in the edge of AISHELL-3's wavs, and the audio amplitude is ve
 
 We use Montreal Force Aligner 1.0. The label in  aishell3 include pinyin，so the lexicon we provided to MFA is pinyin rather than Chinese characters. And the prosody marks(`$`  and `%`) need to be removed. You shoud preprocess the dataset into the format  which MFA needs, the texts have the same name with wavs and have the suffix `.lab`.
 
-We use [lexicon.txt](./lexicon.txt) as the lexicon.
+We use [lexicon.txt](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/parakeet/exps/voice_cloning/tacotron2_ge2e/lexicon.txt) as the lexicon.
 
-You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/Parakeet/alignment_aishell3.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/use_mfa) (use MFA1.x now) of our repo.
+You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/Parakeet/alignment_aishell3.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
 
 ```bash
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then

@@ -56,11 +56,6 @@ class DeepSpeech2Tester_hub():
             cutoff_prob=cfg.cutoff_prob,
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
-        #replace the '<space>' with ' '
-        result_transcripts = [
-            self._text_featurizer.detokenize(sentence)
-            for sentence in result_transcripts
-        ]
 
         return result_transcripts
 
@@ -167,9 +162,8 @@ def check(audio_file):
 
 def main_sp(config, args):
     exp = DeepSpeech2Tester_hub(config, args)
-    with exp.eval():
-        exp.setup()
-        exp.run_test()
+    exp.setup()
+    exp.run_test()
 
 
 def main(config, args):

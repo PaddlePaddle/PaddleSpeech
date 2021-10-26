@@ -18,10 +18,23 @@ from deepspeech.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = [
-    "make_pad_mask", "make_non_pad_mask", "subsequent_mask",
+    "make_xs_mask", "make_pad_mask", "make_non_pad_mask", "subsequent_mask",
     "subsequent_chunk_mask", "add_optional_chunk_mask", "mask_finished_scores",
     "mask_finished_preds"
 ]
+
+
+def make_xs_mask(xs: paddle.Tensor, pad_value=0.0) -> paddle.Tensor:
+    """Maks mask tensor containing indices of non-padded part.
+    Args:
+        xs (paddle.Tensor): (B, T, D), zeros for pad.
+    Returns:
+        paddle.Tensor: Mask Tensor indices of non-padded part. (B, T)
+    """
+    pad_frame = paddle.full([1, 1, xs.shape[-1]], pad_value, dtype=xs.dtype)
+    mask = xs != pad_frame
+    mask = mask.all(axis=-1)
+    return mask
 
 
 def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
@@ -31,6 +44,7 @@ def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
         lengths (paddle.Tensor): Batch of lengths (B,).
     Returns:
         paddle.Tensor: Mask tensor containing indices of padded part.
+        (B, T)
     Examples:
         >>> lengths = [5, 3, 2]
         >>> make_pad_mask(lengths)
@@ -62,6 +76,7 @@ def make_non_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
         lengths (paddle.Tensor): Batch of lengths (B,).
     Returns:
         paddle.Tensor: mask tensor containing indices of padded part.
+        (B, T)
     Examples:
         >>> lengths = [5, 3, 2]
         >>> make_non_pad_mask(lengths)

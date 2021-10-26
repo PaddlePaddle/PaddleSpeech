@@ -35,9 +35,3 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --input=${preprocess_path}/normalized_wav \
         --output=${preprocess_path}/mel
 fi
-
-
-
-
-
-

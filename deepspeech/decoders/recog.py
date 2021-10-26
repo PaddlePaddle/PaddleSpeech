@@ -24,6 +24,7 @@ from .utils import add_results_to_json
 from deepspeech.exps import dynamic_import_tester
 from deepspeech.io.reader import LoadInputsAndTargets
 from deepspeech.models.asr_interface import ASRInterface
+from deepspeech.models.lm.transformer import TransformerLM
 from deepspeech.utils.log import Log
 # from espnet.asr.asr_utils import get_model_conf
 # from espnet.asr.asr_utils import torch_load
@@ -48,6 +49,21 @@ def load_trained_model(args):
     model = exp.model
     return model, char_list, exp, confs
 
+def get_config(config_path):
+    stream = open(config_path, mode='r', encoding="utf-8")
+    config = yaml.load(stream, Loader=yaml.FullLoader)
+    stream.close()
+    return config
+
+def load_trained_lm(args):
+        lm_args = get_config(args.rnnlm_conf)
+        # NOTE: for a compatibility with less than 0.5.0 version models
+        lm_model_module = getattr(lm_args, "model_module", "default")
+        lm_class = dynamic_import_lm(lm_model_module)
+        lm = lm_class(lm_args.model)
+        model_dict = paddle.load(args.rnnlm)
+        lm.set_state_dict(model_dict)
+        return lm
 
 def recog_v2(args):
     """Decode with custom models that implements ScorerInterface.
@@ -78,12 +94,7 @@ def recog_v2(args):
         preprocess_args={"train": False}, )
 
     if args.rnnlm:
-        lm_args = get_model_conf(args.rnnlm, args.rnnlm_conf)
-        # NOTE: for a compatibility with less than 0.5.0 version models
-        lm_model_module = getattr(lm_args, "model_module", "default")
-        lm_class = dynamic_import_lm(lm_model_module, lm_args.backend)
-        lm = lm_class(len(char_list), lm_args)
-        torch_load(args.rnnlm, lm)
+        lm = load_trained_lm(args)
         lm.eval()
     else:
         lm = None

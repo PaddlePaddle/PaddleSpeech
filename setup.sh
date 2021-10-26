@@ -10,7 +10,7 @@ fi
 
 if [ -e /etc/lsb-release ];then
     ${SUDO} apt-get update -y
-    ${SUDO} apt-get install -y jq vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
+    ${SUDO} apt-get install -y bc jq vim tig tree sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
     if [ $? != 0 ]; then
         error_msg "Please using Ubuntu or install pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev by user."
         exit -1

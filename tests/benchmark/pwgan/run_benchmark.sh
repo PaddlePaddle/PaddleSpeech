@@ -24,13 +24,13 @@ function _train(){
                --max-iter=${max_iter} 
                --train-metadata=dump/train/norm/metadata.jsonl \
                --dev-metadata=dump/dev/norm/metadata.jsonl \
-               --config=examples/GANVocoder/parallelwave_gan/baker/conf/default.yaml \
+               --config=examples/csmsc/voc1/conf/default.yaml \
                --output-dir=exp/default \
                --run-benchmark=true"   
 
     case ${run_mode} in
-    sp) train_cmd="python3 examples/GANVocoder/parallelwave_gan/train.py --nprocs=1 ${train_cmd}" ;;
-    mp) train_cmd="python3 examples/GANVocoder/parallelwave_gan/train.py --nprocs=8 ${train_cmd}"
+    sp) train_cmd="python3 parakeet/exps/gan_vocoder/parallelwave_gan/train.py --nprocs=1 ${train_cmd}" ;;
+    mp) train_cmd="python3 parakeet/exps/gan_vocoder/parallelwave_gan/train.py --nprocs=8 ${train_cmd}"
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

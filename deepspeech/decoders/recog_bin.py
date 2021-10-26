@@ -21,6 +21,7 @@ from distutils.util import strtobool
 import configargparse
 import numpy as np
 
+
 def get_parser():
     """Get default arguments."""
     parser = configargparse.ArgumentParser(

@@ -1,9 +1,23 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import librosa
 import numpy
 import scipy
 import soundfile
 
 from deepspeech.io.reader import SoundHDF5File
+
 
 class SpeedPerturbation():
     """SpeedPerturbation
@@ -22,14 +36,13 @@ class SpeedPerturbation():
     """
 
     def __init__(
-        self,
-        lower=0.9,
-        upper=1.1,
-        utt2ratio=None,
-        keep_length=True,
-        res_type="kaiser_best",
-        seed=None,
-    ):
+            self,
+            lower=0.9,
+            upper=1.1,
+            utt2ratio=None,
+            keep_length=True,
+            res_type="kaiser_best",
+            seed=None, ):
         self.res_type = res_type
         self.keep_length = keep_length
         self.state = numpy.random.RandomState(seed)
@@ -60,12 +73,10 @@ class SpeedPerturbation():
                 self.lower,
                 self.upper,
                 self.keep_length,
-                self.res_type,
-            )
+                self.res_type, )
         else:
             return "{}({}, res_type={})".format(
-                self.__class__.__name__, self.utt2ratio_file, self.res_type
-            )
+                self.__class__.__name__, self.utt2ratio_file, self.res_type)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -85,15 +96,14 @@ class SpeedPerturbation():
             diff = abs(len(x) - len(y))
             if len(y) > len(x):
                 # Truncate noise
-                y = y[diff // 2 : -((diff + 1) // 2)]
+                y = y[diff // 2:-((diff + 1) // 2)]
             elif len(y) < len(x):
                 # Assume the time-axis is the first: (Time, Channel)
                 pad_width = [(diff // 2, (diff + 1) // 2)] + [
                     (0, 0) for _ in range(y.ndim - 1)
                 ]
                 y = numpy.pad(
-                    y, pad_width=pad_width, constant_values=0, mode="constant"
-                )
+                    y, pad_width=pad_width, constant_values=0, mode="constant")
         return y
 
 
@@ -111,7 +121,7 @@ class BandpassPerturbation():
 
     """
 
-    def __init__(self, lower=0.0, upper=0.75, seed=None, axes=(-1,)):
+    def __init__(self, lower=0.0, upper=0.75, seed=None, axes=(-1, )):
         self.lower = lower
         self.upper = upper
         self.state = numpy.random.RandomState(seed)
@@ -119,18 +129,16 @@ class BandpassPerturbation():
         self.axes = axes
 
     def __repr__(self):
-        return "{}(lower={}, upper={})".format(
-            self.__class__.__name__, self.lower, self.upper
-        )
+        return "{}(lower={}, upper={})".format(self.__class__.__name__,
+                                               self.lower, self.upper)
 
     def __call__(self, x_stft, uttid=None, train=True):
         if not train:
             return x_stft
 
         if x_stft.ndim == 1:
-            raise RuntimeError(
-                "Input in time-freq domain: " "(Time, Channel, Freq) or (Time, Freq)"
-            )
+            raise RuntimeError("Input in time-freq domain: "
+                               "(Time, Channel, Freq) or (Time, Freq)")
 
         ratio = self.state.uniform(self.lower, self.upper)
         axes = [i if i >= 0 else x_stft.ndim - i for i in self.axes]
@@ -142,7 +150,12 @@ class BandpassPerturbation():
 
 
 class VolumePerturbation():
-    def __init__(self, lower=-1.6, upper=1.6, utt2ratio=None, dbunit=True, seed=None):
+    def __init__(self,
+                 lower=-1.6,
+                 upper=1.6,
+                 utt2ratio=None,
+                 dbunit=True,
+                 seed=None):
         self.dbunit = dbunit
         self.utt2ratio_file = utt2ratio
         self.lower = lower
@@ -168,12 +181,10 @@ class VolumePerturbation():
     def __repr__(self):
         if self.utt2ratio is None:
             return "{}(lower={}, upper={}, dbunit={})".format(
-                self.__class__.__name__, self.lower, self.upper, self.dbunit
-            )
+                self.__class__.__name__, self.lower, self.upper, self.dbunit)
         else:
             return '{}("{}", dbunit={})'.format(
-                self.__class__.__name__, self.utt2ratio_file, self.dbunit
-            )
+                self.__class__.__name__, self.utt2ratio_file, self.dbunit)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -186,7 +197,7 @@ class VolumePerturbation():
         else:
             ratio = self.state.uniform(self.lower, self.upper)
         if self.dbunit:
-            ratio = 10 ** (ratio / 20)
+            ratio = 10**(ratio / 20)
         return x * ratio
 
 
@@ -194,15 +205,14 @@ class NoiseInjection():
     """Add isotropic noise"""
 
     def __init__(
-        self,
-        utt2noise=None,
-        lower=-20,
-        upper=-5,
-        utt2ratio=None,
-        filetype="list",
-        dbunit=True,
-        seed=None,
-    ):
+            self,
+            utt2noise=None,
+            lower=-20,
+            upper=-5,
+            utt2ratio=None,
+            filetype="list",
+            dbunit=True,
+            seed=None, ):
         self.utt2noise_file = utt2noise
         self.utt2ratio_file = utt2ratio
         self.filetype = filetype
@@ -242,19 +252,16 @@ class NoiseInjection():
 
         if utt2noise is not None and utt2ratio is not None:
             if set(self.utt2ratio) != set(self.utt2noise):
-                raise RuntimeError(
-                    "The uttids mismatch between {} and {}".format(utt2ratio, utt2noise)
-                )
+                raise RuntimeError("The uttids mismatch between {} and {}".
+                                   format(utt2ratio, utt2noise))
 
     def __repr__(self):
         if self.utt2ratio is None:
             return "{}(lower={}, upper={}, dbunit={})".format(
-                self.__class__.__name__, self.lower, self.upper, self.dbunit
-            )
+                self.__class__.__name__, self.lower, self.upper, self.dbunit)
         else:
             return '{}("{}", dbunit={})'.format(
-                self.__class__.__name__, self.utt2ratio_file, self.dbunit
-            )
+                self.__class__.__name__, self.utt2ratio_file, self.dbunit)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -268,8 +275,8 @@ class NoiseInjection():
             ratio = self.state.uniform(self.lower, self.upper)
 
         if self.dbunit:
-            ratio = 10 ** (ratio / 20)
-        scale = ratio * numpy.sqrt((x ** 2).mean())
+            ratio = 10**(ratio / 20)
+        scale = ratio * numpy.sqrt((x**2).mean())
 
         # 2. Get noise
         if self.utt2noise is not None:
@@ -280,16 +287,17 @@ class NoiseInjection():
                 # Randomly select the noise source
                 noise = self.state.choice(list(self.utt2noise.values()))
             # Normalize the level
-            noise /= numpy.sqrt((noise ** 2).mean())
+            noise /= numpy.sqrt((noise**2).mean())
 
             # Adjust the noise length
             diff = abs(len(x) - len(noise))
             offset = self.state.randint(0, diff)
             if len(noise) > len(x):
                 # Truncate noise
-                noise = noise[offset : -(diff - offset)]
+                noise = noise[offset:-(diff - offset)]
             else:
-                noise = numpy.pad(noise, pad_width=[offset, diff - offset], mode="wrap")
+                noise = numpy.pad(
+                    noise, pad_width=[offset, diff - offset], mode="wrap")
 
         else:
             # Generate white noise
@@ -329,15 +337,14 @@ class RIRConvolve():
         if x.ndim != 1:
             # Must be single channel
             raise RuntimeError(
-                "Input x must be one dimensional array, but got {}".format(x.shape)
-            )
+                "Input x must be one dimensional array, but got {}".format(
+                    x.shape))
 
         rir, rate = self.utt2rir[uttid]
         if rir.ndim == 2:
             # FIXME(kamo): Use chainer.convolution_1d?
             # return [Time, Channel]
             return numpy.stack(
-                [scipy.convolve(x, r, mode="same") for r in rir], axis=-1
-            )
+                [scipy.convolve(x, r, mode="same") for r in rir], axis=-1)
         else:
             return scipy.convolve(x, rir, mode="same")

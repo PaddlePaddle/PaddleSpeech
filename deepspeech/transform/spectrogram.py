@@ -1,10 +1,27 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import librosa
 import numpy as np
 
 
-def stft(
-    x, n_fft, n_shift, win_length=None, window="hann", center=True, pad_mode="reflect"
-):
+def stft(x,
+         n_fft,
+         n_shift,
+         win_length=None,
+         window="hann",
+         center=True,
+         pad_mode="reflect"):
     # x: [Time, Channel]
     if x.ndim == 1:
         single_channel = True
@@ -25,12 +42,9 @@ def stft(
                 win_length=win_length,
                 window=window,
                 center=center,
-                pad_mode=pad_mode,
-            ).T
-            for ch in range(x.shape[1])
+                pad_mode=pad_mode, ).T for ch in range(x.shape[1])
         ],
-        axis=1,
-    )
+        axis=1, )
 
     if single_channel:
         # x: [Time, Channel, Freq] -> [Time, Freq]
@@ -55,12 +69,9 @@ def istft(x, n_shift, win_length=None, window="hann", center=True):
                 hop_length=n_shift,
                 win_length=win_length,
                 window=window,
-                center=center,
-            )
-            for ch in range(x.shape[1])
+                center=center, ) for ch in range(x.shape[1])
         ],
-        axis=1,
-    )
+        axis=1, )
 
     if single_channel:
         # x: [Time, Channel] -> [Time]
@@ -68,7 +79,13 @@ def istft(x, n_shift, win_length=None, window="hann", center=True):
     return x
 
 
-def stft2logmelspectrogram(x_stft, fs, n_mels, n_fft, fmin=None, fmax=None, eps=1e-10):
+def stft2logmelspectrogram(x_stft,
+                           fs,
+                           n_mels,
+                           n_fft,
+                           fmin=None,
+                           fmax=None,
+                           eps=1e-10):
     # x_stft: (Time, Channel, Freq) or (Time, Freq)
     fmin = 0 if fmin is None else fmin
     fmax = fs / 2 if fmax is None else fmax
@@ -90,18 +107,17 @@ def spectrogram(x, n_fft, n_shift, win_length=None, window="hann"):
 
 
 def logmelspectrogram(
-    x,
-    fs,
-    n_mels,
-    n_fft,
-    n_shift,
-    win_length=None,
-    window="hann",
-    fmin=None,
-    fmax=None,
-    eps=1e-10,
-    pad_mode="reflect",
-):
+        x,
+        fs,
+        n_mels,
+        n_fft,
+        n_shift,
+        win_length=None,
+        window="hann",
+        fmin=None,
+        fmax=None,
+        eps=1e-10,
+        pad_mode="reflect", ):
     # stft: (Time, Channel, Freq) or (Time, Freq)
     x_stft = stft(
         x,
@@ -109,12 +125,16 @@ def logmelspectrogram(
         n_shift=n_shift,
         win_length=win_length,
         window=window,
-        pad_mode=pad_mode,
-    )
+        pad_mode=pad_mode, )
 
     return stft2logmelspectrogram(
-        x_stft, fs=fs, n_mels=n_mels, n_fft=n_fft, fmin=fmin, fmax=fmax, eps=eps
-    )
+        x_stft,
+        fs=fs,
+        n_mels=n_mels,
+        n_fft=n_fft,
+        fmin=fmin,
+        fmax=fmax,
+        eps=eps)
 
 
 class Spectrogram():
@@ -125,16 +145,13 @@ class Spectrogram():
         self.window = window
 
     def __repr__(self):
-        return (
-            "{name}(n_fft={n_fft}, n_shift={n_shift}, "
-            "win_length={win_length}, window={window})".format(
-                name=self.__class__.__name__,
-                n_fft=self.n_fft,
-                n_shift=self.n_shift,
-                win_length=self.win_length,
-                window=self.window,
-            )
-        )
+        return ("{name}(n_fft={n_fft}, n_shift={n_shift}, "
+                "win_length={win_length}, window={window})".format(
+                    name=self.__class__.__name__,
+                    n_fft=self.n_fft,
+                    n_shift=self.n_shift,
+                    win_length=self.win_length,
+                    window=self.window, ))
 
     def __call__(self, x):
         return spectrogram(
@@ -142,23 +159,21 @@ class Spectrogram():
             n_fft=self.n_fft,
             n_shift=self.n_shift,
             win_length=self.win_length,
-            window=self.window,
-        )
+            window=self.window, )
 
 
 class LogMelSpectrogram():
     def __init__(
-        self,
-        fs,
-        n_mels,
-        n_fft,
-        n_shift,
-        win_length=None,
-        window="hann",
-        fmin=None,
-        fmax=None,
-        eps=1e-10,
-    ):
+            self,
+            fs,
+            n_mels,
+            n_fft,
+            n_shift,
+            win_length=None,
+            window="hann",
+            fmin=None,
+            fmax=None,
+            eps=1e-10, ):
         self.fs = fs
         self.n_mels = n_mels
         self.n_fft = n_fft
@@ -170,22 +185,19 @@ class LogMelSpectrogram():
         self.eps = eps
 
     def __repr__(self):
-        return (
-            "{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
-            "n_shift={n_shift}, win_length={win_length}, window={window}, "
-            "fmin={fmin}, fmax={fmax}, eps={eps}))".format(
-                name=self.__class__.__name__,
-                fs=self.fs,
-                n_mels=self.n_mels,
-                n_fft=self.n_fft,
-                n_shift=self.n_shift,
-                win_length=self.win_length,
-                window=self.window,
-                fmin=self.fmin,
-                fmax=self.fmax,
-                eps=self.eps,
-            )
-        )
+        return ("{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
+                "n_shift={n_shift}, win_length={win_length}, window={window}, "
+                "fmin={fmin}, fmax={fmax}, eps={eps}))".format(
+                    name=self.__class__.__name__,
+                    fs=self.fs,
+                    n_mels=self.n_mels,
+                    n_fft=self.n_fft,
+                    n_shift=self.n_shift,
+                    win_length=self.win_length,
+                    window=self.window,
+                    fmin=self.fmin,
+                    fmax=self.fmax,
+                    eps=self.eps, ))
 
     def __call__(self, x):
         return logmelspectrogram(
@@ -195,8 +207,7 @@ class LogMelSpectrogram():
             n_fft=self.n_fft,
             n_shift=self.n_shift,
             win_length=self.win_length,
-            window=self.window,
-        )
+            window=self.window, )
 
 
 class Stft2LogMelSpectrogram():
@@ -209,18 +220,15 @@ class Stft2LogMelSpectrogram():
         self.eps = eps
 
     def __repr__(self):
-        return (
-            "{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
-            "fmin={fmin}, fmax={fmax}, eps={eps}))".format(
-                name=self.__class__.__name__,
-                fs=self.fs,
-                n_mels=self.n_mels,
-                n_fft=self.n_fft,
-                fmin=self.fmin,
-                fmax=self.fmax,
-                eps=self.eps,
-            )
-        )
+        return ("{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
+                "fmin={fmin}, fmax={fmax}, eps={eps}))".format(
+                    name=self.__class__.__name__,
+                    fs=self.fs,
+                    n_mels=self.n_mels,
+                    n_fft=self.n_fft,
+                    fmin=self.fmin,
+                    fmax=self.fmax,
+                    eps=self.eps, ))
 
     def __call__(self, x):
         return stft2logmelspectrogram(
@@ -229,20 +237,18 @@ class Stft2LogMelSpectrogram():
             n_mels=self.n_mels,
             n_fft=self.n_fft,
             fmin=self.fmin,
-            fmax=self.fmax,
-        )
+            fmax=self.fmax, )
 
 
 class Stft():
     def __init__(
-        self,
-        n_fft,
-        n_shift,
-        win_length=None,
-        window="hann",
-        center=True,
-        pad_mode="reflect",
-    ):
+            self,
+            n_fft,
+            n_shift,
+            win_length=None,
+            window="hann",
+            center=True,
+            pad_mode="reflect", ):
         self.n_fft = n_fft
         self.n_shift = n_shift
         self.win_length = win_length
@@ -251,19 +257,16 @@ class Stft():
         self.pad_mode = pad_mode
 
     def __repr__(self):
-        return (
-            "{name}(n_fft={n_fft}, n_shift={n_shift}, "
-            "win_length={win_length}, window={window},"
-            "center={center}, pad_mode={pad_mode})".format(
-                name=self.__class__.__name__,
-                n_fft=self.n_fft,
-                n_shift=self.n_shift,
-                win_length=self.win_length,
-                window=self.window,
-                center=self.center,
-                pad_mode=self.pad_mode,
-            )
-        )
+        return ("{name}(n_fft={n_fft}, n_shift={n_shift}, "
+                "win_length={win_length}, window={window},"
+                "center={center}, pad_mode={pad_mode})".format(
+                    name=self.__class__.__name__,
+                    n_fft=self.n_fft,
+                    n_shift=self.n_shift,
+                    win_length=self.win_length,
+                    window=self.window,
+                    center=self.center,
+                    pad_mode=self.pad_mode, ))
 
     def __call__(self, x):
         return stft(
@@ -273,8 +276,7 @@ class Stft():
             win_length=self.win_length,
             window=self.window,
             center=self.center,
-            pad_mode=self.pad_mode,
-        )
+            pad_mode=self.pad_mode, )
 
 
 class IStft():
@@ -285,17 +287,14 @@ class IStft():
         self.center = center
 
     def __repr__(self):
-        return (
-            "{name}(n_shift={n_shift}, "
-            "win_length={win_length}, window={window},"
-            "center={center})".format(
-                name=self.__class__.__name__,
-                n_shift=self.n_shift,
-                win_length=self.win_length,
-                window=self.window,
-                center=self.center,
-            )
-        )
+        return ("{name}(n_shift={n_shift}, "
+                "win_length={win_length}, window={window},"
+                "center={center})".format(
+                    name=self.__class__.__name__,
+                    n_shift=self.n_shift,
+                    win_length=self.win_length,
+                    window=self.window,
+                    center=self.center, ))
 
     def __call__(self, x):
         return istft(
@@ -303,5 +302,4 @@ class IStft():
             self.n_shift,
             win_length=self.win_length,
             window=self.window,
-            center=self.center,
-        )
+            center=self.center, )

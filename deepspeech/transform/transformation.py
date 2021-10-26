@@ -1,15 +1,27 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Transformation module."""
-from collections.abc import Sequence
-from collections import OrderedDict
 import copy
-from inspect import signature
 import io
 import logging
+from collections import OrderedDict
+from collections.abc import Sequence
+from inspect import signature
 
 import yaml
 
 from deepspeech.utils.dynamic_import import dynamic_import
-
 
 # TODO(karita): inherit TransformInterface
 # TODO(karita): register cmd arguments in asr_train.py
@@ -33,8 +45,7 @@ import_alias = dict(
     istft="deepspeech.transform.spectrogram:IStft",
     stft2fbank="deepspeech.transform.spectrogram:Stft2LogMelSpectrogram",
     wpe="deepspeech.transform.wpe:WPE",
-    channel_selector="deepspeech.transform.channel_selector:ChannelSelector",
-)
+    channel_selector="deepspeech.transform.channel_selector:ChannelSelector", )
 
 
 class Transformation():
@@ -83,21 +94,16 @@ class Transformation():
                         # Some function, e.g. built-in function, are failed
                         pass
                     else:
-                        logging.error(
-                            "Expected signature: {}({})".format(
-                                class_obj.__name__, signa
-                            )
-                        )
+                        logging.error("Expected signature: {}({})".format(
+                            class_obj.__name__, signa))
                     raise
         else:
             raise NotImplementedError(
-                "Not supporting mode={}".format(self.conf["mode"])
-            )
+                "Not supporting mode={}".format(self.conf["mode"]))
 
     def __repr__(self):
-        rep = "\n" + "\n".join(
-            "    {}: {}".format(k, v) for k, v in self.functions.items()
-        )
+        rep = "\n" + "\n".join("    {}: {}".format(k, v)
+                               for k, v in self.functions.items())
         return "{}({})".format(self.__class__.__name__, rep)
 
     def __call__(self, xs, uttid_list=None, **kwargs):
@@ -130,18 +136,19 @@ class Transformation():
                 _kwargs = {k: v for k, v in kwargs.items() if k in param}
                 try:
                     if uttid_list is not None and "uttid" in param:
-                        xs = [func(x, u, **_kwargs) for x, u in zip(xs, uttid_list)]
+                        xs = [
+                            func(x, u, **_kwargs)
+                            for x, u in zip(xs, uttid_list)
+                        ]
                     else:
                         xs = [func(x, **_kwargs) for x in xs]
                 except Exception:
-                    logging.fatal(
-                        "Catch a exception from {}th func: {}".format(idx, func)
-                    )
+                    logging.fatal("Catch a exception from {}th func: {}".format(
+                        idx, func))
                     raise
         else:
             raise NotImplementedError(
-                "Not supporting mode={}".format(self.conf["mode"])
-            )
+                "Not supporting mode={}".format(self.conf["mode"]))
 
         if is_batch:
             return xs

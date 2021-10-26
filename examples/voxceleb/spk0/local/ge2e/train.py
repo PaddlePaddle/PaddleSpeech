@@ -11,23 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import time
 
-from paddle import distributed as dist
-from paddle.optimizer import Adam
+from config import get_cfg_defaults
 from paddle import DataParallel
+from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn.clip import ClipGradByGlobalNorm
-
-from parakeet.models.lstm_speaker_encoder import LSTMSpeakerEncoder
-from parakeet.training import ExperimentBase
-from parakeet.training import default_argument_parser
-
+from paddle.optimizer import Adam
+from speaker_verification_dataset import Collate
 from speaker_verification_dataset import MultiSpeakerMelDataset
 from speaker_verification_dataset import MultiSpeakerSampler
-from speaker_verification_dataset import Collate
-from config import get_cfg_defaults
+
+from parakeet.models.lstm_speaker_encoder import LSTMSpeakerEncoder
+from parakeet.training import default_argument_parser
+from parakeet.training import ExperimentBase
 
 
 class Ge2eExperiment(ExperimentBase):

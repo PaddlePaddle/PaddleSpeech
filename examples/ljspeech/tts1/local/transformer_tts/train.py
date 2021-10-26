@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
-import os
 import logging
+import os
 import shutil
 from pathlib import Path
 
@@ -26,18 +25,19 @@ from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from parakeet.datasets.data_table import DataTable
+from visualdl import LogWriter
+from yacs.config import CfgNode
+
 from parakeet.datasets.am_batch_fn import transformer_single_spk_batch_fn
+from parakeet.datasets.data_table import DataTable
 from parakeet.models.transformer_tts import TransformerTTS
-from parakeet.models.transformer_tts import TransformerTTSUpdater
 from parakeet.models.transformer_tts import TransformerTTSEvaluator
+from parakeet.models.transformer_tts import TransformerTTSUpdater
 from parakeet.training.extensions.snapshot import Snapshot
 from parakeet.training.extensions.visualizer import VisualDL
 from parakeet.training.optimizer import build_optimizers
 from parakeet.training.seeding import seed_everything
 from parakeet.training.trainer import Trainer
-from visualdl import LogWriter
-from yacs.config import CfgNode
 
 
 def train_sp(args, config):

@@ -11,16 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import pickle
 from pathlib import Path
 
 import numpy as np
 from paddle.io import Dataset
-from parakeet.frontend import Vocab
-from parakeet.data import batch_text_id, batch_spec
+from preprocess_transcription import _phones
+from preprocess_transcription import _tones
 
-from preprocess_transcription import _phones, _tones
+from parakeet.data import batch_spec
+from parakeet.data import batch_text_id
+from parakeet.frontend import Vocab
 
 voc_phones = Vocab(sorted(list(_phones)))
 print("vocab_phones:\n", voc_phones)

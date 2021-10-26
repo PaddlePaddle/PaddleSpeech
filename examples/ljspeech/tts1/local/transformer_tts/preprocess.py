@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
@@ -25,9 +24,10 @@ import librosa
 import numpy as np
 import tqdm
 import yaml
+from yacs.config import CfgNode as Configuration
+
 from parakeet.data.get_feats import LogMelFBank
 from parakeet.frontend import English
-from yacs.config import CfgNode as Configuration
 
 
 def get_lj_sentences(file_name, frontend):

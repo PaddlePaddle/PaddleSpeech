@@ -11,27 +11,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import argparse
+import re
+from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
+from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
 
-import argparse
 import jsonlines
 import librosa
 import numpy as np
-import re
 import tqdm
 import yaml
-from concurrent.futures import ThreadPoolExecutor
+from yacs.config import CfgNode
+
 from parakeet.data.get_feats import LogMelFBank
 from parakeet.datasets.preprocess_utils import compare_duration_and_mel_length
-from parakeet.datasets.preprocess_utils import get_phones_tones
 from parakeet.datasets.preprocess_utils import get_phn_dur
+from parakeet.datasets.preprocess_utils import get_phones_tones
 from parakeet.datasets.preprocess_utils import merge_silence
-from pathlib import Path
-from yacs.config import CfgNode
 
 
 def process_sentence(config: Dict[str, Any],

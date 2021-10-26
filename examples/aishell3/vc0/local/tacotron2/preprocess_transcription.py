@@ -11,14 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
-from pathlib import Path
-import re
 import pickle
+import re
+from pathlib import Path
 
-import yaml
 import tqdm
+import yaml
 
 zh_pattern = re.compile("[\u4e00-\u9fa5]")
 

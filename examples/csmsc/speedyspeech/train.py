@@ -11,22 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import logging
 import os
 import shutil
+from pathlib import Path
 
 import jsonlines
 import numpy as np
 import paddle
 import yaml
-from paddle import distributed as dist
 from paddle import DataParallel
+from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from parakeet.datasets.data_table import DataTable
+from visualdl import LogWriter
+from yacs.config import CfgNode
+
 from parakeet.datasets.am_batch_fn import speedyspeech_batch_fn
+from parakeet.datasets.data_table import DataTable
 from parakeet.models.speedyspeech import SpeedySpeech
 from parakeet.models.speedyspeech import SpeedySpeechEvaluator
 from parakeet.models.speedyspeech import SpeedySpeechUpdater
@@ -35,9 +38,6 @@ from parakeet.training.extensions.visualizer import VisualDL
 from parakeet.training.optimizer import build_optimizers
 from parakeet.training.seeding import seed_everything
 from parakeet.training.trainer import Trainer
-from pathlib import Path
-from visualdl import LogWriter
-from yacs.config import CfgNode
 
 
 def train_sp(args, config):

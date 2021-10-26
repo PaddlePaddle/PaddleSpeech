@@ -11,20 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import argparse
 import os
 import pickle
-import argparse
 from pathlib import Path
 
-import tqdm
 import numpy as np
-
-from parakeet.datasets import LJSpeechMetaData
-from parakeet.audio import AudioProcessor, LogMagnitude
-from parakeet.frontend import EnglishCharacter
-
+import tqdm
 from config import get_cfg_defaults
+
+from parakeet.audio import AudioProcessor
+from parakeet.audio import LogMagnitude
+from parakeet.datasets import LJSpeechMetaData
+from parakeet.frontend import EnglishCharacter
 
 
 def create_dataset(config, source_path, target_path, verbose=False):

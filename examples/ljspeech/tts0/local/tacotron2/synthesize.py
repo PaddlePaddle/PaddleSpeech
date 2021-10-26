@@ -11,19 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 from pathlib import Path
 
-import paddle
 import numpy as np
+import paddle
+from config import get_cfg_defaults
 from matplotlib import pyplot as plt
 
 from parakeet.frontend import EnglishCharacter
 from parakeet.models.tacotron2 import Tacotron2
 from parakeet.utils import display
-
-from config import get_cfg_defaults
 
 
 def main(config, args):

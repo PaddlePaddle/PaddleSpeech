@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Normalize feature files and dump them."""
-
 import argparse
 import logging
 from operator import itemgetter
@@ -20,9 +19,10 @@ from pathlib import Path
 
 import jsonlines
 import numpy as np
-from parakeet.datasets.data_table import DataTable
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
+
+from parakeet.datasets.data_table import DataTable
 
 
 def main():

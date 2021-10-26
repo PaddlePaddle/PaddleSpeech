@@ -11,14 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import struct
 from pathlib import Path
 from warnings import warn
-import struct
 
-from scipy.ndimage.morphology import binary_dilation
-import numpy as np
 import librosa
+import numpy as np
+from scipy.ndimage.morphology import binary_dilation
 
 try:
     import webrtcvad

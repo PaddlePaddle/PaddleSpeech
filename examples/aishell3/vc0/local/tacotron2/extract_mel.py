@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import multiprocessing as mp
 from functools import partial
 from pathlib import Path
 
 import numpy as np
-from parakeet.audio import AudioProcessor
-from parakeet.audio.spec_normalizer import NormalizerBase, LogMagnitude
-
 import tqdm
-
 from config import get_cfg_defaults
+
+from parakeet.audio import AudioProcessor
+from parakeet.audio.spec_normalizer import LogMagnitude
+from parakeet.audio.spec_normalizer import NormalizerBase
 
 
 def extract_mel(fname: Path,

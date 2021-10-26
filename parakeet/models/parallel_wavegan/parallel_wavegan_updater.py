@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
 from typing import Dict
 
@@ -21,11 +20,12 @@ from paddle.io import DataLoader
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 from paddle.optimizer.lr import LRScheduler
+from timer import timer
+
 from parakeet.training.extensions.evaluator import StandardEvaluator
 from parakeet.training.reporter import report
 from parakeet.training.updaters.standard_updater import StandardUpdater
 from parakeet.training.updaters.standard_updater import UpdaterState
-from timer import timer
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')

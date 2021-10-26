@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from pathlib import Path
 import pickle
+from pathlib import Path
 
 import numpy as np
 from paddle.io import Dataset
 
-from parakeet.data.batch import batch_spec, batch_text_id
+from parakeet.data.batch import batch_spec
+from parakeet.data.batch import batch_text_id
 
 
 class LJSpeech(Dataset):
@@ -67,19 +67,16 @@ class LJSpeechCollector(object):
 
         # Sort by text_len in descending order
         texts = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(texts, text_lens), key=lambda x: x[1], reverse=True)
         ]
         mels = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(mels, text_lens), key=lambda x: x[1], reverse=True)
         ]
 
         mel_lens = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(mel_lens, text_lens), key=lambda x: x[1], reverse=True)
         ]
 

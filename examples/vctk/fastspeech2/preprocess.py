@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -26,6 +25,8 @@ import librosa
 import numpy as np
 import tqdm
 import yaml
+from yacs.config import CfgNode
+
 from parakeet.data.get_feats import Energy
 from parakeet.data.get_feats import LogMelFBank
 from parakeet.data.get_feats import Pitch
@@ -34,7 +35,6 @@ from parakeet.datasets.preprocess_utils import get_input_token
 from parakeet.datasets.preprocess_utils import get_phn_dur
 from parakeet.datasets.preprocess_utils import get_spk_id_map
 from parakeet.datasets.preprocess_utils import merge_silence
-from yacs.config import CfgNode
 
 
 def process_sentence(config: Dict[str, Any],

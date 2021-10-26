@@ -11,23 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import time
 from collections import defaultdict
 
 import numpy as np
 import paddle
+from config import get_cfg_defaults
+from ljspeech import LJSpeech
+from ljspeech import LJSpeechCollector
+from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from paddle import distributed as dist
+
 from parakeet.data import dataset
+from parakeet.models.tacotron2 import Tacotron2
+from parakeet.models.tacotron2 import Tacotron2Loss
 from parakeet.training.cli import default_argument_parser
 from parakeet.training.experiment import ExperimentBase
-from parakeet.utils import display, mp_tools
-from parakeet.models.tacotron2 import Tacotron2, Tacotron2Loss
-
-from config import get_cfg_defaults
-from ljspeech import LJSpeech, LJSpeechCollector
+from parakeet.utils import display
+from parakeet.utils import mp_tools
 
 
 class Experiment(ExperimentBase):

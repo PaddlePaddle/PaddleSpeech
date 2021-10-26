@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
-import os
 import logging
+import os
 from pathlib import Path
 
 import librosa
@@ -22,11 +21,12 @@ import numpy as np
 import paddle
 import soundfile as sf
 import yaml
+from yacs.config import CfgNode as Configuration
+
 from parakeet.data.get_feats import LogMelFBank
 from parakeet.models.parallel_wavegan import PWGGenerator
 from parakeet.models.parallel_wavegan import PWGInference
 from parakeet.modules.normalizer import ZScore
-from yacs.config import CfgNode as Configuration
 
 
 def get_cfg_default():

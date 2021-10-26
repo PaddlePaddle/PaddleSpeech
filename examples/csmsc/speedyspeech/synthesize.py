@@ -11,25 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
-import logging
 import argparse
+import logging
+import os
 from pathlib import Path
 
 import jsonlines
 import numpy as np
-import soundfile as sf
 import paddle
+import soundfile as sf
 import yaml
 from paddle import jit
 from paddle.static import InputSpec
 from yacs.config import CfgNode
 
 from parakeet.datasets.data_table import DataTable
-from parakeet.models.speedyspeech import SpeedySpeech
-from parakeet.models.speedyspeech import SpeedySpeechInference
 from parakeet.models.parallel_wavegan import PWGGenerator
 from parakeet.models.parallel_wavegan import PWGInference
+from parakeet.models.speedyspeech import SpeedySpeech
+from parakeet.models.speedyspeech import SpeedySpeechInference
 from parakeet.modules.normalizer import ZScore
 
 

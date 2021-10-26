@@ -11,17 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
-from pathlib import Path
-from multiprocessing import Pool
 from functools import partial
+from multiprocessing import Pool
+from pathlib import Path
 
-import numpy as np
 import librosa
+import numpy as np
 import soundfile as sf
-from tqdm import tqdm
 from praatio import tgio
+from tqdm import tqdm
 
 
 def get_valid_part(fpath):

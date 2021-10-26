@@ -11,18 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 from pathlib import Path
 
-import tqdm
-import paddle
 import numpy as np
-
-from parakeet.models.lstm_speaker_encoder import LSTMSpeakerEncoder
-
+import paddle
+import tqdm
 from audio_processor import SpeakerVerificationPreprocessor
 from config import get_cfg_defaults
+
+from parakeet.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
 def embed_utterance(processor, model, fpath_or_wav):

@@ -51,6 +51,11 @@ def load_trained_model(args):
     model = exp.model
     return model, char_list, exp, confs
 
+def get_config(config_path):
+    stream = open(config_path, mode='r', encoding="utf-8")
+    config = yaml.load(stream, Loader=yaml.FullLoader)
+    stream.close()
+    return config
 
 def recog_v2(args):
     """Decode with custom models that implements ScorerInterface.
@@ -83,9 +88,7 @@ def recog_v2(args):
     if args.rnnlm:
         lm_path = args.rnnlm
         lm_config_path = args.rnnlm_conf
-        stream = open(lm_config_path, mode='r', encoding="utf-8")
-        lm_config = yaml.load(stream, Loader=yaml.FullLoader)
-        stream.close()
+        lm_config = get_config(lm_config_path)
         lm_class = dynamic_import_lm("transformer")
         lm = lm_class(**lm_config)
         model_dict = paddle.load(lm_path)

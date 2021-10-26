@@ -11,22 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import time
 
 import numpy as np
 import paddle
+from config import get_cfg_defaults
+from ljspeech import LJSpeech
+from ljspeech import LJSpeechClipCollector
+from ljspeech import LJSpeechCollector
 from paddle import distributed as dist
-from paddle.io import DataLoader, DistributedBatchSampler
+from paddle.io import DataLoader
+from paddle.io import DistributedBatchSampler
 
 from parakeet.data import dataset
-from parakeet.models.waveflow import ConditionalWaveFlow, WaveFlowLoss
-from parakeet.utils import mp_tools
+from parakeet.models.waveflow import ConditionalWaveFlow
+from parakeet.models.waveflow import WaveFlowLoss
 from parakeet.training.cli import default_argument_parser
 from parakeet.training.experiment import ExperimentBase
-
-from config import get_cfg_defaults
-from ljspeech import LJSpeech, LJSpeechClipCollector, LJSpeechCollector
+from parakeet.utils import mp_tools
 
 
 class Experiment(ExperimentBase):

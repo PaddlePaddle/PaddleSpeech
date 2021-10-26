@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import os
 from pathlib import Path
 
 import soundfile as sf
 from paddle import inference
+
 from parakeet.frontend.zh_frontend import Frontend
 
 

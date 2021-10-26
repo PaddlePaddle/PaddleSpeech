@@ -11,19 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import os
 import argparse
+import os
 from pathlib import Path
 
 import numpy as np
-import soundfile as sf
 import paddle
+import soundfile as sf
+from config import get_cfg_defaults
 
 from parakeet.models.waveflow import ConditionalWaveFlow
 from parakeet.utils import layer_tools
-
-from config import get_cfg_defaults
 
 
 def main(config, args):

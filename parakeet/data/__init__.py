@@ -13,6 +13,5 @@
 # limitations under the License.
 """Parakeet's infrastructure for data processing.
 """
-
-from .dataset import *
 from .batch import *
+from .dataset import *

@@ -11,25 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import logging
 import os
 from pathlib import Path
 
 import numpy as np
-import soundfile as sf
 import paddle
+import soundfile as sf
 import yaml
 from paddle import jit
 from paddle.static import InputSpec
+from yacs.config import CfgNode
+
 from parakeet.frontend.zh_frontend import Frontend
-from parakeet.models.speedyspeech import SpeedySpeech
-from parakeet.models.speedyspeech import SpeedySpeechInference
 from parakeet.models.parallel_wavegan import PWGGenerator
 from parakeet.models.parallel_wavegan import PWGInference
+from parakeet.models.speedyspeech import SpeedySpeech
+from parakeet.models.speedyspeech import SpeedySpeechInference
 from parakeet.modules.normalizer import ZScore
-from yacs.config import CfgNode
 
 
 def evaluate(args, speedyspeech_config, pwg_config):

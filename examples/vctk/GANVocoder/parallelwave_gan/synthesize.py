@@ -11,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import os
 from pathlib import Path
-from timer import timer
 
 import jsonlines
 import numpy as np
@@ -23,9 +21,11 @@ import paddle
 import soundfile as sf
 import yaml
 from paddle import distributed as dist
+from timer import timer
+from yacs.config import CfgNode
+
 from parakeet.datasets.data_table import DataTable
 from parakeet.models.parallel_wavegan import PWGGenerator
-from yacs.config import CfgNode
 
 
 def main():

@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from pathlib import Path
 
 import numpy as np
 import pandas
 from paddle.io import Dataset
 
-from parakeet.data.batch import batch_spec, batch_wav
+from parakeet.data.batch import batch_spec
+from parakeet.data.batch import batch_wav
 
 
 class LJSpeech(Dataset):

@@ -22,9 +22,9 @@ from g2pM import G2pM
 from pypinyin import lazy_pinyin
 from pypinyin import Style
 
-from parakeet.frontend.zh_normalization.text_normlization import TextNormalizer
 from parakeet.frontend.generate_lexicon import generate_lexicon
 from parakeet.frontend.tone_sandhi import ToneSandhi
+from parakeet.frontend.zh_normalization.text_normlization import TextNormalizer
 
 
 class Frontend():

@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import logging
 import os
 import shutil
+from pathlib import Path
 
 import jsonlines
 import numpy as np
@@ -28,20 +28,20 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from paddle.optimizer import Adam  # No RAdaom
 from paddle.optimizer.lr import StepDecay
+from visualdl import LogWriter
+from yacs.config import CfgNode
+
 from parakeet.datasets.data_table import DataTable
 from parakeet.datasets.vocoder_batch_fn import Clip
-from parakeet.models.parallel_wavegan import PWGGenerator
 from parakeet.models.parallel_wavegan import PWGDiscriminator
-from parakeet.models.parallel_wavegan import PWGUpdater
 from parakeet.models.parallel_wavegan import PWGEvaluator
+from parakeet.models.parallel_wavegan import PWGGenerator
+from parakeet.models.parallel_wavegan import PWGUpdater
 from parakeet.modules.stft_loss import MultiResolutionSTFTLoss
 from parakeet.training.extensions.snapshot import Snapshot
 from parakeet.training.extensions.visualizer import VisualDL
 from parakeet.training.seeding import seed_everything
 from parakeet.training.trainer import Trainer
-from pathlib import Path
-from visualdl import LogWriter
-from yacs.config import CfgNode
 
 
 def train_sp(args, config):

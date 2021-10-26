@@ -11,14 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 from pathlib import Path
-from config import get_cfg_defaults
+
 from audio_processor import SpeakerVerificationPreprocessor
-from dataset_processors import (process_librispeech, process_voxceleb1,
-                                process_voxceleb2, process_aidatatang_200zh,
-                                process_magicdata)
+from config import get_cfg_defaults
+from dataset_processors import process_aidatatang_200zh
+from dataset_processors import process_librispeech
+from dataset_processors import process_magicdata
+from dataset_processors import process_voxceleb1
+from dataset_processors import process_voxceleb2
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

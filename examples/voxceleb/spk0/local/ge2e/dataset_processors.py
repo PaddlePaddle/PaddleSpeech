@@ -11,16 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from functools import partial
-from typing import List
-from pathlib import Path
 import multiprocessing as mp
+from functools import partial
+from pathlib import Path
+from typing import List
 
 import numpy as np
-from tqdm import tqdm
-
 from audio_processor import SpeakerVerificationPreprocessor
+from tqdm import tqdm
 
 
 def _process_utterance(path_pair, processor: SpeakerVerificationPreprocessor):

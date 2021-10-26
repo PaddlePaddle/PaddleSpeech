@@ -42,7 +42,7 @@ def all_version():
         "paddle_commit": paddle.version.commit,
         "soundfile": soundfile.__version__,
     }
-    logger.info(f"Deps Module Version:{pformat(vers.items())}")
+    logger.info(f"Deps Module Version:{pformat(list(vers.items()))}")
 
 
 @contextmanager

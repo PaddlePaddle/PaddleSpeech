@@ -6,7 +6,7 @@ CC ?= gcc        # used for sph2pipe
 # CXX = clang++  # Uncomment these lines...
 # CC = clang     # ...to build with Clang.
 
-$(WGET) ?= wget --no-check-certificate
+WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
@@ -85,7 +85,7 @@ sctk-$(SCTK_GITHASH).tar.gz:
 	if [ -d '$(DOWNLOAD_DIR)' ]; then \
 	  cp -p '$(DOWNLOAD_DIR)/sctk-$(SCTK_GITHASH).tar.gz' .; \
 	else \
-	  $($(WGET)) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
+	  $(WGET) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
 	    https://github.com/usnistgov/SCTK/archive/$(SCTK_GITHASH).tar.gz; \
 	fi
 

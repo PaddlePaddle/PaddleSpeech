@@ -188,6 +188,8 @@ transformer_tts_ljspeech_ckpt_0.4
 ```
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_en.txt` using pretrained transformer_tts  and waveflow models.
 ```bash
+source path.sh
+
 FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/synthesize_e2e.py \

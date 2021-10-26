@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Decoder definition."""
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -20,10 +21,12 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
+from deepspeech.decoders.scorers.scorer_interface import BatchScorerInterface
 from deepspeech.modules.attention import MultiHeadedAttention
 from deepspeech.modules.decoder_layer import DecoderLayer
 from deepspeech.modules.embedding import PositionalEncoding
 from deepspeech.modules.mask import make_non_pad_mask
+from deepspeech.modules.mask import make_xs_mask
 from deepspeech.modules.mask import subsequent_mask
 from deepspeech.modules.positionwise_feed_forward import PositionwiseFeedForward
 from deepspeech.utils.log import Log
@@ -33,7 +36,7 @@ logger = Log(__name__).getlog()
 __all__ = ["TransformerDecoder"]
 
 
-class TransformerDecoder(nn.Layer):
+class TransformerDecoder(BatchScorerInterface, nn.Layer):
     """Base class of Transfomer decoder module.
     Args:
         vocab_size: output dim
@@ -71,7 +74,8 @@ class TransformerDecoder(nn.Layer):
             concat_after: bool=False, ):
 
         assert check_argument_types()
-        super().__init__()
+        nn.Layer.__init__(self)
+        self.selfattention_layer_type = 'selfattn'
         attention_dim = encoder_output_size
 
         if input_layer == "embed":
@@ -180,3 +184,63 @@ class TransformerDecoder(nn.Layer):
         if self.use_output_layer:
             y = paddle.log_softmax(self.output_layer(y), axis=-1)
         return y, new_cache
+
+    # beam search API (see ScorerInterface)
+    def score(self, ys, state, x):
+        """Score.
+        ys: (ylen,)
+        x: (xlen, n_feat)
+        """
+        ys_mask = subsequent_mask(len(ys)).unsqueeze(0)  # (B,L,L)
+        x_mask = make_xs_mask(x.unsqueeze(0)).unsqueeze(1)  # (B,1,T)
+        if self.selfattention_layer_type != "selfattn":
+            # TODO(karita): implement cache
+            logging.warning(
+                f"{self.selfattention_layer_type} does not support cached decoding."
+            )
+            state = None
+        logp, state = self.forward_one_step(
+            x.unsqueeze(0), x_mask, ys.unsqueeze(0), ys_mask, cache=state)
+        return logp.squeeze(0), state
+
+    # batch beam search API (see BatchScorerInterface)
+    def batch_score(self,
+                    ys: paddle.Tensor,
+                    states: List[Any],
+                    xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
+        """Score new token batch (required).
+
+        Args:
+            ys (paddle.Tensor): paddle.int64 prefix tokens (n_batch, ylen).
+            states (List[Any]): Scorer states for prefix tokens.
+            xs (paddle.Tensor):
+                The encoder feature that generates ys (n_batch, xlen, n_feat).
+
+        Returns:
+            tuple[paddle.Tensor, List[Any]]: Tuple of
+                batchfied scores for next token with shape of `(n_batch, n_vocab)`
+                and next state list for ys.
+
+        """
+        # merge states
+        n_batch = len(ys)
+        n_layers = len(self.decoders)
+        if states[0] is None:
+            batch_state = None
+        else:
+            # transpose state of [batch, layer] into [layer, batch]
+            batch_state = [
+                paddle.stack([states[b][i] for b in range(n_batch)])
+                for i in range(n_layers)
+            ]
+
+        # batch decoding
+        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0)  # (B,L,L)
+        xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
+        logp, states = self.forward_one_step(
+            xs, xs_mask, ys, ys_mask, cache=batch_state)
+
+        # transpose state of [layer, batch] into [batch, layer]
+        state_list = [[states[i][b] for i in range(n_layers)]
+                      for b in range(n_batch)]
+        return logp, state_list

@@ -317,11 +317,9 @@ class U2Trainer(Trainer):
         with UpdateConfig(model_conf):
             model_conf.input_dim = self.train_loader.feat_dim
             model_conf.output_dim = self.train_loader.vocab_size
-
         model = U2Model.from_config(model_conf)
         if self.parallel:
             model = paddle.DataParallel(model)
-        logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
         # lr

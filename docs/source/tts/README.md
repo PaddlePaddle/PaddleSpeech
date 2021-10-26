@@ -2,10 +2,11 @@
 Parakeet aims to provide a flexible, efficient and state-of-the-art text-to-speech toolkit for the open-source community. It is built on PaddlePaddle dynamic graph and includes many influential TTS models.  
 
 <div align="center">
-  <img src="docs/images/logo.png" width=300 /> <br>
+  <img src="../../images/logo.png" width=300 /> <br>
 </div>
 
-## News  <img src="./docs/images/news_icon.png" width="40"/>
+
+## News  <img src="../../images/news_icon.png" width="40"/>
 - Oct-12-2021, Refector examples code.
 - Oct-12-2021, Parallel WaveGAN with LJSpeech. Check [examples/GANVocoder/parallelwave_gan/ljspeech](./examples/GANVocoder/parallelwave_gan/ljspeech).
 - Oct-12-2021, FastSpeech2/FastPitch with LJSpeech. Check [examples/fastspeech2/ljspeech](./examples/fastspeech2/ljspeech).

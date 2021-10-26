@@ -15,6 +15,8 @@ avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
 
+audio_file="data/tmp.flac"
+
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
     bash ./local/data.sh || exit -1
@@ -43,4 +45,9 @@ fi
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # export ckpt avg_n
     CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi
+
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
+    # test a single .wav file
+    CUDA_VISIBLE_DEVICES=3 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
 fi

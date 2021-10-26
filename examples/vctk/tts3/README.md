@@ -212,6 +212,8 @@ fastspeech2_nosil_vctk_ckpt_0.5
 ```
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
 ```bash
+source path.sh
+
 FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/multi_spk_synthesize_e2e_en.py \

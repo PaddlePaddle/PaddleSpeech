@@ -74,7 +74,8 @@ std::vector<std::pair<double, std::string>> get_beam_search_result(
         // convert index to string
         std::string output_str;
         for (size_t j = 0; j < output.size(); j++) {
-            output_str += vocabulary[output[j]];
+            std::string ch = vocabulary[output[j]];
+            output_str += (ch == kSPACE) ? tSPACE : ch;
         }
         std::pair<double, std::string> output_pair(
             -space_prefixes[i]->approx_ctc, output_str);

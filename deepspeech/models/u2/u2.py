@@ -28,8 +28,10 @@ from paddle import jit
 from paddle import nn
 from yacs.config import CfgNode
 
+from deepspeech.decoders.scorers.ctc import CTCPrefixScorer
 from deepspeech.frontend.utility import IGNORE_ID
 from deepspeech.frontend.utility import load_cmvn
+from deepspeech.models.asr_interface import ASRInterface
 from deepspeech.modules.cmvn import GlobalCMVN
 from deepspeech.modules.ctc import CTCDecoder
 from deepspeech.modules.decoder import TransformerDecoder
@@ -55,7 +57,7 @@ __all__ = ["U2Model", "U2InferModel"]
 logger = Log(__name__).getlog()
 
 
-class U2BaseModel(nn.Layer):
+class U2BaseModel(ASRInterface, nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
 
     @classmethod
@@ -120,7 +122,7 @@ class U2BaseModel(nn.Layer):
                  **kwargs):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
-        super().__init__()
+        nn.Layer.__init__(self)
         # note that eos is the same as sos (equivalent ID)
         self.sos = vocab_size - 1
         self.eos = vocab_size - 1
@@ -813,7 +815,27 @@ class U2BaseModel(nn.Layer):
         return res, res_tokenids
 
 
-class U2Model(U2BaseModel):
+class U2DecodeModel(U2BaseModel):
+    def scorers(self):
+        """Scorers."""
+        return dict(
+            decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
+
+    def encode(self, x):
+        """Encode acoustic features.
+
+        :param ndarray x: source acoustic feature (T, D)
+        :return: encoder outputs
+        :rtype: paddle.Tensor
+        """
+        self.eval()
+        x = paddle.to_tensor(x).unsqueeze(0)
+        ilen = x.size(1)
+        enc_output, _ = self._forward_encoder(x, ilen)
+        return enc_output.squeeze(0)
+
+
+class U2Model(U2DecodeModel):
     def __init__(self, configs: dict):
         vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
 

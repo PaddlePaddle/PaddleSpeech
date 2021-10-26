@@ -8,17 +8,18 @@ nj=32
 
 lmtag='nolm'
 
+train_set=train_960
 recog_set="test-clean test-other dev-clean dev-other"
 recog_set="test-clean"
 
 # bpemode (unigram or bpe)
 nbpe=5000
 bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
+bpeprefix=data/lang_char/${train_set}_${bpemode}${nbpe}
 bpemodel=${bpeprefix}.model
 
 config_path=conf/transformer.yaml
-dict=data/bpe_unigram_5000_units.txt
+dict=data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 ckpt_prefix=
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

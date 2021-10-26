@@ -42,3 +42,4 @@ visualdl==2.2.0
 webrtcvad
 yacs
 yq
+nara_wpe

@@ -1,5 +1,17 @@
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Spec Augment module for preprocessing i.e., data augmentation"""
-
 import random
 
 import numpy
@@ -27,10 +39,12 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
             return x
         # NOTE: randrange(a, b) emits a, a + 1, ..., b - 1
         center = random.randrange(window, t - window)
-        warped = random.randrange(center - window, center + window) + 1  # 1 ... t - 1
+        warped = random.randrange(center - window, center +
+                                  window) + 1  # 1 ... t - 1
 
         left = Image.fromarray(x[:center]).resize((x.shape[1], warped), BICUBIC)
-        right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped), BICUBIC)
+        right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped),
+                                                   BICUBIC)
         if inplace:
             x[:warped] = left
             x[warped:] = right
@@ -44,11 +58,8 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
         # TODO(karita): make this differentiable again
         return spec_augment.time_warp(paddle.to_tensor(x), window).numpy()
     else:
-        raise NotImplementedError(
-            "unknown resize mode: "
-            + mode
-            + ", choose one from (PIL, sparse_image_warp)."
-        )
+        raise NotImplementedError("unknown resize mode: " + mode +
+                                  ", choose one from (PIL, sparse_image_warp).")
 
 
 class TimeWarp(FuncTrans):
@@ -145,16 +156,15 @@ class TimeMask(FuncTrans):
 
 
 def spec_augment(
-    x,
-    resize_mode="PIL",
-    max_time_warp=80,
-    max_freq_width=27,
-    n_freq_mask=2,
-    max_time_width=100,
-    n_time_mask=2,
-    inplace=True,
-    replace_with_zero=True,
-):
+        x,
+        resize_mode="PIL",
+        max_time_warp=80,
+        max_freq_width=27,
+        n_freq_mask=2,
+        max_time_width=100,
+        n_time_mask=2,
+        inplace=True,
+        replace_with_zero=True, ):
     """spec agument
 
     apply random time warping and time/freq masking
@@ -180,15 +190,13 @@ def spec_augment(
         max_freq_width,
         n_freq_mask,
         inplace=inplace,
-        replace_with_zero=replace_with_zero,
-    )
+        replace_with_zero=replace_with_zero, )
     x = time_mask(
         x,
         max_time_width,
         n_time_mask,
         inplace=inplace,
-        replace_with_zero=replace_with_zero,
-    )
+        replace_with_zero=replace_with_zero, )
     return x
 
 

@@ -107,8 +107,13 @@ class Clip(object):
         features, this process will be needed.
 
         """
-        if len(x) < c.shape[1] * self.hop_size:
-            x = np.pad(x, (0, c.shape[1] * self.hop_size - len(x)), mode="edge")
+        if len(x) < c.shape[0] * self.hop_size:
+            x = np.pad(x, (0, c.shape[0] * self.hop_size - len(x)), mode="edge")
+        elif len(x) > c.shape[0] * self.hop_size:
+            print(
+                f"wave length: ({len(x)}), mel length: ({c.shape[0]}), hop size: ({self.hop_size })"
+            )
+            x = x[:c.shape[1] * self.hop_size]
 
         # check the legnth is valid
         assert len(x) == c.shape[

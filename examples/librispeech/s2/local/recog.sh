@@ -11,9 +11,9 @@ tag=
 decode_config=conf/decode/decode.yaml
 
 # lm params
-lang_model=transformerLM.pdparams
-lmexpdir=exp/lm/transformer
 rnnlm_config_path=conf/lm/transformer.yaml
+lmexpdir=exp/lm
+lang_model=rnnlm.pdparams
 lmtag='transformer'
 
 train_set=train_960
@@ -53,12 +53,22 @@ if [[ ${config_path} =~ ^.*chunk_.*yaml$ ]];then
 fi
 echo "chunk mode: ${chunk_mode}"
 echo "decode conf: ${decode_config}"
+echo "lm conf: ${rnnlm_config_path}"
+echo "lm model: ${lmexpdir}/${lang_model}"
+
 
 # download language model
 #bash local/download_lm_en.sh
 #if [ $? -ne 0 ]; then
 #    exit 1
 #fi
+
+
+# download rnnlm
+mkdir -p ${lmexpdir}
+if [ ! -f ${lmexpdir}/${lang_model} ]; then
+    wget -c -O ${lmexpdir}/${lang_model} https://deepspeech.bj.bcebos.com/transformer_lm/transformerLM.pdparams
+fi
 
 
 pids=() # initialize pids

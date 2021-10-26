@@ -37,12 +37,9 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     ./local/test.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
-if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ] && ${use_lm} == true; then
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # join ctc decoder, use transformerlm to score
-    if [ ! -f exp/lm/transformer/transformerLM.pdparams ]; then
-        wget https://deepspeech.bj.bcebos.com/transformer_lm/transformerLM.pdparams exp/lm/transformer/
-    fi
-    bash local/recog.sh  --ckpt_prefix exp/${ckpt}/checkpoints/${avg_ckpt}
+    ./local/recog.sh  --ckpt_prefix exp/${ckpt}/checkpoints/${avg_ckpt}
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then

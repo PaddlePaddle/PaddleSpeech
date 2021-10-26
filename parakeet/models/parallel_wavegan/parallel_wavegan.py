@@ -495,26 +495,25 @@ class PWGGenerator(nn.Layer):
 
         self.apply(_remove_weight_norm)
 
-    def inference(self, c=None):
+    def inference(self, c):
         """Waveform generation. This function is used for single instance 
         inference.
 
         Parameters
         ----------
-        c : Tensor, optional
+        c : Tensor
             Shape (T', C_aux), the auxiliary input, by default None
-        x : Tensor, optional
-            Shape (T, C_in), the noise waveform, by default None
-            If not provided, a sample is drawn from a gaussian distribution.
 
         Returns
         -------
         Tensor
             Shape (T, C_out), the generated waveform
         """
+        # a sample is drawn from a gaussian distribution.
         x = paddle.randn(
             [1, self.in_channels, paddle.shape(c)[0] * self.upsample_factor])
-        c = paddle.transpose(c, [1, 0]).unsqueeze(0)  # pseudo batch
+        # pseudo batch
+        c = paddle.transpose(c, [1, 0]).unsqueeze(0)
         c = nn.Pad1D(self.aux_context_window, mode='replicate')(c)
         out = self(x, c).squeeze(0).transpose([1, 0])
         return out

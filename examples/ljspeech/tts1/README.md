@@ -81,7 +81,7 @@ optional arguments:
 6. `--phones-dict` is the path of the phone vocabulary file.
 
 ## Synthesize
-We use [waveflow](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/waveflow) as the neural vocoder.
+We use [waveflow](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder.
 Download Pretrained WaveFlow Model with residual channel equals 128 from [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip) and unzip it.
 ```bash
 unzip waveflow_ljspeech_ckpt_0.3.zip

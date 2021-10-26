@@ -11,8 +11,9 @@ tag=
 decode_config=conf/decode/decode.yaml
 
 # lm params
+use_lm=true
 lang_model=transformerLM.pdparams
-lmexpdir=exp/transformerLM
+lmexpdir=exp/lm/transformer
 lmtag='nolm'
 rnnlm_config_path=conf/lm/transformer.yaml
 
@@ -94,8 +95,9 @@ for dmethd in join_ctc; do
                 --result-label ${decode_dir}/data.JOB.json \
                 --model-conf ${config_path} \
                 --model ${ckpt_prefix}.pdparams \
+                --use_rnnlm ${use_lm} \
                 --rnnlm-conf ${rnnlm_config_path} \
-                --rnnlm ${lmexpdir}/${lang_model}
+                --rnnlm-path ${lmexpdir}/${lang_model}
 
         score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel} --wer false ${decode_dir} ${dict}
 

@@ -85,8 +85,8 @@ def recog_v2(args):
         if args.preprocess_conf is None else args.preprocess_conf,
         preprocess_args={"train": False}, )
 
-    if args.rnnlm:
-        lm_path = args.rnnlm
+    if args.use_lm:
+        lm_path = args.rnnlm_path
         lm_config_path = args.rnnlm_conf
         lm_config = get_config(lm_config_path)
         lm_class = dynamic_import_lm("transformer")

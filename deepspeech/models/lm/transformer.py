@@ -42,7 +42,8 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             dropout_rate: float=0.5,
             emb_dropout_rate: float=0.0,
             att_dropout_rate: float=0.0,
-            tie_weights: bool=False, ):
+            tie_weights: bool=False, 
+            **kwargs):
         nn.Layer.__init__(self)
 
         if pos_enc == "sinusoidal":

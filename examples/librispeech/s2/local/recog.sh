@@ -11,9 +11,10 @@ tag=
 decode_config=conf/decode/decode.yaml
 
 # lm params
-lang_model=rnnlm.model.best
-lmexpdir=exp/train_rnnlm_pytorch_lm_transformer_cosine_batchsize32_lr1e-4_layer16_unigram5000_ngpu4/
-lmtag='nolm'
+lang_model=transformerLM.pdparams
+lmexpdir=exp/lm/transformer
+rnnlm_config_path=conf/lm/transformer.yaml
+lmtag='transformer'
 
 train_set=train_960
 recog_set="test-clean test-other dev-clean dev-other"
@@ -91,9 +92,9 @@ for dmethd in join_ctc; do
                 --recog-json ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask} \
                 --result-label ${decode_dir}/data.JOB.json \
                 --model-conf ${config_path} \
-                --model ${ckpt_prefix}.pdparams
-
-                #--rnnlm ${lmexpdir}/${lang_model} \
+                --model ${ckpt_prefix}.pdparams \
+                --rnnlm-conf ${rnnlm_config_path} \
+                --rnnlm ${lmexpdir}/${lang_model}
 
         score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel} --wer false ${decode_dir} ${dict}
 

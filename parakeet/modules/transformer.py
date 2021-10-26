@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from paddle import nn
-from parakeet.modules import attention as attn
 from paddle.nn import functional as F
+
+from parakeet.modules import attention as attn
 
 __all__ = [
     "PositionwiseFFN",

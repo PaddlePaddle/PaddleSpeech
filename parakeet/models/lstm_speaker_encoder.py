@@ -106,10 +106,10 @@ class LSTMSpeakerEncoder(nn.Layer):
     def do_gradient_ops(self):
         for p in [self.similarity_weight, self.similarity_bias]:
             g = p._grad_ivar()
-            g[...] = g * 0.01
+            g = g * 0.01
 
     def inv_argmax(self, i, num):
-        return np.eye(1, num, i, dtype=np.int)[0]
+        return np.eye(1, num, i, dtype=int)[0]
 
     def loss(self, embeds):
         """

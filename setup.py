@@ -15,7 +15,6 @@ import contextlib
 import inspect
 import io
 import os
-import re
 import subprocess as sp
 import sys
 from pathlib import Path
@@ -84,7 +83,7 @@ def _post_install(install_lib_dir):
     tools_extrs_dir = HERE / 'tools/extras'
     with pushd(tools_extrs_dir):
         print(os.getcwd())
-        check_call(f"./install_autolog.sh")
+        check_call("./install_autolog.sh")
     print("autolog install.")
 
     # ctcdecoder

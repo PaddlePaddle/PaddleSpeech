@@ -28,10 +28,10 @@ from parakeet.modules.fastspeech2_predictor.variance_predictor import VariancePr
 from parakeet.modules.fastspeech2_transformer.embedding import PositionalEncoding
 from parakeet.modules.fastspeech2_transformer.embedding import ScaledPositionalEncoding
 from parakeet.modules.fastspeech2_transformer.encoder import Encoder as TransformerEncoder
-from parakeet.modules.tacotron2.decoder import Postnet
 from parakeet.modules.nets_utils import initialize
 from parakeet.modules.nets_utils import make_non_pad_mask
 from parakeet.modules.nets_utils import make_pad_mask
+from parakeet.modules.tacotron2.decoder import Postnet
 
 
 class FastSpeech2(nn.Layer):

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Style encoder of GST-Tacotron."""
-
-from typeguard import check_argument_types
 from typing import Sequence
 
 import paddle
 from paddle import nn
+from typeguard import check_argument_types
+
 from parakeet.modules.fastspeech2_transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
 
 

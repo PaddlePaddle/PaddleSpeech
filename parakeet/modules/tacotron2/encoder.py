@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tacotron2 encoder related modules."""
-
-import six
-
 import paddle
+import six
 from paddle import nn
 
 

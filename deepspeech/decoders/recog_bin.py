@@ -21,7 +21,7 @@ from distutils.util import strtobool
 import configargparse
 import numpy as np
 
-from .recog import recog_v2
+from deepspeech.decoders.recog import recog_v2
 
 
 def get_parser():
@@ -359,7 +359,7 @@ def main(args):
         if args.num_encs == 1:
             # Experimental API that supports custom LMs
             if args.api == "v2":
-                from deepspeech.decoders.recog import recog_v2
+
                 recog_v2(args)
             else:
                 raise ValueError("Only support --api v2")

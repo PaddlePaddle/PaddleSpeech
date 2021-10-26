@@ -30,20 +30,19 @@ logger = Log(__name__).getlog()
 
 
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
-    def __init__(
-            self,
-            n_vocab: int,
-            pos_enc: str=None,
-            embed_unit: int=128,
-            att_unit: int=256,
-            head: int=2,
-            unit: int=1024,
-            layer: int=4,
-            dropout_rate: float=0.5,
-            emb_dropout_rate: float=0.0,
-            att_dropout_rate: float=0.0,
-            tie_weights: bool=False, 
-            **kwargs):
+    def __init__(self,
+                 n_vocab: int,
+                 pos_enc: str=None,
+                 embed_unit: int=128,
+                 att_unit: int=256,
+                 head: int=2,
+                 unit: int=1024,
+                 layer: int=4,
+                 dropout_rate: float=0.5,
+                 emb_dropout_rate: float=0.0,
+                 att_dropout_rate: float=0.0,
+                 tie_weights: bool=False,
+                 **kwargs):
         nn.Layer.__init__(self)
 
         if pos_enc == "sinusoidal":

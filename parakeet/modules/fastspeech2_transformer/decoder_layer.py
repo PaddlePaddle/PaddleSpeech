@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Decoder self-attention layer definition."""
-
 import paddle
 from paddle import nn
+
 from parakeet.modules.layer_norm import LayerNorm
 
 

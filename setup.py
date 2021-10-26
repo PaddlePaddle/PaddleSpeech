@@ -11,20 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import io
-import os
-import re
-import sys
-from pathlib import Path
 import contextlib
 import inspect
+import io
+import os
+import subprocess as sp
+import sys
+from pathlib import Path
 
+from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
-from setuptools import Command
 from setuptools.command.develop import develop
 from setuptools.command.install import install
-import subprocess as sp
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
@@ -40,16 +39,18 @@ def pushd(new_dir):
 
 
 def read(*names, **kwargs):
-    with io.open(os.path.join(os.path.dirname(__file__), *names),
-                 encoding=kwargs.get("encoding", "utf8")) as fp:
+    with io.open(
+            os.path.join(os.path.dirname(__file__), *names),
+            encoding=kwargs.get("encoding", "utf8")) as fp:
         return fp.read()
 
 
 def check_call(cmd: str, shell=False, executable=None):
     try:
-        sp.check_call(cmd.split(),
-                      shell=shell,
-                      executable="/bin/bash" if shell else executable)
+        sp.check_call(
+            cmd.split(),
+            shell=shell,
+            executable="/bin/bash" if shell else executable)
     except sp.CalledProcessError as e:
         print(
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
@@ -82,7 +83,7 @@ def _post_install(install_lib_dir):
     tools_extrs_dir = HERE / 'tools/extras'
     with pushd(tools_extrs_dir):
         print(os.getcwd())
-        check_call(f"./install_autolog.sh")
+        check_call("./install_autolog.sh")
     print("autolog install.")
 
     # ctcdecoder
@@ -189,7 +190,6 @@ setup_info = dict(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-    ],
-)
+    ], )
 
 setup(**setup_info)

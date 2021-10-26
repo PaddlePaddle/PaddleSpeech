@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Lightweight Convolution Module."""
-
 import numpy
 import paddle
-from paddle import nn
 import paddle.nn.functional as F
+from paddle import nn
 
 from parakeet.modules.glu import GLU
 from parakeet.modules.masked_fill import masked_fill

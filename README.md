@@ -198,8 +198,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
   <tbody>
     <tr>
     <td> Text Frontend</td>
-    <td> G2P </td>
-    <td> CSMSC</td>
+    <td colspan="2"> &emsp; </td>
     <td> 
     <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/text_frontend">chinese-fronted</a>
     </td>
@@ -276,15 +275,17 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
     <tr>
     <td rowspan="2">Voice Cloning</td>
     <td>GE2E</td>
-    <td rowspan="2">AISHELL-3</td>
+    <td >AISHELL-3, etc.</td>
     <td>
-    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e">ge2e-aishell3</a>
+    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e">ge2e</a>
     </td>
     </tr>
     <tr>
     <td>GE2E + Tactron2</td>
+    <td>AISHELL-3</td>
     <td>
     <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">ge2e-tactron2-aishell3</a>
+    </td>
     </td>
     </tr>
   </tbody>

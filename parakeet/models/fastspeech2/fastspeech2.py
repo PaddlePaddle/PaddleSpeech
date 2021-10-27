@@ -341,6 +341,7 @@ class FastSpeech2(nn.Layer):
         Tensor
             speech_lengths, modified if reduction_factor > 1
         """
+
         # input of embedding must be int64
         xs = paddle.cast(text, 'int64')
         ilens = paddle.cast(text_lengths, 'int64')
@@ -387,8 +388,8 @@ class FastSpeech2(nn.Layer):
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
         # forward encoder
+        bs = xs.shape[0]
         x_masks = self._source_mask(ilens)
-
         # (B, Tmax, adim)
         hs, _ = self.encoder(xs, x_masks)
 
@@ -405,7 +406,6 @@ class FastSpeech2(nn.Layer):
             if tone_id is not None:
                 tone_embs = self.tone_embedding_table(tone_id)
                 hs = self._integrate_with_tone_embed(hs, tone_embs)
-
         # forward duration predictor and variance predictors
         d_masks = make_pad_mask(ilens)
 
@@ -452,9 +452,10 @@ class FastSpeech2(nn.Layer):
         else:
             h_masks = None
         # (B, Lmax, adim)
+
         zs, _ = self.decoder(hs, h_masks)
         # (B, Lmax, odim)
-        before_outs = self.feat_out(zs).reshape((zs.shape[0], -1, self.odim))
+        before_outs = self.feat_out(zs).reshape((bs, -1, self.odim))
 
         # postnet -> (B, Lmax//r * r, odim)
         if self.postnet is None:
@@ -462,7 +463,6 @@ class FastSpeech2(nn.Layer):
         else:
             after_outs = before_outs + self.postnet(
                 before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
-
         return before_outs, after_outs, d_outs, p_outs, e_outs
 
     def inference(
@@ -517,8 +517,8 @@ class FastSpeech2(nn.Layer):
             d = paddle.cast(durations, 'int64')
         p, e = pitch, energy
         # setup batch axis
-        ilens = paddle.to_tensor(
-            [x.shape[0]], dtype=paddle.int64, place=x.place)
+        ilens = paddle.shape(x)[0]
+
         xs, ys = x.unsqueeze(0), None
 
         if y is not None:

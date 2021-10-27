@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Length regulator related modules."""
-import numpy as np
 import paddle
 from paddle import nn
 
@@ -50,10 +49,10 @@ class LengthRegulator(nn.Layer):
         durations: (B, T)
         """
         batch_size, t_enc = durations.shape
-        durations = durations.numpy()
-        slens = np.sum(durations, -1)
-        t_dec = np.max(slens)
-        M = np.zeros([batch_size, t_dec, t_enc])
+        # durations = durations.numpy()
+        slens = paddle.sum(durations, -1)
+        t_dec = paddle.max(slens)
+        M = paddle.zeros([batch_size, t_dec, t_enc])
         for i in range(batch_size):
             k = 0
             for j in range(t_enc):
@@ -82,6 +81,7 @@ class LengthRegulator(nn.Layer):
         Tensor
             replicated input tensor based on durations (B, T*, D).
         """
+
         if alpha != 1.0:
             assert alpha > 0
             ds = paddle.round(ds.cast(dtype=paddle.float32) * alpha)

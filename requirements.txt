@@ -13,7 +13,8 @@ librosa
 llvmlite
 loguru
 matplotlib
-nara_wpenltk
+nara_wpe
+nltk
 numba
 numpy==1.20.0
 pandas

@@ -31,7 +31,7 @@ how they can use it
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment. Besides, this toolkit also features at:
 - **Fast and Light-weight**: we provide a high-speed and ultra-lightweight model that is convenient for industrial deployment.
-- **Rule-based Chinese frontend**: we utilize plenty of Chinese datasets and corpora to enhance user experience, including CSMSC and Baidu Internal Corpus.
+- **Rule-based Chinese frontend**: our frontend contains Text Normalization (TN) and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context. 
 - **Varieties of Functions that Vitalize Research**: 
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of both ASR and TTS, and uses datasets like LibriSpeech, LJSpeech, AIShell, etc. See also [model lists](#models-list) for more details.
   - *Support of ASR streaming and non-streaming data*: This toolkit contains non-streaming/streaming models like [DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf), [Transformer](https://arxiv.org/abs/1706.03762), [Conformer](https://arxiv.org/abs/2005.08100) and [U2](https://arxiv.org/pdf/2012.05481.pdf).
@@ -154,7 +154,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td> <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Conformer Librispeech Model</a> </td>
     </tr>
     <tr>
-      <td>Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
+      <td>Encoder:Transformer, Decoder:Transformer, Decoding method: Attention</td>
       <td>
       <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/transformer.release.tar.gz">Transformer Librispeech Model</a>
       </td>
@@ -197,7 +197,15 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
   </thead>
   <tbody>
     <tr>
-      <td rowspan="6">Acoustic Model</td>
+    <td> Text Frontend</td>
+    <td> G2P </td>
+    <td> CSMSC</td>
+    <td> 
+    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/text_frontend">chinese-fronted</a>
+    </td>
+    </tr>
+    <tr>
+      <td rowspan="7">Acoustic Model</td>
       <td >Tacotron2</td>
       <td rowspan="2" >LJSpeech</td>
       <td>
@@ -218,15 +226,19 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       </td>
     </tr>
     <tr>
-      <td rowspan="3">FastSpeech2</td>
+      <td rowspan="4">FastSpeech2</td>
       <td>AISHELL-3</td>
       <td>
       <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/tts3">fastspeech2-aishell3</a>
       </td>
     </tr>
-      <tr>
+    <tr>
       <td>VCTK</td>
       <td> <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/tts3">fastspeech2-vctk</a> </td>
+    </tr>
+    <tr>
+      <td>LJSpeech</td>
+      <td> <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts3">fastspeech2-ljspeech</a> </td>
     </tr>
     <tr>
       <td>CSMSC</td>
@@ -235,7 +247,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       </td>
     </tr>
    <tr>
-      <td rowspan="3">Vocoder</td>
+      <td rowspan="4">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -243,10 +255,16 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       </td>
     </tr>
     <tr>
-      <td rowspan="2">Parallel WaveGAN</td>
+      <td rowspan="3">Parallel WaveGAN</td>
       <td >LJSpeech</td>
       <td>
       <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1">pwGAN-ljspeech</a>
+      </td>
+    </tr>
+    <tr>
+      <td >VCTK</td>
+      <td>
+      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1">pwGAN-vctk</a>
       </td>
     </tr>
     <tr>
@@ -254,6 +272,20 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       <td>
       <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">pwGAN-csmsc</a>
       </td>
+    </tr>
+    <tr>
+    <td rowspan="2">Voice Cloning</td>
+    <td>GE2E</td>
+    <td rowspan="2">AISHELL-3</td>
+    <td>
+    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e">ge2e-aishell3</a>
+    </td>
+    </tr>
+    <tr>
+    <td>GE2E + Tactron2</td>
+    <td>
+    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">ge2e-tactron2-aishell3</a>
+    </td>
     </tr>
   </tbody>
 </table>
@@ -284,4 +316,5 @@ PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 
-PaddleSpeech depends on a lot of open source repositories. See [references](docs/source/asr/reference.md) for more information.
+PaddleSpeech depends on a lot of open source repos. See [references](docs/source/asr/reference.md) for more information.
+

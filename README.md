@@ -82,6 +82,8 @@ Try a tiny ASR DeepSpeech2 model training on toy set of LibriSpeech:
 
 ```shell
 cd examples/tiny/s0/
+# source the environment
+source path.sh
 # prepare librispeech dataset
 bash local/data.sh
 # evaluate your ckptfile model file
@@ -269,7 +271,7 @@ The original ASR module is based on [Baidu's DeepSpeech](https://arxiv.org/abs/1
 * [Benchmark](docs/source/asr/benchmark.md)  
 * [Relased Model](docs/source/asr/released_model.md)  
 
-The TTS module is originally called [Parakeet](./docs/source/tts/README.md), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
 
 ## FAQ and Contributing
@@ -282,5 +284,4 @@ PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 
-PaddleSpeech depends on a lot of open source repos. See [references](docs/source/asr/reference.md) for more information.
-
+PaddleSpeech depends on a lot of open source repositories. See [references](docs/source/asr/reference.md) for more information.

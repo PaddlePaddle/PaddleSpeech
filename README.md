@@ -12,7 +12,7 @@ English | [简体中文](README_ch.md)
   <h3> 
   <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a> 
   | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#models-list"> Models List </a> 
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a> 
   
 </div>
   
@@ -76,21 +76,29 @@ If you want to set up PaddleSpeech in other environment, please see the [ASR ins
 
 ## Quick Start
 
-> Note: Both ASR and TTS tiny examples are too long and duplicate, thus they are hard to summarized as a few lines of code.
+> Note: `ckptfile` should be replaced by real path that represents files or folders later. Similarly, `exp/default` is the folder that contains the pretrained models.
 
 Try a tiny ASR DeepSpeech2 model training on toy set of LibriSpeech:
 
 ```shell
 cd examples/tiny/s0/
-# prepare, train, infer, evaluate and export model
+# prepare librispeech dataset
 bash local/data.sh
-bash local/train.sh
-bash local/infer.sh
-bash local/test.sh
-bash local/export.sh ckpt_path saved_jit_model_path
+# evaluate your ckptfile model file
+bash local/test.sh conf/deepspeech2.yaml ckptfile offline
 ```
 
-For more examples, please see [ASR getting started](docs/source/asr/getting_started.md) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
+For TTS, try FastSpeech2 on LJSpeech:
+- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/) and our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz).
+- Assume your path to the dataset is `~/datasets/LJSpeech-1.1` and `./ljspeech_alignment` accordingly, preprocess your data and then use our pretrained model to synthesize:
+```shell
+bash ./local/preprocess.sh conf/default.yaml
+bash ./local/synthesize_e2e.sh conf/default.yaml exp/default ckptfile
+```
+
+
+
+If you want to try more functions like training and tuning, please see [ASR getting started](docs/source/asr/getting_started.md) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
 
 ## Models List
 
@@ -151,23 +159,23 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
     </tr>
    <tr>
       <td rowspan="3">Language Model</td>
-      <td >English LM</td>
       <td >CommonCrawl(en.00)</td>
+      <td >English Language Model</td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm">English LM</a>
+      <a href = "https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm">English Language Model</a>
       </td>
     </tr>
     <tr>
-      <td>Mandarin LM Small</td>
       <td rowspan="2">Baidu Internal Corpus</td>
+      <td>Mandarin Language Model Small</td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm">Mandarin LM Small</a>
+      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm">Mandarin Language Model Small</a>
       </td>
     </tr>
     <tr>
-      <td >Mandarin LM Large</td>
-      <td >
-      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm">Mandarin LM Large</a>
+      <td >Mandarin Language Model Large</td>
+      <td>
+      <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm">Mandarin Language Model Large</a>
       </td>
     </tr>
   </tbody>
@@ -251,7 +259,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
 
 ## Tutorials 
 
-Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview about the hot academic topics in speech. If you want to focus on the two tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. If you want to focus on the two tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 The original ASR module is based on [Baidu's DeepSpeech](https://arxiv.org/abs/1412.5567) which is an independent product named [DeepSpeech](https://deepspeech.readthedocs.io). However, the toolkit aligns almost all the SoTA modules in the pipeline. Specifically, these modules are 
 
@@ -261,7 +269,7 @@ The original ASR module is based on [Baidu's DeepSpeech](https://arxiv.org/abs/1
 * [Benchmark](docs/source/asr/benchmark.md)  
 * [Relased Model](docs/source/asr/released_model.md)  
 
-The TTS module is originall called [Parakeet](./docs/source/tts/README.md), and now merged with DeepSpeech. If you are interested in the academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](./docs/source/tts/README.md), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
 
 ## FAQ and Contributing
@@ -270,7 +278,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 ## License
 
-DeepSpeech is provided under the [Apache-2.0 License](./LICENSE).
+PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 

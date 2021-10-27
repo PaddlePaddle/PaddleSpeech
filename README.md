@@ -12,7 +12,7 @@ English | [简体中文](README_ch.md)
   <h3> 
   <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a> 
   | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a> 
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#models-list"> Models List </a> 
   
 </div>
   
@@ -94,7 +94,7 @@ For more examples, please see [ASR getting started](docs/source/asr/getting_star
 
 ## Models List
 
-> Note: ASR model list is aligned with [acoustic-model](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/docs/source/asr/released_model.md#acoustic-model-released-in-paddle-2x).
+
 
 PaddleSpeech ASR supports a lot of mainstream models, which are summarized as follow. For more information, please refer to [ASR Models](./docs/source/asr/released_model.md).
 
@@ -106,16 +106,16 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   <thead>
     <tr>
       <th>ASR Module Type</th>
-      <th>Model Type</th>
       <th>Dataset</th>
+      <th>Model Type</th>
       <th>Link</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td rowspan="6">Acoustic Model</td>
-      <td >2 Conv + 5 LSTM layers with only forward direction	</td>
       <td rowspan="4" >Aishell</td>
+      <td >2 Conv + 5 LSTM layers with only forward direction	</td>
       <td>
       <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz">Ds2 Online Aishell Model</a>
       </td>
@@ -139,8 +139,8 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>
       <tr>
-      <td >Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
       <td rowspan="2"> Librispeech</td>
+      <td>Encoder:Conformer, Decoder:Transformer, Decoding method: Attention</td>
       <td> <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Conformer Librispeech Model</a> </td>
     </tr>
     <tr>

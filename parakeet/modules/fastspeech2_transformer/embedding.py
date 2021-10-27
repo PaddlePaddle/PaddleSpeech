@@ -46,13 +46,14 @@ class PositionalEncoding(nn.Layer):
     def extend_pe(self, x):
         """Reset the positional encodings."""
 
-        pe = paddle.zeros([x.shape[1], self.d_model])
+        pe = paddle.zeros([paddle.shape(x)[1], self.d_model])
         if self.reverse:
             position = paddle.arange(
-                x.shape[1] - 1, -1, -1.0, dtype=paddle.float32).unsqueeze(1)
+                paddle.shape(x)[1] - 1, -1, -1.0,
+                dtype=paddle.float32).unsqueeze(1)
         else:
             position = paddle.arange(
-                0, x.shape[1], dtype=paddle.float32).unsqueeze(1)
+                0, paddle.shape(x)[1], dtype=paddle.float32).unsqueeze(1)
         div_term = paddle.exp(
             paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
             -(math.log(10000.0) / self.d_model))
@@ -75,7 +76,8 @@ class PositionalEncoding(nn.Layer):
             Encoded tensor (batch, time, `*`).
         """
         self.extend_pe(x)
-        x = x * self.xscale + self.pe[:, :x.shape[1]]
+
+        x = x * self.xscale + self.pe[:, :paddle.shape(x)[1]]
         return self.dropout(x)
 
 
@@ -101,7 +103,7 @@ class ScaledPositionalEncoding(PositionalEncoding):
         x = paddle.ones([1], dtype="float32")
         self.alpha = paddle.create_parameter(
             shape=x.shape,
-            dtype=str(x.numpy().dtype),
+            dtype="float32",
             default_initializer=paddle.nn.initializer.Assign(x))
 
     def reset_parameters(self):
@@ -115,12 +117,11 @@ class ScaledPositionalEncoding(PositionalEncoding):
         ----------
             x : paddle.Tensor
                 Input tensor (batch, time, `*`).
-
         Returns
         ----------
             paddle.Tensor
                 Encoded tensor (batch, time, `*`).
         """
         self.extend_pe(x)
-        x = x + self.alpha * self.pe[:, :x.shape[1]]
+        x = x + self.alpha * self.pe[:, :paddle.shape(x)[1]]
         return self.dropout(x)

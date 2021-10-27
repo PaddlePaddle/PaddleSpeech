@@ -87,7 +87,7 @@ class EncoderLayer(nn.Layer):
         if cache is None:
             x_q = x
         else:
-            assert cache.shape == (x.shape[0], x.shape[1] - 1, self.size)
+            # assert cache.shape == (x.shape[0], x.shape[1] - 1, self.size)
             x_q = x[:, -1:, :]
             residual = residual[:, -1:, :]
             mask = None if mask is None else mask[:, -1:, :]

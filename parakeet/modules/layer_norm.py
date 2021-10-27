@@ -44,6 +44,7 @@ class LayerNorm(paddle.nn.LayerNorm):
         paddle.Tensor
             Normalized tensor.
         """
+
         if self.dim == -1:
             return super(LayerNorm, self).forward(x)
         else:
@@ -54,9 +55,10 @@ class LayerNorm(paddle.nn.LayerNorm):
 
             orig_perm = list(range(len_dim))
             new_perm = orig_perm[:]
-            new_perm[self.dim], new_perm[len_dim -
-                                         1] = new_perm[len_dim -
-                                                       1], new_perm[self.dim]
+            temp = new_perm[self.dim]
+            new_perm[self.dim] = new_perm[len_dim - 1]
+            new_perm[len_dim - 1] = temp
+            # new_perm[self.dim], new_perm[len_dim -1] = new_perm[len_dim -1], new_perm[self.dim]
 
             return paddle.transpose(
                 super(LayerNorm, self).forward(paddle.transpose(x, new_perm)),

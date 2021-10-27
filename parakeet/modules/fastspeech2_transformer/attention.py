@@ -37,7 +37,7 @@ class MultiHeadedAttention(nn.Layer):
     def __init__(self, n_head, n_feat, dropout_rate):
         """Construct an MultiHeadedAttention object."""
         super(MultiHeadedAttention, self).__init__()
-        assert n_feat % n_head == 0
+        # assert n_feat % n_head == 0
         # We assume d_v always equals d_k
         self.d_k = n_feat // n_head
         self.h = n_head
@@ -106,13 +106,9 @@ class MultiHeadedAttention(nn.Layer):
         n_batch = value.shape[0]
         softmax = paddle.nn.Softmax(axis=-1)
         if mask is not None:
-
             mask = mask.unsqueeze(1)
             mask = paddle.logical_not(mask)
-            min_value = float(
-                numpy.finfo(
-                    paddle.to_tensor(0, dtype=scores.dtype).numpy().dtype).min)
-
+            min_value = float(numpy.finfo("float32").min)
             scores = masked_fill(scores, mask, min_value)
             # (batch, head, time1, time2)
             self.attn = softmax(scores)

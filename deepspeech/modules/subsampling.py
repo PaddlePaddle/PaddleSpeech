@@ -60,7 +60,8 @@ class LinearNoSubsampling(BaseSubsampling):
         self.out = nn.Sequential(
             nn.Linear(idim, odim),
             nn.LayerNorm(odim, epsilon=1e-12),
-            nn.Dropout(dropout_rate), )
+            nn.Dropout(dropout_rate),
+            nn.ReLU(), )
         self.right_context = 0
         self.subsampling_rate = 1
 
@@ -83,7 +84,12 @@ class LinearNoSubsampling(BaseSubsampling):
         return x, pos_emb, x_mask
 
 
-class Conv2dSubsampling4(BaseSubsampling):
+class Conv2dSubsampling(BaseSubsampling):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class Conv2dSubsampling4(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/4 length)."""
 
     def __init__(self,
@@ -134,7 +140,7 @@ class Conv2dSubsampling4(BaseSubsampling):
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2]
 
 
-class Conv2dSubsampling6(BaseSubsampling):
+class Conv2dSubsampling6(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/6 length)."""
 
     def __init__(self,
@@ -187,7 +193,7 @@ class Conv2dSubsampling6(BaseSubsampling):
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-4:3]
 
 
-class Conv2dSubsampling8(BaseSubsampling):
+class Conv2dSubsampling8(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/8 length)."""
 
     def __init__(self,

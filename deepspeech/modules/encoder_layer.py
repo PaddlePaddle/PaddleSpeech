@@ -71,7 +71,7 @@ class TransformerEncoderLayer(nn.Layer):
             self,
             x: paddle.Tensor,
             mask: paddle.Tensor,
-            pos_emb: paddle.Tensor,
+            pos_emb: Optional[paddle.Tensor]=None,
             mask_pad: Optional[paddle.Tensor]=None,
             output_cache: Optional[paddle.Tensor]=None,
             cnn_cache: Optional[paddle.Tensor]=None,
@@ -82,8 +82,8 @@ class TransformerEncoderLayer(nn.Layer):
             mask (paddle.Tensor): Mask tensor for the input (#batch, time).
             pos_emb (paddle.Tensor): just for interface compatibility
                 to ConformerEncoderLayer
-            mask_pad (paddle.Tensor): does not used in transformer layer,
-                just for unified api with conformer.
+            mask_pad (paddle.Tensor): not used here, it's for interface
+                compatibility to ConformerEncoderLayer
             output_cache (paddle.Tensor): Cache tensor of the output
                 (#batch, time2, size), time2 < time in x.
             cnn_cache (paddle.Tensor): not used here, it's for interface

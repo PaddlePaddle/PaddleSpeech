@@ -1,0 +1,13 @@
+model_module: transformer
+model:
+    n_vocab: 5002
+    pos_enc: null
+    embed_unit: 128
+    att_unit: 512
+    head: 8
+    unit: 2048
+    layer: 16
+    dropout_rate: 0.5
+    emb_dropout_rate: 0.0
+    att_dropout_rate: 0.0
+    tie_weights: False 

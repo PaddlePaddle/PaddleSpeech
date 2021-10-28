@@ -7,8 +7,8 @@ Download VCTK-0.92 from the [official website](https://datashare.ed.ac.uk/handle
 
 ### Get MFA result of VCTK and Extract it
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your own MFA model reference to  [use_mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/use_mfa) of our repo.
-ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/use_mfa/local/reorganize_vctk.py)):
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) of our repo.
+ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/examples/other/use_mfa/local/reorganize_vctk.py)):
 1. `p315`, because no txt for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
 
@@ -91,7 +91,7 @@ optional arguments:
 6. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesize
-We use [parallel wavegan](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/parallelwave_gan/baker) as the neural vocoder.
+We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1) as the neural vocoder.
 
 Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_vctk_ckpt_0.5.zip)and unzip it.
 ```bash

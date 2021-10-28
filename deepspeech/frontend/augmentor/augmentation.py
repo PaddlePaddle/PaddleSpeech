@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains the data augmentation pipeline."""
 import json
+import os
 from collections.abc import Sequence
 from inspect import signature
 from pprint import pformat
@@ -90,9 +91,8 @@ class AugmentationPipeline():
     effect.
 
     Params:
-        augmentation_config(str): Augmentation configuration in json string.
+        preprocess_conf(str): Augmentation configuration in `json file` or `json string`.
         random_seed(int): Random seed.
-        train(bool): whether is train mode.
     
     Raises:
         ValueError: If the augmentation json config is in incorrect format".
@@ -100,11 +100,18 @@ class AugmentationPipeline():
 
     SPEC_TYPES = {'specaug'}
 
-    def __init__(self, augmentation_config: str, random_seed: int=0):
+    def __init__(self, preprocess_conf: str, random_seed: int=0):
         self._rng = np.random.RandomState(random_seed)
         self.conf = {'mode': 'sequential', 'process': []}
-        if augmentation_config:
-            process = json.loads(augmentation_config)
+        if preprocess_conf:
+            if os.path.isfile(preprocess_conf):
+                # json file
+                with open(preprocess_conf, 'r') as fin:
+                    json_string = fin.read()
+            else:
+                # json string
+                json_string = preprocess_conf
+            process = json.loads(json_string)
             self.conf['process'] += process
 
         self._augmentors, self._rates = self._parse_pipeline_from('all')

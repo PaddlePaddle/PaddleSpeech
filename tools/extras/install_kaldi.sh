@@ -16,7 +16,7 @@ else
     echo "$KALDI_DIR already exists!"
 fi
 
-cd "$KALDI_DIR/tools"
+pushd "$KALDI_DIR/tools"
 git pull
 
 # Prevent kaldi from switching default python version
@@ -28,8 +28,12 @@ touch "python/.use_default_python"
 make -j4
 
 pushd ../src
-./configure --shared --use-cuda=no --static-math --mathlib=OPENBLAS --openblas-root=${KALDI_DIR}/../OpenBLAS/install
+OPENBLAS_DIR=${KALDI_DIR}/../OpenBLAS
+mkdir -p ${OPENBLAS_DIR}/install
+./configure --shared --use-cuda=no --static-math --mathlib=OPENBLAS --openblas-root=${OPENBLAS_DIR}/install
 make clean -j && make depend -j && make -j4
+popd
+
 popd
 
 echo "Done installing Kaldi."

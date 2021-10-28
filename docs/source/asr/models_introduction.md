@@ -13,7 +13,7 @@ In addition, the training process and the testing process are also introduced.
 The arcitecture of the model is shown in Fig.1.
 
 <p align="center">
-    <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/ds2onlineModel.png" width=800>
+    <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/ds2onlineModel.png" width=800>
     <br/>Fig.1 The Arcitecture of deepspeech2 online model
 </p>
 
@@ -160,7 +160,7 @@ The deepspeech2 offline model is similarity to the deepspeech2 online model. The
 
 The arcitecture of the model is shown in Fig.2.
 <p align="center">
-    <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/ds2offlineModel.png" width=800>
+    <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/ds2offlineModel.png" width=800>
     <br/>Fig.2 The Arcitecture of deepspeech2 offline model
 </p>
 

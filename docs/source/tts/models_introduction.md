@@ -1,12 +1,12 @@
-# Released Models
-TTS system mainly includes three modules: `text frontend`, `Acoustic model` and `Vocoder`. We introduce a rule based Chinese text frontend in [cn_text_frontend.md](./cn_text_frontend.md). Here, we will introduce acoustic models and vocoders, which are trainable models.
+# Models introduction
+TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We introduce a rule based Chinese text frontend in [cn_text_frontend.md](./cn_text_frontend.md). Here, we will introduce acoustic models and vocoders, which are trainable models.
 
 The main processes of TTS include:
 1. Convert the original text into characters/phonemes, through `text frontend` module.
 2. Convert characters/phonemes into acoustic features , such as linear spectrogram, mel spectrogram, LPC features, etc. through `Acoustic models`.
 3. Convert acoustic features into waveforms through `Vocoders`.
 
-A simple text frontend module can be implemented by rules. Acoustic models and vocoders need to be trained. The models provided by Parakeet are acoustic models and vocoders.
+A simple text frontend module can be implemented by rules. Acoustic models and vocoders need to be trained. The models provided by PaddleSpeech TTS are acoustic models and vocoders.
 
 ## Acoustic Models
 ### Modeling Objectives of Acoustic Models
@@ -92,7 +92,7 @@ At present, there are two mainstream acoustic model structures.
   <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/tacotron2.png" width=500 /> <br>
 </div>
 
-You can find Parakeet's tacotron2 example at `Parakeet/examples/tacotron2`.
+You can find PaddleSpeech TTS's tacotron2 with LJSpeech dataset example at [examples/ljspeech/tts0](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts0).
 
 ### TransformerTTS
 **Disadvantages of the Tacotrons:**
@@ -146,7 +146,7 @@ Transformer TTS is a seq2seq acoustic model based on Transformer and Tacotron2.
 - The ability to perceive local information is weak, and local information is more related to pronunciation.
 - Stability is worse than Tacotron2.
 
-You can find Parakeet's Transformer TTS example at `Parakeet/examples/transformer_tts`.
+You can find PaddleSpeech TTS's Transformer TTS with LJSpeech dataset example at [examples/ljspeech/tts1](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts1).
 
 
 ### FastSpeech2
@@ -212,7 +212,7 @@ FastSpeech2 is similar to FastPitch but introduces more variation information of
   <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/fastspeech2.png" width=800 /> <br>
 </div>
 
-You can find Parakeet's FastSpeech2/FastPitch example at `Parakeet/examples/fastspeech2`, We use token-averaged pitch and energy values introduced in FastPitch rather than frame level ones in FastSpeech2.
+You can find PaddleSpeech TTS's FastSpeech2/FastPitch with CSMSC dataset example at [examples/csmsc/tts3](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts3), We use token-averaged pitch and energy values introduced in FastPitch rather than frame level ones in FastSpeech2.
 
 ### SpeedySpeech
 [SpeedySpeech](https://arxiv.org/abs/2008.03802) simplify the teacher-student architecture of FastSpeech and provide a fast and stable training procedure.
@@ -226,7 +226,7 @@ You can find Parakeet's FastSpeech2/FastPitch example at `Parakeet/examples/fast
   <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/speedyspeech.png" width=500 /> <br>
 </div>
 
-You can find Parakeet's SpeedySpeech example at `Parakeet/examples/speedyspeech/baker`.
+You can find PaddleSpeech TTS's SpeedySpeech with CSMSC dataset example at [examples/csmsc/tts2](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts2).
 
 ## Vocoders
 In speech synthesis, the main task of the vocoder is to convert the spectral parameters predicted by the acoustic model into the final speech waveform.
@@ -276,7 +276,7 @@ Here, we introduce a Flow-based vocoder WaveFlow and a GAN-based vocoder Paralle
 - It is a small-footprint flow-based model for raw audio. It has only 5.9M parameters, which is 15x smalller than WaveGlow (87.9M).
 - It is directly trained with maximum likelihood without probability density distillation and auxiliary losses as used in [Parallel WaveNet](https://arxiv.org/abs/1711.10433) and [ClariNet](https://openreview.net/pdf?id=HklY120cYm), which simplifies the training pipeline and reduces the cost of development.
 
-You can find Parakeet's WaveFlow example at `Parakeet/examples/waveflow`.
+You can find PaddleSpeech TTS's WaveFlow with LJSpeech dataset example at [examples/ljspeech/voc0](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0).
 
 ### Parallel WaveGAN
 [Parallel WaveGAN](https://arxiv.org/abs/1910.11480) trains a non-autoregressive WaveNet variant as a generator in a GAN based training method.
@@ -286,10 +286,10 @@ You can find Parakeet's WaveFlow example at `Parakeet/examples/waveflow`.
 - Use non-causal convolution instead of causal convolution.
 - The input is random Gaussian white noise.
 - The model is non-autoregressive both in training and prediction, which is fast
--  Multi-resolution STFT loss.
+- Multi-resolution STFT loss.
 
 <div align="left">
   <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/pwg.png" width=600 /> <br>
 </div>
 
-You can find Parakeet's Parallel WaveGAN example at `Parakeet/examples/parallelwave_gan/baker`.
+You can find PaddleSpeech TTS's Parallel WaveGAN with CSMSC example at [examples/csmsc/voc1](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1).

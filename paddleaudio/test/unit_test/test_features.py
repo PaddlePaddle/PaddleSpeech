@@ -13,8 +13,9 @@
 # limitations under the License.
 import librosa
 import numpy as np
-import paddleaudio as pa
 import pytest
+
+import paddleaudio as pa
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

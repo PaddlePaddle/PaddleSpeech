@@ -20,8 +20,9 @@ import numpy as np
 import scipy
 from numpy import ndarray as array
 from numpy.lib.stride_tricks import as_strided
-from paddleaudio.utils import ParameterError
 from scipy.signal import get_window
+
+from paddleaudio.utils import ParameterError
 
 __all__ = [
     'stft',

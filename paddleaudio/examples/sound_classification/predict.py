@@ -12,33 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import os
 
+import numpy as np
 import paddle
+import paddle.nn.functional as F
 from model import SoundClassifier
+
+from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets import ESC50
+from paddleaudio.features import melspectrogram
 from paddleaudio.models.panns import cnn14
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
+parser.add_argument('--device', choices=['cpu', 'gpu'], default="gpu", help="Select which device to predict, defaults to gpu.")
+parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
+parser.add_argument("--top_k", type=int, default=1, help="Show top k predicted results")
 parser.add_argument("--checkpoint", type=str, required=True, help="Checkpoint of model.")
-parser.add_argument("--output_dir", type=str, default='./export', help="Path to save static model and its parameters.")
 args = parser.parse_args()
 # yapf: enable
 
+
+def extract_features(file: str, **kwargs):
+    waveform, sr = load_audio(file, sr=None)
+    feat = melspectrogram(waveform, sr, **kwargs).transpose()
+    return feat
+
+
 if __name__ == '__main__':
+    paddle.set_device(args.device)
+
     model = SoundClassifier(
         backbone=cnn14(pretrained=False, extract_embedding=True),
         num_class=len(ESC50.label_list))
     model.set_state_dict(paddle.load(args.checkpoint))
     model.eval()
 
-    model = paddle.jit.to_static(
-        model,
-        input_spec=[
-            paddle.static.InputSpec(
-                shape=[None, None, 64], dtype=paddle.float32)
-        ])
+    feat = np.expand_dims(extract_features(args.wav), 0)
+    feat = paddle.to_tensor(feat)
+    logits = model(feat)
+    probs = F.softmax(logits, axis=1).numpy()
 
-    # Save in static graph model.
-    paddle.jit.save(model, os.path.join(args.output_dir, "inference"))
+    sorted_indices = (-probs[0]).argsort()
+
+    msg = f'[{args.wav}]\n'
+    for idx in sorted_indices[:args.top_k]:
+        msg += f'{ESC50.label_list[idx]}: {probs[0][idx]}\n'
+    print(msg)

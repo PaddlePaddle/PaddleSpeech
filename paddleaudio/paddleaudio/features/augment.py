@@ -15,6 +15,7 @@ from typing import List
 
 import numpy as np
 from numpy import ndarray as array
+
 from paddleaudio.backends import depth_convert
 from paddleaudio.utils import ParameterError
 

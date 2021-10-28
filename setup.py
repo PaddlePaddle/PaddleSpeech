@@ -65,13 +65,6 @@ def _remove(files: str):
 
 
 def _post_install(install_lib_dir):
-    # apt
-    check_call("apt-get update -y")
-    check_call("apt-get install -y " + 'vim tig tree sox pkg-config ' +
-               'libsndfile1 libflac-dev libogg-dev ' +
-               'libvorbis-dev libboost-dev swig python3-dev ')
-    print("apt install.")
-
     # tools/make
     tool_dir = HERE / "tools"
     _remove(tool_dir.glob("*.done"))

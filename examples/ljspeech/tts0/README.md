@@ -77,7 +77,7 @@ optional arguments:
                         config, passing in KEY VALUE pairs
   -v, --verbose         print msg
 ```
-**Ps.** You can  use [waveflow](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/waveflow) as the neural vocoder to synthesize mels to wavs. (Please  refer to `synthesize.sh` in our  LJSpeech waveflow example)
+**Ps.** You can  use [waveflow](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder to synthesize mels to wavs. (Please  refer to `synthesize.sh` in our  LJSpeech waveflow example)
 
 ## Pretrained Models
 Pretrained Models can be downloaded from links below. We provide 2 models with different configurations.

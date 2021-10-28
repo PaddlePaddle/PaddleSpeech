@@ -257,19 +257,19 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       <td rowspan="3">Parallel WaveGAN</td>
       <td >LJSpeech</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1">pwGAN-ljspeech</a>
+      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1">PWGAN-ljspeech</a>
       </td>
     </tr>
     <tr>
       <td >VCTK</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1">pwGAN-vctk</a>
+      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1">PWGAN-vctk</a>
       </td>
     </tr>
     <tr>
       <td >CSMSC</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">pwGAN-csmsc</a>
+      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">PWGAN-csmsc</a>
       </td>
     </tr>
     <tr>
@@ -284,7 +284,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
     <td>GE2E + Tactron2</td>
     <td>AISHELL-3</td>
     <td>
-    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">ge2e-tactron2-aishell3</a>
+    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
     </td>
     </td>
     </tr>

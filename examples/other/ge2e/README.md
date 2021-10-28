@@ -1,5 +1,5 @@
 # Speaker Encoder
-This experiment trains a speaker encoder with speaker verification as its task. It is done as a part of the experiment of transfer learning from speaker verification to multispeaker text-to-speech synthesis, which can be found at [tacotron2_aishell3](../tacotron2_shell3). The trained speaker encoder is used to extract utterance embeddings from utterances.
+This experiment trains a speaker encoder with speaker verification as its task. It is done as a part of the experiment of transfer learning from speaker verification to multispeaker text-to-speech synthesis, which can be found at [examples/aishell3/vc0](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/vc0). The trained speaker encoder is used to extract utterance embeddings from utterances.
 ## Model
 The model used in this experiment is the speaker encoder with text independent speaker verification task in [GENERALIZED END-TO-END LOSS FOR SPEAKER VERIFICATION](https://arxiv.org/pdf/1710.10467.pdf). GE2E-softmax loss is used.
 

@@ -7,7 +7,7 @@ Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech
 
 ### Get MFA result of LJSpeech-1.1 and Extract it
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your own MFA model reference to  [use_mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/use_mfa) of our repo.
+You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
@@ -88,7 +88,7 @@ optional arguments:
 6. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesize
-We use [parallel wavegan](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/parallelwave_gan/ljspeech/) as the neural vocoder.
+We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1) as the neural vocoder.
 Download pretrained parallel wavegan model from [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_ljspeech_ckpt_0.5.zip

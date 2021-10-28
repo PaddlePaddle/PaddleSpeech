@@ -134,6 +134,10 @@ class Trainer():
             logger.info(
                 f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 
+    @property
+    def train(self):
+        return self._train
+
     @contextmanager
     def eval(self):
         self._train = False
@@ -248,7 +252,7 @@ class Trainer():
             sys.exit(
                 f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
 
-    def train(self):
+    def do_train(self):
         """The training process control by epoch."""
         self.before_train()
 
@@ -321,7 +325,7 @@ class Trainer():
         """
         try:
             with Timer("Training Done: {}"):
-                self.train()
+                self.do_train()
         except KeyboardInterrupt:
             exit(-1)
         finally:
@@ -432,7 +436,7 @@ class Trainer():
         beginning of the experiment.
         """
         config_file = self.config_dir / "config.yaml"
-        if self._train and config_file.exists():
+        if self.train and config_file.exists():
             time_stamp = time.strftime("%Y_%m_%d_%H_%M_%s", time.gmtime())
             target_path = self.config_dir / ".".join(
                 [time_stamp, "config.yaml"])

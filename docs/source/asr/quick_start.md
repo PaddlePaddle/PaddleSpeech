@@ -54,7 +54,7 @@ CUDA_VISIBLE_DEVICES=0 bash local/tune.sh
  The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.
 
 <p align="center">
-    <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/tuning_error_surface.png" width=550>
+    <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/tuning_error_surface.png" width=550>
     <br/>An example error surface for tuning on the dev-clean set of LibriSpeech
 </p>
 

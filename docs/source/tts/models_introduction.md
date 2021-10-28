@@ -27,14 +27,14 @@ At present, there are two mainstream acoustic model structures.
    - Acoustic decoder (N Frames - > N Frames).
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/frame_level_am.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/frame_level_am.png" width=500 /> <br>
 </div>
 
 - Sequence to sequence acoustic model:
     - M Tokens - > N Frames.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/seq2seq_am.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/seq2seq_am.png" width=500 /> <br>
 </div>
 
 ### Tacotron2
@@ -54,7 +54,7 @@ At present, there are two mainstream acoustic model structures.
     - CBHG postprocess.
     - Vocoder: Griffin-Lim.
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/tacotron.png" width=700 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/tacotron.png" width=700 /> <br>
 </div>
 
 **Advantage of Tacotron:**
@@ -89,7 +89,7 @@ At present, there are two mainstream acoustic model structures.
    - The alignment matrix of previous time is considered at the step `t` of decoder.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/tacotron2.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/tacotron2.png" width=500 /> <br>
 </div>
 
 You can find PaddleSpeech TTS's tacotron2 with LJSpeech dataset example at [examples/ljspeech/tts0](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts0).
@@ -118,7 +118,7 @@ Transformer TTS is a combination of Tacotron2 and Transformer.
     - Positional Encoding.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/transformer.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/transformer.png" width=500 /> <br>
 </div>
 
 #### Transformer TTS
@@ -138,7 +138,7 @@ Transformer TTS is a seq2seq acoustic model based on Transformer and Tacotron2.
     - Uniform scale position encoding may have a negative impact on input or output sequences.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/transformer_tts.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/transformer_tts.png" width=500 /> <br>
 </div>
 
 **Disadvantages of Transformer TTS:**
@@ -184,14 +184,14 @@ Instead of using the encoder-attention-decoder based architecture as adopted by 
 • Can be generated in parallel (decoding time is less affected by sequence length)
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/fastspeech.png" width=800 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/fastspeech.png" width=800 /> <br>
 </div>
 
 #### FastPitch
 [FastPitch](https://arxiv.org/abs/2006.06873) follows FastSpeech. A single pitch value is predicted for every temporal location, which improves the overall quality of synthesized speech.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/fastpitch.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/fastpitch.png" width=500 /> <br>
 </div>
 
 #### FastSpeech2
@@ -209,7 +209,7 @@ Instead of using the encoder-attention-decoder based architecture as adopted by 
 FastSpeech2 is similar to FastPitch but introduces more variation information of speech.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/fastspeech2.png" width=800 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/fastspeech2.png" width=800 /> <br>
 </div>
 
 You can find PaddleSpeech TTS's FastSpeech2/FastPitch with CSMSC dataset example at [examples/csmsc/tts3](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts3), We use token-averaged pitch and energy values introduced in FastPitch rather than frame level ones in FastSpeech2.
@@ -223,7 +223,7 @@ You can find PaddleSpeech TTS's FastSpeech2/FastPitch with CSMSC dataset example
 - Describe a simple data augmentation technique that can be used early in the training to make the teacher network robust to sequential error propagation.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/speedyspeech.png" width=500 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/speedyspeech.png" width=500 /> <br>
 </div>
 
 You can find PaddleSpeech TTS's SpeedySpeech with CSMSC dataset example at [examples/csmsc/tts2](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts2).
@@ -289,7 +289,7 @@ You can find PaddleSpeech TTS's WaveFlow with LJSpeech dataset example at [examp
 - Multi-resolution STFT loss.
 
 <div align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/pwg.png" width=600 /> <br>
+  <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/pwg.png" width=600 /> <br>
 </div>
 
 You can find PaddleSpeech TTS's Parallel WaveGAN with CSMSC example at [examples/csmsc/voc1](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1).

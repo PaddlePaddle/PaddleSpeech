@@ -1,0 +1,34 @@
+data:
+  language: chinese
+  raw_path: /data4/mahaoxin/PaddleSpeechTask/data/chinese/PFDSJ  #path to raw dataset
+  raw_train_file: train
+  raw_dev_file: dev
+  raw_test_file: test
+  vocab_file: vocab
+  punc_file: punc_vocab 
+  save_path: data/PFDSJ  #path to save dataset
+  seq_len: 100
+  batch_size: 10
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 0
+
+model_type: blstm
+model_params:
+  vocab_size: 3751
+  embedding_size: 200
+  hidden_size: 100
+  num_layers: 3
+  num_class: 5
+  init_scale: 0.1
+
+training:
+  n_epoch: 32
+  lr: !!float 1e-4
+  lr_decay: 1.0 
+  weight_decay: !!float 1e-06
+  global_grad_clip: 5.0
+  log_interval: 10
+
+
+

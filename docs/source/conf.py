@@ -20,8 +20,14 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+import os
+import sys
+
 import recommonmark.parser
 import sphinx_rtd_theme
+
+sys.path.insert(0, os.path.abspath('../..'))
+autodoc_mock_imports = ["soundfile", "librosa"]
 
 # -- Project information -----------------------------------------------------
 
@@ -46,10 +52,10 @@ pygments_style = 'sphinx'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    "sphinx_rtd_theme",
     'sphinx.ext.mathjax',
-    'sphinx.ext.autosummary',
     'numpydoc',
+    'sphinx.ext.autosummary',
     'myst_parser',
 ]
 
@@ -76,6 +82,7 @@ smartquotes = False
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_logo = '../images/paddle.png'
 
 # -- Extension configuration -------------------------------------------------
 # numpydoc_show_class_members = False

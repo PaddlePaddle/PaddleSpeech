@@ -9,55 +9,48 @@ English | [简体中文](README_ch.md)
 </p>
 <div align="center">  
 
-  <h3>
-  <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a>
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a>
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a>
-
+  <h3> 
+  <a href="#quick-start"> Quick Start </a>
+  | <a href="#tutorials"> Tutorials </a>
+  | <a href="#model-list"> Models List </a> 
 </div>
-
+  
 ------------------------------------------------------------------------------------
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
 <!---
-why they should use your module,
-how they can install it,
+why they should use your module, 
+how they can install it, 
 how they can use it
 -->
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - **Automatic Speech Recognition (ASR)** and **Text-To-Speech Synthesis (TTS)**, with modules involving state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with state-of-art and influential models.
 
-Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment. Besides, this toolkit also features at:
-- **Fast and Light-weight**: we provide a high-speed and ultra-lightweight model that is convenient for industrial deployment.
+Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
+- **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization (TN) and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
-- **Varieties of Functions that Vitalize Research**:
-  - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of both ASR and TTS, and uses datasets like LibriSpeech, LJSpeech, AIShell, etc. See also [model lists](#models-list) for more details.
-  - *Support of ASR streaming and non-streaming data*: This toolkit contains non-streaming/streaming models like [DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf), [Transformer](https://arxiv.org/abs/1706.03762), [Conformer](https://arxiv.org/abs/2005.08100) and [U2](https://arxiv.org/pdf/2012.05481.pdf).
+- **Varieties of Functions that Vitalize both Industrial and Academia**: 
+  - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation (ST), Automatic Speech Recognition (ASR), Text-To-Speech Synthesis (TTS), Voice Cloning(VC), Punctuation Restoration, etc.
+  - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
+  - *Cross-domain application*: as an extension of the application of traditional audio tasks, we combine the aforementioned tasks with other fields like NLP.
 
 Let's install PaddleSpeech with only a few lines of code!
 
 >Note: The official name is still deepspeech. 2021/10/26
 
-``` shell
-# 1. Install essential libraries and paddlepaddle first.
-# install prerequisites
-sudo apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev libsndfile1
-# `pip install paddlepaddle-gpu` instead if you are using GPU.
-pip install paddlepaddle
-
-# 2.Then install PaddleSpeech.
+If you are using Ubuntu, PaddleSpeech can be set up with pip installation (with root privilege).
+```shell
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
 pip install -e .
 ```
 
-
 ## Table of Contents
 
 The contents of this README is as follow:
-- [Alternative Installation](#installation)
+- [Alternative Installation](#alternative-installation)
 - [Quick Start](#quick-start)
 - [Models List](#models-list)
 - [Tutorials](#tutorials)
@@ -75,10 +68,13 @@ The base environment in this page is
 If you want to set up PaddleSpeech in other environment, please see the [ASR installation](docs/source/asr/install.md) and [TTS installation](docs/source/tts/install.md) documents for all the alternatives.
 
 ## Quick Start
+> Note: the current links to `English ASR` and `English TTS` are not valid.
 
-> Note: `ckptfile` should be replaced by real path that represents files or folders later. Similarly, `exp/default` is the folder that contains the pretrained models.
+Just a quick test of our functions: [English ASR](link/hubdetail?name=deepspeech2_aishell&en_category=AutomaticSpeechRecognition) and [English TTS](link/hubdetail?name=fastspeech2_baker&en_category=TextToSpeech) by typing message or upload your own audio file. 
 
-Try a tiny ASR DeepSpeech2 model training on toy set of LibriSpeech:
+Developers can have a try of our model with only a few lines of code.
+
+A tiny *ASR* DeepSpeech2 model training on toy set of LibriSpeech:
 
 ```shell
 cd examples/tiny/s0/
@@ -90,12 +86,13 @@ bash local/data.sh
 bash local/test.sh conf/deepspeech2.yaml ckptfile offline
 ```
 
-For TTS, try FastSpeech2 on LJSpeech:
-- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/) and our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz).
+For *TTS*, try FastSpeech2 on LJSpeech:
+- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/), our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz). 
+- The pretrained models are seperated into two parts: [fastspeech2_nosil_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip) and [pwg_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip). Please download then unzip to `./model/fastspeech2` and `./model/pwg` respectively.
 - Assume your path to the dataset is `~/datasets/LJSpeech-1.1` and `./ljspeech_alignment` accordingly, preprocess your data and then use our pretrained model to synthesize:
 ```shell
 bash ./local/preprocess.sh conf/default.yaml
-bash ./local/synthesize_e2e.sh conf/default.yaml exp/default ckptfile
+bash ./local/synthesize_e2e.sh conf/default.yaml ./model/fastspeech2/snapshot_iter_100000.pdz ./model/pwg/pwg_snapshot_iter_400000.pdz
 ```
 
 
@@ -104,13 +101,16 @@ If you want to try more functions like training and tuning, please see [ASR gett
 
 ## Models List
 
+PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_model.md) with available pretrained models.
 
-
-PaddleSpeech ASR supports a lot of mainstream models, which are summarized as follow. For more information, please refer to [ASR Models](./docs/source/asr/released_model.md).
+ASR module contains *Acoustic Model* and *Language Model*, with the following details:
 
 <!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
+The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
 -->
+
+> Note: The `Link` should be code path rather than download links.
+
 
 <table>
   <thead>
@@ -125,7 +125,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
     <tr>
       <td rowspan="6">Acoustic Model</td>
       <td rowspan="4" >Aishell</td>
-      <td >2 Conv + 5 LSTM layers with only forward direction    </td>
+      <td >2 Conv + 5 LSTM layers with only forward direction</td>
       <td>
       <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz">Ds2 Online Aishell Model</a>
       </td>
@@ -200,7 +200,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
     <td> Text Frontend</td>
     <td colspan="2"> &emsp; </td>
     <td>
-    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/text_frontend">chinese-fronted</a>
+    <a href = "./examples/other/text_frontend">chinese-fronted</a>
     </td>
     </tr>
     <tr>
@@ -208,41 +208,41 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       <td >Tacotron2</td>
       <td rowspan="2" >LJSpeech</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts0">tacotron2-vctk</a>
+      <a href = "./examples/ljspeech/tts0">tacotron2-vctk</a>
       </td>
     </tr>
     <tr>
       <td>TransformerTTS</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts1">transformer-ljspeech</a>
+      <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>
     </tr>
     <tr>
       <td>SpeedySpeech</td>
       <td>CSMSC</td>
       <td >
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts2">speedyspeech-csmsc</a>
+      <a href = "./examples/csmsc/tts2">speedyspeech-csmsc</a>
       </td>
     </tr>
     <tr>
       <td rowspan="4">FastSpeech2</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/tts3">fastspeech2-aishell3</a>
+      <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
       </td>
     </tr>
     <tr>
       <td>VCTK</td>
-      <td> <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/tts3">fastspeech2-vctk</a> </td>
+      <td> <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> </td>
     </tr>
     <tr>
       <td>LJSpeech</td>
-      <td> <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts3">fastspeech2-ljspeech</a> </td>
+      <td> <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> </td>
     </tr>
     <tr>
       <td>CSMSC</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts3">fastspeech2-csmsc</a>
+      <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a>
       </td>
     </tr>
    <tr>
@@ -250,26 +250,26 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0">waveflow-ljspeech</a>
+      <a href = "./examples/ljspeech/voc0">waveflow-ljspeech</a>
       </td>
     </tr>
     <tr>
       <td rowspan="3">Parallel WaveGAN</td>
       <td >LJSpeech</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1">PWGAN-ljspeech</a>
+      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a>
       </td>
     </tr>
     <tr>
       <td >VCTK</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1">PWGAN-vctk</a>
+      <a href = "./examples/vctk/voc1">PWGAN-vctk</a>
       </td>
     </tr>
     <tr>
       <td >CSMSC</td>
       <td>
-      <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1">PWGAN-csmsc</a>
+      <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a>
       </td>
     </tr>
     <tr>
@@ -277,14 +277,14 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
     <td>GE2E</td>
     <td >AISHELL-3, etc.</td>
     <td>
-    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e">ge2e</a>
+    <a href = "./examples/other/ge2e">ge2e</a>
     </td>
     </tr>
     <tr>
     <td>GE2E + Tactron2</td>
     <td>AISHELL-3</td>
     <td>
-    <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+    <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
     </td>
     </td>
     </tr>

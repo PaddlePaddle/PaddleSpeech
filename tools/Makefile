@@ -10,7 +10,7 @@ WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
-all: virtualenv.done kenlm.done sox.done soxbindings.done mfa.done sclite.done
+all: virtualenv.done apt.done kenlm.done sox.done soxbindings.done mfa.done sclite.done
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -20,6 +20,13 @@ clean:
 	rm -fr venv
 	find -iname "*.pyc" -delete
 	rm -rf kenlm
+
+
+apt.done:
+	apt update -y
+	apt install -y bc flac jq vim tig tree pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
+	echo "check_certificate = off" >> ~/.wgetrc
+	touch apt.done
 
 kenlm.done:
 	# Ubuntu 16.04 透過 apt 會安裝 boost 1.58.0
@@ -48,6 +55,13 @@ mfa.done:
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 
+openblas.done:
+	bash extras/install_openblas.sh
+	touch openblas.done
+
+kaldi.done: openblas.done
+	bash extras/install_kaldi.sh
+	touch kaldi.done
 
 #== SCTK ===============================================================================
 # SCTK official repo does not have version tags. Here's the mapping:

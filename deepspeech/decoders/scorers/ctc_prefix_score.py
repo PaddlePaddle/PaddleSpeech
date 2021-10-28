@@ -318,6 +318,18 @@ class CTCPrefixScore():
             r[0, 0] = xs[0]
             r[0, 1] = self.logzero
         else:
+            # Although the code does not exactly follow Algorithm 2, 
+            # we don't have to change it because we can assume 
+            # r_t(h)=0 for t < |h| in CTC forward computation 
+            # (Note: we assume here that index t starts with 0).
+            # The purpose of this difference is to reduce the number of for-loops.
+            # https://github.com/espnet/espnet/pull/3655
+            # where we start to accumulate r_t(h) from t=|h| 
+            # and iterate r_t(h) = (r_{t-1}(h) + ...) to T-1, 
+            # avoiding accumulating zeros for t=1~|h|-1.
+            # Thus, we need to set r_{|h|-1}(h) = 0, 
+            # i.e., r[output_length-1] = logzero, for initialization.
+            # This is just for reducing the computation.
             r[output_length - 1] = self.logzero
 
         # prepare forward probabilities for the last label

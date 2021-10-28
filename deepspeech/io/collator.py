@@ -105,7 +105,7 @@ class SpeechCollatorBase():
         self._local_data = TarLocalData(tar2info={}, tar2object={})
 
         self.augmentation = AugmentationPipeline(
-            augmentation_config=aug_file.read(), random_seed=random_seed)
+            preprocess_conf=aug_file.read(), random_seed=random_seed)
 
         self._normalizer = FeatureNormalizer(
             mean_std_filepath) if mean_std_filepath else None

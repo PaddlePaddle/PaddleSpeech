@@ -10,13 +10,13 @@ Example instruction to install paddlepaddle via pip is listed below.
 
 ### PaddlePaddle with GPU
 ```python
-# CUDA10.1 的 PaddlePaddle
+# PaddlePaddle for CUDA10.1 
 python -m pip install paddlepaddle-gpu==2.1.2.post101 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
-# CUDA10.2 的 PaddlePaddle
+# PaddlePaddle for CUDA10.2  
 python -m pip install paddlepaddle-gpu -i https://mirror.baidu.com/pypi/simple
-# CUDA11.0 的 PaddlePaddle
+# PaddlePaddle for CUDA11.0
 python -m pip install paddlepaddle-gpu==2.1.2.post110 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
-# CUDA11.2 的 PaddlePaddle
+# PaddlePaddle for CUDA11.2 
 python -m pip install paddlepaddle-gpu==2.1.2.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
 ```
 ### PaddlePaddle with CPU

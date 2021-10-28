@@ -39,12 +39,30 @@ pull_request_rules:
     actions:
       label:
         remove: ["conflicts"]
-  - name: "auto add label=enhancement"
+  - name: "auto add label=S2T"
     conditions:
       - files~=^deepspeech/
     actions:
       label:
-        add: ["enhancement"]
+        add: ["S2T"]
+  - name: "auto add label=T2S"
+    conditions:
+      - files~=^parakeet/
+    actions:
+      label:
+        add: ["T2S"]
+  - name: "auto add label=Audio"
+    conditions:
+      - files~=^paddleaudio/
+    actions:
+      label:
+        add: ["Audio"]
+  - name: "auto add label=TextProcess"
+    conditions:
+      - files~=^text_processing/
+    actions:
+      label:
+        add: ["TextProcess"]
   - name: "auto add label=Example"
     conditions:
       - files~=^examples/

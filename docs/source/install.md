@@ -8,7 +8,7 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 
 ## Setup (Important)
 
-- Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost`, `sox, and `swig`, e.g. installing them via `apt-get`:
+- Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost`, `sox`, and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
 sudo apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
@@ -42,6 +42,14 @@ bash setup.sh
 
 ```bash
 source tools/venv/bin/activate
+```
+
+## Simple Setup
+
+```python
+git clone https://github.com/PaddlePaddle/DeepSpeech.git
+cd DeepSpeech
+pip install -e .
 ```
 
 ## Running in Docker Container (optional)

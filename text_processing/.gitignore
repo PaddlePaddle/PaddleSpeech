@@ -1,0 +1,7 @@
+data
+glove
+.pyc
+checkpoints
+epoch
+__pycache__
+glove.840B.300d.zip

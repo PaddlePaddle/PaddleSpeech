@@ -51,7 +51,7 @@ def stft(x,
     # calculate window
     window = signal.get_window(window, win_length, fftbins=True)
     window = paddle.to_tensor(window)
-    x_stft = paddle.tensor.signal.stft(
+    x_stft = paddle.signal.stft(
         x,
         fft_size,
         hop_length,

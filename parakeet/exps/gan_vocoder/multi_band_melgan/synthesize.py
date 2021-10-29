@@ -25,7 +25,7 @@ from timer import timer
 from yacs.config import CfgNode
 
 from parakeet.datasets.data_table import DataTable
-from parakeet.models.parallel_wavegan import PWGGenerator
+from parakeet.models.melgan import MelGANGenerator
 
 
 def main():
@@ -54,7 +54,7 @@ def main():
     )
 
     paddle.set_device(args.device)
-    generator = PWGGenerator(**config["generator_params"])
+    generator = MelGANGenerator(**config["generator_params"])
     state_dict = paddle.load(args.checkpoint)
     generator.set_state_dict(state_dict["generator_params"])
 

@@ -96,8 +96,8 @@ def main():
 
         input_ids = frontend.get_input_ids(
             sentence, merge_sentences=True, get_tone_ids=True)
-        phone_ids = input_ids["phone_ids"]
-        tone_ids = input_ids["tone_ids"]
+        phone_ids = input_ids["phone_ids"].numpy()
+        tone_ids = input_ids["tone_ids"].numpy()
         phones = phone_ids[0]
         tones = tone_ids[0]
 

@@ -189,7 +189,6 @@ class DeepSpeech2Trainer(Trainer):
         self.lr_scheduler = lr_scheduler
         logger.info("Setup optimizer/lr_scheduler!")
 
-
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()

@@ -1,3 +1,7 @@
+# install scripts
+call from `tools` dir.
+
+## Details
 1. kaldi
 
 deps gcc, mkl or openblas

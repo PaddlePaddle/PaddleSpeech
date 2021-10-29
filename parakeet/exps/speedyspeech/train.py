@@ -25,7 +25,6 @@ from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from visualdl import LogWriter
 from yacs.config import CfgNode
 
 from parakeet.datasets.am_batch_fn import speedyspeech_batch_fn
@@ -153,8 +152,7 @@ def train_sp(args, config):
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
-        writer = LogWriter(str(output_dir))
-        trainer.extend(VisualDL(writer), trigger=(1, "iteration"))
+        trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
         trainer.extend(
             Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
     trainer.run()

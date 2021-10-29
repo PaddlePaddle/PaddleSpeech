@@ -47,7 +47,7 @@ model:
   ctc_grad_norm_type: null
 
 training:
-  n_epoch: 10
+  n_epoch: 5
   accum_grad: 1
   lr: 1e-5 
   lr_decay: 1.0 

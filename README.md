@@ -9,20 +9,20 @@ English | [简体中文](README_ch.md)
 </p>
 <div align="center">  
 
-  <h3> 
+  <h3>
   <a href="#quick-start"> Quick Start </a>
   | <a href="#tutorials"> Tutorials </a>
-  | <a href="#model-list"> Models List </a> 
+  | <a href="#model-list"> Models List </a>
 </div>
-  
+
 ------------------------------------------------------------------------------------
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
 <!---
-why they should use your module, 
-how they can install it, 
+why they should use your module,
+how they can install it,
 how they can use it
 -->
 
@@ -31,7 +31,7 @@ how they can use it
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
 - **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization (TN) and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
-- **Varieties of Functions that Vitalize both Industrial and Academia**: 
+- **Varieties of Functions that Vitalize both Industrial and Academia**:
   - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation (ST), Automatic Speech Recognition (ASR), Text-To-Speech Synthesis (TTS), Voice Cloning(VC), Punctuation Restoration, etc.
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
   - *Cross-domain application*: as an extension of the application of traditional audio tasks, we combine the aforementioned tasks with other fields like NLP.
@@ -70,7 +70,7 @@ If you want to set up PaddleSpeech in other environment, please see the [ASR ins
 ## Quick Start
 > Note: the current links to `English ASR` and `English TTS` are not valid.
 
-Just a quick test of our functions: [English ASR](link/hubdetail?name=deepspeech2_aishell&en_category=AutomaticSpeechRecognition) and [English TTS](link/hubdetail?name=fastspeech2_baker&en_category=TextToSpeech) by typing message or upload your own audio file. 
+Just a quick test of our functions: [English ASR](link/hubdetail?name=deepspeech2_aishell&en_category=AutomaticSpeechRecognition) and [English TTS](link/hubdetail?name=fastspeech2_baker&en_category=TextToSpeech) by typing message or upload your own audio file.
 
 Developers can have a try of our model with only a few lines of code.
 
@@ -87,7 +87,7 @@ bash local/test.sh conf/deepspeech2.yaml ckptfile offline
 ```
 
 For *TTS*, try FastSpeech2 on LJSpeech:
-- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/), our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz). 
+- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/), our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz).
 - The pretrained models are seperated into two parts: [fastspeech2_nosil_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip) and [pwg_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip). Please download then unzip to `./model/fastspeech2` and `./model/pwg` respectively.
 - Assume your path to the dataset is `~/datasets/LJSpeech-1.1` and `./ljspeech_alignment` accordingly, preprocess your data and then use our pretrained model to synthesize:
 ```shell
@@ -106,7 +106,7 @@ PaddleSpeech supports a series of most popular models, summarized in [released m
 ASR module contains *Acoustic Model* and *Language Model*, with the following details:
 
 <!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
+The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
 -->
 
 > Note: The `Link` should be code path rather than download links.

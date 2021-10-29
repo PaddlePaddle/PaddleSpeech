@@ -35,7 +35,7 @@ generator_params:
     stacks: 4                     # Number of stacks in a single residual stack module.
     use_weight_norm: True         # Whether to use weight normalization.
     use_causal_conv: False        # Whether to use causal convolution.
-    use_final_nonlinear_activation: False # If True, spectral_convergence_loss and sub_spectral_convergence_loss will be too large (eg.30)
+    use_final_nonlinear_activation: True # If True, spectral_convergence_loss and sub_spectral_convergence_loss will be too large (eg.30)
 
 
 ###########################################################

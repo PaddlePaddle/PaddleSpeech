@@ -106,4 +106,7 @@ class ResidualStack(nn.Layer):
         Tensor
             Output tensor (B, chennels, T).
         """
-        return self.stack(c) + self.skip_layer(c)
+        stack_output = self.stack(c)
+        skip_layer_output = self.skip_layer(c)
+        out = stack_output + skip_layer_output
+        return out

@@ -19,7 +19,6 @@ from typing import List
 import numpy as np
 import paddle
 from paddle import nn
-from paddle.fluid.layers import Normal
 
 from parakeet.modules.causal_conv import CausalConv1D
 from parakeet.modules.causal_conv import CausalConv1DTranspose
@@ -238,7 +237,7 @@ class MelGANGenerator(nn.Layer):
         """
 
         # 定义参数为float的正态分布。
-        dist = Normal(loc=0.0, scale=0.02)
+        dist = paddle.distribution.Normal(loc=0.0, scale=0.02)
 
         def _reset_parameters(m):
             if isinstance(m, nn.Conv1D) or isinstance(m, nn.Conv1DTranspose):
@@ -290,8 +289,8 @@ class MelGANDiscriminator(nn.Layer):
         """Initilize MelGAN discriminator module.
         Parameters
         ----------
-        in_channels : 
-            int): Number of input channels.
+        in_channels : int
+            Number of input channels.
         out_channels : int
             Number of output channels.
         kernel_sizes : List[int]
@@ -531,7 +530,7 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         """
 
         # 定义参数为float的正态分布。
-        dist = Normal(loc=0.0, scale=0.02)
+        dist = paddle.distribution.Normal(loc=0.0, scale=0.02)
 
         def _reset_parameters(m):
             if isinstance(m, nn.Conv1D) or isinstance(m, nn.Conv1DTranspose):

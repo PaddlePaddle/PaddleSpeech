@@ -9,34 +9,34 @@ English | [简体中文](README_ch.md)
 </p>
 <div align="center">  
 
-  <h3> 
-  <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a> 
-  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a> 
-  
+  <h3>
+  <a href="https://github.com/Mingxue-Xu/DeepSpeech#quick-start"> Quick Start </a>
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#tutorials"> Tutorials </a>
+  | <a href="https://github.com/Mingxue-Xu/DeepSpeech#model-list"> Models List </a>
+
 </div>
-  
+
 ------------------------------------------------------------------------------------
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
 
 <!---
-why they should use your module, 
-how they can install it, 
+why they should use your module,
+how they can install it,
 how they can use it
 -->
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - **Automatic Speech Recognition (ASR)** and **Text-To-Speech Synthesis (TTS)**, with modules involving state-of-art and influential models. 
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for two critical tasks in Speech - **Automatic Speech Recognition (ASR)** and **Text-To-Speech Synthesis (TTS)**, with modules involving state-of-art and influential models.
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing module, and deployment. Besides, this toolkit also features at:
 - **Fast and Light-weight**: we provide a high-speed and ultra-lightweight model that is convenient for industrial deployment.
-- **Rule-based Chinese frontend**: our frontend contains Text Normalization (TN) and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context. 
-- **Varieties of Functions that Vitalize Research**: 
+- **Rule-based Chinese frontend**: our frontend contains Text Normalization (TN) and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
+- **Varieties of Functions that Vitalize Research**:
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of both ASR and TTS, and uses datasets like LibriSpeech, LJSpeech, AIShell, etc. See also [model lists](#models-list) for more details.
   - *Support of ASR streaming and non-streaming data*: This toolkit contains non-streaming/streaming models like [DeepSpeech2](http://proceedings.mlr.press/v48/amodei16.pdf), [Transformer](https://arxiv.org/abs/1706.03762), [Conformer](https://arxiv.org/abs/2005.08100) and [U2](https://arxiv.org/pdf/2012.05481.pdf).
-  
-Let's install PaddleSpeech with only a few lines of code! 
+
+Let's install PaddleSpeech with only a few lines of code!
 
 >Note: The official name is still deepspeech. 2021/10/26
 
@@ -44,7 +44,7 @@ Let's install PaddleSpeech with only a few lines of code!
 # 1. Install essential libraries and paddlepaddle first.
 # install prerequisites
 sudo apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev libsndfile1
-# `pip install paddlepaddle-gpu` instead if you are using GPU. 
+# `pip install paddlepaddle-gpu` instead if you are using GPU.
 pip install paddlepaddle
 
 # 2.Then install PaddleSpeech.
@@ -109,7 +109,7 @@ If you want to try more functions like training and tuning, please see [ASR gett
 PaddleSpeech ASR supports a lot of mainstream models, which are summarized as follow. For more information, please refer to [ASR Models](./docs/source/asr/released_model.md).
 
 <!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples). 
+The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
 -->
 
 <table>
@@ -125,7 +125,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
     <tr>
       <td rowspan="6">Acoustic Model</td>
       <td rowspan="4" >Aishell</td>
-      <td >2 Conv + 5 LSTM layers with only forward direction	</td>
+      <td >2 Conv + 5 LSTM layers with only forward direction    </td>
       <td>
       <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz">Ds2 Online Aishell Model</a>
       </td>
@@ -199,7 +199,7 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
     <tr>
     <td> Text Frontend</td>
     <td colspan="2"> &emsp; </td>
-    <td> 
+    <td>
     <a href = "https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/text_frontend">chinese-fronted</a>
     </td>
     </tr>
@@ -292,11 +292,11 @@ PaddleSpeech TTS mainly contains three modules: *Text Frontend*, *Acoustic Model
 </table>
 
 
-## Tutorials 
+## Tutorials
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. If you want to focus on the two tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
-The original ASR module is based on [Baidu's DeepSpeech](https://arxiv.org/abs/1412.5567) which is an independent product named [DeepSpeech](https://deepspeech.readthedocs.io). However, the toolkit aligns almost all the SoTA modules in the pipeline. Specifically, these modules are 
+The original ASR module is based on [Baidu's DeepSpeech](https://arxiv.org/abs/1412.5567) which is an independent product named [DeepSpeech](https://deepspeech.readthedocs.io). However, the toolkit aligns almost all the SoTA modules in the pipeline. Specifically, these modules are
 
 * [Data Prepration](docs/source/asr/data_preparation.md)  
 * [Data Augmentation](docs/source/asr/augmentation.md)  
@@ -318,4 +318,3 @@ PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 ## Acknowledgement
 
 PaddleSpeech depends on a lot of open source repos. See [references](docs/source/asr/reference.md) for more information.
-

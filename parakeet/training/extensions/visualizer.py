@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from visualdl import LogWriter
+
 from parakeet.training import extension
 from parakeet.training.trainer import Trainer
 
@@ -26,8 +28,8 @@ class VisualDL(extension.Extension):
     default_name = 'visualdl'
     priority = extension.PRIORITY_READER
 
-    def __init__(self, writer):
-        self.writer = writer
+    def __init__(self, logdir):
+        self.writer = LogWriter(str(logdir))
 
     def __call__(self, trainer: Trainer):
         for k, v in trainer.observation.items():

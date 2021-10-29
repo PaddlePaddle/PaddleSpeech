@@ -37,4 +37,3 @@
     ```bash
     bash local/export.sh ckpt_path saved_jit_model_path
     ```
-

@@ -26,16 +26,19 @@ from paddle import distributed as dist
 from paddle import nn
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from paddle.optimizer import Adam  # No RAdaom
-from paddle.optimizer.lr import StepDecay
+from paddle.optimizer import Adam
+from paddle.optimizer.lr import MultiStepDecay
 from yacs.config import CfgNode
 
 from parakeet.datasets.data_table import DataTable
 from parakeet.datasets.vocoder_batch_fn import Clip
-from parakeet.models.parallel_wavegan import PWGDiscriminator
-from parakeet.models.parallel_wavegan import PWGEvaluator
-from parakeet.models.parallel_wavegan import PWGGenerator
-from parakeet.models.parallel_wavegan import PWGUpdater
+from parakeet.models.melgan import MBMelGANEvaluator
+from parakeet.models.melgan import MBMelGANUpdater
+from parakeet.models.melgan import MelGANGenerator
+from parakeet.models.melgan import MelGANMultiScaleDiscriminator
+from parakeet.modules.adversarial_loss import DiscriminatorAdversarialLoss
+from parakeet.modules.adversarial_loss import GeneratorAdversarialLoss
+from parakeet.modules.pqmf import PQMF
 from parakeet.modules.stft_loss import MultiResolutionSTFTLoss
 from parakeet.training.extensions.snapshot import Snapshot
 from parakeet.training.extensions.visualizer import VisualDL
@@ -97,10 +100,14 @@ def train_sp(args, config):
         drop_last=False)
     print("samplers done!")
 
+    if "aux_context_window" in config.generator_params:
+        aux_context_window = config.generator_params.aux_context_window
+    else:
+        aux_context_window = 0
     train_batch_fn = Clip(
         batch_max_steps=config.batch_max_steps,
         hop_size=config.n_shift,
-        aux_context_window=config.generator_params.aux_context_window)
+        aux_context_window=aux_context_window)
 
     train_dataloader = DataLoader(
         train_dataset,
@@ -115,26 +122,39 @@ def train_sp(args, config):
         num_workers=config.num_workers)
     print("dataloaders done!")
 
-    generator = PWGGenerator(**config["generator_params"])
-    discriminator = PWGDiscriminator(**config["discriminator_params"])
+    generator = MelGANGenerator(**config["generator_params"])
+    discriminator = MelGANMultiScaleDiscriminator(
+        **config["discriminator_params"])
     if world_size > 1:
         generator = DataParallel(generator)
         discriminator = DataParallel(discriminator)
     print("models done!")
-
     criterion_stft = MultiResolutionSTFTLoss(**config["stft_loss_params"])
-    criterion_mse = nn.MSELoss()
+    criterion_sub_stft = MultiResolutionSTFTLoss(
+        **config["subband_stft_loss_params"])
+    criterion_gen_adv = GeneratorAdversarialLoss()
+    criterion_dis_adv = DiscriminatorAdversarialLoss()
+    # define special module for subband processing
+    criterion_pqmf = PQMF(subbands=config["generator_params"]["out_channels"])
     print("criterions done!")
 
-    lr_schedule_g = StepDecay(**config["generator_scheduler_params"])
-    gradient_clip_g = nn.ClipGradByGlobalNorm(config["generator_grad_norm"])
+    lr_schedule_g = MultiStepDecay(**config["generator_scheduler_params"])
+    # Compared to multi_band_melgan.v1 config, Adam optimizer without gradient norm is used
+    generator_grad_norm = config["generator_grad_norm"]
+    gradient_clip_g = nn.ClipGradByGlobalNorm(
+        generator_grad_norm) if generator_grad_norm > 0 else None
+    print("gradient_clip_g:", gradient_clip_g)
+
     optimizer_g = Adam(
         learning_rate=lr_schedule_g,
         grad_clip=gradient_clip_g,
         parameters=generator.parameters(),
         **config["generator_optimizer_params"])
-    lr_schedule_d = StepDecay(**config["discriminator_scheduler_params"])
-    gradient_clip_d = nn.ClipGradByGlobalNorm(config["discriminator_grad_norm"])
+    lr_schedule_d = MultiStepDecay(**config["discriminator_scheduler_params"])
+    discriminator_grad_norm = config["discriminator_grad_norm"]
+    gradient_clip_d = nn.ClipGradByGlobalNorm(
+        discriminator_grad_norm) if discriminator_grad_norm > 0 else None
+    print("gradient_clip_d:", gradient_clip_d)
     optimizer_d = Adam(
         learning_rate=lr_schedule_d,
         grad_clip=gradient_clip_d,
@@ -149,7 +169,7 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    updater = PWGUpdater(
+    updater = MBMelGANUpdater(
         models={
             "generator": generator,
             "discriminator": discriminator,
@@ -160,7 +180,10 @@ def train_sp(args, config):
         },
         criterions={
             "stft": criterion_stft,
-            "mse": criterion_mse,
+            "sub_stft": criterion_sub_stft,
+            "gen_adv": criterion_gen_adv,
+            "dis_adv": criterion_dis_adv,
+            "pqmf": criterion_pqmf
         },
         schedulers={
             "generator": lr_schedule_g,
@@ -171,23 +194,26 @@ def train_sp(args, config):
         lambda_adv=config.lambda_adv,
         output_dir=output_dir)
 
-    evaluator = PWGEvaluator(
+    evaluator = MBMelGANEvaluator(
         models={
             "generator": generator,
             "discriminator": discriminator,
         },
         criterions={
             "stft": criterion_stft,
-            "mse": criterion_mse,
+            "sub_stft": criterion_sub_stft,
+            "gen_adv": criterion_gen_adv,
+            "dis_adv": criterion_dis_adv,
+            "pqmf": criterion_pqmf
         },
         dataloader=dev_dataloader,
         lambda_adv=config.lambda_adv,
         output_dir=output_dir)
+
     trainer = Trainer(
         updater,
         stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir,
-        profiler_options=args.profiler_options)
+        out=output_dir)
 
     if dist.get_rank() == 0:
         trainer.extend(
@@ -197,18 +223,15 @@ def train_sp(args, config):
             Snapshot(max_size=config.num_snapshots),
             trigger=(config.save_interval_steps, 'iteration'))
 
-    # print(trainer.extensions.keys())
     print("Trainer Done!")
     trainer.run()
 
 
 def main():
     # parse args and config and redirect to train_sp
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser = argparse.ArgumentParser(
-        description="Train a ParallelWaveGAN model.")
+        description="Train a Multi-Band MelGAN model.")
     parser.add_argument(
         "--config", type=str, help="config file to overwrite default config.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
@@ -220,37 +243,12 @@ def main():
         "--nprocs", type=int, default=1, help="number of processes.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
-    benchmark_group = parser.add_argument_group(
-        'benchmark', 'arguments related to benchmark.')
-    benchmark_group.add_argument(
-        "--batch-size", type=int, default=8, help="batch size.")
-    benchmark_group.add_argument(
-        "--max-iter", type=int, default=400000, help="train max steps.")
-
-    benchmark_group.add_argument(
-        "--run-benchmark",
-        type=str2bool,
-        default=False,
-        help="runing benchmark or not, if True, use the --batch-size and --max-iter."
-    )
-    benchmark_group.add_argument(
-        "--profiler_options",
-        type=str,
-        default=None,
-        help="The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\"."
-    )
-
     args = parser.parse_args()
     if args.device == "cpu" and args.nprocs > 1:
         raise RuntimeError("Multiprocess training on CPU is not supported.")
 
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
-
-    # 增加 --batch_size --max_iter 用于 benchmark 调用
-    if args.run_benchmark:
-        config.batch_size = args.batch_size
-        config.train_max_steps = args.max_iter
 
     print("========Args========")
     print(yaml.safe_dump(vars(args)))

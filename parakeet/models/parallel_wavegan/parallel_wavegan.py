@@ -498,7 +498,6 @@ class PWGGenerator(nn.Layer):
     def inference(self, c=None):
         """Waveform generation. This function is used for single instance 
         inference.
-
         Parameters
         ----------
         c : Tensor, optional
@@ -506,12 +505,12 @@ class PWGGenerator(nn.Layer):
         x : Tensor, optional
             Shape (T, C_in), the noise waveform, by default None
             If not provided, a sample is drawn from a gaussian distribution.
-
         Returns
         -------
         Tensor
             Shape (T, C_out), the generated waveform
         """
+        # when to static, can not input x, see https://github.com/PaddlePaddle/Parakeet/pull/132/files
         x = paddle.randn(
             [1, self.in_channels, paddle.shape(c)[0] * self.upsample_factor])
         c = paddle.transpose(c, [1, 0]).unsqueeze(0)  # pseudo batch

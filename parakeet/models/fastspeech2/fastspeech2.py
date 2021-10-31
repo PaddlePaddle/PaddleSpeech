@@ -388,7 +388,6 @@ class FastSpeech2(nn.Layer):
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
         # forward encoder
-        bs = xs.shape[0]
         x_masks = self._source_mask(ilens)
         # (B, Tmax, adim)
         hs, _ = self.encoder(xs, x_masks)
@@ -428,6 +427,7 @@ class FastSpeech2(nn.Layer):
             e_embs = self.energy_embed(e_outs.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
             hs = hs + e_embs + p_embs
+
             # (B, Lmax, adim)
             hs = self.length_regulator(hs, d_outs, alpha)
         else:
@@ -438,6 +438,7 @@ class FastSpeech2(nn.Layer):
             e_embs = self.energy_embed(es.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
             hs = hs + e_embs + p_embs
+
             # (B, Lmax, adim)
             hs = self.length_regulator(hs, ds)
 
@@ -455,7 +456,8 @@ class FastSpeech2(nn.Layer):
 
         zs, _ = self.decoder(hs, h_masks)
         # (B, Lmax, odim)
-        before_outs = self.feat_out(zs).reshape((bs, -1, self.odim))
+        before_outs = self.feat_out(zs).reshape(
+            (paddle.shape(zs)[0], -1, self.odim))
 
         # postnet -> (B, Lmax//r * r, odim)
         if self.postnet is None:
@@ -463,6 +465,7 @@ class FastSpeech2(nn.Layer):
         else:
             after_outs = before_outs + self.postnet(
                 before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
+
         return before_outs, after_outs, d_outs, p_outs, e_outs
 
     def inference(

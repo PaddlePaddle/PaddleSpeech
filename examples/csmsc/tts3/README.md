@@ -215,6 +215,7 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
   --text=${BIN_DIR}/../sentences.txt \
   --output-dir=exp/default/test_e2e \
+  --inference-dir=exp/default/inference \
   --device="gpu" \
   --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```

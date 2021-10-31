@@ -48,10 +48,9 @@ class LengthRegulator(nn.Layer):
         encodings: (B, T, C)
         durations: (B, T)
         """
-        batch_size, t_enc = durations.shape
-        # durations = durations.numpy()
-        slens = paddle.sum(durations, -1)
-        t_dec = paddle.max(slens)
+        batch_size, t_enc = paddle.shape(durations)
+        slens = durations.sum(-1)
+        t_dec = slens.max()
         M = paddle.zeros([batch_size, t_dec, t_enc])
         for i in range(batch_size):
             k = 0
@@ -60,7 +59,6 @@ class LengthRegulator(nn.Layer):
                 if d >= 1:
                     M[i, k:k + d, j] = 1
                 k += d
-        M = paddle.to_tensor(M, dtype=encodings.dtype)
         encodings = paddle.matmul(M, encodings)
         return encodings
 

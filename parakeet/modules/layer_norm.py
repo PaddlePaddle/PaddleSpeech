@@ -55,10 +55,12 @@ class LayerNorm(paddle.nn.LayerNorm):
 
             orig_perm = list(range(len_dim))
             new_perm = orig_perm[:]
+            # Python style item change is not able when converting dygraph to static graph.
+            # new_perm[self.dim], new_perm[len_dim -1] = new_perm[len_dim -1], new_perm[self.dim]
+            # use C++ style item change here
             temp = new_perm[self.dim]
             new_perm[self.dim] = new_perm[len_dim - 1]
             new_perm[len_dim - 1] = temp
-            # new_perm[self.dim], new_perm[len_dim -1] = new_perm[len_dim -1], new_perm[self.dim]
 
             return paddle.transpose(
                 super(LayerNorm, self).forward(paddle.transpose(x, new_perm)),

@@ -18,9 +18,6 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import paddle
-from paddle import distributed as dist
-from tensorboardX import SummaryWriter
-
 from deepspeech.training.reporter import ObsScope
 from deepspeech.training.reporter import report
 from deepspeech.training.timer import Timer
@@ -31,6 +28,8 @@ from deepspeech.utils.log import Log
 from deepspeech.utils.utility import all_version
 from deepspeech.utils.utility import seed_all
 from deepspeech.utils.utility import UpdateConfig
+from paddle import distributed as dist
+from tensorboardX import SummaryWriter
 
 __all__ = ["Trainer"]
 
@@ -348,8 +347,12 @@ class Trainer():
         try:
             with Timer("Test/Decode Done: {}"):
                 with self.eval():
-                    self.restore()
-                    self.test()
+                    if hasattr(self,
+                               "apply_static") and self.apply_static is True:
+                        self.test()
+                    else:
+                        self.restore()
+                        self.test()
         except KeyboardInterrupt:
             exit(-1)
 
@@ -381,6 +384,8 @@ class Trainer():
         elif self.args.checkpoint_path:
             output_dir = Path(
                 self.args.checkpoint_path).expanduser().parent.parent
+        elif self.args.export_path:
+            output_dir = Path(self.args.export_path).expanduser().parent.parent
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 

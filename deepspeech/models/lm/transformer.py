@@ -111,6 +111,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             in perplexity: p(t)^{-n} = exp(-log p(t) / n)
 
         """
+        batch_size = x.size(0)
         xm = x != 0
         xlen = xm.sum(axis=1)
         if self.embed_drop is not None:
@@ -121,11 +122,13 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         y = self.decoder(h)
         loss = F.cross_entropy(
             y.view(-1, y.shape[-1]), t.view(-1), reduction="none")
-        mask = xm.to(dtype=loss.dtype)
+        mask = xm.to(loss.dtype)
         logp = loss * mask.view(-1)
+        nll = logp.view(batch_size, -1).sum(-1)
+        nll_count = mask.sum(-1)
         logp = logp.sum()
         count = mask.sum()
-        return logp / count, logp, count
+        return logp / count, logp, count, nll, nll_count
 
     # beam search API (see ScorerInterface)
     def score(self, y: paddle.Tensor, state: Any,

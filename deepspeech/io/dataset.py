@@ -24,6 +24,25 @@ __all__ = ["ManifestDataset", "TransformDataset"]
 logger = Log(__name__).getlog()
 
 
+class TextDataset(Dataset):
+    @classmethod
+    def from_file(cls, file_path):
+        dataset = cls(file_path)
+        return dataset
+
+    def __init__(self, file_path):
+        self._manifest = []
+        with open(file_path) as f:
+            for line in f:
+                self._manifest.append(line.strip())
+
+    def __len__(self):
+        return len(self._manifest)
+
+    def __getitem__(self, idx):
+        return self._manifest[idx]
+
+
 class ManifestDataset(Dataset):
     @classmethod
     def params(cls, config: Optional[CfgNode]=None) -> CfgNode:

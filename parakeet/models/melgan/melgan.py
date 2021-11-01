@@ -22,6 +22,7 @@ from paddle import nn
 
 from parakeet.modules.causal_conv import CausalConv1D
 from parakeet.modules.causal_conv import CausalConv1DTranspose
+from parakeet.modules.nets_utils import initialize
 from parakeet.modules.pqmf import PQMF
 from parakeet.modules.residual_stack import ResidualStack
 
@@ -45,7 +46,8 @@ class MelGANGenerator(nn.Layer):
             pad_params: Dict[str, Any]={"mode": "reflect"},
             use_final_nonlinear_activation: bool=True,
             use_weight_norm: bool=True,
-            use_causal_conv: bool=False, ):
+            use_causal_conv: bool=False,
+            init_type: str="xavier_uniform", ):
         """Initialize MelGANGenerator module.
         Parameters
         ----------
@@ -91,7 +93,10 @@ class MelGANGenerator(nn.Layer):
         if not use_causal_conv:
             assert (kernel_size - 1
                     ) % 2 == 0, "Not support even number kernel size."
-        # add initial layer
+
+        # initialize parameters
+        initialize(self, init_type)
+
         layers = []
         if not use_causal_conv:
             layers += [
@@ -178,6 +183,7 @@ class MelGANGenerator(nn.Layer):
 
         # define the model as a single function        
         self.melgan = nn.Sequential(*layers)
+        nn.initializer.set_global_initializer(None)
 
         # apply weight norm
         if use_weight_norm:
@@ -322,6 +328,7 @@ class MelGANDiscriminator(nn.Layer):
         assert len(kernel_sizes) == 2
         assert kernel_sizes[0] % 2 == 1
         assert kernel_sizes[1] % 2 == 1
+
         # add first layer
         self.layers.append(
             nn.Sequential(
@@ -417,7 +424,8 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
             pad: str="Pad1D",
             pad_params: Dict[str, Any]={"mode": "reflect"},
-            use_weight_norm: bool=True, ):
+            use_weight_norm: bool=True,
+            init_type: str="xavier_uniform", ):
         """Initilize MelGAN multi-scale discriminator module.
         Parameters
         ----------
@@ -454,6 +462,9 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
             Whether to use causal convolution.
         """
         super().__init__()
+        # initialize parameters
+        initialize(self, init_type)
+
         self.discriminators = nn.LayerList()
 
         # add discriminators
@@ -473,6 +484,8 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
                     pad_params=pad_params, ))
         self.pooling = getattr(nn, downsample_pooling)(
             **downsample_pooling_params)
+
+        nn.initializer.set_global_initializer(None)
 
         # apply weight norm
         if use_weight_norm:

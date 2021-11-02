@@ -53,7 +53,7 @@ class TextFeaturizer():
         self.maskctc = maskctc
 
         if vocab_filepath:
-            self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id = self._load_vocabulary_from_file(
+            self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id, self.blank_id = self._load_vocabulary_from_file(
                 vocab_filepath, maskctc)
             self.vocab_size = len(self.vocab_list)
 
@@ -227,4 +227,4 @@ class TextFeaturizer():
         logger.info(f"SOS id: {sos_id}")
         logger.info(f"SPACE id: {space_id}")
         logger.info(f"MASKCTC id: {maskctc_id}")
-        return token2id, id2token, vocab_list, unk_id, eos_id
+        return token2id, id2token, vocab_list, unk_id, eos_id, blank_id

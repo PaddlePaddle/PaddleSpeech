@@ -1,0 +1,7 @@
+type: english
+raw_path: /data4/mahaoxin/PaddleSpeechTask/data/english/iwslt2012_en  #path to raw dataset
+raw_train_file: iwslt2012_train_en
+raw_dev_file: iwslt2010_dev_en
+raw_test_file: iwslt2011_test_en
+punc_file: punc_vocab 
+save_path: data/iwslt2012_en  #path to save dataset

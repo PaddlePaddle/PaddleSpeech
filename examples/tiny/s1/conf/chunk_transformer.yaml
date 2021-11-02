@@ -76,7 +76,7 @@ model:
 
 
 training:
-  n_epoch: 20
+  n_epoch: 5
   accum_grad: 1
   global_grad_clip: 5.0
   optim: adam

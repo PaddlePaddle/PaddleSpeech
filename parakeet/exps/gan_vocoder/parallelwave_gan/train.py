@@ -28,7 +28,6 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from paddle.optimizer import Adam  # No RAdaom
 from paddle.optimizer.lr import StepDecay
-from visualdl import LogWriter
 from yacs.config import CfgNode
 
 from parakeet.datasets.data_table import DataTable
@@ -193,8 +192,7 @@ def train_sp(args, config):
     if dist.get_rank() == 0:
         trainer.extend(
             evaluator, trigger=(config.eval_interval_steps, 'iteration'))
-        writer = LogWriter(str(trainer.out))
-        trainer.extend(VisualDL(writer), trigger=(1, 'iteration'))
+        trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
         trainer.extend(
             Snapshot(max_size=config.num_snapshots),
             trigger=(config.save_interval_steps, 'iteration'))

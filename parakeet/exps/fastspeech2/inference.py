@@ -48,7 +48,8 @@ def main():
         str(Path(args.inference_dir) / "fastspeech2.pdmodel"),
         str(Path(args.inference_dir) / "fastspeech2.pdiparams"))
     fastspeech2_config.enable_use_gpu(50, 0)
-    fastspeech2_config.enable_memory_optim()
+    # This line must be commented, if not, it will OOM
+    # fastspeech2_config.enable_memory_optim()
     fastspeech2_predictor = inference.create_predictor(fastspeech2_config)
 
     pwg_config = inference.Config(

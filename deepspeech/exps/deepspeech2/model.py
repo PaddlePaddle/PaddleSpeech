@@ -21,11 +21,6 @@ from typing import Optional
 import jsonlines
 import numpy as np
 import paddle
-from paddle import distributed as dist
-from paddle import inference
-from paddle.io import DataLoader
-from yacs.config import CfgNode
-
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
@@ -44,6 +39,10 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Autolog
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import UpdateConfig
+from paddle import distributed as dist
+from paddle import inference
+from paddle.io import DataLoader
+from yacs.config import CfgNode
 
 logger = Log(__name__).getlog()
 
@@ -412,6 +411,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 class DeepSpeech2ExportTester(DeepSpeech2Tester):
     def __init__(self, config, args):
         super().__init__(config, args)
+        self.apply_static = True
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
         if self.args.model_type == "online":

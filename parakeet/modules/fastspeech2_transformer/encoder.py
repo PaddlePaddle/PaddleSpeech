@@ -185,6 +185,7 @@ class Encoder(nn.Layer):
         paddle.Tensor
             Mask tensor (#batch, time).
         """
+
         xs = self.embed(xs)
         xs, masks = self.encoders(xs, masks)
         if self.normalize_before:

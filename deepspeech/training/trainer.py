@@ -18,9 +18,6 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import paddle
-from paddle import distributed as dist
-from tensorboardX import SummaryWriter
-
 from deepspeech.training.reporter import ObsScope
 from deepspeech.training.reporter import report
 from deepspeech.training.timer import Timer
@@ -31,6 +28,8 @@ from deepspeech.utils.log import Log
 from deepspeech.utils.utility import all_version
 from deepspeech.utils.utility import seed_all
 from deepspeech.utils.utility import UpdateConfig
+from paddle import distributed as dist
+from tensorboardX import SummaryWriter
 
 __all__ = ["Trainer"]
 
@@ -133,6 +132,10 @@ class Trainer():
                 self.config.training.log_interval = 1
             logger.info(
                 f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
+
+    @property
+    def train(self):
+        return self._train
 
     @contextmanager
     def eval(self):
@@ -248,7 +251,7 @@ class Trainer():
             sys.exit(
                 f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
 
-    def train(self):
+    def do_train(self):
         """The training process control by epoch."""
         self.before_train()
 
@@ -321,7 +324,7 @@ class Trainer():
         """
         try:
             with Timer("Training Done: {}"):
-                self.train()
+                self.do_train()
         except KeyboardInterrupt:
             exit(-1)
         finally:
@@ -344,8 +347,12 @@ class Trainer():
         try:
             with Timer("Test/Decode Done: {}"):
                 with self.eval():
-                    self.restore()
-                    self.test()
+                    if hasattr(self,
+                               "apply_static") and self.apply_static is True:
+                        self.test()
+                    else:
+                        self.restore()
+                        self.test()
         except KeyboardInterrupt:
             exit(-1)
 
@@ -377,6 +384,8 @@ class Trainer():
         elif self.args.checkpoint_path:
             output_dir = Path(
                 self.args.checkpoint_path).expanduser().parent.parent
+        elif self.args.export_path:
+            output_dir = Path(self.args.export_path).expanduser().parent.parent
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -432,7 +441,7 @@ class Trainer():
         beginning of the experiment.
         """
         config_file = self.config_dir / "config.yaml"
-        if self._train and config_file.exists():
+        if self.train and config_file.exists():
             time_stamp = time.strftime("%Y_%m_%d_%H_%M_%s", time.gmtime())
             target_path = self.config_dir / ".".join(
                 [time_stamp, "config.yaml"])

@@ -56,7 +56,7 @@ def make_pad_mask(lengths, length_dim=-1):
 
     Parameters
     ----------
-    lengths : LongTensor or List
+    lengths : LongTensor
             Batch of lengths (B,).
 
     Returns
@@ -77,17 +77,11 @@ def make_pad_mask(lengths, length_dim=-1):
     if length_dim == 0:
         raise ValueError("length_dim cannot be 0: {}".format(length_dim))
 
-    if not isinstance(lengths, list):
-        lengths = lengths.tolist()
-    bs = int(len(lengths))
-
-    maxlen = int(max(lengths))
-
+    bs = paddle.shape(lengths)[0]
+    maxlen = lengths.max()
     seq_range = paddle.arange(0, maxlen, dtype=paddle.int64)
     seq_range_expand = seq_range.unsqueeze(0).expand([bs, maxlen])
-
-    seq_length_expand = paddle.to_tensor(
-        lengths, dtype=seq_range_expand.dtype).unsqueeze(-1)
+    seq_length_expand = lengths.unsqueeze(-1)
     mask = seq_range_expand >= seq_length_expand
 
     return mask

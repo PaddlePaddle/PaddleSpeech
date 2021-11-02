@@ -1,0 +1,42 @@
+data:
+  dataset_type: Bert
+  train_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/data/iwslt2012_zh/train
+  dev_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/data/iwslt2012_zh/dev
+  test_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/data/iwslt2012_zh/test2012
+  data_params: 
+    pretrained_token: bert-base-chinese
+    punc_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/data/iwslt2012_zh/punc_vocab
+    seq_len: 100
+  batch_size: 32
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 0
+
+checkpoint:
+  kbest_n: 10
+  latest_n: 10
+  metric_type: F1
+
+
+model_type: BertLinear
+model_params:
+  pretrained_token: bert-base-uncased
+  output_size: 4
+  dropout: 0.2
+  bert_size: 768
+  hiddensize: 1568
+
+
+training:
+  n_epoch: 50
+  lr: !!float 1e-5
+  lr_decay: 1.0 
+  weight_decay: !!float 1e-06
+  global_grad_clip: 5.0
+  log_interval: 10
+  log_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/log/train_linear0812.log
+
+testing:
+  log_interval: 10
+  log_path: /data4/mahaoxin/PaddleSpeechTask/examples/punctuation_restoration/chinese/log/test_linear0812.log
+

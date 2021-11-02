@@ -184,7 +184,7 @@ class U2STTrainer(Trainer):
             dist.get_rank(), total_loss / num_seen_utts))
         return total_loss, num_seen_utts
 
-    def train(self):
+    def do_train(self):
         """The training process control by step."""
         # !!!IMPORTANT!!!
         # Try to export the model by script, if fails, we should refine

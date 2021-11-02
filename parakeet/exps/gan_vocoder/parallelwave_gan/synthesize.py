@@ -86,8 +86,9 @@ def main():
             N += wav.size
             T += t.elapse
             speed = wav.size / t.elapse
+            rtf = config.fs / speed
         print(
-            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {config.fs / speed}."
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
         sf.write(str(output_dir / (utt_id + ".wav")), wav, samplerate=config.fs)
     print(f"generation speed: {N / T}Hz, RTF: {config.fs / (N / T) }")

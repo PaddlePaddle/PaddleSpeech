@@ -19,6 +19,7 @@ from yacs.config import CfgNode
 
 from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
 from deepspeech.frontend.featurizer.speech_featurizer import SpeechFeaturizer
+from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.frontend.normalizer import FeatureNormalizer
 from deepspeech.frontend.speech import SpeechSegment
 from deepspeech.frontend.utility import IGNORE_ID
@@ -33,7 +34,7 @@ logger = Log(__name__).getlog()
 
 
 def _tokenids(text, keep_transcription_text):
-    # for training text is token ids 
+    # for training text is token ids
     tokens = text  # token ids
 
     if keep_transcription_text:
@@ -43,6 +44,43 @@ def _tokenids(text, keep_transcription_text):
 
     tokens = np.array(tokens, dtype=np.int64)
     return tokens
+
+
+class TextCollatorSpm():
+    def __init__(self, unit_type, vocab_filepath, spm_model_prefix):
+        assert (vocab_filepath is not None)
+        self.text_featurizer = TextFeaturizer(
+            unit_type=unit_type,
+            vocab_filepath=vocab_filepath,
+            spm_model_prefix=spm_model_prefix)
+        self.eos_id = self.text_featurizer.eos_id
+        self.blank_id = self.text_featurizer.blank_id
+
+    def __call__(self, batch):
+        """
+        return type  [List, np.array [B, T], np.array [B, T], np.array[B]]
+        """
+        keys = []
+        texts = []
+        texts_input = []
+        texts_output = []
+        text_lens = []
+
+        for idx, item in enumerate(batch):
+            key = item.split(" ")[0].strip()
+            text = " ".join(item.split(" ")[1:])
+            keys.append(key)
+            token_ids = self.text_featurizer.featurize(text)
+            texts_input.append(
+                np.array([self.eos_id] + token_ids).astype(np.int64))
+            texts_output.append(
+                np.array(token_ids + [self.eos_id]).astype(np.int64))
+            text_lens.append(len(token_ids) + 1)
+
+        ys_input_pad = pad_list(texts_input, self.blank_id).astype(np.int64)
+        ys_output_pad = pad_list(texts_output, self.blank_id).astype(np.int64)
+        y_lens = np.array(text_lens).astype(np.int64)
+        return keys, ys_input_pad, ys_output_pad, y_lens
 
 
 class SpeechCollatorBase():

@@ -21,6 +21,11 @@ from typing import Optional
 import jsonlines
 import numpy as np
 import paddle
+from paddle import distributed as dist
+from paddle import inference
+from paddle.io import DataLoader
+from yacs.config import CfgNode
+
 from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
 from deepspeech.io.collator import SpeechCollator
 from deepspeech.io.dataset import ManifestDataset
@@ -32,6 +37,7 @@ from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
 from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
 from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
 from deepspeech.training.reporter import report
+from deepspeech.training.timer import Timer
 from deepspeech.training.trainer import Trainer
 from deepspeech.utils import error_rate
 from deepspeech.utils import layer_tools
@@ -39,10 +45,6 @@ from deepspeech.utils import mp_tools
 from deepspeech.utils.log import Autolog
 from deepspeech.utils.log import Log
 from deepspeech.utils.utility import UpdateConfig
-from paddle import distributed as dist
-from paddle import inference
-from paddle.io import DataLoader
-from yacs.config import CfgNode
 
 logger = Log(__name__).getlog()
 
@@ -440,6 +442,15 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         ]
 
         return result_transcripts
+
+    def run_test(self):
+        """Do Test/Decode"""
+        try:
+            with Timer("Test/Decode Done: {}"):
+                with self.eval():
+                    self.test()
+        except KeyboardInterrupt:
+            exit(-1)
 
     def static_forward_online(self, audio, audio_len,
                               decoder_chunk_size: int=1):

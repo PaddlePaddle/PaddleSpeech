@@ -13,12 +13,15 @@
 # limitations under the License.
 import argparse
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
 import paddle
 import soundfile as sf
 import yaml
+from paddle import jit
+from paddle.static import InputSpec
 from yacs.config import CfgNode
 
 from parakeet.frontend.zh_frontend import Frontend
@@ -74,7 +77,21 @@ def evaluate(args, fastspeech2_config, pwg_config):
     pwg_normalizer = ZScore(mu, std)
 
     fastspeech2_inference = FastSpeech2Inference(fastspeech2_normalizer, model)
+    fastspeech2_inference.eval()
+    fastspeech2_inference = jit.to_static(
+        fastspeech2_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+    paddle.jit.save(fastspeech2_inference,
+                    os.path.join(args.inference_dir, "fastspeech2"))
+    fastspeech2_inference = paddle.jit.load(
+        os.path.join(args.inference_dir, "fastspeech2"))
     pwg_inference = PWGInference(pwg_normalizer, vocoder)
+    pwg_inference.eval()
+    pwg_inference = jit.to_static(
+        pwg_inference, input_spec=[
+            InputSpec([-1, 80], dtype=paddle.float32),
+        ])
+    paddle.jit.save(pwg_inference, os.path.join(args.inference_dir, "pwg"))
+    pwg_inference = paddle.jit.load(os.path.join(args.inference_dir, "pwg"))
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -135,6 +152,8 @@ def main():
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
+    parser.add_argument(
+        "--inference-dir", type=str, help="dir to save inference models")
     parser.add_argument(
         "--device", type=str, default="gpu", help="device type to use.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")

@@ -106,13 +106,11 @@ class MultiHeadedAttention(nn.Layer):
         n_batch = value.shape[0]
         softmax = paddle.nn.Softmax(axis=-1)
         if mask is not None:
-
             mask = mask.unsqueeze(1)
             mask = paddle.logical_not(mask)
-            min_value = float(
-                numpy.finfo(
-                    paddle.to_tensor(0, dtype=scores.dtype).numpy().dtype).min)
-
+            # assume scores.dtype==paddle.float32, we only use "float32" here
+            dtype = str(scores.dtype).split(".")[-1]
+            min_value = numpy.finfo(dtype).min
             scores = masked_fill(scores, mask, min_value)
             # (batch, head, time1, time2)
             self.attn = softmax(scores)

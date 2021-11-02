@@ -19,6 +19,7 @@ Run the command below to
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
     - synthesize waveform from text file.
+5. inference using static model.
 ```bash
 ./run.sh
 ```
@@ -188,6 +189,13 @@ optional arguments:
 4. `--text` is the text file, which contains sentences to synthesize.
 5. `--output-dir` is the directory to save synthesized audio files.
 6. `--device is` the type of device to run synthesis, 'cpu' and 'gpu' are supported. 'gpu' is recommended for faster synthesis.
+
+### Inference
+After Synthesize, we will get static models of fastspeech2 and pwgan in `${train_output_path}/inference`.
+`./local/inference.sh` calls `${BIN_DIR}/inference.py`, which provides a paddle static model inference example for fastspeech2 + pwgan synthesize.
+```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
+```
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios. [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip)

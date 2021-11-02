@@ -19,7 +19,7 @@ Run the command below to
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
     - synthesize waveform from text file.
-6. inference using static model.
+5. inference using static model.
 ```bash
 ./run.sh
 ```

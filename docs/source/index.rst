@@ -1,7 +1,7 @@
-Welcome to paddle Deepspeech documentation !
+Welcome to paddle PaddleSpeech documentation !
 ==============================================
 
-**Deepspeech** is a Speech toolkits implemented by paddlepaddle.
+**PaddleSpeech** is a Speech toolkits implemented by paddlepaddle.
 
 
 Contents

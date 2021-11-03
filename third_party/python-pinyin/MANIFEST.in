@@ -1,2 +1,0 @@
-include README.rst LICENSE.txt CHANGELOG.rst
-recursive-include pypinyin *.pyi py.typed

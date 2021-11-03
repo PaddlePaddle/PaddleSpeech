@@ -1,6 +1,0 @@
-coverage==4.3.4
-flake8==3.3.0
-Sphinx==1.5.3
-tox==2.6.0
-twine==1.8.1
-wheel==0.29.0

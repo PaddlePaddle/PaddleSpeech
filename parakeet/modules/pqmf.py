@@ -15,7 +15,8 @@
 import numpy as np
 import paddle
 import paddle.nn.functional as F
-from scipy.signal import kaiser
+
+from parakeet.modules.kaiser import kaiser
 
 
 def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
@@ -44,15 +45,12 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     # make initial filter
     omega_c = np.pi * cutoff_ratio
     with np.errstate(invalid="ignore"):
-        h_i = np.sin(omega_c * (np.arange(taps + 1) - 0.5 * taps)) / (
-            np.pi * (np.arange(taps + 1) - 0.5 * taps))
-    h_i[taps //
-        2] = np.cos(0) * cutoff_ratio  # fix nan due to indeterminate form
-
+        h_i = paddle.sin(omega_c * (paddle.arange(taps + 1) - 0.5 * taps)) / (
+            np.pi * (paddle.arange(taps + 1) - 0.5 * taps))
+    h_i[taps // 2] = 1 * cutoff_ratio  # fix nan due to indeterminate form
     # apply kaiser window
     w = kaiser(taps + 1, beta)
     h = h_i * w
-
     return h
 
 
@@ -78,26 +76,25 @@ class PQMF(paddle.nn.Layer):
         beta : float
             Beta coefficient for kaiser window.
         """
-        super(PQMF, self).__init__()
-
-        # build analysis & synthesis filter coefficients
+        super().__init__()
         h_proto = design_prototype_filter(taps, cutoff_ratio, beta)
-        h_analysis = np.zeros((subbands, len(h_proto)))
-        h_synthesis = np.zeros((subbands, len(h_proto)))
+        h_proto_len = paddle.shape(h_proto)[0]
+        h_analysis = paddle.zeros((subbands, h_proto_len))
+        h_synthesis = paddle.zeros((subbands, h_proto_len))
         for k in range(subbands):
             h_analysis[k] = (
-                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    np.arange(taps + 1) - (taps / 2)) + (-1)**k * np.pi / 4))
+                2 * h_proto *
+                paddle.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
+                    paddle.arange(taps + 1) - (taps / 2)) + (-1)**k * np.pi / 4)
+            )
             h_synthesis[k] = (
-                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    np.arange(taps + 1) - (taps / 2)) - (-1)**k * np.pi / 4))
+                2 * h_proto *
+                paddle.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
+                    paddle.arange(taps + 1) - (taps / 2)) - (-1)**k * np.pi / 4)
+            )
 
-        # convert to tensor
-        self.analysis_filter = paddle.to_tensor(
-            h_analysis, dtype="float32").unsqueeze(1)
-        self.synthesis_filter = paddle.to_tensor(
-            h_synthesis, dtype="float32").unsqueeze(0)
-
+        self.analysis_filter = h_analysis.unsqueeze(1)
+        self.synthesis_filter = h_synthesis.unsqueeze(0)
         # filter for downsampling & upsampling
         updown_filter = paddle.zeros(
             (subbands, subbands, subbands), dtype="float32")
@@ -105,7 +102,6 @@ class PQMF(paddle.nn.Layer):
             updown_filter[k, k, 0] = 1.0
         self.updown_filter = updown_filter
         self.subbands = subbands
-
         # keep padding info
         self.pad_fn = paddle.nn.Pad1D(taps // 2, mode='constant', value=0.0)
 
@@ -134,7 +130,11 @@ class PQMF(paddle.nn.Layer):
         Tensor
             Output tensor (B, 1, T).
         """
-
         x = F.conv1d_transpose(
             x, self.updown_filter * self.subbands, stride=self.subbands)
+
         return F.conv1d(self.pad_fn(x), self.synthesis_filter)
+
+    # when converting dygraph to static graph, can not use self.pqmf.synthesis directly
+    def forward(self, x):
+        return self.synthesis(x)

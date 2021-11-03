@@ -61,7 +61,7 @@ For feature extraction, three methods are implemented, which are linear (FFT wit
 Currently, the released deepspeech2 online model use the linear feature extraction method.
 ```
 The code for feature extraction
-vi deepspeech/frontend/featurizer/audio_featurizer.py
+vi paddlespeech/s2t/frontend/featurizer/audio_featurizer.py
 ```
 
 ### Encoder
@@ -69,7 +69,7 @@ The encoder is composed of two 2D convolution subsampling layers and a number of
 
 The code of Encoder is in:
 ```
-vi deepspeech/models/ds2_online/deepspeech2.py
+vi paddlespeech/s2t/models/ds2_online/deepspeech2.py
 ```
 
 ### Decoder
@@ -78,9 +78,9 @@ To got the character possibilities of each frame, the feature representation of 
 The code of the decoder is in:
 ```
 # The code of constructing the decoder in model
-vi deepspeech/models/ds2_online/deepspeech2.py
+vi paddlespeech/s2t/models/ds2_online/deepspeech2.py
 # The code of CTC Decoder
-vi deepspeech/modules/ctc.py
+vi paddlespeech/s2t/modules/ctc.py
 ```
 
 ### Training Process
@@ -169,7 +169,7 @@ For data preparation and decoder, the deepspeech2 offline model is same with the
 
 The code of encoder and decoder for deepspeech2 offline model is in:
 ```
-vi deepspeech/models/ds2/deepspeech2.py
+vi paddlespeech/s2t/models/ds2/deepspeech2.py
 ```
 
 The training process and testing process of deepspeech2 offline model is very similary to deepspeech2 online model.

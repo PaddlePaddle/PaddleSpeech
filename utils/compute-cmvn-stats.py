@@ -5,11 +5,11 @@ import logging
 import kaldiio
 import numpy as np
 
-from deepspeech.transform.transformation import Transformation
-from deepspeech.utils.cli_readers import file_reader_helper
-from deepspeech.utils.cli_utils import get_commandline_args
-from deepspeech.utils.cli_utils import is_scipy_wav_style
-from deepspeech.utils.cli_writers import file_writer_helper
+from paddlespeech.s2t.transform.transformation import Transformation
+from paddlespeech.s2t.utils.cli_readers import file_reader_helper
+from paddlespeech.s2t.utils.cli_utils import get_commandline_args
+from paddlespeech.s2t.utils.cli_utils import is_scipy_wav_style
+from paddlespeech.s2t.utils.cli_writers import file_writer_helper
 
 
 def get_parser():

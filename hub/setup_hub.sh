@@ -52,7 +52,7 @@ fi
 # install decoders
 python3 -c "import pkg_resources; pkg_resources.require(\"swig_decoders==1.1\")"
 if [ $? != 0 ]; then
-    cd deepspeech/decoders/swig > /dev/null
+    cd paddlespeech/s2t/decoders/swig > /dev/null
     sh setup.sh
     cd - > /dev/null
 fi

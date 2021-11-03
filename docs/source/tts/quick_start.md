@@ -102,9 +102,9 @@ import numpy as np
 import paddle
 import yaml
 from yacs.config import CfgNode
-from parakeet.models.fastspeech2 import FastSpeech2
-from parakeet.models.fastspeech2 import FastSpeech2Inference
-from parakeet.modules.normalizer import ZScore
+from paddlespeech.t2s.models.fastspeech2 import FastSpeech2
+from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Inference
+from paddlespeech.t2s.modules.normalizer import ZScore
 # examples/fastspeech2/baker/frontend.py
 from frontend import Frontend
 
@@ -161,9 +161,9 @@ import paddle
 import soundfile as sf
 import yaml
 from yacs.config import CfgNode
-from parakeet.models.parallel_wavegan import PWGGenerator
-from parakeet.models.parallel_wavegan import PWGInference
-from parakeet.modules.normalizer import ZScore
+from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
+from paddlespeech.t2s.models.parallel_wavegan import PWGInference
+from paddlespeech.t2s.modules.normalizer import ZScore
 
 # load the pretrained model
 checkpoint_dir = Path("parallel_wavegan_baker_ckpt_0.4")

@@ -12,7 +12,7 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 
 
 MODEL=u2_kaldi
-export BIN_DIR=${MAIN_ROOT}/deepspeech/exps/${MODEL}/bin
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/${MODEL}/bin
 
 # srilm
 export LIBLBFGS=${MAIN_ROOT}/tools/liblbfgs-1.10

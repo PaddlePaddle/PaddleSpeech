@@ -18,9 +18,9 @@ from paddle import nn
 from paddle.nn import functional as F
 from paddle.nn import initializer as I
 
-from deepspeech.modules.activation import brelu
-from deepspeech.modules.mask import make_non_pad_mask
-from deepspeech.utils.log import Log
+from paddlespeech.s2t.modules.activation import brelu
+from paddlespeech.s2t.modules.mask import make_non_pad_mask
+from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = ['RNNStack']

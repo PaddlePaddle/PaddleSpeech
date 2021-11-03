@@ -15,8 +15,8 @@ import argparse
 import re
 from pathlib import Path
 
-from parakeet.frontend.zh_frontend import Frontend as zhFrontend
-from parakeet.utils.error_rate import word_errors
+from paddlespeech.t2s.frontend.zh_frontend import Frontend as zhFrontend
+from paddlespeech.t2s.utils.error_rate import word_errors
 
 SILENCE_TOKENS = {"sp", "sil", "sp1", "spl"}
 

@@ -80,7 +80,7 @@ def _post_install(install_lib_dir):
     print("autolog install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE / 'deepspeech/decoders/ctcdecoder/swig'
+    ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")

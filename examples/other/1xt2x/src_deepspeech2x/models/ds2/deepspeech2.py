@@ -19,11 +19,11 @@ from paddle import nn
 from src_deepspeech2x.models.ds2.rnn import RNNStack
 from yacs.config import CfgNode
 
-from deepspeech.models.ds2.conv import ConvStack
-from deepspeech.modules.ctc import CTCDecoder
-from deepspeech.utils import layer_tools
-from deepspeech.utils.checkpoint import Checkpoint
-from deepspeech.utils.log import Log
+from paddlespeech.s2t.models.ds2.conv import ConvStack
+from paddlespeech.s2t.modules.ctc import CTCDecoder
+from paddlespeech.s2t.utils import layer_tools
+from paddlespeech.s2t.utils.checkpoint import Checkpoint
+from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()
 
 __all__ = ['DeepSpeech2Model', 'DeepSpeech2InferModel']

@@ -22,3 +22,7 @@ licence: MIT
 * [phkit](https://github.com/KuangDD/phkit.git)
 commit: b2100293c1e36da531d7f30bd52c9b955a649522
 licence: None
+
+* [nnAudio](https://github.com/KinWaiCheuk/nnAudio.git)
+licence: MIT
+

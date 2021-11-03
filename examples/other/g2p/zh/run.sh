@@ -14,7 +14,7 @@ mkdir -p ${exp_dir}
 
 if [ $stage -le -1 ] && [ $stop_stage -ge -1 ];then
     mkdir -p ${data}
-    test -e ${data}/BZNSYP.rar || { echo "Please download BZNSYP.rar and put it in "${data}; exit -1; }
+    test -e ${data}/BZNSYP.rar || wget -c https://weixinxcxdb.oss-cn-beijing.aliyuncs.com/gwYinPinKu/BZNSYP.rar -P ${data}
 fi
 
 if [ $stage -le 0 ] && [ $stop_stage -ge 0 ];then

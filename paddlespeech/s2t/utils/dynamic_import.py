@@ -35,9 +35,10 @@ def dynamic_import(import_path, alias=dict()):
     :return: imported class
     """
     if import_path not in alias and ":" not in import_path:
-        raise ValueError("import_path should be one of {} or "
-                         'include ":", e.g. "paddlespeech.s2t.models.u2:U2Model" : '
-                         "{}".format(set(alias), import_path))
+        raise ValueError(
+            "import_path should be one of {} or "
+            'include ":", e.g. "paddlespeech.s2t.models.u2:U2Model" : '
+            "{}".format(set(alias), import_path))
     if ":" not in import_path:
         import_path = alias[import_path]
 

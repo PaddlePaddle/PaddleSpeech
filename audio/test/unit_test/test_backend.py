@@ -13,9 +13,8 @@
 # limitations under the License.
 import librosa
 import numpy as np
-import pytest
-
 import paddleaudio
+import pytest
 
 TEST_FILE = './test/data/test_audio.wav'
 

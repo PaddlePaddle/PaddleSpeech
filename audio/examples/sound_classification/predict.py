@@ -17,7 +17,6 @@ import numpy as np
 import paddle
 import paddle.nn.functional as F
 from model import SoundClassifier
-
 from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets import ESC50
 from paddleaudio.features import melspectrogram

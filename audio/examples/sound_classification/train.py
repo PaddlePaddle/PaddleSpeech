@@ -16,7 +16,6 @@ import os
 
 import paddle
 from model import SoundClassifier
-
 from paddleaudio.datasets import ESC50
 from paddleaudio.models.panns import cnn14
 from paddleaudio.utils import logger

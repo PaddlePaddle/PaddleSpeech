@@ -18,6 +18,7 @@ version = '0.1.0a'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
 setuptools.setup(
     name="paddleaudio",
     version=version,
@@ -35,8 +36,12 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'numpy >= 1.15.0', 'scipy >= 1.0.0', 'resampy >= 0.2.2',
-        'soundfile >= 0.9.0'
+        'numpy >= 1.15.0',
+        'scipy >= 1.0.0',
+        'resampy >= 0.2.2',
+        'soundfile >= 0.9.0',
+        'colorlog',
+        'pathos',
     ],
     extras_require={'dev': ['pytest>=3.7', 'librosa>=0.7.2']
                     }  # for dev only, install: pip install -e .[dev]

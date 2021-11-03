@@ -15,8 +15,7 @@
 import numpy as np
 import paddle
 import paddle.nn.functional as F
-
-from parakeet.modules.kaiser import kaiser
+from scipy.signal import kaiser
 
 
 def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
@@ -41,16 +40,18 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     # check the arguments are valid
     assert taps % 2 == 0, "The number of taps mush be even number."
     assert 0.0 < cutoff_ratio < 1.0, "Cutoff ratio must be > 0.0 and < 1.0."
-
     # make initial filter
     omega_c = np.pi * cutoff_ratio
     with np.errstate(invalid="ignore"):
-        h_i = paddle.sin(omega_c * (paddle.arange(taps + 1) - 0.5 * taps)) / (
-            np.pi * (paddle.arange(taps + 1) - 0.5 * taps))
-    h_i[taps // 2] = 1 * cutoff_ratio  # fix nan due to indeterminate form
+        h_i = np.sin(omega_c * (np.arange(taps + 1) - 0.5 * taps)) / (
+            np.pi * (np.arange(taps + 1) - 0.5 * taps))
+    h_i[taps //
+        2] = np.cos(0) * cutoff_ratio  # fix nan due to indeterminate form
+
     # apply kaiser window
     w = kaiser(taps + 1, beta)
     h = h_i * w
+
     return h
 
 
@@ -77,24 +78,24 @@ class PQMF(paddle.nn.Layer):
             Beta coefficient for kaiser window.
         """
         super().__init__()
+
         h_proto = design_prototype_filter(taps, cutoff_ratio, beta)
-        h_proto_len = paddle.shape(h_proto)[0]
-        h_analysis = paddle.zeros((subbands, h_proto_len))
-        h_synthesis = paddle.zeros((subbands, h_proto_len))
+        h_analysis = np.zeros((subbands, len(h_proto)))
+        h_synthesis = np.zeros((subbands, len(h_proto)))
         for k in range(subbands):
             h_analysis[k] = (
-                2 * h_proto *
-                paddle.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    paddle.arange(taps + 1) - (taps / 2)) + (-1)**k * np.pi / 4)
-            )
+                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
+                    np.arange(taps + 1) - (taps / 2)) + (-1)**k * np.pi / 4))
             h_synthesis[k] = (
-                2 * h_proto *
-                paddle.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    paddle.arange(taps + 1) - (taps / 2)) - (-1)**k * np.pi / 4)
-            )
+                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
+                    np.arange(taps + 1) - (taps / 2)) - (-1)**k * np.pi / 4))
 
-        self.analysis_filter = h_analysis.unsqueeze(1)
-        self.synthesis_filter = h_synthesis.unsqueeze(0)
+        # convert to tensor
+        self.analysis_filter = paddle.to_tensor(
+            h_analysis, dtype="float32").unsqueeze(1)
+        self.synthesis_filter = paddle.to_tensor(
+            h_synthesis, dtype="float32").unsqueeze(0)
+
         # filter for downsampling & upsampling
         updown_filter = paddle.zeros(
             (subbands, subbands, subbands), dtype="float32")

@@ -17,8 +17,8 @@ import numpy as np
 import paddle
 from yacs.config import CfgNode as CN
 
-from deepspeech.models.u2 import U2Model
-from deepspeech.utils.layer_tools import summary
+from paddlespeech.s2t.models.u2 import U2Model
+from paddlespeech.s2t.utils.layer_tools import summary
 
 
 class TestU2Model(unittest.TestCase):

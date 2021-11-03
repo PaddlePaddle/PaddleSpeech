@@ -18,13 +18,13 @@ from parallel_wavegan.layers import upsample
 from parallel_wavegan.models import parallel_wavegan as pwgan
 from timer import timer
 
-from parakeet.models.parallel_wavegan import ConvInUpsampleNet
-from parakeet.models.parallel_wavegan import PWGDiscriminator
-from parakeet.models.parallel_wavegan import PWGGenerator
-from parakeet.models.parallel_wavegan import ResidualBlock
-from parakeet.models.parallel_wavegan import ResidualPWGDiscriminator
-from parakeet.utils.layer_tools import summary
-from parakeet.utils.profile import synchronize
+from paddlespeech.t2s.models.parallel_wavegan import ConvInUpsampleNet
+from paddlespeech.t2s.models.parallel_wavegan import PWGDiscriminator
+from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
+from paddlespeech.t2s.models.parallel_wavegan import ResidualBlock
+from paddlespeech.t2s.models.parallel_wavegan import ResidualPWGDiscriminator
+from paddlespeech.t2s.utils.layer_tools import summary
+from paddlespeech.t2s.utils.profile import synchronize
 
 paddle.set_device("gpu:0")
 device = torch.device("cuda:0")

@@ -16,11 +16,11 @@
 import argparse
 import functools
 
-from deepspeech.frontend.augmentor.augmentation import AugmentationPipeline
-from deepspeech.frontend.featurizer.audio_featurizer import AudioFeaturizer
-from deepspeech.frontend.normalizer import FeatureNormalizer
-from deepspeech.utils.utility import add_arguments
-from deepspeech.utils.utility import print_arguments
+from paddlespeech.s2t.frontend.augmentor.augmentation import AugmentationPipeline
+from paddlespeech.s2t.frontend.featurizer.audio_featurizer import AudioFeaturizer
+from paddlespeech.s2t.frontend.normalizer import FeatureNormalizer
+from paddlespeech.s2t.utils.utility import add_arguments
+from paddlespeech.s2t.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

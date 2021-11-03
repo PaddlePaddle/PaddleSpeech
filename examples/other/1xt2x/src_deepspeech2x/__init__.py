@@ -21,7 +21,7 @@ from paddle import nn
 from paddle.fluid import core
 from paddle.nn import functional as F
 
-from deepspeech.utils.log import Log
+from paddlespeech.s2t.utils.log import Log
 
 #TODO(Hui Zhang): remove  fluid import
 logger = Log(__name__).getlog()

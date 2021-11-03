@@ -39,7 +39,7 @@ There are silence in the edge of AISHELL-3's wavs, and the audio amplitude is ve
 
 We use Montreal Force Aligner 1.0. The label in  aishell3 include pinyin，so the lexicon we provided to MFA is pinyin rather than Chinese characters. And the prosody marks(`$`  and `%`) need to be removed. You shoud preprocess the dataset into the format  which MFA needs, the texts have the same name with wavs and have the suffix `.lab`.
 
-We use [lexicon.txt](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/parakeet/exps/voice_cloning/tacotron2_ge2e/lexicon.txt) as the lexicon.
+We use [lexicon.txt](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/paddlespeech/t2s/exps/voice_cloning/tacotron2_ge2e/lexicon.txt) as the lexicon.
 
 You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/Parakeet/alignment_aishell3.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
 

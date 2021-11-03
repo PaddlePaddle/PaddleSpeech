@@ -12,7 +12,7 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 
 # model exp
 MODEL=u2
-export BIN_DIR=${MAIN_ROOT}/deepspeech/exps/${MODEL}/bin
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/${MODEL}/bin
 
 
 # srilm

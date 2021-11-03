@@ -26,19 +26,19 @@ from src_deepspeech2x.models.ds2 import DeepSpeech2InferModel
 from src_deepspeech2x.models.ds2 import DeepSpeech2Model
 from yacs.config import CfgNode
 
-from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
-from deepspeech.io.collator import SpeechCollator
-from deepspeech.io.dataset import ManifestDataset
-from deepspeech.io.sampler import SortagradBatchSampler
-from deepspeech.io.sampler import SortagradDistributedBatchSampler
-from deepspeech.models.ds2_online import DeepSpeech2InferModelOnline
-from deepspeech.models.ds2_online import DeepSpeech2ModelOnline
-from deepspeech.training.gradclip import ClipGradByGlobalNormWithLog
-from deepspeech.training.trainer import Trainer
-from deepspeech.utils import error_rate
-from deepspeech.utils import layer_tools
-from deepspeech.utils import mp_tools
-from deepspeech.utils.log import Log
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.io.collator import SpeechCollator
+from paddlespeech.s2t.io.dataset import ManifestDataset
+from paddlespeech.s2t.io.sampler import SortagradBatchSampler
+from paddlespeech.s2t.io.sampler import SortagradDistributedBatchSampler
+from paddlespeech.s2t.models.ds2_online import DeepSpeech2InferModelOnline
+from paddlespeech.s2t.models.ds2_online import DeepSpeech2ModelOnline
+from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
+from paddlespeech.s2t.training.trainer import Trainer
+from paddlespeech.s2t.utils import error_rate
+from paddlespeech.s2t.utils import layer_tools
+from paddlespeech.s2t.utils import mp_tools
+from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 

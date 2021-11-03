@@ -25,11 +25,11 @@ fi
 # 数据预处理
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
-      python3 parakeet/exps/gan_vocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=examples/csmsc/voc1/conf/default.yaml
+      python3 paddlespeech/t2s/exps/gan_vocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=examples/csmsc/voc1/conf/default.yaml
       python3 utils/compute_statistics.py --metadata=dump/train/raw/metadata.jsonl --field-name="feats"
-      python3 parakeet/exps/gan_vocoder/normalize.py --metadata=dump/train/raw/metadata.jsonl --dumpdir=dump/train/norm --stats=dump/train/feats_stats.npy
-      python3 parakeet/exps/gan_vocoder/normalize.py --metadata=dump/dev/raw/metadata.jsonl --dumpdir=dump/dev/norm --stats=dump/train/feats_stats.npy
-      python3 parakeet/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
+      python3 paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/train/raw/metadata.jsonl --dumpdir=dump/train/norm --stats=dump/train/feats_stats.npy
+      python3 paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/dev/raw/metadata.jsonl --dumpdir=dump/dev/norm --stats=dump/train/feats_stats.npy
+      python3 paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
 fi
 # 3 批量运行（如不方便批量，1，2需放到单个模型中）
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

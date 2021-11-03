@@ -41,13 +41,13 @@ pull_request_rules:
         remove: ["conflicts"]
   - name: "auto add label=S2T"
     conditions:
-      - files~=^deepspeech/
+      - files~=^paddlespeech/s2t/
     actions:
       label:
         add: ["S2T"]
   - name: "auto add label=T2S"
     conditions:
-      - files~=^parakeet/
+      - files~=^paddlespeech/t2s/
     actions:
       label:
         add: ["T2S"]
@@ -59,7 +59,7 @@ pull_request_rules:
         add: ["Audio"]
   - name: "auto add label=TextProcess"
     conditions:
-      - files~=^text_processing/
+      - files~=^paddlespeech/text/
     actions:
       label:
         add: ["TextProcess"]

@@ -67,7 +67,7 @@ There are two common ways to define a model which consists of several modules.
     ```
     When a model is a complicated and made up of several components, each of which has a separate functionality, and can be replaced by other components with the same functionality, we prefer to define it in this way.
 
-In the directory structure of PaddleSpeech TTS, modules with high reusability are placed in `parakeet.modules`, but models for specific tasks are placed in `parakeet.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules, and place them in appropriate directories.
+In the directory structure of PaddleSpeech TTS, modules with high reusability are placed in `paddlespeech.t2s.modules`, but models for specific tasks are placed in `paddlespeech.t2s.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules, and place them in appropriate directories.
 
 ## PaddleSpeech TTS's Data Components
 Another critical componnet for a deep learning project is data.
@@ -93,7 +93,7 @@ Then we need to select a format for saving metadata to the hard disk. There are 
 
 Meanwhile, `cache` is added here, and a multi-process Manager is used to share memory between multiple processes. When `num_workers` is used, it is guaranteed that each sub process will not cache a copy.
 
-The implementation of `DataTable` can be found in `parakeet/datasets/data_table.py`.
+The implementation of `DataTable` can be found in `paddlespeech/t2s/datasets/data_table.py`.
 ```python
 class DataTable(Dataset):
     """Dataset to load and convert data for general purpose.
@@ -179,9 +179,9 @@ We think this method is a little ugly. We prefer to return the necessary informa
 
 It takes advantage of the globality of Python's module level variables and the effect of context manager.
 
-There is a module level variable in  `parakeet/training/reporter.py`  `OBSERVATIONS`，which is  a `Dict` to store key-value.
+There is a module level variable in  `paddlespeech/t2s/training/reporter.py`  `OBSERVATIONS`，which is  a `Dict` to store key-value.
 ```python
-# parakeet/training/reporter.py
+# paddlespeech/t2s/training/reporter.py
 
 @contextlib.contextmanager
 def scope(observations):

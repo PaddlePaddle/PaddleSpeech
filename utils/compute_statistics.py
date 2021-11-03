@@ -21,7 +21,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-from parakeet.datasets.data_table import DataTable
+from paddlespeech.t2s.datasets.data_table import DataTable
 
 
 def main():

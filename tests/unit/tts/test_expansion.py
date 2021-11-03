@@ -13,7 +13,7 @@
 # limitations under the License.
 import paddle
 
-from parakeet.modules import expansion
+from paddlespeech.t2s.modules import expansion
 
 
 def test_expand():

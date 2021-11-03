@@ -13,9 +13,9 @@
 # limitations under the License.
 import numpy as np
 
-from parakeet.training.reporter import report
-from parakeet.training.reporter import scope
-from parakeet.training.reporter import Summary
+from paddlespeech.t2s.training.reporter import report
+from paddlespeech.t2s.training.reporter import scope
+from paddlespeech.t2s.training.reporter import Summary
 
 
 def test_reporter_scope():

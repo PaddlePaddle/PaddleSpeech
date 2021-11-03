@@ -15,8 +15,8 @@ import argparse
 import re
 from pathlib import Path
 
-from parakeet.frontend.zh_normalization.text_normlization import TextNormalizer
-from parakeet.utils.error_rate import char_errors
+from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
+from paddlespeech.t2s.utils.error_rate import char_errors
 
 
 # delete english characters

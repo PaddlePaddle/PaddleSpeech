@@ -33,9 +33,9 @@ make install
 ```bash
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
-pushd tools; make; popd
+pushd tools; make virtualenv.done:; popd
 source tools/venv/bin/activate
-bash setup.sh
+pip install -e .
 ```
 
 - Source venv before do experiment.

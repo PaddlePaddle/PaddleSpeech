@@ -1,4 +1,0 @@
-jieba
-inflect
-unidecode
-tqdm

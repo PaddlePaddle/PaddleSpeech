@@ -13,7 +13,7 @@ null:null
 null:null
 ##
 trainer:norm_train
-norm_train:../../../parakeet/exps/speedyspeech/train.py --train-metadata=train_data/processed_BZNSYP/train/norm/metadata.jsonl --dev-metadata=train_data/processed_BZNSYP/dev/norm/metadata.jsonl --config=../../../examples/csmsc/tts2/conf/default.yaml --output-dir=exp/whole --phones-dict=train_data/processed_BZNSYP/phone_id_map.txt --tones-dict=train_data/processed_BZNSYP/tone_id_map.txt --use-relative-path=True
+norm_train:../../../paddlespeech/t2s/exps/speedyspeech/train.py --train-metadata=train_data/processed_BZNSYP/train/norm/metadata.jsonl --dev-metadata=train_data/processed_BZNSYP/dev/norm/metadata.jsonl --config=../../../examples/csmsc/tts2/conf/default.yaml --output-dir=exp/whole --phones-dict=train_data/processed_BZNSYP/phone_id_map.txt --tones-dict=train_data/processed_BZNSYP/tone_id_map.txt --use-relative-path=True
 null:null
 null:null
 null:null
@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval:../../../parakeet/exps/speedyspeech/synthesize_e2e.py --speedyspeech-config=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/default.yaml --speedyspeech-checkpoint=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/snapshot_iter_11400.pdz --speedyspeech-stat=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/feats_stats.npy --pwg-config=pretrain_models/pwg_baker_ckpt_0.4/pwg_default.yaml --pwg-checkpoint=pretrain_models/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz --pwg-stat=pretrain_models/pwg_baker_ckpt_0.4/pwg_stats.npy --text=../../../parakeet/exps/sentences.txt --output-dir=e2e --inference-dir=inference --device="gpu" --phones-dict=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt --tones-dict=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
+eval:../../../paddlespeech/t2s/exps/speedyspeech/synthesize_e2e.py --speedyspeech-config=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/default.yaml --speedyspeech-checkpoint=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/snapshot_iter_11400.pdz --speedyspeech-stat=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/feats_stats.npy --pwg-config=pretrain_models/pwg_baker_ckpt_0.4/pwg_default.yaml --pwg-checkpoint=pretrain_models/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz --pwg-stat=pretrain_models/pwg_baker_ckpt_0.4/pwg_stats.npy --text=../../../paddlespeech/t2s/exps/sentences.txt --output-dir=e2e --inference-dir=inference --device="gpu" --phones-dict=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt --tones-dict=pretrain_models/speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
 null:null
 ##
 ===========================infer_params===========================
@@ -37,7 +37,7 @@ null:null
 null:null
 null:null
 null:null
-inference:../../../parakeet/exps/speedyspeech/inference.py --inference-dir=pretrain_models/speedyspeech_pwg_inference_0.5 --text=../../../parakeet/exps/sentences.txt --output-dir=inference_out --enable-auto-log --phones-dict=pretrain_models/speedyspeech_pwg_inference_0.5/phone_id_map.txt --tones-dict=pretrain_models/speedyspeech_pwg_inference_0.5/tone_id_map.txt
+inference:../../../paddlespeech/t2s/exps/speedyspeech/inference.py --inference-dir=pretrain_models/speedyspeech_pwg_inference_0.5 --text=../../../paddlespeech/t2s/exps/sentences.txt --output-dir=inference_out --enable-auto-log --phones-dict=pretrain_models/speedyspeech_pwg_inference_0.5/phone_id_map.txt --tones-dict=pretrain_models/speedyspeech_pwg_inference_0.5/tone_id_map.txt
 null:null
 null:null
 null:null

@@ -80,7 +80,7 @@ def _post_install(install_lib_dir):
     print("autolog install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE / 'deepspeech/decoders/ctcdecoder/swig'
+    ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
@@ -132,7 +132,7 @@ class UploadCommand(Command):
 
 setup_info = dict(
     # Metadata
-    name='paddle-speech',
+    name='paddlespeech',
     version='2.1.2',
     author='PaddleSL Speech Team',
     author_email='',
@@ -145,9 +145,14 @@ setup_info = dict(
         "speech",
         "asr",
         "tts",
+        "speaker verfication",
+        "speech classfication",
         "text frontend",
         "MFA",
         "paddlepaddle",
+        "beam search",
+        "ctcdecoder",
+        "deepspeech2",
         "transformer",
         "conformer",
         "fastspeech",
@@ -170,7 +175,8 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(exclude=('tests', 'tests.*')),
+    packages=find_packages(exclude=('tests', 'tests.*', 'examples*',
+                                    'paddleaudio*', 'third_party*', 'tools*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',

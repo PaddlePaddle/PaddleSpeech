@@ -10,4 +10,4 @@ export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
 MODEL=multi_band_melgan
-export BIN_DIR=${MAIN_ROOT}/parakeet/exps/gan_vocoder/${MODEL}
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/t2s/exps/gan_vocoder/${MODEL}

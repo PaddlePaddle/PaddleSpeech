@@ -28,8 +28,8 @@ autodoc_mock_imports = ["soundfile", "librosa"]
 # -- Project information -----------------------------------------------------
 
 project = 'paddle speech'
-copyright = '2021, Deepspeech-developers'
-author = 'Deepspeech-developers'
+copyright = '2021, paddlespeech-developers'
+author = 'paddlespeech-developers'
 
 # The full version, including alpha/beta/rc tags
 release = '2.1'

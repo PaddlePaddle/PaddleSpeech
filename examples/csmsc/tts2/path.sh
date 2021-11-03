@@ -10,4 +10,4 @@ export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
 MODEL=speedyspeech
-export BIN_DIR=${MAIN_ROOT}/parakeet/exps/${MODEL}
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/t2s/exps/${MODEL}

@@ -74,9 +74,9 @@ Just a quick test of our functions: [English ASR](link/hubdetail?name=deepspeech
 
 Developers can have a try of our model with only a few lines of code.
 
-A tiny *ASR* DeepSpeech2 model training on toy set of LibriSpeech:
+A tiny **ASR** DeepSpeech2 model training on toy set of LibriSpeech:
 
-```shell
+```bash
 cd examples/tiny/s0/
 # source the environment
 source path.sh
@@ -86,16 +86,34 @@ bash local/data.sh
 bash local/test.sh conf/deepspeech2.yaml ckptfile offline
 ```
 
-For *TTS*, try FastSpeech2 on LJSpeech:
-- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/), our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz).
-- The pretrained models are seperated into two parts: [fastspeech2_nosil_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip) and [pwg_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip). Please download then unzip to `./model/fastspeech2` and `./model/pwg` respectively.
-- Assume your path to the dataset is `~/datasets/LJSpeech-1.1` and `./ljspeech_alignment` accordingly, preprocess your data and then use our pretrained model to synthesize:
-```shell
-bash ./local/preprocess.sh conf/default.yaml
-bash ./local/synthesize_e2e.sh conf/default.yaml ./model/fastspeech2/snapshot_iter_100000.pdz ./model/pwg/pwg_snapshot_iter_400000.pdz
+For **TTS**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
+
+```bash
+cd examples/csmsc/tts3
+# download the pretrained models and unaip them
+wget https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip
+unzip pwg_baker_ckpt_0.4.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip
+unzip fastspeech2_nosil_baker_ckpt_0.4.zip
+# source the environment
+source path.sh
+# run end-to-end synthesize
+FLAGS_allocator_strategy=naive_best_fit \
+FLAGS_fraction_of_gpu_memory_to_use=0.01 \
+python3 ${BIN_DIR}/synthesize_e2e.py \
+  --fastspeech2-config=fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
+  --fastspeech2-checkpoint=fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
+  --fastspeech2-stat=fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
+  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
+  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
+  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+  --text=${BIN_DIR}/../sentences.txt \
+  --output-dir=exp/default/test_e2e \
+  --inference-dir=exp/default/inference \
+  --device="gpu" \
+  --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
+
 ```
-
-
 
 If you want to try more functions like training and tuning, please see [ASR getting started](docs/source/asr/getting_started.md) and [TTS Basic Use](/docs/source/tts/basic_usage.md).
 

@@ -79,6 +79,9 @@ smartquotes = False
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_logo = '../images/paddle.png'
+html_css_files = [
+    'custom.css',
+]
 
 # -- Extension configuration -------------------------------------------------
 # numpydoc_show_class_members = False

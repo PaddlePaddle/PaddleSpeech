@@ -74,6 +74,8 @@ class TestU2Model(unittest.TestCase):
             model_conf:
                 ctc_weight: 0.3
                 lsm_weight: 0.1     # label smoothing option
+                ctc_dropoutrate: 0.0
+                ctc_grad_norm_type: null
                 length_normalized_loss: false
         """
         cfg = CN().load_cfg(conf_str)
@@ -126,6 +128,8 @@ class TestU2Model(unittest.TestCase):
             model_conf:
                 ctc_weight: 0.3
                 lsm_weight: 0.1     # label smoothing option
+                ctc_dropoutrate: 0.0
+                ctc_grad_norm_type: null
                 length_normalized_loss: false
         """
         cfg = CN().load_cfg(conf_str)

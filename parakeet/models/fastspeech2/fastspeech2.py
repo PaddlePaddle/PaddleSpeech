@@ -419,9 +419,18 @@ class FastSpeech2(nn.Layer):
 
         if is_inference:
             # (B, Tmax)
-            d_outs = self.duration_predictor.inference(hs, d_masks)
+            if ds is not None:
+                d_outs = ds
+            else:
+                d_outs = self.duration_predictor.inference(hs, d_masks)
+            if ps is not None:
+                p_outs = ps
+            if es is not None:
+                e_outs = es
+
             # use prediction in inference
             # (B, Tmax, 1)
+
             p_embs = self.pitch_embed(p_outs.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
             e_embs = self.energy_embed(e_outs.transpose((0, 2, 1))).transpose(
@@ -516,7 +525,7 @@ class FastSpeech2(nn.Layer):
         x = paddle.cast(text, 'int64')
         y = speech
         spemb = spembs
-        if durations:
+        if durations is not None:
             d = paddle.cast(durations, 'int64')
         p, e = pitch, energy
         # setup batch axis
@@ -534,9 +543,12 @@ class FastSpeech2(nn.Layer):
 
         if use_teacher_forcing:
             # use groundtruth of duration, pitch, and energy
-            ds, ps, es = d.unsqueeze(0), p.unsqueeze(0), e.unsqueeze(0)
+            ds = d.unsqueeze(0) if d is not None else None
+            ps = p.unsqueeze(0) if p is not None else None
+            es = e.unsqueeze(0) if e is not None else None
+            # ds, ps, es = , p.unsqueeze(0), e.unsqueeze(0)
             # (1, L, odim)
-            _, outs, *_ = self._forward(
+            _, outs, d_outs, *_ = self._forward(
                 xs,
                 ilens,
                 ys,
@@ -545,10 +557,11 @@ class FastSpeech2(nn.Layer):
                 es=es,
                 spembs=spembs,
                 spk_id=spk_id,
-                tone_id=tone_id)
+                tone_id=tone_id,
+                is_inference=True)
         else:
             # (1, L, odim)
-            _, outs, *_ = self._forward(
+            _, outs, d_outs, *_ = self._forward(
                 xs,
                 ilens,
                 ys,

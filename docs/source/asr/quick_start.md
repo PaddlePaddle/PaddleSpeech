@@ -27,15 +27,8 @@ More detailed information are provided in the following sections. Wish you a hap
 
 ## Training a model
 
-The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell/local```. As mentioned above, please execute ```sh data.sh```, ```sh train.sh```, ```sh test.sh```and ```sh infer.sh```to do data preparation, training, testing and inference correspondingly. We have also prepared a pre-trained model (downloaded by local/download_model.sh) for users to try with ```sh infer_golden.sh```and ```sh test_golden.sh```. Notice that, different from English LM, the Mandarin LM is character-based and please run ```local/tune.sh```to find an optimal setting.
+The key steps of training for Mandarin language are same to that of English language and we have also provided an example for Mandarin training with Aishell in ```examples/aishell/local```. As mentioned above, please execute ```sh data.sh```, ```sh train.sh```and```sh test.sh```to do data preparation, training, and testing correspondingly.
 
-## Speech-to-text Inference
-
-An inference module caller `infer.py` is provided to infer, decode and visualize speech-to-text results for several given audio clips. It might help to have an intuitive and qualitative evaluation of the ASR model's performance.
-```bash
-CUDA_VISIBLE_DEVICES=0 bash local/infer.sh
-```
-We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first graph search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `decoding_method`.
 
 ## Evaluate a Model
 To evaluate a model's performance quantitatively, please run:
@@ -44,20 +37,4 @@ CUDA_VISIBLE_DEVICES=0 bash local/test.sh
 ```
 The error rate (default: word error rate; can be set with `error_rate_type`) will be printed.
 
-## Hyper-parameters Tuning
-The hyper-parameters $\alpha$ (language model weight) and $\beta$ (word insertion weight) for the [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) often have a significant impact on the decoder's performance. It would be better to re-tune them on the validation set when the acoustic model is renewed.
-
-`tune.py` performs a 2-D grid search over the hyper-parameter $\alpha$ and $\beta$. You must provide the range of $\alpha$ and $\beta$, as well as the number of their attempts.
-```bash
-CUDA_VISIBLE_DEVICES=0 bash local/tune.sh
-```
- The grid search will print the WER (word error rate) or CER (character error rate) at each point in the hyper-parameters space, and draw the error surface optionally. A proper hyper-parameters range should include the global minima of the error surface for WER/CER, as illustrated in the following figure.
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/PaddlePaddle/DeepSpeech/develop/docs/images/tuning_error_surface.png" width=550>
-    <br/>An example error surface for tuning on the dev-clean set of LibriSpeech
-</p>
-
-Usually, as the figure shows, the variation of language model weight ($\alpha$) significantly affect the performance of CTC beam search decoder. And a better procedure is to first tune on serveral data batches (the number can be specified) to find out the proper range of hyper-parameters, then change to the whole validation set to carray out an accurate tuning.
-
-After tuning, you can reset $\alpha$ and $\beta$ in the inference and evaluation modules to see if they really help improve the ASR performance. For more help
+We provide two types of CTC decoders: *CTC greedy decoder* and *CTC beam search decoder*. The *CTC greedy decoder* is an implementation of the simple best-path decoding algorithm, selecting at each timestep the most likely token, thus being greedy and locally optimal. The [*CTC beam search decoder*](https://arxiv.org/abs/1408.2873) otherwise utilizes a heuristic breadth-first graph search for reaching a near global optimality; it also requires a pre-trained KenLM language model for better scoring and ranking. The decoder type can be set with argument `decoding_method`.

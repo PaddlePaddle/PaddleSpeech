@@ -263,15 +263,13 @@ class MelGANGenerator(nn.Layer):
         Tensor
             Output tensor (out_channels*T ** prod(upsample_scales), 1).
         """
-        if not isinstance(c, paddle.Tensor):
-            c = paddle.to_tensor(c, dtype="float32")
         # pseudo batch
         c = c.transpose([1, 0]).unsqueeze(0)
         # (B, out_channels, T ** prod(upsample_scales)
         out = self.melgan(c)
         if self.pqmf is not None:
             # (B, 1, out_channels * T ** prod(upsample_scales)
-            out = self.pqmf.synthesis(out)
+            out = self.pqmf(out)
         out = out.squeeze(0).transpose([1, 0])
         return out
 
@@ -551,3 +549,15 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
                 m.weight.set_value(w)
 
         self.apply(_reset_parameters)
+
+
+class MelGANInference(nn.Layer):
+    def __init__(self, normalizer, melgan_generator):
+        super().__init__()
+        self.normalizer = normalizer
+        self.melgan_generator = melgan_generator
+
+    def forward(self, logmel):
+        normalized_mel = self.normalizer(logmel)
+        wav = self.melgan_generator.inference(normalized_mel)
+        return wav

@@ -17,7 +17,6 @@ from typing import List
 
 import numpy as np
 import paddle
-
 from paddleaudio.backends import load as load_audio
 from paddleaudio.features import melspectrogram
 from paddleaudio.models.panns import cnn14

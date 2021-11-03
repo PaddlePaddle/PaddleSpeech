@@ -45,7 +45,8 @@ import_alias = dict(
     istft="paddlespeech.s2t.transform.spectrogram:IStft",
     stft2fbank="paddlespeech.s2t.transform.spectrogram:Stft2LogMelSpectrogram",
     wpe="paddlespeech.s2t.transform.wpe:WPE",
-    channel_selector="paddlespeech.s2t.transform.channel_selector:ChannelSelector", )
+    channel_selector="paddlespeech.s2t.transform.channel_selector:ChannelSelector",
+)
 
 
 class Transformation():

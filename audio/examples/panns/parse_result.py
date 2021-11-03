@@ -17,7 +17,6 @@ import os
 from typing import Dict
 
 import numpy as np
-
 from paddleaudio.utils import logger
 
 # yapf: disable

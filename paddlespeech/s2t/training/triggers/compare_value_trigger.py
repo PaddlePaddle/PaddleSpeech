@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from chainer(https://github.com/chainer/chainer)
 from ..reporter import DictSummary
 from .utils import get_trigger
 

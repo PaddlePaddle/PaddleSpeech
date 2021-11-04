@@ -335,4 +335,4 @@ PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 ## Acknowledgement
 
-PaddleSpeech depends on a lot of open source repos. See [references](docs/source/asr/reference.md) for more information.
+PaddleSpeech depends on a lot of open source repos. See [references](docs/source/reference.md) for more information.

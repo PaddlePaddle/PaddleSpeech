@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from wenet(https://github.com/wenet-e2e/wenet)
 from typing import List
 
 import numpy as np
@@ -136,16 +137,6 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
         output_alignment.append(y_insert_blank[state_seq[t, 0]])
 
     return output_alignment
-
-
-# ctc_align(
-# self.model,
-# self.align_loader,
-# self.config.decoding.batch_size,
-# self.align_loader.collate_fn.stride_ms,
-# self.align_loader.collate_fn.vocab_list,
-# self.args.result_file,
-# )
 
 
 def ctc_align(model, dataloader, batch_size, stride_ms, token_dict,

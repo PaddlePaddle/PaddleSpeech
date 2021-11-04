@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Reference espnet Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
 import json
 
 import numpy as np
@@ -18,7 +19,6 @@ import numpy as np
 __all__ = ["label_smoothing_dist"]
 
 
-# TODO(takaaki-hori): add different smoothing methods
 def label_smoothing_dist(odim, lsm_type, transcript=None, blank=0):
     """Obtain label distribution for loss smoothing.
 

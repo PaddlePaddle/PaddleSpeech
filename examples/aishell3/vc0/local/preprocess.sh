@@ -10,7 +10,7 @@ ge2e_ckpt_path=$4
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     python3 ${BIN_DIR}/../../ge2e/inference.py \
-        --input=${input} \
+        --input=${input}/wav \
         --output=${preprocess_path}/embed \
         --checkpoint_path=${ge2e_ckpt_path}
 fi

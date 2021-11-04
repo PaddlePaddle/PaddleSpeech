@@ -140,8 +140,9 @@ def main():
         "--tacotron2_params_path", type=str, help="tacotron2 params path.")
     parser.add_argument(
         "--waveflow_params_path", type=str, help="waveflow params path.")
+
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use.")
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
 
     parser.add_argument(
         "--input-dir",
@@ -151,7 +152,12 @@ def main():
 
     args = parser.parse_args()
 
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     voice_cloning(args)
 

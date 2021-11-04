@@ -55,10 +55,10 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path} 
 Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
-                     [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                     [--device DEVICE] [--nprocs NPROCS] [--verbose VERBOSE]
-                     [--use-relative-path USE_RELATIVE_PATH]
-                     [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
+                [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
+                [--ngpu NGPU] [--verbose VERBOSE]
+                [--use-relative-path USE_RELATIVE_PATH]
+                [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
 
 Train a Speedyspeech model with sigle speaker dataset.
 
@@ -71,8 +71,7 @@ optional arguments:
                         dev data.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
-  --nprocs NPROCS       number of processes.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
   --use-relative-path USE_RELATIVE_PATH
                         whether use relative path in metadata
@@ -85,10 +84,9 @@ optional arguments:
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
-4. `--device` is the type of the device to run the experiment, 'cpu' or 'gpu' are supported.
-5. `--nprocs` is the number of processes to run in parallel, note that nprocs > 1 is only supported when `--device` is 'gpu'.
-6. `--phones-dict` is the path of the phone vocabulary file.
-7. `--tones-dict` is the path of the tone vocabulary file.
+4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+5. `--phones-dict` is the path of the phone vocabulary file.
+6. `--tones-dict` is the path of the tone vocabulary file.
 
 ### Synthesize
 We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
@@ -115,7 +113,7 @@ usage: synthesize.py [-h] [--speedyspeech-config SPEEDYSPEECH_CONFIG]
                      [--pwg-checkpoint PWG_CHECKPOINT] [--pwg-stat PWG_STAT]
                      [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
                      [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--inference-dir INFERENCE_DIR] [--device DEVICE]
+                     [--inference-dir INFERENCE_DIR] [--ngpu NGPU]
                      [--verbose VERBOSE]
 
 Synthesize with speedyspeech & parallel wavegan.
@@ -145,7 +143,7 @@ optional arguments:
                         output dir
   --inference-dir INFERENCE_DIR
                         dir to save inference models
-  --device DEVICE       device type to use
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/synthesize_e2e.py`, which can synthesize waveform from text file.
@@ -161,8 +159,8 @@ usage: synthesize_e2e.py [-h] [--speedyspeech-config SPEEDYSPEECH_CONFIG]
                          [--pwg-stat PWG_STAT] [--text TEXT]
                          [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
                          [--output-dir OUTPUT_DIR]
-                         [--inference-dir INFERENCE_DIR] [--device DEVICE]
-                         [--verbose VERBOSE]
+                         [--inference-dir INFERENCE_DIR] [--verbose VERBOSE]
+                         [--ngpu NGPU]
 
 Synthesize with speedyspeech & parallel wavegan.
 
@@ -190,15 +188,15 @@ optional arguments:
                         output dir
   --inference-dir INFERENCE_DIR
                         dir to save inference models
-  --device DEVICE       device type to use
   --verbose VERBOSE     verbose
+  --ngpu NGPU           if ngpu == 0, use cpu.
 ```
 1. `--speedyspeech-config`, `--speedyspeech-checkpoint`, `--speedyspeech-stat` are arguments for speedyspeech, which correspond to the 3 files in the speedyspeech pretrained model.
 2. `--pwg-config`, `--pwg-checkpoint`, `--pwg-stat` are arguments for parallel wavegan, which correspond to the 3 files in the parallel wavegan pretrained model.
 3. `--text` is the text file, which contains sentences to synthesize.
 4. `--output-dir` is the directory to save synthesized audio files.
 5. `--inference-dir` is the directory to save exported model, which can be used with paddle infernece.
-6. `--device` is the type of device to run synthesis, 'cpu' and 'gpu' are supported. 'gpu' is recommended for faster synthesis.
+6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 7. `--phones-dict` is the path of the phone vocabulary file.
 8. `--tones-dict` is the path of the tone vocabulary file.
 
@@ -237,7 +235,6 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --text=${BIN_DIR}/../sentences.txt \
   --output-dir=exp/default/test_e2e \
   --inference-dir=exp/default/inference \
-  --device="gpu" \
   --phones-dict=speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt \
   --tones-dict=speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
 ```

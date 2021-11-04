@@ -10,5 +10,5 @@ python3 ${BIN_DIR}/inference.py \
     --input=${infer_input} \
     --output=${infer_output} \
     --checkpoint_path=${train_output_path}/checkpoints/${ckpt_name} \
-    --device="gpu"
+    --ngpu=1
 

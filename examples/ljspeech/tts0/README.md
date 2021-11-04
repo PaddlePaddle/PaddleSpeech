@@ -30,8 +30,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 Here's the complete help message.
 ```text
 usage: train.py [-h] [--config FILE] [--data DATA_DIR] [--output OUTPUT_DIR]
-                [--checkpoint_path CHECKPOINT_PATH] [--device {cpu,gpu}]
-                [--nprocs NPROCS] [--opts ...]
+                [--checkpoint_path CHECKPOINT_PATH] [--ngpu NGPU] [--opts ...]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -41,16 +40,15 @@ optional arguments:
   --output OUTPUT_DIR   path to save checkpoint and logs.
   --checkpoint_path CHECKPOINT_PATH
                         path of the checkpoint to load
-  --device {cpu,gpu}    device type to use, cpu and gpu are supported.
-  --nprocs NPROCS       number of parallel processes to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --opts ...            options to overwrite --config file and the default
                         config, passing in KEY VALUE pairs
 ```
 
-If you want to train on CPU, just set ``--device=cpu``.
-If you want to train on multiple GPUs, just set ``--nprocs`` as num of GPU.
-By default, training will be resumed from the latest checkpoint in ``--output``, if you want to start a new training, please use a new ``${OUTPUTPATH}`` with no checkpoint.
-And if you want to resume from an other existing model, you should set ``checkpoint_path`` to be the checkpoint path you want to load.
+If you want to train on CPU, just set `--ngpu=0`.
+If you want to train on multiple GPUs, just set `--ngpu` as num of GPU.
+By default, training will be resumed from the latest checkpoint in `--output`, if you want to start a new training, please use a new `${OUTPUTPATH}` with no checkpoint.
+And if you want to resume from an other existing model, you should set `checkpoint_path` to be the checkpoint path you want to load.
 **Note: The checkpoint path cannot contain the file extension.**
 
 ### Synthesize
@@ -60,7 +58,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${train_output_path} ${ckpt_n
 ```
 ```text
 usage: synthesize.py [-h] [--config FILE] [--checkpoint_path CHECKPOINT_PATH]
-                     [--input INPUT] [--output OUTPUT] [--device DEVICE]
+                     [--input INPUT] [--output OUTPUT] [--ngpu NGPU]
                      [--opts ...] [-v]
 
 generate mel spectrogram with TransformerTTS.
@@ -72,7 +70,7 @@ optional arguments:
                         path of the checkpoint to load.
   --input INPUT         path of the text sentences
   --output OUTPUT       path to save outputs
-  --device DEVICE       device type to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --opts ...            options to overwrite --config file and the default
                         config, passing in KEY VALUE pairs
   -v, --verbose         print msg

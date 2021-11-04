@@ -31,3 +31,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thank 
 * [chainer](https://github.com/chainer/chainer/blob/master/LICENSE)
 - MIT License
 - Updater, Trainer and more utils.
+
+* [librosa](https://github.com/librosa/librosa/blob/main/LICENSE.md)
+- ISC License
+- Audio feature

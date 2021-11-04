@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Reference espnet Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
 """Transformation module."""
 import copy
 import io
@@ -23,8 +24,6 @@ import yaml
 
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-# TODO(karita): inherit TransformInterface
-# TODO(karita): register cmd arguments in asr_train.py
 import_alias = dict(
     identity="paddlespeech.s2t.transform.transform_interface:Identity",
     time_warp="paddlespeech.s2t.transform.spec_augment:TimeWarp",

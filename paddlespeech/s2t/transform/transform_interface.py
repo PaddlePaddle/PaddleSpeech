@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# TODO(karita): add this to all the transform impl.
+# Reference espnet Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+
 class TransformInterface:
     """Transform Interface"""
 

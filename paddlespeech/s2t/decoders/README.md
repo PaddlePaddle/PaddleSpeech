@@ -1,4 +1,5 @@
 # Decoders
+we borrow a lot of code from Espnet Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
 ## Reference
 ### CTC Prefix Beam Search

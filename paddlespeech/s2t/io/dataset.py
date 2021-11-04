@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from espnet(https://github.com/espnet/espnet)
+# Modified from wenet(https://github.com/wenet-e2e/wenet)
 from typing import Optional
 
 from paddle.io import Dataset

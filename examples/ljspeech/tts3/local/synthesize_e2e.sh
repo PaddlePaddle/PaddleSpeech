@@ -15,5 +15,4 @@ python3 ${BIN_DIR}/synthesize_e2e_en.py \
   --pwg-stat=pwg_ljspeech_ckpt_0.5/pwg_stats.npy \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output-dir=${train_output_path}/test_e2e \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt

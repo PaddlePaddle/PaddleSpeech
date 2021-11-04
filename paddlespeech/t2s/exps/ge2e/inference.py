@@ -51,7 +51,13 @@ def _process_utterance(ifpath: Path,
 
 
 def main(config, args):
-    paddle.set_device(args.device)
+
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     # load model
     model = LSTMSpeakerEncoder(config.data.n_mels, config.model.num_layers,
@@ -112,19 +118,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--checkpoint_path", type=str, help="path of the checkpoint to load")
 
-    # running
-    parser.add_argument(
-        "--device",
-        type=str,
-        choices=["cpu", "gpu"],
-        help="device type to use, cpu and gpu are supported.")
-
     # overwrite extra config and default config
     parser.add_argument(
         "--opts",
         nargs=argparse.REMAINDER,
         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs"
     )
+
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
 
     args = parser.parse_args()
     if args.config:

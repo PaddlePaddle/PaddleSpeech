@@ -9,7 +9,7 @@ python ${BIN_DIR}/train.py \
     --dev-metadata=dump/dev/norm/metadata.jsonl \
     --config=${config_path} \
     --output-dir=${train_output_path} \
-    --nprocs=2 \
+    --ngpu=1 \
     --phones-dict=dump/phone_id_map.txt \
     --tones-dict=dump/tone_id_map.txt \
     --use-relative-path=True

@@ -8,4 +8,4 @@ python3 ${BIN_DIR}/synthesize.py \
     --checkpoint_path=${train_output_path}/checkpoints/${ckpt_name} \
     --input=${BIN_DIR}/../sentences_en.txt \
     --output=${train_output_path}/test
-    --device=gpu
+    --ngpu=1

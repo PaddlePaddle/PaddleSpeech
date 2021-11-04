@@ -16,5 +16,4 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --text=${BIN_DIR}/../sentences.txt \
   --output-dir=${train_output_path}/test_e2e \
   --inference-dir=${train_output_path}/inference \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt

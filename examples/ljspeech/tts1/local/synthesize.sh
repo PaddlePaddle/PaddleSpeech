@@ -14,5 +14,4 @@ python3 ${BIN_DIR}/synthesize.py \
   --waveflow-checkpoint=waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams \
   --test-metadata=dump/test/norm/metadata.jsonl \
   --output-dir=${train_output_path}/test \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt

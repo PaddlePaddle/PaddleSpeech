@@ -15,6 +15,5 @@ python3 ${BIN_DIR}/synthesize.py \
   --pwg-stat=pwg_vctk_ckpt_0.5/pwg_stats.npy \
   --test-metadata=dump/test/norm/metadata.jsonl \
   --output-dir=${train_output_path}/test \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt \
   --speaker-dict=dump/speaker_id_map.txt

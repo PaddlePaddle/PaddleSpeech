@@ -61,8 +61,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--device DEVICE] [--nprocs NPROCS] [--verbose VERBOSE]
-                [--phones-dict PHONES_DICT] [--speaker-dict SPEAKER_DICT]
+                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
+                [--speaker-dict SPEAKER_DICT]
 
 Train a FastSpeech2 model.
 
@@ -75,8 +75,7 @@ optional arguments:
                         dev data.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
-  --nprocs NPROCS       number of processes.
+  --ngpu NGPU           if ngpu=0, use cpu.
   --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
@@ -86,9 +85,7 @@ optional arguments:
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
-4. `--device` is the type of the device to run the experiment, 'cpu' or 'gpu' are supported.
-5. `--nprocs` is the number of processes to run in parallel, note that nprocs > 1 is only supported when `--device` is 'gpu'.
-6. `--phones-dict` is the path of the phone vocabulary file.
+4. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesize
 We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1) as the neural vocoder.
@@ -116,7 +113,7 @@ usage: synthesize.py [-h] [--fastspeech2-config FASTSPEECH2_CONFIG]
                      [--pwg-checkpoint PWG_CHECKPOINT] [--pwg-stat PWG_STAT]
                      [--phones-dict PHONES_DICT] [--speaker-dict SPEAKER_DICT]
                      [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--device DEVICE] [--verbose VERBOSE]
+                     [--ngpu NGPU] [--verbose VERBOSE]
 
 Synthesize with fastspeech2 & parallel wavegan.
 
@@ -143,7 +140,7 @@ optional arguments:
                         test metadata.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/multi_spk_synthesize_e2e_en.py`, which can synthesize waveform from text file.
@@ -161,7 +158,7 @@ usage: multi_spk_synthesize_e2e_en.py [-h]
                                       [--phones-dict PHONES_DICT]
                                       [--speaker-dict SPEAKER_DICT]
                                       [--text TEXT] [--output-dir OUTPUT_DIR]
-                                      [--device DEVICE] [--verbose VERBOSE]
+                                      [--ngpu NGPU] [--verbose VERBOSE]
 
 Synthesize with fastspeech2 & parallel wavegan.
 
@@ -187,7 +184,7 @@ optional arguments:
   --text TEXT           text to synthesize, a 'utt_id sentence' pair per line.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 ```
 
@@ -196,7 +193,7 @@ optional arguments:
 3. `--test-metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 4. `--text` is the text file, which contains sentences to synthesize.
 5. `--output-dir` is the directory to save synthesized audio files.
-6. `--device is` the type of device to run synthesis, 'cpu' and 'gpu' are supported. 'gpu' is recommended for faster synthesis.
+6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios. [fastspeech2_nosil_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_vctk_ckpt_0.5.zip)
@@ -218,14 +215,13 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/multi_spk_synthesize_e2e_en.py \
   --fastspeech2-config=fastspeech2_nosil_vctk_ckpt_0.5/default.yaml \
-  --fastspeech2-checkpoint=fastspeech2_nosil_vctk_ckpt_0.5/snapshot_iter_96400.pdz \
+  --fastspeech2-checkpoint=fastspeech2_nosil_vctk_ckpt_0.5/snapshot_iter_66200.pdz \
   --fastspeech2-stat=fastspeech2_nosil_vctk_ckpt_0.5/speech_stats.npy \
   --pwg-config=pwg_vctk_ckpt_0.5/pwg_default.yaml \
   --pwg-checkpoint=pwg_vctk_ckpt_0.5/pwg_snapshot_iter_1000000.pdz \
   --pwg-stat=pwg_vctk_ckpt_0.5/pwg_stats.npy \
-  --text=${BIN_DIR}/../sentences.txt \
+  --text=${BIN_DIR}/../sentences_en.txt \
   --output-dir=exp/default/test_e2e \
-  --device="gpu" \
   --phones-dict=fastspeech2_nosil_vctk_ckpt_0.5/phone_id_map.txt \
   --speaker-dict=fastspeech2_nosil_vctk_ckpt_0.5/speaker_id_map.txt
 ```

@@ -25,7 +25,13 @@ from paddlespeech.t2s.utils import layer_tools
 
 
 def main(config, args):
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
+
     model = ConditionalWaveFlow.from_pretrained(config, args.checkpoint_path)
     layer_tools.recursively_remove_weight_norm(model)
     model.eval()
@@ -60,7 +66,7 @@ if __name__ == "__main__":
         help="path of directory containing mel spectrogram (in .npy format)")
     parser.add_argument("--output", type=str, help="path to save outputs")
     parser.add_argument(
-        "--device", type=str, default="cpu", help="device type to use.")
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
     parser.add_argument(
         "--opts",
         nargs=argparse.REMAINDER,

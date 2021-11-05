@@ -35,7 +35,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> Input Audio  </th>
-      <th width="320"> Recognition Result  </th>
+      <th width="500"> Recognition Result  </th>
     </tr>
   </thead>
   <tbody>
@@ -331,7 +331,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
 
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
-PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/asr/reference.md) for more information.
+PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 
 # Citation
 To cite PaddleSpeech for research, please use the following format.

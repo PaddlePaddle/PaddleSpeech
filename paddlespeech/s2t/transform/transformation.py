@@ -46,8 +46,7 @@ import_alias = dict(
     wpe="paddlespeech.s2t.transform.wpe:WPE",
     channel_selector="paddlespeech.s2t.transform.channel_selector:ChannelSelector",
     fbank_kaldi="paddlespeech.s2t.transform.spectrogram:LogMelSpectrogramKaldi",
-    cmvn_json="paddlespeech.s2t.transform.cmvn:GlobalCMVN"
-)
+    cmvn_json="paddlespeech.s2t.transform.cmvn:GlobalCMVN")
 
 
 class Transformation():

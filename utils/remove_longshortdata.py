@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """remove longshort data from manifest"""
-import logging
 import argparse
+import logging
+
 import jsonlines
 
 from paddlespeech.s2t.utils.cli_utils import get_commandline_args
@@ -23,17 +24,19 @@ def get_parser():
     parser.add_argument(
         "--verbose", "-V", default=0, type=int, help="Verbose option")
     parser.add_argument(
-        "--iaxis", default=0, type=int, help="multi inputs index, 0 is the first")
+        "--iaxis",
+        default=0,
+        type=int,
+        help="multi inputs index, 0 is the first")
     parser.add_argument(
-        "--oaxis", default=0, type=int, help="multi outputs index, 0 is the first")
-    parser.add_argument(
-        "--maxframes", default=2000, type=int, help="maxframes")
-    parser.add_argument(
-        "--minframes", default=10, type=int, help="minframes")
-    parser.add_argument(
-        "--maxchars", default=200, type=int, help="max tokens")
-    parser.add_argument(
-        "--minchars", default=0, type=int, help="min tokens")
+        "--oaxis",
+        default=0,
+        type=int,
+        help="multi outputs index, 0 is the first")
+    parser.add_argument("--maxframes", default=2000, type=int, help="maxframes")
+    parser.add_argument("--minframes", default=10, type=int, help="minframes")
+    parser.add_argument("--maxchars", default=200, type=int, help="max tokens")
+    parser.add_argument("--minchars", default=0, type=int, help="min tokens")
     parser.add_argument(
         "--stride_ms", default=10, type=int, help="stride in ms unit.")
     parser.add_argument(
@@ -54,7 +57,7 @@ def filter_input(args, line):
         nframe = tmp['shape'][0] * 1000 / args.stride_ms
     else:
         nframe = tmp['shape'][0]
-   
+
     if nframe < args.minframes or nframe > args.maxframes:
         return True
     else:
@@ -67,7 +70,7 @@ def filter_output(args, line):
         return True
     else:
         return False
-    
+
 
 def main():
     args = get_parser().parse_args()
@@ -78,15 +81,15 @@ def main():
     else:
         logging.basicConfig(level=logging.WARN, format=logfmt)
     logging.info(get_commandline_args())
-    
+
     with jsonlines.open(args.rspecifier, 'r') as reader:
         lines = list(reader)
     logging.info(f"Example: {len(lines)}")
     feat = lines[0]['input'][args.iaxis]['feat']
-    args.soud  = False
+    args.soud = False
     if feat.split('.')[-1] not in 'ark, scp':
         args.sound = True
-    
+
     count = 0
     filter = 0
     with jsonlines.open(args.wspecifier_or_wxfilename, 'w') as writer:
@@ -97,6 +100,7 @@ def main():
             writer.write(line)
             count += 1
     logging.info(f"Example after filter: {count}\{filter}")
+
 
 if __name__ == '__main__':
     main()

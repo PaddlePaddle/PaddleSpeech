@@ -35,21 +35,21 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> Input Audio  </th>
-      <th> Recognition Result  </th>
+      <th width="320"> Recognition Result  </th>
     </tr>
   </thead>
   <tbody>
    <tr>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="320 style="max-width: 100%;"></a><br>
+            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
       <td >I knocked at the door on the ancient side of the building.</td>
     </tr>
     <tr>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="320" style="max-width: 100%;"></a><br>
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>

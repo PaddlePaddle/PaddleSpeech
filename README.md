@@ -87,9 +87,6 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-For more synthesized audios, please refer to [PaddleSpeech Text-To-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html).
-
-
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
 - **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
@@ -97,8 +94,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation, Automatic Speech Recognition, Text-To-Speech Synthesis, Voice Cloning, etc.
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
   - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
-
-
 
 Please refer to [our PaddleSpeech demo page](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) for more examples.
 
@@ -123,7 +118,6 @@ The base environment in this page is
 If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/installation.md) documents for all the alternatives.
 
 # Quick Start
-> Note: the current links to `English Speech-To-Text` and `English Text-To-Speech` are not valid.
 
 Just a quick test of our functions: [English Speech-To-Text]() and [English Text-To-Speech]() by typing message or upload your own audio file.
 
@@ -179,7 +173,7 @@ If you want to try more functions like training and tuning, please see [Speech-T
 
 # Models List
 
-PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_model.md) with available pretrained models.
+PaddleSpeech supports a series of most popular models, summarized in released models [Speech-To-Text](./docs/source/asr/released_model.md)/[Text-To-Speech](./docs/source/tts/released_models.md) with available pretrained models.
 
 Speech-To-Text module contains *Acoustic Model* and *Language Model*, with the following details:
 
@@ -342,12 +336,10 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
   - [Advanced Usage](./docs/source/tts/advanced_usage.md)
   - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
   - [GAN Vocoders](./docs/source/tts/gan_vocoder.md)
-  - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet]()
+  - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
 - Released Models
   - [Speech-To-Text Models](./docs/source/released_model.md#speech-to-text-models)
   - [Text-To-Speech Models](./docs/source/released_model.md#text-to-speech-models)
-- Acknowledgement
-  - [Reference](./docs/source/asr/reference.md)
 
 # License and Acknowledgement
 

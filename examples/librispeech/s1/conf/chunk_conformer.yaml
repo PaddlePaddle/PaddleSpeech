@@ -15,7 +15,7 @@ collator:
   unit_type: 'spm'
   spm_model_prefix: 'data/bpe_unigram_5000'
   mean_std_filepath: ""
-  augmentation_config: conf/augmentation.json
+  augmentation_config: conf/preprocess.yaml
   batch_size: 16
   raw_wav: True  # use raw_wav or kaldi feature
   spectrum_type: fbank #linear, mfcc, fbank
@@ -38,7 +38,7 @@ collator:
 
 # network architecture
 model:
-    cmvn_file: "data/mean_std.json"
+    cmvn_file: 
     cmvn_file_type: "json"
     # encoder related
     encoder: conformer

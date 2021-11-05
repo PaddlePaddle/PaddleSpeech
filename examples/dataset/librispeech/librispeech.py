@@ -78,7 +78,7 @@ def create_manifest(data_dir, manifest_path):
     print("Creating manifest %s ..." % manifest_path)
     json_lines = []
     total_sec = 0.0
-    total_text = 0.0
+    total_char = 0.0
     total_num = 0
 
     for subfolder, _, filelist in sorted(os.walk(data_dir)):
@@ -89,7 +89,7 @@ def create_manifest(data_dir, manifest_path):
             text_filepath = os.path.join(subfolder, text_filelist[0])
             for line in io.open(text_filepath, encoding="utf8"):
                 segments = line.strip().split()
-                n_token = len(segments[1:])
+                nchars = len(segments[1:])
                 text = ' '.join(segments[1:]).lower()
 
                 audio_filepath = os.path.abspath(
@@ -110,7 +110,7 @@ def create_manifest(data_dir, manifest_path):
                     }))
 
                 total_sec += duration
-                total_text += n_token
+                total_char += nchars
                 total_num += 1
 
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
@@ -125,8 +125,8 @@ def create_manifest(data_dir, manifest_path):
         print(f"{subset}:", file=f)
         print(f"{total_num} utts", file=f)
         print(f"{total_sec / (60*60)} h", file=f)
-        print(f"{total_text} text", file=f)
-        print(f"{total_text / total_sec} text/sec", file=f)
+        print(f"{total_char} char", file=f)
+        print(f"{total_char / total_sec} char/sec", file=f)
         print(f"{total_sec / total_num} sec/utt", file=f)
 
 

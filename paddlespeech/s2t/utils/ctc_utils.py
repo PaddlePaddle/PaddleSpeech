@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
-from typing import List
 from pathlib import Path
+from typing import List
+
 import numpy as np
 import paddle
 

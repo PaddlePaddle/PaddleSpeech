@@ -13,7 +13,7 @@ bc flac jq vim tig tree pkg-config libsndfile1 libflac-dev libvorbis-dev libboos
 ```  
 build-essential cmake libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libeigen3-dev zlib1g-dev libbz2-dev liblzma-dev gcc-5 g++-5
 ```
-  
+
 ### The dependencies of sox:
 
 ```
@@ -25,7 +25,7 @@ libvorbis-dev libmp3lame-dev libmad-ocaml-dev
 
 ```  
 kenlm
-sox 
+sox
 mfa
 openblas
 kaldi

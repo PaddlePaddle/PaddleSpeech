@@ -14,5 +14,4 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --waveflow-checkpoint=waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output-dir=${train_output_path}/test_e2e \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt

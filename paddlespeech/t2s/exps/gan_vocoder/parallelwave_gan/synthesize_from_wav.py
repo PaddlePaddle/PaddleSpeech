@@ -92,12 +92,17 @@ def main():
     parser.add_argument("--input-dir", type=str, help="input dir of wavs.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device to run.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
 
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     with open(args.config) as f:
         config = CfgNode(yaml.safe_load(f))

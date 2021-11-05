@@ -50,7 +50,7 @@ def train_sp(args, config):
     # decides device type and whether to run in parallel
     # setup running environment correctly
     world_size = paddle.distributed.get_world_size()
-    if not paddle.is_compiled_with_cuda():
+    if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
         paddle.set_device("cpu")
     else:
         paddle.set_device("gpu")
@@ -238,14 +238,10 @@ def main():
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use.")
-    parser.add_argument(
-        "--nprocs", type=int, default=1, help="number of processes.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
-    if args.device == "cpu" and args.nprocs > 1:
-        raise RuntimeError("Multiprocess training on CPU is not supported.")
 
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
@@ -259,8 +255,8 @@ def main():
     )
 
     # dispatch
-    if args.nprocs > 1:
-        dist.spawn(train_sp, (args, config), nprocs=args.nprocs)
+    if args.ngpu > 1:
+        dist.spawn(train_sp, (args, config), nprocs=args.ngpu)
     else:
         train_sp(args, config)
 

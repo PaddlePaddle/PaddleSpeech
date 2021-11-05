@@ -155,12 +155,17 @@ def main():
     parser.add_argument(
         "--inference-dir", type=str, help="dir to save inference models")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose")
 
     args, _ = parser.parse_known_args()
 
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     with open(args.speedyspeech_config) as f:
         speedyspeech_config = CfgNode(yaml.safe_load(f))

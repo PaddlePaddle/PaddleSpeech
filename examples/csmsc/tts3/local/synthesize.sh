@@ -15,5 +15,4 @@ python3 ${BIN_DIR}/synthesize.py \
   --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
   --test-metadata=dump/test/norm/metadata.jsonl \
   --output-dir=${train_output_path}/test \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt

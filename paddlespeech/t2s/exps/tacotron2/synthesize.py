@@ -25,7 +25,12 @@ from paddlespeech.t2s.utils import display
 
 
 def main(config, args):
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     # model
     frontend = EnglishCharacter()
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("--input", type=str, help="path of the text sentences")
     parser.add_argument("--output", type=str, help="path to save outputs")
     parser.add_argument(
-        "--device", type=str, default="cpu", help="device type to use.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--opts",
         nargs=argparse.REMAINDER,

@@ -42,14 +42,14 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
    <tr>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+            <img align="center" src="./docs/images/audio_icon.png" width="320 style="max-width: 100%;"></a><br>
       </td>
       <td >I knocked at the door on the ancient side of the building.</td>
     </tr>
     <tr>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+            <img align="center" src="./docs/images/audio_icon.png" width="320" style="max-width: 100%;"></a><br>
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>
@@ -113,7 +113,7 @@ The base environment in this page is
 - python>=3.7
 - paddlepaddle==2.1.2
 
-If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/installation.md) documents for all the alternatives.
+If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/source/install.md) documents for all the alternatives.
 
 # Quick Start
 
@@ -165,7 +165,7 @@ If you want to try more functions like training and tuning, please see [Speech-T
 
 # Models List
 
-PaddleSpeech supports a series of most popular models, summarized in released models [Speech-To-Text](./docs/source/asr/released_model.md)/[Text-To-Speech](./docs/source/tts/released_models.md) with available pretrained models.
+PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_models.md) with available pretrained models.
 
 Speech-To-Text module contains *Acoustic Model* and *Language Model*, with the following details:
 

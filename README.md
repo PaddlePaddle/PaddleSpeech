@@ -35,7 +35,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> Input Audio  </th>
-      <th width="500"> Recognition Result  </th>
+      <th width="550"> Recognition Result  </th>
     </tr>
   </thead>
   <tbody>

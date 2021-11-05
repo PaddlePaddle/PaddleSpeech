@@ -16,7 +16,7 @@ import librosa
 import numpy
 import scipy
 import soundfile
-
+import soxbindings as sox
 from paddlespeech.s2t.io.reader import SoundHDF5File
 
 
@@ -82,7 +82,6 @@ class SpeedPerturbation():
     def __call__(self, x, uttid=None, train=True):
         if not train:
             return x
-
         x = x.astype(numpy.float32)
         if self.accept_uttid:
             ratio = self.utt2ratio[uttid]
@@ -105,6 +104,109 @@ class SpeedPerturbation():
                 ]
                 y = numpy.pad(
                     y, pad_width=pad_width, constant_values=0, mode="constant")
+        return y
+
+
+class SpeedPerturbationSox():
+    """SpeedPerturbationSox
+
+    The speed perturbation in kaldi uses sox-speed instead of sox-tempo,
+    and sox-speed just to resample the input,
+    i.e pitch and tempo are changed both.
+
+    To speed up or slow down the sound of a file, 
+    use speed to modify the pitch and the duration of the file. 
+    This raises the speed and reduces the time. 
+    The default factor is 1.0 which makes no change to the audio. 
+    2.0 doubles speed, thus time length is cut by a half and pitch is one interval higher.
+
+    "Why use speed option instead of tempo -s in SoX for speed perturbation"
+    https://groups.google.com/forum/#!topic/kaldi-help/8OOG7eE4sZ8
+
+    tempo option:
+    sox -t wav input.wav -t wav output.tempo0.9.wav tempo -s 0.9
+
+    speed option:
+    sox -t wav input.wav -t wav output.speed0.9.wav speed 0.9
+
+    If we use speed option like above, the pitch of audio also will be changed, 
+    but the tempo option does not change the pitch.
+    """
+
+    def __init__(
+            self,
+            lower=0.9,
+            upper=1.1,
+            utt2ratio=None,
+            keep_length=True,
+            sr=16000,
+            seed=None, ):
+        self.sr = sr
+        self.keep_length = keep_length
+        self.state = numpy.random.RandomState(seed)
+
+        if utt2ratio is not None:
+            self.utt2ratio = {}
+            # Use the scheduled ratio for each utterances
+            self.utt2ratio_file = utt2ratio
+            self.lower = None
+            self.upper = None
+            self.accept_uttid = True
+
+            with open(utt2ratio, "r") as f:
+                for line in f:
+                    utt, ratio = line.rstrip().split(None, 1)
+                    ratio = float(ratio)
+                    self.utt2ratio[utt] = ratio
+        else:
+            self.utt2ratio = None
+            # The ratio is given on runtime randomly
+            self.lower = lower
+            self.upper = upper
+
+    def __repr__(self):
+        if self.utt2ratio is None:
+            return f"""{self.__class__.__name__}(
+                lower={self.lower}, 
+                upper={self.upper}, 
+                keep_length={self.keep_length},
+                sample_rate={self.sr})"""
+        else:
+            return f"""{self.__class__.__name__}(
+                utt2ratio={self.utt2ratio_file},
+                sample_rate={self.sr})"""
+
+    def __call__(self, x, uttid=None, train=True):
+        if not train:
+            return x
+
+        x = x.astype(numpy.float32)
+        if self.accept_uttid:
+            ratio = self.utt2ratio[uttid]
+        else:
+            ratio = self.state.uniform(self.lower, self.upper)
+
+        tfm = sox.Transformer()
+        tfm.set_globals(multithread=False)
+        tfm.speed(ratio)
+        y = tfm.build_array(input_array=x, sample_rate_in=self.sr)
+
+        if self.keep_length:
+            diff = abs(len(x) - len(y))
+            if len(y) > len(x):
+                # Truncate noise
+                y = y[diff // 2:-((diff + 1) // 2)]
+            elif len(y) < len(x):
+                # Assume the time-axis is the first: (Time, Channel)
+                pad_width = [(diff // 2, (diff + 1) // 2)] + [
+                    (0, 0) for _ in range(y.ndim - 1)
+                ]
+                y = numpy.pad(
+                    y, pad_width=pad_width, constant_values=0, mode="constant")
+
+        if y.ndim == 2 and x.ndim == 1:
+            # (T, C) -> (T)
+            y = y.sequence(1)
         return y
 
 

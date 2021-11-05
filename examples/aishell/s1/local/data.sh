@@ -33,8 +33,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --spectrum_type="fbank" \
     --feat_dim=80 \
     --delta_delta=false \
-    --stride_ms=10.0 \
-    --window_ms=25.0 \
+    --stride_ms=10 \
+    --window_ms=25 \
     --sample_rate=16000 \
     --use_dB_normalization=False \
     --num_samples=-1 \

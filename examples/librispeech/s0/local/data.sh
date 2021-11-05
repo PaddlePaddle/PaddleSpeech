@@ -50,8 +50,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --spectrum_type="linear" \
     --delta_delta=false \
     --sample_rate=16000 \
-    --stride_ms=10.0 \
-    --window_ms=20.0 \
+    --stride_ms=10 \
+    --window_ms=20 \
     --use_dB_normalization=True \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"

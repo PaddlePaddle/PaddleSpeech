@@ -38,8 +38,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --feat_dim=80 \
     --delta_delta=false \
     --sample_rate=16000 \
-    --stride_ms=10.0 \
-    --window_ms=25.0 \
+    --stride_ms=10 \
+    --window_ms=25 \
     --use_dB_normalization=False \
     --num_workers=2 \
     --output_path="data/mean_std.json"

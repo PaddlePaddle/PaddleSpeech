@@ -32,8 +32,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --manifest_path="data/manifest.train.raw" \
     --spectrum_type="linear" \
     --delta_delta=false \
-    --stride_ms=10.0 \
-    --window_ms=20.0 \
+    --stride_ms=10 \
+    --window_ms=20 \
     --sample_rate=16000 \
     --use_dB_normalization=True \
     --num_samples=2000 \

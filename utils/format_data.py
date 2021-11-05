@@ -122,7 +122,7 @@ def main():
             fout.write(json.dumps(output_json) + '\n')
             count += 1
 
-    print(f"Examples number: {count}")
+    print(f"{args.manifest_paths} Examples number: {count}")
     fout.close()
 
 

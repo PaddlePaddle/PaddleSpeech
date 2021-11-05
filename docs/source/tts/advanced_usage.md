@@ -1,6 +1,5 @@
-
 # Advanced Usage
-This sections covers how to extend parakeet by implementing your own models and experiments. Guidelines on implementation are also elaborated.
+This sections covers how to extend TTS by implementing your own models and experiments. Guidelines on implementation are also elaborated.
 
 For the general deep learning experiment, there are several parts to deal with:
 1. Preprocess the data according to the needs of the model, and iterate the dataset by batch.
@@ -8,7 +7,7 @@ For the general deep learning experiment, there are several parts to deal with:
 3. Write out the training process (generally including forward / backward calculation, parameter update, log recording, visualization, periodic evaluation, etc.).
 5. Configure and run the experiment.
 
-## Parakeet's Model Components
+## PaddleSpeech TTS's Model Components
 In order to balance the reusability and function of models, we divide models into several types according to its characteristics.
 
 For the commonly used modules that can be used as part of other larger models, we try to implement them as simple and universal as possible, because they will be reused. Modules with trainable parameters are generally implemented as subclasses of `paddle.nn.Layer`. Modules without trainable parameters can be directly implemented as a function, and its input and output are `paddle.Tensor`.
@@ -68,11 +67,11 @@ There are two common ways to define a model which consists of several modules.
     ```
     When a model is a complicated and made up of several components, each of which has a separate functionality, and can be replaced by other components with the same functionality, we prefer to define it in this way.
 
-In the directory structure of Parakeet, modules with high reusability are placed in `parakeet.modules`, but models for specific tasks are placed in `parakeet.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules, and place them in appropriate directories.
+In the directory structure of PaddleSpeech TTS, modules with high reusability are placed in `paddlespeech.t2s.modules`, but models for specific tasks are placed in `paddlespeech.t2s.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules, and place them in appropriate directories.
 
-## Parakeet's Data Components
+## PaddleSpeech TTS's Data Components
 Another critical componnet for a deep learning project is data.
-Parakeet uses the following methods for training data:
+PaddleSpeech TTS uses the following methods for training data:
 1. Preprocess the data.
 2. Load the preprocessed data for training.
 
@@ -94,7 +93,7 @@ Then we need to select a format for saving metadata to the hard disk. There are 
 
 Meanwhile, `cache` is added here, and a multi-process Manager is used to share memory between multiple processes. When `num_workers` is used, it is guaranteed that each sub process will not cache a copy.
 
-The implementation of `DataTable` can be found in `parakeet/datasets/data_table.py`.
+The implementation of `DataTable` can be found in `paddlespeech/t2s/datasets/data_table.py`.
 ```python
 class DataTable(Dataset):
     """Dataset to load and convert data for general purpose.
@@ -154,7 +153,7 @@ def _convert(self, meta_datum: Dict[str, Any]) -> Dict[str, Any]:
     return example
 ```
 
-## Parakeet's Training Components
+## PaddleSpeech TTS's Training Components
 A typical training process includes the following processes:
 1. Iterate the dataset.
 2. Process batch data.
@@ -164,7 +163,7 @@ A typical training process includes the following processes:
 6. Write logs, visualize, and in some cases save necessary intermediate results.
 7. Save the state of the model and optimizer.
 
-Here, we mainly introduce the training related components of Parakeet and why we designed it like this.
+Here, we mainly introduce the training related components of TTS in Pa and why we designed it like this.
 ### Global Repoter
 When training and modifying Deep Learning models，logging is often needed, and it has even become the key to model debugging and modifying. We usually use various visualization tools，such as ,  `visualdl` in `paddle`, `tensorboard` in `tensorflow`  and `vidsom`, `wnb` ,etc. Besides, `logging` and `print` are usuaally used for different purpose.
 
@@ -180,9 +179,9 @@ We think this method is a little ugly. We prefer to return the necessary informa
 
 It takes advantage of the globality of Python's module level variables and the effect of context manager.
 
-There is a module level variable in  `parakeet/training/reporter.py`  `OBSERVATIONS`，which is  a `Dict` to store key-value.
+There is a module level variable in  `paddlespeech/t2s/training/reporter.py`  `OBSERVATIONS`，which is  a `Dict` to store key-value.
 ```python
-# parakeet/training/reporter.py
+# paddlespeech/t2s/training/reporter.py
 
 @contextlib.contextmanager
 def scope(observations):
@@ -245,7 +244,7 @@ def test_reporter_scope():
 
 In this way, when we write  modular components, we can directly call `report`.  The caller will decide where to report as long as it's ready for `OBSERVATION`, then it opens a `scope` and calls the component within this `scope`.
 
- The `Trainer` in Parakeet report the information in this way.
+ The `Trainer` in PaddleSpeech TTS report the information in this way.
 ```python
 while True:
     self.observation = {}
@@ -269,7 +268,7 @@ We made an abstraction for these intermediate processes, that is, `Updater`, whi
 ### Visualizer
 Because we choose observation as the communication mode, we can simply write the things in observation into `visualizer`.
 
-## Parakeet's Configuration Components
+## PaddleSpeech TTS's Configuration Components
 Deep learning experiments often have many options to configure. These configurations can be roughly divided into several categories.
 1. Data source and data processing mode configuration.
 2. Save path configuration of experimental results.
@@ -293,28 +292,26 @@ The following is the basic  `ArgumentParser`:
 3.  `--output-dir` is the dir to save the training results.（if there are checkpoints in  `checkpoints/` of  `--output-dir` , it's defalut to reload the newest checkpoint to train)
 4. `--device` and  `--nprocs` determine operation modes，`--device` specifies the type of running device, whether to run on `cpu` or `gpu`. `--nprocs` refers to  the number of training processes. If `nprocs` > 1, it means that multi process parallel training is used. (Note: currently only GPU multi card multi process training is supported.)
 
-Developers can refer to the examples in  `Parakeet/examples` to write the default configuration file when adding new experiments.
+Developers can refer to the examples in `examples` to write the default configuration file when adding new experiments.
 
-## Parakeet's Experiment template
+## PaddleSpeech TTS's Experiment template
 
-The experimental codes in Parakeet  are generally organized as follows:
+The experimental codes in PaddleSpeech TTS are generally organized as follows:
 
 ```text
-├── conf
-│    └── default.yaml   (defalut config)
-├── README.md           (help information)  
-├── batch_fn.py         (organize metadata into batch)
-├── config.py           (code to read default config)
-├── *_updater.py        (Updater of  a specific model)
-├── preprocess.py       (data preprocessing code)
-├── preprocess.sh       (script to call data preprocessing.py)
-├── synthesis.py        (synthesis from metadata)
-├── synthesis.sh        (script to call synthesis.py)
-├── synthesis_e2e.py    (synthesis from raw text)
-├── synthesis_e2e.sh    (script to call synthesis_e2e.py)
-├── train.py            (train code)
-└── run.sh              (script to call train.py)
+.
+├──  README.md               (help information)
+├──  conf
+│     └── default.yaml       (defalut config)
+├──  local
+│    ├──  preprocess.sh      (script to call data preprocessing.py)
+│    ├──  synthesize.sh      (script to call synthesis.py)  
+│    ├──  synthesize_e2e.sh  (script to call synthesis_e2e.py)
+│    └──train.sh             (script to call train.py)
+├── path.sh                  (script include paths to be sourced)
+└── run.sh                   (script to call scripts in local)
 ```
+The `*.py` files called by above `*.sh` are located `${BIN_DIR}/`
 
 We add a named argument. `--output-dir` to each training script to specify the output directory. The directory structure is as follows, It's best for developers to follow this specification:
 ```text
@@ -330,4 +327,4 @@ exp/default/
 └── test/                    (output dir of synthesis results)
 ```
 
-You can view the examples we provide in `Parakeet/examples`. These experiments are provided to users as examples which can be run directly. Users are welcome to add new models and experiments and contribute code to Parakeet.
+You can view the examples we provide in `examples`. These experiments are provided to users as examples which can be run directly. Users are welcome to add new models and experiments and contribute code to PaddleSpeech.

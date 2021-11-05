@@ -17,7 +17,7 @@ import argparse
 from pathlib import Path
 from typing import Union
 
-from deepspeech.frontend.utility import read_manifest
+from paddlespeech.s2t.frontend.utility import read_manifest
 
 key_whitelist = set(['feat', 'text', 'syllable', 'phone'])
 filename = {

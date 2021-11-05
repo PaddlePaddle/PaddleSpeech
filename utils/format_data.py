@@ -17,11 +17,11 @@ import argparse
 import functools
 import json
 
-from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
-from deepspeech.frontend.utility import load_cmvn
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.utils.utility import add_arguments
-from deepspeech.utils.utility import print_arguments
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.frontend.utility import load_cmvn
+from paddlespeech.s2t.frontend.utility import read_manifest
+from paddlespeech.s2t.utils.utility import add_arguments
+from paddlespeech.s2t.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

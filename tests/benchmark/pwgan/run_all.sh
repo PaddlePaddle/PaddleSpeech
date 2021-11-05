@@ -10,6 +10,9 @@ cd ../../../
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
       sudo apt-get install libsndfile1
       pip install -e .
+      pushd examples/csmsc/voc1
+      source path.sh
+      popd
 fi
 # 2 拷贝该模型需要数据、预训练模型
 # 下载 baker 数据集到 home 目录下并解压缩到 home 目录下
@@ -22,15 +25,14 @@ fi
 # 数据预处理
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
-      python examples/GANVocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=examples/GANVocoder/parallelwave_gan/baker/conf/default.yaml
+      python paddlespeech/t2s/exps/gan_vocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=examples/csmsc/voc1/conf/default.yaml
       python utils/compute_statistics.py --metadata=dump/train/raw/metadata.jsonl --field-name="feats"
-      python examples/GANVocoder/normalize.py --metadata=dump/train/raw/metadata.jsonl --dumpdir=dump/train/norm --stats=dump/train/feats_stats.npy
-      python examples/GANVocoder/normalize.py --metadata=dump/dev/raw/metadata.jsonl --dumpdir=dump/dev/norm --stats=dump/train/feats_stats.npy
-      python examples/GANVocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
+      python paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/train/raw/metadata.jsonl --dumpdir=dump/train/norm --stats=dump/train/feats_stats.npy
+      python paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/dev/raw/metadata.jsonl --dumpdir=dump/dev/norm --stats=dump/train/feats_stats.npy
+      python paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
 fi
 # 3 批量运行（如不方便批量，1，2需放到单个模型中）
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
- 
       model_mode_list=(pwg)
       fp_item_list=(fp32)
       # 满 bs 是 26
@@ -40,11 +42,11 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
             for bs_item in ${bs_item_list[@]}; do
                   echo "index is speed, 1gpus, begin, ${model_name}"
                   run_mode=sp
-                  CUDA_VISIBLE_DEVICES=0 bash tests/benchmark/PWGAN/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 100 ${model_mode}     #  (5min)
+                  CUDA_VISIBLE_DEVICES=0 bash tests/benchmark/pwgan/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 100 ${model_mode}     #  (5min)
                   sleep 60
                   echo "index is speed, 8gpus, run_mode is multi_process, begin, ${model_name}"
                   run_mode=mp
-                  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash benchmark/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 100 ${model_mode} 
+                  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash tests/benchmark/pwgan/run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 100 ${model_mode} 
                   sleep 60
                   done
             done

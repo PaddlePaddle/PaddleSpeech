@@ -11,6 +11,10 @@
 *.npz
 *.done
 *.whl
+*.egg-info
+build
+
+docs/build/
 
 tools/venv
 tools/kenlm
@@ -20,5 +24,7 @@ tools/montreal-forced-aligner/
 tools/Montreal-Forced-Aligner/
 tools/sctk
 tools/sctk-20159b5/
+tools/kaldi
+tools/OpenBLAS/
 
 *output/

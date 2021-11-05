@@ -11,12 +11,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import contextlib
+import inspect
 import io
 import os
-import re
+import subprocess as sp
+import sys
+from pathlib import Path
 
+from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
+from setuptools.command.develop import develop
+from setuptools.command.install import install
+
+HERE = Path(os.path.abspath(os.path.dirname(__file__)))
+
+
+@contextlib.contextmanager
+def pushd(new_dir):
+    old_dir = os.getcwd()
+    os.chdir(new_dir)
+    print(new_dir)
+    yield
+    os.chdir(old_dir)
+    print(old_dir)
 
 
 def read(*names, **kwargs):
@@ -26,65 +45,138 @@ def read(*names, **kwargs):
         return fp.read()
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+def check_call(cmd: str, shell=False, executable=None):
+    try:
+        sp.check_call(
+            cmd.split(),
+            shell=shell,
+            executable="/bin/bash" if shell else executable)
+    except sp.CalledProcessError as e:
+        print(
+            f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
+            e.output,
+            file=sys.stderr)
+        raise e
 
 
-VERSION = find_version('parakeet', '__init__.py')
-long_description = read("README.md")
+def _remove(files: str):
+    for f in files:
+        f.unlink()
+
+
+def _post_install(install_lib_dir):
+    # tools/make
+    tool_dir = HERE / "tools"
+    _remove(tool_dir.glob("*.done"))
+    with pushd(tool_dir):
+        check_call("make")
+    print("tools install.")
+
+    # install autolog
+    tools_extrs_dir = HERE / 'tools/extras'
+    with pushd(tools_extrs_dir):
+        print(os.getcwd())
+        check_call("./install_autolog.sh")
+    print("autolog install.")
+
+    # ctcdecoder
+    ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
+    with pushd(ctcdecoder_dir):
+        check_call("bash -e setup.sh")
+    print("ctcdecoder install.")
+
+    # install third_party
+    third_party_dir = HERE / 'third_party'
+    with pushd(third_party_dir):
+        check_call("bash -e install.sh")
+    print("third_party install.")
+
+
+class DevelopCommand(develop):
+    def run(self):
+        develop.run(self)
+        # must after develop.run, or pkg install by shell will not see
+        self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
+
+
+class InstallCommand(install):
+    def run(self):
+        install.run(self)
+        # must after install.run, or pkg install by shell will not see
+        self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
+
+
+# cmd: python setup.py upload
+class UploadCommand(Command):
+    description = "Build and publish the package."
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            print("Removing previous dist/ ...")
+            shutil.rmtree(str(HERE / "dist"))
+        except OSError:
+            pass
+        print("Building source distribution...")
+        sp.check_call([sys.executable, "setup.py", "sdist"])
+        print("Uploading package to PyPi...")
+        sp.check_call(["twine", "upload", "dist/*"])
+        sys.exit()
+
 
 setup_info = dict(
     # Metadata
-    name='paddle-parakeet',
-    version=VERSION,
-    author='PaddleSL Team',
+    name='paddlespeech',
+    version='2.1.2',
+    author='PaddleSL Speech Team',
     author_email='',
-    url='https://github.com/PaddlePaddle',
-    description='Speech synthesis tools and models based on Paddlepaddle',
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+    url='https://github.com/PaddlePaddle/DeepSpeech',
     license='Apache 2',
-    python_requires='>=3.6',
-    install_requires=[
-        'numpy',
-        'nltk',
-        'inflect',
-        'librosa',
-        'unidecode',
-        'numba',
-        'tqdm',
-        'llvmlite',
-        'matplotlib',
-        'visualdl==2.2.0',
-        'scipy',
-        'pandas',
-        'sox',
-        'soundfile~=0.10',
-        'g2p_en',
-        'yacs',
-        'pypinyin',
-        'webrtcvad',
-        'g2pM',
-        'praatio~=4.1',
-        "h5py",
-        "timer",
-        'jsonlines',
-        'pyworld',
-        'typeguard',
-        'jieba',
-        "phkit",
+    description='Speech tools and models based on Paddlepaddle',
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
+    keywords=[
+        "speech",
+        "asr",
+        "tts",
+        "speaker verfication",
+        "speech classfication",
+        "text frontend",
+        "MFA",
+        "paddlepaddle",
+        "beam search",
+        "ctcdecoder",
+        "deepspeech2",
+        "transformer",
+        "conformer",
+        "fastspeech",
+        "vocoder",
+        "pwgan",
+        "gan",
     ],
+    python_requires='>=3.6',
+    install_requires=[d.strip() for d in read('requirements.txt').split()],
     extras_require={
-        'doc': ["sphinx", "sphinx-rtd-theme", "numpydoc"],
+        'doc': [
+            "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
+            "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
+        ],
+    },
+    cmdclass={
+        'develop': DevelopCommand,
+        'install': InstallCommand,
+        'upload': UploadCommand,
     },
 
     # Package info
-    packages=find_packages(exclude=('tests', 'tests.*')),
+    packages=find_packages(exclude=('tests', 'tests.*', 'examples*',
+                                    'paddleaudio*', 'third_party*', 'tools*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -92,8 +184,11 @@ setup_info = dict(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ], )
 
 setup(**setup_info)

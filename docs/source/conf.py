@@ -23,11 +23,13 @@
 import recommonmark.parser
 import sphinx_rtd_theme
 
+autodoc_mock_imports = ["soundfile", "librosa"]
+
 # -- Project information -----------------------------------------------------
 
 project = 'paddle speech'
-copyright = '2021, Deepspeech-developers'
-author = 'Deepspeech-developers'
+copyright = '2021, paddlespeech-developers'
+author = 'paddlespeech-developers'
 
 # The full version, including alpha/beta/rc tags
 release = '2.1'
@@ -46,10 +48,10 @@ pygments_style = 'sphinx'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    "sphinx_rtd_theme",
     'sphinx.ext.mathjax',
-    'sphinx.ext.autosummary',
     'numpydoc',
+    'sphinx.ext.autosummary',
     'myst_parser',
 ]
 
@@ -76,6 +78,10 @@ smartquotes = False
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_logo = '../images/paddle.png'
+html_css_files = [
+    'custom.css',
+]
 
 # -- Extension configuration -------------------------------------------------
 # numpydoc_show_class_members = False

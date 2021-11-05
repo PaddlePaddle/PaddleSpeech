@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 . ./path.sh || exit 1;
@@ -7,8 +8,9 @@ set -e
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
-dict_path=data/train_960_unigram5000_units.txt
+dict_path=data/bpe_unigram_5000_units.txt
 avg_num=10
+
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
@@ -31,16 +33,25 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    # test ckpt avg_n
+    # attetion resocre decoder
     ./local/test.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+    # join ctc decoder, use transformerlm to score
+    ./local/recog.sh  --ckpt_prefix exp/${ckpt}/checkpoints/${avg_ckpt}
+fi
+
+if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # ctc alignment of test data
     CUDA_VISIBLE_DEVICES=0 ./local/align.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
-if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     # export ckpt avg_n
     CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi
+
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    CUDA_VISIBLE_DEVICES= ./local/cacu_perplexity.sh || exit -1
 fi

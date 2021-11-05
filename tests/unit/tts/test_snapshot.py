@@ -17,9 +17,9 @@ from itertools import count
 from paddle import nn
 from paddle.optimizer import Adam
 
-from parakeet.training.extensions.snapshot import Snapshot
-from parakeet.training.trainer import Trainer
-from parakeet.training.updater import StandardUpdater
+from paddlespeech.t2s.training.extensions.snapshot import Snapshot
+from paddlespeech.t2s.training.trainer import Trainer
+from paddlespeech.t2s.training.updater import StandardUpdater
 
 
 def test_snapshot():

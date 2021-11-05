@@ -14,7 +14,7 @@
 """Test error rate."""
 import unittest
 
-from deepspeech.utils import error_rate
+from paddlespeech.s2t.utils import error_rate
 
 
 class TestParse(unittest.TestCase):

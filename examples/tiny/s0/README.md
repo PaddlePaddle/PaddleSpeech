@@ -23,12 +23,6 @@
 
 - Case inference with an existing model
 
-    ```bash
-    bash local/infer.sh
-    ```
-
-    `infer.sh` will show us some speech-to-text decoding results for several (default: 10) samples with the trained model. The performance might not be good now as the current model is only trained with a toy subset of LibriSpeech. To see the results with a better model, you can download a well-trained (trained for several days, with the complete LibriSpeech) model and do the inference.
-
 - Evaluate an existing model
 
     ```bash
@@ -42,10 +36,4 @@
 
     ```bash
     bash local/export.sh ckpt_path saved_jit_model_path
-    ```
-
-- Tune hyper paerameter
-
-    ```bash
-    bash local/tune.sh
     ```

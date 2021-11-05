@@ -17,6 +17,7 @@ import numpy
 import scipy
 import soundfile
 import soxbindings as sox
+
 from paddlespeech.s2t.io.reader import SoundHDF5File
 
 
@@ -171,6 +172,7 @@ class SpeedPerturbationSox():
                 upper={self.upper}, 
                 keep_length={self.keep_length},
                 sample_rate={self.sr})"""
+
         else:
             return f"""{self.__class__.__name__}(
                 utt2ratio={self.utt2ratio_file},

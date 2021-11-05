@@ -14,9 +14,11 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 import io
 import json
+
 import h5py
 import kaldiio
 import numpy as np
+
 
 class CMVN():
     "Apply Global/Spk CMVN/iverserCMVN."
@@ -158,11 +160,14 @@ class UtteranceCMVN():
         return x
 
 
-
 class GlobalCMVN():
     "Apply Global CMVN"
 
-    def __init__(self, cmvn_path, norm_means=True, norm_vars=True, std_floor=1.0e-20):
+    def __init__(self,
+                 cmvn_path,
+                 norm_means=True,
+                 norm_vars=True,
+                 std_floor=1.0e-20):
         self.cmvn_path = cmvn_path
         self.norm_means = norm_means
         self.norm_vars = norm_vars

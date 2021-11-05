@@ -528,10 +528,10 @@ class U2Tester(U2Trainer):
 
     @paddle.no_grad()
     def align(self):
-        ctc_utils.ctc_align(self.config,
-            self.model, self.align_loader, self.config.decoding.batch_size,
-            self.config.collator.stride_ms,
-            self.vocab_list, self.args.result_file)
+        ctc_utils.ctc_align(self.config, self.model, self.align_loader,
+                            self.config.decoding.batch_size,
+                            self.config.collator.stride_ms, self.vocab_list,
+                            self.args.result_file)
 
     def load_inferspec(self):
         """infer model and input spec.

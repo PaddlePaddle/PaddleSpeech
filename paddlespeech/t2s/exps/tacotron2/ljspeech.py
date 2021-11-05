@@ -67,19 +67,16 @@ class LJSpeechCollector(object):
 
         # Sort by text_len in descending order
         texts = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(texts, text_lens), key=lambda x: x[1], reverse=True)
         ]
         mels = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(mels, text_lens), key=lambda x: x[1], reverse=True)
         ]
 
         mel_lens = [
-            i
-            for i, _ in sorted(
+            i for i, _ in sorted(
                 zip(mel_lens, text_lens), key=lambda x: x[1], reverse=True)
         ]
 

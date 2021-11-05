@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
+from pathlib import Path
 from typing import List
 
 import numpy as np
@@ -139,26 +140,27 @@ def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
     return output_alignment
 
 
-def ctc_align(model, dataloader, batch_size, stride_ms, token_dict,
+def ctc_align(config, model, dataloader, batch_size, stride_ms, token_dict,
               result_file):
     """ctc alignment.
 
     Args:
+        config (cfgNode): config 
         model (nn.Layer): U2 Model.
         dataloader (io.DataLoader): dataloader.
         batch_size (int): decoding batchsize.
         stride_ms (int): audio feature stride in ms unit.
         token_dict (List[str]): vocab list, e.g. ['blank', 'unk', 'a', 'b', '<eos>'].
-        result_file (str): alignment output file, e.g. xxx.align.
+        result_file (str): alignment output file, e.g. /path/to/xxx.align.
     """
     if batch_size > 1:
         logger.fatal('alignment mode must be running with batch_size == 1')
         sys.exit(1)
-
     assert result_file and result_file.endswith('.align')
 
     model.eval()
-
+    # conv subsampling rate
+    subsample = utility.get_subsample(config)
     logger.info(f"Align Total Examples: {len(dataloader.dataset)}")
 
     with open(result_file, 'w') as fout:
@@ -187,13 +189,11 @@ def ctc_align(model, dataloader, batch_size, stride_ms, token_dict,
             logger.info(f"align tokens: {key[0]}, {align_segs}")
 
             # IntervalTier, List["start end token\n"]
-            subsample = utility.get_subsample(self.config)
-
             tierformat = text_grid.align_to_tierformat(align_segs, subsample,
                                                        token_dict)
 
             # write tier
-            align_output_path = Path(self.args.result_file).parent / "align"
+            align_output_path = Path(result_file).parent / "align"
             align_output_path.mkdir(parents=True, exist_ok=True)
             tier_path = align_output_path / (key[0] + ".tier")
             with tier_path.open('w') as f:

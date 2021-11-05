@@ -95,8 +95,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
   - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
 
-Please refer to [our PaddleSpeech demo page](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) for more examples.
-
 # Community
 
 You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
@@ -118,8 +116,6 @@ The base environment in this page is
 If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/installation.md) documents for all the alternatives.
 
 # Quick Start
-
-Just a quick test of our functions: [English Speech-To-Text]() and [English Text-To-Speech]() by typing message or upload your own audio file.
 
 Developers can have a try of our model with only a few lines of code.
 
@@ -163,11 +159,7 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --inference-dir=exp/default/inference \
   --device="gpu" \
   --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
-
-
 ```
-
-
 
 If you want to try more functions like training and tuning, please see [Speech-To-Text getting started](./docs/source/asr/getting_started.md) and [Text-To-Speech Basic Use](./docs/source/tts/basic_usage.md).
 
@@ -180,9 +172,6 @@ Speech-To-Text module contains *Acoustic Model* and *Language Model*, with the f
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
 -->
-
-> Note: The `Link` should be code path rather than download links.
-
 
 <table style="width:100%">
   <thead>

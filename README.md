@@ -320,9 +320,9 @@ PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Aco
 # Tutorials
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
-
+- [Overview](./docs/source/introduction.md) 
 - Quick Start
-  - [Installation](./docs/source/install.md)
+  - [Dependencies](./docs/source/dependencies.md) and [Installation](./docs/source/install.md)
   - [Quick Start of Speech-To-Text](./docs/source/asr/quick_start.md)
   - [Quick Start of Text-To-Speech](./docs/source/tts/quick_start.md)
 - Speech-To-Text
@@ -332,20 +332,17 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
   - [Features](./docs/source/asr/feature_list.md)
   - [Ngram LM](./docs/source/asr/ngram_lm.md)
 - Text-To-Speech
-  - [Models Introduction](./docs/source/tts/models_introduction.md)
+  - [Introduction](./docs/source/tts/models_introduction.md)
   - [Advanced Usage](./docs/source/tts/advanced_usage.md)
   - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
-  - [GAN Vocoders](./docs/source/tts/gan_vocoder.md)
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
-- Released Models
-  - [Speech-To-Text Models](./docs/source/released_model.md#speech-to-text-models)
-  - [Text-To-Speech Models](./docs/source/released_model.md#text-to-speech-models)
+- [Released Models](./docs/source/released_model.md)
 
 # License and Acknowledgement
 
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
-PaddleSpeech depends on a lot of open source repos. See [references](./docs/source/asr/reference.md) for more information.
+PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/asr/reference.md) for more information.
 
 # Citation
 To cite PaddleSpeech for research, please use the following format.

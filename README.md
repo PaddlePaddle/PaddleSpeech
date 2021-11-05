@@ -327,7 +327,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
 
 The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
-## FAQ and Contributing
+# FAQ and Contributing
 You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
 
 # License and Acknowledgement

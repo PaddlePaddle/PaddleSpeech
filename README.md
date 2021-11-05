@@ -26,7 +26,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 4.What is the goal of this project?
 -->
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with the state-of-art and influential models.
 
 ##### Speech-To-Text
 
@@ -41,17 +41,17 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <tbody>
    <tr>
       <td align = "center">
-      <a href="https://paddlehub.bj.bcebos.com/resources/fastspeech_ljspeech-0.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
-      <td >Life was like a box of chocolates, you never know what you will get.</td>
+      <td >I knocked at the door on the ancient side of the building.</td>
     </tr>
     <tr>
       <td align = "center">
-      <a href="https://paddlehub.bj.bcebos.com/resources/fastspeech_ljspeech-0.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
-      <td>早上好，今天是2020/10/29，最低温度是-3°C。</td>
+      <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>
   </tbody>
 </table>

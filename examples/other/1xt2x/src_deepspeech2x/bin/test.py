@@ -14,9 +14,9 @@
 """Evaluation for DeepSpeech2 model."""
 from src_deepspeech2x.test_model import DeepSpeech2Tester as Tester
 
-from deepspeech.exps.deepspeech2.config import get_cfg_defaults
-from deepspeech.training.cli import default_argument_parser
-from deepspeech.utils.utility import print_arguments
+from paddlespeech.s2t.exps.deepspeech2.config import get_cfg_defaults
+from paddlespeech.s2t.training.cli import default_argument_parser
+from paddlespeech.s2t.utils.utility import print_arguments
 
 
 def main_sp(config, args):

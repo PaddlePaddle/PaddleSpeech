@@ -16,8 +16,8 @@ import unittest
 import numpy as np
 import paddle
 
-from deepspeech.modules.mask import make_non_pad_mask
-from deepspeech.modules.mask import make_pad_mask
+from paddlespeech.s2t.modules.mask import make_non_pad_mask
+from paddlespeech.s2t.modules.mask import make_pad_mask
 
 
 class TestU2Model(unittest.TestCase):

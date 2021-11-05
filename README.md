@@ -10,7 +10,7 @@ English | [简体中文](README_ch.md)
   <h3>
   <a href="#quick-start"> Quick Start </a>
   | <a href="#tutorials"> Tutorials </a>
-  | <a href="#model-list"> Models List </a>
+  | <a href="#models-list"> Models List </a>
 </div>
 
 ------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 </table>
 
 </div>
-  
+
 ##### Text-To-Speech
 <div align = "center">
 <table style="width:100%">
@@ -119,7 +119,7 @@ If you want to set up PaddleSpeech in other environment, please see the [install
 
 Developers can have a try of our model with only a few lines of code.
 
-A tiny DeepSpeech2 *Speech-To-Text* model training on toy set of LibriSpeech:
+A tiny DeepSpeech2 **Speech-To-Text** model training on toy set of LibriSpeech:
 
 ```shell
 cd examples/tiny/s0/
@@ -131,10 +131,7 @@ bash local/data.sh
 bash local/test.sh conf/deepspeech2.yaml ckptfile offline
 ```
 
-For *Text-To-Speech*, try FastSpeech2 on LJSpeech:
-- Download LJSpeech-1.1 from the [ljspeech official website](https://keithito.com/LJ-Speech-Dataset/), our prepared durations for fastspeech2 [ljspeech_alignment](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz).
-- The pretrained models are seperated into two parts: [fastspeech2_nosil_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip) and [pwg_ljspeech_ckpt](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip). Please download then unzip to `./model/fastspeech2` and `./model/pwg` respectively.
-- Assume your path to the dataset is `~/datasets/LJSpeech-1.1` and `./ljspeech_alignment` accordingly, preprocess your data and then use our pretrained model to synthesize:
+For **Text-To-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
 ```shell
 cd examples/csmsc/tts3
 # download the pretrained models and unaip them
@@ -161,7 +158,7 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```
 
-If you want to try more functions like training and tuning, please see [Speech-To-Text getting started](./docs/source/asr/getting_started.md) and [Text-To-Speech Basic Use](./docs/source/tts/basic_usage.md).
+If you want to try more functions like training and tuning, please see [Speech-To-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-To-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 # Models List
 
@@ -240,7 +237,7 @@ PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Aco
     <td> Text Frontend</td>
     <td colspan="2"> &emsp; </td>
     <td>
-    <a href = "./examples/other/text_frontend">chinese-fronted</a>
+    <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
     </td>
     </tr>
     <tr>
@@ -283,7 +280,7 @@ PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Aco
       <td >Parallel WaveGAN</td>
       <td >LJSpeech / VCTK / CSMSC</td>
       <td>
-      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> 
+      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a>
       </td>
     </tr>
     <tr>
@@ -305,11 +302,10 @@ PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Aco
   </tbody>
 </table>
 
-
 # Tutorials
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
-- [Overview](./docs/source/introduction.md) 
+- [Overview](./docs/source/introduction.md)
 - Quick Start
   - [Dependencies](./docs/source/dependencies.md) and [Installation](./docs/source/install.md)
   - [Quick Start of Speech-To-Text](./docs/source/asr/quick_start.md)
@@ -327,8 +323,12 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
 - [Released Models](./docs/source/released_model.md)
 
-# License and Acknowledgement
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
+## FAQ and Contributing
+You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
+
+# License and Acknowledgement
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
 
 PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.

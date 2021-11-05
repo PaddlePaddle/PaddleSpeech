@@ -1,4 +1,4 @@
-myst_parser
+myst-parser
 numpydoc
 recommonmark>=0.5.0
 sphinx

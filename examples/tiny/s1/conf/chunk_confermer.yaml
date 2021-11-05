@@ -77,13 +77,13 @@ model:
     model_conf:
         ctc_weight: 0.3
         ctc_dropoutrate: 0.0
-        ctc_grad_norm_type: instance
+        ctc_grad_norm_type: null
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
 
 training:
-  n_epoch: 20
+  n_epoch: 5
   accum_grad: 1
   global_grad_clip: 5.0
   optim: adam

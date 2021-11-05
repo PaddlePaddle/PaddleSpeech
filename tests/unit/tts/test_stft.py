@@ -18,8 +18,8 @@ import torch
 from parallel_wavegan.losses import stft_loss as sl
 from scipy import signal
 
-from parakeet.modules.stft_loss import MultiResolutionSTFTLoss
-from parakeet.modules.stft_loss import STFT
+from paddlespeech.t2s.modules.stft_loss import MultiResolutionSTFTLoss
+from paddlespeech.t2s.modules.stft_loss import STFT
 
 
 def test_stft():

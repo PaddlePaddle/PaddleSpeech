@@ -1,26 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
 source path.sh
 
-stage=-1
-stop_stage=100
+USE_SCLITE=true
 
-exp_dir=exp
-data_dir=data
-filename="sentences.txt"
+# test text normalization
+echo "Start get text normalization test data ..."
+python3 get_textnorm_data.py --test-file=data/textnorm_test_cases.txt --output-dir=data/textnorm
+echo "Start test text normalization ..."
+python3 test_textnorm.py --input-dir=data/textnorm --output-dir=exp/textnorm
 
-source ${MAIN_ROOT}/utils/parse_options.sh || exit -1
-
-mkdir -p ${exp_dir}
-
-
-if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
-    echo "stage 1: Processing "
-    python3 local/test_normalization.py  ${data_dir}/${filename} ${exp_dir}/normalized.txt
-    if [ -f "${exp_dir}/normalized.txt" ]; then
-	echo "Normalized text save at ${exp_dir}/normalized.txt"
-    fi
-    # TODO(chenfeiyu): compute edit distance against ground-truth
+# whether use sclite to get more detail information of WER
+if [ "$USE_SCLITE" = true ];then
+    echo "Start sclite textnorm ..."
+    ${MAIN_ROOT}/tools/sctk/bin/sclite -i wsj -r ./exp/textnorm/text.ref.clean trn -h ./exp/textnorm/text.tn trn -e utf-8 -o all
 fi
-
-echo "done"
-exit 0

@@ -1,6 +1,0 @@
-include *.txt *.rst
-include Makefile
-include tox.ini
-recursive-include docs *
-recursive-include tests *.py
-prune docs/_build

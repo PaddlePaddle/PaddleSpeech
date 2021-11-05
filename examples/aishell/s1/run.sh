@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
 source path.sh
+set -e
 
 stage=0
 stop_stage=100
@@ -12,6 +12,8 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
+
+audio_file="data/tmp.wav"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
@@ -46,5 +48,10 @@ fi
  # Optionally, you can add LM and test it with runtime.
  if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     # train lm and build TLG
-    ./local/tlg.sh --corpus aishell --lmtype srilm 
+    ./local/tlg.sh --corpus aishell --lmtype srilm
  fi
+
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    # test a single .wav file
+    CUDA_VISIBLE_DEVICES=3 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+fi

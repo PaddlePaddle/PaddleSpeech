@@ -21,14 +21,14 @@ import os
 import tempfile
 from collections import Counter
 
-from deepspeech.frontend.featurizer.text_featurizer import TextFeaturizer
-from deepspeech.frontend.utility import BLANK
-from deepspeech.frontend.utility import read_manifest
-from deepspeech.frontend.utility import SOS
-from deepspeech.frontend.utility import SPACE
-from deepspeech.frontend.utility import UNK
-from deepspeech.utils.utility import add_arguments
-from deepspeech.utils.utility import print_arguments
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.frontend.utility import BLANK
+from paddlespeech.s2t.frontend.utility import read_manifest
+from paddlespeech.s2t.frontend.utility import SOS
+from paddlespeech.s2t.frontend.utility import SPACE
+from paddlespeech.s2t.frontend.utility import UNK
+from paddlespeech.s2t.utils.utility import add_arguments
+from paddlespeech.s2t.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

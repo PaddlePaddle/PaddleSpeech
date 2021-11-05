@@ -3,7 +3,7 @@ English | [简体中文](README_ch.md)
 
 
 <p align="center">
-  <img src="./docs/images/PaddleSpeech_log.png" />
+  <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
 <div align="center">  
 
@@ -27,8 +27,6 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 -->
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with state-of-art and influential models.
-
-> Note: the current audio link is not correct.
 
 ##### Speech-To-Text
 
@@ -71,16 +69,16 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   </thead>
   <tbody>
    <tr>
-      <td >Life was like a box of chocolates, you never know what you will get.</td>
+      <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
       <td align = "center">
-      <a href="https://paddlehub.bj.bcebos.com/resources/fastspeech_ljspeech-0.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/001.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td >早上好，今天是2020/10/29，最低温度是-3°C。</td>
       <td align = "center">
-      <a href="https://paddlehub.bj.bcebos.com/resources/fastspeech_ljspeech-0.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -89,7 +87,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-For more synthesized audios, please refer to [PaddleSpeech Text-To-Speech samples]().
+For more synthesized audios, please refer to [PaddleSpeech Text-To-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html).
 
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:

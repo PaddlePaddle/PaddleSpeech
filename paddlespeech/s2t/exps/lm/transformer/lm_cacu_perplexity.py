@@ -19,8 +19,8 @@ import paddle
 from paddle.io import DataLoader
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.io.collator import TextCollatorSpm
-from paddlespeech.s2t.io.dataset import TextDataset
+from paddlespeech.s2t.models.lm.dataset import TextCollatorSpm
+from paddlespeech.s2t.models.lm.dataset import TextDataset
 from paddlespeech.s2t.models.lm_interface import dynamic_import_lm
 from paddlespeech.s2t.utils.log import Log
 

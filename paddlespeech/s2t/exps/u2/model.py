@@ -591,7 +591,7 @@ class U2Tester(U2Trainer):
         infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.model.clone(),
                                                    self.args.checkpoint_path)
-        feat_dim = self.test_loader.collate_fn.feature_size
+        feat_dim = self.test_loader.feat_dim
         input_spec = [
             paddle.static.InputSpec(shape=[1, None, feat_dim],
                                     dtype='float32'),  # audio, [B,T,D]

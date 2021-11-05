@@ -554,7 +554,7 @@ class U2Tester(U2Trainer):
 
     @paddle.no_grad()
     def align(self):
-        ctc_utils.ctc_align(
+        ctc_utils.ctc_align(self.config,
             self.model, self.align_loader, self.config.decoding.batch_size,
             self.align_loader.collate_fn.stride_ms,
             self.align_loader.collate_fn.vocab_list, self.args.result_file)

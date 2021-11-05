@@ -1,7 +1,3 @@
-English | [简体中文](README_ch.md)
-
-
-
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
@@ -187,41 +183,47 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz">Online</a> / <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz">Offline </a>
+      <a href = "./examples/aishell/s0">deepspeech2-aishell</a> 
       </td>
     </tr>
     <tr>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Non-CTC Loss</a> / <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz">CTC Loss </a>
+      <a href = "./examples/aishell/s1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
       <tr>
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz">Conformer</a> / <a href = "https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz"> Transformer </a> Decoder
+      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a> 
       </td>
       </td>
     </tr>
+  <tr>
+  <td>Alignment</td>
+  <td>THCHS30</td>
+  <td>MFA</td>
+  <td>
+  <a href = ".examples/thchs30/a0">mfa-thchs30</a>
+  </td>
+  </tr>
    <tr>
       <td rowspan="2">Language Model</td>
-      <td >CommonCrawl(en.00)</td>
-      <td >English Language Model</td>
+      <td colspan = "2">Ngram Language Model</td>
       <td>
-      <a href = "https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm">English Language Model</a>
+      <a href = "./examples/other/ngram_lm">kenlm</a>
       </td>
     </tr>
     <tr>
-      <td>Baidu Internal Corpus</td>
-      <td>Mandarin Language Model Small</td>
+      <td>TIMIT</td>
+      <td>Unified Streaming & Non-streaming Two-pass</td>
       <td>
-      Mandarin Language Model <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm"> Small</a> / <a href = "https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm">Large</a>
+    <a href = "./examples/timit/s1"> u2-timit</a> 
       </td>
     </tr>
   </tbody>
 </table>
-
 
 PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 

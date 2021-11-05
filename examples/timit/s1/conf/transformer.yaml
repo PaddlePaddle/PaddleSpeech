@@ -14,7 +14,7 @@ collator:
   vocab_filepath: data/vocab.txt
   unit_type: "word"
   mean_std_filepath: ""
-  augmentation_config: ""
+  augmentation_config: conf/preprocess.yaml
   batch_size: 64
   raw_wav: True  # use raw_wav or kaldi feature
   spectrum_type: fbank #linear, mfcc, fbank
@@ -37,7 +37,7 @@ collator:
 
 # network architecture
 model:
-    cmvn_file: "data/mean_std.json"
+    cmvn_file: 
     cmvn_file_type: "json"
     # encoder related
     encoder: transformer

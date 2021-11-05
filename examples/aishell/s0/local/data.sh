@@ -66,7 +66,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     for dataset in train dev test; do
     {
         python3 ${MAIN_ROOT}/utils/format_data.py \
-                --feat_type "raw" \
                 --cmvn_path "data/mean_std.json" \
                 --unit_type "char" \
                 --vocab_path="data/vocab.txt" \

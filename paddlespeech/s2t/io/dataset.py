@@ -207,33 +207,15 @@ class AudioDataset(Dataset):
         if sort:
             data = sorted(data, key=lambda x: x["feat_shape"][0])
         if raw_wav:
-            assert data[0]['feat'].split(':')[0].splitext()[-1] not in ('.ark',
-                                                                        '.scp')
-            data = map(lambda x: (float(x['feat_shape'][0]) * 1000 / stride_ms))
+            path_suffix = data[0]['feat'].split(':')[0].splitext()[-1]
+            assert path_suffix not in ('.ark', '.scp')
+            # m second to n frame
+            data = list(
+                map(lambda x: (float(x['feat_shape'][0]) * 1000 / stride_ms),
+                    data))
 
         self.input_dim = data[0]['feat_shape'][1]
         self.output_dim = data[0]['token_shape'][1]
-
-        # with open(data_file, 'r') as f:
-        #     for line in f:
-        #         arr = line.strip().split('\t')
-        #         if len(arr) != 7:
-        #             continue
-        #         key = arr[0].split(':')[1]
-        #         tokenid = arr[5].split(':')[1]
-        #         output_dim = int(arr[6].split(':')[1].split(',')[1])
-        #         if raw_wav:
-        #             wav_path = ':'.join(arr[1].split(':')[1:])
-        #             duration = int(float(arr[2].split(':')[1]) * 1000 / 10)
-        #             data.append((key, wav_path, duration, tokenid))
-        #         else:
-        #             feat_ark = ':'.join(arr[1].split(':')[1:])
-        #             feat_info = arr[2].split(':')[1].split(',')
-        #             feat_dim = int(feat_info[1].strip())
-        #             num_frames = int(feat_info[0].strip())
-        #             data.append((key, feat_ark, num_frames, tokenid))
-        #             self.input_dim = feat_dim
-        #         self.output_dim = output_dim
 
         valid_data = []
         for i in range(len(data)):
@@ -242,17 +224,17 @@ class AudioDataset(Dataset):
             # remove too lang or too short utt for both input and output
             # to prevent from out of memory
             if length > max_length or length < min_length:
-                # logging.warn('ignore utterance {} feature {}'.format(
-                #     data[i][0], length))
                 pass
             elif token_length > token_max_length or token_length < token_min_length:
                 pass
             else:
                 valid_data.append(data[i])
+        logger.info(f"raw dataset len: {len(data)}")
         data = valid_data
+        num_data = len(data)
+        logger.info(f"dataset len after filter: {num_data}")
 
         self.minibatch = []
-        num_data = len(data)
         # Dynamic batch size
         if batch_type == 'dynamic':
             assert (max_frames_in_batch > 0)
@@ -277,7 +259,9 @@ class AudioDataset(Dataset):
                 cur = end
 
     def __len__(self):
+        """number of example(batch)"""
         return len(self.minibatch)
 
     def __getitem__(self, idx):
+        """batch example of idx"""
         return self.minibatch[idx]

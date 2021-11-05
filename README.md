@@ -87,6 +87,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
+For more synthesized audios, please refer to [PaddleSpeech Text-To-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
+
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
 - **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.

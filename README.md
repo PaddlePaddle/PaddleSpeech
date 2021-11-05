@@ -3,7 +3,7 @@ English | [简体中文](README_ch.md)
 
 
 <p align="center">
-  <img src="./docs/images/PaddleSpeech_log.png" />
+  <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
 <div align="center">  
 

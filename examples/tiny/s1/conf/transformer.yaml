@@ -15,7 +15,7 @@ collator:
   vocab_filepath: data/vocab.txt 
   unit_type: 'spm'
   spm_model_prefix: 'data/bpe_unigram_200'
-  augmentation_config: conf/augmentation.json
+  augmentation_config: conf/preprocess.yaml
   batch_size: 4
   raw_wav: True  # use raw_wav or kaldi feature
   spectrum_type: fbank #linear, mfcc, fbank

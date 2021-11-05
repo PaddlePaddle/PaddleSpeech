@@ -17,7 +17,7 @@ import numpy as np
 
 from paddlespeech.s2t.utils.log import Log
 
-__all__ = ["pad_list", "pad_sequence"]
+__all__ = ["pad_list", "pad_sequence", "feat_type"]
 
 logger = Log(__name__).getlog()
 
@@ -85,3 +85,20 @@ def pad_sequence(sequences: List[np.ndarray],
             out_tensor[:length, i, ...] = tensor
 
     return out_tensor
+
+
+def feat_type(filepath):
+    suffix = filepath.split(":")[0].split('.')[-1].lower()
+    if suffix == 'ark':
+        return 'mat'
+    elif suffix == 'scp':
+        return 'scp'
+    elif suffix == 'npy':
+        return 'npy'
+    elif suffix == 'npz':
+        return 'npz'
+    elif suffix in ['wav', 'flac']:
+        # PCM16
+        return 'sound'
+    else:
+        raise ValueError(f"Not support filetype: {suffix}")

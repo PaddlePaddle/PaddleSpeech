@@ -45,6 +45,7 @@ import_alias = dict(
     stft2fbank="paddlespeech.s2t.transform.spectrogram:Stft2LogMelSpectrogram",
     wpe="paddlespeech.s2t.transform.wpe:WPE",
     channel_selector="paddlespeech.s2t.transform.channel_selector:ChannelSelector",
+    fbank_kaldi="paddlespeech.s2t.transform.spectrogram:LogMelSpectrogramKaldi",
 )
 
 

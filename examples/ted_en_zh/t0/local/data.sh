@@ -89,7 +89,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     for set in train dev test; do
     {
         python3 ${MAIN_ROOT}/utils/format_triplet_data.py \
-        --feat_type "raw" \
         --cmvn_path "data/mean_std.json" \
         --unit_type "spm" \
         --spm_model_prefix ${bpeprefix} \

@@ -63,7 +63,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     for set in train dev test dev-clean dev-other test-clean test-other; do
     {
         python3 ${MAIN_ROOT}/utils/format_data.py \
-        --feat_type "raw" \
         --cmvn_path "data/mean_std.npz" \
         --unit_type ${unit_type} \
         --vocab_path="data/vocab.txt" \

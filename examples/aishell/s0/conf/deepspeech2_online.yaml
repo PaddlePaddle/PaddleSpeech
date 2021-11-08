@@ -46,10 +46,10 @@ model:
   ctc_grad_norm_type: null
   
 training:
-  n_epoch: 50
+  n_epoch: 65
   accum_grad: 1
-  lr: 2e-3
-  lr_decay: 0.9  # 0.83
+  lr: 5e-4
+  lr_decay: 0.93
   weight_decay: 1e-06
   global_grad_clip: 3.0
   log_interval: 100
@@ -63,7 +63,7 @@ decoding:
   decoding_method: ctc_beam_search
   lang_model_path: data/lm/zh_giga.no_cna_cmn.prune01244.klm
   alpha: 2.2 #1.9
-  beta: 5.0
+  beta: 4.3
   beam_size: 300
   cutoff_prob: 0.99
   cutoff_top_n: 40

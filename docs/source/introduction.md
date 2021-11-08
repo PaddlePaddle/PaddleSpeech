@@ -20,9 +20,9 @@ PaddleSpeech ASR provides you with a complete ASR pipeline, including:
         - fbank (also support kaldi feature)
         - mfcc
 - Acoustic Models
-    - Deepspeech2 (online and offline)
-    - Transformer (online and offline)
-    - Conformer (online and offline)
+    - Deepspeech2 (Streaming and Non-Streaming)
+    - Transformer (Streaming and Non-Streaming)
+    - Conformer (Streaming and Non-Streaming)
 - Decoder
     - ctc greedy search (used in DeepSpeech2, Transformer and Conformer)
     - ctc beam search (used in DeepSpeech2, Transformer and Conformer)
@@ -30,7 +30,7 @@ PaddleSpeech ASR provides you with a complete ASR pipeline, including:
     - attention rescoring (used in Transformer and Conformer)
 
 Speech-To-Text helps you training the ASR model very simply.
-   
+
 ### Text-To-Speech
 TTS mainly consists of components below:
 - Implementation of models and commonly used neural network layers.

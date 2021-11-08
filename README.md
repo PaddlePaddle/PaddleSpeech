@@ -109,7 +109,7 @@ If you are from China, we strongly recommend you join our PaddleSpeech WeChat gr
 The base environment in this page is  
 - Ubuntu 16.04
 - python>=3.7
-- paddlepaddle==2.1.2
+- paddlepaddle>=2.2.0-rc
 
 If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/source/install.md) documents for all the alternatives.
 
@@ -347,3 +347,4 @@ howpublished = {\url{https://github.com/PaddlePaddle/DeepSpeech}},
 year={2021}
 }
 ```
+

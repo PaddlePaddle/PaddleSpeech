@@ -16,7 +16,7 @@ PaddleSpeech ASR provides you with a complete ASR pipeline, including:
     - Build vocabulary
     - Compute Cepstral mean and variance normalization (CMVN)
     - Featrue extraction
-        - Linear
+        - linear
         - fbank (also support kaldi feature)
         - mfcc
 - Acoustic Models

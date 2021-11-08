@@ -6,51 +6,21 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 - Python >= 3.7
 - PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 
-## Setup (Important)
-
-- Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost`, `sox`, and `swig`, e.g. installing them via `apt-get`:
-
-```bash
-sudo apt-get install -y sox pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev
-```
-The version of `swig` should >= 3.0
-
-or, installing them via `yum`:
-
-```bash
-sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python3-devel
-wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
-xz -d flac-1.3.1.tar.xz
-tar -xvf flac-1.3.1.tar
-cd flac-1.3.1
-./configure
-make
-make install
-```
-
-- Run the setup script for the remaining dependencies
-
-```bash
-git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pushd tools; make virtualenv.done:; popd
-source tools/venv/bin/activate
-pip install -e .
-```
-
-- Source venv before do experiment.
-
-```bash
-source tools/venv/bin/activate
-```
-
 ## Simple Setup
+
+For user who working on `Ubuntu` with `root`  privilege.
 
 ```python
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
 cd DeepSpeech
 pip install -e .
 ```
+
+## Setup (Other Platform)
+
+- Make sure these libraries or tools in [dependencies](./dependencies.md) installed. More information please see: `setup.py `and ` tools/Makefile`.
+- The version of `swig` should >= 3.0
+- we will do more to simplify the install process.
 
 ## Running in Docker Container (optional)
 

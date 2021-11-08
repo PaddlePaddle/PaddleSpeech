@@ -390,4 +390,3 @@ def convert_samples_from_float32(samples, dtype):
     else:
         raise TypeError("Unsupported sample type: %s." % samples.dtype)
     return output_samples.astype(dtype)
-

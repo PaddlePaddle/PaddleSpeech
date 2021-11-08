@@ -24,9 +24,9 @@ import soundfile
 import soxbindings as sox
 from scipy import signal
 
-from .utility import subfile_from_tar
-from .utility import convert_samples_to_float32
 from .utility import convert_samples_from_float32
+from .utility import convert_samples_to_float32
+from .utility import subfile_from_tar
 
 
 class AudioSegment():

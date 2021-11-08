@@ -10,19 +10,19 @@ process:
     cmvn_path: data/mean_std.json
   # these three processes are a.k.a. SpecAugument
   - type: time_warp
-    max_time_warp: 5
+    max_time_warp: 0
     inplace: true
     mode: PIL
   - type: freq_mask
-    F: 30
+    F: 10
     n_mask: 2
     inplace: true
-    replace_with_zero: false
+    replace_with_zero: true
   - type: time_mask
-    T: 40
+    T: 50
     n_mask: 2
     inplace: true
-    replace_with_zero: false
+    replace_with_zero: true
 
 
 

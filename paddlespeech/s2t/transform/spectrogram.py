@@ -307,6 +307,9 @@ class IStft():
             center=self.center, )
 
 
+from paddlespeech.s2t.utils.log import Log
+logger = Log(__name__).getlog()
+
 class LogMelSpectrogramKaldi():
     def __init__(
             self,
@@ -346,7 +349,7 @@ class LogMelSpectrogramKaldi():
     def __repr__(self):
         return ("{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
                 "n_shift={n_shift}, win_length={win_length}, window={window}, "
-                "fmin={fmin}, fmax={fmax}, eps={eps}))".format(
+                "fmin={fmin}, fmax={fmax}, eps={eps}, preemph={preemph}, window={window}, dither={dither}))".format(
                     name=self.__class__.__name__,
                     fs=self.fs,
                     n_mels=self.n_mels,
@@ -356,7 +359,10 @@ class LogMelSpectrogramKaldi():
                     window=self.window,
                     fmin=self.fmin,
                     fmax=self.fmax,
-                    eps=self.eps, ))
+                    eps=self.eps, 
+                    preemph=self.preemph,
+                    window=self.window,
+                    dither=self.dither))
 
     def __call__(self, x):
         """
@@ -372,9 +378,16 @@ class LogMelSpectrogramKaldi():
         """
         if x.ndim != 1:
             raise ValueError("Not support x: [Time, Channel]")
-        if x.dtype == np.int16:
-            x = x / 2**(16 - 1)
-        return logfbank(
+
+        logger.info(f"in {x}")
+        if x.dtype in np.sctypes['float']:
+            # PCM32 -> PCM16
+            bits = np.iinfo(np.int16).bits
+            x = x * 2**(bits - 1)
+        logger.info(f"b {x}")
+
+        # logfbank need PCM16 input
+        y = logfbank(
             signal=x,
             samplerate=self.fs,
             winlen=self.win_length,  # unit ms
@@ -387,3 +400,7 @@ class LogMelSpectrogramKaldi():
             remove_dc_offset=self.remove_dc_offset,
             preemph=self.preemph,
             wintype=self.window)
+        logger.info(f"a {y}")
+
+
+        return y

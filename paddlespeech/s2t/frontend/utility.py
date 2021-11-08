@@ -30,7 +30,8 @@ logger = Log(__name__).getlog()
 __all__ = [
     "load_dict", "load_cmvn", "read_manifest", "rms_to_db", "rms_to_dbfs",
     "max_dbfs", "mean_dbfs", "gain_db_to_ratio", "normalize_audio", "SOS",
-    "EOS", "UNK", "BLANK", "MASKCTC", "SPACE"
+    "EOS", "UNK", "BLANK", "MASKCTC", "SPACE", "convert_samples_to_float32",
+    "convert_samples_from_float32"
 ]
 
 IGNORE_ID = -1
@@ -342,3 +343,51 @@ def load_cmvn(cmvn_file: str, filetype: str):
     else:
         raise ValueError(f"cmvn file type no support: {filetype}")
     return cmvn[0], cmvn[1]
+
+
+def convert_samples_to_float32(samples):
+    """Convert sample type to float32.
+
+    Audio sample type is usually integer or float-point.
+    Integers will be scaled to [-1, 1] in float32.
+
+    PCM16 -> PCM32
+    """
+    float32_samples = samples.astype('float32')
+    if samples.dtype in np.sctypes['int']:
+        bits = np.iinfo(samples.dtype).bits
+        float32_samples *= (1. / 2**(bits - 1))
+    elif samples.dtype in np.sctypes['float']:
+        pass
+    else:
+        raise TypeError("Unsupported sample type: %s." % samples.dtype)
+    return float32_samples
+
+
+def convert_samples_from_float32(samples, dtype):
+    """Convert sample type from float32 to dtype.
+
+    Audio sample type is usually integer or float-point. For integer
+    type, float32 will be rescaled from [-1, 1] to the maximum range
+    supported by the integer type.
+
+    PCM32 -> PCM16
+    """
+    dtype = np.dtype(dtype)
+    output_samples = samples.copy()
+    if dtype in np.sctypes['int']:
+        bits = np.iinfo(dtype).bits
+        output_samples *= (2**(bits - 1) / 1.)
+        min_val = np.iinfo(dtype).min
+        max_val = np.iinfo(dtype).max
+        output_samples[output_samples > max_val] = max_val
+        output_samples[output_samples < min_val] = min_val
+    elif samples.dtype in np.sctypes['float']:
+        min_val = np.finfo(dtype).min
+        max_val = np.finfo(dtype).max
+        output_samples[output_samples > max_val] = max_val
+        output_samples[output_samples < min_val] = min_val
+    else:
+        raise TypeError("Unsupported sample type: %s." % samples.dtype)
+    return output_samples.astype(dtype)
+

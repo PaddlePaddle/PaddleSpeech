@@ -10,8 +10,8 @@ test -e ${wav_zh}  || wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.
 
 pip install paddlehub
 
-asr_en_cmd="import paddlehub as hub; model = hub.Module(name='u2_conformer_librispeech'); print(model.speech_recognize("${wav_en}", device='gpu'))"
-asr_zh_cmd="import paddlehub as hub; model = hub.Module(name='u2_conformer_aishell'); print(model.speech_recognize("${wav_zh}", device='gpu'))"
+asr_en_cmd="import paddlehub as hub; model = hub.Module(name='u2_conformer_librispeech'); print(model.speech_recognize(\"${wav_en}\", device='gpu'))"
+asr_zh_cmd="import paddlehub as hub; model = hub.Module(name='u2_conformer_aishell'); print(model.speech_recognize(\"${wav_zh}\", device='gpu'))"
 
 python -c "${asr_en_cmd}"
 python -c "${asr_zh_cmd}"

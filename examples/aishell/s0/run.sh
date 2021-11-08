@@ -5,9 +5,9 @@ source path.sh
 gpus=0,1,2,3
 stage=0
 stop_stage=100
-conf_path=conf/deepspeech2.yaml
+conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeeech2_online.yaml
 avg_num=1
-model_type=offline
+model_type=offline    # offline or online
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

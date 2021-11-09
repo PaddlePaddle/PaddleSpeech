@@ -13,7 +13,7 @@ ckpt_prefix=$2
 model_type=$3
 
 # download language model
-bash local/download_lm_ch.sh > /dev/null 2>&1
+bash local/download_lm_ch.sh
 if [ $? -ne 0 ]; then
    exit 1
 fi

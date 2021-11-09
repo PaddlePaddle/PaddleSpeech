@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if python -c "import paddlehub" &> /dev/null; then
+    echo 'PaddleHub has already been installed.'
+else
+    echo 'Installing PaddleHub...'
+    pip install paddlehub -U
+fi
+
 mkdir -p data
 wav_en=data/en.wav
 wav_zh=data/zh.wav

@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if python -c "import paddlehub" &> /dev/null; then
+    echo 'PaddleHub has already been installed.'
+else
+    echo 'Installing PaddleHub...'
+    pip install paddlehub -U
+fi
+
 if [ $# != 2 -a $# != 3 ];then
     echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} text output_dir [lang]"
     exit -1

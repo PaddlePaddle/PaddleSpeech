@@ -123,10 +123,15 @@ A tiny DeepSpeech2 **Speech-To-Text** model training on toy set of LibriSpeech:
 cd examples/tiny/s0/
 # source the environment
 source path.sh
-# prepare librispeech dataset
-bash local/data.sh
-# evaluate your ckptfile model file
-bash local/test.sh conf/deepspeech2.yaml ckptfile offline
+source ../../../utils/parse_options.sh
+# prepare data
+bash ./local/data.sh
+# train model, all `ckpt` under `exp` dir, if you use paddlepaddle-gpu, you can set CUDA_VISIBLE_DEVICES before the train script
+./local/train.sh conf/deepspeech2.yaml deepspeech2 offline
+# avg n best model to get the test model, in this case, n = 1
+avg.sh best exp/deepspeech2/checkpoints 1
+# evaluate the test model
+./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 offline
 ```
 
 For **Text-To-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:

@@ -7,10 +7,11 @@ else
     pip install paddlehub -U
 fi
 
-if [ $# != 2 -a $# != 3 ];then
-    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} text output_dir [lang]"
-    exit -1
-fi
+mkdir -p data
+wav_en=data/en.wav
+wav_zh=data/zh.wav
+test -e ${wav_en}  || wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav -P data
+test -e ${wav_zh}  || wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav -P data
 
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 if [ ${ngpu} == 0 ];then
@@ -21,22 +22,9 @@ fi
 
 echo "using ${device}..."
 
-text=$1
-output_dir=$2
-if [ $# == 3 ];then
-    lang=$3
-else
-    lang=zh
-fi
-
-if [ ! -d $output_dir ];then
-    mkdir -p $output_dir
-fi
-
 python3 -u hub_infer.py \
---lang ${lang} \
 --device ${device} \
---text \"${text}\" \
---output_dir ${output_dir}
+--wav_en ${wav_en} \
+--wav_zh ${wav_zh}
 
 exit 0

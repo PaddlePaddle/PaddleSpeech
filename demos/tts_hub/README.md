@@ -1,6 +1,4 @@
-# echo system
-
-ASR + TTS
+# TTS
 
 中文：
 ```shell

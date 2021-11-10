@@ -187,7 +187,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
-      <a href = "./examples/aishell/s0">deepspeech2-aishell</a> 
+      <a href = "./examples/aishell/s0">deepspeech2-aishell</a>
       </td>
     </tr>
     <tr>
@@ -200,7 +200,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a> 
+      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a>
       </td>
       </td>
     </tr>
@@ -223,7 +223,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td>TIMIT</td>
       <td>Unified Streaming & Non-streaming Two-pass</td>
       <td>
-    <a href = "./examples/timit/s1"> u2-timit</a> 
+    <a href = "./examples/timit/s1"> u2-timit</a>
       </td>
     </tr>
   </tbody>
@@ -351,4 +351,3 @@ howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
 ```
-

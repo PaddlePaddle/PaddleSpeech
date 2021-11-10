@@ -12,9 +12,12 @@ pushd ../../../examples/aishell/s1
 source path.sh
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
+mkdir -p conf/benchmark
+yq e ".training.accum_grad=1" conf/conformer.yaml > conf/benchmark/conformer.yaml
+
 fp_item_list=(fp32)
 bs_item=(16 30)
-config_path=conf/conformer.yaml
+config_path=conf/benchmark/conformer.yaml
 seed=0
 output=exp/conformer
 profiler_options=None

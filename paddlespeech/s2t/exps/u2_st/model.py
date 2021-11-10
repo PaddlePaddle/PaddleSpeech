@@ -441,10 +441,7 @@ class U2STTester(U2STTrainer):
             "".join(chr(t) for t in text[:text_len])
             for text, text_len in zip(texts, texts_len)
         ]
-        # from IPython import embed
-        # import os
-        # embed()
-        # os._exit(0)
+        
         hyps = self.model.decode(
             audio,
             audio_len,
@@ -458,6 +455,7 @@ class U2STTester(U2STTrainer):
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch,
             ctc_weight=cfg.ctc_weight,
+            word_reward=cfg.word_reward,
             decoding_chunk_size=cfg.decoding_chunk_size,
             num_decoding_left_chunks=cfg.num_decoding_left_chunks,
             simulate_streaming=cfg.simulate_streaming)

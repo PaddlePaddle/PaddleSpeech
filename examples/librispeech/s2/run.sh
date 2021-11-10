@@ -5,6 +5,7 @@ set -e
 . ./path.sh || exit 1;
 . ./cmd.sh || exit 1;
 
+gpus=0,1,2,3,4,5,6,7
 stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
@@ -24,7 +25,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 ./local/train.sh ${conf_path}  ${ckpt}
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt}
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
@@ -49,9 +50,9 @@ fi
 
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     # export ckpt avg_n
-    CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+    ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
 fi
 
 if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
-    CUDA_VISIBLE_DEVICES= ./local/cacu_perplexity.sh || exit -1
+    ./local/cacu_perplexity.sh || exit -1
 fi

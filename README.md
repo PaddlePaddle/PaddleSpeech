@@ -95,7 +95,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 # Community
 
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
+You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
 
 If you are from China, we strongly recommend you join our PaddleSpeech WeChat group. Scan the following WeChat QR code and get in touch with the other developers in this community!
 
@@ -331,10 +331,10 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
 - [Released Models](./docs/source/released_model.md)
 
-The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
 # FAQ and Contributing
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
+You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
 
 # License and Acknowledgement
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
@@ -347,7 +347,7 @@ To cite PaddleSpeech for research, please use the following format.
 @misc{ppspeech2021,
 title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
 author={PaddlePaddle Authors},
-howpublished = {\url{https://github.com/PaddlePaddle/DeepSpeech}},
+howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
 ```

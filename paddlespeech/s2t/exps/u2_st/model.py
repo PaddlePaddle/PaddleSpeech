@@ -441,7 +441,7 @@ class U2STTester(U2STTrainer):
             "".join(chr(t) for t in text[:text_len])
             for text, text_len in zip(texts, texts_len)
         ]
-        
+
         hyps = self.model.decode(
             audio,
             audio_len,

@@ -212,7 +212,8 @@ class U2Trainer(Trainer):
                             msg += f" {k.split(',')[0]}: "
                             msg += f"{v:>.8f}" if isinstance(v,
                                                              float) else f"{v}"
-                            msg += f" {k.split(',')[1]}" if len(k.split(',')) == 2 else f""
+                            msg += f" {k.split(',')[1]}" if len(
+                                k.split(',')) == 2 else f""
                             msg += ","
                         msg = msg[:-1]  # remove the last ","
                         if (batch_index + 1

@@ -93,17 +93,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
   - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
 
-# Community
-
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
-
-If you are from China, we strongly recommend you join our PaddleSpeech WeChat group. Scan the following WeChat QR code and get in touch with the other developers in this community!
-
-<div align="center">
-<img src="./docs/images/wechat-code-speech.png"  width = "200">
-
-</div>
-
 # Alternative Installation
 
 The base environment in this page is  

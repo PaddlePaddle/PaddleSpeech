@@ -209,6 +209,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 
 ## Pretrained Model
 Pretrained SpeedySpeech model with no silence in the edge of audios. [speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)
+Static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_static_0.5.zip).
 
 SpeedySpeech checkpoint contains files listed below.
 ```text

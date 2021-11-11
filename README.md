@@ -93,17 +93,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
   - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
 
-# Community
-
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
-
-If you are from China, we strongly recommend you join our PaddleSpeech WeChat group. Scan the following WeChat QR code and get in touch with the other developers in this community!
-
-<div align="center">
-<img src="./docs/images/wechat-code-speech.png"  width = "200">
-
-</div>
-
 # Alternative Installation
 
 The base environment in this page is  
@@ -187,7 +176,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
-      <a href = "./examples/aishell/s0">deepspeech2-aishell</a> 
+      <a href = "./examples/aishell/s0">deepspeech2-aishell</a>
       </td>
     </tr>
     <tr>
@@ -200,7 +189,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a> 
+      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a>
       </td>
       </td>
     </tr>
@@ -223,7 +212,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td>TIMIT</td>
       <td>Unified Streaming & Non-streaming Two-pass</td>
       <td>
-    <a href = "./examples/timit/s1"> u2-timit</a> 
+    <a href = "./examples/timit/s1"> u2-timit</a>
       </td>
     </tr>
   </tbody>
@@ -331,10 +320,10 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
 - [Released Models](./docs/source/released_model.md)
 
-The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
 # FAQ and Contributing
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/DeepSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/DeepSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
+You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
 
 # License and Acknowledgement
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
@@ -347,8 +336,7 @@ To cite PaddleSpeech for research, please use the following format.
 @misc{ppspeech2021,
 title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
 author={PaddlePaddle Authors},
-howpublished = {\url{https://github.com/PaddlePaddle/DeepSpeech}},
+howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
 ```
-

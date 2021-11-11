@@ -1,16 +1,25 @@
-# Parallel WaveGAN with CSMSC
-This example contains code used to train a [parallel wavegan](http://arxiv.org/abs/1910.11480) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
+# Parallel WaveGAN with AISHELL-3
+This example contains code used to train a [parallel wavegan](http://arxiv.org/abs/1910.11480) model with [AISHELL-3](http://www.aishelltech.com/aishell_3).
+
+AISHELL-3 is a large-scale and high-fidelity multi-speaker Mandarin speech corpus which could be used to train multi-speaker Text-to-Speech (TTS) systems.
 ## Dataset
 ### Download and Extract the datasaet
-Download CSMSC from the [official website](https://www.data-baker.com/data/index/source) and extract it to `~/datasets`. Then the dataset is in directory `~/datasets/BZNSYP`.
-
-### Get MFA results for silence trim
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to  cut silence in the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) of our repo.
+Download AISHELL-3.
+```bash
+wget https://www.openslr.org/resources/93/data_aishell3.tgz
+```
+Extract AISHELL-3.
+```bash
+mkdir data_aishell3
+tar zxvf data_aishell3.tgz -C data_aishell3
+```
+### Get MFA result of AISHELL-3 and Extract it
+We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
-Assume the path to the dataset is `~/datasets/BZNSYP`.
-Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
+Assume the path to the dataset is `~/datasets/data_aishell3`.
+Assume the path to the MFA result of AISHELL-3 is `./aishell3_alignment_tone`.
 Run the command below to
 1. **source path**.
 2. preprocess the dataset,
@@ -39,6 +48,7 @@ dump
     ├── raw
     └── feats_stats.npy
 ```
+
 The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of which contains a `norm` and `raw` subfolder. The `raw` folder contains log magnitude of mel spectrogram of each utterances, while the norm folder contains normalized spectrogram. The statistics used to normalize the spectrogram is computed from the training set, which is located in `dump/train/feats_stats.npy`.
 
 Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains id and paths to spectrogam of each utterance.
@@ -116,22 +126,21 @@ optional arguments:
 ```
 
 1. `--config` parallel wavegan config file. You should use the same config with which the model is trained.
-2. `--checkpoint` is the checkpoint to load. Pick one of the checkpoints from `checkpoints` inside the training output directory.
+2. `--checkpoint` is the checkpoint to load. Pick one of the checkpoints from `checkpoints` inside the training output directory. If you use the pretrained model, use the `snapshot_iter_1000000.pdz `.
 3. `--test-metadata` is the metadata of the test dataset. Use the `metadata.jsonl` in the `dev/norm` subfolder from the processed directory.
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Models
-Pretrained model can be downloaded here [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip).
-Static models can be downloaded here [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_static_0.4.zip).
+Pretrained models can be downloaded here [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_aishell3_ckpt_0.5.zip).
 
 Parallel WaveGAN checkpoint contains files listed below.
 
 ```text
-pwg_baker_ckpt_0.4
-├── pwg_default.yaml              # default config used to train parallel wavegan
-├── pwg_snapshot_iter_400000.pdz  # generator parameters of parallel wavegan
-└── pwg_stats.npy                 # statistics used to normalize spectrogram when training parallel wavegan
+pwg_aishell3_ckpt_0.5
+├── default.yaml                   # default config used to train parallel wavegan
+├── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
+└── snapshot_iter_1000000.pdz      # generator parameters of parallel wavegan
 ```
 ## Acknowledgement
 We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

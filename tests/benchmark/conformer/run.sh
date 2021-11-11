@@ -10,8 +10,10 @@ pushd ../../../examples/aishell/s1
 
 
 source path.sh
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
 fp_item_list=(fp32)
-bs_item=(16)
+bs_item=(16 30)
 config_path=conf/conformer.yaml
 seed=0
 output=exp/conformer
@@ -34,7 +36,4 @@ done
 
 popd
 
-mkdir -p log
-bash run_analysis_sp.sh > log/log_sp.out
-bash run_analysis_mp.sh > log/log_mp.out
 

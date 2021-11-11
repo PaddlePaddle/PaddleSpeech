@@ -81,6 +81,8 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             durations = durations * d_outs
         elif isinstance(durations, paddle.Tensor):
             durations = durations
+        else:
+            durations = d_outs
 
         if robot:
             # set normed pitch to zeros have the same effect with set denormd ones to mean
@@ -94,6 +96,8 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             pitch = self.norm(paddle.log(p_HZ), self.pitch_mean, self.pitch_std)
         elif isinstance(pitch, paddle.Tensor):
             pitch = pitch
+        else:
+            pitch = p_outs
 
         # set energy
         if isinstance(energy, (int, float)):
@@ -102,6 +106,8 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             energy = self.norm(e_dnorm, self.energy_mean, self.energy_std)
         elif isinstance(energy, paddle.Tensor):
             energy = energy
+        else:
+            energy = e_outs
 
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
             text,

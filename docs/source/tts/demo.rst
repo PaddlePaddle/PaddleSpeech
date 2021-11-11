@@ -661,9 +661,11 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
     <br>
         
 
-Duration control in FastSpeech2
+Style control in FastSpeech2
 --------------------------------------
-In our FastSpeech2, we can control ``duration``, ``pitch`` and ``energy``, we provide the audio demos of duration control here. ``duration`` means the duration of phonemes, when we reduce duration, the speed of audios will increase, and when we incerase ``duration``, the speed of audios will reduce.
+In our FastSpeech2, we can control ``duration``, ``pitch`` and ``energy``.
+
+We provide the audio demos of duration control here. ``duration`` means the duration of phonemes, when we reduce duration, the speed of audios will increase, and when we incerase ``duration``, the speed of audios will reduce.
 
 The ``duration`` of different phonemes in a sentence can have different scale ratios (when you want to slow down one word and keep the other words' speed in a sentence). Here we use a fixed scale ratio for different phonemes to control the ``speed`` of audios.
 
@@ -881,6 +883,174 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
                 <audio controls="controls">
                     <source
                         src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_009.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+
+    <table>
+    <div>
+    <br>
+    <br>
+
+We provide the audio demos of pitch control here. 
+
+When we set pitch of one sentence to a mean value and set ``tones`` of phones to ``1``, we will get a ``robot-style`` timbre.
+
+When we raise the pitch of an adult female (with a fixed scale ratio), we will get a ``child-style`` timbre.
+
+The ``pitch`` of different phonemes in a sentence can also have different scale ratios.
+
+The nomal audios are in the second column of the previous table.
+
+.. raw:: html
+
+    <div class="table">
+    <table border="2" cellspacing="1" cellpadding="1">
+        <tr>
+            <th align="center"> Robot </th>
+            <th align="center"> Child </th>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/003.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/003.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/004.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//004.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/005.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//005.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/007.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//007.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/008.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//008.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/009.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>

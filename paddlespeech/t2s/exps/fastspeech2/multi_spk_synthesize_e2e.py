@@ -87,26 +87,27 @@ def evaluate(args, fastspeech2_config, pwg_config):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     # only test the number 0 speaker
-    spk_id = 0
-    for utt_id, sentence in sentences:
-        input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
-        phone_ids = input_ids["phone_ids"]
-        flags = 0
-        for part_phone_ids in phone_ids:
-            with paddle.no_grad():
-                mel = fastspeech2_inference(
-                    part_phone_ids, spk_id=paddle.to_tensor(spk_id))
-                temp_wav = pwg_inference(mel)
-            if flags == 0:
-                wav = temp_wav
-                flags = 1
-            else:
-                wav = paddle.concat([wav, temp_wav])
-        sf.write(
-            str(output_dir / (str(spk_id) + "_" + utt_id + ".wav")),
-            wav.numpy(),
-            samplerate=fastspeech2_config.fs)
-        print(f"{spk_id}_{utt_id} done!")
+    spk_ids = list(range(20))
+    for spk_id in spk_ids:
+        for utt_id, sentence in sentences[:2]:
+            input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
+            phone_ids = input_ids["phone_ids"]
+            flags = 0
+            for part_phone_ids in phone_ids:
+                with paddle.no_grad():
+                    mel = fastspeech2_inference(
+                        part_phone_ids, spk_id=paddle.to_tensor(spk_id))
+                    temp_wav = pwg_inference(mel)
+                if flags == 0:
+                    wav = temp_wav
+                    flags = 1
+                else:
+                    wav = paddle.concat([wav, temp_wav])
+            sf.write(
+                str(output_dir / (str(spk_id) + "_" + utt_id + ".wav")),
+                wav.numpy(),
+                samplerate=fastspeech2_config.fs)
+            print(f"{spk_id}_{utt_id} done!")
 
 
 def main():

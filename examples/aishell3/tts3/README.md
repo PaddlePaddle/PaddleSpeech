@@ -96,17 +96,17 @@ optional arguments:
 6. `--speaker-dict`is the path of the  speaker id map file when training a multi-speaker FastSpeech2.
 
 ### Synthesize
-We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip) and unzip it.
+We use [parallel wavegan](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
+Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
-unzip pwg_baker_ckpt_0.4.zip
+unzip pwg_aishell3_ckpt_0.5.zip
 ```
 Parallel WaveGAN checkpoint contains files listed below.
 ```text
-pwg_baker_ckpt_0.4
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_400000.pdz   # model parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+pwg_aishell3_ckpt_0.5
+├── default.yaml                   # default config used to train parallel wavegan
+├── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
+└── snapshot_iter_1000000.pdz      # generator parameters of parallel wavegan
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
@@ -224,14 +224,12 @@ python3 ${BIN_DIR}/multi_spk_synthesize_e2e.py \
   --fastspeech2-config=fastspeech2_nosil_aishell3_ckpt_0.4/default.yaml \
   --fastspeech2-checkpoint=fastspeech2_nosil_aishell3_ckpt_0.4/snapshot_iter_96400.pdz \
   --fastspeech2-stat=fastspeech2_nosil_aishell3_ckpt_0.4/speech_stats.npy \
-  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+  --pwg-config=pwg_aishell3_ckpt_0.5/default.yaml \
+  --pwg-checkpoint=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
+  --pwg-stat=pwg_aishell3_ckpt_0.5/feats_stats.npy  \
   --text=${BIN_DIR}/../sentences.txt \
   --output-dir=exp/default/test_e2e \
   --phones-dict=fastspeech2_nosil_aishell3_ckpt_0.4/phone_id_map.txt \
   --speaker-dict=fastspeech2_nosil_aishell3_ckpt_0.4/speaker_id_map.txt
 
 ```
-## Future work
-A multi-speaker  vocoder is needed.

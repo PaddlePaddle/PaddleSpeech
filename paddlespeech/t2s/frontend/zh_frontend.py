@@ -219,18 +219,45 @@ class Frontend():
     def get_phonemes(self,
                      sentence: str,
                      merge_sentences: bool=True,
-                     with_erhua: bool=True) -> List[List[str]]:
+                     with_erhua: bool=True,
+                     robot: bool=False,
+                     print_info: bool=False) -> List[List[str]]:
         sentences = self.text_normalizer.normalize(sentence)
         phonemes = self._g2p(
             sentences, merge_sentences=merge_sentences, with_erhua=with_erhua)
+        # change all tones to `1`
+        if robot:
+            new_phonemes = []
+            for sentence in phonemes:
+                new_sentence = []
+                for item in sentence:
+                    # `er` only have tone `2`
+                    if item[-1] in "12345" and item != "er2":
+                        item = item[:-1] + "1"
+                    new_sentence.append(item)
+                new_phonemes.append(new_sentence)
+            phonemes = new_phonemes
+        if print_info:
+            print("----------------------------")
+            print("text norm results:")
+            print(sentences)
+            print("----------------------------")
+            print("g2p results:")
+            print(phonemes)
+            print("----------------------------")
         return phonemes
 
-    def get_input_ids(
-            self,
-            sentence: str,
-            merge_sentences: bool=True,
-            get_tone_ids: bool=False) -> Dict[str, List[paddle.Tensor]]:
-        phonemes = self.get_phonemes(sentence, merge_sentences=merge_sentences)
+    def get_input_ids(self,
+                      sentence: str,
+                      merge_sentences: bool=True,
+                      get_tone_ids: bool=False,
+                      robot: bool=False,
+                      print_info: bool=False) -> Dict[str, List[paddle.Tensor]]:
+        phonemes = self.get_phonemes(
+            sentence,
+            merge_sentences=merge_sentences,
+            print_info=print_info,
+            robot=robot)
         result = {}
         phones = []
         tones = []

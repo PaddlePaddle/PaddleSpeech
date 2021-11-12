@@ -30,9 +30,9 @@ from paddlespeech.t2s.models.melgan import MelGANGenerator
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Synthesize with parallel wavegan.")
+        description="Synthesize with multi band melgan.")
     parser.add_argument(
-        "--config", type=str, help="parallel wavegan config file.")
+        "--config", type=str, help="multi band melgan config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")

@@ -220,8 +220,8 @@ class Frontend():
                      sentence: str,
                      merge_sentences: bool=True,
                      with_erhua: bool=True,
-                     print_info: bool=False,
-                     robot: bool=False) -> List[List[str]]:
+                     robot: bool=False,
+                     print_info: bool=False) -> List[List[str]]:
         sentences = self.text_normalizer.normalize(sentence)
         phonemes = self._g2p(
             sentences, merge_sentences=merge_sentences, with_erhua=with_erhua)
@@ -251,8 +251,8 @@ class Frontend():
                       sentence: str,
                       merge_sentences: bool=True,
                       get_tone_ids: bool=False,
-                      print_info: bool=False,
-                      robot: bool=False) -> Dict[str, List[paddle.Tensor]]:
+                      robot: bool=False,
+                      print_info: bool=False) -> Dict[str, List[paddle.Tensor]]:
         phonemes = self.get_phonemes(
             sentence,
             merge_sentences=merge_sentences,

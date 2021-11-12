@@ -13,6 +13,7 @@
 # limitations under the License.
 import argparse
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import paddle
@@ -31,12 +32,12 @@ from paddlespeech.t2s.modules.normalizer import ZScore
 class StyleFastSpeech2Inference(FastSpeech2Inference):
     def __init__(self, normalizer, model, pitch_stats_path, energy_stats_path):
         super().__init__(normalizer, model)
-        self.pitch_mean, self.pitch_std = np.load(pitch_stats_path)
-        self.pitch_mean = paddle.to_tensor(self.pitch_mean)
-        self.pitch_std = paddle.to_tensor(self.pitch_std)
-        self.energy_mean, self.energy_std = np.load(energy_stats_path)
-        self.energy_mean = paddle.to_tensor(self.energy_mean)
-        self.energy_std = paddle.to_tensor(self.energy_std)
+        pitch_mean, pitch_std = np.load(pitch_stats_path)
+        self.pitch_mean = paddle.to_tensor(pitch_mean)
+        self.pitch_std = paddle.to_tensor(pitch_std)
+        energy_mean, energy_std = np.load(energy_stats_path)
+        self.energy_mean = paddle.to_tensor(energy_mean)
+        self.energy_std = paddle.to_tensor(energy_std)
 
     def denorm(self, data, mean, std):
         return data * std + mean
@@ -45,11 +46,17 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
         return (data - mean) / std
 
     def forward(self,
-                text,
-                durations=None,
-                pitch=None,
-                energy=None,
-                robot=False):
+                text: paddle.Tensor,
+                durations: Union[paddle.Tensor, np.ndarray]=None,
+                durations_scale: Union[int, float]=None,
+                durations_bias: Union[int, float]=None,
+                pitch: Union[paddle.Tensor, np.ndarray]=None,
+                pitch_scale: Union[int, float]=None,
+                pitch_bias: Union[int, float]=None,
+                energy: Union[paddle.Tensor, np.ndarray]=None,
+                energy_scale: Union[int, float]=None,
+                energy_bias: Union[int, float]=None,
+                robot: bool=False):
         """
         Parameters
         ----------
@@ -57,15 +64,22 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             Input sequence of characters (T,).
         speech : Tensor, optional
             Feature sequence to extract style (N, idim).
-        durations : Tensor, optional (int64)
-            Groundtruth of duration (T,) or 
-            float/int (represents ratio)
-        pitch : Tensor, optional
-            Groundtruth of token-averaged pitch (T, 1) or
-            float/int (represents ratio)
-        energy : Tensor, optional
-            Groundtruth of token-averaged energy (T, 1) or 
-            float (represents ratio)
+        durations : paddle.Tensor/np.ndarray, optional (int64)
+            Groundtruth of duration (T,), this will overwrite the set of durations_scale and durations_bias
+        durations_scale: int/float, optional
+        durations_bias: int/float, optional
+        pitch : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged pitch (T, 1), this will overwrite the set of pitch_scale and pitch_bias
+        pitch_scale: int/float, optional
+            In denormed HZ domain.
+        pitch_bias: int/float, optional
+            In denormed HZ domain.
+        energy : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged energy (T, 1), this will overwrite the set of energy_scale and energy_bias
+        energy_scale: int/float, optional
+            In denormed domain.
+        energy_bias: int/float, optional
+            In denormed domain.
         robot : bool, optional
             Weather output robot style
         Returns
@@ -75,12 +89,16 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
         """
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
             text, durations=None, pitch=None, energy=None)
-
-        # set duration
-        if isinstance(durations, float):
-            durations = durations * d_outs
+        # priority: groundtruth > scale/bias > previous output
+        # set durations
+        if isinstance(durations, np.ndarray):
+            durations = paddle.to_tensor(durations)
         elif isinstance(durations, paddle.Tensor):
             durations = durations
+        elif durations_scale or durations_bias:
+            durations_scale = durations_scale if durations_scale is not None else 1
+            durations_bias = durations_bias if durations_bias is not None else 0
+            durations = durations_scale * d_outs + durations_bias
         else:
             durations = d_outs
 
@@ -88,24 +106,32 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             # set normed pitch to zeros have the same effect with set denormd ones to mean
             pitch = paddle.zeros(p_outs.shape)
 
-        # set pitch, can overwrite robot set    
-        if isinstance(pitch, (int, float)):
-            p_Hz = paddle.exp(
-                self.denorm(p_outs, self.pitch_mean, self.pitch_std))
-            p_HZ = pitch * p_Hz
-            pitch = self.norm(paddle.log(p_HZ), self.pitch_mean, self.pitch_std)
+        # set pitch, can overwrite robot set  
+        if isinstance(pitch, np.ndarray):
+            pitch = paddle.to_tensor(pitch)
         elif isinstance(pitch, paddle.Tensor):
             pitch = pitch
+        elif pitch_scale or pitch_bias:
+            pitch_scale = pitch_scale if pitch_scale is not None else 1
+            pitch_bias = pitch_bias if pitch_bias is not None else 0
+            p_Hz = paddle.exp(
+                self.denorm(p_outs, self.pitch_mean, self.pitch_std))
+            p_HZ = pitch_scale * p_Hz + pitch_bias
+            pitch = self.norm(paddle.log(p_HZ), self.pitch_mean, self.pitch_std)
         else:
             pitch = p_outs
 
         # set energy
-        if isinstance(energy, (int, float)):
-            e_dnorm = self.denorm(e_outs, self.energy_mean, self.energy_std)
-            e_dnorm = energy * e_dnorm
-            energy = self.norm(e_dnorm, self.energy_mean, self.energy_std)
+        if isinstance(energy, np.ndarray):
+            energy = paddle.to_tensor(energy)
         elif isinstance(energy, paddle.Tensor):
             energy = energy
+        elif energy_scale or energy_bias:
+            energy_scale = energy_scale if energy_scale is not None else 1
+            energy_bias = energy_bias if energy_bias is not None else 0
+            e_dnorm = self.denorm(e_outs, self.energy_mean, self.energy_std)
+            e_dnorm = energy_scale * e_dnorm + energy_bias
+            energy = self.norm(e_dnorm, self.energy_mean, self.energy_std)
         else:
             energy = e_outs
 
@@ -173,23 +199,29 @@ def evaluate(args, fastspeech2_config, pwg_config):
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
     styles = ["normal", "robot", "1.2xspeed", "0.8xspeed", "child_voice"]
     for style in styles:
         robot = False
         durations = None
+        durations_scale = None
+        durations_bias = None
         pitch = None
+        pitch_scale = None
+        pitch_bias = None
         energy = None
-
+        energy_scale = None
+        energy_bias = None
         if style == "robot":
             # all tones in phones be `1`
             # all pitch should be the same, we use mean here
             robot = True
         if style == "1.2xspeed":
-            durations = 1 / 1.2
+            durations_scale = 1 / 1.2
         if style == "0.8xspeed":
-            durations = 1 / 0.8
+            durations_scale = 1 / 0.8
         if style == "child_voice":
-            pitch = 1.3
+            pitch_scale = 1.3
         sub_output_dir = output_dir / style
         sub_output_dir.mkdir(parents=True, exist_ok=True)
         for utt_id, sentence in sentences:
@@ -201,8 +233,14 @@ def evaluate(args, fastspeech2_config, pwg_config):
                 mel = fastspeech2_inference(
                     phone_ids,
                     durations=durations,
+                    durations_scale=durations_scale,
+                    durations_bias=durations_bias,
                     pitch=pitch,
+                    pitch_scale=pitch_scale,
+                    pitch_bias=pitch_bias,
                     energy=energy,
+                    energy_scale=energy_scale,
+                    energy_bias=energy_bias,
                     robot=robot)
                 wav = pwg_inference(mel)
 

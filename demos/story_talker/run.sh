@@ -10,7 +10,7 @@ stop_stage=100
 # this can not be mixed use with `$1`, `$2` ...
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
-mkdir download
+mkdir -p download
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # install PaddleOCR

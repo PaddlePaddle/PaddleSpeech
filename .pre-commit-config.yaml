@@ -13,8 +13,8 @@
         files: (?!.*paddle)^.*$
     -   id: end-of-file-fixer
         files: \.md$
-    -   id: trailing-whitespace
-        files: \.md$
+    #-   id: trailing-whitespace
+    #    files: \.md$
     -   id: requirements-txt-fixer
         exclude: (?=third_party).*$
     -   id: check-yaml

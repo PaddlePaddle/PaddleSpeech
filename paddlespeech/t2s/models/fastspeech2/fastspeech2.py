@@ -420,9 +420,10 @@ class FastSpeech2(nn.Layer):
 
         if is_inference:
             # (B, Tmax)
-            d_outs = self.duration_predictor.inference(hs, d_masks)
             if ds is not None:
                 d_outs = ds
+            else:
+                d_outs = self.duration_predictor.inference(hs, d_masks)
             if ps is not None:
                 p_outs = ps
             if es is not None:

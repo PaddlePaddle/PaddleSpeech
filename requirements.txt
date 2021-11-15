@@ -28,7 +28,7 @@ python-dateutil
 pyworld
 resampy==0.2.2
 sacrebleu
-scipy==1.2.1
+scipy
 sentencepiece
 snakeviz
 soundfile~=0.10

@@ -9,9 +9,11 @@ WGET=${WGET:-wget}
 if [ -d "$DOWNLOAD_DIR" ]; then
     cp -p "$DOWNLOAD_DIR/Miniconda3-latest-Linux-x86_64.sh" . || exit 1
 else
-    $WGET https://repo.anaconda.com/miniconda/Miniconda3-py37_4.10.3-Linux-x86_64.sh || exit 1
+    $WGET https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh || exit 1
 fi
-bash Miniconda3-py37_4.10.3-Linux-x86_64.sh -b
+bash Miniconda3-latest-Linux-x86_64.sh -b
+
+$HOME/miniconda3/bin/conda init
 
 $HOME/miniconda3/bin/python -m pip install --user tqdm
 $HOME/miniconda3/bin/python -m pip install --user scikit-learn

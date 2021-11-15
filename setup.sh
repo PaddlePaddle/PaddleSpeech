@@ -1,5 +1,5 @@
 # Install conda dependencies
-conda install -c conda-forge sox libsndfile swig bzip2 bottleneck gcc_linux-64=7.5.0 gxx_linux-64=7.5.0 --yes
+conda install -c conda-forge sox libsndfile swig bzip2 bottleneck gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
 
 # Install the python lib
 pip install -r requirements.txt

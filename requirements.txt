@@ -44,3 +44,9 @@ visualdl==2.2.0
 webrtcvad
 yacs
 yq
+pypi-kenlm
+GPUtil
+psutil
+pynvml
+distro
+

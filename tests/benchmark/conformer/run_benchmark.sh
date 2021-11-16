@@ -17,7 +17,7 @@ function _set_params(){
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR 后续QA设置该参数
 # 添加日志解析需要的参数
     base_batch_size=${batch_size}
-    mission_name="语音合成"
+    mission_name="语音识别"
     direction_id="1"
     ips_unit="sequences/sec"
     skip_steps=10                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)

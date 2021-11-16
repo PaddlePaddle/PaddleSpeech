@@ -3,7 +3,6 @@
 # 执行目录：需说明
 CUR_DIR=${PWD} # PaddleSpeech/tests/benchmark/conformer
 cd ../../../
-pip install -e .   # 安装pdspeech
 log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录
 cd ${CUR_DIR}
 sed -i '/set\ -xe/d' run_benchmark.sh

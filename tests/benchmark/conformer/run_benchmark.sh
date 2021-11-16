@@ -9,7 +9,7 @@ function _set_params(){
     output=${3:-"exp/conformer"}
     seed=${4:-"0"}
     ngpu=${5:-"1"}
-    profiler_options=${6:-"1"}
+    profiler_options=${6:-"None"}
     batch_size=${7:-"32"}
     fp_item=${8:-"fp32"}
     model_item=${9:-"conformer"}

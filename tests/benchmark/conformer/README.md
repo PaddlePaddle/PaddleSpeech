@@ -43,16 +43,6 @@ bash prepare.sh
 bash run.sh
 ```
 
-### Analyse the sp
-```
-bash run_analysis_sp.sh
-```
-
-### Analyse the mp
-```
-bash run_analysis_mp.sh
-```
-
 ### The log
 ```
 {"log_file": "recoder_sp_bs16_fp32_ngpu1.txt",

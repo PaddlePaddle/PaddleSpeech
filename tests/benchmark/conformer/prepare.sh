@@ -1,4 +1,3 @@
-source ../../../tools/venv/bin/activate
 
 #Enter the example dir
 pushd ../../../examples/aishell/s1

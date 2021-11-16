@@ -19,7 +19,7 @@ function _set_params(){
     base_batch_size=${batch_size}
     mission_name="语音识别"
     direction_id="1"
-    ips_unit="sequences/sec"
+    ips_unit="sent./sec"
     skip_steps=10                     # 解析日志，有些模型前几个step耗时长，需要跳过                                    (必填)
     keyword="ips:"                 # 解析日志，筛选出数据所在行的关键字                                             (必填)
     index="1"

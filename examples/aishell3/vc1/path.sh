@@ -9,5 +9,5 @@ export PYTHONDONTWRITEBYTECODE=1
 export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
-MODEL=ge2e
-export BIN_DIR=${MAIN_ROOT}/paddlespeech/vector/exps/${MODEL}
+MODEL=fastspeech2
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/t2s/exps/${MODEL}

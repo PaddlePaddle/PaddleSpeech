@@ -85,7 +85,6 @@ updater:
     use_masking: True                 # whether to apply masking for padded part in loss calculation
 
 
-
 ###########################################################
 #                     OPTIMIZER SETTING                   #
 ###########################################################

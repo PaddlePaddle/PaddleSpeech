@@ -61,6 +61,8 @@ def train_sp(args, config):
         "text", "text_lengths", "speech", "speech_lengths", "durations",
         "pitch", "energy"
     ]
+    converters = {"speech": np.load, "pitch": np.load, "energy": np.load}
+    num_speakers = None
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         collate_fn = fastspeech2_multi_spk_batch_fn
@@ -68,10 +70,14 @@ def train_sp(args, config):
             spk_id = [line.strip().split() for line in f.readlines()]
         num_speakers = len(spk_id)
         fields += ["spk_id"]
+    elif args.voice_cloning:
+        print("Training voice cloning!")
+        collate_fn = fastspeech2_multi_spk_batch_fn
+        fields += ["spembs"]
+        converters["spembs"] = np.load
     else:
         print("single speaker fastspeech2!")
         collate_fn = fastspeech2_single_spk_batch_fn
-        num_speakers = None
     print("num_speakers:", num_speakers)
 
     # dataloader has been too verbose
@@ -83,17 +89,13 @@ def train_sp(args, config):
     train_dataset = DataTable(
         data=train_metadata,
         fields=fields,
-        converters={"speech": np.load,
-                    "pitch": np.load,
-                    "energy": np.load}, )
+        converters=converters, )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
         fields=fields,
-        converters={"speech": np.load,
-                    "pitch": np.load,
-                    "energy": np.load}, )
+        converters=converters, )
 
     # collate function and dataloader
 
@@ -183,6 +185,15 @@ def main():
         type=str,
         default=None,
         help="speaker id map file for multiple speaker model.")
+
+    def str2bool(str):
+        return True if str.lower() == 'true' else False
+
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
 
     args = parser.parse_args()
 

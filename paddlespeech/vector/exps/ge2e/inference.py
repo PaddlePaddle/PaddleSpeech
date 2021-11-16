@@ -18,9 +18,9 @@ import numpy as np
 import paddle
 import tqdm
 
-from paddlespeech.t2s.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
-from paddlespeech.t2s.exps.ge2e.config import get_cfg_defaults
-from paddlespeech.t2s.models.lstm_speaker_encoder import LSTMSpeakerEncoder
+from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
+from paddlespeech.vector.exps.ge2e.config import get_cfg_defaults
+from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
 def embed_utterance(processor, model, fpath_or_wav):

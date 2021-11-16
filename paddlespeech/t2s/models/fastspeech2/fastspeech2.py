@@ -146,7 +146,7 @@ class FastSpeech2(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        if self.spk_embed_dim is not None:
+        if self.spk_embed_dim and num_speakers:
             self.spk_embedding_table = nn.Embedding(
                 num_embeddings=num_speakers,
                 embedding_dim=self.spk_embed_dim,
@@ -395,6 +395,7 @@ class FastSpeech2(nn.Layer):
 
         # integrate speaker embedding
         if self.spk_embed_dim is not None:
+            # spembs has a higher priority than spk_id
             if spembs is not None:
                 hs = self._integrate_with_spk_embed(hs, spembs)
             elif spk_id is not None:
@@ -525,7 +526,6 @@ class FastSpeech2(nn.Layer):
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         y = speech
-        spemb = spembs
         d, p, e = durations, pitch, energy
         # setup batch axis
         ilens = paddle.shape(x)[0]
@@ -535,8 +535,8 @@ class FastSpeech2(nn.Layer):
         if y is not None:
             ys = y.unsqueeze(0)
 
-        if spemb is not None:
-            spembs = spemb.unsqueeze(0)
+        if spembs is not None:
+            spembs = spembs.unsqueeze(0)
 
         if tone_id is not None:
             tone_id = tone_id.unsqueeze(0)
@@ -546,7 +546,7 @@ class FastSpeech2(nn.Layer):
             ds = d.unsqueeze(0) if d is not None else None
             ps = p.unsqueeze(0) if p is not None else None
             es = e.unsqueeze(0) if e is not None else None
-            # ds, ps, es = , p.unsqueeze(0), e.unsqueeze(0)
+
             # (1, L, odim)
             _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
@@ -680,9 +680,9 @@ class FastSpeech2Inference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, spk_id=None):
+    def forward(self, text, spk_id=None, spembs=None):
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, spk_id=spk_id)
+            text, spk_id=spk_id, spembs=spembs)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

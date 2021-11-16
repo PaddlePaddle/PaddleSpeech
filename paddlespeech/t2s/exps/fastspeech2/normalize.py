@@ -167,6 +167,10 @@ def main():
             "pitch": str(pitch_path),
             "energy": str(energy_path)
         }
+        # add spembs for voice cloning
+        if "spembs" in item:
+            record["spembs"] = str(item["spembs"])
+
         output_metadata.append(record)
     output_metadata.sort(key=itemgetter('utt_id'))
     output_metadata_path = Path(args.dumpdir) / "metadata.jsonl"

@@ -54,6 +54,10 @@ class FastSpeech2Updater(StandardUpdater):
         losses_dict = {}
         # spk_id!=None in multiple spk fastspeech2 
         spk_id = batch["spk_id"] if "spk_id" in batch else None
+        spembs = batch["spembs"] if "spembs" in batch else None
+        # No explicit speaker identifier labels are used during voice cloning training.
+        if spembs is not None:
+            spk_id = None
 
         before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens = self.model(
             text=batch["text"],
@@ -63,7 +67,8 @@ class FastSpeech2Updater(StandardUpdater):
             durations=batch["durations"],
             pitch=batch["pitch"],
             energy=batch["energy"],
-            spk_id=spk_id)
+            spk_id=spk_id,
+            spembs=spembs)
 
         l1_loss, duration_loss, pitch_loss, energy_loss = self.criterion(
             after_outs=after_outs,
@@ -126,6 +131,9 @@ class FastSpeech2Evaluator(StandardEvaluator):
         losses_dict = {}
         # spk_id!=None in multiple spk fastspeech2 
         spk_id = batch["spk_id"] if "spk_id" in batch else None
+        spembs = batch["spembs"] if "spembs" in batch else None
+        if spembs is not None:
+            spk_id = None
 
         before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens = self.model(
             text=batch["text"],
@@ -135,7 +143,8 @@ class FastSpeech2Evaluator(StandardEvaluator):
             durations=batch["durations"],
             pitch=batch["pitch"],
             energy=batch["energy"],
-            spk_id=spk_id)
+            spk_id=spk_id,
+            spembs=spembs)
 
         l1_loss, duration_loss, pitch_loss, energy_loss = self.criterion(
             after_outs=after_outs,

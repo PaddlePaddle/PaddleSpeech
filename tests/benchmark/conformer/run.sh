@@ -19,7 +19,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 mkdir -p conf/benchmark
 #yq e ".training.accum_grad=1" conf/conformer.yaml > conf/benchmark/conformer.yaml
 cp conf/conformer.yaml  conf/benchmark/conformer.yaml
-sed -i
+sed -i "s/  accum_grad: 2/  accum_grad: 1/g" conf/benchmark/conformer.yaml
 fp_item_list=(fp32)
 bs_item=(16 30)
 config_path=conf/benchmark/conformer.yaml

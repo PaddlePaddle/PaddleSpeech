@@ -9,7 +9,7 @@ stop_stage=100
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-  python3 ${MAIN_ROOT}/paddlespeech/t2s/exps/fastspeech2/gen_gt_duration_mel.py \
+  python3 ${MAIN_ROOT}/paddlespeech/t2s/exps/fastspeech2/gen_gta_mel.py \
       --fastspeech2-config=fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
       --fastspeech2-checkpoint=fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
       --fastspeech2-stat=fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
@@ -28,9 +28,7 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # get features' stats(mean and std)
     echo "Get features' stats ..."
-    python3 ${MAIN_ROOT}/utils/compute_statistics.py \
-        --metadata=dump_finetune/train/raw/metadata.jsonl \
-        --field-name="feats"
+    cp dump/train/feats_stats.npy dump_finetune/train/
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

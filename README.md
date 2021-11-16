@@ -6,10 +6,11 @@
   <h3>
   <a href="#quick-start"> Quick Start </a>
   | <a href="#tutorials"> Tutorials </a>
-  | <a href="#models-list"> Models List </a>
+  | <a href="#model-list"> Models List </a>
 </div>
 
 ------------------------------------------------------------------------------------
+
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
@@ -24,7 +25,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with the state-of-art and influential models.
 
-##### Speech-To-Text
+##### Speech-to-Text
 
 <div align = "center">
 <table style="width:100%">
@@ -54,7 +55,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-##### Text-To-Speech
+##### Text-to-Speech
 <div align = "center">
 <table style="width:100%">
   <thead>
@@ -83,30 +84,30 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-For more synthesized audios, please refer to [PaddleSpeech Text-To-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
+For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
 - **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
 - **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation, Automatic Speech Recognition, Text-To-Speech Synthesis, Voice Cloning, etc.
-  - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model lists](#models-list) for more details.
+  - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, Voice Cloning, etc.
+  - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
   - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
 
-# Alternative Installation
+## Installation
 
 The base environment in this page is  
 - Ubuntu 16.04
 - python>=3.7
-- paddlepaddle>=2.2.0-rc
+- paddlepaddle>=2.2.0
 
 If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/source/install.md) documents for all the alternatives.
 
-# Quick Start
+## Quick Start
 
 Developers can have a try of our model with only a few lines of code.
 
-A tiny DeepSpeech2 **Speech-To-Text** model training on toy set of LibriSpeech:
+A tiny DeepSpeech2 **Speech-to-Text** model training on toy set of LibriSpeech:
 
 ```shell
 cd examples/tiny/s0/
@@ -149,13 +150,13 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```
 
-If you want to try more functions like training and tuning, please see [Speech-To-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-To-Speech Quick Start](./docs/source/tts/quick_start.md).
+If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-To-Speech Quick Start](./docs/source/tts/quick_start.md).
 
-# Models List
+## Model List
 
 PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_models.md) with available pretrained models.
 
-Speech-To-Text module contains *Acoustic Model* and *Language Model*, with the following details:
+Speech-to-Text module contains *Acoustic Model* and *Language Model*, with the following details:
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
@@ -164,7 +165,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table style="width:100%">
   <thead>
     <tr>
-      <th>Speech-To-Text Module Type</th>
+      <th>Speech-to-Text Module Type</th>
       <th>Dataset</th>
       <th>Model Type</th>
       <th>Link</th>
@@ -218,12 +219,12 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
+PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 
 <table>
   <thead>
     <tr>
-      <th> Text-To-Speech Module Type <img width="110" height="1"> </th>
+      <th> Text-to-Speech Module Type <img width="110" height="1"> </th>
       <th>  Model Type  </th>
       <th> <img width="50" height="1"> Dataset  <img width="50" height="1"> </th>
       <th> <img width="101" height="1"> Link <img width="105" height="1"> </th>
@@ -299,21 +300,22 @@ PaddleSpeech Text-To-Speech mainly contains three modules: *Text Frontend*, *Aco
   </tbody>
 </table>
 
-# Tutorials
+## Tutorials
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+
 - [Overview](./docs/source/introduction.md)
 - Quick Start
   - [Dependencies](./docs/source/dependencies.md) and [Installation](./docs/source/install.md)
-  - [Quick Start of Speech-To-Text](./docs/source/asr/quick_start.md)
-  - [Quick Start of Text-To-Speech](./docs/source/tts/quick_start.md)
-- Speech-To-Text
+  - [Quick Start of Speech-to-Text](./docs/source/asr/quick_start.md)
+  - [Quick Start of Text-to-Speech](./docs/source/tts/quick_start.md)
+- Speech-to-Text
   - [Models Introduction](./docs/source/asr/models_introduction.md)
   - [Data Preparation](./docs/source/asr/data_preparation.md)
   - [Data Augmentation Pipeline](./docs/source/asr/augmentation.md)
   - [Features](./docs/source/asr/feature_list.md)
   - [Ngram LM](./docs/source/asr/ngram_lm.md)
-- Text-To-Speech
+- Text-to-Speech
   - [Introduction](./docs/source/tts/models_introduction.md)
   - [Advanced Usage](./docs/source/tts/advanced_usage.md)
   - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
@@ -322,15 +324,12 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an ove
 
 The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddleparakeet.readthedocs.io/en/latest/released_models.html) is a good guideline for the pipeline components.
 
-# FAQ and Contributing
+## FAQ and Contributing
+
 You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you would like to contribute to this project!
 
-# License and Acknowledgement
-PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
+## Citation
 
-PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
-
-# Citation
 To cite PaddleSpeech for research, please use the following format.
 ```tex
 @misc{ppspeech2021,
@@ -340,3 +339,9 @@ howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
 ```
+
+## License and Acknowledge
+
+PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
+
+PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information. 

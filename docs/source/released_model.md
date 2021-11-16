@@ -3,14 +3,15 @@
 
 ## Speech-To-Text Models
 ### Acoustic Model Released in paddle 2.X
-Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
-:-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :---------
-[Ds2 Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.2/aishell/s0/ds2_online_aishll_CER8.02_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080218 |-| 151 h
-[Ds2 Offline Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.065 |-| 151 h
-[Conformer Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention + CTC | 0.0594 |-| 151 h
-[Conformer Offline Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention | 0.0547 |-| 151 h
-[Conformer Librispeech Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | Word-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention |-| 0.0325 | 960 h
-[Transformer Librispeech Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/transformer.release.tar.gz) | Librispeech Dataset | Word-based | 195 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention |-| 0.0544 | 960 h
+Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech | example link
+:-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :--------- | :-----------
+[Ds2 Online Aishell S0 Model](https://deepspeech.bj.bcebos.com/release2.2/aishell/s0/ds2_online_aishll_CER8.02_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080218 |-| 151 h | [D2 Online Aishell S0 Example](../../examples/aishell/s0)
+[Ds2 Offline Aishell S0 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.065 |-| 151 h | [Ds2 Offline Aishell S0 Example](../../examples/aishell/s0)
+[Conformer Online Aishell S1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0594 |-| 151 h | [Conformer Online Aishell S1 Example](../../examples/aishell/s1)
+[Conformer Offline Aishell S1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0547 |-| 151 h | [Conformer Offline Aishell S1 Example](../../examples/aishell/s1)
+[Conformer Librispeech S1 Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | subword-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0325 | 960 h | [Conformer Librispeech S1 example](../../example/librispeech/s1)
+[Transformer Librispeech S1 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s1/librispeech.s1.transformer.all.wer5p62.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0456 | 960 h | [Transformer Librispeech S1 example](../../example/librispeech/s1)
+[Transformer Librispeech S2 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s2/libri_transformer_espnet_wer3p84.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention |-| 0.0384 | 960 h | [Transformer Librispeech S2 example](../../example/librispeech/s2)
 
 ### Acoustic Model Transformed from paddle 1.8
 Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech

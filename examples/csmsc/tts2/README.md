@@ -1,5 +1,5 @@
-# Speedyspeech with CSMSC
-This example contains code used to train a [Speedyspeech](http://arxiv.org/abs/2008.03802) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html). NOTE that we only implement the student part of the Speedyspeech model. The ground truth alignment used to train the model is extracted from the dataset using [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner).
+# SpeedySpeech with CSMSC
+This example contains code used to train a [SpeedySpeech](http://arxiv.org/abs/2008.03802) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html). NOTE that we only implement the student part of the Speedyspeech model. The ground truth alignment used to train the model is extracted from the dataset using [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner).
 
 ## Dataset
 ### Download and Extract the datasaet

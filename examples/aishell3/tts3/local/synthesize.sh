@@ -10,9 +10,9 @@ python3 ${BIN_DIR}/synthesize.py \
   --fastspeech2-config=${config_path} \
   --fastspeech2-checkpoint=${train_output_path}/checkpoints/${ckpt_name} \
   --fastspeech2-stat=dump/train/speech_stats.npy \
-  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+  --pwg-config=pwg_aishell3_ckpt_0.5/default.yaml \
+  --pwg-checkpoint=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
+  --pwg-stat=pwg_aishell3_ckpt_0.5/feats_stats.npy  \
   --test-metadata=dump/test/norm/metadata.jsonl \
   --output-dir=${train_output_path}/test \
   --phones-dict=dump/phone_id_map.txt \

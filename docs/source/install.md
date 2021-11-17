@@ -16,6 +16,22 @@ cd DeepSpeech
 pip install -e .
 ```
 
+For user who only needs the basic function of paddlespeech, using conda to do installing is recommended.
+You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version and install it by yourself, or you can use the scripts below to install the last miniconda version.
+
+```python
+pushd tools
+bash extras/install_miniconda.sh
+popd
+bash
+```
+
+After installing the conda, run the setup.sh to complete the installing process.
+```python
+bash setup.sh
+```
+
+
 ## Setup (Other Platform)
 
 - Make sure these libraries or tools in [dependencies](./dependencies.md) installed. More information please see: `setup.py `and ` tools/Makefile`.

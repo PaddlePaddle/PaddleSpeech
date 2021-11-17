@@ -13,6 +13,8 @@ else
 fi
 bash Miniconda3-latest-Linux-x86_64.sh -b
 
+$HOME/miniconda3/bin/conda init
+
 $HOME/miniconda3/bin/python -m pip install --user tqdm
 $HOME/miniconda3/bin/python -m pip install --user scikit-learn
 $HOME/miniconda3/bin/python -m pip install --user librosa

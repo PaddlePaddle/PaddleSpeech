@@ -107,24 +107,25 @@ def voice_cloning(args, fastspeech2_config, pwg_config):
         mel_sequences = p.extract_mel_partials(p.preprocess_wav(ref_audio_path))
         # print("mel_sequences: ", mel_sequences.shape)
         with paddle.no_grad():
-            spembs = speaker_encoder.embed_utterance(
+            spk_emb = speaker_encoder.embed_utterance(
                 paddle.to_tensor(mel_sequences))
-        # print("spembs shape: ", spembs.shape)
+        # print("spk_emb shape: ", spk_emb.shape)
 
         with paddle.no_grad():
-            wav = pwg_inference(fastspeech2_inference(phone_ids, spembs=spembs))
+            wav = pwg_inference(
+                fastspeech2_inference(phone_ids, spk_emb=spk_emb))
 
         sf.write(
             str(output_dir / (utt_id + ".wav")),
             wav.numpy(),
             samplerate=fastspeech2_config.fs)
         print(f"{utt_id} done!")
-    # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spembs
-    random_spembs = np.random.rand(256) * 0.2
-    random_spembs = paddle.to_tensor(random_spembs)
-    utt_id = "random_spembs"
+    # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
+    random_spk_emb = np.random.rand(256) * 0.2
+    random_spk_emb = paddle.to_tensor(random_spk_emb)
+    utt_id = "random_spk_emb"
     with paddle.no_grad():
-        wav = pwg_inference(fastspeech2_inference(phone_ids, spembs=spembs))
+        wav = pwg_inference(fastspeech2_inference(phone_ids, spk_emb=spk_emb))
     sf.write(
         str(output_dir / (utt_id + ".wav")),
         wav.numpy(),

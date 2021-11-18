@@ -73,8 +73,8 @@ def train_sp(args, config):
     elif args.voice_cloning:
         print("Training voice cloning!")
         collate_fn = fastspeech2_multi_spk_batch_fn
-        fields += ["spembs"]
-        converters["spembs"] = np.load
+        fields += ["spk_emb"]
+        converters["spk_emb"] = np.load
     else:
         print("single speaker fastspeech2!")
         collate_fn = fastspeech2_single_spk_batch_fn

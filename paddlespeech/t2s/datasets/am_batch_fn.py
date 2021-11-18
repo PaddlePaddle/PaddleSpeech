@@ -100,7 +100,7 @@ def fastspeech2_single_spk_batch_fn(examples):
 
 
 def fastspeech2_multi_spk_batch_fn(examples):
-    # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spembs"]
+    # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
@@ -139,14 +139,14 @@ def fastspeech2_multi_spk_batch_fn(examples):
         "pitch": pitch,
         "energy": energy
     }
-    # spembs has a higher priority than spk_id
-    if "spembs" in examples[0]:
-        spembs = [
-            np.array(item["spembs"], dtype=np.float32) for item in examples
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
         ]
-        spembs = batch_sequences(spembs)
-        spembs = paddle.to_tensor(spembs)
-        batch["spembs"] = spembs
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
     elif "spk_id" in examples[0]:
         spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
         spk_id = paddle.to_tensor(spk_id)

@@ -134,4 +134,4 @@ setup(
     url="https://github.com/PaddlePaddle/PaddleSpeech",
     license='Apache 2.0',
     ext_modules=decoders_module,
-    py_modules=['swig_decoders'] )
+    py_modules=['swig_decoders'])

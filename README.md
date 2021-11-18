@@ -154,7 +154,7 @@ If you want to try more functions like training and tuning, please see [Speech-t
 
 ## Model List
 
-PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_models.md) with available pretrained models.
+PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_model.md) with available pretrained models.
 
 Speech-to-Text module contains *Acoustic Model* and *Language Model*, with the following details:
 

@@ -35,7 +35,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --config=${config_path} \
         --num-cpu=20 \
         --cut-sil=True \
-        --embed-dir=dump/embed
+        --spk_emb_dir=dump/embed
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

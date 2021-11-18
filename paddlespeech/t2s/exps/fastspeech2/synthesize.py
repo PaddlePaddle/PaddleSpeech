@@ -49,7 +49,7 @@ def evaluate(args, fastspeech2_config, pwg_config):
         fields += ["spk_id"]
     elif args.voice_cloning:
         print("voice cloning!")
-        fields += ["spembs"]
+        fields += ["spk_emb"]
     else:
         print("single speaker fastspeech2!")
     print("num_speakers:", num_speakers)
@@ -99,15 +99,15 @@ def evaluate(args, fastspeech2_config, pwg_config):
     for datum in test_dataset:
         utt_id = datum["utt_id"]
         text = paddle.to_tensor(datum["text"])
-        spembs = None
+        spk_emb = None
         spk_id = None
-        if args.voice_cloning and "spembs" in datum:
-            spembs = paddle.to_tensor(np.load(datum["spembs"]))
+        if args.voice_cloning and "spk_emb" in datum:
+            spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
         elif "spk_id" in datum:
             spk_id = paddle.to_tensor(datum["spk_id"])
         with paddle.no_grad():
             wav = pwg_inference(
-                fastspeech2_inference(text, spk_id=spk_id, spembs=spembs))
+                fastspeech2_inference(text, spk_id=spk_id, spk_emb=spk_emb))
         sf.write(
             str(output_dir / (utt_id + ".wav")),
             wav.numpy(),

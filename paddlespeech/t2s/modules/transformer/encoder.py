@@ -14,13 +14,13 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 from paddle import nn
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.encoder_layer import EncoderLayer
-from paddlespeech.t2s.modules.fastspeech2_transformer.multi_layer_conv import Conv1dLinear
-from paddlespeech.t2s.modules.fastspeech2_transformer.multi_layer_conv import MultiLayeredConv1d
-from paddlespeech.t2s.modules.fastspeech2_transformer.positionwise_feed_forward import PositionwiseFeedForward
-from paddlespeech.t2s.modules.fastspeech2_transformer.repeat import repeat
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
+from paddlespeech.t2s.modules.transformer.encoder_layer import EncoderLayer
+from paddlespeech.t2s.modules.transformer.multi_layer_conv import Conv1dLinear
+from paddlespeech.t2s.modules.transformer.multi_layer_conv import MultiLayeredConv1d
+from paddlespeech.t2s.modules.transformer.positionwise_feed_forward import PositionwiseFeedForward
+from paddlespeech.t2s.modules.transformer.repeat import repeat
 
 
 class Encoder(nn.Layer):

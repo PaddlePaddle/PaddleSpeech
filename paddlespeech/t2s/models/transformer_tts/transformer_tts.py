@@ -23,12 +23,6 @@ import paddle.nn.functional as F
 from paddle import nn
 from typeguard import check_argument_types
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention
-from paddlespeech.t2s.modules.fastspeech2_transformer.decoder import Decoder
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import ScaledPositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.encoder import Encoder
-from paddlespeech.t2s.modules.fastspeech2_transformer.mask import subsequent_mask
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.nets_utils import make_pad_mask
@@ -36,6 +30,12 @@ from paddlespeech.t2s.modules.style_encoder import StyleEncoder
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
 from paddlespeech.t2s.modules.tacotron2.decoder import Prenet as DecoderPrenet
 from paddlespeech.t2s.modules.tacotron2.encoder import Encoder as EncoderPrenet
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.decoder import Decoder
+from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
+from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncoding
+from paddlespeech.t2s.modules.transformer.encoder import Encoder
+from paddlespeech.t2s.modules.transformer.mask import subsequent_mask
 
 
 class TransformerTTS(nn.Layer):

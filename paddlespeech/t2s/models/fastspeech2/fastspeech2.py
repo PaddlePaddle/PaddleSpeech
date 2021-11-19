@@ -16,23 +16,25 @@
 from typing import Dict
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
+import numpy as np
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
 from typeguard import check_argument_types
 
-from paddlespeech.t2s.modules.fastspeech2_predictor.duration_predictor import DurationPredictor
-from paddlespeech.t2s.modules.fastspeech2_predictor.duration_predictor import DurationPredictorLoss
-from paddlespeech.t2s.modules.fastspeech2_predictor.length_regulator import LengthRegulator
-from paddlespeech.t2s.modules.fastspeech2_predictor.variance_predictor import VariancePredictor
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import ScaledPositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.encoder import Encoder as TransformerEncoder
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.nets_utils import make_pad_mask
+from paddlespeech.t2s.modules.predictor.duration_predictor import DurationPredictor
+from paddlespeech.t2s.modules.predictor.duration_predictor import DurationPredictorLoss
+from paddlespeech.t2s.modules.predictor.length_regulator import LengthRegulator
+from paddlespeech.t2s.modules.predictor.variance_predictor import VariancePredictor
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
+from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
+from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncoding
+from paddlespeech.t2s.modules.transformer.encoder import Encoder as TransformerEncoder
 
 
 class FastSpeech2(nn.Layer):
@@ -683,6 +685,129 @@ class FastSpeech2Inference(nn.Layer):
     def forward(self, text, spk_id=None):
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
             text, spk_id=spk_id)
+        logmel = self.normalizer.inverse(normalized_mel)
+        return logmel
+
+
+class StyleFastSpeech2Inference(FastSpeech2Inference):
+    def __init__(self,
+                 normalizer,
+                 model,
+                 pitch_stats_path=None,
+                 energy_stats_path=None):
+        super().__init__(normalizer, model)
+        if pitch_stats_path:
+            pitch_mean, pitch_std = np.load(pitch_stats_path)
+            self.pitch_mean = paddle.to_tensor(pitch_mean)
+            self.pitch_std = paddle.to_tensor(pitch_std)
+        if energy_stats_path:
+            energy_mean, energy_std = np.load(energy_stats_path)
+            self.energy_mean = paddle.to_tensor(energy_mean)
+            self.energy_std = paddle.to_tensor(energy_std)
+
+    def denorm(self, data, mean, std):
+        return data * std + mean
+
+    def norm(self, data, mean, std):
+        return (data - mean) / std
+
+    def forward(self,
+                text: paddle.Tensor,
+                durations: Union[paddle.Tensor, np.ndarray]=None,
+                durations_scale: Union[int, float]=None,
+                durations_bias: Union[int, float]=None,
+                pitch: Union[paddle.Tensor, np.ndarray]=None,
+                pitch_scale: Union[int, float]=None,
+                pitch_bias: Union[int, float]=None,
+                energy: Union[paddle.Tensor, np.ndarray]=None,
+                energy_scale: Union[int, float]=None,
+                energy_bias: Union[int, float]=None,
+                robot: bool=False):
+        """
+        Parameters
+        ----------
+        text : Tensor(int64)
+            Input sequence of characters (T,).
+        speech : Tensor, optional
+            Feature sequence to extract style (N, idim).
+        durations : paddle.Tensor/np.ndarray, optional (int64)
+            Groundtruth of duration (T,), this will overwrite the set of durations_scale and durations_bias
+        durations_scale: int/float, optional
+        durations_bias: int/float, optional
+        pitch : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged pitch (T, 1), this will overwrite the set of pitch_scale and pitch_bias
+        pitch_scale: int/float, optional
+            In denormed HZ domain.
+        pitch_bias: int/float, optional
+            In denormed HZ domain.
+        energy : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged energy (T, 1), this will overwrite the set of energy_scale and energy_bias
+        energy_scale: int/float, optional
+            In denormed domain.
+        energy_bias: int/float, optional
+            In denormed domain.
+        robot : bool, optional
+            Weather output robot style
+        Returns
+        ----------
+        Tensor
+            Output sequence of features (L, odim).
+        """
+        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
+            text, durations=None, pitch=None, energy=None)
+        # priority: groundtruth > scale/bias > previous output
+        # set durations
+        if isinstance(durations, np.ndarray):
+            durations = paddle.to_tensor(durations)
+        elif isinstance(durations, paddle.Tensor):
+            durations = durations
+        elif durations_scale or durations_bias:
+            durations_scale = durations_scale if durations_scale is not None else 1
+            durations_bias = durations_bias if durations_bias is not None else 0
+            durations = durations_scale * d_outs + durations_bias
+        else:
+            durations = d_outs
+
+        if robot:
+            # set normed pitch to zeros have the same effect with set denormd ones to mean
+            pitch = paddle.zeros(p_outs.shape)
+
+        # set pitch, can overwrite robot set  
+        if isinstance(pitch, np.ndarray):
+            pitch = paddle.to_tensor(pitch)
+        elif isinstance(pitch, paddle.Tensor):
+            pitch = pitch
+        elif pitch_scale or pitch_bias:
+            pitch_scale = pitch_scale if pitch_scale is not None else 1
+            pitch_bias = pitch_bias if pitch_bias is not None else 0
+            p_Hz = paddle.exp(
+                self.denorm(p_outs, self.pitch_mean, self.pitch_std))
+            p_HZ = pitch_scale * p_Hz + pitch_bias
+            pitch = self.norm(paddle.log(p_HZ), self.pitch_mean, self.pitch_std)
+        else:
+            pitch = p_outs
+
+        # set energy
+        if isinstance(energy, np.ndarray):
+            energy = paddle.to_tensor(energy)
+        elif isinstance(energy, paddle.Tensor):
+            energy = energy
+        elif energy_scale or energy_bias:
+            energy_scale = energy_scale if energy_scale is not None else 1
+            energy_bias = energy_bias if energy_bias is not None else 0
+            e_dnorm = self.denorm(e_outs, self.energy_mean, self.energy_std)
+            e_dnorm = energy_scale * e_dnorm + energy_bias
+            energy = self.norm(e_dnorm, self.energy_mean, self.energy_std)
+        else:
+            energy = e_outs
+
+        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
+            text,
+            durations=durations,
+            pitch=pitch,
+            energy=energy,
+            use_teacher_forcing=True)
+
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

@@ -14,14 +14,13 @@
 import argparse
 from pathlib import Path
 
-from audio_processor import SpeakerVerificationPreprocessor
-
-from paddlespeech.t2s.exps.ge2e.config import get_cfg_defaults
-from paddlespeech.t2s.exps.ge2e.dataset_processors import process_aidatatang_200zh
-from paddlespeech.t2s.exps.ge2e.dataset_processors import process_librispeech
-from paddlespeech.t2s.exps.ge2e.dataset_processors import process_magicdata
-from paddlespeech.t2s.exps.ge2e.dataset_processors import process_voxceleb1
-from paddlespeech.t2s.exps.ge2e.dataset_processors import process_voxceleb2
+from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
+from paddlespeech.vector.exps.ge2e.config import get_cfg_defaults
+from paddlespeech.vector.exps.ge2e.dataset_processors import process_aidatatang_200zh
+from paddlespeech.vector.exps.ge2e.dataset_processors import process_librispeech
+from paddlespeech.vector.exps.ge2e.dataset_processors import process_magicdata
+from paddlespeech.vector.exps.ge2e.dataset_processors import process_voxceleb1
+from paddlespeech.vector.exps.ge2e.dataset_processors import process_voxceleb2
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

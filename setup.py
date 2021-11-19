@@ -78,7 +78,6 @@ def _post_install(install_lib_dir):
         print(os.getcwd())
         check_call("./install_autolog.sh")
     print("autolog install.")
-
     # ctcdecoder
     ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
@@ -102,11 +101,9 @@ class DevelopCommand(develop):
 class InstallCommand(install):
     def run(self):
         install.run(self)
-        # must after install.run, or pkg install by shell will not see
-        self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 
-# cmd: python setup.py upload
+    # cmd: python setup.py upload
 class UploadCommand(Command):
     description = "Build and publish the package."
     user_options = []
@@ -133,11 +130,11 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='2.1.2',
-    author='PaddleSL Speech Team',
-    author_email='',
-    url='https://github.com/PaddlePaddle/DeepSpeech',
-    license='Apache 2',
+    version='0.0.1a',
+    author='PaddlePaddle Speech and Language Team',
+    author_email='paddlesl@baidu.com',
+    url='https://github.com/PaddlePaddle/PaddleSpeech',
+    license='Apache 2.0',
     description='Speech tools and models based on Paddlepaddle',
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -175,11 +172,11 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(exclude=('tests', 'tests.*', 'examples*',
+    packages=find_packages(exclude=('utils', 'tests', 'tests.*', 'examples*',
                                     'paddleaudio*', 'third_party*', 'tools*')),
     zip_safe=True,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
@@ -189,6 +186,7 @@ setup_info = dict(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ], )
 
 setup(**setup_info)

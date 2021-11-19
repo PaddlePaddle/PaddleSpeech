@@ -1,7 +1,7 @@
 
 # Released Models
 
-## Speech-To-Text Models
+## Speech-to-Text Models
 ### Acoustic Model Released in paddle 2.X
 Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
 :-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :---------
@@ -27,7 +27,7 @@ Language Model | Training Data | Token-based | Size | Descriptions
 [Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
 [Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
-## Text-To-Speech Models
+## Text-to-Speech Models
 ### Acoustic Models
 Model Type | Dataset| Example Link | Pretrained Models|Static Models|Siize(static)
 :-------------:| :------------:| :-----: | :-----:| :-----:| :-----:

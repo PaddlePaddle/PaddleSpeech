@@ -41,10 +41,10 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     CUDA_VISIBLE_DEVICES=0 ./local/align.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
-if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-    # export ckpt avg_n
-    CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
-fi
+# if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+#     # export ckpt avg_n
+#     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+# fi
 
 # Optionally, you can add LM and test it with runtime.
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then

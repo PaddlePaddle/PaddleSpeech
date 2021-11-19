@@ -3,12 +3,16 @@ try:
 except ImportError:
     from distutils.core import setup
 
-setup(name='python_speech_features',
-      version='0.6',
-      description='Python Speech Feature extraction',
-      author='James Lyons',
-      author_email='james.lyons0@gmail.com',
+with open("requirements.txt", encoding="utf-8-sig") as f:
+    requirements = f.readlines()
+
+setup(name='paddlespeech_feat',
+      version='0.0.1a',
+      description='python speech feature extraction in paddlespeech',
+      install_requires=requirements,
+      author="PaddlePaddle Speech and Language Team",
+      author_email="paddlesl@baidu.com",
       license='MIT',
-      url='https://github.com/jameslyons/python_speech_features',
+      url='https://github.com/PaddlePaddle/PaddleSpeech',
       packages=['python_speech_features'],
     )

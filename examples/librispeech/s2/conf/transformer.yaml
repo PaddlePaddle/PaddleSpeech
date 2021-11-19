@@ -1,6 +1,8 @@
 # https://yaml.org/type/float.html
 # network architecture
 model:
+    cmvn_file:  
+    cmvn_file_type: "json"
     # encoder related
     encoder: transformer
     encoder_conf:

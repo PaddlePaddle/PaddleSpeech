@@ -167,6 +167,10 @@ def main():
             "pitch": str(pitch_path),
             "energy": str(energy_path)
         }
+        # add spk_emb for voice cloning
+        if "spk_emb" in item:
+            record["spk_emb"] = str(item["spk_emb"])
+
         output_metadata.append(record)
     output_metadata.sort(key=itemgetter('utt_id'))
     output_metadata_path = Path(args.dumpdir) / "metadata.jsonl"

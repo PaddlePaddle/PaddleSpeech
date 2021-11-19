@@ -40,19 +40,19 @@ def evaluate(args, fastspeech2_config, pwg_config):
 
     fields = ["utt_id", "text"]
 
-    num_speakers = None
+    spk_num = None
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         with open(args.speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
-        num_speakers = len(spk_id)
+        spk_num = len(spk_id)
         fields += ["spk_id"]
     elif args.voice_cloning:
         print("voice cloning!")
         fields += ["spk_emb"]
     else:
         print("single speaker fastspeech2!")
-    print("num_speakers:", num_speakers)
+    print("spk_num:", spk_num)
 
     test_dataset = DataTable(data=test_metadata, fields=fields)
 
@@ -65,7 +65,7 @@ def evaluate(args, fastspeech2_config, pwg_config):
     model = FastSpeech2(
         idim=vocab_size,
         odim=odim,
-        num_speakers=num_speakers,
+        spk_num=spk_num,
         **fastspeech2_config["model"])
 
     model.set_state_dict(

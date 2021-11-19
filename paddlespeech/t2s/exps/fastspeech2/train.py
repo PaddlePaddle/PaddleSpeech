@@ -62,13 +62,13 @@ def train_sp(args, config):
         "pitch", "energy"
     ]
     converters = {"speech": np.load, "pitch": np.load, "energy": np.load}
-    num_speakers = None
+    spk_num = None
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         collate_fn = fastspeech2_multi_spk_batch_fn
         with open(args.speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
-        num_speakers = len(spk_id)
+        spk_num = len(spk_id)
         fields += ["spk_id"]
     elif args.voice_cloning:
         print("Training voice cloning!")
@@ -78,7 +78,7 @@ def train_sp(args, config):
     else:
         print("single speaker fastspeech2!")
         collate_fn = fastspeech2_single_spk_batch_fn
-    print("num_speakers:", num_speakers)
+    print("spk_num:", spk_num)
 
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True
@@ -129,10 +129,7 @@ def train_sp(args, config):
 
     odim = config.n_mels
     model = FastSpeech2(
-        idim=vocab_size,
-        odim=odim,
-        num_speakers=num_speakers,
-        **config["model"])
+        idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")

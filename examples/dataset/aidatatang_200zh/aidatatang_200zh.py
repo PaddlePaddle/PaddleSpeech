@@ -22,6 +22,7 @@ import argparse
 import codecs
 import json
 import os
+from pathlib import Path
 
 import soundfile
 
@@ -79,6 +80,7 @@ def create_manifest(data_dir, manifest_path_prefix):
 
                 audio_path = os.path.abspath(os.path.join(subfolder, fname))
                 audio_id = os.path.basename(fname)[:-4]
+                utt2spk = Path(audio_path).parent.name
 
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
@@ -87,6 +89,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                     json.dumps(
                         {
                             'utt': audio_id,
+                            'utt2spk': str(utt2spk),
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
                             'text': text,

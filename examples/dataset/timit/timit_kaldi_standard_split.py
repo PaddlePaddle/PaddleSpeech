@@ -24,6 +24,7 @@ import json
 import os
 
 import soundfile
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -67,10 +68,17 @@ def create_manifest(data_dir, manifest_path_prefix):
             audio_data, samplerate = soundfile.read(audio_path)
             duration = float(len(audio_data) / samplerate)
             text = phn_dict[audio_id]
+
+            gender_spk = str(Path(audio_path).parent.stem)
+            spk = gender_spk[1:]
+            gender = gender_spk[0]
+            utt_id = '_'.join([spk, gender, audio_id])
             json_lines.append(
                 json.dumps(
                     {
                         'utt': audio_id,
+                        'utt2spk': spk,
+                        'utt2gender': gender,
                         'feat': audio_path,
                         'feat_shape': (duration, ),  # second
                         'text': text

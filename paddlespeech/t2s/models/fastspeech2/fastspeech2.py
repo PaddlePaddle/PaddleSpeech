@@ -96,7 +96,7 @@ class FastSpeech2(nn.Layer):
             pitch_embed_dropout: float=0.5,
             stop_gradient_from_pitch_predictor: bool=False,
             # spk emb
-            num_speakers: int=None,
+            spk_num: int=None,
             spk_embed_dim: int=None,
             spk_embed_integration_type: str="add",
             #  tone emb
@@ -146,9 +146,9 @@ class FastSpeech2(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        if self.spk_embed_dim and num_speakers:
+        if spk_num and self.spk_embed_dim:
             self.spk_embedding_table = nn.Embedding(
-                num_embeddings=num_speakers,
+                num_embeddings=spk_num,
                 embedding_dim=self.spk_embed_dim,
                 padding_idx=self.padding_idx)
 

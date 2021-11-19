@@ -46,14 +46,14 @@ def evaluate(args, fastspeech2_config, pwg_config):
     print("vocab_size:", vocab_size)
     with open(args.speaker_dict, 'rt') as f:
         spk_id = [line.strip().split() for line in f.readlines()]
-    num_speakers = len(spk_id)
-    print("num_speakers:", num_speakers)
+    spk_num = len(spk_id)
+    print("spk_num:", spk_num)
 
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
         idim=vocab_size,
         odim=odim,
-        num_speakers=num_speakers,
+        spk_num=spk_num,
         **fastspeech2_config["model"])
 
     model.set_state_dict(

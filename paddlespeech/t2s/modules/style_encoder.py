@@ -19,7 +19,7 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
 
 
 class StyleEncoder(nn.Layer):

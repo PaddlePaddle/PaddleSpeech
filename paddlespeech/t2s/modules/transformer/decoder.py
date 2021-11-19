@@ -23,14 +23,14 @@ import paddle
 import paddle.nn.functional as F
 from paddle import nn
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention
-from paddlespeech.t2s.modules.fastspeech2_transformer.decoder_layer import DecoderLayer
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.lightconv import LightweightConvolution
-from paddlespeech.t2s.modules.fastspeech2_transformer.mask import subsequent_mask
-from paddlespeech.t2s.modules.fastspeech2_transformer.positionwise_feed_forward import PositionwiseFeedForward
-from paddlespeech.t2s.modules.fastspeech2_transformer.repeat import repeat
 from paddlespeech.t2s.modules.layer_norm import LayerNorm
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.decoder_layer import DecoderLayer
+from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
+from paddlespeech.t2s.modules.transformer.lightconv import LightweightConvolution
+from paddlespeech.t2s.modules.transformer.mask import subsequent_mask
+from paddlespeech.t2s.modules.transformer.positionwise_feed_forward import PositionwiseFeedForward
+from paddlespeech.t2s.modules.transformer.repeat import repeat
 
 
 class Decoder(nn.Layer):

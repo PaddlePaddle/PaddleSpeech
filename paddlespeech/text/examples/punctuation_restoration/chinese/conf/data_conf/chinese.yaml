@@ -1,7 +1,0 @@
-type: chinese
-raw_path: /data4/mahaoxin/PaddleSpeechTask/data/chinese/iwslt2012_zh  #path to raw dataset
-raw_train_file: iwslt2012_train_zh
-raw_dev_file: iwslt2010_dev_zh
-raw_test_file: biaobei_asr
-punc_file: punc_vocab 
-save_path: data/iwslt2012_zh  #path to save dataset

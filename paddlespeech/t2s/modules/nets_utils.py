@@ -17,14 +17,6 @@ from paddle import nn
 from typeguard import check_argument_types
 
 
-class Swish(paddle.nn.Layer):
-    """Construct an Swish object."""
-
-    def forward(self, x):
-        """Return Swich activation function."""
-        return x * paddle.nn.Sigmoid(x)
-
-
 def pad_list(xs, pad_value):
     """Perform padding for the list of tensors.
 
@@ -168,7 +160,7 @@ def get_activation(act):
         "tanh": paddle.nn.Tanh,
         "relu": paddle.nn.ReLU,
         "selu": paddle.nn.SELU,
-        "swish": Swish,
+        "swish": paddle.nn.Swish,
     }
 
     return activation_funcs[act]()

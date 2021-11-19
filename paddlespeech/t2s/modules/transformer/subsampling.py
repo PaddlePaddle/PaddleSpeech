@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
-# Conv2dSubsampling 测试通过
 """Subsampling layer definition."""
 import paddle
 
@@ -98,8 +97,7 @@ class Conv2dSubsampling(paddle.nn.Layer):
         # (b, c, t, f)
         x = x.unsqueeze(1)
         x = self.conv(x)
-        b, c, t, f = x.shape
-        # x = self.out(x.transpose(1, 2).contiguous().view(b, t, c * f))
+        b, c, t, f = paddle.shape(x)
         x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         if x_mask is None:
             return x, None
@@ -163,7 +161,7 @@ class Conv2dSubsampling2(paddle.nn.Layer):
         # (b, c, t, f)
         x = x.unsqueeze(1)
         x = self.conv(x)
-        b, c, t, f = x.shape
+        b, c, t, f = paddle.shape(x)
         x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         if x_mask is None:
             return x, None
@@ -227,7 +225,7 @@ class Conv2dSubsampling6(paddle.nn.Layer):
         # (b, c, t, f)
         x = x.unsqueeze(1)
         x = self.conv(x)
-        b, c, t, f = x.shape
+        b, c, t, f = paddle.shape(x)
         x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         if x_mask is None:
             return x, None
@@ -259,8 +257,8 @@ class Conv2dSubsampling8(paddle.nn.Layer):
             paddle.nn.Conv2D(odim, odim, 3, 2),
             paddle.nn.ReLU(), )
         self.out = paddle.nn.Sequential(
-            paddle.nn.Linear(odim * (((
-                (idim - 1) // 2 - 1) // 2 - 1) // 2), odim),
+            paddle.nn.Linear(odim * ((((idim - 1) // 2 - 1) // 2 - 1) // 2),
+                             odim),
             pos_enc if pos_enc is not None else
             PositionalEncoding(odim, dropout_rate), )
 
@@ -284,7 +282,7 @@ class Conv2dSubsampling8(paddle.nn.Layer):
         # (b, c, t, f)
         x = x.unsqueeze(1)
         x = self.conv(x)
-        b, c, t, f = x.shape
+        b, c, t, f = paddle.shape(x)
         x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
         if x_mask is None:
             return x, None

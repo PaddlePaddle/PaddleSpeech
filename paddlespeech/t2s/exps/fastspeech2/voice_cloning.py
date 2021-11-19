@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import logging
+import os
 from pathlib import Path
 
 import numpy as np
@@ -21,45 +21,45 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.models.fastspeech2 import FastSpeech2
 from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Inference
 from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
 from paddlespeech.t2s.models.parallel_wavegan import PWGInference
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
+from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
-def evaluate(args, fastspeech2_config, pwg_config):
-    # dataloader has been too verbose
-    logging.getLogger("DataLoader").disabled = True
+def voice_cloning(args, fastspeech2_config, pwg_config):
+    # speaker encoder
+    p = SpeakerVerificationPreprocessor(
+        sampling_rate=16000,
+        audio_norm_target_dBFS=-30,
+        vad_window_length=30,
+        vad_moving_average_width=8,
+        vad_max_silence_length=6,
+        mel_window_length=25,
+        mel_window_step=10,
+        n_mels=40,
+        partial_n_frames=160,
+        min_pad_coverage=0.75,
+        partial_overlap_ratio=0.5)
+    print("Audio Processor Done!")
 
-    # construct dataset for evaluation
-    sentences = []
-    with open(args.text, 'rt') as f:
-        for line in f:
-            line_list = line.strip().split()
-            utt_id = line_list[0]
-            sentence = " ".join(line_list[1:])
-            sentences.append((utt_id, sentence))
+    speaker_encoder = LSTMSpeakerEncoder(
+        n_mels=40, num_layers=3, hidden_size=256, output_size=256)
+    speaker_encoder.set_state_dict(paddle.load(args.ge2e_params_path))
+    speaker_encoder.eval()
+    print("GE2E Done!")
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
-    phone_id_map = {}
-    for phn, id in phn_id:
-        phone_id_map[phn] = int(id)
     print("vocab_size:", vocab_size)
-    with open(args.speaker_dict, 'rt') as f:
-        spk_id = [line.strip().split() for line in f.readlines()]
-    spk_num = len(spk_id)
-    print("spk_num:", spk_num)
-
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
-        idim=vocab_size,
-        odim=odim,
-        spk_num=spk_num,
-        **fastspeech2_config["model"])
+        idim=vocab_size, odim=odim, **fastspeech2_config["model"])
 
     model.set_state_dict(
         paddle.load(args.fastspeech2_checkpoint)["main_params"])
@@ -71,8 +71,7 @@ def evaluate(args, fastspeech2_config, pwg_config):
     vocoder.eval()
     print("model done!")
 
-    frontend = English()
-    punc = "：，；。？！“”‘’':,;.?!"
+    frontend = Frontend(phone_vocab_path=args.phones_dict)
     print("frontend done!")
 
     stat = np.load(args.fastspeech2_stat)
@@ -88,40 +87,55 @@ def evaluate(args, fastspeech2_config, pwg_config):
     pwg_normalizer = ZScore(mu, std)
 
     fastspeech2_inference = FastSpeech2Inference(fastspeech2_normalizer, model)
+    fastspeech2_inference.eval()
     pwg_inference = PWGInference(pwg_normalizer, vocoder)
+    pwg_inference.eval()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    # only test the number 0 speaker
-    spk_id = 0
-    for utt_id, sentence in sentences:
-        phones = frontend.phoneticize(sentence)
-        # remove start_symbol and end_symbol
-        phones = phones[1:-1]
-        phones = [phn for phn in phones if not phn.isspace()]
-        phones = [
-            phn if (phn in phone_id_map and phn not in punc) else "sp"
-            for phn in phones
-        ]
-        phone_ids = [phone_id_map[phn] for phn in phones]
-        phone_ids = paddle.to_tensor(phone_ids)
+
+    input_dir = Path(args.input_dir)
+
+    sentence = args.text
+
+    input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
+    phone_ids = input_ids["phone_ids"][0]
+
+    for name in os.listdir(input_dir):
+        utt_id = name.split(".")[0]
+        ref_audio_path = input_dir / name
+        mel_sequences = p.extract_mel_partials(p.preprocess_wav(ref_audio_path))
+        # print("mel_sequences: ", mel_sequences.shape)
+        with paddle.no_grad():
+            spk_emb = speaker_encoder.embed_utterance(
+                paddle.to_tensor(mel_sequences))
+        # print("spk_emb shape: ", spk_emb.shape)
 
         with paddle.no_grad():
-            mel = fastspeech2_inference(
-                phone_ids, spk_id=paddle.to_tensor(spk_id))
-            wav = pwg_inference(mel)
+            wav = pwg_inference(
+                fastspeech2_inference(phone_ids, spk_emb=spk_emb))
 
         sf.write(
-            str(output_dir / (str(spk_id) + "_" + utt_id + ".wav")),
+            str(output_dir / (utt_id + ".wav")),
             wav.numpy(),
             samplerate=fastspeech2_config.fs)
-        print(f"{spk_id}_{utt_id} done!")
+        print(f"{utt_id} done!")
+    # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
+    random_spk_emb = np.random.rand(256) * 0.2
+    random_spk_emb = paddle.to_tensor(random_spk_emb)
+    utt_id = "random_spk_emb"
+    with paddle.no_grad():
+        wav = pwg_inference(fastspeech2_inference(phone_ids, spk_emb=spk_emb))
+    sf.write(
+        str(output_dir / (utt_id + ".wav")),
+        wav.numpy(),
+        samplerate=fastspeech2_config.fs)
+    print(f"{utt_id} done!")
 
 
 def main():
     # parse args and config and redirect to train_sp
-    parser = argparse.ArgumentParser(
-        description="Synthesize with fastspeech2 & parallel wavegan.")
+    parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         "--fastspeech2-config", type=str, help="fastspeech2 config file.")
     parser.add_argument(
@@ -145,17 +159,27 @@ def main():
         help="mean and standard deviation used to normalize spectrogram when training parallel wavegan."
     )
     parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+        "--phones-dict",
+        type=str,
+        default="phone_id_map.txt",
+        help="phone vocabulary file.")
     parser.add_argument(
         "--text",
         type=str,
-        help="text to synthesize, a 'utt_id sentence' pair per line.")
-    parser.add_argument("--output-dir", type=str, help="output dir.")
+        default="每当你觉得，想要批评什么人的时候，你切要记着，这个世界上的人，并非都具备你禀有的条件。",
+        help="text to synthesize, a line")
+
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument("--verbose", type=int, default=1, help="verbose.")
+        "--ge2e_params_path", type=str, help="ge2e params path.")
+
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        help="input dir of *.wav, the sample rate will be resample to 16k.")
+    parser.add_argument("--output-dir", type=str, help="output dir.")
 
     args = parser.parse_args()
 
@@ -177,7 +201,7 @@ def main():
     print(fastspeech2_config)
     print(pwg_config)
 
-    evaluate(args, fastspeech2_config, pwg_config)
+    voice_cloning(args, fastspeech2_config, pwg_config)
 
 
 if __name__ == "__main__":

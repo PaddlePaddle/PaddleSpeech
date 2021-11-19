@@ -44,7 +44,8 @@ def process_sentence(config: Dict[str, Any],
                      mel_extractor=None,
                      pitch_extractor=None,
                      energy_extractor=None,
-                     cut_sil: bool=True):
+                     cut_sil: bool=True,
+                     spk_emb_dir: Path=None):
     utt_id = fp.stem
     # for vctk
     if utt_id.endswith("_mic2"):
@@ -116,6 +117,14 @@ def process_sentence(config: Dict[str, Any],
             "energy": str(energy_path),
             "speaker": speaker
         }
+        if spk_emb_dir:
+            if speaker in os.listdir(spk_emb_dir):
+                embed_name = utt_id + ".npy"
+                embed_path = spk_emb_dir / speaker / embed_name
+                if embed_path.is_file():
+                    record["spk_emb"] = str(embed_path)
+                else:
+                    return None
     return record
 
 
@@ -127,13 +136,14 @@ def process_sentences(config,
                       pitch_extractor=None,
                       energy_extractor=None,
                       nprocs: int=1,
-                      cut_sil: bool=True):
+                      cut_sil: bool=True,
+                      spk_emb_dir: Path=None):
     if nprocs == 1:
         results = []
         for fp in fps:
             record = process_sentence(config, fp, sentences, output_dir,
                                       mel_extractor, pitch_extractor,
-                                      energy_extractor, cut_sil)
+                                      energy_extractor, cut_sil, spk_emb_dir)
             if record:
                 results.append(record)
     else:
@@ -144,7 +154,7 @@ def process_sentences(config,
                     future = pool.submit(process_sentence, config, fp,
                                          sentences, output_dir, mel_extractor,
                                          pitch_extractor, energy_extractor,
-                                         cut_sil)
+                                         cut_sil, spk_emb_dir)
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
 
@@ -202,6 +212,11 @@ def main():
         default=True,
         help="whether cut sil in the edge of audio")
 
+    parser.add_argument(
+        "--spk_emb_dir",
+        default=None,
+        type=str,
+        help="directory to speaker embedding files.")
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -210,6 +225,11 @@ def main():
     dumpdir = dumpdir.resolve()
     dumpdir.mkdir(parents=True, exist_ok=True)
     dur_file = Path(args.dur_file).expanduser()
+
+    if args.spk_emb_dir:
+        spk_emb_dir = Path(args.spk_emb_dir).expanduser().resolve()
+    else:
+        spk_emb_dir = None
 
     assert rootdir.is_dir()
     assert dur_file.is_file()
@@ -251,6 +271,7 @@ def main():
                 test_wav_files += wav_files[-sub_num_dev:]
             else:
                 train_wav_files += wav_files
+
     elif args.dataset == "ljspeech":
         wav_files = sorted(list((rootdir / "wavs").rglob("*.wav")))
         # split data into 3 sections
@@ -317,7 +338,8 @@ def main():
             pitch_extractor,
             energy_extractor,
             nprocs=args.num_cpu,
-            cut_sil=args.cut_sil)
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
     if dev_wav_files:
         process_sentences(
             config,
@@ -327,7 +349,8 @@ def main():
             mel_extractor,
             pitch_extractor,
             energy_extractor,
-            cut_sil=args.cut_sil)
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
     if test_wav_files:
         process_sentences(
             config,
@@ -338,7 +361,8 @@ def main():
             pitch_extractor,
             energy_extractor,
             nprocs=args.num_cpu,
-            cut_sil=args.cut_sil)
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
 
 
 if __name__ == "__main__":

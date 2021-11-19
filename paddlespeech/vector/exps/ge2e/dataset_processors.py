@@ -19,7 +19,7 @@ from typing import List
 import numpy as np
 from tqdm import tqdm
 
-from paddlespeech.t2s.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
+from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
 
 
 def _process_utterance(path_pair, processor: SpeakerVerificationPreprocessor):

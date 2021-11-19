@@ -18,7 +18,7 @@ import numpy as np
 from paddle.io import BatchSampler
 from paddle.io import Dataset
 
-from paddlespeech.t2s.exps.ge2e.random_cycle import random_cycle
+from paddlespeech.vector.exps.ge2e.random_cycle import random_cycle
 
 
 class MultiSpeakerMelDataset(Dataset):

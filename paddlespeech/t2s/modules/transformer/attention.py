@@ -37,7 +37,7 @@ class MultiHeadedAttention(nn.Layer):
 
     def __init__(self, n_head, n_feat, dropout_rate):
         """Construct an MultiHeadedAttention object."""
-        super(MultiHeadedAttention, self).__init__()
+        super().__init__()
         assert n_feat % n_head == 0
         # We assume d_v always equals d_k
         self.d_k = n_feat // n_head
@@ -70,7 +70,7 @@ class MultiHeadedAttention(nn.Layer):
         paddle.Tensor
             Transformed value tensor (#batch, n_head, time2, d_k).
         """
-        n_batch = query.shape[0]
+        n_batch = paddle.shape(query)[0]
 
         q = paddle.reshape(
             self.linear_q(query), [n_batch, -1, self.h, self.d_k])
@@ -104,7 +104,7 @@ class MultiHeadedAttention(nn.Layer):
             Transformed value (#batch, time1, d_model)
             weighted by the attention score (#batch, time1, time2).
         """
-        n_batch = value.shape[0]
+        n_batch = paddle.shape(value)[0]
         softmax = paddle.nn.Softmax(axis=-1)
         if mask is not None:
             mask = mask.unsqueeze(1)
@@ -126,8 +126,8 @@ class MultiHeadedAttention(nn.Layer):
         # (batch, time1, d_model)
         x = (paddle.reshape(
             x.transpose((0, 2, 1, 3)), (n_batch, -1, self.h * self.d_k)))
-
-        return self.linear_out(x)  # (batch, time1, d_model)
+        # (batch, time1, d_model)
+        return self.linear_out(x)
 
     def forward(self, query, key, value, mask=None):
         """Compute scaled dot product attention.
@@ -151,5 +151,115 @@ class MultiHeadedAttention(nn.Layer):
         q, k, v = self.forward_qkv(query, key, value)
         scores = paddle.matmul(q, k.transpose(
             (0, 1, 3, 2))) / math.sqrt(self.d_k)
+
+        return self.forward_attention(v, scores, mask)
+
+
+class RelPositionMultiHeadedAttention(MultiHeadedAttention):
+    """Multi-Head Attention layer with relative position encoding (new implementation).
+    Details can be found in https://github.com/espnet/espnet/pull/2816.
+    Paper: https://arxiv.org/abs/1901.02860
+    Parameters
+    ----------
+    n_head : int
+        The number of heads.
+    n_feat : int
+        The number of features.
+    dropout_rate : float
+        Dropout rate.
+    zero_triu : bool
+        Whether to zero the upper triangular part of attention matrix.
+    """
+
+    def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
+        """Construct an RelPositionMultiHeadedAttention object."""
+        super().__init__(n_head, n_feat, dropout_rate)
+        self.zero_triu = zero_triu
+        # linear transformation for positional encoding
+        self.linear_pos = nn.Linear(n_feat, n_feat, bias_attr=False)
+        # these two learnable bias are used in matrix c and matrix d
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+
+        self.pos_bias_u = paddle.create_parameter(
+            shape=(self.h, self.d_k),
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.XavierUniform())
+        self.pos_bias_v = paddle.create_parameter(
+            shape=(self.h, self.d_k),
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.XavierUniform())
+
+    def rel_shift(self, x):
+        """Compute relative positional encoding.
+        Parameters
+        ----------
+        x : paddle.Tensor
+            Input tensor (batch, head, time1, 2*time1-1).
+            time1 means the length of query vector.
+        Returns
+        ----------
+        paddle.Tensor
+            Output tensor.
+        """
+        b, h, t1, t2 = paddle.shape(x)
+        zero_pad = paddle.zeros((b, h, t1, 1))
+        x_padded = paddle.concat([zero_pad, x], axis=-1)
+        x_padded = x_padded.reshape([b, h, t2 + 1, t1])
+        # only keep the positions from 0 to time2
+        x = x_padded[:, :, 1:].reshape([b, h, t1, t2])[:, :, :, :t2 // 2 + 1]
+
+        if self.zero_triu:
+            ones = paddle.ones((t1, t2))
+            x = x * paddle.tril(ones, t2 - 1)[None, None, :, :]
+
+        return x
+
+    def forward(self, query, key, value, pos_emb, mask):
+        """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
+        Parameters
+        ----------
+        query : paddle.Tensor 
+            Query tensor (#batch, time1, size).
+        key : paddle.Tensor
+            Key tensor (#batch, time2, size).
+        value : paddle.Tensor
+            Value tensor (#batch, time2, size).
+        pos_emb : paddle.Tensor
+            Positional embedding tensor
+            (#batch, 2*time1-1, size).
+        mask : paddle.Tensor
+            Mask tensor (#batch, 1, time2) or
+            (#batch, time1, time2).
+        Returns
+        ----------
+        paddle.Tensor
+            Output tensor (#batch, time1, d_model).
+        """
+        q, k, v = self.forward_qkv(query, key, value)
+        # (batch, time1, head, d_k)
+        q = q.transpose([0, 2, 1, 3])
+
+        n_batch_pos = paddle.shape(pos_emb)[0]
+        p = self.linear_pos(pos_emb).reshape(
+            [n_batch_pos, -1, self.h, self.d_k])
+        # (batch, head, 2*time1-1, d_k)
+        p = p.transpose([0, 2, 1, 3])
+        # (batch, head, time1, d_k)
+        q_with_bias_u = (q + self.pos_bias_u).transpose([0, 2, 1, 3])
+        # (batch, head, time1, d_k)
+        q_with_bias_v = (q + self.pos_bias_v).transpose([0, 2, 1, 3])
+
+        # compute attention score
+        # first compute matrix a and matrix c
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+        # (batch, head, time1, time2)
+        matrix_ac = paddle.matmul(q_with_bias_u, k.transpose([0, 1, 3, 2]))
+
+        # compute matrix b and matrix d
+        # (batch, head, time1, 2*time1-1)
+        matrix_bd = paddle.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
+        matrix_bd = self.rel_shift(matrix_bd)
+        # (batch, head, time1, time2)
+        scores = (matrix_ac + matrix_bd) / math.sqrt(self.d_k)
 
         return self.forward_attention(v, scores, mask)

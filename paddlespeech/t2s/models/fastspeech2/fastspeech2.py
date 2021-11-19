@@ -32,9 +32,7 @@ from paddlespeech.t2s.modules.predictor.duration_predictor import DurationPredic
 from paddlespeech.t2s.modules.predictor.length_regulator import LengthRegulator
 from paddlespeech.t2s.modules.predictor.variance_predictor import VariancePredictor
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
-from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncoding
-from paddlespeech.t2s.modules.transformer.encoder import Encoder as TransformerEncoder
+from paddlespeech.t2s.modules.transformer.encoder import Encoder
 
 
 class FastSpeech2(nn.Layer):
@@ -66,6 +64,7 @@ class FastSpeech2(nn.Layer):
             postnet_layers: int=5,
             postnet_chans: int=512,
             postnet_filts: int=5,
+            postnet_dropout_rate: float=0.5,
             positionwise_layer_type: str="conv1d",
             positionwise_conv_kernel_size: int=1,
             use_scaled_pos_enc: bool=True,
@@ -77,10 +76,27 @@ class FastSpeech2(nn.Layer):
             reduction_factor: int=1,
             encoder_type: str="transformer",
             decoder_type: str="transformer",
+            # for transformer
+            transformer_enc_dropout_rate: float=0.1,
+            transformer_enc_positional_dropout_rate: float=0.1,
+            transformer_enc_attn_dropout_rate: float=0.1,
+            transformer_dec_dropout_rate: float=0.1,
+            transformer_dec_positional_dropout_rate: float=0.1,
+            transformer_dec_attn_dropout_rate: float=0.1,
+            # for conformer
+            conformer_pos_enc_layer_type: str="rel_pos",
+            conformer_self_attn_layer_type: str="rel_selfattn",
+            conformer_activation_type: str="swish",
+            use_macaron_style_in_conformer: bool=True,
+            use_cnn_in_conformer: bool=True,
+            zero_triu: bool=False,
+            conformer_enc_kernel_size: int=7,
+            conformer_dec_kernel_size: int=31,
             # duration predictor
             duration_predictor_layers: int=2,
             duration_predictor_chans: int=384,
             duration_predictor_kernel_size: int=3,
+            duration_predictor_dropout_rate: float=0.1,
             # energy predictor
             energy_predictor_layers: int=2,
             energy_predictor_chans: int=384,
@@ -98,28 +114,150 @@ class FastSpeech2(nn.Layer):
             pitch_embed_dropout: float=0.5,
             stop_gradient_from_pitch_predictor: bool=False,
             # spk emb
-            num_speakers: int=None,
+            spk_num: int=None,
             spk_embed_dim: int=None,
             spk_embed_integration_type: str="add",
-            #  tone emb
-            num_tones: int=None,
+            # tone emb
+            tone_num: int=None,
             tone_embed_dim: int=None,
             tone_embed_integration_type: str="add",
             # training related
-            transformer_enc_dropout_rate: float=0.1,
-            transformer_enc_positional_dropout_rate: float=0.1,
-            transformer_enc_attn_dropout_rate: float=0.1,
-            transformer_dec_dropout_rate: float=0.1,
-            transformer_dec_positional_dropout_rate: float=0.1,
-            transformer_dec_attn_dropout_rate: float=0.1,
-            duration_predictor_dropout_rate: float=0.1,
-            postnet_dropout_rate: float=0.5,
             init_type: str="xavier_uniform",
             init_enc_alpha: float=1.0,
-            init_dec_alpha: float=1.0,
-            use_masking: bool=False,
-            use_weighted_masking: bool=False, ):
-        """Initialize FastSpeech2 module."""
+            init_dec_alpha: float=1.0, ):
+        """Initialize FastSpeech2 module.
+        Parameters
+        ----------
+        idim : int
+            Dimension of the inputs.
+        odim : int
+            Dimension of the outputs.
+        adim : int
+            Attention dimension.
+        aheads : int
+            Number of attention heads.
+        elayers : int
+            Number of encoder layers.
+        eunits : int
+            Number of encoder hidden units.
+        dlayers : int
+            Number of decoder layers.
+        dunits : int
+            Number of decoder hidden units.
+        postnet_layers : int
+            Number of postnet layers.
+        postnet_chans : int
+            Number of postnet channels.
+        postnet_filts : int
+            Kernel size of postnet.
+        postnet_dropout_rate : float
+            Dropout rate in postnet.
+        use_scaled_pos_enc : bool
+            Whether to use trainable scaled pos encoding.
+        use_batch_norm : bool
+            Whether to use batch normalization in encoder prenet.
+        encoder_normalize_before : bool
+            Whether to apply layernorm layer before encoder block.
+        decoder_normalize_before : bool
+            Whether to apply layernorm layer before
+            decoder block.
+        encoder_concat_after : bool
+            Whether to concatenate attention layer's input and output in encoder.
+        decoder_concat_after : bool
+            Whether to concatenate attention layer's input  and output in decoder.
+        reduction_factor : int
+            Reduction factor.
+        encoder_type : str
+            Encoder type ("transformer" or "conformer").
+        decoder_type : str
+            Decoder type ("transformer" or "conformer").
+        transformer_enc_dropout_rate : float
+            Dropout rate in encoder except attention and positional encoding.
+        transformer_enc_positional_dropout_rate (float): Dropout rate after encoder
+            positional encoding.
+        transformer_enc_attn_dropout_rate (float): Dropout rate in encoder
+            self-attention module.
+        transformer_dec_dropout_rate (float): Dropout rate in decoder except
+            attention & positional encoding.
+        transformer_dec_positional_dropout_rate (float): Dropout rate after decoder
+            positional encoding.
+        transformer_dec_attn_dropout_rate (float): Dropout rate in decoder
+            self-attention module.
+        conformer_pos_enc_layer_type : str
+            Pos encoding layer type in conformer.
+        conformer_self_attn_layer_type : str
+            Self-attention layer type in conformer
+        conformer_activation_type : str
+            Activation function type in conformer.
+        use_macaron_style_in_conformer : bool
+            Whether to use macaron style FFN.
+        use_cnn_in_conformer : bool
+            Whether to use CNN in conformer.
+        zero_triu : bool
+            Whether to use zero triu in relative self-attention module.
+        conformer_enc_kernel_size : int
+            Kernel size of encoder conformer.
+        conformer_dec_kernel_size : int
+            Kernel size of decoder conformer.
+        duration_predictor_layers : int
+            Number of duration predictor layers.
+        duration_predictor_chans : int
+            Number of duration predictor channels.
+        duration_predictor_kernel_size : int
+            Kernel size of duration predictor.
+        duration_predictor_dropout_rate : float
+            Dropout rate in duration predictor.
+        pitch_predictor_layers : int
+            Number of pitch predictor layers.
+        pitch_predictor_chans : int
+            Number of pitch predictor channels.
+        pitch_predictor_kernel_size : int
+            Kernel size of pitch predictor.
+        pitch_predictor_dropout_rate : float
+            Dropout rate in pitch predictor.
+        pitch_embed_kernel_size : float
+            Kernel size of pitch embedding.
+        pitch_embed_dropout_rate : float
+            Dropout rate for pitch embedding.
+        stop_gradient_from_pitch_predictor : bool
+            Whether to stop gradient from pitch predictor to encoder.
+        energy_predictor_layers : int
+            Number of energy predictor layers.
+        energy_predictor_chans : int
+            Number of energy predictor channels.
+        energy_predictor_kernel_size : int
+            Kernel size of energy predictor.
+        energy_predictor_dropout_rate : float
+            Dropout rate in energy predictor.
+        energy_embed_kernel_size : float
+            Kernel size of energy embedding.
+        energy_embed_dropout_rate : float
+            Dropout rate for energy embedding.
+        stop_gradient_from_energy_predictor : bool 
+            Whether to stop gradient from energy predictor to encoder.
+        spk_num : Optional[int]
+            Number of speakers. If not None, assume that the spk_embed_dim is not None,
+            spk_ids will be provided as the input and use spk_embedding_table.
+        spk_embed_dim : Optional[int]
+            Speaker embedding dimension. If not None, 
+            assume that spk_emb will be provided as the input or spk_num is not None.
+        spk_embed_integration_type : str
+            How to integrate speaker embedding.
+        tone_num : Optional[int]
+            Number of tones. If not None, assume that the
+            tone_ids will be provided as the input and use tone_embedding_table.
+        tone_embed_dim : Optional[int]
+            Tone embedding dimension. If not None, assume that tone_num is not None.
+        tone_embed_integration_type : str
+            How to integrate tone embedding.
+        init_type : str
+            How to initialize transformer parameters.
+        init_enc_alpha : float
+            Initial value of alpha in scaled pos encoding of the encoder.
+        init_dec_alpha : float
+            Initial value of alpha in scaled pos encoding of the decoder.
+    
+        """
         assert check_argument_types()
         super().__init__()
 
@@ -148,30 +286,32 @@ class FastSpeech2(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        if self.spk_embed_dim is not None:
+        if spk_num and self.spk_embed_dim:
             self.spk_embedding_table = nn.Embedding(
-                num_embeddings=num_speakers,
+                num_embeddings=spk_num,
                 embedding_dim=self.spk_embed_dim,
                 padding_idx=self.padding_idx)
 
         if self.tone_embed_dim is not None:
             self.tone_embedding_table = nn.Embedding(
-                num_embeddings=num_tones,
+                num_embeddings=tone_num,
                 embedding_dim=self.tone_embed_dim,
                 padding_idx=self.padding_idx)
 
-        # get positional encoding class
-        pos_enc_class = (ScaledPositionalEncoding
-                         if self.use_scaled_pos_enc else PositionalEncoding)
+        # get positional encoding layer type
+        transformer_pos_enc_layer_type = "scaled_abs_pos" if self.use_scaled_pos_enc else "abs_pos"
 
         # define encoder
         encoder_input_layer = nn.Embedding(
             num_embeddings=idim,
             embedding_dim=adim,
             padding_idx=self.padding_idx)
-
+        # add encoder type here
+        # 测试模型还能跑通不
+        # 记得改 transformer tts
         if encoder_type == "transformer":
-            self.encoder = TransformerEncoder(
+            print("encoder_type is transformer")
+            self.encoder = Encoder(
                 idim=idim,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -181,11 +321,36 @@ class FastSpeech2(nn.Layer):
                 dropout_rate=transformer_enc_dropout_rate,
                 positional_dropout_rate=transformer_enc_positional_dropout_rate,
                 attention_dropout_rate=transformer_enc_attn_dropout_rate,
-                pos_enc_class=pos_enc_class,
+                pos_enc_layer_type=transformer_pos_enc_layer_type,
                 normalize_before=encoder_normalize_before,
                 concat_after=encoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                encoder_type=encoder_type)
+        elif encoder_type == "conformer":
+            print("encoder_type is conformer")
+            self.encoder = Encoder(
+                idim=idim,
+                attention_dim=adim,
+                attention_heads=aheads,
+                linear_units=eunits,
+                num_blocks=elayers,
+                input_layer=encoder_input_layer,
+                dropout_rate=transformer_enc_dropout_rate,
+                positional_dropout_rate=transformer_enc_positional_dropout_rate,
+                attention_dropout_rate=transformer_enc_attn_dropout_rate,
+                normalize_before=encoder_normalize_before,
+                concat_after=encoder_concat_after,
+                positionwise_layer_type=positionwise_layer_type,
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                macaron_style=use_macaron_style_in_conformer,
+                pos_enc_layer_type=conformer_pos_enc_layer_type,
+                selfattention_layer_type=conformer_self_attn_layer_type,
+                activation_type=conformer_activation_type,
+                use_cnn_module=use_cnn_in_conformer,
+                cnn_module_kernel=conformer_enc_kernel_size,
+                zero_triu=zero_triu,
+                encoder_type=encoder_type)
         else:
             raise ValueError(f"{encoder_type} is not supported.")
 
@@ -251,7 +416,8 @@ class FastSpeech2(nn.Layer):
         # NOTE: we use encoder as decoder
         # because fastspeech's decoder is the same as encoder
         if decoder_type == "transformer":
-            self.decoder = TransformerEncoder(
+            print("decoder_type is transformer")
+            self.decoder = Encoder(
                 idim=0,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -262,11 +428,35 @@ class FastSpeech2(nn.Layer):
                 dropout_rate=transformer_dec_dropout_rate,
                 positional_dropout_rate=transformer_dec_positional_dropout_rate,
                 attention_dropout_rate=transformer_dec_attn_dropout_rate,
-                pos_enc_class=pos_enc_class,
+                pos_enc_layer_type=transformer_pos_enc_layer_type,
                 normalize_before=decoder_normalize_before,
                 concat_after=decoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                encoder_type=decoder_type)
+        elif decoder_type == "conformer":
+            print("decoder_type is conformer")
+            self.decoder = Encoder(
+                idim=0,
+                attention_dim=adim,
+                attention_heads=aheads,
+                linear_units=dunits,
+                num_blocks=dlayers,
+                input_layer=None,
+                dropout_rate=transformer_dec_dropout_rate,
+                positional_dropout_rate=transformer_dec_positional_dropout_rate,
+                attention_dropout_rate=transformer_dec_attn_dropout_rate,
+                normalize_before=decoder_normalize_before,
+                concat_after=decoder_concat_after,
+                positionwise_layer_type=positionwise_layer_type,
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                macaron_style=use_macaron_style_in_conformer,
+                pos_enc_layer_type=conformer_pos_enc_layer_type,
+                selfattention_layer_type=conformer_self_attn_layer_type,
+                activation_type=conformer_activation_type,
+                use_cnn_module=use_cnn_in_conformer,
+                cnn_module_kernel=conformer_dec_kernel_size,
+                encoder_type=decoder_type)
         else:
             raise ValueError(f"{decoder_type} is not supported.")
 
@@ -299,7 +489,7 @@ class FastSpeech2(nn.Layer):
             pitch: paddle.Tensor,
             energy: paddle.Tensor,
             tone_id: paddle.Tensor=None,
-            spembs: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
             spk_id: paddle.Tensor=None
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
@@ -322,7 +512,7 @@ class FastSpeech2(nn.Layer):
             Batch of padded token-averaged energy (B, Tmax, 1).
         tone_id : Tensor, optional(int64)
                 Batch of padded tone ids  (B, Tmax).
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             Batch of speaker embeddings (B, spk_embed_dim).
         spk_id : Tnesor, optional(int64)
             Batch of speaker ids (B,)
@@ -366,7 +556,7 @@ class FastSpeech2(nn.Layer):
             ps,
             es,
             is_inference=False,
-            spembs=spembs,
+            spk_emb=spk_emb,
             spk_id=spk_id,
             tone_id=tone_id)
         # modify mod part of groundtruth
@@ -387,7 +577,7 @@ class FastSpeech2(nn.Layer):
                  es: paddle.Tensor=None,
                  is_inference: bool=False,
                  alpha: float=1.0,
-                 spembs=None,
+                 spk_emb=None,
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
         # forward encoder
@@ -397,11 +587,12 @@ class FastSpeech2(nn.Layer):
 
         # integrate speaker embedding
         if self.spk_embed_dim is not None:
-            if spembs is not None:
-                hs = self._integrate_with_spk_embed(hs, spembs)
+            # spk_emb has a higher priority than spk_id
+            if spk_emb is not None:
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
             elif spk_id is not None:
-                spembs = self.spk_embedding_table(spk_id)
-                hs = self._integrate_with_spk_embed(hs, spembs)
+                spk_emb = self.spk_embedding_table(spk_id)
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
 
         # integrate tone embedding
         if self.tone_embed_dim is not None:
@@ -489,7 +680,7 @@ class FastSpeech2(nn.Layer):
             energy: paddle.Tensor=None,
             alpha: float=1.0,
             use_teacher_forcing: bool=False,
-            spembs=None,
+            spk_emb=None,
             spk_id=None,
             tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
@@ -512,7 +703,7 @@ class FastSpeech2(nn.Layer):
         use_teacher_forcing : bool, optional
             Whether to use teacher forcing.
             If true, groundtruth of duration, pitch and energy will be used.
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             peaker embedding vector (spk_embed_dim,).
         spk_id : Tensor, optional(int64)
             Batch of padded spk ids  (1,).
@@ -527,7 +718,6 @@ class FastSpeech2(nn.Layer):
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         y = speech
-        spemb = spembs
         d, p, e = durations, pitch, energy
         # setup batch axis
         ilens = paddle.shape(x)[0]
@@ -537,8 +727,8 @@ class FastSpeech2(nn.Layer):
         if y is not None:
             ys = y.unsqueeze(0)
 
-        if spemb is not None:
-            spembs = spemb.unsqueeze(0)
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
 
         if tone_id is not None:
             tone_id = tone_id.unsqueeze(0)
@@ -548,7 +738,7 @@ class FastSpeech2(nn.Layer):
             ds = d.unsqueeze(0) if d is not None else None
             ps = p.unsqueeze(0) if p is not None else None
             es = e.unsqueeze(0) if e is not None else None
-            # ds, ps, es = , p.unsqueeze(0), e.unsqueeze(0)
+
             # (1, L, odim)
             _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
@@ -557,7 +747,7 @@ class FastSpeech2(nn.Layer):
                 ds=ds,
                 ps=ps,
                 es=es,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id,
                 is_inference=True)
@@ -569,19 +759,19 @@ class FastSpeech2(nn.Layer):
                 ys,
                 is_inference=True,
                 alpha=alpha,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id)
         return outs[0], d_outs[0], p_outs[0], e_outs[0]
 
-    def _integrate_with_spk_embed(self, hs, spembs):
+    def _integrate_with_spk_embed(self, hs, spk_emb):
         """Integrate speaker embedding with hidden states.
 
         Parameters
         ----------
         hs : Tensor
             Batch of hidden state sequences (B, Tmax, adim).
-        spembs : Tensor
+        spk_emb : Tensor
             Batch of speaker embeddings (B, spk_embed_dim).
 
         Returns
@@ -591,13 +781,13 @@ class FastSpeech2(nn.Layer):
         """
         if self.spk_embed_integration_type == "add":
             # apply projection and then add to hidden states
-            spembs = self.spk_projection(F.normalize(spembs))
-            hs = hs + spembs.unsqueeze(1)
+            spk_emb = self.spk_projection(F.normalize(spk_emb))
+            hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
-            spembs = F.normalize(spembs).unsqueeze(1).expand(
+            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
                 shape=[-1, hs.shape[1], -1])
-            hs = self.spk_projection(paddle.concat([hs, spembs], axis=-1))
+            hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")
 
@@ -682,9 +872,9 @@ class FastSpeech2Inference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, spk_id=None):
+    def forward(self, text, spk_id=None, spk_emb=None):
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, spk_id=spk_id)
+            text, spk_id=spk_id, spk_emb=spk_emb)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

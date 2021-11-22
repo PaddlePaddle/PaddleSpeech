@@ -23,8 +23,6 @@ fi
 #    exit 1
 #fi
 
-
-
 for type in  attention_rescoring; do
     echo "decoding ${type}"
     batch_size=1

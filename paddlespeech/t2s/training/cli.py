@@ -53,8 +53,7 @@ def default_argument_parser():
     parser.add_argument("--checkpoint_path", type=str, help="path of the checkpoint to load")
 
     # running
-    parser.add_argument("--device", type=str, choices=["cpu", "gpu"], help="device type to use, cpu and gpu are supported.")
-    parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
+    parser.add_argument("--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
 
     # overwrite extra config and default config
     parser.add_argument("--opts", nargs=argparse.REMAINDER, help="options to overwrite --config file and the default config, passing in KEY VALUE pairs")

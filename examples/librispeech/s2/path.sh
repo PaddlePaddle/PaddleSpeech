@@ -14,6 +14,10 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 MODEL=u2_kaldi
 export BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/${MODEL}/bin
 
+LM_MODEL=transformer
+export LM_BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/lm/${LM_MODEL}/bin
+
+
 # srilm
 export LIBLBFGS=${MAIN_ROOT}/tools/liblbfgs-1.10
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${LIBLBFGS}/lib/.libs

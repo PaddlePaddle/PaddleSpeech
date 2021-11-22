@@ -6,4 +6,4 @@ train_output_path=$2
 python3 ${BIN_DIR}/train.py \
     --data=${preprocess_path} \
     --output=${train_output_path} \
-    --device="gpu"
+    --ngpu=1

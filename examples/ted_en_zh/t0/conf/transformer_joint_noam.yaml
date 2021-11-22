@@ -99,6 +99,7 @@ decoding:
   alpha: 2.5
   beta: 0.3
   beam_size: 10
+  word_reward: 0.7
   cutoff_prob: 1.0
   cutoff_top_n: 0
   num_proc_bsearch: 8

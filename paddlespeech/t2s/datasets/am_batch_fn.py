@@ -100,7 +100,7 @@ def fastspeech2_single_spk_batch_fn(examples):
 
 
 def fastspeech2_multi_spk_batch_fn(examples):
-    # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"]
+    # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
@@ -114,7 +114,6 @@ def fastspeech2_multi_spk_batch_fn(examples):
     speech_lengths = [
         np.array(item["speech_lengths"], dtype=np.int64) for item in examples
     ]
-    spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
 
     text = batch_sequences(text)
     pitch = batch_sequences(pitch)
@@ -130,7 +129,6 @@ def fastspeech2_multi_spk_batch_fn(examples):
     energy = paddle.to_tensor(energy)
     text_lengths = paddle.to_tensor(text_lengths)
     speech_lengths = paddle.to_tensor(speech_lengths)
-    spk_id = paddle.to_tensor(spk_id)
 
     batch = {
         "text": text,
@@ -139,9 +137,20 @@ def fastspeech2_multi_spk_batch_fn(examples):
         "speech": speech,
         "speech_lengths": speech_lengths,
         "pitch": pitch,
-        "energy": energy,
-        "spk_id": spk_id
+        "energy": energy
     }
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
+    elif "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
     return batch
 
 

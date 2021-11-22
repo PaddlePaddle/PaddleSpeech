@@ -7,8 +7,8 @@ Download VCTK-0.92  from the [official website](https://datashare.ed.ac.uk/handl
 
 ### Get MFA results for silence trim
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to  cut silence in the edge of audio.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/use_mfa) of our repo.
-ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/DeepSpeech/blob/develop/examples/other/use_mfa/local/reorganize_vctk.py)):
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) of our repo.
+ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/other/use_mfa/local/reorganize_vctk.py)):
 1. `p315`, because no txt for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
 
@@ -58,9 +58,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--device DEVICE] [--nprocs NPROCS] [--verbose VERBOSE]
-                [--batch-size BATCH_SIZE] [--max-iter MAX_ITER]
-                [--run-benchmark RUN_BENCHMARK]
+                [--ngpu NGPU] [--verbose VERBOSE] [--batch-size BATCH_SIZE]
+                [--max-iter MAX_ITER] [--run-benchmark RUN_BENCHMARK]
                 [--profiler_options PROFILER_OPTIONS]
 
 Train a ParallelWaveGAN model.
@@ -74,8 +73,7 @@ optional arguments:
                         dev data.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
-  --nprocs NPROCS       number of processes.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 
 benchmark:
@@ -95,8 +93,8 @@ benchmark:
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
-4. `--device` is the type of the device to run the experiment, 'cpu' or 'gpu' are supported.
-5. `--nprocs` is the number of processes to run in parallel, note that nprocs > 1 is only supported when `--device` is 'gpu'.
+4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+
 ### Synthesize
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
@@ -105,7 +103,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 ```text
 usage: synthesize.py [-h] [--config CONFIG] [--checkpoint CHECKPOINT]
                      [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--device DEVICE] [--verbose VERBOSE]
+                     [--ngpu NGPU] [--verbose VERBOSE]
 
 Synthesize with parallel wavegan.
 
@@ -118,7 +116,7 @@ optional arguments:
                         dev data.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device to run.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 ```
 
@@ -126,7 +124,7 @@ optional arguments:
 2. `--checkpoint` is the checkpoint to load. Pick one of the checkpoints from `checkpoints` inside the training output directory. If you use the pretrained model, use the `pwg_snapshot_iter_400000.pdz`.
 3. `--test-metadata` is the metadata of the test dataset. Use the `metadata.jsonl` in the `dev/norm` subfolder from the processed directory.
 4. `--output-dir` is the directory to save the synthesized audio files.
-5. `--device` is the type of device to run synthesis, 'cpu' and 'gpu' are supported.
+5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Models
 Pretrained models can be downloaded here [pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_vctk_ckpt_0.5.zip).

@@ -53,8 +53,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--device DEVICE] [--nprocs NPROCS] [--verbose VERBOSE]
-                [--phones-dict PHONES_DICT]
+                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
 
 Train a TransformerTTS model with LJSpeech TTS dataset.
 
@@ -67,8 +66,7 @@ optional arguments:
                         dev data.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
-  --nprocs NPROCS       number of processes.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
@@ -76,12 +74,11 @@ optional arguments:
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
-4. `--device` is the type of the device to run the experiment, 'cpu' or 'gpu' are supported.
-5. `--nprocs` is the number of processes to run in parallel, note that nprocs > 1 is only supported when `--device` is 'gpu'.
-6. `--phones-dict` is the path of the phone vocabulary file.
+4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+5. `--phones-dict` is the path of the phone vocabulary file.
 
 ## Synthesize
-We use [waveflow](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder.
+We use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder.
 Download Pretrained WaveFlow Model with residual channel equals 128 from [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip) and unzip it.
 ```bash
 unzip waveflow_ljspeech_ckpt_0.3.zip
@@ -104,7 +101,7 @@ usage: synthesize.py [-h] [--transformer-tts-config TRANSFORMER_TTS_CONFIG]
                      [--waveflow-checkpoint WAVEFLOW_CHECKPOINT]
                      [--phones-dict PHONES_DICT]
                      [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--device DEVICE] [--verbose VERBOSE]
+                     [--ngpu NGPU] [--verbose VERBOSE]
 
 Synthesize with transformer tts & waveflow.
 
@@ -127,7 +124,7 @@ optional arguments:
                         test metadata.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/synthesize_e2e.py`, which can synthesize waveform from text file.
@@ -142,7 +139,7 @@ usage: synthesize_e2e.py [-h]
                          [--waveflow-config WAVEFLOW_CONFIG]
                          [--waveflow-checkpoint WAVEFLOW_CHECKPOINT]
                          [--phones-dict PHONES_DICT] [--text TEXT]
-                         [--output-dir OUTPUT_DIR] [--device DEVICE]
+                         [--output-dir OUTPUT_DIR] [--ngpu NGPU]
                          [--verbose VERBOSE]
 
 Synthesize with transformer tts & waveflow.
@@ -165,7 +162,7 @@ optional arguments:
   --text TEXT           text to synthesize, a 'utt_id sentence' pair per line.
   --output-dir OUTPUT_DIR
                         output dir.
-  --device DEVICE       device type to use.
+  --ngpu NGPU           if ngpu == 0, use cpu.
   --verbose VERBOSE     verbose.
 ```
 1. `--transformer-tts-config`, `--transformer-tts-checkpoint`, `--transformer-tts-stat` and `--phones-dict` are arguments for transformer_tts, which correspond to the 4 files in the transformer_tts pretrained model.
@@ -173,7 +170,7 @@ optional arguments:
 3. `--test-metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 4. `--text` is the text file, which contains sentences to synthesize.
 5. `--output-dir` is the directory to save synthesized audio files.
-6. `--device` is the type of device to run synthesis, 'cpu' and 'gpu' are supported. 'gpu' is recommended for faster synthesis.
+6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
 Pretrained Model can be downloaded here. [transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/transformer_tts_ljspeech_ckpt_0.4.zip)
@@ -200,6 +197,5 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --waveflow-checkpoint=waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output-dir=exp/default/test_e2e \
-  --device="gpu" \
   --phones-dict=transformer_tts_ljspeech_ckpt_0.4/phone_id_map.txt
 ```

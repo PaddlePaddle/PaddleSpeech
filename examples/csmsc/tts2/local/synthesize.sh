@@ -16,5 +16,4 @@ python3 ${BIN_DIR}/synthesize.py \
   --output-dir=${train_output_path}/test \
   --inference-dir=${train_output_path}/inference \
   --phones-dict=dump/phone_id_map.txt \
-  --tones-dict=dump/tone_id_map.txt \
-  --device="gpu"
+  --tones-dict=dump/tone_id_map.txt

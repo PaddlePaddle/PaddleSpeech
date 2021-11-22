@@ -39,6 +39,8 @@ if __name__ == "__main__":
         "--export_path", type=str, help="path of the jit model to save")
     parser.add_argument(
         "--model_type", type=str, default='offline', help='offline/online')
+    parser.add_argument(
+        "--enable-auto-log", action="store_true", help="use auto log")
     args = parser.parse_args()
     print_arguments(args, globals())
     print("model_type:{}".format(args.model_type))

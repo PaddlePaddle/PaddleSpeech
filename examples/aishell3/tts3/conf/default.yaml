@@ -24,7 +24,7 @@ f0max: 400         # Minimum f0 for pitch extraction.
 #                       DATA SETTING                      #
 ###########################################################
 batch_size: 64
-num_workers: 4
+num_workers: 2
 
 
 ###########################################################

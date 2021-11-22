@@ -1,5 +1,5 @@
 # Speaker Encoder
-This experiment trains a speaker encoder with speaker verification as its task. It is done as a part of the experiment of transfer learning from speaker verification to multispeaker text-to-speech synthesis, which can be found at [examples/aishell3/vc0](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/vc0). The trained speaker encoder is used to extract utterance embeddings from utterances.
+This experiment trains a speaker encoder with speaker verification as its task. It is done as a part of the experiment of transfer learning from speaker verification to multispeaker text-to-speech synthesis, which can be found at [examples/aishell3/vc0](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc0). The trained speaker encoder is used to extract utterance embeddings from utterances.
 ## Model
 The model used in this experiment is the speaker encoder with text independent speaker verification task in [GENERALIZED END-TO-END LOSS FOR SPEAKER VERIFICATION](https://arxiv.org/pdf/1710.10467.pdf). GE2E-softmax loss is used.
 
@@ -70,8 +70,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${preprocess_path} ${train_output_
 In `${BIN_DIR}/train.py`:
 1. `--data` is the path to the preprocessed dataset.
 2. `--output` is the directory to save results，usually a subdirectory of `runs`.It contains visualdl log files, text log files, config file and a `checkpoints` directory, which contains parameter file and optimizer state file. If `--output` already has some training results in it, the most recent parameter file and optimizer state file is loaded before training.
-3. `--device` is the device type to run the training, 'cpu' and 'gpu' are supported.
-4. `--nprocs` is the number of replicas to run in multiprocessing based parallel training。Currently multiprocessing based parallel training is only enabled when using 'gpu' as the devicde.
+4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `CUDA_VISIBLE_DEVICES` can be used to specify visible devices with cuda.
 
 Other options are described below.
@@ -91,7 +90,7 @@ In `${BIN_DIR}/inference.py`:
 2. `--output` is the directory to save the processed results. It has the same file structure as the input dataset. Each utterance in the dataset has a corrsponding utterance embedding file in `*.npy` format.
 3. `--checkpoint_path` is the path of the checkpoint to use, extension not included.
 4. `--pattern` is the wildcard pattern to filter audio files for inference, defaults to `*.wav`.
-5. `--device` and `--opts` have the same meaning as in the training script.
+5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
 The pretrained model is first trained to 1560k steps at Librispeech-other-500 and voxceleb1. Then trained at aidatatang_200h and magic_data to 3000k steps.

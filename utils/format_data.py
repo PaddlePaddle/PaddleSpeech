@@ -87,15 +87,24 @@ def main():
                 tokens = text_feature.tokenize(line)
                 tokenids = text_feature.featurize(line)
                 output_json['output'].append({
-                    'name': 'traget1',
+                    'name': 'target1',
                     'shape': (len(tokenids), vocab_size),
                     'text': line,
                     'token': ' '.join(tokens),
                     'tokenid': ' '.join(map(str, tokenids)),
                 })
             else:
-                # isinstance(line, list), multi target 
-                raise NotImplementedError("not support multi output now!")
+                # isinstance(line, list), multi target in one vocab
+                for i, item in enumerate(line, 1):
+                    tokens = text_feature.tokenize(item)
+                    tokenids = text_feature.featurize(item)
+                    output_json['output'].append({
+                        'name': f'target{i}',
+                        'shape': (len(tokenids), vocab_size),
+                        'text': item,
+                        'token': ' '.join(tokens),
+                        'tokenid': ' '.join(map(str, tokenids)),
+                    })
 
             # input
             line = line_json['feat']

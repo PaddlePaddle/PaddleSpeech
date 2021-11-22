@@ -27,9 +27,6 @@ EOF
 
 . utils/parse_options.sh
 
-echo $PWD
-echo $dict
-
 if [ $# != 4 ]; then
     echo "${help_message}"
     exit 1
@@ -119,8 +116,6 @@ if [ -n "${lm}" ]; then
     fi
 fi
 
-echo ${dict}
-echo test -e ${dict}
 # dict
 if [ -n "${dict}" ]; then
     if [ -e ${dict} ]; then

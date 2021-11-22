@@ -1,5 +1,7 @@
 # [WenetSpeech](https://github.com/wenet-e2e/WenetSpeech)
 
+* asr1 - u2 asr model
+
 A 10000+ Hours Multi-domain Chinese Corpus for Speech Recognition
 
 ## Description

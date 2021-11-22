@@ -9,7 +9,7 @@ stop_stage=100
 nbpe=8000
 bpemode=unigram
 bpeprefix="data/bpe_${bpemode}_${nbpe}"
-data_dir=./TED_EnZh
+data_dir=./TED-En-Zh
 
 
 source ${MAIN_ROOT}/utils/parse_options.sh
@@ -21,7 +21,7 @@ mkdir -p data
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     if [ ! -e ${data_dir} ]; then
-        echo "Error: Dataset is not avaiable. Please download and unzip the dataset"
+        echo "Error: ${data_dir} Dataset is not avaiable. Please download and unzip the dataset"
         echo "Download Link: https://pan.baidu.com/s/18L-59wgeS96WkObISrytQQ Passwd: bva0"
         echo "The tree of the directory should be:"
         echo "."
@@ -88,7 +88,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # format manifest with tokenids, vocab size
     for set in train dev test; do
     {
-        python3 ${MAIN_ROOT}/utils/format_triplet_data.py \
+        python3 ${MAIN_ROOT}/utils/format_data.py \
         --cmvn_path "data/mean_std.json" \
         --unit_type "spm" \
         --spm_model_prefix ${bpeprefix} \

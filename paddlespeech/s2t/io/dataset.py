@@ -122,7 +122,7 @@ class ManifestDataset(Dataset):
             min_output_len=min_output_len,
             max_output_input_ratio=max_output_input_ratio,
             min_output_input_ratio=min_output_input_ratio)
-        self._manifest.sort(key=lambda x: x["feat_shape"][0])
+        self._manifest.sort(key=lambda x: x["input"][0]["shape"][0])
 
     def __len__(self):
         return len(self._manifest)

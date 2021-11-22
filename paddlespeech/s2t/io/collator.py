@@ -237,8 +237,8 @@ class SpeechCollatorBase():
         for idx, item in enumerate(batch):
             utts.append(item['utt'])
 
-            audio = item['feat']
-            text = item['text']
+            audio = item['input'][0]['feat']
+            text = item['output'][0]['text']
             audio, text = self.process_utterance(audio, text)
 
             audios.append(audio)  # [T, D]
@@ -381,9 +381,10 @@ class TripletSpeechCollator(SpeechCollator):
         for idx, item in enumerate(batch):
             utts.append(item['utt'])
 
-            audio = item['feat']
-            translation = item['text']
-            transcription = item['text1']
+            audio = item['input'][0]['feat']
+            translation = item['output'][0]['text']
+            transcription = item['output'][1]['text']
+
             audio, translation, transcription = self.process_utterance(
                 audio, translation, transcription)
 

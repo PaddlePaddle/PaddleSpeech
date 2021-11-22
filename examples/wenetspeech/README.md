@@ -1,6 +1,8 @@
-# [WenetSpeech](https://github.com/wenet-e2e/WenetSpeech)
+* asr0 - deepspeech2 Streaming/Non-Streaming
+* asr1 - transformer/conformer Streaming/Non-Streaming
+* asr2 - transformer/conformer Streaming/Non-Streaming with Kaldi feature
 
-* asr1 - u2 asr model
+# [WenetSpeech](https://github.com/wenet-e2e/WenetSpeech)
 
 A 10000+ Hours Multi-domain Chinese Corpus for Speech Recognition
 

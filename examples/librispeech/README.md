@@ -1,8 +1,9 @@
 # ASR
 
-* s0 is for deepspeech2 offline
-* s1 is for transformer/conformer/U2
-* s2 is for transformer/conformer/U2 w/ kaldi feat, need install Kaldi
+* asr0 - deepspeech2 Streaming/Non-Streaming
+* asr1 - transformer/conformer Streaming/Non-Streaming
+* asr2 - transformer/conformer Streaming/Non-Streaming with Kaldi feature
+
 
 ## Data
 | Data Subset | Duration in Seconds |

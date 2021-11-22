@@ -12,7 +12,7 @@ tar xjvf LJSpeech-1.1.tar.bz2
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.

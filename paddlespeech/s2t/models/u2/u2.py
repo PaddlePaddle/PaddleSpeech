@@ -860,7 +860,7 @@ class U2Model(U2DecodeModel):
             int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc
         """
         # cmvn
-        if configs['cmvn_file'] is not None:
+        if 'cmvn_file' in configs and configs['cmvn_file']:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
             global_cmvn = GlobalCMVN(

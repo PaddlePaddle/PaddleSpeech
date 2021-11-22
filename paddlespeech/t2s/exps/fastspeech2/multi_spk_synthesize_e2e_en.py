@@ -51,14 +51,14 @@ def evaluate(args, fastspeech2_config, pwg_config):
     print("vocab_size:", vocab_size)
     with open(args.speaker_dict, 'rt') as f:
         spk_id = [line.strip().split() for line in f.readlines()]
-    num_speakers = len(spk_id)
-    print("num_speakers:", num_speakers)
+    spk_num = len(spk_id)
+    print("spk_num:", spk_num)
 
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
         idim=vocab_size,
         odim=odim,
-        num_speakers=num_speakers,
+        spk_num=spk_num,
         **fastspeech2_config["model"])
 
     model.set_state_dict(
@@ -154,12 +154,17 @@ def main():
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
 
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     with open(args.fastspeech2_config) as f:
         fastspeech2_config = CfgNode(yaml.safe_load(f))

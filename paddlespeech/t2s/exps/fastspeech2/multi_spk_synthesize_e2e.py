@@ -46,14 +46,14 @@ def evaluate(args, fastspeech2_config, pwg_config):
     print("vocab_size:", vocab_size)
     with open(args.speaker_dict, 'rt') as f:
         spk_id = [line.strip().split() for line in f.readlines()]
-    num_speakers = len(spk_id)
-    print("num_speakers:", num_speakers)
+    spk_num = len(spk_id)
+    print("spk_num:", spk_num)
 
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
         idim=vocab_size,
         odim=odim,
-        num_speakers=num_speakers,
+        spk_num=spk_num,
         **fastspeech2_config["model"])
 
     model.set_state_dict(
@@ -87,26 +87,27 @@ def evaluate(args, fastspeech2_config, pwg_config):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     # only test the number 0 speaker
-    spk_id = 0
-    for utt_id, sentence in sentences:
-        input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
-        phone_ids = input_ids["phone_ids"]
-        flags = 0
-        for part_phone_ids in phone_ids:
-            with paddle.no_grad():
-                mel = fastspeech2_inference(
-                    part_phone_ids, spk_id=paddle.to_tensor(spk_id))
-                temp_wav = pwg_inference(mel)
-            if flags == 0:
-                wav = temp_wav
-                flags = 1
-            else:
-                wav = paddle.concat([wav, temp_wav])
-        sf.write(
-            str(output_dir / (str(spk_id) + "_" + utt_id + ".wav")),
-            wav.numpy(),
-            samplerate=fastspeech2_config.fs)
-        print(f"{spk_id}_{utt_id} done!")
+    spk_ids = list(range(20))
+    for spk_id in spk_ids:
+        for utt_id, sentence in sentences[:2]:
+            input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
+            phone_ids = input_ids["phone_ids"]
+            flags = 0
+            for part_phone_ids in phone_ids:
+                with paddle.no_grad():
+                    mel = fastspeech2_inference(
+                        part_phone_ids, spk_id=paddle.to_tensor(spk_id))
+                    temp_wav = pwg_inference(mel)
+                if flags == 0:
+                    wav = temp_wav
+                    flags = 1
+                else:
+                    wav = paddle.concat([wav, temp_wav])
+            sf.write(
+                str(output_dir / (str(spk_id) + "_" + utt_id + ".wav")),
+                wav.numpy(),
+                samplerate=fastspeech2_config.fs)
+            print(f"{spk_id}_{utt_id} done!")
 
 
 def main():
@@ -145,12 +146,17 @@ def main():
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
 
-    paddle.set_device(args.device)
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
 
     with open(args.fastspeech2_config) as f:
         fastspeech2_config = CfgNode(yaml.safe_load(f))

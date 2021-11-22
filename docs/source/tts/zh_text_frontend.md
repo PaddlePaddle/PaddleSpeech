@@ -1,5 +1,5 @@
 # Chinese Rule Based Text Frontend
-A TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We provide a complete Chinese text frontend module in PaddleSpeech TTS, see exapmle in [examples/other/text_frontend/](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/text_frontend).
+A TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We provide a complete Chinese text frontend module in PaddleSpeech TTS, see exapmles in [examples/other/tn](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tn) and [examples/other/g2p](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/g2p).
 
 A text frontend module mainly includes:
  - Text Segmentation

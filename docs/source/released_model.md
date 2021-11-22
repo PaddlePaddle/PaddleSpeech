@@ -1,15 +1,17 @@
+
 # Released Models
 
-## Speech-To-Text Models
+## Speech-to-Text Models
 ### Acoustic Model Released in paddle 2.X
-Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
-:-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :---------
-[Ds2 Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds_online.5rnn.debug.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.0824 |-| 151 h
-[Ds2 Offline Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.065 |-| 151 h
-[Conformer Online Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention + CTC | 0.0594 |-| 151 h
-[Conformer Offline Aishell Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention | 0.0547 |-| 151 h
-[Conformer Librispeech Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | Word-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention |-| 0.0325 | 960 h
-[Transformer Librispeech Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/transformer.release.tar.gz) | Librispeech Dataset | Word-based | 195 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention |-| 0.0544 | 960 h
+Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech | example link
+:-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :--------- | :-----------
+[Ds2 Online Aishell S0 Model](https://deepspeech.bj.bcebos.com/release2.2/aishell/s0/ds2_online_aishll_CER8.02_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080218 |-| 151 h | [D2 Online Aishell S0 Example](../../examples/aishell/s0)
+[Ds2 Offline Aishell S0 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.065 |-| 151 h | [Ds2 Offline Aishell S0 Example](../../examples/aishell/s0)
+[Conformer Online Aishell S1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0594 |-| 151 h | [Conformer Online Aishell S1 Example](../../examples/aishell/s1)
+[Conformer Offline Aishell S1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0547 |-| 151 h | [Conformer Offline Aishell S1 Example](../../examples/aishell/s1)
+[Conformer Librispeech S1 Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | subword-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0325 | 960 h | [Conformer Librispeech S1 example](../../example/librispeech/s1)
+[Transformer Librispeech S1 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s1/librispeech.s1.transformer.all.wer5p62.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0456 | 960 h | [Transformer Librispeech S1 example](../../example/librispeech/s1)
+[Transformer Librispeech S2 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s2/libri_transformer_espnet_wer3p84.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention |-| 0.0384 | 960 h | [Transformer Librispeech S2 example](../../example/librispeech/s2)
 
 ### Acoustic Model Transformed from paddle 1.8
 Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
@@ -26,30 +28,31 @@ Language Model | Training Data | Token-based | Size | Descriptions
 [Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
 [Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
-## Text-To-Speech Models
+## Text-to-Speech Models
 ### Acoustic Models
-Model Type | Dataset| Example Link | Pretrained Models
-:-------------:| :------------:| :-----: | :-----
-Tacotron2|LJSpeech|[tacotron2-vctk](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts0)|[tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3.zip)
-TransformerTTS| LJSpeech| [transformer-ljspeech](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts1)|[transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/transformer_tts_ljspeech_ckpt_0.4.zip)
-SpeedySpeech| CSMSC | [speedyspeech-csmsc](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts2) |[speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)
-FastSpeech2| CSMSC |[fastspeech2-csmsc](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/tts3)|[fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip)
-FastSpeech2| AISHELL-3 |[fastspeech2-aishell3](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/tts3)|[fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
-FastSpeech2| LJSpeech |[fastspeech2-ljspeech](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/tts3)|[fastspeech2_nosil_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip)
-FastSpeech2| VCTK |[fastspeech2-csmsc](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/tts3)|[fastspeech2_nosil_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_vctk_ckpt_0.5.zip)
-
+Model Type | Dataset| Example Link | Pretrained Models|Static Models|Siize(static)
+:-------------:| :------------:| :-----: | :-----:| :-----:| :-----:
+Tacotron2|LJSpeech|[tacotron2-vctk](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/tts0)|[tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3.zip)|||
+TransformerTTS| LJSpeech| [transformer-ljspeech](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/tts1)|[transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/transformer_tts_ljspeech_ckpt_0.4.zip)|||
+SpeedySpeech| CSMSC | [speedyspeech-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts2) |[speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)|[speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_static_0.5.zip)|12MB|
+FastSpeech2| CSMSC |[fastspeech2-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3)|[fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip)|[fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_static_0.4.zip)|157MB|
+FastSpeech2| AISHELL-3 |[fastspeech2-aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3)|[fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_ckpt_0.4.zip)|||
+FastSpeech2| LJSpeech |[fastspeech2-ljspeech](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/tts3)|[fastspeech2_nosil_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip)|||
+FastSpeech2| VCTK |[fastspeech2-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/tts3)|[fastspeech2_nosil_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_vctk_ckpt_0.5.zip)|||
 
 ### Vocoders
 
-Model Type | Dataset| Example Link | Pretrained Models
-:-------------:| :------------:| :-----: | :-----
-WaveFlow| LJSpeech |[waveflow-ljspeech](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc0)|[waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip)
-Parallel WaveGAN| CSMSC |[PWGAN-csmsc](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/csmsc/voc1)|[pwg_baker_ckpt_0.4.zip.](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip)
-Parallel WaveGAN| LJSpeech |[PWGAN-ljspeech](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/ljspeech/voc1)|[pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip)
-Parallel WaveGAN| VCTK |[PWGAN-vctk](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/vctk/voc1)|[pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_vctk_ckpt_0.5.zip)
+Model Type | Dataset| Example Link | Pretrained Models| Static Models|Size(static)
+:-------------:| :------------:| :-----: | :-----:| :-----:| :-----:
+WaveFlow| LJSpeech |[waveflow-ljspeech](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0)|[waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip)|||
+Parallel WaveGAN| CSMSC |[PWGAN-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1)|[pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip)|[pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_static_0.4.zip)|5.1MB|
+Parallel WaveGAN| LJSpeech |[PWGAN-ljspeech](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc1)|[pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip)|||
+Parallel WaveGAN|AISHELL-3 |[PWGAN-aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1)|[pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_aishell3_ckpt_0.5.zip)|||
+Parallel WaveGAN| VCTK |[PWGAN-vctk](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc1)|[pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_vctk_ckpt_0.5.zip)|||
+|Multi Band MelGAN |CSMSC|[MB MelGAN-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc3) | [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_ckpt_0.5.zip)|[mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_static_0.5.zip) |8.2MB|
 
 ### Voice Cloning
 Model Type | Dataset| Example Link | Pretrained Models
-:-------------:| :------------:| :-----: | :-----
-GE2E| AISHELL-3, etc. |[ge2e](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/other/ge2e)|[ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip)
-GE2E + Tactron2| AISHELL-3 |[ge2e-tactron2-aishell3](https://github.com/PaddlePaddle/DeepSpeech/tree/develop/examples/aishell3/vc0)|[tacotron2_aishell3_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_aishell3_ckpt_0.3.zip)
+:-------------:| :------------:| :-----: | :-----:
+GE2E| AISHELL-3, etc. |[ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e)|[ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip)
+GE2E + Tactron2| AISHELL-3 |[ge2e-tactron2-aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc0)|[tacotron2_aishell3_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_aishell3_ckpt_0.3.zip)

@@ -1,6 +1,6 @@
 # Reference
 
-We borrowed a lot of code from these repos to build `model` and `engine`, thank for these great work:
+We borrowed a lot of code from these repos to build `model` and `engine`, thank for these great work and opensource community!
 
 * [espnet](https://github.com/espnet/espnet/blob/master/LICENSE)
 - Apache-2.0 License

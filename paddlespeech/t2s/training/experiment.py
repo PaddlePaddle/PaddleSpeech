@@ -107,7 +107,12 @@ class ExperimentBase(object):
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device(self.args.device)
+        if self.args.ngpu == 0:
+            paddle.set_device("cpu")
+        elif self.args.ngpu > 0:
+            paddle.set_device("gpu")
+        else:
+            print("ngpu should >= 0 !")
         if self.parallel:
             self.init_parallel()
 
@@ -128,7 +133,7 @@ class ExperimentBase(object):
         """A flag indicating whether the experiment should run with
         multiprocessing.
         """
-        return self.args.device == "gpu" and self.args.nprocs > 1
+        return self.args.ngpu > 1
 
     def init_parallel(self):
         """Init environment for multiprocess training.

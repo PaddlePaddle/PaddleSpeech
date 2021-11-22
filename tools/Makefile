@@ -51,7 +51,7 @@ soxbindings.done:
 	touch soxbindings.done
 
 mfa.done:
-	test -d montreal-forced-aligner || $(WGET) https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
+	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.bj.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 

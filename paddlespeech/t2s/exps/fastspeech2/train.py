@@ -43,7 +43,7 @@ from paddlespeech.t2s.training.trainer import Trainer
 def train_sp(args, config):
     # decides device type and whether to run in parallel
     # setup running environment correctly
-    if not paddle.is_compiled_with_cuda():
+    if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
         paddle.set_device("cpu")
     else:
         paddle.set_device("gpu")
@@ -61,18 +61,24 @@ def train_sp(args, config):
         "text", "text_lengths", "speech", "speech_lengths", "durations",
         "pitch", "energy"
     ]
+    converters = {"speech": np.load, "pitch": np.load, "energy": np.load}
+    spk_num = None
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         collate_fn = fastspeech2_multi_spk_batch_fn
         with open(args.speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
-        num_speakers = len(spk_id)
+        spk_num = len(spk_id)
         fields += ["spk_id"]
+    elif args.voice_cloning:
+        print("Training voice cloning!")
+        collate_fn = fastspeech2_multi_spk_batch_fn
+        fields += ["spk_emb"]
+        converters["spk_emb"] = np.load
     else:
         print("single speaker fastspeech2!")
         collate_fn = fastspeech2_single_spk_batch_fn
-        num_speakers = None
-    print("num_speakers:", num_speakers)
+    print("spk_num:", spk_num)
 
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True
@@ -83,17 +89,13 @@ def train_sp(args, config):
     train_dataset = DataTable(
         data=train_metadata,
         fields=fields,
-        converters={"speech": np.load,
-                    "pitch": np.load,
-                    "energy": np.load}, )
+        converters=converters, )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
         fields=fields,
-        converters={"speech": np.load,
-                    "pitch": np.load,
-                    "energy": np.load}, )
+        converters=converters, )
 
     # collate function and dataloader
 
@@ -127,10 +129,7 @@ def train_sp(args, config):
 
     odim = config.n_mels
     model = FastSpeech2(
-        idim=vocab_size,
-        odim=odim,
-        num_speakers=num_speakers,
-        **config["model"])
+        idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")
@@ -174,9 +173,7 @@ def main():
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--device", type=str, default="gpu", help="device type to use.")
-    parser.add_argument(
-        "--nprocs", type=int, default=1, help="number of processes.")
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
     parser.add_argument(
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
@@ -186,9 +183,16 @@ def main():
         default=None,
         help="speaker id map file for multiple speaker model.")
 
+    def str2bool(str):
+        return True if str.lower() == 'true' else False
+
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
+
     args = parser.parse_args()
-    if args.device == "cpu" and args.nprocs > 1:
-        raise RuntimeError("Multiprocess training on CPU is not supported.")
 
     with open(args.config) as f:
         config = CfgNode(yaml.safe_load(f))
@@ -202,8 +206,8 @@ def main():
     )
 
     # dispatch
-    if args.nprocs > 1:
-        dist.spawn(train_sp, (args, config), nprocs=args.nprocs)
+    if args.ngpu > 1:
+        dist.spawn(train_sp, (args, config), nprocs=args.ngpu)
     else:
         train_sp(args, config)
 

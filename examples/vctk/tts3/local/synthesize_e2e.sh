@@ -15,6 +15,5 @@ python3 ${BIN_DIR}/multi_spk_synthesize_e2e_en.py \
   --pwg-stat=pwg_vctk_ckpt_0.5/pwg_stats.npy \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output-dir=${train_output_path}/test_e2e \
-  --device="gpu" \
   --phones-dict=dump/phone_id_map.txt \
   --speaker-dict=dump/speaker_id_map.txt

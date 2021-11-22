@@ -208,12 +208,14 @@ class U2Trainer(Trainer):
                         observation['batch_cost'] = observation[
                             'reader_cost'] + observation['step_cost']
                         observation['samples'] = observation['batch_size']
-                        observation['ips[sent./sec]'] = observation[
+                        observation['ips,sent./sec'] = observation[
                             'batch_size'] / observation['batch_cost']
                         for k, v in observation.items():
-                            msg += f" {k}: "
+                            msg += f" {k.split(',')[0]}: "
                             msg += f"{v:>.8f}" if isinstance(v,
                                                              float) else f"{v}"
+                            msg += f" {k.split(',')[1]}" if len(
+                                k.split(',')) == 2 else f""
                             msg += ","
                         msg = msg[:-1]  # remove the last ","
                         if (batch_index + 1

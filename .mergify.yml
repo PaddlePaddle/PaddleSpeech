@@ -53,7 +53,7 @@ pull_request_rules:
         add: ["T2S"]
   - name: "auto add label=Audio"
     conditions:
-      - files~=^paddleaudio/
+      - files~=^audio/
     actions:
       label:
         add: ["Audio"]
@@ -69,6 +69,12 @@ pull_request_rules:
     actions:
       label:
         add: ["Example"]
+  - name: "auto add label=Demo"
+    conditions:
+      - files~=^demos/
+    actions:
+      label:
+        add: ["Demo"]
   - name: "auto add label=README"
     conditions:
       - files~=README.md
@@ -77,7 +83,7 @@ pull_request_rules:
         add: ["README"]
   - name: "auto add label=Documentation"
     conditions:
-      - files~=^doc/
+      - files~=^docs/
     actions:
       label:
         add: ["Documentation"]

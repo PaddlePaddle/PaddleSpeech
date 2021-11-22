@@ -16,7 +16,9 @@
 from typing import Dict
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
+import numpy as np
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
@@ -96,7 +98,7 @@ class FastSpeech2(nn.Layer):
             pitch_embed_dropout: float=0.5,
             stop_gradient_from_pitch_predictor: bool=False,
             # spk emb
-            num_speakers: int=None,
+            spk_num: int=None,
             spk_embed_dim: int=None,
             spk_embed_integration_type: str="add",
             #  tone emb
@@ -146,9 +148,9 @@ class FastSpeech2(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        if self.spk_embed_dim is not None:
+        if spk_num and self.spk_embed_dim:
             self.spk_embedding_table = nn.Embedding(
-                num_embeddings=num_speakers,
+                num_embeddings=spk_num,
                 embedding_dim=self.spk_embed_dim,
                 padding_idx=self.padding_idx)
 
@@ -297,7 +299,7 @@ class FastSpeech2(nn.Layer):
             pitch: paddle.Tensor,
             energy: paddle.Tensor,
             tone_id: paddle.Tensor=None,
-            spembs: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
             spk_id: paddle.Tensor=None
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
@@ -320,7 +322,7 @@ class FastSpeech2(nn.Layer):
             Batch of padded token-averaged energy (B, Tmax, 1).
         tone_id : Tensor, optional(int64)
                 Batch of padded tone ids  (B, Tmax).
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             Batch of speaker embeddings (B, spk_embed_dim).
         spk_id : Tnesor, optional(int64)
             Batch of speaker ids (B,)
@@ -364,7 +366,7 @@ class FastSpeech2(nn.Layer):
             ps,
             es,
             is_inference=False,
-            spembs=spembs,
+            spk_emb=spk_emb,
             spk_id=spk_id,
             tone_id=tone_id)
         # modify mod part of groundtruth
@@ -385,7 +387,7 @@ class FastSpeech2(nn.Layer):
                  es: paddle.Tensor=None,
                  is_inference: bool=False,
                  alpha: float=1.0,
-                 spembs=None,
+                 spk_emb=None,
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
         # forward encoder
@@ -395,11 +397,12 @@ class FastSpeech2(nn.Layer):
 
         # integrate speaker embedding
         if self.spk_embed_dim is not None:
-            if spembs is not None:
-                hs = self._integrate_with_spk_embed(hs, spembs)
+            # spk_emb has a higher priority than spk_id
+            if spk_emb is not None:
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
             elif spk_id is not None:
-                spembs = self.spk_embedding_table(spk_id)
-                hs = self._integrate_with_spk_embed(hs, spembs)
+                spk_emb = self.spk_embedding_table(spk_id)
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
 
         # integrate tone embedding
         if self.tone_embed_dim is not None:
@@ -487,7 +490,7 @@ class FastSpeech2(nn.Layer):
             energy: paddle.Tensor=None,
             alpha: float=1.0,
             use_teacher_forcing: bool=False,
-            spembs=None,
+            spk_emb=None,
             spk_id=None,
             tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
@@ -510,12 +513,12 @@ class FastSpeech2(nn.Layer):
         use_teacher_forcing : bool, optional
             Whether to use teacher forcing.
             If true, groundtruth of duration, pitch and energy will be used.
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             peaker embedding vector (spk_embed_dim,).
         spk_id : Tensor, optional(int64)
-            Speaker embedding vector (spk_embed_dim).
+            Batch of padded spk ids  (1,).
         tone_id : Tensor, optional(int64)
-            Batch of padded tone ids  (B, Tmax).
+            Batch of padded tone ids  (T,).
 
         Returns
         ----------
@@ -525,10 +528,7 @@ class FastSpeech2(nn.Layer):
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         y = speech
-        spemb = spembs
-        if durations is not None:
-            d = paddle.cast(durations, 'int64')
-        p, e = pitch, energy
+        d, p, e = durations, pitch, energy
         # setup batch axis
         ilens = paddle.shape(x)[0]
 
@@ -537,51 +537,51 @@ class FastSpeech2(nn.Layer):
         if y is not None:
             ys = y.unsqueeze(0)
 
-        if spemb is not None:
-            spembs = spemb.unsqueeze(0)
-        else:
-            spembs = None
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
+
+        if tone_id is not None:
+            tone_id = tone_id.unsqueeze(0)
 
         if use_teacher_forcing:
             # use groundtruth of duration, pitch, and energy
             ds = d.unsqueeze(0) if d is not None else None
             ps = p.unsqueeze(0) if p is not None else None
             es = e.unsqueeze(0) if e is not None else None
-            # ds, ps, es = , p.unsqueeze(0), e.unsqueeze(0)
+
             # (1, L, odim)
-            _, outs, d_outs, *_ = self._forward(
+            _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
                 ilens,
                 ys,
                 ds=ds,
                 ps=ps,
                 es=es,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id,
                 is_inference=True)
         else:
             # (1, L, odim)
-            _, outs, d_outs, *_ = self._forward(
+            _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
                 ilens,
                 ys,
                 is_inference=True,
                 alpha=alpha,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id)
+        return outs[0], d_outs[0], p_outs[0], e_outs[0]
 
-        return outs[0]
-
-    def _integrate_with_spk_embed(self, hs, spembs):
+    def _integrate_with_spk_embed(self, hs, spk_emb):
         """Integrate speaker embedding with hidden states.
 
         Parameters
         ----------
         hs : Tensor
             Batch of hidden state sequences (B, Tmax, adim).
-        spembs : Tensor
+        spk_emb : Tensor
             Batch of speaker embeddings (B, spk_embed_dim).
 
         Returns
@@ -591,13 +591,13 @@ class FastSpeech2(nn.Layer):
         """
         if self.spk_embed_integration_type == "add":
             # apply projection and then add to hidden states
-            spembs = self.spk_projection(F.normalize(spembs))
-            hs = hs + spembs.unsqueeze(1)
+            spk_emb = self.spk_projection(F.normalize(spk_emb))
+            hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
-            spembs = F.normalize(spembs).unsqueeze(1).expand(
+            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
                 shape=[-1, hs.shape[1], -1])
-            hs = self.spk_projection(paddle.concat([hs, spembs], axis=-1))
+            hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")
 
@@ -682,8 +682,132 @@ class FastSpeech2Inference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, spk_id=None):
-        normalized_mel = self.acoustic_model.inference(text, spk_id=spk_id)
+    def forward(self, text, spk_id=None, spk_emb=None):
+        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
+            text, spk_id=spk_id, spk_emb=spk_emb)
+        logmel = self.normalizer.inverse(normalized_mel)
+        return logmel
+
+
+class StyleFastSpeech2Inference(FastSpeech2Inference):
+    def __init__(self,
+                 normalizer,
+                 model,
+                 pitch_stats_path=None,
+                 energy_stats_path=None):
+        super().__init__(normalizer, model)
+        if pitch_stats_path:
+            pitch_mean, pitch_std = np.load(pitch_stats_path)
+            self.pitch_mean = paddle.to_tensor(pitch_mean)
+            self.pitch_std = paddle.to_tensor(pitch_std)
+        if energy_stats_path:
+            energy_mean, energy_std = np.load(energy_stats_path)
+            self.energy_mean = paddle.to_tensor(energy_mean)
+            self.energy_std = paddle.to_tensor(energy_std)
+
+    def denorm(self, data, mean, std):
+        return data * std + mean
+
+    def norm(self, data, mean, std):
+        return (data - mean) / std
+
+    def forward(self,
+                text: paddle.Tensor,
+                durations: Union[paddle.Tensor, np.ndarray]=None,
+                durations_scale: Union[int, float]=None,
+                durations_bias: Union[int, float]=None,
+                pitch: Union[paddle.Tensor, np.ndarray]=None,
+                pitch_scale: Union[int, float]=None,
+                pitch_bias: Union[int, float]=None,
+                energy: Union[paddle.Tensor, np.ndarray]=None,
+                energy_scale: Union[int, float]=None,
+                energy_bias: Union[int, float]=None,
+                robot: bool=False):
+        """
+        Parameters
+        ----------
+        text : Tensor(int64)
+            Input sequence of characters (T,).
+        speech : Tensor, optional
+            Feature sequence to extract style (N, idim).
+        durations : paddle.Tensor/np.ndarray, optional (int64)
+            Groundtruth of duration (T,), this will overwrite the set of durations_scale and durations_bias
+        durations_scale: int/float, optional
+        durations_bias: int/float, optional
+        pitch : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged pitch (T, 1), this will overwrite the set of pitch_scale and pitch_bias
+        pitch_scale: int/float, optional
+            In denormed HZ domain.
+        pitch_bias: int/float, optional
+            In denormed HZ domain.
+        energy : paddle.Tensor/np.ndarray, optional
+            Groundtruth of token-averaged energy (T, 1), this will overwrite the set of energy_scale and energy_bias
+        energy_scale: int/float, optional
+            In denormed domain.
+        energy_bias: int/float, optional
+            In denormed domain.
+        robot : bool, optional
+            Weather output robot style
+        Returns
+        ----------
+        Tensor
+            Output sequence of features (L, odim).
+        """
+        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
+            text, durations=None, pitch=None, energy=None)
+        # priority: groundtruth > scale/bias > previous output
+        # set durations
+        if isinstance(durations, np.ndarray):
+            durations = paddle.to_tensor(durations)
+        elif isinstance(durations, paddle.Tensor):
+            durations = durations
+        elif durations_scale or durations_bias:
+            durations_scale = durations_scale if durations_scale is not None else 1
+            durations_bias = durations_bias if durations_bias is not None else 0
+            durations = durations_scale * d_outs + durations_bias
+        else:
+            durations = d_outs
+
+        if robot:
+            # set normed pitch to zeros have the same effect with set denormd ones to mean
+            pitch = paddle.zeros(p_outs.shape)
+
+        # set pitch, can overwrite robot set  
+        if isinstance(pitch, np.ndarray):
+            pitch = paddle.to_tensor(pitch)
+        elif isinstance(pitch, paddle.Tensor):
+            pitch = pitch
+        elif pitch_scale or pitch_bias:
+            pitch_scale = pitch_scale if pitch_scale is not None else 1
+            pitch_bias = pitch_bias if pitch_bias is not None else 0
+            p_Hz = paddle.exp(
+                self.denorm(p_outs, self.pitch_mean, self.pitch_std))
+            p_HZ = pitch_scale * p_Hz + pitch_bias
+            pitch = self.norm(paddle.log(p_HZ), self.pitch_mean, self.pitch_std)
+        else:
+            pitch = p_outs
+
+        # set energy
+        if isinstance(energy, np.ndarray):
+            energy = paddle.to_tensor(energy)
+        elif isinstance(energy, paddle.Tensor):
+            energy = energy
+        elif energy_scale or energy_bias:
+            energy_scale = energy_scale if energy_scale is not None else 1
+            energy_bias = energy_bias if energy_bias is not None else 0
+            e_dnorm = self.denorm(e_outs, self.energy_mean, self.energy_std)
+            e_dnorm = energy_scale * e_dnorm + energy_bias
+            energy = self.norm(e_dnorm, self.energy_mean, self.energy_std)
+        else:
+            energy = e_outs
+
+        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
+            text,
+            durations=durations,
+            pitch=pitch,
+            energy=energy,
+            use_teacher_forcing=True)
+
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

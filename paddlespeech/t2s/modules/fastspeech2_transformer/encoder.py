@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
-import logging
-
 from paddle import nn
 
 from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention
@@ -122,7 +120,6 @@ class Encoder(nn.Layer):
                 "rel_selfattn",
                 "legacy_rel_selfattn",
         ]:
-            logging.info("encoder self-attention layer type = self-attention")
             encoder_selfattn_layer = MultiHeadedAttention
             encoder_selfattn_layer_args = [
                 (attention_heads, attention_dim, attention_dropout_rate, )

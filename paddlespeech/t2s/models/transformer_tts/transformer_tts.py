@@ -391,7 +391,7 @@ class TransformerTTS(nn.Layer):
             text_lengths: paddle.Tensor,
             speech: paddle.Tensor,
             speech_lengths: paddle.Tensor,
-            spembs: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -405,7 +405,7 @@ class TransformerTTS(nn.Layer):
             Batch of padded target features (B, Lmax, odim).
         speech_lengths : Tensor(int64)
             Batch of the lengths of each target (B,).
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             Batch of speaker embeddings (B, spk_embed_dim).
 
         Returns
@@ -439,7 +439,7 @@ class TransformerTTS(nn.Layer):
 
         # calculate transformer outputs
         after_outs, before_outs, logits = self._forward(xs, ilens, ys, olens,
-                                                        spembs)
+                                                        spk_emb)
 
         # modifiy mod part of groundtruth
 
@@ -467,7 +467,7 @@ class TransformerTTS(nn.Layer):
             ilens: paddle.Tensor,
             ys: paddle.Tensor,
             olens: paddle.Tensor,
-            spembs: paddle.Tensor,
+            spk_emb: paddle.Tensor,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         # forward encoder
         x_masks = self._source_mask(ilens)
@@ -480,7 +480,7 @@ class TransformerTTS(nn.Layer):
 
         # integrate speaker embedding
         if self.spk_embed_dim is not None:
-            hs = self._integrate_with_spk_embed(hs, spembs)
+            hs = self._integrate_with_spk_embed(hs, spk_emb)
 
         # thin out frames for reduction factor (B, Lmax, odim) ->  (B, Lmax//r, odim)
         if self.reduction_factor > 1:
@@ -514,7 +514,7 @@ class TransformerTTS(nn.Layer):
             self,
             text: paddle.Tensor,
             speech: paddle.Tensor=None,
-            spembs: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
             threshold: float=0.5,
             minlenratio: float=0.0,
             maxlenratio: float=10.0,
@@ -528,7 +528,7 @@ class TransformerTTS(nn.Layer):
             Input sequence of characters (T,).
         speech : Tensor, optional
             Feature sequence to extract style (N, idim).
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             Speaker embedding vector (spk_embed_dim,).
         threshold : float, optional
             Threshold in inference.
@@ -551,7 +551,6 @@ class TransformerTTS(nn.Layer):
         """
         # input of embedding must be int64
         y = speech
-        spemb = spembs
 
         # add eos at the last of sequence
         text = numpy.pad(
@@ -564,12 +563,12 @@ class TransformerTTS(nn.Layer):
 
             # get teacher forcing outputs
             xs, ys = x.unsqueeze(0), y.unsqueeze(0)
-            spembs = None if spemb is None else spemb.unsqueeze(0)
+            spk_emb = None if spk_emb is None else spk_emb.unsqueeze(0)
             ilens = paddle.to_tensor(
                 [xs.shape[1]], dtype=paddle.int64, place=xs.place)
             olens = paddle.to_tensor(
                 [ys.shape[1]], dtype=paddle.int64, place=ys.place)
-            outs, *_ = self._forward(xs, ilens, ys, olens, spembs)
+            outs, *_ = self._forward(xs, ilens, ys, olens, spk_emb)
 
             # get attention weights
             att_ws = []
@@ -590,9 +589,9 @@ class TransformerTTS(nn.Layer):
             hs = hs + style_embs.unsqueeze(1)
 
         # integrate speaker embedding
-        if self.spk_embed_dim is not None:
-            spembs = spemb.unsqueeze(0)
-            hs = self._integrate_with_spk_embed(hs, spembs)
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
+            hs = self._integrate_with_spk_embed(hs, spk_emb)
 
         # set limits of length
         maxlen = int(hs.shape[1] * maxlenratio / self.reduction_factor)
@@ -726,14 +725,14 @@ class TransformerTTS(nn.Layer):
 
     def _integrate_with_spk_embed(self,
                                   hs: paddle.Tensor,
-                                  spembs: paddle.Tensor) -> paddle.Tensor:
+                                  spk_emb: paddle.Tensor) -> paddle.Tensor:
         """Integrate speaker embedding with hidden states.
 
         Parameters
         ----------
         hs : Tensor
             Batch of hidden state sequences (B, Tmax, adim).
-        spembs : Tensor
+        spk_emb : Tensor
             Batch of speaker embeddings (B, spk_embed_dim).
 
         Returns
@@ -744,13 +743,13 @@ class TransformerTTS(nn.Layer):
         """
         if self.spk_embed_integration_type == "add":
             # apply projection and then add to hidden states
-            spembs = self.projection(F.normalize(spembs))
-            hs = hs + spembs.unsqueeze(1)
+            spk_emb = self.projection(F.normalize(spk_emb))
+            hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
-            spembs = F.normalize(spembs).unsqueeze(1).expand(-1, hs.shape[1],
-                                                             -1)
-            hs = self.projection(paddle.concat([hs, spembs], axis=-1))
+            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(-1, hs.shape[1],
+                                                               -1)
+            hs = self.projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")
 

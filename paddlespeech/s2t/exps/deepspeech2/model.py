@@ -42,7 +42,6 @@ from paddlespeech.s2t.training.trainer import Trainer
 from paddlespeech.s2t.utils import error_rate
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils import mp_tools
-from paddlespeech.s2t.utils.log import Autolog
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
@@ -339,8 +338,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             error_rate_type=cfg.error_rate_type)
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
-        self.autolog.times.start()
-        self.autolog.times.stamp()
         result_transcripts = self.model.decode(
             audio,
             audio_len,
@@ -354,19 +351,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             cutoff_top_n=cfg.cutoff_top_n,
             num_processes=cfg.num_proc_bsearch)
 
-        self.autolog.times.stamp()
-        self.autolog.times.stamp()
-        self.autolog.times.end()
         return result_transcripts
 
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def test(self):
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
-        self.autolog = Autolog(
-            batch_size=self.config.decoding.batch_size,
-            model_name="deepspeech2",
-            model_precision="fp32").getlog()
         self.model.eval()
         cfg = self.config
         error_rate_type = None
@@ -390,7 +380,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
-        self.autolog.report()
 
     @paddle.no_grad()
     def export(self):
@@ -414,6 +403,43 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
     def __init__(self, config, args):
         super().__init__(config, args)
         self.apply_static = True
+        self.args = args
+
+    @mp_tools.rank_zero_only
+    @paddle.no_grad()
+    def test(self):
+        logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
+        if self.args.enable_auto_log == True:
+            from paddlespeech.s2t.utils.log import Autolog
+            self.autolog = Autolog(
+                batch_size=self.config.decoding.batch_size,
+                model_name="deepspeech2",
+                model_precision="fp32").getlog()
+        self.model.eval()
+        cfg = self.config
+        error_rate_type = None
+        errors_sum, len_refs, num_ins = 0.0, 0, 0
+        with jsonlines.open(self.args.result_file, 'w') as fout:
+            for i, batch in enumerate(self.test_loader):
+                utts, audio, audio_len, texts, texts_len = batch
+                metrics = self.compute_metrics(utts, audio, audio_len, texts,
+                                               texts_len, fout)
+                errors_sum += metrics['errors_sum']
+                len_refs += metrics['len_refs']
+                num_ins += metrics['num_ins']
+                error_rate_type = metrics['error_rate_type']
+                logger.info("Error rate [%s] (%d/?) = %f" %
+                            (error_rate_type, num_ins, errors_sum / len_refs))
+
+        # logging
+        msg = "Test: "
+        msg += "epoch: {}, ".format(self.epoch)
+        msg += "step: {}, ".format(self.iteration)
+        msg += "Final error rate [%s] (%d/%d) = %f" % (
+            error_rate_type, num_ins, num_ins, errors_sum / len_refs)
+        logger.info(msg)
+        if self.args.enable_auto_log == True:
+            self.autolog.report()
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
         if self.args.model_type == "online":
@@ -486,8 +512,8 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         x_len_list = np.split(x_len_batch, batch_size, axis=0)
 
         for x, x_len in zip(x_list, x_len_list):
-            self.autolog.times.start()
-            self.autolog.times.stamp()
+            if self.args.enable_auto_log == True:
+                self.autolog.times.start()
             x_len = x_len[0]
             assert (chunk_size <= x_len)
 
@@ -521,6 +547,10 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
 
             probs_chunk_list = []
             probs_chunk_lens_list = []
+            if self.args.enable_auto_log == True:
+                # record the model preprocessing time
+                self.autolog.times.stamp()
+
             for i in range(0, num_chunk):
                 start = i * chunk_stride
                 end = start + chunk_size
@@ -576,9 +606,12 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 [output_probs, output_probs_padding], axis=1)
             output_probs_list.append(output_probs)
             output_lens_list.append(output_lens)
-            self.autolog.times.stamp()
-            self.autolog.times.stamp()
-            self.autolog.times.end()
+            if self.args.enable_auto_log == True:
+                # record the model inference time
+                self.autolog.times.stamp()
+                # record the post processing time
+                self.autolog.times.stamp()
+                self.autolog.times.end()
         output_probs = np.concatenate(output_probs_list, axis=0)
         output_lens = np.concatenate(output_lens_list, axis=0)
         return output_probs, output_lens
@@ -608,12 +641,17 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         audio_len_handle.reshape(x_len.shape)
         audio_len_handle.copy_from_cpu(x_len)
 
-        self.autolog.times.start()
-        self.autolog.times.stamp()
+        if self.args.enable_auto_log == True:
+            self.autolog.times.start()
+            # record the prefix processing time
+            self.autolog.times.stamp()
         self.predictor.run()
-        self.autolog.times.stamp()
-        self.autolog.times.stamp()
-        self.autolog.times.end()
+        if self.args.enable_auto_log == True:
+            # record the model inference time
+            self.autolog.times.stamp()
+            # record the post processing time
+            self.autolog.times.stamp()
+            self.autolog.times.end()
 
         output_names = self.predictor.get_output_names()
         output_handle = self.predictor.get_output_handle(output_names[0])
@@ -624,11 +662,11 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
 
     def setup_model(self):
         super().setup_model()
-        speedyspeech_config = inference.Config(
+        deepspeech_config = inference.Config(
             self.args.export_path + ".pdmodel",
             self.args.export_path + ".pdiparams")
         if (os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
-            speedyspeech_config.enable_use_gpu(100, 0)
-            speedyspeech_config.enable_memory_optim()
-        speedyspeech_predictor = inference.create_predictor(speedyspeech_config)
-        self.predictor = speedyspeech_predictor
+            deepspeech_config.enable_use_gpu(100, 0)
+            deepspeech_config.enable_memory_optim()
+        deepspeech_predictor = inference.create_predictor(deepspeech_config)
+        self.predictor = deepspeech_predictor

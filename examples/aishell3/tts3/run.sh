@@ -7,7 +7,6 @@ gpus=0,1
 stage=0
 stop_stage=100
 
-
 conf_path=conf/default.yaml
 train_output_path=exp/default
 ckpt_name=snapshot_iter_482.pdz

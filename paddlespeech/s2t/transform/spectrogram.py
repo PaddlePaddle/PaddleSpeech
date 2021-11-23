@@ -341,7 +341,7 @@ class LogMelSpectrogramKaldi():
         self.eps = eps
         self.remove_dc_offset = True
         self.preemph = 0.97
-        self.dither = dither # only work in train mode
+        self.dither = dither  # only work in train mode
 
     def __repr__(self):
         return (

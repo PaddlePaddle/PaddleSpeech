@@ -57,7 +57,7 @@ class TextFeaturizer():
                 vocab_filepath, maskctc)
             self.vocab_size = len(self.vocab_list)
         else:
-            logger.warning(f"TextFeaturizer: not have vocab file.")
+            logger.warning("TextFeaturizer: not have vocab file.")
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'

@@ -17,7 +17,7 @@ Assume the path to the dataset is `~/datasets/VCTK-Corpus-0.92`.
 Assume the path to the MFA result of VCTK is `./vctk_alignment`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.

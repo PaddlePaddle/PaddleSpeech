@@ -13,7 +13,7 @@ Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
 Assume the path to the Tacotron2 generated mels is `../tts0/output/test`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs from mels.
 ```bash

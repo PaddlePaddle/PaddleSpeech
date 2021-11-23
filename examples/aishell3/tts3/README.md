@@ -24,7 +24,7 @@ Assume the path to the dataset is `~/datasets/data_aishell3`.
 Assume the path to the MFA result of AISHELL-3 is `./aishell3_alignment_tone`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.

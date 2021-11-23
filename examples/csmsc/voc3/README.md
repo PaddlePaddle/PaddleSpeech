@@ -13,7 +13,7 @@ Assume the path to the dataset is `~/datasets/BZNSYP`.
 Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
@@ -106,8 +106,51 @@ optional arguments:
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
+## Finetune
+Since there are no `noise` in the input of Multi Band MelGAN, the  audio quality is not so good (see [espnet issue](https://github.com/espnet/espnet/issues/3536#issuecomment-916035415)), we refer to the method proposed in [HiFiGAN](https://arxiv.org/abs/2010.05646),  finetune Multi Band MelGAN with the predicted mel-spectrogram from `FastSpeech2`.
+
+The length of mel-spectrograms should align with the length of wavs, so we should generate mels using ground truth alignment.
+
+But since we are fine-tuning, we should use the statistics computed during training step.
+
+You should  first download pretrained `FastSpeech2` model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip) and `unzip` it.
+
+Assume the path to the dump-dir of  training  step is `dump`.
+Assume the path to the duration result of CSMSC is `durations.txt` (generated during training step's preprocessing).
+Assume the path to the pretrained `FastSpeech2` model is `fastspeech2_nosil_baker_ckpt_0.4`.
+\
+The `finetune.sh` can
+1. **source path**.
+2. generate ground truth alignment mels.
+3. link `*_wave.npy` from `dump` to `dump_finetune` (because we only use new mels, the wavs are the ones used during train step) .
+4. copy features' stats from `dump` to `dump_finetune`.
+5. normalize the ground truth alignment mels.
+6. finetune the model.
+
+Before finetune, make sure that the pretrained model is in `finetune.sh` 's `${output-dir}/checkpoints`, and there is a `records.jsonl` in it to refer to this pretrained model
+```text
+exp/finetune/checkpoints
+├── records.jsonl
+└── snapshot_iter_1000000.pdz
+```
+The content of `records.jsonl` should be as follows (change `"path"` to your own ckpt path):
+```
+{"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}↩
+```
+Run the command below 
+```bash
+./finetune.sh
+```
+By default, `finetune.sh` will use `conf/finetune.yaml` as config, the dump-dir is `dump_finetune`, the experiment dir is `exp/finetune`.
+
+TODO: 
+The hyperparameter of  `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
+
 ## Pretrained Models
 Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_ckpt_0.5.zip).
+
+Finetuned model can ben downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_finetune_ckpt_0.5.zip).
+
 Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_static_0.5.zip)
 
 Multi Band MelGAN checkpoint contains files listed below.

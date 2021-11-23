@@ -128,7 +128,7 @@ discriminator_scheduler_params:
 #                    INTERVAL SETTING                     #
 ###########################################################
 discriminator_train_start_steps: 200000 # Number of steps to start to train discriminator.
-train_max_steps: 1200000                # Number of training steps.
+train_max_steps: 2000000                # Number of training steps.
 save_interval_steps: 1000              # Interval steps to save checkpoint.
 eval_interval_steps: 1000               # Interval steps to evaluate the network.
 

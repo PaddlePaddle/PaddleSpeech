@@ -14,7 +14,7 @@ Assume the path to the dataset is `~/datasets/BZNSYP`.
 Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
@@ -208,7 +208,8 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ```
 
 ## Pretrained Model
-Pretrained SpeedySpeech model with no silence in the edge of audios. [speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)
+Pretrained SpeedySpeech model with no silence in the edge of audios[speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip).
+
 Static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_static_0.5.zip).
 
 SpeedySpeech checkpoint contains files listed below.

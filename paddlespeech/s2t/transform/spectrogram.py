@@ -14,6 +14,7 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 import librosa
 import numpy as np
+from python_speech_features import logfbank
 
 
 def stft(x,
@@ -304,3 +305,94 @@ class IStft():
             win_length=self.win_length,
             window=self.window,
             center=self.center, )
+
+
+class LogMelSpectrogramKaldi():
+    def __init__(
+            self,
+            fs=16000,
+            n_mels=80,
+            n_fft=512,  # fft point
+            n_shift=160,  # unit:sample, 10ms
+            win_length=400,  # unit:sample, 25ms
+            window="povey",
+            fmin=20,
+            fmax=None,
+            eps=1e-10,
+            dither=False):
+        self.fs = fs
+        self.n_mels = n_mels
+        self.n_fft = n_fft
+        if n_shift > win_length:
+            raise ValueError("Stride size must not be greater than "
+                             "window size.")
+        self.n_shift = n_shift / fs  # unit: ms
+        self.win_length = win_length / fs  # unit: ms
+
+        self.window = window
+        self.fmin = fmin
+        if fmax is None:
+            fmax_ = fmax if fmax else self.fs / 2
+        elif fmax > int(self.fs / 2):
+            raise ValueError("fmax must not be greater than half of "
+                             "sample rate.")
+        self.fmax = fmax_
+
+        self.eps = eps
+        self.remove_dc_offset = True
+        self.preemph = 0.97
+        self.dither = dither
+
+    def __repr__(self):
+        return (
+            "{name}(fs={fs}, n_mels={n_mels}, n_fft={n_fft}, "
+            "n_shift={n_shift}, win_length={win_length}, preemph={preemph}, window={window}, "
+            "fmin={fmin}, fmax={fmax}, eps={eps}, dither={dither}))".format(
+                name=self.__class__.__name__,
+                fs=self.fs,
+                n_mels=self.n_mels,
+                n_fft=self.n_fft,
+                n_shift=self.n_shift,
+                preemph=self.preemph,
+                win_length=self.win_length,
+                window=self.window,
+                fmin=self.fmin,
+                fmax=self.fmax,
+                eps=self.eps,
+                dither=self.dither, ))
+
+    def __call__(self, x):
+        """
+
+        Args:
+            x (np.ndarray): shape (Ti,)
+
+        Raises:
+            ValueError: not support (Ti, C)
+
+        Returns:
+            np.ndarray: (T, D)
+        """
+        if x.ndim != 1:
+            raise ValueError("Not support x: [Time, Channel]")
+
+        if x.dtype in np.sctypes['float']:
+            # PCM32 -> PCM16
+            bits = np.iinfo(np.int16).bits
+            x = x * 2**(bits - 1)
+
+        # logfbank need PCM16 input
+        y = logfbank(
+            signal=x,
+            samplerate=self.fs,
+            winlen=self.win_length,  # unit ms
+            winstep=self.n_shift,  # unit ms
+            nfilt=self.n_mels,
+            nfft=self.n_fft,
+            lowfreq=self.fmin,
+            highfreq=self.fmax,
+            dither=self.dither,
+            remove_dc_offset=self.remove_dc_offset,
+            preemph=self.preemph,
+            wintype=self.window)
+        return y

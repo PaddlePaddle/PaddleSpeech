@@ -34,6 +34,9 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
     :returns numpy.ndarray: time warped spectrogram (time, freq)
     """
     window = max_time_warp
+    if window == 0:
+        return x
+
     if mode == "PIL":
         t = x.shape[0]
         if t - window <= window:

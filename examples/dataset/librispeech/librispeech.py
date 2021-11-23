@@ -78,7 +78,7 @@ def create_manifest(data_dir, manifest_path):
     print("Creating manifest %s ..." % manifest_path)
     json_lines = []
     total_sec = 0.0
-    total_text = 0.0
+    total_char = 0.0
     total_num = 0
 
     for subfolder, _, filelist in sorted(os.walk(data_dir)):
@@ -89,25 +89,28 @@ def create_manifest(data_dir, manifest_path):
             text_filepath = os.path.join(subfolder, text_filelist[0])
             for line in io.open(text_filepath, encoding="utf8"):
                 segments = line.strip().split()
+                nchars = len(segments[1:])
                 text = ' '.join(segments[1:]).lower()
 
                 audio_filepath = os.path.abspath(
                     os.path.join(subfolder, segments[0] + '.flac'))
                 audio_data, samplerate = soundfile.read(audio_filepath)
                 duration = float(len(audio_data)) / samplerate
+
+                utt = os.path.splitext(os.path.basename(audio_filepath))[0]
+                utt2spk = '-'.join(utt.split('-')[:2])
+
                 json_lines.append(
                     json.dumps({
-                        'utt':
-                        os.path.splitext(os.path.basename(audio_filepath))[0],
-                        'feat':
-                        audio_filepath,
-                        'feat_shape': (duration, ),  #second
-                        'text':
-                        text
+                        'utt': utt,
+                        'utt2spk': utt2spk,
+                        'feat': audio_filepath,
+                        'feat_shape': (duration, ),  # second
+                        'text': text,
                     }))
 
                 total_sec += duration
-                total_text += len(text)
+                total_char += nchars
                 total_num += 1
 
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
@@ -122,8 +125,8 @@ def create_manifest(data_dir, manifest_path):
         print(f"{subset}:", file=f)
         print(f"{total_num} utts", file=f)
         print(f"{total_sec / (60*60)} h", file=f)
-        print(f"{total_text} text", file=f)
-        print(f"{total_text / total_sec} text/sec", file=f)
+        print(f"{total_char} char", file=f)
+        print(f"{total_char / total_sec} char/sec", file=f)
         print(f"{total_sec / total_num} sec/utt", file=f)
 
 

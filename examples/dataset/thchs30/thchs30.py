@@ -113,6 +113,8 @@ def create_manifest(data_dir, manifest_path_prefix):
                 assert os.path.exists(audio_path) and os.path.exists(text_path)
 
                 audio_id = os.path.basename(audio_path)[:-4]
+                spk = audio_id.split('_')[0]
+
                 word_text, syllable_text, phone_text = read_trn(text_path)
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
@@ -122,6 +124,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                     json.dumps(
                         {
                             'utt': audio_id,
+                            'utt2spk': spk,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
                             'text': word_text,  # charactor

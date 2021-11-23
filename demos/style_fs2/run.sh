@@ -14,9 +14,9 @@ mkdir -p download
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # download pretrained tts models and unzip
-    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip
+    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
     unzip -d download download/pwg_baker_ckpt_0.4.zip
-    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip
+    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
     unzip -d download download/fastspeech2_nosil_baker_ckpt_0.4.zip
 fi
 

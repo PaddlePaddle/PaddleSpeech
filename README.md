@@ -128,9 +128,9 @@ For **Text-To-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
 ```shell
 cd examples/csmsc/tts3
 # download the pretrained models and unaip them
-wget https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
 unzip pwg_baker_ckpt_0.4.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
 unzip fastspeech2_nosil_baker_ckpt_0.4.zip
 # source the environment
 source path.sh

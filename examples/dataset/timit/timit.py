@@ -180,12 +180,12 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json.dumps(
                     {
                         'utt': utt_id,
+                        'utt2spk': spk,
+                        'utt2gender': gender,
                         'feat': str(audio_path),
                         'feat_shape': (duration, ),  # second
                         'text': word_text,  # word
                         'phone': phone_text,
-                        'spk': spk,
-                        'gender': gender,
                     },
                     ensure_ascii=False))
 

@@ -20,13 +20,13 @@ import json
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.frontend.utility import read_manifest
+from paddlespeech.s2t.io.utility import feat_type
 from paddlespeech.s2t.utils.utility import add_arguments
 from paddlespeech.s2t.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), mat(ark), scp")
 add_arg('cmvn_path',       str,
         'examples/librispeech/data/mean_std.json',
         "Filepath of cmvn.")
@@ -62,27 +62,76 @@ def main():
     vocab_size = text_feature.vocab_size
     print(f"Vocab size: {vocab_size}")
 
+    # josnline like this
+    # {
+    #   "input": [{"name": "input1", "shape": (100, 83), "feat": "xxx.ark:123"}],
+    #   "output": [{"name":"target1", "shape": (40, 5002), "text": "a b c de"}],
+    #   "utt2spk": "111-2222",
+    #   "utt": "111-2222-333"
+    # }
     count = 0
     for manifest_path in args.manifest_paths:
         manifest_jsons = read_manifest(manifest_path)
         for line_json in manifest_jsons:
+            output_json = {
+                "input": [],
+                "output": [],
+                'utt': line_json['utt'],
+                'utt2spk': line_json.get('utt2spk', 'global'),
+            }
+
+            # output
             line = line_json['text']
-            tokens = text_feature.tokenize(line)
-            tokenids = text_feature.featurize(line)
-            line_json['token'] = tokens
-            line_json['token_id'] = tokenids
-            line_json['token_shape'] = (len(tokenids), vocab_size)
-            feat_shape = line_json['feat_shape']
-            assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
-            if args.feat_type == 'raw':
-                feat_shape.append(feat_dim)
-                line_json['filetype'] = 'sound'
-            else: # kaldi
-                raise NotImplementedError('no support kaldi feat now!')
-            fout.write(json.dumps(line_json) + '\n')
+            if isinstance(line, str):
+                # only one target
+                tokens = text_feature.tokenize(line)
+                tokenids = text_feature.featurize(line)
+                output_json['output'].append({
+                    'name': 'target1',
+                    'shape': (len(tokenids), vocab_size),
+                    'text': line,
+                    'token': ' '.join(tokens),
+                    'tokenid': ' '.join(map(str, tokenids)),
+                })
+            else:
+                # isinstance(line, list), multi target in one vocab
+                for i, item in enumerate(line, 1):
+                    tokens = text_feature.tokenize(item)
+                    tokenids = text_feature.featurize(item)
+                    output_json['output'].append({
+                        'name': f'target{i}',
+                        'shape': (len(tokenids), vocab_size),
+                        'text': item,
+                        'token': ' '.join(tokens),
+                        'tokenid': ' '.join(map(str, tokenids)),
+                    })
+
+            # input
+            line = line_json['feat']
+            if isinstance(line, str):
+                # only one input
+                feat_shape = line_json['feat_shape']
+                assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
+                filetype = feat_type(line)
+                if filetype == 'sound':
+                    feat_shape.append(feat_dim)
+                else: # kaldi
+                    raise NotImplementedError('no support kaldi feat now!')
+
+                output_json['input'].append({
+                    "name": "input1",
+                    "shape": feat_shape,
+                    "feat": line,
+                    "filetype": filetype,
+                })
+            else:
+                # isinstance(line, list), multi input 
+                raise NotImplementedError("not support multi input now!")
+
+            fout.write(json.dumps(output_json) + '\n')
             count += 1
 
-    print(f"Examples number: {count}")
+    print(f"{args.manifest_paths} Examples number: {count}")
     fout.close()
 
 

@@ -24,6 +24,8 @@ import soundfile
 import soxbindings as sox
 from scipy import signal
 
+from .utility import convert_samples_from_float32
+from .utility import convert_samples_to_float32
 from .utility import subfile_from_tar
 
 
@@ -689,15 +691,7 @@ class AudioSegment():
         Audio sample type is usually integer or float-point.
         Integers will be scaled to [-1, 1] in float32.
         """
-        float32_samples = samples.astype('float32')
-        if samples.dtype in np.sctypes['int']:
-            bits = np.iinfo(samples.dtype).bits
-            float32_samples *= (1. / 2**(bits - 1))
-        elif samples.dtype in np.sctypes['float']:
-            pass
-        else:
-            raise TypeError("Unsupported sample type: %s." % samples.dtype)
-        return float32_samples
+        return convert_samples_to_float32(samples)
 
     def _convert_samples_from_float32(self, samples, dtype):
         """Convert sample type from float32 to dtype.
@@ -708,20 +702,4 @@ class AudioSegment():
 
         This is for writing a audio file.
         """
-        dtype = np.dtype(dtype)
-        output_samples = samples.copy()
-        if dtype in np.sctypes['int']:
-            bits = np.iinfo(dtype).bits
-            output_samples *= (2**(bits - 1) / 1.)
-            min_val = np.iinfo(dtype).min
-            max_val = np.iinfo(dtype).max
-            output_samples[output_samples > max_val] = max_val
-            output_samples[output_samples < min_val] = min_val
-        elif samples.dtype in np.sctypes['float']:
-            min_val = np.finfo(dtype).min
-            max_val = np.finfo(dtype).max
-            output_samples[output_samples > max_val] = max_val
-            output_samples[output_samples < min_val] = min_val
-        else:
-            raise TypeError("Unsupported sample type: %s." % samples.dtype)
-        return output_samples.astype(dtype)
+        return convert_samples_from_float32(samples, dtype)

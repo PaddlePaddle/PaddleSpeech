@@ -4,10 +4,12 @@ stage=-1
 stop_stage=100
 
 unit_type=char
+dict_dir=data/lang_char
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
 mkdir -p data
+mkdir -p ${dict_dir}
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 
@@ -67,7 +69,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${MAIN_ROOT}/utils/build_vocab.py \
     --unit_type ${unit_type} \
     --count_threshold=0 \
-    --vocab_path="data/vocab.txt" \
+    --vocab_path="${dict_dir}/vocab.txt" \
     --manifest_paths="data/manifest.train.raw"
 
     if [ $? -ne 0 ]; then
@@ -83,7 +85,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         python3 ${MAIN_ROOT}/utils/format_data.py \
         --cmvn_path "data/mean_std.json" \
         --unit_type ${unit_type} \
-        --vocab_path="data/vocab.txt" \
+        --vocab_path="${dict_dir}/vocab.txt" \
         --manifest_path="data/manifest.${set}.raw" \
         --output_path="data/manifest.${set}"
 

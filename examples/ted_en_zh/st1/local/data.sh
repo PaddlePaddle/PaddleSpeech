@@ -4,11 +4,12 @@ set -e
 
 stage=-1
 stop_stage=100
+dict_dir=data/lang_char
 
 # bpemode (unigram or bpe)
 nbpe=8000
 bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
+bpeprefix="${dict_dir}/bpe_${bpemode}_${nbpe}"
 data_dir=./TED_EnZh
 
 
@@ -17,6 +18,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 mkdir -p data
+mkdir -p ${dict_dir}
 
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
@@ -73,7 +75,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --spm_vocab_size=${nbpe} \
     --spm_mode ${bpemode} \
     --spm_model_prefix ${bpeprefix} \
-    --vocab_path="data/vocab.txt" \
+    --vocab_path="${dict_dir}/vocab.txt" \
     --text_keys 'text' 'text1' \
     --manifest_paths="data/manifest.train.raw"
 
@@ -93,7 +95,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --cmvn_path "data/mean_std.json" \
         --unit_type "spm" \
         --spm_model_prefix ${bpeprefix} \
-        --vocab_path="data/vocab.txt" \
+        --vocab_path="${dict_dir}/vocab.txt" \
         --manifest_path="data/manifest.${set}.raw" \
         --output_path="data/manifest.${set}"
 

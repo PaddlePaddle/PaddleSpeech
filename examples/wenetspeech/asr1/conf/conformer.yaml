@@ -51,7 +51,7 @@ data:
   max_output_input_ratio: 10.0
 
 collator:
-  vocab_filepath: data/vocab.txt 
+  vocab_filepath: data/lang_char/vocab.txt 
   unit_type: 'char'
   spm_model_prefix: ''
   augmentation_config: conf/preprocess.yaml

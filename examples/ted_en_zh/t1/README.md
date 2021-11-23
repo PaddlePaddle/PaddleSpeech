@@ -3,13 +3,14 @@
 
 ## Dataset
 
-| Data Subset | Duration in Seconds |
+| Data Subset | Duration in Frames |
 | --- | --- |
-| data/manifest.train | 0.942 ~ 60   |
-| data/manifest.dev   | 1.151 ~ 39   |
-| data/manifest.test  | 1.1 ~ 42.746 |
+| data/manifest.train | 94.2 ~ 6000   |
+| data/manifest.dev   | 115.1 ~ 3900   |
+| data/manifest.test  | 110 ~ 4274.6 |
 
 ## Transformer
-| Model | Params | Config | Char-BLEU |
-| --- | --- | --- | --- |
-| Transformer+ASR MTL | 50.26M | conf/transformer_joint_noam.yaml | 17.38 |
+| Model | Params | Config | Val loss | Char-BLEU |
+| --- | --- | --- | --- | --- |
+| FAT + Transformer+ASR MTL | 50.26M | conf/transformer_mtl_noam.yaml | 62.86 | 19.45 |
+| FAT + Transformer+ASR MTL with word reward | 50.26M | conf/transformer_mtl_noam.yaml | 62.86 | 20.80 |

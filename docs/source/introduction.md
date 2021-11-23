@@ -1,11 +1,11 @@
 # PaddleSpeech
 
 ## What is PaddleSpeech?
-PaddleSpeech is an open-source toolkit on PaddlePaddle platform for two critical tasks in Speech -  Speech-To-Text (Automatic Speech Recognition, ASR) and Text-To-Speech Synthesis (TTS), with modules involving state-of-art and influential models.
+PaddleSpeech is an open-source toolkit on PaddlePaddle platform for two critical tasks in Speech -  Speech-to-Text (Automatic Speech Recognition, ASR) and Text-to-Speech Synthesis (TTS), with modules involving state-of-art and influential models.
 
 ## What can PaddleSpeech do?
 
-### Speech-To-Text
+### Speech-to-Text
 PaddleSpeech ASR mainly consists of components below:
 - Implementation of models and commonly used neural network layers.
 - Dataset abstraction and common data preprocessing pipelines.
@@ -29,9 +29,9 @@ PaddleSpeech ASR provides you with a complete ASR pipeline, including:
     - attention decoding (used in Transformer and Conformer)
     - attention rescoring (used in Transformer and Conformer)
 
-Speech-To-Text helps you training the ASR model very simply.
+Speech-to-Text helps you training the ASR model very simply.
 
-### Text-To-Speech
+### Text-to-Speech
 TTS mainly consists of components below:
 - Implementation of models and commonly used neural network layers.
 - Dataset abstraction and common data preprocessing pipelines.
@@ -53,4 +53,4 @@ PaddleSpeech TTS provides you with a complete TTS pipeline, including:
     - Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis
     - GE2E
 
-Text-To-Speech  helps you to train TTS models with simple commands.
+Text-to-Speech  helps you to train TTS models with simple commands.

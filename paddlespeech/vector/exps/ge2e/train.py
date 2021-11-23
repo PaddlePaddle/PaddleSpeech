@@ -19,13 +19,13 @@ from paddle.io import DataLoader
 from paddle.nn.clip import ClipGradByGlobalNorm
 from paddle.optimizer import Adam
 
-from paddlespeech.t2s.exps.ge2e.config import get_cfg_defaults
-from paddlespeech.t2s.exps.ge2e.speaker_verification_dataset import Collate
-from paddlespeech.t2s.exps.ge2e.speaker_verification_dataset import MultiSpeakerMelDataset
-from paddlespeech.t2s.exps.ge2e.speaker_verification_dataset import MultiSpeakerSampler
-from paddlespeech.t2s.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 from paddlespeech.t2s.training import default_argument_parser
 from paddlespeech.t2s.training import ExperimentBase
+from paddlespeech.vector.exps.ge2e.config import get_cfg_defaults
+from paddlespeech.vector.exps.ge2e.speaker_verification_dataset import Collate
+from paddlespeech.vector.exps.ge2e.speaker_verification_dataset import MultiSpeakerMelDataset
+from paddlespeech.vector.exps.ge2e.speaker_verification_dataset import MultiSpeakerSampler
+from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
 class Ge2eExperiment(ExperimentBase):

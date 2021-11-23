@@ -113,7 +113,7 @@ The length of mel-spectrograms should align with the length of wavs, so we shoul
 
 But since we are fine-tuning, we should use the statistics computed during training step.
 
-You should  first download pretrained `FastSpeech2` model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip) and `unzip` it.
+You should  first download pretrained `FastSpeech2` model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip) and `unzip` it.
 
 Assume the path to the dump-dir of  training  step is `dump`.
 Assume the path to the duration result of CSMSC is `durations.txt` (generated during training step's preprocessing).
@@ -147,11 +147,11 @@ TODO:
 The hyperparameter of  `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
 
 ## Pretrained Models
-Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_ckpt_0.5.zip).
+Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
 
-Finetuned model can ben downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_finetune_ckpt_0.5.zip).
+Finetuned model can ben downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
 
-Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/mb_melgan_baker_static_0.5.zip)
+Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
 
 Multi Band MelGAN checkpoint contains files listed below.
 

@@ -22,7 +22,7 @@ You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech
 ## Pretrained GE2E model
 We use pretrained GE2E model to generate spwaker embedding for each sentence.
 
-Download pretrained GE2E model from here [ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip), and `unzip` it.
+Download pretrained GE2E model from here [ge2e_ckpt_0.3.zip](https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip), and `unzip` it.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -84,7 +84,7 @@ The training step is very similar to that one of [tts3](https://github.com/Paddl
 
 ### Synthesize
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip
 ```
@@ -115,7 +115,7 @@ ref_audio
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}
 ```
 ## Pretrained Model
-[fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip)
+[fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 (There is no need for `speaker_id_map.txt` here )

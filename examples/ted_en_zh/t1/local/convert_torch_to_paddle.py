@@ -27,6 +27,7 @@ def torch2paddle(args):
     torch_model = torch.load(args.torch_ckpt, map_location='cpu')
     cnt = 0
     for k, v in torch_model['model'].items():
+        # encoder.embed.* --> encoder.embed.*
         if k.startswith('encoder.embed'):
             if v.ndim == 2:
                 v = v.transpose(0, 1)
@@ -35,6 +36,10 @@ def torch2paddle(args):
             logger.info(
                 f"Convert torch weight: {k} to paddlepaddle weight: {k}, shape is {v.shape}"
             )
+
+        # encoder.after_norm.* --> encoder.after_norm.*
+        # encoder.after_norm.* --> decoder.after_norm.*
+        # encoder.after_norm.* --> st_decoder.after_norm.*
         if k.startswith('encoder.after_norm'):
             paddle_model_dict[k] = v.numpy()
             cnt += 1
@@ -47,6 +52,10 @@ def torch2paddle(args):
                 f"Convert torch weight: {k} to paddlepaddle weight: {'st_'+ k.replace('en','de')}, shape is {v.shape}"
             )
             cnt += 2
+
+        # encoder.encoders.* --> encoder.encoders.*
+        # encoder.encoders.* (last six layers) --> decoder.encoders.* (first six layers)
+        # encoder.encoders.* (last six layers) --> st_decoder.encoders.* (first six layers)
         if k.startswith('encoder.encoders'):
             if v.ndim == 2:
                 v = v.transpose(0, 1)

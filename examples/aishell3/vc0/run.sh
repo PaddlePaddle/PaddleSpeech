@@ -23,7 +23,7 @@ waveflow_params_path=./waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams
 vc_input=ref_audio
 vc_output=syn_audio
 
-# with the following command, you can choice the stage range you want to run
+# with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`
 # this can not be mixed use with `$1`, `$2` ...
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1

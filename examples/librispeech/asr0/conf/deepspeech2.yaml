@@ -14,7 +14,7 @@ collator:
   batch_size: 20
   mean_std_filepath: data/mean_std.json
   unit_type: char
-  vocab_filepath: data/vocab.txt 
+  vocab_filepath: data/lang_char/vocab.txt
   augmentation_config: conf/augmentation.json
   random_seed: 0
   spm_model_prefix: 

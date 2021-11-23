@@ -247,7 +247,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
       </td>
     </tr>
     <tr>
-      <td>TransformerTTS</td>
+      <td>Transformer TTS</td>
       <td>
       <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>

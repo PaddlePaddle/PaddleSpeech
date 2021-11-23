@@ -282,6 +282,13 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
       </td>
     </tr>
     <tr>
+      <td >Multi Band MelGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc3">Multi Band MelGAN-csmsc</a> 
+      </td>
+    </tr>                                                                                                                                           
+    <tr>
     <td rowspan="2">Voice Cloning</td>
     <td>GE2E</td>
     <td >AISHELL-3, etc.</td>

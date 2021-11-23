@@ -341,7 +341,7 @@ class LogMelSpectrogramKaldi():
         self.eps = eps
         self.remove_dc_offset = True
         self.preemph = 0.97
-        self.dither = dither
+        self.dither = dither  # only work in train mode
 
     def __repr__(self):
         return (
@@ -361,11 +361,12 @@ class LogMelSpectrogramKaldi():
                 eps=self.eps,
                 dither=self.dither, ))
 
-    def __call__(self, x):
+    def __call__(self, x, train):
         """
 
         Args:
             x (np.ndarray): shape (Ti,)
+            train (bool): True, train mode.
 
         Raises:
             ValueError: not support (Ti, C)
@@ -373,6 +374,7 @@ class LogMelSpectrogramKaldi():
         Returns:
             np.ndarray: (T, D)
         """
+        dither = self.dither if train else False
         if x.ndim != 1:
             raise ValueError("Not support x: [Time, Channel]")
 
@@ -391,7 +393,7 @@ class LogMelSpectrogramKaldi():
             nfft=self.n_fft,
             lowfreq=self.fmin,
             highfreq=self.fmax,
-            dither=self.dither,
+            dither=dither,
             remove_dc_offset=self.remove_dc_offset,
             preemph=self.preemph,
             wintype=self.window)

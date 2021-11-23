@@ -5,7 +5,7 @@ This example contains code used to train a [FastSpeech2](https://arxiv.org/abs/2
 3. Vocoder: We use [Parallel Wave GAN](http://arxiv.org/abs/1910.11480) as the neural Vocoder, refer to [voc1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1).
 
 ## Dataset
-### Download and Extract the datasaet
+### Download and Extract
 Download AISHELL-3.
 ```bash
 wget https://www.openslr.org/resources/93/data_aishell3.tgz
@@ -15,11 +15,11 @@ Extract AISHELL-3.
 mkdir data_aishell3
 tar zxvf data_aishell3.tgz -C data_aishell3
 ```
-### Get MFA result of AISHELL-3 and Extract it
+### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
 
-## Pretrained GE2E model
+## Pretrained GE2E Model
 We use pretrained GE2E model to generate spwaker embedding for each sentence.
 
 Download pretrained GE2E model from here [ge2e_ckpt_0.3.zip](https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip), and `unzip` it.
@@ -38,7 +38,11 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/preprocess.sh ${conf_path} ${ge2e_ckpt_path}
 ```
@@ -75,14 +79,14 @@ Also there is a `metadata.jsonl` in each subfolder. It is a table-like file whic
 
 The preprocessing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but  there is one more `ge2e/inference` step here.
 
-###  Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
 The training step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but  we should set `--voice-cloning=True` when calling `${BIN_DIR}/train.py`.
 
-### Synthesize
+### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
 Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash

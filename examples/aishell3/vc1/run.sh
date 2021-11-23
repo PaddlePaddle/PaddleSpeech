@@ -18,7 +18,7 @@ ge2e_ckpt_path=./ge2e_ckpt_0.3/step-3000000
 # include ".pdparams" here
 ge2e_params_path=${ge2e_ckpt_path}.pdparams
 
-# with the following command, you can choice the stage range you want to run
+# with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`
 # this can not be mixed use with `$1`, `$2` ...
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1

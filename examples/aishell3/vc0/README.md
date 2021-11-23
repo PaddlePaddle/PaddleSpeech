@@ -16,11 +16,15 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/preprocess.sh ${input} ${preprocess_path} ${alignment} ${ge2e_ckpt_path}
 ```
-#### generate speaker embedding
+#### Generate Speaker Embedding
  Use pretrained GE2E (speaker encoder) to generate speaker embedding for each sentence in AISHELL-3, which has the same file structure with wav files and the format is  `.npy`.
 
 ```bash
@@ -34,7 +38,7 @@ fi
 ```
 
 The computing time of utterance embedding can be x hours.
-#### process wav
+#### Process Wav
 There are silence in the edge of AISHELL-3's wavs, and the audio amplitude is very small, so, we need to remove the silence and normalize the audio. You can the silence remove method based on   volume or energy, but the effect is not very good, We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get  the alignment of text and  speech, then utilize the alignment results to remove the silence.
 
 We use Montreal Force Aligner 1.0. The label in  aishell3 include pinyin，so the lexicon we provided to MFA is pinyin rather than Chinese characters. And the prosody marks(`$`  and `%`) need to be removed. You shoud preprocess the dataset into the format  which MFA needs, the texts have the same name with wavs and have the suffix `.lab`.
@@ -53,7 +57,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 ```
 
-#### preprocess transcription
+#### Preprocess Transcription
 We revert the transcription into `phones` and  `tones`. It is worth noting that our processing here is different from that used for MFA, we separated the tones. This is a processing method, of course, you can only segment initials and vowels.
 
 ```bash
@@ -64,7 +68,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 ```
 The default input is  `~/datasets/data_aishell3/train`，which contains `label_train-set.txt`, the processed results are `metadata.yaml` and  `metadata.pickle`. the former is a text format for easy viewing, and the latter is a binary format for direct reading.
-#### extract mel
+#### Extract Mel
 ```python
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     python3 ${BIN_DIR}/extract_mel.py \
@@ -73,7 +77,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
 fi
 ```
 
-### Train the model
+### Model Training
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${preprocess_path} ${train_output_path}
 ```

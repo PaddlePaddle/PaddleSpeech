@@ -3,7 +3,7 @@ This example contains code used to train a [parallel wavegan](http://arxiv.org/a
 
 AISHELL-3 is a large-scale and high-fidelity multi-speaker Mandarin speech corpus which could be used to train multi-speaker Text-to-Speech (TTS) systems.
 ## Dataset
-### Download and Extract the datasaet
+### Download and Extract
 Download AISHELL-3.
 ```bash
 wget https://www.openslr.org/resources/93/data_aishell3.tgz
@@ -13,7 +13,7 @@ Extract AISHELL-3.
 mkdir data_aishell3
 tar zxvf data_aishell3.tgz -C data_aishell3
 ```
-### Get MFA result of AISHELL-3 and Extract it
+### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
 
@@ -29,7 +29,11 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
@@ -53,7 +57,7 @@ The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of whi
 
 Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains id and paths to spectrogam of each utterance.
 
-### Train the model
+### Model Training
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
@@ -100,7 +104,7 @@ benchmark:
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-### Synthesize
+### Synthesizing
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}

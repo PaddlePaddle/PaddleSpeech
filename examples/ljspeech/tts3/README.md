@@ -2,10 +2,10 @@
 This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/).
 
 ## Dataset
-### Download and Extract the datasaet
+### Download and Extract
 Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech-Dataset/).
 
-### Get MFA result of LJSpeech-1.1 and Extract it
+### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
 You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) of our repo.
 
@@ -22,7 +22,11 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
@@ -49,7 +53,7 @@ The dataset is split into 3 parts, namely `train`, `dev` and` test`, each of whi
 
 Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, text_lengths, speech_lengths, durations, path of speech features, path of pitch features, path of energy features, speaker and id of each utterance.
 
-### Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
@@ -85,7 +89,7 @@ optional arguments:
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 
-### Synthesize
+### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc1) as the neural vocoder.
 Download pretrained parallel wavegan model from [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip) and unzip it.
 ```bash

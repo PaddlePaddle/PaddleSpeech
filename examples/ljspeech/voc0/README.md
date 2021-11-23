@@ -1,11 +1,9 @@
 # WaveFlow with LJSpeech
 ## Dataset
-### Download the datasaet.
+We experiment with the LJSpeech dataset. Download and unzip [LJSpeech](https://keithito.com/LJ-Speech-Dataset/).
+
 ```bash
 wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-```
-### Extract the dataset.
-```bash
 tar xjvf LJSpeech-1.1.tar.bz2
 ```
 ## Get Started
@@ -19,11 +17,15 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${preprocess_path}
 ```
-### Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${preprocess_path} ${train_output_path}
@@ -35,7 +37,7 @@ The training script requires 4 command line arguments.
 
 If you want distributed training, set a larger `--ngpu` (e.g. 4). Note that distributed training with cpu is not supported yet.
 
-### Synthesize
+### Synthesizing
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from mels.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${input_mel_path} ${train_output_path} ${ckpt_name}

@@ -1,6 +1,5 @@
-# Copyright 2021  Xiaomi Corporation (Author: Yongqing Wang)
-#                 Mobvoi Inc(Author: Di Wu, Binbin Zhang)
-
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,11 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import sys
-import os
+# Copyright 2021  Xiaomi Corporation (Author: Yongqing Wang)
+#                 Mobvoi Inc(Author: Di Wu, Binbin Zhang)
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import argparse
 import json
+import os
+import sys
 
 
 def get_args():
@@ -85,12 +96,12 @@ def meta_analysis(input_json, output_dir):
                             else:
                                 utt2text.write(f'{sid}\t{text}\n')
                                 segments.write(
-                                    f'{sid}\t{aid}\t{start_time}\t{end_time}\n'
-                                )
+                                    f'{sid}\t{aid}\t{start_time}\t{end_time}\n')
                                 utt2dur.write(f'{sid}\t{dur}\n')
                                 segment_sub_names = " ".join(segment_subsets)
                                 utt2subsets.write(
                                     f'{sid}\t{segment_sub_names}\n')
+
 
 def main():
     args = get_args()

@@ -267,7 +267,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
       </td>
     </tr>
    <tr>
-      <td rowspan="2">Vocoder</td>
+      <td rowspan="3">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>

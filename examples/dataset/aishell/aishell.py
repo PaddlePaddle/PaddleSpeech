@@ -82,7 +82,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                 # if no transcription for audio then skipped
                 if audio_id not in transcript_dict:
                     continue
-               
+
                 utt2spk = Path(audio_path).parent.name
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)

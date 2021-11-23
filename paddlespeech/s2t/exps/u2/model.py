@@ -24,15 +24,10 @@ import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
-from paddle.io import DataLoader
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
-from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
-from paddlespeech.s2t.io.dataset import ManifestDataset
-from paddlespeech.s2t.io.sampler import SortagradBatchSampler
-from paddlespeech.s2t.io.sampler import SortagradDistributedBatchSampler
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -215,7 +210,7 @@ class U2Trainer(Trainer):
                             msg += f"{v:>.8f}" if isinstance(v,
                                                              float) else f"{v}"
                             msg += f" {k.split(',')[1]}" if len(
-                                k.split(',')) == 2 else f""
+                                k.split(',')) == 2 else ""
                             msg += ","
                         msg = msg[:-1]  # remove the last ","
                         if (batch_index + 1

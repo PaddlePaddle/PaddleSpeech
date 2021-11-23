@@ -92,7 +92,9 @@ class TextFeaturizer():
         tokens = self.tokenize(text)
         ids = []
         for token in tokens:
-            token = token if token in self.vocab_dict else self.unk
+            if token not in self.vocab_dict:
+                logger.debug(f"Text Token: {token} -> {self.unk}")
+                token = self.unk
             ids.append(self.vocab_dict[token])
         return ids
 

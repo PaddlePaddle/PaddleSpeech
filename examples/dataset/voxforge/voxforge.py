@@ -175,9 +175,12 @@ def generate_manifest(data_dir, manifest_path):
 
             audio_data, samplerate = soundfile.read(u)
             duration = float(len(audio_data)) / samplerate
+
+            utt = os.path.splitext(os.path.basename(u))[0]
             json_lines.append(
                 json.dumps({
-                    'utt': os.path.splitext(os.path.basename(u))[0],
+                    'utt': utt,
+                    'utt2spk': speaker,
                     'feat': u,
                     'feat_shape': (duration, ),  #second
                     'text': trans.lower()

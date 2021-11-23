@@ -860,7 +860,7 @@ class U2Model(U2DecodeModel):
             int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc
         """
         # cmvn
-        if 'cmvn_file' in configs and configs['cmvn_file'] is not None:
+        if 'cmvn_file' in configs and configs['cmvn_file']:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
             global_cmvn = GlobalCMVN(
@@ -934,8 +934,8 @@ class U2Model(U2DecodeModel):
             DeepSpeech2Model: The model built from pretrained result.
         """
         with UpdateConfig(config):
-            config.input_dim = dataloader.collate_fn.feature_size
-            config.output_dim = dataloader.collate_fn.vocab_size
+            config.input_dim = dataloader.feat_dim
+            config.output_dim = dataloader.vocab_size
 
         model = cls.from_config(config)
 

@@ -392,6 +392,7 @@ class U2Tester(U2Trainer):
             unit_type=self.config.collator.unit_type,
             vocab_filepath=self.config.collator.vocab_filepath,
             spm_model_prefix=self.config.collator.spm_model_prefix)
+        self.vocab_list = self.text_feature.vocab_list
 
     def id2token(self, texts, texts_len, text_feature):
         """ ord() id to chr() chr """
@@ -529,8 +530,7 @@ class U2Tester(U2Trainer):
     def align(self):
         ctc_utils.ctc_align(self.config, self.model, self.align_loader,
                             self.config.decoding.batch_size,
-                            self.align_loader.collate_fn.stride_ms,
-                            self.align_loader.collate_fn.vocab_list,
+                            self.config.collator.stride_ms, self.vocab_list,
                             self.args.result_file)
 
     def load_inferspec(self):

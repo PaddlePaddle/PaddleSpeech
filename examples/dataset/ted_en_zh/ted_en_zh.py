@@ -72,14 +72,17 @@ def create_manifest(data_dir, manifest_path_prefix):
                     continue
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
+
+
+                translation_str = " ".join(translation.split())
+                trancription_str = " ".join(trancription.split())
                 json_lines.append(
                     json.dumps(
                         {
                             'utt': utt,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
-                            'text': " ".join(translation.split()),
-                            'text1': " ".join(trancription.split())
+                            'text': [translation_str, trancription_str],  
                         },
                         ensure_ascii=False))
 

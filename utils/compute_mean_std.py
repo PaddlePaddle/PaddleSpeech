@@ -33,8 +33,8 @@ add_arg('spectrum_type',    str,
         choices=['linear', 'mfcc', 'fbank'])
 add_arg('feat_dim',    int, 13, "Audio feature dim.")
 add_arg('delta_delta', bool,  False, "Audio feature with delta delta.")
-add_arg('stride_ms', float, 10.0,  "stride length in ms.")
-add_arg('window_ms', float, 20.0,  "stride length in ms.")
+add_arg('stride_ms', int, 10,  "stride length in ms.")
+add_arg('window_ms', int, 20,  "stride length in ms.")
 add_arg('sample_rate',  int, 16000,  "target sample rate.")
 add_arg('use_dB_normalization', bool, True, "do dB normalization.")
 add_arg('target_dB',   int, -20,  "target dB.")
@@ -61,8 +61,8 @@ def main():
         spectrum_type=args.spectrum_type,
         feat_dim=args.feat_dim,
         delta_delta=args.delta_delta,
-        stride_ms=args.stride_ms,
-        window_ms=args.window_ms,
+        stride_ms=float(args.stride_ms),
+        window_ms=float(args.window_ms),
         n_fft=None,
         max_freq=None,
         target_sample_rate=args.sample_rate,

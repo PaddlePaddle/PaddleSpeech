@@ -22,6 +22,7 @@ import argparse
 import codecs
 import json
 import os
+from pathlib import Path
 
 import soundfile
 
@@ -81,6 +82,8 @@ def create_manifest(data_dir, manifest_path_prefix):
                 # if no transcription for audio then skipped
                 if audio_id not in transcript_dict:
                     continue
+               
+                utt2spk = Path(audio_path).parent.name
                 audio_data, samplerate = soundfile.read(audio_path)
                 duration = float(len(audio_data) / samplerate)
                 text = transcript_dict[audio_id]
@@ -88,6 +91,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                     json.dumps(
                         {
                             'utt': audio_id,
+                            'utt2spk': str(utt2spk),
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
                             'text': text

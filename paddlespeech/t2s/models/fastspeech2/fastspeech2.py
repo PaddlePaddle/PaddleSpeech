@@ -98,7 +98,7 @@ class FastSpeech2(nn.Layer):
             pitch_embed_dropout: float=0.5,
             stop_gradient_from_pitch_predictor: bool=False,
             # spk emb
-            num_speakers: int=None,
+            spk_num: int=None,
             spk_embed_dim: int=None,
             spk_embed_integration_type: str="add",
             #  tone emb
@@ -148,9 +148,9 @@ class FastSpeech2(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        if self.spk_embed_dim is not None:
+        if spk_num and self.spk_embed_dim:
             self.spk_embedding_table = nn.Embedding(
-                num_embeddings=num_speakers,
+                num_embeddings=spk_num,
                 embedding_dim=self.spk_embed_dim,
                 padding_idx=self.padding_idx)
 
@@ -299,7 +299,7 @@ class FastSpeech2(nn.Layer):
             pitch: paddle.Tensor,
             energy: paddle.Tensor,
             tone_id: paddle.Tensor=None,
-            spembs: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
             spk_id: paddle.Tensor=None
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
@@ -322,7 +322,7 @@ class FastSpeech2(nn.Layer):
             Batch of padded token-averaged energy (B, Tmax, 1).
         tone_id : Tensor, optional(int64)
                 Batch of padded tone ids  (B, Tmax).
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             Batch of speaker embeddings (B, spk_embed_dim).
         spk_id : Tnesor, optional(int64)
             Batch of speaker ids (B,)
@@ -366,7 +366,7 @@ class FastSpeech2(nn.Layer):
             ps,
             es,
             is_inference=False,
-            spembs=spembs,
+            spk_emb=spk_emb,
             spk_id=spk_id,
             tone_id=tone_id)
         # modify mod part of groundtruth
@@ -387,7 +387,7 @@ class FastSpeech2(nn.Layer):
                  es: paddle.Tensor=None,
                  is_inference: bool=False,
                  alpha: float=1.0,
-                 spembs=None,
+                 spk_emb=None,
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
         # forward encoder
@@ -397,11 +397,12 @@ class FastSpeech2(nn.Layer):
 
         # integrate speaker embedding
         if self.spk_embed_dim is not None:
-            if spembs is not None:
-                hs = self._integrate_with_spk_embed(hs, spembs)
+            # spk_emb has a higher priority than spk_id
+            if spk_emb is not None:
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
             elif spk_id is not None:
-                spembs = self.spk_embedding_table(spk_id)
-                hs = self._integrate_with_spk_embed(hs, spembs)
+                spk_emb = self.spk_embedding_table(spk_id)
+                hs = self._integrate_with_spk_embed(hs, spk_emb)
 
         # integrate tone embedding
         if self.tone_embed_dim is not None:
@@ -489,7 +490,7 @@ class FastSpeech2(nn.Layer):
             energy: paddle.Tensor=None,
             alpha: float=1.0,
             use_teacher_forcing: bool=False,
-            spembs=None,
+            spk_emb=None,
             spk_id=None,
             tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
@@ -512,7 +513,7 @@ class FastSpeech2(nn.Layer):
         use_teacher_forcing : bool, optional
             Whether to use teacher forcing.
             If true, groundtruth of duration, pitch and energy will be used.
-        spembs : Tensor, optional
+        spk_emb : Tensor, optional
             peaker embedding vector (spk_embed_dim,).
         spk_id : Tensor, optional(int64)
             Batch of padded spk ids  (1,).
@@ -527,7 +528,6 @@ class FastSpeech2(nn.Layer):
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         y = speech
-        spemb = spembs
         d, p, e = durations, pitch, energy
         # setup batch axis
         ilens = paddle.shape(x)[0]
@@ -537,8 +537,8 @@ class FastSpeech2(nn.Layer):
         if y is not None:
             ys = y.unsqueeze(0)
 
-        if spemb is not None:
-            spembs = spemb.unsqueeze(0)
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
 
         if tone_id is not None:
             tone_id = tone_id.unsqueeze(0)
@@ -548,7 +548,7 @@ class FastSpeech2(nn.Layer):
             ds = d.unsqueeze(0) if d is not None else None
             ps = p.unsqueeze(0) if p is not None else None
             es = e.unsqueeze(0) if e is not None else None
-            # ds, ps, es = , p.unsqueeze(0), e.unsqueeze(0)
+
             # (1, L, odim)
             _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
@@ -557,7 +557,7 @@ class FastSpeech2(nn.Layer):
                 ds=ds,
                 ps=ps,
                 es=es,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id,
                 is_inference=True)
@@ -569,19 +569,19 @@ class FastSpeech2(nn.Layer):
                 ys,
                 is_inference=True,
                 alpha=alpha,
-                spembs=spembs,
+                spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id)
         return outs[0], d_outs[0], p_outs[0], e_outs[0]
 
-    def _integrate_with_spk_embed(self, hs, spembs):
+    def _integrate_with_spk_embed(self, hs, spk_emb):
         """Integrate speaker embedding with hidden states.
 
         Parameters
         ----------
         hs : Tensor
             Batch of hidden state sequences (B, Tmax, adim).
-        spembs : Tensor
+        spk_emb : Tensor
             Batch of speaker embeddings (B, spk_embed_dim).
 
         Returns
@@ -591,13 +591,13 @@ class FastSpeech2(nn.Layer):
         """
         if self.spk_embed_integration_type == "add":
             # apply projection and then add to hidden states
-            spembs = self.spk_projection(F.normalize(spembs))
-            hs = hs + spembs.unsqueeze(1)
+            spk_emb = self.spk_projection(F.normalize(spk_emb))
+            hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
-            spembs = F.normalize(spembs).unsqueeze(1).expand(
+            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
                 shape=[-1, hs.shape[1], -1])
-            hs = self.spk_projection(paddle.concat([hs, spembs], axis=-1))
+            hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")
 
@@ -682,9 +682,9 @@ class FastSpeech2Inference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, spk_id=None):
+    def forward(self, text, spk_id=None, spk_emb=None):
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, spk_id=spk_id)
+            text, spk_id=spk_id, spk_emb=spk_emb)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

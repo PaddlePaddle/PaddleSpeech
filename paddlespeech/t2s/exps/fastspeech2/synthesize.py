@@ -40,16 +40,19 @@ def evaluate(args, fastspeech2_config, pwg_config):
 
     fields = ["utt_id", "text"]
 
+    spk_num = None
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         with open(args.speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
-        num_speakers = len(spk_id)
+        spk_num = len(spk_id)
         fields += ["spk_id"]
+    elif args.voice_cloning:
+        print("voice cloning!")
+        fields += ["spk_emb"]
     else:
         print("single speaker fastspeech2!")
-        num_speakers = None
-    print("num_speakers:", num_speakers)
+    print("spk_num:", spk_num)
 
     test_dataset = DataTable(data=test_metadata, fields=fields)
 
@@ -62,7 +65,7 @@ def evaluate(args, fastspeech2_config, pwg_config):
     model = FastSpeech2(
         idim=vocab_size,
         odim=odim,
-        num_speakers=num_speakers,
+        spk_num=spk_num,
         **fastspeech2_config["model"])
 
     model.set_state_dict(
@@ -96,12 +99,15 @@ def evaluate(args, fastspeech2_config, pwg_config):
     for datum in test_dataset:
         utt_id = datum["utt_id"]
         text = paddle.to_tensor(datum["text"])
-        if "spk_id" in datum:
+        spk_emb = None
+        spk_id = None
+        if args.voice_cloning and "spk_emb" in datum:
+            spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
+        elif "spk_id" in datum:
             spk_id = paddle.to_tensor(datum["spk_id"])
-        else:
-            spk_id = None
         with paddle.no_grad():
-            wav = pwg_inference(fastspeech2_inference(text, spk_id=spk_id))
+            wav = pwg_inference(
+                fastspeech2_inference(text, spk_id=spk_id, spk_emb=spk_emb))
         sf.write(
             str(output_dir / (utt_id + ".wav")),
             wav.numpy(),
@@ -142,6 +148,15 @@ def main():
         type=str,
         default=None,
         help="speaker id map file for multiple speaker model.")
+
+    def str2bool(str):
+        return True if str.lower() == 'true' else False
+
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
     parser.add_argument("--test-metadata", type=str, help="test metadata.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(

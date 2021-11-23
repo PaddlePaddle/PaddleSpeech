@@ -20,14 +20,14 @@ import paddle
 import soundfile as sf
 from matplotlib import pyplot as plt
 
-from paddlespeech.t2s.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
 from paddlespeech.t2s.exps.voice_cloning.tacotron2_ge2e.aishell3 import voc_phones
 from paddlespeech.t2s.exps.voice_cloning.tacotron2_ge2e.aishell3 import voc_tones
 from paddlespeech.t2s.exps.voice_cloning.tacotron2_ge2e.chinese_g2p import convert_sentence
-from paddlespeech.t2s.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 from paddlespeech.t2s.models.tacotron2 import Tacotron2
 from paddlespeech.t2s.models.waveflow import ConditionalWaveFlow
 from paddlespeech.t2s.utils import display
+from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
+from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
 def voice_cloning(args):

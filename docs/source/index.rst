@@ -23,7 +23,7 @@ Contents
    
 .. toctree::
    :maxdepth: 1
-   :caption: Speech-To-Text
+   :caption: Speech-to-Text
 
    asr/models_introduction
    asr/data_preparation
@@ -33,7 +33,7 @@ Contents
 
 .. toctree::
    :maxdepth: 1
-   :caption: Text-To-Speech
+   :caption: Text-to-Speech
 
    tts/basic_usage
    tts/advanced_usage

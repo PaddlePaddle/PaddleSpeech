@@ -13,7 +13,7 @@ Assume the path to the dataset is `~/datasets/BZNSYP`.
 Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
 Run the command below to
 1. **source path**.
-2. preprocess the dataset,
+2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
@@ -123,7 +123,8 @@ optional arguments:
 
 ## Pretrained Models
 Pretrained model can be downloaded here [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip).
-Static models can be downloaded here [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_static_0.4.zip).
+
+Static model can be downloaded here [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_static_0.4.zip).
 
 Parallel WaveGAN checkpoint contains files listed below.
 

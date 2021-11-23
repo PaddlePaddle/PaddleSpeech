@@ -95,7 +95,7 @@ In `${BIN_DIR}/inference.py`:
 ## Pretrained Model
 The pretrained model is first trained to 1560k steps at Librispeech-other-500 and voxceleb1. Then trained at aidatatang_200h and magic_data to 3000k steps.
 
-Download URL [ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip).
+Download URL [ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip).
 
 ## References
 

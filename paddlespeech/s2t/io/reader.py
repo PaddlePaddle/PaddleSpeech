@@ -18,8 +18,10 @@ import kaldiio
 import numpy as np
 import soundfile
 
-from paddlespeech.s2t.frontend.augmentor.augmentation import AugmentationPipeline as Transformation
+from .utility import feat_type
+from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.log import Log
+# from paddlespeech.s2t.frontend.augmentor.augmentation import AugmentationPipeline as Transformation
 
 __all__ = ["LoadInputsAndTargets"]
 
@@ -322,20 +324,7 @@ class LoadInputsAndTargets():
                 "Not supported: loader_type={}".format(filetype))
 
     def file_type(self, filepath):
-        suffix = filepath.split(":")[0].split('.')[-1].lower()
-        if suffix == 'ark':
-            return 'mat'
-        elif suffix == 'scp':
-            return 'scp'
-        elif suffix == 'npy':
-            return 'npy'
-        elif suffix == 'npz':
-            return 'npz'
-        elif suffix in ['wav', 'flac']:
-            # PCM16
-            return 'sound'
-        else:
-            raise ValueError(f"Not support filetype: {suffix}")
+        return feat_type(filepath)
 
 
 class SoundHDF5File():

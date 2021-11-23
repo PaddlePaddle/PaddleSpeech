@@ -20,13 +20,13 @@ import json
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.frontend.utility import read_manifest
+from paddlespeech.s2t.io.utility import feat_type
 from paddlespeech.s2t.utils.utility import add_arguments
 from paddlespeech.s2t.utils.utility import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 # yapf: disable
-add_arg('feat_type', str, "raw", "speech feature type, e.g. raw(wav, flac), kaldi")
 add_arg('cmvn_path',       str,
         'examples/librispeech/data/mean_std.json',
         "Filepath of cmvn.")
@@ -79,9 +79,11 @@ def main():
             line_json['token1'] = tokens
             line_json['token_id1'] = tokenids
             line_json['token_shape1'] = (len(tokenids), vocab_size)
+
             feat_shape = line_json['feat_shape']
             assert isinstance(feat_shape, (list, tuple)), type(feat_shape)
-            if args.feat_type == 'raw':
+            filetype = feat_type(line_json['feat'])
+            if filetype == 'sound':
                 feat_shape.append(feat_dim)
             else: # kaldi
                 raise NotImplementedError('no support kaldi feat now!')

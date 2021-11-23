@@ -1,3 +1,3 @@
 # TED En -> Zh
 
-* t0 for u2 speech translation
+* st0 - conformer/transformer speech translation

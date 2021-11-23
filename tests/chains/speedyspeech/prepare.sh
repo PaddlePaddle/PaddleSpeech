@@ -32,7 +32,7 @@ trainer_list=$(func_parser_value "${lines[14]}")
 # MODE be one of ['lite_train_infer' 'whole_infer' 'whole_train_infer']
 if [ ${MODE} = "lite_train_infer" ];then
     # pretrain lite train data
-    wget -nc -P  ./pretrain_models/ https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip
+    wget -nc -P  ./pretrain_models/ https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
     (cd ./pretrain_models && unzip pwg_baker_ckpt_0.4.zip)
     # download data
     rm -rf ./train_data/mini_BZNSYP
@@ -40,7 +40,7 @@ if [ ${MODE} = "lite_train_infer" ];then
     cd ./train_data/ && tar xzf mini_BZNSYP.tar.gz
     cd ../
 elif [ ${MODE} = "whole_train_infer" ];then
-    wget -nc -P  ./pretrain_models/ https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip
+    wget -nc -P  ./pretrain_models/ https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_ckpt_0.5.zip
     wget -nc -P  ./pretrain_models/ https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip
     (cd ./pretrain_models && unzip speedyspeech_nosil_baker_ckpt_0.5.zip && unzip pwg_baker_ckpt_0.4.zip)
     rm -rf ./train_data/processed_BZNSYP

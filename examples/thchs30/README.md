@@ -1,3 +1,3 @@
 # thchs30
 
-* a0 for mfa alignment
+* align0 - mfa alignment

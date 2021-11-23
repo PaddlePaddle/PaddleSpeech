@@ -74,15 +74,16 @@ def create_manifest(data_dir, manifest_path):
                 audio_filepath = os.path.join(subfolder, segments[0] + '.flac')
                 audio_data, samplerate = soundfile.read(audio_filepath)
                 duration = float(len(audio_data)) / samplerate
+
+                utt = os.path.splitext(os.path.basename(audio_filepath))[0]
+                utt2spk = '-'.join(utt.split('-')[:2])
                 json_lines.append(
                     json.dumps({
-                        'utt':
-                        os.path.splitext(os.path.basename(audio_filepath))[0],
-                        'feat':
-                        audio_filepath,
+                        'utt': utt,
+                        'utt2spk': utt2spk,
+                        'feat': audio_filepath,
                         'feat_shape': (duration, ),  #second
-                        'text':
-                        text
+                        'text': text,
                     }))
 
                 total_sec += duration

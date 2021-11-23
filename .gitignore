@@ -26,5 +26,6 @@ tools/sctk
 tools/sctk-20159b5/
 tools/kaldi
 tools/OpenBLAS/
+tools/CRF++-0.58/
 
 *output/

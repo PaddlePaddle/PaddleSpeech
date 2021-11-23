@@ -11,7 +11,7 @@ data:
   max_output_input_ratio: 20.0
 
 collator:
-  vocab_filepath: data/vocab.txt
+  vocab_filepath: data/lang_char/vocab.txt
   unit_type: 'spm'
   spm_model_prefix: data/train_sp.en-zh-nlpr.zh-nlpr_bpe8000_tc
   mean_std_filepath: ""

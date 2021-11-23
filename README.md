@@ -289,20 +289,26 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
       </td>
     </tr>                                                                                                                                           
     <tr>
-    <td rowspan="2">Voice Cloning</td>
-    <td>GE2E</td>
-    <td >AISHELL-3, etc.</td>
-    <td>
-    <a href = "./examples/other/ge2e">ge2e</a>
-    </td>
+      <td rowspan="3">Voice Cloning</td>
+      <td>GE2E</td>
+      <td >AISHELL-3, etc.</td>
+      <td>
+      <a href = "./examples/other/ge2e">ge2e</a>
+      </td>
     </tr>
     <tr>
-    <td>GE2E + Tactron2</td>
-    <td>AISHELL-3</td>
-    <td>
-    <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
-    </td>
-    </td>
+      <td>GE2E + Tactron2</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+      </td>
+    </tr>
+    <tr>
+      <td>GE2E + FastSpeech2</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
+      </td>
     </tr>
   </tbody>
 </table>

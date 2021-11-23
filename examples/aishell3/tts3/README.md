@@ -97,7 +97,7 @@ optional arguments:
 
 ### Synthesize
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip
 ```
@@ -202,7 +202,7 @@ optional arguments:
 6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-Pretrained FastSpeech2 model with no silence in the edge of audios. [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
+Pretrained FastSpeech2 model with no silence in the edge of audios. [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 

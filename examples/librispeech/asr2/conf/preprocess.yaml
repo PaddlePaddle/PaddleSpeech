@@ -1,0 +1,16 @@
+process:
+  # these three processes are a.k.a. SpecAugument
+  - type: time_warp
+    max_time_warp: 5
+    inplace: true
+    mode: PIL
+  - type: freq_mask
+    F: 30
+    n_mask: 2
+    inplace: true
+    replace_with_zero: false
+  - type: time_mask
+    T: 40
+    n_mask: 2
+    inplace: true
+    replace_with_zero: false

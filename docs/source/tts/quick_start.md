@@ -1,4 +1,4 @@
-# Quick Start of Text-To-Speech
+# Quick Start of Text-to-Speech
 The examples in PaddleSpeech are mainly classified by datasets, the TTS datasets we mainly used are:
 * CSMCS (Mandarin single speaker)
 * AISHELL3 (Mandarin multiple speaker)

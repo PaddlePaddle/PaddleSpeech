@@ -1,4 +1,4 @@
-# Quick Start of Speech-To-Text
+# Quick Start of Speech-to-Text
 Several shell scripts provided in `./examples/tiny/local` will help us to quickly give it a try, for most major modules, including data preparation, model training, case inference and model evaluation, with a few public dataset (e.g. [LibriSpeech](http://www.openslr.org/12/), [Aishell](http://www.openslr.org/33)). Reading these examples will also help you to understand how to make it work with your own data.
 
 Some of the scripts in `./examples` are not configured with GPUs. If you want to train with 8 GPUs, please modify `CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7`. If you don't have any GPU available, please set `CUDA_VISIBLE_DEVICES=` to use CPUs instead. Besides, if out-of-memory problem occurs, just reduce `batch_size` to fit.

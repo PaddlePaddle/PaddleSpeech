@@ -11,7 +11,7 @@ data:
   max_output_input_ratio: 1000.0
 
 collator:
-  vocab_filepath: data/vocab.txt
+  vocab_filepath: data/lang_char/vocab.txt
   unit_type: "word"
   mean_std_filepath: ""
   augmentation_config: conf/preprocess.yaml

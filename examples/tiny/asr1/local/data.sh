@@ -3,14 +3,17 @@
 stage=-1
 stop_stage=100
 
+dict_dir=data/lang_char
+
 # bpemode (unigram or bpe)
 nbpe=200
 bpemode=unigram
-bpeprefix="data/bpe_${bpemode}_${nbpe}"
+bpeprefix="${dict_dir}/bpe_${bpemode}_${nbpe}"
 
-source ${MAIN_ROOT}/utils/parse_options.sh
+. ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
 
 mkdir -p data
+mkdir -p ${dict_dir}
 TARGET_DIR=${MAIN_ROOT}/examples/dataset
 mkdir -p ${TARGET_DIR}
 
@@ -57,7 +60,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --spm_vocab_size=${nbpe} \
     --spm_mode ${bpemode} \
     --spm_model_prefix ${bpeprefix} \
-    --vocab_path="data/vocab.txt" \
+    --vocab_path="${dict_dir}/vocab.txt" \
     --manifest_paths="data/manifest.tiny.raw"
     
     if [ $? -ne 0 ]; then
@@ -72,7 +75,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     --cmvn_path "data/mean_std.json" \
     --unit_type "spm" \
     --spm_model_prefix ${bpeprefix} \
-    --vocab_path="data/vocab.txt" \
+    --vocab_path="${dict_dir}/vocab.txt" \
     --manifest_path="data/manifest.tiny.raw" \
     --output_path="data/manifest.tiny"
     

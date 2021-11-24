@@ -1,4 +1,4 @@
-# Tacotron2  with LJSpeech
+# Tacotron2 with LJSpeech
 PaddlePaddle dynamic graph implementation of Tacotron2, a neural network architecture for speech synthesis directly from text. The implementation is based on [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884).
 
 ## Dataset
@@ -18,11 +18,15 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
-### Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
@@ -51,7 +55,7 @@ By default, training will be resumed from the latest checkpoint in `--output`, i
 And if you want to resume from an other existing model, you should set `checkpoint_path` to be the checkpoint path you want to load.
 **Note: The checkpoint path cannot contain the file extension.**
 
-### Synthesize
+### Synthesizing
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`,  which synthesize **mels**  from text_list here.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${train_output_path} ${ckpt_name}

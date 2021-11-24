@@ -1,11 +1,11 @@
 # Multi Band MelGAN with CSMSC
 This example contains code used to train a [Multi Band MelGAN](https://arxiv.org/abs/2005.05106) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 ## Dataset
-### Download and Extract the datasaet
+### Download and Extract
 Download CSMSC from the [official website](https://www.data-baker.com/data/index/source) and extract it to `~/datasets`. Then the dataset is in directory `~/datasets/BZNSYP`.
 
-### Get MFA results for silence trim
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to  cut silence in the edge of audio.
+### Get MFA Result and Extract
+We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence in the edge of audio.
 You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/use_mfa) of our repo.
 
 ## Get Started
@@ -20,7 +20,11 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
@@ -43,7 +47,7 @@ The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of whi
 
 Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains id and paths to spectrogam of each utterance.
 
-### Train the model
+### Model Training
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
@@ -75,7 +79,7 @@ optional arguments:
 3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-### Synthesize
+### Synthesizing
 `./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
@@ -106,7 +110,7 @@ optional arguments:
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-## Finetune
+## Fine-tuning
 Since there are no `noise` in the input of Multi Band MelGAN, the  audio quality is not so good (see [espnet issue](https://github.com/espnet/espnet/issues/3536#issuecomment-916035415)), we refer to the method proposed in [HiFiGAN](https://arxiv.org/abs/2010.05646),  finetune Multi Band MelGAN with the predicted mel-spectrogram from `FastSpeech2`.
 
 The length of mel-spectrograms should align with the length of wavs, so we should generate mels using ground truth alignment.
@@ -144,7 +148,7 @@ Run the command below
 By default, `finetune.sh` will use `conf/finetune.yaml` as config, the dump-dir is `dump_finetune`, the experiment dir is `exp/finetune`.
 
 TODO: 
-The hyperparameter of  `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
+The hyperparameter of `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
 
 ## Pretrained Models
 Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).

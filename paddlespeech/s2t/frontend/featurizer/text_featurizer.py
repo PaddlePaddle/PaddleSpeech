@@ -56,6 +56,8 @@ class TextFeaturizer():
             self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id, self.blank_id = self._load_vocabulary_from_file(
                 vocab_filepath, maskctc)
             self.vocab_size = len(self.vocab_list)
+        else:
+            logger.warning("TextFeaturizer: not have vocab file.")
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'

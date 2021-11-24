@@ -409,7 +409,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
     @paddle.no_grad()
     def test(self):
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
-        if self.args.enable_auto_log == True:
+        if self.args.enable_auto_log is True:
             from paddlespeech.s2t.utils.log import Autolog
             self.autolog = Autolog(
                 batch_size=self.config.decoding.batch_size,
@@ -438,7 +438,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
-        if self.args.enable_auto_log == True:
+        if self.args.enable_auto_log is True:
             self.autolog.report()
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
@@ -512,7 +512,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         x_len_list = np.split(x_len_batch, batch_size, axis=0)
 
         for x, x_len in zip(x_list, x_len_list):
-            if self.args.enable_auto_log == True:
+            if self.args.enable_auto_log is True:
                 self.autolog.times.start()
             x_len = x_len[0]
             assert (chunk_size <= x_len)
@@ -547,7 +547,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
 
             probs_chunk_list = []
             probs_chunk_lens_list = []
-            if self.args.enable_auto_log == True:
+            if self.args.enable_auto_log is True:
                 # record the model preprocessing time
                 self.autolog.times.stamp()
 
@@ -606,7 +606,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 [output_probs, output_probs_padding], axis=1)
             output_probs_list.append(output_probs)
             output_lens_list.append(output_lens)
-            if self.args.enable_auto_log == True:
+            if self.args.enable_auto_log is True:
                 # record the model inference time
                 self.autolog.times.stamp()
                 # record the post processing time
@@ -641,12 +641,12 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         audio_len_handle.reshape(x_len.shape)
         audio_len_handle.copy_from_cpu(x_len)
 
-        if self.args.enable_auto_log == True:
+        if self.args.enable_auto_log is True:
             self.autolog.times.start()
             # record the prefix processing time
             self.autolog.times.stamp()
         self.predictor.run()
-        if self.args.enable_auto_log == True:
+        if self.args.enable_auto_log is True:
             # record the model inference time
             self.autolog.times.stamp()
             # record the post processing time

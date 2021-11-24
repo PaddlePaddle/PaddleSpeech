@@ -124,7 +124,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                     json.dumps(
                         {
                             'utt': audio_id,
-                            'utt2spk', spk,
+                            'utt2spk': spk,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
                             'text': word_text,  # charactor

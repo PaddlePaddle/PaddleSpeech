@@ -1,11 +1,9 @@
 # TransformerTTS with LJSpeech
 ## Dataset
-### Download the datasaet
+We experiment with the LJSpeech dataset. Download and unzip [LJSpeech](https://keithito.com/LJ-Speech-Dataset/).
+
 ```bash
 wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-```
-### Extract the dataset
-```bash
 tar xjvf LJSpeech-1.1.tar.bz2
 ```
 ## Get Started
@@ -20,7 +18,11 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-### Preprocess the dataset
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
@@ -44,7 +46,7 @@ The dataset is split into 3 parts, namely `train`, `dev` and` test`, each of whi
 
 Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, text_lengths, speech_lengths, path of speech features, speaker and id of each utterance.
 
-### Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
@@ -77,7 +79,7 @@ optional arguments:
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 
-## Synthesize
+## Synthesizing
 We use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder.
 Download Pretrained WaveFlow Model with residual channel equals 128 from [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip) and unzip it.
 ```bash

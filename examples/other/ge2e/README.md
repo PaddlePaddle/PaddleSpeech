@@ -24,8 +24,11 @@ If you want to use other datasets, you can also download and preprocess it as lo
 ```bash
 ./run.sh
 ```
-
-### Preprocess Datasets
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Data Preprocessing
 `./local/preprocess.sh` calls `${BIN_DIR}/preprocess.py`.
 ```bash
 ./local/preprocess.sh ${datasets_root} ${preprocess_path} ${dataset_names}
@@ -62,7 +65,7 @@ In `${BIN_DIR}/preprocess.py`:
 2.  `--output_dir` is the directory to save the preprocessed dataset
 3.  `--dataset_names` is the dataset to preprocess. If there are multiple datasets in `--datasets_root` to preprocess, the names can be joined with comma. Currently supported dataset names are  librispeech_other, voxceleb1, voxceleb2, aidatatang_200zh and magicdata.
 
-### Train the model
+### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${preprocess_path} ${train_output_path}
@@ -79,7 +82,7 @@ Other options are described below.
 - `--opts` is command line options to further override config files. It should be the last comman line options passed with multiple key-value pairs separated by spaces.
 - `--checkpoint_path` specifies the checkpoiont to load before training, extension is not included. A parameter file ( `.pdparams`) and an optimizer state file ( `.pdopt`) with the same name is used. This option has a higher priority than auto-resuming from the `--output` directory.
 
-###  Inference
+###  Inferencing
 When training is done, run the command below to generate utterance embedding for each utterance in a dataset.
 `./local/inference.sh` calls `${BIN_DIR}/inference.py`.
 ```bash

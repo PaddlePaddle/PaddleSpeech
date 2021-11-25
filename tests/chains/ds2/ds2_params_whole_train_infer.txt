@@ -21,13 +21,13 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval: ../../../paddlespeech/s2t/exps/deepspeech2/bin/test.py --nproc 1 --config conf/deepspeech2.yaml --result_file tests/49.rsl --checkpoint_path exp/deepspeech_whole/checkpoints/49 --model_type offline
+eval: ../../../paddlespeech/s2t/exps/deepspeech2/bin/test.py --ngpu 1 --config conf/deepspeech2.yaml --result_file tests/49.rsl --checkpoint_path exp/deepspeech_whole/checkpoints/49 --model_type offline
 null:null
 ##
 ===========================infer_params===========================
 null:null
 null:null
-norm_export: ../../../paddlespeech/s2t/exps/deepspeech2/bin/export.py --nproc 1 --config conf/deepspeech2.yaml --model_type offline  --checkpoint_path exp/deepspeech_whole/checkpoints/49 --export_path exp/deepspeech_whole/checkpoints/49.jit
+norm_export: ../../../paddlespeech/s2t/exps/deepspeech2/bin/export.py --ngpu 1 --config conf/deepspeech2.yaml --model_type offline  --checkpoint_path exp/deepspeech_whole/checkpoints/49 --export_path exp/deepspeech_whole/checkpoints/49.jit
 quant_export:null
 fpgm_export:null
 distill_export:null

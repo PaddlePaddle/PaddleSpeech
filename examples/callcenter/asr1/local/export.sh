@@ -13,7 +13,7 @@ ckpt_path_prefix=$2
 jit_model_export_path=$3
 
 python3 -u ${BIN_DIR}/export.py \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --checkpoint_path ${ckpt_path_prefix} \
 --export_path ${jit_model_export_path}

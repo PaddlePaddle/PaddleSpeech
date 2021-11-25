@@ -40,7 +40,6 @@ def get_config(config_path):
 
 
 def load_trained_model(args):
-    args.nprocs = args.ngpu
     confs = get_config(args.model_conf)
     class_obj = dynamic_import_tester(args.model_name)
     exp = class_obj(confs, args)

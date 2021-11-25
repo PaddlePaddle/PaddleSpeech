@@ -87,7 +87,7 @@ class DeepSpeech2Tester_hub():
     def setup(self):
         """Setup the experiment.
         """
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
+        paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
         self.setup_output_dir()
         self.setup_checkpointer()

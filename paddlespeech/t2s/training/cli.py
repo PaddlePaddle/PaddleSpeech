@@ -30,7 +30,7 @@ def default_argument_parser():
     
     The ``--checkpoint_path`` specifies the checkpoint to load from.
     
-    The ``--device`` and ``--nprocs`` specifies how to run the training.
+    The ``--ngpu`` specifies how to run the training.
     
     See Also
     --------

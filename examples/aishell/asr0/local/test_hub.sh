@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 fi
 
 python3 -u ${BIN_DIR}/test_hub.py \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --result_file ${ckpt_prefix}.rsl \
 --checkpoint_path ${ckpt_prefix} \

@@ -130,6 +130,10 @@ Pretrained model can be downloaded here [pwg_baker_ckpt_0.4.zip](https://paddles
 
 Static model can be downloaded here [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip).
 
+Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss:| eval/spectral_convergence_loss 
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1 gpu 400000|1.948763|0.670098|0.248882
+
 Parallel WaveGAN checkpoint contains files listed below.
 
 ```text

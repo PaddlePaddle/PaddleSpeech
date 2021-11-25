@@ -14,7 +14,7 @@ avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
 
-audio_file="data/tmp.wav"
+audio_file="data/test_single_audio.wav"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
@@ -44,14 +44,16 @@ fi
 # Optionally, you can add LM and test it with runtime.
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # test a single .wav file
-    CUDA_VISIBLE_DEVICES=0 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
 fi
 
-# if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
-#     # export ckpt avg_n
-#     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
-# fi
+# Not supported at now!!!
+if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
+     # export ckpt avg_n
+     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi
 
+# Need further installation! Read the install.md to complete further installation
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
     echo "warning: deps on kaldi and srilm, please make sure installed."
     # train lm and build TLG

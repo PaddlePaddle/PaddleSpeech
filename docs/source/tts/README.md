@@ -35,7 +35,7 @@ In order to facilitate exploiting the existing TTS models directly and developin
   - [【Parallel WaveGAN】Parallel WaveGAN: A fast waveform generation model based on generative adversarial networks with multi-resolution spectrogram](https://arxiv.org/abs/1910.11480)
   - [【WaveFlow】WaveFlow: A Compact Flow-based Model for Raw Audio](https://arxiv.org/abs/1912.01219)
 - Voice Cloning
-  - [Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558v4.pdf)
+  - [Transfer Learning from Speaker Verification to Multispeaker Text-to-Speech Synthesis](https://arxiv.org/pdf/1806.04558v4.pdf)
   - [【GE2E】Generalized End-to-End Loss for Speaker Verification](https://arxiv.org/abs/1710.10467)
 
 ## Setup

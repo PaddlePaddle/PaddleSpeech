@@ -11,9 +11,9 @@ data:
   max_output_input_ratio: 100.0
 
 collator:
-  vocab_filepath: data/vocab.txt 
+  vocab_filepath: data/lang_char/vocab.txt 
   unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_5000'
+  spm_model_prefix: 'data/lang_char/bpe_unigram_5000'
   mean_std_filepath: ""
   augmentation_config: conf/preprocess.yaml
   batch_size: 64

@@ -28,7 +28,7 @@ PaddleAudio提供了PANNs的CNN14、CNN10和CNN6的预训练模型，可供用�
 $ CUDA_VISIBLE_DEVICES=0 ./run.sh 1
 ```
 
-`local/train.py` 脚本中可支持配置的参数：
+`paddlespeech/cls/exps/PANNs/train.py` 脚本中可支持配置的参数：
 
 - `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
 - `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
@@ -65,7 +65,7 @@ model = SoundClassifier(backbone, num_class=len(ESC50.label_list))
 $ CUDA_VISIBLE_DEVICES=0 ./run.sh 2
 ```
 
-`local/predict.py` 脚本中可支持配置的参数：
+`paddlespeech/cls/exps/PANNs/predict.py` 脚本中可支持配置的参数：
 
 - `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
 - `wav`: 指定预测的音频文件。

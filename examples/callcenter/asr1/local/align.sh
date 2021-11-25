@@ -23,7 +23,7 @@ mkdir -p ${output_dir}
 # align dump in `result_file`
 # .tier, .TextGrid dump in `dir of result_file`
 python3 -u ${BIN_DIR}/alignment.py \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --result_file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \

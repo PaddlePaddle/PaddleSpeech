@@ -16,12 +16,12 @@ import os
 
 import paddle
 from model import SoundClassifier
+from panns import cnn14
 
-from paddlespeech.cls.datasets import ESC50
-from paddlespeech.cls.features import LogMelSpectrogram
-from paddlespeech.cls.models.panns import cnn14
-from paddlespeech.cls.utils import logger
-from paddlespeech.cls.utils import Timer
+from paddleaudio.datasets import ESC50
+from paddleaudio.features import LogMelSpectrogram
+from paddleaudio.utils import logger
+from paddleaudio.utils import Timer
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

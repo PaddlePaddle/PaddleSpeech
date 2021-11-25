@@ -173,7 +173,7 @@ setup_info = dict(
 
     # Package info
     packages=find_packages(exclude=('utils', 'tests', 'tests.*', 'examples*',
-                                    'third_party*', 'tools*')),
+                                    'paddleaudio*', 'third_party*', 'tools*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 3 - Alpha',

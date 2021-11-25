@@ -16,8 +16,8 @@ import os
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from ..utils.download import load_state_dict_from_url
-from ..utils.env import MODEL_HOME
+from paddleaudio.utils.download import load_state_dict_from_url
+from paddleaudio.utils.env import MODEL_HOME
 
 __all__ = ['CNN14', 'CNN10', 'CNN6', 'cnn14', 'cnn10', 'cnn6']
 

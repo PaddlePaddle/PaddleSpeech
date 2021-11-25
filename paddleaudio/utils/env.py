@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 '''
-This module is used to store environmental variables in PaddleSpeech.
-PPSPEECH_HOME     -->  the root directory for storing PaddleSpeech related data. Default to ~/.paddlespeech. Users can change the
-├                            default value through the PPSPEECH_HOME environment variable.
+This module is used to store environmental variables in PaddleAudio.
+PPAUDIO_HOME     -->  the root directory for storing PaddleAudio related data. Default to ~/.paddleaudio. Users can change the
+├                            default value through the PPAUDIO_HOME environment variable.
 ├─ MODEL_HOME    -->  Store model files.
 └─ DATA_HOME     -->  Store automatically downloaded datasets.
 '''
@@ -25,29 +25,29 @@ def _get_user_home():
     return os.path.expanduser('~')
 
 
-def _get_package_home():
-    if 'PPSPEECH_HOME' in os.environ:
-        home_path = os.environ['PPSPEECH_HOME']
+def _get_ppaudio_home():
+    if 'PPAUDIO_HOME' in os.environ:
+        home_path = os.environ['PPAUDIO_HOME']
         if os.path.exists(home_path):
             if os.path.isdir(home_path):
                 return home_path
             else:
                 raise RuntimeError(
-                    'The environment variable PPSPEECH_HOME {} is not a directory.'.
+                    'The environment variable PPAUDIO_HOME {} is not a directory.'.
                     format(home_path))
         else:
             return home_path
-    return os.path.join(_get_user_home(), '.paddlespeech')
+    return os.path.join(_get_user_home(), '.paddleaudio')
 
 
 def _get_sub_home(directory):
-    home = os.path.join(_get_package_home(), directory)
+    home = os.path.join(_get_ppaudio_home(), directory)
     if not os.path.exists(home):
         os.makedirs(home)
     return home
 
 
 USER_HOME = _get_user_home()
-PPSPEECH_HOME = _get_package_home()
-MODEL_HOME = _get_sub_home('pretrained_models')
+PPAUDIO_HOME = _get_ppaudio_home()
+MODEL_HOME = _get_sub_home('models')
 DATA_HOME = _get_sub_home('datasets')

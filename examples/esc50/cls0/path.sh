@@ -1,3 +1,4 @@
+#!/bin/bash
 export MAIN_ROOT=`realpath ${PWD}/../../../`
 
 export PATH=${MAIN_ROOT}:${MAIN_ROOT}/utils:${PATH}
@@ -8,4 +9,5 @@ export PYTHONDONTWRITEBYTECODE=1
 export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
+MODEL=PANNs
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/cls/exps/${MODEL}

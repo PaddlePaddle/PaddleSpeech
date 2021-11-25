@@ -17,12 +17,12 @@ import numpy as np
 import paddle
 import paddle.nn.functional as F
 from model import SoundClassifier
+from panns import cnn14
 
-from paddlespeech.cls.backends import load as load_audio
-from paddlespeech.cls.datasets import ESC50
-from paddlespeech.cls.features import LogMelSpectrogram
-from paddlespeech.cls.features import melspectrogram
-from paddlespeech.cls.models.panns import cnn14
+from paddleaudio.backends import load as load_audio
+from paddleaudio.datasets import ESC50
+from paddleaudio.features import LogMelSpectrogram
+from paddleaudio.features import melspectrogram
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

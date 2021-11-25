@@ -18,15 +18,16 @@ import numpy as np
 from paddle import inference
 from scipy.special import softmax
 
-from paddlespeech.cls.backends import load as load_audio
-from paddlespeech.cls.datasets import ESC50
-from paddlespeech.cls.features import melspectrogram
+from paddleaudio.backends import load as load_audio
+from paddleaudio.datasets import ESC50
+from paddleaudio.features import melspectrogram
 
 # yapf: disable
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir", type=str, required=True, default="./export", help="The directory to static model.")
-parser.add_argument("--batch_size", type=int, default=2, help="Batch size per GPU/CPU for training.")
 parser.add_argument('--device', choices=['cpu', 'gpu', 'xpu'], default="gpu", help="Select which device to train model, defaults to gpu.")
+parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
+parser.add_argument("--batch_size", type=int, default=1, help="Batch size per GPU/CPU for training.")
 parser.add_argument('--use_tensorrt', type=eval, default=False, choices=[True, False], help='Enable to use tensorrt to speed up.')
 parser.add_argument("--precision", type=str, default="fp32", choices=["fp32", "fp16"], help='The tensorrt precision.')
 parser.add_argument('--cpu_threads', type=int, default=10, help='Number of threads to predict when using cpu.')
@@ -132,10 +133,7 @@ if __name__ == "__main__":
                           args.use_tensorrt, args.precision, args.cpu_threads,
                           args.enable_mkldnn)
 
-    wavs = [
-        '~/audio_demo_resource/cat.wav',
-        '~/audio_demo_resource/dog.wav',
-    ]
+    wavs = [args.wav]
 
     for i in range(len(wavs)):
         wavs[i] = os.path.abspath(os.path.expanduser(wavs[i]))

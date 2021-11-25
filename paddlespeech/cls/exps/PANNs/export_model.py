@@ -16,9 +16,9 @@ import os
 
 import paddle
 
-from .model import SoundClassifier
-from .panns import cnn14
 from paddleaudio.datasets import ESC50
+from paddlespeech.cls.models import cnn14
+from paddlespeech.cls.models import SoundClassifier
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

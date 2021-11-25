@@ -50,7 +50,7 @@ PaddleSpeech TTS provides you with a complete TTS pipeline, including:
     - Parallel WaveGAN
     - WaveFlow
 - Voice Cloning
-    - Transfer Learning from Speaker Verification to Multispeaker Text-To-Speech Synthesis
+    - Transfer Learning from Speaker Verification to Multispeaker Text-to-Speech Synthesis
     - GE2E
 
 Text-to-Speech  helps you to train TTS models with simple commands.

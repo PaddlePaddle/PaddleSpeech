@@ -138,6 +138,10 @@ optional arguments:
 ## Pretrained Models
 Pretrained models can be downloaded here [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip).
 
+Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss:| eval/spectral_convergence_loss 
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1 gpu 400000|1.968762|0.759008|0.218524
+
 Parallel WaveGAN checkpoint contains files listed below.
 
 ```text

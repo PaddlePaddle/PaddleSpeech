@@ -2,7 +2,7 @@
 
 ## Conformer
 
-| Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
+| Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |  
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug + shift | test | attention | - | 0.059858 |  
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug + shift | test | ctc_greedy_search | - | 0.062311 |  
@@ -13,7 +13,7 @@
 ## Chunk Conformer
 Need set `decoding.decoding_chunk_size=16` when decoding.
 
-| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | WER |  
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  
 | conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | attention | 16, -1 | - | 0.061939 |  
 | conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test | ctc_greedy_search | 16, -1 | - | 0.070806 |  
@@ -23,7 +23,7 @@ Need set `decoding.decoding_chunk_size=16` when decoding.
 
 ## Transformer 
 
-| Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
+| Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |  
 | transformer | 31.95M  | conf/transformer.yaml | spec_aug | test | attention | 3.858648955821991 | 0.057293 |  
 | transformer | 31.95M  | conf/transformer.yaml | spec_aug | test | ctc_greedy_search | 3.858648955821991 | 0.061837 |  

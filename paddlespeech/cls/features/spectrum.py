@@ -201,7 +201,7 @@ def compute_fbank_matrix(sr: int,
 def power_to_db(magnitude: paddle.Tensor,
                 ref_value: float=1.0,
                 amin: float=1e-10,
-                top_db: Optional[float]=80.0) -> paddle.Tensor:
+                top_db: Optional[float]=None) -> paddle.Tensor:
     """Convert a power spectrogram (amplitude squared) to decibel (dB) units.
     The function computes the scaling ``10 * log10(x / ref)`` in a numerically
     stable way.
@@ -304,7 +304,7 @@ class MelSpectrogram(nn.Layer):
                  center: bool=True,
                  pad_mode: str='reflect',
                  n_mels: int=64,
-                 f_min: float=0.0,
+                 f_min: float=50.0,
                  f_max: Optional[float]=None,
                  htk: bool=False,
                  norm: Union[str, float]='slaney',
@@ -384,13 +384,13 @@ class LogMelSpectrogram(nn.Layer):
                  center: bool=True,
                  pad_mode: str='reflect',
                  n_mels: int=64,
-                 f_min: float=0.0,
+                 f_min: float=50.0,
                  f_max: Optional[float]=None,
                  htk: bool=False,
                  norm: Union[str, float]='slaney',
                  ref_value: float=1.0,
                  amin: float=1e-10,
-                 top_db: Optional[float]=80.0,
+                 top_db: Optional[float]=None,
                  dtype: str=paddle.float32):
         """Compute log-mel-spectrogram(also known as LogFBank) feature of a given signal,
         typically an audio waveform.

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import ast
 import os
 
 import paddle
@@ -28,7 +27,7 @@ from paddlespeech.cls.utils import Timer
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--device', choices=['cpu', 'gpu'], default="gpu", help="Select which device to train model, defaults to gpu.")
 parser.add_argument("--epochs", type=int, default=50, help="Number of epoches for fine-tuning.")
-parser.add_argument("--gpu_feat", type=ast.literal_eval, default=False, help="Use gpu to extract feature.")
+parser.add_argument("--feat_backend", type=str, choices=['numpy', 'paddle'], default='numpy', help="Choose backend to extract features from audio files.")
 parser.add_argument("--learning_rate", type=float, default=5e-5, help="Learning rate used to train with warmup.")
 parser.add_argument("--batch_size", type=int, default=16, help="Total examples' number in batch for training.")
 parser.add_argument("--num_workers", type=int, default=0, help="Number of workers in dataloader.")
@@ -52,13 +51,13 @@ if __name__ == "__main__":
         learning_rate=args.learning_rate, parameters=model.parameters())
     criterion = paddle.nn.loss.CrossEntropyLoss()
 
-    if args.gpu_feat:
-        train_ds = ESC50(mode='train')
-        dev_ds = ESC50(mode='dev')
-        feature_extractor = LogMelSpectrogram(sr=16000, hop_length=320)
-    else:
+    if args.feat_backend == 'numpy':
         train_ds = ESC50(mode='train', feat_type='melspectrogram')
         dev_ds = ESC50(mode='dev', feat_type='melspectrogram')
+    else:
+        train_ds = ESC50(mode='train')
+        dev_ds = ESC50(mode='dev')
+        feature_extractor = LogMelSpectrogram(sr=16000)
 
     train_sampler = paddle.io.DistributedBatchSampler(
         train_ds, batch_size=args.batch_size, shuffle=True, drop_last=False)
@@ -80,15 +79,15 @@ if __name__ == "__main__":
         num_corrects = 0
         num_samples = 0
         for batch_idx, batch in enumerate(train_loader):
-            if args.gpu_feat:
+            if args.feat_backend == 'numpy':
+                feats, labels = batch
+            else:
                 waveforms, labels = batch
                 feats = feature_extractor(
                     waveforms
                 )  # Need a padding when lengths of waveforms differ in a batch.
                 feats = paddle.transpose(feats,
                                          [0, 2, 1])  # To [N, length, n_mels]
-            else:
-                feats, labels = batch
 
             logits = model(feats)
 
@@ -144,12 +143,12 @@ if __name__ == "__main__":
             num_samples = 0
             with logger.processing('Evaluation on validation dataset'):
                 for batch_idx, batch in enumerate(dev_loader):
-                    if args.gpu_feat:
+                    if args.feat_backend == 'numpy':
+                        feats, labels = batch
+                    else:
                         waveforms, labels = batch
                         feats = feature_extractor(waveforms)
                         feats = paddle.transpose(feats, [0, 2, 1])
-                    else:
-                        feats, labels = batch
 
                     logits = model(feats)
 

@@ -13,8 +13,8 @@
 # limitations under the License.
 '''
 This module is used to store environmental variables in PaddleSpeech.
-PACKAGE_HOME     -->  the root directory for storing PaddleSpeech related data. Default to ~/.paddlespeech. Users can change the
-├                            default value through the PACKAGE_HOME environment variable.
+PPSPEECH_HOME     -->  the root directory for storing PaddleSpeech related data. Default to ~/.paddlespeech. Users can change the
+├                            default value through the PPSPEECH_HOME environment variable.
 ├─ MODEL_HOME    -->  Store model files.
 └─ DATA_HOME     -->  Store automatically downloaded datasets.
 '''
@@ -26,14 +26,14 @@ def _get_user_home():
 
 
 def _get_package_home():
-    if 'PACKAGE_HOME' in os.environ:
-        home_path = os.environ['PACKAGE_HOME']
+    if 'PPSPEECH_HOME' in os.environ:
+        home_path = os.environ['PPSPEECH_HOME']
         if os.path.exists(home_path):
             if os.path.isdir(home_path):
                 return home_path
             else:
                 raise RuntimeError(
-                    'The environment variable PACKAGE_HOME {} is not a directory.'.
+                    'The environment variable PPSPEECH_HOME {} is not a directory.'.
                     format(home_path))
         else:
             return home_path
@@ -48,6 +48,6 @@ def _get_sub_home(directory):
 
 
 USER_HOME = _get_user_home()
-PACKAGE_HOME = _get_package_home()
+PPSPEECH_HOME = _get_package_home()
 MODEL_HOME = _get_sub_home('pretrained_models')
 DATA_HOME = _get_sub_home('datasets')

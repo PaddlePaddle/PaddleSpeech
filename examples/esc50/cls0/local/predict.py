@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import ast
 
 import numpy as np
 import paddle
@@ -29,24 +28,25 @@ from paddlespeech.cls.models.panns import cnn14
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--device', choices=['cpu', 'gpu'], default="gpu", help="Select which device to predict, defaults to gpu.")
 parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
-parser.add_argument("--gpu_feat", type=ast.literal_eval, default=False, help="Use gpu to extract feature.")
+parser.add_argument("--feat_backend", type=str, choices=['numpy', 'paddle'], default='numpy', help="Choose backend to extract features from audio files.")
 parser.add_argument("--top_k", type=int, default=1, help="Show top k predicted results")
 parser.add_argument("--checkpoint", type=str, required=True, help="Checkpoint of model.")
 args = parser.parse_args()
 # yapf: enable
 
 
-def extract_features(file: str, gpu_feat: bool=False,
+def extract_features(file: str, feat_backend: str='numpy',
                      **kwargs) -> paddle.Tensor:
     waveform, sr = load_audio(file, sr=None)
-    if gpu_feat:
-        feature_extractor = LogMelSpectrogram(sr=sr, hop_length=320, **kwargs)
-        feat = feature_extractor(paddle.to_tensor(waveform).unsqueeze(0))
-        feat = paddle.transpose(feat, [0, 2, 1])
-    else:
+
+    if args.feat_backend == 'numpy':
         feat = melspectrogram(waveform, sr, **kwargs).transpose()
         feat = np.expand_dims(feat, 0)
         feat = paddle.to_tensor(feat)
+    else:
+        feature_extractor = LogMelSpectrogram(sr=sr, **kwargs)
+        feat = feature_extractor(paddle.to_tensor(waveform).unsqueeze(0))
+        feat = paddle.transpose(feat, [0, 2, 1])
     return feat
 
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     model.set_state_dict(paddle.load(args.checkpoint))
     model.eval()
 
-    feat = extract_features(args.wav, args.gpu_feat)
+    feat = extract_features(args.wav, args.feat_backend)
     logits = model(feat)
     probs = F.softmax(logits, axis=1).numpy()
 

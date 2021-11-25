@@ -31,7 +31,7 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 1
 `local/train.py` 脚本中可支持配置的参数：
 
 - `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
-- `gpu_feat`: 选择是否用gpu加速提取音频特征，默认为False。
+- `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
 - `epochs`: 训练轮次，默认为50。
 - `learning_rate`: Fine-tune的学习率；默认为5e-5。
 - `batch_size`: 批处理大小，请结合显存情况进行调整，若出现显存不足，请适当调低这一参数；默认为16。
@@ -69,7 +69,7 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 2
 
 - `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
 - `wav`: 指定预测的音频文件。
-- `gpu_feat`: 选择是否用gpu加速提取音频特征，默认为False。
+- `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
 - `top_k`: 预测显示的top k标签的得分，默认为1。
 - `checkpoint`: 模型参数checkpoint文件。
 

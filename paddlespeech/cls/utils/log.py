@@ -55,13 +55,13 @@ log_config = {
 
 class Logger(object):
     '''
-    Deafult logger in PaddleSpeechCls
+    Deafult logger in PaddleSpeech
     Args:
-        name(str) : Logger name, default is 'PaddleSpeechCls'
+        name(str) : Logger name, default is 'PaddleSpeech'
     '''
 
     def __init__(self, name: str=None):
-        name = 'PaddleSpeechCls' if not name else name
+        name = 'PaddleSpeech' if not name else name
         self.logger = logging.getLogger(name)
 
         for key, conf in log_config.items():

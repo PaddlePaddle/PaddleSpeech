@@ -124,7 +124,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_outpu
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
-default| 2 gpu 96400|0.99699|0.62013|0.53057|0.11954| 0.20426|
+default|2(gpu) x 96400|0.99699|0.62013|0.53057|0.11954| 0.20426|
 
 FastSpeech2 checkpoint contains files listed below.
 (There is no need for `speaker_id_map.txt` here )

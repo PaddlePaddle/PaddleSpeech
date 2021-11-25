@@ -159,8 +159,8 @@ Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://pad
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss|eval/spectral_convergence_loss |eval/sub_log_stft_magnitude_loss|eval/sub_spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:| :--------:| :--------:
-default| 1 gpu 1000000| ——|—— |—— |—— | ——|
-finetune| 1 gpu 1000000|3.196967|0.977804| 0.778484| 0.889576 |0.776756 |
+default| 1(gpu) x 1000000| ——|—— |—— |—— | ——|
+finetune| 1(gpu) x 1000000|3.196967|0.977804| 0.778484| 0.889576 |0.776756 |
 
 
 Multi Band MelGAN checkpoint contains files listed below.

@@ -8,6 +8,7 @@ stop_stage=100
 conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeeech2_online.yaml
 avg_num=1
 model_type=offline    # offline or online
+audio_file="data/test_single_audio.wav"
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -15,7 +16,6 @@ avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
 
-audio_file="data/tmp.wav"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

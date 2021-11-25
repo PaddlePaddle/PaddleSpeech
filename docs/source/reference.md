@@ -1,13 +1,13 @@
 # Reference
 
-We borrowed a lot of code from these repos to build `model` and `engine`, thank for these great work and opensource community!
+We borrowed a lot of code from these repos to build `model` and `engine`, thanks for these great works and opensource community!
 
 * [espnet](https://github.com/espnet/espnet/blob/master/LICENSE)
 - Apache-2.0 License
 - python/shell `utils`
 - kaldi feat preprocessing
-- datapipeline and `transform`
-- a lot of tts model, like `fastspeech2` and GAN-based `vocoder`
+- data pipe line and `transform`
+- some tts models, like `fastspeech2` and GAN-based `vocoder`
 
 * [wenet](https://github.com/wenet-e2e/wenet/blob/main/LICENSE)
 - Apache-2.0 License
@@ -30,7 +30,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thank 
 
 * [chainer](https://github.com/chainer/chainer/blob/master/LICENSE)
 - MIT License
-- Updater, Trainer and more utils.
+- Updater, Trainer and some utils.
 
 * [librosa](https://github.com/librosa/librosa/blob/main/LICENSE.md)
 - ISC License

@@ -207,6 +207,11 @@ Pretrained FastSpeech2 model with no silence in the edge of audios [fastspeech2_
 
 Static model can be downloaded here [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
 
+Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
+:-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
+default| 2(gpu) x 76000|1.0991|0.59132|0.035815| 0.31915| 0.15287|
+conformer| 2(gpu) x 76000||||||
+
 FastSpeech2 checkpoint contains files listed below.
 ```text
 fastspeech2_nosil_baker_ckpt_0.4

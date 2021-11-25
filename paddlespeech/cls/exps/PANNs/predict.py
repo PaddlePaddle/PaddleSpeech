@@ -16,13 +16,13 @@ import argparse
 import numpy as np
 import paddle
 import paddle.nn.functional as F
-from model import SoundClassifier
-from panns import cnn14
 
 from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets import ESC50
 from paddleaudio.features import LogMelSpectrogram
 from paddleaudio.features import melspectrogram
+from paddlespeech.cls.models import cnn14
+from paddlespeech.cls.models import SoundClassifier
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

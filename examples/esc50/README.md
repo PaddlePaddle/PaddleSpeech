@@ -30,7 +30,7 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 1
 
 `paddlespeech/cls/exps/PANNs/train.py` 脚本中可支持配置的参数：
 
-- `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
+- `device`: 指定模型预测时使用的设备。
 - `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
 - `epochs`: 训练轮次，默认为50。
 - `learning_rate`: Fine-tune的学习率；默认为5e-5。
@@ -42,8 +42,8 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 1
 
 示例代码中使用的预训练模型为`CNN14`，如果想更换为其他预训练模型，可通过以下方式执行：
 ```python
-from model import SoundClassifier
-from paddlespeech.cls.datasets import ESC50
+from paddleaudio.datasets import ESC50
+from paddlespeech.cls.models import SoundClassifier
 from paddlespeech.cls.models import cnn14, cnn10, cnn6
 
 # CNN14
@@ -67,7 +67,7 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 2
 
 `paddlespeech/cls/exps/PANNs/predict.py` 脚本中可支持配置的参数：
 
-- `device`: 选用什么设备进行训练，可选cpu或gpu，默认为gpu。如使用gpu训练则参数gpus指定GPU卡号。
+- `device`: 指定模型预测时使用的设备。
 - `wav`: 指定预测的音频文件。
 - `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
 - `top_k`: 预测显示的top k标签的得分，默认为1。
@@ -88,10 +88,10 @@ Cat: 6.579841738130199e-06
 模型训练结束后，可以将已保存的动态图参数导出成静态图的模型和参数，然后实施静态图的部署。
 
 ```shell
-python -u export_model.py --checkpoint ./checkpoint/epoch_50/model.pdparams --output_dir ./export
+$ CUDA_VISIBLE_DEVICES=0 ./run.sh 3
 ```
 
-可支持配置的参数：
+`paddlespeech/cls/exps/PANNs/export_model.py` 脚本中可支持配置的参数：
 - `checkpoint`: 模型参数checkpoint文件。
 - `output_dir`: 导出静态图模型和参数文件的保存目录。
 
@@ -106,8 +106,16 @@ export
 
 #### 2. 模型部署和预测
 
-`deploy/python/predict.py` 脚本使用了`paddle.inference`模块下的api，提供了python端部署的示例：
+`paddlespeech/cls/exps/PANNs/deploy/predict.py` 脚本使用了`paddle.inference`模块下的api，提供了python端部署的示例：
 
-```sh
-python deploy/python/predict.py --model_dir ./export --device gpu
+```shell
+$ CUDA_VISIBLE_DEVICES=0 ./run.sh 3
 ```
+```sh
+python paddlespeech/cls/exps/PANNs/deploy/predict.py --model_dir ./export --device gpu
+```
+
+`paddlespeech/cls/exps/PANNs/deploy/predict.py` 脚本中可支持配置的主要参数：
+- `device`: 指定模型预测时使用的设备。
+- `model_dir`: 导出静态图模型和参数文件的保存目录。
+- `wav`: 指定预测的音频文件。

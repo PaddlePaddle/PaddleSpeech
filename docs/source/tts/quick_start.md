@@ -15,6 +15,7 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 * voc2 - MelGAN
 * voc3 - MultiBand MelGAN
 * vc0 - Tactron2 Voice Clone with GE2E
+* vc1 - FastSpeech2 Voice Clone with GE2E
 
 ## Quick Start
 

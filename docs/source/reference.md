@@ -6,7 +6,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 - Apache-2.0 License
 - python/shell `utils`
 - kaldi feat preprocessing
-- data pipe line and `transform`
+- data pipe line and `transformer`
 - some tts models, like `fastspeech2` and GAN-based `vocoder`
 
 * [wenet](https://github.com/wenet-e2e/wenet/blob/main/LICENSE)

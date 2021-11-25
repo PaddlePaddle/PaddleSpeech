@@ -15,7 +15,7 @@ jit_model_export_path=$3
 python3 -u ${BIN_DIR}/test.py \
 --model-name 'u2_kaldi' \
 --run-mode 'export' \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --checkpoint_path ${ckpt_path_prefix} \
 --export_path ${jit_model_export_path}

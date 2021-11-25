@@ -35,7 +35,7 @@ bash run.sh --stage 0 --stop_stage 0
 
 The document below will describe the scripts in the ```run.sh``` in detail.
 
-## The environment variables
+## The Environment Variables
 
 The path.sh contains the environment variable. 
 
@@ -55,7 +55,7 @@ It will support the way of using```--varibale value``` in the shell scripts.
 
 
 
-## The local variables
+## The Local Variables
 
 Some local variables are set in the ```run.sh```. 
 ```gpus``` denotes the GPU number you want to use. If you set ```gpus=```,  it means you only use CPU. 
@@ -81,7 +81,7 @@ bash run.sh --gpus 0,1 --avg_num 20
 
 
 
-## Stage 0: Data processing
+## Stage 0: Data Processing
 
 To use this example, you need to process data firstly and  you can use stage 0 in the ```run.sh``` to do this. The code is shown below:
 
@@ -127,7 +127,7 @@ data/
 
 
 
-## Stage 1: Model training
+## Stage 1: Model Training
 
 If you want to train the model. you can use stage 1 in the ```run.sh```. The code is shown below. 
 

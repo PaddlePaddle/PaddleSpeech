@@ -124,7 +124,7 @@ avg.sh best exp/deepspeech2/checkpoints 1
 ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 offline
 ```
 
-For **Text-To-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
+For **Text-to-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
 ```shell
 cd examples/csmsc/tts3
 # download the pretrained models and unaip them
@@ -150,7 +150,7 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```
 
-If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-To-Speech Quick Start](./docs/source/tts/quick_start.md).
+If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 ## Model List
 

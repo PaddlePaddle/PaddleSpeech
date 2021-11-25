@@ -7,6 +7,7 @@
 | --- | --- | --- | --- | --- | --- |  
 | transformer | 32.52 M | 8 Tesla V100-SXM2-32GB | 10-best val_loss | conf/transformer.yaml | spec_aug | 6.3197922706604 |
 
+### Attention Rescore
 
 | Test Set | Decode Method | #Snt | #Wrd | Corr | Sub | Del | Ins | Err | S.Err |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

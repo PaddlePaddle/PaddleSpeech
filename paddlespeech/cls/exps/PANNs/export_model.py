@@ -15,10 +15,10 @@ import argparse
 import os
 
 import paddle
-from model import SoundClassifier
 
-from paddlespeech.cls.datasets import ESC50
-from paddlespeech.cls.models.panns import cnn14
+from .model import SoundClassifier
+from .panns import cnn14
+from paddleaudio.datasets import ESC50
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

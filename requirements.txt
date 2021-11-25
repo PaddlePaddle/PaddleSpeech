@@ -1,4 +1,3 @@
-colorlog
 ConfigArgParse
 coverage
 distro
@@ -19,10 +18,10 @@ matplotlib
 nara_wpe
 nltk
 numba
+paddleaudio
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas
-pathos
 phkit
 Pillow
 praatio~=4.1

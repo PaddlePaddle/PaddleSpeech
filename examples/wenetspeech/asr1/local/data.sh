@@ -27,7 +27,7 @@ set -o pipefail
 
 
 mkdir -p data
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 
 if [ ${stage} -le -2 ] && [ ${stop_stage} -ge -2 ]; then

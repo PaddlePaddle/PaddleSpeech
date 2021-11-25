@@ -140,7 +140,7 @@ Pretrained models can be downloaded here [pwg_aishell3_ckpt_0.5.zip](https://pad
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss:| eval/spectral_convergence_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------:
-default| 1 gpu 400000|1.968762|0.759008|0.218524
+default| 1(gpu) x 400000|1.968762|0.759008|0.218524
 
 Parallel WaveGAN checkpoint contains files listed below.
 

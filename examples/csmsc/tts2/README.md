@@ -218,7 +218,7 @@ Static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](ht
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:
-default| 1 gpu 11400|0.83655|0.42324|0.03211| 0.38119
+default| 1(gpu) x 11400|0.83655|0.42324|0.03211| 0.38119
 
 SpeedySpeech checkpoint contains files listed below.
 ```text

@@ -120,7 +120,7 @@ class BaseEncoder(nn.Layer):
                  stochastic_depth_rate: float=0.0,
                  intermediate_layers: Union[List[int], None]=None,
                  encoder_type: str="transformer"):
-        """Construct an Bae Encoder object."""
+        """Construct an Base Encoder object."""
         super().__init__()
         activation = get_activation(activation_type)
         pos_enc_class = self.get_pos_enc_class(pos_enc_layer_type,

@@ -1,7 +1,0 @@
-.ipynb_checkpoints/**
-*.ipynb
-nohup.out
-__pycache__/
-*.wav
-*.m4a
-obsolete/**

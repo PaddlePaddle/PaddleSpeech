@@ -18,6 +18,7 @@ from .char_convert import tranditional_to_simplified
 from .chronology import RE_DATE
 from .chronology import RE_DATE2
 from .chronology import RE_TIME
+from .chronology import RE_TIME_RANGE
 from .chronology import replace_date
 from .chronology import replace_date2
 from .chronology import replace_time
@@ -40,6 +41,7 @@ from .num import replace_percentage
 from .num import replace_positive_quantifier
 from .num import replace_range
 from .phonecode import RE_MOBILE_PHONE
+from .phonecode import RE_NATIONAL_UNIFORM_NUMBER
 from .phonecode import RE_TELEPHONE
 from .phonecode import replace_mobile
 from .phonecode import replace_phone
@@ -76,12 +78,19 @@ class TextNormalizer():
         # number related NSW verbalization
         sentence = RE_DATE.sub(replace_date, sentence)
         sentence = RE_DATE2.sub(replace_date2, sentence)
+
+        # range first
+        sentence = RE_TIME_RANGE.sub(replace_time, sentence)
         sentence = RE_TIME.sub(replace_time, sentence)
+
         sentence = RE_TEMPERATURE.sub(replace_temperature, sentence)
         sentence = RE_FRAC.sub(replace_frac, sentence)
         sentence = RE_PERCENTAGE.sub(replace_percentage, sentence)
         sentence = RE_MOBILE_PHONE.sub(replace_mobile, sentence)
+
         sentence = RE_TELEPHONE.sub(replace_phone, sentence)
+        sentence = RE_NATIONAL_UNIFORM_NUMBER.sub(replace_phone, sentence)
+
         sentence = RE_RANGE.sub(replace_range, sentence)
         sentence = RE_INTEGER.sub(replace_negative_num, sentence)
         sentence = RE_DECIMAL_NUM.sub(replace_number, sentence)
@@ -94,5 +103,6 @@ class TextNormalizer():
 
     def normalize(self, text: str) -> List[str]:
         sentences = self._split(text)
+
         sentences = [self.normalize_sentence(sent) for sent in sentences]
         return sentences

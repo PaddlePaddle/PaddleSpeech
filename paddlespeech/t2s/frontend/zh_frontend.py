@@ -149,9 +149,14 @@ class Frontend():
         if word not in self.must_erhua and (word in self.not_erhua or
                                             pos in {"a", "j", "nr"}):
             return initials, finals
+        # "……" 等情况直接返回
+        if len(finals) != len(word):
+            return initials, finals
+
+        assert len(finals) == len(word)
+
         new_initials = []
         new_finals = []
-        assert len(finals) == len(word)
         for i, phn in enumerate(finals):
             if i == len(finals) - 1 and word[i] == "儿" and phn in {
                     "er2", "er5"

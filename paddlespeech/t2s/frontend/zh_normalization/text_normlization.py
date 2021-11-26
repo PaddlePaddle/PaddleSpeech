@@ -64,6 +64,8 @@ class TextNormalizer():
         List[str]
             Sentences.
         """
+        # Only for pure Chinese here
+        text = text.replace(" ", "")
         text = self.SENTENCE_SPLITOR.sub(r'\1\n', text)
         text = text.strip()
         sentences = [sentence.strip() for sentence in re.split(r'\n+', text)]

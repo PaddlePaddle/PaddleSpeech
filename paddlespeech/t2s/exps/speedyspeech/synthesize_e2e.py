@@ -42,7 +42,7 @@ def evaluate(args, speedyspeech_config, pwg_config):
         for line in f:
             items = line.strip().split()
             utt_id = items[0]
-            sentence = ",".join(items[1:])
+            sentence = "".join(items[1:])
             sentences.append((utt_id, sentence))
 
     with open(args.phones_dict, "r") as f:

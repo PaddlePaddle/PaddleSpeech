@@ -34,7 +34,7 @@ from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
 from paddlespeech.t2s.modules.transformer.decoder import Decoder
 from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
 from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncoding
-from paddlespeech.t2s.modules.transformer.encoder import Encoder
+from paddlespeech.t2s.modules.transformer.encoder import TransformerEncoder
 from paddlespeech.t2s.modules.transformer.mask import subsequent_mask
 
 
@@ -281,7 +281,7 @@ class TransformerTTS(nn.Layer):
                 num_embeddings=idim,
                 embedding_dim=adim,
                 padding_idx=self.padding_idx)
-        self.encoder = Encoder(
+        self.encoder = TransformerEncoder(
             idim=idim,
             attention_dim=adim,
             attention_heads=aheads,

@@ -25,19 +25,19 @@ class EncoderLayer(nn.Layer):
     ----------
     size : int
         Input dimension.
-    self_attn : paddle.nn.Layer
+    self_attn : nn.Layer
         Self-attention module instance.
         `MultiHeadedAttention` or `RelPositionMultiHeadedAttention` instance
         can be used as the argument.
-    feed_forward : paddle.nn.Layer
+    feed_forward : nn.Layer
         Feed-forward module instance.
         `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance
         can be used as the argument.
-    feed_forward_macaron : paddle.nn.Layer
+    feed_forward_macaron : nn.Layer
         Additional feed-forward module instance.
         `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance
         can be used as the argument.
-    conv_module : paddle.nn.Layer
+    conv_module : nn.Layer
         Convolution module instance.
         `ConvlutionModule` instance can be used as the argument.
     dropout_rate : float
@@ -67,7 +67,7 @@ class EncoderLayer(nn.Layer):
             concat_after=False,
             stochastic_depth_rate=0.0, ):
         """Construct an EncoderLayer object."""
-        super(EncoderLayer, self).__init__()
+        super().__init__()
         self.self_attn = self_attn
         self.feed_forward = feed_forward
         self.feed_forward_macaron = feed_forward_macaron

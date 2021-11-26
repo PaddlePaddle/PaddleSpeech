@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import paddle
+from paddle import nn
 
 optim_classes = dict(
     adadelta=paddle.optimizer.Adadelta,
@@ -25,7 +26,7 @@ optim_classes = dict(
     sgd=paddle.optimizer.SGD, )
 
 
-def build_optimizers(model: paddle.nn.Layer,
+def build_optimizers(model: nn.Layer,
                      optim='adadelta',
                      max_grad_norm=None,
                      learning_rate=0.01) -> paddle.optimizer:

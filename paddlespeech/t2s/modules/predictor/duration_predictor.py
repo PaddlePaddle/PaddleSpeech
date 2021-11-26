@@ -65,7 +65,7 @@ class DurationPredictor(nn.Layer):
             Offset value to avoid nan in log domain.
 
         """
-        super(DurationPredictor, self).__init__()
+        super().__init__()
         self.offset = offset
         self.conv = nn.LayerList()
         for idx in range(n_layers):
@@ -155,7 +155,7 @@ class DurationPredictorLoss(nn.Layer):
         reduction : str
             Reduction type in loss calculation.
         """
-        super(DurationPredictorLoss, self).__init__()
+        super().__init__()
         self.criterion = nn.MSELoss(reduction=reduction)
         self.offset = offset
 

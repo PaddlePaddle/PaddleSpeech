@@ -36,7 +36,7 @@ from paddlespeech.t2s.models.parallel_wavegan import PWGDiscriminator
 from paddlespeech.t2s.models.parallel_wavegan import PWGEvaluator
 from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
 from paddlespeech.t2s.models.parallel_wavegan import PWGUpdater
-from paddlespeech.t2s.modules.stft_loss import MultiResolutionSTFTLoss
+from paddlespeech.t2s.modules.losses import MultiResolutionSTFTLoss
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.seeding import seed_everything

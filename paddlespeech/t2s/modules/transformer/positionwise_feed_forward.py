@@ -14,9 +14,10 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Positionwise feed forward layer definition."""
 import paddle
+from paddle import nn
 
 
-class PositionwiseFeedForward(paddle.nn.Layer):
+class PositionwiseFeedForward(nn.Layer):
     """Positionwise feed forward layer.
 
     Parameters
@@ -35,7 +36,7 @@ class PositionwiseFeedForward(paddle.nn.Layer):
                  dropout_rate,
                  activation=paddle.nn.ReLU()):
         """Construct an PositionwiseFeedForward object."""
-        super(PositionwiseFeedForward, self).__init__()
+        super().__init__()
         self.w_1 = paddle.nn.Linear(idim, hidden_units, bias_attr=True)
         self.w_2 = paddle.nn.Linear(hidden_units, idim, bias_attr=True)
         self.dropout = paddle.nn.Dropout(dropout_rate)

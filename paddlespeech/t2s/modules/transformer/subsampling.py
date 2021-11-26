@@ -14,11 +14,12 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Subsampling layer definition."""
 import paddle
+from paddle import nn
 
 from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
 
 
-class Conv2dSubsampling(paddle.nn.Layer):
+class Conv2dSubsampling(nn.Layer):
     """Convolutional 2D subsampling (to 1/4 length).
     Parameters
     ----------
@@ -28,20 +29,20 @@ class Conv2dSubsampling(paddle.nn.Layer):
         Output dimension.
     dropout_rate : float
         Dropout rate.
-    pos_enc : paddle.nn.Layer
+    pos_enc : nn.Layer
         Custom position encoding layer.
     """
 
     def __init__(self, idim, odim, dropout_rate, pos_enc=None):
         """Construct an Conv2dSubsampling object."""
-        super(Conv2dSubsampling, self).__init__()
-        self.conv = paddle.nn.Sequential(
-            paddle.nn.Conv2D(1, odim, 3, 2),
-            paddle.nn.ReLU(),
-            paddle.nn.Conv2D(odim, odim, 3, 2),
-            paddle.nn.ReLU(), )
-        self.out = paddle.nn.Sequential(
-            paddle.nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim),
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2D(1, odim, 3, 2),
+            nn.ReLU(),
+            nn.Conv2D(odim, odim, 3, 2),
+            nn.ReLU(), )
+        self.out = nn.Sequential(
+            nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim),
             pos_enc if pos_enc is not None else
             PositionalEncoding(odim, dropout_rate), )
 

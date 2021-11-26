@@ -129,7 +129,7 @@ def initialize(model: nn.Layer, init: str):
 
     Parameters
     ----------
-    model : paddle.nn.Layer
+    model : nn.Layer
         Target.
     init : str
         Method of initialization.
@@ -150,17 +150,3 @@ def initialize(model: nn.Layer, init: str):
                                               nn.initializer.Constant())
     else:
         raise ValueError("Unknown initialization: " + init)
-
-
-def get_activation(act):
-    """Return activation function."""
-
-    activation_funcs = {
-        "hardtanh": paddle.nn.Hardtanh,
-        "tanh": paddle.nn.Tanh,
-        "relu": paddle.nn.ReLU,
-        "selu": paddle.nn.SELU,
-        "swish": paddle.nn.Swish,
-    }
-
-    return activation_funcs[act]()

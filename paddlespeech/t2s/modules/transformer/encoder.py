@@ -17,10 +17,10 @@ from typing import Union
 
 from paddle import nn
 
+from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.conformer.convolution import ConvolutionModule
 from paddlespeech.t2s.modules.conformer.encoder_layer import EncoderLayer as ConformerEncoderLayer
 from paddlespeech.t2s.modules.layer_norm import LayerNorm
-from paddlespeech.t2s.modules.nets_utils import get_activation
 from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
 from paddlespeech.t2s.modules.transformer.attention import RelPositionMultiHeadedAttention
 from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
@@ -34,8 +34,8 @@ from paddlespeech.t2s.modules.transformer.repeat import repeat
 from paddlespeech.t2s.modules.transformer.subsampling import Conv2dSubsampling
 
 
-class Encoder(nn.Layer):
-    """Transformer encoder module.
+class BaseEncoder(nn.Layer):
+    """Base Encoder module.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ class Encoder(nn.Layer):
         Dropout rate after adding positional encoding.
     attention_dropout_rate : float
         Dropout rate in attention.
-    input_layer : Union[str, paddle.nn.Layer]
+    input_layer : Union[str, nn.Layer]
         Input layer type.
     normalize_before : bool
         Whether to use layer_norm before the first block.
@@ -120,7 +120,7 @@ class Encoder(nn.Layer):
                  stochastic_depth_rate: float=0.0,
                  intermediate_layers: Union[List[int], None]=None,
                  encoder_type: str="transformer"):
-        """Construct an Encoder object."""
+        """Construct an Bae Encoder object."""
         super().__init__()
         activation = get_activation(activation_type)
         pos_enc_class = self.get_pos_enc_class(pos_enc_layer_type,
@@ -264,7 +264,6 @@ class Encoder(nn.Layer):
                 nn.Dropout(dropout_rate),
                 nn.ReLU(),
                 pos_enc_class(attention_dim, positional_dropout_rate), )
-
         elif input_layer == "conv2d":
             embed = Conv2dSubsampling(
                 idim,
@@ -305,46 +304,118 @@ class Encoder(nn.Layer):
         paddle.Tensor
             Mask tensor (#batch, 1, time).
         """
-        if self.encoder_type == "transformer":
-            xs = self.embed(xs)
-            xs, masks = self.encoders(xs, masks)
-            if self.normalize_before:
-                xs = self.after_norm(xs)
-            return xs, masks
-        elif self.encoder_type == "conformer":
-            if isinstance(self.embed, (Conv2dSubsampling)):
-                xs, masks = self.embed(xs, masks)
-            else:
-                xs = self.embed(xs)
+        xs = self.embed(xs)
+        xs, masks = self.encoders(xs, masks)
+        if self.normalize_before:
+            xs = self.after_norm(xs)
+        return xs, masks
 
-            if self.intermediate_layers is None:
-                xs, masks = self.encoders(xs, masks)
-            else:
-                intermediate_outputs = []
-                for layer_idx, encoder_layer in enumerate(self.encoders):
-                    xs, masks = encoder_layer(xs, masks)
 
-                    if (self.intermediate_layers is not None and
-                            layer_idx + 1 in self.intermediate_layers):
-                        # intermediate branches also require normalization.
-                        encoder_output = xs
-                        if isinstance(encoder_output, tuple):
-                            encoder_output = encoder_output[0]
-                            if self.normalize_before:
-                                encoder_output = self.after_norm(encoder_output)
-                        intermediate_outputs.append(encoder_output)
+class TransformerEncoder(BaseEncoder):
+    """Transformer encoder module.
+    Parameters
+    ----------
+    idim : int
+        Input dimension.
+    attention_dim : int
+        Dimention of attention.
+    attention_heads : int
+        The number of heads of multi head attention.
+    linear_units : int
+        The number of units of position-wise feed forward.
+    num_blocks : int
+        The number of decoder blocks.
+    dropout_rate : float
+        Dropout rate.
+    positional_dropout_rate : float
+        Dropout rate after adding positional encoding.
+    attention_dropout_rate : float
+        Dropout rate in attention.
+    input_layer : Union[str, paddle.nn.Layer]
+        Input layer type.
+    pos_enc_layer_type : str
+        Encoder positional encoding layer type.
+    normalize_before : bool
+        Whether to use layer_norm before the first block.
+    concat_after : bool
+        Whether to concat attention layer's input and output.
+        if True, additional linear will be applied.
+        i.e. x -> x + linear(concat(x, att(x)))
+        if False, no additional linear will be applied. i.e. x -> x + att(x)
+    positionwise_layer_type : str
+        "linear", "conv1d", or "conv1d-linear".
+    positionwise_conv_kernel_size : int
+        Kernel size of positionwise conv1d layer.
+    selfattention_layer_type : str
+        Encoder attention layer type.
+    activation_type : str
+        Encoder activation function type.
+    padding_idx : int
+        Padding idx for input_layer=embed.
+    """
 
-            if isinstance(xs, tuple):
-                xs = xs[0]
+    def __init__(
+            self,
+            idim,
+            attention_dim: int=256,
+            attention_heads: int=4,
+            linear_units: int=2048,
+            num_blocks: int=6,
+            dropout_rate: float=0.1,
+            positional_dropout_rate: float=0.1,
+            attention_dropout_rate: float=0.0,
+            input_layer: str="conv2d",
+            pos_enc_layer_type: str="abs_pos",
+            normalize_before: bool=True,
+            concat_after: bool=False,
+            positionwise_layer_type: str="linear",
+            positionwise_conv_kernel_size: int=1,
+            selfattention_layer_type: str="selfattn",
+            activation_type: str="relu",
+            padding_idx: int=-1, ):
+        """Construct an Transformer Encoder object."""
+        super().__init__(
+            idim,
+            attention_dim=attention_dim,
+            attention_heads=attention_heads,
+            linear_units=linear_units,
+            num_blocks=num_blocks,
+            dropout_rate=dropout_rate,
+            positional_dropout_rate=positional_dropout_rate,
+            attention_dropout_rate=attention_dropout_rate,
+            input_layer=input_layer,
+            pos_enc_layer_type=pos_enc_layer_type,
+            normalize_before=normalize_before,
+            concat_after=concat_after,
+            positionwise_layer_type=positionwise_layer_type,
+            positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+            selfattention_layer_type=selfattention_layer_type,
+            activation_type=activation_type,
+            padding_idx=padding_idx,
+            encoder_type="transformer")
 
-            if self.normalize_before:
-                xs = self.after_norm(xs)
+    def forward(self, xs, masks):
+        """Encode input sequence.
 
-            if self.intermediate_layers is not None:
-                return xs, masks, intermediate_outputs
-            return xs, masks
-        else:
-            raise ValueError(f"{self.encoder_type} is not supported.")
+        Parameters
+        ----------
+        xs : paddle.Tensor
+            Input tensor (#batch, time, idim).
+        masks : paddle.Tensor
+            Mask tensor (#batch, 1, time).
+
+        Returns
+        ----------
+        paddle.Tensor
+            Output tensor (#batch, time, attention_dim).
+        paddle.Tensor
+            Mask tensor (#batch, 1, time).
+        """
+        xs = self.embed(xs)
+        xs, masks = self.encoders(xs, masks)
+        if self.normalize_before:
+            xs = self.after_norm(xs)
+        return xs, masks
 
     def forward_one_step(self, xs, masks, cache=None):
         """Encode input frame.
@@ -378,3 +449,161 @@ class Encoder(nn.Layer):
         if self.normalize_before:
             xs = self.after_norm(xs)
         return xs, masks, new_cache
+
+
+class ConformerEncoder(BaseEncoder):
+    """Conformer encoder module.
+    Parameters
+    ----------
+    idim : int
+        Input dimension.
+    attention_dim : int
+        Dimention of attention.
+    attention_heads : int
+        The number of heads of multi head attention.
+    linear_units : int
+        The number of units of position-wise feed forward.
+    num_blocks : int
+        The number of decoder blocks.
+    dropout_rate : float
+        Dropout rate.
+    positional_dropout_rate : float
+        Dropout rate after adding positional encoding.
+    attention_dropout_rate : float
+        Dropout rate in attention.
+    input_layer : Union[str, nn.Layer]
+        Input layer type.
+    normalize_before : bool
+        Whether to use layer_norm before the first block.
+    concat_after : bool
+        Whether to concat attention layer's input and output.
+        if True, additional linear will be applied.
+        i.e. x -> x + linear(concat(x, att(x)))
+        if False, no additional linear will be applied. i.e. x -> x + att(x)
+    positionwise_layer_type : str
+        "linear", "conv1d", or "conv1d-linear".
+    positionwise_conv_kernel_size : int
+        Kernel size of positionwise conv1d layer.
+    macaron_style : bool
+        Whether to use macaron style for positionwise layer.
+    pos_enc_layer_type : str
+        Encoder positional encoding layer type.
+    selfattention_layer_type : str
+        Encoder attention layer type.
+    activation_type : str
+        Encoder activation function type.
+    use_cnn_module : bool
+        Whether to use convolution module.
+    zero_triu : bool
+        Whether to zero the upper triangular part of attention matrix.
+    cnn_module_kernel : int
+        Kernerl size of convolution module.
+    padding_idx : int
+        Padding idx for input_layer=embed.
+    stochastic_depth_rate : float
+        Maximum probability to skip the encoder layer.
+    intermediate_layers : Union[List[int], None]
+        indices of intermediate CTC layer.
+        indices start from 1.
+        if not None, intermediate outputs are returned (which changes return type
+        signature.)
+    """
+
+    def __init__(
+            self,
+            idim: int,
+            attention_dim: int=256,
+            attention_heads: int=4,
+            linear_units: int=2048,
+            num_blocks: int=6,
+            dropout_rate: float=0.1,
+            positional_dropout_rate: float=0.1,
+            attention_dropout_rate: float=0.0,
+            input_layer: str="conv2d",
+            normalize_before: bool=True,
+            concat_after: bool=False,
+            positionwise_layer_type: str="linear",
+            positionwise_conv_kernel_size: int=1,
+            macaron_style: bool=False,
+            pos_enc_layer_type: str="rel_pos",
+            selfattention_layer_type: str="rel_selfattn",
+            activation_type: str="swish",
+            use_cnn_module: bool=False,
+            zero_triu: bool=False,
+            cnn_module_kernel: int=31,
+            padding_idx: int=-1,
+            stochastic_depth_rate: float=0.0,
+            intermediate_layers: Union[List[int], None]=None, ):
+        """Construct an Conformer Encoder object."""
+        super().__init__(
+            idim=idim,
+            attention_dim=attention_dim,
+            attention_heads=attention_heads,
+            linear_units=linear_units,
+            num_blocks=num_blocks,
+            dropout_rate=dropout_rate,
+            positional_dropout_rate=positional_dropout_rate,
+            attention_dropout_rate=attention_dropout_rate,
+            input_layer=input_layer,
+            normalize_before=normalize_before,
+            concat_after=concat_after,
+            positionwise_layer_type=positionwise_layer_type,
+            positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+            macaron_style=macaron_style,
+            pos_enc_layer_type=pos_enc_layer_type,
+            selfattention_layer_type=selfattention_layer_type,
+            activation_type=activation_type,
+            use_cnn_module=use_cnn_module,
+            zero_triu=zero_triu,
+            cnn_module_kernel=cnn_module_kernel,
+            padding_idx=padding_idx,
+            stochastic_depth_rate=stochastic_depth_rate,
+            intermediate_layers=intermediate_layers,
+            encoder_type="conformer")
+
+    def forward(self, xs, masks):
+        """Encode input sequence.
+        Parameters
+        ----------
+        xs : paddle.Tensor
+            Input tensor (#batch, time, idim).
+        masks : paddle.Tensor
+            Mask tensor (#batch, 1, time).
+        Returns
+        ----------
+        paddle.Tensor
+            Output tensor (#batch, time, attention_dim).
+        paddle.Tensor
+            Mask tensor (#batch, 1, time).
+        """
+        if isinstance(self.embed, (Conv2dSubsampling)):
+            xs, masks = self.embed(xs, masks)
+        else:
+            xs = self.embed(xs)
+
+        if self.intermediate_layers is None:
+            xs, masks = self.encoders(xs, masks)
+        else:
+            intermediate_outputs = []
+            for layer_idx, encoder_layer in enumerate(self.encoders):
+                xs, masks = encoder_layer(xs, masks)
+
+                if (self.intermediate_layers is not None and
+                        layer_idx + 1 in self.intermediate_layers):
+                    # intermediate branches also require normalization.
+                    encoder_output = xs
+                    if isinstance(encoder_output, tuple):
+                        encoder_output = encoder_output[0]
+                        if self.normalize_before:
+                            encoder_output = self.after_norm(encoder_output)
+                    intermediate_outputs.append(encoder_output)
+
+        if isinstance(xs, tuple):
+            xs = xs[0]
+
+        if self.normalize_before:
+            xs = self.after_norm(xs)
+
+        if self.intermediate_layers is not None:
+            return xs, masks, intermediate_outputs
+        return xs, masks

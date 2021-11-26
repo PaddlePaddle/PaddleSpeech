@@ -26,13 +26,13 @@ class DecoderLayer(nn.Layer):
     ----------
     size : int
         Input dimension.
-    self_attn : paddle.nn.Layer
+    self_attn : nn.Layer
         Self-attention module instance.
         `MultiHeadedAttention` instance can be used as the argument.
-    src_attn : paddle.nn.Layer
+    src_attn : nn.Layer
         Self-attention module instance.
         `MultiHeadedAttention` instance can be used as the argument.
-    feed_forward : paddle.nn.Layer
+    feed_forward : nn.Layer
         Feed-forward module instance.
         `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance can be used as the argument.
     dropout_rate : float

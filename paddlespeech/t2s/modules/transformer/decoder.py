@@ -67,11 +67,11 @@ class Decoder(nn.Layer):
         Dropout rate in self-attention.
     src_attention_dropout_rate : float
         Dropout rate in source-attention.
-    input_layer : (Union[str, paddle.nn.Layer])
+    input_layer : (Union[str, nn.Layer])
         Input layer type.
     use_output_layer : bool
         Whether to use output layer.
-    pos_enc_class : paddle.nn.Layer
+    pos_enc_class : nn.Layer
         Positional encoding module class.
         `PositionalEncoding `or `ScaledPositionalEncoding`
     normalize_before : bool
@@ -122,8 +122,7 @@ class Decoder(nn.Layer):
                 input_layer,
                 pos_enc_class(attention_dim, positional_dropout_rate))
         else:
-            raise NotImplementedError(
-                "only `embed` or paddle.nn.Layer is supported.")
+            raise NotImplementedError("only `embed` or nn.Layer is supported.")
         self.normalize_before = normalize_before
 
         # self-attention module definition

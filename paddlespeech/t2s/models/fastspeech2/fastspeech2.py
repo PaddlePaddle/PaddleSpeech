@@ -32,7 +32,8 @@ from paddlespeech.t2s.modules.predictor.duration_predictor import DurationPredic
 from paddlespeech.t2s.modules.predictor.length_regulator import LengthRegulator
 from paddlespeech.t2s.modules.predictor.variance_predictor import VariancePredictor
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
-from paddlespeech.t2s.modules.transformer.encoder import Encoder
+from paddlespeech.t2s.modules.transformer.encoder import ConformerEncoder
+from paddlespeech.t2s.modules.transformer.encoder import TransformerEncoder
 
 
 class FastSpeech2(nn.Layer):
@@ -306,12 +307,10 @@ class FastSpeech2(nn.Layer):
             num_embeddings=idim,
             embedding_dim=adim,
             padding_idx=self.padding_idx)
-        # add encoder type here
-        # 测试模型还能跑通不
-        # 记得改 transformer tts
+            
         if encoder_type == "transformer":
             print("encoder_type is transformer")
-            self.encoder = Encoder(
+            self.encoder = TransformerEncoder(
                 idim=idim,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -325,11 +324,10 @@ class FastSpeech2(nn.Layer):
                 normalize_before=encoder_normalize_before,
                 concat_after=encoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
-                encoder_type=encoder_type)
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
         elif encoder_type == "conformer":
             print("encoder_type is conformer")
-            self.encoder = Encoder(
+            self.encoder = ConformerEncoder(
                 idim=idim,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -349,8 +347,7 @@ class FastSpeech2(nn.Layer):
                 activation_type=conformer_activation_type,
                 use_cnn_module=use_cnn_in_conformer,
                 cnn_module_kernel=conformer_enc_kernel_size,
-                zero_triu=zero_triu,
-                encoder_type=encoder_type)
+                zero_triu=zero_triu, )
         else:
             raise ValueError(f"{encoder_type} is not supported.")
 
@@ -417,7 +414,7 @@ class FastSpeech2(nn.Layer):
         # because fastspeech's decoder is the same as encoder
         if decoder_type == "transformer":
             print("decoder_type is transformer")
-            self.decoder = Encoder(
+            self.decoder = TransformerEncoder(
                 idim=0,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -432,11 +429,10 @@ class FastSpeech2(nn.Layer):
                 normalize_before=decoder_normalize_before,
                 concat_after=decoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
-                encoder_type=decoder_type)
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
         elif decoder_type == "conformer":
             print("decoder_type is conformer")
-            self.decoder = Encoder(
+            self.decoder = ConformerEncoder(
                 idim=0,
                 attention_dim=adim,
                 attention_heads=aheads,
@@ -455,8 +451,7 @@ class FastSpeech2(nn.Layer):
                 selfattention_layer_type=conformer_self_attn_layer_type,
                 activation_type=conformer_activation_type,
                 use_cnn_module=use_cnn_in_conformer,
-                cnn_module_kernel=conformer_dec_kernel_size,
-                encoder_type=decoder_type)
+                cnn_module_kernel=conformer_dec_kernel_size, )
         else:
             raise ValueError(f"{decoder_type} is not supported.")
 

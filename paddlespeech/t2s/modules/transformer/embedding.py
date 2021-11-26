@@ -43,7 +43,7 @@ class PositionalEncoding(nn.Layer):
                  dtype="float32",
                  reverse=False):
         """Construct an PositionalEncoding object."""
-        super(PositionalEncoding, self).__init__()
+        super().__init__()
         self.d_model = d_model
         self.reverse = reverse
         self.xscale = math.sqrt(self.d_model)
@@ -117,7 +117,7 @@ class ScaledPositionalEncoding(PositionalEncoding):
         self.alpha = paddle.create_parameter(
             shape=x.shape,
             dtype=self.dtype,
-            default_initializer=paddle.nn.initializer.Assign(x))
+            default_initializer=nn.initializer.Assign(x))
 
     def reset_parameters(self):
         """Reset parameters."""
@@ -141,7 +141,7 @@ class ScaledPositionalEncoding(PositionalEncoding):
         return self.dropout(x)
 
 
-class RelPositionalEncoding(paddle.nn.Layer):
+class RelPositionalEncoding(nn.Layer):
     """Relative positional encoding module (new implementation).
     Details can be found in https://github.com/espnet/espnet/pull/2816.
     See : Appendix B in https://arxiv.org/abs/1901.02860
@@ -157,10 +157,10 @@ class RelPositionalEncoding(paddle.nn.Layer):
 
     def __init__(self, d_model, dropout_rate, max_len=5000, dtype="float32"):
         """Construct an PositionalEncoding object."""
-        super(RelPositionalEncoding, self).__init__()
+        super().__init__()
         self.d_model = d_model
         self.xscale = math.sqrt(self.d_model)
-        self.dropout = paddle.nn.Dropout(p=dropout_rate)
+        self.dropout = nn.Dropout(p=dropout_rate)
         self.pe = None
         self.dtype = dtype
         self.extend_pe(paddle.expand(paddle.zeros([1]), (1, max_len)))

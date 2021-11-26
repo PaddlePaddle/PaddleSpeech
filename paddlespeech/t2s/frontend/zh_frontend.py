@@ -129,6 +129,8 @@ class Frontend():
                 # we discriminate i, ii and iii
                 if c and c not in self.punc:
                     phones.append(c)
+                if c and c in self.punc:
+                    phones.append('sp')
                 if v and v not in self.punc:
                     phones.append(v)
             # add sp between sentence (replace the last punc with sp)

@@ -51,7 +51,7 @@ def default_argument_parser(parser=None):
 
     The ``--checkpoint_path`` specifies the checkpoint to load from.
 
-    The ``--nprocs`` specifies how to run the training.
+    The ``--ngpu`` specifies how to run the training.
 
 
     See Also
@@ -78,7 +78,7 @@ def default_argument_parser(parser=None):
         help="seed to use for paddle, np and random. None or 0 for random, else set seed."
     )
     train_group.add_argument(
-        "--nprocs",
+        "--ngpu",
         type=int,
         default=1,
         help="number of parallel processes. 0 for cpu.")

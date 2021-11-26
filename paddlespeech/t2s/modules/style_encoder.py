@@ -19,7 +19,7 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
 
 
 class StyleEncoder(nn.Layer):
@@ -74,7 +74,7 @@ class StyleEncoder(nn.Layer):
             gru_units: int=128, ):
         """Initilize global style encoder module."""
         assert check_argument_types()
-        super(StyleEncoder, self).__init__()
+        super().__init__()
 
         self.ref_enc = ReferenceEncoder(
             idim=idim,
@@ -93,11 +93,15 @@ class StyleEncoder(nn.Layer):
     def forward(self, speech: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
 
-        Args:
-            speech (Tensor): Batch of padded target features (B, Lmax, odim).
+        Parameters
+        ----------
+        speech : Tensor
+            Batch of padded target features (B, Lmax, odim).
 
-        Returns:
-            Tensor: Style token embeddings (B, token_dim).
+        Returns
+        ----------
+        Tensor:
+            Style token embeddings (B, token_dim).
 
         """
         ref_embs = self.ref_enc(speech)
@@ -145,7 +149,7 @@ class ReferenceEncoder(nn.Layer):
             gru_units: int=128, ):
         """Initilize reference encoder module."""
         assert check_argument_types()
-        super(ReferenceEncoder, self).__init__()
+        super().__init__()
 
         # check hyperparameters are valid
         assert conv_kernel_size % 2 == 1, "kernel size must be odd."
@@ -249,7 +253,7 @@ class StyleTokenLayer(nn.Layer):
             dropout_rate: float=0.0, ):
         """Initilize style token layer module."""
         assert check_argument_types()
-        super(StyleTokenLayer, self).__init__()
+        super().__init__()
 
         gst_embs = paddle.randn(shape=[gst_tokens, gst_token_dim // gst_heads])
         self.gst_embs = paddle.create_parameter(

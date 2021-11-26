@@ -9,7 +9,7 @@ lmtype=srilm
 
 source utils/parse_options.sh
 
-data=${MAIN_ROOT}/examples/dataset/${corpus}
+data=${MAIN_ROOT}/dataset/${corpus}
 lexicon=$data/resource_aishell/lexicon.txt
 text=$data/data_aishell/transcript/aishell_transcript_v0.8.txt
 

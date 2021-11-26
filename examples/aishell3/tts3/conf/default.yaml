@@ -45,7 +45,6 @@ model:
     postnet_layers: 5                 # number of layers of postnset
     postnet_filts: 5                  # filter size of conv layers in postnet
     postnet_chans: 256                # number of channels of conv layers in postnet
-    use_masking: True                 # whether to apply masking for padded part in loss calculation
     use_scaled_pos_enc: True          # whether to use scaled positional encoding
     encoder_normalize_before: True    # whether to perform layer normalization before the input
     decoder_normalize_before: True    # whether to perform layer normalization before the input

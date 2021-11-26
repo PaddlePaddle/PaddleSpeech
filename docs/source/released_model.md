@@ -1,16 +1,18 @@
 # Released Models
 
 ## Speech-to-Text Models
+
 ### Acoustic Model Released in paddle 2.X
 Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech | example link
 :-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :--------- | :-----------
-[Ds2 Online Aishell ASR0 Model](https://deepspeech.bj.bcebos.com/release2.2/aishell/s0/ds2_online_aishll_CER8.02_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080218 |-| 151 h | [D2 Online Aishell S0 Example](../../examples/aishell/asr0)
-[Ds2 Offline Aishell ASR0 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s0/aishell.s0.ds2.offline.cer6p65.release.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.065 |-| 151 h | [Ds2 Offline Aishell S0 Example](../../examples/aishell/asr0)
+[Ds2 Online Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080 |-| 151 h | [D2 Online Aishell S0 Example](../../examples/aishell/asr0)
+[Ds2 Offline Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.064 |-| 151 h | [Ds2 Offline Aishell S0 Example](../../examples/aishell/asr0)
 [Conformer Online Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0594 |-| 151 h | [Conformer Online Aishell S1 Example](../../examples/aishell/s1)
 [Conformer Offline Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0547 |-| 151 h | [Conformer Offline Aishell S1 Example](../../examples/aishell/s1)
 [Conformer Librispeech ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | subword-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0325 | 960 h | [Conformer Librispeech S1 example](../../example/librispeech/s1)
-[Transformer Librispeech ASR1 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s1/librispeech.s1.transformer.all.wer5p62.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0456 | 960 h | [Transformer Librispeech S1 example](../../example/librispeech/s1)
-[Transformer Librispeech ASR2 Model](https://deepspeech.bj.bcebos.com/release2.2/librispeech/s2/libri_transformer_espnet_wer3p84.release.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention |-| 0.0384 | 960 h | [Transformer Librispeech S2 example](../../example/librispeech/s2)
+[Transformer Librispeech ASR1 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0410 | 960 h | [Transformer Librispeech S1 example](../../example/librispeech/s1)
+[Transformer Librispeech ASR2 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: JoinCTC w/ LM |-| 0.024 | 960 h | [Transformer Librispeech S2 example](../../example/librispeech/s2)
+
 
 ### Acoustic Model Transformed from paddle 1.8
 Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
@@ -20,14 +22,15 @@ Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER |
 [Ds2 Offline Baidu en8k model](https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz)|Baidu Internal English Dataset| Word-based| 273 MB| 2 Conv + 3 bidirectional GRU layers |-| 0.0541 | 8628 h|
 
 ### Language Model Released
-
 Language Model | Training Data | Token-based | Size | Descriptions
 :-------------:| :------------:| :-----: | -----: | :-----------------
 [English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
 [Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
 [Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
 
+
 ## Text-to-Speech Models
+
 ### Acoustic Models
 Model Type | Dataset| Example Link | Pretrained Models|Static Models|Siize(static)
 :-------------:| :------------:| :-----: | :-----:| :-----:| :-----:
@@ -40,7 +43,6 @@ FastSpeech2| LJSpeech |[fastspeech2-ljspeech](https://github.com/PaddlePaddle/Pa
 FastSpeech2| VCTK |[fastspeech2-csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/tts3)|[fastspeech2_nosil_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_vctk_ckpt_0.5.zip)|||
 
 ### Vocoders
-
 Model Type | Dataset| Example Link | Pretrained Models| Static Models|Size(static)
 :-------------:| :------------:| :-----: | :-----:| :-----:| :-----:
 WaveFlow| LJSpeech |[waveflow-ljspeech](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0)|[waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip)|||

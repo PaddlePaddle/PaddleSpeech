@@ -78,7 +78,7 @@ class MelGANGenerator(nn.Layer):
             Padding function module name before dilated convolution layer.
         pad_params : dict
             Hyperparameters for padding function.
-        use_final_nonlinear_activation : paddle.nn.Layer
+        use_final_nonlinear_activation : nn.Layer
             Activation function for the final layer.
         use_weight_norm : bool
             Whether to use weight norm.

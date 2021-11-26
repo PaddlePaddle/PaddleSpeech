@@ -19,7 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 python3 -u ${BIN_DIR}/test_export.py \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --result_file ${jit_model_export_path}.rsl \
 --export_path ${jit_model_export_path} \

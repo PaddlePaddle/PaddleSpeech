@@ -36,10 +36,10 @@ from paddlespeech.t2s.models.melgan import MBMelGANEvaluator
 from paddlespeech.t2s.models.melgan import MBMelGANUpdater
 from paddlespeech.t2s.models.melgan import MelGANGenerator
 from paddlespeech.t2s.models.melgan import MelGANMultiScaleDiscriminator
-from paddlespeech.t2s.modules.adversarial_loss import DiscriminatorAdversarialLoss
-from paddlespeech.t2s.modules.adversarial_loss import GeneratorAdversarialLoss
+from paddlespeech.t2s.modules.losses import DiscriminatorAdversarialLoss
+from paddlespeech.t2s.modules.losses import GeneratorAdversarialLoss
+from paddlespeech.t2s.modules.losses import MultiResolutionSTFTLoss
 from paddlespeech.t2s.modules.pqmf import PQMF
-from paddlespeech.t2s.modules.stft_loss import MultiResolutionSTFTLoss
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.seeding import seed_everything

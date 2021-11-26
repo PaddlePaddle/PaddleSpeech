@@ -84,7 +84,7 @@ class Conv1dCell(nn.Conv1D):
         _kernel_size = kernel_size[0] if isinstance(kernel_size, (
             tuple, list)) else kernel_size
         self._r = 1 + (_kernel_size - 1) * _dilation
-        super(Conv1dCell, self).__init__(
+        super().__init__(
             in_channels,
             out_channels,
             kernel_size,
@@ -226,7 +226,7 @@ class Conv1dBatchNorm(nn.Layer):
                  data_format="NCL",
                  momentum=0.9,
                  epsilon=1e-05):
-        super(Conv1dBatchNorm, self).__init__()
+        super().__init__()
         self.conv = nn.Conv1D(
             in_channels,
             out_channels,

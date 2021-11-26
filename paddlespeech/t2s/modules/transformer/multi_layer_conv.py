@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Layer modules for FFT block in FastSpeech (Feed-forward Transformer)."""
-import paddle
+from paddle import nn
 
 
-class MultiLayeredConv1d(paddle.nn.Layer):
+class MultiLayeredConv1d(nn.Layer):
     """Multi-layered conv1d for Transformer block.
 
     This is a module of multi-leyered conv1d designed
@@ -43,21 +43,21 @@ class MultiLayeredConv1d(paddle.nn.Layer):
             Dropout rate.
 
         """
-        super(MultiLayeredConv1d, self).__init__()
-        self.w_1 = paddle.nn.Conv1D(
+        super().__init__()
+        self.w_1 = nn.Conv1D(
             in_chans,
             hidden_chans,
             kernel_size,
             stride=1,
             padding=(kernel_size - 1) // 2, )
-        self.w_2 = paddle.nn.Conv1D(
+        self.w_2 = nn.Conv1D(
             hidden_chans,
             in_chans,
             kernel_size,
             stride=1,
             padding=(kernel_size - 1) // 2, )
-        self.dropout = paddle.nn.Dropout(dropout_rate)
-        self.relu = paddle.nn.ReLU()
+        self.dropout = nn.Dropout(dropout_rate)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         """Calculate forward propagation.
@@ -77,7 +77,7 @@ class MultiLayeredConv1d(paddle.nn.Layer):
             [0, 2, 1])
 
 
-class Conv1dLinear(paddle.nn.Layer):
+class Conv1dLinear(nn.Layer):
     """Conv1D + Linear for Transformer block.
 
     A variant of MultiLayeredConv1d, which replaces second conv-layer to linear.
@@ -98,16 +98,16 @@ class Conv1dLinear(paddle.nn.Layer):
         dropout_rate : float
             Dropout rate.
         """
-        super(Conv1dLinear, self).__init__()
-        self.w_1 = paddle.nn.Conv1D(
+        super().__init__()
+        self.w_1 = nn.Conv1D(
             in_chans,
             hidden_chans,
             kernel_size,
             stride=1,
             padding=(kernel_size - 1) // 2, )
-        self.w_2 = paddle.nn.Linear(hidden_chans, in_chans, bias_attr=True)
-        self.dropout = paddle.nn.Dropout(dropout_rate)
-        self.relu = paddle.nn.ReLU()
+        self.w_2 = nn.Linear(hidden_chans, in_chans, bias_attr=True)
+        self.dropout = nn.Dropout(dropout_rate)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         """Calculate forward propagation.

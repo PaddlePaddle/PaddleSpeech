@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .fastspeech2 import *
+from .melgan import *
+from .parallel_wavegan import *
 from .tacotron2 import *
 from .transformer_tts import *
 from .waveflow import *

@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import paddle
+import paddle.nn.functional as F
 from paddle import nn
-from paddle.nn import functional as F
 
 
 class GLU(nn.Layer):
@@ -24,3 +25,18 @@ class GLU(nn.Layer):
 
     def forward(self, xs):
         return F.glu(xs, axis=self.dim)
+
+
+def get_activation(act):
+    """Return activation function."""
+
+    activation_funcs = {
+        "hardtanh": paddle.nn.Hardtanh,
+        "tanh": paddle.nn.Tanh,
+        "relu": paddle.nn.ReLU,
+        "selu": paddle.nn.SELU,
+        "swish": paddle.nn.Swish,
+        "glu": GLU
+    }
+
+    return activation_funcs[act]()

@@ -19,8 +19,8 @@ from paddle.fluid.layers import huber_loss
 from paddle.nn import functional as F
 
 from paddlespeech.t2s.modules.losses import masked_l1_loss
+from paddlespeech.t2s.modules.losses import ssim
 from paddlespeech.t2s.modules.losses import weighted_mean
-from paddlespeech.t2s.modules.ssim import ssim
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater

@@ -18,7 +18,7 @@ import paddle
 import paddle.nn.functional as F
 from paddle import nn
 
-from paddlespeech.t2s.modules.glu import GLU
+from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.masked_fill import masked_fill
 
 MIN_VALUE = float(numpy.finfo(numpy.float32).min)
@@ -56,7 +56,7 @@ class LightweightConvolution(nn.Layer):
             use_kernel_mask=False,
             use_bias=False, ):
         """Construct Lightweight Convolution layer."""
-        super(LightweightConvolution, self).__init__()
+        super().__init__()
 
         assert n_feat % wshare == 0
         self.wshare = wshare
@@ -68,7 +68,7 @@ class LightweightConvolution(nn.Layer):
         # linear -> GLU -> lightconv -> linear
         self.linear1 = nn.Linear(n_feat, n_feat * 2)
         self.linear2 = nn.Linear(n_feat, n_feat)
-        self.act = GLU()
+        self.act = get_activation("glu")
 
         # lightconv related
         self.uniform_ = nn.initializer.Uniform()

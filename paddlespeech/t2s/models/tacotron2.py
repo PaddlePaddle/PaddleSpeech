@@ -20,12 +20,104 @@ from paddle.nn import functional as F
 from paddle.nn import initializer as I
 from tqdm import trange
 
-from paddlespeech.t2s.modules.attention import LocationSensitiveAttention
 from paddlespeech.t2s.modules.conv import Conv1dBatchNorm
 from paddlespeech.t2s.modules.losses import guided_attention_loss
 from paddlespeech.t2s.utils import checkpoint
 
 __all__ = ["Tacotron2", "Tacotron2Loss"]
+
+
+class LocationSensitiveAttention(nn.Layer):
+    """Location Sensitive Attention module.
+
+    Reference: `Attention-Based Models for Speech Recognition <https://arxiv.org/pdf/1506.07503.pdf>`_
+
+    Parameters
+    -----------
+    d_query: int
+        The feature size of query.
+    d_key : int
+        The feature size of key.
+    d_attention : int
+        The feature size of dimension.
+    location_filters : int
+        Filter size of attention convolution.
+    location_kernel_size : int
+        Kernel size of attention convolution.
+    """
+
+    def __init__(self,
+                 d_query: int,
+                 d_key: int,
+                 d_attention: int,
+                 location_filters: int,
+                 location_kernel_size: int):
+        super().__init__()
+
+        self.query_layer = nn.Linear(d_query, d_attention, bias_attr=False)
+        self.key_layer = nn.Linear(d_key, d_attention, bias_attr=False)
+        self.value = nn.Linear(d_attention, 1, bias_attr=False)
+
+        # Location Layer
+        self.location_conv = nn.Conv1D(
+            2,
+            location_filters,
+            kernel_size=location_kernel_size,
+            padding=int((location_kernel_size - 1) / 2),
+            bias_attr=False,
+            data_format='NLC')
+        self.location_layer = nn.Linear(
+            location_filters, d_attention, bias_attr=False)
+
+    def forward(self,
+                query,
+                processed_key,
+                value,
+                attention_weights_cat,
+                mask=None):
+        """Compute context vector and attention weights.
+        
+        Parameters
+        -----------
+        query : Tensor [shape=(batch_size, d_query)]
+            The queries.
+        processed_key : Tensor [shape=(batch_size, time_steps_k, d_attention)]
+            The keys after linear layer.
+        value : Tensor [shape=(batch_size, time_steps_k, d_key)]
+            The values.
+        attention_weights_cat : Tensor [shape=(batch_size, time_step_k, 2)]
+            Attention weights concat.
+        mask : Tensor, optional
+            The mask. Shape should be (batch_size, times_steps_k, 1).
+            Defaults to None.
+
+        Returns
+        ----------
+        attention_context : Tensor [shape=(batch_size, d_attention)]
+            The context vector.
+        attention_weights : Tensor [shape=(batch_size, time_steps_k)]
+            The attention weights.
+        """
+
+        processed_query = self.query_layer(paddle.unsqueeze(query, axis=[1]))
+        processed_attention_weights = self.location_layer(
+            self.location_conv(attention_weights_cat))
+        # (B, T_enc, 1)
+        alignment = self.value(
+            paddle.tanh(processed_attention_weights + processed_key +
+                        processed_query))
+
+        if mask is not None:
+            alignment = alignment + (1.0 - mask) * -1e9
+
+        attention_weights = F.softmax(alignment, axis=1)
+        attention_context = paddle.matmul(
+            attention_weights, value, transpose_x=True)
+
+        attention_weights = paddle.squeeze(attention_weights, axis=-1)
+        attention_context = paddle.squeeze(attention_context, axis=1)
+
+        return attention_context, attention_weights
 
 
 class DecoderPreNet(nn.Layer):
@@ -197,7 +289,7 @@ class Tacotron2Encoder(nn.Layer):
         super().__init__()
 
         k = math.sqrt(1.0 / (d_hidden * kernel_size))
-        self.conv_batchnorms = paddle.nn.LayerList([
+        self.conv_batchnorms = nn.LayerList([
             Conv1dBatchNorm(
                 d_hidden,
                 d_hidden,
@@ -903,7 +995,7 @@ class Tacotron2Loss(nn.Layer):
         self.use_stop_token_loss = use_stop_token_loss
         self.use_guided_attention_loss = use_guided_attention_loss
         self.attn_criterion = guided_attention_loss
-        self.stop_criterion = paddle.nn.BCEWithLogitsLoss()
+        self.stop_criterion = nn.BCEWithLogitsLoss()
         self.sigma = sigma
 
     def forward(self,

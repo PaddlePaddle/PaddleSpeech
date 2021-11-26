@@ -8,7 +8,7 @@ stop_stage=100
 conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeeech2_online.yaml
 avg_num=1
 model_type=offline    # offline or online
-audio_file="data/test_single_audio.wav"
+audio_file=data/demo_01_03.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

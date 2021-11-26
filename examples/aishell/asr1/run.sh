@@ -7,7 +7,7 @@ stage=0
 stop_stage=100
 conf_path=conf/conformer.yaml
 avg_num=20
-audio_file="data/test_single_audio.wav"
+audio_file=data/demo_01_03.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

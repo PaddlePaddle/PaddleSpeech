@@ -8,7 +8,7 @@ stop_stage=100
 conf_path=conf/deepspeech2.yaml
 avg_num=30
 model_type=offline
-audio_file="data/test_single_audio.flac"
+audio_file=data/demo_002_en.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

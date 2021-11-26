@@ -21,7 +21,7 @@
 ## Transformer
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention | 6.733129533131917 | 0.047874 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_greedy_search | 6.733129533131917 | 0.053922 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_prefix_beam_search | 6.733129533131917 | 0.053427 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.733129533131917 | 0.041369 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention | 6.725063021977743 | 0.047417 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_greedy_search | 6.725063021977743 | 0.053922 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_prefix_beam_search | 6.725063021977743 | 0.053180 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.725063021977743 | 0.041026 |  

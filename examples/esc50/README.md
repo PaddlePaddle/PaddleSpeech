@@ -28,7 +28,7 @@ PaddleAudio提供了PANNs的CNN14、CNN10和CNN6的预训练模型，可供用�
 $ CUDA_VISIBLE_DEVICES=0 ./run.sh 1
 ```
 
-`paddlespeech/cls/exps/PANNs/train.py` 脚本中可支持配置的参数：
+`paddlespeech/cls/exps/panns/train.py` 脚本中可支持配置的参数：
 
 - `device`: 指定模型预测时使用的设备。
 - `feat_backend`: 选择提取特征的后端，可选`'numpy'`或`'paddle'`，默认为`'numpy'`。
@@ -65,7 +65,7 @@ model = SoundClassifier(backbone, num_class=len(ESC50.label_list))
 $ CUDA_VISIBLE_DEVICES=0 ./run.sh 2
 ```
 
-`paddlespeech/cls/exps/PANNs/predict.py` 脚本中可支持配置的参数：
+`paddlespeech/cls/exps/panns/predict.py` 脚本中可支持配置的参数：
 
 - `device`: 指定模型预测时使用的设备。
 - `wav`: 指定预测的音频文件。
@@ -91,7 +91,7 @@ Cat: 6.579841738130199e-06
 $ CUDA_VISIBLE_DEVICES=0 ./run.sh 3
 ```
 
-`paddlespeech/cls/exps/PANNs/export_model.py` 脚本中可支持配置的参数：
+`paddlespeech/cls/exps/panns/export_model.py` 脚本中可支持配置的参数：
 - `checkpoint`: 模型参数checkpoint文件。
 - `output_dir`: 导出静态图模型和参数文件的保存目录。
 
@@ -106,16 +106,13 @@ export
 
 #### 2. 模型部署和预测
 
-`paddlespeech/cls/exps/PANNs/deploy/predict.py` 脚本使用了`paddle.inference`模块下的api，提供了python端部署的示例：
+`paddlespeech/cls/exps/panns/deploy/predict.py` 脚本使用了`paddle.inference`模块下的api，提供了python端部署的示例：
 
 ```shell
-$ CUDA_VISIBLE_DEVICES=0 ./run.sh 3
-```
-```sh
-python paddlespeech/cls/exps/PANNs/deploy/predict.py --model_dir ./export --device gpu
+$ CUDA_VISIBLE_DEVICES=0 ./run.sh 4
 ```
 
-`paddlespeech/cls/exps/PANNs/deploy/predict.py` 脚本中可支持配置的主要参数：
+`paddlespeech/cls/exps/panns/deploy/predict.py` 脚本中可支持配置的主要参数：
 - `device`: 指定模型预测时使用的设备。
 - `model_dir`: 导出静态图模型和参数文件的保存目录。
 - `wav`: 指定预测的音频文件。

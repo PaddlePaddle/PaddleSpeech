@@ -25,7 +25,6 @@ from paddlespeech.cls.models import SoundClassifier
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument('--device', choices=['cpu', 'gpu'], default="gpu", help="Select which device to train model, defaults to gpu.")
 parser.add_argument("--epochs", type=int, default=50, help="Number of epoches for fine-tuning.")
 parser.add_argument("--feat_backend", type=str, choices=['numpy', 'paddle'], default='numpy', help="Choose backend to extract features from audio files.")
 parser.add_argument("--learning_rate", type=float, default=5e-5, help="Learning rate used to train with warmup.")
@@ -38,7 +37,6 @@ args = parser.parse_args()
 # yapf: enable
 
 if __name__ == "__main__":
-    paddle.set_device(args.device)
     nranks = paddle.distributed.get_world_size()
     if paddle.distributed.get_world_size() > 1:
         paddle.distributed.init_parallel_env()

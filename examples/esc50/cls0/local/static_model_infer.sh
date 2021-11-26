@@ -8,4 +8,3 @@ python3 ${BIN_DIR}/deploy/predict.py \
 --device ${device} \
 --model_dir ${model_dir} \
 --wav ${audio_file} 
-

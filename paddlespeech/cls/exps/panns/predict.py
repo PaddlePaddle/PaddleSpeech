@@ -26,7 +26,6 @@ from paddlespeech.cls.models import SoundClassifier
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument('--device', choices=['cpu', 'gpu'], default="gpu", help="Select which device to predict, defaults to gpu.")
 parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
 parser.add_argument("--feat_backend", type=str, choices=['numpy', 'paddle'], default='numpy', help="Choose backend to extract features from audio files.")
 parser.add_argument("--top_k", type=int, default=1, help="Show top k predicted results")
@@ -51,7 +50,6 @@ def extract_features(file: str, feat_backend: str='numpy',
 
 
 if __name__ == '__main__':
-    paddle.set_device(args.device)
 
     model = SoundClassifier(
         backbone=cnn14(pretrained=False, extract_embedding=True),

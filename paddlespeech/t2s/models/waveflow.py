@@ -329,7 +329,7 @@ class ResidualNet(nn.LayerList):
         if len(dilations_h) != n_layer:
             raise ValueError(
                 "number of dilations_h should equals num of layers")
-        super(ResidualNet, self).__init__()
+        super().__init__()
         for i in range(n_layer):
             dilation = (dilations_h[i], 2**i)
             layer = ResidualBlock(residual_channels, condition_channels,

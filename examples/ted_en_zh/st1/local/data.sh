@@ -15,7 +15,7 @@ data_dir=./TED_EnZh
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 mkdir -p data
 mkdir -p ${dict_dir}

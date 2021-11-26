@@ -50,7 +50,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             batch_size=64
         fi
         python3 -u ${BIN_DIR}/test.py \
-            --nproc ${ngpu} \
+            --ngpu ${ngpu} \
             --config ${config_path} \
             --result_file ${ckpt_prefix}.${type}.rsl \
             --checkpoint_path ${ckpt_prefix} \
@@ -74,7 +74,7 @@ for type in ctc_greedy_search; do
         batch_size=64
     fi
     python3 -u ${BIN_DIR}/test.py \
-        --nproc ${ngpu} \
+        --ngpu ${ngpu} \
         --config ${config_path} \
         --result_file ${ckpt_prefix}.${type}.rsl \
         --checkpoint_path ${ckpt_prefix} \
@@ -94,7 +94,7 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     echo "decoding ${type}"
     batch_size=1
     python3 -u ${BIN_DIR}/test.py \
-        --nproc ${ngpu} \
+        --ngpu ${ngpu} \
         --config ${config_path} \
         --result_file ${ckpt_prefix}.${type}.rsl \
         --checkpoint_path ${ckpt_prefix} \

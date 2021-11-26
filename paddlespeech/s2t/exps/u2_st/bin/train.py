@@ -30,8 +30,8 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    if args.nprocs > 0:
-        dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
+    if args.ngpu > 1:
+        dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
     else:
         main_sp(config, args)
 

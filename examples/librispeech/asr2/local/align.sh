@@ -22,7 +22,7 @@ python3 -u ${BIN_DIR}/test.py \
 --model-name 'u2_kaldi' \
 --run-mode 'align' \
 --dict-path ${dict_path} \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --result-file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \

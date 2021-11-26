@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -209,8 +209,8 @@ Static model can be downloaded here [fastspeech2_nosil_baker_static_0.4.zip](htt
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
-default| 2(gpu) x 76000|1.0991|0.59132|0.035815| 0.31915| 0.15287|
-conformer| 2(gpu) x 76000||||||
+default| 2(gpu) x 76000|1.0991|0.59132|0.035815|0.31915|0.15287|
+conformer| 2(gpu) x 76000|1.0675|0.56103|0.035869|0.31553|0.15509|
 
 FastSpeech2 checkpoint contains files listed below.
 ```text

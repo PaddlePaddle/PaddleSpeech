@@ -25,7 +25,8 @@ from ..utils import cli_register
 __all__ = ['S2TExecutor']
 
 
-@cli_register(name='paddlespeech.s2t', description='Asr infer command.')
+@cli_register(
+    name='paddlespeech.s2t', description='Speech to text infer command.')
 class S2TExecutor(BaseExecutor):
     def __init__(self):
         super(S2TExecutor, self).__init__()

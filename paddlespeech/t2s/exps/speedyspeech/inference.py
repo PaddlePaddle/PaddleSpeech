@@ -87,7 +87,9 @@ def main():
 
     with open(args.text, 'rt') as f:
         for line in f:
-            utt_id, sentence = line.strip().split()
+            items = line.strip().split()
+            utt_id = items[0]
+            sentence = "".join(items[1:])
             sentences.append((utt_id, sentence))
 
     for utt_id, sentence in sentences:

@@ -307,7 +307,7 @@ class FastSpeech2(nn.Layer):
             num_embeddings=idim,
             embedding_dim=adim,
             padding_idx=self.padding_idx)
-            
+
         if encoder_type == "transformer":
             print("encoder_type is transformer")
             self.encoder = TransformerEncoder(

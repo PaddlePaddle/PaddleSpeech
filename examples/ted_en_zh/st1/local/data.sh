@@ -2,7 +2,7 @@
 
 set -e
 
-stage=3
+stage=-1
 stop_stage=100
 dict_dir=data/lang_char
 

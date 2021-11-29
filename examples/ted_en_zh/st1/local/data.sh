@@ -2,7 +2,7 @@
 
 set -e
 
-stage=1
+stage=3
 stop_stage=100
 dict_dir=data/lang_char
 
@@ -14,6 +14,7 @@ data_dir=./TED_EnZh
 target_dir=data/ted_en_zh
 dumpdir=data/dump
 do_delta=false
+nj=20
 
 source ${MAIN_ROOT}/utils/parse_options.sh
 
@@ -40,11 +41,11 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
         exit 1
     fi
 
-    # # extract data 
-    # echo "data Extraction"
-    # python3 local/ted_en_zh.py \
-    # --tgt-dir=${target_dir} \
-    # --src-dir=${data_dir}
+    # extract data 
+    echo "data Extraction"
+    python3 local/ted_en_zh.py \
+    --tgt-dir=${target_dir} \
+    --src-dir=${data_dir}
 
 fi
 prep_dir=${target_dir}/data_prep 
@@ -99,7 +100,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     done
 fi
 
-feat_tr_dir=${dumpdir}/train/delta${do_delta}; mkdir -p ${feat_tr_dir}
+feat_tr_dir=${dumpdir}/train_sp/delta${do_delta}; mkdir -p ${feat_tr_dir}
 feat_dt_dir=${dumpdir}/dev/delta${do_delta}; mkdir -p ${feat_dt_dir}
 feat_trans_dir=${dumpdir}/test/delta${do_delta}; mkdir -p ${feat_trans_dir}
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
@@ -109,7 +110,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     fbankdir=data/fbank
     # Generate the fbank features; by default 80-dimensional fbanks with pitch on each frame
     for x in train dev test; do
-        steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj 32 --write_utt2num_frames true \
+        steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj ${nj} --write_utt2num_frames true \
             ${prep_dir}/${x}.en-zh data/make_fbank/${x} ${fbankdir}
     done
     
@@ -123,7 +124,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     rm -r ${prep_dir}/temp*.en-zh 
     utils/fix_data_dir.sh ${prep_dir}/train_sp.en-zh
 
-    steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj 32 --write_utt2num_frames true \
+    steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj ${nj} --write_utt2num_frames true \
         ${prep_dir}/train_sp.en-zh exp/make_fbank/train_sp.en-zh ${fbankdir}
 
     for lang in en zh; do
@@ -155,14 +156,14 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         rm -rf ${prep_dir}/${x}.en-zh.*.tmp
     done
 
-    compute-cmvn-stats scp:${prep_dir}/train_sp.en-zh/feats.scp ${prep_dir}/train_sp.en-zh/cmvn.ark
+    compute-cmvn-stats scp:${prep_dir}/train_sp.en-zh.zh/feats.scp ${prep_dir}/train_sp.en-zh.zh/cmvn.ark
 
-    dump.sh --cmd "$train_cmd" --nj 80 --do_delta $do_delta \
-        ${prep_dir}/train_sp.en-zh/feats.scp ${prep_dir}/train_sp.en-zh/cmvn.ark ${prep_dir}/dump_feats/train_sp.en-zh ${feat_tr_dir}
-    dump.sh --cmd "$train_cmd" --nj 32 --do_delta $do_delta \
-        ${prep_dir}/dev.en-zh/feats.scp ${prep_dir}/train_sp.en-zh/cmvn.ark ${prep_dir}/dump_feats/dev.en-zh ${feat_dt_dir}
-    dump.sh --cmd "$train_cmd" --nj 32 --do_delta $do_delta \
-        ${prep_dir}/test.en-zh/feats.scp ${prep_dir}/train_sp.en-zh/cmvn.ark ${prep_dir}/dump_feats/test.en-zh ${feat_trans_dir}
+    dump.sh --cmd "$train_cmd" --nj ${nj} --do_delta $do_delta \
+        ${prep_dir}/train_sp.en-zh.zh/feats.scp ${prep_dir}/train_sp.en-zh.zh/cmvn.ark ${prep_dir}/dump_feats/train_sp.en-zh.zh ${feat_tr_dir}
+    dump.sh --cmd "$train_cmd" --nj ${nj} --do_delta $do_delta \
+        ${prep_dir}/dev.en-zh.zh/feats.scp ${prep_dir}/train_sp.en-zh.zh/cmvn.ark ${prep_dir}/dump_feats/dev.en-zh.zh ${feat_dt_dir}
+    dump.sh --cmd "$train_cmd" --nj ${nj} --do_delta $do_delta \
+        ${prep_dir}/test.en-zh.zh/feats.scp ${prep_dir}/train_sp.en-zh.zh/cmvn.ark ${prep_dir}/dump_feats/test.en-zh.zh ${feat_trans_dir}
 fi
 
 dict=${dict_dir}/ted_en_zh_${bpemode}${nbpe}_joint.txt
@@ -170,9 +171,6 @@ nlsyms=${dict_dir}/ted_en_zh_non_lang_syms.txt
 bpemodel=${dict_dir}/ted_en_zh_${bpemode}${nbpe}
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     echo "stage 2: Dictionary and Json Data Preparation"
-    # echo "make a non-linguistic symbol list for all languages"
-    # grep sp1.0 ${prep_dir}/train_sp.en-zh.*/text | cut -f 2- -d' ' | grep -o -P '&[^;];'| sort | uniq > ${nlsyms}
-    # cat ${nlsyms}
 
     echo "make a joint source and target dictionary"
     echo "<unk> 1" > ${dict} # <unk> must be 1, 0 will be used for "blank" in CTC
@@ -183,20 +181,27 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     wc -l ${dict}
 
     echo "make json files"
-    data2json.sh --nj 16 --feat ${feat_tr_dir}/feats.scp --text ${prep_dir}/train_sp.en-zh.zh/text --bpecode ${bpemodel}.model --lang zh \
+    data2json.sh --nj ${nj} --feat ${feat_tr_dir}/feats.scp --text ${prep_dir}/train_sp.en-zh.zh/text --bpecode ${bpemodel}.model --lang zh \
         ${prep_dir}/train_sp.en-zh.zh ${dict} > ${feat_tr_dir}/data_${bpemode}${nbpe}.json
     data2json.sh --feat ${feat_dt_dir}/feats.scp --text ${prep_dir}/dev.en-zh.zh/text --bpecode ${bpemodel}.model --lang zh \
         ${prep_dir}/dev.en-zh.zh ${dict} > ${feat_dt_dir}/data_${bpemode}${nbpe}.json
-    data2json.sh --feat ${feat_dt_dir}/feats.scp --text ${prep_dir}/test.en-zh.zh/text --bpecode ${bpemodel}.model --lang zh \
+    data2json.sh --feat ${feat_trans_dir}/feats.scp --text ${prep_dir}/test.en-zh.zh/text --bpecode ${bpemodel}.model --lang zh \
         ${prep_dir}/test.en-zh.zh ${dict} > ${feat_trans_dir}/data_${bpemode}${nbpe}.json
     echo "update json (add source references)"
     # update json (add source references)
-    for x in ${train_set} ${train_dev}; do
+    for x in train_sp dev; do
         feat_dir=${dumpdir}/${x}/delta${do_delta}
-        data_dir=data/$(echo ${x} | cut -f 1 -d ".").en-zh.en
-        update_json.sh --text ${data_dir}/text.${src_case} --bpecode ${bpemodel}.model \
+        data_dir=${prep_dir}/$(echo ${x} | cut -f 1 -d ".").en-zh.en
+        update_json.sh --text ${data_dir}/text --bpecode ${bpemodel}.model \
             ${feat_dir}/data_${bpemode}${nbpe}.json ${data_dir} ${dict}
     done
+fi
+
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    echo "stage 3: Format the Json Data"
+    python3 local/espnet_json_to_manifest.py --json-file ${feat_tr_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.train
+    python3 local/espnet_json_to_manifest.py --json-file ${feat_dt_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.dev
+    python3 local/espnet_json_to_manifest.py --json-file ${feat_trans_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.test
 fi
 echo "Ted En-Zh Data preparation done."
 exit 0

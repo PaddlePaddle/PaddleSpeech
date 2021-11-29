@@ -13,6 +13,17 @@ ckpt_prefix=$2
 model_type=$3
 audio_file=$4
 
+mkdir -p data
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+if [ ! -f ${audio_file} ]; then
+    echo "Plase input the right audio_file path"
+    exit 1
+fi
+
 # download language model
 bash local/download_lm_en.sh
 if [ $? -ne 0 ]; then

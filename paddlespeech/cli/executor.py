@@ -14,7 +14,6 @@
 import os
 from abc import ABC
 from abc import abstractmethod
-from typing import Optional
 from typing import Union
 
 import paddle
@@ -30,16 +29,16 @@ class BaseExecutor(ABC):
         self.output = None
 
     @abstractmethod
-    def _get_default_cfg_path(self):
+    def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
-            Returns a default config file path of current task.
+            Download and returns pretrained resources path of current task.
         """
         pass
 
     @abstractmethod
-    def _init_from_cfg(self, cfg_path: Optional[os.PathLike]=None):
+    def _init_from_path(self, *args, **kwargs):
         """
-            Init model from a specific config file.
+            Init model and other resources from a specific path.
         """
         pass
 

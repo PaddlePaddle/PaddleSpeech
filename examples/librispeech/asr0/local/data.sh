@@ -10,7 +10,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh
 
 mkdir -p data
 mkdir -p ${dict_dir}
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then

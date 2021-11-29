@@ -129,7 +129,7 @@ def initialize(model: nn.Layer, init: str):
 
     Parameters
     ----------
-    model : paddle.nn.Layer
+    model : nn.Layer
         Target.
     init : str
         Method of initialization.

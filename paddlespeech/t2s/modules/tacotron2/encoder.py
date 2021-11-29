@@ -73,7 +73,7 @@ class Encoder(nn.Layer):
             Dropout rate.
 
         """
-        super(Encoder, self).__init__()
+        super().__init__()
         # store the hyperparameters
         self.idim = idim
         self.use_residual = use_residual

@@ -4,7 +4,7 @@ This example contains code used to train a Transformer or [Conformer](http://arx
 
 ## Overview
 
-All the scirpts you need are in the ```run.sh```. There are several stages in the ```run.sh```, and each stage has its function.
+All the scirpts you need are in ```run.sh```. There are several stages in ```run.sh```, and each stage has its function.
 
 | Stage | Function                                                     |
 | :---- | :----------------------------------------------------------- |
@@ -16,7 +16,7 @@ All the scirpts you need are in the ```run.sh```. There are several stages in th
 | 5     | Infer the single audio file                                  |
 
 
-You can choose to run a range of  stages by setting the ```stage``` and ```stop_stage ``` . 
+You can choose to run a range of stages by setting ```stage``` and ```stop_stage ```. 
 
 For example, if you want to execute the code in stage 2 and stage 3, you can run this script:
 
@@ -33,19 +33,17 @@ bash run.sh --stage 0 --stop_stage 0
 
 
 
-The document below will describe the scripts in the ```run.sh``` in detail.
+The document below will describe the scripts in ```run.sh``` in detail.
 
 ## The Environment Variables
 
-The path.sh contains the environment variable. 
+The path.sh contains the environment variables. 
 
 ```bash
 source path.sh
 ```
 
-This script needs to be run firstly.  
-
-And another script is also needed:
+This script needs to be run firstly. And another script is also needed:
 
 ```bash
 source ${MAIN_ROOT}/utils/parse_options.sh
@@ -57,10 +55,10 @@ It will support the way of using```--varibale value``` in the shell scripts.
 
 ## The Local Variables
 
-Some local variables are set in the ```run.sh```. 
-```gpus``` denotes the GPU number you want to use. If you set ```gpus=```,  it means you only use CPU. 
+Some local variables are set in ```run.sh```. 
+```gpus``` denotes the GPU number you want to use. If you set ```gpus=```, it means you only use CPU. 
 
-```stage``` denotes  the number of stage you want to start from in the expriments.
+```stage``` denotes the number of stage you want to start from in the expriments.
 ```stop stage```denotes the number of stage you want to end at in the expriments. 
 
 ```conf_path``` denotes the config path of the model.
@@ -71,7 +69,7 @@ Some local variables are set in the ```run.sh```.
 
 ```ckpt``` denotes the checkpoint prefix of the model, e.g. "conformer"
 
-You can set the local variables (except ```ckpt```)  when you use the ```run.sh```
+You can set the local variables (except ```ckpt```) when you use ```run.sh```
 
 For example, you can set the ```gpus``` and ``avg_num`` when you use the command line.:
 
@@ -83,7 +81,7 @@ bash run.sh --gpus 0,1 --avg_num 20
 
 ## Stage 0: Data Processing
 
-To use this example, you need to process data firstly and  you can use stage 0 in the ```run.sh``` to do this. The code is shown below:
+To use this example, you need to process data firstly and you can use stage 0 in ```run.sh``` to do this. The code is shown below:
 
 ```bash
  if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
@@ -129,12 +127,12 @@ data/
 
 ## Stage 1: Model Training
 
-If you want to train the model. you can use stage 1 in the ```run.sh```. The code is shown below. 
+If you want to train the model. you can use stage 1 in ```run.sh```. The code is shown below. 
 
 ```bash
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
      # train model, all `ckpt` under `exp` dir
-     CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt}
+     CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${ckpt}
  fi
 ```
 
@@ -149,14 +147,14 @@ or you can run these scripts in the command line (only use CPU).
 ```bash
 source path.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml  conformer
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 ```
 
 
 
-## Stage 2:  Top-k Models Averaging
+## Stage 2: Top-k Models Averaging
 
-After training the model,  we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the best model from them based on the validation loss or we can sort them and average the parameters of the top-k models  to get the final model.  We can use stage 2 to do this, and the code is shown below:
+After training the model, we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the best model from them based on the validation loss or we can sort them and average the parameters of the top-k models to get the final model. We can use stage 2 to do this, and the code is shown below:
 
 ```bash
  if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
@@ -166,7 +164,7 @@ After training the model,  we need to get the final model for testing and infere
 ```
 
 The ```avg.sh``` is in the ```../../../utils/``` which is define in the ```path.sh```.
-If you want to get the final model,  you can use the script below to execute stage 0, stage 1, and stage 2:
+If you want to get the final model, you can use the script below to execute stage 0, stage 1, and stage 2:
 
 ```bash
 bash run.sh --stage 0 --stop_stage 2
@@ -185,7 +183,7 @@ avg.sh best exp/conformer/checkpoints 20
 
 ## Stage 3: Model Testing
 
-The test stage is to evaluate the model performance.. The code of test stage is shown below:
+The test stage is to evaluate the model performance. The code of test stage is shown below:
 
 ```bash
  if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
@@ -194,7 +192,7 @@ The test stage is to evaluate the model performance.. The code of test stage is 
  fi
 ```
 
-If you want to train a model and test it,  you can use the script below to execute stage 0, stage 1,  stage 2, and stage 3 :
+If you want to train a model and test it, you can use the script below to execute stage 0, stage 1, stage 2, and stage 3 :
 
 ```bash
 bash run.sh --stage 0 --stop_stage 3
@@ -228,7 +226,7 @@ wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.g
 
 ```
 
-using the ```tar``` scripts to unpack the model  and then you can use the script to test the modle.
+using the ```tar``` scripts to unpack the model and then you can use the script to test the modle.
 
 For example:
 
@@ -238,7 +236,7 @@ tar xzvf transformer.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
-bash local/data.sh --stage 2  --stop_stage 2
+bash local/data.sh --stage 2 --stop_stage 2
 
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20
 ```
@@ -291,7 +289,7 @@ If you want to get the alignment between the audio and the text, you can use the
  fi
 ```
 
-If you want to train the model, test it and do the alignment,  you can use the script below to execute stage 0, stage 1, stage 2, and stage 3 :
+If you want to train the model, test it and do the alignment, you can use the script below to execute stage 0, stage 1, stage 2, and stage 3 :
 
 ```bash
 bash run.sh --stage 0 --stop_stage 4
@@ -320,26 +318,26 @@ CUDA_VISIBLE_DEVICES= ./local/align.sh conf/conformer.yaml exp/conformer/checkpo
 
 ## Stage 5: Single Audio File Inference
 
-In some situations, you want to use the trained model to do the inference for the single audio file. You can use stage  5. The code is shown below
+In some situations, you want to use the trained model to do the inference for the single audio file. You can use stage 5. The code is shown below
 
 ```bash
  if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
      # test a single .wav file
-     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+     CUDA_VISIBLE_DEVICES=0 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
  fi
 ```
 
-you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model by the script below:
+you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 
 ```bash
 wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz
 tar xzvf transformer.model.tar.gz
 ```
 
-You need to prepare an audio file, please confirm the sample rate of the audio is 16K. Assume the path of the audio file is ```data/test_audio.wav```,  you can get the result by running the script below.
+You need to prepare an audio file, please confirm the sample rate of the audio is 16K. Assume the path of the audio file is ```data/test_audio.wav```, you can get the result by running the script below.
 
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/test_audio.wav
+CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/test_audio.wav
 ```
 
 

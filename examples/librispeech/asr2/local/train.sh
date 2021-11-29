@@ -21,7 +21,7 @@ fi
 
 python3 -u ${BIN_DIR}/train.py \
 --model-name u2_kaldi \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --seed ${seed}

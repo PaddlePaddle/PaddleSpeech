@@ -13,7 +13,7 @@ unit_type=char
 source ${MAIN_ROOT}/utils/parse_options.sh
 
 mkdir -p data
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 
 

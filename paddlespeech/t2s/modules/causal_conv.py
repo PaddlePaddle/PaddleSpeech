@@ -13,9 +13,10 @@
 # limitations under the License.
 """Causal convolusion layer modules."""
 import paddle
+from paddle import nn
 
 
-class CausalConv1D(paddle.nn.Layer):
+class CausalConv1D(nn.Layer):
     """CausalConv1D module with customized initialization."""
 
     def __init__(
@@ -31,7 +32,7 @@ class CausalConv1D(paddle.nn.Layer):
         super().__init__()
         self.pad = getattr(paddle.nn, pad)((kernel_size - 1) * dilation,
                                            **pad_params)
-        self.conv = paddle.nn.Conv1D(
+        self.conv = nn.Conv1D(
             in_channels,
             out_channels,
             kernel_size,
@@ -52,7 +53,7 @@ class CausalConv1D(paddle.nn.Layer):
         return self.conv(self.pad(x))[:, :, :x.shape[2]]
 
 
-class CausalConv1DTranspose(paddle.nn.Layer):
+class CausalConv1DTranspose(nn.Layer):
     """CausalConv1DTranspose module with customized initialization."""
 
     def __init__(self,
@@ -63,7 +64,7 @@ class CausalConv1DTranspose(paddle.nn.Layer):
                  bias=True):
         """Initialize CausalConvTranspose1d module."""
         super().__init__()
-        self.deconv = paddle.nn.Conv1DTranspose(
+        self.deconv = nn.Conv1DTranspose(
             in_channels, out_channels, kernel_size, stride, bias_attr=bias)
         self.stride = stride
 

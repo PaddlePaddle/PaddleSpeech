@@ -47,7 +47,7 @@ class U2Infer():
             vocab_filepath=config.collator.vocab_filepath,
             spm_model_prefix=config.collator.spm_model_prefix)
 
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
+        paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
         # model
         model_conf = config.model

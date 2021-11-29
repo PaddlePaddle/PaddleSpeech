@@ -45,7 +45,8 @@ We use Montreal Force Aligner 1.0. The label in  aishell3 include pinyin，so th
 
 We use [lexicon.txt](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/paddlespeech/t2s/exps/voice_cloning/tacotron2_ge2e/lexicon.txt) as the lexicon.
 
-You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/alignment_aishell3.tar.gz), or train your own MFA model reference to [use_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/use_mfa) (use MFA1.x now) of our repo.
+You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/alignment_aishell3.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+
 
 ```bash
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then

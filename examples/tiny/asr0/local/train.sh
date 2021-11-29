@@ -27,7 +27,7 @@ model_type=$3
 mkdir -p exp
 
 python3 -u ${BIN_DIR}/train.py \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --model_type ${model_type} \

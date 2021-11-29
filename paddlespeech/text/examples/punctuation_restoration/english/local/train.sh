@@ -11,16 +11,10 @@ echo "using $ngpu gpus..."
 config_path=$1
 ckpt_name=$2
 
-device=gpu
-if [ ${ngpu} == 0 ];then
-    device=cpu
-fi
-
 mkdir -p exp
 
 python3 -u ${BIN_DIR}/train.py \
---device ${device} \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name}
 

@@ -30,7 +30,7 @@ def default_argument_parser():
     
     The ``--checkpoint_path`` specifies the checkpoint to load from.
     
-    The ``--device`` and ``--nprocs`` specifies how to run the training.
+    The ``--ngpu`` specifies how to run the training.
     
     
     See Also
@@ -60,9 +60,7 @@ def default_argument_parser():
     parser.add_argument("--result_file", type=str, help="path of save the asr result")
 
     # running
-    parser.add_argument("--device", type=str, default='gpu', choices=["cpu", "gpu"],
-                        help="device type to use, cpu and gpu are supported.")
-    parser.add_argument("--nprocs", type=int, default=1, help="number of parallel processes to use.")
+    parser.add_argument("--ngpu", type=int, default=1, help="number of parallel processes to use. if ngpu=0, using cpu.")
 
     # overwrite extra config and default config
     # parser.add_argument("--opts", nargs=argparse.REMAINDER, 

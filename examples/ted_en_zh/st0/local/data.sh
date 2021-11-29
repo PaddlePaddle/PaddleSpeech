@@ -16,7 +16,7 @@ data_dir=./TED-En-Zh
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
 
 
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 mkdir -p data
 mkdir -p ${dict_dir}

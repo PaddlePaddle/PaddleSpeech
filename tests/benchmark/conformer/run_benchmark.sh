@@ -38,7 +38,7 @@ function _train(){
     train_cmd="--config=${config_path}
                --output=${output}
                --seed=${seed}
-               --nproc=${ngpu}
+               --ngpu=${ngpu}
                --profiler-options "${profiler_options}"
                --benchmark-batch-size ${batch_size}
                --benchmark-max-step ${benchmark_max_step} "

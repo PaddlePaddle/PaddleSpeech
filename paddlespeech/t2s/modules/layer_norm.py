@@ -13,9 +13,10 @@
 # limitations under the License.
 """Layer normalization module."""
 import paddle
+from paddle import nn
 
 
-class LayerNorm(paddle.nn.LayerNorm):
+class LayerNorm(nn.LayerNorm):
     """Layer normalization module.
 
     Parameters
@@ -28,7 +29,7 @@ class LayerNorm(paddle.nn.LayerNorm):
 
     def __init__(self, nout, dim=-1):
         """Construct an LayerNorm object."""
-        super(LayerNorm, self).__init__(nout)
+        super().__init__(nout)
         self.dim = dim
 
     def forward(self, x):

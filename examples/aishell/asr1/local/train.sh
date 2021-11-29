@@ -29,7 +29,7 @@ mkdir -p exp
 
 python3 -u ${BIN_DIR}/train.py \
 --seed ${seed} \
---nproc ${ngpu} \
+--ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --profiler-options "${profiler_options}" \

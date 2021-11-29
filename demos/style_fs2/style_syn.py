@@ -34,7 +34,9 @@ def evaluate(args, fastspeech2_config, pwg_config):
     sentences = []
     with open(args.text, 'rt') as f:
         for line in f:
-            utt_id, sentence = line.strip().split()
+            items = line.strip().split()
+            utt_id = items[0]
+            sentence = "".join(items[1:])
             sentences.append((utt_id, sentence))
 
     with open(args.phones_dict, "r") as f:

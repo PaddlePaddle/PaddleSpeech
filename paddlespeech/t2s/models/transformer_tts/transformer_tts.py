@@ -23,12 +23,6 @@ import paddle.nn.functional as F
 from paddle import nn
 from typeguard import check_argument_types
 
-from paddlespeech.t2s.modules.fastspeech2_transformer.attention import MultiHeadedAttention
-from paddlespeech.t2s.modules.fastspeech2_transformer.decoder import Decoder
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import PositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.embedding import ScaledPositionalEncoding
-from paddlespeech.t2s.modules.fastspeech2_transformer.encoder import Encoder
-from paddlespeech.t2s.modules.fastspeech2_transformer.mask import subsequent_mask
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.nets_utils import make_pad_mask
@@ -36,6 +30,12 @@ from paddlespeech.t2s.modules.style_encoder import StyleEncoder
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
 from paddlespeech.t2s.modules.tacotron2.decoder import Prenet as DecoderPrenet
 from paddlespeech.t2s.modules.tacotron2.encoder import Encoder as EncoderPrenet
+from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention
+from paddlespeech.t2s.modules.transformer.decoder import Decoder
+from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
+from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncoding
+from paddlespeech.t2s.modules.transformer.encoder import TransformerEncoder
+from paddlespeech.t2s.modules.transformer.mask import subsequent_mask
 
 
 class TransformerTTS(nn.Layer):
@@ -257,9 +257,9 @@ class TransformerTTS(nn.Layer):
         self.padding_idx = 0
         # set_global_initializer 会影响后面的全局，包括 create_parameter
         initialize(self, init_type)
-        # get positional encoding class
-        pos_enc_class = (ScaledPositionalEncoding
-                         if self.use_scaled_pos_enc else PositionalEncoding)
+
+        # get positional encoding layer type
+        transformer_pos_enc_layer_type = "scaled_abs_pos" if self.use_scaled_pos_enc else "abs_pos"
 
         # define transformer encoder
         if eprenet_conv_layers != 0:
@@ -281,7 +281,7 @@ class TransformerTTS(nn.Layer):
                 num_embeddings=idim,
                 embedding_dim=adim,
                 padding_idx=self.padding_idx)
-        self.encoder = Encoder(
+        self.encoder = TransformerEncoder(
             idim=idim,
             attention_dim=adim,
             attention_heads=aheads,
@@ -291,7 +291,7 @@ class TransformerTTS(nn.Layer):
             dropout_rate=transformer_enc_dropout_rate,
             positional_dropout_rate=transformer_enc_positional_dropout_rate,
             attention_dropout_rate=transformer_enc_attn_dropout_rate,
-            pos_enc_class=pos_enc_class,
+            pos_enc_layer_type=transformer_pos_enc_layer_type,
             normalize_before=encoder_normalize_before,
             concat_after=encoder_concat_after,
             positionwise_layer_type=positionwise_layer_type,
@@ -330,6 +330,9 @@ class TransformerTTS(nn.Layer):
                 nn.Linear(dprenet_units, adim), )
         else:
             decoder_input_layer = "linear"
+        # get positional encoding class
+        pos_enc_class = (ScaledPositionalEncoding
+                         if self.use_scaled_pos_enc else PositionalEncoding)
         self.decoder = Decoder(
             odim=odim,  # odim is needed when no prenet is used
             attention_dim=adim,

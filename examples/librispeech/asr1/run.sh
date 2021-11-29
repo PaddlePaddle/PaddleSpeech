@@ -9,14 +9,13 @@ stage=0
 stop_stage=100
 conf_path=conf/transformer.yaml
 avg_num=30
+audio_file=data/demo_002_en.wav
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
-
-audio_file="data/tmp.flac"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

@@ -15,7 +15,7 @@ do_delta=false
 # Set this to somewhere where you want to put your data, or where
 # someone else has already put it.  You'll want to change this
 # if you're not on the CLSP grid.
-datadir=${MAIN_ROOT}/examples/dataset/
+datadir=${MAIN_ROOT}/dataset/
 
 # bpemode (unigram or bpe)
 nbpe=5000
@@ -36,7 +36,7 @@ recog_set="test_clean test_other dev_clean dev_other"
 
 
 mkdir -p data
-TARGET_DIR=${MAIN_ROOT}/examples/dataset
+TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     # download data, generate manifests

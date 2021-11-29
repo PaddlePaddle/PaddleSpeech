@@ -15,7 +15,7 @@ for type in fullsentence; do
     echo "decoding ${type}"
     batch_size=32
     python3 -u ${BIN_DIR}/test.py \
-    --nproc ${ngpu} \
+    --ngpu ${ngpu} \
     --config ${config_path} \
     --result_file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \

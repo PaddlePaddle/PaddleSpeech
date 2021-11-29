@@ -16,6 +16,7 @@
 import numpy as np
 import paddle
 import paddle.nn.functional as F
+from paddle import nn
 from scipy.signal import kaiser
 
 
@@ -56,7 +57,7 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     return h
 
 
-class PQMF(paddle.nn.Layer):
+class PQMF(nn.Layer):
     """PQMF module.
     This module is based on `Near-perfect-reconstruction pseudo-QMF banks`_.
     .. _`Near-perfect-reconstruction pseudo-QMF banks`:
@@ -105,7 +106,7 @@ class PQMF(paddle.nn.Layer):
         self.updown_filter = updown_filter
         self.subbands = subbands
         # keep padding info
-        self.pad_fn = paddle.nn.Pad1D(taps // 2, mode='constant', value=0.0)
+        self.pad_fn = nn.Pad1D(taps // 2, mode='constant', value=0.0)
 
     def analysis(self, x):
         """Analysis with PQMF.

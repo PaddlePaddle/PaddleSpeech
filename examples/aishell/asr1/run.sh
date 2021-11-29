@@ -7,14 +7,13 @@ stage=0
 stop_stage=50
 conf_path=conf/conformer.yaml
 avg_num=20
+audio_file=data/demo_01_03.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
-
-audio_file="data/test_single_audio.wav"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

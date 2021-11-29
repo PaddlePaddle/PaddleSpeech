@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval:../../../paddlespeech/t2s/exps/speedyspeech/synthesize_e2e.py --speedyspeech-config=../../../examples/csmsc/tts2/conf/default.yaml --speedyspeech-checkpoint=exp/default/checkpoints/snapshot_iter_30.pdz --speedyspeech-stat=train_data/mini_BZNSYP/train/feats_stats.npy --pwg-config=pretrain_models/pwg_baker_ckpt_0.4/pwg_default.yaml --pwg-checkpoint=pretrain_models/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz --pwg-stat=pretrain_models/pwg_baker_ckpt_0.4/pwg_stats.npy --text=../../../paddlespeech/t2s/exps/sentences.txt --output-dir=e2e --inference-dir=inference --device="gpu" --phones-dict=train_data/mini_BZNSYP/phone_id_map.txt --tones-dict=train_data/mini_BZNSYP/tone_id_map.txt
+eval:../../../paddlespeech/t2s/exps/speedyspeech/synthesize_e2e.py --speedyspeech-config=../../../examples/csmsc/tts2/conf/default.yaml --speedyspeech-checkpoint=exp/default/checkpoints/snapshot_iter_30.pdz --speedyspeech-stat=train_data/mini_BZNSYP/train/feats_stats.npy --pwg-config=pretrain_models/pwg_baker_ckpt_0.4/pwg_default.yaml --pwg-checkpoint=pretrain_models/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz --pwg-stat=pretrain_models/pwg_baker_ckpt_0.4/pwg_stats.npy --text=../../../paddlespeech/t2s/exps/sentences.txt --output-dir=e2e --inference-dir=inference --ngpu=1 --phones-dict=train_data/mini_BZNSYP/phone_id_map.txt --tones-dict=train_data/mini_BZNSYP/tone_id_map.txt
 null:null
 ##
 ===========================infer_params===========================

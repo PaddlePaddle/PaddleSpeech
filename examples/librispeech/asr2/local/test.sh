@@ -76,7 +76,7 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
             python3 -u ${BIN_DIR}/test.py \
             --model-name u2_kaldi \
             --run-mode test \
-            --nproc ${ngpu} \
+            --ngpu ${ngpu} \
             --dict-path ${dict} \
             --config ${config_path} \
             --checkpoint_path ${ckpt_prefix} \

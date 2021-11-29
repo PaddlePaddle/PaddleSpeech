@@ -88,8 +88,8 @@ class Trainer():
     >>>     config.merge_from_list(args.opts)
     >>> config.freeze()
     >>>
-    >>> if args.nprocs > 0:
-    >>>     dist.spawn(main_sp, args=(config, args), nprocs=args.nprocs)
+    >>> if args.ngpu > 1:
+    >>>     dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
     >>> else:
     >>>     main_sp(config, args)
     """
@@ -112,7 +112,7 @@ class Trainer():
         logger.info(f"Rank: {self.rank}/{self.world_size}")
 
         # set device
-        paddle.set_device('gpu' if self.args.nprocs > 0 else 'cpu')
+        paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
         if self.parallel:
             self.init_parallel()
 
@@ -162,7 +162,7 @@ class Trainer():
         """A flag indicating whether the experiment should run with
         multiprocessing.
         """
-        return self.args.nprocs > 1
+        return self.args.ngpu > 1
 
     def init_parallel(self):
         """Init environment for multiprocess training.

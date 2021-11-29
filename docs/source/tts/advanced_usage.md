@@ -290,7 +290,7 @@ The following is the basic  `ArgumentParser`:
 1. `--config`  is used to support configuration file parsing, and the configuration file itself handles the unique options of each experiment.
 2. `--train-metadata` is the path to the training data.
 3.  `--output-dir` is the dir to save the training results.（if there are checkpoints in  `checkpoints/` of  `--output-dir` , it's defalut to reload the newest checkpoint to train)
-4. `--device` and  `--nprocs` determine operation modes，`--device` specifies the type of running device, whether to run on `cpu` or `gpu`. `--nprocs` refers to  the number of training processes. If `nprocs` > 1, it means that multi process parallel training is used. (Note: currently only GPU multi card multi process training is supported.)
+4. `--ngpu` determine operation modes，`--ngpu` refers to the number of training processes. If `ngpu` > 0, it means using GPU, else CPU is used.
 
 Developers can refer to the examples in `examples` to write the default configuration file when adding new experiments.
 

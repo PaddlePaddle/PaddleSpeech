@@ -110,8 +110,8 @@ class DeepSpeech2Tester_hub():
     def setup_model(self):
         config = self.config.clone()
         with UpdateConfig(config):
-            config.model.feat_size = self.collate_fn_test.feature_size
-            config.model.dict_size = self.collate_fn_test.vocab_size
+            config.model.input_dim = self.collate_fn_test.feature_size
+            config.model.output_dim = self.collate_fn_test.vocab_size
 
         if self.args.model_type == 'offline':
             model = DeepSpeech2Model.from_config(config.model)

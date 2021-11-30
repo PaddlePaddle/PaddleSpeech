@@ -65,7 +65,26 @@ def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:
     return char_list
 
 
-def read_manifest(
+def read_manifest(manifest_path,):
+    """Load and parse manifest file.
+
+    Args:
+        manifest_path ([type]): Manifest file to load and parse.
+
+    Raises:
+        IOError: If failed to parse the manifest.
+
+    Returns:
+        List[dict]: Manifest parsing results.
+    """
+    manifest = []
+    with jsonlines.open(manifest_path, 'r') as reader:
+        for json_data in reader:
+            manifest.append(json_data)
+    return manifest
+
+    
+def read_manifest_filter(
         manifest_path,
         max_input_len=float('inf'),
         min_input_len=0.0,
@@ -98,7 +117,6 @@ def read_manifest(
     Returns:
         List[dict]: Manifest parsing results.
     """
-
     manifest = []
     with jsonlines.open(manifest_path, 'r') as reader:
         for json_data in reader:

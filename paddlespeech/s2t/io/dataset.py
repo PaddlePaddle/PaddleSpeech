@@ -95,7 +95,7 @@ class ManifestDataset(Dataset):
         super().__init__()
 
         # read manifest
-        self._manifest = read_manifest(
+        self._manifest = read_manifest_filter(
             manifest_path=manifest_path,
             max_input_len=max_input_len,
             min_input_len=min_input_len,

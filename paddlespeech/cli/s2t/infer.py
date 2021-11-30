@@ -126,6 +126,9 @@ class S2TExecutor(BaseExecutor):
         pass
 
     def execute(self, argv: List[str]) -> bool:
+        """
+            Command line entry.
+        """
         parser_args = self.parser.parse_args(argv)
         print(parser_args)
 
@@ -137,12 +140,20 @@ class S2TExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            self._init_from_path(model, lang, config, ckpt_path)
-            self.preprocess(audio_file)
-            self.infer()
-            res = self.postprocess()  # Retrieve result of s2t.
+            res = self(model, lang, config, ckpt_path, audio_file, device)
             print(res)
             return True
         except Exception as e:
             print(e)
             return False
+
+    def __call__(self, model, lang, config, ckpt_path, audio_file, device):
+        """
+            Python API to call an executor.
+        """
+        self._init_from_path(model, lang, config, ckpt_path)
+        self.preprocess(audio_file)
+        self.infer()
+        res = self.postprocess()  # Retrieve result of s2t.
+
+        return res

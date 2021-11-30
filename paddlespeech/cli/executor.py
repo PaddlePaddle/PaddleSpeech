@@ -14,6 +14,7 @@
 import os
 from abc import ABC
 from abc import abstractmethod
+from typing import List
 from typing import Union
 
 import paddle
@@ -62,5 +63,19 @@ class BaseExecutor(ABC):
     def postprocess(self) -> Union[str, os.PathLike]:
         """
             Output postprocess and return human-readable results such as texts and audio files.
+        """
+        pass
+
+    @abstractmethod
+    def execute(self, argv: List[str]) -> bool:
+        """
+            Command line entry.
+        """
+        pass
+
+    @abstractmethod
+    def __call__(self, *arg, **kwargs):
+        """
+            Python API to call an executor.
         """
         pass

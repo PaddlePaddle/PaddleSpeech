@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
-source path.sh
+. ./path.sh || exit 1;
+. ./cmd.sh || exit 1;
 
 gpus=0,1,2,3
 stage=1
 stop_stage=4
 conf_path=conf/transformer_mtl_noam.yaml
-ckpt= # paddle.98 # (finetune from FAT-ST pretrained model)
+ckpt_path= # paddle.98 # (finetune from FAT-ST pretrained model)
 avg_num=5
 data_path=./TED_EnZh # path to unzipped data
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

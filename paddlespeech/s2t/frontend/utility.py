@@ -98,7 +98,6 @@ def read_manifest(
     Returns:
         List[dict]: Manifest parsing results.
     """
-
     manifest = []
     with jsonlines.open(manifest_path, 'r') as reader:
         for json_data in reader:

@@ -40,7 +40,6 @@ snakeviz
 soundfile~=0.10
 sox
 soxbindings
-tensorboardX
 textgrid
 timer
 tqdm

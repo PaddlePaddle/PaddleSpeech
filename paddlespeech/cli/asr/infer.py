@@ -87,7 +87,7 @@ class ASRExecutor(BaseExecutor):
         self.parser.add_argument(
             '--device',
             type=str,
-            default='cpu',
+            default=paddle.get_device(),
             help='Choose device to execute model inference.')
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:

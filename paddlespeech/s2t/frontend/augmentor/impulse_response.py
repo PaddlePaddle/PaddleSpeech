@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the impulse response augmentation model."""
+import jsonlines
 from paddlespeech.s2t.frontend.audio import AudioSegment
 from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
-from paddlespeech.s2t.frontend.utility import read_manifest
 
 
 class ImpulseResponseAugmentor(AugmentorBase):
@@ -28,7 +28,8 @@ class ImpulseResponseAugmentor(AugmentorBase):
 
     def __init__(self, rng, impulse_manifest_path):
         self._rng = rng
-        self._impulse_manifest = read_manifest(impulse_manifest_path)
+        with jsonlines.open(impulse_manifest_path, 'r') as reader:
+            self._impulse_manifest = list(reader)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:

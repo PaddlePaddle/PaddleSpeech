@@ -166,7 +166,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         ${prep_dir}/test.en-zh.zh/feats.scp ${prep_dir}/train_sp.en-zh.zh/cmvn.ark ${prep_dir}/dump_feats/test.en-zh.zh ${feat_trans_dir}
 fi
 
-dict=${dict_dir}/ted_en_zh_${bpemode}${nbpe}_joint.txt
+dict=${dict_dir}/ted_en_zh_${bpemode}${nbpe}.txt
 nlsyms=${dict_dir}/ted_en_zh_non_lang_syms.txt
 bpemodel=${dict_dir}/ted_en_zh_${bpemode}${nbpe}
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

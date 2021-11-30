@@ -57,7 +57,7 @@ else
     echo "missing ${dec_conf}"
     exit 1
 fi
-# NOTE(kan-bayashi): preprocess conf is optional
+# preprocess conf is optional
 if [ -n "${preprocess_conf}" ]; then
     tar rfh ${outfile}.tar ${preprocess_conf}
     echo -n "    - preprocess config file: \`"

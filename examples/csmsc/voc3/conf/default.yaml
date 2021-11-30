@@ -6,8 +6,7 @@
 # This configuration is based on full-band MelGAN but the hop size and sampling
 # rate is different from the paper (16kHz vs 24kHz). The number of iteraions
 # is not shown in the paper so currently we train 1M iterations (not sure enough
-# to converge). The optimizer setting is based on @dathudeptrai advice.
-# https://github.com/kan-bayashi/ParallelWaveGAN/issues/143#issuecomment-632539906
+# to converge). 
 
 ###########################################################
 #                FEATURE EXTRACTION SETTING               #

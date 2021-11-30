@@ -24,7 +24,7 @@ python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---checkpoint_path ${ckpt_path} \
+--checkpoint_path "${ckpt_path}" \
 --seed ${seed}
 
 if [ ${seed} != 0 ]; then

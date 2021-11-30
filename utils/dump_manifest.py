@@ -16,8 +16,7 @@
 import argparse
 from pathlib import Path
 from typing import Union
-
-from paddlespeech.s2t.frontend.utility import read_manifest
+import jsonlines
 
 key_whitelist = set(['feat', 'text', 'syllable', 'phone'])
 filename = {
@@ -32,7 +31,10 @@ def dump_manifest(manifest_path, output_dir: Union[str, Path]):
 
     output_dir = Path(output_dir).expanduser()
     manifest_path = Path(manifest_path).expanduser()
-    manifest_jsons = read_manifest(manifest_path)
+
+    with jsonlines.open(str(manifest_path), 'r') as reader:
+        manifest_jsons = list(reader)
+        
     first_line = manifest_jsons[0]
     file_map = {}
 

@@ -13,10 +13,9 @@
 # limitations under the License.
 """Contains feature normalizers."""
 import json
-
+import jsonlines
 import numpy as np
 import paddle
-import jsonlines
 from paddle.io import DataLoader
 from paddle.io import Dataset
 
@@ -27,24 +26,6 @@ from paddlespeech.s2t.utils.log import Log
 __all__ = ["FeatureNormalizer"]
 
 logger = Log(__name__).getlog()
-
-def read_manifest(manifest_path):
-     """Load and parse manifest file.
- 
-     Args:
-         manifest_path ([type]): Manifest file to load and parse.
-     Raises:
-         IOError: If failed to parse the manifest.
- 
-     Returns:
-         List[dict]: Manifest parsing results.
-     """
- 
-     manifest = []
-     with jsonlines.open(manifest_path, 'r') as reader:
-         for json_data in reader:
-            manifest.append(json_data)
-     return manifest
  
 # https://github.com/PaddlePaddle/Paddle/pull/31481
 class CollateFunc(object):
@@ -78,10 +59,9 @@ class CollateFunc(object):
 class AudioDataset(Dataset):
     def __init__(self, manifest_path, num_samples=-1, rng=None, random_seed=0):
         self._rng = rng if rng else np.random.RandomState(random_seed)
-        manifest = []
+
         with jsonlines.open(manifest_path, 'r') as reader:
-         for json_data in reader:
-            manifest.append(json_data)
+            manifest = list(reader)
         
         if num_samples == -1:
             sampled_manifest = manifest

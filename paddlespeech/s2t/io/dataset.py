@@ -14,7 +14,7 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 from typing import Optional
-
+import jsonlines
 from paddle.io import Dataset
 from yacs.config import CfgNode
 
@@ -95,7 +95,7 @@ class ManifestDataset(Dataset):
         super().__init__()
 
         # read manifest
-        self._manifest = read_manifest_filter(
+        self._manifest = read_manifest(
             manifest_path=manifest_path,
             max_input_len=max_input_len,
             min_input_len=min_input_len,
@@ -184,7 +184,8 @@ class AudioDataset(Dataset):
         """
         assert batch_type in ['static', 'dynamic']
         # read manifest
-        data = read_manifest(data_file)
+        with jsonlines.open(data_file, 'r') as reader:
+            data = list(reader)
         if sort:
             data = sorted(data, key=lambda x: x["feat_shape"][0])
         if raw_wav:

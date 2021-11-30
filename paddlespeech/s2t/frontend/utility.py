@@ -64,7 +64,7 @@ def load_dict(dict_path: Optional[Text], maskctc=False) -> Optional[List[Text]]:
         char_list.append(MASKCTC)
     return char_list
 
-    
+
 def read_manifest(
         manifest_path,
         max_input_len=float('inf'),

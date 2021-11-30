@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains the impulse response augmentation model."""
 import jsonlines
+
 from paddlespeech.s2t.frontend.audio import AudioSegment
 from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
 

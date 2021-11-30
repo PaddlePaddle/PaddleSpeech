@@ -15,8 +15,8 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Text
-import jsonlines
 
+import jsonlines
 import numpy as np
 from paddle.io import DataLoader
 
@@ -93,7 +93,7 @@ class BatchDataLoader():
         # read json data
         with jsonlines.open(json_file, 'r') as reader:
             self.data_json = list(reader)
-            
+
         self.feat_dim, self.vocab_size = feat_dim_and_vocab_size(
             self.data_json, mode='asr')
 

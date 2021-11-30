@@ -16,6 +16,7 @@
 import argparse
 from pathlib import Path
 from typing import Union
+
 import jsonlines
 
 key_whitelist = set(['feat', 'text', 'syllable', 'phone'])
@@ -34,7 +35,7 @@ def dump_manifest(manifest_path, output_dir: Union[str, Path]):
 
     with jsonlines.open(str(manifest_path), 'r') as reader:
         manifest_jsons = list(reader)
-        
+
     first_line = manifest_jsons[0]
     file_map = {}
 

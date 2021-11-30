@@ -19,8 +19,9 @@ import argparse
 import functools
 import os
 import tempfile
-import jsonlines
 from collections import Counter
+
+import jsonlines
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import BLANK
@@ -63,7 +64,7 @@ def count_manifest(counter, text_feature, manifest_path):
     with jsonlines.open(manifest_path, 'r') as reader:
         for json_data in reader:
             manifest_jsons.append(json_data)
-        
+
     for line_json in manifest_jsons:
         line = text_feature.tokenize(line_json['text'], replace_space=False)
         counter.update(line)
@@ -73,7 +74,7 @@ def dump_text_manifest(fileobj, manifest_path, key='text'):
     with jsonlines.open(manifest_path, 'r') as reader:
         for json_data in reader:
             manifest_jsons.append(json_data)
-            
+
     for line_json in manifest_jsons:
         fileobj.write(line_json[key] + "\n")
 

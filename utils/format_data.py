@@ -15,8 +15,9 @@
 """format manifest with more metadata."""
 import argparse
 import functools
-import jsonlines
 import json
+
+import jsonlines
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_cmvn
@@ -73,7 +74,7 @@ def main():
     for manifest_path in args.manifest_paths:
         with jsonlines.open(str(manifest_path), 'r') as reader:
             manifest_jsons = list(reader)
-        
+
         for line_json in manifest_jsons:
             output_json = {
                 "input": [],

@@ -42,6 +42,7 @@ def read_manifest(manifest_path):
     for json_line in open(manifest_path, 'r'):
         try:
             json_data = json.loads(json_line)
+            manifest.append(json_data)
         except Exception as e:
             raise IOError("Error reading manifest: %s" % str(e))
     return manifest

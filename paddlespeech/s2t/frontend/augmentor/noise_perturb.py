@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains the noise perturb augmentation model."""
+import jsonlines
+
 from paddlespeech.s2t.frontend.audio import AudioSegment
 from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
-from paddlespeech.s2t.frontend.utility import read_manifest
 
 
 class NoisePerturbAugmentor(AugmentorBase):
@@ -34,7 +35,8 @@ class NoisePerturbAugmentor(AugmentorBase):
         self._min_snr_dB = min_snr_dB
         self._max_snr_dB = max_snr_dB
         self._rng = rng
-        self._noise_manifest = read_manifest(manifest_path=noise_manifest_path)
+        with jsonlines.open(noise_manifest_path, 'r') as reader:
+            self._noise_manifest = list(reader)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:

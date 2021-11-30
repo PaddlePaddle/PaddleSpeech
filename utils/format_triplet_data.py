@@ -17,9 +17,10 @@ import argparse
 import functools
 import json
 
+import jsonlines
+
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_cmvn
-from paddlespeech.s2t.frontend.utility import read_manifest
 from paddlespeech.s2t.io.utility import feat_type
 from paddlespeech.s2t.utils.utility import add_arguments
 from paddlespeech.s2t.utils.utility import print_arguments
@@ -63,7 +64,8 @@ def main():
 
     count = 0
     for manifest_path in args.manifest_paths:
-        manifest_jsons = read_manifest(manifest_path)
+        with jsonlines.open(str(manifest_path), 'r') as reader:
+            manifest_jsons = list(reader)
         for line_json in manifest_jsons:
             # text: translation text, text1: transcript text.
             # Currently only support joint-vocab, will add separate vocabs setting.

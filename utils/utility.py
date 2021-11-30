@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import hashlib
-import json
 import os
 import sys
 import tarfile
@@ -22,29 +21,8 @@ from typing import Text
 __all__ = [
     "check_md5sum", "getfile_insensitive", "download_multi", "download",
     "unpack", "unzip", "md5file", "print_arguments", "add_arguments",
-    "read_manifest", "get_commandline_args"
+    "get_commandline_args"
 ]
-
-
-def read_manifest(manifest_path):
-    """Load and parse manifest file.
-    Args:
-        manifest_path ([type]): Manifest file to load and parse.
-
-    Raises:
-        IOError: If failed to parse the manifest.
-
-    Returns:
-        List[dict]: Manifest parsing results.
-    """
-
-    manifest = []
-    for json_line in open(manifest_path, 'r'):
-        try:
-            json_data = json.loads(json_line)
-        except Exception as e:
-            raise IOError("Error reading manifest: %s" % str(e))
-    return manifest
 
 
 def get_commandline_args():

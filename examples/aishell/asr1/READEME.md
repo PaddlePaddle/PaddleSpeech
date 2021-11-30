@@ -339,6 +339,3 @@ You need to prepare an audio file, please confirm the sample rate of the audio i
 ```bash
 CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/test_audio.wav
 ```
-
-
-

@@ -110,7 +110,7 @@ Developers can have a try of our model with only a few lines of code.
 A tiny DeepSpeech2 **Speech-to-Text** model training on toy set of LibriSpeech:
 
 ```shell
-cd examples/tiny/s0/
+cd examples/tiny/asr0/
 # source the environment
 source path.sh
 source ../../../utils/parse_options.sh
@@ -177,20 +177,20 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
-      <a href = "./examples/aishell/s0">deepspeech2-aishell</a>
+      <a href = "./examples/aishell/asr0">deepspeech2-aishell</a>
       </td>
     </tr>
     <tr>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "./examples/aishell/s1">u2.transformer.conformer-aishell</a>
+      <a href = "./examples/aishell/asr1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
       <tr>
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
-      <a href = "./examples/librispeech/s0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/s1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/s2">transformer.conformer.u2-kaldi-librispeech</a>
+      <a href = "./examples/librispeech/asr0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/asr1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/asr2">transformer.conformer.u2-kaldi-librispeech</a>
       </td>
       </td>
     </tr>
@@ -199,7 +199,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   <td>THCHS30</td>
   <td>MFA</td>
   <td>
-  <a href = ".examples/thchs30/a0">mfa-thchs30</a>
+  <a href = ".examples/thchs30/align0">mfa-thchs30</a>
   </td>
   </tr>
    <tr>
@@ -213,7 +213,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       <td>TIMIT</td>
       <td>Unified Streaming & Non-streaming Two-pass</td>
       <td>
-    <a href = "./examples/timit/s1"> u2-timit</a>
+    <a href = "./examples/timit/asr1"> u2-timit</a>
       </td>
     </tr>
   </tbody>

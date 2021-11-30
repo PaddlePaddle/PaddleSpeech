@@ -3,6 +3,7 @@
 import argparse
 import functools
 from pathlib import Path
+
 import jsonlines
 
 from utils.utility import add_arguments

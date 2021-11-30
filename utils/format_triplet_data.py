@@ -16,6 +16,7 @@
 import argparse
 import functools
 import json
+
 import jsonlines
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer

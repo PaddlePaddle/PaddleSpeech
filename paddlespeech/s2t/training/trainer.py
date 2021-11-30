@@ -309,8 +309,10 @@ class Trainer():
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
+                self.visualizer.add_scalar(
+                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
+                self.visualizer.add_scalar(
+                    tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
 
             # after epoch
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})

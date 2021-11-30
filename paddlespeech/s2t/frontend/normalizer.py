@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains feature normalizers."""
 import json
+
 import jsonlines
 import numpy as np
 import paddle
@@ -26,7 +27,8 @@ from paddlespeech.s2t.utils.log import Log
 __all__ = ["FeatureNormalizer"]
 
 logger = Log(__name__).getlog()
- 
+
+
 # https://github.com/PaddlePaddle/Paddle/pull/31481
 class CollateFunc(object):
     def __init__(self, feature_func):
@@ -62,7 +64,7 @@ class AudioDataset(Dataset):
 
         with jsonlines.open(manifest_path, 'r') as reader:
             manifest = list(reader)
-        
+
         if num_samples == -1:
             sampled_manifest = manifest
         else:

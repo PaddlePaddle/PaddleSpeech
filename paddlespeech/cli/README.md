@@ -6,4 +6,4 @@
  `paddlespeech help`
 
  ## ASR
- `paddlespeech asr --input ./test_audio.wav --device gpu`
+ `paddlespeech asr --input ./test_audio.wav`

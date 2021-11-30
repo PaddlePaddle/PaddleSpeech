@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-
 # Copyright 2017 Johns Hopkins University (Shinji Watanabe)
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 from __future__ import print_function
@@ -17,8 +16,7 @@ is_python2 = sys.version_info[0] == 2
 def get_parser():
     parser = argparse.ArgumentParser(
         description="convert scp to json",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
     parser.add_argument("--key", "-k", type=str, help="key")
     return parser
 
@@ -28,10 +26,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     new_line = {}
-    sys.stdin = codecs.getreader("utf-8")(sys.stdin if is_python2 else sys.stdin.buffer)
-    sys.stdout = codecs.getwriter("utf-8")(
-        sys.stdout if is_python2 else sys.stdout.buffer
-    )
+    sys.stdin = codecs.getreader("utf-8")(sys.stdin
+                                          if is_python2 else sys.stdin.buffer)
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout
+                                           if is_python2 else sys.stdout.buffer)
     line = sys.stdin.readline()
     while line:
         x = line.rstrip().split()
@@ -43,6 +41,9 @@ if __name__ == "__main__":
 
     # ensure "ensure_ascii=False", which is a bug
     jsonstring = json.dumps(
-        all_l, indent=4, ensure_ascii=False, sort_keys=True, separators=(",", ": ")
-    )
+        all_l,
+        indent=4,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ": "))
     print(jsonstring)

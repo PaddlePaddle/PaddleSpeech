@@ -47,7 +47,7 @@ class BaseExecutor(ABC):
     def preprocess(self, input: Union[str, os.PathLike]):
         """
             Input preprocess and return paddle.Tensor stored in self.input.
-            Input content can be a text(t2s), a file(s2t, cls) or a streaming(not supported yet).
+            Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
         pass
 

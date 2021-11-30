@@ -245,8 +245,9 @@ class Trainer():
         self.maybe_batch_sampler_step()
 
     def after_train_batch(self):
-        if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
+        if self.args.benchmark_max_step:
             profiler.add_profiler_step(self.args.profiler_options)
+        if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
             logger.info(
                 f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
             sys.exit(

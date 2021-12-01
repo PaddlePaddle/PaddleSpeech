@@ -27,6 +27,58 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
+requirements = {
+    "install": [
+        "editdistance",
+        "g2p_en",
+        "g2pM",
+        "h5py",
+        "inflect",
+        "jieba",
+        "jsonlines",
+        "kaldiio",
+        "librosa",
+        "loguru",
+        "matplotlib",
+        "nara_wpe",
+        "nltk",
+        "pandas",
+        "paddlespeech_ctcdecoders",
+        "paddlespeech_feat",
+        "praatio~=4.1",
+        "pypi-kenlm",
+        "pypinyin",
+        "python-dateutil",
+        "pyworld",
+        "resampy==0.2.2",
+        "sacrebleu",
+        "scipy",
+        "sentencepiece~=0.1.96",
+        "soundfile~=0.10",
+        "sox",
+        "soxbindings",
+        "textgrid",
+        "timer",
+        "tqdm",
+        "typeguard",
+        "visualdl",
+        "webrtcvad",
+        "yacs",
+    ],
+    "develop": [
+        "ConfigArgParse",
+        "coverage",
+        "gpustat",
+        "phkit",
+        "Pillow",
+        "pybind11",
+        "snakeviz",
+        "unidecode",
+        "yq",
+        "pre-commit",
+    ]
+}
+
 
 @contextlib.contextmanager
 def pushd(new_dir):
@@ -130,7 +182,7 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='0.0.1a',
+    version='0.1.0a',
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',
@@ -158,8 +210,10 @@ setup_info = dict(
         "gan",
     ],
     python_requires='>=3.6',
-    install_requires=[d.strip() for d in read('requirements.txt').split()],
+    install_requires=requirements["install"],
     extras_require={
+        'develop':
+        requirements["develop"],
         'doc': [
             "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
             "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"

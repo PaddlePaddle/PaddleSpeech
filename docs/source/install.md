@@ -10,16 +10,25 @@ To avoid the trouble of environment setup, [running in Docker container](#runnin
 
 For user who working on `Ubuntu` with `root`  privilege.
 
-```python
+```bash
 git clone https://github.com/PaddlePaddle/DeepSpeech.git
-cd DeepSpeech
-pip install -e .
+cd PaddleSpeech
+```
+
+If you want to use the basic function of the repo, you can use:
+```bash
+pip install .
+```
+
+If you want to do the development, you can use:
+```
+pip install -e .[develop]
 ```
 
 For user who only needs the basic function of paddlespeech, using conda to do installing is recommended.
 You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version and install it by yourself, or you can use the scripts below to install the last miniconda version.
 
-```python
+```bash
 pushd tools
 bash extras/install_miniconda.sh
 popd
@@ -27,7 +36,7 @@ bash
 ```
 
 After installing the conda, run the setup.sh to complete the installing process.
-```python
+```bash
 bash setup.sh
 ```
 

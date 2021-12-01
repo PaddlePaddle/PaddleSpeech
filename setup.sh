@@ -2,7 +2,7 @@
 conda install -c conda-forge sox libsndfile swig bzip2 bottleneck gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
 
 # Install the python lib
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install the auto_log
 pushd tools/extras

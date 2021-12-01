@@ -10,7 +10,7 @@ WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
-all: virtualenv.done apt.done kenlm.done sox.done soxbindings.done mfa.done sclite.done
+all: virtualenv.done apt.done kenlm.done sox.done mfa.done sclite.done
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -44,11 +44,6 @@ sox.done:
 	tar -xvzf sox-14.4.2.tar.gz -C .
 	cd sox-14.4.2 && ./configure --prefix=/usr/ && make -j4 && make install
 	touch sox.done
-
-soxbindings.done:
-	test -d soxbindings || git clone https://github.com/pseeth/soxbindings.git
-	cd soxbindings && python setup.py install
-	touch soxbindings.done
 
 mfa.done:
 	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.bj.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz

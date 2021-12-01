@@ -104,7 +104,7 @@ def read_manifest(
             feat_len = json_data["input"][0]["shape"][
                 0] if "input" in json_data and "shape" in json_data["input"][0] else 1.0
             token_len = json_data["output"][0]["shape"][
-                0] if "output" in json_data and "shape" in json_data["input"][0] else 1.0
+                0] if "output" in json_data and "shape" in json_data["output"][0] else 1.0
             conditions = [
                 feat_len >= min_input_len,
                 feat_len <= max_input_len,

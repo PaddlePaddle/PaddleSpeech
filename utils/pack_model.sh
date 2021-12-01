@@ -82,12 +82,12 @@ if [ -e ${e2e} ]; then
 
     e2e_conf=$(dirname ${e2e})/model.json
     if [ ! -e ${e2e_conf} ]; then
-	echo missing ${e2e_conf}
-	#exit 1
+	    echo missing ${e2e_conf}
+	    #exit 1
     else
-	echo -n "    - e2e JSON file: \`"
-	echo ${e2e_conf} | sed -e "s/$/\`/"
-	tar rfh ${outfile}.tar ${e2e_conf}
+	    echo -n "    - e2e JSON file: \`"
+	    echo ${e2e_conf} | sed -e "s/$/\`/"
+	    tar rfh ${outfile}.tar ${e2e_conf}
     fi
 else
     echo "missing ${e2e}"
@@ -104,7 +104,7 @@ if [ -n "${lm}" ]; then
 	lm_conf=$(dirname ${lm})/model.json
 	if [ ! -e ${lm_conf} ]; then
 	    echo missing ${lm_conf}
-	    exit 1
+	    #exit 1
 	else
 	    echo -n "    - lm JSON file: \`"
 	    echo ${lm_conf} | sed -e "s/$/\`/"

@@ -42,7 +42,7 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     # generate manifests
     python3 ${TARGET_DIR}/ted_en_zh/ted_en_zh.py \
     --manifest_prefix="data/manifest" \
-    --src_dir="${data_dir}"
+    --src-dir="${data_dir}"
 
     echo "Complete raw data pre-process."
 fi

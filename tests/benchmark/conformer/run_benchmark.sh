@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -xe
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}
 # 参数说明
 function _set_params(){
@@ -35,13 +34,15 @@ function _set_params(){
 function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
-    train_cmd="--config=${config_path}
-               --output=${output}
-               --seed=${seed}
-               --ngpu=${ngpu}
-               --profiler-options "${profiler_options}"
-               --benchmark-batch-size ${batch_size}
-               --benchmark-max-step ${benchmark_max_step} "
+    train_cmd="--config=${config_path} \
+           --output=${output} \
+           --seed=${seed} \
+           --ngpu=${ngpu} \
+           --benchmark-batch-size ${batch_size} \
+           --benchmark-max-step ${benchmark_max_step} "
+    if [ ${profiler_options} != "None" ]; then
+        train_cmd=${train_cmd}" --profiler-options=${profiler_options}"
+    fi
 
     case ${run_mode} in
     sp) train_cmd="python -u ${BIN_DIR}/train.py "${train_cmd} ;;

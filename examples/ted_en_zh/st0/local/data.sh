@@ -76,8 +76,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --spm_vocab_size=${nbpe} \
     --spm_mode ${bpemode} \
     --spm_model_prefix ${bpeprefix} \
+    --spm_character_coverage 1. \
     --vocab_path="${dict_dir}/vocab.txt" \
-    --text_keys 'text' 'text1' \
+    --text_keys 'text' \
     --manifest_paths="data/manifest.train.raw"
 
     if [ $? -ne 0 ]; then

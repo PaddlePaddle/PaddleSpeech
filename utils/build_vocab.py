@@ -55,6 +55,8 @@ add_arg('text_keys', str,
 add_arg('spm_vocab_size', int, 0, "Vocab size for spm.")
 add_arg('spm_mode', str, 'unigram', "spm model type, e.g. unigram, spm, char, word. only need when `unit_type` is spm")
 add_arg('spm_model_prefix', str, "", "spm_model_%(spm_mode)_%(count_threshold), spm model prefix, only need when `unit_type` is spm")
+add_arg('spm_character_coverage', float, 0.9995, "character coverage to determine the minimum symbols")
+
 # yapf: disable
 args = parser.parse_args()
 
@@ -66,8 +68,14 @@ def count_manifest(counter, text_feature, manifest_path):
             manifest_jsons.append(json_data)
 
     for line_json in manifest_jsons:
-        line = text_feature.tokenize(line_json['text'], replace_space=False)
-        counter.update(line)
+        if isinstance(line_json['text'], str):
+            line = text_feature.tokenize(line_json['text'], replace_space=False)
+            counter.update(line)
+        else:
+            assert isinstance(line_json['text'], list)
+            for text in line_json['text']:
+                line = text_feature.tokenize(text, replace_space=False)
+                counter.update(line)
 
 def dump_text_manifest(fileobj, manifest_path, key='text'):
     manifest_jsons = []
@@ -76,7 +84,12 @@ def dump_text_manifest(fileobj, manifest_path, key='text'):
             manifest_jsons.append(json_data)
 
     for line_json in manifest_jsons:
-        fileobj.write(line_json[key] + "\n")
+        if isinstance(line_json[key], str):
+            fileobj.write(line_json[key] + "\n")
+        else:
+            assert isinstance(line_json[key], list)
+            for line in line_json[key]:
+                fileobj.write(line + "\n")
 
 def main():
     print_arguments(args, globals())
@@ -104,7 +117,7 @@ def main():
             model_type=args.spm_mode,
             model_prefix=args.spm_model_prefix,
             input_sentence_size=100000000,
-            character_coverage=0.9995)
+            character_coverage=args.spm_character_coverage)
         os.unlink(fp.name)
 
     # encode

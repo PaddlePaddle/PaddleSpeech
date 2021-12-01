@@ -26,8 +26,8 @@ class BaseExecutor(ABC):
     """
 
     def __init__(self):
-        self.input = None
-        self.output = None
+        self._inputs = dict()
+        self._outputs = dict()
 
     @abstractmethod
     def _get_pretrained_path(self, tag: str) -> os.PathLike:

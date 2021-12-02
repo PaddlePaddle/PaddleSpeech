@@ -23,9 +23,12 @@ def _CommandDict():
 
 def _execute():
     com = commands
-    for idx, _argv in enumerate(['paddlespeech'] + sys.argv[1:]):
+
+    idx = 0
+    for _argv in (['paddlespeech'] + sys.argv[1:]):
         if _argv not in com:
             break
+        idx += 1
         com = com[_argv]
 
     # The method 'execute' of a command instance returns 'True' for a success

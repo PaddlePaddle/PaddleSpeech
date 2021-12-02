@@ -24,15 +24,19 @@ from paddle import distributed as dist
 from timer import timer
 from yacs.config import CfgNode
 
+import paddlespeech
 from paddlespeech.t2s.datasets.data_table import DataTable
-from paddlespeech.t2s.models.melgan import MelGANGenerator
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Synthesize with multi band melgan.")
+    parser = argparse.ArgumentParser(description="Synthesize with GANVocoder.")
     parser.add_argument(
-        "--config", type=str, help="multi band melgan config file.")
+        "--generator-type",
+        type=str,
+        default="pwgan",
+        help="type of GANVocoder, should in {pwgan, mb_melgan, style_melgan, } now"
+    )
+    parser.add_argument("--config", type=str, help="GANVocoder config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
@@ -59,15 +63,29 @@ def main():
         paddle.set_device("gpu")
     else:
         print("ngpu should >= 0 !")
-    generator = MelGANGenerator(**config["generator_params"])
+
+    class_map = {
+        "hifigan": "HiFiGANGenerator",
+        "mb_melgan": "MelGANGenerator",
+        "pwgan": "PWGGenerator",
+        "style_melgan": "StyleMelGANGenerator",
+    }
+
+    generator_type = args.generator_type
+
+    assert generator_type in class_map
+
+    print("generator_type:", generator_type)
+
+    generator_class = getattr(paddlespeech.t2s.models,
+                              class_map[generator_type])
+    generator = generator_class(**config["generator_params"])
     state_dict = paddle.load(args.checkpoint)
     generator.set_state_dict(state_dict["generator_params"])
-
     generator.remove_weight_norm()
     generator.eval()
     with jsonlines.open(args.test_metadata, 'r') as reader:
         metadata = list(reader)
-
     test_dataset = DataTable(
         metadata,
         fields=['utt_id', 'feats'],

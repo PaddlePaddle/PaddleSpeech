@@ -35,7 +35,7 @@ generator_params:
     dropout: 0.0          # Dropout rate. 0.0 means no dropout applied.
     use_weight_norm: true # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
-    upsample_scales: [4, 5, 3, 5]     # Upsampling scales. Prodcut of these must be the same as hop size.
+    upsample_scales: [4, 5, 3, 5]     # Upsampling scales. prod(upsample_scales) == n_shift
 
 ###########################################################
 #       DISCRIMINATOR NETWORK ARCHITECTURE SETTING        #
@@ -71,7 +71,7 @@ lambda_adv: 4.0  # Loss balancing coefficient.
 #                  DATA LOADER SETTING                    #
 ###########################################################
 batch_size: 8              # Batch size.
-batch_max_steps: 24000     # Length of each audio in batch. Make sure dividable by hop_size.
+batch_max_steps: 24000     # Length of each audio in batch. Make sure dividable by n_shift.
 pin_memory: true           # Whether to pin memory in Pytorch DataLoader.
 num_workers: 4             # Number of workers in Pytorch DataLoader.
 remove_short_samples: true # Whether to remove samples the length of which are less than batch_max_steps.

@@ -6,8 +6,7 @@
 # This configuration is based on full-band MelGAN but the hop size and sampling
 # rate is different from the paper (16kHz vs 24kHz). The number of iteraions
 # is not shown in the paper so currently we train 1M iterations (not sure enough
-# to converge). The optimizer setting is based on @dathudeptrai advice.
-# https://github.com/kan-bayashi/ParallelWaveGAN/issues/143#issuecomment-632539906
+# to converge). 
 
 ###########################################################
 #                FEATURE EXTRACTION SETTING               #
@@ -30,7 +29,7 @@ generator_params:
     out_channels: 4               # Number of output channels.
     kernel_size: 7                # Kernel size of initial and final conv layers.
     channels: 384                 # Initial number of channels for conv layers.
-    upsample_scales: [5, 5, 3]    # List of Upsampling scales.
+    upsample_scales: [5, 5, 3]    # List of Upsampling scales. prod(upsample_scales) == n_shift
     stack_kernel_size: 3          # Kernel size of dilated conv layers in residual stack.
     stacks: 4                     # Number of stacks in a single residual stack module.
     use_weight_norm: True         # Whether to use weight normalization.
@@ -73,7 +72,7 @@ stft_loss_params:
 use_subband_stft_loss: true
 subband_stft_loss_params:
     fft_sizes: [384, 683, 171]  # List of FFT size for STFT-based loss.
-    hop_sizes: [30, 60, 10]     # List of hop size for STFT-based loss
+    hop_sizes: [30, 60, 10]     # List of hop size for STFT-based loss.
     win_lengths: [150, 300, 60] # List of window length for STFT-based loss.
     window: "hann"              # Window function for STFT-based loss
 
@@ -87,7 +86,7 @@ lambda_adv: 2.5            # Loss balancing coefficient for adversarial loss.
 #                  DATA LOADER SETTING                    #
 ###########################################################
 batch_size: 64             # Batch size.
-batch_max_steps: 16200     # Length of each audio in batch. Make sure dividable by hop_size.
+batch_max_steps: 16200     # Length of each audio in batch. Make sure dividable by n_shift.
 num_workers: 2             # Number of workers in DataLoader.
 
 ###########################################################
@@ -109,7 +108,7 @@ generator_scheduler_params:
         - 500000
         - 600000
 discriminator_optimizer_params:
-    epsilon: 1.0e-7                          # Discriminator's epsilon.
+    epsilon: 1.0e-7                         # Discriminator's epsilon.
     weight_decay: 0.0                       # Discriminator's weight decay coefficient.
   
 discriminator_grad_norm: -1                 # Discriminator's gradient norm.
@@ -129,7 +128,7 @@ discriminator_scheduler_params:
 ###########################################################
 discriminator_train_start_steps: 200000 # Number of steps to start to train discriminator.
 train_max_steps: 2000000                # Number of training steps.
-save_interval_steps: 1000              # Interval steps to save checkpoint.
+save_interval_steps: 1000               # Interval steps to save checkpoint.
 eval_interval_steps: 1000               # Interval steps to evaluate the network.
 
 ###########################################################

@@ -225,19 +225,16 @@ class ASRExecutor(BaseExecutor):
 
             if self.change_format:
                 if audio.shape[1] >= 2:
-                    audio = audio.mean(axis=1)
+                    audio = audio.mean(axis=1, dtype=np.int16)
                 else:
                     audio = audio[:, 0]
                 # pcm16 -> pcm 32
-                audio = audio.astype("float32")
-                bits = np.iinfo(np.int16).bits
-                audio = audio / (2**(bits - 1))
+                audio = self._pcm16to32(audio)
                 audio = librosa.resample(audio, audio_sample_rate,
                                          self.sample_rate)
                 audio_sample_rate = self.sample_rate
                 # pcm32 -> pcm 16
-                audio = audio * (2**(bits - 1))
-                audio = np.round(audio).astype("int16")
+                audio = self._pcm32to16(audio)
             else:
                 audio = audio[:, 0]
 
@@ -311,6 +308,20 @@ class ASRExecutor(BaseExecutor):
             Output postprocess and return human-readable results such as texts and audio files.
         """
         return self._outputs["result"]
+
+    def _pcm16to32(self, audio):
+        assert(audio.dtype == np.int16)
+        audio = audio.astype("float32")
+        bits = np.iinfo(np.int16).bits
+        audio = audio / (2**(bits - 1))
+        return audio
+
+    def _pcm32to16(self, audio):
+        assert(audio.dtype == np.float32)
+        bits = np.iinfo(np.int16).bits
+        audio = audio * (2**(bits - 1))
+        audio = np.round(audio).astype("int16")
+        return audio
 
     def _check(self, audio_file: str, sample_rate: int):
         self.sample_rate = sample_rate

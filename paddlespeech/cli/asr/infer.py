@@ -235,7 +235,7 @@ class ASRExecutor(BaseExecutor):
                 audio = librosa.resample(audio, audio_sample_rate,
                                          self.sample_rate)
                 audio_sample_rate = self.sample_rate
-                # pcm16 -> pcm 32
+                # pcm32 -> pcm 16
                 audio = audio * (2**(bits - 1))
                 audio = np.round(audio).astype("int16")
             else:

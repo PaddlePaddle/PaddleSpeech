@@ -432,6 +432,7 @@ class U2STTester(U2STTrainer):
         """"E2E translation from extracted audio feature"""
         cfg = self.config.decoding
         text_feature = self.test_loader.collate_fn.text_feature
+        self.model.eval()
 
         hyps = self.model.decode(
             audio,

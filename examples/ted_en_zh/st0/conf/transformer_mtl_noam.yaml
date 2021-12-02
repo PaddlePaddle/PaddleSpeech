@@ -86,7 +86,7 @@ training:
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 5
+  log_interval: 50
   checkpoint:
     kbest_n: 50
     latest_n: 5

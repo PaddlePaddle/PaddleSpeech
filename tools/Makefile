@@ -10,7 +10,7 @@ WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
-all: virtualenv.done apt.done kenlm.done sox.done mfa.done sclite.done
+all: apt.done kenlm.done mfa.done sclite.done
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -35,7 +35,7 @@ kenlm.done:
 	apt-get install -y gcc-5 g++-5 && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
 	test -d kenlm || $(WGET) -O - https://kheafield.com/code/kenlm.tar.gz | tar xz
 	rm -rf kenlm/build && mkdir -p kenlm/build && cd kenlm/build && cmake .. && make -j4 && make install
-	cd kenlm && python setup.py install
+	cd kenlm && python3 setup.py install
 	touch kenlm.done
 
 sox.done:

@@ -228,10 +228,15 @@ class ASRExecutor(BaseExecutor):
                     audio = audio.mean(axis=1)
                 else:
                     audio = audio[:, 0]
+                # pcm16 -> pcm 32
                 audio = audio.astype("float32")
+                bits = np.iinfo(np.int16).bits
+                audio = audio / (2**(bits - 1))
                 audio = librosa.resample(audio, audio_sample_rate,
                                          self.sample_rate)
                 audio_sample_rate = self.sample_rate
+                # pcm32 -> pcm 16
+                audio = audio * (2**(bits - 1))
                 audio = np.round(audio).astype("int16")
             else:
                 audio = audio[:, 0]
@@ -342,7 +347,7 @@ class ASRExecutor(BaseExecutor):
                 "The sample rate of the input file is not {}.\n \
                             The program will resample the wav file to {}.\n \
                             If the result does not meet your expectations，\n \
-                            Please input the 16k 16bit 1 channel wav file. \
+                            Please input the 16k 16 bit 1 channel wav file. \
                         "
                 .format(self.sample_rate, self.sample_rate))
             while (True):

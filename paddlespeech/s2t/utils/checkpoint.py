@@ -94,7 +94,7 @@ class Checkpoint():
         """
         configs = {}
 
-        if checkpoint_path is not None:
+        if checkpoint_path:
             pass
         elif checkpoint_dir is not None and record_file is not None:
             # load checkpint from record file

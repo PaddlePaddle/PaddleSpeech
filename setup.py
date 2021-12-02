@@ -124,24 +124,11 @@ def _post_install(install_lib_dir):
         check_call("make")
     print("tools install.")
 
-    # install autolog
-    tools_extrs_dir = HERE / 'tools/extras'
-    with pushd(tools_extrs_dir):
-        print(os.getcwd())
-        check_call("./install_autolog.sh")
-    print("autolog install.")
     # ctcdecoder
     ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
-
-    # install third_party
-    third_party_dir = HERE / 'third_party'
-    with pushd(third_party_dir):
-        check_call("bash -e install.sh")
-    print("third_party install.")
-
 
 class DevelopCommand(develop):
     def run(self):

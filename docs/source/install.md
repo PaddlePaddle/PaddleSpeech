@@ -23,12 +23,6 @@ If you are in touch with PaddleSpeech for the first time and want to experience 
 
 If you want to install the paddlespeech on your own mechine. There are 3 steps you need to do.
 
-### Install PaddlePaddle
-
-```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
-```
-
 ### Install the Conda
 
 The first setup is installing the conda. Conda is environment management system. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the scripts below:
@@ -60,6 +54,14 @@ Intall the conda dependencies
 
 ```bash
 conda install -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
+```
+
+### Install PaddlePaddle
+
+For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
+
+```bash
+python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 
 ### Install the PaddleSpeech Using PiP
@@ -118,20 +120,10 @@ git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 - Run the Docker image
 
 ```bash
-sudo nvidia-docker run --rm -it -v $(pwd)/PaddleSpeech:/PaddleSpeech registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7 /bin/bash
+sudo nvidia-docker run --net=host --ipc=host --rm -it -v $(pwd)/PaddleSpeech:/PaddleSpeech registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7 /bin/bash
 ```
 
 Now you can execute training, inference and hyper-parameters tuning in the Docker container.
-
-
-- Install PaddlePaddle
-
-For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
-
-```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
-```
-
 
 ### Choice 2: Running in Ubuntu with Root Privilege
 
@@ -165,13 +157,21 @@ conda activate py37
 conda install -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
 ```
 
+### Install PaddlePaddle
+
+For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
+
+```bash
+python3 -m pip install paddlepaddle-gpu==2.2.0
+```
+
 ### Get the Funcition for Developing PaddleSpeech
 
 ```bash
-pip install .[develop]
+pip install -e .[develop]
 ```
 
-### Install the Kaldi
+### Install the Kaldi (Optional)
 
 ```bash
 pushd tools

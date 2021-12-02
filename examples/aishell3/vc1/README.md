@@ -21,7 +21,7 @@ We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Pretrained GE2E Model
-We use pretrained GE2E model to generate spwaker embedding for each sentence.
+We use pretrained GE2E model to generate speaker embedding for each sentence.
 
 Download pretrained GE2E model from here [ge2e_ckpt_0.3.zip](https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip), and `unzip` it.
 

@@ -14,6 +14,7 @@
 """Contains feature normalizers."""
 import json
 
+import jsonlines
 import numpy as np
 import paddle
 from paddle.io import DataLoader
@@ -21,7 +22,6 @@ from paddle.io import Dataset
 
 from paddlespeech.s2t.frontend.audio import AudioSegment
 from paddlespeech.s2t.frontend.utility import load_cmvn
-from paddlespeech.s2t.frontend.utility import read_manifest
 from paddlespeech.s2t.utils.log import Log
 
 __all__ = ["FeatureNormalizer"]
@@ -61,7 +61,10 @@ class CollateFunc(object):
 class AudioDataset(Dataset):
     def __init__(self, manifest_path, num_samples=-1, rng=None, random_seed=0):
         self._rng = rng if rng else np.random.RandomState(random_seed)
-        manifest = read_manifest(manifest_path)
+
+        with jsonlines.open(manifest_path, 'r') as reader:
+            manifest = list(reader)
+
         if num_samples == -1:
             sampled_manifest = manifest
         else:

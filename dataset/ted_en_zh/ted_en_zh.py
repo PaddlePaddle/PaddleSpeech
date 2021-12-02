@@ -28,7 +28,7 @@ import soundfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
-    "--src_dir",
+    "--src-dir",
     default="",
     type=str,
     help="Directory to kaldi splited data. (default: %(default)s)")

@@ -14,7 +14,7 @@ collator:
   mean_std_filepath: data/mean_std.json
   vocab_filepath: data/lang_char/vocab.txt 
   unit_type: 'spm'
-  spm_model_prefix: 'data/bpe_unigram_200'
+  spm_model_prefix: 'data/lang_char/bpe_unigram_200'
   augmentation_config: conf/preprocess.yaml
   batch_size: 4
   raw_wav: True  # use raw_wav or kaldi feature

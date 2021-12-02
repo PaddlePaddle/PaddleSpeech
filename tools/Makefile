@@ -10,7 +10,7 @@ WGET ?= wget --no-check-certificate
 
 .PHONY: all clean
 
-all: virtualenv.done apt.done kenlm.done sox.done soxbindings.done mfa.done sclite.done
+all: apt.done kenlm.done mfa.done sclite.done
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -35,7 +35,7 @@ kenlm.done:
 	apt-get install -y gcc-5 g++-5 && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
 	test -d kenlm || $(WGET) -O - https://kheafield.com/code/kenlm.tar.gz | tar xz
 	rm -rf kenlm/build && mkdir -p kenlm/build && cd kenlm/build && cmake .. && make -j4 && make install
-	cd kenlm && python setup.py install
+	cd kenlm && python3 setup.py install
 	touch kenlm.done
 
 sox.done:
@@ -44,11 +44,6 @@ sox.done:
 	tar -xvzf sox-14.4.2.tar.gz -C .
 	cd sox-14.4.2 && ./configure --prefix=/usr/ && make -j4 && make install
 	touch sox.done
-
-soxbindings.done:
-	test -d soxbindings || git clone https://github.com/pseeth/soxbindings.git
-	cd soxbindings && python setup.py install
-	touch soxbindings.done
 
 mfa.done:
 	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.bj.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz

@@ -16,10 +16,10 @@ from typing import Dict
 from typing import List
 from typing import Text
 
+import jsonlines
 import numpy as np
 from paddle.io import DataLoader
 
-from paddlespeech.s2t.frontend.utility import read_manifest
 from paddlespeech.s2t.io.batchfy import make_batchset
 from paddlespeech.s2t.io.converter import CustomConverter
 from paddlespeech.s2t.io.dataset import TransformDataset
@@ -91,7 +91,9 @@ class BatchDataLoader():
         self.n_iter_processes = n_iter_processes
 
         # read json data
-        self.data_json = read_manifest(json_file)
+        with jsonlines.open(json_file, 'r') as reader:
+            self.data_json = list(reader)
+
         self.feat_dim, self.vocab_size = feat_dim_and_vocab_size(
             self.data_json, mode='asr')
 

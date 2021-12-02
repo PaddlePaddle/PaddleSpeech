@@ -4,9 +4,10 @@ import argparse
 import functools
 from pathlib import Path
 
+import jsonlines
+
 from utils.utility import add_arguments
 from utils.utility import print_arguments
-from utils.utility import read_manifest
 
 
 def main(args):
@@ -19,7 +20,8 @@ def main(args):
     dur_scp = outdir / 'duration'
     text_scp = outdir / 'text'
 
-    manifest_jsons = read_manifest(args.manifest_path)
+    with jsonlines.open(args.manifest_path, 'r') as reader:
+        manifest_jsons = list(reader)
 
     with wav_scp.open('w') as fwav, dur_scp.open('w') as fdur, text_scp.open(
             'w') as ftxt:

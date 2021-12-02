@@ -15,6 +15,7 @@
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 from typing import Optional
 
+import jsonlines
 from paddle.io import Dataset
 from yacs.config import CfgNode
 
@@ -184,7 +185,8 @@ class AudioDataset(Dataset):
         """
         assert batch_type in ['static', 'dynamic']
         # read manifest
-        data = read_manifest(data_file)
+        with jsonlines.open(data_file, 'r') as reader:
+            data = list(reader)
         if sort:
             data = sorted(data, key=lambda x: x["feat_shape"][0])
         if raw_wav:

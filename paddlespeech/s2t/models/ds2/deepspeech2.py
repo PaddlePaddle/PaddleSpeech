@@ -249,8 +249,8 @@ class DeepSpeech2Model(nn.Layer):
             The model built from config.
         """
         model = cls(
-            feat_size=config.feat_size,
-            dict_size=config.dict_size,
+            feat_size=config.input_dim,
+            dict_size=config.output_dim,
             num_conv_layers=config.num_conv_layers,
             num_rnn_layers=config.num_rnn_layers,
             rnn_size=config.rnn_layer_size,

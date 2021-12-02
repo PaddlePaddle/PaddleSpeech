@@ -98,14 +98,13 @@ def read_manifest(
     Returns:
         List[dict]: Manifest parsing results.
     """
-
     manifest = []
     with jsonlines.open(manifest_path, 'r') as reader:
         for json_data in reader:
-            feat_len = json_data["feat_shape"][
-                0] if 'feat_shape' in json_data else 1.0
-            token_len = json_data["token_shape"][
-                0] if 'token_shape' in json_data else 1.0
+            feat_len = json_data["input"][0]["shape"][
+                0] if "input" in json_data and "shape" in json_data["input"][0] else 1.0
+            token_len = json_data["output"][0]["shape"][
+                0] if "output" in json_data and "shape" in json_data["output"][0] else 1.0
             conditions = [
                 feat_len >= min_input_len,
                 feat_len <= max_input_len,

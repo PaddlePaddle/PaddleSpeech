@@ -21,7 +21,7 @@ import wave
 from time import gmtime
 from time import strftime
 
-from paddlespeech.s2t.frontend.utility import read_manifest
+import jsonlines
 
 __all__ = ["socket_send", "warm_up_test", "AsrTCPServer", "AsrRequestHandler"]
 
@@ -44,7 +44,8 @@ def warm_up_test(audio_process_handler,
                  num_test_cases,
                  random_seed=0):
     """Warming-up test."""
-    manifest = read_manifest(manifest_path)
+    with jsonlines.open(manifest_path) as reader:
+        manifest = list(reader)
     rng = random.Random(random_seed)
     samples = rng.sample(manifest, num_test_cases)
     for idx, sample in enumerate(samples):

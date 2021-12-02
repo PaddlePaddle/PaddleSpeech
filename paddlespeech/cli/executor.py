@@ -14,7 +14,8 @@
 import os
 from abc import ABC
 from abc import abstractmethod
-from typing import Optional
+from typing import Any
+from typing import List
 from typing import Union
 
 import paddle
@@ -26,42 +27,76 @@ class BaseExecutor(ABC):
     """
 
     def __init__(self):
-        self.input = None
-        self.output = None
+        self._inputs = dict()
+        self._outputs = dict()
 
     @abstractmethod
-    def _get_default_cfg_path(self):
+    def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
-            Returns a default config file path of current task.
+        Download and returns pretrained resources path of current task.
+
+        Args:
+            tag (str): A tag of pretrained model.
+
+        Returns:
+            os.PathLike: The path on which resources of pretrained model locate. 
         """
         pass
 
     @abstractmethod
-    def _init_from_cfg(self, cfg_path: Optional[os.PathLike]=None):
+    def _init_from_path(self, *args, **kwargs):
         """
-            Init model from a specific config file.
+        Init model and other resources from arguments. This method should be called by `__call__()`.
         """
         pass
 
     @abstractmethod
-    def preprocess(self, input: Union[str, os.PathLike]):
+    def preprocess(self, input: Any, *args, **kwargs):
         """
-            Input preprocess and return paddle.Tensor stored in self.input.
-            Input content can be a text(t2s), a file(s2t, cls) or a streaming(not supported yet).
+        Input preprocess and return paddle.Tensor stored in self._inputs.
+        Input content can be a text(tts), a file(asr, cls), a stream(not supported yet) or anything needed.
+
+        Args:
+            input (Any): Input text/file/stream or other content.
         """
         pass
 
     @paddle.no_grad()
     @abstractmethod
-    def infer(self, device: str):
+    def infer(self, *args, **kwargs):
         """
-            Model inference and result stored in self.output.
+        Model inference and put results into self._outputs.
+        This method get input tensors from self._inputs, and write output tensors into self._outputs.
         """
         pass
 
     @abstractmethod
-    def postprocess(self) -> Union[str, os.PathLike]:
+    def postprocess(self, *args, **kwargs) -> Union[str, os.PathLike]:
         """
-            Output postprocess and return human-readable results such as texts and audio files.
+        Output postprocess and return results.
+        This method get model output from self._outputs and convert it into human-readable results.
+
+        Returns:
+            Union[str, os.PathLike]: Human-readable results such as texts and audio files.
+        """
+        pass
+
+    @abstractmethod
+    def execute(self, argv: List[str]) -> bool:
+        """
+        Command line entry. This method can only be accessed by a command line such as `paddlespeech asr`.
+
+        Args:
+            argv (List[str]): Arguments from command line.
+
+        Returns:
+            int: Result of the command execution. `True` for a success and `False` for a failure.
+        """
+        pass
+
+    @abstractmethod
+    def __call__(self, *arg, **kwargs):
+        """
+        Python API to call an executor.
         """
         pass

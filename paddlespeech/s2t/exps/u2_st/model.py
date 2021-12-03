@@ -553,12 +553,6 @@ class U2STTester(U2STTrainer):
             })
             f.write(data + '\n')
 
-    @paddle.no_grad()
-    def align(self):
-        ctc_utils.ctc_align(self.config, self.model, self.align_loader,
-                            self.config.decoding.batch_size,
-                            self.config.collator.stride_ms, self.vocab_list,
-                            self.args.result_file)
 
     def load_inferspec(self):
         """infer model and input spec.
@@ -567,8 +561,8 @@ class U2STTester(U2STTrainer):
             nn.Layer: inference model
             List[paddle.static.InputSpec]: input spec.
         """
-        from paddlespeech.s2t.models.u2 import U2InferModel
-        infer_model = U2InferModel.from_pretrained(self.test_loader,
+        from paddlespeech.s2t.models.u2_st import U2STInferModel
+        infer_model = U2STInferModel.from_pretrained(self.test_loader,
                                                    self.config.model.clone(),
                                                    self.args.checkpoint_path)
         feat_dim = self.test_loader.collate_fn.feature_size

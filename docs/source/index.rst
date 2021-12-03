@@ -1,4 +1,4 @@
-Welcome to paddle PaddleSpeech documentation !
+Welcome to PaddleSpeech
 ==============================================
 
 **PaddleSpeech** is a Speech toolkits implemented by paddlepaddle.

@@ -130,6 +130,7 @@ def _post_install(install_lib_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
 
+
 class DevelopCommand(develop):
     def run(self):
         develop.run(self)
@@ -213,8 +214,7 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(exclude=('utils', 'tests', 'tests.*', 'examples*',
-                                    'paddleaudio*', 'third_party*', 'tools*')),
+    packages=find_packages(include=('paddlespeech*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 3 - Alpha',

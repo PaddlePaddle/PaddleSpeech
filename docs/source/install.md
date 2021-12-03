@@ -2,7 +2,7 @@
 There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into `Easy`, `Medium` and `Hard`.
 
 ## Easy: Get the Basic Funcition Without Your Own Mechine
-If you are a newer of `PaddleSpeech` and want to experience it easily without your own mechine. We recommand you to use [AI Studio (https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
+If you are a newer of `PaddleSpeech` and want to experience it easily without your own mechine. We recommand you to use [AI Studio] (https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
 
 ## Prerequisites for Medium and Hard
 - Python >= 3.7

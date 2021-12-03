@@ -214,7 +214,7 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(include=('paddlespeech')),
+    packages=find_packages(include=('paddlespeech*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 3 - Alpha',

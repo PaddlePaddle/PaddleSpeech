@@ -46,6 +46,16 @@ pretrained_models = {
         'conf/conformer.yaml',
         'ckpt_path':
         'exp/conformer/checkpoints/wenetspeech',
+    },
+    "transformer_zh_16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz',
+        'md5':
+        '4e8b63800c71040b9390b150e2a5d4c4',
+        'cfg_path':
+        'conf/transformer.yaml',
+        'ckpt_path':
+        'exp/transformer/checkpoints/avg_20',
     }
 }
 

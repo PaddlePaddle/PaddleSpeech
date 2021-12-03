@@ -9,7 +9,7 @@ WGET=${WGET:-wget}
 if [ -d "$DOWNLOAD_DIR" ]; then
     cp -p "$DOWNLOAD_DIR/Miniconda3-latest-Linux-x86_64.sh" . || exit 1
 else
-    $WGET https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh || exit 1
+    $WGET -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh || exit 1
 fi
 bash Miniconda3-latest-Linux-x86_64.sh -b
 

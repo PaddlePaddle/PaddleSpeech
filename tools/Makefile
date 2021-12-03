@@ -8,9 +8,10 @@ CC ?= gcc        # used for sph2pipe
 
 WGET ?= wget --no-check-certificate
 
-.PHONY: all clean
+.PHONY: all clean 
 
-all: apt.done kenlm.done mfa.done sclite.done
+all: apt.done kenlm.done mfa.done sctk.done
+
 
 virtualenv.done:
 	test -d venv || virtualenv -p $(PYTHON) venv
@@ -28,6 +29,7 @@ apt.done:
 	echo "check_certificate = off" >> ~/.wgetrc
 	touch apt.done
 
+
 kenlm.done:
 	# Ubuntu 16.04 透過 apt 會安裝 boost 1.58.0
 	# it seems that boost (1.54.0) requires higher version. After I switched to g++-5 it compiles normally.
@@ -38,12 +40,6 @@ kenlm.done:
 	cd kenlm && python3 setup.py install
 	touch kenlm.done
 
-sox.done:
-	apt install -y libvorbis-dev libmp3lame-dev libmad-ocaml-dev
-	test -d sox-14.4.2 || $(WGET) https://nchc.dl.sourceforge.net/project/sox/sox/14.4.2/sox-14.4.2.tar.gz
-	tar -xvzf sox-14.4.2.tar.gz -C .
-	cd sox-14.4.2 && ./configure --prefix=/usr/ && make -j4 && make install
-	touch sox.done
 
 mfa.done:
 	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.bj.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz
@@ -58,48 +54,46 @@ kaldi.done: openblas.done
 	bash extras/install_kaldi.sh
 	touch kaldi.done
 
-#== SCTK ===============================================================================
-# SCTK official repo does not have version tags. Here's the mapping:
-# # 2.4.9 = 659bc36; 2.4.10 = d914e1b; 2.4.11 = 20159b5.
-SCTK_GITHASH = 20159b5
+sctk.done:
+	./extras/install_sclite.sh
+	touch sctk.done
 
-SCTK_CXFLAGS = -w -march=native
-SCTK_MKENV = CFLAGS="$(CFLAGS) $(SCTK_CXFLAGS)" \
-			              CXXFLAGS="$(CXXFLAGS) -std=c++11 $(SCTK_CXFLAGS)" \
+######################
+dev: python conda_packages.done sctk.done
 
+# Use pip for paddle installation even if you have anaconda
+ifneq ($(shell test -f ./activate_python.sh && grep 'conda activate' ./activate_python.sh),)
+USE_CONDA := 1
+else
+USE_CONDA :=
+endif
 
-# Keep the existing target 'sclite' to avoid breaking the users who might have
-# scripted it in.
-.PHONY: sclite.done sctk_cleaned sctk_made
+python: activate_python.sh 
 
-sclite.done sctk_made: sctk/.compiled
-	touch sclite.done
+activate_python.sh:
+	test -f activate_python.sh || { echo "Error: Run ./setup_python.sh or ./setup_anaconda.sh"; exit 1; }
 
-sctk/.compiled: sctk
-	rm -f sctk/.compiled
-	$(SCTK_MKENV) $(MAKE) -C sctk config
-	$(SCTK_MKENV) $(MAKE) -C sctk all doc
-	$(MAKE) -C sctk install
-	touch sctk/.compiled
-
-# The GitHub archive unpacks into SCTK-{40-character-long-hash}/
-sctk: sctk-$(SCTK_GITHASH).tar.gz
-	tar zxvf sctk-$(SCTK_GITHASH).tar.gz
-	rm -rf sctk-$(SCTK_GITHASH) sctk
-	mv SCTK-$(SCTK_GITHASH)* sctk-$(SCTK_GITHASH)
-	ln -s sctk-$(SCTK_GITHASH) sctk
-	touch sctk-$(SCTK_GITHASH).tar.gz
-
-sctk-$(SCTK_GITHASH).tar.gz:
-	if [ -d '$(DOWNLOAD_DIR)' ]; then \
-	  cp -p '$(DOWNLOAD_DIR)/sctk-$(SCTK_GITHASH).tar.gz' .; \
-	else \
-	  $(WGET) -nv -T 10 -t 3 -O sctk-$(SCTK_GITHASH).tar.gz \
-	    https://github.com/usnistgov/SCTK/archive/$(SCTK_GITHASH).tar.gz; \
-	fi
-
-sctk_cleaned:
-	-for d in sctk/ sctk-*/; do \
-	   [ ! -f $$d/.compiled ] || $(MAKE) -C $$d clean; \
-	   rm -f $$d/.compiled; \
-	done
+bc.done: activate_python.sh
+	. ./activate_python.sh && { command -v bc || conda install -y bc -c conda-forge; }
+	touch bc.done
+cmake.done: activate_python.sh
+	. ./activate_python.sh && { command -v cmake || conda install -y cmake; }
+	touch cmake.done
+flac.done: activate_python.sh
+	. ./activate_python.sh && { command -v flac || conda install -y libflac -c conda-forge; }
+	touch flac.done
+ffmpeg.done: activate_python.sh
+	. ./activate_python.sh && { command -v ffmpeg || conda install -y ffmpeg -c conda-forge; }
+	touch ffmpeg.done
+sox.done: activate_python.sh
+	. ./activate_python.sh && { command -v sox || conda install -y sox -c conda-forge; }
+	touch sox.done
+sndfile.done: activate_python.sh
+	. ./activate_python.sh && { python3 -c "from ctypes.util import find_library as F; assert F('sndfile') is not None" || conda install -y libsndfile=1.0.28 -c conda-forge; }
+	touch sndfile.done
+ifneq ($(strip $(USE_CONDA)),)
+conda_packages.done: bc.done cmake.done flac.done ffmpeg.done sox.done sndfile.done
+else
+conda_packages.done:
+endif
+	touch conda_packages.done

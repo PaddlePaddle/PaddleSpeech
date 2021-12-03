@@ -41,19 +41,19 @@ bash
 Then you can create an conda virtual environment using the script:
 
 ```bash
-conda create -n py37 python=3.7
+conda create -y -p tools/venv python=3.7
 ```
 
 Activate the conda virtual environment:
 
 ```bash
-conda activate py37
+conda activate tools/venv
 ```
 
 Intall the conda dependencies
 
 ```bash
-conda install -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
+conda install -y -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 
 ### Install PaddlePaddle
@@ -150,11 +150,11 @@ popd
 # use the "bash" command to make the conda environment works
 bash
 # create an conda virtual environment
-conda create -n py37 python=3.7
+conda create -y -n tools/venv python=3.7
 # Activate the conda virtual environment:
-conda activate py37
+conda activate tools/venv
 # Install the conda packags
-conda install -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0 --yes
+conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 
 ### Install PaddlePaddle
@@ -168,7 +168,7 @@ python3 -m pip install paddlepaddle-gpu==2.2.0
 ### Get the Funcition for Developing PaddleSpeech
 
 ```bash
-pip install -e .[develop]
+pip install .[develop]
 ```
 
 ### Install the Kaldi (Optional)
@@ -179,8 +179,6 @@ bash extras/install_openblas.sh
 bash extras/install_kaldi.sh
 popd
 ```
-
-
 
 
 ## Setup for Other Platform 

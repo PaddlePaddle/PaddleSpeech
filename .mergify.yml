@@ -7,12 +7,6 @@ pull_request_rules:
     actions:
       merge:
         method: merge
-  - name: automatic merge if label=auto-merge
-    conditions:
-      - "label=auto-merge"
-    actions:
-      merge:
-        method: merge
   - name: delete head branch after merged
     conditions:
       - merged

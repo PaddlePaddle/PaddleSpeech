@@ -1,7 +1,9 @@
 # Metaverse
 
 ## Introduction
-This demo is an implementation to let a celebrity in an image "speak". With the composition of PaddleSpeech and PaddleGAN, we integrate the installation and the specific modules in a single shell script. 
+Metaverse is a new Internet application and social form integrating virtual reality produced by integrating a variety of new technologies. 
+
+This demo is an implementation to let a celebrity in an image "speak". With the composition of `TTS` mudule of `PaddleSpeech` and `PaddleGAN`, we integrate the installation and the specific modules in a single shell script. 
 
 ## How to use our code
 
@@ -20,4 +22,4 @@ Second, run `run.sh` to complete all the essential procedures, including the ins
 ```
 If you would like to try your own image, please replace the image name in the shell script.
 
-The result has shown on our notebook[]().
+The result has shown on our [notebook](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/tutorial/tts/tts_tutorial.ipynb).

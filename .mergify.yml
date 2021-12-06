@@ -13,7 +13,6 @@ pull_request_rules:
     actions:
       merge:
         method: merge
-        strict: false
   - name: delete head branch after merged
     conditions:
       - merged

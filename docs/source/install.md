@@ -132,4 +132,3 @@ popd
 - Make sure these libraries or tools in [dependencies](./dependencies.md) installed. More information please see: `setup.py `and `tools/Makefile`.
 - The version of `swig` should >= 3.0
 - we will simplify the install process in the future.
-

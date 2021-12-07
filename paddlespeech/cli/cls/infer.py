@@ -173,7 +173,6 @@ class CLSExecutor(BaseExecutor):
         logger.info("Preprocessing audio_file:" + audio_file)
 
         # Feature extraction
-        # TODO: Feature args save into cfg file.
         feature_extractor = LogMelSpectrogram(
             sr=feat_conf['sample_rate'],
             n_fft=feat_conf['n_fft'],

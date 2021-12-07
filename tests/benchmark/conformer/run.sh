@@ -20,7 +20,7 @@ mkdir -p conf/benchmark
 cp conf/conformer.yaml  conf/benchmark/conformer.yaml
 sed -i "s/  accum_grad: 2/  accum_grad: 1/g" conf/benchmark/conformer.yaml
 fp_item_list=(fp32)
-bs_item=(16 30)
+bs_item=(16)
 config_path=conf/benchmark/conformer.yaml
 seed=0
 output=exp/conformer

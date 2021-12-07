@@ -137,6 +137,10 @@ class ASRExecutor(BaseExecutor):
         """
             Init model and other resources from a specific path.
         """
+        if hasattr(self, 'model'):
+            logger.info('Model had been initialized.')
+            return
+
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             tag = model_type + '_' + lang + '_' + sample_rate_str

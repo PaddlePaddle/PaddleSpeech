@@ -43,6 +43,7 @@ requirements = {
         "nara_wpe",
         "nltk",
         "pandas",
+        "paddleaudio",
         "paddlespeech_ctcdecoders",
         "paddlespeech_feat",
         "praatio~=4.1",

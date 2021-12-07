@@ -38,7 +38,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
       model_mode_list=(pwgan)
       fp_item_list=(fp32)
       # 满 bs 是 26
-      bs_item_list=(6 26)
+      bs_item_list=(6)
       for model_mode in ${model_mode_list[@]}; do
             for fp_item in ${fp_item_list[@]}; do
             for bs_item in ${bs_item_list[@]}; do

@@ -251,8 +251,10 @@ Vocoders based on neural networks usually is speech synthesis, which learns the 
 - GAN
     - WaveGAN
     - **Parallel WaveGAN**
-    - MelGAN
-    - HiFi-GAN
+    - **MelGAN**
+    - **Style MelGAN**
+    - **Multi Band MelGAN**
+    - **HiFi GAN**
 - VAE
     - Wave-VAE
 - Diffusion

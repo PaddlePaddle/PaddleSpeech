@@ -72,7 +72,12 @@ def download_and_decompress(archive: Dict[str, str], path: str) -> os.PathLike:
 
     assert 'url' in archive and 'md5' in archive, \
         'Dictionary keys of "url" and "md5" are required in the archive, but got: {}'.format(list(archive.keys()))
-    return download.get_path_from_url(archive['url'], path, archive['md5'])
+
+    if False:
+        # TODO: File match md5 and uncompressed_path exist, so skip downloading and decompressing...
+        pass
+    else:
+        return download.get_path_from_url(archive['url'], path, archive['md5'])
 
 
 def load_state_dict_from_url(url: str, path: str, md5: str=None) -> os.PathLike:
@@ -128,11 +133,16 @@ class Logger(object):
             'EVAL': 22,
             'WARNING': 30,
             'ERROR': 40,
-            'CRITICAL': 50
+            'CRITICAL': 50,
+            'EXCEPTION': 100,
         }
         for key, level in log_config.items():
             logging.addLevelName(level, key)
-            self.__dict__[key.lower()] = functools.partial(self.__call__, level)
+            if key == 'EXCEPTION':
+                self.__dict__[key.lower()] = self.logger.exception
+            else:
+                self.__dict__[key.lower()] = functools.partial(self.__call__,
+                                                               level)
 
         self.format = logging.Formatter(
             fmt='[%(asctime)-15s] [%(levelname)8s] [%(filename)s] [L%(lineno)d] - %(message)s'

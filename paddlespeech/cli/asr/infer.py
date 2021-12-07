@@ -137,6 +137,10 @@ class ASRExecutor(BaseExecutor):
         """
             Init model and other resources from a specific path.
         """
+        if hasattr(self, 'model'):
+            logger.info('Model had been initialized.')
+            return
+
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             tag = model_type + '_' + lang + '_' + sample_rate_str
@@ -361,7 +365,7 @@ class ASRExecutor(BaseExecutor):
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
         except Exception as e:
-            logger.error(str(e))
+            logger.exception(e)
             logger.error(
                 "can not open the audio file, please check the audio file format is 'wav'. \n \
                  you can try to use sox to change the file format.\n \
@@ -421,7 +425,7 @@ class ASRExecutor(BaseExecutor):
             logger.info('ASR Result: {}'.format(res))
             return True
         except Exception as e:
-            print(e)
+            logger.exception(e)
             return False
 
     def __call__(self, model, lang, sample_rate, config, ckpt_path, audio_file,

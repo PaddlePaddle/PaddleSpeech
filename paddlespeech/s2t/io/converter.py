@@ -31,11 +31,12 @@ class CustomConverter():
         
     """
 
-    def __init__(self, subsampling_factor=1, dtype=np.float32):
+    def __init__(self, subsampling_factor=1, dtype=np.float32, load_aux_output=False):
         """Construct a CustomConverter object."""
         self.subsampling_factor = subsampling_factor
         self.ignore_id = -1
         self.dtype = dtype
+        self.load_aux_output = load_aux_output
 
     def __call__(self, batch):
         """Transform a batch and send it to a device.
@@ -49,7 +50,13 @@ class CustomConverter():
         """
         # batch should be located in list
         assert len(batch) == 1
-        (xs, ys), utts = batch[0]
+        data, utts = batch[0]
+        if len(data) == 2:
+            xs, ys = data
+            ys_aux = None
+        else:
+            assert len(data) == 3
+            xs, ys, ys_aux = data
         assert xs[0] is not None, "please check Reader and Augmentation impl."
 
         # perform subsampling
@@ -79,4 +86,16 @@ class CustomConverter():
 
         olens = np.array(
             [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys])
+        
+        if self.load_aux_output:
+            # load text for auxiliary task, e.g., load transcript for ST + ASR MTL
+            assert ys_aux is not None
+            ys_aux_pad = pad_list(
+                [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys_aux],
+                self.ignore_id)
+
+            olens_aux = np.array(
+                [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys_aux])
+
+            return utts, xs_pad, ilens, [ys_pad, ys_aux_pad], [olens, olens_aux]           
         return utts, xs_pad, ilens, ys_pad, olens

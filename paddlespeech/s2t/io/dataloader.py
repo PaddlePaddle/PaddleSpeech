@@ -73,6 +73,7 @@ class BatchDataLoader():
                  preprocess_conf=None,
                  n_iter_processes: int=1,
                  subsampling_factor: int=1,
+                 load_aux_output: bool=False,
                  num_encs: int=1):
         self.json_file = json_file
         self.train_mode = train_mode
@@ -89,6 +90,7 @@ class BatchDataLoader():
         self.num_encs = num_encs
         self.preprocess_conf = preprocess_conf
         self.n_iter_processes = n_iter_processes
+        self.load_aux_output = load_aux_output
 
         # read json data
         with jsonlines.open(json_file, 'r') as reader:
@@ -126,7 +128,9 @@ class BatchDataLoader():
         # Setup a converter
         if num_encs == 1:
             self.converter = CustomConverter(
-                subsampling_factor=subsampling_factor, dtype=np.float32)
+                subsampling_factor=subsampling_factor, 
+                dtype=np.float32,
+                load_aux_output=load_aux_output)
         else:
             assert NotImplementedError("not impl CustomConverterMulEnc.")
 
@@ -143,6 +147,10 @@ class BatchDataLoader():
             shuffle=not self.use_sortagrad if self.train_mode else False,
             collate_fn=batch_collate,
             num_workers=self.n_iter_processes, )
+        # from IPython import embed
+        # embed()
+        # import os
+        # os._exit(0)
 
     def __len__(self):
         return len(self.dataloader)

@@ -43,6 +43,7 @@ requirements = {
         "nara_wpe",
         "nltk",
         "pandas",
+        "paddleaudio",
         "paddlespeech_ctcdecoders",
         "paddlespeech_feat",
         "praatio~=4.1",
@@ -197,7 +198,7 @@ setup_info = dict(
         "pwgan",
         "gan",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=requirements["install"],
     extras_require={
         'develop':

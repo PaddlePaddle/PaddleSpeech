@@ -16,7 +16,7 @@ Input of this demo should be a WAV file(`.wav`).
 
 Here are sample files for this demo that can be downloaded:
 ```sh
-!wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
+wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
 ```
 
 ### 3. Usage

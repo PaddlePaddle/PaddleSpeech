@@ -7,7 +7,7 @@ This demo is an implementation to recognize text from a specific audio file. It 
 
 ## Usage
 ### 1. Installation
-```sh
+```bash
 pip install paddlespeech
 ```
 
@@ -15,16 +15,20 @@ pip install paddlespeech
 Input of this demo should be a WAV file(`.wav`), and the sample rate must be same as the model's.
 
 Here are sample files for this demo that can be downloaded:
-```sh
+```bash
 wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 ```
 
 ### 3. Usage
 - Command Line(Recommended)
-  ```sh
+  ```bash
   paddlespeech asr --input ~/zh.wav
   ```
-  Command usage:
+  Usage:
+  ```bash
+  paddlespeech asr --help
+  ```
+  Arguments:
   - `input`(required): Audio file to recognize.
   - `model`: Model type of asr task. Default: `conformer_wenetspeech`.
   - `lang`: Model language. Default: `zh`.
@@ -34,16 +38,29 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
 
   Output:
-  ```sh
+  ```bash
   [2021-12-08 13:12:34,063] [    INFO] [utils.py] [L225] - ASR Result: 我认为跑步最重要的就是给我带来了身体健康
   ```
 
 - Python API
-  ```sh
-  python asr.py --input ~/zh.wav
+  ```python
+  import paddle
+  from paddlespeech.cli import ASRExecutor
+
+  asr_executor = ASRExecutor()
+  text = asr_executor(
+      model='conformer_wenetspeech',
+      lang='zh',
+      sample_rate=16000,
+      config=None,  # Set `conf` and `ckpt_path` to None to use pretrained model.
+      ckpt_path=None,
+      audio_file='./zh.wav',
+      device=paddle.get_device())
+  print('ASR Result: \n{}'.format(text))
   ```
+
   Output:
-  ```sh
+  ```bash
   ASR Result:
   我认为跑步最重要的就是给我带来了身体健康
   ```

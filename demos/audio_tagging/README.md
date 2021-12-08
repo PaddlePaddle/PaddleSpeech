@@ -7,7 +7,7 @@ This demo is an implementation to tag an audio file with 527 [AudioSet](https://
 
 ## Usage
 ### 1. Installation
-```sh
+```bash
 pip install paddlespeech
 ```
 
@@ -15,16 +15,20 @@ pip install paddlespeech
 Input of this demo should be a WAV file(`.wav`).
 
 Here are sample files for this demo that can be downloaded:
-```sh
+```bash
 wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
 ```
 
 ### 3. Usage
 - Command Line(Recommended)
-  ```sh
+  ```bash
   paddlespeech cls --input ~/cat.wav --topk 10
   ```
-  Command usage:
+  Usage:
+  ```bash
+  paddlespeech cls --help
+  ```
+  Arguments:
   - `input`(required): Audio file to tag.
   - `model`: Model type of tagging task. Default: `panns_cnn14`.
   - `config`: Config of tagging task. Use pretrained model when it is None. Default: `None`.
@@ -34,7 +38,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
 
   Output:
-  ```sh
+  ```bash
   [2021-12-08 14:49:40,671] [    INFO] [utils.py] [L225] - CLS Result:
   Cat: 0.8991316556930542
   Domestic animals, pets: 0.8806838393211365
@@ -49,11 +53,23 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
   ```
 
 - Python API
-  ```sh
-  python tag.py --input ~/cat.wav
+  ```bash
+  import paddle
+  from paddlespeech.cli import CLSExecutor
+
+  cls_executor = CLSExecutor()
+  result = cls_executor(
+      model_type='panns_cnn14',
+      cfg_path=None,  # Set `cfg_path` and `ckpt_path` to None to use pretrained model.
+      label_file=None,
+      ckpt_path=None,
+      audio_file='./cat.wav',
+      topk=10,
+      device=paddle.get_device(), )
+  print('CLS Result: \n{}'.format(result))
   ```
   Output:
-  ```sh
+  ```bash
   CLS Result:
   Cat: 0.8991316556930542
   Domestic animals, pets: 0.8806838393211365

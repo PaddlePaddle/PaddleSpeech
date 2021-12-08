@@ -14,6 +14,7 @@ loguru
 matplotlib
 nara_wpe
 nltk
+paddleaudio
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas

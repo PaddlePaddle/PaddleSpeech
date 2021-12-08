@@ -21,6 +21,7 @@ from typing import Union
 import kaldi_io
 import numpy as np
 import paddle
+import soundfile
 from kaldiio import WriteHelper
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
@@ -36,19 +37,19 @@ from ..utils import MODEL_HOME
 __all__ = ["STExecutor"]
 
 pretrained_models = {
-    "fat_st_ted_en_zh": {
+    "fat_st_ted_en-zh": {
         "url":
-        "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_mtl.model.tar.gz",
+        "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_ted-en-zh.tar.gz",
         "md5":
-        "210b8eacc390d9965334fa8e96c49a13",
+        "fa0a7425b91b4f8d259c70b2aca5ae67",
         "cfg_path":
         "conf/transformer_mtl_noam.yaml",
         "ckpt_path":
-        "exp/transformer_mtl_noam/checkpoints/fat_st_ted_en_zh",
+        "exp/transformer_mtl_noam/checkpoints/fat_st_ted-en-zh.pdparams",
     }
 }
 
-model_alias = {"fat_st": "paddlespeech.s2t.models.u2_st:U2STModel"}
+model_alias = {"fat_st_ted": "paddlespeech.s2t.models.u2_st:U2STModel"}
 
 kaldi_bins = {
     "url":
@@ -69,17 +70,28 @@ class STExecutor(BaseExecutor):
         self.parser.add_argument(
             "--input", type=str, required=True, help="Audio file to translate.")
         self.parser.add_argument(
-            "--model",
+            "--model_type",
             type=str,
-            default="fat_st",
+            default="fat_st_ted",
             help="Choose model type of st task.")
         self.parser.add_argument(
-            "--lang",
+            "--src_lang",
             type=str,
-            default="ted_en_zh",
-            help="Choose model language.")
+            default="en",
+            help="Choose model source language.")
         self.parser.add_argument(
-            "--config",
+            "--tgt_lang",
+            type=str,
+            default="zh",
+            help="Choose model target language.")
+        self.parser.add_argument(
+            "--sample_rate",
+            type=int,
+            default=16000,
+            choices=[16000],
+            help='Choose the audio sample rate of the model. 8000 or 16000')
+        self.parser.add_argument(
+            "--cfg_path",
             type=str,
             default=None,
             help="Config of st task. Use deault config when it is None.")
@@ -117,20 +129,28 @@ class STExecutor(BaseExecutor):
         decompressed_path = download_and_decompress(kaldi_bins, MODEL_HOME)
         decompressed_path = os.path.abspath(decompressed_path)
         logger.info("Kaldi_bins stored in: {}".format(decompressed_path))
-        os.environ['LD_LIBRARY_PATH'] += f':{decompressed_path}'
+        if "LD_LIBRARY_PATH" in os.environ:
+            os.environ["LD_LIBRARY_PATH"] += f":{decompressed_path}"
+        else:
+            os.environ["LD_LIBRARY_PATH"] = f"{decompressed_path}"
         os.environ["PATH"] += f":{decompressed_path}"
         return decompressed_path
 
     def _init_from_path(self,
-                        model_type: str="fat_st",
-                        lang: str="zh",
+                        model_type: str="fat_st_ted",
+                        src_lang: str="en",
+                        tgt_lang: str="zh",
                         cfg_path: Optional[os.PathLike]=None,
                         ckpt_path: Optional[os.PathLike]=None):
         """
             Init model and other resources from a specific path.
         """
+        if hasattr(self, 'model'):
+            logger.info('Model had been initialized.')
+            return
+
         if cfg_path is None or ckpt_path is None:
-            tag = model_type + "_" + lang
+            tag = model_type + "_" + src_lang + "-" + tgt_lang
             res_path = self._get_pretrained_path(tag)
             self.cfg_path = os.path.join(res_path,
                                          pretrained_models[tag]["cfg_path"])
@@ -171,12 +191,19 @@ class STExecutor(BaseExecutor):
         self.model.eval()
 
         # load model
-        params_path = self.ckpt_path + ".pdparams"
+        params_path = self.ckpt_path
         model_dict = paddle.load(params_path)
         self.model.set_state_dict(model_dict)
 
         # set kaldi bins
         self._set_kaldi_bins()
+
+    def _check(self, audio_file: str, sample_rate: int):
+        _, audio_sample_rate = soundfile.read(
+            audio_file, dtype="int16", always_2d=True)
+        if audio_sample_rate != sample_rate:
+            raise Exception("invalid sample rate")
+            sys.exit(-1)
 
     def preprocess(self, wav_file: Union[str, os.PathLike], model_type: str):
         """
@@ -186,7 +213,7 @@ class STExecutor(BaseExecutor):
         audio_file = os.path.abspath(wav_file)
         logger.info("Preprocess audio_file:" + audio_file)
 
-        if model_type == "fat_st":
+        if model_type == "fat_st_ted":
             cmvn = self.config.collator.cmvn_path
             utt_name = "_tmp"
 
@@ -198,7 +225,8 @@ class STExecutor(BaseExecutor):
             fbank_extract_process = subprocess.Popen(
                 fbank_extract_command,
                 stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE)
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
             fbank_extract_process.stdin.write(
                 f"{utt_name} {wav_file}".encode("utf8"))
             fbank_extract_process.stdin.close()
@@ -207,14 +235,18 @@ class STExecutor(BaseExecutor):
 
             extract_command = ["compute-kaldi-pitch-feats", "scp:-", "ark:-"]
             pitch_extract_process = subprocess.Popen(
-                extract_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                extract_command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
             pitch_extract_process.stdin.write(
                 f"{utt_name} {wav_file}".encode("utf8"))
             process_command = ["process-kaldi-pitch-feats", "ark:", "ark:-"]
             pitch_process = subprocess.Popen(
                 process_command,
                 stdin=pitch_extract_process.stdout,
-                stdout=subprocess.PIPE)
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
             pitch_extract_process.stdin.close()
             pitch_feat = dict(
                 kaldi_io.read_mat_ark(pitch_process.stdout))[utt_name]
@@ -228,19 +260,19 @@ class STExecutor(BaseExecutor):
                 "ark:-"
             ]
             cmvn_process = subprocess.Popen(
-                cmvn_command, stdout=subprocess.PIPE)
+                cmvn_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             process_command = [
                 "copy-feats", "--compress=true", "ark:-", "ark:-"
             ]
             process = subprocess.Popen(
                 process_command,
                 stdin=cmvn_process.stdout,
-                stdout=subprocess.PIPE)
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
             norm_feat = dict(kaldi_io.read_mat_ark(process.stdout))[utt_name]
-            self.audio = paddle.to_tensor(norm_feat).unsqueeze(0)
-            self.audio_len = paddle.to_tensor(
-                self.audio.shape[1], dtype="int64")
-            logger.info(f"audio feat shape: {self.audio.shape}")
+            self._inputs["audio"] = paddle.to_tensor(norm_feat).unsqueeze(0)
+            self._inputs["audio_len"] = paddle.to_tensor(
+                self._inputs["audio"].shape[1], dtype="int64")
         else:
             raise ValueError("Wrong model type.")
 
@@ -250,9 +282,9 @@ class STExecutor(BaseExecutor):
             Model inference and result stored in self.output.
         """
         cfg = self.config.decoding
-        audio = self.audio
-        audio_len = self.audio_len
-        if model_type == "fat_st":
+        audio = self._inputs["audio"]
+        audio_len = self._inputs["audio_len"]
+        if model_type == "fat_st_ted":
             hyps = self.model.decode(
                 audio,
                 audio_len,
@@ -270,7 +302,7 @@ class STExecutor(BaseExecutor):
                 decoding_chunk_size=cfg.decoding_chunk_size,
                 num_decoding_left_chunks=cfg.num_decoding_left_chunks,
                 simulate_streaming=cfg.simulate_streaming)
-            self.result_transcripts = hyps
+            self._outputs["result"] = hyps
         else:
             raise ValueError("Wrong model type.")
 
@@ -278,8 +310,8 @@ class STExecutor(BaseExecutor):
         """
             Output postprocess and return human-readable results such as texts and audio files.
         """
-        if model_type == "fat_st":
-            return self.result_transcripts
+        if model_type == "fat_st_ted":
+            return self._outputs["result"]
         else:
             raise ValueError("Wrong model type.")
 
@@ -289,30 +321,36 @@ class STExecutor(BaseExecutor):
         """
         parser_args = self.parser.parse_args(argv)
 
-        model = parser_args.model
-        lang = parser_args.lang
-        config = parser_args.config
+        model_type = parser_args.model_type
+        src_lang = parser_args.src_lang
+        tgt_lang = parser_args.tgt_lang
+        sample_rate = parser_args.sample_rate
+        cfg_path = parser_args.cfg_path
         ckpt_path = parser_args.ckpt_path
         audio_file = parser_args.input
         device = parser_args.device
 
         try:
-            res = self(model, lang, config, ckpt_path, audio_file, device)
-            logger.info('ST Result: {}'.format(res))
+            res = self(model_type, src_lang, tgt_lang, sample_rate, cfg_path,
+                       ckpt_path, audio_file, device)
+            logger.info("ST Result: {}".format(res))
             return True
         except Exception as e:
             print(e)
             return False
 
-    def __call__(self, model, lang, config, ckpt_path, audio_file, device):
+    def __call__(self, model_type, src_lang, tgt_lang, sample_rate, cfg_path,
+                 ckpt_path, audio_file, device):
         """
             Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
+        self._check(audio_file, sample_rate)
         paddle.set_device(device)
-        self._init_from_path(model, lang, config, ckpt_path)
-        self.preprocess(audio_file, model)
-        self.infer(model)
-        res = self.postprocess(model)
+        self._init_from_path(model_type, src_lang, tgt_lang, cfg_path,
+                             ckpt_path)
+        self.preprocess(audio_file, model_type)
+        self.infer(model_type)
+        res = self.postprocess(model_type)
 
         return res

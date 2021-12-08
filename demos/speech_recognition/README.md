@@ -52,7 +52,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.
       model='conformer_wenetspeech',
       lang='zh',
       sample_rate=16000,
-      config=None,  # Set `conf` and `ckpt_path` to None to use pretrained model.
+      config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
       ckpt_path=None,
       audio_file='./zh.wav',
       device=paddle.get_device())

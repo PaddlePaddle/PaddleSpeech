@@ -27,7 +27,7 @@ args = parser.parse_args()
 if __name__ == '__main__':
     cls_executor = CLSExecutor()
     result = cls_executor(
-        model_type='panns_cnn10',
+        model_type='panns_cnn14',
         cfg_path=None,  # Set `cfg_path` and `ckpt_path` to None to use pretrained model.
         label_file=None,
         ckpt_path=None,

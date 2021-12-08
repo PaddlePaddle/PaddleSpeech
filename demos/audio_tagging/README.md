@@ -26,7 +26,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
   ```
   Command usage:
   - `input`(required): Audio file to tag.
-  - `model`: Model type of tagging task. Default: `panns_cnn10`.
+  - `model`: Model type of tagging task. Default: `panns_cnn14`.
   - `config`: Config of tagging task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
   - `label_file`: Label file of tagging task. Use audioset labels when it is None. Default: `None`.

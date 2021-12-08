@@ -33,21 +33,25 @@ from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 __all__ = ['CLSExecutor']
 
 pretrained_models = {
-    "panns_cnn6": {
+    # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
+    # e.g. "conformer_wenetspeech-zh-16k", "transformer_aishell-zh-16k" and "panns_cnn6-32k".
+    # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
+    # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
+    "panns_cnn6-32k": {
         'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn6.tar.gz',
-        'md5': '051b30c56bcb9a3dd67bc205cc12ffd2',
+        'md5': '4cf09194a95df024fd12f84712cf0f9c',
         'cfg_path': 'panns.yaml',
         'ckpt_path': 'cnn6.pdparams',
         'label_file': 'audioset_labels.txt',
     },
-    "panns_cnn10": {
+    "panns_cnn10-32k": {
         'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn10.tar.gz',
-        'md5': '97c6f25587685379b1ebcd4c1f624927',
+        'md5': 'cb8427b22176cc2116367d14847f5413',
         'cfg_path': 'panns.yaml',
         'ckpt_path': 'cnn10.pdparams',
         'label_file': 'audioset_labels.txt',
     },
-    "panns_cnn14": {
+    "panns_cnn14-32k": {
         'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn14.tar.gz',
         'md5': 'e3b9b5614a1595001161d0ab95edee97',
         'cfg_path': 'panns.yaml',
@@ -123,8 +127,8 @@ class CLSExecutor(BaseExecutor):
     def _init_from_path(self,
                         model_type: str='panns_cnn14',
                         cfg_path: Optional[os.PathLike]=None,
-                        label_file: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        ckpt_path: Optional[os.PathLike]=None,
+                        label_file: Optional[os.PathLike]=None):
         """
             Init model and other resources from a specific path.
         """
@@ -133,13 +137,14 @@ class CLSExecutor(BaseExecutor):
             return
 
         if label_file is None or ckpt_path is None:
-            self.res_path = self._get_pretrained_path(model_type)  # panns_cnn14
-            self.cfg_path = os.path.join(
-                self.res_path, pretrained_models[model_type]['cfg_path'])
-            self.label_file = os.path.join(
-                self.res_path, pretrained_models[model_type]['label_file'])
-            self.ckpt_path = os.path.join(
-                self.res_path, pretrained_models[model_type]['ckpt_path'])
+            tag = model_type + '-' + '32k'  # panns_cnn14-32k
+            self.res_path = self._get_pretrained_path(tag)
+            self.cfg_path = os.path.join(self.res_path,
+                                         pretrained_models[tag]['cfg_path'])
+            self.label_file = os.path.join(self.res_path,
+                                           pretrained_models[tag]['label_file'])
+            self.ckpt_path = os.path.join(self.res_path,
+                                          pretrained_models[tag]['ckpt_path'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.label_file = os.path.abspath(label_file)
@@ -239,15 +244,15 @@ class CLSExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
-    def __call__(self, model_type, cfg_path, label_file, ckpt_path, audio_file,
-                 topk, device):
+    def __call__(self, model, config, ckpt_path, label_file, audio_file, topk,
+                 device):
         """
             Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
         # self._check(audio_file, sample_rate)
         paddle.set_device(device)
-        self._init_from_path(model_type, cfg_path, label_file, ckpt_path)
+        self._init_from_path(model, config, ckpt_path, label_file)
         self.preprocess(audio_file)
         self.infer()
         res = self.postprocess(topk)  # Retrieve result of cls.

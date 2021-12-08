@@ -28,8 +28,21 @@ try:
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoder  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
-except Exception as e:
-    logger.info("ctcdecoder not installed!")
+except:
+    try:
+        import pip
+        if int(pip.__version__.split('.')[0])>9:
+            from pip._internal import main
+        else:
+            from pip import main
+        package_name = 'paddlespeech_ctcdecoders'
+        main(['install', package_name])
+    except Exception as e:
+        logger.info("paddlespeech_ctcdecoders not installed!")
+
+#try:
+#except Exception as e:
+#    logger.info("ctcdecoder not installed!")
 
 __all__ = ['CTCDecoder']
 
@@ -51,7 +64,7 @@ class CTCDecoderBase(nn.Layer):
             dropout_rate (float): dropout rate (0.0 ~ 1.0)
             reduction (bool): reduce the CTC loss into a scalar, True for 'sum' or 'none'
             batch_average (bool): do batch dim wise average.
-            grad_norm_type (str): Default, None. one of 'instance', 'batch', 'frame', None. 
+            grad_norm_type (str): Default, None. one of 'instance', 'batch', 'frame', None.
         """
         assert check_argument_types()
         super().__init__()

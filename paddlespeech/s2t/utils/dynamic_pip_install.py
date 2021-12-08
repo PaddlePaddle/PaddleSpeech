@@ -11,3 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pip
+
+
+def install(package_name):
+    if int(pip.__version__.split('.')[0]) > 9:
+        from pip._internal import main
+    else:
+        from pip import main
+    main(['install', package_name])

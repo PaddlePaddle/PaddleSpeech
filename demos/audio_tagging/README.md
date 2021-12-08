@@ -53,7 +53,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
   ```
 
 - Python API
-  ```bash
+  ```python
   import paddle
   from paddlespeech.cli import CLSExecutor
 

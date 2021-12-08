@@ -30,13 +30,9 @@ try:
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
 except:
     try:
-        import pip
-        if int(pip.__version__.split('.')[0])>9:
-            from pip._internal import main
-        else:
-            from pip import main
+        from paddlespeech.s2t.utils import dynamic_pip_install
         package_name = 'paddlespeech_ctcdecoders'
-        main(['install', package_name])
+        dynamic_pip_install.install(package_name)
     except Exception as e:
         logger.info("paddlespeech_ctcdecoders not installed!")
 

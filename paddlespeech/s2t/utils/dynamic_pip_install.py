@@ -11,19 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .deepspeech2 import DeepSpeech2InferModelOnline
-from .deepspeech2 import DeepSpeech2ModelOnline
-from paddlespeech.s2t.utils import dynamic_pip_install
+import pip
 
-try:
-    import swig_decoders
-except:
-    try:
-        package_name = 'paddlespeech_ctcdecoders'
-        dynamic_pip_install.install(package_name)
-    except:
-        raise RuntimeError(
-            "Can not install package paddlespeech_ctcdecoders on your system. \
-                The DeepSpeech2 model is not supported for your system")
 
-__all__ = ['DeepSpeech2ModelOnline', 'DeepSpeech2InferModelOnline']
+def install(package_name):
+    if int(pip.__version__.split('.')[0]) > 9:
+        from pip._internal import main
+    else:
+        from pip import main
+    main(['install', package_name])

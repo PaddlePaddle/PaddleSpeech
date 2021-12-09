@@ -289,7 +289,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
 
 ## Tutorials
 
-Normally, [Speech SoTA](https://paperswithcode.com/area/speech) and [Audio SoTA](https://paperswithcode.com/area/audio) give you an overview of the hot academic topics in this area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 - [Overview](./docs/source/introduction.md)
 - Quick Start

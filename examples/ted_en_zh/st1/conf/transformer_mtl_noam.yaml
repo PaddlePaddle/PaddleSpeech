@@ -10,7 +10,7 @@ collator:
   spm_model_prefix: data/lang_char/ted_en_zh_bpe8000
   mean_std_filepath: ""
   # augmentation_config: conf/augmentation.json
-  batch_size: 10
+  batch_size: 16
   feat_dim: 83
   stride_ms: 10.0
   window_ms: 25.0
@@ -78,7 +78,7 @@ training:
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 5
+  log_interval: 50
   checkpoint:
     kbest_n: 50
     latest_n: 5

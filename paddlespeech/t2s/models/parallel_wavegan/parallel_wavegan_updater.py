@@ -10,8 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations 
-# under the License.
+# limitations under the License.
 import logging
 from pathlib import Path
 from typing import Dict
@@ -28,6 +27,7 @@ from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
 from paddlespeech.t2s.training.updaters.standard_updater import UpdaterState
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')

@@ -93,8 +93,7 @@ class MelGANGenerator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        if nonlinear_activation == "LeakyReLU":
-            nonlinear_activation = "leakyrelu"
+        nonlinear_activation = nonlinear_activation.lower()
 
         # check hyper parameters is valid
         assert channels >= np.prod(upsample_scales)
@@ -328,8 +327,7 @@ class MelGANDiscriminator(nn.Layer):
         super().__init__()
 
         # for compatibility
-        if nonlinear_activation == "LeakyReLU":
-            nonlinear_activation = "leakyrelu"
+        nonlinear_activation = nonlinear_activation.lower()
 
         # initialize parameters
         initialize(self, init_type)
@@ -479,8 +477,7 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        if nonlinear_activation == "LeakyReLU":
-            nonlinear_activation = "leakyrelu"
+        nonlinear_activation = nonlinear_activation.lower()
 
         self.discriminators = nn.LayerList()
 

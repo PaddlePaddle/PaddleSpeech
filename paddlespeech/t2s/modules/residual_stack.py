@@ -60,8 +60,7 @@ class ResidualStack(nn.Layer):
         """
         super().__init__()
         # for compatibility
-        if nonlinear_activation == "LeakyReLU":
-            nonlinear_activation = "leakyrelu"
+        nonlinear_activation = nonlinear_activation.lower()
 
         # defile residual stack part
         if not use_causal_conv:

@@ -105,49 +105,23 @@ If you want to set up PaddleSpeech in other environment, please see the [install
 
 ## Quick Start
 
-Developers can have a try of our model with only a few lines of code.
+Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md). Change `--input` to test your own audio/text file.
 
-A tiny DeepSpeech2 **Speech-to-Text** model training on toy set of LibriSpeech:
-
+**Audio Classification**     
 ```shell
-cd examples/tiny/asr0/
-# source the environment
-source path.sh
-source ../../../utils/parse_options.sh
-# prepare data
-bash ./local/data.sh
-# train model, all `ckpt` under `exp` dir, if you use paddlepaddle-gpu, you can set CUDA_VISIBLE_DEVICES before the train script
-./local/train.sh conf/deepspeech2.yaml deepspeech2 offline
-# avg n best model to get the test model, in this case, n = 1
-avg.sh best exp/deepspeech2/checkpoints 1
-# evaluate the test model
-./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 offline
+paddlespeech cls --input ./test_audio.wav
 ```
-
-For **Text-to-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
+**Automatic Speech Recognition**
 ```shell
-cd examples/csmsc/tts3
-# download the pretrained models and unaip them
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
-unzip pwg_baker_ckpt_0.4.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
-unzip fastspeech2_nosil_baker_ckpt_0.4.zip
-# source the environment
-source path.sh
-# run end-to-end synthesize
-FLAGS_allocator_strategy=naive_best_fit \
-FLAGS_fraction_of_gpu_memory_to_use=0.01 \
-python3 ${BIN_DIR}/synthesize_e2e.py \
-  --fastspeech2-config=fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
-  --fastspeech2-checkpoint=fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
-  --fastspeech2-stat=fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
-  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
-  --text=${BIN_DIR}/../sentences.txt \
-  --output-dir=exp/default/test_e2e \
-  --inference-dir=exp/default/inference \
-  --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
+paddlespeech asr --lang zh --sr 16000 --input ./input.wav
+```
+**Speech Translation** (English to Chinese)
+```shell
+paddlespeech st --input ./test_audio.wav
+```
+**Text-to-Speech** 
+```shell
+paddlespeech tts --lang zh --input ./test_text.txt 
 ```
 
 If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
@@ -315,7 +289,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
 
 ## Tutorials
 
-Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+Normally, [Speech SoTA](https://paperswithcode.com/area/speech) and [Audio SoTA](https://paperswithcode.com/area/audio) give you an overview of the hot academic topics in this area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 - [Overview](./docs/source/introduction.md)
 - Quick Start

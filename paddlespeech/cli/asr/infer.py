@@ -119,7 +119,7 @@ class ASRExecutor(BaseExecutor):
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
-            Download and returns pretrained resources path of current task.
+        Download and returns pretrained resources path of current task.
         """
         assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
             tag)
@@ -140,7 +140,7 @@ class ASRExecutor(BaseExecutor):
                         cfg_path: Optional[os.PathLike]=None,
                         ckpt_path: Optional[os.PathLike]=None):
         """
-            Init model and other resources from a specific path.
+        Init model and other resources from a specific path.
         """
         if hasattr(self, 'model'):
             logger.info('Model had been initialized.')
@@ -216,8 +216,8 @@ class ASRExecutor(BaseExecutor):
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
-            Input preprocess and return paddle.Tensor stored in self.input.
-            Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
+        Input preprocess and return paddle.Tensor stored in self.input.
+        Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
 
         audio_file = input
@@ -291,7 +291,7 @@ class ASRExecutor(BaseExecutor):
     @paddle.no_grad()
     def infer(self, model_type: str):
         """
-            Model inference and result stored in self.output.
+        Model inference and result stored in self.output.
         """
         text_feature = TextFeaturizer(
             unit_type=self.config.collator.unit_type,
@@ -438,7 +438,7 @@ class ASRExecutor(BaseExecutor):
     def __call__(self, model, lang, sample_rate, config, ckpt_path, audio_file,
                  device):
         """
-            Python API to call an executor.
+        Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
         self._check(audio_file, sample_rate)

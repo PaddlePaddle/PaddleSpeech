@@ -20,14 +20,14 @@ from typing import Union
 import numpy as np
 import paddle
 import yaml
+from paddleaudio import load
+from paddleaudio.features import LogMelSpectrogram
 
 from ..executor import BaseExecutor
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import logger
 from ..utils import MODEL_HOME
-from paddleaudio import load
-from paddleaudio.features import LogMelSpectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 __all__ = ['CLSExecutor']

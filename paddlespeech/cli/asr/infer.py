@@ -88,6 +88,7 @@ class ASRExecutor(BaseExecutor):
             '--model',
             type=str,
             default='conformer_wenetspeech',
+            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
             help='Choose model type of asr task.')
         self.parser.add_argument(
             '--lang',
@@ -95,7 +96,7 @@ class ASRExecutor(BaseExecutor):
             default='zh',
             help='Choose model language. zh or en')
         self.parser.add_argument(
-            "--sr",
+            "--sample_rate",
             type=int,
             default=16000,
             choices=[8000, 16000],
@@ -200,8 +201,8 @@ class ASRExecutor(BaseExecutor):
                 raise Exception("wrong type")
         # Enter the path of model root
 
-        model_name = ''.join(
-            model_type.split('_')[:-1])  # model_type: {model_name}_{dataset}
+        model_name = model_type[:model_type.rindex(
+            '_')]  # model_type: {model_name}_{dataset}
         model_class = dynamic_import(model_name, model_alias)
         model_conf = self.config.model
         logger.info(model_conf)
@@ -314,7 +315,7 @@ class ASRExecutor(BaseExecutor):
                 num_processes=cfg.num_proc_bsearch)
             self._outputs["result"] = result_transcripts[0]
 
-        elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+        elif "conformer" in model_type or "transformer" in model_type:
             result_transcripts = self.model.decode(
                 audio,
                 audio_len,
@@ -419,7 +420,7 @@ class ASRExecutor(BaseExecutor):
 
         model = parser_args.model
         lang = parser_args.lang
-        sample_rate = parser_args.sr
+        sample_rate = parser_args.sample_rate
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
         audio_file = parser_args.input

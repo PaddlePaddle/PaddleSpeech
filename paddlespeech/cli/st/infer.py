@@ -23,9 +23,6 @@ import numpy as np
 import paddle
 import soundfile
 from kaldiio import WriteHelper
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import UpdateConfig
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
@@ -33,11 +30,14 @@ from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import logger
 from ..utils import MODEL_HOME
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["STExecutor"]
 
 pretrained_models = {
-    "fat_st_ted_en-zh": {
+    "fat_st_ted-en-zh": {
         "url":
         "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_ted-en-zh.tar.gz",
         "md5":
@@ -49,7 +49,7 @@ pretrained_models = {
     }
 }
 
-model_alias = {"fat_st_ted": "paddlespeech.s2t.models.u2_st:U2STModel"}
+model_alias = {"fat_st": "paddlespeech.s2t.models.u2_st:U2STModel"}
 
 kaldi_bins = {
     "url":
@@ -70,9 +70,10 @@ class STExecutor(BaseExecutor):
         self.parser.add_argument(
             "--input", type=str, required=True, help="Audio file to translate.")
         self.parser.add_argument(
-            "--model_type",
+            "--model",
             type=str,
             default="fat_st_ted",
+            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
             help="Choose model type of st task.")
         self.parser.add_argument(
             "--src_lang",
@@ -91,7 +92,7 @@ class STExecutor(BaseExecutor):
             choices=[16000],
             help='Choose the audio sample rate of the model. 8000 or 16000')
         self.parser.add_argument(
-            "--cfg_path",
+            "--config",
             type=str,
             default=None,
             help="Config of st task. Use deault config when it is None.")
@@ -150,7 +151,7 @@ class STExecutor(BaseExecutor):
             return
 
         if cfg_path is None or ckpt_path is None:
-            tag = model_type + "_" + src_lang + "-" + tgt_lang
+            tag = model_type + "-" + src_lang + "-" + tgt_lang
             res_path = self._get_pretrained_path(tag)
             self.cfg_path = os.path.join(res_path,
                                          pretrained_models[tag]["cfg_path"])
@@ -186,7 +187,9 @@ class STExecutor(BaseExecutor):
 
         model_conf = self.config.model
         logger.info(model_conf)
-        model_class = dynamic_import(model_type, model_alias)
+        model_name = model_type[:model_type.rindex(
+            '_')]  # model_type: {model_name}_{dataset}
+        model_class = dynamic_import(model_name, model_alias)
         self.model = model_class.from_config(model_conf)
         self.model.eval()
 
@@ -213,7 +216,7 @@ class STExecutor(BaseExecutor):
         audio_file = os.path.abspath(wav_file)
         logger.info("Preprocess audio_file:" + audio_file)
 
-        if model_type == "fat_st_ted":
+        if "fat_st" in model_type:
             cmvn = self.config.collator.cmvn_path
             utt_name = "_tmp"
 
@@ -321,25 +324,25 @@ class STExecutor(BaseExecutor):
         """
         parser_args = self.parser.parse_args(argv)
 
-        model_type = parser_args.model_type
+        model = parser_args.model
         src_lang = parser_args.src_lang
         tgt_lang = parser_args.tgt_lang
         sample_rate = parser_args.sample_rate
-        cfg_path = parser_args.cfg_path
+        config = parser_args.config
         ckpt_path = parser_args.ckpt_path
         audio_file = parser_args.input
         device = parser_args.device
 
         try:
-            res = self(model_type, src_lang, tgt_lang, sample_rate, cfg_path,
+            res = self(model, src_lang, tgt_lang, sample_rate, config,
                        ckpt_path, audio_file, device)
             logger.info("ST Result: {}".format(res))
             return True
         except Exception as e:
-            print(e)
+            logger.exception(e)
             return False
 
-    def __call__(self, model_type, src_lang, tgt_lang, sample_rate, cfg_path,
+    def __call__(self, model, src_lang, tgt_lang, sample_rate, config,
                  ckpt_path, audio_file, device):
         """
             Python API to call an executor.
@@ -347,10 +350,9 @@ class STExecutor(BaseExecutor):
         audio_file = os.path.abspath(audio_file)
         self._check(audio_file, sample_rate)
         paddle.set_device(device)
-        self._init_from_path(model_type, src_lang, tgt_lang, cfg_path,
-                             ckpt_path)
-        self.preprocess(audio_file, model_type)
-        self.infer(model_type)
-        res = self.postprocess(model_type)
+        self._init_from_path(model, src_lang, tgt_lang, config, ckpt_path)
+        self.preprocess(audio_file, model)
+        self.infer(model)
+        res = self.postprocess(model)
 
         return res

@@ -3,7 +3,7 @@
 ## Introduction
 ASR, or Automatic Speech Recognition, refers to the problem of getting a program to automatically transcribe spoken language (speech-to-text). 
 
-This demo is an implementation to recognize text from a specific audio file. It can be done by a single command line  or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to recognize text from a specific audio file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -32,7 +32,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.
   - `input`(required): Audio file to recognize.
   - `model`: Model type of asr task. Default: `conformer_wenetspeech`.
   - `lang`: Model language. Default: `zh`.
-  - `sr`: Sample rate of the model. Default: `16000`.
+  - `sample_rate`: Sample rate of the model. Default: `16000`.
   - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
@@ -68,7 +68,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.
 
 ### 4.Pretrained Models
 
-Here is a list of pretrained models released by PaddleSpeech and can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
 
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |

@@ -18,7 +18,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import kaldi_io
+import kaldiio
 import numpy as np
 import paddle
 import soundfile
@@ -234,7 +234,7 @@ class STExecutor(BaseExecutor):
                 f"{utt_name} {wav_file}".encode("utf8"))
             fbank_extract_process.stdin.close()
             fbank_feat = dict(
-                kaldi_io.read_mat_ark(fbank_extract_process.stdout))[utt_name]
+                kaldiio.load_ark(fbank_extract_process.stdout))[utt_name]
 
             extract_command = ["compute-kaldi-pitch-feats", "scp:-", "ark:-"]
             pitch_extract_process = subprocess.Popen(
@@ -251,8 +251,7 @@ class STExecutor(BaseExecutor):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
             pitch_extract_process.stdin.close()
-            pitch_feat = dict(
-                kaldi_io.read_mat_ark(pitch_process.stdout))[utt_name]
+            pitch_feat = dict(kaldiio.load_ark(pitch_process.stdout))[utt_name]
             concated_feat = np.concatenate((fbank_feat, pitch_feat), axis=1)
             raw_feat = f"{utt_name}.raw"
             with WriteHelper(
@@ -272,7 +271,7 @@ class STExecutor(BaseExecutor):
                 stdin=cmvn_process.stdout,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-            norm_feat = dict(kaldi_io.read_mat_ark(process.stdout))[utt_name]
+            norm_feat = dict(kaldiio.load_ark(process.stdout))[utt_name]
             self._inputs["audio"] = paddle.to_tensor(norm_feat).unsqueeze(0)
             self._inputs["audio_len"] = paddle.to_tensor(
                 self._inputs["audio"].shape[1], dtype="int64")

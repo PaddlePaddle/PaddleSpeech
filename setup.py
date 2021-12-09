@@ -37,7 +37,6 @@ requirements = {
         "jieba",
         "jsonlines",
         "kaldiio",
-        "kaldi_io",
         "librosa",
         "loguru",
         "matplotlib",

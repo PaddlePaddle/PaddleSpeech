@@ -13,14 +13,12 @@ ckpt_prefix=$2
 
 for type in fullsentence; do
     echo "decoding ${type}"
-    batch_size=32
     python3 -u ${BIN_DIR}/test.py \
     --ngpu ${ngpu} \
     --config ${config_path} \
     --result_file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
     --opts decoding.decoding_method ${type} \
-    --opts decoding.batch_size ${batch_size}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"

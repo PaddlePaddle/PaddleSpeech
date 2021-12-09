@@ -16,3 +16,4 @@ from .base_commands import BaseCommand
 from .base_commands import HelpCommand
 from .cls import CLSExecutor
 from .st import STExecutor
+from .tts import TTSExecutor

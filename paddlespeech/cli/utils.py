@@ -22,8 +22,8 @@ from typing import Dict
 from typing import List
 
 from paddle.framework import load
-from paddle.utils import download
 
+from . import download
 from .entry import commands
 
 __all__ = [
@@ -78,7 +78,6 @@ def _md5check(filepath: os.PathLike, md5sum: str) -> bool:
 
 def _get_uncompress_path(filepath: os.PathLike) -> os.PathLike:
     file_dir = os.path.dirname(filepath)
-
     if tarfile.is_tarfile(filepath):
         files = tarfile.open(filepath, "r:*")
         file_list = files.getnames()
@@ -87,12 +86,11 @@ def _get_uncompress_path(filepath: os.PathLike) -> os.PathLike:
         file_list = files.namelist()
     else:
         return file_dir
-
     if _is_a_single_file(file_list):
         rootpath = file_list[0]
         uncompressed_path = os.path.join(file_dir, rootpath)
     elif _is_a_single_dir(file_list):
-        rootpath = os.path.splitext(file_list[0])[0].split(os.sep)[-1]
+        rootpath = os.path.splitext(file_list[0])[0].split(os.sep)[0]
         uncompressed_path = os.path.join(file_dir, rootpath)
     else:
         rootpath = os.path.splitext(filepath)[0].split(os.sep)[-1]

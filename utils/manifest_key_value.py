@@ -5,7 +5,6 @@ import functools
 from pathlib import Path
 
 import jsonlines
-
 from utils.utility import add_arguments
 from utils.utility import print_arguments
 

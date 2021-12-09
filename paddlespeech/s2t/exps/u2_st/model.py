@@ -497,7 +497,7 @@ class U2STTester(U2STTrainer):
             decoding_chunk_size=cfg.decoding_chunk_size,
             num_decoding_left_chunks=cfg.num_decoding_left_chunks,
             simulate_streaming=cfg.simulate_streaming)
-        print(hyps)
+
         decode_time = time.time() - start_time
 
         for utt, target, result in zip(utts, refs, hyps):

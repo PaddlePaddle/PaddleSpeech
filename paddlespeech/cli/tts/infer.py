@@ -25,9 +25,9 @@ import yaml
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
+from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
-from ..utils import logger
 from ..utils import MODEL_HOME
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend import English
@@ -535,7 +535,7 @@ class TTSExecutor(BaseExecutor):
         wav = self.voc_inference(mel)
         self._outputs['wav'] = wav
 
-    def postprocess(self, output: str='output.wav'):
+    def postprocess(self, output: str='output.wav') -> Union[str, os.PathLike]:
         """
         Output postprocess and return results.
         This method get model output from self._outputs and convert it into human-readable results.

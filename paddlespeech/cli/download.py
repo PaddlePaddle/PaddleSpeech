@@ -20,74 +20,27 @@ import os
 import os.path as osp
 import shutil
 import subprocess
-import sys
 import tarfile
 import time
 import zipfile
 
 import requests
+from tqdm import tqdm
 
-try:
-    from tqdm import tqdm
-except:
+from .log import logger
 
-    class tqdm(object):
-        def __init__(self, total=None):
-            self.total = total
-            self.n = 0
-
-        def update(self, n):
-            self.n += n
-            if self.total is None:
-                sys.stderr.write("\r{0:.1f} bytes".format(self.n))
-            else:
-                sys.stderr.write(
-                    "\r{0:.1f}%".format(100 * self.n / float(self.total)))
-            sys.stderr.flush()
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            sys.stderr.write('\n')
-
-
-import logging
-logger = logging.getLogger(__name__)
-
-__all__ = ['get_weights_path_from_url']
-
-WEIGHTS_HOME = osp.expanduser("~/.cache/paddle/hapi/weights")
+__all__ = ['get_path_from_url']
 
 DOWNLOAD_RETRY_LIMIT = 3
 
 
-def is_url(path):
+def _is_url(path):
     """
     Whether path is URL.
     Args:
         path (string): URL string or not.
     """
     return path.startswith('http://') or path.startswith('https://')
-
-
-def get_weights_path_from_url(url, md5sum=None):
-    """Get weights path from WEIGHT_HOME, if not exists,
-    download it from url.
-    Args:
-        url (str): download url
-        md5sum (str): md5 sum of download package
-    
-    Returns:
-        str: a local path to save downloaded weights.
-    Examples:
-        .. code-block:: python
-            from paddle.utils.download import get_weights_path_from_url
-            resnet18_pretrained_weight_url = 'https://paddle-hapi.bj.bcebos.com/models/resnet18.pdparams'
-            local_weight_path = get_weights_path_from_url(resnet18_pretrained_weight_url)
-    """
-    path = get_path_from_url(url, WEIGHTS_HOME, md5sum)
-    return path
 
 
 def _map_path(url, root_dir):
@@ -135,7 +88,7 @@ def get_path_from_url(url,
 
     from paddle.fluid.dygraph.parallel import ParallelEnv
 
-    assert is_url(url), "downloading from {} not a url".format(url)
+    assert _is_url(url), "downloading from {} not a url".format(url)
     # parse path after download to decompress under root_dir
     fullpath = _map_path(url, root_dir)
     # Mainly used to solve the problem of downloading data from different 

@@ -23,9 +23,6 @@ import numpy as np
 import paddle
 import soundfile
 from kaldiio import WriteHelper
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import UpdateConfig
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
@@ -33,6 +30,9 @@ from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import logger
 from ..utils import MODEL_HOME
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["STExecutor"]
 

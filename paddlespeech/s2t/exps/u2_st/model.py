@@ -24,18 +24,14 @@ import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
-from paddle.io import DataLoader
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.io.collator import SpeechCollator
-from paddlespeech.s2t.io.collator import TripletSpeechCollator
-from paddlespeech.s2t.io.dataset import ManifestDataset
-from paddlespeech.s2t.io.sampler import SortagradBatchSampler
-from paddlespeech.s2t.io.sampler import SortagradDistributedBatchSampler
+from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
+from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.models.u2_st import U2STModel
+from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.training.reporter import ObsScope
 from paddlespeech.s2t.training.reporter import report
-from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.training.scheduler import WarmupLR
 from paddlespeech.s2t.training.timer import Timer
 from paddlespeech.s2t.training.trainer import Trainer
@@ -235,7 +231,7 @@ class U2STTrainer(Trainer):
                         for k, v in observation.items():
                             msg += f" {k.split(',')[0]}: "
                             msg += f"{v:>.8f}" if isinstance(v,
-                                                            float) else f"{v}"
+                                                             float) else f"{v}"
                             msg += f" {k.split(',')[1]}" if len(
                                 k.split(',')) == 2 else ""
                             msg += ","
@@ -443,7 +439,6 @@ class U2STTester(U2STTrainer):
             spm_model_prefix=self.config.collator.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
 
-
     def ordid2token(self, texts, texts_len):
         """ ord() id to chr() chr """
         trans = []
@@ -579,7 +574,6 @@ class U2STTester(U2STTrainer):
             })
             f.write(data + '\n')
 
-
     def load_inferspec(self):
         """infer model and input spec.
 
@@ -589,8 +583,8 @@ class U2STTester(U2STTrainer):
         """
         from paddlespeech.s2t.models.u2_st import U2STInferModel
         infer_model = U2STInferModel.from_pretrained(self.test_loader,
-                                                   self.config.model.clone(),
-                                                   self.args.checkpoint_path)
+                                                     self.config.model.clone(),
+                                                     self.args.checkpoint_path)
         feat_dim = self.test_loader.feat_dim
         input_spec = [
             paddle.static.InputSpec(shape=[1, None, feat_dim],

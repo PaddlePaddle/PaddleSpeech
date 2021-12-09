@@ -128,7 +128,7 @@ class BatchDataLoader():
         # Setup a converter
         if num_encs == 1:
             self.converter = CustomConverter(
-                subsampling_factor=subsampling_factor, 
+                subsampling_factor=subsampling_factor,
                 dtype=np.float32,
                 load_aux_output=load_aux_output)
         else:
@@ -147,10 +147,6 @@ class BatchDataLoader():
             shuffle=not self.use_sortagrad if self.train_mode else False,
             collate_fn=batch_collate,
             num_workers=self.n_iter_processes, )
-        # from IPython import embed
-        # embed()
-        # import os
-        # os._exit(0)
 
     def __len__(self):
         return len(self.dataloader)

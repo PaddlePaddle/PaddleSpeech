@@ -236,6 +236,7 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             "--am_stat",
             type=str,
+            default=None,
             help="mean and standard deviation used to normalize spectrogram when training acoustic model."
         )
         self.parser.add_argument(
@@ -282,6 +283,7 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             "--voc_stat",
             type=str,
+            default=None,
             help="mean and standard deviation used to normalize spectrogram when training voc."
         )
         # other
@@ -543,6 +545,7 @@ class TTSExecutor(BaseExecutor):
         Returns:
             Union[str, os.PathLike]: Human-readable results such as texts and audio files.
         """
+        output = os.path.abspath(os.path.expanduser(output))
         sf.write(
             output, self._outputs['wav'].numpy(), samplerate=self.am_config.fs)
         return output
@@ -593,7 +596,7 @@ class TTSExecutor(BaseExecutor):
                 lang=lang,
                 device=device,
                 output=output)
-            logger.info('TTS Result Saved in: {}'.format(res))
+            logger.info('Wave file has been generated: {}'.format(res))
             return True
         except Exception as e:
             logger.exception(e)

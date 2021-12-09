@@ -56,12 +56,14 @@ def get_command(name: str) -> Any:
 
 def _get_uncompress_path(filepath: os.PathLike) -> os.PathLike:
     file_dir = os.path.dirname(filepath)
+    is_zip_file = False
     if tarfile.is_tarfile(filepath):
         files = tarfile.open(filepath, "r:*")
         file_list = files.getnames()
     elif zipfile.is_zipfile(filepath):
         files = zipfile.ZipFile(filepath, 'r')
         file_list = files.namelist()
+        is_zip_file = True
     else:
         return file_dir
 
@@ -69,7 +71,10 @@ def _get_uncompress_path(filepath: os.PathLike) -> os.PathLike:
         rootpath = file_list[0]
         uncompressed_path = os.path.join(file_dir, rootpath)
     elif download._is_a_single_dir(file_list):
-        rootpath = os.path.splitext(file_list[0])[0].split(os.sep)[-1]
+        if is_zip_file:
+            rootpath = os.path.splitext(file_list[0])[0].split(os.sep)[0]
+        else:
+            rootpath = os.path.splitext(file_list[0])[0].split(os.sep)[-1]
         uncompressed_path = os.path.join(file_dir, rootpath)
     else:
         rootpath = os.path.splitext(filepath)[0].split(os.sep)[-1]

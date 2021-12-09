@@ -109,19 +109,19 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 
 **Audio Classification**     
 ```shell
-paddlespeech cls --input ./test_audio.wav
+paddlespeech cls --input input.wav
 ```
 **Automatic Speech Recognition**
 ```shell
-paddlespeech asr --lang zh --sr 16000 --input ./input.wav
+paddlespeech asr --lang zh --input input_16k.wav
 ```
 **Speech Translation** (English to Chinese)
 ```shell
-paddlespeech st --input ./test_audio.wav
+paddlespeech st --input input_16k.wav
 ```
 **Text-to-Speech** 
 ```shell
-paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
+paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
 
 If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).

@@ -26,10 +26,8 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.collator import TripletSpeechCollator
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.io.dataset import ManifestDataset
 from paddlespeech.s2t.io.sampler import SortagradBatchSampler
 from paddlespeech.s2t.io.sampler import SortagradDistributedBatchSampler

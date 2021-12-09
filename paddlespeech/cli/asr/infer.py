@@ -24,6 +24,10 @@ import numpy as np
 import paddle
 import soundfile
 import yaml
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.transform.transformation import Transformation
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.s2t.utils.utility import UpdateConfig
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
@@ -31,10 +35,6 @@ from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import logger
 from ..utils import MODEL_HOME
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.transform.transformation import Transformation
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 
@@ -114,7 +114,7 @@ class ASRExecutor(BaseExecutor):
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
-            Download and returns pretrained resources path of current task.
+        Download and returns pretrained resources path of current task.
         """
         assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
             tag)
@@ -209,8 +209,8 @@ class ASRExecutor(BaseExecutor):
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
-            Input preprocess and return paddle.Tensor stored in self.input.
-            Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
+        Input preprocess and return paddle.Tensor stored in self.input.
+        Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
 
         audio_file = input
@@ -284,7 +284,7 @@ class ASRExecutor(BaseExecutor):
     @paddle.no_grad()
     def infer(self, model_type: str):
         """
-            Model inference and result stored in self.output.
+        Model inference and result stored in self.output.
         """
         text_feature = TextFeaturizer(
             unit_type=self.config.collator.unit_type,
@@ -331,7 +331,7 @@ class ASRExecutor(BaseExecutor):
 
     def postprocess(self) -> Union[str, os.PathLike]:
         """
-            Output postprocess and return human-readable results such as texts and audio files.
+        Output postprocess and return human-readable results such as texts and audio files.
         """
         return self._outputs["result"]
 
@@ -407,7 +407,7 @@ class ASRExecutor(BaseExecutor):
 
     def execute(self, argv: List[str]) -> bool:
         """
-            Command line entry.
+        Command line entry.
         """
         parser_args = self.parser.parse_args(argv)
 
@@ -431,7 +431,7 @@ class ASRExecutor(BaseExecutor):
     def __call__(self, model, lang, sample_rate, config, ckpt_path, audio_file,
                  device):
         """
-            Python API to call an executor.
+        Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
         self._check(audio_file, sample_rate)

@@ -14,6 +14,7 @@
 from abc import ABC
 from abc import abstractmethod
 
+import paddle
 from g2p_en import G2p
 from g2pM import G2pM
 
@@ -45,11 +46,18 @@ class English(Phonetics):
     """ Normalize the input text sequence and convert into pronunciation id sequence.
     """
 
-    def __init__(self):
+    def __init__(self, phone_vocab_path=None):
         self.backend = G2p()
         self.phonemes = list(self.backend.phonemes)
         self.punctuations = get_punctuations("en")
         self.vocab = Vocab(self.phonemes + self.punctuations)
+        self.vocab_phones = {}
+        self.punc = "：，；。？！“”‘’':,;.?!"
+        if phone_vocab_path:
+            with open(phone_vocab_path, 'rt') as f:
+                phn_id = [line.strip().split() for line in f.readlines()]
+            for phn, id in phn_id:
+                self.vocab_phones[phn] = int(id)
 
     def phoneticize(self, sentence):
         """ Normalize the input text sequence and convert it into pronunciation sequence.
@@ -71,6 +79,21 @@ class English(Phonetics):
                    + ([] if end is None else [end])
         phonemes = [item for item in phonemes if item in self.vocab.stoi]
         return phonemes
+
+    def get_input_ids(self, sentence: str) -> paddle.Tensor:
+        result = {}
+        phones = self.phoneticize(sentence)
+        # remove start_symbol and end_symbol
+        phones = phones[1:-1]
+        phones = [phn for phn in phones if not phn.isspace()]
+        phones = [
+            phn if (phn in self.vocab_phones and phn not in self.punc) else "sp"
+            for phn in phones
+        ]
+        phone_ids = [self.vocab_phones[phn] for phn in phones]
+        phone_ids = paddle.to_tensor(phone_ids)
+        result["phone_ids"] = phone_ids
+        return result
 
     def numericalize(self, phonemes):
         """ Convert pronunciation sequence into pronunciation id sequence.

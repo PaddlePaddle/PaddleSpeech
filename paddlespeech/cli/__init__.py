@@ -15,3 +15,4 @@ from .asr import ASRExecutor
 from .base_commands import BaseCommand
 from .base_commands import HelpCommand
 from .cls import CLSExecutor
+from .tts import TTSExecutor

@@ -83,11 +83,10 @@ class LoadInputsAndTargets():
         self.load_input = load_input
         self.sort_in_input_length = sort_in_input_length
         if preprocess_args:
-            self.preprocess_args = {}
-        else:
             assert isinstance(preprocess_args, dict), type(preprocess_args)
             self.preprocess_args = dict(preprocess_args)
-
+        else:
+            self.preprocess_args = {}
         self.keep_all_data_on_mem = keep_all_data_on_mem
 
     def __call__(self, batch, return_uttid=False):

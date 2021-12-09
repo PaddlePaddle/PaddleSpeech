@@ -283,8 +283,8 @@ class U2STTrainer(Trainer):
                 train_mode=True,
                 sortagrad=False,
                 batch_size=config.collator.batch_size,
-                maxlen_in=float('inf'),
-                maxlen_out=float('inf'),
+                maxlen_in=config.collator.maxlen_in,
+                maxlen_out=config.collator.maxlen_out,
                 minibatches=0,
                 mini_batch_size=self.args.ngpu,
                 batch_count='auto',
@@ -338,30 +338,11 @@ class U2STTrainer(Trainer):
                 batch_frames_inout=0,
                 preprocess_conf=config.collator.
                 augmentation_config,  # aug will be off when train_mode=False
-                n_iter_processes=1,
+                n_iter_processes=config.collator.num_workers,
                 subsampling_factor=1,
                 num_encs=1)
 
-            self.align_loader = BatchDataLoader(
-                json_file=config.data.test_manifest,
-                train_mode=False,
-                sortagrad=False,
-                batch_size=config.decoding.batch_size,
-                maxlen_in=float('inf'),
-                maxlen_out=float('inf'),
-                minibatches=0,
-                mini_batch_size=1,
-                batch_count='auto',
-                batch_bins=0,
-                batch_frames_in=0,
-                batch_frames_out=0,
-                batch_frames_inout=0,
-                preprocess_conf=config.collator.
-                augmentation_config,  # aug will be off when train_mode=False
-                n_iter_processes=1,
-                subsampling_factor=1,
-                num_encs=1)
-            logger.info("Setup test/align Dataloader!")
+            logger.info("Setup test Dataloader!")
 
     def setup_model(self):
         config = self.config
@@ -517,6 +498,7 @@ class U2STTester(U2STTrainer):
             decoding_chunk_size=cfg.decoding_chunk_size,
             num_decoding_left_chunks=cfg.num_decoding_left_chunks,
             simulate_streaming=cfg.simulate_streaming)
+        print(hyps)
         decode_time = time.time() - start_time
 
         for utt, target, result in zip(utts, refs, hyps):
@@ -556,10 +538,6 @@ class U2STTester(U2STTrainer):
         num_time = 0.0
         with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
-                from IPython import embed
-                embed()
-                import os
-                os._exit(0)
                 metrics = self.compute_translation_metrics(
                     *batch, bleu_func=bleu_func, fout=fout)
                 hyps += metrics['hyps']
@@ -571,7 +549,7 @@ class U2STTester(U2STTrainer):
                 num_ins += metrics['num_ins']
                 rtf = num_time / (num_frames * stride_ms)
                 logger.info("RTF: %f, BELU (%d) = %f" % (rtf, num_ins, bleu))
-
+                print("RTF: %f, BELU (%d) = %f" % (rtf, num_ins, bleu))
         rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)

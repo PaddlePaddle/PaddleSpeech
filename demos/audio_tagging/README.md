@@ -3,7 +3,7 @@
 ## Introduction
 Audio tagging is the task of labelling an audio clip with one or more labels or tags, includeing music tagging, acoustic scene classification, audio event classification, etc.
 
-This demo is an implementation to tag an audio file with 527 [AudioSet](https://research.google.com/audioset/) labels. It can be done by a single command line  or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to tag an audio file with 527 [AudioSet](https://research.google.com/audioset/) labels. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -86,7 +86,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
 
 ### 4.Pretrained Models
 
-Here is a list of pretrained models released by PaddleSpeech and can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
 
 | Model | Sample Rate
 | :--- | :---: 

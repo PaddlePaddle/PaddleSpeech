@@ -81,6 +81,7 @@ class CLSExecutor(BaseExecutor):
             '--model',
             type=str,
             default='panns_cnn14',
+            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
             help='Choose model type of cls task.')
         self.parser.add_argument(
             '--config',
@@ -250,7 +251,6 @@ class CLSExecutor(BaseExecutor):
             Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
-        # self._check(audio_file, sample_rate)
         paddle.set_device(device)
         self._init_from_path(model, config, ckpt_path, label_file)
         self.preprocess(audio_file)

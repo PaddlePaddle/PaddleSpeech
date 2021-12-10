@@ -23,12 +23,15 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     unzip -d download download/pwg_baker_ckpt_0.4.zip
     wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
     unzip -d download download/fastspeech2_nosil_baker_ckpt_0.4.zip
+    # download sources
+    wget -P download https://paddlespeech.bj.bcebos.com/demos/story_talker/simfang.ttf
+    wget -P download/imgs https://paddlespeech.bj.bcebos.com/demos/story_talker/000.jpg
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # run ocr
     CUDA_VISIBLE_DEVICES=${gpus} \
-    python3 ocr.py --img-dir=imgs --output-dir=output --font-path=simfang.ttf
+    python3 ocr.py --img-dir=download/imgs --output-dir=output --font-path=download/simfang.ttf
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

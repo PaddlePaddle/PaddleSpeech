@@ -29,6 +29,9 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     unzip -d download download/pwg_baker_ckpt_0.4.zip
     wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
     unzip -d download download/fastspeech2_nosil_baker_ckpt_0.4.zip
+    # donload sources
+    wget -P download https://paddlespeech.bj.bcebos.com/demos/metaverse/Lamarr.png
+
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
@@ -54,7 +57,7 @@ if [ ${stage} -le  4 ] && [ ${stop_stage} -ge 4 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} \
     python3 PaddleGAN/applications/tools/wav2lip.py \
         --checkpoint_path download/wav2lip_hq.pdparams \
-        --face Lamarr.png \
+        --face download/Lamarr.png \
         --audio output/wavs/000.wav \
         --outfile output/tts_lips.mp4 \
         --face_enhancement

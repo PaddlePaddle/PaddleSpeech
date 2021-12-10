@@ -5,5 +5,8 @@
  ## Help
  `paddlespeech help`
 
- ## S2T
- `paddlespeech s2t --config ./s2t.yaml --input ./zh.wav --device gpu`
+ ## ASR
+ `paddlespeech asr --input ./test_audio.wav`
+
+ ## Multi-label Classification
+ `paddlespeech cls --input ./test_audio.wav`

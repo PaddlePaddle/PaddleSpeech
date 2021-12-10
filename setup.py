@@ -27,6 +27,59 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
+requirements = {
+    "install": [
+        "editdistance",
+        "g2p_en",
+        "g2pM",
+        "h5py",
+        "inflect",
+        "jieba",
+        "jsonlines",
+        "kaldiio",
+        "librosa",
+        "loguru",
+        "matplotlib",
+        "nara_wpe",
+        "nltk",
+        "pandas",
+        "paddleaudio",
+        "paddlespeech_feat",
+        "praatio~=4.1",
+        "pypi-kenlm",
+        "pypinyin",
+        "python-dateutil",
+        "pyworld",
+        "resampy==0.2.2",
+        "sacrebleu",
+        "scipy",
+        "sentencepiece~=0.1.96",
+        "soundfile~=0.10",
+        "sox",
+        "soxbindings",
+        "textgrid",
+        "timer",
+        "tqdm",
+        "typeguard",
+        "visualdl",
+        "webrtcvad",
+        "yacs",
+    ],
+    "develop": [
+        "ConfigArgParse",
+        "coverage",
+        "gpustat",
+        "paddlespeech_ctcdecoders",
+        "phkit",
+        "Pillow",
+        "pybind11",
+        "snakeviz",
+        "unidecode",
+        "yq",
+        "pre-commit",
+    ]
+}
+
 
 @contextlib.contextmanager
 def pushd(new_dir):
@@ -72,23 +125,11 @@ def _post_install(install_lib_dir):
         check_call("make")
     print("tools install.")
 
-    # install autolog
-    tools_extrs_dir = HERE / 'tools/extras'
-    with pushd(tools_extrs_dir):
-        print(os.getcwd())
-        check_call("./install_autolog.sh")
-    print("autolog install.")
     # ctcdecoder
     ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
-
-    # install third_party
-    third_party_dir = HERE / 'third_party'
-    with pushd(third_party_dir):
-        check_call("bash -e install.sh")
-    print("third_party install.")
 
 
 class DevelopCommand(develop):
@@ -130,7 +171,7 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='0.0.1a',
+    version='0.1.0a',
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',
@@ -157,9 +198,11 @@ setup_info = dict(
         "pwgan",
         "gan",
     ],
-    python_requires='>=3.6',
-    install_requires=[d.strip() for d in read('requirements.txt').split()],
+    python_requires='>=3.7',
+    install_requires=requirements["install"],
     extras_require={
+        'develop':
+        requirements["develop"],
         'doc': [
             "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
             "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
@@ -172,8 +215,7 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(exclude=('utils', 'tests', 'tests.*', 'examples*',
-                                    'paddleaudio*', 'third_party*', 'tools*')),
+    packages=find_packages(include=('paddlespeech*')),
     zip_safe=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -183,7 +225,6 @@ setup_info = dict(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

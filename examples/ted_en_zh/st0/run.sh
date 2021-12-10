@@ -5,7 +5,7 @@ source path.sh
 gpus=0,1,2,3
 stage=0
 stop_stage=100
-conf_path=conf/transformer_joint_noam.yaml
+conf_path=conf/transformer_mtl_noam.yaml
 avg_num=5
 data_path=./TED_EnZh # path to unzipped data
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

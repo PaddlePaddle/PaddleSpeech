@@ -63,8 +63,7 @@ def evaluate(args, fastspeech2_config, pwg_config):
     vocoder.eval()
     print("model done!")
 
-    frontend = English()
-    punc = "：，；。？！“”‘’':,;.?!"
+    frontend = English(phone_vocab_path=args.phones_dict)
     print("frontend done!")
 
     stat = np.load(args.fastspeech2_stat)
@@ -86,16 +85,8 @@ def evaluate(args, fastspeech2_config, pwg_config):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for utt_id, sentence in sentences:
-        phones = frontend.phoneticize(sentence)
-        # remove start_symbol and end_symbol
-        phones = phones[1:-1]
-        phones = [phn for phn in phones if not phn.isspace()]
-        phones = [
-            phn if (phn in phone_id_map and phn not in punc) else "sp"
-            for phn in phones
-        ]
-        phone_ids = [phone_id_map[phn] for phn in phones]
-        phone_ids = paddle.to_tensor(phone_ids)
+        input_ids = frontend.get_input_ids(sentence)
+        phone_ids = input_ids["phone_ids"]
 
         with paddle.no_grad():
             mel = fastspeech2_inference(phone_ids)

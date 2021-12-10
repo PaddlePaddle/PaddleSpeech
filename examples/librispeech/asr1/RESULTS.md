@@ -19,9 +19,12 @@
 
 
 ## Transformer
+
+train: Epoch 120, 4 V100-32G, 27 Day, avg: 10
+
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention | 6.484564081827799 | 0.044355 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_greedy_search | 6.484564081827799 | 0.050479 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_prefix_beam_search | 6.484564081827799 | 0.049890 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.484564081827799 | 0.039200 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention | 6.382194232940674 | 0.049661 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_greedy_search | 6.382194232940674 | 0.049566 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_prefix_beam_search | 6.382194232940674 | 0.049585 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.382194232940674 | 0.038135 |

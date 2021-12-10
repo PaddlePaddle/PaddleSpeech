@@ -26,5 +26,8 @@ tools/sctk
 tools/sctk-20159b5/
 tools/kaldi
 tools/OpenBLAS/
+tools/Miniconda3-latest-Linux-x86_64.sh
+tools/activate_python.sh
+tools/miniconda.sh
 
 *output/

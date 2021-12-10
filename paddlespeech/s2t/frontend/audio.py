@@ -21,7 +21,6 @@ import struct
 import numpy as np
 import resampy
 import soundfile
-import soxbindings as sox
 from scipy import signal
 
 from .utility import convert_samples_from_float32
@@ -98,7 +97,7 @@ class AudioSegment():
         :param file: Input audio filepath or file object.
         :type file: str|file
         :param start: Start time in seconds. If start is negative, it wraps
-                      around from the end. If not provided, this function 
+                      around from the end. If not provided, this function
                       reads from the very beginning.
         :type start: float
         :param end: End time in seconds. If end is negative, it wraps around
@@ -199,7 +198,7 @@ class AudioSegment():
     @classmethod
     def from_bytes(cls, bytes):
         """Create audio segment from a byte string containing audio samples.
-        
+
         :param bytes: Byte string containing audio samples.
         :type bytes: str
         :return: Audio segment instance.
@@ -217,7 +216,7 @@ class AudioSegment():
         :type *segments: tuple of AudioSegment
         :return: Audio segment instance as concatenating results.
         :rtype: AudioSegment
-        :raises ValueError: If the number of segments is zero, or if the 
+        :raises ValueError: If the number of segments is zero, or if the
                             sample_rate of any segments does not match.
         :raises TypeError: If any segment is not AudioSegment instance.
         """
@@ -251,7 +250,7 @@ class AudioSegment():
 
     def to_wav_file(self, filepath, dtype='float32'):
         """Save audio segment to disk as wav file.
-        
+
         :param filepath: WAV filepath or file object to save the
                          audio segment.
         :type filepath: str|file
@@ -297,7 +296,7 @@ class AudioSegment():
 
     def to_bytes(self, dtype='float32'):
         """Create a byte string containing the audio content.
-        
+
         :param dtype: Data type for export samples. Options: 'int16', 'int32',
                       'float32', 'float64'. Default is 'float32'.
         :type dtype: str
@@ -309,7 +308,7 @@ class AudioSegment():
 
     def to(self, dtype='int16'):
         """Create a `dtype` audio content.
-        
+
         :param dtype: Data type for export samples. Options: 'int16', 'int32',
                       'float32', 'float64'. Default is 'float32'.
         :type dtype: str
@@ -323,8 +322,8 @@ class AudioSegment():
         """Apply gain in decibels to samples.
 
         Note that this is an in-place transformation.
-        
-        :param gain: Gain in decibels to apply to samples. 
+
+        :param gain: Gain in decibels to apply to samples.
         :type gain: float|1darray
         """
         self._samples *= 10.**(gain / 20.)
@@ -333,7 +332,7 @@ class AudioSegment():
         """Change the audio speed by linear interpolation.
 
         Note that this is an in-place transformation.
-        
+
         :param speed_rate: Rate of speed change:
                            speed_rate > 1.0, speed up the audio;
                            speed_rate = 1.0, unchanged;
@@ -355,6 +354,19 @@ class AudioSegment():
         # self._samples = np.interp(new_indices, old_indices, self._samples)
 
         # sox, slow
+        try:
+            import soxbindings as sox
+        except:
+            try:
+                from paddlespeech.s2t.utils import dynamic_pip_install
+                package = "sox"
+                dynamic_pip_install.install(package)
+                package = "soxbindings"
+                dynamic_pip_install.install(package)
+                import soxbindings as sox
+            except:
+                raise RuntimeError("Can not install soxbindings on your system." )
+
         tfm = sox.Transformer()
         tfm.set_globals(multithread=False)
         tfm.speed(speed_rate)
@@ -405,7 +417,7 @@ class AudioSegment():
         :param prior_samples: Prior strength in number of samples.
         :type prior_samples: float
         :param startup_delay: Default 0.0s. If provided, this function will
-                              accrue statistics for the first startup_delay 
+                              accrue statistics for the first startup_delay
                               seconds before applying online normalization.
         :type startup_delay: float
         """
@@ -557,7 +569,7 @@ class AudioSegment():
         :param impulse_segment: Impulse response segments.
         :type impulse_segment: AudioSegment
         :param allow_resample: Indicates whether resampling is allowed when
-                               the impulse_segment has a different sample 
+                               the impulse_segment has a different sample
                                rate from this signal.
         :type allow_resample: bool
         :raises ValueError: If the sample rate is not match between two
@@ -695,7 +707,7 @@ class AudioSegment():
 
     def _convert_samples_from_float32(self, samples, dtype):
         """Convert sample type from float32 to dtype.
-        
+
         Audio sample type is usually integer or float-point. For integer
         type, float32 will be rescaled from [-1, 1] to the maximum range
         supported by the integer type.

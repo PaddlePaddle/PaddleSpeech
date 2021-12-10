@@ -16,7 +16,6 @@ import librosa
 import numpy
 import scipy
 import soundfile
-import soxbindings as sox
 
 from paddlespeech.s2t.io.reader import SoundHDF5File
 
@@ -115,10 +114,10 @@ class SpeedPerturbationSox():
     and sox-speed just to resample the input,
     i.e pitch and tempo are changed both.
 
-    To speed up or slow down the sound of a file, 
-    use speed to modify the pitch and the duration of the file. 
-    This raises the speed and reduces the time. 
-    The default factor is 1.0 which makes no change to the audio. 
+    To speed up or slow down the sound of a file,
+    use speed to modify the pitch and the duration of the file.
+    This raises the speed and reduces the time.
+    The default factor is 1.0 which makes no change to the audio.
     2.0 doubles speed, thus time length is cut by a half and pitch is one interval higher.
 
     "Why use speed option instead of tempo -s in SoX for speed perturbation"
@@ -130,7 +129,7 @@ class SpeedPerturbationSox():
     speed option:
     sox -t wav input.wav -t wav output.speed0.9.wav speed 0.9
 
-    If we use speed option like above, the pitch of audio also will be changed, 
+    If we use speed option like above, the pitch of audio also will be changed,
     but the tempo option does not change the pitch.
     """
 
@@ -145,6 +144,19 @@ class SpeedPerturbationSox():
         self.sr = sr
         self.keep_length = keep_length
         self.state = numpy.random.RandomState(seed)
+
+        try:
+            import soxbindings as sox
+        except:
+            try:
+                from paddlespeech.s2t.utils import dynamic_pip_install
+                package = "sox"
+                dynamic_pip_install.install(package)
+                package = "soxbindings"
+                dynamic_pip_install.install(package)
+                import soxbindings as sox
+            except:
+                raise RuntimeError("Can not install soxbindings on your system." )
 
         if utt2ratio is not None:
             self.utt2ratio = {}
@@ -168,8 +180,8 @@ class SpeedPerturbationSox():
     def __repr__(self):
         if self.utt2ratio is None:
             return f"""{self.__class__.__name__}(
-                lower={self.lower}, 
-                upper={self.upper}, 
+                lower={self.lower},
+                upper={self.upper},
                 keep_length={self.keep_length},
                 sample_rate={self.sr})"""
 

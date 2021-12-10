@@ -25,20 +25,20 @@ Input of this demo should be a text of the specific language that can be passed 
 	```bash
 	paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 	```
-        - Chinese, multi speaker
+	- Chinese, multi speaker
 	```bash
 	paddlespeech tts --am fastspeech2_aishell3 --voc pwgan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
 	```
 	You can change `spk_id` here.
-        - English
+     - English
 	```bash
 	paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "hello world"
 	```
 	- English, multi speaker
 	```bash
 	paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
-	```
-        You can change `spk_id` here.
+    ```
+     You can change `spk_id` here.
 	   
  
 - Usage:

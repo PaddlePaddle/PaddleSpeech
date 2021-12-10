@@ -255,7 +255,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
                 fc_layers_size_list=[512, 256],
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 blank_id=0,  # index of blank in vocob.txt
-                ctc_grad_norm_type='instance', ))
+                ctc_grad_norm_type=None, ))
         if config is not None:
             config.merge_from_other_cfg(default)
         return default
@@ -272,7 +272,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             fc_layers_size_list=[512, 256],
             use_gru=False,
             blank_id=0,
-            ctc_grad_norm_type='instance', ):
+            ctc_grad_norm_type=None, ):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
@@ -361,7 +361,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             fc_layers_size_list=config.model.fc_layers_size_list,
             use_gru=config.model.use_gru,
             blank_id=config.model.blank_id,
-            ctc_grad_norm_type=config.model.ctc_grad_norm_type, )
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -391,7 +391,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
             fc_layers_size_list=config.fc_layers_size_list,
             use_gru=config.use_gru,
             blank_id=config.blank_id,
-            ctc_grad_norm_type=config.ctc_grad_norm_type, )
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         return model
 
 

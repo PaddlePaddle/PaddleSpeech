@@ -43,7 +43,7 @@ model:
   fc_layers_size_list: -1,
   use_gru: False 
   blank_id: 0
-  ctc_grad_norm_type: null
+  
   
 training:
   n_epoch: 65

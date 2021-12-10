@@ -1,4 +1,4 @@
-# TTS(Text To Speech)
+# TTS (Text To Speech)
 
 ## Introduction
 Text-to-speech (TTS) is a natural language modeling process that requires changing units of text into units of speech for audio presentation. 
@@ -13,14 +13,37 @@ pip install paddlespeech
 
 ### 2. Prepare Input
 Input of this demo should be a text of the specific language that can be passed via argument.
-
-
 ### 3. Usage
-- Command Line(Recommended)
-  ```bash
-  paddlespeech tts --input 今天的天气不错啊
-  ```
+- Command Line (Recommended)
+    - Chinese
+    
+        The default acoustic model is `Fastspeech2`, and the default vocoder is `Parallel WaveGAN`.
+        ```bash
+        paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
+        ```
+    - Chinese, use `SpeedySpeech` as acoustic model
+        ```bash
+        paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
+        ```
+    - Chinese, multi speaker
+    
+        You can change `spk_id` here.
+        ```bash
+        paddlespeech tts --am fastspeech2_aishell3 --voc pwgan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
+        ```
+    
+     - English
+        ```bash
+        paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "hello world"
+        ```
+    - English, multi speaker
+    
+        You can change `spk_id` here.
+        ```bash
+        paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
+        ```   
   Usage:
+  
   ```bash
   paddlespeech tts --help
   ```
@@ -79,7 +102,7 @@ Input of this demo should be a text of the specific language that can be passed 
   ```
 
 
-### 4.Pretrained Models
+### 4. Pretrained Models
 
 Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
 

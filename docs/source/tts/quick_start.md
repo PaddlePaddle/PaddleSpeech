@@ -19,7 +19,7 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 
 ## Quick Start
 
-Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. (./examples/csmsc/)(https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
+Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. [examples/csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
 
 ### Train Parallel WaveGAN with CSMSC
 - Go to directory

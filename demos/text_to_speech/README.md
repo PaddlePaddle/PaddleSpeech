@@ -19,26 +19,26 @@ Input of this demo should be a text of the specific language that can be passed 
 	- Chinese
 	```bash
 	paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
-	 ```
+	```
 	The default acoustic model is `Fastspeech2`, and the default vocoder is `Parallel WaveGAN`.
-  - Chinese, use `SpeedySpeech` as acoustic model
+  	- Chinese, use `SpeedySpeech` as acoustic model
 	```bash
-	  paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
-	  ```
-   - Chinese, multi speaker
-	  ```bash
-	  paddlespeech tts --am fastspeech2_aishell3 --voc pwgan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
-	  ```
-  		You can change `spk_id` here.
-  - English
-	 ```bash
-	  	paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "hello world"
-	  ```
-  - English, multi speaker
-	  ```bash
-	   paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
-	   ```
-	   You can change `spk_id` here.
+	paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
+	```
+        - Chinese, multi speaker
+	```bash
+	paddlespeech tts --am fastspeech2_aishell3 --voc pwgan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
+	```
+	You can change `spk_id` here.
+        - English
+	```bash
+	paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "hello world"
+	```
+	- English, multi speaker
+	```bash
+	paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
+	```
+        You can change `spk_id` here.
 	   
  
 - Usage:

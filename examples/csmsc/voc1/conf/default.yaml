@@ -56,9 +56,9 @@ discriminator_params:
     bias: true            # Whether to use bias parameter in conv.
     use_weight_norm: true # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
-    nonlinear_activation: "LeakyReLU" # Nonlinear function after each conv.
+    nonlinear_activation: "leakyrelu" # Nonlinear function after each conv.
     nonlinear_activation_params:      # Nonlinear function parameters
-        negative_slope: 0.2           # Alpha in LeakyReLU.
+        negative_slope: 0.2           # Alpha in leakyrelu.
 
 ###########################################################
 #                   STFT LOSS SETTING                     #

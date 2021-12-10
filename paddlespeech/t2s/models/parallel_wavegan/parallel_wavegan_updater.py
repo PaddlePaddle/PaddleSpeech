@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+from pathlib import Path
 from typing import Dict
 
 import paddle
@@ -20,7 +21,6 @@ from paddle.io import DataLoader
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 from paddle.optimizer.lr import LRScheduler
-from timer import timer
 
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
@@ -40,9 +40,11 @@ class PWGUpdater(StandardUpdater):
                  criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
-                 discriminator_train_start_steps: int,
-                 lambda_adv: float,
-                 output_dir=None):
+                 generator_train_start_steps: int=0,
+                 discriminator_train_start_steps: int=100000,
+                 lambda_adv: float=1.0,
+                 lambda_aux: float=1.0,
+                 output_dir: Path=None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -61,8 +63,10 @@ class PWGUpdater(StandardUpdater):
 
         self.dataloader = dataloader
 
+        self.generator_train_start_steps = generator_train_start_steps
         self.discriminator_train_start_steps = discriminator_train_start_steps
         self.lambda_adv = lambda_adv
+        self.lambda_aux = lambda_aux
         self.state = UpdaterState(iteration=0, epoch=0)
 
         self.train_iterator = iter(self.dataloader)
@@ -76,56 +80,46 @@ class PWGUpdater(StandardUpdater):
     def update_core(self, batch):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
-
         # parse batch
         wav, mel = batch
 
         # Generator
-        noise = paddle.randn(wav.shape)
-
-        with timer() as t:
+        if self.state.iteration > self.generator_train_start_steps:
+            noise = paddle.randn(wav.shape)
             wav_ = self.generator(noise, mel)
-            # logging.debug(f"Generator takes {t.elapse}s.")
 
-        # initialize
-        gen_loss = 0.0
+            # initialize
+            gen_loss = 0.0
+            aux_loss = 0.0
 
-        ## Multi-resolution stft loss
-        with timer() as t:
+            # multi-resolution stft loss
             sc_loss, mag_loss = self.criterion_stft(wav_, wav)
-            # logging.debug(f"Multi-resolution STFT loss takes {t.elapse}s.")
+            aux_loss += sc_loss + mag_loss
+            report("train/spectral_convergence_loss", float(sc_loss))
+            report("train/log_stft_magnitude_loss", float(mag_loss))
 
-        report("train/spectral_convergence_loss", float(sc_loss))
-        report("train/log_stft_magnitude_loss", float(mag_loss))
+            gen_loss += aux_loss * self.lambda_aux
 
-        losses_dict["spectral_convergence_loss"] = float(sc_loss)
-        losses_dict["log_stft_magnitude_loss"] = float(mag_loss)
+            losses_dict["spectral_convergence_loss"] = float(sc_loss)
+            losses_dict["log_stft_magnitude_loss"] = float(mag_loss)
 
-        gen_loss += sc_loss + mag_loss
-
-        ## Adversarial loss
-        if self.state.iteration > self.discriminator_train_start_steps:
-            with timer() as t:
+            # adversarial loss
+            if self.state.iteration > self.discriminator_train_start_steps:
                 p_ = self.discriminator(wav_)
                 adv_loss = self.criterion_mse(p_, paddle.ones_like(p_))
-                # logging.debug(
-                #     f"Discriminator and adversarial loss takes {t.elapse}s")
-            report("train/adversarial_loss", float(adv_loss))
-            losses_dict["adversarial_loss"] = float(adv_loss)
-            gen_loss += self.lambda_adv * adv_loss
+                report("train/adversarial_loss", float(adv_loss))
+                losses_dict["adversarial_loss"] = float(adv_loss)
 
-        report("train/generator_loss", float(gen_loss))
-        losses_dict["generator_loss"] = float(gen_loss)
+                gen_loss += self.lambda_adv * adv_loss
 
-        with timer() as t:
+            report("train/generator_loss", float(gen_loss))
+            losses_dict["generator_loss"] = float(gen_loss)
+
             self.optimizer_g.clear_grad()
             gen_loss.backward()
-            # logging.debug(f"Backward takes {t.elapse}s.")
 
-        with timer() as t:
             self.optimizer_g.step()
             self.scheduler_g.step()
-            # logging.debug(f"Update takes {t.elapse}s.")
 
         # Disctiminator
         if self.state.iteration > self.discriminator_train_start_steps:
@@ -155,11 +149,12 @@ class PWGUpdater(StandardUpdater):
 
 class PWGEvaluator(StandardEvaluator):
     def __init__(self,
-                 models,
-                 criterions,
-                 dataloader,
-                 lambda_adv,
-                 output_dir=None):
+                 models: Dict[str, Layer],
+                 criterions: Dict[str, Layer],
+                 dataloader: DataLoader,
+                 lambda_adv: float=1.0,
+                 lambda_aux: float=1.0,
+                 output_dir: Path=None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']
@@ -169,7 +164,9 @@ class PWGEvaluator(StandardEvaluator):
         self.criterion_mse = criterions['mse']
 
         self.dataloader = dataloader
+
         self.lambda_adv = lambda_adv
+        self.lambda_aux = lambda_aux
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -181,34 +178,33 @@ class PWGEvaluator(StandardEvaluator):
         # logging.debug("Evaluate: ")
         self.msg = "Evaluate: "
         losses_dict = {}
-
         wav, mel = batch
         noise = paddle.randn(wav.shape)
 
-        with timer() as t:
-            wav_ = self.generator(noise, mel)
-            # logging.debug(f"Generator takes {t.elapse}s")
+        # Generator
+        wav_ = self.generator(noise, mel)
 
-        ## Adversarial loss
-        with timer() as t:
-            p_ = self.discriminator(wav_)
-            adv_loss = self.criterion_mse(p_, paddle.ones_like(p_))
-            # logging.debug(
-            #     f"Discriminator and adversarial loss takes {t.elapse}s")
+        # initialize
+        gen_loss = 0.0
+        aux_loss = 0.0
+
+        # adversarial loss
+        p_ = self.discriminator(wav_)
+        adv_loss = self.criterion_mse(p_, paddle.ones_like(p_))
         report("eval/adversarial_loss", float(adv_loss))
         losses_dict["adversarial_loss"] = float(adv_loss)
-        gen_loss = self.lambda_adv * adv_loss
 
-        # stft loss
-        with timer() as t:
-            sc_loss, mag_loss = self.criterion_stft(wav_, wav)
-            # logging.debug(f"Multi-resolution STFT loss takes {t.elapse}s")
+        gen_loss += self.lambda_adv * adv_loss
 
+        # multi-resolution stft loss
+        sc_loss, mag_loss = self.criterion_stft(wav_, wav)
         report("eval/spectral_convergence_loss", float(sc_loss))
         report("eval/log_stft_magnitude_loss", float(mag_loss))
         losses_dict["spectral_convergence_loss"] = float(sc_loss)
         losses_dict["log_stft_magnitude_loss"] = float(mag_loss)
-        gen_loss += sc_loss + mag_loss
+        aux_loss += sc_loss + mag_loss
+
+        gen_loss += aux_loss * self.lambda_aux
 
         report("eval/generator_loss", float(gen_loss))
         losses_dict["generator_loss"] = float(gen_loss)

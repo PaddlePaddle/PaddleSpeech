@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-from pathlib import Path
 from typing import Dict
 
 import paddle
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class MBMelGANUpdater(StandardUpdater):
+class HiFiGANUpdater(StandardUpdater):
     def __init__(self,
                  models: Dict[str, Layer],
                  optimizers: Dict[str, Optimizer],
@@ -42,9 +41,10 @@ class MBMelGANUpdater(StandardUpdater):
                  dataloader: DataLoader,
                  generator_train_start_steps: int=0,
                  discriminator_train_start_steps: int=100000,
-                 lambda_aux: float=1.0,
                  lambda_adv: float=1.0,
-                 output_dir: Path=None):
+                 lambda_aux: float=1.0,
+                 lambda_feat_match: float=1.0,
+                 output_dir=None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -54,9 +54,9 @@ class MBMelGANUpdater(StandardUpdater):
         self.optimizer_d: Optimizer = optimizers['discriminator']
 
         self.criterions = criterions
-        self.criterion_stft = criterions['stft']
-        self.criterion_sub_stft = criterions['sub_stft']
-        self.criterion_pqmf = criterions['pqmf']
+        self.criterion_feat_match = criterions['feat_match']
+        self.criterion_mel = criterions['mel']
+
         self.criterion_gen_adv = criterions["gen_adv"]
         self.criterion_dis_adv = criterions["dis_adv"]
 
@@ -70,6 +70,7 @@ class MBMelGANUpdater(StandardUpdater):
         self.discriminator_train_start_steps = discriminator_train_start_steps
         self.lambda_adv = lambda_adv
         self.lambda_aux = lambda_aux
+        self.lambda_feat_match = lambda_feat_match
 
         self.state = UpdaterState(iteration=0, epoch=0)
         self.train_iterator = iter(self.dataloader)
@@ -90,34 +91,16 @@ class MBMelGANUpdater(StandardUpdater):
         if self.state.iteration > self.generator_train_start_steps:
             # (B, out_channels, T ** prod(upsample_scales)
             wav_ = self.generator(mel)
-            wav_mb_ = wav_
-            # (B, 1, out_channels*T ** prod(upsample_scales)
-            wav_ = self.criterion_pqmf.synthesis(wav_mb_)
 
             # initialize
             gen_loss = 0.0
             aux_loss = 0.0
 
-            # full band Multi-resolution stft loss
-            sc_loss, mag_loss = self.criterion_stft(wav_, wav)
-            # for balancing with subband stft loss
-            # Eq.(9) in paper
-            aux_loss += 0.5 * (sc_loss + mag_loss)
-            report("train/spectral_convergence_loss", float(sc_loss))
-            report("train/log_stft_magnitude_loss", float(mag_loss))
-            losses_dict["spectral_convergence_loss"] = float(sc_loss)
-            losses_dict["log_stft_magnitude_loss"] = float(mag_loss)
-
-            # sub band Multi-resolution stft loss
-            # (B, subbands, T // subbands)
-            wav_mb = self.criterion_pqmf.analysis(wav)
-            sub_sc_loss, sub_mag_loss = self.criterion_sub_stft(wav_mb_, wav_mb)
-            # Eq.(9) in paper
-            aux_loss += 0.5 * (sub_sc_loss + sub_mag_loss)
-            report("train/sub_spectral_convergence_loss", float(sub_sc_loss))
-            report("train/sub_log_stft_magnitude_loss", float(sub_mag_loss))
-            losses_dict["sub_spectral_convergence_loss"] = float(sub_sc_loss)
-            losses_dict["sub_log_stft_magnitude_loss"] = float(sub_mag_loss)
+            # mel spectrogram loss
+            mel_loss = self.criterion_mel(wav_, wav)
+            aux_loss += mel_loss
+            report("train/mel_loss", float(mel_loss))
+            losses_dict["mel_loss"] = float(mel_loss)
 
             gen_loss += aux_loss * self.lambda_aux
 
@@ -127,6 +110,16 @@ class MBMelGANUpdater(StandardUpdater):
                 adv_loss = self.criterion_gen_adv(p_)
                 report("train/adversarial_loss", float(adv_loss))
                 losses_dict["adversarial_loss"] = float(adv_loss)
+
+                # feature matching loss
+                # no need to track gradients
+                with paddle.no_grad():
+                    p = self.discriminator(wav)
+                fm_loss = self.criterion_feat_match(p_, p)
+                report("train/feature_matching_loss", float(fm_loss))
+                losses_dict["feature_matching_loss"] = float(fm_loss)
+
+                adv_loss += self.lambda_feat_match * fm_loss
 
                 gen_loss += self.lambda_adv * adv_loss
 
@@ -144,7 +137,7 @@ class MBMelGANUpdater(StandardUpdater):
             # re-compute wav_ which leads better quality
             with paddle.no_grad():
                 wav_ = self.generator(mel)
-            wav_ = self.criterion_pqmf.synthesis(wav_)
+
             p = self.discriminator(wav)
             p_ = self.discriminator(wav_.detach())
             real_loss, fake_loss = self.criterion_dis_adv(p_, p)
@@ -166,22 +159,22 @@ class MBMelGANUpdater(StandardUpdater):
                               for k, v in losses_dict.items())
 
 
-class MBMelGANEvaluator(StandardEvaluator):
+class HiFiGANEvaluator(StandardEvaluator):
     def __init__(self,
                  models: Dict[str, Layer],
                  criterions: Dict[str, Layer],
                  dataloader: DataLoader,
-                 lambda_aux: float=1.0,
                  lambda_adv: float=1.0,
-                 output_dir: Path=None):
+                 lambda_aux: float=1.0,
+                 lambda_feat_match: float=1.0,
+                 output_dir=None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']
 
         self.criterions = criterions
-        self.criterion_stft = criterions['stft']
-        self.criterion_sub_stft = criterions['sub_stft']
-        self.criterion_pqmf = criterions['pqmf']
+        self.criterion_feat_match = criterions['feat_match']
+        self.criterion_mel = criterions['mel']
         self.criterion_gen_adv = criterions["gen_adv"]
         self.criterion_dis_adv = criterions["dis_adv"]
 
@@ -189,6 +182,7 @@ class MBMelGANEvaluator(StandardEvaluator):
 
         self.lambda_adv = lambda_adv
         self.lambda_aux = lambda_aux
+        self.lambda_feat_match = lambda_feat_match
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -205,41 +199,31 @@ class MBMelGANEvaluator(StandardEvaluator):
         # Generator
         # (B, out_channels, T ** prod(upsample_scales)
         wav_ = self.generator(mel)
-        wav_mb_ = wav_
-        # (B, 1, out_channels*T ** prod(upsample_scales)
-        wav_ = self.criterion_pqmf.synthesis(wav_mb_)
 
         # initialize
         gen_loss = 0.0
         aux_loss = 0.0
 
-        # adversarial loss
+        ## Adversarial loss
         p_ = self.discriminator(wav_)
         adv_loss = self.criterion_gen_adv(p_)
         report("eval/adversarial_loss", float(adv_loss))
         losses_dict["adversarial_loss"] = float(adv_loss)
 
+        # feature matching loss
+        p = self.discriminator(wav)
+        fm_loss = self.criterion_feat_match(p_, p)
+        report("eval/feature_matching_loss", float(fm_loss))
+        losses_dict["feature_matching_loss"] = float(fm_loss)
+        adv_loss += self.lambda_feat_match * fm_loss
+
         gen_loss += self.lambda_adv * adv_loss
 
-        # Multi-resolution stft loss
-        sc_loss, mag_loss = self.criterion_stft(wav_, wav)
-        # Eq.(9) in paper
-        aux_loss += 0.5 * (sc_loss + mag_loss)
-        report("eval/spectral_convergence_loss", float(sc_loss))
-        report("eval/log_stft_magnitude_loss", float(mag_loss))
-        losses_dict["spectral_convergence_loss"] = float(sc_loss)
-        losses_dict["log_stft_magnitude_loss"] = float(mag_loss)
-
-        # sub band Multi-resolution stft loss
-        # (B, subbands, T // subbands)
-        wav_mb = self.criterion_pqmf.analysis(wav)
-        sub_sc_loss, sub_mag_loss = self.criterion_sub_stft(wav_mb_, wav_mb)
-        # Eq.(9) in paper
-        aux_loss += 0.5 * (sub_sc_loss + sub_mag_loss)
-        report("eval/sub_spectral_convergence_loss", float(sub_sc_loss))
-        report("eval/sub_log_stft_magnitude_loss", float(sub_mag_loss))
-        losses_dict["sub_spectral_convergence_loss"] = float(sub_sc_loss)
-        losses_dict["sub_log_stft_magnitude_loss"] = float(sub_mag_loss)
+        # mel spectrogram loss
+        mel_loss = self.criterion_mel(wav_, wav)
+        aux_loss += mel_loss
+        report("eval/mel_loss", float(mel_loss))
+        losses_dict["mel_loss"] = float(mel_loss)
 
         gen_loss += aux_loss * self.lambda_aux
 

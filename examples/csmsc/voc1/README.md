@@ -95,7 +95,7 @@ benchmark:
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Synthesizing
-`./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
+`./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```

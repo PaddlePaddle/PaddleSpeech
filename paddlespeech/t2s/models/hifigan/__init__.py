@@ -11,11 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .fastspeech2 import *
 from .hifigan import *
-from .melgan import *
-from .parallel_wavegan import *
-from .speedyspeech import *
-from .tacotron2 import *
-from .transformer_tts import *
-from .waveflow import *
+from .hifigan_updater import *

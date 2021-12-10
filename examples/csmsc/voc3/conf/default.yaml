@@ -54,7 +54,7 @@ discriminator_params:
     channels: 16                      # Number of channels of the initial conv layer.
     max_downsample_channels: 512      # Maximum number of channels of downsampling layers.
     downsample_scales: [4, 4, 4]      # List of downsampling scales.
-    nonlinear_activation: "LeakyReLU" # Nonlinear activation function.
+    nonlinear_activation: "leakyrelu" # Nonlinear activation function.
     nonlinear_activation_params:      # Parameters of nonlinear activation function.
         negative_slope: 0.2
     use_weight_norm: True             # Whether to use weight norm.

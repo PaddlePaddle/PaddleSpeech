@@ -21,6 +21,7 @@ import numpy as np
 import paddle
 from paddle import nn
 
+from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.causal_conv import CausalConv1D
 from paddlespeech.t2s.modules.causal_conv import CausalConv1DTranspose
 from paddlespeech.t2s.modules.nets_utils import initialize
@@ -41,7 +42,7 @@ class MelGANGenerator(nn.Layer):
             upsample_scales: List[int]=[8, 8, 2, 2],
             stack_kernel_size: int=3,
             stacks: int=3,
-            nonlinear_activation: str="LeakyReLU",
+            nonlinear_activation: str="leakyrelu",
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
             pad: str="Pad1D",
             pad_params: Dict[str, Any]={"mode": "reflect"},
@@ -98,6 +99,9 @@ class MelGANGenerator(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
+        # for compatibility
+        nonlinear_activation = nonlinear_activation.lower()
+
         layers = []
         if not use_causal_conv:
             layers += [
@@ -118,7 +122,8 @@ class MelGANGenerator(nn.Layer):
         for i, upsample_scale in enumerate(upsample_scales):
             # add upsampling layer
             layers += [
-                getattr(nn, nonlinear_activation)(**nonlinear_activation_params)
+                get_activation(nonlinear_activation,
+                               **nonlinear_activation_params)
             ]
             if not use_causal_conv:
                 layers += [
@@ -158,7 +163,7 @@ class MelGANGenerator(nn.Layer):
 
         # add final layer
         layers += [
-            getattr(nn, nonlinear_activation)(**nonlinear_activation_params)
+            get_activation(nonlinear_activation, **nonlinear_activation_params)
         ]
         if not use_causal_conv:
             layers += [
@@ -287,7 +292,7 @@ class MelGANDiscriminator(nn.Layer):
             max_downsample_channels: int=1024,
             bias: bool=True,
             downsample_scales: List[int]=[4, 4, 4, 4],
-            nonlinear_activation: str="LeakyReLU",
+            nonlinear_activation: str="leakyrelu",
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
             pad: str="Pad1D",
             pad_params: Dict[str, Any]={"mode": "reflect"}, ):
@@ -328,6 +333,9 @@ class MelGANDiscriminator(nn.Layer):
         assert kernel_sizes[0] % 2 == 1
         assert kernel_sizes[1] % 2 == 1
 
+        # for compatibility
+        nonlinear_activation = nonlinear_activation.lower()
+
         # add first layer
         self.layers.append(
             nn.Sequential(
@@ -338,8 +346,8 @@ class MelGANDiscriminator(nn.Layer):
                     channels,
                     int(np.prod(kernel_sizes)),
                     bias_attr=bias),
-                getattr(nn, nonlinear_activation)(
-                    **nonlinear_activation_params), ))
+                get_activation(nonlinear_activation, **
+                               nonlinear_activation_params), ))
 
         # add downsample layers
         in_chs = channels
@@ -355,8 +363,8 @@ class MelGANDiscriminator(nn.Layer):
                         padding=downsample_scale * 5,
                         groups=in_chs // 4,
                         bias_attr=bias, ),
-                    getattr(nn, nonlinear_activation)(
-                        **nonlinear_activation_params), ))
+                    get_activation(nonlinear_activation, **
+                                   nonlinear_activation_params), ))
             in_chs = out_chs
 
         # add final layers
@@ -369,8 +377,8 @@ class MelGANDiscriminator(nn.Layer):
                     kernel_sizes[0],
                     padding=(kernel_sizes[0] - 1) // 2,
                     bias_attr=bias, ),
-                getattr(nn, nonlinear_activation)(
-                    **nonlinear_activation_params), ))
+                get_activation(nonlinear_activation, **
+                               nonlinear_activation_params), ))
         self.layers.append(
             nn.Conv1D(
                 out_chs,
@@ -419,7 +427,7 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
             max_downsample_channels: int=1024,
             bias: bool=True,
             downsample_scales: List[int]=[4, 4, 4, 4],
-            nonlinear_activation: str="LeakyReLU",
+            nonlinear_activation: str="leakyrelu",
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
             pad: str="Pad1D",
             pad_params: Dict[str, Any]={"mode": "reflect"},

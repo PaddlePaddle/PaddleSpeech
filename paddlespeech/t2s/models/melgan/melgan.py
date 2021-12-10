@@ -93,7 +93,8 @@ class MelGANGenerator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         # check hyper parameters is valid
         assert channels >= np.prod(upsample_scales)
@@ -328,7 +329,8 @@ class MelGANDiscriminator(nn.Layer):
         super().__init__()
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         # initialize parameters
         initialize(self, init_type)
@@ -339,9 +341,6 @@ class MelGANDiscriminator(nn.Layer):
         assert len(kernel_sizes) == 2
         assert kernel_sizes[0] % 2 == 1
         assert kernel_sizes[1] % 2 == 1
-
-        # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
 
         # add first layer
         self.layers.append(
@@ -480,8 +479,9 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        # for 
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         self.discriminators = nn.LayerList()
 

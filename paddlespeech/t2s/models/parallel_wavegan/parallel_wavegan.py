@@ -106,7 +106,8 @@ class PWGGenerator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -289,7 +290,8 @@ class PWGDiscriminator(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         assert kernel_size % 2 == 1
         assert dilation_factor > 0
@@ -418,7 +420,8 @@ class ResidualPWGDiscriminator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         assert kernel_size % 2 == 1
         self.in_channels = in_channels

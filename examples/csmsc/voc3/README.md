@@ -139,7 +139,7 @@ exp/finetune/checkpoints
 ```
 The content of `records.jsonl` should be as follows (change `"path"` to your own ckpt path):
 ```
-{"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}↩
+{"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}
 ```
 Run the command below 
 ```bash

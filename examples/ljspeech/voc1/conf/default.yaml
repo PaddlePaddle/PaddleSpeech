@@ -7,9 +7,9 @@
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
 fs: 22050                # Sampling rate.
-n_fft: 1024              # FFT size. (in samples)
-n_shift: 256             # Hop size. (in samples)
-win_length: null         # Window length. (in samples)
+n_fft: 1024              # FFT size (samples).
+n_shift: 256             # Hop size (samples). 11.6ms
+win_length: null         # Window length (samples).
                          # If set to null, it will be the same as fft_size.
 window: "hann"           # Window function.
 n_mels: 80               # Number of mel basis.

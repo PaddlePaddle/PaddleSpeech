@@ -11,9 +11,9 @@
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
 fs: 24000                # Sampling rate.
-n_fft: 2048              # FFT size. (in samples)
-n_shift: 300             # Hop size. (in samples)
-win_length: 1200         # Window length. (in samples)
+n_fft: 2048              # FFT size (samples).
+n_shift: 300             # Hop size (samples). 12.5ms
+win_length: 1200         # Window length (samples). 50ms
                          # If set to null, it will be the same as fft_size.
 window: "hann"           # Window function.
 n_mels: 80               # Number of mel basis.
@@ -37,7 +37,7 @@ generator_params:
         - [1, 3, 5]
     use_additional_convs: true            # Whether to use additional conv layer in residual blocks.
     bias: true                            # Whether to use bias parameter in conv.
-    nonlinear_activation: "LeakyReLU"     # Nonlinear activation type.
+    nonlinear_activation: "leakyrelu"     # Nonlinear activation type.
     nonlinear_activation_params:          # Nonlinear activation paramters.
         negative_slope: 0.1
     use_weight_norm: true                 # Whether to apply weight normalization.

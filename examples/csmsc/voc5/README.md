@@ -139,37 +139,10 @@ exp/finetune/checkpoints
 ```
 The content of `records.jsonl` should be as follows (change `"path"` to your own ckpt path):
 ```
-{"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}↩
+{"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}
 ```
 Run the command below 
 ```bash
 ./finetune.sh
 ```
 By default, `finetune.sh` will use `conf/finetune.yaml` as config, the dump-dir is `dump_finetune`, the experiment dir is `exp/finetune`.
-
-TODO: 
-The hyperparameter of `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
-
-## Pretrained Models
-Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
-
-Finetuned model can ben downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
-
-Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
-
-Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss|eval/spectral_convergence_loss |eval/sub_log_stft_magnitude_loss|eval/sub_spectral_convergence_loss
-:-------------:| :------------:| :-----: | :-----: | :--------:| :--------:| :--------:
-default| 1(gpu) x 1000000| ——|—— |—— |—— | ——|
-finetune| 1(gpu) x 1000000|3.196967|0.977804| 0.778484| 0.889576 |0.776756 |
-
-
-Multi Band MelGAN checkpoint contains files listed below.
-
-```text
-mb_melgan_baker_ckpt_0.5
-├── default.yaml                  # default config used to train multi band melgan
-├── feats_stats.npy               # statistics used to normalize spectrogram when training multi band melgan
-└── snapshot_iter_1000000.pdz     # generator parameters of multi band melgan
-```
-## Acknowledgement
-We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

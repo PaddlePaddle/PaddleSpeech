@@ -22,7 +22,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech
 ### 3. Usage
 - Command Line(Recommended)
   ```bash
-  paddlespeech cls --input ~/cat.wav --topk 10
+  paddlespeech cls --input ./cat.wav --topk 10
   ```
   Usage:
   ```bash

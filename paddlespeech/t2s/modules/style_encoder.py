@@ -298,8 +298,8 @@ class MultiHeadedAttention(BaseMultiHeadedAttention):
 
     def __init__(self, q_dim, k_dim, v_dim, n_head, n_feat, dropout_rate=0.0):
         """Initialize multi head attention module."""
-        # NOTE(kan-bayashi): Do not use super().__init__() here since we want to
-        #   overwrite BaseMultiHeadedAttention.__init__() method.
+        # Do not use super().__init__() here since we want to
+        # overwrite BaseMultiHeadedAttention.__init__() method.
         nn.Layer.__init__(self)
         assert n_feat % n_head == 0
         # We assume d_v always equals d_k

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+from pathlib import Path
 from typing import Dict
 
 import paddle
@@ -26,6 +27,7 @@ from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
 from paddlespeech.t2s.training.updaters.standard_updater import UpdaterState
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -42,7 +44,7 @@ class PWGUpdater(StandardUpdater):
                  dataloader: DataLoader,
                  discriminator_train_start_steps: int,
                  lambda_adv: float,
-                 output_dir=None):
+                 output_dir: Path=None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -155,11 +157,11 @@ class PWGUpdater(StandardUpdater):
 
 class PWGEvaluator(StandardEvaluator):
     def __init__(self,
-                 models,
-                 criterions,
-                 dataloader,
-                 lambda_adv,
-                 output_dir=None):
+                 models: Dict[str, Layer],
+                 criterions: Dict[str, Layer],
+                 dataloader: DataLoader,
+                 lambda_adv: float,
+                 output_dir: Path=None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']

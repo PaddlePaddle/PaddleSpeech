@@ -27,7 +27,7 @@ class GLU(nn.Layer):
         return F.glu(xs, axis=self.dim)
 
 
-def get_activation(act):
+def get_activation(act, **kwargs):
     """Return activation function."""
 
     activation_funcs = {
@@ -35,8 +35,9 @@ def get_activation(act):
         "tanh": paddle.nn.Tanh,
         "relu": paddle.nn.ReLU,
         "selu": paddle.nn.SELU,
+        "leakyrelu": paddle.nn.LeakyReLU,
         "swish": paddle.nn.Swish,
         "glu": GLU
     }
 
-    return activation_funcs[act]()
+    return activation_funcs[act](**kwargs)

@@ -11,4 +11,4 @@ python3 ${BIN_DIR}/../synthesize.py \
   --checkpoint=${train_output_path}/checkpoints/${ckpt_name} \
   --test-metadata=dump/test/norm/metadata.jsonl \
   --output-dir=${train_output_path}/test \
-  --generator-type=mb_melgan
+  --generator-type=style_melgan

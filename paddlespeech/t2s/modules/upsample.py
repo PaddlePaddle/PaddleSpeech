@@ -115,7 +115,7 @@ class UpsampleNet(nn.Layer):
             if nonlinear_activation is not None:
                 # for compatibility
                 nonlinear_activation = nonlinear_activation.lower()
-                
+
                 nonlinear = get_activation(nonlinear_activation,
                                            **nonlinear_activation_params)
                 self.up_layers.append(nonlinear)

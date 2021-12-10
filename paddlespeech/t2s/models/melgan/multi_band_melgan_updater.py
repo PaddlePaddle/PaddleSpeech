@@ -40,15 +40,10 @@ class MBMelGANUpdater(StandardUpdater):
                  criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
-<<<<<<< HEAD
                  generator_train_start_steps: int=0,
                  discriminator_train_start_steps: int=100000,
                  lambda_aux: float=1.0,
                  lambda_adv: float=1.0,
-=======
-                 discriminator_train_start_steps: int,
-                 lambda_adv: float,
->>>>>>> 963e906f569ef3dbea8de879828b9d42f098fa0d
                  output_dir: Path=None):
         self.models = models
         self.generator: Layer = models['generator']

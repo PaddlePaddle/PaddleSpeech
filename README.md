@@ -309,7 +309,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
 - [Released Models](./docs/source/released_model.md)
 
-The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddlespeech.readthedocs.io/en/latest/tts/models_introduction.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
 
 ## FAQ and Contributing
 

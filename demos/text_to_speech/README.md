@@ -37,12 +37,12 @@ Input of this demo should be a text of the specific language that can be passed 
 	- English, multi speaker
 	```bash
 	paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
-    ```
+    	```
      You can change `spk_id` here.
 	   
- 
-- Usage:
-```bash
+  Usage:
+  
+  ```bash
   paddlespeech tts --help
   ```
   Arguments:

@@ -2,31 +2,30 @@
 
 ## Speech-to-Text Models
 
-### Acoustic Model Released in paddle 2.X
-Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech | example link
+### Speech Recognition Model
+Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech | Example Link 
 :-------------:| :------------:| :-----: | -----: | :----------------- |:--------- | :---------- | :--------- | :-----------
-[Ds2 Online Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080 |-| 151 h | [D2 Online Aishell S0 Example](../../examples/aishell/asr0)
-[Ds2 Offline Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.064 |-| 151 h | [Ds2 Offline Aishell S0 Example](../../examples/aishell/asr0)
-[Conformer Online Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0594 |-| 151 h | [Conformer Online Aishell S1 Example](../../examples/aishell/s1)
-[Conformer Offline Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0547 |-| 151 h | [Conformer Offline Aishell S1 Example](../../examples/aishell/s1)
-[Conformer Librispeech ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/librispeech/s1/conformer.release.tar.gz) | Librispeech Dataset | subword-based | 287 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0325 | 960 h | [Conformer Librispeech S1 example](../../example/librispeech/s1)
-[Transformer Librispeech ASR1 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0410 | 960 h | [Transformer Librispeech S1 example](../../example/librispeech/s1)
-[Transformer Librispeech ASR2 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: JoinCTC w/ LM |-| 0.024 | 960 h | [Transformer Librispeech S2 example](../../example/librispeech/s2)
+[Ds2 Online Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz) | Aishell Dataset | Char-based | 345 MB  | 2 Conv + 5 LSTM layers with only forward direction | 0.080 |-| 151 h | [D2 Online Aishell ASR0](../../examples/aishell/asr0) 
+[Ds2 Offline Aishell ASR0 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz)| Aishell Dataset | Char-based | 306 MB | 2 Conv + 3 bidirectional GRU layers| 0.064 |-| 151 h | [Ds2 Offline Aishell ASR0](../../examples/aishell/asr0) 
+[Conformer Online Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz) | Aishell Dataset | Char-based | 283 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0594 |-| 151 h | [Conformer Online Aishell ASR1](../../examples/aishell/asr1) 
+[Conformer Offline Aishell ASR1 Model](https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz) | Aishell Dataset | Char-based | 284 MB  | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0547 |-| 151 h | [Conformer Offline Aishell ASR1](../../examples/aishell/asr1) 
+[Transformer Aishell ASR1 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz) | Aishell Dataset | Char-based | 128 MB | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring | 0.0538 || 151 h | [Transformer  Aishell ASR1](../../examples/aishell/asr1) 
+[Conformer Librispeech ASR1 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz) | Librispeech Dataset | subword-based | 191 MB | Encoder:Conformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0337 | 960 h | [Conformer Librispeech ASR1](../../example/librispeech/asr1) 
+[Transformer Librispeech ASR1 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: Attention rescoring |-| 0.0381 | 960 h | [Transformer Librispeech ASR1](../../example/librispeech/asr1) 
+[Transformer Librispeech ASR2 Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/transformer.model.tar.gz) | Librispeech Dataset | subword-based | 131 MB  | Encoder:Transformer, Decoder:Transformer, Decoding method: JoinCTC w/ LM |-| 0.0240 | 960 h | [Transformer Librispeech ASR2](../../example/librispeech/asr2) 
 
-
-### Acoustic Model Transformed from paddle 1.8
-Acoustic Model | Training Data | Token-based | Size | Descriptions | CER | WER | Hours of speech
-:-------------:| :------------:| :-----: | -----: | :----------------- | :---------- | :---------- | :---------
-[Ds2 Offline Aishell model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_v1.8_to_v2.x.tar.gz)|Aishell Dataset| Char-based| 234 MB| 2 Conv + 3 bidirectional GRU layers| 0.0804 |-| 151 h|
-[Ds2 Offline Librispeech model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_v1.8_to_v2.x.tar.gz)|Librispeech Dataset| Word-based| 307 MB| 2 Conv + 3 bidirectional sharing weight RNN layers |-| 0.0685| 960 h|
-[Ds2 Offline Baidu en8k model](https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz)|Baidu Internal English Dataset| Word-based| 273 MB| 2 Conv + 3 bidirectional GRU layers |-| 0.0541 | 8628 h|
-
-### Language Model Released
+### Language Model based on NGram
 Language Model | Training Data | Token-based | Size | Descriptions
 :-------------:| :------------:| :-----: | -----: | :-----------------
 [English LM](https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm) |  [CommonCrawl(en.00)](http://web-language-models.s3-website-us-east-1.amazonaws.com/ngrams/en/deduped/en.00.deduped.xz) | Word-based | 8.3 GB | Pruned with 0 1 1 1 1; <br/> About 1.85 billion n-grams; <br/> 'trie'  binary with '-a 22 -q 8 -b 8'
 [Mandarin LM Small](https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm) | Baidu Internal Corpus | Char-based | 2.8 GB | Pruned with 0 1 2 4 4; <br/> About 0.13 billion n-grams; <br/> 'probing' binary with default settings
 [Mandarin LM Large](https://deepspeech.bj.bcebos.com/zh_lm/zhidao_giga.klm) | Baidu Internal Corpus | Char-based | 70.4 GB | No Pruning; <br/> About 3.7 billion n-grams; <br/> 'probing' binary with default settings
+
+### Speech Translation Models
+
+| Model                                                        | Training Data | Token-based | Size | Descriptions                                                 | BLEU  | Example Link                                                 |
+| ------------------------------------------------------------ | ------------- | ----------- | ---- | ------------------------------------------------------------ | ----- | ------------------------------------------------------------ |
+| [Transformer FAT-ST MTL En-Zh](https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_ted-en-zh.tar.gz) | Ted-En-Zh     | Spm         |      | Encoder:Transformer, Decoder:Transformer, <br />Decoding method: Attention | 20.80 | [Transformer Ted-En-Zh ST1](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/ted_en_zh/st1) |
 
 
 ## Text-to-Speech Models
@@ -69,8 +68,11 @@ PANN | Audioset| [audioset_tagging_cnn](https://github.com/qiuqiangkong/audioset
 PANN | ESC-50 |[pann-esc50]("./examples/esc50/cls0")|[panns_cnn6.tar.gz](https://paddlespeech.bj.bcebos.com/cls/panns_cnn6.tar.gz), [panns_cnn10](https://paddlespeech.bj.bcebos.com/cls/panns_cnn10.tar.gz), [panns_cnn14.tar.gz](https://paddlespeech.bj.bcebos.com/cls/panns_cnn14.tar.gz)
 
 
-## Speech Translation Models
+## Speech Recognition Model  from paddle 1.8
 
-Model Type | Dataset| Example Link | Pretrained Models | Model Size
-:-------------:| :------------:| :-----: | :-----: | :-----:
-FAT-ST | TED En-Zh |[FAT + Transformer+ASR MTL](./examples/ted_en_zh/st1)|[fat_st_ted-en-zh.tar.gz](https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_ted-en-zh.tar.gz) | 50.26M
+|                        Acoustic Model                        |         Training Data          | Token-based |   Size | Descriptions                                       | CER    | WER    | Hours of speech |
+| :----------------------------------------------------------: | :----------------------------: | :---------: | -----: | :------------------------------------------------- | :----- | :----- | :-------------- |
+| [Ds2 Offline Aishell model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_v1.8_to_v2.x.tar.gz) |        Aishell Dataset         | Char-based  | 234 MB | 2 Conv + 3 bidirectional GRU layers                | 0.0804 | -      | 151 h           |
+| [Ds2 Offline Librispeech model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_v1.8_to_v2.x.tar.gz) |      Librispeech Dataset       | Word-based  | 307 MB | 2 Conv + 3 bidirectional sharing weight RNN layers | -      | 0.0685 | 960 h           |
+| [Ds2 Offline Baidu en8k model](https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz) | Baidu Internal English Dataset | Word-based  | 273 MB | 2 Conv + 3 bidirectional GRU layers                | -      | 0.0541 | 8628 h          |
+

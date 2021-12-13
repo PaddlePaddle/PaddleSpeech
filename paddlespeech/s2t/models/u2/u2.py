@@ -894,14 +894,16 @@ class U2Model(U2DecodeModel):
 
         # ctc decoder and ctc loss
         model_conf = configs['model_conf']
+        dropout_rate = model_conf.get('ctc_dropout_rate', 0.0)
+        grad_norm_type = model_conf.get('ctc_grad_norm_type', None)
         ctc = CTCDecoder(
             odim=vocab_size,
             enc_n_units=encoder.output_size(),
             blank_id=0,
-            dropout_rate=model_conf['ctc_dropoutrate'],
+            dropout_rate=dropout_rate,
             reduction=True,  # sum
             batch_average=True,  # sum / batch_size
-            grad_norm_type=model_conf['ctc_grad_norm_type'])
+            grad_norm_type=grad_norm_type)
 
         return vocab_size, encoder, decoder, ctc
 

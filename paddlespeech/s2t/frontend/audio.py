@@ -365,7 +365,8 @@ class AudioSegment():
                 dynamic_pip_install.install(package)
                 import soxbindings as sox
             except:
-                raise RuntimeError("Can not install soxbindings on your system." )
+                raise RuntimeError(
+                    "Can not install soxbindings on your system.")
 
         tfm = sox.Transformer()
         tfm.set_globals(multithread=False)

@@ -156,7 +156,8 @@ class SpeedPerturbationSox():
                 dynamic_pip_install.install(package)
                 import soxbindings as sox
             except:
-                raise RuntimeError("Can not install soxbindings on your system." )
+                raise RuntimeError(
+                    "Can not install soxbindings on your system.")
 
         if utt2ratio is not None:
             self.utt2ratio = {}

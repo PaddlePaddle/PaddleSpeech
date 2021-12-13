@@ -15,11 +15,11 @@ import argparse
 import os
 
 import paddle
+
 from paddleaudio.datasets import ESC50
 from paddleaudio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
-
 from paddlespeech.cls.models import cnn14
 from paddlespeech.cls.models import SoundClassifier
 

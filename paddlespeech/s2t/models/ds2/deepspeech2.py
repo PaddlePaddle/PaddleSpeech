@@ -129,7 +129,7 @@ class DeepSpeech2Model(nn.Layer):
                 rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 share_rnn_weights=True,  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-                ctc_grad_norm_type='instance', ))
+                ctc_grad_norm_type=None,))
         if config is not None:
             config.merge_from_other_cfg(default)
         return default
@@ -143,7 +143,7 @@ class DeepSpeech2Model(nn.Layer):
                  use_gru=False,
                  share_rnn_weights=True,
                  blank_id=0,
-                 ctc_grad_norm_type='instance'):
+                 ctc_grad_norm_type=None):
         super().__init__()
         self.encoder = CRNNEncoder(
             feat_size=feat_size,
@@ -220,16 +220,14 @@ class DeepSpeech2Model(nn.Layer):
         """
         model = cls(
             feat_size=dataloader.collate_fn.feature_size,
-            #feat_size=dataloader.dataset.feature_size,
             dict_size=dataloader.collate_fn.vocab_size,
-            #dict_size=dataloader.dataset.vocab_size,
             num_conv_layers=config.model.num_conv_layers,
             num_rnn_layers=config.model.num_rnn_layers,
             rnn_size=config.model.rnn_layer_size,
             use_gru=config.model.use_gru,
             share_rnn_weights=config.model.share_rnn_weights,
             blank_id=config.model.blank_id,
-            ctc_grad_norm_type=config.model.ctc_grad_norm_type, )
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
@@ -257,7 +255,7 @@ class DeepSpeech2Model(nn.Layer):
             use_gru=config.use_gru,
             share_rnn_weights=config.share_rnn_weights,
             blank_id=config.blank_id,
-            ctc_grad_norm_type=config.ctc_grad_norm_type, )
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         return model
 
 

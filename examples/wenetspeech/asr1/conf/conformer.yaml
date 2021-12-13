@@ -33,8 +33,6 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
-        ctc_dropoutrate: 0.0
-        ctc_grad_norm_type: null
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 

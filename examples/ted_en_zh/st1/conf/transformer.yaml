@@ -68,8 +68,6 @@ model:
     model_conf:
         asr_weight: 0.0
         ctc_weight: 0.0
-        ctc_dropoutrate: 0.0
-        ctc_grad_norm_type: null
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 

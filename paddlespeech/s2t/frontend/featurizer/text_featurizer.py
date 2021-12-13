@@ -209,7 +209,10 @@ class TextFeaturizer():
 
     def _load_vocabulary_from_file(self, vocab_filepath: str, maskctc: bool):
         """Load vocabulary from file."""
-        vocab_list = load_dict(vocab_filepath, maskctc)
+        if isinstance(vocab_filepath, list):
+            vocab_list = vocab_filepath
+        else:
+            vocab_list = load_dict(vocab_filepath, maskctc)
         assert vocab_list is not None
         logger.debug(f"Vocab: {pformat(vocab_list)}")
 

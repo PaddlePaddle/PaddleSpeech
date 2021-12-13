@@ -265,7 +265,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>
-      <td >AISHELL-3, etc.</td>
+      <td > Librispeech, etc.</td>
       <td>
       <a href = "./examples/other/ge2e">ge2e</a>
       </td>

@@ -221,15 +221,15 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table>
   <thead>
     <tr>
-      <th> Text-to-Speech Module Type <img width="110" height="1"> </th>
-      <th>  Model Type  </th>
-      <th> <img width="50" height="1"> Dataset  <img width="50" height="1"> </th>
-      <th> <img width="101" height="1"> Link <img width="105" height="1"> </th>
+      <th> Text-to-Speech Module Type </th>
+      <th> Model Type </th>
+      <th> Dataset </th>
+      <th> Link </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-    <td> Text Frontend</td>
+    <td> Text Frontend </td>
     <td colspan="2"> &emsp; </td>
     <td>
     <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
@@ -315,10 +315,10 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table style="width:100%">
   <thead>
     <tr>
-      <th> <img width="150" height="1">Task <img width="150" height="1"></th>
-      <th> <img width="110" height="1">Dataset <img width="110" height="1"></th>
-      <th> <img width="110" height="1">Model Type <img width="110" height="1"></th>
-      <th> <img width="110" height="1">Link <img width="110" height="1"></th>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
     </tr>
   </thead>
   <tbody>

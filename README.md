@@ -102,7 +102,7 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
       <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
-      <td >“我 在 这栋 建筑 的 古老 门上 敲门。”</td>
+      <td >我 在 这栋 建筑 的 古老 门上 敲门。</td>
     </tr>
   </tbody>
 </table>
@@ -333,13 +333,13 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   <tr>
       <td rowspan="2">Speech Translation (English to Chinese)</td> 
       <td rowspan="2">TED En-Zh</td>
-      <td>Transformer+ASR MTL</td>
+      <td>Transformer + ASR MTL</td>
       <td>
       <a href = "./examples/ted_en_zh/st0">transformer-ted</a>
       </td>
     </tr>
     <tr>
-      <td>FAT + Transformer+ASR MTL</td>
+      <td>FAT + Transformer + ASR MTL</td>
       <td>
       <a href = "./examples/ted_en_zh/st1">fat-st-ted</a>
       </td>

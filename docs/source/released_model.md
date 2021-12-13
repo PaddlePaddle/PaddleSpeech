@@ -59,3 +59,18 @@ Model Type | Dataset| Example Link | Pretrained Models
 GE2E| AISHELL-3, etc. |[ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e)|[ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip)
 GE2E + Tactron2| AISHELL-3 |[ge2e-tactron2-aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc0)|[tacotron2_aishell3_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_aishell3_ckpt_0.3.zip)
 GE2E + FastSpeech2 | AISHELL-3  |[ge2e-fastspeech2-aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc1)|[fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip)
+
+
+## Audio Classification Models
+
+Model Type | Dataset| Example Link | Pretrained Models
+:-------------:| :------------:| :-----: | :-----:
+PANN | Audioset| [audioset_tagging_cnn](https://github.com/qiuqiangkong/audioset_tagging_cnn) | [panns_cnn6.pdparams](https://bj.bcebos.com/paddleaudio/models/panns_cnn6.pdparams),[panns_cnn10.pdparams](https://bj.bcebos.com/paddleaudio/models/panns_cnn10.pdparams),[panns_cnn14.pdparams](https://bj.bcebos.com/paddleaudio/models/panns_cnn14.pdparams)
+PANN | ESC-50 |[pann-esc50]("./examples/esc50/cls0")|[panns_cnn6.tar.gz](https://paddlespeech.bj.bcebos.com/cls/panns_cnn6.tar.gz), [panns_cnn10](https://paddlespeech.bj.bcebos.com/cls/panns_cnn10.tar.gz), [panns_cnn14.tar.gz](https://paddlespeech.bj.bcebos.com/cls/panns_cnn14.tar.gz)
+
+
+## Speech Translation Models
+
+Model Type | Dataset| Example Link | Pretrained Models | Model Size
+:-------------:| :------------:| :-----: | :-----: | :-----:
+FAT-ST | TED En-Zh |[FAT + Transformer+ASR MTL](./examples/ted_en_zh/st1)|[fat_st_ted-en-zh.tar.gz](https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/fat_st_ted-en-zh.tar.gz) | 50.26M

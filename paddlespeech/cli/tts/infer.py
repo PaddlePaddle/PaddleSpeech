@@ -467,7 +467,7 @@ class TTSExecutor(BaseExecutor):
 
         # vocoder
         # model: {model_name}_{dataset}
-        voc_name = '_'.join(voc.split('_')[:-1])
+        voc_name = voc[:voc.rindex('_')]
         voc_class = dynamic_import(voc_name, model_alias)
         voc_inference_class = dynamic_import(voc_name + '_inference',
                                              model_alias)

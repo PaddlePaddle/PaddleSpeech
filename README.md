@@ -139,7 +139,8 @@ paddlespeech cls --input input.wav
 paddlespeech asr --lang zh --input input_16k.wav
 ```
 **Speech Translation** (English to Chinese)
- (not support for Windows now)
+
+(not support for Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```

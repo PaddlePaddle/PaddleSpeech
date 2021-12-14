@@ -356,7 +356,7 @@ class AudioSegment():
         # sox, slow
         try:
             import soxbindings as sox
-        except:
+        except ImportError:
             try:
                 from paddlespeech.s2t.utils import dynamic_pip_install
                 package = "sox"
@@ -364,8 +364,9 @@ class AudioSegment():
                 package = "soxbindings"
                 dynamic_pip_install.install(package)
                 import soxbindings as sox
-            except:
-                raise RuntimeError("Can not install soxbindings on your system." )
+            except Exception:
+                raise RuntimeError(
+                    "Can not install soxbindings on your system.")
 
         tfm = sox.Transformer()
         tfm.set_globals(multithread=False)

@@ -15,6 +15,7 @@ import os
 
 import paddle.nn as nn
 import paddle.nn.functional as F
+
 from paddleaudio.utils.download import load_state_dict_from_url
 from paddleaudio.utils.env import MODEL_HOME
 

@@ -75,4 +75,3 @@ PANN | ESC-50 |[pann-esc50]("./examples/esc50/cls0")|[panns_cnn6.tar.gz](https:/
 | [Ds2 Offline Aishell model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_v1.8_to_v2.x.tar.gz) |        Aishell Dataset         | Char-based  | 234 MB | 2 Conv + 3 bidirectional GRU layers                | 0.0804 | -      | 151 h           |
 | [Ds2 Offline Librispeech model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_v1.8_to_v2.x.tar.gz) |      Librispeech Dataset       | Word-based  | 307 MB | 2 Conv + 3 bidirectional sharing weight RNN layers | -      | 0.0685 | 960 h           |
 | [Ds2 Offline Baidu en8k model](https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz) | Baidu Internal English Dataset | Word-based  | 273 MB | 2 Conv + 3 bidirectional GRU layers                | -      | 0.0541 | 8628 h          |
-

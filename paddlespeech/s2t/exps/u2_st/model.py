@@ -548,7 +548,7 @@ class U2STTester(U2STTrainer):
                 num_ins += metrics['num_ins']
                 rtf = num_time / (num_frames * stride_ms)
                 logger.info("RTF: %f, BELU (%d) = %f" % (rtf, num_ins, bleu))
-                print("RTF: %f, BELU (%d) = %f" % (rtf, num_ins, bleu))
+
         rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)

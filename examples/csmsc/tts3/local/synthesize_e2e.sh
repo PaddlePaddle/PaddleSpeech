@@ -8,7 +8,7 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/synthesize_e2e.py \
   --fastspeech2-config=${config_path} \
-  --fastspeech2-checkpoint=${train_output_path}/checkpoints/${ckpt_name} \
+  --fastspeech2-checkpoint=${train_output_path}/${ckpt_name} \
   --fastspeech2-stat=dump/train/speech_stats.npy \
   --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
   --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \

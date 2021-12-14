@@ -24,7 +24,7 @@ model_params:
   num_classes: 4
 
 training:
-  n_epoch: 1
+  n_epoch: 100
   lr: !!float 1e-5
   lr_decay: 1.0 
   weight_decay: !!float 1e-06

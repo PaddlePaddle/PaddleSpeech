@@ -11,17 +11,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+
 import paddle
 import paddle.nn as nn
 from paddlenlp.transformers import ErnieForTokenClassification
 
 
 class ErnieLinear(nn.Layer):
-    def __init__(self, num_classes, pretrained_token='ernie-1.0', **kwargs):
-        super().__init__()
-        self.num_classes = num_classes
-        self.ernie = ErnieForTokenClassification.from_pretrained(
-            pretrained_token, num_classes=num_classes, **kwargs)
+    def __init__(self,
+                 num_classes=None,
+                 pretrained_token='ernie-1.0',
+                 cfg_path=None,
+                 ckpt_path=None,
+                 **kwargs):
+        super(ErnieLinear, self).__init__()
+
+        if cfg_path is not None and ckpt_path is not None:
+            cfg_path = os.path.abspath(os.path.expanduser(cfg_path))
+            ckpt_path = os.path.abspath(os.path.expanduser(ckpt_path))
+
+            assert os.path.isfile(
+                cfg_path), 'Config file is not valid: {}'.format(cfg_path)
+            assert os.path.isfile(
+                ckpt_path), 'Checkpoint file is not valid: {}'.format(ckpt_path)
+
+            self.ernie = ErnieForTokenClassification.from_pretrained(
+                os.path.dirname(cfg_path))
+        else:
+            assert isinstance(
+                num_classes, int
+            ) and num_classes > 0, 'Argument `num_classes` must be an integer.'
+            self.ernie = ErnieForTokenClassification.from_pretrained(
+                pretrained_token, num_classes=num_classes, **kwargs)
+
+        self.num_classes = self.ernie.num_classes
         self.softmax = nn.Softmax()
 
     def forward(self,
@@ -36,6 +60,6 @@ class ErnieLinear(nn.Layer):
             position_ids=position_ids)
 
         y = paddle.reshape(y, shape=[-1, self.num_classes])
-        logit = self.softmax(y)
+        logits = self.softmax(y)
 
-        return y, logit
+        return y, logits

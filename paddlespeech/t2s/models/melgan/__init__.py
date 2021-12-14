@@ -13,3 +13,5 @@
 # limitations under the License.
 from .melgan import *
 from .multi_band_melgan_updater import *
+from .style_melgan import *
+from .style_melgan_updater import *

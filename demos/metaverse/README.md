@@ -16,6 +16,8 @@ Run `run.sh` to complete all the essential procedures, including the installatio
 ```
 In `run.sh`, it will execute `source path.sh` firstly, which will set the environment variants. 
 
+If you would like to try your own sentence, please replace the sentence in `sentences.txt`.
+
 If you would like to try your own image, please replace the image `download/Lamarr.png` in the shell script.
 
 The result has shown on our [notebook](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/tutorial/tts/tts_tutorial.ipynb).

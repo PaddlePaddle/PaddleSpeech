@@ -25,9 +25,9 @@ import yaml
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
+from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
-from ..utils import logger
 from ..utils import MODEL_HOME
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend import English
@@ -236,6 +236,7 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             "--am_stat",
             type=str,
+            default=None,
             help="mean and standard deviation used to normalize spectrogram when training acoustic model."
         )
         self.parser.add_argument(
@@ -282,6 +283,7 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             "--voc_stat",
             type=str,
+            default=None,
             help="mean and standard deviation used to normalize spectrogram when training voc."
         )
         # other
@@ -532,7 +534,7 @@ class TTSExecutor(BaseExecutor):
         wav = self.voc_inference(mel)
         self._outputs['wav'] = wav
 
-    def postprocess(self, output: str='output.wav'):
+    def postprocess(self, output: str='output.wav') -> Union[str, os.PathLike]:
         """
         Output postprocess and return results.
         This method get model output from self._outputs and convert it into human-readable results.
@@ -540,6 +542,7 @@ class TTSExecutor(BaseExecutor):
         Returns:
             Union[str, os.PathLike]: Human-readable results such as texts and audio files.
         """
+        output = os.path.abspath(os.path.expanduser(output))
         sf.write(
             output, self._outputs['wav'].numpy(), samplerate=self.am_config.fs)
         return output
@@ -590,7 +593,7 @@ class TTSExecutor(BaseExecutor):
                 lang=lang,
                 device=device,
                 output=output)
-            logger.info('TTS Result Saved in: {}'.format(res))
+            logger.info('Wave file has been generated: {}'.format(res))
             return True
         except Exception as e:
             logger.exception(e)

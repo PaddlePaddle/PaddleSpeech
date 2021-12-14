@@ -23,7 +23,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 4.What is the goal of this project?
 -->
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech, with the state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
 
 ##### Speech-to-Text
 
@@ -86,77 +86,76 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
 
+##### Speech Translation
+
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Input Audio  </th>
+      <th width="550"> Translations Result  </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
+      </td>
+      <td >我 在 这栋 建筑 的 古老 门上 敲门。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
-- **Fast and Light-weight**: we provide high-speed and ultra-lightweight models that are convenient for industrial deployment.
+- **Ease of Use**: low barries to install, and [CLI](#quick-start) is available to quick-start your journey.
+- **Align to the State-of-the-Art**: we provide high-speed and ultra-lightweight models, and also cutting edge technology. 
 - **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
 - **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - *Implementation of critical audio tasks*: this toolkit contains audio functions like Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, Voice Cloning, etc.
+  - *Implementation of critical audio tasks*: this toolkit contains audio functions like  Audio Classification, Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, etc.
   - *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
-  - *Cascaded models application*: as an extension of the application of traditional audio tasks, we combine the workflows of aforementioned tasks with other fields like Natural language processing (NLP), like Punctuation Restoration.
+  - *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ## Installation
 
-The base environment in this page is  
-- Ubuntu 16.04
-- python>=3.7
-- paddlepaddle>=2.2.0
-
-If you want to set up PaddleSpeech in other environment, please see the [installation](./docs/source/install.md) documents for all the alternatives.
+We strongly recommend our users to install PaddleSpeech in *Linux* with *python>=3.7* and *paddlepaddle>=2.2.0*, where `paddlespeech`  can be easily installed with `pip`:
+```python
+pip install paddlespeech
+```
+If you want to set up in other environment, please see the [installation](./docs/source/install.md) for all the alternatives.
 
 ## Quick Start
 
-Developers can have a try of our model with only a few lines of code.
+Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md). Change `--input` to test your own audio/text.
 
-A tiny DeepSpeech2 **Speech-to-Text** model training on toy set of LibriSpeech:
-
+**Audio Classification**     
 ```shell
-cd examples/tiny/asr0/
-# source the environment
-source path.sh
-source ../../../utils/parse_options.sh
-# prepare data
-bash ./local/data.sh
-# train model, all `ckpt` under `exp` dir, if you use paddlepaddle-gpu, you can set CUDA_VISIBLE_DEVICES before the train script
-./local/train.sh conf/deepspeech2.yaml deepspeech2 offline
-# avg n best model to get the test model, in this case, n = 1
-avg.sh best exp/deepspeech2/checkpoints 1
-# evaluate the test model
-./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 offline
+paddlespeech cls --input input.wav
+```
+**Automatic Speech Recognition**
+```shell
+paddlespeech asr --lang zh --input input_16k.wav
+```
+**Speech Translation** (English to Chinese)
+
+(not support for Windows now)
+```shell
+paddlespeech st --input input_16k.wav
+```
+**Text-to-Speech** 
+```shell
+paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
 
-For **Text-to-Speech**, try pretrained FastSpeech2 + Parallel WaveGAN on CSMSC:
-```shell
-cd examples/csmsc/tts3
-# download the pretrained models and unaip them
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
-unzip pwg_baker_ckpt_0.4.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
-unzip fastspeech2_nosil_baker_ckpt_0.4.zip
-# source the environment
-source path.sh
-# run end-to-end synthesize
-FLAGS_allocator_strategy=naive_best_fit \
-FLAGS_fraction_of_gpu_memory_to_use=0.01 \
-python3 ${BIN_DIR}/synthesize_e2e.py \
-  --fastspeech2-config=fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
-  --fastspeech2-checkpoint=fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
-  --fastspeech2-stat=fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
-  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
-  --text=${BIN_DIR}/../sentences.txt \
-  --output-dir=exp/default/test_e2e \
-  --inference-dir=exp/default/inference \
-  --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
-```
-
-If you want to try more functions like training and tuning, please see [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 ## Model List
 
-PaddleSpeech supports a series of most popular models, summarized in [released models](./docs/source/released_model.md) with available pretrained models.
+PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
 
-Speech-to-Text module contains *Acoustic Model* and *Language Model*, with the following details:
+**Speech-to-Text** contains *Acoustic Model* and *Language Model*, with the following details:
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
@@ -219,20 +218,20 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
+**Text-to-Speech** in PaddleSpeech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 
 <table>
   <thead>
     <tr>
-      <th> Text-to-Speech Module Type <img width="110" height="1"> </th>
-      <th>  Model Type  </th>
-      <th> <img width="50" height="1"> Dataset  <img width="50" height="1"> </th>
-      <th> <img width="101" height="1"> Link <img width="105" height="1"> </th>
+      <th> Text-to-Speech Module Type </th>
+      <th> Model Type </th>
+      <th> Dataset </th>
+      <th> Link </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-    <td> Text Frontend</td>
+    <td> Text Frontend </td>
     <td colspan="2"> &emsp; </td>
     <td>
     <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
@@ -291,7 +290,7 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>
-      <td >AISHELL-3, etc.</td>
+      <td >Librispeech, etc.</td>
       <td>
       <a href = "./examples/other/ge2e">ge2e</a>
       </td>
@@ -313,29 +312,68 @@ PaddleSpeech Text-to-Speech mainly contains three modules: *Text Frontend*, *Aco
   </tbody>
 </table>
 
+**Others**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Audio Classification</td>
+      <td>ESC-50</td>
+      <td>PANN</td>
+      <td>
+      <a href = "./examples/esc50/cls0">pann-esc50</a>
+      </td>
+    </tr>
+  <tr>
+      <td rowspan="2">Speech Translation (English to Chinese)</td> 
+      <td rowspan="2">TED En-Zh</td>
+      <td>Transformer + ASR MTL</td>
+      <td>
+      <a href = "./examples/ted_en_zh/st0">transformer-ted</a>
+      </td>
+    </tr>
+    <tr>
+      <td>FAT + Transformer + ASR MTL</td>
+      <td>
+      <a href = "./examples/ted_en_zh/st1">fat-st-ted</a>
+      </td>
+    </tr>
+    
+  </tbody>
+</table>
+
 ## Tutorials
 
-Normally, [Speech SoTA](https://paperswithcode.com/area/speech) gives you an overview of the hot academic topics in speech. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 - [Overview](./docs/source/introduction.md)
-- Quick Start
-  - [Dependencies](./docs/source/dependencies.md) and [Installation](./docs/source/install.md)
-  - [Quick Start of Speech-to-Text](./docs/source/asr/quick_start.md)
-  - [Quick Start of Text-to-Speech](./docs/source/tts/quick_start.md)
+- [Installation](./docs/source/install.md)
 - Speech-to-Text
+  - [Quick Start of Speech-to-Text](./docs/source/asr/quick_start.md)
   - [Models Introduction](./docs/source/asr/models_introduction.md)
   - [Data Preparation](./docs/source/asr/data_preparation.md)
   - [Data Augmentation Pipeline](./docs/source/asr/augmentation.md)
   - [Features](./docs/source/asr/feature_list.md)
   - [Ngram LM](./docs/source/asr/ngram_lm.md)
 - Text-to-Speech
+  - [Quick Start of Text-to-Speech](./docs/source/tts/quick_start.md)
   - [Introduction](./docs/source/tts/models_introduction.md)
   - [Advanced Usage](./docs/source/tts/advanced_usage.md)
   - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
   - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html) and [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
+- Audio Classification
+- Speech Translation
 - [Released Models](./docs/source/released_model.md)
 
-The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://paddlespeech.readthedocs.io/en/latest/tts/models_introduction.html) is a good guideline for the pipeline components.
+The TTS module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with DeepSpeech. If you are interested in academic research about this function, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
 
 ## FAQ and Contributing
 

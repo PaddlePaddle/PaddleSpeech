@@ -14,6 +14,7 @@
 from .fastspeech2 import *
 from .melgan import *
 from .parallel_wavegan import *
+from .speedyspeech import *
 from .tacotron2 import *
 from .transformer_tts import *
 from .waveflow import *

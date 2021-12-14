@@ -22,7 +22,7 @@ wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.
 ### 3. Usage
 - Command Line(Recommended)
   ```bash
-  paddlespeech asr --input ~/zh.wav
+  paddlespeech asr --input ./zh.wav
   ```
   Usage:
   ```bash

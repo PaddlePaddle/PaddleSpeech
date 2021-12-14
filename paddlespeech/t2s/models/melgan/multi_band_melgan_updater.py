@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+from pathlib import Path
 from typing import Dict
 
 import paddle
@@ -41,7 +42,7 @@ class MBMelGANUpdater(StandardUpdater):
                  dataloader: DataLoader,
                  discriminator_train_start_steps: int,
                  lambda_adv: float,
-                 output_dir=None):
+                 output_dir: Path=None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -159,11 +160,11 @@ class MBMelGANUpdater(StandardUpdater):
 
 class MBMelGANEvaluator(StandardEvaluator):
     def __init__(self,
-                 models,
-                 criterions,
-                 dataloader,
-                 lambda_adv,
-                 output_dir=None):
+                 models: Dict[str, Layer],
+                 criterions: Dict[str, Layer],
+                 dataloader: DataLoader,
+                 lambda_adv: float,
+                 output_dir: Path=None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']

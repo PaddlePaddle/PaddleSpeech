@@ -30,8 +30,6 @@ model:
     # hybrid CTC/attention
     model_conf:
         ctc_weight: 0.3
-        ctc_dropoutrate: 0.0
-        ctc_grad_norm_type: null 
         lsm_weight: 0.1     # label smoothing option
         length_normalized_loss: false
 
@@ -75,7 +73,7 @@ optim: adam
 optim_conf:
   global_grad_clip: 5.0
   weight_decay: 1.0e-06
-scheduler: warmuplr     # pytorch v1.1.0+ required
+scheduler: warmuplr     
 scheduler_conf:
   lr: 0.004
   warmup_steps: 25000

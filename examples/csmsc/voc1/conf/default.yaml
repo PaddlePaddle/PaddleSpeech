@@ -78,7 +78,7 @@ lambda_adv: 4.0  # Loss balancing coefficient.
 #                  DATA LOADER SETTING                    #
 ###########################################################
 batch_size: 8              # Batch size.
-batch_max_steps: 25500     # Length of each audio in batch. Make sure dividable by hop_size.
+batch_max_steps: 25500     # Length of each audio in batch. Make sure dividable by n_shift.
 pin_memory: true           # Whether to pin memory in Pytorch DataLoader.
 num_workers: 2             # Number of workers in Pytorch DataLoader.
 remove_short_samples: true # Whether to remove samples the length of which are less than batch_max_steps.
@@ -88,23 +88,23 @@ allow_cache: true          # Whether to allow cache in dataset. If true, it requ
 #             OPTIMIZER & SCHEDULER SETTING               #
 ###########################################################
 generator_optimizer_params:
-    epsilon: 1.0e-6            # Generator's epsilon.
+    epsilon: 1.0e-6        # Generator's epsilon.
     weight_decay: 0.0      # Generator's weight decay coefficient.
 generator_scheduler_params:
-    learning_rate: 0.0001             # Generator's learning rate.
+    learning_rate: 0.0001  # Generator's learning rate.
     step_size: 200000      # Generator's scheduler step size.
     gamma: 0.5             # Generator's scheduler gamma.
                            # At each step size, lr will be multiplied by this parameter.
 generator_grad_norm: 10    # Generator's gradient norm.
 discriminator_optimizer_params:
     epsilon: 1.0e-6            # Discriminator's epsilon.
-    weight_decay: 0.0      # Discriminator's weight decay coefficient.
+    weight_decay: 0.0          # Discriminator's weight decay coefficient.
 discriminator_scheduler_params:
-    learning_rate: 0.00005            # Discriminator's learning rate.
-    step_size: 200000      # Discriminator's scheduler step size.
-    gamma: 0.5             # Discriminator's scheduler gamma.
-                           # At each step size, lr will be multiplied by this parameter.
-discriminator_grad_norm: 1 # Discriminator's gradient norm.
+    learning_rate: 0.00005     # Discriminator's learning rate.
+    step_size: 200000          # Discriminator's scheduler step size.
+    gamma: 0.5                 # Discriminator's scheduler gamma.
+                               # At each step size, lr will be multiplied by this parameter.
+discriminator_grad_norm: 1     # Discriminator's gradient norm.
 
 ###########################################################
 #                    INTERVAL SETTING                     #

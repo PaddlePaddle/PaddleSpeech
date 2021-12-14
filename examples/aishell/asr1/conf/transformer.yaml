@@ -80,7 +80,7 @@ training:
   optim_conf:
     lr: 0.002
     weight_decay: 1e-6
-  scheduler: warmuplr     # pytorch v1.1.0+ required
+  scheduler: warmuplr     
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0

@@ -1,0 +1,136 @@
+# This is the configuration file for CSMSC dataset.This configuration is based 
+# on StyleMelGAN paper but uses MSE loss instead of Hinge loss. And I found that
+# batch_size = 8 is also working good. So maybe if you want to accelerate the training, 
+# you can reduce the batch size (e.g. 8 or 16). Upsampling scales is modified to 
+# fit the shift size 300 pt.
+# NOTE: batch_max_steps(24000) == prod(noise_upsample_scales)(80) * prod(upsample_scales)(300)
+
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+fs: 24000                # Sampling rate.
+n_fft: 2048              # FFT size. (in samples)
+n_shift: 300             # Hop size. (in samples)
+win_length: 1200         # Window length. (in samples)
+                         # If set to null, it will be the same as fft_size.
+window: "hann"           # Window function.
+n_mels: 80               # Number of mel basis.
+fmin: 80                 # Minimum freq in mel basis calculation. (Hz)
+fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
+
+###########################################################
+#         GENERATOR NETWORK ARCHITECTURE SETTING          #
+###########################################################
+generator_params:
+    in_channels: 128              # Number of input channels.
+    aux_channels: 80
+    channels: 64                  # Initial number of channels for conv layers.
+    out_channels: 1               # Number of output channels.
+    kernel_size: 9                # Kernel size of initial and final conv layers.
+    dilation: 2
+    bias: True
+    noise_upsample_scales: [10, 2, 2, 2]
+    noise_upsample_activation: "leakyrelu"
+    noise_upsample_activation_params:
+        negative_slope: 0.2
+    upsample_scales: [5, 1, 5, 1, 3, 1, 2, 2, 1] # List of Upsampling scales. prod(upsample_scales) == n_shift
+    upsample_mode: "nearest"
+    gated_function: "softmax"
+    use_weight_norm: True                        # Whether to use weight normalization.
+
+###########################################################
+#       DISCRIMINATOR NETWORK ARCHITECTURE SETTING        #
+###########################################################
+discriminator_params:
+    repeats: 4
+    window_sizes: [512, 1024, 2048, 4096]
+    pqmf_params:
+        - [1, None, None, None]
+        - [2, 62, 0.26700, 9.0]
+        - [4, 62, 0.14200, 9.0]
+        - [8, 62, 0.07949, 9.0]
+    discriminator_params:
+        out_channels: 1               # Number of output channels.
+        kernel_sizes: [5, 3]          # List of kernel size.
+        channels: 16                  # Number of channels of the initial conv layer.
+        max_downsample_channels: 512  # Maximum number of channels of downsampling layers.
+        bias: True
+        downsample_scales: [4, 4, 4, 1]   # List of downsampling scales.
+        nonlinear_activation: "leakyrelu" # Nonlinear activation function.
+        nonlinear_activation_params:      # Parameters of nonlinear activation function.
+            negative_slope: 0.2
+    use_weight_norm: True                 # Whether to use weight norm.
+    
+
+###########################################################
+#                   STFT LOSS SETTING                     #
+###########################################################
+use_stft_loss: true
+stft_loss_params:
+    fft_sizes: [1024, 2048, 512]  # List of FFT size for STFT-based loss.
+    hop_sizes: [120, 240, 50]     # List of hop size for STFT-based loss
+    win_lengths: [600, 1200, 240] # List of window length for STFT-based loss.
+    window: "hann"                # Window function for STFT-based loss
+lambda_aux: 1.0                   # Loss balancing coefficient for aux loss.
+
+###########################################################
+#               ADVERSARIAL LOSS SETTING                  #
+###########################################################
+lambda_adv: 1.0 # Loss balancing coefficient for adv loss.
+generator_adv_loss_params:
+    average_by_discriminators: false # Whether to average loss by #discriminators.
+discriminator_adv_loss_params:
+    average_by_discriminators: false # Whether to average loss by #discriminators.
+
+###########################################################
+#                  DATA LOADER SETTING                    #
+###########################################################
+batch_size: 32              # Batch size.
+# batch_max_steps(24000) == prod(noise_upsample_scales)(80) * prod(upsample_scales)(300, n_shift)
+batch_max_steps: 24000      # Length of each audio in batch. Make sure dividable by n_shift.
+num_workers: 2              # Number of workers in Pytorch DataLoader.
+
+###########################################################
+#             OPTIMIZER & SCHEDULER SETTING               #
+###########################################################
+generator_optimizer_params:
+    beta1: 0.5
+    beta2: 0.9
+    weight_decay: 0.0                       # Generator's weight decay coefficient.
+generator_scheduler_params:  
+    learning_rate: 1.0e-4                   # Generator's learning rate.
+    gamma: 0.5                              # Generator's scheduler gamma.
+    milestones:                             # At each milestone, lr will be multiplied by gamma.
+        - 100000
+        - 300000
+        - 500000
+        - 700000
+        - 900000
+generator_grad_norm: -1                     # Generator's gradient norm.
+discriminator_optimizer_params:
+    beta1: 0.5
+    beta2: 0.9
+    weight_decay: 0.0                       # Discriminator's weight decay coefficient.
+discriminator_scheduler_params:
+    learning_rate: 2.0e-4                   # Discriminator's learning rate.
+    gamma: 0.5                              # Discriminator's scheduler gamma.
+    milestones:                             # At each milestone, lr will be multiplied by gamma.
+        - 200000
+        - 400000
+        - 600000
+        - 800000
+discriminator_grad_norm: -1                 # Discriminator's gradient norm.
+
+###########################################################
+#                    INTERVAL SETTING                     #
+###########################################################
+discriminator_train_start_steps: 100000 # Number of steps to start to train discriminator.
+train_max_steps: 1500000                # Number of training steps.
+save_interval_steps: 5000               # Interval steps to save checkpoint.
+eval_interval_steps: 1000               # Interval steps to evaluate the network.
+
+###########################################################
+#                     OTHER SETTING                       #
+###########################################################
+num_snapshots: 10                 # max number of snapshots to keep while training
+seed: 42                          # random seed for paddle, random, and np.random

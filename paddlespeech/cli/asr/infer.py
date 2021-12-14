@@ -27,9 +27,9 @@ import yaml
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
+from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
-from ..utils import logger
 from ..utils import MODEL_HOME
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.transform.transformation import Transformation

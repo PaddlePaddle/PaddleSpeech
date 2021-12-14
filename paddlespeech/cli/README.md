@@ -17,6 +17,8 @@
  ```
  
  ## Speech Translation (English to Chinese)
+ 
+ (not support for Windows now)
  ```bash
  paddlespeech st --input input_16k.wav
  ```

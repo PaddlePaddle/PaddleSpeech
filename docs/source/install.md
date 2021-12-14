@@ -1,8 +1,8 @@
 # Installation
-There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into `Easy`, `Medium` and `Hard`.
+There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into **Easy**, **Medium** and **Hard**.
 
-## Easy: Get the Basic Funcition Without Your Own Mechine
-If you are a newer of `PaddleSpeech` and want to experience it easily without your own mechine. We recommand you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
+## Easy: Get the Basic Function without Your Own Machine
+If you are newer to `PaddleSpeech` and want to experience it easily without your own machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
 
 ## Prerequisites for Medium and Hard
 - Python >= 3.7
@@ -10,11 +10,11 @@ If you are a newer of `PaddleSpeech` and want to experience it easily without yo
 - Only Linux is supported
 - Hip: Do not use command `sh` instead of command `bash`
 
-## Medium: Get the Basic Funciton on Your Mechine
-If you want to install `paddlespeech` on your own mechine. There are 3 steps you need to do.
+## Medium: Get the Basic Function on Your Machine
+If you want to install `paddlespeech` on your own machine. There are 3 steps you need to do.
 
-### Install the Conda
-Conda is environment management system. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the following command:
+### Install Conda
+Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the following command:
 ```bash
 # download the miniconda
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -35,7 +35,14 @@ conda activate tools/venv
 ```
 Install  conda dependencies for `paddlespeech` :
 ```bash
-conda install -y -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
+conda install -y -c conda-forge sox libsndfile swig bzip2
+```
+Do not forget to install `gcc` and `gxx` on your system.
+If you use linux, you can use the script below to install them.
+
+(Hip: Do not use this script if you want to install by **Hard** way):
+```
+conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 ### Install PaddlePaddle
 For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
@@ -43,30 +50,27 @@ For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 ### Install PaddleSpeech 
-To Install  `paddlespeech`, there are two methods. You can use the following command:
+To install  `paddlespeech`, there are two methods. You can use the following command:
 ```bash
 pip install paddlespeech
 ```
-If you install `paddlespeech` by `pip`, you can use it to help you build your own model. However, you can not use the `ready-made `examples in paddlespeech. 
+If you install `paddlespeech` by `pip`, you can use it to help you build your model. However, you can not use the `ready-made `examples in paddlespeech. 
 
-If you want to use the` ready-made `examples in `paddlespeech`, you need to clone this repository and install  `paddlespeech`  by the foll
+If you want to use the` ready-made `examples in `paddlespeech`, you need to clone this repository and install  `paddlespeech`  by the following commands:
 ```bash
 https://github.com/PaddlePaddle/PaddleSpeech.git
 cd PaddleSpeech
 pip install .
 ```
-## Hard: Get the Full Funciton on Your Mechine
+## Hard: Get the Full Function on Your Machine
 ### Prerequisites
 - choice 1: working with `Ubuntu` Docker Container.
-
-  or
-
 - choice 2: working on `Ubuntu` with `root` privilege. 
 
-To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise If you work on `Ubuntu` with `root` privilege, you can skip the next step.
+To avoid the trouble of environment setup, [running in Docker container](#running-in-docker-container) is highly recommended. Otherwise, if you work on `Ubuntu` with `root` privilege, you can skip the next step.
 
 ### Choice 1: Running in Docker Container (Recommand)
-Docker is an open source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availiability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
 
 Take several steps to launch the Docker image:
 - Download the Docker image
@@ -115,7 +119,7 @@ For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
 ```bash
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
-### Get the Funcition for Developing PaddleSpeech
+### Get the Function for Developing PaddleSpeech
 ```bash
 pip install .[develop]
 ```

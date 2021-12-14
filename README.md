@@ -161,6 +161,8 @@ paddlespeech cls --input input.wav
 paddlespeech asr --lang zh --input input_16k.wav
 ```
 **Speech Translation** (English to Chinese)
+
+(not support for Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```
@@ -170,7 +172,8 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
 ```
 - web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: https://huggingface.co/spaces/akhaliq/paddlespeech
 
-If you want to try more functions like training and tuning, please have a look at documents of [Speech-to-Text](./docs/source/asr/quick_start.md) and [Text-to-Speech](./docs/source/tts/quick_start.md).
+  
+If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 ## Model List
 
@@ -258,15 +261,15 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table>
   <thead>
     <tr>
-      <th> Text-to-Speech Module Type <img width="110" height="1"> </th>
-      <th>  Model Type  </th>
-      <th> <img width="50" height="1"> Dataset  <img width="50" height="1"> </th>
-      <th> <img width="101" height="1"> Link <img width="105" height="1"> </th>
+      <th> Text-to-Speech Module Type </th>
+      <th> Model Type </th>
+      <th> Dataset </th>
+      <th> Link </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-    <td> Text Frontend</td>
+    <td> Text Frontend </td>
     <td colspan="2"> &emsp; </td>
     <td>
     <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
@@ -352,10 +355,10 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table style="width:100%">
   <thead>
     <tr>
-      <th> <img width="150" height="1">Task <img width="150" height="1"></th>
-      <th> <img width="110" height="1">Dataset <img width="110" height="1"></th>
-      <th> <img width="110" height="1">Model Type <img width="110" height="1"></th>
-      <th> <img width="110" height="1">Link <img width="110" height="1"></th>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
     </tr>
   </thead>
   <tbody>

@@ -221,6 +221,8 @@ class Trainer():
         if hasattr(self.train_loader, "batch_sampler"):
             batch_sampler = self.train_loader.batch_sampler
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
+                logger.debug(
+                    f"train_loader.batch_sample set epoch: {self.epoch}")
                 batch_sampler.set_epoch(self.epoch)
 
     def before_train(self):

@@ -17,11 +17,11 @@ from paddlespeech.s2t.utils import dynamic_pip_install
 
 try:
     import swig_decoders
-except:
+except ImportError:
     try:
         package_name = 'paddlespeech_ctcdecoders'
         dynamic_pip_install.install(package_name)
-    except:
+    except Exception:
         raise RuntimeError(
             "Can not install package paddlespeech_ctcdecoders on your system. \
                 The DeepSpeech2 model is not supported for your system")

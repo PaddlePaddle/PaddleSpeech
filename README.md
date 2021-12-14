@@ -14,7 +14,7 @@
 ![License](https://img.shields.io/badge/license-Apache%202-red.svg)
 ![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
 ![support os](https://img.shields.io/badge/os-linux-yellow.svg)
-[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/akhaliq/paddlespeech)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)]()
 
 <!---
 from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
@@ -150,7 +150,7 @@ paddlespeech st --input input_16k.wav
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
 
-- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/akhaliq/paddlespeech)
+- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: https://huggingface.co/spaces/akhaliq/paddlespeech
 
   
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).

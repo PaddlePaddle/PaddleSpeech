@@ -107,7 +107,7 @@ popd
 # use the "bash" command to make the conda environment works
 bash
 # create an conda virtual environment
-conda create -y -n tools/venv python=3.7
+conda create -y -p tools/venv python=3.7
 # Activate the conda virtual environment:
 conda activate tools/venv
 # Install the conda packags

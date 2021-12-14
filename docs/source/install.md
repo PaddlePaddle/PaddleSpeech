@@ -1,7 +1,7 @@
 # Installation
 There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into **Easy**, **Medium** and **Hard**.
 
-| Stage | Function                                                     |
+| Way | Function                                                     |
 | :---- | :----------------------------------------------------------- |
 | Easy     | (1) Use command line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Aistudio.|
 | Medium     | Use PaddleSpeech to train your own model.                                           |

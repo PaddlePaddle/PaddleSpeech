@@ -111,7 +111,7 @@ conda create -y -n tools/venv python=3.7
 # Activate the conda virtual environment:
 conda activate tools/venv
 # Install the conda packags
-conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
+conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### Install PaddlePaddle
 For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:

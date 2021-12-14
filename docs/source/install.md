@@ -90,11 +90,15 @@ sudo nvidia-docker run --net=host --ipc=host --rm -it -v $(pwd)/PaddleSpeech:/Pa
 ```
 Now you can execute training, inference and hyper-parameters tuning in  Docker container.
 ### Choice 2: Running in Ubuntu with Root Privilege
+- Install `build-essential` by apt
+```bash
+sudo apt install build-essential
+```
 - Clone this repository
 ```bash
 git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 ```
-Install paddle 2.2.0:
+- Install paddle 2.2.0:
 ```bash
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```

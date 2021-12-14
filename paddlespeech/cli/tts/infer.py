@@ -461,6 +461,7 @@ class TTSExecutor(BaseExecutor):
         am_std = paddle.to_tensor(am_std)
         am_normalizer = ZScore(am_mu, am_std)
         self.am_inference = am_inference_class(am_normalizer, am)
+        self.am_inference.eval()
         print("acoustic model done!")
 
         # vocoder
@@ -478,6 +479,7 @@ class TTSExecutor(BaseExecutor):
         voc_std = paddle.to_tensor(voc_std)
         voc_normalizer = ZScore(voc_mu, voc_std)
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
+        self.voc_inference.eval()
         print("voc done!")
 
     def preprocess(self, input: Any, *args, **kwargs):

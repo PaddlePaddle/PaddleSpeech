@@ -136,7 +136,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 If you are in China, we recommend you to join our WeChat group to contact directly with our team members!
 
 <div align="center">
-<img src="./docs/images/wechat_group.png"  width = "200"  />
+<img src="./docs/images/wechat_group.png"  width = "400"  />
 
 </div>
 

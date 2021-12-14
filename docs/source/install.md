@@ -121,7 +121,7 @@ python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 ### Get the Function for Developing PaddleSpeech
 ```bash
-pip install .[develop]
+pip install -e .[develop]
 ```
 ### Install the Kaldi (Optional)
 ```bash

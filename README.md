@@ -137,6 +137,7 @@ If you are in China, we recommend you to join our WeChat group to contact direct
 
 <div align="center">
 <img src="./docs/images/wechat_group.png"  width = "200"  />
+
 </div>
 
 ## Installation

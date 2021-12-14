@@ -1,6 +1,13 @@
 # Installation
 There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into **Easy**, **Medium** and **Hard**.
 
+| Stage | Function                                                     |
+| :---- | :----------------------------------------------------------- |
+| Easy     | (1) Use command line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Aistudio.|
+| Medium     | Use PaddleSpeech to train your own model.                                           |
+| Hard     | You can use full function of Paddlespeech and be a developer! |
+
+
 ## Easy: Get the Basic Function without Your Own Machine
 If you are newer to `PaddleSpeech` and want to experience it easily without your own machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
 
@@ -38,7 +45,7 @@ Install  conda dependencies for `paddlespeech` :
 conda install -y -c conda-forge sox libsndfile swig bzip2
 ```
 Do not forget to install `gcc` and `gxx` on your system.
-If you use linux, you can use the script below to install them.
+If you use linux, you can choose to use the script below to install them.
 
 (Hip: Do not use this script if you want to install by **Hard** way):
 ```

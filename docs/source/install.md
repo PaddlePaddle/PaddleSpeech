@@ -1,24 +1,61 @@
 # Installation
-There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into **Easy**, **Medium** and **Hard**.
+There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, the 3 ways can be divided into **Easy**, **Medium** and **Hard**. You can choose one of the 3 ways to install `PaddleSpeech`.
 
 | Way | Function                                                     |
 | :---- | :----------------------------------------------------------- |
-| Easy     | (1) Use command line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Aistudio.|
-| Medium     | Use PaddleSpeech to train your own model.                                           |
-| Hard     | You can use full function of Paddlespeech and be a developer! |
+| Easy     | (1) Use command line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Aistudio. |
+| Medium     | Support major function，such as using the` ready-made `examples and using PaddleSpeech to train your own model.                                           |
+| Hard     | Support full function of Paddlespeech，including training n-gram language model. And you are more able be a developer! |
 
 
-## Easy: Get the Basic Function without Your Own Machine
-If you are newer to `PaddleSpeech` and want to experience it easily without your own machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine.
-
-## Prerequisites for Medium and Hard
+## Prerequisites
 - Python >= 3.7
 - PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
-- Only Linux is supported
-- Hip: Do not use command `sh` instead of command `bash`
+- Hip: For Linux and Mac, do not use command `sh` instead of command `bash`
 
-## Medium: Get the Basic Function on Your Machine
-If you want to install `paddlespeech` on your own machine. There are 3 steps you need to do.
+## Easy: Get the Basic Function (Support Linux, Mac and Windows)
+- If you are newer to `PaddleSpeech` and want to experience it easily without your own machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine. 
+### Install Conda
+Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to install the conda.
+And then Install  conda dependencies for `paddlespeech` :
+
+```bash
+conda install -y -c conda-forge sox libsndfile swig bzip2
+```
+### Install C++ environment
+
+#### Windows
+Since some required pypi packages need C++ environment, you need to install the visual studio firstly.
+
+#### Mac
+```bash
+brew install gcc
+```
+#### Linux
+```bash
+#  centos
+sudo yum install gcc gcc-c++
+```
+```bash
+# ubuntu
+sudo apt install build-essential
+```
+```bash
+# Others
+conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
+```
+
+### Install PaddleSpeech 
+You can use the following command:
+```bash
+pip install paddlepaddle paddlespeech
+```
+
+- You can use the command line function of Paddlespeech. For more information, you can see the [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli).
+
+
+## Medium: Get the Major Function (Support Linux)
+If you want to get the major function of  `paddlespeech`. There are 3 steps you need to do.
 
 ### Install Conda
 Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the following command:
@@ -45,24 +82,27 @@ Install  conda dependencies for `paddlespeech` :
 conda install -y -c conda-forge sox libsndfile swig bzip2
 ```
 Do not forget to install `gcc` and `gxx` on your system.
-If you use linux, you can choose to use the script below to install them.
+If you use linux, you can choose to use the scripts below to install them.
 
-(Hip: Do not use this script if you want to install by **Hard** way):
+```bash
+#  centos
+sudo yum install gcc gcc-c++
 ```
+```bash
+# ubuntu
+sudo apt install build-essential
+```
+```bash
+# Others
 conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
+(Hip: Do not use the last script if you want to install by **Hard** way):
 ### Install PaddlePaddle
 For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
 ```bash
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 ### Install PaddleSpeech 
-To install  `paddlespeech`, there are two methods. You can use the following command:
-```bash
-pip install paddlespeech
-```
-If you install `paddlespeech` by `pip`, you can use it to help you build your model. However, you can not use the `ready-made `examples in paddlespeech. 
-
 If you want to use the` ready-made `examples in `paddlespeech`, you need to clone this repository and install  `paddlespeech`  by the following commands:
 ```bash
 https://github.com/PaddlePaddle/PaddleSpeech.git

@@ -168,14 +168,16 @@ class GlobalCMVN():
                  norm_means=True,
                  norm_vars=True,
                  std_floor=1.0e-20):
-        self.cmvn_path = cmvn_path
+        # cmvn_path: Option[str, dict]
+        cmvn = cmvn_path
+        self.cmvn = cmvn
         self.norm_means = norm_means
         self.norm_vars = norm_vars
         self.std_floor = std_floor
-        if isinstance(cmvn_path, dict):
-            cmvn_stats = cmvn_path
+        if isinstance(cmvn, dict):
+            cmvn_stats = cmvn
         else:
-            with open(cmvn_path) as f:
+            with open(cmvn) as f:
                 cmvn_stats = json.load(f)
         self.count = cmvn_stats['frame_num']
         self.mean = np.array(cmvn_stats['mean_stat']) / self.count
@@ -185,7 +187,7 @@ class GlobalCMVN():
 
     def __repr__(self):
         return f"""{self.__class__.__name__}(
-            cmvn_path={self.cmvn_path},
+            cmvn_path={self.cmvn},
             norm_means={self.norm_means},
             norm_vars={self.norm_vars},)"""
 

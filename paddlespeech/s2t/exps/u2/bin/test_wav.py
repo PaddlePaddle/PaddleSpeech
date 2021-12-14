@@ -44,7 +44,7 @@ class U2Infer():
 
         self.text_feature = TextFeaturizer(
             unit_type=config.collator.unit_type,
-            vocab_filepath=config.collator.vocab_filepath,
+            vocab=config.collator.vocab_filepath,
             spm_model_prefix=config.collator.spm_model_prefix)
 
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')

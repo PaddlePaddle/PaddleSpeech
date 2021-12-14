@@ -437,7 +437,7 @@ class U2Tester(U2Trainer):
         super().__init__(config, args)
         self.text_feature = TextFeaturizer(
             unit_type=self.config.collator.unit_type,
-            vocab_filepath=self.config.collator.vocab_filepath,
+            vocab=self.config.collator.vocab_filepath,
             spm_model_prefix=self.config.collator.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
 

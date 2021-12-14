@@ -179,7 +179,7 @@ class ASRExecutor(BaseExecutor):
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 text_feature = TextFeaturizer(
                     unit_type=self.config.collator.unit_type,
-                    vocab_filepath=self.config.collator.vocab_filepath,
+                    vocab=self.config.collator.vocab_filepath,
                     spm_model_prefix=self.config.collator.spm_model_prefix)
                 self.config.model.input_dim = self.collate_fn_test.feature_size
                 self.config.model.output_dim = text_feature.vocab_size
@@ -192,7 +192,7 @@ class ASRExecutor(BaseExecutor):
                     res_path, self.config.collator.spm_model_prefix)
                 text_feature = TextFeaturizer(
                     unit_type=self.config.collator.unit_type,
-                    vocab_filepath=self.config.collator.vocab_filepath,
+                    vocab=self.config.collator.vocab_filepath,
                     spm_model_prefix=self.config.collator.spm_model_prefix)
                 self.config.model.input_dim = self.config.collator.feat_dim
                 self.config.model.output_dim = text_feature.vocab_size
@@ -279,7 +279,7 @@ class ASRExecutor(BaseExecutor):
             audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
             text_feature = TextFeaturizer(
                 unit_type=self.config.collator.unit_type,
-                vocab_filepath=self.config.collator.vocab_filepath,
+                vocab=self.config.collator.vocab_filepath,
                 spm_model_prefix=self.config.collator.spm_model_prefix)
             self._inputs["audio"] = audio
             self._inputs["audio_len"] = audio_len
@@ -295,7 +295,7 @@ class ASRExecutor(BaseExecutor):
         """
         text_feature = TextFeaturizer(
             unit_type=self.config.collator.unit_type,
-            vocab_filepath=self.config.collator.vocab_filepath,
+            vocab=self.config.collator.vocab_filepath,
             spm_model_prefix=self.config.collator.spm_model_prefix)
         cfg = self.config.decoding
         audio = self._inputs["audio"]

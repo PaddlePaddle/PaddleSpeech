@@ -522,14 +522,7 @@ class U2STBaseModel(nn.Layer):
                feats_lengths: paddle.Tensor,
                text_feature: Dict[str, int],
                decoding_method: str,
-               lang_model_path: str,
-               beam_alpha: float,
-               beam_beta: float,
                beam_size: int,
-               cutoff_prob: float,
-               cutoff_top_n: int,
-               num_processes: int,
-               ctc_weight: float=0.0,
                word_reward: float=0.0,
                decoding_chunk_size: int=-1,
                num_decoding_left_chunks: int=-1,
@@ -543,14 +536,7 @@ class U2STBaseModel(nn.Layer):
             decoding_method (str): decoding mode, e.g. 
                     'fullsentence', 
                     'simultaneous'
-            lang_model_path (str): lm path.
-            beam_alpha (float): lm weight.
-            beam_beta (float): length penalty.
             beam_size (int): beam size for search
-            cutoff_prob (float): for prune.
-            cutoff_top_n (int): for prune.
-            num_processes (int): 
-            ctc_weight (float, optional): ctc weight for attention rescoring decode mode. Defaults to 0.0.
             decoding_chunk_size (int, optional): decoding chunk size. Defaults to -1.
                     <0: for decoding, use full chunk.
                     >0: for decoding, use fixed chunk size as set.

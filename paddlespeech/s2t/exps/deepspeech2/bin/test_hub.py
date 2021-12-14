@@ -41,7 +41,7 @@ class DeepSpeech2Tester_hub():
         self.audio_file = args.audio_file
         self.collate_fn_test = SpeechCollator.from_config(config)
         self._text_featurizer = TextFeaturizer(
-            unit_type=config.collator.unit_type, vocab_filepath=None)
+            unit_type=config.collator.unit_type, vocab=None)
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
         result_transcripts = self.model.decode(

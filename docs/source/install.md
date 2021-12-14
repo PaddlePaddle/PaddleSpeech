@@ -35,7 +35,14 @@ conda activate tools/venv
 ```
 Install  conda dependencies for `paddlespeech` :
 ```bash
-conda install -y -c conda-forge sox libsndfile swig bzip2 gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
+conda install -y -c conda-forge sox libsndfile swig bzip2
+```
+Do not forget to install `gcc` and `gxx` on your system.
+If you use linux, you can use the script below to install them.
+
+(Hip: Do not use this script if you want to install by **Hard** way):
+```
+conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 ### Install PaddlePaddle
 For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:

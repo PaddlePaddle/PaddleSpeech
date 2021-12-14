@@ -129,16 +129,23 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 🤗 2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demo on Hugging Face Spaces is available!
+- 🤗 2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos on Hugging Face Spaces are available!
 - 👏🏻 2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
+
+### Communication
+If you are in China, we recommend you to join our WeChat group to contact directly with our team members!
+
+<div align="center">
+<img src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/images/wechat_group.png"  width = "200"  />
+</div>
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in *Linux* with *python>=3.7* and *paddlepaddle>=2.2.0*, where `paddlespeech`  can be easily installed with `pip`:
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*, where `paddlespeech`  can be easily installed with `pip`:
 ```python
-pip install paddlespeech
+pip install paddlepaddle paddlespeech
 ```
-If you want to set up in other environment, please see the [installation](./docs/source/install.md) for all the alternatives.
+Up to now, **Mac OSX** supports CLI for the all our tasks, Windows only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
 
 ## Quick Start
 
@@ -363,24 +370,24 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-## Tutorials
+## Documents
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 - [Installation](./docs/source/install.md)
-- [Automatic Speech Recognition](./docs/source/asr/quick_start.md)
-  - [Introduction](./docs/source/asr/models_introduction.md)
-  - [Data Preparation](./docs/source/asr/data_preparation.md)
-  - [Data Augmentation](./docs/source/asr/augmentation.md)
-  - [Ngram LM](./docs/source/asr/ngram_lm.md)
-- [Text-to-Speech](./docs/source/tts/quick_start.md)
-  - [Introduction](./docs/source/tts/models_introduction.md)
-  - [Advanced Usage](./docs/source/tts/advanced_usage.md)
-  - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
-  - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
-  - [PaddleSpeech VS. Espnet](https://paddlespeech.readthedocs.io/en/latest/tts/demo_2.html)
-- Audio Classification
-- Speech Translation
+- Tutorials
+  - [Automatic Speech Recognition](./docs/source/asr/quick_start.md)
+    - [Introduction](./docs/source/asr/models_introduction.md)
+    - [Data Preparation](./docs/source/asr/data_preparation.md)
+    - [Data Augmentation](./docs/source/asr/augmentation.md)
+    - [Ngram LM](./docs/source/asr/ngram_lm.md)
+  - [Text-to-Speech](./docs/source/tts/quick_start.md)
+    - [Introduction](./docs/source/tts/models_introduction.md)
+    - [Advanced Usage](./docs/source/tts/advanced_usage.md)
+    - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
+    - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
+  - Audio Classification
+  - Speech Translation
 - [Released Models](./docs/source/released_model.md)
 
 The Text-to-Speech module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with this repository. If you are interested in academic research about this task, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.

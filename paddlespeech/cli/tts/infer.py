@@ -616,7 +616,7 @@ class TTSExecutor(BaseExecutor):
                  voc_ckpt: Optional[os.PathLike]=None,
                  voc_stat: Optional[os.PathLike]=None,
                  lang: str='zh',
-                 device: str='gpu',
+                 device: str=paddle.get_device(),
                  output: str='output.wav'):
         """
         Python API to call an executor.

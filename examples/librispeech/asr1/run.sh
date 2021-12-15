@@ -51,5 +51,3 @@ if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
      # export ckpt avg_n
      CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
 fi
-
-

@@ -1,6 +1,6 @@
-# Transformer/Conformer ASR with Aishell
+# Transformer/Conformer ASR with Librispeech
 
-This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Aishell dataset](http://www.openslr.org/resources/33)
+This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Librispeech dataset](http://www.openslr.org/resources/12)
 
 ## Overview
 
@@ -8,7 +8,7 @@ All the scirpts you need are in ```run.sh```. There are several stages in ```run
 
 | Stage | Function                                                     |
 | :---- | :----------------------------------------------------------- |
-| 0     | Process data. It includes: <br>       (1) Download the dataset <br>       (2) Caculate the CMVN of the train dataset <br>       (3) Get the vocabulary file <br>       (4) Get the manifest files of the train, development and test dataset |
+| 0     | Process data. It includes: <br>       (1) Download the dataset <br>       (2) Caculate the CMVN of the train dataset <br>       (3) Get the vocabulary file <br>       (4) Get the manifest files of the train, development and test dataset<br>       (5) Get the sentencepiece model |
 | 1     | Train the model                                              |
 | 2     | Get the final model by averaging the top-k models, set k = 1 means choose the best model |
 | 3     | Test the final model performance                             |
@@ -40,7 +40,8 @@ The document below will describe the scripts in ```run.sh``` in detail.
 The path.sh contains the environment variables. 
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 ```
 
 This script needs to be run firstly. And another script is also needed:
@@ -65,7 +66,7 @@ Some local variables are set in ```run.sh```.
 
 ```avg_num``` denotes the number K of top-K models you want to average to get the final model.
 
-```audio_file``` denotes the file path of the single file you want to infer in stage 5
+```audio file``` denotes the file path of the single file you want to infer in stage 5
 
 ```ckpt``` denotes the checkpoint prefix of the model, e.g. "conformer"
 
@@ -101,7 +102,8 @@ bash run.sh --stage 0 --stop_stage 0
 You can also just run these scripts in your command line.
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 bash ./local/data.sh
 ```
 
@@ -111,6 +113,8 @@ After processing the data, the ``data`` directory will look like this:
 data/
 |-- dev.meta
 |-- lang_char
+|   `-- bpe_unigram_5000.model
+|   `-- bpe_unigram_5000.vocab
 |   `-- vocab.txt
 |-- manifest.dev
 |-- manifest.dev.raw
@@ -145,7 +149,8 @@ bash run.sh --stage 0 --stop_stage 1
 or you can run these scripts in the command line (only use CPU).
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 ```
@@ -173,7 +178,8 @@ bash run.sh --stage 0 --stop_stage 2
 or you can run these scripts in the command line (only use CPU).
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 avg.sh best exp/conformer/checkpoints 20
@@ -201,7 +207,8 @@ bash run.sh --stage 0 --stop_stage 3
 or you can run these scripts in the command line (only use CPU).
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 avg.sh best exp/conformer/checkpoints 20
@@ -216,13 +223,10 @@ You can get the pretrained transfomer or conformer using the scripts below:
 
 ```bash
 Conformer:
-wget https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.release.tar.gz
-
-Chunk Conformer:
-wget https://deepspeech.bj.bcebos.com/release2.1/aishell/s1/aishell.chunk.release.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
 
 Transfomer:
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/transformer.model.tar.gz
 
 ```
 
@@ -231,50 +235,43 @@ using the ```tar``` scripts to unpack the model and then you can use the script 
 For example:
 
 ```
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
 tar xzvf transformer.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
 
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
 ```
 
 
 
 The performance of the released models are shown below:
 
-### Conformer
 
-| Model     | Params | Config              | Augmentation     | Test set | Decode method          | Loss | CER      |
-| --------- | ------ | ------------------- | ---------------- | -------- | ---------------------- | ---- | -------- |
-| conformer | 47.07M | conf/conformer.yaml | spec_aug + shift | test     | attention              | -    | 0.059858 |
-| conformer | 47.07M | conf/conformer.yaml | spec_aug + shift | test     | ctc_greedy_search      | -    | 0.062311 |
-| conformer | 47.07M | conf/conformer.yaml | spec_aug + shift | test     | ctc_prefix_beam_search | -    | 0.062196 |
-| conformer | 47.07M | conf/conformer.yaml | spec_aug + shift | test     | attention_rescoring    | -    | 0.054694 |
+## Conformer
 
+train: Epoch 70, 4 V100-32G, best avg: 20
 
-### Chunk Conformer
-
-Need set `decoding.decoding_chunk_size=16` when decoding.
-
-| Model     | Params | Config                    | Augmentation     | Test set | Decode method          | Chunk Size & Left Chunks | Loss | CER      |
-| --------- | ------ | ------------------------- | ---------------- | -------- | ---------------------- | ------------------------ | ---- | -------- |
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test     | attention              | 16, -1                   | -    | 0.061939 |
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test     | ctc_greedy_search      | 16, -1                   | -    | 0.070806 |
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test     | ctc_prefix_beam_search | 16, -1                   | -    | 0.070739 |
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug + shift | test     | attention_rescoring    | 16, -1                   | -    | 0.059400 |
+| Model     | Params  | Config              | Augmentation | Test set   | Decode method          | Loss              | WER      |
+| --------- | ------- | ------------------- | ------------ | ---------- | ---------------------- | ----------------- | -------- |
+| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | attention              | 6.433612394332886 | 0.039771 |
+| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | ctc_greedy_search      | 6.433612394332886 | 0.040342 |
+| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | ctc_prefix_beam_search | 6.433612394332886 | 0.040342 |
+| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | attention_rescoring    | 6.433612394332886 | 0.033761 |
 
 
-### Transformer 
+## Transformer
 
-| Model       | Params | Config                | Augmentation | Test set | Decode method          | Loss              | CER      |
-| ----------- | ------ | --------------------- | ------------ | -------- | ---------------------- | ----------------- | -------- |
-| transformer | 31.95M | conf/transformer.yaml | spec_aug     | test     | attention              | 3.858648955821991 | 0.057293 |
-| transformer | 31.95M | conf/transformer.yaml | spec_aug     | test     | ctc_greedy_search      | 3.858648955821991 | 0.061837 |
-| transformer | 31.95M | conf/transformer.yaml | spec_aug     | test     | ctc_prefix_beam_search | 3.858648955821991 | 0.061685 |
-| transformer | 31.95M | conf/transformer.yaml | spec_aug     | test     | attention_rescoring    | 3.858648955821991 | 0.053844 |
+train: Epoch 120, 4 V100-32G, 27 Day, best avg: 10
+
+| Model       | Params  | Config                | Augmentation | Test set   | Decode method          | Loss              | WER      |
+| ----------- | ------- | --------------------- | ------------ | ---------- | ---------------------- | ----------------- | -------- |
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | attention              | 6.382194232940674 | 0.049661 |
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | ctc_greedy_search      | 6.382194232940674 | 0.049566 |
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | ctc_prefix_beam_search | 6.382194232940674 | 0.049585 |
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | attention_rescoring    | 6.382194232940674 | 0.038135 |
 
 
 
@@ -305,7 +302,8 @@ bash run.sh --stage 4 --stop_stage 4
 or you can also use these scripts in the command line (only use CPU).
 
 ```bash
-source path.sh
+. ./path.sh
+. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 avg.sh best exp/conformer/checkpoints 20
@@ -330,16 +328,18 @@ In some situations, you want to use the trained model to do the inference for th
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz
-tar xzvf transformer.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
+tar xzvf conformer.model.tar.gz
 ```
+
 You can downloads the audio demo:
 
 ```bash
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
 ```
-You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result by running the script below.
+
+You need to prepare an audio file or use the audio demo, please confirm the sample rate of the audio is 16K. You can get the result of audio demo by running the script below.
 
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/demo_01_03.wav
+CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20 data/demo_002_en.wav
 ```

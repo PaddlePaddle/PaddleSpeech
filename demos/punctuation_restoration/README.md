@@ -27,7 +27,7 @@ Input of this demo should be a text of the specific language that can be passed 
   Arguments:
   - `input`(required): Input raw text.
   - `task`: Choose subtask. Default: `punc`.
-  - `model`: Model type of text task. Default: `ernie_linear_wudao`.
+  - `model`: Model type of text task. Default: `ernie_linear_p7_wudao`.
   - `lang`: Choose model language.. Default: `zh`.
   - `config`: Config of text task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
@@ -49,7 +49,7 @@ Input of this demo should be a text of the specific language that can be passed 
   result = text_executor(
       text='今天的天气真不错啊你下午有空吗我想约你一起去吃饭',
       task='punc',
-      model='ernie_linear_wudao',
+      model='ernie_linear_p7_wudao',
       lang='zh',
       config=None,
       ckpt_path=None,
@@ -68,6 +68,8 @@ Input of this demo should be a text of the specific language that can be passed 
 
 Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
 
-| Model | Task | Language
-| :--- | :---: | :---:
-| ernie_linear_wudao| punc(Punctuation Restoration) | zh
+- Punctuation Restoration
+  | Model | Language | Number of Punctuation Characters
+  | :--- | :---: | :---: 
+  | ernie_linear_p3_wudao| zh | 3(，。？)
+  | ernie_linear_p7_wudao| zh | 7(，。！？、：；)

@@ -27,7 +27,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
 
-##### Speech-to-Text
+##### Speech Recognition
 
 <div align = "center">
 <table style="width:100%">

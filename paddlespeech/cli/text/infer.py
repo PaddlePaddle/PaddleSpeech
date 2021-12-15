@@ -34,11 +34,23 @@ pretrained_models = {
     # e.g. "conformer_wenetspeech-zh-16k", "transformer_aishell-zh-16k" and "panns_cnn6-32k".
     # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
     # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
-    "ernie_linear_wudao-punc-zh": {
+    "ernie_linear_p7_wudao-punc-zh": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/text/ernie_linear_wudao-punc-zh.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p7_wudao-punc-zh.tar.gz',
         'md5':
         '12283e2ddde1797c5d1e57036b512746',
+        'cfg_path':
+        'ckpt/model_config.json',
+        'ckpt_path':
+        'ckpt/model_state.pdparams',
+        'vocab_file':
+        'punc_vocab.txt',
+    },
+    "ernie_linear_p3_wudao-punc-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_wudao-punc-zh.tar.gz',
+        'md5':
+        '448eb2fdf85b6a997e7e652e80c51dd2',
         'cfg_path':
         'ckpt/model_config.json',
         'ckpt_path':
@@ -49,11 +61,13 @@ pretrained_models = {
 }
 
 model_alias = {
-    "ernie_linear": "paddlespeech.text.models:ErnieLinear",
+    "ernie_linear_p7": "paddlespeech.text.models:ErnieLinear",
+    "ernie_linear_p3": "paddlespeech.text.models:ErnieLinear",
 }
 
 tokenizer_alias = {
-    "ernie_linear": "paddlenlp.transformers:ErnieTokenizer",
+    "ernie_linear_p7": "paddlenlp.transformers:ErnieTokenizer",
+    "ernie_linear_p3": "paddlenlp.transformers:ErnieTokenizer",
 }
 
 
@@ -75,7 +89,7 @@ class TextExecutor(BaseExecutor):
         self.parser.add_argument(
             '--model',
             type=str,
-            default='ernie_linear_wudao',
+            default='ernie_linear_p7_wudao',
             choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
             help='Choose model type of text task.')
         self.parser.add_argument(
@@ -123,7 +137,7 @@ class TextExecutor(BaseExecutor):
 
     def _init_from_path(self,
                         task: str='punc',
-                        model_type: str='ernie_linear_wudao',
+                        model_type: str='ernie_linear_p7_wudao',
                         lang: str='zh',
                         cfg_path: Optional[os.PathLike]=None,
                         ckpt_path: Optional[os.PathLike]=None,
@@ -182,7 +196,6 @@ class TextExecutor(BaseExecutor):
             Input preprocess and return paddle.Tensor stored in self.input.
             Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
-        logger.info("Preprocessing input text: " + text)
         if self.task == 'punc':
             clean_text = self._clean_text(text)
             assert len(clean_text) > 0, f'Invalid input string: {text}'
@@ -263,11 +276,11 @@ class TextExecutor(BaseExecutor):
             self,
             text: str,
             task: str='punc',
-            model: str='ernie_linear_wudao',
+            model: str='ernie_linear_p7_wudao',
             lang: str='zh',
-            config: os.PathLike=None,
-            ckpt_path: os.PathLike=None,
-            punc_vocab: os.PathLike=None,
+            config: Optional[os.PathLike]=None,
+            ckpt_path: Optional[os.PathLike]=None,
+            punc_vocab: Optional[os.PathLike]=None,
             device: str=paddle.get_device(), ):
         """
             Python API to call an executor.

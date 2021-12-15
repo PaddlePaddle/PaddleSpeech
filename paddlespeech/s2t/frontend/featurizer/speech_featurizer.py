@@ -55,7 +55,7 @@ class SpeechFeaturizer():
 
         self.text_feature = TextFeaturizer(
             unit_type=unit_type,
-            vocab_filepath=vocab_filepath,
+            vocab=vocab_filepath,
             spm_model_prefix=spm_model_prefix,
             maskctc=maskctc)
         self.vocab_size = self.text_feature.vocab_size

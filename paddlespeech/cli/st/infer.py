@@ -180,7 +180,7 @@ class STExecutor(BaseExecutor):
                 res_path, self.config.collator.spm_model_prefix)
             self.text_feature = TextFeaturizer(
                 unit_type=self.config.collator.unit_type,
-                vocab_filepath=self.config.collator.vocab_filepath,
+                vocab=self.config.collator.vocab_filepath,
                 spm_model_prefix=self.config.collator.spm_model_prefix)
             self.config.model.input_dim = self.config.collator.feat_dim
             self.config.model.output_dim = self.text_feature.vocab_size
@@ -292,14 +292,7 @@ class STExecutor(BaseExecutor):
                 audio_len,
                 text_feature=self.text_feature,
                 decoding_method=cfg.decoding_method,
-                lang_model_path=None,
-                beam_alpha=cfg.alpha,
-                beam_beta=cfg.beta,
                 beam_size=cfg.beam_size,
-                cutoff_prob=cfg.cutoff_prob,
-                cutoff_top_n=cfg.cutoff_top_n,
-                num_processes=cfg.num_proc_bsearch,
-                ctc_weight=cfg.ctc_weight,
                 word_reward=cfg.word_reward,
                 decoding_chunk_size=cfg.decoding_chunk_size,
                 num_decoding_left_chunks=cfg.num_decoding_left_chunks,

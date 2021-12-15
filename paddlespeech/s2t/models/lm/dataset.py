@@ -42,7 +42,7 @@ class TextCollatorSpm():
         assert (vocab_filepath is not None)
         self.text_featurizer = TextFeaturizer(
             unit_type=unit_type,
-            vocab_filepath=vocab_filepath,
+            vocab=vocab_filepath,
             spm_model_prefix=spm_model_prefix)
         self.eos_id = self.text_featurizer.eos_id
         self.blank_id = self.text_featurizer.blank_id

@@ -421,7 +421,7 @@ class ASRExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            res = self(model, lang, sample_rate, config, ckpt_path, audio_file,
+            res = self(audio_file, model, lang, sample_rate, config, ckpt_path,
                        device)
             logger.info('ASR Result: {}'.format(res))
             return True
@@ -429,8 +429,14 @@ class ASRExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
-    def __call__(self, model, lang, sample_rate, config, ckpt_path, audio_file,
-                 device):
+    def __call__(self,
+                 audio_file: os.PathLike,
+                 model: str='conformer_wenetspeech',
+                 lang: str='zh',
+                 sample_rate: int=16000,
+                 config: os.PathLike=None,
+                 ckpt_path: os.PathLike=None,
+                 device=paddle.get_device()):
         """
         Python API to call an executor.
         """

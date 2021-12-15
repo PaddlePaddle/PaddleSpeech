@@ -326,16 +326,23 @@ class STExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            res = self(model, src_lang, tgt_lang, sample_rate, config,
-                       ckpt_path, audio_file, device)
+            res = self(audio_file, model, src_lang, tgt_lang, sample_rate,
+                       config, ckpt_path, device)
             logger.info("ST Result: {}".format(res))
             return True
         except Exception as e:
             logger.exception(e)
             return False
 
-    def __call__(self, model, src_lang, tgt_lang, sample_rate, config,
-                 ckpt_path, audio_file, device):
+    def __call__(self,
+                 audio_file: os.PathLike,
+                 model: str='fat_st_ted',
+                 src_lang: str='en',
+                 tgt_lang: str='zh',
+                 sample_rate: int=16000,
+                 config: Optional[os.PathLike]=None,
+                 ckpt_path: Optional[os.PathLike]=None,
+                 device: str=paddle.get_device()):
         """
             Python API to call an executor.
         """

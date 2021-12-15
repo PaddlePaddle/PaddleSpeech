@@ -265,9 +265,9 @@ class TextExecutor(BaseExecutor):
             task: str='punc',
             model: str='ernie_linear_wudao',
             lang: str='zh',
-            config: os.PathLike=None,
-            ckpt_path: os.PathLike=None,
-            punc_vocab: os.PathLike=None,
+            config: Optional[os.PathLike]=None,
+            ckpt_path: Optional[os.PathLike]=None,
+            punc_vocab: Optional[os.PathLike]=None,
             device: str=paddle.get_device(), ):
         """
             Python API to call an executor.

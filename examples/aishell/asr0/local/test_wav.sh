@@ -14,7 +14,7 @@ model_type=$3
 audio_file=$4
 
 mkdir -p data
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -25,12 +25,12 @@ if [ ! -f ${audio_file} ]; then
 fi
 
 # download language model
-bash local/download_lm_en.sh
+bash local/download_lm_ch.sh
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-python3 -u ${BIN_DIR}/test_hub.py \
+python3 -u ${BIN_DIR}/test_wav.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --result_file ${ckpt_prefix}.rsl \

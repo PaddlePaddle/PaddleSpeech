@@ -405,8 +405,6 @@ class TTSExecutor(BaseExecutor):
         with open(self.voc_config) as f:
             self.voc_config = CfgNode(yaml.safe_load(f))
 
-        # Enter the path of model root
-
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
@@ -463,11 +461,12 @@ class TTSExecutor(BaseExecutor):
         am_std = paddle.to_tensor(am_std)
         am_normalizer = ZScore(am_mu, am_std)
         self.am_inference = am_inference_class(am_normalizer, am)
+        self.am_inference.eval()
         print("acoustic model done!")
 
         # vocoder
         # model: {model_name}_{dataset}
-        voc_name = '_'.join(voc.split('_')[:-1])
+        voc_name = voc[:voc.rindex('_')]
         voc_class = dynamic_import(voc_name, model_alias)
         voc_inference_class = dynamic_import(voc_name + '_inference',
                                              model_alias)
@@ -480,6 +479,7 @@ class TTSExecutor(BaseExecutor):
         voc_std = paddle.to_tensor(voc_std)
         voc_normalizer = ZScore(voc_mu, voc_std)
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
+        self.voc_inference.eval()
         print("voc done!")
 
     def preprocess(self, input: Any, *args, **kwargs):
@@ -501,10 +501,10 @@ class TTSExecutor(BaseExecutor):
         """
         Model inference and result stored in self.output.
         """
-        model_name = am[:am.rindex('_')]
-        dataset = am[am.rindex('_') + 1:]
+        am_name = am[:am.rindex('_')]
+        am_dataset = am[am.rindex('_') + 1:]
         get_tone_ids = False
-        if 'speedyspeech' in model_name:
+        if am_name == 'speedyspeech':
             get_tone_ids = True
         if lang == 'zh':
             input_ids = self.frontend.get_input_ids(
@@ -521,15 +521,14 @@ class TTSExecutor(BaseExecutor):
             print("lang should in {'zh', 'en'}!")
 
         # am
-        if 'speedyspeech' in model_name:
+        if am_name == 'speedyspeech':
             mel = self.am_inference(phone_ids, tone_ids)
         # fastspeech2
         else:
             # multi speaker
-            if dataset in {"aishell3", "vctk"}:
+            if am_dataset in {"aishell3", "vctk"}:
                 mel = self.am_inference(
                     phone_ids, spk_id=paddle.to_tensor(spk_id))
-
             else:
                 mel = self.am_inference(phone_ids)
 

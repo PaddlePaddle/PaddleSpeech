@@ -147,7 +147,7 @@ class SpeedPerturbationSox():
 
         try:
             import soxbindings as sox
-        except:
+        except ImportError:
             try:
                 from paddlespeech.s2t.utils import dynamic_pip_install
                 package = "sox"
@@ -155,8 +155,10 @@ class SpeedPerturbationSox():
                 package = "soxbindings"
                 dynamic_pip_install.install(package)
                 import soxbindings as sox
-            except:
-                raise RuntimeError("Can not install soxbindings on your system." )
+            except Exception:
+                raise RuntimeError(
+                    "Can not install soxbindings on your system.")
+        self.sox = sox
 
         if utt2ratio is not None:
             self.utt2ratio = {}
@@ -200,7 +202,7 @@ class SpeedPerturbationSox():
         else:
             ratio = self.state.uniform(self.lower, self.upper)
 
-        tfm = sox.Transformer()
+        tfm = self.sox.Transformer()
         tfm.set_globals(multithread=False)
         tfm.speed(ratio)
         y = tfm.build_array(input_array=x, sample_rate_in=self.sr)

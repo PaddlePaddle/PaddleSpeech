@@ -1,41 +1,3 @@
-# https://yaml.org/type/float.html
-data:
-  train_manifest: data/manifest.train
-  dev_manifest: data/manifest.dev
-  test_manifest: data/manifest.test-clean
-  min_input_len: 0.5  # seconds
-  max_input_len: 30.0 # seconds
-  min_output_len: 0.0 # tokens
-  max_output_len: 400.0 # tokens
-  min_output_input_ratio: 0.05
-  max_output_input_ratio: 100.0
-
-collator:
-  vocab_filepath: data/lang_char/vocab.txt 
-  unit_type: 'spm'
-  spm_model_prefix: 'data/lang_char/bpe_unigram_5000'
-  mean_std_filepath: ""
-  augmentation_config: conf/preprocess.yaml
-  batch_size: 16
-  raw_wav: True  # use raw_wav or kaldi feature
-  spectrum_type: fbank #linear, mfcc, fbank
-  feat_dim: 80
-  delta_delta: False
-  dither: 1.0
-  target_sample_rate: 16000
-  max_freq: None
-  n_fft: None
-  stride_ms: 10.0
-  window_ms: 25.0
-  use_dB_normalization: True
-  target_dB: -20
-  random_seed: 0
-  keep_transcription_text: False
-  sortagrad: True 
-  shuffle_method: batch_shuffle
-  num_workers: 2
-
-
 # network architecture
 model:
     cmvn_file: 
@@ -76,8 +38,40 @@ model:
         length_normalized_loss: false
 
 
+data:
+  train_manifest: data/manifest.train
+  dev_manifest: data/manifest.dev
+  test_manifest: data/manifest.test-clean
+
+
+collator:
+  vocab_filepath: data/lang_char/vocab.txt 
+  unit_type: 'spm'
+  spm_model_prefix: 'data/lang_char/bpe_unigram_5000'
+  mean_std_filepath: ""
+  augmentation_config: conf/preprocess.yaml
+  batch_size: 16
+  raw_wav: True  # use raw_wav or kaldi feature
+  spectrum_type: fbank #linear, mfcc, fbank
+  feat_dim: 80
+  delta_delta: False
+  dither: 1.0
+  target_sample_rate: 16000
+  max_freq: None
+  n_fft: None
+  stride_ms: 10.0
+  window_ms: 25.0
+  use_dB_normalization: True
+  target_dB: -20
+  random_seed: 0
+  keep_transcription_text: False
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 2
+
+
 training:
-  n_epoch: 120
+  n_epoch: 70
   accum_grad: 8
   global_grad_clip: 3.0
   optim: adam
@@ -98,13 +92,7 @@ decoding:
   batch_size: 64
   error_rate_type: wer
   decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
-  lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
-  alpha: 2.5
-  beta: 0.3
   beam_size: 10
-  cutoff_prob: 1.0
-  cutoff_top_n: 0
-  num_proc_bsearch: 8
   ctc_weight: 0.5 # ctc weight for attention rescoring decode mode.
   decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
       # <0: for decoding, use full chunk.

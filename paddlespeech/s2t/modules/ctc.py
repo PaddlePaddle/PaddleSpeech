@@ -28,7 +28,7 @@ try:
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoder  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
-except:
+except ImportError:
     try:
         from paddlespeech.s2t.utils import dynamic_pip_install
         package_name = 'paddlespeech_ctcdecoders'

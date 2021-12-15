@@ -129,7 +129,7 @@ class DeepSpeech2Model(nn.Layer):
                 rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
                 use_gru=True,  #Use gru if set True. Use simple rnn if set False.
                 share_rnn_weights=True,  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-                ctc_grad_norm_type=None,))
+                ctc_grad_norm_type=None, ))
         if config is not None:
             config.merge_from_other_cfg(default)
         return default

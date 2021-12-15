@@ -249,7 +249,6 @@ CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoi
 
 The performance of the released models are shown below:
 
-# LibriSpeech
 
 ## Conformer
 

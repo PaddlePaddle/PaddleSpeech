@@ -48,5 +48,3 @@ ffmpeg -i subtitle_demo1.mp4 -ac 1 -ar 16000 -vn input.wav
   Text Result:
   当我说我可以把三十年的经验变成一个准确的算法，他们说不可能。当我说我们十个人就能实现对十九个城市变电站七乘二十四小时的实时监管，他们说不可能。
   ```
-
-automatic_video_subtitiles

@@ -70,14 +70,14 @@ Some local variables are set in the ```run.sh```.
 ```model_type```denotes the model type: offline or online
 ```audio file``` denotes the file path of the single file you want to infer in stage 6
 
-```ckpt``` denotes the checkpoint prefix of the model, e.g. "conformer"
+```ckpt``` denotes the checkpoint prefix of the model, e.g. "deepspeech2"
 
 You can set the local variables (except ```ckpt```)  when you use the ```run.sh```
 
 For example, you can set the ```gpus``` and ``avg_num`` when you use the command line.:
 
 ```bash
-bash run.sh --gpus 0,1 --avg_num 20
+bash run.sh --gpus 0,1 --avg_num 1
 ```
 
 

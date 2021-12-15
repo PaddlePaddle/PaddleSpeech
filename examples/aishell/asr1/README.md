@@ -65,7 +65,7 @@ Some local variables are set in ```run.sh```.
 
 ```avg_num``` denotes the number K of top-K models you want to average to get the final model.
 
-```audio file``` denotes the file path of the single file you want to infer in stage 6
+```audio_file``` denotes the file path of the single file you want to infer in stage 5
 
 ```ckpt``` denotes the checkpoint prefix of the model, e.g. "conformer"
 
@@ -333,9 +333,13 @@ you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 
 wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/transformer.model.tar.gz
 tar xzvf transformer.model.tar.gz
 ```
-
-You need to prepare an audio file, please confirm the sample rate of the audio is 16K. Assume the path of the audio file is ```data/test_audio.wav```, you can get the result by running the script below.
+You can downloads the audio demo:
 
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/test_audio.wav
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
+```
+You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result by running the script below.
+
+```bash
+CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/demo_01_03.wav
 ```

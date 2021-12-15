@@ -14,7 +14,7 @@ All the scirpts you need are in the ```run.sh```. There are several stages in th
 | 3     | Test the final model performance                             |
 | 4     | Export the static graph model                                |
 | 5     | Test the static graph model                                  |
-| 5     | Infer the single audio file                                  |
+| 6     | Infer the single audio file                                  |
 
 
 You can choose to run a range of  stages by setting the ```stage``` and ```stop_stage ``` . 

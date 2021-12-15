@@ -68,9 +68,8 @@ Some local variables are set in the ```run.sh```.
 
 ```avg_num``` denotes the number K of top-K models you want to average to get the final model.
 ```model_type```denotes the model type: offline or online
-```audio file``` denotes the file path of the single file you want to infer in stage 6
 
-```ckpt``` denotes the checkpoint prefix of the model, e.g. "conformer"
+```ckpt``` denotes the checkpoint prefix of the model, e.g. "deepspeech2"
 
 You can set the local variables (except ```ckpt```)  when you use the ```run.sh```
 

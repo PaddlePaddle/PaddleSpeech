@@ -43,7 +43,7 @@ fi
 # Optionally, you can add LM and test it with runtime.
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # test a single .wav file
-    CUDA_VISIBLE_DEVICES=0 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
 fi
 
 # Not supported at now!!!

@@ -323,7 +323,7 @@ In some situations, you want to use the trained model to do the inference for th
 ```bash
  if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
      # test a single .wav file
-     CUDA_VISIBLE_DEVICES=0 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
  fi
 ```
 
@@ -341,5 +341,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wa
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result by running the script below.
 
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/demo_01_03.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/transformer.yaml exp/transformer/checkpoints/avg_20 data/demo_01_03.wav
 ```

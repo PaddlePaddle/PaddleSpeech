@@ -338,7 +338,7 @@ You can downloads the audio demo:
 wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
 ```
 
-You need to prepare an audio file, please confirm the sample rate of the audio is 16K. You can get the result of audio demo by running the script below.
+You need to prepare an audio file or use the audio demo, please confirm the sample rate of the audio is 16K. You can get the result of audio demo by running the script below.
 
 ```bash
 CUDA_VISIBLE_DEVICES= ./local/test_hub.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20 data/demo_002_en.wav

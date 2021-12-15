@@ -216,7 +216,7 @@ If you already have a dynamic graph model, you can run this script:
 
 ```bash
 source path.sh
-./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/ avg_1.jit offline
+./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/avg_1.jit offline
 ```
 
 

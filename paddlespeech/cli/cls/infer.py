@@ -237,7 +237,7 @@ class CLSExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            res = self(model_type, cfg_path, label_file, ckpt_path, audio_file,
+            res = self(audio_file, model_type, cfg_path, ckpt_path, label_file,
                        topk, device)
             logger.info('CLS Result:\n{}'.format(res))
             return True
@@ -245,8 +245,14 @@ class CLSExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
-    def __call__(self, model, config, ckpt_path, label_file, audio_file, topk,
-                 device):
+    def __call__(self,
+                 audio_file: os.PathLike,
+                 model: str='panns_cnn14',
+                 config: Optional[os.PathLike]=None,
+                 ckpt_path: Optional[os.PathLike]=None,
+                 label_file: Optional[os.PathLike]=None,
+                 topk: int=1,
+                 device: str=paddle.get_device()):
         """
             Python API to call an executor.
         """

@@ -1,3 +1,4 @@
+([简体中文](./README_cn.md)|English)
 # TTS (Text To Speech)
 
 ## Introduction
@@ -100,7 +101,6 @@ Input of this demo should be a text of the specific language that can be passed 
   ```bash
   Wave file has been generated: output.wav
   ```
-
 
 ### 4. Pretrained Models
 

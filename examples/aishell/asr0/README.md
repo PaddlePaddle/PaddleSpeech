@@ -256,7 +256,7 @@ This stage is to transform the dynamic graph model to static graph model.
 ```bash
  if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
      # export ckpt avg_n
-     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/     ${avg_ckpt}.jit ${model_type}
+     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}
  fi
 ```
 
@@ -264,7 +264,7 @@ If you already have a dynamic graph model, you can run this script:
 
 ```bash
 source path.sh
-./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/  avg_1.jit offline
+./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/avg_1.jit offline
 ```
 
 
@@ -274,9 +274,9 @@ source path.sh
 Similer to stage 3, static graph model can also be tested.
 
 ```bash
- if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-     # export ckpt avg_n
-     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/ ${avg_ckpt}.jit ${model_type}
+ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+     # test export ckpt avg_n
+     CUDA_VISIBLE_DEVICES=0 ./local/test_export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}|| exit -1
  fi
 ```
 
@@ -295,7 +295,7 @@ In some situations, you want to use the trained model to do the inference for th
 ```bash
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
      # test a single .wav file
-     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type}              ${audio_file}
+     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type} ${audio_file}
  fi
 ```
 

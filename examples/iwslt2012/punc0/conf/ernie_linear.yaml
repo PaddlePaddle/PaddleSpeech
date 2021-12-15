@@ -1,0 +1,36 @@
+data:
+  dataset_type: Ernie
+  train_path: data/iwslt2012_zh/train.txt
+  dev_path: data/iwslt2012_zh/dev.txt
+  test_path: data/iwslt2012_zh/test.txt
+  data_params: 
+    pretrained_token: ernie-1.0
+    punc_path: data/iwslt2012_zh/punc_vocab
+    seq_len: 100
+  batch_size: 64
+  sortagrad: True 
+  shuffle_method: batch_shuffle
+  num_workers: 0
+
+checkpoint:
+  kbest_n: 5
+  latest_n: 10
+  metric_type: F1
+
+model_type: ErnieLinear
+
+model_params:
+  pretrained_token: ernie-1.0
+  num_classes: 4
+
+training:
+  n_epoch: 100
+  lr: !!float 1e-5
+  lr_decay: 1.0 
+  weight_decay: !!float 1e-06
+  global_grad_clip: 5.0
+  log_interval: 10
+  log_path: log/train_ernie_linear.log
+
+testing:
+  log_path: log/test_ernie_linear.log

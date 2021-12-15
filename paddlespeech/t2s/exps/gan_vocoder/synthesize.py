@@ -84,6 +84,7 @@ def main():
     generator.set_state_dict(state_dict["generator_params"])
     generator.remove_weight_norm()
     generator.eval()
+
     with jsonlines.open(args.test_metadata, 'r') as reader:
         metadata = list(reader)
     test_dataset = DataTable(

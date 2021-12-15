@@ -765,3 +765,15 @@ class HiFiGANMultiScaleMultiPeriodDiscriminator(nn.Layer):
         msd_outs = self.msd(x)
         mpd_outs = self.mpd(x)
         return msd_outs + mpd_outs
+
+
+class HiFiGANInference(nn.Layer):
+    def __init__(self, normalizer, hifigan_generator):
+        super().__init__()
+        self.normalizer = normalizer
+        self.hifigan_generator = hifigan_generator
+
+    def forward(self, logmel):
+        normalized_mel = self.normalizer(logmel)
+        wav = self.hifigan_generator.inference(normalized_mel)
+        return wav

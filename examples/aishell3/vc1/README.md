@@ -100,11 +100,11 @@ pwg_aishell3_ckpt_0.5
 ├── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
 └── snapshot_iter_1000000.pdz      # generator parameters of parallel wavegan
 ```
-`./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
+`./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-The synthesizing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but  we should set `--voice-cloning=True` when calling `${BIN_DIR}/synthesize.py`.
+The synthesizing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but we should set `--voice-cloning=True` when calling `${BIN_DIR}/../synthesize.py`.
 
 ### Voice Cloning
 Assume there are some  reference audios in `./ref_audio`

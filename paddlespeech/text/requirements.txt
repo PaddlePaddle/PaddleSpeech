@@ -1,6 +1,0 @@
-numpy
-pyyaml
-tensorboardX
-tqdm
-ujson
-yacs

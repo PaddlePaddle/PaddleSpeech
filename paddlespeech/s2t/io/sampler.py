@@ -20,12 +20,12 @@ from paddle.io import DistributedBatchSampler
 
 from paddlespeech.s2t.utils.log import Log
 
+logger = Log(__name__).getlog()
+
 __all__ = [
     "SortagradDistributedBatchSampler",
     "SortagradBatchSampler",
 ]
-
-logger = Log(__name__).getlog()
 
 
 def _batch_shuffle(indices, batch_size, epoch, clipped=False):

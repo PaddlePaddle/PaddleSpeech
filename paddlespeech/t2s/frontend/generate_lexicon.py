@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Design principles: https://zhuanlan.zhihu.com/p/349600439
 """Generate lexicon and symbols for Mandarin Chinese phonology.
 The lexicon is used for Montreal Force Aligner.
 Note that syllables are used as word in this lexicon. Since syllables rather 

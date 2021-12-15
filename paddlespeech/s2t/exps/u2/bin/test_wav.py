@@ -44,7 +44,7 @@ class U2Infer():
 
         self.text_feature = TextFeaturizer(
             unit_type=config.collator.unit_type,
-            vocab_filepath=config.collator.vocab_filepath,
+            vocab=config.collator.vocab_filepath,
             spm_model_prefix=config.collator.spm_model_prefix)
 
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
@@ -91,13 +91,7 @@ class U2Infer():
                 ilen,
                 text_feature=self.text_feature,
                 decoding_method=cfg.decoding_method,
-                lang_model_path=cfg.lang_model_path,
-                beam_alpha=cfg.alpha,
-                beam_beta=cfg.beta,
                 beam_size=cfg.beam_size,
-                cutoff_prob=cfg.cutoff_prob,
-                cutoff_top_n=cfg.cutoff_top_n,
-                num_processes=cfg.num_proc_bsearch,
                 ctc_weight=cfg.ctc_weight,
                 decoding_chunk_size=cfg.decoding_chunk_size,
                 num_decoding_left_chunks=cfg.num_decoding_left_chunks,

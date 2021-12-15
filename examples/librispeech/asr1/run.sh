@@ -6,7 +6,7 @@ set -e
 
 gpus=0,1,2,3
 stage=0
-stop_stage=100
+stop_stage=51
 conf_path=conf/transformer.yaml
 avg_num=30
 audio_file=data/demo_002_en.wav
@@ -42,12 +42,12 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     CUDA_VISIBLE_DEVICES=0 ./local/align.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
-# if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-#     # export ckpt avg_n
-#     CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
-# fi
-
-if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
+if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 6 ]; then
     # test a single .wav file
-    CUDA_VISIBLE_DEVICES=0 ./local/test_hub.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+fi
+
+if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
+     # export ckpt avg_n
+     CUDA_VISIBLE_DEVICES= ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
 fi

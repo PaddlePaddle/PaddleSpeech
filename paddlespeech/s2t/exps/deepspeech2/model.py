@@ -286,7 +286,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
         self._text_featurizer = TextFeaturizer(
-            unit_type=config.collator.unit_type, vocab_filepath=None)
+            unit_type=config.collator.unit_type, vocab=None)
 
     def ordid2token(self, texts, texts_len):
         """ ord() id to chr() chr """

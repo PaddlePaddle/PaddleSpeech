@@ -179,7 +179,7 @@ class ASRExecutor(BaseExecutor):
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 text_feature = TextFeaturizer(
                     unit_type=self.config.collator.unit_type,
-                    vocab_filepath=self.config.collator.vocab_filepath,
+                    vocab=self.config.collator.vocab_filepath,
                     spm_model_prefix=self.config.collator.spm_model_prefix)
                 self.config.model.input_dim = self.collate_fn_test.feature_size
                 self.config.model.output_dim = text_feature.vocab_size
@@ -192,7 +192,7 @@ class ASRExecutor(BaseExecutor):
                     res_path, self.config.collator.spm_model_prefix)
                 text_feature = TextFeaturizer(
                     unit_type=self.config.collator.unit_type,
-                    vocab_filepath=self.config.collator.vocab_filepath,
+                    vocab=self.config.collator.vocab_filepath,
                     spm_model_prefix=self.config.collator.spm_model_prefix)
                 self.config.model.input_dim = self.config.collator.feat_dim
                 self.config.model.output_dim = text_feature.vocab_size
@@ -279,7 +279,7 @@ class ASRExecutor(BaseExecutor):
             audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
             text_feature = TextFeaturizer(
                 unit_type=self.config.collator.unit_type,
-                vocab_filepath=self.config.collator.vocab_filepath,
+                vocab=self.config.collator.vocab_filepath,
                 spm_model_prefix=self.config.collator.spm_model_prefix)
             self._inputs["audio"] = audio
             self._inputs["audio_len"] = audio_len
@@ -295,7 +295,7 @@ class ASRExecutor(BaseExecutor):
         """
         text_feature = TextFeaturizer(
             unit_type=self.config.collator.unit_type,
-            vocab_filepath=self.config.collator.vocab_filepath,
+            vocab=self.config.collator.vocab_filepath,
             spm_model_prefix=self.config.collator.spm_model_prefix)
         cfg = self.config.decoding
         audio = self._inputs["audio"]
@@ -321,13 +321,7 @@ class ASRExecutor(BaseExecutor):
                 audio_len,
                 text_feature=text_feature,
                 decoding_method=cfg.decoding_method,
-                lang_model_path=cfg.lang_model_path,
-                beam_alpha=cfg.alpha,
-                beam_beta=cfg.beta,
                 beam_size=cfg.beam_size,
-                cutoff_prob=cfg.cutoff_prob,
-                cutoff_top_n=cfg.cutoff_top_n,
-                num_processes=cfg.num_proc_bsearch,
                 ctc_weight=cfg.ctc_weight,
                 decoding_chunk_size=cfg.decoding_chunk_size,
                 num_decoding_left_chunks=cfg.num_decoding_left_chunks,
@@ -427,7 +421,7 @@ class ASRExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            res = self(model, lang, sample_rate, config, ckpt_path, audio_file,
+            res = self(audio_file, model, lang, sample_rate, config, ckpt_path,
                        device)
             logger.info('ASR Result: {}'.format(res))
             return True
@@ -435,8 +429,14 @@ class ASRExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
-    def __call__(self, model, lang, sample_rate, config, ckpt_path, audio_file,
-                 device):
+    def __call__(self,
+                 audio_file: os.PathLike,
+                 model: str='conformer_wenetspeech',
+                 lang: str='zh',
+                 sample_rate: int=16000,
+                 config: os.PathLike=None,
+                 ckpt_path: os.PathLike=None,
+                 device=paddle.get_device()):
         """
         Python API to call an executor.
         """

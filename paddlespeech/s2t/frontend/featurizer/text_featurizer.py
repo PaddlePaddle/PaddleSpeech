@@ -13,6 +13,7 @@
 # limitations under the License.
 """Contains the text featurizer class."""
 from pprint import pformat
+from typing import Union
 
 import sentencepiece as spm
 
@@ -31,11 +32,7 @@ __all__ = ["TextFeaturizer"]
 
 
 class TextFeaturizer():
-    def __init__(self,
-                 unit_type,
-                 vocab_filepath,
-                 spm_model_prefix=None,
-                 maskctc=False):
+    def __init__(self, unit_type, vocab, spm_model_prefix=None, maskctc=False):
         """Text featurizer, for processing or extracting features from text.
 
         Currently, it supports char/word/sentence-piece level tokenizing and conversion into
@@ -44,7 +41,7 @@ class TextFeaturizer():
 
         Args:
             unit_type (str): unit type, e.g. char, word, spm
-            vocab_filepath (str): Filepath to load vocabulary for token indices conversion.
+            vocab Option[str, list]: Filepath to load vocabulary for token indices conversion, or vocab list.
             spm_model_prefix (str, optional): spm model prefix. Defaults to None.
         """
         assert unit_type in ('char', 'spm', 'word')
@@ -52,12 +49,12 @@ class TextFeaturizer():
         self.unk = UNK
         self.maskctc = maskctc
 
-        if vocab_filepath:
+        if vocab:
             self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id, self.blank_id = self._load_vocabulary_from_file(
-                vocab_filepath, maskctc)
+                vocab, maskctc)
             self.vocab_size = len(self.vocab_list)
         else:
-            logger.warning("TextFeaturizer: not have vocab file.")
+            logger.warning("TextFeaturizer: not have vocab file or vocab list.")
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'
@@ -207,9 +204,13 @@ class TextFeaturizer():
 
         return decode(tokens)
 
-    def _load_vocabulary_from_file(self, vocab_filepath: str, maskctc: bool):
+    def _load_vocabulary_from_file(self, vocab: Union[str, list],
+                                   maskctc: bool):
         """Load vocabulary from file."""
-        vocab_list = load_dict(vocab_filepath, maskctc)
+        if isinstance(vocab, list):
+            vocab_list = vocab
+        else:
+            vocab_list = load_dict(vocab, maskctc)
         assert vocab_list is not None
         logger.debug(f"Vocab: {pformat(vocab_list)}")
 

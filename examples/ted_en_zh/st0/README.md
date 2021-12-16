@@ -187,7 +187,7 @@ source path.h
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer_mtl_noam.yaml transformer_mtl_noam
 avg.sh latest exp/transformer_mtl_noam/checkpoints 5
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer_mtl_noam.yaml exp/transformer_mtl_noam/checkpoints/avg_5.pdparams
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer_mtl_noam.yaml exp/transformer_mtl_noam/checkpoints/avg_5
 ```
 
 

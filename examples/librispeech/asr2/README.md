@@ -241,7 +241,7 @@ or you can run these scripts in the command line (only use CPU).
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh latest exp/transformer/checkpoints 10
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml data/train_960_unigram5000_units.txt exp/ctc/checkpoints/avg_10.pdparams
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml data/train_960_unigram5000_units.txt exp/transformer/checkpoints/avg_10
 ```
 
 
@@ -299,7 +299,7 @@ source path.sh
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
 
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml exp/transformer/checkpoints/avg_10
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml exp/ctc/checkpoints/avg_10
 ```
 
 

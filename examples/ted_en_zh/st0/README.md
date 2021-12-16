@@ -1,4 +1,4 @@
-# Transformer/Conformer ST with TED_En_Zh
+# Transformer/Conformer ST0 with TED_En_Zh
 
 This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with TED_EN_Zh
 

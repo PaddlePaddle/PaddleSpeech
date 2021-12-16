@@ -1,7 +1,6 @@
+# DeepSpeech2 offline/online ASR with Aishell
 
-# DeepSpeech2 offline/online ASR with Tiny
-
-This example contains code used to train a DeepSpeech2 offline or online model with Tiny dataset(a part of [[Librispeech dataset](http://www.openslr.org/resources/12)](http://www.openslr.org/resources/33))
+This example contains code used to train a DeepSpeech2 offline or online model with [Aishell dataset](http://www.openslr.org/resources/33)
 
 ## Overview
 
@@ -14,7 +13,8 @@ All the scirpts you need are in the ```run.sh```. There are several stages in th
 | 2     | Get the final model by averaging the top-k models, set k = 1 means choose the best model |
 | 3     | Test the final model performance                             |
 | 4     | Export the static graph model                                |
-
+| 5     | Test the static graph model                                  |
+| 6     | Infer the single audio file                                  |
 
 
 You can choose to run a range of  stages by setting the ```stage``` and ```stop_stage ``` . 
@@ -68,6 +68,7 @@ Some local variables are set in the ```run.sh```.
 
 ```avg_num``` denotes the number K of top-K models you want to average to get the final model.
 ```model_type```denotes the model type: offline or online
+```audio file``` denotes the file path of the single file you want to infer in stage 6
 
 ```ckpt``` denotes the checkpoint prefix of the model, e.g. "deepspeech2"
 
@@ -76,7 +77,7 @@ You can set the local variables (except ```ckpt```)  when you use the ```run.sh`
 For example, you can set the ```gpus``` and ``avg_num`` when you use the command line.:
 
 ```bash
-bash run.sh --gpus 0,1 --avg_num 20
+bash run.sh --gpus 0,1 --avg_num 1
 ```
 
 
@@ -148,7 +149,7 @@ or you can run these scripts in the command line (only use CPU).
 ```bash
 source path.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml deepspeech2
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml  deepspeech2
 ```
 
 
@@ -210,6 +211,44 @@ CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/chec
 ```
 
 
+
+## Pretrained Model
+
+You can get the pretrained transfomer or conformer using the scripts below:
+
+```bash
+Deepspeech2 offline:
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
+
+Deepspeech2 online:
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz
+
+```
+
+using the ```tar``` scripts to unpack the model  and then you can use the script to test the modle.
+
+For example:
+
+```
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
+tar xzvf ds2.model.tar.gz
+source path.sh
+# If you have process the data and get the manifest file， you can skip the following 2 steps
+bash local/data.sh --stage -1 --stop_stage -1
+bash local/data.sh --stage 2  --stop_stage 2
+
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
+```
+
+
+
+The performance of the released models are shown below:
+
+|         Acoustic Model         |  Training Data  | Token-based |   Size | Descriptions                                       | CER   | WER  | Hours of speech |
+| :----------------------------: | :-------------: | :---------: | -----: | :------------------------------------------------- | :---- | :--- | :-------------- |
+| Ds2 Online Aishell ASR0 Model  | Aishell Dataset | Char-based  | 345 MB | 2 Conv + 5 LSTM layers with only forward direction | 0.080 | -    | 151 h           |
+| Ds2 Offline Aishell ASR0 Model | Aishell Dataset | Char-based  | 306 MB | 2 Conv + 3 bidirectional GRU layers                | 0.064 | -    | 151 h           |
+
 ## Stage 4: Static graph model Export
 
 This stage is to transform the dynamic graph model to static graph model.
@@ -227,4 +266,56 @@ If you already have a dynamic graph model, you can run this script:
 source path.sh
 ./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/avg_1.jit offline
 ```
+
+
+
+## Stage 5: Static graph Model Testing
+
+Similer to stage 3, static graph model can also be tested.
+
+```bash
+ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+     # test export ckpt avg_n
+     CUDA_VISIBLE_DEVICES=0 ./local/test_export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}|| exit -1
+ fi
+```
+
+If you already have export the static graph, you can run this script:
+
+```bash
+CUDA_VISIBLE_DEVICES= ./local/test_export.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1.jit offline
+```
+
+
+
+## Stage 6: Single Audio File Inference
+
+In some situations, you want to use the trained model to do the inference for the single audio file. You can use stage  5. The code is shown below
+
+```bash
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
+     # test a single .wav file
+     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type} ${audio_file}
+ fi
+```
+
+you can train the model by yourself, or you can download the pretrained model by the script below:
+
+```bash
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
+tar xzvf ds2.model.tar.gz
+```
+
+You can downloads the audio demo:
+
+```bash
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
+```
+
+You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of audio demo by running the script below.
+
+```bash
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_01_03.wav
+```
+
 

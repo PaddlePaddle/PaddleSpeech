@@ -7,9 +7,9 @@ set -e
 
 gpus=0,1,2,3,4,5,6,7
 stage=0
-stop_stage=100
+stop_stage=50
 conf_path=conf/transformer.yaml
-dict_path=data/bpe_unigram_5000_units.txt
+dict_path=lang_char/train_960_unigram5000_units.txt
 avg_num=10
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
@@ -48,11 +48,13 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     CUDA_VISIBLE_DEVICES=0 ./local/align.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
-# if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
-#     # export ckpt avg_n
-#     ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
-# fi
-
-if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/cacu_perplexity.sh || exit -1
 fi
+
+if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
+    # export ckpt avg_n
+    ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
+fi
+
+

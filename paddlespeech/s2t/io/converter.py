@@ -55,10 +55,10 @@ class CustomConverter():
         assert len(batch) == 1
         data, utts = batch[0]
         if len(data) > 2:
+            xs, ys, ys_aux = data
+        else:
             xs, ys = data
             ys_aux = None
-        else:
-            xs, ys, ys_aux = data
         assert xs[0] is not None, "please check Reader and Augmentation impl."
 
         # perform subsampling

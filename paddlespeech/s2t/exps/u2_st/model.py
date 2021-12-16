@@ -443,13 +443,13 @@ class U2STTester(U2STTrainer):
             spm_model_prefix=self.config.collator.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
 
-    def ordid2token(self, texts, texts_len):
+    def id2token(self, texts, texts_len, text_feature):
         """ ord() id to chr() chr """
         trans = []
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            trans.append(''.join([chr(i) for i in ids]))
+            trans.append(text_feature.defeaturize(ids.numpy().tolist()))
         return trans
 
     def translate(self, audio, audio_len):
@@ -482,10 +482,7 @@ class U2STTester(U2STTrainer):
 
         start_time = time.time()
 
-        refs = [
-            "".join(chr(t) for t in text[:text_len])
-            for text, text_len in zip(texts, texts_len)
-        ]
+        refs = self.id2token(texts, texts_len, self.text_feature)
 
         hyps = self.model.decode(
             audio,

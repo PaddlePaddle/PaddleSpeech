@@ -85,7 +85,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-##### 文本转语音
+##### 语音合成
 <div align = "center">
 <table style="width:100%">
   <thead>
@@ -202,14 +202,14 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>
     <tr>
-      <td>基于Transformer的Attention模型 </td>
+      <td>Transformer based Attention Models </td>
       <td>
       <a href = "./examples/aishell/asr1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
       <tr>
       <td> Librispeech</td>
-      <td>基于Transformer的Attention模型 </td>
+      <td>Transformer based Attention Models </td>
       <td>
       <a href = "./examples/librispeech/asr0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/asr1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/asr2">transformer.conformer.u2-kaldi-librispeech</a>
       </td>

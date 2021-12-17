@@ -1,5 +1,5 @@
 ([简体中文](./README_cn.md)|English)
-# ASR(Automatic Speech Recognition)
+# ASR (Automatic Speech Recognition)
 
 ## Introduction
 ASR, or Automatic Speech Recognition, refers to the problem of getting a program to automatically transcribe spoken language (speech-to-text). 

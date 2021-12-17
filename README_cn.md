@@ -411,7 +411,7 @@ year={2021}
 ## 参与PaddleSpeech的开发
 
 
-热烈欢迎您在[讨论](https://github.com/PaddlePaddle/PaddleSpeech/discussions) 中提交问题，并在[问题](https://github.com/PaddlePaddle/PaddleSpeech/issues) 中指出发现的bug。此外，我们非常希望您愿意参与到PaddleSpeech的开发中！
+热烈欢迎您在[Discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) 中提交问题，并在[Issues](https://github.com/PaddlePaddle/PaddleSpeech/issues) 中指出发现的 bug。此外，我们非常希望您参与到 PaddleSpeech 的开发中！
 
 ### 贡献者
 <p align="center">

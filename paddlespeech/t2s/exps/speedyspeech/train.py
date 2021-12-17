@@ -161,7 +161,7 @@ def train_sp(args, config):
 def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(
-        description="Train a Speedyspeech model with sigle speaker dataset.")
+        description="Train a Speedyspeech model with a single speaker dataset.")
     parser.add_argument("--config", type=str, help="config file.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")

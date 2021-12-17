@@ -4,8 +4,8 @@ This example contains code used to train a [parallel wavegan](http://arxiv.org/a
 ### Download and Extract
 Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech-Dataset/).
 ### Get MFA Result and Extract
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence in the edge of audio.
-You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
+You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
@@ -19,7 +19,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -43,9 +43,9 @@ dump
     └── feats_stats.npy
 ```
 
-The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of which contains a `norm` and `raw` subfolder. The `raw` folder contains log magnitude of mel spectrogram of each utterances, while the norm folder contains normalized spectrogram. The statistics used to normalize the spectrogram is computed from the training set, which is located in `dump/train/feats_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and `test`, each of which contains a `norm` and `raw` subfolder. The `raw` folder contains the log magnitude of the mel spectrogram of each utterance, while the norm folder contains the normalized spectrogram. The statistics used to normalize the spectrogram are computed from the training set, which is located in `dump/train/feats_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains id and paths to spectrogam of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains id and paths to the spectrogram of each utterance.
 
 ### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
@@ -91,7 +91,7 @@ benchmark:
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Synthesizing
@@ -100,15 +100,19 @@ benchmark:
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 ```text
-usage: synthesize.py [-h] [--config CONFIG] [--checkpoint CHECKPOINT]
-                     [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--ngpu NGPU] [--verbose VERBOSE]
+usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
+                     [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
+                     [--output-dir OUTPUT_DIR] [--ngpu NGPU]
+                     [--verbose VERBOSE]
 
-Synthesize with parallel wavegan.
+Synthesize with GANVocoder.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       parallel wavegan config file.
+  --generator-type GENERATOR_TYPE
+                        type of GANVocoder, should in {pwgan, mb_melgan,
+                        style_melgan, } now
+  --config CONFIG       GANVocoder config file.
   --checkpoint CHECKPOINT
                         snapshot to load.
   --test-metadata TEST_METADATA

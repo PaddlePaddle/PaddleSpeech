@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -18,12 +18,12 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
-    - synthesize waveform from text file.
-5. inference using static model.
+    - synthesize waveform from a text file.
+5. inference using the static model.
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -50,9 +50,9 @@ dump
     ├── raw
     └── speech_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev` and` test`, each of which contains a `norm` and `raw` sub folder. The raw folder contains speech、pitch and energy features of each utterances, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains speech、pitch and energy features of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, text_lengths, speech_lengths, durations, path of speech features, path of pitch features, path of energy features, speaker and id of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, the path of energy features, speaker, and the id of each utterance.
 
 ### Model Training
 ```bash
@@ -86,7 +86,7 @@ optional arguments:
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 
@@ -207,14 +207,14 @@ optional arguments:
 2. `--am_config`, `--am_checkpoint`, `--am_stat` and `--phones_dict` are arguments for acoustic model, which correspond to the 4 files in the fastspeech2 pretrained model.
 3. `--voc` is vocoder type with the format {model_name}_{dataset}
 4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
-5. `--lang` is the model language,which can be zh or en.
+5. `--lang` is the model language, which can be `zh` or `en`.
 6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 7. `--text` is the text file, which contains sentences to synthesize.
 8. `--output_dir` is the directory to save synthesized audio files.
 9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Inferencing
-After Synthesize, we will get static models of fastspeech2 and pwgan in `${train_output_path}/inference`.
+After synthesizing, we will get static models of fastspeech2 and pwgan in `${train_output_path}/inference`.
 `./local/inference.sh` calls `${BIN_DIR}/inference.py`, which provides a paddle static model inference example for fastspeech2 + pwgan synthesize.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
@@ -225,7 +225,7 @@ Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
 - [fastspeech2_conformer_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip)
 
-Static model can be downloaded here [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
+The static model can be downloaded here [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:

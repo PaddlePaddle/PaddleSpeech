@@ -2,11 +2,11 @@
 This example contains code used to train a [Multi Band MelGAN](https://arxiv.org/abs/2005.05106) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 ## Dataset
 ### Download and Extract
-Download CSMSC from the [official website](https://www.data-baker.com/data/index/source) and extract it to `~/datasets`. Then the dataset is in directory `~/datasets/BZNSYP`.
+Download CSMSC from the [official website](https://www.data-baker.com/data/index/source) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
 
 ### Get MFA Result and Extract
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to  cut silence in the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/mfa) of our repo.
+We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -20,7 +20,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -43,9 +43,9 @@ dump
     ├── raw
     └── feats_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of which contains a `norm` and `raw` subfolder. The `raw` folder contains log magnitude of mel spectrogram of each utterances, while the norm folder contains normalized spectrogram. The statistics used to normalize the spectrogram is computed from the training set, which is located in `dump/train/feats_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and `test`, each of which contains a `norm` and `raw` subfolder. The `raw` folder contains the log magnitude of the mel spectrogram of each utterance, while the norm folder contains the normalized spectrogram. The statistics used to normalize the spectrogram are computed from the training set, which is located in `dump/train/feats_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains id and paths to spectrogam of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains id and paths to the spectrogram of each utterance.
 
 ### Model Training
 ```bash
@@ -76,7 +76,7 @@ optional arguments:
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Synthesizing
@@ -85,15 +85,19 @@ optional arguments:
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 ```text
-usage: synthesize.py [-h] [--config CONFIG] [--checkpoint CHECKPOINT]
-                     [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--ngpu NGPU] [--verbose VERBOSE]
+usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
+                     [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
+                     [--output-dir OUTPUT_DIR] [--ngpu NGPU]
+                     [--verbose VERBOSE]
 
-Synthesize with multi band melgan.
+Synthesize with GANVocoder.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       multi band melgan config file.
+  --generator-type GENERATOR_TYPE
+                        type of GANVocoder, should in {pwgan, mb_melgan,
+                        style_melgan, } now
+  --config CONFIG       GANVocoder config file.
   --checkpoint CHECKPOINT
                         snapshot to load.
   --test-metadata TEST_METADATA
@@ -111,22 +115,22 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Fine-tuning
-Since there are no `noise` in the input of Multi Band MelGAN, the  audio quality is not so good (see [espnet issue](https://github.com/espnet/espnet/issues/3536#issuecomment-916035415)), we refer to the method proposed in [HiFiGAN](https://arxiv.org/abs/2010.05646),  finetune Multi Band MelGAN with the predicted mel-spectrogram from `FastSpeech2`.
+Since there is no `noise` in the input of Multi-Band MelGAN, the audio quality is not so good (see [espnet issue](https://github.com/espnet/espnet/issues/3536#issuecomment-916035415)), we refer to the method proposed in [HiFiGAN](https://arxiv.org/abs/2010.05646),  finetune Multi-Band MelGAN with the predicted mel-spectrogram from `FastSpeech2`.
 
 The length of mel-spectrograms should align with the length of wavs, so we should generate mels using ground truth alignment.
 
-But since we are fine-tuning, we should use the statistics computed during training step.
+But since we are fine-tuning, we should use the statistics computed during the training step.
 
-You should  first download pretrained `FastSpeech2` model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip) and `unzip` it.
+You should first download pretrained `FastSpeech2` model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip) and `unzip` it.
 
-Assume the path to the dump-dir of  training  step is `dump`.
-Assume the path to the duration result of CSMSC is `durations.txt` (generated during training step's preprocessing).
+Assume the path to the dump-dir of training step is `dump`.
+Assume the path to the duration result of CSMSC is `durations.txt` (generated during the training step's preprocessing).
 Assume the path to the pretrained `FastSpeech2` model is `fastspeech2_nosil_baker_ckpt_0.4`.
 \
 The `finetune.sh` can
 1. **source path**.
 2. generate ground truth alignment mels.
-3. link `*_wave.npy` from `dump` to `dump_finetune` (because we only use new mels, the wavs are the ones used during train step) .
+3. link `*_wave.npy` from `dump` to `dump_finetune` (because we only use new mels, the wavs are the ones used during the training step).
 4. copy features' stats from `dump` to `dump_finetune`.
 5. normalize the ground truth alignment mels.
 6. finetune the model.
@@ -137,7 +141,7 @@ exp/finetune/checkpoints
 ├── records.jsonl
 └── snapshot_iter_1000000.pdz
 ```
-The content of `records.jsonl` should be as follows (change `"path"` to your own ckpt path):
+The content of `records.jsonl` should be as follows (change `"path"` to your ckpt path):
 ```
 {"time": "2021-11-21 15:11:20.337311", "path": "~/PaddleSpeech/examples/csmsc/voc3/exp/finetune/checkpoints/snapshot_iter_1000000.pdz", "iteration": 1000000}
 ```
@@ -151,11 +155,11 @@ TODO:
 The hyperparameter of `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
 
 ## Pretrained Models
-Pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
+The pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
 
-Finetuned model can ben downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
+The finetuned model can be downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
 
-Static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
+The static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss|eval/spectral_convergence_loss |eval/sub_log_stft_magnitude_loss|eval/sub_spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:| :--------:| :--------:

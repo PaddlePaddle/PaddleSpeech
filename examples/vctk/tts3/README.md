@@ -2,14 +2,14 @@
 This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [VCTK](https://datashare.ed.ac.uk/handle/10283/3443).
 
 ## Dataset
-### Download and Extract the datasaet
+### Download and Extract the dataset
 Download VCTK-0.92 from the [official website](https://datashare.ed.ac.uk/handle/10283/3443).
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/other/mfa/local/reorganize_vctk.py)):
-1. `p315`, because no txt for it.
+1. `p315`, because of no text for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
 
 ## Get Started
@@ -25,7 +25,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -52,9 +52,9 @@ dump
     ├── raw
     └── speech_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev` and` test`, each of which contains a `norm` and `raw` sub folder. The raw folder contains speech、pitch and energy features of each utterances, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains speech、pitch and energy features of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, text_lengths, speech_lengths, durations, path of speech features, path of pitch features, path of energy features, speaker and id of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, the path of energy features, speaker, and id of each utterance.
 
 ### Model Training
 ```bash
@@ -88,7 +88,7 @@ optional arguments:
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesizing
@@ -209,7 +209,7 @@ optional arguments:
 2. `--am_config`, `--am_checkpoint`, `--am_stat`, `--phones_dict` `--speaker_dict` are arguments for acoustic model, which correspond to the 5 files in the fastspeech2 pretrained model.
 3. `--voc` is vocoder type with the format {model_name}_{dataset}
 4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
-5. `--lang` is the model language,which can be zh or en.
+5. `--lang` is the model language, which can be `zh` or `en`.
 6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 7. `--text` is the text file, which contains sentences to synthesize.
 8. `--output_dir` is the directory to save synthesized audio files.

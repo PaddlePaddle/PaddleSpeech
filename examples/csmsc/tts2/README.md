@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for SPEEDYSPEECH.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -18,8 +18,8 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
-    - synthesize waveform from text file.
-5. inference using static model.
+    - synthesize waveform from a text file.
+5. inference using the static model.
 ```bash
 ./run.sh
 ```
@@ -47,9 +47,9 @@ dump
     └── feats_stats.npy
 ```
 
-The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of which contains a `norm` and `raw` sub folder. The raw folder contains log magnitude of mel spectrogram of each utterances, while the norm folder contains normalized spectrogram. The statistics used to normalize the spectrogram is computed from the training set, which is located in `dump/train/feats_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and `test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains the log magnitude of the mel spectrogram of each utterance, while the norm folder contains the normalized spectrogram. The statistics used to normalize the spectrogram are computed from the training set, which is located in `dump/train/feats_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, tones, durations, path of spectrogram, and id of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, tones, durations, the path of the spectrogram, and the id of each utterance.
 
 ### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
@@ -64,7 +64,7 @@ usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--use-relative-path USE_RELATIVE_PATH]
                 [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
 
-Train a Speedyspeech model with sigle speaker dataset.
+Train a Speedyspeech model with a single speaker dataset.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -87,7 +87,7 @@ optional arguments:
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 6. `--tones-dict` is the path of the tone vocabulary file.
@@ -209,14 +209,14 @@ optional arguments:
 2. `--am_config`, `--am_checkpoint`, `--am_stat`, `--phones_dict` and `--tones_dict` are arguments for acoustic model, which correspond to the 5 files in the speedyspeech pretrained model.
 3. `--voc` is vocoder type with the format {model_name}_{dataset}
 4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
-5. `--lang` is the model language,which can be zh or en.
+5. `--lang` is the model language, which can be `zh` or `en`.
 6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 7. `--text` is the text file, which contains sentences to synthesize.
 8. `--output_dir` is the directory to save synthesized audio files.
 9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Inferencing
-After Synthesize, we will get static models of speedyspeech and pwgan in `${train_output_path}/inference`.
+After synthesizing, we will get static models of speedyspeech and pwgan in `${train_output_path}/inference`.
 `./local/inference.sh` calls `${BIN_DIR}/inference.py`, which provides a paddle static model inference example for speedyspeech + pwgan synthesize.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
@@ -225,7 +225,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ## Pretrained Model
 Pretrained SpeedySpeech model with no silence in the edge of audios[speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_ckpt_0.5.zip).
 
-Static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip).
+The static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip).
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:

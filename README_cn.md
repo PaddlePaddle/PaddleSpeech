@@ -388,7 +388,7 @@ PaddleSpeech 中的 **文本转语音** 主要包含三个模块：*文本前端
     - [简介](./docs/source/tts/models_introduction.md)
     - [进阶用法](./docs/source/tts/advanced_usage.md)
     - [中文文本前端](./docs/source/tts/zh_text_frontend.md)
-    - [测试语音样本](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
+    - [音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - 声音分类
   - 语音翻译
 - [模型](./docs/source/released_model.md)

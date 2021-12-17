@@ -139,7 +139,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 欢迎加入以下微信群，直接和 PaddleSpeech 团队成员进行交流！
 
 <div align="center">
-<img src="./docs/images/wechat_group.png"  width = "200"  />
+<img src="./docs/images/wechat_group.png"  width = "400"  />
 
 </div>
 

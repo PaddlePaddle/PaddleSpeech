@@ -1,6 +1,6 @@
 # Tacotron2 + AISHELL-3 Voice Cloning
-This example contains code used to train a [Tacotron2 ](https://arxiv.org/abs/1712.05884) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf) . The general steps are as follows:
-1. Speaker Encoder: We  use a Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in Tacotron2, because the  transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e).
+This example contains code used to train a [Tacotron2 ](https://arxiv.org/abs/1712.05884) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf). The general steps are as follows:
+1. Speaker Encoder: We use Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in Tacotron2 because the transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e).
 2. Synthesizer: We use the trained speaker encoder to generate speaker embedding for each sentence in AISHELL-3. This embedding is an extra input of  Tacotron2 which will be concated with encoder outputs.
 3. Vocoder: We use WaveFlow as the neural Vocoder, refer to [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0).
 
@@ -39,13 +39,13 @@ fi
 
 The computing time of utterance embedding can be x hours.
 #### Process Wav
-There are silence in the edge of AISHELL-3's wavs, and the audio amplitude is very small, so, we need to remove the silence and normalize the audio. You can the silence remove method based on   volume or energy, but the effect is not very good, We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get  the alignment of text and  speech, then utilize the alignment results to remove the silence.
+There is silence in the edge of AISHELL-3's wavs, and the audio amplitude is very small, so, we need to remove the silence and normalize the audio. You can the silence remove method based on volume or energy, but the effect is not very good, We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get the alignment of text and speech, then utilize the alignment results to remove the silence.
 
-We use Montreal Force Aligner 1.0. The label in  aishell3 include pinyin，so the lexicon we provided to MFA is pinyin rather than Chinese characters. And the prosody marks(`$`  and `%`) need to be removed. You shoud preprocess the dataset into the format  which MFA needs, the texts have the same name with wavs and have the suffix `.lab`.
+We use Montreal Force Aligner 1.0. The label in  aishell3 includes pinyin，so the lexicon we provided to MFA is pinyin rather than Chinese characters. And the prosody marks(`$`  and `%`) need to be removed. You should preprocess the dataset into the format which MFA needs, the texts have the same name with wavs and have the suffix `.lab`.
 
 We use [lexicon.txt](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/paddlespeech/t2s/exps/voice_cloning/tacotron2_ge2e/lexicon.txt) as the lexicon.
 
-You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/alignment_aishell3.tar.gz), or train your own MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download the alignment results from here [alignment_aishell3.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/alignment_aishell3.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 
 ```bash
@@ -83,9 +83,9 @@ fi
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${preprocess_path} ${train_output_path}
 ```
 
-Our model remve  stop token prediction in Tacotron2, because of the problem of extremely unbalanced proportion of positive and negative samples of stop token prediction, and it's very sensitive to the clip of audio silence. We use the last symbol from the highest point of attention to the encoder side as the termination condition.
+Our model removes stop token prediction in Tacotron2, because of the problem of the extremely unbalanced proportion of positive and negative samples of stop token prediction, and it's very sensitive to the clip of audio silence. We use the last symbol from the highest point of attention to the encoder side as the termination condition.
 
-In addition, in order to accelerate the convergence of the model, we add `guided attention loss` to induce the alignment between encoder and decoder to show diagonal lines faster.
+In addition, to accelerate the convergence of the model, we add `guided attention loss` to induce the alignment between encoder and decoder to show diagonal lines faster.
 ### Voice Cloning
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${ge2e_params_path} ${tacotron2_params_path} ${waveflow_params_path} ${vc_input} ${vc_output}

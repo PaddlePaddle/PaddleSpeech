@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for SPEEDYSPEECH.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your own MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -18,8 +18,8 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
-    - synthesize waveform from text file.
-5. inference using static model.
+    - synthesize waveform from a text file.
+5. inference using the static model.
 ```bash
 ./run.sh
 ```
@@ -47,9 +47,9 @@ dump
     └── feats_stats.npy
 ```
 
-The dataset is split into 3 parts, namely `train`, `dev` and `test`, each of which contains a `norm` and `raw` sub folder. The raw folder contains log magnitude of mel spectrogram of each utterances, while the norm folder contains normalized spectrogram. The statistics used to normalize the spectrogram is computed from the training set, which is located in `dump/train/feats_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and `test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains the log magnitude of the mel spectrogram of each utterance, while the norm folder contains the normalized spectrogram. The statistics used to normalize the spectrogram are computed from the training set, which is located in `dump/train/feats_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, tones, durations, path of spectrogram, and id of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, tones, durations, the path of the spectrogram, and the id of each utterance.
 
 ### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
@@ -64,7 +64,7 @@ usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--use-relative-path USE_RELATIVE_PATH]
                 [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
 
-Train a Speedyspeech model with sigle speaker dataset.
+Train a Speedyspeech model with a single speaker dataset.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -87,7 +87,7 @@ optional arguments:
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 6. `--tones-dict` is the path of the tone vocabulary file.
@@ -105,107 +105,118 @@ pwg_baker_ckpt_0.4
 ├── pwg_snapshot_iter_400000.pdz   # model parameters of parallel wavegan
 └── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
 ```
-`./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
+`./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-```text
-usage: synthesize.py [-h] [--speedyspeech-config SPEEDYSPEECH_CONFIG]
-                     [--speedyspeech-checkpoint SPEEDYSPEECH_CHECKPOINT]
-                     [--speedyspeech-stat SPEEDYSPEECH_STAT]
-                     [--pwg-config PWG_CONFIG]
-                     [--pwg-checkpoint PWG_CHECKPOINT] [--pwg-stat PWG_STAT]
-                     [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
-                     [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--inference-dir INFERENCE_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
+``text
+usage: synthesize.py [-h]
+                     [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
+                     [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                     [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                     [--tones_dict TONES_DICT] [--speaker_dict SPEAKER_DICT]
+                     [--voice-cloning VOICE_CLONING]
+                     [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}]
+                     [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                     [--voc_stat VOC_STAT] [--ngpu NGPU]
+                     [--test_metadata TEST_METADATA] [--output_dir OUTPUT_DIR]
 
-Synthesize with speedyspeech & parallel wavegan.
+Synthesize with acoustic model & vocoder
 
 optional arguments:
   -h, --help            show this help message and exit
-  --speedyspeech-config SPEEDYSPEECH_CONFIG
-                        config file for speedyspeech.
-  --speedyspeech-checkpoint SPEEDYSPEECH_CHECKPOINT
-                        speedyspeech checkpoint to load.
-  --speedyspeech-stat SPEEDYSPEECH_STAT
-                        mean and standard deviation used to normalize
-                        spectrogram when training speedyspeech.
-  --pwg-config PWG_CONFIG
-                        config file for parallelwavegan.
-  --pwg-checkpoint PWG_CHECKPOINT
-                        parallel wavegan generator parameters to load.
-  --pwg-stat PWG_STAT   mean and standard deviation used to normalize
-                        spectrogram when training speedyspeech.
-  --phones-dict PHONES_DICT
+  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model. Use deault config when it is
+                        None.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
                         phone vocabulary file.
-  --tones-dict TONES_DICT
+  --tones_dict TONES_DICT
                         tone vocabulary file.
-  --test-metadata TEST_METADATA
-                        test metadata
-  --output-dir OUTPUT_DIR
-                        output dir
-  --inference-dir INFERENCE_DIR
-                        dir to save inference models
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc. Use deault config when it is None.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose
+  --test_metadata TEST_METADATA
+                        test metadata.
+  --output_dir OUTPUT_DIR
+                        output dir.
 ```
-`./local/synthesize_e2e.sh` calls `${BIN_DIR}/synthesize_e2e.py`, which can synthesize waveform from text file.
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 ```text
-usage: synthesize_e2e.py [-h] [--speedyspeech-config SPEEDYSPEECH_CONFIG]
-                         [--speedyspeech-checkpoint SPEEDYSPEECH_CHECKPOINT]
-                         [--speedyspeech-stat SPEEDYSPEECH_STAT]
-                         [--pwg-config PWG_CONFIG]
-                         [--pwg-checkpoint PWG_CHECKPOINT]
-                         [--pwg-stat PWG_STAT] [--text TEXT]
-                         [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
-                         [--output-dir OUTPUT_DIR]
-                         [--inference-dir INFERENCE_DIR] [--verbose VERBOSE]
-                         [--ngpu NGPU]
+usage: synthesize_e2e.py [-h]
+                         [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
+                         [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                         [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                         [--tones_dict TONES_DICT]
+                         [--speaker_dict SPEAKER_DICT] [--spk_id SPK_ID]
+                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}]
+                         [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                         [--voc_stat VOC_STAT] [--lang LANG]
+                         [--inference_dir INFERENCE_DIR] [--ngpu NGPU]
+                         [--text TEXT] [--output_dir OUTPUT_DIR]
 
-Synthesize with speedyspeech & parallel wavegan.
+Synthesize with acoustic model & vocoder
 
 optional arguments:
   -h, --help            show this help message and exit
-  --speedyspeech-config SPEEDYSPEECH_CONFIG
-                        config file for speedyspeech.
-  --speedyspeech-checkpoint SPEEDYSPEECH_CHECKPOINT
-                        speedyspeech checkpoint to load.
-  --speedyspeech-stat SPEEDYSPEECH_STAT
-                        mean and standard deviation used to normalize
-                        spectrogram when training speedyspeech.
-  --pwg-config PWG_CONFIG
-                        config file for parallelwavegan.
-  --pwg-checkpoint PWG_CHECKPOINT
-                        parallel wavegan checkpoint to load.
-  --pwg-stat PWG_STAT   mean and standard deviation used to normalize
-                        spectrogram when training speedyspeech.
-  --text TEXT           text to synthesize, a 'utt_id sentence' pair per line
-  --phones-dict PHONES_DICT
+  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model. Use deault config when it is
+                        None.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
                         phone vocabulary file.
-  --tones-dict TONES_DICT
+  --tones_dict TONES_DICT
                         tone vocabulary file.
-  --output-dir OUTPUT_DIR
-                        output dir
-  --inference-dir INFERENCE_DIR
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --spk_id SPK_ID       spk id for multi speaker acoustic model
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc. Use deault config when it is None.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
+  --lang LANG           Choose model language. zh or en
+  --inference_dir INFERENCE_DIR
                         dir to save inference models
-  --verbose VERBOSE     verbose
   --ngpu NGPU           if ngpu == 0, use cpu.
+  --text TEXT           text to synthesize, a 'utt_id sentence' pair per line.
+  --output_dir OUTPUT_DIR
+                        output dir.
 ```
-1. `--speedyspeech-config`, `--speedyspeech-checkpoint`, `--speedyspeech-stat` are arguments for speedyspeech, which correspond to the 3 files in the speedyspeech pretrained model.
-2. `--pwg-config`, `--pwg-checkpoint`, `--pwg-stat` are arguments for parallel wavegan, which correspond to the 3 files in the parallel wavegan pretrained model.
-3. `--text` is the text file, which contains sentences to synthesize.
-4. `--output-dir` is the directory to save synthesized audio files.
-5. `--inference-dir` is the directory to save exported model, which can be used with paddle infernece.
-6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
-7. `--phones-dict` is the path of the phone vocabulary file.
-8. `--tones-dict` is the path of the tone vocabulary file.
+1. `--am` is acoustic model type with the format {model_name}_{dataset}
+2. `--am_config`, `--am_checkpoint`, `--am_stat`, `--phones_dict` and `--tones_dict` are arguments for acoustic model, which correspond to the 5 files in the speedyspeech pretrained model.
+3. `--voc` is vocoder type with the format {model_name}_{dataset}
+4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
+5. `--lang` is the model language, which can be `zh` or `en`.
+6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
+7. `--text` is the text file, which contains sentences to synthesize.
+8. `--output_dir` is the directory to save synthesized audio files.
+9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Inferencing
-After Synthesize, we will get static models of speedyspeech and pwgan in `${train_output_path}/inference`.
+After synthesizing, we will get static models of speedyspeech and pwgan in `${train_output_path}/inference`.
 `./local/inference.sh` calls `${BIN_DIR}/inference.py`, which provides a paddle static model inference example for speedyspeech + pwgan synthesize.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
@@ -214,7 +225,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ## Pretrained Model
 Pretrained SpeedySpeech model with no silence in the edge of audios[speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_ckpt_0.5.zip).
 
-Static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip).
+The static model can be downloaded here [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip).
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:
@@ -235,16 +246,19 @@ source path.sh
 
 FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
-python3 ${BIN_DIR}/synthesize_e2e.py \
-  --speedyspeech-config=speedyspeech_nosil_baker_ckpt_0.5/default.yaml \
-  --speedyspeech-checkpoint=speedyspeech_nosil_baker_ckpt_0.5/snapshot_iter_11400.pdz \
-  --speedyspeech-stat=speedyspeech_nosil_baker_ckpt_0.5/feats_stats.npy \
-  --pwg-config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --pwg-checkpoint=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --pwg-stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+python3 ${BIN_DIR}/../synthesize_e2e.py \
+  --am=speedyspeech_csmsc \
+  --am_config=speedyspeech_nosil_baker_ckpt_0.5/default.yaml \
+  --am_ckpt=speedyspeech_nosil_baker_ckpt_0.5/snapshot_iter_11400.pdz \
+  --am_stat=speedyspeech_nosil_baker_ckpt_0.5/feats_stats.npy \
+  --voc=pwgan_csmsc \
+  --voc_config=pwg_baker_ckpt_0.4/pwg_default.yaml \
+  --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
+  --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+  --lang=zh \
   --text=${BIN_DIR}/../sentences.txt \
-  --output-dir=exp/default/test_e2e \
-  --inference-dir=exp/default/inference \
-  --phones-dict=speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt \
-  --tones-dict=speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
+  --output_dir=exp/default/test_e2e \
+  --inference_dir=exp/default/inference \
+  --phones_dict=speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt \
+  --tones_dict=speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
 ```

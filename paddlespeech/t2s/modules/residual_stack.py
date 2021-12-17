@@ -60,7 +60,8 @@ class ResidualStack(nn.Layer):
         """
         super().__init__()
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         # defile residual stack part
         if not use_causal_conv:

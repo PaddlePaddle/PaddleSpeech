@@ -14,7 +14,6 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """StyleMelGAN Modules."""
 import copy
-import math
 from typing import Any
 from typing import Dict
 from typing import List
@@ -225,14 +224,17 @@ class StyleMelGANGenerator(nn.Layer):
         c_shape = paddle.shape(c)
         # prepare noise input
         # there is a bug in Paddle int division, we must convert a int tensor to int here
-        noise_size = (1, self.in_channels,
-                      math.ceil(int(c_shape[2]) / self.noise_upsample_factor))
+        noise_T = paddle.cast(
+            paddle.ceil(c_shape[2] / int(self.noise_upsample_factor)),
+            dtype='int64')
+        noise_size = (1, self.in_channels, noise_T)
         # (1, in_channels, T/noise_upsample_factor)
         noise = paddle.randn(noise_size)
         # (1, in_channels, T)
         x = self.noise_upsample(noise)
         x_shape = paddle.shape(x)
         total_length = c_shape[2] * self.upsample_factor
+        # Dygraph to Static Graph bug here, 2021.12.15
         c = F.pad(
             c, (0, x_shape[2] - c_shape[2]), "replicate", data_format="NCL")
         # c.shape[2] == x.shape[2] here
@@ -243,7 +245,6 @@ class StyleMelGANGenerator(nn.Layer):
         return x.squeeze(0).transpose([1, 0])
 
 
-# StyleMelGANDiscriminator 不需要 remove weight norm 嘛？
 class StyleMelGANDiscriminator(nn.Layer):
     """Style MelGAN disciminator module."""
 

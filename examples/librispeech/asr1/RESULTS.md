@@ -30,4 +30,4 @@ train: Epoch 120, 4 V100-32G, 27 Day, best avg: 10
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention | 6.382194232940674 | 0.049661 |  
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_greedy_search | 6.382194232940674 | 0.049566 |  
 | transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | ctc_prefix_beam_search | 6.382194232940674 | 0.049585 |  
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.382194232940674 | 0.038135 |  
+| transformer | 32.52 M | conf/transformer.yaml | spec_aug  | test-clean | attention_rescoring | 6.382194232940674 | 0.038135 |

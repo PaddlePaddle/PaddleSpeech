@@ -13,6 +13,7 @@
 # limitations under the License.
 import math
 
+import librosa
 import paddle
 from paddle import nn
 from paddle.fluid.layers import sequence_mask
@@ -457,3 +458,206 @@ def masked_l1_loss(prediction, target, mask):
     abs_error = F.l1_loss(prediction, target, reduction='none')
     loss = weighted_mean(abs_error, mask)
     return loss
+
+
+class MelSpectrogram(nn.Layer):
+    """Calculate Mel-spectrogram."""
+
+    def __init__(
+            self,
+            fs=22050,
+            fft_size=1024,
+            hop_size=256,
+            win_length=None,
+            window="hann",
+            num_mels=80,
+            fmin=80,
+            fmax=7600,
+            center=True,
+            normalized=False,
+            onesided=True,
+            eps=1e-10,
+            log_base=10.0, ):
+        """Initialize MelSpectrogram module."""
+        super().__init__()
+        self.fft_size = fft_size
+        if win_length is None:
+            self.win_length = fft_size
+        else:
+            self.win_length = win_length
+        self.hop_size = hop_size
+        self.center = center
+        self.normalized = normalized
+        self.onesided = onesided
+
+        if window is not None and not hasattr(signal.windows, f"{window}"):
+            raise ValueError(f"{window} window is not implemented")
+        self.window = window
+        self.eps = eps
+
+        fmin = 0 if fmin is None else fmin
+        fmax = fs / 2 if fmax is None else fmax
+        melmat = librosa.filters.mel(
+            sr=fs,
+            n_fft=fft_size,
+            n_mels=num_mels,
+            fmin=fmin,
+            fmax=fmax, )
+
+        self.melmat = paddle.to_tensor(melmat.T)
+        self.stft_params = {
+            "n_fft": self.fft_size,
+            "win_length": self.win_length,
+            "hop_length": self.hop_size,
+            "center": self.center,
+            "normalized": self.normalized,
+            "onesided": self.onesided,
+        }
+
+        self.log_base = log_base
+        if self.log_base is None:
+            self.log = paddle.log
+        elif self.log_base == 2.0:
+            self.log = paddle.log2
+        elif self.log_base == 10.0:
+            self.log = paddle.log10
+        else:
+            raise ValueError(f"log_base: {log_base} is not supported.")
+
+    def forward(self, x):
+        """Calculate Mel-spectrogram.
+        Parameters
+        ----------
+        x : Tensor
+            Input waveform tensor (B, T) or (B, 1, T).
+        Returns
+        ----------
+        Tensor
+            Mel-spectrogram (B, #mels, #frames).
+        """
+        if len(x.shape) == 3:
+            # (B, C, T) -> (B*C, T)
+            x = x.reshape([-1, paddle.shape(x)[2]])
+
+        if self.window is not None:
+            # calculate window
+            window = signal.get_window(
+                self.window, self.win_length, fftbins=True)
+            window = paddle.to_tensor(window)
+        else:
+            window = None
+
+        x_stft = paddle.signal.stft(x, window=window, **self.stft_params)
+        real = x_stft.real()
+        imag = x_stft.imag()
+        # (B, #freqs, #frames) -> (B, $frames, #freqs)
+        real = real.transpose([0, 2, 1])
+        imag = imag.transpose([0, 2, 1])
+        x_power = real**2 + imag**2
+        x_amp = paddle.sqrt(paddle.clip(x_power, min=self.eps))
+        x_mel = paddle.matmul(x_amp, self.melmat)
+        x_mel = paddle.clip(x_mel, min=self.eps)
+
+        return self.log(x_mel).transpose([0, 2, 1])
+
+
+class MelSpectrogramLoss(nn.Layer):
+    """Mel-spectrogram loss."""
+
+    def __init__(
+            self,
+            fs=22050,
+            fft_size=1024,
+            hop_size=256,
+            win_length=None,
+            window="hann",
+            num_mels=80,
+            fmin=80,
+            fmax=7600,
+            center=True,
+            normalized=False,
+            onesided=True,
+            eps=1e-10,
+            log_base=10.0, ):
+        """Initialize Mel-spectrogram loss."""
+        super().__init__()
+        self.mel_spectrogram = MelSpectrogram(
+            fs=fs,
+            fft_size=fft_size,
+            hop_size=hop_size,
+            win_length=win_length,
+            window=window,
+            num_mels=num_mels,
+            fmin=fmin,
+            fmax=fmax,
+            center=center,
+            normalized=normalized,
+            onesided=onesided,
+            eps=eps,
+            log_base=log_base, )
+
+    def forward(self, y_hat, y):
+        """Calculate Mel-spectrogram loss.
+        Parameters
+        ----------
+        y_hat : Tensor
+            Generated single tensor (B, 1, T).
+        y : Tensor
+            Groundtruth single tensor (B, 1, T).
+        Returns
+        ----------
+        Tensor
+            Mel-spectrogram loss value.
+        """
+        mel_hat = self.mel_spectrogram(y_hat)
+        mel = self.mel_spectrogram(y)
+        mel_loss = F.l1_loss(mel_hat, mel)
+
+        return mel_loss
+
+
+class FeatureMatchLoss(nn.Layer):
+    """Feature matching loss module."""
+
+    def __init__(
+            self,
+            average_by_layers=True,
+            average_by_discriminators=True,
+            include_final_outputs=False, ):
+        """Initialize FeatureMatchLoss module."""
+        super().__init__()
+        self.average_by_layers = average_by_layers
+        self.average_by_discriminators = average_by_discriminators
+        self.include_final_outputs = include_final_outputs
+
+    def forward(self, feats_hat, feats):
+        """Calcualate feature matching loss.
+        Parameters
+        ----------
+        feats_hat : list
+            List of list of discriminator outputs
+            calcuated from generater outputs.
+        feats : list
+            List of list of discriminator outputs
+            calcuated from groundtruth.
+        Returns
+        ----------
+        Tensor
+            Feature matching loss value.
+
+        """
+        feat_match_loss = 0.0
+        for i, (feats_hat_, feats_) in enumerate(zip(feats_hat, feats)):
+            feat_match_loss_ = 0.0
+            if not self.include_final_outputs:
+                feats_hat_ = feats_hat_[:-1]
+                feats_ = feats_[:-1]
+            for j, (feat_hat_, feat_) in enumerate(zip(feats_hat_, feats_)):
+                feat_match_loss_ += F.l1_loss(feat_hat_, feat_.detach())
+            if self.average_by_layers:
+                feat_match_loss_ /= j + 1
+            feat_match_loss += feat_match_loss_
+        if self.average_by_discriminators:
+            feat_match_loss /= i + 1
+
+        return feat_match_loss

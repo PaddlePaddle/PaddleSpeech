@@ -17,7 +17,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -45,7 +45,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${input_mel_path} ${train_out
 
 Synthesize waveform.
 1. We assume the `--input` is a directory containing several mel spectrograms(log magnitude) in `.npy` format.
-2. The output would be saved in `--output` directory, containing several `.wav` files, each with the same name as the mel spectrogram does.
+2. The output would be saved in the `--output` directory, containing several `.wav` files, each with the same name as the mel spectrogram does.
 3. `--checkpoint_path` should be the path of the parameter file (`.pdparams`) to load. Note that the extention name `.pdparmas` is not included here.
 6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 

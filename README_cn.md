@@ -399,7 +399,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*�
 ## 引用
 
 要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
-```tex
+```text
 @misc{ppspeech2021,
 title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
 author={PaddlePaddle Authors},

@@ -324,7 +324,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*�
       </td>
     </tr>                                                                                                                                           
     <tr>
-      <td rowspan="3">Voice Cloning</td>
+      <td rowspan="3">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>

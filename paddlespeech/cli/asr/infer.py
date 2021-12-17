@@ -105,7 +105,7 @@ class ASRExecutor(BaseExecutor):
             '--yes','-y',
             action="store_true",
             default=False,
-            help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, whicn includes transforming the audio sample rate')
+            help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate')
         self.parser.add_argument(
             '--device',
             type=str,

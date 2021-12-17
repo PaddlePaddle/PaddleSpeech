@@ -188,7 +188,7 @@ If you want to try more functions like training and tuning, please have a look a
 
 PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
 
-**Speech-to-Text** contains *Acoustic Model* and *Language Model*, with the following details:
+**Speech-to-Text** contains *Acoustic Model*, *Language Model*, and *Speech Translation*, with the following details:
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).

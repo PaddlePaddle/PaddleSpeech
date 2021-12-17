@@ -363,7 +363,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*�
   
 
   <tr>
-      <td>Audio Classification</td>
+      <td>声音分类</td>
       <td>ESC-50</td>
       <td>PANN</td>
       <td>

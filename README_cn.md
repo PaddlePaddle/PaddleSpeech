@@ -354,7 +354,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*�
   <thead>
     <tr>
       <th> <img width="150" height="1">任务 <img width="150" height="1"></th>
-      <th> <img width="110" height="1">数据集 <img width="110" height="1"></th>
+      <th> 数据集 </th>
       <th> 模型种类 </th>
       <th> 链接</th>
     </tr>

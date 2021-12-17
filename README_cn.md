@@ -1,19 +1,16 @@
-([简体中文](./README_cn.md)|English)
-
+ (简体中文|[English](./README.md))
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
 <div align="center">  
 
   <h3>
-  <a href="#quick-start"> Quick Start </a>
-  | <a href="#tutorials"> Tutorials </a>
-  | <a href="#model-list"> Models List </a>
+  <a href="#quick-start"> 快速开始 </a>
+  | <a href="#documents"> 教程 </a>
+  | <a href="#model-list"> 模型列表 </a>
 </div>
 
 ------------------------------------------------------------------------------------
-
-
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
     <a href="support os"><img src="https://img.shields.io/badge/os-linux-yellow.svg"></a>
@@ -33,17 +30,15 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 4.What is the goal of this project?
 -->
 
-
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
-
-##### Speech Recognition
+**PaddleSpeech** 是基于飞桨 [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) 深度学习开源框架平台上的一个开源模型库，用于语音和音频中的各种关键任务的开发，包含大量前沿和有影响力的模型，一些典型的应用示例如下：
+##### 语音识别
 
 <div align = "center">
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Input Audio  </th>
-      <th width="550"> Recognition Result  </th>
+      <th> 输入音频  </th>
+      <th width="550"> 识别结果  </th>
     </tr>
   </thead>
   <tbody>
@@ -67,14 +62,14 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-##### Speech Translation (English to Chinese)
+##### 语音翻译 (英译中)
 
 <div align = "center">
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Input Audio  </th>
-      <th width="550"> Translations Result  </th>
+      <th> 输入音频  </th>
+      <th width="550"> 翻译结果  </th>
     </tr>
   </thead>
   <tbody>
@@ -90,13 +85,13 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-##### Text-to-Speech
+##### 文本转语音
 <div align = "center">
 <table style="width:100%">
   <thead>
     <tr>
-      <th><img width="200" height="1"> Input Text <img width="200" height="1"> </th>
-      <th>Synthetic Audio</th>
+      <th><img width="200" height="1"> 输入文本 <img width="200" height="1"> </th>
+      <th>合成音频</th>
     </tr>
   </thead>
   <tbody>
@@ -119,76 +114,70 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
+更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
 
-### Features:
+### 特性:
 
-Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
-- 📦  **Ease of Use**: low barriers to install, and [CLI](#quick-start) is available to quick-start your journey.
-- 🏆  **Align to the State-of-the-Art**: we provide high-speed and ultra-lightweight models, and also cutting-edge technology. 
-- 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
-- **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Audio Classification, Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, etc.
-  - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
-  - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
+本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
+- 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
+- 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
+- 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
+- **多种工业界以及学术界主流功能支持**:
+  - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成等任务的实现。
+  - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
+  - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
-
-### Recent Update:
+### 近期更新:
 
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos on Hugging Face Spaces are available!
-- 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
+- 🤗 2021.12.14: 我们在 Hugging Face Spaces 上的 [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) 以及 [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos 上线啦!
+- 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
 
-### Communication
-If you are in China, we recommend you to join our WeChat group to contact directly with our team members!
+### 交流
+欢迎加入以下微信群，直接和 PaddleSpeech 团队成员进行交流！
 
 <div align="center">
-<img src="./docs/images/wechat_group.png"  width = "400"  />
+<img src="./docs/images/wechat_group.png"  width = "200"  />
 
 </div>
 
-## Installation
+## 安装
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*, where `paddlespeech`  can be easily installed with `pip`:
+我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。这种情况下安装 `paddlespeech` 只需要一条 `pip` 命令:
 ```python
 pip install paddlepaddle paddlespeech
 ```
-Up to now, **Mac OSX** supports CLI for the all our tasks, Windows only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+目前为止，对于 **Mac OSX、 LiNUX** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Windows** 下暂不支持语音翻译功能。 想了解更多安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
 
-## Quick Start
+## 快速开始
 
-Developers can have a try of our models with [PaddleSpeech Command Line](./demos/README.md). Change `--input` to test your own audio/text.
+安装完成后，开发者可以通过命令行快速开始，改变 `--input` 可以尝试用自己的音频或文本测试。
 
-**Audio Classification**     
+**声音分类**     
 ```shell
 paddlespeech cls --input input.wav
 ```
-**Automatic Speech Recognition**
+**语音识别**
 ```shell
 paddlespeech asr --lang zh --input input_16k.wav
 ```
-**Speech Translation** (English to Chinese)
-
-(not support for Windows now)
+**语音翻译** (English to Chinese)
 ```shell
 paddlespeech st --input input_16k.wav
 ```
-**Text-to-Speech** 
+**语音合成** 
 ```shell
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
-- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
+> Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
 
-  
-If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+## 模型列表
 
-## Model List
+PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
-PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
-
-**Speech-to-Text** contains *Acoustic Model* and *Language Model*, with the following details:
+PaddleSpeech 的**语音转文本** 包含声学模型、语言模型和语音翻译, 详情如下：
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
@@ -197,15 +186,15 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 <table style="width:100%">
   <thead>
     <tr>
-      <th>Speech-to-Text Module Type</th>
-      <th>Dataset</th>
-      <th>Model Type</th>
-      <th>Link</th>
+      <th>语音转文本模块种类</th>
+      <th>数据集</th>
+      <th>模型种类</th>
+      <th>链接</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">Speech Recogination</td>
+      <td rowspan="3">语音识别</td>
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
@@ -213,21 +202,21 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>
     <tr>
-      <td>Transformer based Attention Models </td>
+      <td>基于Transformer的Attention模型 </td>
       <td>
       <a href = "./examples/aishell/asr1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
       <tr>
       <td> Librispeech</td>
-      <td>Transformer based Attention Models </td>
+      <td>基于Transformer的Attention模型 </td>
       <td>
       <a href = "./examples/librispeech/asr0">deepspeech2-librispeech</a> / <a href = "./examples/librispeech/asr1">transformer.conformer.u2-librispeech</a>  / <a href = "./examples/librispeech/asr2">transformer.conformer.u2-kaldi-librispeech</a>
       </td>
       </td>
     </tr>
   <tr>
-  <td>Alignment</td>
+  <td>对齐</td>
   <td>THCHS30</td>
   <td>MFA</td>
   <td>
@@ -235,8 +224,8 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </td>
   </tr>
    <tr>
-      <td rowspan="2">Language Model</td>
-      <td colspan = "2">Ngram Language Model</td>
+      <td rowspan="2">语言模型</td>
+      <td colspan = "2">Ngram 语言模型</td>
       <td>
       <a href = "./examples/other/ngram_lm">kenlm</a>
       </td>
@@ -249,7 +238,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>
     <tr>
-      <td rowspan="2">Speech Translation (English to Chinese)</td> 
+      <td rowspan="2">语音翻译（英译中）</td> 
       <td rowspan="2">TED En-Zh</td>
       <td>Transformer + ASR MTL</td>
       <td>
@@ -265,27 +254,27 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-**Text-to-Speech** in PaddleSpeech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
+PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*声学模型* 和 *声码器*。声学模型和声码器模型如下：
 
 <table>
   <thead>
     <tr>
-      <th> Text-to-Speech Module Type </th>
-      <th> Model Type </th>
-      <th> Dataset </th>
-      <th> Link </th>
+      <th> 语音合成模块类型 </th>
+      <th>  模型种类  </th>
+      <th> <img width="50" height="1"> 数据集  <img width="50" height="1"> </th>
+      <th> <img width="101" height="1"> 链接 <img width="105" height="1"> </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-    <td> Text Frontend </td>
+    <td> 文本前端</td>
     <td colspan="2"> &emsp; </td>
     <td>
     <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
     </td>
     </tr>
     <tr>
-      <td rowspan="4">Acoustic Model</td>
+      <td rowspan="4">声学模型</td>
       <td >Tacotron2</td>
       <td rowspan="2" >LJSpeech</td>
       <td>
@@ -313,7 +302,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>
    <tr>
-      <td rowspan="3">Vocoder</td>
+      <td rowspan="3">声码器</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -335,7 +324,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
       </td>
     </tr>                                                                                                                                           
     <tr>
-      <td rowspan="3">Voice Cloning</td>
+      <td rowspan="3">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
@@ -359,21 +348,22 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-**Audio Classification**
+**声音分类**
 
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Task </th>
-      <th> Dataset </th>
-      <th> Model Type </th>
-      <th> Link </th>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型种类 </th>
+      <th> 链接</th>
     </tr>
   </thead>
   <tbody>
   
+
   <tr>
-      <td>Audio Classification</td>
+      <td>声音分类</td>
       <td>ESC-50</td>
       <td>PANN</td>
       <td>
@@ -383,32 +373,33 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-## Documents
+## 文档
 
-Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
+[语音 SoTA](https://paperswithcode.com/area/speech)、[声音 SoTA](https://paperswithcode.com/area/audio)、[音乐 SoTA](https://paperswithcode.com/area/music) 概述了相关领域的热门学术话题。对于 PaddleSpeech 的所关注的任务，以下指南有助于掌握核心思想。
 
-- [Installation](./docs/source/install.md)
-- Tutorials
-  - [Automatic Speech Recognition](./docs/source/asr/quick_start.md)
-    - [Introduction](./docs/source/asr/models_introduction.md)
-    - [Data Preparation](./docs/source/asr/data_preparation.md)
-    - [Data Augmentation](./docs/source/asr/augmentation.md)
-    - [Ngram LM](./docs/source/asr/ngram_lm.md)
-  - [Text-to-Speech](./docs/source/tts/quick_start.md)
-    - [Introduction](./docs/source/tts/models_introduction.md)
-    - [Advanced Usage](./docs/source/tts/advanced_usage.md)
-    - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
-    - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
-  - Audio Classification
-  - Speech Translation
-- [Released Models](./docs/source/released_model.md)
+- [安装](./docs/source/install.md)
+- 教程
+  - [语音识别](./docs/source/asr/quick_start.md)
+    - [简介](./docs/source/asr/models_introduction.md)
+    - [数据准备](./docs/source/asr/data_preparation.md)
+    - [数据增强](./docs/source/asr/augmentation.md)
+    - [Ngram 语言模型](./docs/source/asr/ngram_lm.md)
+  - [语音合成](./docs/source/tts/quick_start.md)
+    - [简介](./docs/source/tts/models_introduction.md)
+    - [进阶用法](./docs/source/tts/advanced_usage.md)
+    - [中文文本前端](./docs/source/tts/zh_text_frontend.md)
+    - [音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
+  - 声音分类
+  - 语音翻译
+- [模型](./docs/source/released_model.md)
 
-The Text-to-Speech module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with this repository. If you are interested in academic research about this task, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
 
-## Citation
+语音合成模块最初被称为 [Parakeet](https://github.com/PaddlePaddle/Parakeet)，现在与此仓库合并。如果您对该任务的学术研究感兴趣，请参阅 [TTS 研究概述](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview)。此外，[模型介绍](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) 是了解语音合成流程的一个很好的指南。
 
-To cite PaddleSpeech for research, please use the following format.
-```tex
+## 引用
+
+要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
+```text
 @misc{ppspeech2021,
 title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
 author={PaddlePaddle Authors},
@@ -417,11 +408,12 @@ year={2021}
 }
 ```
 
-## Contribute to PaddleSpeech
+## 参与 PaddleSpeech 的开发
 
-You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you are willing to contribute to this project!
 
-### Contributors
+热烈欢迎您在[Discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) 中提交问题，并在[Issues](https://github.com/PaddlePaddle/PaddleSpeech/issues) 中指出发现的 bug。此外，我们非常希望您参与到 PaddleSpeech 的开发中！
+
+### 贡献者
 <p align="center">
 <a href="https://github.com/zh794390558"><img src="https://avatars.githubusercontent.com/u/3038472?v=4" width=75 height=75></a>
 <a href="https://github.com/Jackwaterveg"><img src="https://avatars.githubusercontent.com/u/87408988?v=4" width=75 height=75></a>
@@ -458,13 +450,13 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 <a href="https://github.com/limpidezza"><img src="https://avatars.githubusercontent.com/u/71760778?v=4" width=75 height=75></a>
 </p>
 
-## Acknowledgement
+## 致谢
 
-- Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling) for years of attention, constructive advice and great help.
-- Many thanks to [AK391](https://github.com/AK391) for TTS web demo on Huggingface Spaces using Gradio.
+- 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling) 多年来的关注和建议，以及在诸多问题上的帮助。
+- 非常感谢 [AK391](https://github.com/AK391) 在 Huggingface Spaces 上使用 Gradio 对我们的语音合成功能进行网页版演示。
 
-Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
+此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 
 ## License
 
-PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
+PaddleSpeech 在 [Apache-2.0 许可](./LICENSE) 下提供。

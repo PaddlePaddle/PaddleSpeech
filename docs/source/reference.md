@@ -1,6 +1,6 @@
 # Reference
 
-We borrowed a lot of code from these repos to build `model` and `engine`, thanks for these great works and opensource community!
+We borrowed a lot of code from these repos to build `model` and `engine`, thanks for these great works and the open-source community!
 
 * [espnet](https://github.com/espnet/espnet/blob/master/LICENSE)
 - Apache-2.0 License
@@ -30,7 +30,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 
 * [chainer](https://github.com/chainer/chainer/blob/master/LICENSE)
 - MIT License
-- Updater, Trainer and some utils.
+- Updater, Trainer, and some utils.
 
 * [librosa](https://github.com/librosa/librosa/blob/main/LICENSE.md)
 - ISC License

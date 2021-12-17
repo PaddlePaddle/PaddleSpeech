@@ -4,7 +4,7 @@
 ## Introduction
 Text-to-speech (TTS) is a natural language modeling process that requires changing units of text into units of speech for audio presentation. 
 
-This demo is an implementation to generate an audio from the giving text. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to generate audio from the given text. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -13,7 +13,7 @@ pip install paddlespeech
 ```
 
 ### 2. Prepare Input
-Input of this demo should be a text of the specific language that can be passed via argument.
+The input of this demo should be a text of the specific language that can be passed via argument.
 ### 3. Usage
 - Command Line (Recommended)
     - Chinese
@@ -22,11 +22,11 @@ Input of this demo should be a text of the specific language that can be passed 
         ```bash
         paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
         ```
-    - Chinese, use `SpeedySpeech` as acoustic model
+    - Chinese, use `SpeedySpeech` as the acoustic model
         ```bash
         paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
         ```
-    - Chinese, multi speaker
+    - Chinese, multi-speaker
     
         You can change `spk_id` here.
         ```bash
@@ -37,7 +37,7 @@ Input of this demo should be a text of the specific language that can be passed 
         ```bash
         paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "hello world"
         ```
-    - English, multi speaker
+    - English, multi-speaker
     
         You can change `spk_id` here.
         ```bash
@@ -104,7 +104,7 @@ Input of this demo should be a text of the specific language that can be passed 
 
 ### 4. Pretrained Models
 
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
 - Acoustic model
   | Model | Language

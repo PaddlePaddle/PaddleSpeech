@@ -1,24 +1,25 @@
+
 # Advanced Usage
-This sections covers how to extend TTS by implementing your own models and experiments. Guidelines on implementation are also elaborated.
+This section covers how to extend TTS by implementing your models and experiments. Guidelines on implementation are also elaborated.
 
 For the general deep learning experiment, there are several parts to deal with:
 1. Preprocess the data according to the needs of the model, and iterate the dataset by batch.
-2. Define the model, optimizer and other components.
+2. Define the model, optimizer, and other components.
 3. Write out the training process (generally including forward / backward calculation, parameter update, log recording, visualization, periodic evaluation, etc.).
 5. Configure and run the experiment.
 
 ## PaddleSpeech TTS's Model Components
-In order to balance the reusability and function of models, we divide models into several types according to its characteristics.
+To balance the reusability and function of models, we divide models into several types according to their characteristics.
 
 For the commonly used modules that can be used as part of other larger models, we try to implement them as simple and universal as possible, because they will be reused. Modules with trainable parameters are generally implemented as subclasses of `paddle.nn.Layer`. Modules without trainable parameters can be directly implemented as a function, and its input and output are `paddle.Tensor`.
 
-Models for a specific task  are implemented as subclasses of `paddle.nn.Layer`. Models could be simple, like a single layer RNN. For complicated models, it is recommended to split the model into different components.
+Models for a specific task are implemented as subclasses of `paddle.nn.Layer`. Models could be simple, like a single-layer RNN. For complicated models, it is recommended to split the model into different components.
 
 For a seq-to-seq model, it's natural to split it into encoder and decoder. For a model composed of several similar layers, it's natural to extract the sublayer as a separate layer.
 
 There are two common ways to define a model which consists of several modules.
 
-1. Define a module given the specifications. Here is an example with multilayer perceptron.
+1. Define a module given the specifications. Here is an example with a multilayer perceptron.
     ```python
     class MLP(nn.Layer):
         def __init__(self, input_size, hidden_size, output_size):
@@ -44,11 +45,11 @@ There are two common ways to define a model which consists of several modules.
     ```
     For a module defined in this way, it’s harder for the user to initialize an instance. Users have to read the code to check what attributes are used.
 
-    Also, code in this style tend to be abused by passing a huge config object to initialize every module used in an experiment, thought each module may not need the whole configuration.
+    Also, code in this style tends to be abused by passing a huge config object to initialize every module used in an experiment, though each module may not need the whole configuration.
 
     We prefer to be explicit.
 
-2. Define a module as a combination given its components. Here is an example for a sequence-to-sequence model.
+2. Define a module as a combination given its components. Here is an example of a sequence-to-sequence model.
     ```python
     class Seq2Seq(nn.Layer):
         def __init__(self, encoder, decoder):
@@ -65,27 +66,27 @@ There are two common ways to define a model which consists of several modules.
     # compose two components
     model = Seq2Seq(encoder, decoder)
     ```
-    When a model is a complicated and made up of several components, each of which has a separate functionality, and can be replaced by other components with the same functionality, we prefer to define it in this way.
+    When a model is complicated and made up of several components, each of which has a separate functionality, and can be replaced by other components with the same functionality, we prefer to define it in this way.
 
-In the directory structure of PaddleSpeech TTS, modules with high reusability are placed in `paddlespeech.t2s.modules`, but models for specific tasks are placed in `paddlespeech.t2s.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules, and place them in appropriate directories.
+In the directory structure of PaddleSpeech TTS, modules with high reusability are placed in `paddlespeech.t2s.modules`, but models for specific tasks are placed in `paddlespeech.t2s.models`. When developing a new model, developers need to consider the feasibility of splitting the modules, and the degree of generality of the modules and place them in appropriate directories.
 
 ## PaddleSpeech TTS's Data Components
-Another critical componnet for a deep learning project is data.
+Another critical component for a deep learning project is data.
 PaddleSpeech TTS uses the following methods for training data:
 1. Preprocess the data.
 2. Load the preprocessed data for training.
 
-Previously, we wrote the preprocessing in the `__getitem__` of the Dataset, which will process when accessing a certain batch samples, but encountered some problems:
+Previously, we wrote the preprocessing in the `__getitem__` of the Dataset, which will process when accessing a certain batch sample, but encountered some problems:
 
-1.  Efficiency problem. Even if Paddle has a design to load data asynchronously, when the batch size is large, each sample needs to be preprocessed and set up batches, which takes a lot of time , and  may even seriously slow down the training process.
-2. Data filtering problem. Some filtering conditions depend on the features of the processed sample. For example, filtering samples that are too short according to text length. If the text  length can only be known after `__getitem__`,  every time you filter, the entire dataset needed to be loaded once!  In addition, if you do not pre-filter, A small exception (such as too short text ) in  `__getitem__` will cause an exception in the entire data flow, which is not feasible, because `collate_fn `  presupposes that the acquisition of each sample can be normal. Even if  some special flags, such as `None`, are used to mark data acquisition failures, and skip `collate_fn`, it will change batch_size .
+1.  Efficiency problem. Even if Paddle has a design to load data asynchronously, when the batch size is large, each sample needs to be preprocessed and set up batches, which takes a lot of time, and may even seriously slow down the training process.
+2. Data filtering problem. Some filtering conditions depend on the features of the processed sample. For example, filtering samples that are too short according to text length. If the text length can only be known after `__getitem__`,  every time you filter, the entire dataset needed to be loaded once!  In addition, if you do not pre-filter, A small exception (such as too short text ) in  `__getitem__` will cause an exception in the entire data flow, which is not feasible, because `collate_fn `  presupposes that the acquisition of each sample can be normal. Even if some special flags, such as `None`, are used to mark data acquisition failures, and skip `collate_fn`, it will change batch_size.
 
 Therefore, it is not realistic to put preprocessing entirely on `__getitem__`. We use the method mentioned above instead.
-During preprocessing, we can do filtering, We can also save more intermediate features, such as text length, audio length, etc., which can be used for subsequent filtering. Because of the habit of TTS field, data is  stored in multiple files, and the processed results are stored in `npy` format.
+During preprocessing, we can do filtering, We can also save more intermediate features, such as text length, audio length, etc., which can be used for subsequent filtering. Because of the habit of TTS field, data is stored in multiple files, and the processed results are stored in `npy` format.
 
 Use a list-like way to store metadata and store the file path in it, so that you can not be restricted by the specific storage location of the file. In addition to the file path, other metadata can also be stored in it. For example, the path of the text, the path of the audio, the path of the spectrum, the number of frames, the number of sampling points, and so on.
 
-Then for the path, there are multiple opening methods,  such as `sf.read`, `np.load`, etc., so it's best to use a parameter that can be input, we don't even want to determine the reading method by it's extension, it's best to let the users input it , in this way, users can define their own method to parse the data.
+Then for the path, there are multiple opening methods,  such as `sf.read`, `np.load`, etc., so it's best to use a parameter that can be input, we don't even want to determine the reading method by its extension, it's best to let the users input it, in this way, users can define their method to parse the data.
 
 So we learned from the design of `DataFrame`, but our construction method is simpler, only need a `list of dicts`, a dict represents a record, and it's convenient to interact with formats such as `json`, `yaml`. For each selected field, we need to give a parser (called `converter` in the interface), and that's it.
 
@@ -109,7 +110,7 @@ class DataTable(Dataset):
     converters : Dict[str, Callable], optional
         Converters used to process each field, by default None
     use_cache : bool, optional
-        Whether to use cache, by default False
+        Whether to use a cache, by default False
 
     Raises
     ------
@@ -125,11 +126,11 @@ class DataTable(Dataset):
                  converters: Dict[str, Callable]=None,
                  use_cache: bool=False):
 ```
-It's `__getitem__` method is to parse each field with their own parser, and then compose a dictionary to return.
+Its `__getitem__` method is to parse each field with their parser and then compose a dictionary to return.
 ```python
 def _convert(self, meta_datum: Dict[str, Any]) -> Dict[str, Any]:
     """Convert a meta datum to an example by applying the corresponding
-    converters to each fields requested.
+    converters to each field requested.
 
     Parameters
     ----------
@@ -163,23 +164,23 @@ A typical training process includes the following processes:
 6. Write logs, visualize, and in some cases save necessary intermediate results.
 7. Save the state of the model and optimizer.
 
-Here, we mainly introduce the training related components of TTS in Pa and why we designed it like this.
-### Global Repoter
-When training and modifying Deep Learning models，logging is often needed, and it has even become the key to model debugging and modifying. We usually use various visualization tools，such as ,  `visualdl` in `paddle`, `tensorboard` in `tensorflow`  and `vidsom`, `wnb` ,etc. Besides, `logging` and `print` are usuaally used for different purpose.
+Here, we mainly introduce the training-related components of TTS in Pa and why we designed it like this.
+### Global Reporter
+When training and modifying Deep Learning models，logging is often needed, and it has even become the key to model debugging and modifying. We usually use various visualization tools，such as ,  `visualdl` in `paddle`, `tensorboard` in `tensorflow`  and `vidsom`, `wnb` ,etc. Besides, `logging` and `print` are usually used for a different purpose.
 
-In these tools, `print` is the simplest，it doesn't have the concept of  `logger` and `handler` in `logging` 、 `summarywriter`  and `logdir` in `tensorboard`, when printing, there is no need for `global_step` ，It's light enough to appear anywhere in the code, and it's printed to a common stdout. Of course, its customizability is  limited, for example, it is no longer intuitive when printing dictionaries or more complex objects. And it's fleeting, people need to use redirection to save information.
+In these tools, `print` is the simplest，it doesn't have the concept of  `logger` and `handler` in `logging` 、 `summarywriter`  and `logdir` in `tensorboard`, when printing, there is no need for `global_step` ，It's light enough to appear anywhere in the code, and it's printed to a common stdout. Of course, its customizability is limited, for example, it is no longer intuitive when printing dictionaries or more complex objects. And it's fleeting, people need to use redirection to save information.
 
-For TTS models development，we hope to have a more universal multimedia stdout, which is actually a tool similar to `tensorboard`, which allows many multimedia forms, but it needs a `summary writer` when using, and a `step` when writing information. If the data are images or voices,  some format control parameters are needed.
+For TTS models development，we hope to have a more universal multimedia stdout, which is a tool similar to `tensorboard`, which allows many multimedia forms, but it needs a `summary writer` when using, and a `step` when writing information. If the data are images or voices,  some format control parameters are needed.
 
-This will destroy the modular design to a certain extent. For example, If my model is composed of multiple sublayers, and I want to record some important information in the forward method of some sublayers. For this reason, I may need to pass the `summary writer` to this sublayers, but for the sublayers, its function is calculation, it should not have extra considerations, and it's also difficult for us to tolerate that the initialization of an `nn.Linear` has an optional `visualizer` in the method. And, for a calculation module, **HOW** can it know the global step? These are things related to the training process!
+This will destroy the modular design to a certain extent. For example, If my model is composed of multiple sublayers, and I want to record some important information in the forward method of some sublayers. For this reason, I may need to pass the `summary writer` to these sublayers, but for the sublayers, its function is the calculation, it should not have extra considerations, and it's also difficult for us to tolerate that the initialization of an `nn.Linear` has an optional `visualizer` in the method. And, for a calculation module, **HOW** can it know the global step? These are things related to the training process!
 
 Therefore, a more common approach is not to put writing_log_code in the definition of layer, but return it, then obtain them during training, and write them to `summary writer`.  However, the return values need to be modified.  `summary writer ` is a broadcaster at the training level, and then each module transmits information to it by modifying the return values.
 
-We think this method is a little ugly. We prefer to return the necessary information only rather than change the return values to accommodate visualization and recording.  When you need to report some information, you should be able to report it without difficult. So we imitate the design of `chainer` and use the `global repoter`.
+We think this method is a little ugly. We prefer to return the necessary information only rather than change the return values to accommodate visualization and recording.  When you need to report some information, you should be able to report it without difficulty. So we imitate the design of `chainer` and use the `global repoter`.
 
-It takes advantage of the globality of Python's module level variables and the effect of context manager.
+It takes advantage of the globality of Python's module-level variables and the effect of context manager.
 
-There is a module level variable in  `paddlespeech/t2s/training/reporter.py`  `OBSERVATIONS`，which is  a `Dict` to store key-value.
+There is a module-level variable in  `paddlespeech/t2s/training/reporter.py`  `OBSERVATIONS`，which is a `Dict` to store key-value.
 ```python
 # paddlespeech/t2s/training/reporter.py
 
@@ -242,7 +243,7 @@ def test_reporter_scope():
     assert third == {'third_begin': 3, 'third_end': 4}
 ```
 
-In this way, when we write  modular components, we can directly call `report`.  The caller will decide where to report as long as it's ready for `OBSERVATION`, then it opens a `scope` and calls the component within this `scope`.
+In this way, when we write modular components, we can directly call `report`.  The caller will decide where to report as long as it's ready for `OBSERVATION`, then it opens a `scope` and calls the component within this `scope`.
 
  The `Trainer` in PaddleSpeech TTS report the information in this way.
 ```python
@@ -257,11 +258,11 @@ while True:
 ```
 ### Updater: Model Training Process
 
-In order to maintain the purity of function and the reusability of code, we abstract the model code into a subclass of  `paddle.nn.Layer`, and write the core computing functions in it.
+To maintain the purity of function and the reusability of code, we abstract the model code into a subclass of  `paddle.nn.Layer`, and write the core computing functions in it.
 
 We tend to write the forward process of training in `forward()`, but only write to the prediction result, not to the loss. Therefore, this module can be called by a larger module.
 
-However, when we compose an experiment, we need to add some other things, such as training process, evaluation process, checkpoint saving, visualization and the like. In this process, we will encounter some things that only exist in the training process, such as `optimizer`, `learning rate scheduler`, `visualizer`, etc. These things are not part of the model, they should **NOT** be written in the model code.
+However, when we compose an experiment, we need to add some other things, such as the training process, evaluation process, checkpoint saving, visualization, and the like. In this process, we will encounter some things that only exist in the training process, such as `optimizer`, `learning rate scheduler`, `visualizer`, etc. These things are not part of the model, they should **NOT** be written in the model code.
 
 We made an abstraction for these intermediate processes, that is, `Updater`, which takes the `model`, `optimizer`, and `data stream` as input, and its function is training. Since there may be differences in training methods of different models, we tend to write a corresponding `Updater` for each model. But this is different from the final training script, there is still a certain degree of encapsulation, just to extract the details of regular saving, visualization, evaluation, etc., and only retain the most basic function, that is,  training the model.
 
@@ -273,23 +274,23 @@ Deep learning experiments often have many options to configure. These configurat
 1. Data source and data processing mode configuration.
 2. Save path configuration of experimental results.
 3. Data preprocessing mode configuration.
-4. Model structure and hyperparameterconfiguration.
+4. Model structure and hyperparameter configuration.
 5. Training process configuration.
 
 It’s common to change the running configuration to compare results. To keep track of running configuration, we use `yaml` configuration files.
 
-Also, we want to interact with command line options. Some options that usually change according to running environments is provided by command line arguments. In addition, we want to override an option in the config file without editing it.
+Also, we want to interact with command-line options. Some options that usually change according to running environments are provided by command line arguments. In addition, we want to override an option in the config file without editing it.
 
-Taking these requirements in to consideration, we use [yacs](https://github.com/rbgirshick/yacs) as a config management tool. Other tools like [omegaconf](https://github.com/omry/omegaconf) are also powerful and have similar functions.
+Taking these requirements into consideration, we use [yacs](https://github.com/rbgirshick/yacs) as a config management tool. Other tools like [omegaconf](https://github.com/omry/omegaconf) are also powerful and have similar functions.
 
-In each example provided, there is a `config.py`,  the default config is defined at `conf/default.yaml`. If you want to get the default config, import `config.py` and call `get_cfg_defaults()` to get it. Then it can be updated with `yaml` config file or command line arguments if needed.
+In each example provided, there is a `config.py`,  the default config is defined at `conf/default.yaml`. If you want to get the default config, import `config.py` and call `get_cfg_defaults()` to get it. Then it can be updated with `yaml` config file or command-line arguments if needed.
 
 For details about how to use yacs in experiments, see [yacs](https://github.com/rbgirshick/yacs).
 
 The following is the basic  `ArgumentParser`:
 1. `--config`  is used to support configuration file parsing, and the configuration file itself handles the unique options of each experiment.
 2. `--train-metadata` is the path to the training data.
-3.  `--output-dir` is the dir to save the training results.（if there are checkpoints in  `checkpoints/` of  `--output-dir` , it's defalut to reload the newest checkpoint to train)
+3.  `--output-dir` is the dir to save the training results.（if there are checkpoints in  `checkpoints/` of  `--output-dir` , it defaults to reload the newest checkpoint to train)
 4. `--ngpu` determine operation modes，`--ngpu` refers to the number of training processes. If `ngpu` > 0, it means using GPU, else CPU is used.
 
 Developers can refer to the examples in `examples` to write the default configuration file when adding new experiments.
@@ -313,13 +314,13 @@ The experimental codes in PaddleSpeech TTS are generally organized as follows:
 ```
 The `*.py` files called by above `*.sh` are located `${BIN_DIR}/`
 
-We add a named argument. `--output-dir` to each training script to specify the output directory. The directory structure is as follows, It's best for developers to follow this specification:
+We add a named argument. `--output-dir` to each training script to specify the output directory. The directory structure is as follows, developers should follow this specification:
 ```text
 exp/default/
 ├── checkpoints/
 │   ├── records.jsonl        (record file)
 │   └── snapshot_iter_*.pdz  (checkpoint files)
-├── config.yaml              (config fille of this experiment)
+├── config.yaml              (config file of this experiment)
 ├── vdlrecords.*.log         (visualdl record file)
 ├── worker_*.log             (text logging, one file per process)
 ├── validation/              (output dir during training, information_iter_*/ is the output of each step, if necessary)
@@ -327,4 +328,4 @@ exp/default/
 └── test/                    (output dir of synthesis results)
 ```
 
-You can view the examples we provide in `examples`. These experiments are provided to users as examples which can be run directly. Users are welcome to add new models and experiments and contribute code to PaddleSpeech.
+You can view the examples we provide in `examples`. These experiments are provided to users as examples that can be run directly. Users are welcome to add new models and experiments and contribute code to PaddleSpeech.

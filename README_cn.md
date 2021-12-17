@@ -145,7 +145,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 ## 安装
 
-我们强烈建议我们的用户在 **Linux** 环境下，*3.7*以上版本的 *python* 来安装我们的PaddleSpeech。这种情况我们的`paddlespeech`安装只需要一条`pip`命令:
+我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。这种情况下安装 `paddlespeech` 只需要一条 `pip` 命令:
 ```python
 pip install paddlepaddle paddlespeech
 ```

@@ -1,3 +1,4 @@
+([简体中文](./README_cn.md)|English)
 # Punctuation Restoration
 ## Introduction
 Punctuation restoration is a common post-processing problem for Automatic Speech Recognition (ASR) systems. It is important to improve the readability of the transcribed text for the human reader and facilitate NLP tasks. 

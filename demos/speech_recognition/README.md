@@ -1,3 +1,4 @@
+([简体中文](./README_cn.md)|English)
 # ASR(Automatic Speech Recognition)
 
 ## Introduction

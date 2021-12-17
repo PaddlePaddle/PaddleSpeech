@@ -44,30 +44,30 @@ pip install paddlespeech
         ```bash
         paddlespeech tts --am fastspeech2_vctk --voc pwgan_vctk --input "hello, boys" --lang en --spk_id 0
         ```
-  使用方法:
+  使用方法：
   
   ```bash
   paddlespeech tts --help
   ```
-  参数:
+  参数：
   - `input`(必须输入)：用于合成音频的文本。
-  - `am`：TTS 任务的声学模型， 默认值： `fastspeech2_csmsc`。
-  - `am_config`：声学模型的配置文件，若不设置则使用默认配置，默认值： `None`。
-  - `am_ckpt`：声学模型的参数文件，若不设置则下载预训练模型使用，默认值： `None`。
-  - `am_stat`：训练声学模型时用于正则化 mel 频谱图的均值标准差文件，默认值： `None`。
-  - `phones_dict`：音素词表文件， 默认值： `None`。
-  - `tones_dict`：声调词表文件， 默认值： `None`。
-  - `speaker_dict`：说话人词表文件， 默认值： `None`。
+  - `am`：TTS 任务的声学模型， 默认值：`fastspeech2_csmsc`。
+  - `am_config`：声学模型的配置文件，若不设置则使用默认配置，默认值：`None`。
+  - `am_ckpt`：声学模型的参数文件，若不设置则下载预训练模型使用，默认值：`None`。
+  - `am_stat`：训练声学模型时用于正则化 mel 频谱图的均值标准差文件，默认值：`None`。
+  - `phones_dict`：音素词表文件， 默认值：`None`。
+  - `tones_dict`：声调词表文件， 默认值：`None`。
+  - `speaker_dict`：说话人词表文件， 默认值：`None`。
   - `spk_id`：说话人 id， 默认值： `0`。
   - `voc`：TTS 任务的声码器， 默认值： `pwgan_csmsc`。
-  - `voc_config`：声码器的配置文件，若不设置则使用默认配置，默认值： `None`。
-  - `voc_ckpt`：声码器的参数文件，若不设置则下载预训练模型使用，默认值： `None`。
-  - `voc_stat`：训练声码器时用于正则化 mel 频谱图的均值标准差文件，默认值： `None`。
-  - `lang`：TTS 任务的语言， 默认值： `zh`。
+  - `voc_config`：声码器的配置文件，若不设置则使用默认配置，默认值：`None`。
+  - `voc_ckpt`：声码器的参数文件，若不设置则下载预训练模型使用，默认值：`None`。
+  - `voc_stat`：训练声码器时用于正则化 mel 频谱图的均值标准差文件，默认值：`None`。
+  - `lang`：TTS 任务的语言， 默认值：`zh`。
   - `device`：执行预测的设备， 默认值：当前系统下 paddlepaddle 的默认 device。
   - `output`：输出音频的路径， 默认值：`output.wav`。
 
-  输出:
+  输出：
   ```bash
   [2021-12-09 20:49:58,955] [    INFO] [log.py] [L57] - Wave file has been generated: output.wav
   ```
@@ -98,13 +98,13 @@ pip install paddlespeech
   print('Wave file has been generated: {}'.format(wav_file))
   ```
 
-  输出:
+  输出：
   ```bash
   Wave file has been generated: output.wav
   ```
 
 ### 4. 预训练模型
-以下是 PaddleSpeech 提供的可以被命令行和 python api 使用的预训练模型列表：
+以下是 PaddleSpeech 提供的可以被命令行和 python API 使用的预训练模型列表：
 
 - 声学模型
   | 模型 | 语言

@@ -254,7 +254,7 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
   </tbody>
 </table>
 
-PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*声学模型* 和 *声码器*。声学模型和声码器模型如下：
+PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声学模型和声码器。声学模型和声码器模型如下：
 
 <table>
   <thead>

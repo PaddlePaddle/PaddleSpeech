@@ -114,7 +114,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-更多合成音频，可以参考 [PaddleSpeech文本转语音样本](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
+更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
 
 ### 特性:
 

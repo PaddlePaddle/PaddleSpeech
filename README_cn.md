@@ -177,7 +177,7 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
 
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
-PaddleSpeech 的**语音识别** 包含声学模型、语言模型和语音翻译, 详情如下：
+PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识别语言模型和语音翻译, 详情如下：
 
 <!---
 The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).

@@ -136,7 +136,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 - 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
 
 ### 交流
-欢迎加入以下微信群，直接和我们 PaddleSpeech 团队进行交流！
+欢迎加入以下微信群，直接和 PaddleSpeech 团队成员进行交流！
 
 <div align="center">
 <img src="./docs/images/wechat_group.png"  width = "200"  />

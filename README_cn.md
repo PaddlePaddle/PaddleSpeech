@@ -378,7 +378,7 @@ PaddleSpeech 中的 **文本转语音** 主要包含三个模块：*文本前端
 [语音 SoTA](https://paperswithcode.com/area/speech)、[声音 SoTA](https://paperswithcode.com/area/audio)、[音乐 SoTA](https://paperswithcode.com/area/music) 概述了相关领域的热门学术话题。对于 PaddleSpeech 的所关注的任务，以下指南有助于掌握核心思想。
 
 - [安装](./docs/source/install.md)
-- Tutorials
+- 教程
   - [语音识别](./docs/source/asr/quick_start.md)
     - [简介](./docs/source/asr/models_introduction.md)
     - [数据准备](./docs/source/asr/data_preparation.md)

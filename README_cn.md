@@ -149,7 +149,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 ```python
 pip install paddlepaddle paddlespeech
 ```
-目前为止，对于**Mac OSX、 LiNUX** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Windows** 下暂不支持语音翻译功能。 想了解更多安装细节，可以参考[安装文档](./docs/source/install.md)。
+目前为止，对于 **Mac OSX、 LiNUX** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Windows** 下暂不支持语音翻译功能。 想了解更多安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
 
 ## 快速开始
 

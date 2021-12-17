@@ -45,7 +45,7 @@ requirements = {
         "pandas",
         "paddleaudio",
         "paddlespeech_feat",
-        "praatio~=4.1",
+        "praatio==5.0.0",
         "pypinyin",
         "python-dateutil",
         "pyworld",

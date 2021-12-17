@@ -1,45 +1,44 @@
-([简体中文](./README_cn.md)|English)
 
-# Audio Tagging
+(简体中文|[English](./README.md))
 
-## Introduction
-Audio tagging is the task of labeling an audio clip with one or more labels or tags, including music tagging, acoustic scene classification, audio event classification, etc.
+# 声音分类
+## 介绍
+声音分类任务为音频片段添加一个或多个标签的任务，包括音乐分类、声学场景分类、音频事件分类等。
 
-This demo is an implementation to tag an audio file with 527 [AudioSet](https://research.google.com/audioset/) labels. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+这个 demo 使用 527 个 [AudioSet](https://research.google.com/audioset/) 数据集中的标签为音频进行分类，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 
-## Usage
-### 1. Installation
+## 使用方法
+### 1. 安装
 ```bash
 pip install paddlespeech
 ```
+### 2. 准备输入
+这个 demo 的输入应该是一个 WAV 文件（`.wav`），
 
-### 2. Prepare Input File
-The input of this demo should be a WAV file(`.wav`).
-
-Here are sample files for this demo that can be downloaded:
+可以下载此 demo 的示例音频：
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
 ```
 
-### 3. Usage
-- Command Line(Recommended)
+### 3. 使用方法
+- 命令行 (推荐使用)
   ```bash
   paddlespeech cls --input ./cat.wav --topk 10
   ```
-  Usage:
+  使用方法：
   ```bash
   paddlespeech cls --help
   ```
-  Arguments:
-  - `input`(required): The audio file to tag.
-  - `model`: Model type of tagging task. Default: `panns_cnn14`.
-  - `config`: Config of tagging task. Use a pretrained model when it is None. Default: `None`.
-  - `ckpt_path`: Model checkpoint. Use a pretrained model when it is None. Default: `None`.
-  - `label_file`: Label file of tagging task. Use audio set labels when it is None. Default: `None`.
-  - `topk`: Show topk tagging labels of the result. Default: `1`.
-  - `device`: Choose the device to execute model inference. Default: default device of paddlepaddle in the current environment.
+  参数：
+  - `input`(必须输入)： 用于分类的音频。
+  - `model`： 声音分类任务的模型， 默认值： `panns_cnn14`.
+  - `config`： 声音分类任务的配置文件，若不设置则使用预训练模型中的默认配置，  默认值： `None`。
+  - `ckpt_path`：模型参数文件， 若不设置则下载预训练模型使用， 默认值： `None`。
+  - `label_file`：声音分类任务的标签文件，若不是设置则使用音频数据集标签，默认值： `None`。
+  - `topk`：展示分类结果的 topk 个结果，默认值： `1`。
+  - `device`：执行预测的设备，默认值：当前系统下 paddlepaddle 的默认 device。
 
-  Output:
+  输出：
   ```bash
   [2021-12-08 14:49:40,671] [    INFO] [utils.py] [L225] - CLS Result:
   Cat: 0.8991316556930542
@@ -70,7 +69,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
       device=paddle.get_device())
   print('CLS Result: \n{}'.format(result))
   ```
-  Output:
+  输出：
   ```bash
   CLS Result:
   Cat: 0.8991316556930542
@@ -85,11 +84,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
   Bird: 0.006304860580712557
   ```
 
-### 4.Pretrained Models
+### 4. 预训练模型
 
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
+以下是 PaddleSpeech 提供的可以被命令行和 python api 使用的预训练模型列表：
 
-| Model | Sample Rate
+| 模型 | 采样率
 | :--- | :---: 
 | panns_cnn6| 32000
 | panns_cnn10| 32000

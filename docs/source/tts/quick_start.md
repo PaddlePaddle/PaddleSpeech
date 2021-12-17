@@ -1,9 +1,9 @@
 # Quick Start of Text-to-Speech
 The examples in PaddleSpeech are mainly classified by datasets, the TTS datasets we mainly used are:
 * CSMCS (Mandarin single speaker)
-* AISHELL3 (Mandarin multiple speaker)
+* AISHELL3 (Mandarin multiple speakers)
 * LJSpeech (English single speaker)
-* VCTK (English multiple speaker)
+* VCTK (English multiple speakers)
 
 The models in PaddleSpeech TTS have the following mapping relationship:
 * tts0 - Tactron2
@@ -14,6 +14,8 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 * voc1 - Parallel WaveGAN
 * voc2 - MelGAN
 * voc3 - MultiBand MelGAN
+* voc4 - Style MelGAN
+* voc5 - HiFiGAN
 * vc0 - Tactron2 Voice Clone with GE2E
 * vc1 - FastSpeech2 Voice Clone with GE2E
 
@@ -22,7 +24,7 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. [examples/csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
 
 ### Train Parallel WaveGAN with CSMSC
-- Go to directory
+- Go to the directory
     ```bash
     cd examples/csmsc/voc1
     ```
@@ -37,9 +39,9 @@ Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. [ex
     ```bash
     bash run.sh
     ```
-    This is just a demo, please make sure source data have been prepared well and every `step` works well before next `step`.
+    This is just a demo, please make sure source data have been prepared well and every `step` works well before the next `step`.
 ### Train FastSpeech2 with CSMSC
-- Go to directory
+- Go to the directory
     ```bash
     cd examples/csmsc/tts3
     ```
@@ -49,26 +51,26 @@ Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. [ex
     ```
     **Must do this before you start to do anything.**
     Set `MAIN_ROOT` as project dir. Using `fastspeech2` model as `MODEL`.
-- Main entrypoint
+- Main entry point
     ```bash
     bash run.sh
     ```
-    This is just a demo, please make sure source data have been prepared well and every `step` works well before next `step`.
+    This is just a demo, please make sure source data have been prepared well and every `step` works well before the next `step`.
 
 The steps in `run.sh` mainly include:
 - source path.
 - preprocess the dataset,
 - train the model.
 - synthesize waveform from metadata.jsonl.
-- synthesize waveform from text file. (in acoustic models)
-- inference using static model. (optional)
+- synthesize waveform from a text file. (in acoustic models)
+- inference using a static model. (optional)
 
-For more details , you can see `README.md` in examples.
+For more details, you can see `README.md` in examples.
 
 ## Pipeline of TTS
-This section shows how to use pretrained models provided by TTS and make inference with them.
+This section shows how to use pretrained models provided by TTS and make an inference with them.
 
-Pretrained models in TTS are provided in a archive. Extract it to get a folder like this:
+Pretrained models in TTS are provided in an archive. Extract it to get a folder like this:
 **Acoustic Models:**
 ```text
 checkpoint_name
@@ -87,15 +89,15 @@ checkpoint_name
 └── stats.npy  
 ```
 - `default.yaml` stores the config used to train the model.
-- `snapshot_iter_*.pdz` is the chechpoint file, where `*` is the steps it has been trained.
-- `*_stats.npy` is the stats file of feature if  it has been normalized before training.
-- `phone_id_map.txt` is the map of  phonemes to phoneme_ids.
-- `tone_id_map.txt` is the map of  tones to tones_ids, when you split tones and phones before training acoustic models. (for example in our csmsc/speedyspeech example)
-- `spk_id_map.txt` is the map of  spkeaker to spk_ids in multi-spk acoustic models. (for example in our aishell3/fastspeech2 example)
+- `snapshot_iter_*.pdz` is the checkpoint file, where `*` is the steps it has been trained.
+- `*_stats.npy` is the stats file of the feature if it has been normalized before training.
+- `phone_id_map.txt` is the map of phonemes to phoneme_ids.
+- `tone_id_map.txt` is the map of tones to tones_ids, when you split tones and phones before training acoustic models. (for example in our csmsc/speedyspeech example)
+- `spk_id_map.txt` is the map of speakers to spk_ids in multi-spk acoustic models. (for example in our aishell3/fastspeech2 example)
 
 The example code below shows how to use the models for prediction.
 ### Acoustic Models (text to spectrogram)
-The code below show how to use a `FastSpeech2` model.  After loading the pretrained model, use it and normalizer object to construct a prediction object，then use `fastspeech2_inferencet(phone_ids)` to generate spectrograms, which can be further used to synthesize raw audio with a vocoder.
+The code below shows how to use a `FastSpeech2` model.  After loading the pretrained model, use it and the normalizer object to construct a prediction object，then use `fastspeech2_inferencet(phone_ids)` to generate spectrograms, which can be further used to synthesize raw audio with a vocoder.
 
 ```python
 from pathlib import Path
@@ -153,7 +155,7 @@ for part_phone_ids in phone_ids:
 ```
 
 ### Vocoder (spectrogram to wave)
-The code below show how to use a  ` Parallel WaveGAN` model. Like the example above, after loading the pretrained model, use it and normalizer object to construct a prediction object，then use `pwg_inference(mel)` to generate  raw audio (in wav format).
+The code below shows how to use a  ` Parallel WaveGAN` model. Like the example above, after loading the pretrained model, use it and the normalizer object to construct a prediction object，then use `pwg_inference(mel)` to generate raw audio (in wav format).
 
 ```python
 from pathlib import Path

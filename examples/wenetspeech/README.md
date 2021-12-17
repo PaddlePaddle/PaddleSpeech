@@ -41,7 +41,7 @@ We classify the high label into 10 groups according to its domain, speaking styl
 | others      | 144     | 507.5   | 651.5  |
 | Total       | 6113    | 3892    | 10005  |
 
-As shown in the following table, we provide 3 training subsets, namely `S`, `M` and `L` for building ASR systems on different data scales.
+As shown in the following table, we provide 3 training subsets, namely `S`, `M`, and `L` for building ASR systems on different data scales.
 
 | Training Subsets | Confidence  | Hours |
 |------------------|-------------|-------|

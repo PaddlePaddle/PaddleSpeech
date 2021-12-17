@@ -1,91 +1,65 @@
 # Transformer/Conformer ASR with Librispeech Asr2
 
-This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Librispeech dataset](http://www.openslr.org/resources/12) and use  some functions in kaldi.
+This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Librispeech dataset](http://www.openslr.org/resources/12) and use some functions in kaldi.
 
-To use this example, you need to install Kaldi at first.
+To use this example, you need to install Kaldi first.
 
 ## Overview
 
-All the scirpts you need are in ```run.sh```. There are several stages in ```run.sh```, and each stage has its function.
+All the scripts you need are in ```run.sh```. There are several stages in ```run.sh```, and each stage has its function.
 
 | Stage | Function                                                     |
-| :---- | :----------------------------------------------------------- |
-| 0     | Process data. It includes: <br>       (1) Download the dataset <br>       (2) Caculate the CMVN of the train dataset <br>       (3) Get the vocabulary file <br>       (4) Get the manifest files of the train, development and test dataset<br>       (5) Get the sentencepiece model |
+|:---- |:----------------------------------------------------------- |
+| 0     | Process data. It includes: <br>       (1) Download the dataset <br>       (2) Calculate the CMVN of the train dataset <br>       (3) Get the vocabulary file <br>       (4) Get the manifest files of the train, development and test dataset<br>       (5) Get the sentencepiece model |
 | 1     | Train the model                                              |
-| 2     | Get the final model by averaging the top-k models, set k = 1 means choose the best model |
+| 2     | Get the final model by averaging the top-k models, set k = 1 means to choose the best model |
 | 3     | Test the final model performance                             |
 | 4     | Join ctc decoder and use transformer language model to score |
 | 5     | Get ctc alignment of test data using the final model         |
-| 6     | Caculate the perplexity of transformer language model        |
+| 6     | Calculate the perplexity of transformer language model        |
 
 
-You can choose to run a range of stages by setting ```stage``` and ```stop_stage ```. 
+You can choose to run a range of stages by setting `stage` and `stop_stage `. 
 
 For example, if you want to execute the code in stage 2 and stage 3, you can run this script:
-
 ```bash
 bash run.sh --stage 2 --stop_stage 3
 ```
-
-Or you can set ```stage``` equal to ```stop-stage``` to only run one stage.
-For example, if you only want to run ```stage 0```, you can use the script below:
-
+Or you can set `stage` equal to `stop-stage` to only run one stage.
+For example, if you only want to run `stage 0`, you can use the script below:
 ```bash
 bash run.sh --stage 0 --stop_stage 0
 ```
-
-
-
-The document below will describe the scripts in ```run.sh``` in detail.
-
+The document below will describe the scripts in `run.sh` in detail.
 ## The Environment Variables
-
 The path.sh contains the environment variables. 
-
 ```bash
 . ./path.sh
 . ./cmd.sh
 ```
-
-This script needs to be run firstly. And another script is also needed:
-
+This script needs to be run first. And another script is also needed:
 ```bash
 source ${MAIN_ROOT}/utils/parse_options.sh
 ```
-
-It will support the way of using```--varibale value``` in the shell scripts.
-
-
-
+It will support the way of using `--variable value` in the shell scripts.
 ## The Local Variables
+Some local variables are set in `run.sh`. 
+`gpus` denotes the GPU number you want to use. If you set `gpus=`, it means you only use CPU. 
+`stage` denotes the number of the stage you want to start from in the experiments.
+`stop stage` denotes the number of the stage you want to end at in the experiments. 
+`conf_path` denotes the config path of the model.
+`dict_path` denotes the path of the vocabulary file.
+`avg_num` denotes the number K of top-K models you want to average to get the final model.
+`ckpt` denotes the checkpoint prefix of the model, e.g. "transformer"
 
-Some local variables are set in ```run.sh```. 
-```gpus``` denotes the GPU number you want to use. If you set ```gpus=```, it means you only use CPU. 
+You can set the local variables (except `ckpt`) when you use `run.sh`
 
-```stage``` denotes the number of stage you want to start from in the expriments.
-```stop stage```denotes the number of stage you want to end at in the expriments. 
-
-```conf_path``` denotes the config path of the model.
-
-`dict_path` denotes the path of vocabulary file.
-
-```avg_num``` denotes the number K of top-K models you want to average to get the final model.
-
-```ckpt``` denotes the checkpoint prefix of the model, e.g. "transformer"
-
-You can set the local variables (except ```ckpt```) when you use ```run.sh```
-
-For example, you can set the ```gpus``` and ``avg_num`` when you use the command line.:
-
+For example, you can set the `gpus` and `avg_num` when you use the command line.:
 ```bash
 bash run.sh --gpus 0,1 --avg_num 10
 ```
-
-
-
 ## Stage 0: Data Processing
-
-To use this example, you need to process data firstly and you can use stage 0 in ```run.sh``` to do this. The code is shown below:
+To use this example, you need to process data firstly and you can use stage 0 in ```run.sh```to do this. The code is shown below:
 
 ```bash
  if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
@@ -93,7 +67,6 @@ To use this example, you need to process data firstly and you can use stage 0 in
      bash ./local/data.sh || exit -1
  fi
 ```
-
 Stage 0 is for processing the data.
 
 If you only want to process the data. You can run
@@ -156,56 +129,39 @@ data/
 └── train_sp_org
 ```
 
-
-
 ## Stage 1: Model Training
-
 If you want to train the model. you can use stage 1 in ```run.sh```. The code is shown below. 
-
 ```bash
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
      # train model, all `ckpt` under `exp` dir
      CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${ckpt}
  fi
 ```
-
 If you want to train the model, you can use the script below to execute stage 0 and stage 1:
-
 ```bash
 bash run.sh --stage 0 --stop_stage 1
 ```
-
 or you can run these scripts in the command line (only use CPU).
-
 ```bash
 . ./path.sh
 . ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 ```
-
-
-
 ## Stage 2: Top-k Models Averaging
-
-After training the model, we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the last K models and  average the parameters of the models to get the final model. We can use stage 2 to do this, and the code is shown below:
-
+After training the model, we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the last K models and average the parameters of the models to get the final model. We can use stage 2 to do this, and the code is shown below:
 ```bash
  if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
      # avg n best model
      avg.sh lastest exp/${ckpt}/checkpoints ${avg_num}
  fi
 ```
-
-The ```avg.sh``` is in the ```../../../utils/``` which is define in the ```path.sh```.
+The `avg.sh` is in the `../../../utils/` which is define in the `path.sh`.
 If you want to get the final model, you can use the script below to execute stage 0, stage 1, and stage 2:
-
 ```bash
 bash run.sh --stage 0 --stop_stage 2
 ```
-
 or you can run these scripts in the command line (only use CPU).
-
 ```bash
 . ./path.sh
 . ./cmd.sh
@@ -213,28 +169,19 @@ bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh best exp/transformer/checkpoints 10
 ```
-
-
-
 ## Stage 3: Model Testing
-
-The  stage 3 is to evaluate the model performance with attention rescore decoder. The code of this stage is shown below:
-
+Stage 3 is to evaluate the model performance with an attention rescore decoder. The code of this stage is shown below:
 ```bash
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # attetion resocre decoder
     ./local/test.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 ```
-
 If you want to train a model and test it, you can use the script below to execute stage 0, stage 1, stage 2, and stage 3 :
-
 ```bash
 bash run.sh --stage 0 --stop_stage 3
 ```
-
 or you can run these scripts in the command line (only use CPU).
-
 ```bash
 . ./path.sh
 . ./cmd.sh
@@ -243,29 +190,20 @@ CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh latest exp/transformer/checkpoints 10
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml data/train_960_unigram5000_units.txt exp/transformer/checkpoints/avg_10
 ```
-
-
-
 ## Stage 4: Model Testing with Join CTC Decoder
-
-The  stage 4 is to evaluate the model performance with join ctc decoder. The code of this stage is shown below:
-
+Stage 4 is to evaluate the model performance with the join ctc decoder. The code of this stage is shown below:
 ```bash
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # join ctc decoder, use transformerlm to score
     ./local/recog.sh  --ckpt_prefix exp/${ckpt}/checkpoints/${avg_ckpt}
 fi
 ```
-
 If you want to train a model and test it, you can use the script below to execute stage 0, stage 1, stage 2, and stage 4 :
-
 ```bash
 bash run.sh --stage 0 --stop_stage 3
 bash run.sh --stage 4 --stop_stage 4
 ```
-
 or you can run these scripts in the command line (only use CPU).
-
 ```bash
 . ./path.sh
 . ./cmd.sh
@@ -274,24 +212,16 @@ CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh latest exp/transformer/checkpoints 10
 ./local/recog.sh  --ckpt_prefix exp/transformer/checkpoints/avg_10
 ```
-
-
-
 ## Pretrained Model
-
-You can get the pretrained transfomer using the scripts below:
-
+You can get the pretrained transformer using the scripts below:
 ```bash
-Transfomer:
+# Transformer:
 wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/transformer.model.tar.gz
-
 ```
-
-using the ```tar``` scripts to unpack the model and then you can use the script to test the modle.
+using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:
-
-```
+```bash
 wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/transformer.model.tar.gz
 tar xzvf transformer.model.tar.gz
 source path.sh
@@ -301,19 +231,13 @@ bash local/data.sh --stage 2 --stop_stage 2
 
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/transformer.yaml exp/ctc/checkpoints/avg_10
 ```
-
-
-
 The performance of the released models are shown below:
-
 ### Transformer
-
 |    Model    | Params |          GPUS          |  Averaged Model  |        Config         | Augmentation |      Loss       |
 | :---------: | :----: | :--------------------: | :--------------: | :-------------------: | :----------: | :-------------: |
 | transformer | 32.52M | 8 Tesla V100-SXM2-32GB | 10-best val_loss | conf/transformer.yaml |   spec_aug   | 6.3197922706604 |
 
 #### Attention Rescore
-
 | Test Set   | Decode Method         | #Snt | #Wrd  | Corr | Sub  | Del  | Ins  | Err  | S.Err |
 | ---------- | --------------------- | ---- | ----- | ---- | ---- | ---- | ---- | ---- | ----- |
 | test-clean | attention             | 2620 | 52576 | 96.4 | 2.5  | 1.1  | 0.4  | 4.0  | 34.7  |
@@ -322,43 +246,31 @@ The performance of the released models are shown below:
 | test-clean | attention_rescore     | 2620 | 52576 | 96.8 | 2.9  | 0.3  | 0.4  | 3.7  | 38.0  |
 
 #### JoinCTC
-
 | Test Set   | Decode Method     | #Snt | #Wrd  | Corr | Sub  | Del  | Ins  | Err  | S.Err |
 | ---------- | ----------------- | ---- | ----- | ---- | ---- | ---- | ---- | ---- | ----- |
 | test-clean | join_ctc_only_att | 2620 | 52576 | 96.1 | 2.5  | 1.4  | 0.4  | 4.4  | 34.7  |
 | test-clean | join_ctc_w/o_lm   | 2620 | 52576 | 97.2 | 2.6  | 0.3  | 0.4  | 3.2  | 34.9  |
 | test-clean | join_ctc_w_lm     | 2620 | 52576 | 97.9 | 1.8  | 0.2  | 0.3  | 2.4  | 27.8  |
 
-Compare with [ESPNET](https://github.com/espnet/espnet/blob/master/egs/librispeech/asr1/RESULTS.md#pytorch-large-transformer-with-specaug-4-gpus--transformer-lm-4-gpus) we using 8gpu, but model size (aheads4-adim256) small than it.
-
-
-
+Compare with [ESPNET](https://github.com/espnet/espnet/blob/master/egs/librispeech/asr1/RESULTS.md#pytorch-large-transformer-with-specaug-4-gpus--transformer-lm-4-gpus) we using 8gpu, but the model size (aheads4-adim256) small than it.
 ## Stage 5: CTC Alignment 
-
 If you want to get the alignment between the audio and the text, you can use the ctc alignment. The code of this stage is shown below:
-
 ```bash
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # ctc alignment of test data
     CUDA_VISIBLE_DEVICES=0 ./local/align.sh ${conf_path} ${dict_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 ```
-
-If you want to train the model, test it and do the alignment, you can use the script below to execute stage 0, stage 1, stage 2, stage 3, stage 4 and stage 5:
-
+If you want to train the model, test it and do the alignment, you can use the script below to execute stage 0, stage 1, stage 2, stage 3, stage 4, and stage 5:
 ```bash
 bash run.sh --stage 0 --stop_stage 5
 ```
-
 or if you only need to train a model and do the alignment, you can use these scripts to escape stage 3(test stage):
-
 ```bash
 bash run.sh --stage 0 --stop_stage 2
 bash run.sh --stage 5 --stop_stage 5
 ```
-
 or you can also use these scripts in the command line (only use CPU).
-
 ```bash
 . ./path.sh
 . ./cmd.sh
@@ -367,22 +279,15 @@ CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh best exp/transformer/checkpoints 20
 CUDA_VISIBLE_DEVICES= ./local/align.sh conf/transformer.yaml data/train_960_unigram5000_units.txt exp/transformer/checkpoints/avg_10
 ```
-
-
-
-## Stage 6: Perplexity Caculation 
-
-This stage is for caculating the perplexity of transformer language model. The code of this stage is shown below:
-
+## Stage 6: Perplexity Calculation 
+This stage is for calculating the perplexity of the transformer language model. The code of this stage is shown below:
 ```bash
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/cacu_perplexity.sh || exit -1
 fi
 ```
-
-If you only want to caculate the perplexity of transformer language model, you can use this script:
+If you only want to calculate the perplexity of the transformer language model, you can use this script:
 
 ```bash
 bash run.sh --stage 6 --stop_stage 6
 ```
-

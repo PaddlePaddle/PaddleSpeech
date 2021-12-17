@@ -1,19 +1,16 @@
 # Punctuation Restoration
-
 ## Introduction
 Punctuation restoration is a common post-processing problem for Automatic Speech Recognition (ASR) systems. It is important to improve the readability of the transcribed text for the human reader and facilitate NLP tasks. 
 
-This demo is an implementation to restore punctuation from a raw text. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to restore punctuation from raw text. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
 ```bash
 pip install paddlespeech
 ```
-
 ### 2. Prepare Input
-Input of this demo should be a text of the specific language that can be passed via argument.
-
+The input of this demo should be a text of the specific language that can be passed via argument.
 
 ### 3. Usage
 - Command Line(Recommended)
@@ -63,10 +60,8 @@ Input of this demo should be a text of the specific language that can be passed 
   今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。
   ```
 
-
 ### 4.Pretrained Models
-
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
 - Punctuation Restoration
   | Model | Language | Number of Punctuation Characters

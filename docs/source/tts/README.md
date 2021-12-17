@@ -1,5 +1,5 @@
 # Parakeet
-Parakeet aims to provide a flexible, efficient and state-of-the-art text-to-speech toolkit for the open-source community. It is built on PaddlePaddle dynamic graph and includes many influential TTS models.  
+Parakeet aims to provide a flexible, efficient, and state-of-the-art text-to-speech toolkit for the open-source community. It is built on PaddlePaddle dynamic graph and includes many influential TTS models.  
 
 <div align="center">
   <img src="../../images/logo.png" width=300 /> <br>
@@ -7,10 +7,10 @@ Parakeet aims to provide a flexible, efficient and state-of-the-art text-to-spee
 
 ## Overview
 
-In order to facilitate exploiting the existing TTS models directly and developing the new ones, Parakeet selects typical models and provides their reference implementations in PaddlePaddle. Further more, Parakeet abstracts the TTS pipeline and standardizes the procedure of data preprocessing, common modules sharing, model configuration, and the process of training and synthesis. The models supported here include Text FrontEnd, end-to-end Acoustic models and Vocoders:
+To facilitate exploiting the existing TTS models directly and developing the new ones, Parakeet selects typical models and provides their reference implementations in PaddlePaddle. Furthermore, Parakeet abstracts the TTS pipeline and standardizes the procedure of data preprocessing, common modules sharing, model configuration, and the process of training and synthesis. The models supported here include Text FrontEnd, end-to-end Acoustic models, and Vocoders:
 
 - Text FrontEnd
-  - Rule based Chinese frontend.
+  - Rule-based Chinese frontend.
 
 - Acoustic Models
   - [【FastSpeech2】FastSpeech 2: Fast and High-Quality End-to-End Text to Speech](https://arxiv.org/abs/2006.04558)

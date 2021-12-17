@@ -1,9 +1,9 @@
 # Text Normalization
 For text normalization, the test data is  `data/textnorm_test_cases.txt`, we use `|` as the separator of raw_data and normed_data.
 
-We use `CER` as evaluation criterion.
+We use `CER` as an evaluation criterion.
 ## Start
-Run the command below to get the results of test.
+Run the command below to get the results of the test.
 ```bash
 ./run.sh
 ```

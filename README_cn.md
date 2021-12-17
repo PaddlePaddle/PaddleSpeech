@@ -259,7 +259,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：*文本前端*、*�
 <table>
   <thead>
     <tr>
-      <th> 文字转语音模块类型 <img width="110" height="1"> </th>
+      <th> 语音合成模块类型 </th>
       <th>  模型种类  </th>
       <th> <img width="50" height="1"> 数据集  <img width="50" height="1"> </th>
       <th> <img width="101" height="1"> 链接 <img width="105" height="1"> </th>

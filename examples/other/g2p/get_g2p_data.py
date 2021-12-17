@@ -15,7 +15,7 @@ import argparse
 from collections import defaultdict
 from pathlib import Path
 
-from praatio import tgio
+from praatio import textgrid
 
 
 def get_baker_data(root_dir):
@@ -28,7 +28,7 @@ def get_baker_data(root_dir):
     alignment_files = [f for f in alignment_files if f.stem not in exclude]
     data_dict = defaultdict(dict)
     for alignment_fp in alignment_files:
-        alignment = tgio.openTextgrid(alignment_fp)
+        alignment = textgrid.openTextgrid(alignment_fp, includeEmptyIntervals=True)
         # only with baker's annotation
         utt_id = alignment.tierNameList[0].split(".")[0]
         intervals = alignment.tierDict[alignment.tierNameList[0]].entryList

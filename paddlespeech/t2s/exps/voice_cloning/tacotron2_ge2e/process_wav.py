@@ -19,12 +19,12 @@ from pathlib import Path
 import librosa
 import numpy as np
 import soundfile as sf
-from praatio import tgio
+from praatio import textgrid
 from tqdm import tqdm
 
 
 def get_valid_part(fpath):
-    f = tgio.openTextgrid(fpath)
+    f = textgrid.openTextgrid(fpath, includeEmptyIntervals=True)
 
     start = 0
     phone_entry_list = f.tierDict['phones'].entryList

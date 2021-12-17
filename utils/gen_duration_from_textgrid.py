@@ -18,12 +18,12 @@ from pathlib import Path
 import librosa
 import numpy as np
 import yaml
-from praatio import tgio
+from praatio import textgrid
 from yacs.config import CfgNode
 
 
 def readtg(tg_path, sample_rate=24000, n_shift=300):
-    alignment = tgio.openTextgrid(tg_path, readRaw=True)
+    alignment = textgrid.openTextgrid(tg_path, includeEmptyIntervals=True)
     phones = []
     ends = []
     for interval in alignment.tierDict["phones"].entryList:

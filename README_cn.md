@@ -355,7 +355,7 @@ PaddleSpeech 中的 **文本转语音** 主要包含三个模块：*文本前端
     <tr>
       <th> <img width="150" height="1">任务 <img width="150" height="1"></th>
       <th> <img width="110" height="1">数据集 <img width="110" height="1"></th>
-      <th> <img width="110" height="1">模型种类 <img width="110" height="1"></th>
+      <th> 模型种类 </th>
       <th> <img width="110" height="1">链接<img width="110" height="1"></th>
     </tr>
   </thead>

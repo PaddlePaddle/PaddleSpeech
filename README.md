@@ -103,7 +103,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
    <tr>
       <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/001.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>

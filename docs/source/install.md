@@ -4,7 +4,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 
 | Way | Function                                                     | Support|
 |:---- |:----------------------------------------------------------- |:----|
-| Easy     | (1) Use command-line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Ai Studio. | Linux, Mac，Windows |
+| Easy     | (1) Use command-line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Ai Studio. | Linux, Mac(not support M1 chip)，Windows |
 | Medium     | Support major functions ，such as using the` ready-made `examples and using PaddleSpeech to train your model.                                           | Linux |
 | Hard     | Support full function of Paddlespeech，including training n-gram language model, Montreal-Forced-Aligner, and so on. And you are more able to be a developer! | Ubuntu |
 
@@ -52,15 +52,21 @@ You can use the following command:
 pip install paddlepaddle paddlespeech
 ```
 ## Medium: Get the Major Functions (Support Linux)
-If you want to get the major function of  `paddlespeech`. There are 4 steps you need to do.
+If you want to get the major function of  `paddlespeech`, you need to do following steps:
+### Git clone PaddleSpeech
+You need to `git clone` this repository at first.
+```bash
+git clone https://github.com/PaddlePaddle/PaddleSpeech.git
+cd PaddleSpeech
+```
 
 ### Install Conda
 Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the following command:
 ```bash
 # download the miniconda
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/
 # install the miniconda
-bash Miniconda3-latest-Linux-x86_64.sh -b
+bash tools/Miniconda3-latest-Linux-x86_64.sh -b
 # conda init
 $HOME/miniconda3/bin/conda init
 # activate the conda
@@ -102,12 +108,12 @@ You can choose the `PaddlePaddle` version based on your system. For example, for
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 ### Install PaddleSpeech 
-You need to `git clone` this repository and install  `paddlespeech`  by the following commands，then you can use the `ready-made` examples in `paddlespeech` :
+You can install  `paddlespeech`  by the following command，then you can use the `ready-made` examples in `paddlespeech` :
 ```bash
-https://github.com/PaddlePaddle/PaddleSpeech.git
-cd PaddleSpeech
+# Make sure you are in the root directory of PaddleSpeech
 pip install .
 ```
+
 ## Hard: Get the Full Function (Support Ubuntu)
 ### Prerequisites
 - Ubuntu >= 16.04.
@@ -124,7 +130,7 @@ Take several steps to launch the Docker image:
 
 For example, pull paddle 2.2.0 image:
 ```bash
-nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
+sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
 ```
 - Clone this repository
 ```bash
@@ -153,10 +159,12 @@ cd PaddleSpeech
 ```
 ### Install the Conda
 ```bash
-# download and install the miniconda
-pushd tools
-bash extras/install_miniconda.sh
-popd
+# download the miniconda
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/
+# install the miniconda
+bash tools/Miniconda3-latest-Linux-x86_64.sh -b
+# conda init
+$HOME/miniconda3/bin/conda init
 # use the "bash" command to make the conda environment works
 bash
 # create a conda virtual environment

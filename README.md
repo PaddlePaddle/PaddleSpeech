@@ -155,7 +155,7 @@ We strongly recommend our users to install PaddleSpeech in **Linux** with *pytho
 ```python
 pip install paddlepaddle paddlespeech
 ```
-Up to now, **Mac OSX** supports CLI for the all our tasks, Windows only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX and Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
 
 ## Quick Start
 
@@ -171,7 +171,7 @@ paddlespeech asr --lang zh --input input_16k.wav
 ```
 **Speech Translation** (English to Chinese)
 
-(not support for Windows now)
+(not support for Mac and Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```

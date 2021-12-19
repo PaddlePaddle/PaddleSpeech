@@ -135,7 +135,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 - 🤗 2021.12.14: 我们在 Hugging Face Spaces 上的 [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) 以及 [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos 上线啦!
 - 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
 
-### 交流
+### 技术交流群
 微信扫描二维码加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
@@ -403,10 +403,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 - [模型列表](#模型列表)
   - [语音识别](#语音识别模型)
   - [语音合成](#语音合成模型)
-  - [声音分类](#语音分类模型)
-- [技术交流群](#交流)
+  - [声音分类](#声音分类模型)
+- [技术交流群](#技术交流群)
 - [欢迎贡献](#欢迎贡献)
-- [licence](#License)
+- [Licence](#License)
 
 
 语音合成模块最初被称为 [Parakeet](https://github.com/PaddlePaddle/Parakeet)，现在与此仓库合并。如果您对该任务的学术研究感兴趣，请参阅 [TTS 研究概述](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview)。此外，[模型介绍](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) 是了解语音合成流程的一个很好的指南。

@@ -406,7 +406,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
 - [Released Models](./docs/source/released_model.md)
 - [Community](#Community)
 - [Welcome to contribute](#contribution)
-- [licence](#License)
+- [License](#License)
 
 The Text-to-Speech module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with this repository. If you are interested in academic research about this task, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
 
@@ -472,6 +472,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 
+<a name="License"></a>
 ## License
 
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).

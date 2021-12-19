@@ -3,7 +3,7 @@
 `PaddleSpeech` 有三种安装方法。根据安装的难易程度，这三种方法可以分为 **简单**, **中等** 和 **困难**.
 | 方式 | 功能                                                         | 支持系统            |
 | :--- | :----------------------------------------------------------- | :------------------ |
-| 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac，Windows |
+| 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac(不支持M1芯片)，Windows |
 | 中等 | 支持 PaddleSpeech 主要功能，比如使用已有 examples 中的模型和使用 PaddleSpeech 来训练自己的模型. | Linux               |
 | 困难 | 支持 PaddleSpeech 的各项功能，包含训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
 ## 先决条件
@@ -47,17 +47,24 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 pip install paddlepaddle paddlespeech
 ```
 ## 中等： 获取主要功能（支持 Linux）
-如果你想要使用` paddlespeech` 的主要功能。你需要完成 4 个步骤
+如果你想要使用` paddlespeech` 的主要功能。你需要完成以下几个步骤
+### Git clone PaddleSpeech
+你需要先git clone本仓库
+```bash
+git clone https://github.com/PaddlePaddle/PaddleSpeech.git
+cd PaddleSpeech
+```
+
 ### 安装 Conda
 Conda 是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。你可以尝试自己安装，或者使用以下的命令：
 ```bash
-# download the miniconda
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-# install the miniconda
-bash Miniconda3-latest-Linux-x86_64.sh -b
-# conda init
+# 下载 miniconda
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/
+# 安装 miniconda
+bash tools/Miniconda3-latest-Linux-x86_64.sh -b
+# conda 初始化
 $HOME/miniconda3/bin/conda init
-# activate the conda
+# 激活 conda
 bash
 ```
 然后你可以创建一个 conda 的虚拟环境：
@@ -94,10 +101,8 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 python3 -m pip install paddlepaddle-gpu==2.2.0
 ```
 ### 安装 PaddleSpeech
-你需要使用 `git clone` 的方式下载并安装 `paddlespeech`，这样你才可以使用 `paddlespeech`中已有的 examples：
+最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech`中已有的 examples：
 ```bash
-https://github.com/PaddlePaddle/PaddleSpeech.git
-cd PaddleSpeech
 pip install .
 ```
 ## 困难： 获取所有功能（支持 Ubuntu）
@@ -113,7 +118,7 @@ Docker 是一种开源工具，用于在和系统本身环境相隔离的环境�
 - 下载 docker 镜像:
   例如，拉取 paddle2.2.0 镜像：
 ```bash
-nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
+sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
 ```
 - 克隆 `PaddleSpeech` 仓库
 ```bash
@@ -141,11 +146,13 @@ cd PaddleSpeech
 ```
 ### 安装 Conda
 ```bash
-# 下载并安装 miniconda
-pushd tools
-bash extras/install_miniconda.sh
-popd
-# 使用 "bash" 命令激活Conda环境
+# 下载 miniconda
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/
+# 安装 miniconda
+bash tools/Miniconda3-latest-Linux-x86_64.sh -b
+# conda 初始化
+$HOME/miniconda3/bin/conda init
+# 激活 conda
 bash
 # 创建 Conda 虚拟环境
 conda create -y -p tools/venv python=3.7

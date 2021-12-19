@@ -171,7 +171,7 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='0.1.0rc',
+    version='0.1.0',
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',

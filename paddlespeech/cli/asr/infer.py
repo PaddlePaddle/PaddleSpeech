@@ -102,10 +102,12 @@ class ASRExecutor(BaseExecutor):
             default=None,
             help='Checkpoint file of model.')
         self.parser.add_argument(
-            '--yes','-y',
+            '--yes',
+            '-y',
             action="store_true",
             default=False,
-            help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate')
+            help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate'
+        )
         self.parser.add_argument(
             '--device',
             type=str,
@@ -379,19 +381,22 @@ class ASRExecutor(BaseExecutor):
                             If the result does not meet your expectations，\n \
                             Please input the 16k 16 bit 1 channel wav file. \
                         ".format(self.sample_rate, self.sample_rate))
-            if force_yes == False:
+            if force_yes is False:
                 while (True):
                     logger.info(
                         "Whether to change the sample rate and the channel. Y: change the sample. N: exit the prgream."
                     )
                     content = input("Input(Y/N):")
                     if content.strip() == "Y" or content.strip(
-                    ) == "y" or content.strip() == "yes" or content.strip() == "Yes":
+                    ) == "y" or content.strip() == "yes" or content.strip(
+                    ) == "Yes":
                         logger.info(
-                            "change the sampele rate, channel to 16k and 1 channel")
+                            "change the sampele rate, channel to 16k and 1 channel"
+                        )
                         break
                     elif content.strip() == "N" or content.strip(
-                    ) == "n" or content.strip() == "no" or content.strip() == "No":
+                    ) == "n" or content.strip() == "no" or content.strip(
+                    ) == "No":
                         logger.info("Exit the program")
                         exit(1)
                     else:
@@ -418,8 +423,8 @@ class ASRExecutor(BaseExecutor):
         device = parser_args.device
 
         try:
-            res = self(audio_file, model, lang, sample_rate, config, ckpt_path, force_yes,
-                       device)
+            res = self(audio_file, model, lang, sample_rate, config, ckpt_path,
+                       force_yes, device)
             logger.info('ASR Result: {}'.format(res))
             return True
         except Exception as e:

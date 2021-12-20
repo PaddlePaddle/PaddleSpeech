@@ -1,9 +1,10 @@
+([简体中文](./README_cn.md)|English)
 # Automatic Video Subtitiles
 
 ## Introduction
-Automatic video subtitiles can generate subtitiles from a specific video by using Automatic Speech Recognition (ASR) system. 
+Automatic video subtitles can generate subtitles from a specific video by using the Automatic Speech Recognition (ASR) system. 
 
-This demo is an implementation to automatic video subtitiles from a video file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to automatic video subtitles from a video file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -12,7 +13,7 @@ pip install paddlespeech
 ```
 
 ### 2. Prepare Input
-Get a video file with speech of the specific language:
+Get a video file with the speech of the specific language:
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/demos/asr_demos/subtitle_demo1.mp4
 ```
@@ -21,7 +22,6 @@ Extract `.wav` with one channel and 16000 sample rate from the video:
 ```bash
 ffmpeg -i subtitle_demo1.mp4 -ac 1 -ar 16000 -vn input.wav
 ```
-
 
 ### 3. Usage
 

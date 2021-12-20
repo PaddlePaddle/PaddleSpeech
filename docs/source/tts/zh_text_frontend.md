@@ -1,4 +1,4 @@
-# Chinese Rule Based Text Frontend
+# Chinese Rule-Based Text Frontend
 A TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We provide a complete Chinese text frontend module in PaddleSpeech TTS, see exapmles in [examples/other/tn](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tn) and [examples/other/g2p](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/g2p).
 
 A text frontend module mainly includes:
@@ -42,7 +42,7 @@ Among them, Text Normalization and G2P are the most important modules. We mainly
 ## Grapheme-to-Phoneme
 In Chinese, G2P is a very complex module, which mainly includes **polyphone**  and **tone sandhi**.
 
-We use [g2pM](https://github.com/kakaobrain/g2pM) and [pypinyin](https://github.com/mozillazg/python-pinyin)  as the defalut g2p tools. They can solve the problem of polyphone to a certain extent. In the future, we intend to use a trainable language model (for example, [BERT](https://arxiv.org/abs/1810.04805)) for polyphone.
+We use [g2pM](https://github.com/kakaobrain/g2pM) and [pypinyin](https://github.com/mozillazg/python-pinyin)  as the default g2p tools. They can solve the problem of polyphones to a certain extent. In the future, we intend to use a trainable language model (for example, [BERT](https://arxiv.org/abs/1810.04805)) for polyphones.
 
 However, g2pM and pypinyin do not perform well in tone sandhi, we use rules to solve this problem, which requires relevant linguistic knowledge.
 

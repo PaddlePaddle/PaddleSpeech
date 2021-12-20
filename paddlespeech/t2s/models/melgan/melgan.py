@@ -93,7 +93,8 @@ class MelGANGenerator(nn.Layer):
         initialize(self, init_type)
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         # check hyper parameters is valid
         assert channels >= np.prod(upsample_scales)
@@ -101,6 +102,7 @@ class MelGANGenerator(nn.Layer):
         if not use_causal_conv:
             assert (kernel_size - 1
                     ) % 2 == 0, "Not support even number kernel size."
+
         layers = []
         if not use_causal_conv:
             layers += [
@@ -327,7 +329,8 @@ class MelGANDiscriminator(nn.Layer):
         super().__init__()
 
         # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         # initialize parameters
         initialize(self, init_type)
@@ -476,8 +479,9 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        # for compatibility
-        nonlinear_activation = nonlinear_activation.lower()
+        # for 
+        if nonlinear_activation:
+            nonlinear_activation = nonlinear_activation.lower()
 
         self.discriminators = nn.LayerList()
 

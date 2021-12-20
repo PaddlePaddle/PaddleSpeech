@@ -1,5 +1,5 @@
 # Tacotron2 with LJSpeech
-PaddlePaddle dynamic graph implementation of Tacotron2, a neural network architecture for speech synthesis directly from text. The implementation is based on [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884).
+PaddlePaddle dynamic graph implementation of Tacotron2, a neural network architecture for speech synthesis directly from the text. The implementation is based on [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884).
 
 ## Dataset
 We experiment with the LJSpeech dataset. Download and unzip [LJSpeech](https://keithito.com/LJ-Speech-Dataset/).
@@ -18,7 +18,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -40,7 +40,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --config FILE         path of the config file to overwrite to default config
                         with.
-  --data DATA_DIR       path to the datatset.
+  --data DATA_DIR       path to the dataset.
   --output OUTPUT_DIR   path to save checkpoint and logs.
   --checkpoint_path CHECKPOINT_PATH
                         path of the checkpoint to load
@@ -50,9 +50,9 @@ optional arguments:
 ```
 
 If you want to train on CPU, just set `--ngpu=0`.
-If you want to train on multiple GPUs, just set `--ngpu` as num of GPU.
+If you want to train on multiple GPUs, just set `--ngpu` as the num of GPU.
 By default, training will be resumed from the latest checkpoint in `--output`, if you want to start a new training, please use a new `${OUTPUTPATH}` with no checkpoint.
-And if you want to resume from an other existing model, you should set `checkpoint_path` to be the checkpoint path you want to load.
+And if you want to resume from another existing model, you should set `checkpoint_path` to be the checkpoint path you want to load.
 **Note: The checkpoint path cannot contain the file extension.**
 
 ### Synthesizing
@@ -79,11 +79,11 @@ optional arguments:
                         config, passing in KEY VALUE pairs
   -v, --verbose         print msg
 ```
-**Ps.** You can  use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder to synthesize mels to wavs. (Please  refer to `synthesize.sh` in our  LJSpeech waveflow example)
+**Ps.** You can use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder to synthesize mels to wavs. (Please  refer to `synthesize.sh` in our  LJSpeech waveflow example)
 
 ## Pretrained Models
-Pretrained Models can be downloaded from links below. We provide 2 models with different configurations.
+Pretrained Models can be downloaded from the links below. We provide 2 models with different configurations.
 
-1. This model use a binary classifier to predict the stop token. [tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3.zip)
+1. This model uses a binary classifier to predict the stop token. [tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3.zip)
 
-2. This model does not have a stop token predictor. It uses the attention peak position to decided whether all the contents have been uttered. Also guided attention loss is used to speed up training. This model is trained with `configs/alternative.yaml`.[tacotron2_ljspeech_ckpt_0.3_alternative.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3_alternative.zip)
+2. This model does not have a stop token predictor. It uses the attention peak position to decide whether all the contents have been uttered. Also, guided attention loss is used to speed up training. This model is trained with `configs/alternative.yaml`.[tacotron2_ljspeech_ckpt_0.3_alternative.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3_alternative.zip)

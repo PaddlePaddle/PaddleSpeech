@@ -1,12 +1,12 @@
 # G2P
 For g2p, we use BZNSYP's phone label as the ground truth and we delete silence tokens in labels and predicted phones.
 
-You should Download BZNSYP from it's [Official Website](https://test.data-baker.com/data/index/source) and extract it. Assume the path to the dataset is `~/datasets/BZNSYP`.
+You should Download BZNSYP from its [Official Website](https://test.data-baker.com/data/index/source) and extract it. Assume the path to the dataset is `~/datasets/BZNSYP`.
 
-We use `WER` as evaluation criterion.
+We use `WER` as an evaluation criterion.
 
 # Start
-Run the command below to get the results of test.
+Run the command below to get the results of the test.
 ```bash
 ./run.sh
 ```

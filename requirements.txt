@@ -20,7 +20,7 @@ paddlespeech_feat
 pandas
 phkit
 Pillow
-praatio~=4.1
+praatio==5.0.0
 pre-commit
 pybind11
 pypi-kenlm

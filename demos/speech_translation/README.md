@@ -1,9 +1,9 @@
+([简体中文](./README_cn.md)|English)
 # Speech Translation
-
 ## Introduction
 Speech translation is the process by which conversational spoken phrases are instantly translated and spoken aloud in a second language.
 
-This demo is an implementation to recognize text from a specific audio file and translate to target language. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation to recognize text from a specific audio file and translate it to the target language. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -12,7 +12,7 @@ pip install paddlespeech
 ```
 
 ### 2. Prepare Input File
-Input of this demo should be a WAV file(`.wav`).
+The input of this demo should be a WAV file(`.wav`).
 
 Here are sample files for this demo that can be downloaded:
 ```bash
@@ -67,10 +67,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ['我 在 这栋 建筑 的 古老 门上 敲门 。'] 
   ```
 
-
 ### 4.Pretrained Models
-
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
 | Model | Source Language | Target Language
 | :--- | :---: | :---: |

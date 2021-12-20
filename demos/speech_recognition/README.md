@@ -1,4 +1,5 @@
-# ASR(Automatic Speech Recognition)
+([简体中文](./README_cn.md)|English)
+# ASR (Automatic Speech Recognition)
 
 ## Introduction
 ASR, or Automatic Speech Recognition, refers to the problem of getting a program to automatically transcribe spoken language (speech-to-text). 
@@ -12,7 +13,7 @@ pip install paddlespeech
 ```
 
 ### 2. Prepare Input File
-Input of this demo should be a WAV file(`.wav`), and the sample rate must be same as the model's.
+The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
 Here are sample files for this demo that can be downloaded:
 ```bash
@@ -65,10 +66,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   我认为跑步最重要的就是给我带来了身体健康
   ```
 
-
 ### 4.Pretrained Models
 
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |

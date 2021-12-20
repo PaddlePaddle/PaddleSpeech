@@ -1,3 +1,5 @@
+([简体中文](./README_cn.md)|English)
+
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
@@ -5,16 +7,23 @@
 
   <h3>
   <a href="#quick-start"> Quick Start </a>
-  | <a href="#tutorials"> Tutorials </a>
+  | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
 </div>
 
 ------------------------------------------------------------------------------------
 
-![License](https://img.shields.io/badge/license-Apache%202-red.svg)
-![python version](https://img.shields.io/badge/python-3.7+-orange.svg)
-![support os](https://img.shields.io/badge/os-linux-yellow.svg)
-![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)
+
+<p align="center">
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
+    <a href="support os"><img src="https://img.shields.io/badge/os-linux-yellow.svg"></a>
+    <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/graphs/contributors"><img src="https://img.shields.io/github/contributors/PaddlePaddle/PaddleSpeech?color=9ea"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/commits"><img src="https://img.shields.io/github/commit-activity/m/PaddlePaddle/PaddleSpeech?color=3af"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/issues"><img src="https://img.shields.io/github/issues/PaddlePaddle/PaddleSpeech?color=9cc"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/stargazers"><img src="https://img.shields.io/github/stars/PaddlePaddle/PaddleSpeech?color=ccf"></a>
+    <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
+</p>
 
 <!---
 from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
@@ -94,7 +103,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
    <tr>
       <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/001.wav" rel="nofollow">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -132,12 +141,11 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
-### Communication
-If you are in China, we recommend you to join our WeChat group to contact directly with our team members!
+### Community
+- Scan the QR code below with your Wechat, you can access to official technical exchange group. Look forward to your participation.
 
 <div align="center">
-<img src="./docs/images/wechat_group.png"  width = "400"  />
-
+<img src="https://user-images.githubusercontent.com/23690325/146679552-c3d72919-219f-4ae3-8bb2-25e521139fe6.png"  width = "200"  />
 </div>
 
 ## Installation
@@ -146,8 +154,9 @@ We strongly recommend our users to install PaddleSpeech in **Linux** with *pytho
 ```python
 pip install paddlepaddle paddlespeech
 ```
-Up to now, **Mac OSX** supports CLI for the all our tasks, Windows only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
 
+<a name="quickstart"></a>
 ## Quick Start
 
 Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md). Change `--input` to test your own audio/text.
@@ -162,13 +171,13 @@ paddlespeech asr --lang zh --input input_16k.wav
 ```
 **Speech Translation** (English to Chinese)
 
-(not support for Windows now)
+(not support for Mac and Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```
 **Text-to-Speech** 
 ```shell
-paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
 ```
 - web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
 
@@ -179,11 +188,7 @@ If you want to try more functions like training and tuning, please have a look a
 
 PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
 
-**Speech-to-Text** contains *Acoustic Model* and *Language Model*, with the following details:
-
-<!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
--->
+**Speech-to-Text** contains *Acoustic Model*, *Language Model*, and *Speech Translation*, with the following details:
 
 <table style="width:100%">
   <thead>
@@ -379,6 +384,8 @@ The current hyperlinks redirect to [Previous Parakeet](https://github.com/Paddle
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.
 
 - [Installation](./docs/source/install.md)
+- [Quick Start](#quickstart)
+- [Some Demos](./demos/README.md)
 - Tutorials
   - [Automatic Speech Recognition](./docs/source/asr/quick_start.md)
     - [Introduction](./docs/source/asr/models_introduction.md)
@@ -390,9 +397,12 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Advanced Usage](./docs/source/tts/advanced_usage.md)
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
-  - Audio Classification
-  - Speech Translation
+  - [Audio Classification](./demos/audio_tagging/README.md)
+  - [Speech Translation](./demos/speech_translation/README.md)
 - [Released Models](./docs/source/released_model.md)
+- [Community](#Community)
+- [Welcome to contribute](#contribution)
+- [License](#License)
 
 The Text-to-Speech module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with this repository. If you are interested in academic research about this task, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
 
@@ -407,7 +417,7 @@ howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
 ```
-
+<a name="contribution"></a>
 ## Contribute to PaddleSpeech
 
 You are warmly welcome to submit questions in [discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) and bug reports in [issues](https://github.com/PaddlePaddle/PaddleSpeech/issues)! Also, we highly appreciate if you are willing to contribute to this project!
@@ -453,9 +463,12 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling) for years of attention, constructive advice and great help.
 - Many thanks to [AK391](https://github.com/AK391) for TTS web demo on Huggingface Spaces using Gradio.
+- Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
+
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 
+<a name="License"></a>
 ## License
 
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).

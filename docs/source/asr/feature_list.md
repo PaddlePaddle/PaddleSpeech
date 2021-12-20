@@ -36,7 +36,7 @@
 ### Aligment  
 
 * MFA  
-* CTC Aligment  
+* CTC Alignment  
 
 ### Speech Frontend
 
@@ -73,5 +73,5 @@
 
 ### Grapheme To Phoneme
 
-* syallable
+* syllable
 * phoneme

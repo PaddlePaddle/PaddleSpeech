@@ -18,7 +18,7 @@ Run the command below to
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, run the following command will only preprocess the dataset.
+You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -42,9 +42,9 @@ dump
     ├── raw
     └── speech_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev` and` test`, each of which contains a `norm` and `raw` sub folder. The raw folder contains speech feature of each utterances, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/speech_stats.npy`.
+The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains the speech feature of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/speech_stats.npy`.
 
-Also there is a `metadata.jsonl` in each subfolder. It is a table-like file which contains phones, text_lengths, speech_lengths, path of speech features, speaker and id of each utterance.
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, the path of speech features, speaker, and id of each utterance.
 
 ### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
@@ -75,7 +75,7 @@ optional arguments:
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are save in `checkpoints/` inside this directory.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 5. `--phones-dict` is the path of the phone vocabulary file.
 
@@ -85,7 +85,7 @@ Download Pretrained WaveFlow Model with residual channel equals 128 from [wavefl
 ```bash
 unzip waveflow_ljspeech_ckpt_0.3.zip
 ```
-WaveFlow  checkpoint contains files listed below.
+WaveFlow checkpoint contains files listed below.
 ```text
 waveflow_ljspeech_ckpt_0.3
 ├── config.yaml           # default config used to train waveflow

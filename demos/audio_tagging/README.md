@@ -1,7 +1,9 @@
+([简体中文](./README_cn.md)|English)
+
 # Audio Tagging
 
 ## Introduction
-Audio tagging is the task of labelling an audio clip with one or more labels or tags, includeing music tagging, acoustic scene classification, audio event classification, etc.
+Audio tagging is the task of labeling an audio clip with one or more labels or tags, including music tagging, acoustic scene classification, audio event classification, etc.
 
 This demo is an implementation to tag an audio file with 527 [AudioSet](https://research.google.com/audioset/) labels. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
@@ -12,7 +14,7 @@ pip install paddlespeech
 ```
 
 ### 2. Prepare Input File
-Input of this demo should be a WAV file(`.wav`).
+The input of this demo should be a WAV file(`.wav`).
 
 Here are sample files for this demo that can be downloaded:
 ```bash
@@ -29,13 +31,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
   paddlespeech cls --help
   ```
   Arguments:
-  - `input`(required): Audio file to tag.
+  - `input`(required): The audio file to tag.
   - `model`: Model type of tagging task. Default: `panns_cnn14`.
-  - `config`: Config of tagging task. Use pretrained model when it is None. Default: `None`.
-  - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
-  - `label_file`: Label file of tagging task. Use audioset labels when it is None. Default: `None`.
-  - `topk`: Show topk tagging labels of result. Default: `1`.
-  - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
+  - `config`: Config of tagging task. Use a pretrained model when it is None. Default: `None`.
+  - `ckpt_path`: Model checkpoint. Use a pretrained model when it is None. Default: `None`.
+  - `label_file`: Label file of tagging task. Use audio set labels when it is None. Default: `None`.
+  - `topk`: Show topk tagging labels of the result. Default: `1`.
+  - `device`: Choose the device to execute model inference. Default: default device of paddlepaddle in the current environment.
 
   Output:
   ```bash
@@ -83,10 +85,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
   Bird: 0.006304860580712557
   ```
 
-
 ### 4.Pretrained Models
 
-Here is a list of pretrained models released by PaddleSpeech that can be used by command and python api:
+Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
 | Model | Sample Rate
 | :--- | :---: 

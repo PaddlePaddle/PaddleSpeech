@@ -1,8 +1,8 @@
 
 fs : 22050              # Hz, sample rate
-n_fft : 1024            # fft frame size
-win_length : 1024       # window size
-n_shift : 256           # hop size between ajacent frame
+n_fft : 1024            # FFT size (samples). 
+win_length : 1024       # Window length (samples). 46.4ms
+n_shift : 256           # Hop size (samples). 11.6ms
 fmin : 0                # Hz, min frequency when converting to mel
 fmax : 8000             # Hz, max frequency when converting to mel
 n_mels : 80             # mel bands

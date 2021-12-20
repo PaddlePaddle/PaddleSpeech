@@ -7,7 +7,7 @@ with open("requirements.txt", encoding="utf-8-sig") as f:
     requirements = f.readlines()
 
 setup(name='paddlespeech_feat',
-      version='0.0.1a',
+      version='0.1.0',
       description='python speech feature extraction in paddlespeech',
       install_requires=requirements,
       author="PaddlePaddle Speech and Language Team",

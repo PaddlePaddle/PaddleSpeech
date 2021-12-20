@@ -7,7 +7,7 @@
 
   <h3>
   <a href="#quick-start"> Quick Start </a>
-  | <a href="#tutorials"> Tutorials </a>
+  | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
 </div>
 
@@ -154,12 +154,12 @@ We strongly recommend our users to install PaddleSpeech in **Linux** with *pytho
 ```python
 pip install paddlepaddle paddlespeech
 ```
-Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX and Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
 
 <a name="quickstart"></a>
 ## Quick Start
 
-Developers can have a try of our models with [PaddleSpeech Command Line](./demos/README.md). Change `--input` to test your own audio/text.
+Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md). Change `--input` to test your own audio/text.
 
 **Audio Classification**     
 ```shell
@@ -189,10 +189,6 @@ If you want to try more functions like training and tuning, please have a look a
 PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
 
 **Speech-to-Text** contains *Acoustic Model*, *Language Model*, and *Speech Translation*, with the following details:
-
-<!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
--->
 
 <table style="width:100%">
   <thead>

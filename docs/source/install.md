@@ -13,6 +13,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 - PaddlePaddle latest version (please refer to the [Installation Guide] (https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ compilation environment
 - Hip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
+- Hip: We recommand you to install `paddlepaddle` from 'https://mirror.baidu.com/pypi/simple' and install `paddlespeech` from 'https://pypi.tuna.tsinghua.edu.cn/simple'. 
 
 ## Easy: Get the Basic Function (Support Linux, Mac, and Windows)
 - If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine. 
@@ -49,7 +50,8 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ### Install PaddleSpeech 
 You can use the following command:
 ```bash
-pip install paddlepaddle paddlespeech
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 ## Medium: Get the Major Functions (Support Linux)
 If you want to get the major function of  `paddlespeech`, you need to do following steps:
@@ -105,13 +107,13 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ### Install PaddlePaddle
 You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.5 install paddlepaddle-gpu 2.2.0:
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
+python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### Install PaddleSpeech 
 You can install  `paddlespeech`  by the following command，then you can use the `ready-made` examples in `paddlespeech` :
 ```bash
 # Make sure you are in the root directory of PaddleSpeech
-pip install .
+pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 ## Hard: Get the Full Function (Support Ubuntu)
@@ -178,11 +180,11 @@ conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
 
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
+python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### Install PaddleSpeech in Developing Mode
 ```bash
-pip install -e .[develop]
+pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 ### Install the Kaldi (Optional)
 ```bash

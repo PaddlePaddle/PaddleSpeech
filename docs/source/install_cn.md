@@ -11,6 +11,8 @@
 - 最新版本的 PaddlePaddle (请看 [安装向导](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ 编译环境
 - 提示: 对于 Linux 和 Mac，请不要使用 `sh` 代替安装文档中的 `bash`
+- 提示: 我们建议在安装`paddlepaddle`的时候使用百度源'https://mirror.baidu.com/pypi/simple'，而在安装`paddlespeech`的时候使用清华源'https://pypi.tuna.tsinghua.edu.cn/simple'。
+
 ## 简单： 获取基本功能(支持 Linux，Mac 和 Windows)
 - 如果你是一个刚刚接触 `PaddleSpeech` 的新人并且想要很方便地体验一下该项目。我们建议你 体验一下[AI Studio](https://aistudio.baidu.com/aistudio/index)。我们在AI Studio上面建立了一个让你一步一步运行体验来使用`PaddleSpeech`的教程。
 - 如果你想使用 `PaddleSpeech` 的命令行功能，你需要跟随下面的步骤来安装 `PaddleSpeech`。如果你想了解更多关于使用 `PaddleSpeech` 命令行功能的信息，你可以参考 [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli)。
@@ -44,7 +46,8 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ### 安装 PaddleSpeech
 你可以使用如下命令：
 ```bash
-pip install paddlepaddle paddlespeech
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```
 ## 中等： 获取主要功能（支持 Linux）
 如果你想要使用` paddlespeech` 的主要功能。你需要完成以下几个步骤
@@ -98,12 +101,13 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ### 安装 PaddlePaddle
 你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.2.0：
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
+python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 安装 PaddleSpeech
 最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech`中已有的 examples：
 ```bash
-pip install .
+# 请确保目前处于PaddleSpeech项目的根目录
+pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 ## 困难： 获取所有功能（支持 Ubuntu）
 ### 先决条件
@@ -164,11 +168,11 @@ conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ### 安装 PaddlePaddle
 请确认你系统是否有 GPU，并且使用了正确版本的 paddlepaddle。例如系统使用 CUDA 10.2, CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.2.0：
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0
+python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 用开发者模式安装 PaddleSpeech
 ```bash
-pip install -e .[develop]
+pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 ### 安装 Kaldi（可选）
 ```bash

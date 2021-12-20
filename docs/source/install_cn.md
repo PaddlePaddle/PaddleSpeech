@@ -11,7 +11,7 @@
 - 最新版本的 PaddlePaddle (请看 [安装向导](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ 编译环境
 - 提示: 对于 Linux 和 Mac，请不要使用 `sh` 代替安装文档中的 `bash`
-- 提示: 我们建议在安装`paddlepaddle`的时候使用百度源'https://mirror.baidu.com/pypi/simple'，而在安装`paddlespeech`的时候使用清华源'https://pypi.tuna.tsinghua.edu.cn/simple'。
+- 提示: 我们建议在安装`paddlepaddle`的时候使用百度源 https://mirror.baidu.com/pypi/simple ，而在安装`paddlespeech`的时候使用清华源 https://pypi.tuna.tsinghua.edu.cn/simple 。
 
 ## 简单： 获取基本功能(支持 Linux，Mac 和 Windows)
 - 如果你是一个刚刚接触 `PaddleSpeech` 的新人并且想要很方便地体验一下该项目。我们建议你 体验一下[AI Studio](https://aistudio.baidu.com/aistudio/index)。我们在AI Studio上面建立了一个让你一步一步运行体验来使用`PaddleSpeech`的教程。

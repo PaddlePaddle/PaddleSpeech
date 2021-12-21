@@ -1,3 +1,4 @@
+
 ([简体中文](./README_cn.md)|English)
 
 <p align="center">
@@ -309,7 +310,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
    <tr>
-      <td rowspan="3">Vocoder</td>
+      <td rowspan="5">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -329,7 +330,21 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>
       <a href = "./examples/csmsc/voc3">Multi Band MelGAN-csmsc</a> 
       </td>
-    </tr>                                                                                                                                           
+    </tr> 
+    <tr>
+      <td >Style MelGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc4">Style MelGAN-csmsc</a> 
+      </td>
+    </tr>
+    <tr>
+      <td >HiFiGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      </td>
+    <tr>                                                                                                                                       
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>

@@ -144,11 +144,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 ## 安装
 
-我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。这种情况下安装 `paddlespeech` 只需要一条 `pip` 命令:
-```python
-pip install paddlepaddle paddlespeech
-```
-目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解更多安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
+我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。
+目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解具体安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
 
 ## 快速开始
 

@@ -139,7 +139,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 微信扫描二维码加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/146679552-c3d72919-219f-4ae3-8bb2-25e521139fe6.png"  width = "200"  />
+<img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />
 </div>
 
 ## 安装

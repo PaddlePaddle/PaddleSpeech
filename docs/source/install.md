@@ -30,6 +30,8 @@ conda install -y -c conda-forge sox libsndfile bzip2
 #### Windows
 You need to install `Visual Studio` to make the C++ compilation environment.
 
+https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
 #### Mac
 ```bash
 brew install gcc

@@ -145,7 +145,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - Scan the QR code below with your Wechat, you can access to official technical exchange group. Look forward to your participation.
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/146679552-c3d72919-219f-4ae3-8bb2-25e521139fe6.png"  width = "200"  />
+<img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "200"  />
 </div>
 
 ## Installation

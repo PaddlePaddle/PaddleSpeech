@@ -15,6 +15,7 @@ matplotlib
 nara_wpe
 nltk
 paddleaudio
+paddlenlp
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas

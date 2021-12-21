@@ -69,4 +69,3 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
-| transformer_aishell| zh| 16000

@@ -151,11 +151,8 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*, where `paddlespeech`  can be easily installed with `pip`:
-```python
-pip install paddlepaddle paddlespeech
-```
-Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*.
+Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. To install `PaddleSpeech`, please see [installation](./docs/source/install.md).
 
 <a name="quickstart"></a>
 ## Quick Start

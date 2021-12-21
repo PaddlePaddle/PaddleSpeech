@@ -36,6 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `sample_rate`: Sample rate of the model. Default: `16000`.
   - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
+  - `yes`: No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate. Default: `False`.
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
 
   Output:
@@ -56,6 +57,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
       ckpt_path=None,
       audio_file='./zh.wav',
+      force_yes=False,
       device=paddle.get_device())
   print('ASR Result: \n{}'.format(text))
   ```
@@ -73,4 +75,3 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
-| transformer_aishell| zh| 16000

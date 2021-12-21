@@ -8,9 +8,9 @@ This demo is an implementation to automatic video subtitles from a video file. I
 
 ## Usage
 ### 1. Installation
-```bash
-pip install paddlespeech
-```
+see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
 
 ### 2. Prepare Input
 Get a video file with the speech of the specific language:

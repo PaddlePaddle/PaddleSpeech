@@ -6,9 +6,10 @@
 这个 demo 是一个为视频自动生成字幕的实现，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 ## 使用方法
 ### 1. 安装
-```bash
-pip install paddlespeech
-```
+请看 https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md 。
+
+你可以从easy，medium，hard三中方式中选择一种方式安装。
+
 ### 2. 准备输入
 获取包含特定语言语音的视频文件：
 ```bash

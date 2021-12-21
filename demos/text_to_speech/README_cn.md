@@ -9,9 +9,10 @@
 
 ## 使用方法
 ### 1. 安装
-```bash
-pip install paddlespeech
-```
+请看 https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md 。
+
+你可以从easy，medium，hard三中方式中选择一种方式安装。
+
 ### 2. 准备输入
 
 这个 demo 的输入是通过参数传递的特定语言的文本。

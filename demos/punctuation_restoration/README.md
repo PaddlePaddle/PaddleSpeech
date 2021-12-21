@@ -7,9 +7,10 @@ This demo is an implementation to restore punctuation from raw text. It can be d
 
 ## Usage
 ### 1. Installation
-```bash
-pip install paddlespeech
-```
+see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
+
 ### 2. Prepare Input
 The input of this demo should be a text of the specific language that can be passed via argument.
 

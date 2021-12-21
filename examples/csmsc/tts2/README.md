@@ -109,7 +109,7 @@ pwg_baker_ckpt_0.4
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-``text
+```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
                      [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]

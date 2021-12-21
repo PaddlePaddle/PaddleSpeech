@@ -8,9 +8,10 @@ This demo is an implementation to recognize text from a specific audio file. It 
 
 ## Usage
 ### 1. Installation
-```bash
-pip install paddlespeech
-```
+see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
+
 
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.

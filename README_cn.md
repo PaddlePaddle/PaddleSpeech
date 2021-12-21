@@ -303,7 +303,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
    <tr>
-      <td rowspan="3">声码器</td>
+      <td rowspan="5">声码器</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -323,7 +323,21 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <td>
       <a href = "./examples/csmsc/voc3">Multi Band MelGAN-csmsc</a> 
       </td>
-    </tr>                                                                                                                                           
+    </tr>
+    <tr>
+      <td >Style MelGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc4">Style MelGAN-csmsc</a> 
+      </td>
+    </tr>
+    <tr>
+      <td >HiFiGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      </td>
+    <tr>                                                                                                                                       
     <tr>
       <td rowspan="3">声音克隆</td>
       <td>GE2E</td>

@@ -22,6 +22,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```bash
   paddlespeech asr --input ./zh.wav
   ```
+  (如果显示`paddlespeech-ctcdecoders`这个python包没有找到的Error，没有关系，这个包是非必须的。)
+  
   使用方法：
   ```bash
   paddlespeech asr --help

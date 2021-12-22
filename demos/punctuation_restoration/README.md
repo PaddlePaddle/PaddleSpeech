@@ -7,7 +7,7 @@ This demo is an implementation to restore punctuation from raw text. It can be d
 
 ## Usage
 ### 1. Installation
-see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

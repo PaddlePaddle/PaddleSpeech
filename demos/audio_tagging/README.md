@@ -9,7 +9,7 @@ This demo is an implementation to tag an audio file with 527 [AudioSet](https://
 
 ## Usage
 ### 1. Installation
-see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

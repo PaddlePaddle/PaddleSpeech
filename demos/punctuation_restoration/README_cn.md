@@ -9,9 +9,9 @@
 
 ## 使用方法
 ### 1. 安装
-请看 https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md 。
+请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
 
-你可以从easy，medium，hard三中方式中选择一种方式安装。
+你可以从 easy，medium，hard 三中方式中选择一种方式安装。
 
 ### 2. 准备输入
 这个 demo 的输入是通过参数传递的特定语言的文本。

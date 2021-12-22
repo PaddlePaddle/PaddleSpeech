@@ -7,9 +7,10 @@
 这个 demo 是一个从给定音频文件识别文本的实现，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 ## 使用方法
 ### 1. 安装
-```bash
-pip install paddlespeech
-```
+请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
+
+你可以从 easy，medium，hard 三中方式中选择一种方式安装。
+
 ### 2. 准备输入
 这个 demo 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 

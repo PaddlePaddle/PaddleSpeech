@@ -8,7 +8,7 @@ This demo is an implementation to automatic video subtitles from a video file. I
 
 ## Usage
 ### 1. Installation
-see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md). 
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

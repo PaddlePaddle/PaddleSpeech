@@ -7,7 +7,7 @@ This demo is an implementation to recognize text from a specific audio file and 
 
 ## Usage
 ### 1. Installation
-see https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md. 
+see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

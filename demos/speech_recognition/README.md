@@ -26,6 +26,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```bash
   paddlespeech asr --input ./zh.wav
   ```
+  (It doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
+  
   Usage:
   ```bash
   paddlespeech asr --help

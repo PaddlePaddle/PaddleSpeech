@@ -123,6 +123,25 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
 
+##### 文本后处理
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 输入文本  </th>
+      <th> 输出文本(标点恢复)  </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
+      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
 ### 特性:
 
 本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
@@ -175,6 +194,12 @@ paddlespeech st --input input_16k.wav
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
 - 语音合成的 web demo 已经集成进了 [Huggingface Spaces](https://huggingface.co/spaces). 请参考: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
+
+**文本后处理** 
+ - 标点恢复
+   ```bash
+   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+   ```
 
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。

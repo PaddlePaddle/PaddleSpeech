@@ -127,6 +127,25 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
 
+##### Text Postprocessing
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Input Text  </th>
+      <th> Output Text(Punctuation Restoration)  </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
+      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
 ### Features:
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
@@ -183,6 +202,13 @@ paddlespeech st --input input_16k.wav
 paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
 ```
 - web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
+
+**Text Postprocessing** 
+- Punctuation Restoration
+  ```bash
+  paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+  ```
+
   
 
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)

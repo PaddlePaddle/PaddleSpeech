@@ -132,8 +132,8 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 <table style="width:100%">
   <thead>
     <tr>
-      <th width="315"> Input Text </th>
-      <th> Output Text </th>
+      <th width="390"> Input Text </th>
+      <th width="390"> Output Text </th>
     </tr>
   </thead>
   <tbody>

@@ -105,6 +105,8 @@ class Frontend():
         phones_list = []
         for seg in segments:
             phones = []
+            # Replace all English words in the sentence
+            seg = re.sub('[a-zA-Z]+','',seg)
             seg_cut = psg.lcut(seg)
             initials = []
             finals = []

@@ -94,7 +94,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th width="600" > Input Text</th>
+      <th width="550" > Input Text</th>
       <th>Synthetic Audio</th>
     </tr>
   </thead>
@@ -127,13 +127,13 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
 
-##### Text Postprocessing
+##### Punctuation Restoration
 <div align = "center">
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Input Text  </th>
-      <th> Output Text (Punctuation Restoration)</th>
+      <th width="315"> Input Text </th>
+      <th> Output Text </th>
     </tr>
   </thead>
   <tbody>

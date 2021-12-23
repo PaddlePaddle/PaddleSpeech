@@ -1,4 +1,3 @@
-
 ([简体中文](./README_cn.md)|English)
 
 <p align="center">
@@ -62,7 +61,6 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>
-    
   </tbody>
 </table>
 
@@ -96,7 +94,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th><img width="200" height="1"> Input Text <img width="200" height="1"> </th>
+      <th> Input Text </th>
       <th>Synthetic Audio</th>
     </tr>
   </thead>
@@ -112,6 +110,13 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
       <td >早上好，今天是2020/10/29，最低温度是-3°C。</td>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -178,8 +183,10 @@ paddlespeech st --input input_16k.wav
 paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
 ```
 - web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
-
   
+
+For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
+
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 ## Model List

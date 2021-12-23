@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ckpt_dir=$1
+ckpt=$1
 output_dir=$2
 
 python3 ${BIN_DIR}/export_model.py \
---checkpoint ${ckpt_dir}/model.pdparams \
+--checkpoint ${ckpt} \
 --output_dir ${output_dir}

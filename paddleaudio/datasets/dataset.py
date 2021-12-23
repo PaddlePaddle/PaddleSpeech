@@ -36,6 +36,7 @@ class AudioClassificationDataset(paddle.io.Dataset):
                  files: List[str],
                  labels: List[int],
                  feat_type: str='raw',
+                 sample_rate: int=None,
                  **kwargs):
         """
         Ags:
@@ -55,6 +56,7 @@ class AudioClassificationDataset(paddle.io.Dataset):
         self.labels = labels
 
         self.feat_type = feat_type
+        self.sample_rate = sample_rate
         self.feat_config = kwargs  # Pass keyword arguments to customize feature config
 
     def _get_data(self, input_file: str):
@@ -63,7 +65,11 @@ class AudioClassificationDataset(paddle.io.Dataset):
     def _convert_to_record(self, idx):
         file, label = self.files[idx], self.labels[idx]
 
-        waveform, sample_rate = load_audio(file)
+        if self.sample_rate is None:
+            waveform, sample_rate = load_audio(file)
+        else:
+            waveform, sample_rate = load_audio(file, sr=self.sample_rate)
+
         feat_func = feat_funcs[self.feat_type]
 
         record = {}

@@ -509,6 +509,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling) for years of attention, constructive advice and great help.
 - Many thanks to [AK391](https://github.com/AK391) for TTS web demo on Huggingface Spaces using Gradio.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
+- Many thanks to [JiehangXie](https://github.com/JiehangXie) for developing [PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) with PaddleSpeech TTS function.
 
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.

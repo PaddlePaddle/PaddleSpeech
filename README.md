@@ -15,7 +15,7 @@
 
 
 <p align="center">
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg" target="_blank"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg" onclick="return ! window.open(this.href);"></a>
     <a href="support os"><img src="https://img.shields.io/badge/os-linux-yellow.svg" target="_blank"></a>
     <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg" target="_blank"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/graphs/contributors" target="_blank"><img src="https://img.shields.io/github/contributors/PaddlePaddle/PaddleSpeech?color=9ea"></a>

@@ -27,7 +27,9 @@ PaddleAudio提供了PANNs的CNN14、CNN10和CNN6的预训练模型，可供用�
 
 |Model|Acc|
 |--|--|
-|CNN14| 0.950
+|CNN14| 0.9500
+|CNN10| 0.8975
+|CNN6| 0.8825
 
 ## 快速开始
 

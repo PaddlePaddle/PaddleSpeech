@@ -68,8 +68,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th> 输入音频  </th>
-      <th width="550"> 翻译结果  </th>
+      <th> 输入音频 </th>
+      <th width="550"> 翻译结果 </th>
     </tr>
   </thead>
   <tbody>
@@ -90,7 +90,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th width="600">输入文本</th>
+      <th width="550">输入文本</th>
       <th>合成音频</th>
     </tr>
   </thead>
@@ -123,13 +123,13 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
 
-##### 文本后处理
+##### 标点恢复
 <div align = "center">
 <table style="width:100%">
   <thead>
     <tr>
-      <th> 输入文本  </th>
-      <th> 输出文本(标点恢复) </th>
+      <th width="390"> 输入文本 </th>
+      <th width="390"> 输出文本 </th>
     </tr>
   </thead>
   <tbody>

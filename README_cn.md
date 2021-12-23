@@ -38,7 +38,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> 输入音频  </th>
-      <th width="550"> 识别结果  </th>
+      <th width="550"> 识别结果 </th>
     </tr>
   </thead>
   <tbody>
@@ -90,7 +90,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th>输入文本</th>
+      <th width="600">输入文本</th>
       <th>合成音频</th>
     </tr>
   </thead>
@@ -129,7 +129,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> 输入文本  </th>
-      <th> 输出文本(标点恢复)  </th>
+      <th> 输出文本(标点恢复) </th>
     </tr>
   </thead>
   <tbody>

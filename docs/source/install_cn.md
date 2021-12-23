@@ -29,6 +29,8 @@ conda install -y -c conda-forge sox libsndfile bzip2
 
 https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
+你可以前往讨论区[#1195](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1195)获取更多帮助。
+
 #### Mac
 ```bash
 brew install gcc

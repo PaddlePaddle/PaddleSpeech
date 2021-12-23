@@ -24,10 +24,10 @@ class CustomDataset(AudioClassificationDataset):
         'dog',
     ]
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         files, labels = self._get_data()
         super(CustomDataset, self).__init__(
-            files=files, labels=labels, feat_type='raw')
+            files=files, labels=labels, feat_type='raw', **kwargs)
 
     def _get_data(self):
         '''
@@ -53,8 +53,9 @@ from paddleaudio.features import LogMelSpectrogram
 from custom_dataset import CustomDataset
 
 # Feature config should be align with pretrained model
+sample_rate = 32000
 feat_conf = {
-  'sr': 32000,
+  'sr': sample_rate,
   'n_fft': 1024,
   'hop_length': 320,
   'window': 'hann',
@@ -64,7 +65,7 @@ feat_conf = {
   'n_mels': 64,
 }
 
-train_ds = CustomDataset()
+train_ds = CustomDataset(sample_rate=sample_rate)
 feature_extractor = LogMelSpectrogram(**feat_conf)
 
 train_sampler = paddle.io.DistributedBatchSampler(

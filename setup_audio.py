@@ -13,8 +13,10 @@
 # limitations under the License.
 import setuptools
 
+import paddleaudio
+
 # set the version here
-version = '0.1.0a'
+version = paddleaudio.__version__
 
 setuptools.setup(
     name="paddleaudio",

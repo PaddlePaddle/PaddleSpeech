@@ -22,3 +22,6 @@ from .text import TextExecutor
 from .tts import TTSExecutor
 
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+
+from paddlespeech.s2t.utils.log import Log
+Log(__name__).removeLog()

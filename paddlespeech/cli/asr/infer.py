@@ -443,8 +443,6 @@ class ASRExecutor(BaseExecutor):
         """
         Python API to call an executor.
         """
-        from paddlespeech.s2t.utils.log import Log
-        Log().setLog(level="ERROR")
         audio_file = os.path.abspath(audio_file)
         self._check(audio_file, sample_rate, force_yes)
         paddle.set_device(device)

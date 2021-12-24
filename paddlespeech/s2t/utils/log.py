@@ -110,6 +110,21 @@ class Log():
     def getlog(self):
         return logger
 
+    def setLog(self, level, is_sink=False):
+        logger.remove()
+        logger.add(
+            sys.stdout,
+            level=level,
+            enqueue=True,
+            filter=lambda record: record['level'].no >= 20)
+        if is_sink == True:
+            _, file_prefix, _ = find_log_dir_and_names()
+            sink_prefix = os.path.join("exp/log", file_prefix)
+            sink_path = sink_prefix[:-3] + "{time}.log"
+            logger.add(sink_path, level=level, enqueue=True, rotation="500 MB")
+
+
+
 
 class Autolog:
     """Just used by fullchain project"""

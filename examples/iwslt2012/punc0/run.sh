@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source path.sh ${ckpt}
+source path.sh
 
 gpus=0,1
 stage=0

@@ -391,10 +391,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Task </th>
-      <th> Dataset </th>
-      <th> Model Type </th>
-      <th> Link </th>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型种类 </th>
+      <th> 链接 </th>
     </tr>
   </thead>
   <tbody>

@@ -1,4 +1,4 @@
- (简体中文|[English](./README.md))
+(简体中文|[English](./README.md))
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
@@ -38,7 +38,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   <thead>
     <tr>
       <th> 输入音频  </th>
-      <th width="550"> 识别结果  </th>
+      <th width="550"> 识别结果 </th>
     </tr>
   </thead>
   <tbody>
@@ -68,8 +68,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th> 输入音频  </th>
-      <th width="550"> 翻译结果  </th>
+      <th> 输入音频 </th>
+      <th width="550"> 翻译结果 </th>
     </tr>
   </thead>
   <tbody>
@@ -90,7 +90,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th><img width="200" height="1"> 输入文本 <img width="200" height="1"> </th>
+      <th width="550">输入文本</th>
       <th>合成音频</th>
     </tr>
   </thead>
@@ -109,12 +109,38 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
+    <tr>
+      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
   </tbody>
 </table>
 
 </div>
 
 更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
+
+##### 标点恢复
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th width="390"> 输入文本 </th>
+      <th width="390"> 输出文本 </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
+      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 ### 特性:
 
@@ -167,23 +193,26 @@ paddlespeech st --input input_16k.wav
 ```shell
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
+- 语音合成的 web demo 已经集成进了 [Huggingface Spaces](https://huggingface.co/spaces). 请参考: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
+
+**文本后处理** 
+ - 标点恢复
+   ```bash
+   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+   ```
+
+更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
 
 ## 模型列表
-
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
-<a name="语音识别模型"></a>
-PaddleSpeech 的 **语音识别** 包含语音识别声学模型、语音识别语言模型和语音翻译, 详情如下：
-
-<!---
-The current hyperlinks redirect to [Previous Parakeet](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples).
--->
+PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识别语言模型和语音翻译, 详情如下：
 
 <table style="width:100%">
   <thead>
     <tr>
-      <th>语音识别模块种类</th>
+      <th>语音转文本模块类型</th>
       <th>数据集</th>
       <th>模型种类</th>
       <th>链接</th>
@@ -259,8 +288,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <tr>
       <th> 语音合成模块类型 </th>
       <th>  模型种类  </th>
-      <th> <img width="50" height="1"> 数据集  <img width="50" height="1"> </th>
-      <th> <img width="101" height="1"> 链接 <img width="105" height="1"> </th>
+      <th> 数据集  </th>
+      <th> 链接  </th>
     </tr>
   </thead>
   <tbody>
@@ -386,6 +415,30 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </tbody>
 </table>
 
+**标点恢复**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <tr>
+      <td>标点恢复</td>
+      <td>IWLST2012_zh</td>
+      <td>Ernie Linear</td>
+      <td>
+      <a href = "./examples/iwslt2012/punc0">iwslt2012-punc0</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ## 教程文档
 
 对于 PaddleSpeech 的所关注的任务，以下指南有助于帮助开发者快速入门，了解语音相关核心思想。
@@ -482,7 +535,8 @@ year={2021}
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [AK391](https://github.com/AK391) 在 Huggingface Spaces 上使用 Gradio 对我们的语音合成功能进行网页版演示。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
-
+- 非常感谢 [JiehangXie](https://github.com/JiehangXie) 采用 PaddleSpeech 语音合成功能实现 [PaddleBoBo虚拟主播](https://github.com/JiehangXie/PaddleBoBo)。
+  
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 
 ## License

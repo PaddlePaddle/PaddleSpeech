@@ -15,24 +15,17 @@ import argparse
 import os
 
 import paddle
+import yaml
 
-from paddleaudio.datasets import ESC50
 from paddleaudio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
-from paddlespeech.cls.models import cnn14
 from paddlespeech.cls.models import SoundClassifier
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument("--epochs", type=int, default=50, help="Number of epoches for fine-tuning.")
-parser.add_argument("--feat_backend", type=str, choices=['numpy', 'paddle'], default='numpy', help="Choose backend to extract features from audio files.")
-parser.add_argument("--learning_rate", type=float, default=5e-5, help="Learning rate used to train with warmup.")
-parser.add_argument("--batch_size", type=int, default=16, help="Total examples' number in batch for training.")
-parser.add_argument("--num_workers", type=int, default=0, help="Number of workers in dataloader.")
-parser.add_argument("--checkpoint_dir", type=str, default='./checkpoint', help="Directory to save model checkpoints.")
-parser.add_argument("--save_freq", type=int, default=10, help="Save checkpoint every n epoch.")
-parser.add_argument("--log_freq", type=int, default=10, help="Log the training infomation every n steps.")
+parser.add_argument("--cfg_path", type=str, required=True)
 args = parser.parse_args()
 # yapf: enable
 
@@ -42,50 +35,60 @@ if __name__ == "__main__":
         paddle.distributed.init_parallel_env()
     local_rank = paddle.distributed.get_rank()
 
-    backbone = cnn14(pretrained=True, extract_embedding=True)
-    model = SoundClassifier(backbone, num_class=len(ESC50.label_list))
-    model = paddle.DataParallel(model)
-    optimizer = paddle.optimizer.Adam(
-        learning_rate=args.learning_rate, parameters=model.parameters())
-    criterion = paddle.nn.loss.CrossEntropyLoss()
+    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
+    with open(args.cfg_path, 'r') as f:
+        config = yaml.safe_load(f)
 
-    if args.feat_backend == 'numpy':
-        train_ds = ESC50(mode='train', feat_type='melspectrogram')
-        dev_ds = ESC50(mode='dev', feat_type='melspectrogram')
-    else:
-        train_ds = ESC50(mode='train')
-        dev_ds = ESC50(mode='dev')
-        feature_extractor = LogMelSpectrogram(sr=16000)
+    model_conf = config['model']
+    data_conf = config['data']
+    feat_conf = config['feature']
+    training_conf = config['training']
 
+    # Dataset
+    ds_class = dynamic_import(data_conf['dataset'])
+    train_ds = ds_class(**data_conf['train'])
+    dev_ds = ds_class(**data_conf['dev'])
     train_sampler = paddle.io.DistributedBatchSampler(
-        train_ds, batch_size=args.batch_size, shuffle=True, drop_last=False)
+        train_ds,
+        batch_size=training_conf['batch_size'],
+        shuffle=True,
+        drop_last=False)
     train_loader = paddle.io.DataLoader(
         train_ds,
         batch_sampler=train_sampler,
-        num_workers=args.num_workers,
+        num_workers=training_conf['num_workers'],
         return_list=True,
         use_buffer_reader=True, )
 
+    # Feature
+    feature_extractor = LogMelSpectrogram(**feat_conf)
+
+    # Model
+    backbone_class = dynamic_import(model_conf['backbone'])
+    backbone = backbone_class(pretrained=True, extract_embedding=True)
+    model = SoundClassifier(backbone, num_class=data_conf['num_classes'])
+    model = paddle.DataParallel(model)
+    optimizer = paddle.optimizer.Adam(
+        learning_rate=training_conf['learning_rate'],
+        parameters=model.parameters())
+    criterion = paddle.nn.loss.CrossEntropyLoss()
+
     steps_per_epoch = len(train_sampler)
-    timer = Timer(steps_per_epoch * args.epochs)
+    timer = Timer(steps_per_epoch * training_conf['epochs'])
     timer.start()
 
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, training_conf['epochs'] + 1):
         model.train()
 
         avg_loss = 0
         num_corrects = 0
         num_samples = 0
         for batch_idx, batch in enumerate(train_loader):
-            if args.feat_backend == 'numpy':
-                feats, labels = batch
-            else:
-                waveforms, labels = batch
-                feats = feature_extractor(
-                    waveforms
-                )  # Need a padding when lengths of waveforms differ in a batch.
-                feats = paddle.transpose(feats,
-                                         [0, 2, 1])  # To [N, length, n_mels]
+            waveforms, labels = batch
+            feats = feature_extractor(
+                waveforms
+            )  # Need a padding when lengths of waveforms differ in a batch.
+            feats = paddle.transpose(feats, [0, 2, 1])  # To [N, length, n_mels]
 
             logits = model(feats)
 
@@ -107,13 +110,15 @@ if __name__ == "__main__":
 
             timer.count()
 
-            if (batch_idx + 1) % args.log_freq == 0 and local_rank == 0:
+            if (batch_idx + 1
+                ) % training_conf['log_freq'] == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
-                avg_loss /= args.log_freq
+                avg_loss /= training_conf['log_freq']
                 avg_acc = num_corrects / num_samples
 
                 print_msg = 'Epoch={}/{}, Step={}/{}'.format(
-                    epoch, args.epochs, batch_idx + 1, steps_per_epoch)
+                    epoch, training_conf['epochs'], batch_idx + 1,
+                    steps_per_epoch)
                 print_msg += ' loss={:.4f}'.format(avg_loss)
                 print_msg += ' acc={:.4f}'.format(avg_acc)
                 print_msg += ' lr={:.6f} step/sec={:.2f} | ETA {}'.format(
@@ -124,16 +129,17 @@ if __name__ == "__main__":
                 num_corrects = 0
                 num_samples = 0
 
-        if epoch % args.save_freq == 0 and batch_idx + 1 == steps_per_epoch and local_rank == 0:
+        if epoch % training_conf[
+                'save_freq'] == 0 and batch_idx + 1 == steps_per_epoch and local_rank == 0:
             dev_sampler = paddle.io.BatchSampler(
                 dev_ds,
-                batch_size=args.batch_size,
+                batch_size=training_conf['batch_size'],
                 shuffle=False,
                 drop_last=False)
             dev_loader = paddle.io.DataLoader(
                 dev_ds,
                 batch_sampler=dev_sampler,
-                num_workers=args.num_workers,
+                num_workers=training_conf['num_workers'],
                 return_list=True, )
 
             model.eval()
@@ -141,12 +147,9 @@ if __name__ == "__main__":
             num_samples = 0
             with logger.processing('Evaluation on validation dataset'):
                 for batch_idx, batch in enumerate(dev_loader):
-                    if args.feat_backend == 'numpy':
-                        feats, labels = batch
-                    else:
-                        waveforms, labels = batch
-                        feats = feature_extractor(waveforms)
-                        feats = paddle.transpose(feats, [0, 2, 1])
+                    waveforms, labels = batch
+                    feats = feature_extractor(waveforms)
+                    feats = paddle.transpose(feats, [0, 2, 1])
 
                     logits = model(feats)
 
@@ -160,7 +163,7 @@ if __name__ == "__main__":
             logger.eval(print_msg)
 
             # Save model
-            save_dir = os.path.join(args.checkpoint_dir,
+            save_dir = os.path.join(training_conf['checkpoint_dir'],
                                     'epoch_{}'.format(epoch))
             logger.info('Saving model checkpoint to {}'.format(save_dir))
             paddle.save(model.state_dict(),

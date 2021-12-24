@@ -20,7 +20,7 @@
 The pretrained model can be downloaded here [ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
 
 ### Test Result
-- ErnieLinear
+- Ernie Linear
     |       |COMMA  |  PERIOD | QUESTION | OVERALL|
     |:-----:|:-----:|:-----:|:-----:|:-----:|  
     |Precision  |0.510955  |0.526462  |0.820755  |0.619391|

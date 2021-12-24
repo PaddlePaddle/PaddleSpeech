@@ -13,3 +13,5 @@
 # limitations under the License.
 from .backends import *
 from .features import *
+
+__version__ = '0.1.0'

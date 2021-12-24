@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import getpass
+import inspect
 import os
 import socket
 import sys
@@ -94,15 +95,31 @@ def find_log_dir_and_names(program_name=None, log_dir=None):
 class Log():
     """Default Logger for all."""
     logger.remove()
-    logger.add(
-        sys.stdout,
-        level='INFO',
-        enqueue=True,
-        filter=lambda record: record['level'].no >= 20)
-    _, file_prefix, _ = find_log_dir_and_names()
-    sink_prefix = os.path.join("exp/log", file_prefix)
-    sink_path = sink_prefix[:-3] + "{time}.log"
-    logger.add(sink_path, level='DEBUG', enqueue=True, rotation="500 MB")
+
+    _call_from_cli = False
+    _frame = inspect.currentframe()
+    while _frame:
+        if 'paddlespeech/cli/__init__.py' in _frame.f_code.co_filename:
+            _call_from_cli = True
+            break
+        _frame = _frame.f_back
+
+    if _call_from_cli:
+        logger.add(
+            sys.stdout,
+            level='ERROR',
+            enqueue=True,
+            filter=lambda record: record['level'].no >= 20)
+    else:
+        logger.add(
+            sys.stdout,
+            level='INFO',
+            enqueue=True,
+            filter=lambda record: record['level'].no >= 20)
+        _, file_prefix, _ = find_log_dir_and_names()
+        sink_prefix = os.path.join("exp/log", file_prefix)
+        sink_path = sink_prefix[:-3] + "{time}.log"
+        logger.add(sink_path, level='DEBUG', enqueue=True, rotation="500 MB")
 
     def __init__(self, name=None):
         pass

@@ -43,8 +43,7 @@ class Logger(object):
                                                                level)
 
         self.format = logging.Formatter(
-            fmt='[%(asctime)-15s] [%(levelname)8s] [%(filename)s] [L%(lineno)d] - %(message)s'
-        )
+            fmt='[%(asctime)-15s] [%(levelname)8s] - %(message)s')
 
         self.handler = logging.StreamHandler()
         self.handler.setFormatter(self.format)

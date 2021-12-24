@@ -99,10 +99,8 @@ class PuncDatasetFromErnieTokenizer(Dataset):
         self.tokenizer = ErnieTokenizer.from_pretrained(pretrained_token)
         self.paddingID = self.tokenizer.pad_token_id
         self.seq_len = seq_len
-
         self.punc2id = self.load_vocab(punc_path, extra_word_list=[" "])
         self.id2punc = {k: v for (v, k) in self.punc2id.items()}
-
         tmp_seqs = open(train_path, encoding='utf-8').readlines()
         self.txt_seqs = [i for seq in tmp_seqs for i in seq.split()]
         self.preprocess(self.txt_seqs)
@@ -125,6 +123,7 @@ class PuncDatasetFromErnieTokenizer(Dataset):
         input_data = []
         label = []
         count = 0
+        print("Preprocessing in PuncDatasetFromErnieTokenizer...")
         for i in range(len(txt_seqs) - 1):
             word = txt_seqs[i]
             punc = txt_seqs[i + 1]

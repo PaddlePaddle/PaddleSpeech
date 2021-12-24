@@ -216,7 +216,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     benchmark_group = parser.add_argument_group(
         'benchmark', 'arguments related to benchmark.')

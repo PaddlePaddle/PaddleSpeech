@@ -259,5 +259,5 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --text=${BIN_DIR}/../sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
-  --phones_dict=dump/phone_id_map.txt
+  --phones_dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```

@@ -415,6 +415,30 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </tbody>
 </table>
 
+**标点恢复**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型种类 </th>
+      <th> 链接 </th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <tr>
+      <td>标点恢复</td>
+      <td>IWLST2012_zh</td>
+      <td>Ernie Linear</td>
+      <td>
+      <a href = "./examples/iwslt2012/punc0">iwslt2012-punc0</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ## 教程文档
 
 对于 PaddleSpeech 的所关注的任务，以下指南有助于帮助开发者快速入门，了解语音相关核心思想。

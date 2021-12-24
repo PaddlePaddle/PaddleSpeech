@@ -239,7 +239,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
 

@@ -1,17 +1,28 @@
-# 中文实验例程
-## 测试数据：
-- IWLST2012中文：test2012
+# Punctuation Restoration with IWLST2012
+## Get Started
+### Data Preprocessing
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Model Training
+```bash
+./run.sh --stage 1 --stop-stage 1
+```
+### Testing
+```bash
+./run.sh --stage 2 --stop-stage 2
+```
+### Punctuation Restoration
+```bash
+./run.sh --stage 3 --stop-stage 3
+```
+## Pretrained Model
+The pretrained model can be downloaded here [ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
 
-## 运行代码
-- 运行 `./run.sh 0 0 conf/ernie_linear.yaml 1`
-
-## 实验结果：
-- ErnieLinear
-  - 实验配置：conf/ernie_linear.yaml
-  - 测试结果
-
-    |           | COMMA     | PERIOD    | QUESTION  | OVERALL  |  
-    |-----------|-----------|-----------|-----------|--------- |  
-    |Precision  | 0.471831  | 0.497679  | 0.830189  | 0.599899 |  
-    |Recall     | 0.583172  | 0.641148  | 0.846154  | 0.690158 |  
-    |F1         | 0.521626  | 0.560376  | 0.838095  | 0.640033 |  
+### Test Result
+- Ernie Linear
+    |       |COMMA  |  PERIOD | QUESTION | OVERALL|
+    |:-----:|:-----:|:-----:|:-----:|:-----:|  
+    |Precision  |0.510955  |0.526462  |0.820755  |0.619391|
+    |Recall     |0.517433  |0.564179  |0.861386  |0.647666|
+    |F1         |0.514173  |0.544669  |0.840580  |0.633141|

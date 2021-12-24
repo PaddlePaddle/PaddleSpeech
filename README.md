@@ -424,6 +424,30 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+**Punctuation Restoration**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <tr>
+      <td>Punctuation Restoration</td>
+      <td>IWLST2012_zh</td>
+      <td>Ernie Linear</td>
+      <td>
+      <a href = "./examples/iwslt2012/punc0">iwslt2012-punc0</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ## Documents
 
 Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](https://paperswithcode.com/area/audio) and [Music SoTA](https://paperswithcode.com/area/music) give you an overview of the hot academic topics in the related area. To focus on the tasks in PaddleSpeech, you will find the following guidelines are helpful to grasp the core ideas.

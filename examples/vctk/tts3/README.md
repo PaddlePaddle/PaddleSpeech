@@ -245,7 +245,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --lang=en \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output_dir=exp/default/test_e2e \
-  --phones_dict=dump/phone_id_map.txt \
-  --speaker_dict=dump/speaker_id_map.txt \
+  --phones_dict=fastspeech2_nosil_vctk_ckpt_0.5/phone_id_map.txt \
+  --speaker_dict=fastspeech2_nosil_vctk_ckpt_0.5/speaker_id_map.txt \
   --spk_id=0
 ```

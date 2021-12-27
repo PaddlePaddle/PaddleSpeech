@@ -26,6 +26,11 @@ conda install -y -c conda-forge sox libsndfile bzip2
 (如果你系统上已经安装了 C++ 编译环境，请忽略这一步。)
 #### Windows
 对于 Windows 系统，需要安装 `Visual Studio` 来完成 C++ 编译环境的安装。
+
+https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+你可以前往讨论区[#1195](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1195)获取更多帮助。
+
 #### Mac
 ```bash
 brew install gcc

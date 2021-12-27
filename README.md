@@ -61,7 +61,6 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>
-    
   </tbody>
 </table>
 
@@ -95,7 +94,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <table style="width:100%">
   <thead>
     <tr>
-      <th><img width="200" height="1"> Input Text <img width="200" height="1"> </th>
+      <th width="550" > Input Text</th>
       <th>Synthetic Audio</th>
     </tr>
   </thead>
@@ -114,12 +113,38 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
+    <tr>
+      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
   </tbody>
 </table>
 
 </div>
 
 For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html).
+
+##### Punctuation Restoration
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th width="390"> Input Text </th>
+      <th width="390"> Output Text </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
+      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 ### Features:
 
@@ -145,16 +170,13 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - Scan the QR code below with your Wechat, you can access to official technical exchange group. Look forward to your participation.
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/146679552-c3d72919-219f-4ae3-8bb2-25e521139fe6.png"  width = "200"  />
+<img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />
 </div>
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*, where `paddlespeech`  can be easily installed with `pip`:
-```python
-pip install paddlepaddle paddlespeech
-```
-Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. Please see [installation](./docs/source/install.md) for other alternatives.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*.
+Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. To install `PaddleSpeech`, please see [installation](./docs/source/install.md).
 
 <a name="quickstart"></a>
 ## Quick Start
@@ -181,7 +203,16 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
 ```
 - web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
 
+**Text Postprocessing** 
+- Punctuation Restoration
+  ```bash
+  paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+  ```
+
   
+
+For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
+
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
 
 ## Model List
@@ -309,7 +340,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
    <tr>
-      <td rowspan="3">Vocoder</td>
+      <td rowspan="5">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -329,7 +360,21 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>
       <a href = "./examples/csmsc/voc3">Multi Band MelGAN-csmsc</a> 
       </td>
-    </tr>                                                                                                                                           
+    </tr> 
+    <tr>
+      <td >Style MelGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc4">Style MelGAN-csmsc</a> 
+      </td>
+    </tr>
+    <tr>
+      <td >HiFiGAN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      </td>
+    <tr>                                                                                                                                       
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>
@@ -374,6 +419,30 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>PANN</td>
       <td>
       <a href = "./examples/esc50/cls0">pann-esc50</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Punctuation Restoration**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  
+  <tr>
+      <td>Punctuation Restoration</td>
+      <td>IWLST2012_zh</td>
+      <td>Ernie Linear</td>
+      <td>
+      <a href = "./examples/iwslt2012/punc0">iwslt2012-punc0</a>
       </td>
     </tr>
   </tbody>
@@ -461,10 +530,12 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 ## Acknowledgement
 
+
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling) for years of attention, constructive advice and great help.
 - Many thanks to [AK391](https://github.com/AK391) for TTS web demo on Huggingface Spaces using Gradio.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
-
+- Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.
+- Many thanks to [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) for contributing Punctuation Restoration model.
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 

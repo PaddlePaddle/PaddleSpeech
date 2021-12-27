@@ -15,6 +15,7 @@
 build
 
 docs/build/
+docs/topic/ctc/warp-ctc/
 
 tools/venv
 tools/kenlm

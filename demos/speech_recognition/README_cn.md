@@ -7,9 +7,10 @@
 这个 demo 是一个从给定音频文件识别文本的实现，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 ## 使用方法
 ### 1. 安装
-```bash
-pip install paddlespeech
-```
+请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
+
+你可以从 easy，medium，hard 三中方式中选择一种方式安装。
+
 ### 2. 准备输入
 这个 demo 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 
@@ -22,6 +23,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```bash
   paddlespeech asr --input ./zh.wav
   ```
+  (如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
+  
   使用方法：
   ```bash
   paddlespeech asr --help
@@ -33,6 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `sample_rate`：音频采样率，默认值：`16000`。
   - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
   - `ckpt_path`：模型参数文件，若不设置则下载预训练模型使用，默认值：`None`。
+  - `yes`；不需要设置额外的参数，一旦设置了该参数，说明你默认同意程序的所有请求，其中包括自动转换输入音频的采样率。默认值：`False`。
   - `device`：执行预测的设备，默认值：当前系统下 paddlepaddle 的默认 device。
 
   输出：
@@ -53,6 +57,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
       ckpt_path=None,
       audio_file='./zh.wav',
+      force_yes=False,
       device=paddle.get_device())
   print('ASR Result: \n{}'.format(text))
   ```
@@ -69,4 +74,3 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
-| transformer_aishell| zh| 16000

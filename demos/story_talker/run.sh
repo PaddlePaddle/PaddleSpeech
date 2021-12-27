@@ -37,17 +37,20 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # run tts
     CUDA_VISIBLE_DEVICES=${gpus} \
-    python3 ${BIN_DIR}/synthesize_e2e.py \
-        --fastspeech2-config=download/fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
-        --fastspeech2-checkpoint=download/fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
-        --fastspeech2-stat=download/fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
-        --pwg-config=download/pwg_baker_ckpt_0.4/pwg_default.yaml \
-        --pwg-checkpoint=download/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-        --pwg-stat=download/pwg_baker_ckpt_0.4/pwg_stats.npy \
+    python3 ${BIN_DIR}/../synthesize_e2e.py \
+        --am=fastspeech2_csmsc \
+        --am_config=download/fastspeech2_nosil_baker_ckpt_0.4/default.yaml \
+        --am_ckpt=download/fastspeech2_nosil_baker_ckpt_0.4/snapshot_iter_76000.pdz \
+        --am_stat=download/fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy  \
+        --voc=pwgan_csmsc \
+        --voc_config=download/pwg_baker_ckpt_0.4/pwg_default.yaml \
+        --voc_ckpt=download/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
+        --voc_stat=download/pwg_baker_ckpt_0.4/pwg_stats.npy \
+        --lang=zh \
         --text=output/sentences.txt \
-        --output-dir=output/wavs \
-        --inference-dir=output/inference \
-        --phones-dict=download/fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
+        --output_dir=output/wavs \
+        --inference_dir=output/inference \
+        --phones_dict=download/fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
     # output/inference is not needed here, which save the static models
     rm -rf output/inference
 fi

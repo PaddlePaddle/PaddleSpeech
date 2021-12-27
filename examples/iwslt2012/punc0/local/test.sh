@@ -1,26 +1,11 @@
-
 #!/bin/bash
 
-if [ $# != 2 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix"
-    exit -1
-fi
-
-ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
-echo "using $ngpu gpus..."
-
 config_path=$1
-ckpt_prefix=$2
+train_output_path=$2
+ckpt_name=$3
 
-python3 -u ${BIN_DIR}/test.py \
---ngpu 1 \
---config ${config_path} \
---result_file ${ckpt_prefix}.rsl \
---checkpoint_path ${ckpt_prefix}
+ckpt_prefix=${ckpt_name%.*}
 
-if [ $? -ne 0 ]; then
-    echo "Failed in evaluation!"
-    exit 1
-fi
-
-exit 0
+python3 ${BIN_DIR}/test.py \
+    --config=${config_path} \
+    --checkpoint=${train_output_path}/checkpoints/${ckpt_name}

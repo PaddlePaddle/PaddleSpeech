@@ -319,7 +319,7 @@ class LogMelSpectrogramKaldi():
             fmin=20,
             fmax=None,
             eps=1e-10,
-            dither=False):
+            dither=1.0):
         self.fs = fs
         self.n_mels = n_mels
         self.n_fft = n_fft
@@ -374,7 +374,7 @@ class LogMelSpectrogramKaldi():
         Returns:
             np.ndarray: (T, D)
         """
-        dither = self.dither if train else False
+        dither = self.dither if train else 0.0
         if x.ndim != 1:
             raise ValueError("Not support x: [Time, Channel]")
 

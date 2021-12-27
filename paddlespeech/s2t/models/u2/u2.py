@@ -584,8 +584,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
             hyp_content = hyp[0]
             # Prevent the hyp is empty
             if len(hyp_content) == 0:
-                hyp_content = (self.ctc.blank_id,)
-            hyp_content = paddle.to_tensor(hyp_content, place=device, dtype=paddle.long)
+                hyp_content = (self.ctc.blank_id, )
+            hyp_content = paddle.to_tensor(
+                hyp_content, place=device, dtype=paddle.long)
             hyp_list.append(hyp_content)
         hyps_pad = pad_sequence(hyp_list, True, self.ignore_id)
         hyps_lens = paddle.to_tensor(

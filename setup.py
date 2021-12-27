@@ -44,6 +44,7 @@ requirements = {
         "nltk",
         "pandas",
         "paddleaudio",
+        "paddlenlp",
         "paddlespeech_feat",
         "praatio==5.0.0",
         "pypinyin",

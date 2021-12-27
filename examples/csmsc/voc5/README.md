@@ -6,7 +6,7 @@ Download CSMSC from the [official website](https://www.data-baker.com/data/index
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -114,4 +114,23 @@ optional arguments:
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-## Fine-tuning
+## Pretrained Models
+The pretrained model can be downloaded here [hifigan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip).
+
+The static model can be downloaded here [hifigan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_0.1.1.zip).
+
+Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1(gpu) x 2500000|24.927|0.1262|7.554
+
+HiFiGAN checkpoint contains files listed below.
+
+```text
+hifigan_csmsc_ckpt_0.1.1
+├── default.yaml	              # default config used to train hifigan
+├── feats_stats.npy	              # generator parameters of hifigan
+└── snapshot_iter_2500000.pdz     # statistics used to normalize spectrogram when training hifigan
+```
+
+## Acknowledgement
+We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

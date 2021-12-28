@@ -61,9 +61,9 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/feats_stats.npy \
         --voc=style_melgan_csmsc \
-        --voc_config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-        --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-        --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
+        --voc_config=style_melgan_csmsc_ckpt_0.1.1/default.yaml \
+        --voc_ckpt=style_melgan_csmsc_ckpt_0.1.1/snapshot_iter_1500000.pdz \
+        --voc_stat=style_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \

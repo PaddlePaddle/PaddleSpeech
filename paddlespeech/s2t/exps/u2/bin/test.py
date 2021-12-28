@@ -14,12 +14,14 @@
 """Evaluation for U2 model."""
 import cProfile
 
+from yacs.config import CfgNode
+
 from paddlespeech.s2t.exps.u2.config import get_cfg_defaults
 from paddlespeech.s2t.exps.u2.model import U2Tester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments
 
-# TODO(hui zhang): dynamic load 
+# TODO(hui zhang): dynamic load
 
 
 def main_sp(config, args):
@@ -35,7 +37,7 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save asr result to 
+    # save asr result to
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
     args = parser.parse_args()
@@ -45,6 +47,10 @@ if __name__ == "__main__":
     config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
+    if args.decode_config:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_config)
+        config.decoding = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

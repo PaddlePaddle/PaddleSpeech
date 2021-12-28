@@ -19,18 +19,17 @@ from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.dataset import ManifestDataset
 from paddlespeech.s2t.models.u2 import U2Model
 
-_C = CfgNode()
+_C = CfgNode(new_allowed=True)
 
-_C.data = ManifestDataset.params()
+ManifestDataset.params(_C)
 
-_C.collator = SpeechCollator.params()
+SpeechCollator.params(_C)
 
-_C.model = U2Model.params()
+U2Model.params(_C)
 
-_C.training = U2Trainer.params()
+U2Trainer.params(_C)
 
 _C.decoding = U2Tester.params()
-
 
 def get_cfg_defaults():
     """Get a yacs CfgNode object with default values for my_project."""

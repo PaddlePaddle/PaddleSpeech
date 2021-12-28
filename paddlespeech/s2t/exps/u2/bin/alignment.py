@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Alignment for U2 model."""
+from yacs.config import CfgNode
+
 from paddlespeech.s2t.exps.u2.config import get_cfg_defaults
 from paddlespeech.s2t.exps.u2.model import U2Tester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
@@ -41,6 +43,10 @@ if __name__ == "__main__":
     config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
+    if args.decode_config:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_config)
+        config.decoding = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

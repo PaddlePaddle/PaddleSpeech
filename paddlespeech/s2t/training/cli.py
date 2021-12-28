@@ -97,6 +97,14 @@ def default_argument_parser(parser=None):
     train_group.add_argument(
         "--dump-config", metavar="FILE", help="dump config to `this` file.")
 
+    test_group = parser.add_argument_group(
+        title='Test Options', description=None)
+
+    test_group.add_argument(
+        "--decode_config",
+        metavar="DECODE_CONFIG_FILE",
+        help="decode config file.")
+
     profile_group = parser.add_argument_group(
         title='Benchmark Options', description=None)
     profile_group.add_argument(

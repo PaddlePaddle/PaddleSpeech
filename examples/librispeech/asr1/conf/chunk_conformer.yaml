@@ -47,63 +47,51 @@ data:
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
 
-
 collator:
   vocab_filepath: data/lang_char/vocab.txt 
   unit_type: 'spm'
   spm_model_prefix: 'data/lang_char/bpe_unigram_5000'
   mean_std_filepath: ""
   augmentation_config: conf/preprocess.yaml
-  batch_size: 16
-  raw_wav: True  # use raw_wav or kaldi feature
-  spectrum_type: fbank #linear, mfcc, fbank
   feat_dim: 80
-  delta_delta: False
-  dither: 1.0
-  target_sample_rate: 16000
-  max_freq: None
-  n_fft: None
   stride_ms: 10.0
   window_ms: 25.0
-  use_dB_normalization: True
-  target_dB: -20
-  random_seed: 0
-  keep_transcription_text: False
-  sortagrad: True 
-  shuffle_method: batch_shuffle
-  num_workers: 2
-
-
+  sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
+  batch_size: 16
+  maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+  maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
+  minibatches: 0 # for debug
+  batch_count: auto
+  batch_bins: 0 
+  batch_frames_in: 0
+  batch_frames_out: 0
+  batch_frames_inout: 0
+  augmentation_config: conf/preprocess.yaml 
+  num_workers: 0
+  subsampling_factor: 1
+  num_encs: 1
 
 training:
-  n_epoch: 240
-  accum_grad: 8
+  n_epoch: 120
+  accum_grad: 4
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
     lr: 0.001
-    weight_decay: 1e-06
+    weight_decay: 0.0
   scheduler: warmuplr     
   scheduler_conf:
     warmup_steps: 25000
-    lr_decay: 1.0
   log_interval: 100
   checkpoint:
     kbest_n: 50
     latest_n: 5
 
-
 decoding:
   batch_size: 128
   error_rate_type: wer
   decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
-  lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
-  alpha: 2.5
-  beta: 0.3
   beam_size: 10
-  cutoff_prob: 1.0
-  cutoff_top_n: 0
-  num_proc_bsearch: 8
   ctc_weight: 0.5 # ctc weight for attention rescoring decode mode.
   decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
       # <0: for decoding, use full chunk.

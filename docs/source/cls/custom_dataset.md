@@ -17,8 +17,6 @@ Here is an example to build your custom dataset in `custom_dataset.py`:
 from paddleaudio.datasets.dataset import AudioClassificationDataset
 
 class CustomDataset(AudioClassificationDataset):
-    # All *.wav file with same sample rate 16k/24k/32k/44k.
-    sample_rate = 16000
     meta_file = '/PATH/TO/META_FILE.txt'
     # List all the class labels
     label_list = [
@@ -26,10 +24,10 @@ class CustomDataset(AudioClassificationDataset):
         'dog',
     ]
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         files, labels = self._get_data()
         super(CustomDataset, self).__init__(
-            files=files, labels=labels, feat_type='raw')
+            files=files, labels=labels, feat_type='raw', **kwargs)
 
     def _get_data(self):
         '''
@@ -54,8 +52,21 @@ from paddleaudio.features import LogMelSpectrogram
 
 from custom_dataset import CustomDataset
 
-train_ds = CustomDataset()
-feature_extractor = LogMelSpectrogram(sr=train_ds.sample_rate)
+# Feature config should be align with pretrained model
+sample_rate = 32000
+feat_conf = {
+  'sr': sample_rate,
+  'n_fft': 1024,
+  'hop_length': 320,
+  'window': 'hann',
+  'win_length': 1024,
+  'f_min': 50.0,
+  'f_max': 14000.0,
+  'n_mels': 64,
+}
+
+train_ds = CustomDataset(sample_rate=sample_rate)
+feature_extractor = LogMelSpectrogram(**feat_conf)
 
 train_sampler = paddle.io.DistributedBatchSampler(
     train_ds, batch_size=4, shuffle=True, drop_last=False)

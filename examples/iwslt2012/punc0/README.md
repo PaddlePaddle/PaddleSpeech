@@ -1,35 +1,28 @@
-# 中文实验例程
-## 测试数据：
-- IWLST2012中文：test2012
+# Punctuation Restoration with IWLST2012
+## Get Started
+### Data Preprocessing
+```bash
+./run.sh --stage 0 --stop-stage 0
+```
+### Model Training
+```bash
+./run.sh --stage 1 --stop-stage 1
+```
+### Testing
+```bash
+./run.sh --stage 2 --stop-stage 2
+```
+### Punctuation Restoration
+```bash
+./run.sh --stage 3 --stop-stage 3
+```
+## Pretrained Model
+The pretrained model can be downloaded here [ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
 
-## 运行代码
-- 运行 `run.sh 0 0 conf/train_conf/bertBLSTM_zh.yaml 1 conf/data_conf/chinese.yaml `
-
-## 实验结果：
-- BertLinear
-  - 实验配置：conf/train_conf/bertLinear_zh.yaml
-  - 测试结果
-
-    |           | COMMA     | PERIOD    | QUESTION  | OVERALL  |  
-    |-----------|-----------|-----------|-----------|--------- |  
-    |Precision  | 0.425665  | 0.335190  | 0.698113  | 0.486323 |  
-    |Recall     | 0.511278  | 0.572108  | 0.787234  | 0.623540 |  
-    |F1         | 0.464560  | 0.422717  | 0.740000  | 0.542426 |  
-
-- BertBLSTM
-  - 实验配置：conf/train_conf/bertBLSTM_zh.yaml
-  - 测试结果 avg_1
-
-    |           | COMMA     | PERIOD    | QUESTION  | OVERALL  |  
-    |-----------|-----------|-----------|-----------|--------- |  
-    |Precision  |  0.469484 | 0.550604  | 0.801887  | 0.607325 |
-    |Recall     |  0.580271 | 0.592408  | 0.817308  | 0.663329 |
-    |F1         |  0.519031 | 0.570741  | 0.809524  | 0.633099 |  
-
-  - BertBLSTM/avg_1测试标贝合成数据
-
-    |           | COMMA     | PERIOD    | QUESTION  | OVERALL  |  
-    |-----------|-----------|-----------|-----------|--------- |  
-    |Precision  |  0.217192 | 0.196339  | 0.820717  | 0.411416 |
-    |Recall     |  0.205922 | 0.892531  | 0.416162  | 0.504872 |
-    |F1         |  0.211407 | 0.321873  | 0.552279  | 0.361853 |
+### Test Result
+- Ernie Linear
+    |       |COMMA  |  PERIOD | QUESTION | OVERALL|
+    |:-----:|:-----:|:-----:|:-----:|:-----:|  
+    |Precision  |0.510955  |0.526462  |0.820755  |0.619391|
+    |Recall     |0.517433  |0.564179  |0.861386  |0.647666|
+    |F1         |0.514173  |0.544669  |0.840580  |0.633141|

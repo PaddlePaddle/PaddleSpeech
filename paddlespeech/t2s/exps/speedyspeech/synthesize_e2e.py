@@ -173,7 +173,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir")
     parser.add_argument(
         "--inference-dir", type=str, help="dir to save inference models")
-    parser.add_argument("--verbose", type=int, default=1, help="verbose")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
 

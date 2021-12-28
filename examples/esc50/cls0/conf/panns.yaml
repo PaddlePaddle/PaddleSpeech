@@ -1,0 +1,36 @@
+data:
+  dataset: 'paddleaudio.datasets:ESC50'
+  num_classes: 50
+  train:
+    mode: 'train'
+    split: 1
+  dev:
+    mode: 'dev'
+    split: 1
+
+model:
+  backbone: 'paddlespeech.cls.models:cnn14'
+
+feature:
+  sr: 32000
+  n_fft: 1024
+  hop_length: 320
+  window: 'hann'
+  win_length: 1024
+  f_min: 50.0
+  f_max: 14000.0
+  n_mels: 64
+
+training:
+  epochs: 50
+  learning_rate: 0.00005
+  num_workers: 2
+  batch_size: 16
+  checkpoint_dir: './checkpoint'
+  save_freq: 10
+  log_freq: 10
+
+predicting:
+  audio_file: '/audio/dog.wav'
+  top_k: 10
+  checkpoint: './checkpoint/epoch_50/model.pdparams'

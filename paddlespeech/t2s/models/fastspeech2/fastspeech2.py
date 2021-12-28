@@ -942,7 +942,12 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
         """
         spk_id = paddle.to_tensor(spk_id)
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, durations=None, pitch=None, energy=None, spk_emb=spk_emb, spk_id=spk_id)
+            text,
+            durations=None,
+            pitch=None,
+            energy=None,
+            spk_emb=spk_emb,
+            spk_id=spk_id)
         # priority: groundtruth > scale/bias > previous output
         # set durations
         if isinstance(durations, np.ndarray):
@@ -995,9 +1000,8 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             pitch=pitch,
             energy=energy,
             use_teacher_forcing=True,
-            spk_emb=spk_emb, 
-            spk_id=spk_id
-            )
+            spk_emb=spk_emb,
+            spk_id=spk_id)
 
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

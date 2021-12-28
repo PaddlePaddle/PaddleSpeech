@@ -77,7 +77,7 @@ training:
   optim: adam
   optim_conf:
     lr: 0.004
-    weight_decay: 0.0
+    weight_decay: 1e-6
   scheduler: warmuplr     
   scheduler_conf:
     warmup_steps: 25000

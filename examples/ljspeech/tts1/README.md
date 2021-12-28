@@ -55,7 +55,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
+                [--ngpu NGPU] [--phones-dict PHONES_DICT]
 
 Train a TransformerTTS model with LJSpeech TTS dataset.
 
@@ -69,7 +69,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
 ```
@@ -103,7 +102,7 @@ usage: synthesize.py [-h] [--transformer-tts-config TRANSFORMER_TTS_CONFIG]
                      [--waveflow-checkpoint WAVEFLOW_CHECKPOINT]
                      [--phones-dict PHONES_DICT]
                      [--test-metadata TEST_METADATA] [--output-dir OUTPUT_DIR]
-                     [--ngpu NGPU] [--verbose VERBOSE]
+                     [--ngpu NGPU]
 
 Synthesize with transformer tts & waveflow.
 
@@ -127,7 +126,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/synthesize_e2e.py`, which can synthesize waveform from text file.
 ```bash
@@ -142,7 +140,6 @@ usage: synthesize_e2e.py [-h]
                          [--waveflow-checkpoint WAVEFLOW_CHECKPOINT]
                          [--phones-dict PHONES_DICT] [--text TEXT]
                          [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                         [--verbose VERBOSE]
 
 Synthesize with transformer tts & waveflow.
 
@@ -165,7 +162,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 1. `--transformer-tts-config`, `--transformer-tts-checkpoint`, `--transformer-tts-stat` and `--phones-dict` are arguments for transformer_tts, which correspond to the 4 files in the transformer_tts pretrained model.
 2. `--waveflow-config`, `--waveflow-checkpoint` are arguments for waveflow, which correspond to the 2 files in the waveflow pretrained model.

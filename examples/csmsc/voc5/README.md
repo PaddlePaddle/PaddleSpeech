@@ -57,7 +57,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
+                [--ngpu NGPU]
 
 Train a HiFiGAN model.
 
@@ -71,7 +71,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
@@ -88,7 +87,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
                      [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
                      [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
 
 Synthesize with GANVocoder.
 
@@ -105,7 +103,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` config file. You should use the same config with which the model is trained.
@@ -127,9 +124,9 @@ HiFiGAN checkpoint contains files listed below.
 
 ```text
 hifigan_csmsc_ckpt_0.1.1
-├── default.yaml	              # default config used to train hifigan
-├── feats_stats.npy	              # generator parameters of hifigan
-└── snapshot_iter_2500000.pdz     # statistics used to normalize spectrogram when training hifigan
+├── default.yaml                    # default config used to train hifigan
+├── feats_stats.npy                  # statistics used to normalize spectrogram when training hifigan
+└── snapshot_iter_2500000.pdz     # generator parameters of hifigan
 ```
 
 ## Acknowledgement

@@ -31,6 +31,7 @@ U2Trainer.params(_C)
 
 _C.decoding = U2Tester.params()
 
+
 def get_cfg_defaults():
     """Get a yacs CfgNode object with default values for my_project."""
     # Return a clone so that the defaults will not be altered

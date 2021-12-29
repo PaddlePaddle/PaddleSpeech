@@ -16,7 +16,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 - Hip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 
 
 ## Easy: Get the Basic Function (Support Linux, Mac, and Windows)
-- If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step tutorial for `PaddleSpeech` and you can use the basic function of `PaddleSpeech` with a free machine. 
+- If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step [tutorial](https://aistudio.baidu.com/aistudio/education/group/info/25130) for `PaddleSpeech`, and you can use the basic function of `PaddleSpeech` with a free machine.
 - If you want to use the command line function of Paddlespeech, you need to complete the following steps to install `PaddleSpeech`. For more information about how to use the command line function, you can see the [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli).
 ### Install Conda
 Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html)  (select a version py>=3.7) to download and install the conda.
@@ -57,6 +57,7 @@ You can use the following command:
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+> If you encounter problem with downloading **nltk_data** while using paddlespeech, it maybe due to your poor network, we suggest you download the [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) provided by us, and extract it to your `${HOME}`.
 ## Medium: Get the Major Functions (Support Linux)
 If you want to get the major function of  `paddlespeech`, you need to do following steps:
 ### Git clone PaddleSpeech

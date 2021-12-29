@@ -14,9 +14,9 @@
 - 提示: 我们建议在安装 `paddlepaddle` 的时候使用百度源 https://mirror.baidu.com/pypi/simple ，而在安装 `paddlespeech` 的时候使用清华源 https://pypi.tuna.tsinghua.edu.cn/simple 。
 
 ## 简单： 获取基本功能(支持 Linux，Mac 和 Windows)
-- 如果你是一个刚刚接触 `PaddleSpeech` 的新人并且想要很方便地体验一下该项目。我们建议你 体验一下[AI Studio](https://aistudio.baidu.com/aistudio/index)。我们在AI Studio上面建立了一个让你一步一步运行体验来使用`PaddleSpeech`的教程。
+- 如果你是一个刚刚接触 `PaddleSpeech` 的新人并且想要很方便地体验一下该项目。我们建议你体验一下 [AI Studio](https://aistudio.baidu.com/aistudio/index)。我们在 AI Studio上面建立了一个让你一步一步运行体验来使用 `PaddleSpeech` 的[教程](https://aistudio.baidu.com/aistudio/education/group/info/25130)。
 - 如果你想使用 `PaddleSpeech` 的命令行功能，你需要跟随下面的步骤来安装 `PaddleSpeech`。如果你想了解更多关于使用 `PaddleSpeech` 命令行功能的信息，你可以参考 [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli)。
-### 安装Conda
+### 安装 Conda
 Conda是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。
 然后你需要安装 `paddlespeech` 的 conda 依赖:
 ```bash
@@ -54,6 +54,7 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```
+> 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
 ## 中等： 获取主要功能（支持 Linux）
 如果你想要使用 `paddlespeech` 的主要功能。你需要完成以下几个步骤
 ### Git clone PaddleSpeech
@@ -62,7 +63,6 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 cd PaddleSpeech
 ```
-
 ### 安装 Conda
 Conda 是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。你可以尝试自己安装，或者使用以下的命令：
 ```bash

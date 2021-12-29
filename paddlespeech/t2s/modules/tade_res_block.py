@@ -33,7 +33,11 @@ class TADELayer(nn.Layer):
         """Initilize TADE layer."""
         super().__init__()
         self.norm = nn.InstanceNorm1D(
-            in_channels, momentum=0.1, data_format="NCL")
+            in_channels,
+            momentum=0.1,
+            data_format="NCL",
+            weight_attr=False,
+            bias_attr=False)
         self.aux_conv = nn.Sequential(
             nn.Conv1D(
                 aux_channels,

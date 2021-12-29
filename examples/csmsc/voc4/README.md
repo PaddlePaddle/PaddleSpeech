@@ -57,9 +57,9 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
+                [--ngpu NGPU]
 
-Train a Multi-Band MelGAN model.
+Train a Style MelGAN model.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -71,7 +71,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
@@ -88,7 +87,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
                      [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
                      [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
 
 Synthesize with GANVocoder.
 
@@ -105,7 +103,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` style melgan config file. You should use the same config with which the model is trained.
@@ -113,3 +110,20 @@ optional arguments:
 3. `--test-metadata` is the metadata of the test dataset. Use the `metadata.jsonl` in the `dev/norm` subfolder from the processed directory.
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+
+## Pretrained Models
+The pretrained model can be downloaded here [style_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip).
+
+The static model of Style MelGAN is not available now.
+
+Style MelGAN checkpoint contains files listed below.
+
+```text
+hifigan_csmsc_ckpt_0.1.1
+├── default.yaml                    # default config used to train style melgan
+├── feats_stats.npy                  # statistics used to normalize spectrogram when training style melgan 
+└── snapshot_iter_1500000.pdz     # generator parameters of style melgan
+```
+
+## Acknowledgement
+We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

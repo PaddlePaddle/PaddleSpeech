@@ -24,7 +24,7 @@ python3 -u ${BIN_DIR}/alignment.py \
 --decode_config ${decode_config_path} \
 --result_file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \
---opts decoding.decode_batch_size ${batch_size}
+--opts decode.decode_batch_size ${batch_size}
 
 if [ $? -ne 0 ]; then
     echo "Failed in ctc alignment!"

@@ -46,8 +46,8 @@ for type in  attention_rescoring; do
     --decode_config ${decode_config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-    --opts decoding.decoding_method ${type} \
-    --opts decoding.decode_batch_size ${batch_size} \
+    --opts decode.decoding_method ${type} \
+    --opts decode.decode_batch_size ${batch_size} \
     --audio_file ${audio_file}
 
     if [ $? -ne 0 ]; then

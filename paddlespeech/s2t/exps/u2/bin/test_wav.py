@@ -81,7 +81,7 @@ class U2Infer():
             ilen = paddle.to_tensor(feat.shape[0])
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)
 
-            decode_config = self.config.decoding
+            decode_config = self.config.decode
             result_transcripts = self.model.decode(
                 xs,
                 ilen,
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     if args.decode_config:
         decode_confs = CfgNode(new_allowed=True)
         decode_confs.merge_from_file(args.decode_config)
-        config.decoding = decode_confs
+        config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

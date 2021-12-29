@@ -30,7 +30,7 @@ for type in attention ctc_greedy_search; do
         # stream decoding only support batchsize=1
         batch_size=1
     else
-        batch_size=64
+        batch_size=1
     fi
     output_dir=${ckpt_prefix}
     mkdir -p ${output_dir}
@@ -40,8 +40,8 @@ for type in attention ctc_greedy_search; do
     --decode_config ${decode_config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-    --opts decoding.decoding_method ${type} \
-    --opts decoding.decode_batch_size ${batch_size}
+    --opts decode.decoding_method ${type} \
+    --opts decode.decode_batch_size ${batch_size}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"
@@ -60,8 +60,8 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     --decode_config ${decode_config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-    --opts decoding.decoding_method ${type} \
-    --opts decoding.batch_size ${batch_size}
+    --opts decode.decoding_method ${type} \
+    --opts decode.decode_batch_size ${batch_size}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"

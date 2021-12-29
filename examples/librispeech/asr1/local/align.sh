@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 2 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix"
+if [ $# != 3 ];then
+    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix"
     exit -1
 fi
 
@@ -9,7 +9,8 @@ ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 config_path=$1
-ckpt_prefix=$2
+decode_config_path=$2
+ckpt_prefix=$3
 
 batch_size=1
 output_dir=${ckpt_prefix}
@@ -20,9 +21,10 @@ mkdir -p ${output_dir}
 python3 -u ${BIN_DIR}/alignment.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
+--decode_config ${decode_config_path} \
 --result_file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \
---opts decoding.batch_size ${batch_size}
+--opts decode.decode_batch_size ${batch_size}
 
 if [ $? -ne 0 ]; then
     echo "Failed in ctc alignment!"

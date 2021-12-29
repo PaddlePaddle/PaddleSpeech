@@ -29,7 +29,7 @@ U2Model.params(_C)
 
 U2Trainer.params(_C)
 
-_C.decoding = U2Tester.params()
+_C.decode = U2Tester.params()
 
 
 def get_cfg_defaults():

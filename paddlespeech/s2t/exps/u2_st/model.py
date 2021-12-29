@@ -29,12 +29,10 @@ from yacs.config import CfgNode
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.models.u2_st import U2STModel
-from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
 from paddlespeech.s2t.training.reporter import report
 from paddlespeech.s2t.training.scheduler import LRSchedulerFactory
-from paddlespeech.s2t.training.scheduler import WarmupLR
 from paddlespeech.s2t.training.timer import Timer
 from paddlespeech.s2t.training.trainer import Trainer
 from paddlespeech.s2t.utils import bleu_score
@@ -283,7 +281,7 @@ class U2STTrainer(Trainer):
                 maxlen_in=config.collator.maxlen_in,
                 maxlen_out=config.collator.maxlen_out,
                 minibatches=0,
-                mini_batch_size=self.args.ngpu,
+                mini_batch_size=1,
                 batch_count='auto',
                 batch_bins=0,
                 batch_frames_in=0,
@@ -304,7 +302,7 @@ class U2STTrainer(Trainer):
                 maxlen_in=float('inf'),
                 maxlen_out=float('inf'),
                 minibatches=0,
-                mini_batch_size=self.args.ngpu,
+                mini_batch_size=1,
                 batch_count='auto',
                 batch_bins=0,
                 batch_frames_in=0,

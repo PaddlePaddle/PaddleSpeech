@@ -10,7 +10,7 @@ collator:
   spm_model_prefix: data/lang_char/ted_en_zh_bpe8000
   mean_std_filepath: ""
   # augmentation_config: conf/augmentation.json
-  batch_size: 16
+  batch_size: 20
   feat_dim: 83
   stride_ms: 10.0
   window_ms: 25.0
@@ -67,13 +67,13 @@ model:
 
 
 training:
-  n_epoch: 20
+  n_epoch: 40
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
     lr: 2.5
-    weight_decay: 1e-06
+    weight_decay: 0.
   scheduler: noam    
   scheduler_conf:
     warmup_steps: 25000

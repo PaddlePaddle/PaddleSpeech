@@ -940,7 +940,8 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
         Tensor
             Output sequence of features (L, odim).
         """
-        spk_id = paddle.to_tensor(spk_id)
+        if spk_id:
+            spk_id = paddle.to_tensor(spk_id)
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
             text,
             durations=None,

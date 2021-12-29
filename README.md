@@ -25,14 +25,6 @@
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
 
-<!---
-from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
-1.What is this repo or project? (You can reuse the repo description you used earlier because this section doesn’t have to be long.)
-2.How does it work?
-3.Who will use this repo or project?
-4.What is the goal of this project?
--->
-
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
 
@@ -146,7 +138,15 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 </div>
 
-### Features:
+### 🔥 Hot Activities
+
+- 2021.12.21~12.24
+
+  4 Days Live Courses: Depth interpretation of PaddleSpeech!
+
+  **Courses videos and related materials: https://aistudio.baidu.com/aistudio/education/group/info/25130**
+
+### Features
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
 - 📦  **Ease of Use**: low barriers to install, and [CLI](#quick-start) is available to quick-start your journey.
@@ -157,8 +157,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
-
-### Recent Update:
+### Recent Update
 
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).

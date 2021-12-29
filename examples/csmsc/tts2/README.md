@@ -60,8 +60,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
-                [--use-relative-path USE_RELATIVE_PATH]
+                [--ngpu NGPU] [--use-relative-path USE_RELATIVE_PATH]
                 [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
 
 Train a Speedyspeech model with a single speaker dataset.
@@ -76,7 +75,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
   --use-relative-path USE_RELATIVE_PATH
                         whether use relative path in metadata
   --phones-dict PHONES_DICT

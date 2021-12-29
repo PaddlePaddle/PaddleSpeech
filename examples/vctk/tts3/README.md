@@ -65,8 +65,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
-                [--speaker-dict SPEAKER_DICT]
+                [--ngpu NGPU] [--phones-dict PHONES_DICT]
+                [--speaker-dict SPEAKER_DICT] [--voice-cloning VOICE_CLONING]
 
 Train a FastSpeech2 model.
 
@@ -80,11 +80,12 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu=0, use cpu.
-  --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
   --speaker-dict SPEAKER_DICT
                         speaker id map file for multiple speaker model.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.

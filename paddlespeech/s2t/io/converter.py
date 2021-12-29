@@ -34,11 +34,13 @@ class CustomConverter():
     def __init__(self,
                  subsampling_factor=1,
                  dtype=np.float32,
+                 load_aux_input=False,
                  load_aux_output=False):
         """Construct a CustomConverter object."""
         self.subsampling_factor = subsampling_factor
         self.ignore_id = -1
         self.dtype = dtype
+        self.load_aux_input = load_aux_input
         self.load_aux_output = load_aux_output
 
     def __call__(self, batch):
@@ -54,52 +56,47 @@ class CustomConverter():
         # batch should be located in list
         assert len(batch) == 1
         data, utts = batch[0]
-        if len(data) > 2:
-            xs, ys, ys_aux = data
-        else:
-            xs, ys = data
-            ys_aux = None
-        assert xs[0] is not None, "please check Reader and Augmentation impl."
+        xs_data, ys_data = [], []
+        for ud in data:
+            if ud[0].ndim > 1:
+                # speech data (input): (speech_len, feat_dim)
+                xs_data.append(ud)
+            else:
+                # text data (output): (text_len, )
+                ys_data.append(ud)
 
-        # perform subsampling
-        if self.subsampling_factor > 1:
-            xs = [x[::self.subsampling_factor, :] for x in xs]
+        assert xs_data[0][0] is not None, "please check Reader and Augmentation impl."
+        
+        xs_pad, ilens = [], []
+        for xs in xs_data:
+            # perform subsampling
+            if self.subsampling_factor > 1:
+                xs = [x[::self.subsampling_factor, :] for x in xs]
 
-        # get batch of lengths of input sequences
-        ilens = np.array([x.shape[0] for x in xs])
+            # get batch of lengths of input sequences
+            ilens.append(np.array([x.shape[0] for x in xs]))
 
-        # perform padding and convert to tensor
-        # currently only support real number
-        if xs[0].dtype.kind == "c":
-            xs_pad_real = pad_list([x.real for x in xs], 0).astype(self.dtype)
-            xs_pad_imag = pad_list([x.imag for x in xs], 0).astype(self.dtype)
-            # Note(kamo):
-            # {'real': ..., 'imag': ...} will be changed to ComplexTensor in E2E.
-            # Don't create ComplexTensor and give it E2E here
-            # because torch.nn.DataParellel can't handle it.
-            xs_pad = {"real": xs_pad_real, "imag": xs_pad_imag}
-        else:
-            xs_pad = pad_list(xs, 0).astype(self.dtype)
-
+            # perform padding and convert to tensor
+            # currently only support real number
+            xs_pad.append(pad_list(xs, 0).astype(self.dtype))
+            
+            if not self.load_aux_input:
+                xs_pad, ilens = xs_pad[0], ilens[0]
+                break
+        
         # NOTE: this is for multi-output (e.g., speech translation)
-        ys_pad = pad_list(
-            [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys],
-            self.ignore_id)
+        ys_pad, olens = [], []
+        
+        for ys in ys_data:
+            ys_pad.append(pad_list(
+                [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys],
+                self.ignore_id))
 
-        olens = np.array(
-            [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys])
+            olens.append(np.array(
+                [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys]))
+        
+            if not self.load_aux_output:
+                ys_pad, olens = ys_pad[0], olens[0]
+                break
 
-        if self.load_aux_output:
-            # load text for auxiliary task, e.g., load transcript for ST + ASR MTL
-            assert ys_aux is not None
-            ys_aux_pad = pad_list([
-                np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys_aux
-            ], self.ignore_id)
-
-            olens_aux = np.array([
-                y[0].shape[0] if isinstance(y, tuple) else y.shape[0]
-                for y in ys_aux
-            ])
-
-            return utts, xs_pad, ilens, [ys_pad, ys_aux_pad], [olens, olens_aux]
         return utts, xs_pad, ilens, ys_pad, olens

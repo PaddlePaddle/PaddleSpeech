@@ -142,7 +142,14 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-### 特性:
+### 🔥 热门活动
+
+- 2021.12.21~12.24
+
+  4 日直播课: 深度解读 PaddleSpeech 语音技术!
+
+  **直播回放与课件资料: https://aistudio.baidu.com/aistudio/education/group/info/25130**
+### 特性
 
 本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
 - 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
@@ -153,7 +160,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
-### 近期更新:
+### 近期更新
 
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
@@ -535,7 +542,8 @@ year={2021}
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [AK391](https://github.com/AK391) 在 Huggingface Spaces 上使用 Gradio 对我们的语音合成功能进行网页版演示。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
-- 非常感谢 [JiehangXie](https://github.com/JiehangXie) 采用 PaddleSpeech 语音合成功能实现 [PaddleBoBo虚拟主播](https://github.com/JiehangXie/PaddleBoBo)。
+- 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。
+- 非常感谢 [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) 贡献标点重建相关模型。
   
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

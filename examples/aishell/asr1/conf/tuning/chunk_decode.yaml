@@ -1,4 +1,3 @@
-#decoding:
 beam_size: 10
 decode_batch_size: 128
 error_rate_type: cer 

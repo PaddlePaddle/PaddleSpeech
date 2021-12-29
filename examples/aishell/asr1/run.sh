@@ -6,7 +6,7 @@ gpus=0,1,2,3
 stage=0
 stop_stage=50
 conf_path=conf/conformer.yaml
-decode_conf_path=conf/decode.yaml
+decode_conf_path=conf/tuning/decode.yaml
 avg_num=20
 audio_file=data/demo_01_03.wav
 

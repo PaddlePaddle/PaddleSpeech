@@ -1,6 +1,6 @@
 # https://yaml.org/type/float.html
 data:
-  train_manifest: data/manifest.train.tiny
+  train_manifest: data/manifest.train
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
   min_input_len: 0.05  # second
@@ -15,8 +15,10 @@ collator:
   unit_type: 'spm'
   spm_model_prefix: data/lang_char/bpe_unigram_8000
   mean_std_filepath: ""
-  # augmentation_config: conf/augmentation.json
-  batch_size: 10
+  augmentation_config: conf/preprocess.yaml
+  batch_size: 16
+  maxlen_in: 5  # if input length  > maxlen-in, batchsize is automatically reduced
+  maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
   raw_wav: True  # use raw_wav or kaldi feature
   spectrum_type: fbank #linear, mfcc, fbank
   feat_dim: 80
@@ -78,13 +80,13 @@ training:
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
-    lr: 0.004
+    lr: 2.5
     weight_decay: 1e-06
-  scheduler: warmuplr     
+  scheduler: noam    
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 5
+  log_interval: 50
   checkpoint:
     kbest_n: 50
     latest_n: 5
@@ -97,6 +99,7 @@ decoding:
   alpha: 2.5
   beta: 0.3
   beam_size: 10
+  word_reward: 0.7
   cutoff_prob: 1.0
   cutoff_top_n: 0
   num_proc_bsearch: 8
@@ -107,3 +110,5 @@ decoding:
       # 0: used for training, it's prohibited here. 
   num_decoding_left_chunks: -1  # number of left chunks for decoding. Defaults to -1.
   simulate_streaming: False  # simulate streaming inference. Defaults to False.
+
+

@@ -12,5 +12,5 @@
 ## Transformer
 | Model | Params | Config | Val loss | Char-BLEU |
 | --- | --- | --- | --- | --- |
-| FAT + Transformer+ASR MTL | 50.26M | conf/transformer_mtl_noam.yaml | 62.86 | 19.45 |
+| FAT + Transformer+ASR MTL | 50.26M | conf/transformer_mtl_noam.yaml | 69.91 | 20.26 |
 | FAT + Transformer+ASR MTL with word reward | 50.26M | conf/transformer_mtl_noam.yaml | 62.86 | 20.80 |

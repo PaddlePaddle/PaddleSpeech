@@ -3,12 +3,6 @@ data:
   train_manifest: data/manifest.train
   dev_manifest: data/manifest.dev
   test_manifest: data/manifest.test
-  min_input_len: 5.0  # frame
-  max_input_len: 3000.0 # frame
-  min_output_len: 0.0 # tokens
-  max_output_len: 400.0 # tokens
-  min_output_input_ratio: 0.01
-  max_output_input_ratio: 20.0
 
 collator:
   vocab_filepath: data/lang_char/ted_en_zh_bpe8000.txt
@@ -16,24 +10,24 @@ collator:
   spm_model_prefix: data/lang_char/ted_en_zh_bpe8000
   mean_std_filepath: ""
   # augmentation_config: conf/augmentation.json
-  batch_size: 10
-  raw_wav: True  # use raw_wav or kaldi feature
-  spectrum_type: fbank #linear, mfcc, fbank
+  batch_size: 20
   feat_dim: 83
-  delta_delta: False
-  dither: 1.0
-  target_sample_rate: 16000
-  max_freq: None
-  n_fft: None
   stride_ms: 10.0
   window_ms: 25.0
-  use_dB_normalization: True
-  target_dB: -20
-  random_seed: 0
-  keep_transcription_text: False
-  sortagrad: True 
-  shuffle_method: batch_shuffle
-  num_workers: 2
+  sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
+  maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+  maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
+  minibatches: 0 # for debug
+  batch_count: auto
+  batch_bins: 0 
+  batch_frames_in: 0
+  batch_frames_out: 0
+  batch_frames_inout: 0
+  augmentation_config:
+  num_workers: 0
+  subsampling_factor: 1
+  num_encs: 1
+
 
 
 # network architecture
@@ -73,18 +67,18 @@ model:
 
 
 training:
-  n_epoch: 20
+  n_epoch: 40
   accum_grad: 2
   global_grad_clip: 5.0
   optim: adam
   optim_conf:
     lr: 2.5
-    weight_decay: 1e-06
+    weight_decay: 0.
   scheduler: noam    
   scheduler_conf:
     warmup_steps: 25000
     lr_decay: 1.0
-  log_interval: 5
+  log_interval: 50
   checkpoint:
     kbest_n: 50
     latest_n: 5

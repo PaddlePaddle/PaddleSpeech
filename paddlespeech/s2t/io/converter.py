@@ -65,8 +65,9 @@ class CustomConverter():
                 # text data (output): (text_len, )
                 ys_data.append(ud)
 
-        assert xs_data[0][0] is not None, "please check Reader and Augmentation impl."
-        
+        assert xs_data[0][
+            0] is not None, "please check Reader and Augmentation impl."
+
         xs_pad, ilens = [], []
         for xs in xs_data:
             # perform subsampling
@@ -79,22 +80,26 @@ class CustomConverter():
             # perform padding and convert to tensor
             # currently only support real number
             xs_pad.append(pad_list(xs, 0).astype(self.dtype))
-            
+
             if not self.load_aux_input:
                 xs_pad, ilens = xs_pad[0], ilens[0]
                 break
-        
+
         # NOTE: this is for multi-output (e.g., speech translation)
         ys_pad, olens = [], []
-        
-        for ys in ys_data:
-            ys_pad.append(pad_list(
-                [np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys],
-                self.ignore_id))
 
-            olens.append(np.array(
-                [y[0].shape[0] if isinstance(y, tuple) else y.shape[0] for y in ys]))
-        
+        for ys in ys_data:
+            ys_pad.append(
+                pad_list([
+                    np.array(y[0][:]) if isinstance(y, tuple) else y for y in ys
+                ], self.ignore_id))
+
+            olens.append(
+                np.array([
+                    y[0].shape[0] if isinstance(y, tuple) else y.shape[0]
+                    for y in ys
+                ]))
+
             if not self.load_aux_output:
                 ys_pad, olens = ys_pad[0], olens[0]
                 break

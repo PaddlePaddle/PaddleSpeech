@@ -292,7 +292,8 @@ class U2STTrainer(Trainer):
                 n_iter_processes=config.collator.num_workers,
                 subsampling_factor=1,
                 load_aux_output=load_transcript,
-                num_encs=1)
+                num_encs=1,
+                dist_sampler=True)
 
             self.valid_loader = BatchDataLoader(
                 json_file=config.data.dev_manifest,
@@ -313,7 +314,8 @@ class U2STTrainer(Trainer):
                 n_iter_processes=config.collator.num_workers,
                 subsampling_factor=1,
                 load_aux_output=load_transcript,
-                num_encs=1)
+                num_encs=1,
+                dist_sampler=True)
             logger.info("Setup train/valid Dataloader!")
         else:
             # test dataset, return raw text
@@ -335,7 +337,8 @@ class U2STTrainer(Trainer):
                 augmentation_config,  # aug will be off when train_mode=False
                 n_iter_processes=config.collator.num_workers,
                 subsampling_factor=1,
-                num_encs=1)
+                num_encs=1,
+                dist_sampler=False)
 
             logger.info("Setup test Dataloader!")
 
@@ -542,7 +545,8 @@ class U2STTester(U2STTrainer):
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']
                 rtf = num_time / (num_frames * stride_ms)
-                logger.info("RTF: %f, instance (%d), batch BELU   = %f" % (rtf, num_ins, bleu))
+                logger.info("RTF: %f, instance (%d), batch BELU   = %f" %
+                            (rtf, num_ins, bleu))
 
         rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "

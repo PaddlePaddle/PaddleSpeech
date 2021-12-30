@@ -13,7 +13,9 @@
 # limitations under the License.
 from abc import ABC
 from abc import abstractmethod
+from typing import List
 
+import numpy as np
 import paddle
 from g2p_en import G2p
 from g2pM import G2pM
@@ -21,6 +23,7 @@ from g2pM import G2pM
 from paddlespeech.t2s.frontend.normalizer.normalizer import normalize
 from paddlespeech.t2s.frontend.punctuation import get_punctuations
 from paddlespeech.t2s.frontend.vocab import Vocab
+from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 
 # discard opencc untill we find an easy solution to install it on windows
 # from opencc import OpenCC
@@ -53,6 +56,7 @@ class English(Phonetics):
         self.vocab = Vocab(self.phonemes + self.punctuations)
         self.vocab_phones = {}
         self.punc = "：，；。？！“”‘’':,;.?!"
+        self.text_normalizer = TextNormalizer()
         if phone_vocab_path:
             with open(phone_vocab_path, 'rt') as f:
                 phn_id = [line.strip().split() for line in f.readlines()]
@@ -78,19 +82,42 @@ class English(Phonetics):
         phonemes = [item for item in phonemes if item in self.vocab.stoi]
         return phonemes
 
-    def get_input_ids(self, sentence: str) -> paddle.Tensor:
-        result = {}
-        phones = self.phoneticize(sentence)
-        # remove start_symbol and end_symbol
-        phones = phones[1:-1]
-        phones = [phn for phn in phones if not phn.isspace()]
-        phones = [
+    def _p2id(self, phonemes: List[str]) -> np.array:
+        # replace unk phone with sp
+        phonemes = [
             phn if (phn in self.vocab_phones and phn not in self.punc) else "sp"
-            for phn in phones
+            for phn in phonemes
         ]
-        phone_ids = [self.vocab_phones[phn] for phn in phones]
-        phone_ids = paddle.to_tensor(phone_ids)
-        result["phone_ids"] = phone_ids
+        phone_ids = [self.vocab_phones[item] for item in phonemes]
+        return np.array(phone_ids, np.int64)
+
+    def get_input_ids(self, sentence: str,
+                      merge_sentences: bool=False) -> paddle.Tensor:
+        result = {}
+        sentences = self.text_normalizer._split(sentence, lang="en")
+        phones_list = []
+        temp_phone_ids = []
+        for sentence in sentences:
+            phones = self.phoneticize(sentence)
+            # remove start_symbol and end_symbol
+            phones = phones[1:-1]
+            phones = [phn for phn in phones if not phn.isspace()]
+            phones_list.append(phones)
+
+        if merge_sentences:
+            merge_list = sum(phones_list, [])
+            # rm the last 'sp' to avoid the noise at the end
+            # cause in the training data, no 'sp' in the end
+            if merge_list[-1] == 'sp':
+                merge_list = merge_list[:-1]
+            phones_list = []
+            phones_list.append(merge_list)
+
+        for part_phones_list in phones_list:
+            phone_ids = self._p2id(part_phones_list)
+            phone_ids = paddle.to_tensor(phone_ids)
+            temp_phone_ids.append(phone_ids)
+        result["phone_ids"] = temp_phone_ids
         return result
 
     def numericalize(self, phonemes):

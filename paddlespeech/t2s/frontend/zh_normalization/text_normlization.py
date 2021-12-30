@@ -53,7 +53,7 @@ class TextNormalizer():
     def __init__(self):
         self.SENTENCE_SPLITOR = re.compile(r'([：，；。？！,;?!][”’]?)')
 
-    def _split(self, text: str) -> List[str]:
+    def _split(self, text: str, lang="zh") -> List[str]:
         """Split long text into sentences with sentence-splitting punctuations.
         Parameters
         ----------
@@ -65,7 +65,8 @@ class TextNormalizer():
             Sentences.
         """
         # Only for pure Chinese here
-        text = text.replace(" ", "")
+        if lang == "zh":
+            text = text.replace(" ", "")
         text = self.SENTENCE_SPLITOR.sub(r'\1\n', text)
         text = text.strip()
         sentences = [sentence.strip() for sentence in re.split(r'\n+', text)]

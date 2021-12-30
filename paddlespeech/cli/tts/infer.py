@@ -178,6 +178,32 @@ pretrained_models = {
         'speech_stats':
         'feats_stats.npy',
     },
+    # style_melgan
+    "style_melgan_csmsc-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip',
+        'md5':
+        '5de2d5348f396de0c966926b8c462755',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_1500000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    },
+    # hifigan
+    "hifigan_csmsc-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip',
+        'md5':
+        'dd40a3d88dfcf64513fba2f0f961ada6',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_2500000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    },
 }
 
 model_alias = {
@@ -199,6 +225,14 @@ model_alias = {
     "paddlespeech.t2s.models.melgan:MelGANGenerator",
     "mb_melgan_inference":
     "paddlespeech.t2s.models.melgan:MelGANInference",
+    "style_melgan":
+    "paddlespeech.t2s.models.melgan:StyleMelGANGenerator",
+    "style_melgan_inference":
+    "paddlespeech.t2s.models.melgan:StyleMelGANInference",
+    "hifigan":
+    "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
+    "hifigan_inference":
+    "paddlespeech.t2s.models.hifigan:HiFiGANInference",
 }
 
 
@@ -266,7 +300,7 @@ class TTSExecutor(BaseExecutor):
             default='pwgan_csmsc',
             choices=[
                 'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-                'mb_melgan_csmsc'
+                'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc'
             ],
             help='Choose vocoder type of tts task.')
 
@@ -504,37 +538,47 @@ class TTSExecutor(BaseExecutor):
         am_name = am[:am.rindex('_')]
         am_dataset = am[am.rindex('_') + 1:]
         get_tone_ids = False
+        merge_sentences = False
         if am_name == 'speedyspeech':
             get_tone_ids = True
         if lang == 'zh':
             input_ids = self.frontend.get_input_ids(
-                text, merge_sentences=True, get_tone_ids=get_tone_ids)
+                text,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids)
             phone_ids = input_ids["phone_ids"]
-            phone_ids = phone_ids[0]
             if get_tone_ids:
                 tone_ids = input_ids["tone_ids"]
-                tone_ids = tone_ids[0]
         elif lang == 'en':
-            input_ids = self.frontend.get_input_ids(text)
+            input_ids = self.frontend.get_input_ids(
+                text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
             print("lang should in {'zh', 'en'}!")
 
-        # am
-        if am_name == 'speedyspeech':
-            mel = self.am_inference(phone_ids, tone_ids)
-        # fastspeech2
-        else:
-            # multi speaker
-            if am_dataset in {"aishell3", "vctk"}:
-                mel = self.am_inference(
-                    phone_ids, spk_id=paddle.to_tensor(spk_id))
+        flags = 0
+        for i in range(len(phone_ids)):
+            part_phone_ids = phone_ids[i]
+            # am
+            if am_name == 'speedyspeech':
+                part_tone_ids = tone_ids[i]
+                mel = self.am_inference(part_phone_ids, part_tone_ids)
+            # fastspeech2
             else:
-                mel = self.am_inference(phone_ids)
-
-        # voc
-        wav = self.voc_inference(mel)
-        self._outputs['wav'] = wav
+                # multi speaker
+                if am_dataset in {"aishell3", "vctk"}:
+                    mel = self.am_inference(
+                        part_phone_ids, spk_id=paddle.to_tensor(spk_id))
+                else:
+                    mel = self.am_inference(part_phone_ids)
+            # voc
+            wav = self.voc_inference(mel)
+            if flags == 0:
+                wav_all = wav
+                flags = 1
+            else:
+                wav_all = paddle.concat([wav_all, wav])
+        self._outputs['wav'] = wav_all
 
     def postprocess(self, output: str='output.wav') -> Union[str, os.PathLike]:
         """

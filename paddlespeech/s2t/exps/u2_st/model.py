@@ -545,7 +545,8 @@ class U2STTester(U2STTrainer):
                 len_refs += metrics['len_refs']
                 num_ins += metrics['num_ins']
                 rtf = num_time / (num_frames * stride_ms)
-                logger.info("RTF: %f, instance (%d), batch BELU   = %f" % (rtf, num_ins, bleu))
+                logger.info("RTF: %f, instance (%d), batch BELU   = %f" %
+                            (rtf, num_ins, bleu))
 
         rtf = num_time / (num_frames * stride_ms)
         msg = "Test: "

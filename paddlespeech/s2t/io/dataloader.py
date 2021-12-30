@@ -18,9 +18,9 @@ from typing import Text
 
 import jsonlines
 import numpy as np
+from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from paddle.io import BatchSampler
 
 from paddlespeech.s2t.io.batchfy import make_batchset
 from paddlespeech.s2t.io.converter import CustomConverter
@@ -153,15 +153,13 @@ class BatchDataLoader():
                 dataset=self.dataset,
                 batch_size=1,
                 shuffle=not self.use_sortagrad if self.train_mode else False,
-                drop_last=False,
-                )
+                drop_last=False, )
         else:
             self.sampler = BatchSampler(
                 dataset=self.dataset,
                 batch_size=1,
                 shuffle=not self.use_sortagrad if self.train_mode else False,
-                drop_last=False,
-                )
+                drop_last=False, )
 
         self.dataloader = DataLoader(
             dataset=self.dataset,

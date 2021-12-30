@@ -203,12 +203,15 @@ def evaluate(args):
             get_tone_ids = True
         if args.lang == 'zh':
             input_ids = frontend.get_input_ids(
-                sentence, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
+                sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids)
             phone_ids = input_ids["phone_ids"]
             if get_tone_ids:
                 tone_ids = input_ids["tone_ids"]
         elif args.lang == 'en':
-            input_ids = frontend.get_input_ids(sentence, merge_sentences=merge_sentences)
+            input_ids = frontend.get_input_ids(
+                sentence, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
             print("lang should in {'zh', 'en'}!")

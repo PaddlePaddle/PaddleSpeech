@@ -72,10 +72,7 @@ lambda_adv: 4.0  # Loss balancing coefficient.
 ###########################################################
 batch_size: 8              # Batch size.
 batch_max_steps: 25600     # Length of each audio in batch. Make sure dividable by n_shift.
-pin_memory: true           # Whether to pin memory in Pytorch DataLoader.
-num_workers: 4             # Number of workers in Pytorch DataLoader.
-remove_short_samples: true # Whether to remove samples the length of which are less than batch_max_steps.
-allow_cache: true          # Whether to allow cache in dataset. If true, it requires cpu memory.
+num_workers: 2             # Number of workers in DataLoader.
 
 ###########################################################
 #             OPTIMIZER & SCHEDULER SETTING               #

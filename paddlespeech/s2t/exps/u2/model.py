@@ -264,7 +264,7 @@ class U2Trainer(Trainer):
                 batch_frames_in=config.batch_frames_in,
                 batch_frames_out=config.batch_frames_out,
                 batch_frames_inout=config.batch_frames_inout,
-                preprocess_conf=config.augmentation_config,
+                preprocess_conf=config.preprocess_config,
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 num_encs=1)
@@ -283,18 +283,20 @@ class U2Trainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.augmentation_config,
+                preprocess_conf=config.preprocess_config,
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 num_encs=1)
             logger.info("Setup train/valid Dataloader!")
         else:
+            decode_batch_size = config.get('decode', dict()).get(
+                'decode_batch_size', 1)
             # test dataset, return raw text
             self.test_loader = BatchDataLoader(
                 json_file=config.test_manifest,
                 train_mode=False,
                 sortagrad=False,
-                batch_size=config.decode.decode_batch_size,
+                batch_size=decode_batch_size,
                 maxlen_in=float('inf'),
                 maxlen_out=float('inf'),
                 minibatches=0,
@@ -304,7 +306,7 @@ class U2Trainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.augmentation_config,
+                preprocess_conf=config.preprocess_config,
                 n_iter_processes=1,
                 subsampling_factor=1,
                 num_encs=1)
@@ -313,7 +315,7 @@ class U2Trainer(Trainer):
                 json_file=config.test_manifest,
                 train_mode=False,
                 sortagrad=False,
-                batch_size=config.decode.decode_batch_size,
+                batch_size=decode_batch_size,
                 maxlen_in=float('inf'),
                 maxlen_out=float('inf'),
                 minibatches=0,
@@ -323,7 +325,7 @@ class U2Trainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.augmentation_config,
+                preprocess_conf=config.preprocess_config,
                 n_iter_processes=1,
                 subsampling_factor=1,
                 num_encs=1)
@@ -557,7 +559,7 @@ class U2Tester(U2Trainer):
                 "ref_len":
                 len_refs,
                 "decode_method":
-                self.config.decoding_method,
+                self.config.decode.decoding_method,
             })
             f.write(data + '\n')
 

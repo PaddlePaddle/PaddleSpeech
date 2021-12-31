@@ -21,7 +21,7 @@ mkdir -p ${output_dir}
 python3 -u ${BIN_DIR}/alignment.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
---decode_config ${decode_config_path} \
+--decode_cfg ${decode_config_path} \
 --result_file ${output_dir}/${type}.align \
 --checkpoint_path ${ckpt_prefix} \
 --opts decode.decode_batch_size ${batch_size}

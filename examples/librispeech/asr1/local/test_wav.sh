@@ -50,7 +50,7 @@ for type in attention_rescoring; do
     python3 -u ${BIN_DIR}/test_wav.py \
     --ngpu ${ngpu} \
     --config ${config_path} \
-    --decode_config ${decode_config_path} \
+    --decode_cfg ${decode_config_path} \
     --result_file ${output_dir}/${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
     --opts decode.decoding_method ${type} \

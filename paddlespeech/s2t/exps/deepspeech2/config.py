@@ -23,17 +23,6 @@ from paddlespeech.s2t.models.ds2_online import DeepSpeech2ModelOnline
 
 def get_cfg_defaults(model_type='offline'):
     _C = CfgNode()
-    _C.data = ManifestDataset.params()
-    _C.collator = SpeechCollator.params()
-    _C.training = DeepSpeech2Trainer.params()
-    _C.decoding = DeepSpeech2Tester.params()
-    if model_type == 'offline':
-        _C.model = DeepSpeech2Model.params()
-    else:
-        _C.model = DeepSpeech2ModelOnline.params()
-    """Get a yacs CfgNode object with default values for my_project."""
-    # Return a clone so that the defaults will not be altered
-    # This is for the "local variable" use pattern
     config = _C.clone()
     config.set_new_allowed(True)
     return config

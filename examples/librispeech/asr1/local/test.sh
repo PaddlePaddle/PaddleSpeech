@@ -53,7 +53,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         python3 -u ${BIN_DIR}/test.py \
             --ngpu ${ngpu} \
             --config ${config_path} \
-            --decode_config ${decode_config_path} \
+            --decode_cfg ${decode_config_path} \
             --result_file ${ckpt_prefix}.${type}.rsl \
             --checkpoint_path ${ckpt_prefix} \
             --opts decode.decoding_method ${type} \
@@ -78,7 +78,7 @@ for type in ctc_greedy_search; do
     python3 -u ${BIN_DIR}/test.py \
         --ngpu ${ngpu} \
         --config ${config_path} \
-        --decode_config ${decode_config_path} \
+        --decode_cfg ${decode_config_path} \
         --result_file ${ckpt_prefix}.${type}.rsl \
         --checkpoint_path ${ckpt_prefix} \
         --opts decode.decoding_method ${type} \
@@ -99,7 +99,7 @@ for type in ctc_prefix_beam_search attention_rescoring; do
     python3 -u ${BIN_DIR}/test.py \
         --ngpu ${ngpu} \
         --config ${config_path} \
-        --decode_config ${decode_config_path} \
+        --decode_cfg ${decode_config_path} \
         --result_file ${ckpt_prefix}.${type}.rsl \
         --checkpoint_path ${ckpt_prefix} \
         --opts decode.decoding_method ${type} \

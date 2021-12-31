@@ -21,7 +21,7 @@ null:null
 null:null
 ##
 ===========================eval_params===========================
-eval: ../../../paddlespeech/s2t/exps/deepspeech2/bin/test.py --ngpu 1 --config conf/deepspeech2.yaml --result_file tests/49.rsl --checkpoint_path exp/deepspeech_whole/checkpoints/49 --model_type offline
+eval: ../../../paddlespeech/s2t/exps/deepspeech2/bin/test.py --ngpu 1 --config conf/deepspeech2.yaml --decode_cfg conf/tuning/decode.yaml --result_file tests/49.rsl --checkpoint_path exp/deepspeech_whole/checkpoints/49 --model_type offline
 null:null
 ##
 ===========================infer_params===========================

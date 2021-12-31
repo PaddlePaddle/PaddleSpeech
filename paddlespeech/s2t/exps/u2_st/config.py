@@ -21,15 +21,15 @@ from paddlespeech.s2t.models.u2_st import U2STModel
 
 _C = CfgNode()
 
-_C.data = ManifestDataset.params()
+# _C.data = ManifestDataset.params()
 
-_C.collator = SpeechCollator.params()
+# _C.collator = SpeechCollator.params()
 
-_C.model = U2STModel.params()
+# _C.model = U2STModel.params()
 
-_C.training = U2STTrainer.params()
+# _C.training = U2STTrainer.params()
 
-_C.decoding = U2STTester.params()
+# _C.decoding = U2STTester.params()
 
 
 def get_cfg_defaults():

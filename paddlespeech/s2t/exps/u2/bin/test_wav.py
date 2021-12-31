@@ -38,7 +38,7 @@ class U2Infer():
         self.config = config
         self.audio_file = args.audio_file
 
-        self.preprocess_conf = config.augmentation_config
+        self.preprocess_conf = config.preprocess_config
         self.preprocess_args = {"train": False}
         self.preprocessing = Transformation(self.preprocess_conf)
 
@@ -132,9 +132,9 @@ if __name__ == "__main__":
     config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
-    if args.decode_config:
+    if args.decode_cfg:
         decode_confs = CfgNode(new_allowed=True)
-        decode_confs.merge_from_file(args.decode_config)
+        decode_confs.merge_from_file(args.decode_cfg)
         config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)

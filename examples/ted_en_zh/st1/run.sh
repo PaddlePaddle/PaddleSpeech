@@ -7,6 +7,7 @@ gpus=0,1,2,3
 stage=1
 stop_stage=4
 conf_path=conf/transformer_mtl_noam.yaml
+decode_conf_path=conf/tuning/decode.yaml
 ckpt_path= # paddle.98 # (finetune from FAT-ST pretrained model)
 avg_num=5
 data_path=./TED_EnZh # path to unzipped data
@@ -38,5 +39,5 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # test ckpt avg_n
-    CUDA_VISIBLE_DEVICES=0 ./local/test.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test.sh ${conf_path} ${decode_conf_pat} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi

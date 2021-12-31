@@ -5,13 +5,14 @@ function _set_params(){
 
     run_mode=${1:-"sp"}          # 单卡sp|多卡mp
     config_path=${2:-"conf/conformer.yaml"}
-    output=${3:-"exp/conformer"}
-    seed=${4:-"0"}
-    ngpu=${5:-"1"}
-    profiler_options=${6:-"None"}
-    batch_size=${7:-"32"}
-    fp_item=${8:-"fp32"}
-    model_item=${9:-"conformer"}
+    decode_config_path=${3:-"conf/tuning/decode.yaml"}
+    output=${4:-"exp/conformer"}
+    seed=${5:-"0"}
+    ngpu=${6:-"1"}
+    profiler_options=${7:-"None"}
+    batch_size=${8:-"32"}
+    fp_item=${9:-"fp32"}
+    model_item=${10:-"conformer"}
     benchmark_max_step=0
     run_log_path=${TRAIN_LOG_DIR:-$(pwd)}  # TRAIN_LOG_DIR 后续QA设置该参数
 # 添加日志解析需要的参数
@@ -35,6 +36,7 @@ function _train(){
     echo "Train on ${num_gpu_devices} GPUs"
     echo "current CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES, gpus=$num_gpu_devices, batch_size=$batch_size"
     train_cmd="--config=${config_path} \
+           --decode_cfg=${decode_config_path} \
            --output=${output} \
            --seed=${seed} \
            --ngpu=${ngpu} \
@@ -68,7 +70,7 @@ function _train(){
 }
 
 source ${BENCHMARK_ROOT}/scripts/run_model.sh   # 在该脚本中会对符合benchmark规范的log使用analysis.py 脚本进行性能数据解析;该脚本在连调时可从benchmark repo中下载https://github.com/PaddlePaddle/benchmark/blob/master/scripts/run_model.sh;如果不联调只想要产出训练log可以注掉本行,提交时需打开
-_set_params $@
-# _train       # 如果只想产出训练log,不解析,可取消注释
+#_set_params $@
+#_train       # 如果只想产出训练log,不解析,可取消注释
 _run     # 该函数在run_model.sh中,执行时会调用_train; 如果不联调只想要产出训练log可以注掉本行,提交时需打开
 

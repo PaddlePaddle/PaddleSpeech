@@ -54,17 +54,17 @@ class ManifestDataset(Dataset):
         Returns:
             ManifestDataset: dataet object.
         """
-        assert 'manifest' in config.data
-        assert config.data.manifest
+        assert 'manifest' in config
+        assert config.manifest
 
         dataset = cls(
-            manifest_path=config.data.manifest,
-            max_input_len=config.data.max_input_len,
-            min_input_len=config.data.min_input_len,
-            max_output_len=config.data.max_output_len,
-            min_output_len=config.data.min_output_len,
-            max_output_input_ratio=config.data.max_output_input_ratio,
-            min_output_input_ratio=config.data.min_output_input_ratio, )
+            manifest_path=config.manifest,
+            max_input_len=config.max_input_len,
+            min_input_len=config.min_input_len,
+            max_output_len=config.max_output_len,
+            min_output_len=config.min_output_len,
+            max_output_input_ratio=config.max_output_input_ratio,
+            min_output_input_ratio=config.min_output_input_ratio, )
         return dataset
 
     def __init__(self,

@@ -101,7 +101,7 @@ def default_argument_parser(parser=None):
         title='Test Options', description=None)
 
     test_group.add_argument(
-        "--decode_config",
+        "--decode_cfg",
         metavar="DECODE_CONFIG_FILE",
         help="decode config file.")
 

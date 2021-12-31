@@ -33,13 +33,13 @@ from paddlespeech.s2t.utils.utility import print_arguments
 def start_server(config, args):
     """Start the ASR server"""
     config.defrost()
-    config.data.manifest = config.data.test_manifest
+    config.manifest = config.test_manifest
     dataset = ManifestDataset.from_config(config)
 
-    config.collator.augmentation_config = ""
-    config.collator.keep_transcription_text = True
-    config.collator.batch_size = 1
-    config.collator.num_workers = 0
+    config.augmentation_config = ""
+    config.keep_transcription_text = True
+    config.batch_size = 1
+    config.num_workers = 0
     collate_fn = SpeechCollator.from_config(config)
     test_loader = DataLoader(dataset, collate_fn=collate_fn, num_workers=0)
 
@@ -62,14 +62,14 @@ def start_server(config, args):
             paddle.to_tensor(audio),
             paddle.to_tensor(audio_len),
             vocab_list=test_loader.collate_fn.vocab_list,
-            decoding_method=config.decoding.decoding_method,
-            lang_model_path=config.decoding.lang_model_path,
-            beam_alpha=config.decoding.alpha,
-            beam_beta=config.decoding.beta,
-            beam_size=config.decoding.beam_size,
-            cutoff_prob=config.decoding.cutoff_prob,
-            cutoff_top_n=config.decoding.cutoff_top_n,
-            num_processes=config.decoding.num_proc_bsearch)
+            decoding_method=config.decode.decoding_method,
+            lang_model_path=config.decode.lang_model_path,
+            beam_alpha=config.decode.alpha,
+            beam_beta=config.decode.beta,
+            beam_size=config.decode.beam_size,
+            cutoff_prob=config.decode.cutoff_prob,
+            cutoff_top_n=config.decode.cutoff_top_n,
+            num_processes=config.decode.num_proc_bsearch)
         return result_transcript[0]
 
     # warming up with utterrances sampled from Librispeech
@@ -114,12 +114,16 @@ if __name__ == "__main__":
     config = get_cfg_defaults()
     if args.config:
         config.merge_from_file(args.config)
+    if args.decode_cfg:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_cfg)
+        config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()
     print(config)
 
-    args.warmup_manifest = config.data.test_manifest
+    args.warmup_manifest = config.test_manifest
     print_arguments(args, globals())
 
     if args.dump_config:

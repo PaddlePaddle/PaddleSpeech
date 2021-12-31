@@ -46,6 +46,7 @@ test_manifest: data/manifest.test
 ###########################################
 unit_type: 'char'
 vocab_filepath: data/lang_char/vocab.txt 
+spm_model_prefix: ''
 feat_dim: 80
 stride_ms: 10.0
 window_ms: 25.0
@@ -59,13 +60,13 @@ batch_bins: 0
 batch_frames_in: 0
 batch_frames_out: 0
 batch_frames_inout: 0
-augmentation_config: conf/preprocess.yaml 
+preprocess_config: conf/preprocess.yaml 
 num_workers: 0
 subsampling_factor: 1
 num_encs: 1
 
 ###########################################
-#                 training                #
+#                 Training                #
 ###########################################
 n_epoch: 240 
 accum_grad: 2
@@ -73,7 +74,7 @@ global_grad_clip: 5.0
 optim: adam
 optim_conf:
   lr: 0.002
-  weight_decay: 1e-6
+  weight_decay: 1.0e-6
 scheduler: warmuplr     
 scheduler_conf:
   warmup_steps: 25000

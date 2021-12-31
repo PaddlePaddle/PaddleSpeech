@@ -50,7 +50,7 @@ vocab_filepath: data/lang_char/vocab.txt
 unit_type: 'spm'
 spm_model_prefix: 'data/lang_char/bpe_unigram_5000'
 mean_std_filepath: ""
-augmentation_config: conf/preprocess.yaml
+preprocess_config: conf/preprocess.yaml
 feat_dim: 80
 stride_ms: 10.0
 window_ms: 25.0
@@ -64,7 +64,6 @@ batch_bins: 0
 batch_frames_in: 0
 batch_frames_out: 0
 batch_frames_inout: 0
-augmentation_config: conf/preprocess.yaml 
 num_workers: 0
 subsampling_factor: 1
 num_encs: 1
@@ -79,7 +78,7 @@ global_grad_clip: 5.0
 optim: adam
 optim_conf:
   lr: 0.001
-  weight_decay: 1e-06
+  weight_decay: 1.0e-06
 scheduler: warmuplr     
 scheduler_conf:
   warmup_steps: 25000

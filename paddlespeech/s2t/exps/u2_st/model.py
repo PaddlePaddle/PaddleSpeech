@@ -78,7 +78,7 @@ class U2STTrainer(Trainer):
         super().__init__(config, args)
 
     def train_batch(self, batch_index, batch_data, msg):
-        train_conf = self.config.training
+        train_conf = self.config
         start = time.time()
         # forward
         utt, audio, audio_len, text, text_len = batch_data
@@ -127,7 +127,7 @@ class U2STTrainer(Trainer):
 
         if (batch_index + 1) % train_conf.log_interval == 0:
             msg += "train time: {:>.3f}s, ".format(iteration_time)
-            msg += "batch size: {}, ".format(self.config.collator.batch_size)
+            msg += "batch size: {}, ".format(self.config.batch_size)
             msg += "accum: {}, ".format(train_conf.accum_grad)
             msg += ', '.join('{}: {:>.6f}'.format(k, v)
                              for k, v in losses_np.items())
@@ -168,7 +168,7 @@ class U2STTrainer(Trainer):
                 if ctc_loss:
                     valid_losses['val_ctc_loss'].append(float(ctc_loss))
 
-            if (i + 1) % self.config.training.log_interval == 0:
+            if (i + 1) % self.config.log_interval == 0:
                 valid_dump = {k: np.mean(v) for k, v in valid_losses.items()}
                 valid_dump['val_history_st_loss'] = total_loss / num_seen_utts
 
@@ -197,7 +197,7 @@ class U2STTrainer(Trainer):
         self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
-        while self.epoch < self.config.training.n_epoch:
+        while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
                 try:
@@ -245,91 +245,93 @@ class U2STTrainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()
-        config.collator.keep_transcription_text = False
+        config.keep_transcription_text = False
 
         # train/valid dataset, return token ids
-        config.data.manifest = config.data.train_manifest
+        config.manifest = config.train_manifest
         train_dataset = ManifestDataset.from_config(config)
 
-        config.data.manifest = config.data.dev_manifest
+        config.manifest = config.dev_manifest
         dev_dataset = ManifestDataset.from_config(config)
 
-        if config.model.model_conf.asr_weight > 0.:
+        if config.model_conf.asr_weight > 0.:
             Collator = TripletSpeechCollator
             TestCollator = SpeechCollator
         else:
             TestCollator = Collator = SpeechCollator
 
         collate_fn_train = Collator.from_config(config)
-        config.collator.augmentation_config = ""
+        config.augmentation_config = ""
         collate_fn_dev = Collator.from_config(config)
 
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
-                batch_size=config.collator.batch_size,
+                batch_size=config.batch_size,
                 num_replicas=None,
                 rank=None,
                 shuffle=True,
                 drop_last=True,
-                sortagrad=config.collator.sortagrad,
-                shuffle_method=config.collator.shuffle_method)
+                sortagrad=config.sortagrad,
+                shuffle_method=config.shuffle_method)
         else:
             batch_sampler = SortagradBatchSampler(
                 train_dataset,
                 shuffle=True,
-                batch_size=config.collator.batch_size,
+                batch_size=config.batch_size,
                 drop_last=True,
-                sortagrad=config.collator.sortagrad,
-                shuffle_method=config.collator.shuffle_method)
+                sortagrad=config.sortagrad,
+                shuffle_method=config.shuffle_method)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
             collate_fn=collate_fn_train,
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=config.collator.batch_size,
+            batch_size=config.batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn_dev,
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
 
         # test dataset, return raw text
-        config.data.manifest = config.data.test_manifest
+        config.manifest = config.test_manifest
         # filter test examples, will cause less examples, but no mismatch with training
         # and can use large batch size , save training time, so filter test egs now.
-        # config.data.min_input_len = 0.0  # second
-        # config.data.max_input_len = float('inf')  # second
-        # config.data.min_output_len = 0.0  # tokens
-        # config.data.max_output_len = float('inf')  # tokens
-        # config.data.min_output_input_ratio = 0.00
-        # config.data.max_output_input_ratio = float('inf')
+        # config.min_input_len = 0.0  # second
+        # config.max_input_len = float('inf')  # second
+        # config.min_output_len = 0.0  # tokens
+        # config.max_output_len = float('inf')  # tokens
+        # config.min_output_input_ratio = 0.00
+        # config.max_output_input_ratio = float('inf')
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
-        config.collator.keep_transcription_text = True
-        config.collator.augmentation_config = ""
+        config.keep_transcription_text = True
+        config.augmentation_config = ""
+        decode_batch_size = config.get('decode', dict()).get(
+            'decode_batch_size', 1)
         self.test_loader = DataLoader(
             test_dataset,
-            batch_size=config.decoding.batch_size,
+            batch_size=decode_batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=TestCollator.from_config(config),
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
         # return text token id
-        config.collator.keep_transcription_text = False
+        config.keep_transcription_text = False
         self.align_loader = DataLoader(
             test_dataset,
-            batch_size=config.decoding.batch_size,
+            batch_size=decode_batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=TestCollator.from_config(config),
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
         logger.info("Setup train/valid/test/align Dataloader!")
 
     def setup_model(self):
         config = self.config
-        model_conf = config.model
+        model_conf = config
         with UpdateConfig(model_conf):
             model_conf.input_dim = self.train_loader.collate_fn.feature_size
             model_conf.output_dim = self.train_loader.collate_fn.vocab_size
@@ -342,7 +344,7 @@ class U2STTrainer(Trainer):
         logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
-        train_config = config.training
+        train_config = config
         optim_type = train_config.optim
         optim_conf = train_config.optim_conf
         scheduler_type = train_config.scheduler
@@ -428,7 +430,7 @@ class U2STTester(U2STTrainer):
 
     def translate(self, audio, audio_len):
         """"E2E translation from extracted audio feature"""
-        cfg = self.config.decoding
+        decode_cfg = self.config.decode
         text_feature = self.test_loader.collate_fn.text_feature
         self.model.eval()
 
@@ -436,12 +438,12 @@ class U2STTester(U2STTrainer):
             audio,
             audio_len,
             text_feature=text_feature,
-            decoding_method=cfg.decoding_method,
-            beam_size=cfg.beam_size,
-            word_reward=cfg.word_reward,
-            decoding_chunk_size=cfg.decoding_chunk_size,
-            num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-            simulate_streaming=cfg.simulate_streaming)
+            decoding_method=decode_cfg.decoding_method,
+            beam_size=decode_cfg.beam_size,
+            word_reward=decode_cfg.word_reward,
+            decoding_chunk_size=decode_cfg.decoding_chunk_size,
+            num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
+            simulate_streaming=decode_cfg.simulate_streaming)
         return hyps
 
     def compute_translation_metrics(self,
@@ -452,7 +454,7 @@ class U2STTester(U2STTrainer):
                                     texts_len,
                                     bleu_func,
                                     fout=None):
-        cfg = self.config.decoding
+        decode_cfg = self.config.decode
         len_refs, num_ins = 0, 0
 
         start_time = time.time()
@@ -467,12 +469,12 @@ class U2STTester(U2STTrainer):
             audio,
             audio_len,
             text_feature=text_feature,
-            decoding_method=cfg.decoding_method,
-            beam_size=cfg.beam_size,
-            word_reward=cfg.word_reward,
-            decoding_chunk_size=cfg.decoding_chunk_size,
-            num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-            simulate_streaming=cfg.simulate_streaming)
+            decoding_method=decode_cfg.decoding_method,
+            beam_size=decode_cfg.beam_size,
+            word_reward=decode_cfg.word_reward,
+            decoding_chunk_size=decode_cfg.decoding_chunk_size,
+            num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
+            simulate_streaming=decode_cfg.simulate_streaming)
         decode_time = time.time() - start_time
 
         for utt, target, result in zip(utts, refs, hyps):
@@ -502,8 +504,8 @@ class U2STTester(U2STTrainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
-        cfg = self.config.decoding
-        bleu_func = bleu_score.char_bleu if cfg.error_rate_type == 'char-bleu' else bleu_score.bleu
+        decode_cfg = self.config.decode
+        bleu_func = bleu_score.char_bleu if decode_cfg.error_rate_type == 'char-bleu' else bleu_score.bleu
 
         stride_ms = self.test_loader.collate_fn.stride_ms
         hyps, refs = [], []
@@ -549,15 +551,15 @@ class U2STTester(U2STTrainer):
                 "num_examples":
                 num_ins,
                 "decode_method":
-                self.config.decoding.decoding_method,
+                self.config.decode.decoding_method,
             })
             f.write(data + '\n')
 
     @paddle.no_grad()
     def align(self):
         ctc_utils.ctc_align(self.config, self.model, self.align_loader,
-                            self.config.decoding.batch_size,
-                            self.config.collator.stride_ms, self.vocab_list,
+                            self.config.decode.decode_batch_size,
+                            self.config.stride_ms, self.vocab_list,
                             self.args.result_file)
 
     def load_inferspec(self):
@@ -569,7 +571,7 @@ class U2STTester(U2STTrainer):
         """
         from paddlespeech.s2t.models.u2 import U2InferModel
         infer_model = U2InferModel.from_pretrained(self.test_loader,
-                                                   self.config.model.clone(),
+                                                   self.config.clone(),
                                                    self.args.checkpoint_path)
         feat_dim = self.test_loader.collate_fn.feature_size
         input_spec = [

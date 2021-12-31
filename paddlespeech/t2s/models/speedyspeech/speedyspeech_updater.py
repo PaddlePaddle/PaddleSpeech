@@ -50,10 +50,15 @@ class SpeedySpeechUpdater(StandardUpdater):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
 
+        # spk_id!=None in multiple spk speedyspeech 
+        spk_id = batch["spk_id"] if "spk_id" in batch else None
+
         decoded, predicted_durations = self.model(
             text=batch["phones"],
             tones=batch["tones"],
-            durations=batch["durations"])
+            durations=batch["durations"],
+            spk_id=spk_id
+            )
 
         target_mel = batch["feats"]
         spec_mask = F.sequence_mask(
@@ -112,10 +117,14 @@ class SpeedySpeechEvaluator(StandardEvaluator):
         self.msg = "Evaluate: "
         losses_dict = {}
 
+        spk_id = batch["spk_id"] if "spk_id" in batch else None
+
         decoded, predicted_durations = self.model(
             text=batch["phones"],
             tones=batch["tones"],
-            durations=batch["durations"])
+            durations=batch["durations"],
+            spk_id=spk_id
+            )
 
         target_mel = batch["feats"]
         spec_mask = F.sequence_mask(

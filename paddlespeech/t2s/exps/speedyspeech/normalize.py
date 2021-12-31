@@ -47,7 +47,8 @@ def main():
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
         "--tones-dict", type=str, default=None, help="tone vocabulary file.")
-
+    parser.add_argument(
+        "--speaker-dict", type=str, default=None, help="speaker id map file.")
     parser.add_argument(
         "--verbose",
         type=int,
@@ -121,6 +122,12 @@ def main():
     for tone, id in tone_id:
         vocab_tones[tone] = int(id)
 
+    vocab_speaker = {}
+    with open(args.speaker_dict, 'rt') as f:
+        spk_id = [line.strip().split() for line in f.readlines()]
+    for spk, id in spk_id:
+        vocab_speaker[spk] = int(id)
+
     # process each file
     output_metadata = []
 
@@ -135,11 +142,13 @@ def main():
         np.save(mel_path, mel.astype(np.float32), allow_pickle=False)
         phone_ids = [vocab_phones[p] for p in item['phones']]
         tone_ids = [vocab_tones[p] for p in item['tones']]
+        spk_id = vocab_speaker[item["speaker"]]
         if args.use_relative_path:
             # convert absolute path to relative path:
             mel_path = mel_path.relative_to(dumpdir)
         output_metadata.append({
             'utt_id': utt_id,
+            "spk_id": spk_id,
             'phones': phone_ids,
             'tones': tone_ids,
             'num_phones': item['num_phones'],

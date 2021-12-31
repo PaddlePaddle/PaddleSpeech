@@ -17,7 +17,7 @@ import paddle
 from paddlespeech.t2s.data.batch import batch_sequences
 
 
-def speedyspeech_batch_fn(examples):
+def speedyspeech_single_spk_batch_fn(examples):
     # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
     phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
     tones = [np.array(item["tones"], dtype=np.int64) for item in examples]
@@ -54,6 +54,46 @@ def speedyspeech_batch_fn(examples):
     }
     return batch
 
+def speedyspeech_multi_spk_batch_fn(examples):
+    # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
+    phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
+    tones = [np.array(item["tones"], dtype=np.int64) for item in examples]
+    feats = [np.array(item["feats"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+    num_phones = [
+        np.array(item["num_phones"], dtype=np.int64) for item in examples
+    ]
+    num_frames = [
+        np.array(item["num_frames"], dtype=np.int64) for item in examples
+    ]
+
+    phones = batch_sequences(phones)
+    tones = batch_sequences(tones)
+    feats = batch_sequences(feats)
+    durations = batch_sequences(durations)
+
+    # convert each batch to paddle.Tensor
+    phones = paddle.to_tensor(phones)
+    tones = paddle.to_tensor(tones)
+    feats = paddle.to_tensor(feats)
+    durations = paddle.to_tensor(durations)
+    num_phones = paddle.to_tensor(num_phones)
+    num_frames = paddle.to_tensor(num_frames)
+    batch = {
+        "phones": phones,
+        "tones": tones,
+        "num_phones": num_phones,
+        "num_frames": num_frames,
+        "feats": feats,
+        "durations": durations,
+    }
+    if "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
+    return batch
 
 def fastspeech2_single_spk_batch_fn(examples):
     # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]

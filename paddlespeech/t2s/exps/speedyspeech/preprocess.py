@@ -13,6 +13,7 @@
 # limitations under the License.
 import argparse
 import re
+import os
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
 from pathlib import Path
@@ -32,7 +33,7 @@ from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import get_phones_tones
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
-
+from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
 
 def process_sentence(config: Dict[str, Any],
                      fp: Path,
@@ -101,6 +102,7 @@ def process_sentence(config: Dict[str, Any],
             "utt_id": utt_id,
             "phones": phones,
             "tones": tones,
+            "speaker": speaker,
             "num_phones": len(phones),
             "num_frames": num_frames,
             "durations": durations,
@@ -229,6 +231,8 @@ def main():
     tone_id_map_path = dumpdir / "tone_id_map.txt"
     get_phones_tones(sentences, phone_id_map_path, tone_id_map_path,
                      args.dataset)
+    speaker_id_map_path = dumpdir / "speaker_id_map.txt"
+    get_spk_id_map(speaker_set, speaker_id_map_path)
 
     if args.dataset == "baker":
         wav_files = sorted(list((rootdir / "Wave").rglob("*.wav")))
@@ -238,6 +242,28 @@ def main():
         train_wav_files = wav_files[:num_train]
         dev_wav_files = wav_files[num_train:num_train + num_dev]
         test_wav_files = wav_files[num_train + num_dev:]
+
+    elif args.dataset == "other":
+        sub_num_dev = 100
+        wav_dir = rootdir / "wav"
+        train_wav_files = []
+        dev_wav_files = []
+        test_wav_files = []
+        for speaker in os.listdir(wav_dir):
+            if os.path.exists(os.path.join(wav_dir, speaker, "split")):
+                wav_files = sorted(list((wav_dir / speaker / "split").rglob("*.wav")))
+            else:
+                wav_files = sorted(list((wav_dir / speaker).rglob("*.wav")))
+
+            if len(wav_files) > 100:
+                train_wav_files += wav_files[:-sub_num_dev * 2]
+                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
+                test_wav_files += wav_files[-sub_num_dev:]
+            else:
+                train_wav_files += wav_files
+        print("len train_wav_files", len(train_wav_files))
+        print("len dev_wav_files", len(dev_wav_files))
+        print("len test_wav_files", len(test_wav_files))
 
     train_dump_dir = dumpdir / "train" / "raw"
     train_dump_dir.mkdir(parents=True, exist_ok=True)

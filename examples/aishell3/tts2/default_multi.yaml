@@ -1,0 +1,52 @@
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+fs: 24000           # Sampling rate.
+n_fft: 2048         # FFT size (samples).
+n_shift: 300        # Hop size (samples). 12.5ms
+win_length: 1200    # Window length (samples). 50ms
+                    # If set to null, it will be the same as fft_size.
+window: "hann"      # Window function.
+n_mels: 80          # Number of mel basis.
+fmin: 80            # Minimum freq in mel basis calculation.
+fmax: 7600          # Maximum frequency in mel basis calculation.
+
+###########################################################
+#                       DATA SETTING                      #
+###########################################################
+batch_size: 32
+num_workers: 4
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model:
+  encoder_hidden_size: 128
+  encoder_kernel_size: 3
+  encoder_dilations: [1, 3, 9, 27, 1, 3, 9, 27, 1, 1]
+  duration_predictor_hidden_size: 128
+  decoder_hidden_size: 128
+  decoder_output_size: 80
+  decoder_kernel_size: 3
+  decoder_dilations: [1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 1]
+  spk_embed_dim: 256   
+  spk_embed_integration_type: add         # speaker embedding integration type
+
+###########################################################
+#                     OPTIMIZER SETTING                   #
+###########################################################
+optimizer:
+  optim: adam              # optimizer type
+  learning_rate: 0.002     # learning rate
+  max_grad_norm: 1
+
+###########################################################
+#                     TRAINING SETTING                    #
+###########################################################
+max_epoch: 100
+num_snapshots: 5
+
+###########################################################
+#                       OTHER SETTING                     #
+###########################################################
+seed: 10086

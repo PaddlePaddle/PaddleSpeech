@@ -196,41 +196,50 @@ def evaluate(args):
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-
+    merge_sentences = False
     for utt_id, sentence in sentences:
         get_tone_ids = False
         if am_name == 'speedyspeech':
             get_tone_ids = True
         if args.lang == 'zh':
             input_ids = frontend.get_input_ids(
-                sentence, merge_sentences=True, get_tone_ids=get_tone_ids)
+                sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids)
             phone_ids = input_ids["phone_ids"]
-            phone_ids = phone_ids[0]
             if get_tone_ids:
                 tone_ids = input_ids["tone_ids"]
-                tone_ids = tone_ids[0]
         elif args.lang == 'en':
-            input_ids = frontend.get_input_ids(sentence)
+            input_ids = frontend.get_input_ids(
+                sentence, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
             print("lang should in {'zh', 'en'}!")
-
         with paddle.no_grad():
-            # acoustic model
-            if am_name == 'fastspeech2':
-                # multi speaker
-                if am_dataset in {"aishell3", "vctk"}:
-                    spk_id = paddle.to_tensor(args.spk_id)
-                    mel = am_inference(phone_ids, spk_id)
+            flags = 0
+            for i in range(len(phone_ids)):
+                part_phone_ids = phone_ids[i]
+                # acoustic model
+                if am_name == 'fastspeech2':
+                    # multi speaker
+                    if am_dataset in {"aishell3", "vctk"}:
+                        spk_id = paddle.to_tensor(args.spk_id)
+                        mel = am_inference(part_phone_ids, spk_id)
+                    else:
+                        mel = am_inference(part_phone_ids)
+                elif am_name == 'speedyspeech':
+                    part_tone_ids = tone_ids[i]
+                    mel = am_inference(part_phone_ids, part_tone_ids)
+                # vocoder
+                wav = voc_inference(mel)
+                if flags == 0:
+                    wav_all = wav
+                    flags = 1
                 else:
-                    mel = am_inference(phone_ids)
-            elif am_name == 'speedyspeech':
-                mel = am_inference(phone_ids, tone_ids)
-            # vocoder
-            wav = voc_inference(mel)
+                    wav_all = paddle.concat([wav_all, wav])
         sf.write(
             str(output_dir / (utt_id + ".wav")),
-            wav.numpy(),
+            wav_all.numpy(),
             samplerate=am_config.fs)
         print(f"{utt_id} done!")
 

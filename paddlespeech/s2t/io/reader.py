@@ -68,7 +68,7 @@ class LoadInputsAndTargets():
         if mode not in ["asr"]:
             raise ValueError("Only asr are allowed: mode={}".format(mode))
 
-        if preprocess_conf is not None:
+        if preprocess_conf:
             self.preprocessing = Transformation(preprocess_conf)
             logger.warning(
                 "[Experimental feature] Some preprocessing will be done "
@@ -82,12 +82,11 @@ class LoadInputsAndTargets():
         self.load_output = load_output
         self.load_input = load_input
         self.sort_in_input_length = sort_in_input_length
-        if preprocess_args is None:
-            self.preprocess_args = {}
-        else:
+        if preprocess_args:
             assert isinstance(preprocess_args, dict), type(preprocess_args)
             self.preprocess_args = dict(preprocess_args)
-
+        else:
+            self.preprocess_args = {}
         self.keep_all_data_on_mem = keep_all_data_on_mem
 
     def __call__(self, batch, return_uttid=False):

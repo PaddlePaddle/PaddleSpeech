@@ -88,7 +88,7 @@ discriminator_adv_loss_params:
 batch_size: 32              # Batch size.
 # batch_max_steps(24000) == prod(noise_upsample_scales)(80) * prod(upsample_scales)(300, n_shift)
 batch_max_steps: 24000      # Length of each audio in batch. Make sure dividable by n_shift.
-num_workers: 2              # Number of workers in Pytorch DataLoader.
+num_workers: 2              # Number of workers in DataLoader.
 
 ###########################################################
 #             OPTIMIZER & SCHEDULER SETTING               #

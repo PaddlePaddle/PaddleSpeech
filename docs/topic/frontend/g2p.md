@@ -62,7 +62,9 @@ modified from https://zhuanlan.zhihu.com/p/349600439
 其中重音标记附在元音后面。当只需要音标而不需要重音标记的时候也可以直接省略。
 
 CMUDict 只是一个词典，当出现了不在词典中的词时（OOV），可以求助其他工具可以根据拼写得到对应的发音，如: 
+
 [Lexicon Tool](http://www.speech.cs.cmu.edu/tools)
+
 [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq)
 
 ## 中文注音系统

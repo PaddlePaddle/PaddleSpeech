@@ -142,6 +142,12 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
+### ⭐ 应用案例
+- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): 使用PaddleSpeech的语音合成模块生成虚拟人的声音。**
+  
+<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
+
+
 ### 🔥 热门活动
 
 - 2021.12.21~12.24

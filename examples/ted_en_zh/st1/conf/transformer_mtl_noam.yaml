@@ -13,7 +13,7 @@ vocab_filepath: data/lang_char/ted_en_zh_bpe8000.txt
 unit_type: 'spm'
 spm_model_prefix: data/lang_char/ted_en_zh_bpe8000
 mean_std_filepath: ""
-# augmentation_config: conf/augmentation.json
+# preprocess_config: conf/augmentation.json
 batch_size: 20
 feat_dim: 83
 stride_ms: 10.0
@@ -27,7 +27,7 @@ batch_bins: 0
 batch_frames_in: 0
 batch_frames_out: 0
 batch_frames_inout: 0
-augmentation_config:
+preprocess_config:
 num_workers: 0
 subsampling_factor: 1
 num_encs: 1

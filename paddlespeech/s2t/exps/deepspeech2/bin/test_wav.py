@@ -188,7 +188,7 @@ if __name__ == "__main__":
     print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults(args.model_type)
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.decode_cfg:

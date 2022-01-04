@@ -42,40 +42,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
-
-def get_cfg_defaults():
-    """Get a yacs CfgNode object with default values for my_project."""
-    # Return a clone so that the defaults will not be altered
-    # This is for the "local variable" use pattern
-    _C = CfgNode()
-
-    _C.model = U2Model.params()
-
-    _C.training = U2Trainer.params()
-
-    _C.decoding = U2Tester.params()
-
-    config = _C.clone()
-    config.set_new_allowed(True)
-    return config
-
-
 class U2Trainer(Trainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # training config
-        default = CfgNode(
-            dict(
-                n_epoch=50,  # train epochs
-                log_interval=100,  # steps
-                accum_grad=1,  # accum grad by # steps
-                checkpoint=dict(
-                    kbest_n=50,
-                    latest_n=5, ), ))
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
 
@@ -362,35 +329,6 @@ class U2Trainer(Trainer):
 
 
 class U2Tester(U2Trainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # decoding config
-        default = CfgNode(
-            dict(
-                alpha=2.5,  # Coef of LM for beam search.
-                beta=0.3,  # Coef of WC for beam search.
-                cutoff_prob=1.0,  # Cutoff probability for pruning.
-                cutoff_top_n=40,  # Cutoff number for pruning.
-                lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
-                decoding_method='attention',  # Decoding method. Options: 'attention', 'ctc_greedy_search',
-                # 'ctc_prefix_beam_search', 'attention_rescoring'
-                error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
-                num_proc_bsearch=8,  # # of CPUs for beam search.
-                beam_size=10,  # Beam search width.
-                batch_size=16,  # decoding batch size
-                ctc_weight=0.0,  # ctc weight for attention rescoring decode mode.
-                decoding_chunk_size=-1,  # decoding chunk size. Defaults to -1.
-                # <0: for decoding, use full chunk.
-                # >0: for decoding, use fixed chunk size as set.
-                # 0: used for training, it's prohibited here.
-                num_decoding_left_chunks=-1,  # number of left chunks for decoding. Defaults to -1.
-                simulate_streaming=False,  # simulate streaming inference. Defaults to False.
-            ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
         self.text_feature = TextFeaturizer(

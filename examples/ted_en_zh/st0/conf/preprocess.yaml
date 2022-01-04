@@ -1,0 +1,25 @@
+process:
+  # extract kaldi fbank from PCM
+  - type: fbank_kaldi
+    fs: 16000
+    n_mels: 80
+    n_shift: 160
+    win_length: 400
+    dither: 0.1
+  - type: cmvn_json
+    cmvn_path: data/mean_std.json
+  # these three processes are a.k.a. SpecAugument
+  - type: time_warp
+    max_time_warp: 5
+    inplace: true
+    mode: PIL
+  - type: freq_mask
+    F: 30
+    n_mask: 2
+    inplace: true
+    replace_with_zero: false
+  - type: time_mask
+    T: 40
+    n_mask: 2
+    inplace: true
+    replace_with_zero: false

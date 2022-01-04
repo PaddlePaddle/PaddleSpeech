@@ -19,7 +19,7 @@ vocab_filepath: data/lang_char/vocab.txt
 unit_type: 'spm'
 spm_model_prefix: data/lang_char/bpe_unigram_8000
 mean_std_filepath: ""
-augmentation_config: conf/preprocess.yaml
+preprocess_config: conf/preprocess.yaml
 batch_size: 16
 maxlen_in: 5  # if input length  > maxlen-in, batchsize is automatically reduced
 maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
@@ -87,7 +87,7 @@ global_grad_clip: 5.0
 optim: adam
 optim_conf:
   lr: 2.5
-  weight_decay: 1e-06
+  weight_decay: 1.0e-06
 scheduler: noam    
 scheduler_conf:
   warmup_steps: 25000

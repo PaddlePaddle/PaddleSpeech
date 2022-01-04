@@ -20,12 +20,7 @@ for type in fullsentence; do
     --decode_cfg ${decode_config_path} \
     --result_file ${ckpt_prefix}.${type}.rsl \
     --checkpoint_path ${ckpt_prefix} \
-<<<<<<< HEAD
-    --opts decode.decoding_method ${type} \
-    --opts decode.decode_batch_size ${batch_size}
-=======
     --opts decoding.decoding_method ${type} \
->>>>>>> 6272496d9c26736750b577fd832ea9dd4ddc4e6e
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Export for DeepSpeech2 model."""
-from paddlespeech.s2t.exps.deepspeech2.config import get_cfg_defaults
+from yacs.config import CfgNode
 from paddlespeech.s2t.exps.deepspeech2.model import DeepSpeech2Tester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print_arguments(args)
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults(args.model_type)
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.opts:

@@ -29,22 +29,6 @@ logger = Log(__name__).getlog()
 
 class ManifestDataset(Dataset):
     @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                manifest="",
-                max_input_len=27.0,
-                min_input_len=0.0,
-                max_output_len=float('inf'),
-                min_output_len=0.0,
-                max_output_input_ratio=float('inf'),
-                min_output_input_ratio=0.0, ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
-    @classmethod
     def from_config(cls, config):
         """Build a ManifestDataset object from a config.
 

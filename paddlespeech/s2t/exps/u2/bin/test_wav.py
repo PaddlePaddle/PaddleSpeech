@@ -20,7 +20,6 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.u2.config import get_cfg_defaults
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
@@ -129,7 +128,7 @@ if __name__ == "__main__":
         "--audio_file", type=str, help="path of the input audio file")
     args = parser.parse_args()
 
-    config = get_cfg_defaults()
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.decode_cfg:

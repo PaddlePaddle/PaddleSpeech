@@ -14,7 +14,6 @@
 """Alignment for U2 model."""
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.u2.config import get_cfg_defaults
 from paddlespeech.s2t.exps.u2.model import U2Tester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments
@@ -33,14 +32,14 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save asr result to 
+    # save asr result to
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
     args = parser.parse_args()
     print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults()
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.decode_cfg:

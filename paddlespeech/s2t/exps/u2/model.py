@@ -46,33 +46,6 @@ logger = Log(__name__).getlog()
 
 
 class U2Trainer(Trainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # training config
-        default = CfgNode(
-            dict(
-                n_epoch=50,  # train epochs
-                log_interval=100,  # steps
-                accum_grad=1,  # accum grad by # steps
-                global_grad_clip=5.0,  # the global norm clip
-            ))
-        default.optim = 'adam'
-        default.optim_conf = CfgNode(
-            dict(
-                lr=5e-4,  # learning rate
-                weight_decay=1e-6,  # the coeff of weight decay
-            ))
-        default.scheduler = 'warmuplr'
-        default.scheduler_conf = CfgNode(
-            dict(
-                warmup_steps=25000,
-                lr_decay=1.0,  # learning rate decay
-            ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
 
@@ -401,35 +374,6 @@ class U2Trainer(Trainer):
 
 
 class U2Tester(U2Trainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # decoding config
-        default = CfgNode(
-            dict(
-                alpha=2.5,  # Coef of LM for beam search.
-                beta=0.3,  # Coef of WC for beam search.
-                cutoff_prob=1.0,  # Cutoff probability for pruning.
-                cutoff_top_n=40,  # Cutoff number for pruning.
-                lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
-                decoding_method='attention',  # Decoding method. Options: 'attention', 'ctc_greedy_search',
-                # 'ctc_prefix_beam_search', 'attention_rescoring'
-                error_rate_type='wer',  # Error rate type for evaluation. Options `wer`, 'cer'
-                num_proc_bsearch=8,  # # of CPUs for beam search.
-                beam_size=10,  # Beam search width.
-                decode_batch_size=16,  # decoding batch size
-                ctc_weight=0.0,  # ctc weight for attention rescoring decode mode.
-                decoding_chunk_size=-1,  # decoding chunk size. Defaults to -1.
-                # <0: for decoding, use full chunk.
-                # >0: for decoding, use fixed chunk size as set.
-                # 0: used for training, it's prohibited here.
-                num_decoding_left_chunks=-1,  # number of left chunks for decoding. Defaults to -1.
-                simulate_streaming=False,  # simulate streaming inference. Defaults to False.
-            ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
         self.text_feature = TextFeaturizer(

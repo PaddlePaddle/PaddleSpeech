@@ -18,7 +18,7 @@ import numpy as np
 import paddle
 from paddle.io import DataLoader
 
-from paddlespeech.s2t.exps.deepspeech2.config import get_cfg_defaults
+from yacs.config import CfgNode
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.dataset import ManifestDataset
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults()
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.decode_cfg:

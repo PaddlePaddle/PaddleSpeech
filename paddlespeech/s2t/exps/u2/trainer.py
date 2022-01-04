@@ -55,7 +55,6 @@ class U2Trainer(Trainer):
 
         collate_fn_train = SpeechCollator.from_config(config)
 
-        config.augmentation_config = ""
         collate_fn_dev = SpeechCollator.from_config(config)
 
         if self.parallel:
@@ -103,7 +102,6 @@ class U2Trainer(Trainer):
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
         config.keep_transcription_text = True
-        config.augmentation_config = ""
         self.test_loader = DataLoader(
             test_dataset,
             batch_size=config.decode.batch_size,

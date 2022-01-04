@@ -220,33 +220,6 @@ class SpeechCollatorBase():
 
 class SpeechCollator(SpeechCollatorBase):
     @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                augmentation_config="",
-                random_seed=0,
-                mean_std_filepath="",
-                unit_type="char",
-                vocab_filepath="",
-                spm_model_prefix="",
-                spectrum_type='linear',  # 'linear', 'mfcc', 'fbank'
-                feat_dim=0,  # 'mfcc', 'fbank'
-                delta_delta=False,  # 'mfcc', 'fbank'
-                stride_ms=10.0,  # ms
-                window_ms=20.0,  # ms
-                n_fft=None,  # fft points
-                max_freq=None,  # None for samplerate/2
-                target_sample_rate=16000,  # target sample rate
-                use_dB_normalization=True,
-                target_dB=-20,
-                dither=1.0,  # feature dither
-                keep_transcription_text=False))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
-    @classmethod
     def from_config(cls, config):
         """Build a SpeechCollator object from a config.
 

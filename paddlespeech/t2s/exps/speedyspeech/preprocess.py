@@ -243,28 +243,6 @@ def main():
         dev_wav_files = wav_files[num_train:num_train + num_dev]
         test_wav_files = wav_files[num_train + num_dev:]
 
-    elif args.dataset == "other":
-        sub_num_dev = 100
-        wav_dir = rootdir / "wav"
-        train_wav_files = []
-        dev_wav_files = []
-        test_wav_files = []
-        for speaker in os.listdir(wav_dir):
-            if os.path.exists(os.path.join(wav_dir, speaker, "split")):
-                wav_files = sorted(list((wav_dir / speaker / "split").rglob("*.wav")))
-            else:
-                wav_files = sorted(list((wav_dir / speaker).rglob("*.wav")))
-
-            if len(wav_files) > 100:
-                train_wav_files += wav_files[:-sub_num_dev * 2]
-                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
-                test_wav_files += wav_files[-sub_num_dev:]
-            else:
-                train_wav_files += wav_files
-        print("len train_wav_files", len(train_wav_files))
-        print("len dev_wav_files", len(dev_wav_files))
-        print("len test_wav_files", len(test_wav_files))
-
     train_dump_dir = dumpdir / "train" / "raw"
     train_dump_dir.mkdir(parents=True, exist_ok=True)
     dev_dump_dir = dumpdir / "dev" / "raw"

@@ -27,7 +27,8 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_batch_fn
+from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_single_spk_batch_fn
+from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeech
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeechEvaluator
@@ -57,6 +58,21 @@ def train_sp(args, config):
         f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
     )
 
+    fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
+
+    spk_num = None
+    if args.speaker_dict is not None:
+        print("multiple speaker speedyspeech!")
+        collate_fn = speedyspeech_multi_spk_batch_fn
+        with open(args.speaker_dict, 'rt') as f:
+            spk_id = [line.strip().split() for line in f.readlines()]
+        spk_num = len(spk_id)
+        fields += ["spk_id"]
+    else:
+        print("single speaker speedyspeech!")
+        collate_fn = speedyspeech_single_spk_batch_fn
+    print("spk_num:", spk_num)
+
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True
 
@@ -71,9 +87,7 @@ def train_sp(args, config):
 
     train_dataset = DataTable(
         data=train_metadata,
-        fields=[
-            "phones", "tones", "num_phones", "num_frames", "feats", "durations"
-        ],
+        fields=fields,
         converters={
             "feats": np.load,
         }, )
@@ -87,9 +101,7 @@ def train_sp(args, config):
 
     dev_dataset = DataTable(
         data=dev_metadata,
-        fields=[
-            "phones", "tones", "num_phones", "num_frames", "feats", "durations"
-        ],
+        fields=fields,
         converters={
             "feats": np.load,
         }, )
@@ -105,14 +117,14 @@ def train_sp(args, config):
     train_dataloader = DataLoader(
         train_dataset,
         batch_sampler=train_sampler,
-        collate_fn=speedyspeech_batch_fn,
+        collate_fn=collate_fn,
         num_workers=config.num_workers)
     dev_dataloader = DataLoader(
         dev_dataset,
         shuffle=False,
         drop_last=False,
         batch_size=config.batch_size,
-        collate_fn=speedyspeech_batch_fn,
+        collate_fn=collate_fn,
         num_workers=config.num_workers)
     print("dataloaders done!")
     with open(args.phones_dict, "r") as f:
@@ -125,7 +137,7 @@ def train_sp(args, config):
     print("tone_size:", tone_size)
 
     model = SpeedySpeech(
-        vocab_size=vocab_size, tone_size=tone_size, **config["model"])
+        vocab_size=vocab_size, tone_size=tone_size, spk_num=spk_num, **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")
@@ -183,6 +195,12 @@ def main():
 
     parser.add_argument(
         "--tones-dict", type=str, default=None, help="tone vocabulary file.")
+
+    parser.add_argument(
+        "--speaker-dict",
+        type=str,
+        default=None,
+        help="speaker id map file for multiple speaker model.")
 
     # 这里可以多传入 max_epoch 等
     args, rest = parser.parse_known_args()

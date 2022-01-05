@@ -21,7 +21,7 @@ bpemodel=${bpeprefix}.model
 config_path=conf/transformer.yaml
 decode_config_path=conf/decode/decode_base.yaml
 dict=data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
-ckpt_prefix=exp/transformer/checkpoints/init
+ckpt_prefix=
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

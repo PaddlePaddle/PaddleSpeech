@@ -168,13 +168,13 @@ pretrained_models = {
     # mb_melgan
     "mb_melgan_csmsc-zh": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip',
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_ckpt_0.1.1.zip',
         'md5':
-        'b69322ab4ea766d955bd3d9af7dc5f2d',
+        'ee5f0604e20091f0d495b6ec4618b90d',
         'config':
-        'finetune.yaml',
+        'default.yaml',
         'ckpt':
-        'snapshot_iter_2000000.pdz',
+        'snapshot_iter_1000000.pdz',
         'speech_stats':
         'feats_stats.npy',
     },

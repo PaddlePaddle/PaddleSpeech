@@ -14,7 +14,7 @@
 import numpy as np
 import paddle
 from paddle import nn
-import paddle.nn.functional as F
+
 from paddlespeech.t2s.modules.positional_encoding import sinusoid_position_encoding
 
 
@@ -95,8 +95,13 @@ class TextEmbedding(nn.Layer):
 
 
 class SpeedySpeechEncoder(nn.Layer):
-    def __init__(self, vocab_size, tone_size, hidden_size, kernel_size,
-                 dilations, spk_num=None):
+    def __init__(self,
+                 vocab_size,
+                 tone_size,
+                 hidden_size,
+                 kernel_size,
+                 dilations,
+                 spk_num=None):
         super().__init__()
         self.embedding = TextEmbedding(
             vocab_size,
@@ -104,7 +109,7 @@ class SpeedySpeechEncoder(nn.Layer):
             tone_size,
             padding_idx=0,
             tone_padding_idx=0)
-        
+
         if spk_num:
             self.spk_emb = nn.Embedding(
                 num_embeddings=spk_num,
@@ -112,7 +117,7 @@ class SpeedySpeechEncoder(nn.Layer):
                 padding_idx=0)
         else:
             self.spk_emb = None
-                
+
         self.prenet = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(), )
@@ -171,19 +176,18 @@ class SpeedySpeechDecoder(nn.Layer):
 
 
 class SpeedySpeech(nn.Layer):
-    def __init__(
-            self,
-            vocab_size,
-            encoder_hidden_size,
-            encoder_kernel_size,
-            encoder_dilations,
-            duration_predictor_hidden_size,
-            decoder_hidden_size,
-            decoder_output_size,
-            decoder_kernel_size,
-            decoder_dilations,
-            tone_size=None, 
-            spk_num=None):
+    def __init__(self,
+                 vocab_size,
+                 encoder_hidden_size,
+                 encoder_kernel_size,
+                 encoder_dilations,
+                 duration_predictor_hidden_size,
+                 decoder_hidden_size,
+                 decoder_output_size,
+                 decoder_kernel_size,
+                 decoder_dilations,
+                 tone_size=None,
+                 spk_num=None):
         super().__init__()
         encoder = SpeedySpeechEncoder(vocab_size, tone_size,
                                       encoder_hidden_size, encoder_kernel_size,
@@ -254,6 +258,7 @@ class SpeedySpeech(nn.Layer):
         encodings += sinusoid_position_encoding(t_dec, feature_size)
         decoded = self.decoder(encodings)
         return decoded[0]
+
 
 class SpeedySpeechInference(nn.Layer):
     def __init__(self, normalizer, speedyspeech_model):

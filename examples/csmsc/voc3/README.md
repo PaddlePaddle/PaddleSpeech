@@ -152,22 +152,22 @@ TODO:
 The hyperparameter of `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
 
 ## Pretrained Models
-The pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
+The pretrained model can be downloaded here [mb_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_ckpt_0.1.1.zip).
 
 The finetuned model can be downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
 
-The static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
+The static model can be downloaded here [mb_melgan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_0.1.1.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss|eval/spectral_convergence_loss |eval/sub_log_stft_magnitude_loss|eval/sub_spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:| :--------:| :--------:
-default| 1(gpu) x 1000000| ——|—— |—— |—— | ——|
+default| 1(gpu) x 1000000| 2.4851|0.71778 |0.2761 |0.66334 |0.2777|
 finetune| 1(gpu) x 1000000|3.196967|0.977804| 0.778484| 0.889576 |0.776756 |
 
 
 Multi Band MelGAN checkpoint contains files listed below.
 
 ```text
-mb_melgan_baker_ckpt_0.5
+mb_melgan_csmsc_ckpt_0.1.1
 ├── default.yaml                  # default config used to train multi band melgan
 ├── feats_stats.npy               # statistics used to normalize spectrogram when training multi band melgan
 └── snapshot_iter_1000000.pdz     # generator parameters of multi band melgan

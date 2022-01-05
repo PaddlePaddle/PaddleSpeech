@@ -13,8 +13,8 @@
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
 from paddle import distributed as dist
-
 from yacs.config import CfgNode
+
 from paddlespeech.s2t.exps.deepspeech2.model import DeepSpeech2Trainer as Trainer
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments

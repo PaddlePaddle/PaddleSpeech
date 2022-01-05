@@ -39,7 +39,6 @@ except ImportError:
     except Exception as e:
         logger.info("paddlespeech_ctcdecoders not installed!")
 
-
 __all__ = ['CTCDecoder']
 
 

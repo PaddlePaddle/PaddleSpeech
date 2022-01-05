@@ -42,6 +42,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
+
 class U2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)

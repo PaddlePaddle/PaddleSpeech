@@ -19,8 +19,8 @@ import paddle
 from paddle.inference import Config
 from paddle.inference import create_predictor
 from paddle.io import DataLoader
-
 from yacs.config import CfgNode
+
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.dataset import ManifestDataset
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model

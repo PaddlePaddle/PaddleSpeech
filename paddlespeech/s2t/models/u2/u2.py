@@ -59,6 +59,7 @@ logger = Log(__name__).getlog()
 
 class U2BaseModel(ASRInterface, nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
+
     def __init__(self,
                  vocab_size: int,
                  encoder: TransformerEncoder,

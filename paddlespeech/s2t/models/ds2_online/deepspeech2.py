@@ -243,6 +243,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
+
     def __init__(
             self,
             feat_size,

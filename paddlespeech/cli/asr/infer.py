@@ -211,7 +211,6 @@ class ASRExecutor(BaseExecutor):
         model_dict = paddle.load(self.ckpt_path)
         self.model.set_state_dict(model_dict)
 
-
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
         Input preprocess and return paddle.Tensor stored in self.input.

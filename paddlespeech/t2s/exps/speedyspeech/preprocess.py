@@ -13,7 +13,6 @@
 # limitations under the License.
 import argparse
 import re
-import os
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
 from pathlib import Path
@@ -32,8 +31,9 @@ from paddlespeech.t2s.data.get_feats import LogMelFBank
 from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import get_phones_tones
-from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
+from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
+
 
 def process_sentence(config: Dict[str, Any],
                      fp: Path,

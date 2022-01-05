@@ -27,8 +27,8 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_single_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_multi_spk_batch_fn
+from paddlespeech.t2s.datasets.am_batch_fn import speedyspeech_single_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeech
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeechEvaluator
@@ -58,7 +58,9 @@ def train_sp(args, config):
         f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
     )
 
-    fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
+    fields = [
+        "phones", "tones", "num_phones", "num_frames", "feats", "durations"
+    ]
 
     spk_num = None
     if args.speaker_dict is not None:
@@ -137,7 +139,10 @@ def train_sp(args, config):
     print("tone_size:", tone_size)
 
     model = SpeedySpeech(
-        vocab_size=vocab_size, tone_size=tone_size, spk_num=spk_num, **config["model"])
+        vocab_size=vocab_size,
+        tone_size=tone_size,
+        spk_num=spk_num,
+        **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")

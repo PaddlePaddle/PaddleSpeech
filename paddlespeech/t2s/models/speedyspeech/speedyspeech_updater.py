@@ -57,8 +57,7 @@ class SpeedySpeechUpdater(StandardUpdater):
             text=batch["phones"],
             tones=batch["tones"],
             durations=batch["durations"],
-            spk_id=spk_id
-            )
+            spk_id=spk_id)
 
         target_mel = batch["feats"]
         spec_mask = F.sequence_mask(
@@ -123,8 +122,7 @@ class SpeedySpeechEvaluator(StandardEvaluator):
             text=batch["phones"],
             tones=batch["tones"],
             durations=batch["durations"],
-            spk_id=spk_id
-            )
+            spk_id=spk_id)
 
         target_mel = batch["feats"]
         spec_mask = F.sequence_mask(

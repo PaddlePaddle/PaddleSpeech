@@ -54,6 +54,7 @@ def speedyspeech_single_spk_batch_fn(examples):
     }
     return batch
 
+
 def speedyspeech_multi_spk_batch_fn(examples):
     # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
     phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
@@ -94,6 +95,7 @@ def speedyspeech_multi_spk_batch_fn(examples):
         spk_id = paddle.to_tensor(spk_id)
         batch["spk_id"] = spk_id
     return batch
+
 
 def fastspeech2_single_spk_batch_fn(examples):
     # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]

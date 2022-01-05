@@ -34,7 +34,7 @@ MODE=$2
 if [ ${MODE} = "lite_train_infer" ];then
     # pretrain lite train data
     curPath=$(readlink -f "$(dirname "$0")")
-    cd ${curPath}/../../examples/tiny/s0
+    cd ${curPath}/../../../examples/tiny/asr0
     source path.sh
     # download audio data
     bash ./local/data.sh || exit -1
@@ -47,7 +47,7 @@ if [ ${MODE} = "lite_train_infer" ];then
 
 elif [ ${MODE} = "whole_train_infer" ];then
     curPath=$(readlink -f "$(dirname "$0")")
-    cd ${curPath}/../../examples/aishell/s0
+    cd ${curPath}/../../../examples/aishell/asr0
     source path.sh
     # download audio data
     bash ./local/data.sh || exit -1
@@ -59,7 +59,7 @@ elif [ ${MODE} = "whole_train_infer" ];then
     cd ${curPath}
 elif [ ${MODE} = "whole_infer" ];then
     curPath=$(readlink -f "$(dirname "$0")")
-    cd ${curPath}/../../examples/aishell/s0
+    cd ${curPath}/../../../examples/aishell/asr0
     source path.sh
     # download audio data
     bash ./local/data.sh || exit -1
@@ -71,7 +71,7 @@ elif [ ${MODE} = "whole_infer" ];then
     cd ${curPath}
 else
     curPath=$(readlink -f "$(dirname "$0")")
-    cd ${curPath}/../../examples/aishell/s0
+    cd ${curPath}/../../../examples/aishell/asr0
     source path.sh
     # download audio data
     bash ./local/data.sh || exit -1

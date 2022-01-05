@@ -45,6 +45,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --tones-dict=dump/tone_id_map.txt \
+        --speaker-dict=dump/speaker_id_map.txt \
         --use-relative-path=True
 
     python3 ${BIN_DIR}/normalize.py \
@@ -53,6 +54,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --tones-dict=dump/tone_id_map.txt \
+        --speaker-dict=dump/speaker_id_map.txt \
         --use-relative-path=True
 
     python3 ${BIN_DIR}/normalize.py \
@@ -61,6 +63,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --tones-dict=dump/tone_id_map.txt \
+        --speaker-dict=dump/speaker_id_map.txt \
         --use-relative-path=True
 
 fi

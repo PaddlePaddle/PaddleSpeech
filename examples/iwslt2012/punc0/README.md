@@ -1,4 +1,5 @@
-# Punctuation Restoration with IWLST2012
+# Punctuation Restoration with IWLST2012-Zh
+
 ## Get Started
 ### Data Preprocessing
 ```bash

@@ -119,7 +119,7 @@ lambda_feat_match: 2.0 # Loss balancing coefficient for feat match loss..
 ###########################################################
 batch_size: 16              # Batch size.
 batch_max_steps: 8400       # Length of each audio in batch. Make sure dividable by hop_size.
-num_workers: 2              # Number of workers in Pytorch DataLoader.
+num_workers: 2              # Number of workers in DataLoader.
 
 ###########################################################
 #             OPTIMIZER & SCHEDULER SETTING               #

@@ -18,8 +18,8 @@ from pathlib import Path
 
 import paddle
 import soundfile
+from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.u2.config import get_cfg_defaults
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
@@ -36,23 +36,22 @@ class U2Infer():
         self.args = args
         self.config = config
         self.audio_file = args.audio_file
-        self.sr = config.collator.target_sample_rate
 
-        self.preprocess_conf = config.collator.augmentation_config
+        self.preprocess_conf = config.preprocess_config
         self.preprocess_args = {"train": False}
         self.preprocessing = Transformation(self.preprocess_conf)
 
         self.text_feature = TextFeaturizer(
-            unit_type=config.collator.unit_type,
-            vocab=config.collator.vocab_filepath,
-            spm_model_prefix=config.collator.spm_model_prefix)
+            unit_type=config.unit_type,
+            vocab=config.vocab_filepath,
+            spm_model_prefix=config.spm_model_prefix)
 
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
         # model
-        model_conf = config.model
+        model_conf = config
         with UpdateConfig(model_conf):
-            model_conf.input_dim = config.collator.feat_dim
+            model_conf.input_dim = config.feat_dim
             model_conf.output_dim = self.text_feature.vocab_size
         model = U2Model.from_config(model_conf)
         self.model = model
@@ -70,10 +69,6 @@ class U2Infer():
             # read
             audio, sample_rate = soundfile.read(
                 self.audio_file, dtype="int16", always_2d=True)
-            if sample_rate != self.sr:
-                logger.error(
-                    f"sample rate error: {sample_rate}, need {self.sr} ")
-                sys.exit(-1)
 
             audio = audio[:, 0]
             logger.info(f"audio shape: {audio.shape}")
@@ -85,17 +80,17 @@ class U2Infer():
             ilen = paddle.to_tensor(feat.shape[0])
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)
 
-            cfg = self.config.decoding
+            decode_config = self.config.decode
             result_transcripts = self.model.decode(
                 xs,
                 ilen,
                 text_feature=self.text_feature,
-                decoding_method=cfg.decoding_method,
-                beam_size=cfg.beam_size,
-                ctc_weight=cfg.ctc_weight,
-                decoding_chunk_size=cfg.decoding_chunk_size,
-                num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-                simulate_streaming=cfg.simulate_streaming)
+                decoding_method=decode_config.decoding_method,
+                beam_size=decode_config.beam_size,
+                ctc_weight=decode_config.ctc_weight,
+                decoding_chunk_size=decode_config.decoding_chunk_size,
+                num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
+                simulate_streaming=decode_config.simulate_streaming)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {result_transcripts[0][0]}")
@@ -133,9 +128,13 @@ if __name__ == "__main__":
         "--audio_file", type=str, help="path of the input audio file")
     args = parser.parse_args()
 
-    config = get_cfg_defaults()
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
+    if args.decode_cfg:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_cfg)
+        config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

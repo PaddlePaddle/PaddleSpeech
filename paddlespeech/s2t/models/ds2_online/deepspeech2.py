@@ -243,23 +243,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
-
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                num_conv_layers=2,  #Number of stacking convolution layers.
-                num_rnn_layers=4,  #Number of stacking RNN layers.
-                rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-                num_fc_layers=2,
-                fc_layers_size_list=[512, 256],
-                use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-                blank_id=0,  # index of blank in vocob.txt
-                ctc_grad_norm_type=None, ))
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(
             self,
             feat_size,
@@ -353,14 +336,14 @@ class DeepSpeech2ModelOnline(nn.Layer):
         model = cls(
             feat_size=dataloader.collate_fn.feature_size,
             dict_size=dataloader.collate_fn.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            rnn_direction=config.model.rnn_direction,
-            num_fc_layers=config.model.num_fc_layers,
-            fc_layers_size_list=config.model.fc_layers_size_list,
-            use_gru=config.model.use_gru,
-            blank_id=config.model.blank_id,
+            num_conv_layers=config.num_conv_layers,
+            num_rnn_layers=config.num_rnn_layers,
+            rnn_size=config.rnn_layer_size,
+            rnn_direction=config.rnn_direction,
+            num_fc_layers=config.num_fc_layers,
+            fc_layers_size_list=config.fc_layers_size_list,
+            use_gru=config.use_gru,
+            blank_id=config.blank_id,
             ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
@@ -374,7 +357,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
         Parameters
 
         config: yacs.config.CfgNode
-            config.model
+            config
         Returns
         -------
         DeepSpeech2ModelOnline

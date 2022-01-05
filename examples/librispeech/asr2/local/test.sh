@@ -19,6 +19,7 @@ bpeprefix=data/lang_char/${train_set}_${bpemode}${nbpe}
 bpemodel=${bpeprefix}.model
 
 config_path=conf/transformer.yaml
+decode_config_path=conf/decode/decode_base.yaml
 dict=data/lang_char/${train_set}_${bpemode}${nbpe}_units.txt
 ckpt_prefix=
 
@@ -79,11 +80,12 @@ for dmethd in attention ctc_greedy_search ctc_prefix_beam_search attention_resco
             --ngpu ${ngpu} \
             --dict-path ${dict} \
             --config ${config_path} \
+            --decode_cfg ${decode_config_path} \
             --checkpoint_path ${ckpt_prefix} \
             --result-file ${decode_dir}/data.JOB.json \
-            --opts decoding.decoding_method ${dmethd} \
-            --opts decoding.batch_size ${batch_size} \
-            --opts data.test_manifest ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask}
+            --opts decode.decoding_method ${dmethd} \
+            --opts decode.decode_batch_size ${batch_size} \
+            --opts test_manifest ${feat_recog_dir}/split${nj}/JOB/manifest.${rtask}
 
         score_sclite.sh --bpe ${nbpe} --bpemodel ${bpemodel} --wer false ${decode_dir} ${dict}
 

@@ -127,11 +127,11 @@ decoders_module = [
 
 setup(
     name='paddlespeech_ctcdecoders',
-    version='0.1.0',
+    version='0.1.1',
     description="CTC decoders in paddlespeech",
     author="PaddlePaddle Speech and Language Team",
     author_email="paddlesl@baidu.com",
     url="https://github.com/PaddlePaddle/PaddleSpeech",
-    license='Apache 2.0',
+    license='GNU Lesser General Public License v3 (LGPLv3) (LGPL-3)',
     ext_modules=decoders_module,
     py_modules=['swig_decoders'])

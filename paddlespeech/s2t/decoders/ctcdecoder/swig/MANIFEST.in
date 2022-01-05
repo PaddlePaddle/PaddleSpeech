@@ -1,0 +1,17 @@
+include kenlm/lm/*.cc
+include kenlm/lm/*.hh
+include kenlm/python/*.cpp
+include kenlm/util/*.cc
+include kenlm/util/*.hh
+include kenlm/util/double-conversion/*.cc
+include kenlm/util/double-conversion/*.h
+include kenlm/COPYING
+include kenlm/LICENSE
+
+include openfst-1.6.3/src/include/fst/*.h
+include openfst-1.6.3/src/lib/*.cc
+include openfst-1.6.3/COPYING
+
+
+include ThreadPool/ThreadPool.h 
+include ThreadPool/COPYING

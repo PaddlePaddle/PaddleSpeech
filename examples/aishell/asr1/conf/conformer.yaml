@@ -65,7 +65,7 @@ batch_bins: 0
 batch_frames_in: 0
 batch_frames_out: 0
 batch_frames_inout: 0
-num_workers: 0
+num_workers: 8
 subsampling_factor: 1
 num_encs: 1
 

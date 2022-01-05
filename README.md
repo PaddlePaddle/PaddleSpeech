@@ -138,6 +138,11 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 </div>
 
+### ⭐ Examples
+- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): Use PaddleSpeech TTS to generate virtual human voice.**
+  
+<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
+
 ### 🔥 Hot Activities
 
 - 2021.12.21~12.24

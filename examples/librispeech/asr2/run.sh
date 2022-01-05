@@ -16,7 +16,6 @@ avg_num=10
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
 avg_ckpt=avg_${avg_num}
-avg_ckpt=init
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
 echo "checkpoint name ${ckpt}"
 

@@ -45,38 +45,11 @@ logger = Log(__name__).getlog()
 
 
 class U2STTrainer(Trainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # training config
-        default = CfgNode(
-            dict(
-                n_epoch=50,  # train epochs
-                log_interval=100,  # steps
-                accum_grad=1,  # accum grad by # steps
-                global_grad_clip=5.0,  # the global norm clip
-            ))
-        default.optim = 'adam'
-        default.optim_conf = CfgNode(
-            dict(
-                lr=5e-4,  # learning rate
-                weight_decay=1e-6,  # the coeff of weight decay
-            ))
-        default.scheduler = 'warmuplr'
-        default.scheduler_conf = CfgNode(
-            dict(
-                warmup_steps=25000,
-                lr_decay=1.0,  # learning rate decay
-            ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
 
     def train_batch(self, batch_index, batch_data, msg):
-        train_conf = self.config.training
+        train_conf = self.config
         start = time.time()
         # forward
         utt, audio, audio_len, text, text_len = batch_data
@@ -127,13 +100,13 @@ class U2STTrainer(Trainer):
 
         for k, v in losses_np.items():
             report(k, v)
-        report("batch_size", self.config.collator.batch_size)
+        report("batch_size", self.config.batch_size)
         report("accum", train_conf.accum_grad)
         report("step_cost", iteration_time)
 
         if (batch_index + 1) % train_conf.log_interval == 0:
             msg += "train time: {:>.3f}s, ".format(iteration_time)
-            msg += "batch size: {}, ".format(self.config.collator.batch_size)
+            msg += "batch size: {}, ".format(self.config.batch_size)
             msg += "accum: {}, ".format(train_conf.accum_grad)
             msg += ', '.join('{}: {:>.6f}'.format(k, v)
                              for k, v in losses_np.items())
@@ -174,7 +147,7 @@ class U2STTrainer(Trainer):
                 if ctc_loss:
                     valid_losses['val_ctc_loss'].append(float(ctc_loss))
 
-            if (i + 1) % self.config.training.log_interval == 0:
+            if (i + 1) % self.config.log_interval == 0:
                 valid_dump = {k: np.mean(v) for k, v in valid_losses.items()}
                 valid_dump['val_history_st_loss'] = total_loss / num_seen_utts
 
@@ -203,7 +176,7 @@ class U2STTrainer(Trainer):
         self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
-        while self.epoch < self.config.training.n_epoch:
+        while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
                 try:
@@ -236,7 +209,7 @@ class U2STTrainer(Trainer):
                             msg += ","
                         msg = msg[:-1]  # remove the last ","
                         if (batch_index + 1
-                            ) % self.config.training.log_interval == 0:
+                            ) % self.config.log_interval == 0:
                             logger.info(msg)
                 except Exception as e:
                     logger.error(e)
@@ -269,17 +242,17 @@ class U2STTrainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
 
-        load_transcript = True if config.model.model_conf.asr_weight > 0 else False
+        load_transcript = True if config.model_conf.asr_weight > 0 else False
 
         if self.train:
             # train/valid dataset, return token ids
             self.train_loader = BatchDataLoader(
-                json_file=config.data.train_manifest,
+                json_file=config.train_manifest,
                 train_mode=True,
                 sortagrad=False,
-                batch_size=config.collator.batch_size,
-                maxlen_in=config.collator.maxlen_in,
-                maxlen_out=config.collator.maxlen_out,
+                batch_size=config.batch_size,
+                maxlen_in=config.maxlen_in,
+                maxlen_out=config.maxlen_out,
                 minibatches=0,
                 mini_batch_size=1,
                 batch_count='auto',
@@ -287,19 +260,18 @@ class U2STTrainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.collator.
-                augmentation_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.collator.num_workers,
+                preprocess_conf=config.preprocess_config,  # aug will be off when train_mode=False
+                n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 load_aux_output=load_transcript,
                 num_encs=1,
                 dist_sampler=True)
 
             self.valid_loader = BatchDataLoader(
-                json_file=config.data.dev_manifest,
+                json_file=config.dev_manifest,
                 train_mode=False,
                 sortagrad=False,
-                batch_size=config.collator.batch_size,
+                batch_size=config.batch_size,
                 maxlen_in=float('inf'),
                 maxlen_out=float('inf'),
                 minibatches=0,
@@ -309,9 +281,8 @@ class U2STTrainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.collator.
-                augmentation_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.collator.num_workers,
+                preprocess_conf=config.preprocess_config,  # aug will be off when train_mode=False
+                n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 load_aux_output=load_transcript,
                 num_encs=1,
@@ -319,11 +290,12 @@ class U2STTrainer(Trainer):
             logger.info("Setup train/valid Dataloader!")
         else:
             # test dataset, return raw text
+            decode_batch_size = config.get('decode',dict()).get('decode_batch_size', 1)
             self.test_loader = BatchDataLoader(
-                json_file=config.data.test_manifest,
+                json_file=config.test_manifest,
                 train_mode=False,
                 sortagrad=False,
-                batch_size=config.decoding.batch_size,
+                batch_size=decode_batch_size,
                 maxlen_in=float('inf'),
                 maxlen_out=float('inf'),
                 minibatches=0,
@@ -333,9 +305,8 @@ class U2STTrainer(Trainer):
                 batch_frames_in=0,
                 batch_frames_out=0,
                 batch_frames_inout=0,
-                preprocess_conf=config.collator.
-                augmentation_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.collator.num_workers,
+                preprocess_conf=config.preprocess_config,  # aug will be off when train_mode=False
+                n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 num_encs=1,
                 dist_sampler=False)
@@ -344,7 +315,7 @@ class U2STTrainer(Trainer):
 
     def setup_model(self):
         config = self.config
-        model_conf = config.model
+        model_conf = config
         with UpdateConfig(model_conf):
             if self.train:
                 model_conf.input_dim = self.train_loader.feat_dim
@@ -361,7 +332,7 @@ class U2STTrainer(Trainer):
         logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
-        train_config = config.training
+        train_config = config
         optim_type = train_config.optim
         optim_conf = train_config.optim_conf
         scheduler_type = train_config.scheduler
@@ -381,7 +352,7 @@ class U2STTrainer(Trainer):
                 config,
                 parameters,
                 lr_scheduler=None, ):
-            train_config = config.training
+            train_config = config
             optim_type = train_config.optim
             optim_conf = train_config.optim_conf
             scheduler_type = train_config.scheduler
@@ -407,41 +378,12 @@ class U2STTrainer(Trainer):
 
 
 class U2STTester(U2STTrainer):
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # decoding config
-        default = CfgNode(
-            dict(
-                alpha=2.5,  # Coef of LM for beam search.
-                beta=0.3,  # Coef of WC for beam search.
-                cutoff_prob=1.0,  # Cutoff probability for pruning.
-                cutoff_top_n=40,  # Cutoff number for pruning.
-                lang_model_path='models/lm/common_crawl_00.prune01111.trie.klm',  # Filepath for language model.
-                decoding_method='attention',  # Decoding method. Options: 'attention', 'ctc_greedy_search',
-                # 'ctc_prefix_beam_search', 'attention_rescoring'
-                error_rate_type='bleu',  # Error rate type for evaluation. Options `bleu`, 'char_bleu'
-                num_proc_bsearch=8,  # # of CPUs for beam search.
-                beam_size=10,  # Beam search width.
-                batch_size=16,  # decoding batch size
-                ctc_weight=0.0,  # ctc weight for attention rescoring decode mode.
-                decoding_chunk_size=-1,  # decoding chunk size. Defaults to -1.
-                # <0: for decoding, use full chunk.
-                # >0: for decoding, use fixed chunk size as set.
-                # 0: used for training, it's prohibited here.
-                num_decoding_left_chunks=-1,  # number of left chunks for decoding. Defaults to -1.
-                simulate_streaming=False,  # simulate streaming inference. Defaults to False.
-            ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self, config, args):
         super().__init__(config, args)
         self.text_feature = TextFeaturizer(
-            unit_type=self.config.collator.unit_type,
-            vocab_filepath=self.config.collator.vocab_filepath,
-            spm_model_prefix=self.config.collator.spm_model_prefix)
+            unit_type=self.config.unit_type,
+            vocab=self.config.vocab_filepath,
+            spm_model_prefix=self.config.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
 
     def id2token(self, texts, texts_len, text_feature):
@@ -455,19 +397,19 @@ class U2STTester(U2STTrainer):
 
     def translate(self, audio, audio_len):
         """"E2E translation from extracted audio feature"""
-        cfg = self.config.decoding
+        decode_cfg = self.config.decode
         self.model.eval()
 
         hyps = self.model.decode(
             audio,
             audio_len,
             text_feature=self.text_feature,
-            decoding_method=cfg.decoding_method,
-            beam_size=cfg.beam_size,
-            word_reward=cfg.word_reward,
-            decoding_chunk_size=cfg.decoding_chunk_size,
-            num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-            simulate_streaming=cfg.simulate_streaming)
+            decoding_method=decode_cfg.decoding_method,
+            beam_size=decode_cfg.beam_size,
+            word_reward=decode_cfg.word_reward,
+            decoding_chunk_size=decode_cfg.decoding_chunk_size,
+            num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
+            simulate_streaming=decode_cfg.simulate_streaming)
         return hyps
 
     def compute_translation_metrics(self,
@@ -478,7 +420,7 @@ class U2STTester(U2STTrainer):
                                     texts_len,
                                     bleu_func,
                                     fout=None):
-        cfg = self.config.decoding
+        decode_cfg = self.config.decode
         len_refs, num_ins = 0, 0
 
         start_time = time.time()
@@ -489,12 +431,12 @@ class U2STTester(U2STTrainer):
             audio,
             audio_len,
             text_feature=self.text_feature,
-            decoding_method=cfg.decoding_method,
-            beam_size=cfg.beam_size,
-            word_reward=cfg.word_reward,
-            decoding_chunk_size=cfg.decoding_chunk_size,
-            num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-            simulate_streaming=cfg.simulate_streaming)
+            decoding_method=decode_cfg.decoding_method,
+            beam_size=decode_cfg.beam_size,
+            word_reward=decode_cfg.word_reward,
+            decoding_chunk_size=decode_cfg.decoding_chunk_size,
+            num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
+            simulate_streaming=decode_cfg.simulate_streaming)
 
         decode_time = time.time() - start_time
 
@@ -525,10 +467,10 @@ class U2STTester(U2STTrainer):
         self.model.eval()
         logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
-        cfg = self.config.decoding
-        bleu_func = bleu_score.char_bleu if cfg.error_rate_type == 'char-bleu' else bleu_score.bleu
+        decode_cfg = self.config.decode
+        bleu_func = bleu_score.char_bleu if decode_cfg.error_rate_type == 'char-bleu' else bleu_score.bleu
 
-        stride_ms = self.config.collator.stride_ms
+        stride_ms = self.config.stride_ms
         hyps, refs = [], []
         len_refs, num_ins = 0, 0
         num_frames = 0.0
@@ -573,7 +515,7 @@ class U2STTester(U2STTrainer):
                 "num_examples":
                 num_ins,
                 "decode_method":
-                self.config.decoding.decoding_method,
+                self.config.decode.decoding_method,
             })
             f.write(data + '\n')
 
@@ -586,7 +528,7 @@ class U2STTester(U2STTrainer):
         """
         from paddlespeech.s2t.models.u2_st import U2STInferModel
         infer_model = U2STInferModel.from_pretrained(self.test_loader,
-                                                     self.config.model.clone(),
+                                                     self.config.clone(),
                                                      self.args.checkpoint_path)
         feat_dim = self.test_loader.feat_dim
         input_spec = [

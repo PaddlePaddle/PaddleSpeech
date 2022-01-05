@@ -16,8 +16,8 @@ import cProfile
 import os
 
 from paddle import distributed as dist
+from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.u2_st.config import get_cfg_defaults
 from paddlespeech.s2t.exps.u2_st.model import U2STTrainer as Trainer
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print_arguments(args, globals())
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults()
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
     if args.opts:

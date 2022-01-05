@@ -324,6 +324,7 @@ else
                     gsu=${gpu//,/ }
                     nump=`echo $gsu | wc -w`
                     cmd="${python} ${run_train} --ngpu=$nump"
+                    export CUDA_VISIBLE_DEVICES=${gpu}
                 else     # train with multi-machine
                     cmd="${python} -m paddle.distributed.launch --ips=${ips} --gpus=${gpu} ${run_train} ${set_save_model} ${set_pretrain} ${set_epoch} ${set_autocast} ${set_batchsize} ${set_train_params1}"
                 fi

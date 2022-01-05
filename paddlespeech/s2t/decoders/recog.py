@@ -85,7 +85,7 @@ def recog_v2(args):
         mode="asr",
         load_output=False,
         sort_in_input_length=False,
-        preprocess_conf=confs.collator.augmentation_config
+        preprocess_conf=confs.preprocess_config
         if args.preprocess_conf is None else args.preprocess_conf,
         preprocess_args={"train": False}, )
 

@@ -6,6 +6,7 @@ gpus=0,1,2,3
 stage=0
 stop_stage=50
 conf_path=conf/transformer_mtl_noam.yaml
+decode_conf_path=conf/tuning/decode.yaml
 avg_num=5
 data_path=./TED_EnZh # path to unzipped data
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
@@ -32,7 +33,7 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # test ckpt avg_n
-    CUDA_VISIBLE_DEVICES=0 ./local/test.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
 if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then

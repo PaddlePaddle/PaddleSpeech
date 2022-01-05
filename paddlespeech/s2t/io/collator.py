@@ -220,33 +220,6 @@ class SpeechCollatorBase():
 
 class SpeechCollator(SpeechCollatorBase):
     @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                augmentation_config="",
-                random_seed=0,
-                mean_std_filepath="",
-                unit_type="char",
-                vocab_filepath="",
-                spm_model_prefix="",
-                spectrum_type='linear',  # 'linear', 'mfcc', 'fbank'
-                feat_dim=0,  # 'mfcc', 'fbank'
-                delta_delta=False,  # 'mfcc', 'fbank'
-                stride_ms=10.0,  # ms
-                window_ms=20.0,  # ms
-                n_fft=None,  # fft points
-                max_freq=None,  # None for samplerate/2
-                target_sample_rate=16000,  # target sample rate
-                use_dB_normalization=True,
-                target_dB=-20,
-                dither=1.0,  # feature dither
-                keep_transcription_text=False))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
-    @classmethod
     def from_config(cls, config):
         """Build a SpeechCollator object from a config.
 
@@ -256,45 +229,43 @@ class SpeechCollator(SpeechCollatorBase):
         Returns:
             SpeechCollator: collator object.
         """
-        assert 'augmentation_config' in config.collator
-        assert 'keep_transcription_text' in config.collator
-        assert 'mean_std_filepath' in config.collator
-        assert 'vocab_filepath' in config.collator
-        assert 'spectrum_type' in config.collator
-        assert 'n_fft' in config.collator
-        assert config.collator
+        assert 'augmentation_config' in config
+        assert 'keep_transcription_text' in config
+        assert 'mean_std_filepath' in config
+        assert 'vocab_filepath' in config
+        assert 'spectrum_type' in config
+        assert 'n_fft' in config
+        assert config
 
-        if isinstance(config.collator.augmentation_config, (str, bytes)):
-            if config.collator.augmentation_config:
+        if isinstance(config.augmentation_config, (str, bytes)):
+            if config.augmentation_config:
                 aug_file = io.open(
-                    config.collator.augmentation_config,
-                    mode='r',
-                    encoding='utf8')
+                    config.augmentation_config, mode='r', encoding='utf8')
             else:
                 aug_file = io.StringIO(initial_value='{}', newline='')
         else:
-            aug_file = config.collator.augmentation_config
+            aug_file = config.augmentation_config
             assert isinstance(aug_file, io.StringIO)
 
         speech_collator = cls(
             aug_file=aug_file,
             random_seed=0,
-            mean_std_filepath=config.collator.mean_std_filepath,
-            unit_type=config.collator.unit_type,
-            vocab_filepath=config.collator.vocab_filepath,
-            spm_model_prefix=config.collator.spm_model_prefix,
-            spectrum_type=config.collator.spectrum_type,
-            feat_dim=config.collator.feat_dim,
-            delta_delta=config.collator.delta_delta,
-            stride_ms=config.collator.stride_ms,
-            window_ms=config.collator.window_ms,
-            n_fft=config.collator.n_fft,
-            max_freq=config.collator.max_freq,
-            target_sample_rate=config.collator.target_sample_rate,
-            use_dB_normalization=config.collator.use_dB_normalization,
-            target_dB=config.collator.target_dB,
-            dither=config.collator.dither,
-            keep_transcription_text=config.collator.keep_transcription_text)
+            mean_std_filepath=config.mean_std_filepath,
+            unit_type=config.unit_type,
+            vocab_filepath=config.vocab_filepath,
+            spm_model_prefix=config.spm_model_prefix,
+            spectrum_type=config.spectrum_type,
+            feat_dim=config.feat_dim,
+            delta_delta=config.delta_delta,
+            stride_ms=config.stride_ms,
+            window_ms=config.window_ms,
+            n_fft=config.n_fft,
+            max_freq=config.max_freq,
+            target_sample_rate=config.target_sample_rate,
+            use_dB_normalization=config.use_dB_normalization,
+            target_dB=config.target_dB,
+            dither=config.dither,
+            keep_transcription_text=config.keep_transcription_text)
         return speech_collator
 
 

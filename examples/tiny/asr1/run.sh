@@ -6,6 +6,7 @@ gpus=0
 stage=0
 stop_stage=50
 conf_path=conf/transformer.yaml
+decode_conf_path=conf/tuning/decode.yaml
 avg_num=1
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
@@ -31,12 +32,12 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # test ckpt avg_n
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/test.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/test.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # ctc alignment of test data
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/align.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/align.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 
 if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then

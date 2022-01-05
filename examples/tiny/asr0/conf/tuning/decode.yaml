@@ -1,0 +1,10 @@
+decode_batch_size: 128
+error_rate_type: wer
+decoding_method: ctc_beam_search
+lang_model_path: data/lm/common_crawl_00.prune01111.trie.klm
+alpha: 2.5
+beta: 0.3
+beam_size: 500
+cutoff_prob: 1.0
+cutoff_top_n: 40
+num_proc_bsearch: 8

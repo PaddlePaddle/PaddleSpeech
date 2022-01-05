@@ -1,0 +1,11 @@
+decode_batch_size: 8 #64
+error_rate_type: wer
+decoding_method: attention  # 'attention', 'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention_rescoring'
+beam_size: 10
+ctc_weight: 0.5 # ctc weight for attention rescoring decode mode.
+decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
+    # <0: for decoding, use full chunk.
+    # >0: for decoding, use fixed chunk size as set.
+    # 0: used for training, it's prohibited here. 
+num_decoding_left_chunks: -1  # number of left chunks for decoding. Defaults to -1.
+simulate_streaming: False  # simulate streaming inference. Defaults to False.

@@ -29,22 +29,6 @@ logger = Log(__name__).getlog()
 
 class ManifestDataset(Dataset):
     @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                manifest="",
-                max_input_len=27.0,
-                min_input_len=0.0,
-                max_output_len=float('inf'),
-                min_output_len=0.0,
-                max_output_input_ratio=float('inf'),
-                min_output_input_ratio=0.0, ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
-    @classmethod
     def from_config(cls, config):
         """Build a ManifestDataset object from a config.
 
@@ -54,17 +38,17 @@ class ManifestDataset(Dataset):
         Returns:
             ManifestDataset: dataet object.
         """
-        assert 'manifest' in config.data
-        assert config.data.manifest
+        assert 'manifest' in config
+        assert config.manifest
 
         dataset = cls(
-            manifest_path=config.data.manifest,
-            max_input_len=config.data.max_input_len,
-            min_input_len=config.data.min_input_len,
-            max_output_len=config.data.max_output_len,
-            min_output_len=config.data.min_output_len,
-            max_output_input_ratio=config.data.max_output_input_ratio,
-            min_output_input_ratio=config.data.min_output_input_ratio, )
+            manifest_path=config.manifest,
+            max_input_len=config.max_input_len,
+            min_input_len=config.min_input_len,
+            max_output_len=config.max_output_len,
+            min_output_len=config.min_output_len,
+            max_output_input_ratio=config.max_output_input_ratio,
+            min_output_input_ratio=config.min_output_input_ratio, )
         return dataset
 
     def __init__(self,

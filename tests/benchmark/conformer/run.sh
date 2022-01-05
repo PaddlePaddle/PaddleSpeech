@@ -22,6 +22,7 @@ sed -i "s/  accum_grad: 2/  accum_grad: 1/g" conf/benchmark/conformer.yaml
 fp_item_list=(fp32)
 bs_item=(16)
 config_path=conf/benchmark/conformer.yaml
+decode_config_path=conf/tuning/decode.yaml
 seed=0
 output=exp/conformer
 profiler_options=None
@@ -34,13 +35,13 @@ for fp_item in ${fp_item_list[@]}; do
         echo "index is speed, 8gpus, run_mode is multi_process, begin, conformer"
         run_mode=mp
         ngpu=8
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${config_path} ${output} ${seed} ${ngpu} ${profiler_options} ${bs_item} ${fp_item} ${model_item} | tee ${log_path}/${log_name}_speed_8gpus8p 2>&1
+        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${config_path} ${decode_config_path} ${output} ${seed} ${ngpu} ${profiler_options} ${bs_item} ${fp_item} ${model_item} | tee ${log_path}/${log_name}_speed_8gpus8p 2>&1
         sleep 60
         log_name=speech_${model_item}_bs${bs_item}_${fp_item}   # 如:clas_MobileNetv1_mp_bs32_fp32_8
         echo "index is speed, 1gpus, begin, ${log_name}"
         run_mode=sp
         ngpu=1
-        CUDA_VISIBLE_DEVICES=0 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${config_path} ${output} ${seed} ${ngpu} ${profiler_options} ${bs_item} ${fp_item} ${model_item} | tee ${log_path}/${log_name}_speed_1gpus 2>&1   #  (5min)
+        CUDA_VISIBLE_DEVICES=0 bash ${CUR_DIR}/run_benchmark.sh ${run_mode} ${config_path} ${decode_config_path} ${output} ${seed} ${ngpu} ${profiler_options} ${bs_item} ${fp_item} ${model_item} | tee ${log_path}/${log_name}_speed_1gpus 2>&1   #  (5min)
         sleep 60
     done
 done

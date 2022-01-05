@@ -30,6 +30,7 @@ from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
+from ..utils import stats_wrapper
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -334,6 +335,7 @@ class STExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
+    @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
                  model: str='fat_st_ted',

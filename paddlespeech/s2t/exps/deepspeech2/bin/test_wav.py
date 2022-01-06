@@ -20,7 +20,6 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.deepspeech2.config import get_cfg_defaults
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model

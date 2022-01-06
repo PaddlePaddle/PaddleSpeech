@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-from typing import Optional
 
 import numpy as np
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.augmentor.augmentation import AugmentationPipeline
 from paddlespeech.s2t.frontend.featurizer.speech_featurizer import SpeechFeaturizer

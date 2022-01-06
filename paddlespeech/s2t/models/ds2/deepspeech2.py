@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-from typing import Optional
-
 import paddle
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.models.ds2.conv import ConvStack
 from paddlespeech.s2t.models.ds2.rnn import RNNStack
@@ -119,6 +116,7 @@ class DeepSpeech2Model(nn.Layer):
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
+
     def __init__(self,
                  feat_size,
                  dict_size,

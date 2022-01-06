@@ -54,7 +54,7 @@ def make_pad_mask(lengths: paddle.Tensor) -> paddle.Tensor:
                  [0, 0, 0, 1, 1],
                  [0, 0, 1, 1, 1]]
     """
-    # (TODO: Hui Zhang): jit not support Tenosr.dim() and Tensor.ndim
+    # (TODO: Hui Zhang): jit not support Tensor.dim() and Tensor.ndim
     # assert lengths.dim() == 1
     batch_size = int(lengths.shape[0])
     max_len = int(lengths.max())

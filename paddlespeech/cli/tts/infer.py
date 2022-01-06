@@ -29,6 +29,7 @@ from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
+from ..utils import stats_wrapper
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
@@ -645,6 +646,7 @@ class TTSExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
+    @stats_wrapper
     def __call__(self,
                  text: str,
                  am: str='fastspeech2_csmsc',

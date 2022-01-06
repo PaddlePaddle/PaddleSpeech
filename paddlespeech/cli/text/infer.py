@@ -26,6 +26,7 @@ from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
+from ..utils import stats_wrapper
 
 __all__ = ['TextExecutor']
 
@@ -272,6 +273,7 @@ class TextExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
+    @stats_wrapper
     def __call__(
             self,
             text: str,

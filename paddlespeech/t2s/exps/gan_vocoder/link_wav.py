@@ -54,7 +54,6 @@ def main():
         results = []
         files = os.listdir(output_dir / "raw")
         for name in tqdm(files):
-            # 003918_feats.npy
             utt_id = name.split("_feats.npy")[0]
             mel_path = output_dir / ("raw/" + name)
             gen_mel = np.load(mel_path)

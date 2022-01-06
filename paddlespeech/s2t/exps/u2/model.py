@@ -18,13 +18,11 @@ import time
 from collections import defaultdict
 from collections import OrderedDict
 from contextlib import nullcontext
-from typing import Optional
 
 import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader

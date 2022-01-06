@@ -13,6 +13,7 @@
 # limitations under the License.
 """Export for U2 model."""
 from yacs.config import CfgNode
+
 from paddlespeech.s2t.exps.u2.model import U2Tester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments

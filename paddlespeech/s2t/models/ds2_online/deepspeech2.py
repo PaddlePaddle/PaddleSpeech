@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Online Model"""
-from typing import Optional
-
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.models.ds2_online.conv import Conv2dSubsampling4Online
 from paddlespeech.s2t.modules.ctc import CTCDecoder
@@ -243,6 +240,7 @@ class DeepSpeech2ModelOnline(nn.Layer):
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
+
     def __init__(
             self,
             feat_size,

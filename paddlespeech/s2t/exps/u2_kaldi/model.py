@@ -17,13 +17,11 @@ import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
-from typing import Optional
 
 import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_dict
@@ -41,6 +39,7 @@ from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
+
 
 class U2Trainer(Trainer):
     def __init__(self, config, args):

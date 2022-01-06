@@ -24,7 +24,6 @@ from typing import Tuple
 import paddle
 from paddle import jit
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
@@ -51,6 +50,7 @@ logger = Log(__name__).getlog()
 
 class U2STBaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
+
     def __init__(self,
                  vocab_size: int,
                  encoder: TransformerEncoder,

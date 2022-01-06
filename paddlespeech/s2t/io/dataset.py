@@ -13,11 +13,8 @@
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
-from typing import Optional
-
 import jsonlines
 from paddle.io import Dataset
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.utility import read_manifest
 from paddlespeech.s2t.utils.log import Log

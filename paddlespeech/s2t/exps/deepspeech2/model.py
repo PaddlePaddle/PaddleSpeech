@@ -16,7 +16,6 @@ import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
-from typing import Optional
 
 import jsonlines
 import numpy as np
@@ -24,7 +23,6 @@ import paddle
 from paddle import distributed as dist
 from paddle import inference
 from paddle.io import DataLoader
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.collator import SpeechCollator

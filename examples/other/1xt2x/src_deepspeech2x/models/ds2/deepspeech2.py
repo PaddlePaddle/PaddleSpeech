@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-from typing import Optional
-
 import paddle
 from paddle import nn
 from src_deepspeech2x.models.ds2.rnn import RNNStack
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.models.ds2.conv import ConvStack
 from paddlespeech.s2t.modules.ctc import CTCDecoder

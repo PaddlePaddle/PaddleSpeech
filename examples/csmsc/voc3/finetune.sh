@@ -15,11 +15,13 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --fastspeech2-stat=fastspeech2_nosil_baker_ckpt_0.4/speech_stats.npy \
         --dur-file=durations.txt \
         --output-dir=dump_finetune \
-        --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
+        --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt \
+        --dataset=baker \
+        --rootdir=~/datasets/BZNSYP/
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    python3 local/link_wav.py \
+    python3 link_wav.py \
         --old-dump-dir=dump \
         --dump-dir=dump_finetune
 fi

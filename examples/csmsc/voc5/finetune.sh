@@ -21,7 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    python3 ${BIN_DIR}/../link_wav.py \
+    python3 link_wav.py \
         --old-dump-dir=dump \
         --dump-dir=dump_finetune
 fi

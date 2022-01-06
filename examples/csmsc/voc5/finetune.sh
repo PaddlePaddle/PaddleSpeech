@@ -16,7 +16,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --dur-file=durations.txt \
         --output-dir=dump_finetune \
         --phones-dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt \
-        --speaker-dict=fastspeech2_nosil_baker_ckpt_0.4/speaker_id_map.txt \
         --dataset=baker \
         --rootdir=~/datasets/BZNSYP/
 fi

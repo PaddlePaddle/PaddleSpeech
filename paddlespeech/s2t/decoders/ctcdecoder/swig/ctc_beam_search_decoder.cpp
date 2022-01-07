@@ -183,7 +183,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     std::sort(
         prefixes.begin(), prefixes.begin() + num_prefixes, prefix_compare);
 
-    // compute aproximate ctc score as the return score, without affecting the
+    // compute approximate ctc score as the return score, without affecting the
     // return order of decoding result. To delete when decoder gets stable.
     for (size_t i = 0; i < beam_size && i < prefixes.size(); ++i) {
         double approx_ctc = prefixes[i]->score;

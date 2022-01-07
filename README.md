@@ -171,7 +171,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
 ### Community
-- Scan the QR code below with your Wechat, you can access to official technical exchange group. Look forward to your participation.
+- Scan the QR code below with your Wechat (reply【语音】after your friend's application is approved), you can access to official technical exchange group. Look forward to your participation.
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />

@@ -137,10 +137,10 @@ pip install .
 pip install paddlespeech
 ```
 
-而开发者可以使用如下方式安装，这样不仅会安装install的依赖，也会安装develop的依赖：
+而开发者可以使用如下方式安装，这样不仅会安装install的依赖，也会安装develop的依赖， 即：最后安装的依赖=install依赖 + develop依赖：
 
 ```bash
-pip install .[develop]
+pip install -e .[develop]
 ```
 
 

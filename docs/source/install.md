@@ -52,12 +52,19 @@ sudo apt install build-essential
 conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 ### Install PaddleSpeech 
-You can use the following command:
+Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first；
+```bash
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+Then you can use the following commands:
 ```bash
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 > If you encounter problem with downloading **nltk_data** while using paddlespeech, it maybe due to your poor network, we suggest you download the [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) provided by us, and extract it to your `${HOME}`.
+
+> If you fail to install paddlespeech-ctcdecoders, it doesn't matter.
+ 
 ## Medium: Get the Major Functions (Support Linux)
 If you want to get the major function of  `paddlespeech`, you need to do following steps:
 ### Git clone PaddleSpeech
@@ -117,6 +124,8 @@ python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/
 ### Install PaddleSpeech 
 You can install  `paddlespeech`  by the following command，then you can use the `ready-made` examples in `paddlespeech` :
 ```bash
+# Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first；
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
 # Make sure you are in the root directory of PaddleSpeech
 pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -182,8 +191,11 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### Install PaddlePaddle
+Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first；
+```bash
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
 Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.5 install paddle 2.2.0:
-
 ```bash
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```

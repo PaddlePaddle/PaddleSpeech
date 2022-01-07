@@ -6,7 +6,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 |:---- |:----------------------------------------------------------- |:----|
 | Easy     | (1) Use command-line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Ai Studio. | Linux, Mac(not support M1 chip)，Windows |
 | Medium     | Support major functions ，such as using the` ready-made `examples and using PaddleSpeech to train your model.                                           | Linux |
-| Hard     | Support full function of Paddlespeech，including training n-gram language model, Montreal-Forced-Aligner, and so on. And you are more able to be a developer! | Ubuntu |
+| Hard     | Support full function of Paddlespeech，including using join ctc decoder with kaldi, training n-gram language model, Montreal-Forced-Aligner, and so on. And you are more able to be a developer! | Ubuntu |
 
 ## Prerequisites
 - Python >= 3.7

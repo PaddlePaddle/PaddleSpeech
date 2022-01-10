@@ -95,16 +95,16 @@ optional arguments:
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc1) as the neural vocoder.
 
-Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.5.zip)and unzip it.
+Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip) and unzip it.
 ```bash
-unzip pwg_vctk_ckpt_0.5.zip
+unzip pwg_vctk_ckpt_0.1.1.zip
 ```
 Parallel WaveGAN checkpoint contains files listed below.
 ```text
-pwg_vctk_ckpt_0.5
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_1000000.pdz  # generator parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+pwg_vctk_ckpt_0.1.1
+├── default.yaml                   # default config used to train parallel wavegan
+├── snapshot_iter_1500000.pdz      # generator parameters of parallel wavegan
+└── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash

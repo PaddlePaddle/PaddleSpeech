@@ -48,9 +48,9 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1_conformer_wenetspeech_ckpt_0.1.1.model.tar.gz',
         'md5':
-        'b9afd8285ff5b2596bf96afab656b02f',
+        '76cb19ed857e6623856b7cd7ebbfeda4',
         'cfg_path':
-        'conf/conformer_infer.yaml',
+        'model.yaml',
         'ckpt_path':
         'exp/conformer/checkpoints/wenetspeech',
     },
@@ -58,9 +58,9 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_transformer_librispeech_ckpt_0.1.1.model.tar.gz',
         'md5':
-        'c95b9997f5f81478b32879a38532913d',
+        '2c667da24922aad391eacafe37bc1660',
         'cfg_path':
-        'conf/transformer_infer.yaml',
+        'model.yaml',
         'ckpt_path':
         'exp/transformer/checkpoints/avg_10',
     },
@@ -176,7 +176,7 @@ class ASRExecutor(BaseExecutor):
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
-            res_path = os.path.dirname(
+            self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
         #Init body.

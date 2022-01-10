@@ -3,6 +3,8 @@
 
 '''
     Merge training configs into a single inference config.
+    The single inference config is for CLI, which only takes a single config to do inferencing.
+    The trainig configs includes: model config, preprocess config, decode config, vocab file and cmvn file.
 '''
 
 import yaml
@@ -88,7 +90,7 @@ def merge_configs(
     # Remove some parts of the config
 
     if os.path.exists(preprocess_path):
-        remove_list = ["train_manifest",
+        remove_train_list = ["train_manifest",
             "dev_manifest",
             "test_manifest",
             "n_epoch",
@@ -104,6 +106,7 @@ def merge_configs(
             "weight_decay",
             "ctc_grad_norm_type",
             "minibatches",
+            "subsampling_factor",
             "batch_bins",
             "batch_count",
             "batch_frames_in",
@@ -118,7 +121,7 @@ def merge_configs(
             "maxlen_out",
             ]
     else:
-         remove_list = ["train_manifest",
+         remove_train_list = ["train_manifest",
             "dev_manifest",
             "test_manifest",
             "n_epoch",
@@ -135,7 +138,7 @@ def merge_configs(
             "num_workers",
             ]
 
-    for item in remove_list:
+    for item in remove_train_list:
         try:
             remove_config_part(config, [item])
         except:
@@ -165,6 +168,7 @@ if __name__ == "__main__":
 
     merge_configs(
         conf_path = parser_args.cfg_pth,
+        decode_path = parser_args.dcd_pth,
         preprocess_path =  parser_args.pre_pth,
         vocab_path = parser_args.vb_pth,
         cmvn_path = parser_args.cmvn_pth,

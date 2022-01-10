@@ -55,7 +55,7 @@ blank_id: 0
 ###########################################
 n_epoch: 5
 accum_grad: 1
-lr: 1e-5 
+lr: 1.0e-5 
 lr_decay: 0.8 
 weight_decay: 1.0e-6
 global_grad_clip: 5.0

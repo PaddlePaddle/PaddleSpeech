@@ -29,6 +29,7 @@ from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
+from ..utils import stats_wrapper
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
@@ -155,15 +156,15 @@ pretrained_models = {
     },
     "pwgan_vctk-en": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.5.zip',
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip',
         'md5':
-        '322ca688aec9b127cec2788b65aa3d52',
+        'b3da1defcde3e578be71eb284cb89f2c',
         'config':
-        'pwg_default.yaml',
+        'default.yaml',
         'ckpt':
-        'pwg_snapshot_iter_1000000.pdz',
+        'snapshot_iter_1500000.pdz',
         'speech_stats':
-        'pwg_stats.npy',
+        'feats_stats.npy',
     },
     # mb_melgan
     "mb_melgan_csmsc-zh": {
@@ -645,6 +646,7 @@ class TTSExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
+    @stats_wrapper
     def __call__(self,
                  text: str,
                  am: str='fastspeech2_csmsc',

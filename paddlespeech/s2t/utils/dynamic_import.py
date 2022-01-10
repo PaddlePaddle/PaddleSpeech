@@ -57,7 +57,7 @@ def filter_valid_args(args: Dict[Text, Any], valid_keys: List[Text]):
     return new_args
 
 
-def filter_out_tenosr(args: Dict[Text, Any]):
+def filter_out_tensor(args: Dict[Text, Any]):
     return {key: val for key, val in args.items() if not has_tensor(val)}
 
 
@@ -65,5 +65,5 @@ def instance_class(module_class, args: Dict[Text, Any]):
     valid_keys = inspect.signature(module_class).parameters.keys()
     new_args = filter_valid_args(args, valid_keys)
     logger.info(
-        f"Instance: {module_class.__name__} {filter_out_tenosr(new_args)}.")
+        f"Instance: {module_class.__name__} {filter_out_tensor(new_args)}.")
     return module_class(**new_args)

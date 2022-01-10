@@ -238,7 +238,9 @@ class U2Trainer(Trainer):
                 preprocess_conf=config.preprocess_config,
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
-                num_encs=1)
+                num_encs=1,
+                dist_sampler=False,
+                shortest_first=False)
 
             self.valid_loader = BatchDataLoader(
                 json_file=config.dev_manifest,
@@ -257,7 +259,9 @@ class U2Trainer(Trainer):
                 preprocess_conf=config.preprocess_config,
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
-                num_encs=1)
+                num_encs=1,
+                dist_sampler=False,
+                shortest_first=False)
             logger.info("Setup train/valid Dataloader!")
         else:
             decode_batch_size = config.get('decode', dict()).get(

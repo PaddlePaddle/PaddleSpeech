@@ -26,7 +26,7 @@ std::vector<std::pair<size_t, float>> get_pruned_log_probs(
     for (size_t i = 0; i < prob_step.size(); ++i) {
         prob_idx.push_back(std::pair<int, double>(i, prob_step[i]));
     }
-    // pruning of vacobulary
+    // pruning of vocabulary
     size_t cutoff_len = prob_step.size();
     if (cutoff_prob < 1.0 || cutoff_top_n < cutoff_len) {
         std::sort(prob_idx.begin(),

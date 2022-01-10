@@ -478,8 +478,8 @@ class U2STBaseModel(nn.Layer):
         """u2 decoding.
 
         Args:
-            feats (Tenosr): audio features, (B, T, D)
-            feats_lengths (Tenosr): (B)
+            feats (Tensor): audio features, (B, T, D)
+            feats_lengths (Tensor): (B)
             text_feature (TextFeaturizer): text feature object.
             decoding_method (str): decoding mode, e.g.
                     'fullsentence',

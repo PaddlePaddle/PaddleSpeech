@@ -18,7 +18,7 @@ from pathlib import Path
 
 import jsonlines
 import numpy as np
-
+from tqdm import tqdm
 
 def main():
     # parse config and args
@@ -52,9 +52,9 @@ def main():
         output_dir = dump_dir / sub
         output_dir.mkdir(parents=True, exist_ok=True)
         results = []
-        for name in os.listdir(output_dir / "raw"):
-            # 003918_feats.npy
-            utt_id = name.split("_")[0]
+        files = os.listdir(output_dir / "raw")
+        for name in tqdm(files):
+            utt_id = name.split("_feats.npy")[0]
             mel_path = output_dir / ("raw/" + name)
             gen_mel = np.load(mel_path)
             wave_name = utt_id + "_wave.npy"

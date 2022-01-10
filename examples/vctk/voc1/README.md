@@ -132,15 +132,15 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-Pretrained models can be downloaded here [pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.5.zip).
+Pretrained models can be downloaded here [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip).
 
 Parallel WaveGAN checkpoint contains files listed below.
 
 ```text
-pwg_vctk_ckpt_0.5
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_1000000.pdz  # generator parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+pwg_vctk_ckpt_0.1.1
+├── default.yaml                   # default config used to train parallel wavegan
+├── snapshot_iter_1500000.pdz      # generator parameters of parallel wavegan
+└── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
 ```
 ## Acknowledgement
 We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

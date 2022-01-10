@@ -26,6 +26,7 @@ from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
+from ..utils import stats_wrapper
 from paddleaudio import load
 from paddleaudio.features import LogMelSpectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
@@ -245,6 +246,7 @@ class CLSExecutor(BaseExecutor):
             logger.exception(e)
             return False
 
+    @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
                  model: str='panns_cnn14',

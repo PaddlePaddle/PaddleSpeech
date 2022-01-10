@@ -11,7 +11,7 @@ class CTCPrefixScorePD():
 
     which is based on Algorithm 2 in WATANABE et al.
     "HYBRID CTC/ATTENTION ARCHITECTURE FOR END-TO-END SPEECH RECOGNITION,"
-    but extended to efficiently compute the label probablities for multiple
+    but extended to efficiently compute the label probabilities for multiple
     hypotheses simultaneously
     See also Seki et al. "Vectorized Beam Search for CTC-Attention-Based
     Speech Recognition," In INTERSPEECH (pp. 3825-3829), 2019.
@@ -272,7 +272,7 @@ class CTCPrefixScore():
 
     which is based on Algorithm 2 in WATANABE et al.
     "HYBRID CTC/ATTENTION ARCHITECTURE FOR END-TO-END SPEECH RECOGNITION,"
-    but extended to efficiently compute the probablities of multiple labels
+    but extended to efficiently compute the probabilities of multiple labels
     simultaneously
     """
 

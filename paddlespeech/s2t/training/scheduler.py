@@ -67,18 +67,19 @@ class WarmupLR(LRScheduler):
         super().__init__(learning_rate, last_epoch, verbose)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(warmup_steps={self.warmup_steps})"
+        return f"{self.__class__.__name__}(warmup_steps={self.warmup_steps}, lr={self.base_lr}, last_epoch={self.last_epoch})"
 
     def get_lr(self):
+        # self.last_epoch start from zero
         step_num = self.last_epoch + 1
         return self.base_lr * self.warmup_steps**0.5 * min(
             step_num**-0.5, step_num * self.warmup_steps**-1.5)
 
     def set_step(self, step: int=None):
         '''
-        It will update the learning rate in optimizer according to current ``epoch`` .  
+        It will update the learning rate in optimizer according to current ``epoch`` .
         The new learning rate will take effect on next ``optimizer.step`` .
-        
+
         Args:
             step (int, None): specify current epoch. Default: None. Auto-increment from last_epoch=-1.
         Returns:
@@ -94,7 +95,7 @@ class ConstantLR(LRScheduler):
         learning_rate (float): The initial learning rate. It is a python float number.
         last_epoch (int, optional):  The index of last epoch. Can be set to restart training. Default: -1, means initial learning rate.
         verbose (bool, optional): If ``True``, prints a message to stdout for each update. Default: ``False`` .
-    
+
     Returns:
         ``ConstantLR`` instance to schedule learning rate.
     """

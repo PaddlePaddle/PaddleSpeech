@@ -279,13 +279,13 @@ class DeepSpeech2ModelOnline(nn.Layer):
         """Compute Model loss
 
         Args:
-            audio (Tenosr): [B, T, D]
+            audio (Tensor): [B, T, D]
             audio_len (Tensor): [B]
             text (Tensor): [B, U]
             text_len (Tensor): [B]
 
         Returns:
-            loss (Tenosr): [1]
+            loss (Tensor): [1]
         """
         eouts, eouts_len, final_state_h_box, final_state_c_box = self.encoder(
             audio, audio_len, None, None)

@@ -154,7 +154,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         Args:
             state: The states of hyps
 
-        Returns: exteded state
+        Returns: extended state
 
         """
         new_state = []

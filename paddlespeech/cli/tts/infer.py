@@ -156,15 +156,15 @@ pretrained_models = {
     },
     "pwgan_vctk-en": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.5.zip',
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip',
         'md5':
-        '322ca688aec9b127cec2788b65aa3d52',
+        'b3da1defcde3e578be71eb284cb89f2c',
         'config':
-        'pwg_default.yaml',
+        'default.yaml',
         'ckpt':
-        'pwg_snapshot_iter_1000000.pdz',
+        'snapshot_iter_1500000.pdz',
         'speech_stats':
-        'pwg_stats.npy',
+        'feats_stats.npy',
     },
     # mb_melgan
     "mb_melgan_csmsc-zh": {

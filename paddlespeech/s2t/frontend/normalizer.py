@@ -117,7 +117,8 @@ class FeatureNormalizer(object):
             self._compute_mean_std(manifest_path, featurize_func, num_samples,
                                    num_workers)
         else:
-            self._read_mean_std_from_file(mean_std_filepath)
+            mean_std = mean_std_filepath
+            self._read_mean_std_from_file(mean_std)
 
     def apply(self, features):
         """Normalize features to be of zero mean and unit stddev.
@@ -131,10 +132,14 @@ class FeatureNormalizer(object):
         """
         return (features - self._mean) * self._istd
 
-    def _read_mean_std_from_file(self, filepath, eps=1e-20):
+    def _read_mean_std_from_file(self, mean_std, eps=1e-20):
         """Load mean and std from file."""
-        filetype = filepath.split(".")[-1]
-        mean, istd = load_cmvn(filepath, filetype=filetype)
+        if isinstance(mean_std, list):
+            mean = mean_std[0]['cmvn_stats']['mean']
+            istd = mean_std[0]['cmvn_stats']['istd']
+        else:
+            filetype = mean_std.split(".")[-1]
+            mean, istd = load_cmvn(mean_std, filetype=filetype)
         self._mean = np.expand_dims(mean, axis=0)
         self._istd = np.expand_dims(istd, axis=0)
 

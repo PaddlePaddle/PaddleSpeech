@@ -127,7 +127,7 @@ def _post_install(install_lib_dir):
     print("tools install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
+    ctcdecoder_dir = HERE / 'third_party/ctc_decoders'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")

@@ -67,21 +67,26 @@ def merge_configs(
     config = load(conf_path)
     decode_config = load(decode_path)
     vocab_list = load_dict(vocab_path)
-    cmvn_stats = load_json(cmvn_path)
-    if os.path.exists(preprocess_path):
-        preprocess_config =  load(preprocess_path)
-        for idx, process in enumerate(preprocess_config["process"]):
-            if process['type'] == "cmvn_json":
-                preprocess_config["process"][idx][
-                    "cmvn_path"] = cmvn_stats
-                break
 
-        config.preprocess_config = preprocess_config
+    # If use the kaldi feature, do not load the cmvn file
+    if cmvn_path.split(".")[-1] == 'json':
+        cmvn_stats = load_json(cmvn_path)
+        if os.path.exists(preprocess_path):
+            preprocess_config =  load(preprocess_path)
+            for idx, process in enumerate(preprocess_config["process"]):
+                if process['type'] == "cmvn_json":
+                    preprocess_config["process"][idx][
+                        "cmvn_path"] = cmvn_stats
+                    break
+
+            config.preprocess_config = preprocess_config
+        else:
+            cmvn_stats = load_cmvn_from_json(cmvn_stats)
+            config.mean_std_filepath = [{"cmvn_stats":cmvn_stats}]
+            config.augmentation_config = ''
+    # the cmvn file is end with .ark
     else:
-        cmvn_stats = load_cmvn_from_json(cmvn_stats)
-        config.mean_std_filepath = [{"cmvn_stats":cmvn_stats}]
-        config.augmentation_config = ''
-
+        config.cmvn_path = cmvn_path
     # Updata the config
     config.vocab_filepath = vocab_list
     config.input_dim = config.feat_dim

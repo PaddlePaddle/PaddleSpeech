@@ -73,7 +73,7 @@ def evaluate(args, speedyspeech_config):
     speedyspeech_normalizer = ZScore(mu, std)
 
     speedyspeech_inference = SpeedySpeechInference(speedyspeech_normalizer,
-                                                      model)
+                                                   model)
     speedyspeech_inference.eval()
 
     output_dir = Path(args.output_dir)
@@ -138,6 +138,8 @@ def evaluate(args, speedyspeech_config):
             speaker_id = None
 
         durations = paddle.to_tensor(np.array(durations))
+        durations = paddle.unsqueeze(durations, axis=0)
+
         # 生成的和真实的可能有 1, 2 帧的差距，但是 batch_fn 会修复
         # split data into 3 sections
 
@@ -153,7 +155,7 @@ def evaluate(args, speedyspeech_config):
         sub_output_dir.mkdir(parents=True, exist_ok=True)
 
         with paddle.no_grad():
-            mel = speedyspeech_inference(phone_ids, tone_ids, spk_id=speaker_id)
+            mel = speedyspeech_inference(phone_ids, tone_ids, durations=durations, spk_id=speaker_id)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 

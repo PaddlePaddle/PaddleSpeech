@@ -65,6 +65,7 @@ class ToneSandhi():
         self.must_not_neural_tone_words = {
             "男子", "女子", "分子", "原子", "量子", "莲子", "石子", "瓜子", "电子"
         }
+        self.punc = "：，；。？！“”‘’':,;.?!"
 
     # the meaning of jieba pos tag: https://blog.csdn.net/weixin_44174352/article/details/113731041
     # e.g.
@@ -147,7 +148,9 @@ class ToneSandhi():
                         finals[i] = finals[i][:-1] + "2"
                     # "一" before non-tone4 should be yi4, e.g. 一天
                     else:
-                        finals[i] = finals[i][:-1] + "4"
+                        # "一" 后面如果是标点，还读一声
+                        if word[i + 1] not in self.punc:
+                            finals[i] = finals[i][:-1] + "4"
         return finals
 
     def _split_word(self, word: str) -> List[str]:

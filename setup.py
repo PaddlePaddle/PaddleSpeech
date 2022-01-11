@@ -61,7 +61,7 @@ requirements = {
         "typeguard",
         "visualdl",
         "webrtcvad",
-        "yacs",
+        "yacs~=0.1.8",
     ],
     "develop": [
         "ConfigArgParse",

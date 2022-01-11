@@ -47,7 +47,7 @@ class Conv1d(nn.Layer):
             groups=1,
             bias=True,
             padding_mode="reflect", ):
-        super(Conv1d, self).__init__()
+        super().__init__()
 
         self.kernel_size = kernel_size
         self.stride = stride
@@ -110,7 +110,7 @@ class BatchNorm1d(nn.Layer):
             bias_attr=None,
             data_format='NCL',
             use_global_stats=None, ):
-        super(BatchNorm1d, self).__init__()
+        super().__init__()
 
         self.norm = nn.BatchNorm1D(
             input_size,
@@ -134,7 +134,7 @@ class TDNNBlock(nn.Layer):
             kernel_size,
             dilation,
             activation=nn.ReLU, ):
-        super(TDNNBlock, self).__init__()
+        super().__init__()
         self.conv = Conv1d(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -149,7 +149,7 @@ class TDNNBlock(nn.Layer):
 
 class Res2NetBlock(nn.Layer):
     def __init__(self, in_channels, out_channels, scale=8, dilation=1):
-        super(Res2NetBlock, self).__init__()
+        super().__init__()
         assert in_channels % scale == 0
         assert out_channels % scale == 0
 
@@ -179,7 +179,7 @@ class Res2NetBlock(nn.Layer):
 
 class SEBlock(nn.Layer):
     def __init__(self, in_channels, se_channels, out_channels):
-        super(SEBlock, self).__init__()
+        super().__init__()
 
         self.conv1 = Conv1d(
             in_channels=in_channels, out_channels=se_channels, kernel_size=1)
@@ -275,7 +275,7 @@ class SERes2NetBlock(nn.Layer):
             kernel_size=1,
             dilation=1,
             activation=nn.ReLU, ):
-        super(SERes2NetBlock, self).__init__()
+        super().__init__()
         self.out_channels = out_channels
         self.tdnn1 = TDNNBlock(
             in_channels,
@@ -313,7 +313,7 @@ class SERes2NetBlock(nn.Layer):
         return x + residual
 
 
-class ECAPA_TDNN(nn.Layer):
+class EcapaTdnn(nn.Layer):
     def __init__(
             self,
             input_size,
@@ -327,7 +327,7 @@ class ECAPA_TDNN(nn.Layer):
             se_channels=128,
             global_context=True, ):
 
-        super(ECAPA_TDNN, self).__init__()
+        super().__init__()
         assert len(channels) == len(kernel_sizes)
         assert len(channels) == len(dilations)
         self.channels = channels
@@ -377,6 +377,16 @@ class ECAPA_TDNN(nn.Layer):
             kernel_size=1, )
 
     def forward(self, x, lengths=None):
+        """
+        Compute embeddings.
+
+        Args:
+            x (paddle.Tensor): Input log-fbanks with shape (N, n_mels, T).
+            lengths (paddle.Tensor, optional): Length proportions of batch length with shape (N). Defaults to None.
+
+        Returns:
+            paddle.Tensor: Output embeddings with shape (N, self.emb_size, 1)
+        """
         xl = []
         for layer in self.blocks:
             try:
@@ -397,21 +407,3 @@ class ECAPA_TDNN(nn.Layer):
         x = self.fc(x)
 
         return x
-
-
-class Classifier(nn.Layer):
-    def __init__(self, backbone, num_class, dtype=paddle.float32):
-        super(Classifier, self).__init__()
-        self.backbone = backbone
-        self.params = nn.ParameterList([
-            paddle.create_parameter(
-                shape=[num_class, self.backbone.emb_size], dtype=dtype)
-        ])
-
-    def forward(self, x):
-        emb = self.backbone(x.transpose([0, 2, 1])).transpose([0, 2, 1])
-        logits = F.linear(
-            F.normalize(emb.squeeze(1)),
-            F.normalize(self.params[0]).transpose([1, 0]))
-
-        return logits

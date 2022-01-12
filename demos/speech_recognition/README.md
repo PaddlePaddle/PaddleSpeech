@@ -23,7 +23,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 3. Usage
 - Command Line(Recommended)
   ```bash
+  # Chinese
   paddlespeech asr --input ./zh.wav
+  # English
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
   ```
   (It doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
   

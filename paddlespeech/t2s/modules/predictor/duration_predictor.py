@@ -115,8 +115,8 @@ class DurationPredictor(nn.Layer):
 
         Returns
         ----------
-            Tensor
-                Batch of predicted durations in log domain (B, Tmax).
+        Tensor
+            Batch of predicted durations in log domain (B, Tmax).
         """
         return self._forward(xs, x_masks, False)
 

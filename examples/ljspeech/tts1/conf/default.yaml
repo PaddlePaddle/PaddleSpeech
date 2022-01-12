@@ -63,9 +63,9 @@ model:                     # keyword arguments for the selected model
 #                       UPDATER SETTING                   #
 ###########################################################
 updater:
-    use_masking: true                  # whether to apply masking for padded part in loss calculation
+    use_masking: True                  # whether to apply masking for padded part in loss calculation
     loss_type: L1
-    use_guided_attn_loss: true         # whether to use guided attention loss
+    use_guided_attn_loss: True         # whether to use guided attention loss
     guided_attn_loss_sigma: 0.4        # sigma in guided attention loss
     guided_attn_loss_lambda: 10.0      # lambda in guided attention loss
     modules_applied_guided_attn: ["encoder-decoder"] # modules to apply guided attention loss

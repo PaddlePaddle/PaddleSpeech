@@ -34,10 +34,10 @@ generator_params:
     aux_context_window: 2 # Context window size for auxiliary feature.
                           # If set to 2, previous 2 and future 2 frames will be considered.
     dropout: 0.0          # Dropout rate. 0.0 means no dropout applied.
-    bias: true            # use bias in residual blocks
-    use_weight_norm: true # Whether to use weight norm.
+    bias: True            # use bias in residual blocks
+    use_weight_norm: True # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
-    use_causal_conv: false               # use causal conv in residual blocks and upsample layers
+    use_causal_conv: False               # use causal conv in residual blocks and upsample layers
     upsample_scales: [4, 5, 3, 5]     # Upsampling scales. Prodcut of these must be the same as hop size.
     interpolate_mode: "nearest" # upsample net interpolate mode
     freq_axis_kernel_size: 1 # upsamling net: convolution kernel size in frequencey axis
@@ -53,8 +53,8 @@ discriminator_params:
     kernel_size: 3        # Number of output channels.
     layers: 10            # Number of conv layers.
     conv_channels: 64     # Number of chnn layers.
-    bias: true            # Whether to use bias parameter in conv.
-    use_weight_norm: true # Whether to use weight norm.
+    bias: True            # Whether to use bias parameter in conv.
+    use_weight_norm: True # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
     nonlinear_activation: "leakyrelu" # Nonlinear function after each conv.
     nonlinear_activation_params:      # Nonlinear function parameters

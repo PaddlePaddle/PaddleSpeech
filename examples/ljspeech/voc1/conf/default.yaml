@@ -33,7 +33,7 @@ generator_params:
     aux_context_window: 2 # Context window size for auxiliary feature.
                           # If set to 2, previous 2 and future 2 frames will be considered.
     dropout: 0.0          # Dropout rate. 0.0 means no dropout applied.
-    use_weight_norm: true # Whether to use weight norm.
+    use_weight_norm: True # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
     upsample_scales: [4, 4, 4, 4]     # Upsampling scales. prod(upsample_scales) == n_shift
 
@@ -46,8 +46,8 @@ discriminator_params:
     kernel_size: 3        # Number of output channels.
     layers: 10            # Number of conv layers.
     conv_channels: 64     # Number of chnn layers.
-    bias: true            # Whether to use bias parameter in conv.
-    use_weight_norm: true # Whether to use weight norm.
+    bias: True            # Whether to use bias parameter in conv.
+    use_weight_norm: True # Whether to use weight norm.
                           # If set to true, it will be applied to all of the conv layers.
     nonlinear_activation: "leakyrelu" # Nonlinear function after each conv.
     nonlinear_activation_params:      # Nonlinear function parameters

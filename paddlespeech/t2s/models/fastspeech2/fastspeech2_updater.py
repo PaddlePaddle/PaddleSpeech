@@ -36,12 +36,9 @@ class FastSpeech2Updater(StandardUpdater):
                  use_weighted_masking=False,
                  output_dir=None):
         super().__init__(model, optimizer, dataloader, init_state=None)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
 
         self.criterion = FastSpeech2Loss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking)
+            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -113,8 +110,6 @@ class FastSpeech2Evaluator(StandardEvaluator):
                  use_weighted_masking=False,
                  output_dir=None):
         super().__init__(model, dataloader)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -123,8 +118,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         self.msg = ""
 
         self.criterion = FastSpeech2Loss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking)
+            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
 
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "

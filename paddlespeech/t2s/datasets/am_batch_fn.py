@@ -17,6 +17,35 @@ import paddle
 from paddlespeech.t2s.data.batch import batch_sequences
 
 
+def tacotron2_single_spk_batch_fn(examples):
+    # fields = ["text", "text_lengths", "speech", "speech_lengths"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    speech = batch_sequences(speech)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    speech = paddle.to_tensor(speech)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+
+    batch = {
+        "text": text,
+        "text_lengths": text_lengths,
+        "speech": speech,
+        "speech_lengths": speech_lengths,
+    }
+    return batch
+
+
 def speedyspeech_single_spk_batch_fn(examples):
     # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
     phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
@@ -56,7 +85,7 @@ def speedyspeech_single_spk_batch_fn(examples):
 
 
 def speedyspeech_multi_spk_batch_fn(examples):
-    # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations"]
+    # fields = ["phones", "tones", "num_phones", "num_frames", "feats", "durations", "spk_id"]
     phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
     tones = [np.array(item["tones"], dtype=np.int64) for item in examples]
     feats = [np.array(item["feats"], dtype=np.float32) for item in examples]

@@ -36,6 +36,10 @@ model_alias = {
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2",
     "fastspeech2_inference":
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
+    "tacotron2":
+    "paddlespeech.t2s.models.new_tacotron2:Tacotron2",
+    "tacotron2_inference":
+    "paddlespeech.t2s.models.new_tacotron2:Tacotron2Inference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -91,6 +95,8 @@ def evaluate(args):
         print("spk_num:", spk_num)
     elif am_name == 'speedyspeech':
         fields = ["utt_id", "phones", "tones"]
+    elif am_name == 'tacotron2':
+        fields = ["utt_id", "text"]
 
     test_dataset = DataTable(data=test_metadata, fields=fields)
 
@@ -117,6 +123,8 @@ def evaluate(args):
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size, tone_size=tone_size, **am_config["model"])
+    elif am_name == 'tacotron2':
+        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
 
     am.set_state_dict(paddle.load(args.am_ckpt)["main_params"])
     am.eval()
@@ -168,6 +176,9 @@ def evaluate(args):
                 phone_ids = paddle.to_tensor(datum["phones"])
                 tone_ids = paddle.to_tensor(datum["tones"])
                 mel = am_inference(phone_ids, tone_ids)
+            elif am_name == 'tacotron2':
+                phone_ids = paddle.to_tensor(datum["text"])
+                mel = am_inference(phone_ids)
             # vocoder
             wav = voc_inference(mel)
         sf.write(
@@ -188,7 +199,7 @@ def main():
         default='fastspeech2_csmsc',
         choices=[
             'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
-            'fastspeech2_aishell3', 'fastspeech2_vctk'
+            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(

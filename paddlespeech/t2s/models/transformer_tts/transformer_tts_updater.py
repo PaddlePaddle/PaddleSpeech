@@ -46,24 +46,20 @@ class TransformerTTSUpdater(StandardUpdater):
             guided_attn_loss_sigma: float=0.4,
             guided_attn_loss_lambda: float=1.0, ):
         super().__init__(model, optimizer, dataloader, init_state=None)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
-        self.bce_pos_weight = bce_pos_weight
+
         self.loss_type = loss_type
         self.use_guided_attn_loss = use_guided_attn_loss
-        self.guided_attn_loss_sigma = guided_attn_loss_sigma
-        self.guided_attn_loss_lambda = guided_attn_loss_lambda
         self.modules_applied_guided_attn = modules_applied_guided_attn
 
         self.criterion = TransformerTTSLoss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking,
-            bce_pos_weight=self.bce_pos_weight)
+            use_masking=use_masking,
+            use_weighted_masking=use_weighted_masking,
+            bce_pos_weight=bce_pos_weight)
 
         if self.use_guided_attn_loss:
             self.attn_criterion = GuidedMultiHeadAttentionLoss(
-                sigma=self.guided_attn_loss_sigma,
-                alpha=self.guided_attn_loss_lambda, )
+                sigma=guided_attn_loss_sigma,
+                alpha=guided_attn_loss_lambda, )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -195,24 +191,20 @@ class TransformerTTSEvaluator(StandardEvaluator):
             guided_attn_loss_sigma: float=0.4,
             guided_attn_loss_lambda: float=1.0, ):
         super().__init__(model, dataloader)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
-        self.bce_pos_weight = bce_pos_weight
+
         self.loss_type = loss_type
         self.use_guided_attn_loss = use_guided_attn_loss
-        self.guided_attn_loss_sigma = guided_attn_loss_sigma
-        self.guided_attn_loss_lambda = guided_attn_loss_lambda
         self.modules_applied_guided_attn = modules_applied_guided_attn
 
         self.criterion = TransformerTTSLoss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking,
-            bce_pos_weight=self.bce_pos_weight)
+            use_masking=use_masking,
+            use_weighted_masking=use_weighted_masking,
+            bce_pos_weight=bce_pos_weight)
 
         if self.use_guided_attn_loss:
             self.attn_criterion = GuidedMultiHeadAttentionLoss(
-                sigma=self.guided_attn_loss_sigma,
-                alpha=self.guided_attn_loss_lambda, )
+                sigma=guided_attn_loss_sigma,
+                alpha=guided_attn_loss_lambda, )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))

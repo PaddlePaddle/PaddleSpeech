@@ -23,7 +23,6 @@
 #include "lm/enumerate_vocab.hh"
 #include "lm/virtual_interface.hh"
 #include "lm/word_index.hh"
-#include "util/string_piece.hh"
 
 #include "path_trie.h"
 

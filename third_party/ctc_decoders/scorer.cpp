@@ -20,8 +20,6 @@
 #include "lm/config.hh"
 #include "lm/model.hh"
 #include "lm/state.hh"
-#include "util/string_piece.hh"
-#include "util/tokenize_piece.hh"
 
 #include "decoder_utils.h"
 

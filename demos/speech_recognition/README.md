@@ -80,3 +80,4 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
+| transformer_librispeech| en| 16000

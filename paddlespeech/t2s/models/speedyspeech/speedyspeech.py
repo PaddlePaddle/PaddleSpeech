@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
 import paddle
 from paddle import nn
 
@@ -23,18 +22,16 @@ def expand(encodings: paddle.Tensor, durations: paddle.Tensor) -> paddle.Tensor:
     encodings: (B, T, C)
     durations: (B, T)
     """
-    batch_size, t_enc = durations.shape
-    durations = durations.numpy()
-    slens = np.sum(durations, -1)
-    t_dec = np.max(slens)
-    M = np.zeros([batch_size, t_dec, t_enc])
+    batch_size, t_enc = paddle.shape(durations)
+    slens = paddle.sum(durations, -1)
+    t_dec = paddle.max(slens)
+    M = paddle.zeros([batch_size, t_dec, t_enc])
     for i in range(batch_size):
         k = 0
         for j in range(t_enc):
             d = durations[i, j]
             M[i, k:k + d, j] = 1
             k += d
-    M = paddle.to_tensor(M, dtype=encodings.dtype)
     encodings = paddle.matmul(M, encodings)
     return encodings
 
@@ -234,28 +231,14 @@ class SpeedySpeech(nn.Layer):
 
         encodings = self.encoder(text, tones, spk_id)
 
-        if type(durations) == type(None):
-            pred_durations = self.duration_predictor(encodings)  # (1, T)
+        if durations is None:
+            # (1, T)
+            pred_durations = self.duration_predictor(encodings)
             durations_to_expand = paddle.round(pred_durations.exp())
-            durations_to_expand = (durations_to_expand).astype(paddle.int64)
-
-            slens = paddle.sum(durations_to_expand, -1)  # [1]
-            t_dec = slens[0]  # [1]
-            t_enc = paddle.shape(pred_durations)[-1]
-            M = paddle.zeros([1, t_dec, t_enc])
-
-            k = paddle.full([1], 0, dtype=paddle.int64)
-            for j in range(t_enc):
-                d = durations_to_expand[0, j]
-                # If the d == 0, slice action is meaningless and not supported
-                if d >= 1:
-                    M[0, k:k + d, j] = 1
-                k += d
-
-            encodings = paddle.matmul(M, encodings)
+            durations_to_expand = durations_to_expand.astype(paddle.int64)
         else:
             durations_to_expand = durations
-            encodings = expand(encodings, durations_to_expand)
+        encodings = expand(encodings, durations_to_expand)
 
         shape = paddle.shape(encodings)
         t_dec, feature_size = shape[1], shape[2]

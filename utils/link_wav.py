@@ -65,8 +65,10 @@ def main():
             except FileNotFoundError:
                 print("delete " + name + " because it cannot be found in the dump folder")
                 os.remove(output_dir / "raw" / name)
+                continue
             except FileExistsError:
-                print("file " + name + " exists, skip.")     
+                print("file " + name + " exists, skip.")
+                continue
             num_sample = wav.shape[0]
             num_frames = gen_mel.shape[0]
             wav_path = output_dir / ("raw/" + wave_name)

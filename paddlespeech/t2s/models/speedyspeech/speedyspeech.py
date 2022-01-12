@@ -222,7 +222,7 @@ class SpeedySpeech(nn.Layer):
         decoded = self.decoder(encodings)
         return decoded, pred_durations
 
-    def inference(self, text, tones=None, spk_id=None):
+    def inference(self, text, tones=None, durations=None, spk_id=None):
         # text: [T]
         # tones: [T]
         # input of embedding must be int64
@@ -234,24 +234,28 @@ class SpeedySpeech(nn.Layer):
 
         encodings = self.encoder(text, tones, spk_id)
 
-        pred_durations = self.duration_predictor(encodings)  # (1, T)
-        durations_to_expand = paddle.round(pred_durations.exp())
-        durations_to_expand = (durations_to_expand).astype(paddle.int64)
+        if type(durations) == type(None):
+            pred_durations = self.duration_predictor(encodings)  # (1, T)
+            durations_to_expand = paddle.round(pred_durations.exp())
+            durations_to_expand = (durations_to_expand).astype(paddle.int64)
 
-        slens = paddle.sum(durations_to_expand, -1)  # [1]
-        t_dec = slens[0]  # [1]
-        t_enc = paddle.shape(pred_durations)[-1]
-        M = paddle.zeros([1, t_dec, t_enc])
+            slens = paddle.sum(durations_to_expand, -1)  # [1]
+            t_dec = slens[0]  # [1]
+            t_enc = paddle.shape(pred_durations)[-1]
+            M = paddle.zeros([1, t_dec, t_enc])
 
-        k = paddle.full([1], 0, dtype=paddle.int64)
-        for j in range(t_enc):
-            d = durations_to_expand[0, j]
-            # If the d == 0, slice action is meaningless and not supported
-            if d >= 1:
-                M[0, k:k + d, j] = 1
-            k += d
+            k = paddle.full([1], 0, dtype=paddle.int64)
+            for j in range(t_enc):
+                d = durations_to_expand[0, j]
+                # If the d == 0, slice action is meaningless and not supported
+                if d >= 1:
+                    M[0, k:k + d, j] = 1
+                k += d
 
-        encodings = paddle.matmul(M, encodings)
+            encodings = paddle.matmul(M, encodings)
+        else:
+            durations_to_expand = durations
+            encodings = expand(encodings, durations_to_expand)
 
         shape = paddle.shape(encodings)
         t_dec, feature_size = shape[1], shape[2]
@@ -266,7 +270,8 @@ class SpeedySpeechInference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = speedyspeech_model
 
-    def forward(self, phones, tones, spk_id=None):
-        normalized_mel = self.acoustic_model.inference(phones, tones, spk_id)
+    def forward(self, phones, tones, durations=None, spk_id=None):
+        normalized_mel = self.acoustic_model.inference(
+            phones, tones, durations=durations, spk_id=spk_id)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

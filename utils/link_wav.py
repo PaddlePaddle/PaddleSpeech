@@ -20,6 +20,7 @@ import jsonlines
 import numpy as np
 from tqdm import tqdm
 
+
 def main():
     # parse config and args
     parser = argparse.ArgumentParser(
@@ -61,9 +62,10 @@ def main():
             try:
                 wav = np.load(old_dump_dir / sub / ("raw/" + wave_name))
                 os.symlink(old_dump_dir / sub / ("raw/" + wave_name),
-                        output_dir / ("raw/" + wave_name))
+                           output_dir / ("raw/" + wave_name))
             except FileNotFoundError:
-                print("delete " + name + " because it cannot be found in the dump folder")
+                print("delete " + name +
+                      " because it cannot be found in the dump folder")
                 os.remove(output_dir / "raw" / name)
                 continue
             except FileExistsError:

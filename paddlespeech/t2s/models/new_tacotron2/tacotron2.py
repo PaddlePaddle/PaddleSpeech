@@ -77,9 +77,9 @@ class Tacotron2(nn.Layer):
             spk_embed_dim: Optional[int]=None,
             spk_embed_integration_type: str="concat",
             dropout_rate: float=0.5,
-            zoneout_rate: float=0.1, 
+            zoneout_rate: float=0.1,
             # training related
-            init_type: str="xavier_uniform",):
+            init_type: str="xavier_uniform", ):
         """Initialize Tacotron2 module.
         Parameters
         ----------
@@ -243,7 +243,7 @@ class Tacotron2(nn.Layer):
             dropout_rate=dropout_rate,
             zoneout_rate=zoneout_rate,
             reduction_factor=reduction_factor, )
-            
+
         nn.initializer.set_global_initializer(None)
 
     def forward(

@@ -171,7 +171,6 @@ class Encoder(nn.Layer):
         # (B, Tmax, C)
         # see https://www.paddlepaddle.org.cn/documentation/docs/zh/faq/train_cn.html#paddletorch-nn-utils-rnn-pack-padded-sequencetorch-nn-utils-rnn-pad-packed-sequenceapi
         xs, _ = self.blstm(xs, sequence_length=ilens)
-        # hlens 是什么
         hlens = ilens
 
         return xs, hlens

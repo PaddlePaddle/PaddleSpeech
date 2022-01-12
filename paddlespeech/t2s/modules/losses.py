@@ -20,7 +20,7 @@ from paddle.fluid.layers import sequence_mask
 from paddle.nn import functional as F
 from scipy import signal
 
-from paddlespeech.s2t.modules.mask import make_non_pad_mask
+from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 
 
 # Loss for new Tacotron2
@@ -324,7 +324,7 @@ def stft(x,
         details. Defaults to "hann".
     center : bool, optional
         center (bool, optional): Whether to pad `x` to make that the
-        :math:`t \times hop\_length` at the center of :math:`t`-th frame. Default: `True`.
+        :math:`t \times hop\\_length` at the center of :math:`t`-th frame. Default: `True`.
     pad_mode : str, optional
         Choose padding pattern when `center` is `True`.
     Returns
@@ -677,7 +677,8 @@ def weighted_mean(input, weight):
         Weighted mean tensor with the same dtype as input.
     """
     weight = paddle.cast(weight, input.dtype)
-    broadcast_ratio = input.size / weight.size
+    # paddle.Tensor.size is different with torch.size() and has been overrided in s2t.__init__
+    broadcast_ratio = input.numel() / weight.numel()
     return paddle.sum(input * weight) / (paddle.sum(weight) * broadcast_ratio)
 
 

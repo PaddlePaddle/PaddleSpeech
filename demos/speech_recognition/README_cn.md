@@ -21,7 +21,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 3. 使用方法
 - 命令行 (推荐使用)
   ```bash
+  # 中文
   paddlespeech asr --input ./zh.wav
+  # 英文
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
   ```
   (如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
   
@@ -74,3 +77,4 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
+| transformer_librispeech| en| 16000

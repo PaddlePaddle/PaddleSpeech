@@ -10,12 +10,11 @@
 6. [发 C++ 包需要注意的东西？](#manylinux)
 
 
-
 ## conda 代替系统依赖
 
 conda 可以用来代替一些 apt-get 安装的系统依赖，这样可以让项目适用于除了 ubuntu 以外的系统。
 
-使用 conda 可以安装 sox, libsndfile，swig 等 paddlespeech 需要的依赖：
+使用 conda 可以安装 sox、 libsndfile、swig 等 paddlespeech 需要的依赖：
 
 ```bash
 conda install -y -c conda-forge sox libsndfile
@@ -172,4 +171,3 @@ auditwheel show wheel包
 ```bash
 auditwheel repair wheel包
 ```
-

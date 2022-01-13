@@ -78,6 +78,7 @@ requirements = {
         "unidecode",
         "yq",
         "pre-commit",
+        "zhon",
     ]
 }
 

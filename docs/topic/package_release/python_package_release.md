@@ -2,12 +2,12 @@
 
 ## 问题：
 
-1. [如何去除ubuntu的apt安装依赖？](#conda-代替系统依赖)
+1. [如何去除 ubuntu 的 apt 安装依赖？](#conda-代替系统依赖)
 2. [如何支持普通用户和开发者两种安装的需求，尽量减少普通用户所需的依赖？](#区分install模式和develop模式)
-3. [如何进行python包的动态安装？](#python-包的动态安装)
-4. [如何进行python项目编包？](#python-编包方法)
+3. [如何进行 python 包的动态安装？](#python-包的动态安装)
+4. [如何进行 python 项目编包？](#python-编包方法)
 5. [发包前要有什么准备？](#关于发包前的准备工作)
-6. [发C++包需要注意的东西？](#manylinux)
+6. [发 C++ 包需要注意的东西？](#manylinux)
 
 
 
@@ -126,23 +126,23 @@ twine upload dist/wheel包
 ## 关于发包前的准备工作
 
 #### 拉分支
-在发包之前需要拉分支。例如需要发0.1.0版本的正式包，则需要拉一个r0.1的分支。并且在这个r0.1分支的包上面打0.1.0的tag。在拉分支之前可以选择性的使用rc版本发一个正式版前的试用包，例如0.1.0rc0，等到rc包测试通过后，再拉分支（如果是发0.1.1包，则merge r0.1分支），打tag，完成发包。总体步骤可以总结为：
+在发包之前需要拉分支。例如需要发0.1.0版本的正式包，则需要拉一个 r0.1 的分支。并且在这个 r0.1 分支的包上面打 0.1.0 的tag。在拉分支之前可以选择性的使用 rc 版本发一个正式版前的试用包，例如0.1.0rc0，等到rc包测试通过后，再拉分支（如果是发 0.1.1 包，则 merge r0.1分支），打tag，完成发包。总体步骤可以总结为：
 
-- 用develop分支发rc包
-- rc包通过后拉分支
-- 打tag
+- 用 develop 分支发 rc 包
+- rc 包通过后拉分支
+- 打 tag
 - 发包
-- 编写release note
+- 编写 release note
 
 
 
 ## ManyLinux
 
-为了让有C++依赖的 pip wheel 包可以适用于更多的 linux 系统，需要降低其本身的 glibc 的依赖。这就需要让 pip wheel 包在 manylinux 的 docker 下编包。关于查看系统的 glibc 版本，可以使用命令：`ldd --version`。
+为了让有 C++ 依赖的 pip wheel 包可以适用于更多的 linux 系统，需要降低其本身的 glibc 的依赖。这就需要让 pip wheel 包在 manylinux 的 docker 下编包。关于查看系统的 glibc 版本，可以使用命令：`ldd --version`。
 
 ### Manylinux
 
-关于Many Linux，主要可以参考 Github 项目的说明[ github many linux](https://github.com/pypa/manylinux)。
+关于 Manylinux，主要可以参考 Github 项目的说明[ github many linux](https://github.com/pypa/manylinux)。
 manylinux1 支持 Centos5以上， manylinux2010 支持 Centos 6 以上，manylinux2014 支持Centos 7 以上。
 目前使用 manylinux2010 基本可以满足所有的 linux 生产环境需求。（不建议使用manylinux1，系统较老，难度较大）
 
@@ -160,7 +160,7 @@ docker pull quay.io/pypa/manylinux1_x86_64
 docker run -it xxxxxx
 ```
 
-在 Many Linux 2010 的docker环境自带 swig 和各种类型的 python 版本。这里注意不要自己下载conda 来安装环境来编译 pip 包，要用 docker 本身的环境来编包。
+在 manylinux2010 的docker环境自带 swig 和各种类型的 python 版本。这里注意不要自己下载 conda 来安装环境来编译 pip 包，要用 docker 本身的环境来编包。
 设置python：
 
 ```bash

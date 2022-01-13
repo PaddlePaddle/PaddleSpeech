@@ -1,4 +1,13 @@
-# 发包方法
+# 简化安装与发包
+
+## 问题：
+
+1. [如何去除ubuntu的apt安装依赖？](#conda-代替系统依赖)
+2. [如何支持普通用户和开发者两种安装的需求，尽量减少普通用户所需的依赖？](#区分install模式和develop模式)
+3. [如何进行python包的动态安装？](#python-包的动态安装)
+4. [如何进行python项目编包？](#python-编包方法)
+5. [发包前要有什么准备？](#关于发包前的准备工作)
+6. [发C++包需要注意的东西？](#manylinux)
 
 
 
@@ -30,6 +39,44 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 
 ```bash
 conda install -c conda-forge eigen boost cmake
+```
+
+
+
+## 区分install模式和develop模式
+
+可以在setup.py 中划分 install 的依赖（基本依赖）和 develop 的依赖 （开发者额外依赖）。 setup_info 中 `install_requires` 设置 install 的依赖，而在 `extras_require` 中设置 `develop` key为 develop的依赖。
+普通安装可以使用：
+
+```bash
+pip install . 
+```
+
+另外使用 pip 安装已发的包也是使用普通安装的：
+
+```
+pip install paddlespeech
+```
+
+而开发者可以使用如下方式安装，这样不仅会安装install的依赖，也会安装develop的依赖， 即：最后安装的依赖=install依赖 + develop依赖：
+
+```bash
+pip install -e .[develop]
+```
+
+
+
+## python 包的动态安装
+
+可以使用 pip包来实现动态安装：
+
+```python
+import pip
+if int(pip.__version__.split('.')[0]) > 9:
+        from pip._internal import main
+    else:
+        from pip import main
+    main(['install', package_name])
 ```
 
 
@@ -74,7 +121,22 @@ twine upload dist/wheel包
 
 
 
-## Manylinux 降低含有 C++ 依赖的 pip 包的 glibc 依赖
+
+
+## 关于发包前的准备工作
+
+#### 拉分支
+在发包之前需要拉分支。例如需要发0.1.0版本的正式包，则需要拉一个r0.1的分支。并且在这个r0.1分支的包上面打0.1.0的tag。在拉分支之前可以选择性的使用rc版本发一个正式版前的试用包，例如0.1.0rc0，等到rc包测试通过后，再拉分支（如果是发0.1.1包，则merge r0.1分支），打tag，完成发包。总体步骤可以总结为：
+
+- 用develop分支发rc包
+- rc包通过后拉分支
+- 打tag
+- 发包
+- 编写release note
+
+
+
+## ManyLinux
 
 为了让有C++依赖的 pip wheel 包可以适用于更多的 linux 系统，需要降低其本身的 glibc 的依赖。这就需要让 pip wheel 包在 manylinux 的 docker 下编包。关于查看系统的 glibc 版本，可以使用命令：`ldd --version`。
 
@@ -120,40 +182,3 @@ auditwheel show wheel包
 auditwheel repair wheel包
 ```
 
-
-
-## 区分 install 模式和 develop 模式
-
-可以在setup.py 中划分 install 的依赖（基本依赖）和 develop 的依赖 （开发者额外依赖）。 setup_info 中 `install_requires` 设置 install 的依赖，而在 `extras_require` 中设置 `develop` key为 develop的依赖。
-普通安装可以使用：
-
-```bash
-pip install . 
-```
-
-另外使用 pip 安装已发的包也是使用普通安装的：
-
-```
-pip install paddlespeech
-```
-
-而开发者可以使用如下方式安装，这样不仅会安装install的依赖，也会安装develop的依赖， 即：最后安装的依赖=install依赖 + develop依赖：
-
-```bash
-pip install -e .[develop]
-```
-
-
-
-## python 包的动态安装
-
-可以使用 pip包来实现动态安装：
-
-```python
-import pip
-if int(pip.__version__.split('.')[0]) > 9:
-        from pip._internal import main
-    else:
-        from pip import main
-    main(['install', package_name])
-```

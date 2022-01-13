@@ -1,3 +1,5 @@
+// Licensed under GNU Lesser General Public License v3 (LGPLv3) (LGPL-3) (the "COPYING.LESSER.3");
+
 #include "scorer.h"
 
 #include <unistd.h>

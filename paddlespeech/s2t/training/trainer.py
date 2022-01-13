@@ -117,8 +117,8 @@ class Trainer():
             self.init_parallel()
 
         self.checkpoint = Checkpoint(
-            kbest_n=self.config.training.checkpoint.kbest_n,
-            latest_n=self.config.training.checkpoint.latest_n)
+            kbest_n=self.config.checkpoint.kbest_n,
+            latest_n=self.config.checkpoint.latest_n)
 
         # set random seed if needed
         if args.seed:
@@ -129,8 +129,8 @@ class Trainer():
         if hasattr(self.args,
                    "benchmark_batch_size") and self.args.benchmark_batch_size:
             with UpdateConfig(self.config):
-                self.config.collator.batch_size = self.args.benchmark_batch_size
-                self.config.training.log_interval = 1
+                self.config.batch_size = self.args.benchmark_batch_size
+                self.config.log_interval = 1
             logger.info(
                 f"Benchmark reset batch-size: {self.args.benchmark_batch_size}")
 
@@ -222,7 +222,7 @@ class Trainer():
             batch_sampler = self.train_loader.batch_sampler
             if isinstance(batch_sampler, paddle.io.DistributedBatchSampler):
                 logger.debug(
-                    f"train_loader.batch_sample set epoch: {self.epoch}")
+                    f"train_loader.batch_sample.set_epoch: {self.epoch}")
                 batch_sampler.set_epoch(self.epoch)
 
     def before_train(self):
@@ -260,7 +260,7 @@ class Trainer():
         self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
-        while self.epoch < self.config.training.n_epoch:
+        while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
                 try:

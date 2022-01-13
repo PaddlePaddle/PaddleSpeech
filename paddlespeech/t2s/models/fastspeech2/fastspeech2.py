@@ -907,7 +907,9 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
                 energy: Union[paddle.Tensor, np.ndarray]=None,
                 energy_scale: Union[int, float]=None,
                 energy_bias: Union[int, float]=None,
-                robot: bool=False):
+                robot: bool=False,
+                spk_emb=None,
+                spk_id=None):
         """
         Parameters
         ----------
@@ -939,7 +941,12 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             Output sequence of features (L, odim).
         """
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, durations=None, pitch=None, energy=None)
+            text,
+            durations=None,
+            pitch=None,
+            energy=None,
+            spk_emb=spk_emb,
+            spk_id=spk_id)
         # priority: groundtruth > scale/bias > previous output
         # set durations
         if isinstance(durations, np.ndarray):
@@ -991,7 +998,9 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             durations=durations,
             pitch=pitch,
             energy=energy,
-            use_teacher_forcing=True)
+            use_teacher_forcing=True,
+            spk_emb=spk_emb,
+            spk_id=spk_id)
 
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

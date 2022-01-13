@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -63,8 +63,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
-                [--speaker-dict SPEAKER_DICT]
+                [--ngpu NGPU] [--phones-dict PHONES_DICT]
+                [--speaker-dict SPEAKER_DICT] [--voice-cloning VOICE_CLONING]
 
 Train a FastSpeech2 model.
 
@@ -78,11 +78,12 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu=0, use cpu.
-  --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
   --speaker-dict SPEAKER_DICT
                         speaker id map file for multiple speaker model.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
@@ -259,5 +260,5 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --text=${BIN_DIR}/../sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
-  --phones_dict=dump/phone_id_map.txt
+  --phones_dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 ```

@@ -70,8 +70,8 @@ class LengthRegulator(nn.Layer):
         ----------
         xs : Tensor
             Batch of sequences of char or phoneme embeddings (B, Tmax, D).
-        ds : LongTensor
-                Batch of durations of each frame (B, T).
+        ds : Tensor(int64)
+            Batch of durations of each frame (B, T).
         alpha : float, optional
             Alpha value to control speed of speech.
 

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """U2 ASR Model
-Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recognition 
+Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recognition
 (https://arxiv.org/pdf/2012.05481.pdf)
 """
 import time
@@ -24,7 +24,6 @@ from typing import Tuple
 import paddle
 from paddle import jit
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
@@ -51,57 +50,6 @@ logger = Log(__name__).getlog()
 
 class U2STBaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
-
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # network architecture
-        default = CfgNode()
-        # allow add new item when merge_with_file
-        default.cmvn_file = ""
-        default.cmvn_file_type = "json"
-        default.input_dim = 0
-        default.output_dim = 0
-        # encoder related
-        default.encoder = 'transformer'
-        default.encoder_conf = CfgNode(
-            dict(
-                output_size=256,  # dimension of attention
-                attention_heads=4,
-                linear_units=2048,  # the number of units of position-wise feed forward
-                num_blocks=12,  # the number of encoder blocks
-                dropout_rate=0.1,
-                positional_dropout_rate=0.1,
-                attention_dropout_rate=0.0,
-                input_layer='conv2d',  # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-                normalize_before=True,
-                # use_cnn_module=True,
-                # cnn_module_kernel=15,
-                # activation_type='swish',
-                # pos_enc_layer_type='rel_pos',
-                # selfattention_layer_type='rel_selfattn', 
-            ))
-        # decoder related
-        default.decoder = 'transformer'
-        default.decoder_conf = CfgNode(
-            dict(
-                attention_heads=4,
-                linear_units=2048,
-                num_blocks=6,
-                dropout_rate=0.1,
-                positional_dropout_rate=0.1,
-                self_attention_dropout_rate=0.0,
-                src_attention_dropout_rate=0.0, ))
-        # hybrid CTC/attention
-        default.model_conf = CfgNode(
-            dict(
-                asr_weight=0.0,
-                ctc_weight=0.0,
-                lsm_weight=0.1,  # label smoothing option
-                length_normalized_loss=False, ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
 
     def __init__(self,
                  vocab_size: int,
@@ -289,8 +237,8 @@ class U2STBaseModel(nn.Layer):
             simulate_streaming (bool, optional): streaming or not. Defaults to False.
 
         Returns:
-            Tuple[paddle.Tensor, paddle.Tensor]: 
-                encoder hiddens (B, Tmax, D), 
+            Tuple[paddle.Tensor, paddle.Tensor]:
+                encoder hiddens (B, Tmax, D),
                 encoder hiddens mask (B, 1, Tmax).
         """
         # Let's assume B = batch_size
@@ -530,24 +478,24 @@ class U2STBaseModel(nn.Layer):
         """u2 decoding.
 
         Args:
-            feats (Tenosr): audio features, (B, T, D)
-            feats_lengths (Tenosr): (B)
+            feats (Tensor): audio features, (B, T, D)
+            feats_lengths (Tensor): (B)
             text_feature (TextFeaturizer): text feature object.
-            decoding_method (str): decoding mode, e.g. 
-                    'fullsentence', 
+            decoding_method (str): decoding mode, e.g.
+                    'fullsentence',
                     'simultaneous'
             beam_size (int): beam size for search
             decoding_chunk_size (int, optional): decoding chunk size. Defaults to -1.
                     <0: for decoding, use full chunk.
                     >0: for decoding, use fixed chunk size as set.
-                    0: used for training, it's prohibited here. 
-            num_decoding_left_chunks (int, optional): 
+                    0: used for training, it's prohibited here.
+            num_decoding_left_chunks (int, optional):
                     number of left chunks for decoding. Defaults to -1.
             simulate_streaming (bool, optional): simulate streaming inference. Defaults to False.
 
         Raises:
             ValueError: when not support decoding_method.
-        
+
         Returns:
             List[List[int]]: transcripts.
         """
@@ -601,7 +549,7 @@ class U2STModel(U2STBaseModel):
             ValueError: raise when using not support encoder type.
 
         Returns:
-            int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc 
+            int, nn.Layer, nn.Layer, nn.Layer: vocab size, encoder, decoder, ctc
         """
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],

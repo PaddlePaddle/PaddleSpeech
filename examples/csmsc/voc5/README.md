@@ -6,7 +6,7 @@ Download CSMSC from the [official website](https://www.data-baker.com/data/index
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -57,7 +57,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
+                [--ngpu NGPU]
 
 Train a HiFiGAN model.
 
@@ -71,7 +71,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
@@ -88,7 +87,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
                      [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
                      [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
 
 Synthesize with GANVocoder.
 
@@ -105,7 +103,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` config file. You should use the same config with which the model is trained.
@@ -114,4 +111,23 @@ optional arguments:
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-## Fine-tuning
+## Pretrained Models
+The pretrained model can be downloaded here [hifigan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip).
+
+The static model can be downloaded here [hifigan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_0.1.1.zip).
+
+Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1(gpu) x 2500000|24.927|0.1262|7.554
+
+HiFiGAN checkpoint contains files listed below.
+
+```text
+hifigan_csmsc_ckpt_0.1.1
+├── default.yaml                  # default config used to train hifigan
+├── feats_stats.npy                  # statistics used to normalize spectrogram when training hifigan
+└── snapshot_iter_2500000.pdz     # generator parameters of hifigan
+```
+
+## Acknowledgement
+We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

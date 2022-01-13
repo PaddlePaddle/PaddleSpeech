@@ -31,6 +31,7 @@ from paddlespeech.t2s.data.get_feats import LogMelFBank
 from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import get_phones_tones
+from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 
 
@@ -101,6 +102,7 @@ def process_sentence(config: Dict[str, Any],
             "utt_id": utt_id,
             "phones": phones,
             "tones": tones,
+            "speaker": speaker,
             "num_phones": len(phones),
             "num_frames": num_frames,
             "durations": durations,
@@ -229,6 +231,8 @@ def main():
     tone_id_map_path = dumpdir / "tone_id_map.txt"
     get_phones_tones(sentences, phone_id_map_path, tone_id_map_path,
                      args.dataset)
+    speaker_id_map_path = dumpdir / "speaker_id_map.txt"
+    get_spk_id_map(speaker_set, speaker_id_map_path)
 
     if args.dataset == "baker":
         wav_files = sorted(list((rootdir / "Wave").rglob("*.wav")))

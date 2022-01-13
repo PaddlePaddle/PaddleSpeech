@@ -96,7 +96,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${MAIN_ROOT}/utils/build_vocab.py \
     --unit_type="char" \
     --count_threshold=0 \
-    --vocab_path="data/vocab.txt" \
+    --vocab_path="data/lang_char/vocab.txt" \
     --manifest_paths "data/manifest.train.raw"
 
     if [ $? -ne 0 ]; then

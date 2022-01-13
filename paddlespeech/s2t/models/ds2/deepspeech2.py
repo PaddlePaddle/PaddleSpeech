@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Deepspeech2 ASR Model"""
-from typing import Optional
-
 import paddle
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.models.ds2.conv import ConvStack
 from paddlespeech.s2t.models.ds2.rnn import RNNStack
@@ -120,20 +117,6 @@ class DeepSpeech2Model(nn.Layer):
     :rtype: tuple of LayerOutput
     """
 
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        default = CfgNode(
-            dict(
-                num_conv_layers=2,  #Number of stacking convolution layers.
-                num_rnn_layers=3,  #Number of stacking RNN layers.
-                rnn_layer_size=1024,  #RNN layer size (number of RNN cells).
-                use_gru=True,  #Use gru if set True. Use simple rnn if set False.
-                share_rnn_weights=True,  #Whether to share input-hidden weights between forward and backward directional RNNs.Notice that for GRU, weight sharing is not supported.
-                ctc_grad_norm_type=None, ))
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
-
     def __init__(self,
                  feat_size,
                  dict_size,
@@ -168,13 +151,13 @@ class DeepSpeech2Model(nn.Layer):
         """Compute Model loss
 
         Args:
-            audio (Tenosr): [B, T, D]
+            audio (Tensors): [B, T, D]
             audio_len (Tensor): [B]
             text (Tensor): [B, U]
             text_len (Tensor): [B]
 
         Returns:
-            loss (Tenosr): [1]
+            loss (Tensor): [1]
         """
         eouts, eouts_len = self.encoder(audio, audio_len)
         loss = self.decoder(eouts, eouts_len, text, text_len)
@@ -221,12 +204,12 @@ class DeepSpeech2Model(nn.Layer):
         model = cls(
             feat_size=dataloader.collate_fn.feature_size,
             dict_size=dataloader.collate_fn.vocab_size,
-            num_conv_layers=config.model.num_conv_layers,
-            num_rnn_layers=config.model.num_rnn_layers,
-            rnn_size=config.model.rnn_layer_size,
-            use_gru=config.model.use_gru,
-            share_rnn_weights=config.model.share_rnn_weights,
-            blank_id=config.model.blank_id,
+            num_conv_layers=config.num_conv_layers,
+            num_rnn_layers=config.num_rnn_layers,
+            rnn_size=config.rnn_layer_size,
+            use_gru=config.use_gru,
+            share_rnn_weights=config.share_rnn_weights,
+            blank_id=config.blank_id,
             ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
         infos = Checkpoint().load_parameters(
             model, checkpoint_path=checkpoint_path)
@@ -240,7 +223,7 @@ class DeepSpeech2Model(nn.Layer):
         Parameters
 
         config: yacs.config.CfgNode
-            config.model
+            config
         Returns
         -------
         DeepSpeech2Model

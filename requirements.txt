@@ -15,6 +15,7 @@ matplotlib
 nara_wpe
 nltk
 paddleaudio
+paddlenlp
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas
@@ -42,5 +43,6 @@ typeguard
 unidecode
 visualdl
 webrtcvad
-yacs
+yacs~=0.1.8
 yq
+zhon

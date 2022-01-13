@@ -70,12 +70,9 @@ lambda_adv: 4.0  # Loss balancing coefficient.
 ###########################################################
 #                  DATA LOADER SETTING                    #
 ###########################################################
-batch_size: 8              # Batch size.
+batch_size: 6              # Batch size.
 batch_max_steps: 24000     # Length of each audio in batch. Make sure dividable by n_shift.
-pin_memory: true           # Whether to pin memory in Pytorch DataLoader.
-num_workers: 4             # Number of workers in Pytorch DataLoader.
-remove_short_samples: true # Whether to remove samples the length of which are less than batch_max_steps.
-allow_cache: true          # Whether to allow cache in dataset. If true, it requires cpu memory.
+num_workers: 2             # Number of workers in DataLoader.
 
 ###########################################################
 #             OPTIMIZER & SCHEDULER SETTING               #
@@ -103,7 +100,7 @@ discriminator_grad_norm: 1 # Discriminator's gradient norm.
 #                    INTERVAL SETTING                     #
 ###########################################################
 discriminator_train_start_steps: 100000 # Number of steps to start to train discriminator.
-train_max_steps: 1000000                # Number of training steps.
+train_max_steps: 1500000                # Number of training steps.
 save_interval_steps: 5000               # Interval steps to save checkpoint.
 eval_interval_steps: 1000               # Interval steps to evaluate the network.
 

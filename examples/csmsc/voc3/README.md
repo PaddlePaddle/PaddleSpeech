@@ -6,7 +6,7 @@ Download CSMSC from the [official website](https://www.data-baker.com/data/index
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/Parakeet/tree/develop/examples/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -57,7 +57,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
+                [--ngpu NGPU]
 
 Train a Multi-Band MelGAN model.
 
@@ -71,7 +71,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
@@ -88,7 +87,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
                      [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
                      [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
 
 Synthesize with GANVocoder.
 
@@ -105,7 +103,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` multi band melgan config file. You should use the same config with which the model is trained.
@@ -155,22 +152,22 @@ TODO:
 The hyperparameter of `finetune.yaml` is not good enough, a smaller `learning_rate` should be used (more `milestones` should be set).
 
 ## Pretrained Models
-The pretrained model can be downloaded here [mb_melgan_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_ckpt_0.5.zip).
+The pretrained model can be downloaded here [mb_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_ckpt_0.1.1.zip).
 
 The finetuned model can be downloaded here [mb_melgan_baker_finetune_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_finetune_ckpt_0.5.zip).
 
-The static model can be downloaded here [mb_melgan_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_baker_static_0.5.zip)
+The static model can be downloaded here [mb_melgan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_0.1.1.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss|eval/spectral_convergence_loss |eval/sub_log_stft_magnitude_loss|eval/sub_spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:| :--------:| :--------:
-default| 1(gpu) x 1000000| ——|—— |—— |—— | ——|
+default| 1(gpu) x 1000000| 2.4851|0.71778 |0.2761 |0.66334 |0.2777|
 finetune| 1(gpu) x 1000000|3.196967|0.977804| 0.778484| 0.889576 |0.776756 |
 
 
 Multi Band MelGAN checkpoint contains files listed below.
 
 ```text
-mb_melgan_baker_ckpt_0.5
+mb_melgan_csmsc_ckpt_0.1.1
 ├── default.yaml                  # default config used to train multi band melgan
 ├── feats_stats.npy               # statistics used to normalize spectrogram when training multi band melgan
 └── snapshot_iter_1000000.pdz     # generator parameters of multi band melgan

@@ -44,77 +44,75 @@ class U2Trainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         config.defrost()
-        config.collator.keep_transcription_text = False
+        config.keep_transcription_text = False
 
         # train/valid dataset, return token ids
-        config.data.manifest = config.data.train_manifest
+        config.manifest = config.train_manifest
         train_dataset = ManifestDataset.from_config(config)
 
-        config.data.manifest = config.data.dev_manifest
+        config.manifest = config.dev_manifest
         dev_dataset = ManifestDataset.from_config(config)
 
         collate_fn_train = SpeechCollator.from_config(config)
 
-        config.collator.augmentation_config = ""
         collate_fn_dev = SpeechCollator.from_config(config)
 
         if self.parallel:
             batch_sampler = SortagradDistributedBatchSampler(
                 train_dataset,
-                batch_size=config.collator.batch_size,
+                batch_size=config.batch_size,
                 num_replicas=None,
                 rank=None,
                 shuffle=True,
                 drop_last=True,
-                sortagrad=config.collator.sortagrad,
-                shuffle_method=config.collator.shuffle_method)
+                sortagrad=config.sortagrad,
+                shuffle_method=config.shuffle_method)
         else:
             batch_sampler = SortagradBatchSampler(
                 train_dataset,
                 shuffle=True,
-                batch_size=config.collator.batch_size,
+                batch_size=config.batch_size,
                 drop_last=True,
-                sortagrad=config.collator.sortagrad,
-                shuffle_method=config.collator.shuffle_method)
+                sortagrad=config.sortagrad,
+                shuffle_method=config.shuffle_method)
         self.train_loader = DataLoader(
             train_dataset,
             batch_sampler=batch_sampler,
             collate_fn=collate_fn_train,
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
         self.valid_loader = DataLoader(
             dev_dataset,
-            batch_size=config.collator.batch_size,
+            batch_size=config.batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn_dev,
-            num_workers=config.collator.num_workers, )
+            num_workers=config.num_workers, )
 
         # test dataset, return raw text
-        config.data.manifest = config.data.test_manifest
+        config.manifest = config.test_manifest
         # filter test examples, will cause less examples, but no mismatch with training
         # and can use large batch size , save training time, so filter test egs now.
-        config.data.min_input_len = 0.0  # second
-        config.data.max_input_len = float('inf')  # second
-        config.data.min_output_len = 0.0  # tokens
-        config.data.max_output_len = float('inf')  # tokens
-        config.data.min_output_input_ratio = 0.00
-        config.data.max_output_input_ratio = float('inf')
+        config.min_input_len = 0.0  # second
+        config.max_input_len = float('inf')  # second
+        config.min_output_len = 0.0  # tokens
+        config.max_output_len = float('inf')  # tokens
+        config.min_output_input_ratio = 0.00
+        config.max_output_input_ratio = float('inf')
 
         test_dataset = ManifestDataset.from_config(config)
         # return text ord id
-        config.collator.keep_transcription_text = True
-        config.collator.augmentation_config = ""
+        config.keep_transcription_text = True
         self.test_loader = DataLoader(
             test_dataset,
-            batch_size=config.decoding.batch_size,
+            batch_size=config.decode.batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=SpeechCollator.from_config(config))
         # return text token id
-        config.collator.keep_transcription_text = False
+        config.keep_transcription_text = False
         self.align_loader = DataLoader(
             test_dataset,
-            batch_size=config.decoding.batch_size,
+            batch_size=config.decode.batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=SpeechCollator.from_config(config))
@@ -122,7 +120,7 @@ class U2Trainer(Trainer):
 
     def setup_model(self):
         config = self.config
-        model_conf = config.model
+        model_conf = config
         with UpdateConfig(model_conf):
             model_conf.input_dim = self.train_loader.collate_fn.feature_size
             model_conf.output_dim = self.train_loader.collate_fn.vocab_size
@@ -136,7 +134,7 @@ class U2Trainer(Trainer):
         logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
 
-        train_config = config.training
+        train_config = config
         optim_type = train_config.optim
         optim_conf = train_config.optim_conf
         scheduler_type = train_config.scheduler
@@ -156,7 +154,7 @@ class U2Trainer(Trainer):
                 config,
                 parameters,
                 lr_scheduler=None, ):
-            train_config = config.training
+            train_config = config
             optim_type = train_config.optim
             optim_conf = train_config.optim_conf
             scheduler_type = train_config.scheduler
@@ -182,7 +180,7 @@ class U2Trainer(Trainer):
 
     def setup_updater(self):
         output_dir = self.output_dir
-        config = self.config.training
+        config = self.config
 
         updater = U2Updater(
             model=self.model,

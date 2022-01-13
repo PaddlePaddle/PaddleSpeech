@@ -188,7 +188,8 @@ class StyleMelGANGenerator(nn.Layer):
             try:
                 if layer:
                     nn.utils.remove_weight_norm(layer)
-            except ValueError:
+            # add AttributeError to bypass https://github.com/PaddlePaddle/Paddle/issues/38532 temporarily
+            except (ValueError, AttributeError):
                 pass
 
         self.apply(_remove_weight_norm)

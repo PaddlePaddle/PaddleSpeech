@@ -65,8 +65,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE] [--phones-dict PHONES_DICT]
-                [--speaker-dict SPEAKER_DICT]
+                [--ngpu NGPU] [--phones-dict PHONES_DICT]
+                [--speaker-dict SPEAKER_DICT] [--voice-cloning VOICE_CLONING]
 
 Train a FastSpeech2 model.
 
@@ -80,11 +80,12 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu=0, use cpu.
-  --verbose VERBOSE     verbose.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
   --speaker-dict SPEAKER_DICT
                         speaker id map file for multiple speaker model.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
 ```
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
 2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
@@ -94,16 +95,16 @@ optional arguments:
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc1) as the neural vocoder.
 
-Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.5.zip)and unzip it.
+Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip) and unzip it.
 ```bash
-unzip pwg_vctk_ckpt_0.5.zip
+unzip pwg_vctk_ckpt_0.1.1.zip
 ```
 Parallel WaveGAN checkpoint contains files listed below.
 ```text
-pwg_vctk_ckpt_0.5
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_1000000.pdz  # generator parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+pwg_vctk_ckpt_0.1.1
+├── default.yaml                   # default config used to train parallel wavegan
+├── snapshot_iter_1500000.pdz      # generator parameters of parallel wavegan
+└── feats_stats.npy                # statistics used to normalize spectrogram when training parallel wavegan
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
@@ -245,7 +246,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --lang=en \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output_dir=exp/default/test_e2e \
-  --phones_dict=dump/phone_id_map.txt \
-  --speaker_dict=dump/speaker_id_map.txt \
+  --phones_dict=fastspeech2_nosil_vctk_ckpt_0.5/phone_id_map.txt \
+  --speaker_dict=fastspeech2_nosil_vctk_ckpt_0.5/speaker_id_map.txt \
   --spk_id=0
 ```

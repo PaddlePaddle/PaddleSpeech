@@ -57,8 +57,8 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE] [--batch-size BATCH_SIZE]
-                [--max-iter MAX_ITER] [--run-benchmark RUN_BENCHMARK]
+                [--ngpu NGPU] [--batch-size BATCH_SIZE] [--max-iter MAX_ITER]
+                [--run-benchmark RUN_BENCHMARK]
                 [--profiler_options PROFILER_OPTIONS]
 
 Train a ParallelWaveGAN model.
@@ -73,7 +73,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 
 benchmark:
   arguments related to benchmark.
@@ -103,7 +102,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 usage: synthesize.py [-h] [--generator-type GENERATOR_TYPE] [--config CONFIG]
                      [--checkpoint CHECKPOINT] [--test-metadata TEST_METADATA]
                      [--output-dir OUTPUT_DIR] [--ngpu NGPU]
-                     [--verbose VERBOSE]
 
 Synthesize with GANVocoder.
 
@@ -120,7 +118,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
 ```
 
 1. `--config` parallel wavegan config file. You should use the same config with which the model is trained.

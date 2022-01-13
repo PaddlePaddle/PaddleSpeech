@@ -223,8 +223,7 @@ def train_sp(args, config):
 def main():
     # parse args and config and redirect to train_sp
 
-    parser = argparse.ArgumentParser(
-        description="Train a Multi-Band MelGAN model.")
+    parser = argparse.ArgumentParser(description="Train a Style MelGAN model.")
     parser.add_argument(
         "--config", type=str, help="config file to overwrite default config.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
@@ -232,7 +231,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()
 

@@ -60,8 +60,7 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--verbose VERBOSE]
-                [--use-relative-path USE_RELATIVE_PATH]
+                [--ngpu NGPU] [--use-relative-path USE_RELATIVE_PATH]
                 [--phones-dict PHONES_DICT] [--tones-dict TONES_DICT]
 
 Train a Speedyspeech model with a single speaker dataset.
@@ -76,7 +75,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --verbose VERBOSE     verbose.
   --use-relative-path USE_RELATIVE_PATH
                         whether use relative path in metadata
   --phones-dict PHONES_DICT
@@ -109,7 +107,7 @@ pwg_baker_ckpt_0.4
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-``text
+```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
                      [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]

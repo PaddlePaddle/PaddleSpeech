@@ -26,7 +26,6 @@ from typing import Tuple
 import paddle
 from paddle import jit
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.s2t.decoders.scorers.ctc import CTCPrefixScorer
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
@@ -59,56 +58,6 @@ logger = Log(__name__).getlog()
 
 class U2BaseModel(ASRInterface, nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
-
-    @classmethod
-    def params(cls, config: Optional[CfgNode]=None) -> CfgNode:
-        # network architecture
-        default = CfgNode()
-        # allow add new item when merge_with_file
-        default.cmvn_file = ""
-        default.cmvn_file_type = "json"
-        default.input_dim = 0
-        default.output_dim = 0
-        # encoder related
-        default.encoder = 'transformer'
-        default.encoder_conf = CfgNode(
-            dict(
-                output_size=256,  # dimension of attention
-                attention_heads=4,
-                linear_units=2048,  # the number of units of position-wise feed forward
-                num_blocks=12,  # the number of encoder blocks
-                dropout_rate=0.1,
-                positional_dropout_rate=0.1,
-                attention_dropout_rate=0.0,
-                input_layer='conv2d',  # encoder input type, you can chose conv2d, conv2d6 and conv2d8
-                normalize_before=True,
-                # use_cnn_module=True,
-                # cnn_module_kernel=15,
-                # activation_type='swish',
-                # pos_enc_layer_type='rel_pos',
-                # selfattention_layer_type='rel_selfattn',
-            ))
-        # decoder related
-        default.decoder = 'transformer'
-        default.decoder_conf = CfgNode(
-            dict(
-                attention_heads=4,
-                linear_units=2048,
-                num_blocks=6,
-                dropout_rate=0.1,
-                positional_dropout_rate=0.1,
-                self_attention_dropout_rate=0.0,
-                src_attention_dropout_rate=0.0, ))
-        # hybrid CTC/attention
-        default.model_conf = CfgNode(
-            dict(
-                ctc_weight=0.3,
-                lsm_weight=0.1,  # label smoothing option
-                length_normalized_loss=False, ))
-
-        if config is not None:
-            config.merge_from_other_cfg(default)
-        return default
 
     def __init__(self,
                  vocab_size: int,
@@ -584,8 +533,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
             hyp_content = hyp[0]
             # Prevent the hyp is empty
             if len(hyp_content) == 0:
-                hyp_content = (self.ctc.blank_id,)
-            hyp_content = paddle.to_tensor(hyp_content, place=device, dtype=paddle.long)
+                hyp_content = (self.ctc.blank_id, )
+            hyp_content = paddle.to_tensor(
+                hyp_content, place=device, dtype=paddle.long)
             hyp_list.append(hyp_content)
         hyps_pad = pad_sequence(hyp_list, True, self.ignore_id)
         hyps_lens = paddle.to_tensor(
@@ -730,8 +680,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
         """u2 decoding.
 
         Args:
-            feats (Tenosr): audio features, (B, T, D)
-            feats_lengths (Tenosr): (B)
+            feats (Tensor): audio features, (B, T, D)
+            feats_lengths (Tensor): (B)
             text_feature (TextFeaturizer): text feature object.
             decoding_method (str): decoding mode, e.g.
                     'attention', 'ctc_greedy_search',

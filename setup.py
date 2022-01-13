@@ -41,9 +41,9 @@ requirements = {
         "loguru",
         "matplotlib",
         "nara_wpe",
-        "nltk",
         "pandas",
         "paddleaudio",
+        "paddlenlp",
         "paddlespeech_feat",
         "praatio==5.0.0",
         "pypinyin",
@@ -60,7 +60,7 @@ requirements = {
         "typeguard",
         "visualdl",
         "webrtcvad",
-        "yacs",
+        "yacs~=0.1.8",
     ],
     "develop": [
         "ConfigArgParse",
@@ -77,6 +77,7 @@ requirements = {
         "unidecode",
         "yq",
         "pre-commit",
+        "zhon",
     ]
 }
 
@@ -126,7 +127,7 @@ def _post_install(install_lib_dir):
     print("tools install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE / 'paddlespeech/s2t/decoders/ctcdecoder/swig'
+    ctcdecoder_dir = HERE / 'third_party/ctc_decoders'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
@@ -171,7 +172,7 @@ class UploadCommand(Command):
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='0.1.0',
+    version='0.1.1',
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 4 ];then
-    echo "usage: ${0} config_path ckpt_path_prefix model_type audio_file"
+if [ $# != 5 ];then
+    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix model_type audio_file"
     exit -1
 fi
 
@@ -9,9 +9,10 @@ ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
 config_path=$1
-ckpt_prefix=$2
-model_type=$3
-audio_file=$4
+decode_config_path=$2
+ckpt_prefix=$3
+model_type=$4
+audio_file=$5
 
 mkdir -p data
 wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
@@ -33,6 +34,7 @@ fi
 python3 -u ${BIN_DIR}/test_wav.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
+--decode_cfg ${decode_config_path} \
 --result_file ${ckpt_prefix}.rsl \
 --checkpoint_path ${ckpt_prefix} \
 --model_type ${model_type} \

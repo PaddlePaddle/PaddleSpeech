@@ -9,9 +9,9 @@ This demo is an implementation to tag an audio file with 527 [AudioSet](https://
 
 ## Usage
 ### 1. Installation
-```bash
-pip install paddlespeech
-```
+see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
 
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`).

@@ -18,8 +18,8 @@ from pathlib import Path
 
 import paddle
 import soundfile
+from yacs.config import CfgNode
 
-from paddlespeech.s2t.exps.deepspeech2.config import get_cfg_defaults
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model
@@ -41,7 +41,7 @@ class DeepSpeech2Tester_hub():
         self.audio_file = args.audio_file
         self.collate_fn_test = SpeechCollator.from_config(config)
         self._text_featurizer = TextFeaturizer(
-            unit_type=config.collator.unit_type, vocab=None)
+            unit_type=config.unit_type, vocab=None)
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
         result_transcripts = self.model.decode(
@@ -74,7 +74,7 @@ class DeepSpeech2Tester_hub():
         audio = paddle.unsqueeze(audio, axis=0)
         vocab_list = collate_fn_test.vocab_list
         result_transcripts = self.compute_result_transcripts(
-            audio, audio_len, vocab_list, cfg.decoding)
+            audio, audio_len, vocab_list, cfg.decode)
         logger.info("result_transcripts: " + result_transcripts[0])
 
     def run_test(self):
@@ -110,13 +110,13 @@ class DeepSpeech2Tester_hub():
     def setup_model(self):
         config = self.config.clone()
         with UpdateConfig(config):
-            config.model.input_dim = self.collate_fn_test.feature_size
-            config.model.output_dim = self.collate_fn_test.vocab_size
+            config.input_dim = self.collate_fn_test.feature_size
+            config.output_dim = self.collate_fn_test.vocab_size
 
         if self.args.model_type == 'offline':
-            model = DeepSpeech2Model.from_config(config.model)
+            model = DeepSpeech2Model.from_config(config)
         elif self.args.model_type == 'online':
-            model = DeepSpeech2ModelOnline.from_config(config.model)
+            model = DeepSpeech2ModelOnline.from_config(config)
         else:
             raise Exception("wrong model type")
 
@@ -134,8 +134,8 @@ class DeepSpeech2Tester_hub():
         self.checkpoint_dir = checkpoint_dir
 
         self.checkpoint = Checkpoint(
-            kbest_n=self.config.training.checkpoint.kbest_n,
-            latest_n=self.config.training.checkpoint.latest_n)
+            kbest_n=self.config.checkpoint.kbest_n,
+            latest_n=self.config.checkpoint.latest_n)
 
     def resume(self):
         """Resume from the checkpoint at checkpoints in the output
@@ -187,9 +187,13 @@ if __name__ == "__main__":
     print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
-    config = get_cfg_defaults(args.model_type)
+    config = CfgNode(new_allowed=True)
     if args.config:
         config.merge_from_file(args.config)
+    if args.decode_cfg:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_cfg)
+        config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

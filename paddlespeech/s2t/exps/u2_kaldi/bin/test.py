@@ -69,6 +69,10 @@ if __name__ == "__main__":
     config = CfgNode()
     config.set_new_allowed(True)
     config.merge_from_file(args.config)
+    if args.decode_cfg:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_cfg)
+        config.decode = decode_confs
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()

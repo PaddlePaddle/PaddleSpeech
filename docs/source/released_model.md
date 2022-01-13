@@ -24,7 +24,7 @@ Language Model | Training Data | Token-based | Size | Descriptions
 
 | Model | Training Data | Token-based | Size | Descriptions | BLEU | Example Link |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| [Transformer FAT-ST MTL En-Zh](https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/st1_transformer_mtl_noam_ted-en-zh_ckpt_0.1.1.model.tar.gz) | Ted-En-Zh| Spm| | Encoder:Transformer, Decoder:Transformer, <br />Decoding method: Attention | 20.80 | [Transformer Ted-En-Zh ST1](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/ted_en_zh/st1) |
+| (only for CLI)[Transformer FAT-ST MTL En-Zh](https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/st1_transformer_mtl_noam_ted-en-zh_ckpt_0.1.1.model.tar.gz) | Ted-En-Zh| Spm| | Encoder:Transformer, Decoder:Transformer, <br />Decoding method: Attention | 20.80 | [Transformer Ted-En-Zh ST1](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/ted_en_zh/st1) |
 
 ## Text-to-Speech Models
 

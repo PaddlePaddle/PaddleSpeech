@@ -30,7 +30,9 @@ def expand(encodings: paddle.Tensor, durations: paddle.Tensor) -> paddle.Tensor:
         k = 0
         for j in range(t_enc):
             d = durations[i, j]
-            M[i, k:k + d, j] = 1
+            # If the d == 0, slice action is meaningless and not supported
+            if d >= 1:
+                M[0, k:k + d, j] = 1
             k += d
     encodings = paddle.matmul(M, encodings)
     return encodings

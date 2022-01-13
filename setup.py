@@ -41,7 +41,6 @@ requirements = {
         "loguru",
         "matplotlib",
         "nara_wpe",
-        "nltk",
         "pandas",
         "paddleaudio",
         "paddlenlp",

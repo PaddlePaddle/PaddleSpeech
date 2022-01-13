@@ -13,27 +13,27 @@
 
 ## conda 代替系统依赖
 
-conda可以用来代替一些 apt-get 安装的系统依赖，这样可以让项目适用于除了 ubuntu 以外的系统。
+conda 可以用来代替一些 apt-get 安装的系统依赖，这样可以让项目适用于除了 ubuntu 以外的系统。
 
-使用 conda 可以安装 sox, libsndfile，swig等 paddlespeech 需要的依赖：
+使用 conda 可以安装 sox, libsndfile，swig 等 paddlespeech 需要的依赖：
 
 ```bash
 conda install -y -c conda-forge sox libsndfile
 ```
 
-部分系统会缺少libbzip2库，这个 paddlespeech 也是需要的，这也可以用 conda 安装：
+部分系统会缺少 libbzip2 库，这个 paddlespeech 也是需要的，这也可以用 conda 安装：
 
 ```bash
 conda install -y -c bzip2
 ```
 
-conda也可以安装linux的C++的依赖：
+conda 也可以安装 linux 的 C++ 的依赖：
 
 ```bash
 conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 
-#### 剩余问题：使用conda环境编译kenlm失败。目前在conda环境下编译kenlm会出现链接失败的问题
+#### 剩余问题：使用 conda 环境编译 kenlm 失败。目前在 conda 环境下编译 kenlm 会出现链接失败的问题
 
 目前知道需要的依赖：
 
@@ -41,11 +41,9 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 conda install -c conda-forge eigen boost cmake
 ```
 
-
-
 ## 区分install模式和develop模式
 
-可以在setup.py 中划分 install 的依赖（基本依赖）和 develop 的依赖 （开发者额外依赖）。 setup_info 中 `install_requires` 设置 install 的依赖，而在 `extras_require` 中设置 `develop` key为 develop的依赖。
+可以在 setup.py 中划分 install 的依赖（基本依赖）和 develop 的依赖 （开发者额外依赖）。 setup_info 中 `install_requires` 设置 install 的依赖，而在 `extras_require` 中设置 `develop` key 为 develop 的依赖。
 普通安装可以使用：
 
 ```bash
@@ -58,17 +56,15 @@ pip install .
 pip install paddlespeech
 ```
 
-而开发者可以使用如下方式安装，这样不仅会安装install的依赖，也会安装develop的依赖， 即：最后安装的依赖=install依赖 + develop依赖：
+而开发者可以使用如下方式安装，这样不仅会安装 install 的依赖，也会安装 develop 的依赖， 即：最后安装的依赖 = install 依赖 + develop 依赖：
 
 ```bash
 pip install -e .[develop]
 ```
 
-
-
 ## python 包的动态安装
 
-可以使用 pip包来实现动态安装：
+可以使用 pip 包来实现动态安装：
 
 ```python
 import pip
@@ -78,8 +74,6 @@ if int(pip.__version__.split('.')[0]) > 9:
         from pip import main
     main(['install', package_name])
 ```
-
-
 
 ## python 编包方法
 
@@ -95,7 +89,7 @@ pip install twine
 
 #### python 编包
 
-编写好python包的setup.py, 然后使用如下命令编wheel包：
+编写好 python 包的 setup.py, 然后使用如下命令编 wheel 包：
 
 ```bash
 python setup.py bdist_wheel
@@ -113,20 +107,17 @@ python setup.py sdist
 twine upload dist/wheel包
 ```
 
-输入账号和密码后就可以上传wheel包了
+输入账号和密码后就可以上传 wheel 包了
 
 #### 关于python 包的发包信息
 
 主要可以参考这个[文档](https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/?highlight=find_packages)
 
 
-
-
-
 ## 关于发包前的准备工作
 
 #### 拉分支
-在发包之前需要拉分支。例如需要发0.1.0版本的正式包，则需要拉一个 r0.1 的分支。并且在这个 r0.1 分支的包上面打 0.1.0 的tag。在拉分支之前可以选择性的使用 rc 版本发一个正式版前的试用包，例如0.1.0rc0，等到rc包测试通过后，再拉分支（如果是发 0.1.1 包，则 merge r0.1分支），打tag，完成发包。总体步骤可以总结为：
+在发包之前需要拉分支。例如需要发 0.1.0 版本的正式包，则需要拉一个 r0.1 的分支。并且在这个 r0.1 分支的包上面打 0.1.0 的tag。在拉分支之前可以选择性的使用 rc 版本发一个正式版前的试用包，例如0.1.0rc0，等到rc包测试通过后，再拉分支（如果是发 0.1.1 包，则 merge r0.1分支），打tag，完成发包。总体步骤可以总结为：
 
 - 用 develop 分支发 rc 包
 - rc 包通过后拉分支

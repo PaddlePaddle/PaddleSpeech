@@ -285,7 +285,7 @@ class U2STTrainer(Trainer):
                 subsampling_factor=1,
                 load_aux_output=load_transcript,
                 num_encs=1,
-                dist_sampler=True)
+                dist_sampler=False)
             logger.info("Setup train/valid Dataloader!")
         else:
             # test dataset, return raw text
@@ -408,6 +408,7 @@ class U2STTester(U2STTrainer):
             decoding_method=decode_cfg.decoding_method,
             beam_size=decode_cfg.beam_size,
             word_reward=decode_cfg.word_reward,
+            maxlen_ratio=decode_cfg.maxlen_ratio,
             decoding_chunk_size=decode_cfg.decoding_chunk_size,
             num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
             simulate_streaming=decode_cfg.simulate_streaming)
@@ -435,6 +436,7 @@ class U2STTester(U2STTrainer):
             decoding_method=decode_cfg.decoding_method,
             beam_size=decode_cfg.beam_size,
             word_reward=decode_cfg.word_reward,
+            maxlen_ratio=decode_cfg.maxlen_ratio,
             decoding_chunk_size=decode_cfg.decoding_chunk_size,
             num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
             simulate_streaming=decode_cfg.simulate_streaming)

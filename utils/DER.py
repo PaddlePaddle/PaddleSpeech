@@ -4,11 +4,13 @@ False Alarm (FA), and Speaker Error Rate (SER) using md-eval-22.pl from NIST RT 
 Authors
  * Neville Ryant 2018
  * Nauman Dawalatabad 2020
+ * Qingen Zhao 2021
 
 Credits
  This code is adapted from https://github.com/nryant/dscore
 """
-
+import argparse
+from distutils.util import strtobool
 import os
 import re
 import subprocess
@@ -84,7 +86,7 @@ def DER(
     """
 
     curr = os.path.abspath(os.path.dirname(__file__))
-    mdEval = os.path.join(curr, "../../tools/der_eval/md-eval.pl")
+    mdEval = os.path.join(curr, "./md-eval.pl")
 
     cmd = [
         mdEval,
@@ -150,3 +152,28 @@ def DER(
             return miss_speaker, fa_speaker, sers, ders
         else:
             return miss_speaker[-1], fa_speaker[-1], sers[-1], ders[-1]
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Compute Diarization Error Rate')
+    parser.add_argument(
+        '--ref_rttm', required=True, help='the path of reference/groundtruth RTTM file')
+    parser.add_argument(
+        '--sys_rttm', required=True, help='the path of the system generated RTTM file')
+    parser.add_argument(
+        '--individual_file',
+        default=False,
+        type=strtobool,
+        help='if True, returns scores for each file in order')
+    parser.add_argument(
+        '--collar', default=0.25, type=float, help='forgiveness collar')
+    parser.add_argument(
+        '--ignore_overlap',
+        default=False,
+        type=strtobool,
+        help='if True, ignores overlapping speech during evaluation')
+    args = parser.parse_args()
+    print(args)
+
+    der = DER(args.ref_rttm, args.sys_rttm)
+    print("miss_speaker: %.3f%% fa_speaker: %.3f%% sers: %.3f%% ders: %.3f%%" % (der[0], der[1], der[2], der[-1]))

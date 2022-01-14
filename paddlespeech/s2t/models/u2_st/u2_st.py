@@ -308,28 +308,34 @@ class U2STBaseModel(nn.Layer):
         # 2. Decoder forward step by step
         for i in range(1, maxlen + 1):
             ys = paddle.ones((len(hyps), i), dtype=paddle.long)
-         
+
             if hyps[0]["cache"] is not None:
-                cache = [paddle.ones((len(hyps), i-1, hyps[0]["cache"][0].shape[-1]), dtype=paddle.float32) for _ in range(len(hyps[0]["cache"]))]
+                cache = [
+                    paddle.ones(
+                        (len(hyps), i - 1, hyp_cache.shape[-1]),
+                        dtype=paddle.float32)
+                    for hyp_cache in hyps[0]["cache"]
+                ]
             for j, hyp in enumerate(hyps):
                 ys[j, :] = paddle.to_tensor(hyp["yseq"])
                 if hyps[0]["cache"] is not None:
                     for k in range(len(cache)):
                         cache[k][j] = hyps[j]["cache"][k]
             ys_mask = subsequent_mask(i).unsqueeze(0).to(device)
- 
+
             logp, cache = self.st_decoder.forward_one_step(
-                encoder_out.repeat(len(hyps), 1, 1), encoder_mask.repeat(len(hyps), 1, 1), ys, ys_mask, cache)
+                encoder_out.repeat(len(hyps), 1, 1),
+                encoder_mask.repeat(len(hyps), 1, 1), ys, ys_mask, cache)
 
             hyps_best_kept = []
             for j, hyp in enumerate(hyps):
-                top_k_logp, top_k_index = logp[j : j + 1].topk(beam_size)
+                top_k_logp, top_k_index = logp[j:j + 1].topk(beam_size)
 
                 for b in range(beam_size):
                     new_hyp = {}
                     new_hyp["score"] = hyp["score"] + float(top_k_logp[0, b])
                     new_hyp["yseq"] = [0] * (1 + len(hyp["yseq"]))
-                    new_hyp["yseq"][: len(hyp["yseq"])] = hyp["yseq"]
+                    new_hyp["yseq"][:len(hyp["yseq"])] = hyp["yseq"]
                     new_hyp["yseq"][len(hyp["yseq"])] = int(top_k_index[0, b])
                     new_hyp["cache"] = [cache_[j] for cache_ in cache]
                     # will be (2 x beam) hyps at most
@@ -337,13 +343,13 @@ class U2STBaseModel(nn.Layer):
 
                 hyps_best_kept = sorted(
                     hyps_best_kept, key=lambda x: -x["score"])[:beam_size]
-            
+
             # sort and get nbest
             hyps = hyps_best_kept
             if i == maxlen:
                 for hyp in hyps:
                     hyp["yseq"].append(self.eos)
-            
+
             # finalize the ended hypotheses with word reward (by length)
             remained_hyps = []
             for hyp in hyps:
@@ -355,7 +361,7 @@ class U2STBaseModel(nn.Layer):
                     # stop while guarantee the optimality
                     if hyp["score"] + maxlen * word_reward > cur_best_score:
                         remained_hyps.append(hyp)
-            
+
             # stop predition when there is no unended hypothesis
             if not remained_hyps:
                 break
@@ -364,7 +370,7 @@ class U2STBaseModel(nn.Layer):
         # 3. Select best of best
         best_hyp = max(ended_hyps, key=lambda x: x["score"])
 
-        return paddle.to_tensor([best_hyp["yseq"][1:]]) 
+        return paddle.to_tensor([best_hyp["yseq"][1:]])
 
     # @jit.to_static
     def subsampling_rate(self) -> int:

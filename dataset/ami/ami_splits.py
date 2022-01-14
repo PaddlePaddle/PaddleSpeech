@@ -6,8 +6,6 @@ For more information on dataset please refer to http://groups.inf.ed.ac.uk/ami/c
 Authors
  * qingenz123@126.com (Qingen ZHAO) 2022
 
-Credits
-
 """
 
 ALLOWED_OPTIONS = ["scenario_only", "full_corpus", "full_corpus_asr"]
@@ -202,7 +200,7 @@ def get_AMI_split(split_option):
             "IN1016",
         ]
 
-        dev_set0 = [
+        dev_set = [
             "ES2011",
             "IS1008",
             "TS3004",
@@ -214,39 +212,11 @@ def get_AMI_split(split_option):
             "IB4011",
         ]
 
-        test_set0 = [
+        test_set = [
             "ES2004",
             "IS1009",
             "TS3003",
             "EN2002",
         ]
 
-        dev_set1 = [
-            "ES2011a",
-            "IS1008a",
-            "TS3004a",
-            "IB4001",
-            "IB4002",
-            "IB4003",
-            "IB4004",            
-        ]
-        test_set1 = [
-            "ES2004a",
-            "IS1009a",
-            "TS3003a",
-            "EN2001a",
-        ]
-
-        train_set = [
-            "IB4001",
-            "IB4002",
-            "IB4003",
-            "IB4004",
-        ]
-        dev_set = [
-            "IB4002",
-        ]
-        test_set = [
-            "IB4004", 
-        ]
     return train_set, dev_set, test_set

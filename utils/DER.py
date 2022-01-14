@@ -4,7 +4,7 @@ False Alarm (FA), and Speaker Error Rate (SER) using md-eval-22.pl from NIST RT 
 Authors
  * Neville Ryant 2018
  * Nauman Dawalatabad 2020
- * Qingen Zhao 2021
+ * qingenz123@126.com (Qingen ZHAO) 2022
 
 Credits
  This code is adapted from https://github.com/nryant/dscore

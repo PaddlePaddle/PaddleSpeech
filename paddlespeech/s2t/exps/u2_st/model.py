@@ -408,7 +408,7 @@ class U2STTester(U2STTrainer):
             decoding_method=decode_cfg.decoding_method,
             beam_size=decode_cfg.beam_size,
             word_reward=decode_cfg.word_reward,
-            maxlen_ratio=decode_cfg.maxlen_ratio,
+            maxlenratio=decode_cfg.maxlenratio,
             decoding_chunk_size=decode_cfg.decoding_chunk_size,
             num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
             simulate_streaming=decode_cfg.simulate_streaming)
@@ -436,7 +436,7 @@ class U2STTester(U2STTrainer):
             decoding_method=decode_cfg.decoding_method,
             beam_size=decode_cfg.beam_size,
             word_reward=decode_cfg.word_reward,
-            maxlen_ratio=decode_cfg.maxlen_ratio,
+            maxlenratio=decode_cfg.maxlenratio,
             decoding_chunk_size=decode_cfg.decoding_chunk_size,
             num_decoding_left_chunks=decode_cfg.num_decoding_left_chunks,
             simulate_streaming=decode_cfg.simulate_streaming)

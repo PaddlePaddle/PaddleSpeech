@@ -264,7 +264,7 @@ class U2STBaseModel(nn.Layer):
             speech_lengths: paddle.Tensor,
             beam_size: int=10,
             word_reward: float=0.0,
-            maxlen_ratio: float=0.5,
+            maxlenratio: float=0.5,
             decoding_chunk_size: int=-1,
             num_decoding_left_chunks: int=-1,
             simulate_streaming: bool=False, ) -> paddle.Tensor:
@@ -274,7 +274,7 @@ class U2STBaseModel(nn.Layer):
             speech_length (paddle.Tensor): (batch, )
             beam_size (int): beam size for beam search
             word_reward (float): word reward used in beam search
-            maxlen_ratio (float): max length ratio to bound the length of translated text
+            maxlenratio (float): max length ratio to bound the length of translated text
             decoding_chunk_size (int): decoding chunk for dynamic chunk
                 trained model.
                 <0: for decoding, use full chunk.
@@ -297,7 +297,7 @@ class U2STBaseModel(nn.Layer):
             num_decoding_left_chunks,
             simulate_streaming)  # (B, maxlen, encoder_dim)
 
-        maxlen = max(int(encoder_out.shape[1] * maxlen_ratio), 5)
+        maxlen = max(int(encoder_out.shape[1] * maxlenratio), 5)
 
         hyp = {"score": 0.0, "yseq": [self.sos], "cache": None}
         hyps = [hyp]
@@ -475,7 +475,7 @@ class U2STBaseModel(nn.Layer):
                decoding_method: str,
                beam_size: int,
                word_reward: float=0.0,
-               maxlen_ratio: float=0.5,
+               maxlenratio: float=0.5,
                decoding_chunk_size: int=-1,
                num_decoding_left_chunks: int=-1,
                simulate_streaming: bool=False):
@@ -511,7 +511,7 @@ class U2STBaseModel(nn.Layer):
                 feats_lengths,
                 beam_size=beam_size,
                 word_reward=word_reward,
-                maxlen_ratio=maxlen_ratio,
+                maxlenratio=maxlenratio,
                 decoding_chunk_size=decoding_chunk_size,
                 num_decoding_left_chunks=num_decoding_left_chunks,
                 simulate_streaming=simulate_streaming)

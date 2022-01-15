@@ -4,7 +4,7 @@ error_rate_type: char-bleu
 decoding_method: fullsentence  # 'fullsentence', 'simultaneous'
 beam_size: 10
 word_reward: 0.7
-maxlen_ratio: 0.3
+maxlenratio: 0.3
 decoding_chunk_size: -1 # decoding chunk size. Defaults to -1.
     # <0: for decoding, use full chunk.
     # >0: for decoding, use fixed chunk size as set.

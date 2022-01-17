@@ -26,23 +26,27 @@ from scipy import signal
 from .utility import convert_samples_from_float32
 from .utility import convert_samples_to_float32
 from .utility import subfile_from_tar
-
+from paddlespeech.s2t.utils.log import Log
+logger = Log(__name__).getlog()
 
 class AudioSegment():
-    """Monaural audio segment abstraction.
-
+    """Monaural audio segment abstraction.  单声道音频数据
+      
     :param samples: Audio samples [num_samples x num_channels].
-    :type samples: ndarray.float32
-    :param sample_rate: Audio sample rate.
+    :type samples: ndarray.float32  样本数据，默认的类型为numpy.ndarray.float32
+    :param sample_rate: Audio sample rate.  # 采样率
     :type sample_rate: int
     :raises TypeError: If the sample data type is not float or int.
     """
 
-    def __init__(self, samples, sample_rate):
+    def __init__(self, 
+                 samples, 
+                 sample_rate):
         """Create audio segment from samples.
 
         Samples are convert float32 internally, with int scaled to [-1, 1].
         """
+        # 将int16的数据，转换为float32格式，范围是[-1, 1]
         self._samples = self._convert_samples_to_float32(samples)
         self._sample_rate = sample_rate
         if self._samples.ndim >= 2:
@@ -496,6 +500,7 @@ class AudioSegment():
         :type shift_ms: float
         :raises ValueError: If shift_ms is longer than audio duration.
         """
+        # logger.info("duration: {}".format(self.duration))
         if abs(shift_ms) / 1000.0 > self.duration:
             raise ValueError("Absolute value of shift_ms should be smaller "
                              "than audio duration.")
@@ -700,7 +705,7 @@ class AudioSegment():
 
     def _convert_samples_to_float32(self, samples):
         """Convert sample type to float32.
-
+           将 int16的数据转换为float32的数据
         Audio sample type is usually integer or float-point.
         Integers will be scaled to [-1, 1] in float32.
         """

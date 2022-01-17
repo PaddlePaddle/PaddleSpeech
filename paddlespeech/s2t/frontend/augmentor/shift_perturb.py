@@ -13,8 +13,8 @@
 # limitations under the License.
 """Contains the volume perturb augmentation model."""
 from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
-
-
+from paddlespeech.s2t.utils.log import Log
+logger = Log(__name__).getlog()
 class ShiftPerturbAugmentor(AugmentorBase):
     """Augmentation model for adding random shift perturbation.
     
@@ -46,4 +46,5 @@ class ShiftPerturbAugmentor(AugmentorBase):
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
         shift_ms = self._rng.uniform(self._min_shift_ms, self._max_shift_ms)
+        # logger.info("shift ms: {}".format(shift_ms))
         audio_segment.shift(shift_ms)

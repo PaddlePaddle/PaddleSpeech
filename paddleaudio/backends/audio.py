@@ -18,10 +18,11 @@ from typing import Union
 
 import numpy as np
 import resampy
+import pickle
 import soundfile as sf
 from numpy import ndarray as array
 from scipy.io import wavfile
-
+import paddle
 from ..utils import ParameterError
 
 __all__ = [
@@ -31,6 +32,7 @@ __all__ = [
     'normalize',
     'save_wav',
     'load',
+    'save_pkl',
 ]
 NORMALMIZE_TYPES = ['linear', 'gaussian']
 MERGE_TYPES = ['ch0', 'ch1', 'random', 'average']
@@ -118,7 +120,18 @@ def depth_convert(y: array, dtype: Union[type, str],
 
     This function convert audio waveform to a target dtype, with addition steps of
     preventing overflow/underflow and preserving audio range.
-
+    Parameters:
+    --------------
+        y: array
+            audio data array
+        dtype: str
+            audio data type
+        dithering: bool
+            dither the audio sample data
+    Notes:
+    --------------
+    Example:
+    --------------
     """
 
     SUPPORT_DTYPE = ['int16', 'int8', 'float32', 'float64']
@@ -173,7 +186,21 @@ def sound_file_load(file: str,
 
     Reference:
         http://www.mega-nerd.com/libsndfile/#Features
-
+        https://github.com/libsndfile/libsndfile
+    Parameters:
+    --------------
+        file: str
+            audio file path
+        offset: float, optional
+            where to start reading. A negative value means reading the data from the end.
+        dtype: str, optional
+            data type of the returned array.
+        duration: int, optional
+            segment duration of a chunk to read in seconds. A negative value means reading the data to the end.
+    Notes:
+    --------------
+    Example:
+    --------------
     """
     with sf.SoundFile(file) as sf_desc:
         sr_native = sf_desc.samplerate
@@ -276,9 +303,23 @@ def load(
     This function loads audio from disk using using audio beackend.
 
     Parameters:
-
+    --------------
+        file: str
+            audio file path
+        sr: int
+            sample rate
+        merge_type: bool
+        normal: bool
+        norm_type: str
+        norm_mul_factor:
+        offset:
+        duration:
+        dtype:
+        resample_mode:
     Notes:
-
+    --------------
+    Example:
+    --------------
     """
 
     y, r = sound_file_load(file, offset=offset, dtype=dtype, duration=duration)
@@ -301,3 +342,60 @@ def load(
 
     y = depth_convert(y, dtype)
     return y, r
+
+
+
+def save_pkl(obj, file):
+    """Save an object in pkl format.
+    reference: https://github.com/speechbrain/speechbrain/blob/d3d267e86c3b5494cd970319a63d5dae8c0662d7/speechbrain/dataio/dataio.py#L819
+    Arguments
+    ---------
+    obj : object
+        Object to save in pkl format
+    file : str
+        Path to the output file
+    sampling_rate : int
+        Sampling rate of the audio file, TODO: this is not used?
+    Example
+    -------
+    >>> tmpfile = os.path.join(getfixture('tmpdir'), "example.pkl")
+    >>> save_pkl([1, 2, 3, 4, 5], tmpfile)
+    >>> load_pkl(tmpfile)
+    [1, 2, 3, 4, 5]
+    """
+    with open(file, "wb") as f:
+        pickle.dump(obj, f)
+
+_SUBTYPE2DTYPE = {
+    "PCM_S8": "int8",
+    "PCM_U8": "uint8",
+    "PCM_16": "int16",
+    "PCM_32": "int32",
+    "FLOAT": "float32",
+    "DOUBLE": "float64",
+}
+
+def load(
+    filepath: str,
+    frame_offset: int = 0,
+    num_frames: int = -1,
+    normalize: bool = True,
+    channels_first: bool = True,
+    format: Optional[str] = None,
+    ) :
+    with sf.SoundFile(filepath, "r") as file_:
+        if file_.format != "WAV" or normalize:
+            dtype = "float32"
+        elif file_.subtype not in _SUBTYPE2DTYPE:
+            raise ValueError(f"Unsupported subtype: {file_.subtype}")
+        else:
+            dtype = _SUBTYPE2DTYPE[file_.subtype]
+
+        frames = file_._prepare_read(frame_offset, None, num_frames)
+        waveform = file_.read(frames, dtype, always_2d=True)
+        sample_rate = file_.samplerate
+
+    waveform = paddle.to_tensor(waveform)
+    if channels_first:
+        waveform = waveform.t()
+    return waveform, sample_rate

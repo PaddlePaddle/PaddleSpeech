@@ -13,16 +13,76 @@
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
+
 import jsonlines
 from paddle.io import Dataset
-
+import csv
+import re
 from paddlespeech.s2t.frontend.utility import read_manifest
 from paddlespeech.s2t.utils.log import Log
 
-__all__ = ["ManifestDataset", "TransformDataset"]
+__all__ = [
+    "ManifestDataset", 
+    "TransformDataset",
+    "CSVManifestDataset"]
 
 logger = Log(__name__).getlog()
 
+class CSVManifestDataset(Dataset):
+    def __init__(self,
+                 data):
+        super().__init__()
+        self.data = data
+        
+        # 获取音频的索引id
+        self.data_ids = list(self.data.keys())
+
+        # static_keys 中保存了数据集中音频信息字段
+        static_keys = list(self.data[self.data_ids[0]].keys())
+        logger.info("static_keys: {}".format(static_keys))
+        if "id" in static_keys:
+            raise ValueError("The key 'id' is reserved for the data point id.")
+        else:
+            static_keys.append("id")
+        logger.info("final static_keys: {}".format(static_keys))
+        # self.spk_ids = self.data["spk_id"]
+        self.update_utt_labels()
+        # logger.info("spk ids: {}".format(self.labels))
+    @classmethod
+    def from_config(cls, config):
+        manifest_path = config.manifest
+        data = load_data_csv(manifest_path)
+        dataset = cls(data)
+        return dataset
+
+    def __len__(self):
+        return len(self.data_ids)
+    
+    def __getitem__(self, idx):
+        utt_id = self.data_ids[idx]
+        data_point = self.data[utt_id]
+        # return data_point
+        data_point["id"] = utt_id
+        return data_point
+        
+        # return self.compute_outputs(data_point)
+    def update_utt_labels(self):
+        self.labels = []
+        for utt in self.data_ids:
+            label = self.data[utt]["spk_id"]
+            if label not in self.labels:
+                self.labels.append(label)
+    # def compute_outputs(self, data):
+        # 这里是动态计算，导致每次训练的时候特征要重复计算
+        # print("compute outputs, data: {}".format(data))
+        # duration = data["duration"]
+        # start = data["start"]
+        # stop = data["stop"]
+        # wav_path = data["wav"]
+        # logger.info("wav path: {}".format(wav_path))
+        # num_samples = stop - start
+
+        # return wav_path
 
 class ManifestDataset(Dataset):
     @classmethod
@@ -229,3 +289,43 @@ class AudioDataset(Dataset):
     def __getitem__(self, idx):
         """batch example of idx"""
         return self.minibatch[idx]
+
+def load_data_csv(csv_path, replacements={}):
+    """
+    reference: https://github.com/speechbrain/speechbrain/blob/d3d267e86c3b5494cd970319a63d5dae8c0662d7/speechbrain/dataio/dataio.py#L89
+    """
+    with open(csv_path, newline="") as csvfile:
+        result = {}
+        reader = csv.DictReader(csvfile, skipinitialspace=True)
+        variable_finder = re.compile(r"\$([\w.]+)")
+        for row in reader:
+            # ID:
+            try:
+                data_id = row["ID"]
+                del row["ID"]  # This is used as a key in result, instead.
+            except KeyError:
+                raise KeyError(
+                    "CSV has to have an 'ID' field, with unique ids"
+                    " for all data points"
+                )
+            if data_id in result:
+                raise ValueError(f"Duplicate id: {data_id}")
+            # Replacements:
+            for key, value in row.items():
+                try:
+                    row[key] = variable_finder.sub(
+                        lambda match: str(replacements[match[1]]), value
+                    )
+                except KeyError:
+                    raise KeyError(
+                        f"The item {value} requires replacements "
+                        "which were not supplied."
+                    )
+            # Duration:
+            if "duration" in row:
+                row["duration"] = float(row["duration"])
+            result[data_id] = row
+            # logger.info("data_id: {}, row: {}".format(data_id, row))
+    return result
+
+

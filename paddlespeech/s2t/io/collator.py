@@ -24,6 +24,7 @@ from paddlespeech.s2t.frontend.utility import TarLocalData
 from paddlespeech.s2t.io.reader import LoadInputsAndTargets
 from paddlespeech.s2t.io.utility import pad_list
 from paddlespeech.s2t.utils.log import Log
+import paddleaudio
 
 __all__ = ["SpeechCollator", "TripletSpeechCollator"]
 
@@ -216,6 +217,7 @@ class SpeechCollatorBase():
         return utts, xs_pad, ilens, ys_pad, olens
 
 
+
 class SpeechCollator(SpeechCollatorBase):
     @classmethod
     def from_config(cls, config):
@@ -266,6 +268,55 @@ class SpeechCollator(SpeechCollatorBase):
             keep_transcription_text=config.keep_transcription_text)
         return speech_collator
 
+class SIDSpeechCollator(SpeechCollator):
+    spk2idx = {}
+    idx2spk = {}
+    def ensure_label(self, label):
+        if label in self.spk2idx:
+            return self.spk2idx[label]
+        else:
+            idx = len(self.spk2idx)
+            self.spk2idx[label] = idx
+            self.idx2spk[idx] = label
+            return idx
+    
+    def __call__(self, batch):
+        # logger.info("process the batch data, batch size: {}".format(len(batch)))
+        utts = []
+        audios = []
+        audio_lens = []
+        items = []
+        spk_ids = []
+        for idx, item in enumerate(batch):
+            # logger.info("idx: {}, item: {}".format(idx, item))
+            items.append(item)
+            spk2label = self.ensure_label(item["spk_id"])
+            spk_ids.append(spk2label)
+            utts.append(item["id"])
+            start = int(item["start"])
+            stop = int(item["stop"])
+            sig, fs = paddleaudio.backends.audio.load(
+                        item["wav"], num_frames=stop-start, frame_offset=start, channels_first=False)
+            # audios.append(sig)
+            speech_segment = SpeechSegment(sig.numpy(), fs, "")
+            self.augmentation.transform_audio(speech_segment)
+            
+            spectrum, transcript_part = self._speech_featurizer.featurize(
+                speech_segment, self.keep_transcription_text)
+
+            if self._normalizer:
+                spectrum = self._normalizer.apply(spectrum)
+            
+            spectrum = self.augmentation.transform_feature(spectrum)
+
+            audios.append(spectrum)
+            audio_lens.append(spectrum.shape[0])
+
+        xs_pad = pad_list(audios, 0.0).astype(np.float32)
+        ilens = np.array(audio_lens).astype(np.int64)
+        spk_ids = np.array(spk_ids).astype(np.int64)
+        
+        return utts, xs_pad, ilens, spk_ids
 
 class TripletSpeechCollator(SpeechCollator):
     def process_utterance(self, audio_file, translation, transcript):

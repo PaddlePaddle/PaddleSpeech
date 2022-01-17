@@ -25,6 +25,7 @@ __all__ = [
     'Spectrogram',
     'MelSpectrogram',
     'LogMelSpectrogram',
+    # 'FbankSpectrogram',
 ]
 
 

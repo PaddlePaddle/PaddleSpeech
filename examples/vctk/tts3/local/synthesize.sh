@@ -12,9 +12,9 @@ python3 ${BIN_DIR}/../synthesize.py \
     --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
     --am_stat=dump/train/speech_stats.npy \
     --voc=pwgan_vctk \
-    --voc_config=pwg_vctk_ckpt_0.5/pwg_default.yaml \
-    --voc_ckpt=pwg_vctk_ckpt_0.5/pwg_snapshot_iter_1000000.pdz \
-    --voc_stat=pwg_vctk_ckpt_0.5/pwg_stats.npy \
+    --voc_config=pwg_vctk_ckpt_0.1.1/default.yaml  \
+    --voc_ckpt=pwg_vctk_ckpt_0.1.1/snapshot_iter_1500000.pdz \
+    --voc_stat=pwg_vctk_ckpt_0.1.1/feats_stats.npy \
     --test_metadata=dump/test/norm/metadata.jsonl \
     --output_dir=${train_output_path}/test \
     --phones_dict=dump/phone_id_map.txt \

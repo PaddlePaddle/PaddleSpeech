@@ -627,7 +627,7 @@ class FastSpeech2(nn.Layer):
             hs = hs + e_embs + p_embs
 
             # (B, Lmax, adim)
-            hs = self.length_regulator(hs, d_outs, alpha)
+            hs = self.length_regulator(hs, d_outs, alpha, is_inference=True)
         else:
             d_outs = self.duration_predictor(hs, d_masks)
             # use groundtruth in training
@@ -638,7 +638,7 @@ class FastSpeech2(nn.Layer):
             hs = hs + e_embs + p_embs
 
             # (B, Lmax, adim)
-            hs = self.length_regulator(hs, ds)
+            hs = self.length_regulator(hs, ds, is_inference=False)
 
         # forward decoder
         if olens is not None and not is_inference:

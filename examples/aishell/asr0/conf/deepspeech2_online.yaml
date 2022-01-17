@@ -23,7 +23,7 @@ augmentation_config: conf/augmentation.json
 random_seed: 0
 spm_model_prefix: 
 spectrum_type: linear #linear, mfcc, fbank
-feat_dim: 
+feat_dim: 161
 delta_delta: False
 stride_ms: 10.0
 window_ms: 20.0
@@ -56,9 +56,9 @@ blank_id: 0
 ###########################################
 n_epoch: 65
 accum_grad: 1
-lr: 5e-4
+lr: 5.0e-4
 lr_decay: 0.93
-weight_decay: 1e-06
+weight_decay: 1.0e-6
 global_grad_clip: 3.0
 log_interval: 100
 checkpoint:

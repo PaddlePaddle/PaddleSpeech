@@ -1,6 +1,6 @@
 // Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "COPYING.APACHE2.0");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -183,7 +183,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     std::sort(
         prefixes.begin(), prefixes.begin() + num_prefixes, prefix_compare);
 
-    // compute aproximate ctc score as the return score, without affecting the
+    // compute approximate ctc score as the return score, without affecting the
     // return order of decoding result. To delete when decoder gets stable.
     for (size_t i = 0; i < beam_size && i < prefixes.size(); ++i) {
         double approx_ctc = prefixes[i]->score;

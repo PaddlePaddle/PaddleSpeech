@@ -62,7 +62,7 @@ class Scorer(object):
         """Evaluation function, gathering all the different scores
         and return the final one.
 
-        :param sentence: The input sentence for evalutation
+        :param sentence: The input sentence for evaluation
         :type sentence: str
         :param log: Whether return the score in log representation.
         :type log: bool

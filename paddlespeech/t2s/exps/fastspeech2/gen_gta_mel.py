@@ -21,6 +21,8 @@ import numpy as np
 import paddle
 import yaml
 from yacs.config import CfgNode
+from tqdm import tqdm
+import os
 
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
@@ -30,6 +32,8 @@ from paddlespeech.t2s.modules.normalizer import ZScore
 
 
 def evaluate(args, fastspeech2_config):
+    rootdir = Path(args.rootdir).expanduser()
+    assert rootdir.is_dir()
 
     # construct dataset for evaluation
     with open(args.phones_dict, "r") as f:
@@ -41,9 +45,16 @@ def evaluate(args, fastspeech2_config):
     for phn, id in phn_id:
         phone_dict[phn] = int(id)
 
+    if args.speaker_dict:
+        with open(args.speaker_dict, 'rt') as f:
+            spk_id_list = [line.strip().split() for line in f.readlines()]
+            spk_num = len(spk_id_list)
+    else:
+        spk_num=None
+
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
-        idim=vocab_size, odim=odim, **fastspeech2_config["model"])
+        idim=vocab_size, odim=odim, **fastspeech2_config["model"], spk_num=spk_num)
 
     model.set_state_dict(
         paddle.load(args.fastspeech2_checkpoint)["main_params"])
@@ -65,7 +76,34 @@ def evaluate(args, fastspeech2_config):
     sentences, speaker_set = get_phn_dur(args.dur_file)
     merge_silence(sentences)
 
-    for i, utt_id in enumerate(sentences):
+    if args.dataset == "baker":
+        wav_files = sorted(list((rootdir / "Wave").rglob("*.wav")))
+        # split data into 3 sections
+        num_train = 9800
+        num_dev = 100
+        train_wav_files = wav_files[:num_train]
+        dev_wav_files = wav_files[num_train:num_train + num_dev]
+        test_wav_files = wav_files[num_train + num_dev:]
+    elif args.dataset == "aishell3":
+        sub_num_dev = 5
+        wav_dir = rootdir / "train" / "wav"
+        train_wav_files = []
+        dev_wav_files = []
+        test_wav_files = []
+        for speaker in os.listdir(wav_dir):
+            wav_files = sorted(list((wav_dir / speaker).rglob("*.wav")))
+            if len(wav_files) > 100:
+                train_wav_files += wav_files[:-sub_num_dev * 2]
+                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
+                test_wav_files += wav_files[-sub_num_dev:]
+            else:
+                train_wav_files += wav_files
+
+    train_wav_files = [os.path.basename(str(str_path)) for str_path in train_wav_files]
+    dev_wav_files = [os.path.basename(str(str_path)) for str_path in dev_wav_files]
+    test_wav_files = [os.path.basename(str(str_path)) for str_path in test_wav_files]
+
+    for i, utt_id in enumerate(tqdm(sentences)):
         phones = sentences[utt_id][0]
         durations = sentences[utt_id][1]
         speaker = sentences[utt_id][2]
@@ -82,21 +120,30 @@ def evaluate(args, fastspeech2_config):
 
         phone_ids = [phone_dict[phn] for phn in phones]
         phone_ids = paddle.to_tensor(np.array(phone_ids))
+
+        if args.speaker_dict:
+            speaker_id = int([item[1] for item in spk_id_list if speaker == item[0]][0])    
+            speaker_id = paddle.to_tensor(speaker_id)
+        else:
+            speaker_id = None
+
         durations = paddle.to_tensor(np.array(durations))
         # 生成的和真实的可能有 1, 2 帧的差距，但是 batch_fn 会修复
         # split data into 3 sections
-        if args.dataset == "baker":
-            num_train = 9800
-            num_dev = 100
-        if i in range(0, num_train):
+
+        wav_path = utt_id + ".wav"
+
+        if wav_path in train_wav_files:
             sub_output_dir = output_dir / ("train/raw")
-        elif i in range(num_train, num_train + num_dev):
+        elif wav_path in dev_wav_files:
             sub_output_dir = output_dir / ("dev/raw")
-        else:
+        elif wav_path in test_wav_files:
             sub_output_dir = output_dir / ("test/raw")
+
         sub_output_dir.mkdir(parents=True, exist_ok=True)
+
         with paddle.no_grad():
-            mel = fastspeech2_inference(phone_ids, durations=durations)
+            mel = fastspeech2_inference(phone_ids, durations=durations, spk_id=speaker_id)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 
@@ -109,6 +156,8 @@ def main():
         default="baker",
         type=str,
         help="name of dataset, should in {baker, ljspeech, vctk} now")
+    parser.add_argument(
+        "--rootdir", default=None, type=str, help="directory to dataset.")
     parser.add_argument(
         "--fastspeech2-config", type=str, help="fastspeech2 config file.")
     parser.add_argument(
@@ -126,6 +175,12 @@ def main():
         type=str,
         default="phone_id_map.txt",
         help="phone vocabulary file.")
+    
+    parser.add_argument(
+        "--speaker-dict",
+        type=str,
+        default=None,
+        help="speaker id map file.")
 
     parser.add_argument(
         "--dur-file", default=None, type=str, help="path to durations.txt.")

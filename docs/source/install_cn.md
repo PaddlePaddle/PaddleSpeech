@@ -5,7 +5,7 @@
 | :--- | :----------------------------------------------------------- | :------------------ |
 | 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac(不支持M1芯片)，Windows |
 | 中等 | 支持 PaddleSpeech 主要功能，比如使用已有 examples 中的模型和使用 PaddleSpeech 来训练自己的模型. | Linux               |
-| 困难 | 支持 PaddleSpeech 的各项功能，包含训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
+| 困难 | 支持 PaddleSpeech 的各项功能，包含结合kaldi使用 join ctc decoder 方式解码，训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
 ## 先决条件
 - Python >= 3.7
 - 最新版本的 PaddlePaddle (请看 [安装向导](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
@@ -49,12 +49,19 @@ sudo apt install build-essential
 conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 ### 安装 PaddleSpeech
-你可以使用如下命令：
+部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+```bash
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
+```
+然后你可以使用如下命令：
 ```bash
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```
 > 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
+
+> 如果出现 paddlespeech-ctcdecoders 无法安装的问题，无须担心，这不影响使用。
+
 ## 中等： 获取主要功能（支持 Linux）
 如果你想要使用 `paddlespeech` 的主要功能。你需要完成以下几个步骤
 ### Git clone PaddleSpeech
@@ -111,6 +118,8 @@ python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/
 ### 安装 PaddleSpeech
 最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech`中已有的 examples：
 ```bash
+# 部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
 # 请确保目前处于PaddleSpeech项目的根目录
 pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -176,6 +185,11 @@ conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 用开发者模式安装 PaddleSpeech
+部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+```bash
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
+```
+然后安装 PaddleSpeech：
 ```bash
 pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```

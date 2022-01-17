@@ -18,6 +18,7 @@ from pathlib import Path
 
 import jsonlines
 import numpy as np
+from tqdm import tqdm
 
 
 def main():
@@ -52,15 +53,24 @@ def main():
         output_dir = dump_dir / sub
         output_dir.mkdir(parents=True, exist_ok=True)
         results = []
-        for name in os.listdir(output_dir / "raw"):
-            # 003918_feats.npy
-            utt_id = name.split("_")[0]
+        files = os.listdir(output_dir / "raw")
+        for name in tqdm(files):
+            utt_id = name.split("_feats.npy")[0]
             mel_path = output_dir / ("raw/" + name)
             gen_mel = np.load(mel_path)
             wave_name = utt_id + "_wave.npy"
-            wav = np.load(old_dump_dir / sub / ("raw/" + wave_name))
-            os.symlink(old_dump_dir / sub / ("raw/" + wave_name),
-                       output_dir / ("raw/" + wave_name))
+            try:
+                wav = np.load(old_dump_dir / sub / ("raw/" + wave_name))
+                os.symlink(old_dump_dir / sub / ("raw/" + wave_name),
+                           output_dir / ("raw/" + wave_name))
+            except FileNotFoundError:
+                print("delete " + name +
+                      " because it cannot be found in the dump folder")
+                os.remove(output_dir / "raw" / name)
+                continue
+            except FileExistsError:
+                print("file " + name + " exists, skip.")
+                continue
             num_sample = wav.shape[0]
             num_frames = gen_mel.shape[0]
             wav_path = output_dir / ("raw/" + wave_name)

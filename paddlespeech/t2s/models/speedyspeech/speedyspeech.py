@@ -11,32 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
 import paddle
 from paddle import nn
 
+from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.positional_encoding import sinusoid_position_encoding
-
-
-def expand(encodings: paddle.Tensor, durations: paddle.Tensor) -> paddle.Tensor:
-    """
-    encodings: (B, T, C)
-    durations: (B, T)
-    """
-    batch_size, t_enc = durations.shape
-    durations = durations.numpy()
-    slens = np.sum(durations, -1)
-    t_dec = np.max(slens)
-    M = np.zeros([batch_size, t_dec, t_enc])
-    for i in range(batch_size):
-        k = 0
-        for j in range(t_enc):
-            d = durations[i, j]
-            M[i, k:k + d, j] = 1
-            k += d
-    M = paddle.to_tensor(M, dtype=encodings.dtype)
-    encodings = paddle.matmul(M, encodings)
-    return encodings
+from paddlespeech.t2s.modules.predictor.length_regulator import LengthRegulator
 
 
 class ResidualBlock(nn.Layer):
@@ -176,19 +156,25 @@ class SpeedySpeechDecoder(nn.Layer):
 
 
 class SpeedySpeech(nn.Layer):
-    def __init__(self,
-                 vocab_size,
-                 encoder_hidden_size,
-                 encoder_kernel_size,
-                 encoder_dilations,
-                 duration_predictor_hidden_size,
-                 decoder_hidden_size,
-                 decoder_output_size,
-                 decoder_kernel_size,
-                 decoder_dilations,
-                 tone_size=None,
-                 spk_num=None):
+    def __init__(
+            self,
+            vocab_size,
+            encoder_hidden_size,
+            encoder_kernel_size,
+            encoder_dilations,
+            duration_predictor_hidden_size,
+            decoder_hidden_size,
+            decoder_output_size,
+            decoder_kernel_size,
+            decoder_dilations,
+            tone_size=None,
+            spk_num=None,
+            init_type: str="xavier_uniform", ):
         super().__init__()
+
+        # initialize parameters
+        initialize(self, init_type)
+
         encoder = SpeedySpeechEncoder(vocab_size, tone_size,
                                       encoder_hidden_size, encoder_kernel_size,
                                       encoder_dilations, spk_num)
@@ -199,6 +185,10 @@ class SpeedySpeech(nn.Layer):
         self.encoder = encoder
         self.duration_predictor = duration_predictor
         self.decoder = decoder
+        # define length regulator
+        self.length_regulator = LengthRegulator()
+
+        nn.initializer.set_global_initializer(None)
 
     def forward(self, text, tones, durations, spk_id: paddle.Tensor=None):
         # input of embedding must be int64
@@ -213,7 +203,7 @@ class SpeedySpeech(nn.Layer):
 
         # expand encodings
         durations_to_expand = durations
-        encodings = expand(encodings, durations_to_expand)
+        encodings = self.length_regulator(encodings, durations_to_expand)
 
         # decode
         # remove positional encoding here
@@ -222,7 +212,7 @@ class SpeedySpeech(nn.Layer):
         decoded = self.decoder(encodings)
         return decoded, pred_durations
 
-    def inference(self, text, tones=None, spk_id=None):
+    def inference(self, text, tones=None, durations=None, spk_id=None):
         # text: [T]
         # tones: [T]
         # input of embedding must be int64
@@ -234,24 +224,15 @@ class SpeedySpeech(nn.Layer):
 
         encodings = self.encoder(text, tones, spk_id)
 
-        pred_durations = self.duration_predictor(encodings)  # (1, T)
-        durations_to_expand = paddle.round(pred_durations.exp())
-        durations_to_expand = (durations_to_expand).astype(paddle.int64)
-
-        slens = paddle.sum(durations_to_expand, -1)  # [1]
-        t_dec = slens[0]  # [1]
-        t_enc = paddle.shape(pred_durations)[-1]
-        M = paddle.zeros([1, t_dec, t_enc])
-
-        k = paddle.full([1], 0, dtype=paddle.int64)
-        for j in range(t_enc):
-            d = durations_to_expand[0, j]
-            # If the d == 0, slice action is meaningless and not supported
-            if d >= 1:
-                M[0, k:k + d, j] = 1
-            k += d
-
-        encodings = paddle.matmul(M, encodings)
+        if durations is None:
+            # (1, T)
+            pred_durations = self.duration_predictor(encodings)
+            durations_to_expand = paddle.round(pred_durations.exp())
+            durations_to_expand = durations_to_expand.astype(paddle.int64)
+        else:
+            durations_to_expand = durations
+        encodings = self.length_regulator(
+            encodings, durations_to_expand, is_inference=True)
 
         shape = paddle.shape(encodings)
         t_dec, feature_size = shape[1], shape[2]
@@ -266,7 +247,8 @@ class SpeedySpeechInference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = speedyspeech_model
 
-    def forward(self, phones, tones, spk_id=None):
-        normalized_mel = self.acoustic_model.inference(phones, tones, spk_id)
+    def forward(self, phones, tones, durations=None, spk_id=None):
+        normalized_mel = self.acoustic_model.inference(
+            phones, tones, durations=durations, spk_id=spk_id)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

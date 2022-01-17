@@ -23,7 +23,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 3. Usage
 - Command Line(Recommended)
   ```bash
+  # Chinese
   paddlespeech asr --input ./zh.wav
+  # English
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
   ```
   (It doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
   
@@ -43,7 +46,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   Output:
   ```bash
+  # Chinese
   [2021-12-08 13:12:34,063] [    INFO] [utils.py] [L225] - ASR Result: 我认为跑步最重要的就是给我带来了身体健康
+  # English
+  [2022-01-12 11:51:10,815] [    INFO] - ASR Result: i knocked at the door on the ancient side of the building
   ```
 
 - Python API
@@ -77,3 +83,4 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
+| transformer_librispeech| en| 16000

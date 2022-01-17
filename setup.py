@@ -17,7 +17,6 @@ import io
 import os
 import subprocess as sp
 import sys
-import paddlespeech
 from pathlib import Path
 
 from setuptools import Command
@@ -27,6 +26,8 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
+
+PADDLESPEECH_VERSION = '0.1.1'
 
 requirements = {
     "install": [
@@ -81,6 +82,15 @@ requirements = {
         "zhon",
     ]
 }
+
+
+def write_version_py(filename='paddlespeech/version.py'):
+    ver_str = """# THIS FILE IS GENERATED FROM PADDLEPADDLE SETUP.PY
+#
+full_version = '%(version)s'
+"""
+    with open(filename, 'w') as f:
+        f.write(ver_str % {'version': PADDLESPEECH_VERSION})
 
 
 @contextlib.contextmanager
@@ -170,10 +180,12 @@ class UploadCommand(Command):
         sys.exit()
 
 
+write_version_py()
+
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version=paddlespeech.__version__,
+    version=PADDLESPEECH_VERSION,
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',

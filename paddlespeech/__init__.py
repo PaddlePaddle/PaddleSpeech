@@ -11,5 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-__version__ = '0.1.1'
+try:
+    from .version import full_version as __version__
+except ImportError:
+    import sys
+    sys.stderr.write(
+        "Warning: import paddlespeech from source directory without installing, run 'python setup.py install' to install paddlespeech firstly\n"
+    )

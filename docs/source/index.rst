@@ -27,7 +27,6 @@ Contents
 
    asr/models_introduction
    asr/data_preparation
-   asr/augmentation
    asr/feature_list
    asr/ngram_lm
 

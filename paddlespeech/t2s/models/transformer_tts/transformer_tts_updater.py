@@ -17,8 +17,8 @@ from typing import Sequence
 import paddle
 from paddle import distributed as dist
 
-from paddlespeech.t2s.models.transformer_tts import GuidedMultiHeadAttentionLoss
-from paddlespeech.t2s.models.transformer_tts import TransformerTTSLoss
+from paddlespeech.t2s.modules.losses import GuidedMultiHeadAttentionLoss
+from paddlespeech.t2s.modules.losses import Tacotron2Loss as TransformerTTSLoss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
@@ -71,7 +71,7 @@ class TransformerTTSUpdater(StandardUpdater):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
 
-        after_outs, before_outs, logits, ys, labels, olens, ilens, need_dict = self.model(
+        after_outs, before_outs, logits, ys, labels, olens, olens_in, need_dict = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -116,7 +116,10 @@ class TransformerTTSUpdater(StandardUpdater):
                         break
                 # (B, H*L, T_in, T_in)
                 att_ws = paddle.concat(att_ws, axis=1)
-                enc_attn_loss = self.attn_criterion(att_ws, ilens, ilens)
+                enc_attn_loss = self.attn_criterion(
+                    att_ws=att_ws,
+                    ilens=batch["text_lengths"] + 1,
+                    olens=batch["text_lengths"] + 1)
                 loss = loss + enc_attn_loss
                 report("train/enc_attn_loss", float(enc_attn_loss))
                 losses_dict["enc_attn_loss"] = float(enc_attn_loss)
@@ -133,7 +136,8 @@ class TransformerTTSUpdater(StandardUpdater):
                         break
                 # (B, H*L, T_out, T_out)
                 att_ws = paddle.concat(att_ws, axis=1)
-                dec_attn_loss = self.attn_criterion(att_ws, olens, olens)
+                dec_attn_loss = self.attn_criterion(
+                    att_ws=att_ws, ilens=olens_in, olens=olens_in)
                 report("train/dec_attn_loss", float(dec_attn_loss))
                 losses_dict["dec_attn_loss"] = float(dec_attn_loss)
                 loss = loss + dec_attn_loss
@@ -150,7 +154,10 @@ class TransformerTTSUpdater(StandardUpdater):
                         break
                 # (B, H*L, T_out, T_in)
                 att_ws = paddle.concat(att_ws, axis=1)
-                enc_dec_attn_loss = self.attn_criterion(att_ws, ilens, olens)
+                enc_dec_attn_loss = self.attn_criterion(
+                    att_ws=att_ws,
+                    ilens=batch["text_lengths"] + 1,
+                    olens=olens_in)
                 report("train/enc_dec_attn_loss", float(enc_dec_attn_loss))
                 losses_dict["enc_dec_attn_loss"] = float(enc_dec_attn_loss)
                 loss = loss + enc_dec_attn_loss
@@ -215,7 +222,7 @@ class TransformerTTSEvaluator(StandardEvaluator):
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "
         losses_dict = {}
-        after_outs, before_outs, logits, ys, labels, olens, ilens, need_dict = self.model(
+        after_outs, before_outs, logits, ys, labels, olens, olens_in, need_dict = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -260,7 +267,10 @@ class TransformerTTSEvaluator(StandardEvaluator):
                         break
                 # (B, H*L, T_in, T_in)
                 att_ws = paddle.concat(att_ws, axis=1)
-                enc_attn_loss = self.attn_criterion(att_ws, ilens, ilens)
+                enc_attn_loss = self.attn_criterion(
+                    att_ws=att_ws,
+                    ilens=batch["text_lengths"] + 1,
+                    olens=batch["text_lengths"] + 1)
                 loss = loss + enc_attn_loss
                 report("train/enc_attn_loss", float(enc_attn_loss))
                 losses_dict["enc_attn_loss"] = float(enc_attn_loss)
@@ -277,7 +287,8 @@ class TransformerTTSEvaluator(StandardEvaluator):
                         break
                 # (B, H*L, T_out, T_out)
                 att_ws = paddle.concat(att_ws, axis=1)
-                dec_attn_loss = self.attn_criterion(att_ws, olens, olens)
+                dec_attn_loss = self.attn_criterion(
+                    att_ws=att_ws, ilens=olens_in, olens=olens_in)
                 report("eval/dec_attn_loss", float(dec_attn_loss))
                 losses_dict["dec_attn_loss"] = float(dec_attn_loss)
                 loss = loss + dec_attn_loss
@@ -295,7 +306,10 @@ class TransformerTTSEvaluator(StandardEvaluator):
                         break
                 # (B, H*L, T_out, T_in)
                 att_ws = paddle.concat(att_ws, axis=1)
-                enc_dec_attn_loss = self.attn_criterion(att_ws, ilens, olens)
+                enc_dec_attn_loss = self.attn_criterion(
+                    att_ws=att_ws,
+                    ilens=batch["text_lengths"] + 1,
+                    olens=olens_in)
                 report("eval/enc_dec_attn_loss", float(enc_dec_attn_loss))
                 losses_dict["enc_dec_attn_loss"] = float(enc_dec_attn_loss)
                 loss = loss + enc_dec_attn_loss

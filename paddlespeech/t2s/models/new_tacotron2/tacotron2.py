@@ -324,7 +324,10 @@ class Tacotron2(nn.Layer):
             ys = ys[:, :max_out]
             labels = labels[:, :max_out]
             labels = paddle.scatter(labels, 1, (olens - 1).unsqueeze(1), 1.0)
-        return after_outs, before_outs, logits, ys, labels, olens, att_ws, ilens
+            olens_in = olens // self.reduction_factor
+        else:
+            olens_in = olens
+        return after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in
 
     def _forward(
             self,

@@ -72,11 +72,10 @@ class Tacotron2Updater(StandardUpdater):
         # spk_id!=None in multiple spk fastspeech2 
         spk_id = batch["spk_id"] if "spk_id" in batch else None
         spk_emb = batch["spk_emb"] if "spk_emb" in batch else None
-        # No explicit speaker identifier labels are used during voice cloning training.
         if spk_emb is not None:
             spk_id = None
 
-        after_outs, before_outs, logits, ys, labels, olens, att_ws, ilens = self.model(
+        after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -101,11 +100,8 @@ class Tacotron2Updater(StandardUpdater):
         if self.use_guided_attn_loss:
             # NOTE: length of output for auto-regressive
             # input will be changed when r > 1
-            if self.model.reduction_factor > 1:
-                olens_in = olens // self.model.reduction_factor
-            else:
-                olens_in = olens
-            attn_loss = self.attn_loss(att_ws, ilens, olens_in)
+            attn_loss = self.attn_loss(
+                att_ws=att_ws, ilens=batch["text_lengths"] + 1, olens=olens_in)
             loss = loss + attn_loss
 
         optimizer = self.optimizer
@@ -169,7 +165,7 @@ class Tacotron2Evaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        after_outs, before_outs, logits, ys, labels, olens, att_ws, ilens = self.model(
+        after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -194,11 +190,8 @@ class Tacotron2Evaluator(StandardEvaluator):
         if self.use_guided_attn_loss:
             # NOTE: length of output for auto-regressive
             # input will be changed when r > 1
-            if self.model.reduction_factor > 1:
-                olens_in = olens // self.model.reduction_factor
-            else:
-                olens_in = olens
-            attn_loss = self.attn_loss(att_ws, ilens, olens_in)
+            attn_loss = self.attn_loss(
+                att_ws=att_ws, ilens=batch["text_lengths"] + 1, olens=olens_in)
             loss = loss + attn_loss
 
         report("eval/l1_loss", float(l1_loss))

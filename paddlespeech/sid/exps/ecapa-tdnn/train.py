@@ -7,7 +7,8 @@ import yaml
 from yacs.config import CfgNode
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.sid.bin.trainer import SIDTrainer as Trainer
-
+import paddle
+import os
 def main_sp(config, args):
     exp = Trainer(config, args)
     exp.setup()
@@ -32,10 +33,12 @@ def main():
         with open(args.dump_config, 'w') as f:
             print(config, file=f)
 
+    
     # pr = cProfile.Profile()
     # pr.runcall(main, config, args)
     # pr.dump_stats()
-
+    if args.ngpu <= 0:
+        paddle.device.set_device("cpu")
     main_sp(config, args)
 if __name__ == "__main__":
     main()

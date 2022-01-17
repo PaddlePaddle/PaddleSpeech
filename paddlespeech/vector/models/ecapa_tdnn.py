@@ -16,8 +16,8 @@ import math
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-
-
+from paddlespeech.s2t.utils.log import Log 
+logger = Log(__name__).getlog()
 def length_to_mask(length, max_len=None, dtype=None):
     assert len(length.shape) == 1
 
@@ -316,7 +316,7 @@ class SERes2NetBlock(nn.Layer):
 class EcapaTdnn(nn.Layer):
     def __init__(
             self,
-            input_size,
+            input_size: int,
             lin_neurons=192,
             activation=nn.ReLU,
             channels=[512, 512, 512, 512, 1536],
@@ -333,7 +333,7 @@ class EcapaTdnn(nn.Layer):
         self.channels = channels
         self.blocks = nn.LayerList()
         self.emb_size = lin_neurons
-
+        logger.info("input_size: {}".format(input_size))
         # The initial TDNN layer
         self.blocks.append(
             TDNNBlock(
@@ -407,3 +407,221 @@ class EcapaTdnn(nn.Layer):
         x = self.fc(x)
 
         return x
+    
+    @classmethod
+    def init_from_config(cls, config: dict):
+        # logger.info("ecapa config: {}".format(config))
+        # input_size = config["input_size"]
+        # lin_neurons = config.get("lin_neurons", 192)
+        # logger.info("input size: {}".format(input_size))
+        # logger.info("lin neurons: {}".format(lin_neurons))
+        model_conf = config["model_conf"]
+        logger.info("model_conf: {}".format(model_conf))
+        model = cls(**model_conf)
+
+        return model
+
+class CosClassifier(nn.Layer):
+    def __init__(self,
+                 input_size,
+                 device="cpu",
+                 lin_block=0,
+                 lin_neurons=192,
+                 out_neurons=1211):
+        super().__init__()
+
+        self.fc = nn.Linear(in_features=input_size, out_features=out_neurons)
+    
+    def forward(self, x):
+        
+        # x 的维度是 [batch, dim, 1]
+        x = paddle.squeeze(x, axis=2)
+        logits = self.fc(x)
+        # logger.info("classifier logits shape: {}".format(logits.shape))
+        return logits
+
+    @classmethod
+    def init_from_config(cls, config):
+
+        classifier_conf = config["classifier_conf"]
+        logger.info("classfier conf: {}".format(classifier_conf))
+        classifier = cls(**classifier_conf)
+
+        return classifier
+
+class LogSoftmaxWrapper(nn.Layer):
+    """
+    Arguments
+    ---------
+    Returns
+    ---------
+    loss : torch.Tensor
+        Learning loss
+    predictions : torch.Tensor
+        Log probabilities
+    Example
+    -------
+    >>> outputs = torch.tensor([ [1., -1.], [-1., 1.], [0.9, 0.1], [0.1, 0.9] ])
+    >>> outputs = outputs.unsqueeze(1)
+    >>> targets = torch.tensor([ [0], [1], [0], [1] ])
+    >>> log_prob = LogSoftmaxWrapper(nn.Identity())
+    >>> loss = log_prob(outputs, targets)
+    >>> 0 <= loss < 1
+    tensor(True)
+    >>> log_prob = LogSoftmaxWrapper(AngularMargin(margin=0.2, scale=32))
+    >>> loss = log_prob(outputs, targets)
+    >>> 0 <= loss < 1
+    tensor(True)
+    >>> outputs = torch.tensor([ [1., -1.], [-1., 1.], [0.9, 0.1], [0.1, 0.9] ])
+    >>> log_prob = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.3, scale=32))
+    >>> loss = log_prob(outputs, targets)
+    >>> 0 <= loss < 1
+    tensor(True)
+    """
+
+    def __init__(self, loss_fn):
+        super(LogSoftmaxWrapper, self).__init__()
+        self.loss_fn = loss_fn
+        self.criterion = paddle.nn.KLDivLoss(reduction="sum")
+
+    def forward(self, outputs, targets, length=None):
+        """
+        Arguments
+        ---------
+        outputs : torch.Tensor
+            Network output tensor, of shape
+            [batch, 1, outdim].
+        targets : torch.Tensor
+            Target tensor, of shape [batch, 1].
+
+        Returns
+        -------
+        loss: torch.Tensor
+            Loss for current examples.
+        """
+        logger.info("output shape: {}".format(outputs))
+        logger.info("target shape: {}".format(targets))
+        # outputs = outputs.squeeze(1)
+        # targets = targets.squeeze(1)
+        targets = nn.functional.one_hot(targets, outputs.shape[1]).float()
+        logger.info("one host target: {}".format(targets))
+        try:
+            predictions = self.loss_fn(outputs, targets)
+        except TypeError:
+            predictions = self.loss_fn(outputs)
+        
+        predictions = nn.functional.log_softmax(predictions)
+        loss = self.criterion(predictions, targets) / targets.sum()
+        return loss
+
+class AngularMargin(nn.Layer):
+    """
+    An implementation of Angular Margin (AM) proposed in the following
+    paper: '''Margin Matters: Towards More Discriminative Deep Neural Network
+    Embeddings for Speaker Recognition''' (https://arxiv.org/abs/1906.07317)
+
+    Arguments
+    ---------
+    margin : float
+        The margin for cosine similiarity
+    scale : float
+        The scale for cosine similiarity
+
+    Return
+    ---------
+    predictions : torch.Tensor
+
+    Example
+    -------
+    >>> pred = AngularMargin()
+    >>> outputs = torch.tensor([ [1., -1.], [-1., 1.], [0.9, 0.1], [0.1, 0.9] ])
+    >>> targets = torch.tensor([ [1., 0.], [0., 1.], [ 1., 0.], [0.,  1.] ])
+    >>> predictions = pred(outputs, targets)
+    >>> predictions[:,0] > predictions[:,1]
+    tensor([ True, False,  True, False])
+    """
+
+    def __init__(self, margin=0.0, scale=1.0):
+        super(AngularMargin, self).__init__()
+        self.margin = margin
+        self.scale = scale
+
+    def forward(self, outputs, targets):
+        """Compute AM between two tensors
+
+        Arguments
+        ---------
+        outputs : torch.Tensor
+            The outputs of shape [N, C], cosine similarity is required.
+        targets : torch.Tensor
+            The targets of shape [N, C], where the margin is applied for.
+
+        Return
+        ---------
+        predictions : torch.Tensor
+        """
+        outputs = outputs - self.margin * targets
+        return self.scale * outputs
+
+
+class AdditiveAngularMargin(AngularMargin):
+    """
+    An implementation of Additive Angular Margin (AAM) proposed
+    in the following paper: '''Margin Matters: Towards More Discriminative Deep
+    Neural Network Embeddings for Speaker Recognition'''
+    (https://arxiv.org/abs/1906.07317)
+
+    Arguments
+    ---------
+    margin : float
+        The margin for cosine similiarity.
+    scale: float
+        The scale for cosine similiarity.
+
+    Returns
+    -------
+    predictions : torch.Tensor
+        Tensor.
+    Example
+    -------
+    >>> outputs = torch.tensor([ [1., -1.], [-1., 1.], [0.9, 0.1], [0.1, 0.9] ])
+    >>> targets = torch.tensor([ [1., 0.], [0., 1.], [ 1., 0.], [0.,  1.] ])
+    >>> pred = AdditiveAngularMargin()
+    >>> predictions = pred(outputs, targets)
+    >>> predictions[:,0] > predictions[:,1]
+    tensor([ True, False,  True, False])
+    """
+
+    def __init__(self, margin=0.0, scale=1.0, easy_margin=False):
+        super(AdditiveAngularMargin, self).__init__(margin, scale)
+        self.easy_margin = easy_margin
+
+        self.cos_m = math.cos(self.margin)
+        self.sin_m = math.sin(self.margin)
+        self.th = math.cos(math.pi - self.margin)
+        self.mm = math.sin(math.pi - self.margin) * self.margin
+
+    def forward(self, outputs, targets):
+        """
+        Compute AAM between two tensors
+
+        Arguments
+        ---------
+        outputs : torch.Tensor
+            The outputs of shape [N, C], cosine similarity is required.
+        targets : torch.Tensor
+            The targets of shape [N, C], where the margin is applied for.
+
+        Return
+        ---------
+        predictions : torch.Tensor
+        """
+        cosine = outputs.float()
+        sine = paddle.sqrt(1.0 - paddle.pow(cosine, 2))
+        phi = cosine * self.cos_m - sine * self.sin_m  # cos(theta + m)
+        if self.easy_margin:
+            phi = paddle.where(cosine > 0, phi, cosine)
+        else:
+            phi = paddle.where(cosine > self.th, phi, cosine - self.mm)
+        outputs = (targets * phi) + ((1.0 - targets) * cosine)
+        return self.scale * outputs

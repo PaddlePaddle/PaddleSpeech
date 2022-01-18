@@ -626,7 +626,7 @@ class FastSpeech2(nn.Layer):
             hs = hs + e_embs + p_embs
 
             # (B, Lmax, adim)
-            hs = self.length_regulator(hs, d_outs, alpha)
+            hs = self.length_regulator(hs, d_outs, alpha, is_inference=True)
         else:
             d_outs = self.duration_predictor(hs, d_masks)
             # use groundtruth in training
@@ -637,7 +637,7 @@ class FastSpeech2(nn.Layer):
             hs = hs + e_embs + p_embs
 
             # (B, Lmax, adim)
-            hs = self.length_regulator(hs, ds)
+            hs = self.length_regulator(hs, ds, is_inference=False)
 
         # forward decoder
         if olens is not None and not is_inference:
@@ -780,7 +780,7 @@ class FastSpeech2(nn.Layer):
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                shape=[-1, hs.shape[1], -1])
+                shape=[-1, paddle.shape(hs)[1], -1])
             hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")

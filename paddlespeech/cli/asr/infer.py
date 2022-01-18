@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import io
 import os
 import sys
 from typing import List
@@ -23,9 +22,9 @@ import librosa
 import numpy as np
 import paddle
 import soundfile
-import yaml
 from yacs.config import CfgNode
 
+from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
@@ -46,22 +45,65 @@ pretrained_models = {
     # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
     "conformer_wenetspeech-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/conformer.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1_conformer_wenetspeech_ckpt_0.1.1.model.tar.gz',
         'md5':
-        '54e7a558a6e020c2f5fb224874943f97',
+        '76cb19ed857e6623856b7cd7ebbfeda4',
         'cfg_path':
-        'conf/conformer.yaml',
+        'model.yaml',
         'ckpt_path':
         'exp/conformer/checkpoints/wenetspeech',
+    },
+    "transformer_librispeech-en-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_transformer_librispeech_ckpt_0.1.1.model.tar.gz',
+        'md5':
+        '2c667da24922aad391eacafe37bc1660',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/transformer/checkpoints/avg_10',
+    },
+    "deepspeech2offline_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
+        'md5':
+        '932c3593d62fe5c741b59b31318aa314',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/deepspeech2/checkpoints/avg_1',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
+    },
+    "deepspeech2online_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
+        'md5':
+        'd5e076217cf60486519f72c217d21b9b',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/deepspeech2_online/checkpoints/avg_1',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
     },
 }
 
 model_alias = {
-    "ds2_offline": "paddlespeech.s2t.models.ds2:DeepSpeech2Model",
-    "ds2_online": "paddlespeech.s2t.models.ds2_online:DeepSpeech2ModelOnline",
-    "conformer": "paddlespeech.s2t.models.u2:U2Model",
-    "transformer": "paddlespeech.s2t.models.u2:U2Model",
-    "wenetspeech": "paddlespeech.s2t.models.u2:U2Model",
+    "deepspeech2offline":
+    "paddlespeech.s2t.models.ds2:DeepSpeech2Model",
+    "deepspeech2online":
+    "paddlespeech.s2t.models.ds2_online:DeepSpeech2ModelOnline",
+    "conformer":
+    "paddlespeech.s2t.models.u2:U2Model",
+    "transformer":
+    "paddlespeech.s2t.models.u2:U2Model",
+    "wenetspeech":
+    "paddlespeech.s2t.models.u2:U2Model",
 }
 
 
@@ -85,7 +127,8 @@ class ASRExecutor(BaseExecutor):
             '--lang',
             type=str,
             default='zh',
-            help='Choose model language. zh or en')
+            help='Choose model language. zh or en, zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k]'
+        )
         self.parser.add_argument(
             "--sample_rate",
             type=int,
@@ -97,6 +140,15 @@ class ASRExecutor(BaseExecutor):
             type=str,
             default=None,
             help='Config of asr task. Use deault config when it is None.')
+        self.parser.add_argument(
+            '--decode_method',
+            type=str,
+            default='attention_rescoring',
+            choices=[
+                'ctc_greedy_search', 'ctc_prefix_beam_search', 'attention',
+                'attention_rescoring'
+            ],
+            help='only support transformer and conformer model')
         self.parser.add_argument(
             '--ckpt_path',
             type=str,
@@ -136,6 +188,7 @@ class ASRExecutor(BaseExecutor):
                         lang: str='zh',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
+                        decode_method: str='attention_rescoring',
                         ckpt_path: Optional[os.PathLike]=None):
         """
         Init model and other resources from a specific path.
@@ -159,51 +212,44 @@ class ASRExecutor(BaseExecutor):
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
-            res_path = os.path.dirname(
+            self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
         #Init body.
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
-        self.config.decoding.decoding_method = "attention_rescoring"
 
         with UpdateConfig(self.config):
-            if "ds2_online" in model_type or "ds2_offline" in model_type:
+            if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
                 from paddlespeech.s2t.io.collator import SpeechCollator
-                self.config.collator.vocab_filepath = os.path.join(
-                    res_path, self.config.collator.vocab_filepath)
-                self.config.collator.mean_std_filepath = os.path.join(
-                    res_path, self.config.collator.cmvn_path)
+                self.vocab = self.config.vocab_filepath
+                self.config.decode.lang_model_path = os.path.join(
+                    MODEL_HOME, 'language_model',
+                    self.config.decode.lang_model_path)
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 self.text_feature = TextFeaturizer(
-                    unit_type=self.config.collator.unit_type,
-                    vocab=self.config.collator.vocab_filepath,
-                    spm_model_prefix=self.config.collator.spm_model_prefix)
-                self.config.model.input_dim = self.collate_fn_test.feature_size
-                self.config.model.output_dim = self.text_feature.vocab_size
+                    unit_type=self.config.unit_type, vocab=self.vocab)
+                lm_url = pretrained_models[tag]['lm_url']
+                lm_md5 = pretrained_models[tag]['lm_md5']
+                self.download_lm(
+                    lm_url,
+                    os.path.dirname(self.config.decode.lang_model_path), lm_md5)
+
             elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
-                self.config.collator.vocab_filepath = os.path.join(
-                    res_path, self.config.collator.vocab_filepath)
-                self.config.collator.augmentation_config = os.path.join(
-                    res_path, self.config.collator.augmentation_config)
-                self.config.collator.spm_model_prefix = os.path.join(
-                    res_path, self.config.collator.spm_model_prefix)
+                self.config.spm_model_prefix = os.path.join(
+                    self.res_path, self.config.spm_model_prefix)
                 self.text_feature = TextFeaturizer(
-                    unit_type=self.config.collator.unit_type,
-                    vocab=self.config.collator.vocab_filepath,
-                    spm_model_prefix=self.config.collator.spm_model_prefix)
-                self.config.model.input_dim = self.config.collator.feat_dim
-                self.config.model.output_dim = self.text_feature.vocab_size
+                    unit_type=self.config.unit_type,
+                    vocab=self.config.vocab_filepath,
+                    spm_model_prefix=self.config.spm_model_prefix)
+                self.config.decode.decoding_method = decode_method
 
             else:
                 raise Exception("wrong type")
-        # Enter the path of model root
-
         model_name = model_type[:model_type.rindex(
             '_')]  # model_type: {model_name}_{dataset}
         model_class = dynamic_import(model_name, model_alias)
-        model_conf = self.config.model
-        logger.info(model_conf)
+        model_conf = self.config
         model = model_class.from_config(model_conf)
         self.model = model
         self.model.eval()
@@ -222,7 +268,7 @@ class ASRExecutor(BaseExecutor):
         logger.info("Preprocess audio_file:" + audio_file)
 
         # Get the object for feature extraction
-        if "ds2_online" in model_type or "ds2_offline" in model_type:
+        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
             audio, _ = self.collate_fn_test.process_utterance(
                 audio_file=audio_file, transcript=" ")
             audio_len = audio.shape[0]
@@ -236,18 +282,7 @@ class ASRExecutor(BaseExecutor):
 
         elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
             logger.info("get the preprocess conf")
-            preprocess_conf_file = self.config.collator.augmentation_config
-            # redirect the cmvn path
-            with io.open(preprocess_conf_file, encoding="utf-8") as f:
-                preprocess_conf = yaml.safe_load(f)
-                for idx, process in enumerate(preprocess_conf["process"]):
-                    if process['type'] == "cmvn_json":
-                        preprocess_conf["process"][idx][
-                            "cmvn_path"] = os.path.join(
-                                self.res_path,
-                                preprocess_conf["process"][idx]["cmvn_path"])
-                        break
-            logger.info(preprocess_conf)
+            preprocess_conf = self.config.preprocess_config
             preprocess_args = {"train": False}
             preprocessing = Transformation(preprocess_conf)
             logger.info("read the audio file")
@@ -289,10 +324,10 @@ class ASRExecutor(BaseExecutor):
         Model inference and result stored in self.output.
         """
 
-        cfg = self.config.decoding
+        cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
-        if "ds2_online" in model_type or "ds2_offline" in model_type:
+        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
             result_transcripts = self.model.decode(
                 audio,
                 audio_len,
@@ -327,6 +362,13 @@ class ASRExecutor(BaseExecutor):
             Output postprocess and return human-readable results such as texts and audio files.
         """
         return self._outputs["result"]
+
+    def download_lm(self, url, lm_dir, md5sum):
+        download_path = get_path_from_url(
+            url=url,
+            root_dir=lm_dir,
+            md5sum=md5sum,
+            decompress=False, )
 
     def _pcm16to32(self, audio):
         assert (audio.dtype == np.int16)
@@ -414,12 +456,13 @@ class ASRExecutor(BaseExecutor):
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
         audio_file = parser_args.input
+        decode_method = parser_args.decode_method
         force_yes = parser_args.yes
         device = parser_args.device
 
         try:
             res = self(audio_file, model, lang, sample_rate, config, ckpt_path,
-                       force_yes, device)
+                       decode_method, force_yes, device)
             logger.info('ASR Result: {}'.format(res))
             return True
         except Exception as e:
@@ -434,6 +477,7 @@ class ASRExecutor(BaseExecutor):
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
+                 decode_method: str='attention_rescoring',
                  force_yes: bool=False,
                  device=paddle.get_device()):
         """
@@ -442,7 +486,8 @@ class ASRExecutor(BaseExecutor):
         audio_file = os.path.abspath(audio_file)
         self._check(audio_file, sample_rate, force_yes)
         paddle.set_device(device)
-        self._init_from_path(model, lang, sample_rate, config, ckpt_path)
+        self._init_from_path(model, lang, sample_rate, config, decode_method,
+                             ckpt_path)
         self.preprocess(model, audio_file)
         self.infer(model)
         res = self.postprocess()  # Retrieve result of asr.

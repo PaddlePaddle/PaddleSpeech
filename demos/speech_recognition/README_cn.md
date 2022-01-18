@@ -2,7 +2,7 @@
 
 # 语音识别
 ## 介绍
-语音识别解决让计算机程序自动转录语音的问题。
+语音识别是一项用计算机程序自动转录语音的技术。
 
 这个 demo 是一个从给定音频文件识别文本的实现，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 ## 使用方法
@@ -21,7 +21,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 3. 使用方法
 - 命令行 (推荐使用)
   ```bash
+  # 中文
   paddlespeech asr --input ./zh.wav
+  # 英文
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
   ```
   (如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
   
@@ -41,7 +44,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   输出：
   ```bash
+  # 中文
   [2021-12-08 13:12:34,063] [    INFO] [utils.py] [L225] - ASR Result: 我认为跑步最重要的就是给我带来了身体健康
+  # 英文
+  [2022-01-12 11:51:10,815] [    INFO] - ASR Result: i knocked at the door on the ancient side of the building
   ```
 
 - Python API
@@ -74,3 +80,4 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
 | conformer_wenetspeech| zh| 16000
+| transformer_librispeech| en| 16000

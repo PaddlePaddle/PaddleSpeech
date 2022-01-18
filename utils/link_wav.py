@@ -20,6 +20,7 @@ import jsonlines
 import numpy as np
 from tqdm import tqdm
 
+
 def main():
     # parse config and args
     parser = argparse.ArgumentParser(
@@ -58,9 +59,18 @@ def main():
             mel_path = output_dir / ("raw/" + name)
             gen_mel = np.load(mel_path)
             wave_name = utt_id + "_wave.npy"
-            wav = np.load(old_dump_dir / sub / ("raw/" + wave_name))
-            os.symlink(old_dump_dir / sub / ("raw/" + wave_name),
-                       output_dir / ("raw/" + wave_name))
+            try:
+                wav = np.load(old_dump_dir / sub / ("raw/" + wave_name))
+                os.symlink(old_dump_dir / sub / ("raw/" + wave_name),
+                           output_dir / ("raw/" + wave_name))
+            except FileNotFoundError:
+                print("delete " + name +
+                      " because it cannot be found in the dump folder")
+                os.remove(output_dir / "raw" / name)
+                continue
+            except FileExistsError:
+                print("file " + name + " exists, skip.")
+                continue
             num_sample = wav.shape[0]
             num_frames = gen_mel.shape[0]
             wav_path = output_dir / ("raw/" + wave_name)

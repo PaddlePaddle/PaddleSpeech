@@ -34,7 +34,7 @@ make -j4
 pushd ../src
 OPENBLAS_DIR=${KALDI_DIR}/../OpenBLAS
 mkdir -p ${OPENBLAS_DIR}/install
-if [ $SHARED == true ];
+if [ $SHARED == true ]; then
    ./configure --shared --use-cuda=no --static-math --mathlib=OPENBLAS --openblas-root=${OPENBLAS_DIR}/install
 else
    ./configure --static --use-cuda=no --static-math --mathlib=OPENBLAS --openblas-root=${OPENBLAS_DIR}/install

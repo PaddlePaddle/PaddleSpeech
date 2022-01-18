@@ -32,6 +32,12 @@ pull_request_rules:
     actions:
       label:
         remove: ["conflicts"]
+  - name: "auto add label=Dataset"
+    conditions:
+      - files~=^dataset/
+    actions:
+      label:
+        add: ["Dataset"]
   - name: "auto add label=S2T"
     conditions:
       - files~=^paddlespeech/s2t/
@@ -50,18 +56,30 @@ pull_request_rules:
     actions:
       label:
         add: ["Audio"]
-  - name: "auto add label=TextProcess"
+  - name: "auto add label=Vector"
+    conditions:
+      - files~=^paddlespeech/vector/
+    actions:
+      label:
+        add: ["Vector"]
+  - name: "auto add label=Text"
     conditions:
       - files~=^paddlespeech/text/
     actions:
       label:
-        add: ["TextProcess"]
+        add: ["Text"]
   - name: "auto add label=Example"
     conditions:
       - files~=^examples/
     actions:
       label:
         add: ["Example"]
+  - name: "auto add label=CLI"
+    conditions:
+      - files~=^paddlespeech/cli
+    actions:
+      label:
+        add: ["CLI"]
   - name: "auto add label=Demo"
     conditions:
       - files~=^demos/
@@ -70,13 +88,13 @@ pull_request_rules:
         add: ["Demo"]
   - name: "auto add label=README"
     conditions:
-      - files~=README.md
+      - files~=(README.md|READEME_cn.md)
     actions:
       label:
         add: ["README"]
   - name: "auto add label=Documentation"
     conditions:
-      - files~=^docs/
+      - files~=^(docs/|CHANGELOG.md|paddleaudio/CHANGELOG.md)
     actions:
       label:
         add: ["Documentation"]
@@ -88,10 +106,16 @@ pull_request_rules:
         add: ["CI"]
   - name: "auto add label=Installation"
     conditions:
-      - files~=^(tools/|setup.py|setup.sh)
+      - files~=^(tools/|setup.py|setup.cfg|setup_audio.py)
     actions:
       label:
         add: ["Installation"]
+  - name: "auto add label=Test"
+    conditions:
+      - files~=^(tests/)
+    actions:
+      label:
+        add: ["Test"]
   - name: "auto add label=mergify"
     conditions:
       - files~=^.mergify.yml
@@ -106,7 +130,7 @@ pull_request_rules:
         add: ["Docker"]
   - name: "auto add label=Deployment"
     conditions:
-      - files~=^speechnn/
+      - files~=^speechx/
     actions:
       label:
         add: ["Deployment"]

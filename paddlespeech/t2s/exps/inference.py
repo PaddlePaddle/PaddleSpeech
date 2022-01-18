@@ -120,6 +120,7 @@ def main():
             sentences.append((utt_id, sentence))
 
     get_tone_ids = False
+    get_spk_id = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
     if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:

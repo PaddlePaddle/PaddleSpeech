@@ -257,6 +257,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --output_dir=exp/default/test_e2e \
   --phones_dict=fastspeech2_nosil_aishell3_ckpt_0.4/phone_id_map.txt \
   --speaker_dict=fastspeech2_nosil_aishell3_ckpt_0.4/speaker_id_map.txt \
-  --spk_id=0
+  --spk_id=0 \
+  --inference_dir=exp/default/inference
 
 ```

@@ -159,9 +159,16 @@ def evaluate(args):
         # acoustic model
         if am_name == 'fastspeech2':
             if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:
-                print(
-                    "Haven't test dygraph to static for multi speaker fastspeech2 now!"
-                )
+                am_inference = jit.to_static(
+                    am_inference,
+                    input_spec=[
+                        InputSpec([-1], dtype=paddle.int64),
+                        InputSpec([1], dtype=paddle.int64)
+                    ])
+                paddle.jit.save(am_inference,
+                                os.path.join(args.inference_dir, args.am))
+                am_inference = paddle.jit.load(
+                    os.path.join(args.inference_dir, args.am))
             else:
                 am_inference = jit.to_static(
                     am_inference,

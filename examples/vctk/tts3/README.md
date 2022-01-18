@@ -240,13 +240,14 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am_ckpt=fastspeech2_nosil_vctk_ckpt_0.5/snapshot_iter_66200.pdz \
   --am_stat=fastspeech2_nosil_vctk_ckpt_0.5/speech_stats.npy \
   --voc=pwgan_vctk \
-  --voc_config=pwg_vctk_ckpt_0.5/pwg_default.yaml  \
-  --voc_ckpt=pwg_vctk_ckpt_0.5/pwg_snapshot_iter_1000000.pdz \
-  --voc_stat=pwg_vctk_ckpt_0.5/pwg_stats.npy \
+  --voc_config=pwg_vctk_ckpt_0.1.1/default.yaml  \
+  --voc_ckpt=pwg_vctk_ckpt_0.1.1/snapshot_iter_1500000.pdz \
+  --voc_stat=pwg_vctk_ckpt_0.1.1/feats_stats.npy \
   --lang=en \
   --text=${BIN_DIR}/../sentences_en.txt \
   --output_dir=exp/default/test_e2e \
   --phones_dict=fastspeech2_nosil_vctk_ckpt_0.5/phone_id_map.txt \
   --speaker_dict=fastspeech2_nosil_vctk_ckpt_0.5/speaker_id_map.txt \
-  --spk_id=0
+  --spk_id=0 \
+  --inference_dir=exp/default/inference
 ```

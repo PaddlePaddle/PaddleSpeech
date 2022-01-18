@@ -1,3 +1,16 @@
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Calculates Diarization Error Rate (DER) which is the sum of Missed Speaker (MS),
 False Alarm (FA), and Speaker Error Rate (SER) using md-eval-22.pl from NIST RT Evaluation.
 
@@ -26,7 +39,6 @@ ERROR_SPEAKER_TIME = re.compile(r"(?<=SPEAKER ERROR TIME =)[\d.]+")
 def rectify(arr):
     """Corrects corner cases and converts scores into percentage.
     """
-
     # Numerator and denominator both 0.
     arr[np.isnan(arr)] = 0
 
@@ -38,12 +50,11 @@ def rectify(arr):
 
 
 def DER(
-    ref_rttm,
-    sys_rttm,
-    ignore_overlap=False,
-    collar=0.25,
-    individual_file_scores=False,
-):
+        ref_rttm,
+        sys_rttm,
+        ignore_overlap=False,
+        collar=0.25,
+        individual_file_scores=False, ):
     """Computes Missed Speaker percentage (MS), False Alarm (FA),
     Speaker Error Rate (SER), and Diarization Error Rate (DER).
 
@@ -118,25 +129,20 @@ def DER(
         ]
 
         scored_speaker_times = np.array(
-            [float(m) for m in SCORED_SPEAKER_TIME.findall(stdout)]
-        )
+            [float(m) for m in SCORED_SPEAKER_TIME.findall(stdout)])
 
         miss_speaker_times = np.array(
-            [float(m) for m in MISS_SPEAKER_TIME.findall(stdout)]
-        )
+            [float(m) for m in MISS_SPEAKER_TIME.findall(stdout)])
 
         fa_speaker_times = np.array(
-            [float(m) for m in FA_SPEAKER_TIME.findall(stdout)]
-        )
+            [float(m) for m in FA_SPEAKER_TIME.findall(stdout)])
 
         error_speaker_times = np.array(
-            [float(m) for m in ERROR_SPEAKER_TIME.findall(stdout)]
-        )
+            [float(m) for m in ERROR_SPEAKER_TIME.findall(stdout)])
 
         with np.errstate(invalid="ignore", divide="ignore"):
             tot_error_times = (
-                miss_speaker_times + fa_speaker_times + error_speaker_times
-            )
+                miss_speaker_times + fa_speaker_times + error_speaker_times)
             miss_speaker_frac = miss_speaker_times / scored_speaker_times
             fa_speaker_frac = fa_speaker_times / scored_speaker_times
             sers_frac = error_speaker_times / scored_speaker_times
@@ -153,13 +159,19 @@ def DER(
         else:
             return miss_speaker[-1], fa_speaker[-1], sers[-1], ders[-1]
 
+
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Compute Diarization Error Rate')
+    parser = argparse.ArgumentParser(
+        description='Compute Diarization Error Rate')
     parser.add_argument(
-        '--ref_rttm', required=True, help='the path of reference/groundtruth RTTM file')
+        '--ref_rttm',
+        required=True,
+        help='the path of reference/groundtruth RTTM file')
     parser.add_argument(
-        '--sys_rttm', required=True, help='the path of the system generated RTTM file')
+        '--sys_rttm',
+        required=True,
+        help='the path of the system generated RTTM file')
     parser.add_argument(
         '--individual_file',
         default=False,
@@ -176,4 +188,5 @@ if __name__ == '__main__':
     print(args)
 
     der = DER(args.ref_rttm, args.sys_rttm)
-    print("miss_speaker: %.3f%% fa_speaker: %.3f%% sers: %.3f%% ders: %.3f%%" % (der[0], der[1], der[2], der[-1]))
+    print("miss_speaker: %.3f%% fa_speaker: %.3f%% sers: %.3f%% ders: %.3f%%" %
+          (der[0], der[1], der[2], der[-1]))

@@ -1,3 +1,16 @@
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 Data reading and writing.
 
@@ -5,9 +18,9 @@ Authors
  * qingenz123@126.com (Qingen ZHAO) 2022
  
 """
-
 import os
 import pickle
+
 
 def save_pkl(obj, file):
     """Save an object in pkl format.
@@ -31,6 +44,7 @@ def save_pkl(obj, file):
     with open(file, "wb") as f:
         pickle.dump(obj, f)
 
+
 def load_pickle(pickle_path):
     """Utility function for loading .pkl pickle files.
 
@@ -47,6 +61,7 @@ def load_pickle(pickle_path):
     with open(pickle_path, "rb") as f:
         out = pickle.load(f)
     return out
+
 
 def load_pkl(file):
     """Loads a pkl file.

@@ -75,7 +75,7 @@ class TransformerTTSUpdater(StandardUpdater):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
 
-        after_outs, before_outs, logits, ys, labels, olens, olens_in, need_dict = self.model(
+        after_outs, before_outs, logits, ys, stop_labels, olens, olens_in, need_dict = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -86,7 +86,7 @@ class TransformerTTSUpdater(StandardUpdater):
             before_outs=before_outs,
             logits=logits,
             ys=ys,
-            labels=labels,
+            stop_labels=stop_labels,
             olens=olens)
 
         report("train/bce_loss", float(bce_loss))
@@ -226,7 +226,7 @@ class TransformerTTSEvaluator(StandardEvaluator):
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "
         losses_dict = {}
-        after_outs, before_outs, logits, ys, labels, olens, olens_in, need_dict = self.model(
+        after_outs, before_outs, logits, ys, stop_labels, olens, olens_in, need_dict = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -237,7 +237,7 @@ class TransformerTTSEvaluator(StandardEvaluator):
             before_outs=before_outs,
             logits=logits,
             ys=ys,
-            labels=labels,
+            stop_labels=stop_labels,
             olens=olens)
 
         report("eval/bce_loss", float(bce_loss))

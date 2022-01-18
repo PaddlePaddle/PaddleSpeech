@@ -16,8 +16,8 @@ fmax: 7600         # Maximum frequency of Mel basis.
 n_mels: 80         # The number of mel basis.
 
 # Only used for the model using pitch features (e.g. FastSpeech2)
-f0min: 80          # Maximum f0 for pitch extraction.
-f0max: 400         # Minimum f0 for pitch extraction.
+f0min: 80          # Minimum f0 for pitch extraction.
+f0max: 400         # Maximum f0 for pitch extraction.
 
 
 ###########################################################

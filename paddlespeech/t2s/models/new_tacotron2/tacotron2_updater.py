@@ -74,7 +74,7 @@ class Tacotron2Updater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in = self.model(
+        after_outs, before_outs, logits, ys, stop_labels, olens, att_ws, olens_in = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -83,8 +83,13 @@ class Tacotron2Updater(StandardUpdater):
             spk_emb=spk_emb)
 
         # calculate taco2 loss
-        l1_loss, mse_loss, bce_loss = self.taco2_loss(after_outs, before_outs,
-                                                      logits, ys, labels, olens)
+        l1_loss, mse_loss, bce_loss = self.taco2_loss(
+            after_outs=after_outs,
+            before_outs=before_outs,
+            logits=logits,
+            ys=ys,
+            stop_labels=stop_labels,
+            olens=olens)
 
         if self.loss_type == "L1+L2":
             loss = l1_loss + mse_loss + bce_loss
@@ -164,7 +169,7 @@ class Tacotron2Evaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in = self.model(
+        after_outs, before_outs, logits, ys, stop_labels, olens, att_ws, olens_in = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -173,8 +178,13 @@ class Tacotron2Evaluator(StandardEvaluator):
             spk_emb=spk_emb)
 
         # calculate taco2 loss
-        l1_loss, mse_loss, bce_loss = self.taco2_loss(after_outs, before_outs,
-                                                      logits, ys, labels, olens)
+        l1_loss, mse_loss, bce_loss = self.taco2_loss(
+            after_outs=after_outs,
+            before_outs=before_outs,
+            logits=logits,
+            ys=ys,
+            stop_labels=stop_labels,
+            olens=olens)
 
         if self.loss_type == "L1+L2":
             loss = l1_loss + mse_loss + bce_loss

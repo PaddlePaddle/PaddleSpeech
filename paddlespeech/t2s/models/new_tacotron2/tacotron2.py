@@ -300,10 +300,10 @@ class Tacotron2(nn.Layer):
         olens = speech_lengths
 
         # make labels for stop prediction
-        labels = make_pad_mask(olens - 1)
+        stop_labels = make_pad_mask(olens - 1)
         # bool 类型无法切片
-        labels = paddle.cast(labels, dtype='float32')
-        labels = F.pad(labels, [0, 0, 0, 1], "constant", 1.0)
+        stop_labels = paddle.cast(stop_labels, dtype='float32')
+        stop_labels = F.pad(stop_labels, [0, 0, 0, 1], "constant", 1.0)
 
         # calculate tacotron2 outputs
         after_outs, before_outs, logits, att_ws = self._forward(
@@ -322,12 +322,13 @@ class Tacotron2(nn.Layer):
             olens = olens - olens % self.reduction_factor
             max_out = max(olens)
             ys = ys[:, :max_out]
-            labels = labels[:, :max_out]
-            labels = paddle.scatter(labels, 1, (olens - 1).unsqueeze(1), 1.0)
+            stop_labels = stop_labels[:, :max_out]
+            stop_labels = paddle.scatter(stop_labels, 1,
+                                         (olens - 1).unsqueeze(1), 1.0)
             olens_in = olens // self.reduction_factor
         else:
             olens_in = olens
-        return after_outs, before_outs, logits, ys, labels, olens, att_ws, olens_in
+        return after_outs, before_outs, logits, ys, stop_labels, olens, att_ws, olens_in
 
     def _forward(
             self,

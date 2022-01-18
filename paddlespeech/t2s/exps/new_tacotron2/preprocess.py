@@ -27,9 +27,7 @@ import tqdm
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.data.get_feats import Energy
 from paddlespeech.t2s.data.get_feats import LogMelFBank
-from paddlespeech.t2s.data.get_feats import Pitch
 from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
@@ -42,8 +40,6 @@ def process_sentence(config: Dict[str, Any],
                      sentences: Dict,
                      output_dir: Path,
                      mel_extractor=None,
-                     pitch_extractor=None,
-                     energy_extractor=None,
                      cut_sil: bool=True,
                      spk_emb_dir: Path=None):
     utt_id = fp.stem
@@ -117,8 +113,6 @@ def process_sentences(config,
                       sentences: Dict,
                       output_dir: Path,
                       mel_extractor=None,
-                      pitch_extractor=None,
-                      energy_extractor=None,
                       nprocs: int=1,
                       cut_sil: bool=True,
                       spk_emb_dir: Path=None):
@@ -126,8 +120,7 @@ def process_sentences(config,
         results = []
         for fp in fps:
             record = process_sentence(config, fp, sentences, output_dir,
-                                      mel_extractor, pitch_extractor,
-                                      energy_extractor, cut_sil, spk_emb_dir)
+                                      mel_extractor, cut_sil, spk_emb_dir)
             if record:
                 results.append(record)
     else:
@@ -137,7 +130,6 @@ def process_sentences(config,
                 for fp in fps:
                     future = pool.submit(process_sentence, config, fp,
                                          sentences, output_dir, mel_extractor,
-                                         pitch_extractor, energy_extractor,
                                          cut_sil, spk_emb_dir)
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
@@ -299,17 +291,6 @@ def main():
         n_mels=config.n_mels,
         fmin=config.fmin,
         fmax=config.fmax)
-    pitch_extractor = Pitch(
-        sr=config.fs,
-        hop_length=config.n_shift,
-        f0min=config.f0min,
-        f0max=config.f0max)
-    energy_extractor = Energy(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window)
 
     # process for the 3 sections
     if train_wav_files:
@@ -319,8 +300,6 @@ def main():
             sentences,
             train_dump_dir,
             mel_extractor,
-            pitch_extractor,
-            energy_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
@@ -331,8 +310,6 @@ def main():
             sentences,
             dev_dump_dir,
             mel_extractor,
-            pitch_extractor,
-            energy_extractor,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
     if test_wav_files:
@@ -342,8 +319,6 @@ def main():
             sentences,
             test_dump_dir,
             mel_extractor,
-            pitch_extractor,
-            energy_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)

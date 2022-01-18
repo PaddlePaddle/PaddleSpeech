@@ -207,7 +207,7 @@ class AttLoc(nn.Layer):
 
         w = F.softmax(scaling * e, axis=1)
 
-        # weighted sum over flames
+        # weighted sum over frames
         # utt x hdim
         c = paddle.sum(
             self.enc_h * w.reshape([batch, self.h_length, 1]), axis=1)

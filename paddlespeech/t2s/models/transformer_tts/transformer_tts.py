@@ -433,12 +433,10 @@ class TransformerTTS(nn.Layer):
         olens = paddle.cast(speech_lengths, 'int64')
 
         # make labels for stop prediction
-        labels = make_pad_mask(olens - 1)
-        labels = numpy.pad(
-            labels.numpy(), ((0, 0), (0, 1)), 'constant', constant_values=1.0)
-        labels = paddle.to_tensor(labels)
-        labels = paddle.cast(labels, dtype="float32")
-        # labels = F.pad(labels, [0, 1], "constant", 1.0)
+        stop_labels = make_pad_mask(olens - 1)
+        # bool 类型无法切片
+        stop_labels = paddle.cast(stop_labels, dtype='float32')
+        stop_labels = F.pad(stop_labels, [0, 0, 0, 1], "constant", 1.0)
 
         # calculate transformer outputs
         after_outs, before_outs, logits = self._forward(xs, ilens, ys, olens,
@@ -450,8 +448,8 @@ class TransformerTTS(nn.Layer):
             olens = olens - olens % self.reduction_factor
             max_olen = max(olens)
             ys = ys[:, :max_olen]
-            labels = labels[:, :max_olen]
-            labels[:, -1] = 1.0  # make sure at least one frame has 1
+            stop_labels = stop_labels[:, :max_olen]
+            stop_labels[:, -1] = 1.0  # make sure at least one frame has 1
             olens_in = olens // self.reduction_factor
         else:
             olens_in = olens
@@ -465,7 +463,7 @@ class TransformerTTS(nn.Layer):
             'num_layers_applied_guided_attn'] = self.num_layers_applied_guided_attn
         need_dict['use_scaled_pos_enc'] = self.use_scaled_pos_enc
 
-        return after_outs, before_outs, logits, ys, labels, olens, olens_in, need_dict
+        return after_outs, before_outs, logits, ys, stop_labels, olens, olens_in, need_dict
 
     def _forward(
             self,

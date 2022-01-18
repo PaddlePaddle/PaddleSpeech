@@ -263,7 +263,7 @@ class Tacotron2Loss(nn.Layer):
         self.bce_criterion = nn.BCEWithLogitsLoss(
             reduction=reduction, pos_weight=paddle.to_tensor(bce_pos_weight))
 
-    def forward(self, after_outs, before_outs, logits, ys, labels, olens):
+    def forward(self, after_outs, before_outs, logits, ys, stop_labels, olens):
         """Calculate forward propagation.
         Parameters
         ----------
@@ -275,7 +275,7 @@ class Tacotron2Loss(nn.Layer):
             Batch of stop logits (B, Lmax).
         ys : Tensor
             Batch of padded target features (B, Lmax, odim).
-        labels : Tensor(int64)
+        stop_labels : Tensor(int64)
             Batch of the sequences of stop token labels (B, Lmax).
         olens : Tensor(int64)
             Batch of the lengths of each target (B,).
@@ -296,8 +296,8 @@ class Tacotron2Loss(nn.Layer):
                 masks.broadcast_to(after_outs.shape))
             before_outs = before_outs.masked_select(
                 masks.broadcast_to(before_outs.shape))
-            labels = labels.masked_select(
-                masks[:, :, 0].broadcast_to(labels.shape))
+            stop_labels = stop_labels.masked_select(
+                masks[:, :, 0].broadcast_to(stop_labels.shape))
             logits = logits.masked_select(
                 masks[:, :, 0].broadcast_to(logits.shape))
 
@@ -306,7 +306,7 @@ class Tacotron2Loss(nn.Layer):
             before_outs, ys)
         mse_loss = self.mse_criterion(after_outs, ys) + self.mse_criterion(
             before_outs, ys)
-        bce_loss = self.bce_criterion(logits, labels)
+        bce_loss = self.bce_criterion(logits, stop_labels)
 
         # make weighted mask and apply it
         if self.use_weighted_masking:

@@ -91,6 +91,14 @@ def write_version_py(filename='paddlespeech/__init__.py'):
     with open(filename, "a") as f:
         f.write(f"\n__version__ = '{VERSION}'\n")
 
+def remove_version_py(filename='paddlespeech/__init__.py'):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    with open(filename, "w") as f:
+        for line in lines:
+            if "__version__" not in line:
+                f.write(line)
+
 
 @contextlib.contextmanager
 def pushd(new_dir):
@@ -247,3 +255,9 @@ setup_info = dict(
     })
 
 setup(**setup_info)
+
+
+remove_version_py()
+
+
+

@@ -14,23 +14,22 @@
 import setuptools
 
 # set the version here
-PADDLEAUDIO_VERSION = '0.1.0'
+VERSION = '0.1.0'
 
 
-def write_version_py(filename='paddleaudio/version.py'):
-    ver_str = """# THIS FILE IS GENERATED FROM SETUP_AUDIO.PY
-#
-full_version = '%(version)s'
-"""
-    with open(filename, 'w') as f:
-        f.write(ver_str % {'version': PADDLEAUDIO_VERSION})
+def write_version_py(filename='paddleaudio/__init__.py'):
+    import paddleaudio
+    if hasattr(paddleaudio, "__version__") and paddleaudio.__version__ == VERSION:
+        return
+    with open(filename, "a") as f:
+        f.write(f"\n__version__ = '{VERSION}'\n")
 
 
 write_version_py()
 
 setuptools.setup(
     name="paddleaudio",
-    version=PADDLEAUDIO_VERSION,
+    version=VERSION,
     author="",
     author_email="",
     description="PaddleAudio, in development",

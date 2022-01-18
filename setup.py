@@ -27,7 +27,7 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-PADDLESPEECH_VERSION = '0.1.1'
+VERSION = '0.1.1'
 
 requirements = {
     "install": [
@@ -84,13 +84,12 @@ requirements = {
 }
 
 
-def write_version_py(filename='paddlespeech/version.py'):
-    ver_str = """# THIS FILE IS GENERATED FROM PADDLESPEECH SETUP.PY
-#
-full_version = '%(version)s'
-"""
-    with open(filename, 'w') as f:
-        f.write(ver_str % {'version': PADDLESPEECH_VERSION})
+def write_version_py(filename='paddlespeech/__init__.py'):
+    import paddlespeech
+    if hasattr(paddlespeech, "__version__") and paddlespeech.__version__ == VERSION:
+        return
+    with open(filename, "a") as f:
+        f.write(f"\n__version__ = '{VERSION}'\n")
 
 
 @contextlib.contextmanager
@@ -185,7 +184,7 @@ write_version_py()
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version=PADDLESPEECH_VERSION,
+    version=VERSION,
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',

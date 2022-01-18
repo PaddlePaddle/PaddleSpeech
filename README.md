@@ -463,7 +463,6 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
   - [Automatic Speech Recognition](./docs/source/asr/quick_start.md)
     - [Introduction](./docs/source/asr/models_introduction.md)
     - [Data Preparation](./docs/source/asr/data_preparation.md)
-    - [Data Augmentation](./docs/source/asr/augmentation.md)
     - [Ngram LM](./docs/source/asr/ngram_lm.md)
   - [Text-to-Speech](./docs/source/tts/quick_start.md)
     - [Introduction](./docs/source/tts/models_introduction.md)

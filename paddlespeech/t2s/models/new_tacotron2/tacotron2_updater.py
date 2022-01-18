@@ -13,7 +13,6 @@
 # limitations under the License.
 import logging
 from pathlib import Path
-from typing import Dict
 
 from paddle import distributed as dist
 from paddle.io import DataLoader
@@ -34,8 +33,8 @@ logger.setLevel(logging.INFO)
 
 class Tacotron2Updater(StandardUpdater):
     def __init__(self,
-                 model: Dict[str, Layer],
-                 optimizer: Dict[str, Optimizer],
+                 model: Layer,
+                 optimizer: Optimizer,
                  dataloader: DataLoader,
                  init_state=None,
                  use_masking: bool=True,
@@ -126,8 +125,8 @@ class Tacotron2Updater(StandardUpdater):
 
 class Tacotron2Evaluator(StandardEvaluator):
     def __init__(self,
-                 model,
-                 dataloader,
+                 model: Layer,
+                 dataloader: DataLoader,
                  use_masking: bool=True,
                  use_weighted_masking: bool=False,
                  bce_pos_weight: float=5.0,

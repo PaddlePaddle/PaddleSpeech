@@ -19,10 +19,12 @@ VERSION = '0.1.0'
 
 def write_version_py(filename='paddleaudio/__init__.py'):
     import paddleaudio
-    if hasattr(paddleaudio, "__version__") and paddleaudio.__version__ == VERSION:
+    if hasattr(paddleaudio,
+               "__version__") and paddleaudio.__version__ == VERSION:
         return
     with open(filename, "a") as f:
         f.write(f"\n__version__ = '{VERSION}'\n")
+
 
 def remove_version_py(filename='paddleaudio/__init__.py'):
     with open(filename, "r") as f:
@@ -31,6 +33,7 @@ def remove_version_py(filename='paddleaudio/__init__.py'):
         for line in lines:
             if "__version__" not in line:
                 f.write(line)
+
 
 write_version_py()
 

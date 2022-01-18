@@ -86,10 +86,12 @@ requirements = {
 
 def write_version_py(filename='paddlespeech/__init__.py'):
     import paddlespeech
-    if hasattr(paddlespeech, "__version__") and paddlespeech.__version__ == VERSION:
+    if hasattr(paddlespeech,
+               "__version__") and paddlespeech.__version__ == VERSION:
         return
     with open(filename, "a") as f:
         f.write(f"\n__version__ = '{VERSION}'\n")
+
 
 def remove_version_py(filename='paddlespeech/__init__.py'):
     with open(filename, "r") as f:
@@ -256,8 +258,4 @@ setup_info = dict(
 
 setup(**setup_info)
 
-
 remove_version_py()
-
-
-

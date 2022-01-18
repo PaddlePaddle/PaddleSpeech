@@ -32,7 +32,7 @@ import json
 from ami_splits import get_AMI_split
 from distutils.util import strtobool
 
-from utils.dataio import (
+from dataio import (
     load_pkl,
     save_pkl, )
 

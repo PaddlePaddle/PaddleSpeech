@@ -13,14 +13,24 @@
 # limitations under the License.
 import setuptools
 
-import paddleaudio
-
 # set the version here
-version = paddleaudio.__version__
+PADDLEAUDIO_VERSION = '0.1.0'
+
+
+def write_version_py(filename='paddleaudio/version.py'):
+    ver_str = """# THIS FILE IS GENERATED FROM SETUP_AUDIO.PY
+#
+full_version = '%(version)s'
+"""
+    with open(filename, 'w') as f:
+        f.write(ver_str % {'version': PADDLEAUDIO_VERSION})
+
+
+write_version_py()
 
 setuptools.setup(
     name="paddleaudio",
-    version=version,
+    version=PADDLEAUDIO_VERSION,
     author="",
     author_email="",
     description="PaddleAudio, in development",

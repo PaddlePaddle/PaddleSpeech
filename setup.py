@@ -85,7 +85,7 @@ requirements = {
 
 
 def write_version_py(filename='paddlespeech/version.py'):
-    ver_str = """# THIS FILE IS GENERATED FROM PADDLEPADDLE SETUP.PY
+    ver_str = """# THIS FILE IS GENERATED FROM PADDLESPEECH SETUP.PY
 #
 full_version = '%(version)s'
 """

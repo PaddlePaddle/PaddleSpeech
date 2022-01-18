@@ -14,4 +14,10 @@
 from .backends import *
 from .features import *
 
-__version__ = '0.1.0'
+try:
+    from .version import full_version as __version__
+except ImportError:
+    import sys
+    sys.stderr.write(
+        "Warning: import paddlaudio from source directory without installing, run 'python setup_audio.py install' to install paddlespeech firstly\n"
+    )

@@ -16,5 +16,5 @@ try:
 except ImportError:
     import sys
     sys.stderr.write(
-        "Warning: import paddlespeech from source directory without installing, run 'python setup.py install' to install paddlespeech firstly\n"
+        "Warning: import paddlespeech from source directory without installing, run 'python setup.py install' to install paddlespeech firstly.\n"
     )

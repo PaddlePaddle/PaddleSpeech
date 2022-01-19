@@ -68,7 +68,6 @@ see https://sites.google.com/site/shinnosuketakamichi/publication/corpus
 - [Emotional Voice Conversion: Theory, Databases and ESD](https://github.com/HLTSingapore/Emotional-Speech-Data)    
     - paper: [Emotional Voice Conversion: Theory, Databases and ESD](https://arxiv.org/abs/2105.14762) 
 
-
 ## Music
 - [GiantMIDI-Piano](https://github.com/bytedance/GiantMIDI-Piano)
 - [MAESTRO Dataset](https://magenta.tensorflow.org/datasets/maestro)

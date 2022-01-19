@@ -132,3 +132,16 @@ def ctc_beam_search_decoder_batch(probs_split,
     batch_beam_results = [[(res[0], res[1]) for res in beam_results]
                           for beam_results in batch_beam_results]
     return batch_beam_results
+
+
+def get_ctc_beam_search_chunk_decoder(vocabulary, batch_size, beam_size,
+                                      num_processes, cutoff_prob, cutoff_top_n,
+                                      ext_scoring_func, blank_id):
+    chunk_decoder = swig_decoders.CtcBeamSearchDecoderBatch(
+        vocabulary, batch_size, beam_size, num_processes, cutoff_prob,
+        cutoff_top_n, ext_scoring_func, blank_id)
+    return chunk_decoder
+
+
+def get_ctc_beam_search_decoder_batch_class():
+    return swig_decoders.CtcBeamSearchDecoderBatch

@@ -28,6 +28,8 @@ try:
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoder  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
+    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import get_ctc_beam_search_chunk_decoder  # noqa: F401
+    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import get_ctc_beam_search_decoder_batch_class
 except ImportError:
     try:
         from paddlespeech.s2t.utils import dynamic_pip_install
@@ -242,6 +244,7 @@ class CTCDecoder(CTCDecoderBase):
     def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
                     decoding_method):
 
+        self.decoding_method = decoding_method
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
@@ -288,3 +291,58 @@ class CTCDecoder(CTCDecoderBase):
         else:
             raise ValueError(f"Not support: {decoding_method}")
         return result_transcripts
+
+    def get_chunk_decoder(self, vocabulary, batch_size, beam_alpha, beam_beta,
+                          beam_size, num_processes, cutoff_prob, cutoff_top_n):
+        num_processes = min(num_processes, batch_size)
+        if self._ext_scorer is not None:
+            self._ext_scorer.reset_params(beam_alpha, beam_beta)
+        if self.decoding_method == "ctc_beam_search":
+            DecoderClass = get_ctc_beam_search_decoder_batch_class()
+            chunk_decoder = DecoderClass(
+                vocabulary, batch_size, beam_size, num_processes, cutoff_prob,
+                cutoff_top_n, self._ext_scorer, self.blank_id)
+        else:
+            raise ValueError(f"Not support: {decoding_method}")
+        return chunk_decoder
+
+    def chunk_decoder_next(self, chunk_decoder, probs, logits_lens):
+        has_value = (logits_lens > 0).tolist()
+        has_value = [
+            "true" if has_value[i] is True else "false"
+            for i in range(len(has_value))
+        ]
+        """
+        for i in range(len(has_value)):
+            if(has_value[i] == True):
+                has_value[i] = "true"
+            else:
+                has_value[i] = "false"
+        """
+        probs_split = [
+            probs[i, :l, :].tolist() if has_value[i] else probs[i].tolist()
+            for i, l in enumerate(logits_lens)
+        ]
+        if self.decoding_method == "ctc_beam_search":
+            chunk_decoder.next(probs_split, has_value)
+        else:
+            raise ValueError(f"Not support: {decoding_method}")
+
+        return
+
+    def chunk_decoder_decode(self, chunk_decoder):
+        if self.decoding_method == "ctc_beam_search":
+            batch_beam_results = chunk_decoder.decode()
+            batch_beam_results = [[(res[0], res[1]) for res in beam_results]
+                                  for beam_results in batch_beam_results]
+            results_best = [result[0][1] for result in batch_beam_results]
+            results_beam = [[trans[1] for trans in result]
+                            for result in batch_beam_results]
+
+        else:
+            raise ValueError(f"Not support: {decoding_method}")
+
+        return results_best, results_beam
+
+    def remove_chunk_decoder(self, chunk_decoder):
+        del chunk_decoder

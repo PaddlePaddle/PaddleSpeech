@@ -44,6 +44,7 @@ PathTrie::PathTrie() {
 PathTrie::~PathTrie() {
     for (auto child : children_) {
         delete child.second;
+        child.second = nullptr;
     }
 }
 
@@ -131,25 +132,26 @@ void PathTrie::iterate_to_vec(std::vector<PathTrie*>& output) {
 
 void PathTrie::remove() {
     exists_ = false;
-
     if (children_.size() == 0) {
-        auto child = parent->children_.begin();
-        for (child = parent->children_.begin();
-             child != parent->children_.end();
-             ++child) {
-            if (child->first == character) {
-                parent->children_.erase(child);
-                break;
+        if (parent != nullptr) {
+            auto child = parent->children_.begin();
+            for (child = parent->children_.begin();
+                 child != parent->children_.end();
+                 ++child) {
+                if (child->first == character) {
+                    parent->children_.erase(child);
+                    break;
+                }
             }
-        }
+            if (parent->children_.size() == 0 && !parent->exists_) {
+                parent->remove();
+            }
 
-        if (parent->children_.size() == 0 && !parent->exists_) {
-            parent->remove();
         }
-
         delete this;
     }
 }
+
 
 void PathTrie::set_dictionary(fst::StdVectorFst* dictionary) {
     dictionary_ = dictionary;

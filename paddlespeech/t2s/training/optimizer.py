@@ -26,10 +26,13 @@ optim_classes = dict(
     sgd=paddle.optimizer.SGD, )
 
 
-def build_optimizers(model: nn.Layer,
-                     optim='adadelta',
-                     max_grad_norm=None,
-                     learning_rate=0.01) -> paddle.optimizer:
+def build_optimizers(
+        model: nn.Layer,
+        optim='adadelta',
+        max_grad_norm=None,
+        learning_rate=0.01,
+        weight_decay=None,
+        epsilon=1.0e-6, ) -> paddle.optimizer:
     optim_class = optim_classes.get(optim)
     if optim_class is None:
         raise ValueError(f"must be one of {list(optim_classes)}: {optim}")
@@ -37,10 +40,13 @@ def build_optimizers(model: nn.Layer,
         grad_clip = None
         if max_grad_norm:
             grad_clip = paddle.nn.ClipGradByGlobalNorm(max_grad_norm)
-        optim = optim_class(
-            parameters=model.parameters(),
-            learning_rate=learning_rate,
-            grad_clip=grad_clip)
+        optim_dict = {}
+        optim_dict['parameters'] = model.parameters()
+        optim_dict['learning_rate'] = learning_rate
+        optim_dict['grad_clip'] = grad_clip
+        optim_dict['weight_decay'] = weight_decay
+        if optim_class not in {'momentum', 'sgd'}:
+            optim_dict['epsilon'] = epsilon
+        optimizers = optim_class(**optim_dict)
 
-    optimizers = optim
     return optimizers

@@ -433,12 +433,10 @@ class TransformerTTS(nn.Layer):
         olens = paddle.cast(speech_lengths, 'int64')
 
         # make labels for stop prediction
-        labels = make_pad_mask(olens - 1)
-        labels = numpy.pad(
-            labels.numpy(), ((0, 0), (0, 1)), 'constant', constant_values=1.0)
-        labels = paddle.to_tensor(labels)
-        labels = paddle.cast(labels, dtype="float32")
-        # labels = F.pad(labels, [0, 1], "constant", 1.0)
+        stop_labels = make_pad_mask(olens - 1)
+        # bool 类型无法切片
+        stop_labels = paddle.cast(stop_labels, dtype='float32')
+        stop_labels = F.pad(stop_labels, [0, 0, 0, 1], "constant", 1.0)
 
         # calculate transformer outputs
         after_outs, before_outs, logits = self._forward(xs, ilens, ys, olens,
@@ -447,12 +445,15 @@ class TransformerTTS(nn.Layer):
         # modifiy mod part of groundtruth
 
         if self.reduction_factor > 1:
-            olens = paddle.to_tensor(
-                [olen - olen % self.reduction_factor for olen in olens.numpy()])
+            olens = olens - olens % self.reduction_factor
             max_olen = max(olens)
             ys = ys[:, :max_olen]
-            labels = labels[:, :max_olen]
-            labels[:, -1] = 1.0  # make sure at least one frame has 1
+            stop_labels = stop_labels[:, :max_olen]
+            stop_labels[:, -1] = 1.0  # make sure at least one frame has 1
+            olens_in = olens // self.reduction_factor
+        else:
+            olens_in = olens
+
         need_dict = {}
         need_dict['encoder'] = self.encoder
         need_dict['decoder'] = self.decoder
@@ -462,7 +463,7 @@ class TransformerTTS(nn.Layer):
             'num_layers_applied_guided_attn'] = self.num_layers_applied_guided_attn
         need_dict['use_scaled_pos_enc'] = self.use_scaled_pos_enc
 
-        return after_outs, before_outs, logits, ys, labels, olens, ilens, need_dict
+        return after_outs, before_outs, logits, ys, stop_labels, olens, olens_in, need_dict
 
     def _forward(
             self,
@@ -488,8 +489,7 @@ class TransformerTTS(nn.Layer):
         # thin out frames for reduction factor (B, Lmax, odim) ->  (B, Lmax//r, odim)
         if self.reduction_factor > 1:
             ys_in = ys[:, self.reduction_factor - 1::self.reduction_factor]
-            olens_in = olens.new(
-                [olen // self.reduction_factor for olen in olens])
+            olens_in = olens // self.reduction_factor
         else:
             ys_in, olens_in = ys, olens
 
@@ -769,318 +769,3 @@ class TransformerTTSInference(nn.Layer):
         normalized_mel = self.acoustic_model.inference(text)[0]
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
-
-
-class TransformerTTSLoss(nn.Layer):
-    """Loss function module for Tacotron2."""
-
-    def __init__(self,
-                 use_masking=True,
-                 use_weighted_masking=False,
-                 bce_pos_weight=5.0):
-        """Initialize Tactoron2 loss module.
-
-        Parameters
-        ----------
-        use_masking : bool
-            Whether to apply masking for padded part in loss calculation.
-        use_weighted_masking : bool
-            Whether to apply weighted masking in loss calculation.
-        bce_pos_weight : float
-            Weight of positive sample of stop token.
-
-        """
-        super().__init__()
-        assert (use_masking != use_weighted_masking) or not use_masking
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
-
-        # define criterions
-        reduction = "none" if self.use_weighted_masking else "mean"
-        self.l1_criterion = nn.L1Loss(reduction=reduction)
-        self.mse_criterion = nn.MSELoss(reduction=reduction)
-        self.bce_criterion = nn.BCEWithLogitsLoss(
-            reduction=reduction, pos_weight=paddle.to_tensor(bce_pos_weight))
-
-    def forward(self, after_outs, before_outs, logits, ys, labels, olens):
-        """Calculate forward propagation.
-
-        Parameters
-        ----------
-        after_outs : Tensor
-            Batch of outputs after postnets (B, Lmax, odim).
-        before_outs : Tensor
-            Batch of outputs before postnets (B, Lmax, odim).
-        logits : Tensor
-            Batch of stop logits (B, Lmax).
-        ys : Tensor
-            Batch of padded target features (B, Lmax, odim).
-        labels : LongTensor
-            Batch of the sequences of stop token labels (B, Lmax).
-        olens : LongTensor
-            Batch of the lengths of each target (B,).
-
-        Returns
-        ----------
-        Tensor
-            L1 loss value.
-        Tensor
-            Mean square error loss value.
-        Tensor
-            Binary cross entropy loss value.
-
-        """
-        # make mask and apply it
-        if self.use_masking:
-            masks = make_non_pad_mask(olens).unsqueeze(-1)
-            ys = ys.masked_select(masks.broadcast_to(ys.shape))
-            after_outs = after_outs.masked_select(
-                masks.broadcast_to(after_outs.shape))
-            before_outs = before_outs.masked_select(
-                masks.broadcast_to(before_outs.shape))
-            # Operator slice does not have kernel for data_type[bool]
-            tmp_masks = paddle.cast(masks, dtype='int64')
-            tmp_masks = tmp_masks[:, :, 0]
-            tmp_masks = paddle.cast(tmp_masks, dtype='bool')
-            labels = labels.masked_select(tmp_masks.broadcast_to(labels.shape))
-            logits = logits.masked_select(tmp_masks.broadcast_to(logits.shape))
-
-        # calculate loss
-        l1_loss = self.l1_criterion(after_outs, ys) + self.l1_criterion(
-            before_outs, ys)
-        mse_loss = self.mse_criterion(after_outs, ys) + self.mse_criterion(
-            before_outs, ys)
-        bce_loss = self.bce_criterion(logits, labels)
-
-        # make weighted mask and apply it
-        if self.use_weighted_masking:
-            masks = make_non_pad_mask(olens).unsqueeze(-1)
-            weights = masks.float() / masks.sum(dim=1, keepdim=True).float()
-            out_weights = weights.div(ys.shape[0] * ys.shape[2])
-            logit_weights = weights.div(ys.shape[0])
-
-            # apply weight
-            l1_loss = l1_loss.multiply(out_weights)
-            l1_loss = l1_loss.masked_select(
-                masks.broadcast_to(l1_loss.shape)).sum()
-
-            mse_loss = mse_loss.multiply(out_weights)
-            mse_loss = mse_loss.masked_select(
-                masks.broadcast_to(mse_loss.shape)).sum()
-
-            bce_loss = bce_loss.multiply(logit_weights.squeeze(-1))
-            bce_loss = bce_loss.masked_select(
-                masks.squeeze(-1).broadcast_to(bce_loss.shape)).sum()
-
-        return l1_loss, mse_loss, bce_loss
-
-
-class GuidedAttentionLoss(nn.Layer):
-    """Guided attention loss function module.
-
-    This module calculates the guided attention loss described
-    in `Efficiently Trainable Text-to-Speech System Based
-    on Deep Convolutional Networks with Guided Attention`_,
-    which forces the attention to be diagonal.
-
-    .. _`Efficiently Trainable Text-to-Speech System
-        Based on Deep Convolutional Networks with Guided Attention`:
-        https://arxiv.org/abs/1710.08969
-
-    """
-
-    def __init__(self, sigma=0.4, alpha=1.0, reset_always=True):
-        """Initialize guided attention loss module.
-
-        Parameters
-        ----------
-        sigma : float, optional
-            Standard deviation to control how close attention to a diagonal.
-        alpha : float, optional
-            Scaling coefficient (lambda).
-        reset_always : bool, optional
-            Whether to always reset masks.
-
-        """
-        super(GuidedAttentionLoss, self).__init__()
-        self.sigma = sigma
-        self.alpha = alpha
-        self.reset_always = reset_always
-        self.guided_attn_masks = None
-        self.masks = None
-
-    def _reset_masks(self):
-        self.guided_attn_masks = None
-        self.masks = None
-
-    def forward(self, att_ws, ilens, olens):
-        """Calculate forward propagation.
-
-        Parameters
-        ----------
-        att_ws : Tensor
-            Batch of attention weights (B, T_max_out, T_max_in).
-        ilens : LongTensor
-            Batch of input lenghts (B,).
-        olens : LongTensor
-            Batch of output lenghts (B,).
-
-        Returns
-        ----------
-        Tensor
-            Guided attention loss value.
-
-        """
-        if self.guided_attn_masks is None:
-            self.guided_attn_masks = self._make_guided_attention_masks(ilens,
-                                                                       olens)
-        if self.masks is None:
-            self.masks = self._make_masks(ilens, olens)
-        losses = self.guided_attn_masks * att_ws
-        loss = paddle.mean(
-            losses.masked_select(self.masks.broadcast_to(losses.shape)))
-        if self.reset_always:
-            self._reset_masks()
-        return self.alpha * loss
-
-    def _make_guided_attention_masks(self, ilens, olens):
-        n_batches = len(ilens)
-        max_ilen = max(ilens)
-        max_olen = max(olens)
-        guided_attn_masks = paddle.zeros((n_batches, max_olen, max_ilen))
-
-        for idx, (ilen, olen) in enumerate(zip(ilens, olens)):
-
-            ilen = int(ilen)
-            olen = int(olen)
-            guided_attn_masks[idx, :olen, :
-                              ilen] = self._make_guided_attention_mask(
-                                  ilen, olen, self.sigma)
-        return guided_attn_masks
-
-    @staticmethod
-    def _make_guided_attention_mask(ilen, olen, sigma):
-        """Make guided attention mask.
-
-        Examples
-        ----------
-        >>> guided_attn_mask =_make_guided_attention(5, 5, 0.4)
-        >>> guided_attn_mask.shape
-        [5, 5]
-        >>> guided_attn_mask
-        tensor([[0.0000, 0.1175, 0.3935, 0.6753, 0.8647],
-                [0.1175, 0.0000, 0.1175, 0.3935, 0.6753],
-                [0.3935, 0.1175, 0.0000, 0.1175, 0.3935],
-                [0.6753, 0.3935, 0.1175, 0.0000, 0.1175],
-                [0.8647, 0.6753, 0.3935, 0.1175, 0.0000]])
-        >>> guided_attn_mask =_make_guided_attention(3, 6, 0.4)
-        >>> guided_attn_mask.shape
-        [6, 3]
-        >>> guided_attn_mask
-        tensor([[0.0000, 0.2934, 0.7506],
-                [0.0831, 0.0831, 0.5422],
-                [0.2934, 0.0000, 0.2934],
-                [0.5422, 0.0831, 0.0831],
-                [0.7506, 0.2934, 0.0000],
-                [0.8858, 0.5422, 0.0831]])
-
-        """
-        grid_x, grid_y = paddle.meshgrid(
-            paddle.arange(olen), paddle.arange(ilen))
-        grid_x = grid_x.cast(dtype=paddle.float32)
-        grid_y = grid_y.cast(dtype=paddle.float32)
-        return 1.0 - paddle.exp(-(
-            (grid_y / ilen - grid_x / olen)**2) / (2 * (sigma**2)))
-
-    @staticmethod
-    def _make_masks(ilens, olens):
-        """Make masks indicating non-padded part.
-
-        Parameters
-        ----------
-        ilens (LongTensor or List): Batch of lengths (B,).
-        olens (LongTensor or List): Batch of lengths (B,).
-
-        Returns
-        ----------
-        Tensor 
-            Mask tensor indicating non-padded part.
-
-        Examples
-        ----------
-        >>> ilens, olens = [5, 2], [8, 5]
-        >>> _make_mask(ilens, olens)
-        tensor([[[1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1]],
-
-                [[1, 1, 0, 0, 0],
-                [1, 1, 0, 0, 0],
-                [1, 1, 0, 0, 0],
-                [1, 1, 0, 0, 0],
-                [1, 1, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0]]], dtype=paddle.uint8)
-
-        """
-        # (B, T_in)
-        in_masks = make_non_pad_mask(ilens)
-        # (B, T_out)
-        out_masks = make_non_pad_mask(olens)
-        # (B, T_out, T_in)
-
-        return paddle.logical_and(
-            out_masks.unsqueeze(-1), in_masks.unsqueeze(-2))
-
-
-class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
-    """Guided attention loss function module for multi head attention.
-
-    Parameters
-    ----------
-    sigma : float, optional
-        Standard deviation to controlGuidedAttentionLoss
-        how close attention to a diagonal.
-    alpha : float, optional
-        Scaling coefficient (lambda).
-    reset_always : bool, optional
-        Whether to always reset masks.
-
-    """
-
-    def forward(self, att_ws, ilens, olens):
-        """Calculate forward propagation.
-
-        Parameters
-        ----------
-        att_ws : Tensor
-            Batch of multi head attention weights (B, H, T_max_out, T_max_in).
-        ilens : Tensor
-            Batch of input lenghts (B,).
-        olens : Tensor
-            Batch of output lenghts (B,).
-
-        Returns
-        ----------
-        Tensor
-            Guided attention loss value.
-
-        """
-        if self.guided_attn_masks is None:
-            self.guided_attn_masks = (
-                self._make_guided_attention_masks(ilens, olens).unsqueeze(1))
-        if self.masks is None:
-            self.masks = self._make_masks(ilens, olens).unsqueeze(1)
-        losses = self.guided_attn_masks * att_ws
-        loss = paddle.mean(
-            losses.masked_select(self.masks.broadcast_to(losses.shape)))
-        if self.reset_always:
-            self._reset_masks()
-
-        return self.alpha * loss

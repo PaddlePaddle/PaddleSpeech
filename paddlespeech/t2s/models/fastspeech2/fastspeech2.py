@@ -556,8 +556,7 @@ class FastSpeech2(nn.Layer):
             tone_id=tone_id)
         # modify mod part of groundtruth
         if self.reduction_factor > 1:
-            olens = paddle.to_tensor(
-                [olen - olen % self.reduction_factor for olen in olens.numpy()])
+            olens = olens - olens % self.reduction_factor
             max_olen = max(olens)
             ys = ys[:, :max_olen]
 

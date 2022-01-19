@@ -468,7 +468,6 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   - [语音识别自定义训练](./docs/source/asr/quick_start.md)
     - [简介](./docs/source/asr/models_introduction.md)
     - [数据准备](./docs/source/asr/data_preparation.md)
-    - [数据增强](./docs/source/asr/augmentation.md)
     - [Ngram 语言模型](./docs/source/asr/ngram_lm.md)
   - [语音合成自定义训练](./docs/source/tts/quick_start.md)
     - [简介](./docs/source/tts/models_introduction.md)

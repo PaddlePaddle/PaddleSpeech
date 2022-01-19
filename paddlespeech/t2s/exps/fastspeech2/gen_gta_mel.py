@@ -15,14 +15,14 @@
 # for mb melgan finetune
 # 长度和原本的 mel 不一致怎么办？
 import argparse
+import os
 from pathlib import Path
 
 import numpy as np
 import paddle
 import yaml
-from yacs.config import CfgNode
 from tqdm import tqdm
-import os
+from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
@@ -50,11 +50,14 @@ def evaluate(args, fastspeech2_config):
             spk_id_list = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id_list)
     else:
-        spk_num=None
+        spk_num = None
 
     odim = fastspeech2_config.n_mels
     model = FastSpeech2(
-        idim=vocab_size, odim=odim, **fastspeech2_config["model"], spk_num=spk_num)
+        idim=vocab_size,
+        odim=odim,
+        **fastspeech2_config["model"],
+        spk_num=spk_num)
 
     model.set_state_dict(
         paddle.load(args.fastspeech2_checkpoint)["main_params"])
@@ -99,9 +102,15 @@ def evaluate(args, fastspeech2_config):
             else:
                 train_wav_files += wav_files
 
-    train_wav_files = [os.path.basename(str(str_path)) for str_path in train_wav_files]
-    dev_wav_files = [os.path.basename(str(str_path)) for str_path in dev_wav_files]
-    test_wav_files = [os.path.basename(str(str_path)) for str_path in test_wav_files]
+    train_wav_files = [
+        os.path.basename(str(str_path)) for str_path in train_wav_files
+    ]
+    dev_wav_files = [
+        os.path.basename(str(str_path)) for str_path in dev_wav_files
+    ]
+    test_wav_files = [
+        os.path.basename(str(str_path)) for str_path in test_wav_files
+    ]
 
     for i, utt_id in enumerate(tqdm(sentences)):
         phones = sentences[utt_id][0]
@@ -122,7 +131,8 @@ def evaluate(args, fastspeech2_config):
         phone_ids = paddle.to_tensor(np.array(phone_ids))
 
         if args.speaker_dict:
-            speaker_id = int([item[1] for item in spk_id_list if speaker == item[0]][0])    
+            speaker_id = int(
+                [item[1] for item in spk_id_list if speaker == item[0]][0])
             speaker_id = paddle.to_tensor(speaker_id)
         else:
             speaker_id = None
@@ -143,7 +153,8 @@ def evaluate(args, fastspeech2_config):
         sub_output_dir.mkdir(parents=True, exist_ok=True)
 
         with paddle.no_grad():
-            mel = fastspeech2_inference(phone_ids, durations=durations, spk_id=speaker_id)
+            mel = fastspeech2_inference(
+                phone_ids, durations=durations, spk_id=speaker_id)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 
@@ -175,12 +186,9 @@ def main():
         type=str,
         default="phone_id_map.txt",
         help="phone vocabulary file.")
-    
+
     parser.add_argument(
-        "--speaker-dict",
-        type=str,
-        default=None,
-        help="speaker id map file.")
+        "--speaker-dict", type=str, default=None, help="speaker id map file.")
 
     parser.add_argument(
         "--dur-file", default=None, type=str, help="path to durations.txt.")

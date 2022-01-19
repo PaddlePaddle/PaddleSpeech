@@ -556,8 +556,7 @@ class FastSpeech2(nn.Layer):
             tone_id=tone_id)
         # modify mod part of groundtruth
         if self.reduction_factor > 1:
-            olens = paddle.to_tensor(
-                [olen - olen % self.reduction_factor for olen in olens.numpy()])
+            olens = olens - olens % self.reduction_factor
             max_olen = max(olens)
             ys = ys[:, :max_olen]
 
@@ -781,7 +780,7 @@ class FastSpeech2(nn.Layer):
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                shape=[-1, hs.shape[1], -1])
+                shape=[-1, paddle.shape(hs)[1], -1])
             hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")

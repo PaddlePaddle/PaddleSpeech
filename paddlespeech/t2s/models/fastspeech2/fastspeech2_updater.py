@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+from pathlib import Path
 
 from paddle import distributed as dist
+from paddle.io import DataLoader
+from paddle.nn import Layer
+from paddle.optimizer import Optimizer
 
 from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Loss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
@@ -28,20 +32,17 @@ logger.setLevel(logging.INFO)
 
 class FastSpeech2Updater(StandardUpdater):
     def __init__(self,
-                 model,
-                 optimizer,
-                 dataloader,
+                 model: Layer,
+                 optimizer: Optimizer,
+                 dataloader: DataLoader,
                  init_state=None,
-                 use_masking=False,
-                 use_weighted_masking=False,
-                 output_dir=None):
+                 use_masking: bool=False,
+                 use_weighted_masking: bool=False,
+                 output_dir: Path=None):
         super().__init__(model, optimizer, dataloader, init_state=None)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
 
         self.criterion = FastSpeech2Loss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking)
+            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -107,14 +108,12 @@ class FastSpeech2Updater(StandardUpdater):
 
 class FastSpeech2Evaluator(StandardEvaluator):
     def __init__(self,
-                 model,
-                 dataloader,
-                 use_masking=False,
-                 use_weighted_masking=False,
-                 output_dir=None):
+                 model: Layer,
+                 dataloader: DataLoader,
+                 use_masking: bool=False,
+                 use_weighted_masking: bool=False,
+                 output_dir: Path=None):
         super().__init__(model, dataloader)
-        self.use_masking = use_masking
-        self.use_weighted_masking = use_weighted_masking
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -123,8 +122,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         self.msg = ""
 
         self.criterion = FastSpeech2Loss(
-            use_masking=self.use_masking,
-            use_weighted_masking=self.use_weighted_masking)
+            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
 
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "

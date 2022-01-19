@@ -145,16 +145,15 @@ class Encoder(nn.Layer):
             Batch of the padded sequence. Either character ids (B, Tmax)
             or acoustic feature (B, Tmax, idim * encoder_reduction_factor). 
             Padded value should be 0.
-        ilens : LongTensor
+        ilens : Tensor(int64)
             Batch of lengths of each input batch (B,).
 
         Returns
         ----------
         Tensor
             Batch of the sequences of encoder states(B, Tmax, eunits).
-        LongTensor
+        Tensor(int64)
             Batch of lengths of each sequence (B,)
-
         """
         xs = self.embed(xs).transpose([0, 2, 1])
         if self.convs is not None:
@@ -170,8 +169,8 @@ class Encoder(nn.Layer):
         xs = xs.transpose([0, 2, 1])
         self.blstm.flatten_parameters()
         # (B, Tmax, C)
-        xs, _ = self.blstm(xs)
-        # hlens 是什么
+        # see https://www.paddlepaddle.org.cn/documentation/docs/zh/faq/train_cn.html#paddletorch-nn-utils-rnn-pack-padded-sequencetorch-nn-utils-rnn-pad-packed-sequenceapi
+        xs, _ = self.blstm(xs, sequence_length=ilens)
         hlens = ilens
 
         return xs, hlens

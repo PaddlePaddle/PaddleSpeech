@@ -4,7 +4,7 @@ source path.sh
 USE_SCLITE=true
 
 # test g2p
-if [ ! -d ~datasets/BZNSYP ];then
+if [ ! -d ~/datasets/BZNSYP ];then
     echo "Please download BZNSYP dataset"
     exit
 fi

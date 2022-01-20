@@ -567,7 +567,6 @@ if __name__ == '__main__':
         help='Overlap duration in seconds between adjacent subsegments')
 
     args = parser.parse_args()
-    print(args)
 
     prepare_ami(args.data_folder, args.manual_annot_folder, args.save_folder,
                 args.ref_rttm_dir, args.meta_data_dir)

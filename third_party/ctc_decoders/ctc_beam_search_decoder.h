@@ -81,8 +81,8 @@ ctc_beam_search_decoder_batch(
 
 class CtcBeamSearchDecoderStorage {
   public:
-    size_t beam_size;
-    PathTrie *root;
+    size_t beam_size=-1;
+    PathTrie *root = nullptr;
     std::vector<PathTrie *> prefixes;
 
     CtcBeamSearchDecoderStorage(size_t beam_size) {
@@ -97,21 +97,15 @@ class CtcBeamSearchDecoderStorage {
         this->prefixes.push_back(root);
     };
 
-    ~CtcBeamSearchDecoderStorage() {
-        prefixes.clear();
-        root->iterate_to_vec(prefixes);
-        for (size_t i = 0; i < prefixes.size(); i++) {
-            if (prefixes[i] != nullptr) {
-                prefixes[i]->remove();
-                prefixes[i] = nullptr;
-            }
+    ~CtcBeamSearchDecoderStorage() { 
+        if (root != nullptr){
+            delete root; 
+            root = nullptr;
         }
     };
 };
 
 
-// Currently, only batch_size=1 is supported
-// TODU[HYX]: Support batch_size > 1
 class CtcBeamSearchDecoderBatch {
   public:
     CtcBeamSearchDecoderBatch(const std::vector<std::string> &vocabulary,

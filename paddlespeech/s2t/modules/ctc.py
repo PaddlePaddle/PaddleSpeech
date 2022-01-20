@@ -28,7 +28,6 @@ try:
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoder_batch  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoder  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
-    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import get_ctc_beam_search_chunk_decoder  # noqa: F401
     from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import get_ctc_beam_search_decoder_batch_class
 except ImportError:
     try:
@@ -141,9 +140,11 @@ class CTCDecoder(CTCDecoderBase):
         super().__init__(*args, **kwargs)
         # CTCDecoder LM Score handle
         self._ext_scorer = None
+        self.beam_search_decoder = None
 
-    def _decode_batch_greedy(self, probs_split, vocab_list):
-        """Decode by best path for a batch of probs matrix input.
+    def _decode_batch_greedy_offline(self, probs_split, vocab_list):
+        """This function will be deprecated in future.
+        Decode by best path for a batch of probs matrix input.
         :param probs_split: List of 2-D probability matrix, and each consists
                             of prob vectors for one speech utterancce.
         :param probs_split: List of matrix
@@ -196,10 +197,12 @@ class CTCDecoder(CTCDecoderBase):
             logger.info("no language model provided, "
                         "decoding by pure beam search without scorer.")
 
-    def _decode_batch_beam_search(self, probs_split, beam_alpha, beam_beta,
-                                  beam_size, cutoff_prob, cutoff_top_n,
-                                  vocab_list, num_processes):
-        """Decode by beam search for a batch of probs matrix input.
+    def _decode_batch_beam_search_offline(
+            self, probs_split, beam_alpha, beam_beta, beam_size, cutoff_prob,
+            cutoff_top_n, vocab_list, num_processes):
+        """
+        This function will be deprecated in future.
+        Decode by beam search for a batch of probs matrix input.
         :param probs_split: List of 2-D probability matrix, and each consists
                             of prob vectors for one speech utterancce.
         :param probs_split: List of matrix
@@ -241,19 +244,32 @@ class CTCDecoder(CTCDecoderBase):
         results = [result[0][1] for result in beam_search_results]
         return results
 
-    def init_decode(self, beam_alpha, beam_beta, lang_model_path, vocab_list,
-                    decoding_method):
+    def init_decoder(self, batch_size, vocab_list, decoding_method,
+                     lang_model_path, beam_alpha, beam_beta, beam_size,
+                     cutoff_prob, cutoff_top_n, num_processes):
 
         self.decoding_method = decoding_method
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
+            if self.beam_search_decoder is None:
+                self.beam_search_decoder = self.get_decoder(
+                    vocab_list, batch_size, beam_alpha, beam_beta, beam_size,
+                    num_processes, cutoff_prob, cutoff_top_n)
+            return self.beam_search_decoder
+        elif decoding_method == "ctc_greedy":
+            self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
+                                  vocab_list)
+        else:
+            raise ValueError(f"Not support: {decoding_method}")
 
-    def decode_probs(self, probs, logits_lens, vocab_list, decoding_method,
-                     lang_model_path, beam_alpha, beam_beta, beam_size,
-                     cutoff_prob, cutoff_top_n, num_processes):
-        """ctc decoding with probs.
-
+    def decode_probs_offline(self, probs, logits_lens, vocab_list,
+                             decoding_method, lang_model_path, beam_alpha,
+                             beam_beta, beam_size, cutoff_prob, cutoff_top_n,
+                             num_processes):
+        """
+        This function will be deprecated in future.
+        ctc decoding with probs.
         Args:
             probs (Tensor): activation after softmax
             logits_lens (Tensor): audio output lens
@@ -273,13 +289,14 @@ class CTCDecoder(CTCDecoderBase):
         Returns:
             List[str]: transcripts.
         """
-
+        logger.warn(
+            "This function will be deprecated in future: decode_probs_offline")
         probs_split = [probs[i, :l, :] for i, l in enumerate(logits_lens)]
         if decoding_method == "ctc_greedy":
-            result_transcripts = self._decode_batch_greedy(
+            result_transcripts = self._decode_batch_greedy_offline(
                 probs_split=probs_split, vocab_list=vocab_list)
         elif decoding_method == "ctc_beam_search":
-            result_transcripts = self._decode_batch_beam_search(
+            result_transcripts = self._decode_batch_beam_search_offline(
                 probs_split=probs_split,
                 beam_alpha=beam_alpha,
                 beam_beta=beam_beta,
@@ -292,47 +309,48 @@ class CTCDecoder(CTCDecoderBase):
             raise ValueError(f"Not support: {decoding_method}")
         return result_transcripts
 
-    def get_chunk_decoder(self, vocabulary, batch_size, beam_alpha, beam_beta,
-                          beam_size, num_processes, cutoff_prob, cutoff_top_n):
+    def get_decoder(self, vocab_list, batch_size, beam_alpha, beam_beta,
+                    beam_size, num_processes, cutoff_prob, cutoff_top_n):
         num_processes = min(num_processes, batch_size)
         if self._ext_scorer is not None:
             self._ext_scorer.reset_params(beam_alpha, beam_beta)
         if self.decoding_method == "ctc_beam_search":
             DecoderClass = get_ctc_beam_search_decoder_batch_class()
-            chunk_decoder = DecoderClass(
-                vocabulary, batch_size, beam_size, num_processes, cutoff_prob,
+            beam_search_decoder = DecoderClass(
+                vocab_list, batch_size, beam_size, num_processes, cutoff_prob,
                 cutoff_top_n, self._ext_scorer, self.blank_id)
         else:
             raise ValueError(f"Not support: {decoding_method}")
-        return chunk_decoder
+        return beam_search_decoder
 
-    def chunk_decoder_next(self, chunk_decoder, probs, logits_lens):
+    def next(self, probs, logits_lens):
+        if self.beam_search_decoder is None:
+            raise Exception("You need to initialize the chunk decoder firstly")
+        beam_search_decoder = self.beam_search_decoder
+
         has_value = (logits_lens > 0).tolist()
         has_value = [
             "true" if has_value[i] is True else "false"
             for i in range(len(has_value))
         ]
-        """
-        for i in range(len(has_value)):
-            if(has_value[i] == True):
-                has_value[i] = "true"
-            else:
-                has_value[i] = "false"
-        """
         probs_split = [
             probs[i, :l, :].tolist() if has_value[i] else probs[i].tolist()
             for i, l in enumerate(logits_lens)
         ]
         if self.decoding_method == "ctc_beam_search":
-            chunk_decoder.next(probs_split, has_value)
+            beam_search_decoder.next(probs_split, has_value)
         else:
             raise ValueError(f"Not support: {decoding_method}")
 
         return
 
-    def chunk_decoder_decode(self, chunk_decoder):
+    def decode(self):
+        if self.beam_search_decoder is None:
+            raise Exception("You need to initialize the chunk decoder firstly")
+
+        beam_search_decoder = self.beam_search_decoder
         if self.decoding_method == "ctc_beam_search":
-            batch_beam_results = chunk_decoder.decode()
+            batch_beam_results = beam_search_decoder.decode()
             batch_beam_results = [[(res[0], res[1]) for res in beam_results]
                                   for beam_results in batch_beam_results]
             results_best = [result[0][1] for result in batch_beam_results]
@@ -344,5 +362,7 @@ class CTCDecoder(CTCDecoderBase):
 
         return results_best, results_beam
 
-    def remove_chunk_decoder(self, chunk_decoder):
-        del chunk_decoder
+    def del_decoder(self):
+        if self.beam_search_decoder is not None:
+            del self.beam_search_decoder
+            self.beam_search_decoder = None

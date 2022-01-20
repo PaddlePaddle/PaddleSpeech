@@ -275,8 +275,6 @@ class DeepSpeech2ModelOnline(nn.Layer):
             batch_average=True,  # sum / batch_size
             grad_norm_type=ctc_grad_norm_type)
 
-        self.chunk_decoder = None
-
     def forward(self, audio, audio_len, text, text_len):
         """Compute Model loss
 
@@ -300,87 +298,19 @@ class DeepSpeech2ModelOnline(nn.Layer):
                cutoff_top_n, num_processes):
         # init once
         # decoders only accept string encoded in utf-8
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
+        batch_size = audio.shape[0]
+        self.decoder.init_decoder(batch_size, vocab_list, decoding_method,
+                                  lang_model_path, beam_alpha, beam_beta,
+                                  beam_size, cutoff_prob, cutoff_top_n,
+                                  num_processes)
 
         eouts, eouts_len, final_state_h_box, final_state_c_box = self.encoder(
             audio, audio_len, None, None)
         probs = self.decoder.softmax(eouts)
-        return self.decoder.decode_probs(
-            probs.numpy(), eouts_len, vocab_list, decoding_method,
-            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, num_processes)
-
-    @paddle.no_grad()
-    def decode_chunk_by_chunk(self, audio, audio_len, vocab_list,
-                              decoding_method, lang_model_path, beam_alpha,
-                              beam_beta, beam_size, cutoff_prob, cutoff_top_n,
-                              num_processes):
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-        if self.chunk_decoder is not None:
-            self.del_chunk_decoder()
-        batch_size = audio.shape[0]
-        self.chunk_decoder = self.decoder.get_chunk_decoder(
-            vocab_list, batch_size, beam_alpha, beam_beta, beam_size,
-            num_processes, cutoff_prob, cutoff_top_n)
-        print("audio", audio)
-        print("audio_len", audio_len)
-        eouts_chunk_list, eouts_chunk_lens_list, final_state_h_box, final_state_c_box = self.encoder.forward_chunk_by_chunk(
-            audio, audio_len, decoder_chunk_size=1)
-        for i, (eouts, eouts_len
-                ) in enumerate(zip(eouts_chunk_list, eouts_chunk_lens_list)):
-            probs = self.decoder.softmax(eouts)
-            probs_len = eouts_len
-            self.decoder.chunk_decoder_next(self.chunk_decoder, probs,
-                                            probs_len)
-        trans_best, trans_beam = self.decoder.chunk_decoder_decode(
-            self.chunk_decoder)
-        print("trans_best", trans_best)
+        self.decoder.next(probs, eouts_len)
+        trans_best, trans_beam = self.decoder.decode()
+        self.decoder.del_decoder()
         return trans_best
-
-    @paddle.no_grad()
-    def init_chunk_decoder(self, batch_size, vocab_list, decoding_method,
-                           lang_model_path, beam_alpha, beam_beta, beam_size,
-                           cutoff_prob, cutoff_top_n, num_processes):
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-        if self.chunk_decoder is not None:
-            self.del_chunk_decoder()
-        self.chunk_decoder = self.decoder.get_chunk_decoder(
-            vocab_list, batch_size, beam_alpha, beam_beta, beam_size,
-            num_processes, cutoff_prob, cutoff_top_n)
-
-    @paddle.no_grad()
-    def decode_get_next(self, probs, probs_len):
-        if self.chunk_decoder is None:
-            raise Exception("You need to initialize the chunk decoder firstly")
-        self.decoder.chunk_decoder_next(self.chunk_decoder, probs, probs_len)
-
-    def decode_get_trans(self):
-        if self.chunk_decoder is None:
-            raise Exception("You need to initialize the chunk decoder firstly")
-        trans_best, trans_beam = self.decoder.chunk_decoder_decode(
-            self.chunk_decoder)
-        return trans_best, trans_beam
-
-    def del_chunk_decoder(self):
-        if self.chunk_decoder is not None:
-            del self.chunk_decoder
-            self.chunk_decoder = None
-        return
 
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):

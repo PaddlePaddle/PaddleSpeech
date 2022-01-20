@@ -28,7 +28,7 @@ from paddle import nn
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.modules.cmvn import GlobalCMVN
-from paddlespeech.s2t.modules.ctc import CTCDecoder
+from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
 from paddlespeech.s2t.modules.encoder import ConformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
@@ -56,7 +56,7 @@ class U2STBaseModel(nn.Layer):
                  encoder: TransformerEncoder,
                  st_decoder: TransformerDecoder,
                  decoder: TransformerDecoder=None,
-                 ctc: CTCDecoder=None,
+                 ctc: CTCDecoderBase=None,
                  ctc_weight: float=0.0,
                  asr_weight: float=0.0,
                  ignore_id: int=IGNORE_ID,
@@ -313,8 +313,7 @@ class U2STBaseModel(nn.Layer):
                 cache = [
                     paddle.ones(
                         (len(hyps), i - 1, hyp_cache.shape[-1]),
-                        dtype=paddle.float32)
-                    for hyp_cache in hyps[0]["cache"]
+                        dtype=paddle.float32) for hyp_cache in hyps[0]["cache"]
                 ]
             for j, hyp in enumerate(hyps):
                 ys[j, :] = paddle.to_tensor(hyp["yseq"])
@@ -596,7 +595,7 @@ class U2STModel(U2STBaseModel):
             model_conf = configs['model_conf']
             dropout_rate = model_conf.get('ctc_dropout_rate', 0.0)
             grad_norm_type = model_conf.get('ctc_grad_norm_type', None)
-            ctc = CTCDecoder(
+            ctc = CTCDecoderBase(
                 odim=vocab_size,
                 enc_n_units=encoder.output_size(),
                 blank_id=0,

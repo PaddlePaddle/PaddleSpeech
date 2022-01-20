@@ -474,13 +474,10 @@ CtcBeamSearchDecoderBatch::CtcBeamSearchDecoderBatch(
       ext_scorer(ext_scorer),
       blank_id(blank_id) {
     this->vocabulary = vocabulary;
-    // this->decoder_storage_vector.reserve(batch_size);
     for (size_t i = 0; i < batch_size; i++) {
         this->decoder_storage_vector.push_back(
             std::unique_ptr<CtcBeamSearchDecoderStorage>(
-                new CtcBeamSearchDecoderStorage(beam_size)));
-        // this->decoder_storage_vector.emplace_back(new
-        // CtcBeamSearchDecoderStorage());
+                new CtcBeamSearchDecoderStorage()));
         ctc_beam_search_decode_chunk_begin(
             this->decoder_storage_vector[i]->root, ext_scorer);
     }

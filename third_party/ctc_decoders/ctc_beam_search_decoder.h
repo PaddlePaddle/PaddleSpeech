@@ -81,12 +81,10 @@ ctc_beam_search_decoder_batch(
 
 class CtcBeamSearchDecoderStorage {
   public:
-    size_t beam_size=-1;
     PathTrie *root = nullptr;
     std::vector<PathTrie *> prefixes;
 
-    CtcBeamSearchDecoderStorage(size_t beam_size) {
-        this->beam_size = beam_size;
+    CtcBeamSearchDecoderStorage() {
         // init prefixes' root
         this->root = new PathTrie();
         this->root->log_prob_b_prev = 0.0;

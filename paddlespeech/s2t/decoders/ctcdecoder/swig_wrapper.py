@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Wrapper for various CTC decoders in SWIG."""
-import swig_decoders
+import paddlespeech_ctcdecoders
 
 
-class Scorer(swig_decoders.Scorer):
+class Scorer(paddlespeech_ctcdecoders.Scorer):
     """Wrapper for Scorer.
 
     :param alpha: Parameter associated with language model. Don't use
@@ -29,7 +29,7 @@ class Scorer(swig_decoders.Scorer):
     """
 
     def __init__(self, alpha, beta, model_path, vocabulary):
-        swig_decoders.Scorer.__init__(self, alpha, beta, model_path, vocabulary)
+        paddlespeech_ctcdecoders.Scorer.__init__(self, alpha, beta, model_path, vocabulary)
 
 
 def ctc_greedy_decoder(probs_seq, vocabulary, blank_id):
@@ -44,7 +44,7 @@ def ctc_greedy_decoder(probs_seq, vocabulary, blank_id):
     :return: Decoding result string.
     :rtype: str
     """
-    result = swig_decoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary,
+    result = paddlespeech_ctcdecoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary,
                                               blank_id)
     return result
 
@@ -81,7 +81,7 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    beam_results = swig_decoders.ctc_beam_search_decoder(
+    beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoder(
         probs_seq.tolist(), vocabulary, beam_size, cutoff_prob, cutoff_top_n,
         ext_scoring_func, blank_id)
     beam_results = [(res[0], res[1].decode('utf-8')) for res in beam_results]
@@ -126,7 +126,7 @@ def ctc_beam_search_decoder_batch(probs_split,
     """
     probs_split = [probs_seq.tolist() for probs_seq in probs_split]
 
-    batch_beam_results = swig_decoders.ctc_beam_search_decoder_batch(
+    batch_beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoder_batch(
         probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
         cutoff_top_n, ext_scoring_func, blank_id)
     batch_beam_results = [[(res[0], res[1]) for res in beam_results]
@@ -135,4 +135,4 @@ def ctc_beam_search_decoder_batch(probs_split,
 
 
 def get_ctc_beam_search_decoder_batch_class():
-    return swig_decoders.CtcBeamSearchDecoderBatch
+    return paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch

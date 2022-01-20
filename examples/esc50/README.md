@@ -122,3 +122,6 @@ $ CUDA_VISIBLE_DEVICES=0 ./run.sh 4 cpu ./export /audio/dog.wav
 - `device`: 指定模型预测时使用的设备。
 - `model_dir`: 导出静态图模型和参数文件的保存目录。
 - `wav`: 指定预测的音频文件。
+
+## Reference
+* [PANNs(PANNs: Large-Scale Pretrained Audio Neural Networks for Audio Pattern Recognition)](https://arxiv.org/abs/1912.10211)

@@ -4,6 +4,10 @@ source path.sh
 USE_SCLITE=true
 
 # test g2p
+if [ ! -d datasets/BZNSYP ];then
+    echo "Please download BZNSYP dataset"
+    exit
+fi
 echo "Start get g2p test data ..."
 python3 get_g2p_data.py --root-dir=~/datasets/BZNSYP --output-dir=data/g2p
 echo "Start test g2p ..."

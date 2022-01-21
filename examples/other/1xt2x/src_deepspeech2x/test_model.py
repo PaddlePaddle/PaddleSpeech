@@ -254,12 +254,11 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
-        vocab_list = self.test_loader.collate_fn.vocab_list
 
         target_transcripts = self.ordid2token(texts, texts_len)
 
-        result_transcripts = self.compute_result_transcripts(audio, audio_len,
-                                                             vocab_list, cfg)
+        result_transcripts = self.compute_result_transcripts(audio, audio_len)
+
         for utt, target, result in zip(utts, target_transcripts,
                                        result_transcripts):
             errors, len_ref = errors_func(target, result)
@@ -280,19 +279,9 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             error_rate=errors_sum / len_refs,
             error_rate_type=cfg.error_rate_type)
 
-    def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
-        result_transcripts = self.model.decode(
-            audio,
-            audio_len,
-            vocab_list,
-            decoding_method=cfg.decoding_method,
-            lang_model_path=cfg.lang_model_path,
-            beam_alpha=cfg.alpha,
-            beam_beta=cfg.beta,
-            beam_size=cfg.beam_size,
-            cutoff_prob=cfg.cutoff_prob,
-            cutoff_top_n=cfg.cutoff_top_n,
-            num_processes=cfg.num_proc_bsearch)
+    def compute_result_transcripts(self, audio, audio_len):
+        result_transcripts = self.model.decode(audio, audio_len)
+        
         result_transcripts = [
             self._text_featurizer.detokenize(item)
             for item in result_transcripts
@@ -307,6 +296,17 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         cfg = self.config
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
+
+        # Initialized the decoder in model
+        decode_cfg = self.config.decode
+        vocab_list = self.test_loader.collate_fn.vocab_list
+        decode_batch_size = self.test_loader.batch_size
+        self.model.decoder.init_decoder(
+            decode_batch_size, vocab_list, decode_cfg.decoding_method,
+            decode_cfg.lang_model_path, decode_cfg.alpha, decode_cfg.beta,
+            decode_cfg.beam_size, decode_cfg.cutoff_prob,
+            decode_cfg.cutoff_top_n, decode_cfg.num_proc_bsearch)
+
         with open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
@@ -326,6 +326,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
+        self.model.decoder.del_decoder()
 
     def run_test(self):
         self.resume_or_scratch()

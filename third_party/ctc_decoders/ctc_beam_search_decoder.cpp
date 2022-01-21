@@ -30,7 +30,7 @@
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 
 
-std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
+std::vector<std::pair<double, std::string>> ctc_beam_search_decoding(
     const std::vector<std::vector<double>> &probs_seq,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -209,7 +209,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
 
 
 std::vector<std::vector<std::pair<double, std::string>>>
-ctc_beam_search_decoder_batch(
+ctc_beam_search_decoding_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -227,7 +227,7 @@ ctc_beam_search_decoder_batch(
     // enqueue the tasks of decoding
     std::vector<std::future<std::vector<std::pair<double, std::string>>>> res;
     for (size_t i = 0; i < batch_size; ++i) {
-        res.emplace_back(pool.enqueue(ctc_beam_search_decoder,
+        res.emplace_back(pool.enqueue(ctc_beam_search_decoding,
                                       probs_split[i],
                                       vocabulary,
                                       beam_size,
@@ -455,6 +455,11 @@ std::vector<std::pair<double, std::string>> get_decode_result(
 }
 
 
+void free_storage(std::unique_ptr<CtcBeamSearchDecoderStorage> &storage) {
+    storage = nullptr;
+}
+
+
 CtcBeamSearchDecoderBatch::~CtcBeamSearchDecoderBatch() {}
 
 CtcBeamSearchDecoderBatch::CtcBeamSearchDecoderBatch(
@@ -554,4 +559,34 @@ CtcBeamSearchDecoderBatch::decode() {
         batch_results.emplace_back(res[i].get());
     }
     return batch_results;
+}
+/**
+ * reset the state of ctcBeamSearchDecoderBatch
+ */
+
+void CtcBeamSearchDecoderBatch::reset_state() {
+    VALID_CHECK_GT(
+        this->num_processes, 0, "num_processes must be nonnegative!");
+    // thread pool
+    ThreadPool pool(this->num_processes);
+    // number of samples
+    // enqueue the tasks of decoding
+    std::vector<std::future<void>> res;
+    size_t storage_size = decoder_storage_vector.size();
+    for (size_t i = 0; i < storage_size; i++) {
+        res.emplace_back(pool.enqueue(
+            free_storage, std::ref(this->decoder_storage_vector[i])));
+    }
+    for (size_t i = 0; i < storage_size; ++i) {
+        res[i].get();
+    }
+    std::vector<std::unique_ptr<CtcBeamSearchDecoderStorage>>().swap(
+        decoder_storage_vector);
+    for (size_t i = 0; i < this->batch_size; i++) {
+        this->decoder_storage_vector.push_back(
+            std::unique_ptr<CtcBeamSearchDecoderStorage>(
+                new CtcBeamSearchDecoderStorage()));
+        ctc_beam_search_decode_chunk_begin(
+            this->decoder_storage_vector[i]->root, this->ext_scorer);
+    }
 }

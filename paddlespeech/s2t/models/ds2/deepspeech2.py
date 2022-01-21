@@ -164,22 +164,15 @@ class DeepSpeech2Model(nn.Layer):
         return loss
 
     @paddle.no_grad()
-    def decode(self, audio, audio_len, vocab_list, decoding_method,
-               lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-               cutoff_top_n, num_processes):
-        # init once
+    def decode(self, audio, audio_len):
         # decoders only accept string encoded in utf-8
-        batch_size = audio.shape[0]
-        self.decoder.init_decoder(batch_size, vocab_list, decoding_method,
-                                  lang_model_path, beam_alpha, beam_beta,
-                                  beam_size, cutoff_prob, cutoff_top_n,
-                                  num_processes)
 
+        # Make sure the decoder has been initialized
         eouts, eouts_len = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
         self.decoder.next(probs, eouts_len)
         trans_best, trans_beam = self.decoder.decode()
-        self.decoder.del_decoder()
+        self.decoder.reset_decoder()
         return trans_best
 
     @classmethod

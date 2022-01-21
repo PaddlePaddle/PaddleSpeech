@@ -37,7 +37,7 @@
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
 */
-std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
+std::vector<std::pair<double, std::string>> ctc_beam_search_decoding(
     const std::vector<std::vector<double>> &probs_seq,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -65,7 +65,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
  *     result for one audio sample.
 */
 std::vector<std::vector<std::pair<double, std::string>>>
-ctc_beam_search_decoder_batch(
+ctc_beam_search_decoding_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -95,15 +95,17 @@ class CtcBeamSearchDecoderStorage {
         this->prefixes.push_back(root);
     };
 
-    ~CtcBeamSearchDecoderStorage() { 
-        if (root != nullptr){
-            delete root; 
+    ~CtcBeamSearchDecoderStorage() {
+        if (root != nullptr) {
+            delete root;
             root = nullptr;
         }
     };
 };
 
-
+/**
+ * The ctc beam search decoder, support batchsize >= 1
+ */
 class CtcBeamSearchDecoderBatch {
   public:
     CtcBeamSearchDecoderBatch(const std::vector<std::string> &vocabulary,
@@ -121,6 +123,7 @@ class CtcBeamSearchDecoderBatch {
 
     std::vector<std::vector<std::pair<double, std::string>>> decode();
 
+    void reset_state();
 
   private:
     std::vector<std::string> vocabulary;
@@ -154,6 +157,11 @@ std::vector<std::pair<double, std::string>> get_decode_result(
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
     Scorer *ext_scorer);
+
+/**
+ * free the CtcBeamSearchDecoderStorage
+ */
+void free_storage(std::unique_ptr<CtcBeamSearchDecoderStorage> &storage);
 
 /**
  * initialize the root

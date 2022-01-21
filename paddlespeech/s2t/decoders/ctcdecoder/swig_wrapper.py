@@ -26,14 +26,17 @@ class Scorer(paddlespeech_ctcdecoders.Scorer):
     :type beta: float
     :model_path: Path to load language model.
     :type model_path: str
+    :param vocabulary: Vocabulary list.
+    :type vocabulary: list
     """
 
     def __init__(self, alpha, beta, model_path, vocabulary):
-        paddlespeech_ctcdecoders.Scorer.__init__(self, alpha, beta, model_path, vocabulary)
+        paddlespeech_ctcdecoders.Scorer.__init__(self, alpha, beta, model_path,
+                                                 vocabulary)
 
 
-def ctc_greedy_decoder(probs_seq, vocabulary, blank_id):
-    """Wrapper for ctc best path decoder in swig.
+def ctc_greedy_decoding(probs_seq, vocabulary, blank_id):
+    """Wrapper for ctc best path decodeing function in swig.
 
     :param probs_seq: 2-D list of probability distributions over each time
                       step, with each element being a list of normalized
@@ -44,19 +47,19 @@ def ctc_greedy_decoder(probs_seq, vocabulary, blank_id):
     :return: Decoding result string.
     :rtype: str
     """
-    result = paddlespeech_ctcdecoders.ctc_greedy_decoder(probs_seq.tolist(), vocabulary,
-                                              blank_id)
+    result = paddlespeech_ctcdecoders.ctc_greedy_decoding(probs_seq.tolist(),
+                                                          vocabulary, blank_id)
     return result
 
 
-def ctc_beam_search_decoder(probs_seq,
-                            vocabulary,
-                            beam_size,
-                            cutoff_prob=1.0,
-                            cutoff_top_n=40,
-                            ext_scoring_func=None,
-                            blank_id=0):
-    """Wrapper for the CTC Beam Search Decoder.
+def ctc_beam_search_decoding(probs_seq,
+                             vocabulary,
+                             beam_size,
+                             cutoff_prob=1.0,
+                             cutoff_top_n=40,
+                             ext_scoring_func=None,
+                             blank_id=0):
+    """Wrapper for the CTC Beam Search Decoding function.
 
     :param probs_seq: 2-D list of probability distributions over each time
                       step, with each element being a list of normalized
@@ -81,22 +84,22 @@ def ctc_beam_search_decoder(probs_seq,
              results, in descending order of the probability.
     :rtype: list
     """
-    beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoder(
+    beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoding(
         probs_seq.tolist(), vocabulary, beam_size, cutoff_prob, cutoff_top_n,
         ext_scoring_func, blank_id)
     beam_results = [(res[0], res[1].decode('utf-8')) for res in beam_results]
     return beam_results
 
 
-def ctc_beam_search_decoder_batch(probs_split,
-                                  vocabulary,
-                                  beam_size,
-                                  num_processes,
-                                  cutoff_prob=1.0,
-                                  cutoff_top_n=40,
-                                  ext_scoring_func=None,
-                                  blank_id=0):
-    """Wrapper for the batched CTC beam search decoder.
+def ctc_beam_search_decoding_batch(probs_split,
+                                   vocabulary,
+                                   beam_size,
+                                   num_processes,
+                                   cutoff_prob=1.0,
+                                   cutoff_top_n=40,
+                                   ext_scoring_func=None,
+                                   blank_id=0):
+    """Wrapper for the batched CTC beam search decodeing batch function.
 
     :param probs_seq: 3-D list with each element as an instance of 2-D list
                       of probabilities used by ctc_beam_search_decoder().
@@ -126,7 +129,7 @@ def ctc_beam_search_decoder_batch(probs_split,
     """
     probs_split = [probs_seq.tolist() for probs_seq in probs_split]
 
-    batch_beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoder_batch(
+    batch_beam_results = paddlespeech_ctcdecoders.ctc_beam_search_decoding_batch(
         probs_split, vocabulary, beam_size, num_processes, cutoff_prob,
         cutoff_top_n, ext_scoring_func, blank_id)
     batch_beam_results = [[(res[0], res[1]) for res in beam_results]
@@ -134,5 +137,24 @@ def ctc_beam_search_decoder_batch(probs_split,
     return batch_beam_results
 
 
-def get_ctc_beam_search_decoder_batch_class():
-    return paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch
+class CTC_beam_search_decoder(
+        paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch):
+    """Wrapper for CtcBeamSearchDecoderBatch.
+    Args:
+        vocab_list ([list]): [Vocabulary list.]
+        beam_size ([int]): [Width for beam search.]
+        num_processes ([int]): [Number of parallel processes.]
+        param cutoff_prob ([float]): [Cutoff probability in vocabulary pruning,
+                            default 1.0, no pruning.]
+        cutoff_top_n ([int]): [Cutoff number in pruning, only top cutoff_top_n
+                            characters with highest probs in vocabulary will be
+                            used in beam search, default 40.]
+        param ext_scorer ([Scorer]): [External scorer for partially decoded sentence, e.g. word count
+                                or language model.]
+    """
+
+    def __init__(self, vocab_list, batch_size, beam_size, num_processes,
+                 cutoff_prob, cutoff_top_n, _ext_scorer, blank_id):
+        paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch.__init__(
+            self, vocab_list, batch_size, beam_size, num_processes, cutoff_prob,
+            cutoff_top_n, _ext_scorer, blank_id)

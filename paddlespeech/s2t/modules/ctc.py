@@ -25,18 +25,19 @@ from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()
 
 try:
-    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoding_batch  # noqa: F401
-    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoding  # noqa: F401
-    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
-    from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import CTC_beam_search_decoder
+    from paddlespeech.s2t.decoders.ctcdecoder import ctc_beam_search_decoding_batch  # noqa: F401
+    from paddlespeech.s2t.decoders.ctcdecoder import ctc_greedy_decoding  # noqa: F401
+    from paddlespeech.s2t.decoders.ctcdecoder import Scorer  # noqa: F401
+    from paddlespeech.s2t.decoders.ctcdecoder import CTCBeamSearchDecoder  # noqa: F401
 except ImportError:
     try:
         from paddlespeech.s2t.utils import dynamic_pip_install
         package_name = 'paddlespeech_ctcdecoders'
         dynamic_pip_install.install(package_name)
-        from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_beam_search_decoding_batch  # noqa: F401
-        from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import ctc_greedy_decoding  # noqa: F401
-        from paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper import Scorer  # noqa: F401
+        from paddlespeech.s2t.decoders.ctcdecoder import ctc_beam_search_decoding_batch  # noqa: F401
+        from paddlespeech.s2t.decoders.ctcdecoder import ctc_greedy_decoding  # noqa: F401
+        from paddlespeech.s2t.decoders.ctcdecoder import Scorer  # noqa: F401
+        from paddlespeech.s2t.decoders.ctcdecoder import CTCBeamSearchDecoder  # noqa: F401
     except Exception as e:
         logger.info("paddlespeech_ctcdecoders not installed!")
 
@@ -250,22 +251,22 @@ class CTCDecoder(CTCDecoderBase):
         """
         init ctc decoders
         Args:
-            batch_size([int]): Batch size for input data
-            vocab_list ([list]): [List of tokens in the vocabulary, for decoding.]
-            decoding_method ([str]): ["ctc_beam_search"]
-            lang_model_path ([str]): [language model path]
-            beam_alpha ([float]): [beam_alpha]
-            beam_beta ([float]): [beam_beta]
-            beam_size ([int]): [beam_size]
-            cutoff_prob ([float): [cutoff probability in beam search]
-            cutoff_top_n ([int]): [cutoff_top_n]
-            num_processes ([int]): [num_processes]
+            batch_size(int): Batch size for input data
+            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
+            decoding_method (str): ["ctc_beam_search"]
+            lang_model_path (str): [language model path]
+            beam_alpha (float): [beam_alpha]
+            beam_beta (float): [beam_beta]
+            beam_size (int): [beam_size]
+            cutoff_prob (float): [cutoff probability in beam search]
+            cutoff_top_n (int): [cutoff_top_n]
+            num_processes (int): [num_processes]
 
         Raises:
             ValueError: when decoding_method not support.
 
         Returns:
-            CTC_beam_search_decoder
+            CTCBeamSearchDecoder
         """
         self.decoding_method = decoding_method
         if decoding_method == "ctc_beam_search":
@@ -292,15 +293,15 @@ class CTCDecoder(CTCDecoderBase):
         Args:
             probs (Tensor): activation after softmax
             logits_lens (Tensor): audio output lens
-            vocab_list ([type]): [description]
-            decoding_method ([type]): [description]
-            lang_model_path ([type]): [description]
-            beam_alpha ([type]): [description]
-            beam_beta ([type]): [description]
-            beam_size ([type]): [description]
-            cutoff_prob ([type]): [description]
-            cutoff_top_n ([type]): [description]
-            num_processes ([type]): [description]
+            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
+            decoding_method (str): ["ctc_beam_search"]
+            lang_model_path (str): [language model path]
+            beam_alpha (float): [beam_alpha]
+            beam_beta (float): [beam_beta]
+            beam_size (int): [beam_size]
+            cutoff_prob (float): [cutoff probability in beam search]
+            cutoff_top_n (int): [cutoff_top_n]
+            num_processes (int): [num_processes]
 
         Raises:
             ValueError: when decoding_method not support.
@@ -333,26 +334,26 @@ class CTCDecoder(CTCDecoderBase):
         """
         init get ctc decoder
         Args:
-            vocab_list ([list]): [List of tokens in the vocabulary, for decoding.]
-            batch_size([int]): Batch size for input data
-            beam_alpha ([float]): [beam_alpha]
-            beam_beta ([float]): [beam_beta]
-            beam_size ([int]): [beam_size]
-            num_processes ([int]): [num_processes]
-            cutoff_prob ([float): [cutoff probability in beam search]
-            cutoff_top_n ([int]): [cutoff_top_n]
+            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
+            batch_size(int): Batch size for input data
+            beam_alpha (float): [beam_alpha]
+            beam_beta (float): [beam_beta]
+            beam_size (int): [beam_size]
+            num_processes (int): [num_processes]
+            cutoff_prob (float): [cutoff probability in beam search]
+            cutoff_top_n (int): [cutoff_top_n]
 
         Raises:
             ValueError: when decoding_method not support.
 
         Returns:
-            CTC_beam_search_decoder
+            CTCBeamSearchDecoder
         """
         num_processes = min(num_processes, batch_size)
         if self._ext_scorer is not None:
             self._ext_scorer.reset_params(beam_alpha, beam_beta)
         if self.decoding_method == "ctc_beam_search":
-            beam_search_decoder = CTC_beam_search_decoder(
+            beam_search_decoder = CTCBeamSearchDecoder(
                 vocab_list, batch_size, beam_size, num_processes, cutoff_prob,
                 cutoff_top_n, self._ext_scorer, self.blank_id)
         else:
@@ -363,8 +364,8 @@ class CTCDecoder(CTCDecoderBase):
         """
         Input probs into ctc decoder
         Args:
-            probs ([list(list(float))]): [probs for a batch of data]
-            logits_lens ([list(int)]): [logits lens for a batch of data]
+            probs (list(list(float))): [probs for a batch of data]
+            logits_lens (list(int)): [logits lens for a batch of data]
         Raises:
             Exception: when the ctc decoder is not initialized
             ValueError: when decoding_method not support.
@@ -398,8 +399,8 @@ class CTCDecoder(CTCDecoderBase):
             Exception: when the ctc decoder is not initialized
             ValueError: when decoding_method not support.
         Returns:
-            results_best ([list(str)]): [The best result for a batch of data]
-            results_beam ([list(list(str))]): [The beam search result for a batch of data]
+            results_best (list(str)): [The best result for a batch of data]
+            results_beam (list(list(str))): [The beam search result for a batch of data]
         """
         if self.beam_search_decoder is None:
             raise Exception(

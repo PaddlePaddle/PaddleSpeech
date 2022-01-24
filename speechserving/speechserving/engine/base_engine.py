@@ -18,6 +18,7 @@ from typing import Union
 
 from pattern_singleton import Singleton
 
+
 class BaseEngine(metaclass=Singleton):
     """
         An base engine class

@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional
 from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -22,11 +22,13 @@ __all__ = ['ASRResponse']
 class Message(BaseModel):
     description: str
 
+
 #****************************************************************************************/
 #************************************ ASR response **************************************/
 #****************************************************************************************/
 class AsrResult(BaseModel):
     transcription: str
+
 
 class ASRResponse(BaseModel):
     """
@@ -36,7 +38,7 @@ class ASRResponse(BaseModel):
         "code": 0,
         "message": {
             "description": "success" 
-        }
+        },
         "result": {
             "transcription": "你好，飞桨"
         }
@@ -46,6 +48,7 @@ class ASRResponse(BaseModel):
     code: int
     message: Message
     result: AsrResult
+
 
 #****************************************************************************************/
 #************************************ TTS response **************************************/

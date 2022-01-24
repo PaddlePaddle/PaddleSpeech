@@ -233,7 +233,7 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">语音识别</td>
+      <td rowspan="4">语音识别</td>
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
@@ -254,6 +254,13 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
       </td>
       </td>
     </tr>
+    <tr>
+      <td>TIMIT</td>
+      <td>Unified Streaming & Non-streaming Two-pass</td>
+      <td>
+    <a href = "./examples/timit/asr1"> u2-timit</a>
+      </td>
+    </tr>
   <tr>
   <td>对齐</td>
   <td>THCHS30</td>
@@ -263,17 +270,10 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
   </td>
   </tr>
    <tr>
-      <td rowspan="2">语言模型</td>
+      <td rowspan="1">语言模型</td>
       <td colspan = "2">Ngram 语言模型</td>
       <td>
       <a href = "./examples/other/ngram_lm">kenlm</a>
-      </td>
-    </tr>
-    <tr>
-      <td>TIMIT</td>
-      <td>Unified Streaming & Non-streaming Two-pass</td>
-      <td>
-    <a href = "./examples/timit/asr1"> u2-timit</a>
       </td>
     </tr>
     <tr>

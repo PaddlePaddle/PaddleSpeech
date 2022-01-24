@@ -417,13 +417,15 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 audio, audio_len, decoder_chunk_size=1)
             result_transcripts = trans[-1:]
         elif self.args.model_type == "offline":
+            batch_size = output_probs.shape[0]
+            self.model.decoder.reset_decoder(batch_size = batch_size)
             output_probs, output_lens = self.static_forward_offline(audio,
                                                                     audio_len)
 
             self.model.decoder.next(output_probs, output_lens)
 
             trans_best, trans_beam = self.model.decoder.decode()
-            self.model.decoder.reset_decoder()
+            
             result_transcripts = trans_best
 
         else:
@@ -522,7 +524,8 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
             if self.args.enable_auto_log is True:
                 # record the model preprocessing time
                 self.autolog.times.stamp()
-
+            
+            self.model.decoder.reset_decoder(batch_size = 1)
             for i in range(0, num_chunk):
                 start = i * chunk_stride
                 end = start + chunk_size
@@ -566,7 +569,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 probs_chunk_lens_list.append(output_chunk_lens)
                 trans_best, trans_beam = self.model.decoder.decode()
                 trans.append(trans_best[0])
-            self.model.decoder.reset_decoder()
+            
 
             output_probs = np.concatenate(probs_chunk_list, axis=1)
             output_lens = np.sum(probs_chunk_lens_list, axis=0)

@@ -268,7 +268,13 @@ class CTCDecoder(CTCDecoderBase):
         Returns:
             CTCBeamSearchDecoder
         """
+        self.batch_size = batch_size
+        self.vocab_list = vocab_list
         self.decoding_method = decoding_method
+        self.beam_size = beam_size
+        self.cutoff_prob = cutoff_prob
+        self.cutoff_top_n = cutoff_top_n
+        self.num_processes = num_processes
         if decoding_method == "ctc_beam_search":
             self._init_ext_scorer(beam_alpha, beam_beta, lang_model_path,
                                   vocab_list)
@@ -420,7 +426,17 @@ class CTCDecoder(CTCDecoderBase):
 
         return results_best, results_beam
 
-    def reset_decoder(self):
+    def reset_decoder(self, batch_size=-1, beam_size=-1, num_processes=-1, cutoff_prob=-1.0, cutoff_top_n=-1):
+        if batch_size > 0:
+            self.batch_size = batch_size
+        if beam_size > 0:
+            self.beam_size = beam_size
+        if num_processes > 0:
+            self.num_processes = num_processes
+        if cutoff_prob > 0:
+            self.cutoff_prob = cutoff_prob
+        if cutoff_top_n > 0:
+            self.cutoff_top_n = cutoff_top_n
         """
         Reset the decoder state
         Raises:
@@ -429,7 +445,7 @@ class CTCDecoder(CTCDecoderBase):
         if self.beam_search_decoder is None:
             raise Exception(
                 "You need to initialize the beam_search_decoder firstly")
-        self.beam_search_decoder.reset_state()
+        self.beam_search_decoder.reset_state(self.batch_size, self.beam_size, self.num_processes, self.cutoff_prob, self.cutoff_top_n)
 
     def del_decoder(self):
         """

@@ -49,29 +49,32 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libsndfile)
 
+add_subdirectory(speechx)
+
+#openblas
+#set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/OpenBLAS)
+#set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
+#ExternalProject_Add(
+#  OpenBLAS
+#  GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
+#  GIT_TAG v0.3.13
+#  GIT_SHALLOW TRUE
+#  GIT_PROGRESS TRUE
+#  CONFIGURE_COMMAND ""
+#  BUILD_IN_SOURCE TRUE
+#  BUILD_COMMAND make USE_LOCKING=1 USE_THREAD=0
+#  INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
+#  UPDATE_DISCONNECTED TRUE
+#)
 
 ###############################################################################
 # Add local library
 ###############################################################################
 # system lib 
-find_package()
+#find_package()
 # if dir have CmakeLists.txt 
-add_subdirectory()
+#add_subdirectory(speechx)
 # if dir do not have CmakeLists.txt 
-add_library(lib_name STATIC file.cc)
-target_link_libraries(lib_name item0 item1)
-add_dependencies(lib_name depend-target)
-
-
-###############################################################################
-# Library installation
-###############################################################################
-install()
-
-
-###############################################################################
-# Build binary file
-###############################################################################
-add_executable()
-target_link_libraries()
-
+#add_library(lib_name STATIC file.cc)
+#target_link_libraries(lib_name item0 item1)
+#add_dependencies(lib_name depend-target)

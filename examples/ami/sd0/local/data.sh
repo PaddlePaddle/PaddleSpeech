@@ -6,7 +6,7 @@ TARGET_DIR=${MAIN_ROOT}/dataset/ami
 data_folder=${TARGET_DIR}/amicorpus #e.g., /path/to/amicorpus/
 manual_annot_folder=${TARGET_DIR}/ami_public_manual_1.6.2 #e.g., /path/to/ami_public_manual_1.6.2/
 
-save_folder=${MAIN_ROOT}/dataset/ami/results
+save_folder=${MAIN_ROOT}/examples/ami/sd0/data
 ref_rttm_dir=${save_folder}/ref_rttms
 meta_data_dir=${save_folder}/metadata
 

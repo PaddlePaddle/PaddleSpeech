@@ -112,7 +112,7 @@ os.system('swig -python -c++ ./decoders.i')
 
 decoders_module = [
     Extension(
-        name='_swig_decoders',
+        name='_paddlespeech_ctcdecoders',
         sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
         language='c++',
         include_dirs=[
@@ -134,4 +134,4 @@ setup(
     url="https://github.com/PaddlePaddle/PaddleSpeech",
     license='Apache 2.0, GNU Lesser General Public License v3 (LGPLv3) (LGPL-3)',
     ext_modules=decoders_module,
-    py_modules=['swig_decoders'])
+    py_modules=['paddlespeech_ctcdecoders'])

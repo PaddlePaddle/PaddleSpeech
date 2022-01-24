@@ -16,7 +16,7 @@ from .deepspeech2 import DeepSpeech2ModelOnline
 from paddlespeech.s2t.utils import dynamic_pip_install
 
 try:
-    import swig_decoders
+    import paddlespeech_ctcdecoders
 except ImportError:
     try:
         package_name = 'paddlespeech_ctcdecoders'

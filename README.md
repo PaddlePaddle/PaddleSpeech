@@ -236,7 +236,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">Speech Recogination</td>
+      <td rowspan="4">Speech Recogination</td>
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
@@ -249,7 +249,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <a href = "./examples/aishell/asr1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
-      <tr>
+    <tr>
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
@@ -257,6 +257,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
       </td>
     </tr>
+  <tr>
+      <td>TIMIT</td>
+      <td>Unified Streaming & Non-streaming Two-pass</td>
+      <td>
+    <a href = "./examples/timit/asr1"> u2-timit</a>
+      </td>
+  </tr>
   <tr>
   <td>Alignment</td>
   <td>THCHS30</td>
@@ -266,20 +273,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </td>
   </tr>
    <tr>
-      <td rowspan="2">Language Model</td>
+      <td rowspan="1">Language Model</td>
       <td colspan = "2">Ngram Language Model</td>
       <td>
       <a href = "./examples/other/ngram_lm">kenlm</a>
       </td>
     </tr>
-    <tr>
-      <td>TIMIT</td>
-      <td>Unified Streaming & Non-streaming Two-pass</td>
-      <td>
-    <a href = "./examples/timit/asr1"> u2-timit</a>
-      </td>
-    </tr>
-    <tr>
+  <tr>
       <td rowspan="2">Speech Translation (English to Chinese)</td> 
       <td rowspan="2">TED En-Zh</td>
       <td>Transformer + ASR MTL</td>

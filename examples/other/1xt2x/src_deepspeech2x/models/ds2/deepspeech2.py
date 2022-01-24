@@ -162,39 +162,17 @@ class DeepSpeech2Model(nn.Layer):
         return loss
 
     @paddle.no_grad()
-    def decode(self, audio, audio_len, vocab_list, decoding_method,
-               lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-               cutoff_top_n, num_processes):
-        # init once
+    def decode(self, audio, audio_len):
         # decoders only accept string encoded in utf-8
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
 
+        # Make sure the decoder has been initialized
         eouts, eouts_len = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
-        print("probs.shape", probs.shape)
-        return self.decoder.decode_probs(
-            probs.numpy(), eouts_len, vocab_list, decoding_method,
-            lang_model_path, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, num_processes)
-
-    def decode_probs_split(self, probs_split, vocab_list, decoding_method,
-                           lang_model_path, beam_alpha, beam_beta, beam_size,
-                           cutoff_prob, cutoff_top_n, num_processes):
-        self.decoder.init_decode(
-            beam_alpha=beam_alpha,
-            beam_beta=beam_beta,
-            lang_model_path=lang_model_path,
-            vocab_list=vocab_list,
-            decoding_method=decoding_method)
-        return self.decoder.decode_probs_split(
-            probs_split, vocab_list, decoding_method, lang_model_path,
-            beam_alpha, beam_beta, beam_size, cutoff_prob, cutoff_top_n,
-            num_processes)
+        batch_size = probs.shape[0]
+        self.decoder.reset_decoder(batch_size = batch_size)
+        self.decoder.next(probs, eouts_len)
+        trans_best, trans_beam = self.decoder.decode()
+        return trans_best
 
     @classmethod
     def from_pretrained(cls, dataloader, config, checkpoint_path):

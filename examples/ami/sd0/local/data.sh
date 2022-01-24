@@ -2,12 +2,13 @@
 
 stage=1
 
-data_folder=/home/data/ami/amicorpus #e.g., /path/to/amicorpus/
-manual_annot_folder=/home/data/ami/ami_public_manual_1.6.2 #e.g., /path/to/ami_public_manual_1.6.2/
+TARGET_DIR=${MAIN_ROOT}/dataset/ami
+data_folder=${TARGET_DIR}/amicorpus #e.g., /path/to/amicorpus/
+manual_annot_folder=${TARGET_DIR}/ami_public_manual_1.6.2 #e.g., /path/to/ami_public_manual_1.6.2/
 
-save_folder=results
-ref_rttm_dir=results/ref_rttms
-meta_data_dir=results/metadata
+save_folder=${MAIN_ROOT}/dataset/ami/results
+ref_rttm_dir=${save_folder}/ref_rttms
+meta_data_dir=${save_folder}/metadata
 
 set=L
 
@@ -23,8 +24,9 @@ if [ ${stage} -le 0 ]; then
     # so you need to use the chooser to indicate which ones you wish to download
     echo "Please follow https://groups.inf.ed.ac.uk/ami/download/ to download the data."
     echo "Annotations: AMI manual annotations v1.6.2 "
-    echo "Signals: Scenario Meetings/Non Scenario Meetings, some sessions recommended but not all"
-    echo "media streams: Headset mix, recommended first"
+    echo "Signals: "
+    echo "1) Select one or more AMI meetings: the IDs please follow ./ami_split.py"
+    echo "2) Select media streams: Just select Headset mix"
     exit 0;
 fi
 

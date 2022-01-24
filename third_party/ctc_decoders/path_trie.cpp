@@ -146,7 +146,6 @@ void PathTrie::remove() {
             if (parent->children_.size() == 0 && !parent->exists_) {
                 parent->remove();
             }
-
         }
         delete this;
     }

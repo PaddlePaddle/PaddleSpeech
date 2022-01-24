@@ -123,12 +123,11 @@ class CtcBeamSearchDecoderBatch {
 
     std::vector<std::vector<std::pair<double, std::string>>> decode();
 
-    void reset_state(
-        size_t batch_size,
-        size_t beam_size,
-        size_t num_processes,
-        double cutoff_prob,
-        size_t cutoff_top_n);
+    void reset_state(size_t batch_size,
+                     size_t beam_size,
+                     size_t num_processes,
+                     double cutoff_prob,
+                     size_t cutoff_top_n);
 
   private:
     std::vector<std::string> vocabulary;

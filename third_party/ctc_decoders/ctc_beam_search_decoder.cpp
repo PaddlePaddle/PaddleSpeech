@@ -478,8 +478,7 @@ CtcBeamSearchDecoderBatch::CtcBeamSearchDecoderBatch(
       cutoff_top_n(cutoff_top_n),
       ext_scorer(ext_scorer),
       blank_id(blank_id) {
-    VALID_CHECK_GT(
-        this->beam_size, 0, "beam_size must be greater than 0!");
+    VALID_CHECK_GT(this->beam_size, 0, "beam_size must be greater than 0!");
     VALID_CHECK_GT(
         this->num_processes, 0, "num_processes must be nonnegative!");
     this->vocabulary = vocabulary;
@@ -569,21 +568,18 @@ CtcBeamSearchDecoderBatch::decode() {
 /**
  * reset the state of ctcBeamSearchDecoderBatch
  */
-void CtcBeamSearchDecoderBatch::reset_state(
-    size_t batch_size,
-    size_t beam_size,
-    size_t num_processes,
-    double cutoff_prob,
-    size_t cutoff_top_n){
-
+void CtcBeamSearchDecoderBatch::reset_state(size_t batch_size,
+                                            size_t beam_size,
+                                            size_t num_processes,
+                                            double cutoff_prob,
+                                            size_t cutoff_top_n) {
     this->batch_size = batch_size;
     this->beam_size = beam_size;
     this->num_processes = num_processes;
     this->cutoff_prob = cutoff_prob;
     this->cutoff_top_n = cutoff_top_n;
 
-    VALID_CHECK_GT(
-        this->beam_size, 0, "beam_size must be greater than 0!");
+    VALID_CHECK_GT(this->beam_size, 0, "beam_size must be greater than 0!");
     VALID_CHECK_GT(
         this->num_processes, 0, "num_processes must be nonnegative!");
     // thread pool

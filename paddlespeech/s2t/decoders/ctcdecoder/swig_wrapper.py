@@ -137,20 +137,19 @@ def ctc_beam_search_decoding_batch(probs_split,
     return batch_beam_results
 
 
-class CTCBeamSearchDecoder(
-        paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch):
+class CTCBeamSearchDecoder(paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch):
     """Wrapper for CtcBeamSearchDecoderBatch.
     Args:
-        vocab_list (list): [Vocabulary list.]
-        beam_size (int): [Width for beam search.]
-        num_processes (int): [Number of parallel processes.]
-        param cutoff_prob (float): [Cutoff probability in vocabulary pruning,
-                            default 1.0, no pruning.]
-        cutoff_top_n (int): [Cutoff number in pruning, only top cutoff_top_n
+        vocab_list (list): Vocabulary list.
+        beam_size (int): Width for beam search.
+        num_processes (int): Number of parallel processes.
+        param cutoff_prob (float): Cutoff probability in vocabulary pruning,
+                            default 1.0, no pruning.
+        cutoff_top_n (int): Cutoff number in pruning, only top cutoff_top_n
                             characters with highest probs in vocabulary will be
-                            used in beam search, default 40.]
-        param ext_scorer (Scorer): [External scorer for partially decoded sentence, e.g. word count
-                                or language model.]
+                            used in beam search, default 40.
+        param ext_scorer (Scorer): External scorer for partially decoded sentence, e.g. word count
+                                or language model.
     """
 
     def __init__(self, vocab_list, batch_size, beam_size, num_processes,

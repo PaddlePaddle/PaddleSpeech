@@ -174,7 +174,7 @@ class DeepSpeech2Model(nn.Layer):
         self.decoder.reset_decoder(batch_size=batch_size)
         self.decoder.next(probs, eouts_len)
         trans_best, trans_beam = self.decoder.decode()
-        
+
         return trans_best
 
     @classmethod

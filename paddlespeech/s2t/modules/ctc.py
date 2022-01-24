@@ -252,15 +252,15 @@ class CTCDecoder(CTCDecoderBase):
         init ctc decoders
         Args:
             batch_size(int): Batch size for input data
-            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
-            decoding_method (str): ["ctc_beam_search"]
-            lang_model_path (str): [language model path]
-            beam_alpha (float): [beam_alpha]
-            beam_beta (float): [beam_beta]
-            beam_size (int): [beam_size]
-            cutoff_prob (float): [cutoff probability in beam search]
-            cutoff_top_n (int): [cutoff_top_n]
-            num_processes (int): [num_processes]
+            vocab_list (list): List of tokens in the vocabulary, for decoding
+            decoding_method (str): ctc_beam_search
+            lang_model_path (str): language model path
+            beam_alpha (float): beam_alpha
+            beam_beta (float): beam_beta
+            beam_size (int): beam_size
+            cutoff_prob (float): cutoff probability in beam search
+            cutoff_top_n (int): cutoff_top_n
+            num_processes (int): num_processes
 
         Raises:
             ValueError: when decoding_method not support.
@@ -299,15 +299,15 @@ class CTCDecoder(CTCDecoderBase):
         Args:
             probs (Tensor): activation after softmax
             logits_lens (Tensor): audio output lens
-            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
-            decoding_method (str): ["ctc_beam_search"]
-            lang_model_path (str): [language model path]
-            beam_alpha (float): [beam_alpha]
-            beam_beta (float): [beam_beta]
-            beam_size (int): [beam_size]
-            cutoff_prob (float): [cutoff probability in beam search]
-            cutoff_top_n (int): [cutoff_top_n]
-            num_processes (int): [num_processes]
+            vocab_list (list): List of tokens in the vocabulary, for decoding
+            decoding_method (str): ctc_beam_search
+            lang_model_path (str): language model path
+            beam_alpha (float): beam_alpha
+            beam_beta (float): beam_beta
+            beam_size (int): beam_size
+            cutoff_prob (float): cutoff probability in beam search
+            cutoff_top_n (int): cutoff_top_n
+            num_processes (int): num_processes
 
         Raises:
             ValueError: when decoding_method not support.
@@ -340,14 +340,14 @@ class CTCDecoder(CTCDecoderBase):
         """
         init get ctc decoder
         Args:
-            vocab_list (list): [List of tokens in the vocabulary, for decoding.]
+            vocab_list (list): List of tokens in the vocabulary, for decoding.
             batch_size(int): Batch size for input data
-            beam_alpha (float): [beam_alpha]
-            beam_beta (float): [beam_beta]
-            beam_size (int): [beam_size]
-            num_processes (int): [num_processes]
-            cutoff_prob (float): [cutoff probability in beam search]
-            cutoff_top_n (int): [cutoff_top_n]
+            beam_alpha (float): beam_alpha
+            beam_beta (float): beam_beta
+            beam_size (int): beam_size
+            num_processes (int): num_processes
+            cutoff_prob (float): cutoff probability in beam search
+            cutoff_top_n (int): cutoff_top_n
 
         Raises:
             ValueError: when decoding_method not support.
@@ -370,8 +370,8 @@ class CTCDecoder(CTCDecoderBase):
         """
         Input probs into ctc decoder
         Args:
-            probs (list(list(float))): [probs for a batch of data]
-            logits_lens (list(int)): [logits lens for a batch of data]
+            probs (list(list(float))): probs for a batch of data
+            logits_lens (list(int)): logits lens for a batch of data
         Raises:
             Exception: when the ctc decoder is not initialized
             ValueError: when decoding_method not support.
@@ -405,8 +405,8 @@ class CTCDecoder(CTCDecoderBase):
             Exception: when the ctc decoder is not initialized
             ValueError: when decoding_method not support.
         Returns:
-            results_best (list(str)): [The best result for a batch of data]
-            results_beam (list(list(str))): [The beam search result for a batch of data]
+            results_best (list(str)): The best result for a batch of data
+            results_beam (list(list(str))): The beam search result for a batch of data
         """
         if self.beam_search_decoder is None:
             raise Exception(
@@ -426,7 +426,12 @@ class CTCDecoder(CTCDecoderBase):
 
         return results_best, results_beam
 
-    def reset_decoder(self, batch_size=-1, beam_size=-1, num_processes=-1, cutoff_prob=-1.0, cutoff_top_n=-1):
+    def reset_decoder(self,
+                      batch_size=-1,
+                      beam_size=-1,
+                      num_processes=-1,
+                      cutoff_prob=-1.0,
+                      cutoff_top_n=-1):
         if batch_size > 0:
             self.batch_size = batch_size
         if beam_size > 0:
@@ -439,13 +444,21 @@ class CTCDecoder(CTCDecoderBase):
             self.cutoff_top_n = cutoff_top_n
         """
         Reset the decoder state
+        Args:
+            batch_size(int): Batch size for input data
+            beam_size (int): beam_size
+            num_processes (int): num_processes
+            cutoff_prob (float): cutoff probability in beam search
+            cutoff_top_n (int): cutoff_top_n
         Raises:
             Exception: when the ctc decoder is not initialized
         """
         if self.beam_search_decoder is None:
             raise Exception(
                 "You need to initialize the beam_search_decoder firstly")
-        self.beam_search_decoder.reset_state(self.batch_size, self.beam_size, self.num_processes, self.cutoff_prob, self.cutoff_top_n)
+        self.beam_search_decoder.reset_state(
+            self.batch_size, self.beam_size, self.num_processes,
+            self.cutoff_prob, self.cutoff_top_n)
 
     def del_decoder(self):
         """

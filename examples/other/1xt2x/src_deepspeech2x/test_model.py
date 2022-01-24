@@ -254,7 +254,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         errors_func = error_rate.char_errors if cfg.error_rate_type == 'cer' else error_rate.word_errors
         error_rate_func = error_rate.cer if cfg.error_rate_type == 'cer' else error_rate.wer
 
-
         target_transcripts = self.ordid2token(texts, texts_len)
 
         result_transcripts = self.compute_result_transcripts(audio, audio_len)
@@ -281,7 +280,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
 
     def compute_result_transcripts(self, audio, audio_len):
         result_transcripts = self.model.decode(audio, audio_len)
-        
+
         result_transcripts = [
             self._text_featurizer.detokenize(item)
             for item in result_transcripts

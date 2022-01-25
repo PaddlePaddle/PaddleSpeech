@@ -49,16 +49,6 @@ parser.add_argument(
         type=str,
         help="Directory to store the data. (default: %(default)s)")
 parser.add_argument(
-        "--target-dir",
-        default=DATA_HOME + "/VoxCeleb1",
-        type=str,
-        help="Directory to save the data. (default: %(default)s)")
-parser.add_argument(
-        "--manifest-prefix",
-        default="manifest",
-        type=str,
-        help="Filepath prefix for output manifests. (default: %(default)s)")
-parser.add_argument(
         "--split-speaker",
         action='store_true',
         help="split the all dataset by speakers")
@@ -75,33 +65,22 @@ parser.add_argument("--amp-th",
 args = parser.parse_args()
 
 def create_manifest():
-    manifest_prefix = args.manifest_prefix
     data_dir = args.data_dir
-    target_dir = args.target_dir
-    print("Creating manifest, prefix is {} ... ".format(manifest_prefix))
+    print("Voxceleb1 data directory is {} ... ".format(data_dir))
 
     # 获取整个 voxceleb1 数据集的内容
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
     spk2utt, utt2spk, dataset = get_dataset_utterances(data_dir)
 
     # 对数据集进行切分，得到训练集和开发集
     train_dataset, dev_dataset = split_utt_dataset(utt2spk, spk2utt)
 
-
     # 获取音频的片段数据
     train_json = os.path.join("data/train", "data.json")
-    # train_json = os.path.join(target_dir, "_".join([manifest_prefix, "train.json"])) \
-    #             if manifest_prefix else \
-    #             os.path.join(target_dir, "train.json")
     train_dataset = prepare_dataset_json(dataset, train_dataset)
     with open(train_json, 'w') as f:
         f.write(train_dataset)
     
     dev_json = os.path.join("data/dev/data.json")
-    # dev_json = os.path.join(target_dir, "_".join([manifest_prefix, "dev.json"])) \
-    #             if manifest_prefix else \
-    #             os.path.join(target_dir, "dev.json")
     dev_dataset = prepare_dataset_json(dataset, dev_dataset)
     with open (dev_json, 'w') as f:
         f.write(dev_dataset)

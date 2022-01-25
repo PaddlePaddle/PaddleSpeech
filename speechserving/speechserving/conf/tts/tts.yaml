@@ -1,0 +1,38 @@
+# This is the parameter configuration file for TTS server.
+
+##################################################################
+#                     TTS SERVER SETTING                         #
+##################################################################
+host: '0.0.0.0'
+port: 8692
+
+##################################################################
+#                  ACOUSTIC MODEL SETTING                        #
+# am choices=['speedyspeech_csmsc', 'fastspeech2_csmsc',
+#             'fastspeech2_ljspeech', 'fastspeech2_aishell3',
+#             'fastspeech2_vctk']
+##################################################################
+am: 'fastspeech2_csmsc'   
+am_config: 
+am_ckpt: 
+am_stat: 
+phones_dict: 
+tones_dict: 
+speaker_dict: 
+spk_id: 0
+
+##################################################################
+#                     VOCODER SETTING                            #
+# voc choices=['pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3',
+#              'pwgan_vctk', 'mb_melgan_csmsc']
+##################################################################
+voc: 'pwgan_csmsc'
+voc_config: 
+voc_ckpt: 
+voc_stat: 
+
+##################################################################
+#                            OTHERS                              #
+##################################################################
+lang: 'zh'
+device: paddle.get_device()

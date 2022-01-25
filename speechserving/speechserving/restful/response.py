@@ -11,22 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional
 from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
-__all__ = ['ASRResponse']
+__all__ = ['ASRResponse', 'TTSResponse']
 
 
 class Message(BaseModel):
     description: str
+
 
 #****************************************************************************************/
 #************************************ ASR response **************************************/
 #****************************************************************************************/
 class AsrResult(BaseModel):
     transcription: str
+
 
 class ASRResponse(BaseModel):
     """
@@ -36,7 +38,7 @@ class ASRResponse(BaseModel):
         "code": 0,
         "message": {
             "description": "success" 
-        }
+        },
         "result": {
             "transcription": "你好，飞桨"
         }
@@ -47,6 +49,40 @@ class ASRResponse(BaseModel):
     message: Message
     result: AsrResult
 
+
 #****************************************************************************************/
 #************************************ TTS response **************************************/
 #****************************************************************************************/
+class TTSResult(BaseModel):
+    lang: str = "zh"
+    sample_rate: int
+    spk_id: int = 0
+    speed: float = 1.0
+    volume: float = 1.0
+    save_path: str = None
+    audio: str
+
+
+class TTSResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "lang": "zh",
+            "sample_rate": 24000,
+            "speed": 1.0,
+            "volume": 1.0,
+            "audio": "LTI1OTIuNjI1OTUwMzQsOTk2OS41NDk4...",
+            "save_path": "./tts.wav"
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: TTSResult

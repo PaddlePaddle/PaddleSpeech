@@ -13,31 +13,55 @@
 # limitations under the License.
 import argparse
 
-import asr_api  as api_run
-import tts_api  as api_run
+import uvicorn
+import yaml
+from engine.tts.python.tts_engine import TTSEngine
+from fastapi import FastAPI
+from restful.api import router as api_router
 
+from paddlespeech.cli.log import logger
+
+app = FastAPI(
+    title="PaddleSpeech Serving API", description="Api", version="0.0.1")
 
 
 def init(args):
     """ 系统初始化
     """
+    app.include_router(api_router)
+
+    # engine single 
+    TTS_ENGINE = TTSEngine()
+
+    # todo others 
+
+    return True
 
 
 def main(args):
     """主程序入口"""
 
-    if init(args):
-        api_run.run()
-        app.run(host='0.0.0.0', port=conf.port)
+    #TODO configuration 
+    from yacs.config import CfgNode
+    with open(args.config_file, 'rt') as f:
+        config = CfgNode(yaml.safe_load(f))
 
+    if init(args):
+        uvicorn.run(app, host=config.host, port=config.port, debug=True)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_file", action="store",
-                        help="yaml file of the app", default="./conf/application.yaml")
-    parser.add_argument("--log_file", action="store",
-                        help="log file", default="./log/paddlespeech.log")
+    parser.add_argument(
+        "--config_file",
+        action="store",
+        help="yaml file of the app",
+        default="./server.yaml")
+    parser.add_argument(
+        "--log_file",
+        action="store",
+        help="log file",
+        default="./log/paddlespeech.log")
     args = parser.parse_args()
 
     main(args)

@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional
 from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
+__all__ = ['ASRRequest', 'TTSRequest']
 
-__all__ = ['ASRRequest, TTSRequest']
 
 #****************************************************************************************/
 #************************************ ASR request ***************************************/
@@ -44,13 +44,25 @@ class ASRRequest(BaseModel):
 #************************************ TTS request ***************************************/
 #****************************************************************************************/
 class TTSRequest(BaseModel):
-    """
+    """TTS request
+
     request body example
     {
-        "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
-        "audio_format": "wav",
-        "sample_rate": 16000,
-        "lang ": "zh_cn",
-        "ptt ":false
+        "text": "你好，欢迎使用百度飞桨语音合成服务。",
+        "spk_id": 0,
+        "speed": 1.0,
+        "volume": 1.0,
+        "sample_rate": 0,
+        "tts_audio_path": "./tts.wav",
+        "audio_format": "wav"
     }
+    
     """
+
+    text: str
+    spk_id: int = 0
+    speed: float = 1.0
+    volume: float = 1.0
+    sample_rate: int = 0
+    save_path: str = None
+    audio_format: str = "wav"

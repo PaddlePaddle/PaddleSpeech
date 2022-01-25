@@ -13,19 +13,9 @@
 # limitations under the License.
 from fastapi import APIRouter
 
+from .tts_api import router as tts_router
+#from .asr_api import router as asr_router
+
 router = APIRouter()
-
-
-router.include_router(auth_router)
-router.include_router(user_router)
-router.include_router(profile_router)
-router.include_router(comment_router)
-router.include_router(article_router)
-router.include_router(tag_router)
-
-
-
-
-def init_app(app):
-    
-    app.include_router(router)
+#router.include_router(asr_router)
+router.include_router(tts_router)

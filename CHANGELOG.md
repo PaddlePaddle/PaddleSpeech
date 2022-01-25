@@ -10,6 +10,13 @@ Add features to: CLI:
 
 ***
 
+Date: 2022-1-17, Author: Jackwaterveg.  
+Add features to: CLI:  
+  - Support deepspeech2 online/offline model.  
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1356
+
+***
+
 Date: 2022-1-24, Author: Jackwaterveg.  
 Add features to: ctc_decoders:  
   - Support online ctc prefix-beam search decoder. 

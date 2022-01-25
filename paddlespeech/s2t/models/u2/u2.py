@@ -663,7 +663,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         # (num_hyps, max_hyps_len, vocab_size)
         decoder_out, _ = self.decoder(encoder_out, encoder_mask, hyps,
                                       hyps_lens)
-        decoder_out = paddle.nn.functional.log_softmax(decoder_out, dim=-1)
+        decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
         return decoder_out
 
     @paddle.no_grad()

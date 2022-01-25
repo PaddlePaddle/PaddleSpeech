@@ -29,8 +29,8 @@ class ASRRequest(BaseModel):
         "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
         "audio_format": "wav",
         "sample_rate": 16000,
-        "lang ": "zh_cn",
-        "ptt ":false
+        "lang": "zh_cn",
+        "ptt":false
     }
     """
     audio: str

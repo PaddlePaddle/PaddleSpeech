@@ -11,15 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from engine import BaseEngine
+from engine.base_engine import BaseEngine
+
+from utils.log import logger
 
 __all__ = ['ASREngine']
 
+
 class ASREngine(BaseEngine):
-
-    def __init__(self, name):
+    def __init__(self, name=None):
         super(ASREngine, self).__init__()
-
+        self.executor = name
+        self.input = None
+        self.output = None
 
     def init(self):
         pass
@@ -28,8 +32,8 @@ class ASREngine(BaseEngine):
         pass
 
     def run(self):
-        pass
-
+        logger.info("start run asr engine")
+        return "hello world"
 
 
 if __name__ == "__main__":
@@ -39,4 +43,3 @@ if __name__ == "__main__":
     print(class1 is class2)
     print(id(class1))
     print(id(class2))
-

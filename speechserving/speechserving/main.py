@@ -15,6 +15,7 @@ import argparse
 
 import uvicorn
 import yaml
+
 from engine.tts.python.tts_engine import TTSEngine
 from fastapi import FastAPI
 from restful.api import router as api_router
@@ -31,6 +32,7 @@ def init(args):
     app.include_router(api_router)
 
     # engine single 
+
     TTS_ENGINE = TTSEngine()
 
     # todo others 
@@ -56,7 +58,8 @@ if __name__ == "__main__":
         "--config_file",
         action="store",
         help="yaml file of the app",
-        default="./server.yaml")
+        default="./conf/tts/tts.yaml")
+
     parser.add_argument(
         "--log_file",
         action="store",

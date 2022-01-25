@@ -14,7 +14,6 @@
 import argparse
 
 
-
 def init(args):
     """ 系统初始化
     """
@@ -27,13 +26,18 @@ def main(args):
         app.run(host='0.0.0.0', port=conf.port)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_file", action="store",
-                        help="yaml file of the app", default="./conf/application.yaml")
-    parser.add_argument("--log_file", action="store",
-                        help="log file", default="./log/paddlespeech.log")
+    parser.add_argument(
+        "--config_file",
+        action="store",
+        help="yaml file of the app",
+        default="./conf/application.yaml")
+    parser.add_argument(
+        "--log_file",
+        action="store",
+        help="log file",
+        default="./log/paddlespeech.log")
     args = parser.parse_args()
 
     main(args)

@@ -9,3 +9,11 @@ Add features to: CLI:
   - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1297
 
 ***
+
+Date: 2022-1-24, Author: Jackwaterveg.  
+Add features to: ctc_decoders:  
+  - Support online ctc prefix-beam search decoder. 
+  - Unified ctc online decoder and ctc offline decoder.  
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/821
+
+***

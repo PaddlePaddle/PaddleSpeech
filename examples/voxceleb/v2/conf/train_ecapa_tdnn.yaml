@@ -55,7 +55,7 @@ checkpoint:
   latest_n: 5
 
 
-n_epoch: 20
+n_epoch: 10
 
 
 speaker_model: ecapa-xvector

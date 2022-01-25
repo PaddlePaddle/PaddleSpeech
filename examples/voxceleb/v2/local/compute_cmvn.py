@@ -40,7 +40,7 @@ parser.add_argument(
         type=int,
         help="feat dim")
 parser.add_argument(
-        "--dataset",
+        "--feat",
         default=[],
         nargs='*',
         help="dataset to compute the cmvn"
@@ -50,11 +50,12 @@ args = parser.parse_args()
 eps = 1e-14
      
 def main():
+    paddle.device.set_device("cpu")
     all_mean_stat = paddle.zeros(shape=[args.feat_dim])
     all_var_stat = paddle.zeros(shape=[args.feat_dim])
     all_frame_num = 0
-    logger.info(args.dataset)
-    for dataset_path in args.dataset:
+    logger.info(args.feat)
+    for dataset_path in args.feat:
         mean_state, var_state, frame_num = compute_cmvn_statistics(dataset_path, 
                                             args.feat_dim)
         all_frame_num += frame_num
@@ -69,10 +70,10 @@ def main():
     all_var_stat = all_var_stat / (1.0 * all_frame_num) - paddle.square(mean)
     all_var_stat = paddle.clip(all_mean_stat, eps)
     std = 1.0 / paddle.sqrt(all_var_stat)
-        # 保存 cmvn 数据
+    # 保存 cmvn 数据
     cmvn_info = {
-        "mean": mean,
-        "std" : std,
+        "mean": mean.numpy(),
+        "std" : std.numpy(),
         "frame_num": frame_num,
     } 
     logger.info("all mean stat: {}".format(mean))

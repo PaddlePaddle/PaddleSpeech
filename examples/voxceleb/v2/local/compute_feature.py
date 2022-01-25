@@ -58,6 +58,7 @@ args = parser.parse_args()
 def main():
     config = CfgNode(new_allowed=True)
     print("config: {}".format(args.config))
+    paddle.device.set_device("cpu")
     config.merge_from_file(args.config)
     audio_pipeline = AudioPipeline(config)
 
@@ -66,10 +67,10 @@ def main():
 
     utts = list(audio_dataset.keys())
     for item in utts:
-        # logger.info("process the utt: {}".format(item))
         feat = audio_pipeline.process_utterance(audio_dataset[item])
-        feat = paddle.to_tensor(feat) # 转换为paddle的tensor
+        # feat = paddle.to_tensor(feat) # 转换为paddle的tensor
         audio_dataset[item]["wav"] = feat
+        # 当前的特征存储为numpy格式
     
     # logger.info(audio_dataset)
     paddle.save(audio_dataset, args.feat)

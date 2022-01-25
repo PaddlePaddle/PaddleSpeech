@@ -9,8 +9,8 @@ echo "train output path: ${train_output_path}"
 python3 ./local/train.py \
         --config ${config_conf} \
         --output-dir ${train_output_path} \
-        --train-metadata ./data/apply_cmvnmanifest_dev.feat \
-        --dev-metadata ./data/apply_cmvnmanifest_dev.feat \
+        --train-metadata ${train_output_path}/train/feat.npz \
+        --dev-metadata ${train_output_path}/dev/feat.npz \
         --ngpu 4
 
 

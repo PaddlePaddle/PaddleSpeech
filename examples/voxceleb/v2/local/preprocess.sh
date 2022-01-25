@@ -37,28 +37,42 @@ mkdir -p data/{train,dev}
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     echo "Generate the dataset description file to data/train and data/dev directory ..."
-    python3 ./local/voxceleb1.py  \
-            --data-dir ${src} \
-            --target-dir ${dir}
+    python3 ./local/voxceleb1.py --data-dir ${src}
 fi
-
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Compute the dataset feature according the config: ${config_conf}"
-    python3 ./local/compute_feature.py --config ${config_conf} \
-            --dataset ./data/manifest_dev.json --feat ./data/manifest_dev.feat
 
-    python3 ./local/compute_feature.py --config ${config_conf} \
-            --dataset ./data/manifest_train.json --feat ./data/manifest_train.feat        
+    for x in train dev; do
+        python3 ./local/compute_feature.py --config ${config_conf} \
+                --dataset ./data/${x}/data.json --feat ./data/${x}/feat.npz
+    done      
 fi
 
-
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    echo "apply the cmvn"
-    python3 ./local/apply_cmvn.py --cmvn data/cmvn.feat \
-            --feat ./data/manifest_dev.feat --target ./data/apply_cmvnmanifest_dev.feat
+if $cmvn; then
+    echo "the script use cmvn configuration"
     
-    python3 ./local/apply_cmvn.py --cmvn data/cmvn.feat \
-            --feat ./data/manifest_train.feat --target ./data/apply_cmvnmanifest_train.feat
+    if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+        echo "compute the the cmvn from data/train/feat.npz"
+        feat_dim=$(python3 local/compute_feat_dim.py  --feat ./data/train/feat.npz)
+        python3 local/compute_cmvn.py \
+                    --feat-dim ${feat_dim} \
+                    --cmvn ./data/train/cmvn.npz \
+                    --feat ./data/train/feat.npz
+
+    fi
+
+    if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+        echo "apply the cmvn to the data/train/feat.npz and data/dev/feat.npz"
+        for x in train dev; do
+            mkdir -p ${dir}/${x}
+            python3 ./local/apply_cmvn.py \
+                    --cmvn data/train/cmvn.npz \
+                    --feat ./data/${x}/feat.npz \
+                    --target ${dir}/${x}/feat.npz
+        done
+    fi
+
+    cp data/train/cmvn.npz ${dir}
 fi
 

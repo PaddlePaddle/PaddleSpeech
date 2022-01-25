@@ -17,77 +17,67 @@
 . ./path.sh
 set -e
 
-# set all the available gpu id in a machine
-# the first gpu id is 0,
-gpus=0,1,2,3
-
-# set the nccl info level, default level is INFO
-export NCCL_DEBUG=INFO
-
-stage=5 # start stage, the script start from the stage
-stop_stage=50 # stop stage, the script stop at the stop_stage
+stage=5         # start stage, the script start from the stage
+stop_stage=50   # stop stage, the script stop at the stop_stage
 
 voxceleb1_root=/home/xiongxinlei/task/PaddleSpeech/examples/voxceleb/v1/demo-10
 data=./data/
 train_output_path=exp/ecapa_tdnn/
 config=./conf/train_ecapa_tdnn.yaml
 trial=/home/xiongxinlei/task/PaddleSpeech/examples/voxceleb/v1/demo-10/veri_test.txt
-# conf_path=conf/conformer.yaml
-# decode_conf_path=conf/tuning/decode.yaml
 avg_num=5
-# audio_file=data/demo_01_03.wav
 
 . parse_options.sh || exit 1;
 
+# get the avgerage model
 avg_ckpt=avg_${avg_num}
-# ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
-# echo "checkpoint name ${ckpt}"
+
+
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare voxceleb1 data, 
     # this script create the data/train and data/dev directory
     local/preprocess.sh --stage 0 --config-conf ${config}\
-        ${voxceleb1_root} ${data} || exit -1
+        ${voxceleb1_root} ${train_output_path} || exit -1
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    export CUDA_VISIBLE_DEVICES=${gpus} 
+    # set all the available gpu id in a machine
+    # the first gpu id is 0,
+    export CUDA_VISIBLE_DEVICES="0,1,2,3"
     export CUDA_DEVICE_ORDER=PCI_BUS_ID
+
+    # set the nccl info level, default level is INFO
+    # we think that only training process uses multiple gpus
+    export NCCL_DEBUG=INFO
     ./local/train.sh ${config}  ${train_output_path} || exit -1;
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # avg n best model
     # avg.sh best exp/${ckpt}/checkpoints ${avg_num}
-    avg.sh best exp/ecapa_tdnn/model/ ${avg_num}
+    avg.sh best ${train_output_path}/model/ ${avg_num}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    # test ckpt avg_n
-    # export CUDA_VISIBLE_DEVICES=0 
+    # generate the enroll and test data for speaker identification domain
     ./local/generate_enroll_test_data.sh --stage 2 \
-                    ${voxceleb1_root} ${trial} ${data} ${config} || exit -1
+                    ${voxceleb1_root} ${trial} ${config} ${train_output_path} || exit -1
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # test ckpt avg_n
-    # export CUDA_VISIBLE_DEVICES=0 
-    ./local/extract_vector.sh exp/ecapa_tdnn/model/${avg_ckpt} \
-                              data/enroll/apply_cmvn_data.feat \
-                              ${config} \
-                              exp/ecapa_tdnn/model/enroll.vector|| exit -1
-
-    ./local/extract_vector.sh exp/ecapa_tdnn/model/${avg_ckpt} \
-                              data/test/apply_cmvn_data.feat \
-                              ${config} \
-                              exp/ecapa_tdnn/model/test.vector|| exit -1
+    export CUDA_VISIBLE_DEVICES=0
+    # use single gpu to extract the enroll and test vector embedding
+    for x in enroll test; do
+        ./local/extract_vector.sh ${train_output_path}/model/${avg_ckpt} \
+            ${train_output_path}/${x} ${config}  || exit -1
+    done
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-    # ctc alignment of test data
-    # export CUDA_VISIBLE_DEVICES=0 
-    ./local/sid_score.sh --stage 1 exp/ecapa_tdnn/model/enroll.vector \
-                          exp/ecapa_tdnn/model/test.vector \
-                          ${trial} || exit -1
+    # Generate the of speaker identification score and compute the eer metrics
+    echo "Compute the score and eer"
+    ./local/sid_score.sh --stage 0 ${train_output_path} ${trial} || exit -1
 fi

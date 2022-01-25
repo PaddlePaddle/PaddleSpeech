@@ -1,6 +1,8 @@
-#! /usr/bin/env bash
+#!/usr/bin/python3
+#! coding:utf-8
+
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,24 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Return the feature dim
+"""
+import os
+import paddle
+import argparse
 
-stage=-1
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--feat", type=str, default="./data/train/feat.npz", help="feature file")
 
-. parse_options.sh || exit -1;
-
-dir=$1
-trial=$2
-
-if [ ${stage} -le 0 ]; then
-    echo "compute the speaker identification score"
-    python3 ./local/sid_score.py \
-                --enroll ${dir}/enroll/vector.npz \
-                --test ${dir}/test/vector.npz \
-                --trial ${trial}
-
-fi
-
-if [ ${stage} -le 1 ]; then
-    echo "compute the eer metrics"
-    python3 ./local/compute_eer.py ${dir}/model/scores
-fi
+    args = parser.parse_args()
+    paddle.device.set_device("cpu")
+    utts_feats = paddle.load(args.feat)
+    utt_id = next(iter(utts_feats))
+    print(utts_feats[utt_id]["wav"].shape[1])

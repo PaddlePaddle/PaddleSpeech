@@ -52,7 +52,7 @@ def main(args):
         embedding = paddle.cat(spks_embedding[spk_id])
         embedding = paddle.mean(embedding, axis=0)
         # 对向量进行归一化
-        print("embdding shape: {}".format(embedding.shape))
+        # print("embdding shape: {}".format(embedding.shape))
         spk_mean_embedding[spk_id] = embedding.numpy()
 
     print("store the speaker embedding to {}".format(args.spker_embedding))
@@ -66,5 +66,5 @@ if __name__ == "__main__":
     parser.add_argument("--spker-embedding", default="./exp/model/spk_embedding.vector", type=str, help="speaker embedding")
 
     args = parser.parse_args()
-    paddle.device.set_device("cpu")
+    # paddle.device.set_device("cpu")
     main(args)

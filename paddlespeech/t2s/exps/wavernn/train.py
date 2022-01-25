@@ -16,6 +16,8 @@ import os
 import shutil
 from pathlib import Path
 
+import jsonlines
+import numpy as np
 import paddle
 import yaml
 from paddle import DataParallel
@@ -25,9 +27,8 @@ from paddle.io import DistributedBatchSampler
 from paddle.optimizer import Adam
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.data import dataset
+from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import WaveRNNClip
-from paddlespeech.t2s.datasets.vocoder_batch_fn import WaveRNNDataset
 from paddlespeech.t2s.models.wavernn import WaveRNN
 from paddlespeech.t2s.models.wavernn import WaveRNNEvaluator
 from paddlespeech.t2s.models.wavernn import WaveRNNUpdater
@@ -56,10 +57,26 @@ def train_sp(args, config):
         f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
     )
 
-    wavernn_dataset = WaveRNNDataset(args.data)
+    # construct dataset for training and validation
+    with jsonlines.open(args.train_metadata, 'r') as reader:
+        train_metadata = list(reader)
+    train_dataset = DataTable(
+        data=train_metadata,
+        fields=["wave", "feats"],
+        converters={
+            "wave": np.load,
+            "feats": np.load,
+        }, )
 
-    train_dataset, dev_dataset = dataset.split(
-        wavernn_dataset, len(wavernn_dataset) - config.valid_size)
+    with jsonlines.open(args.dev_metadata, 'r') as reader:
+        dev_metadata = list(reader)
+    dev_dataset = DataTable(
+        data=dev_metadata,
+        fields=["wave", "feats"],
+        converters={
+            "wave": np.load,
+            "feats": np.load,
+        }, )
 
     batch_fn = WaveRNNClip(
         mode=config.model.mode,
@@ -92,7 +109,9 @@ def train_sp(args, config):
         collate_fn=batch_fn,
         batch_sampler=dev_sampler,
         num_workers=config.num_workers)
+
     valid_generate_loader = DataLoader(dev_dataset, batch_size=1)
+
     print("dataloaders done!")
 
     model = WaveRNN(
@@ -160,10 +179,11 @@ def train_sp(args, config):
 def main():
     # parse args and config and redirect to train_sp
 
-    parser = argparse.ArgumentParser(description="Train a WaveRNN model.")
+    parser = argparse.ArgumentParser(description="Train a HiFiGAN model.")
     parser.add_argument(
         "--config", type=str, help="config file to overwrite default config.")
-    parser.add_argument("--data", type=str, help="input")
+    parser.add_argument("--train-metadata", type=str, help="training data.")
+    parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")

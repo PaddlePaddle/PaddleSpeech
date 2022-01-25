@@ -21,8 +21,6 @@ from paddle.io import DataLoader
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 
-from paddlespeech.t2s.datasets.vocoder_batch_fn import decode_mu_law
-from paddlespeech.t2s.datasets.vocoder_batch_fn import label_2_float
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
@@ -156,31 +154,22 @@ class WaveRNNEvaluator(StandardEvaluator):
 
         losses_dict["loss"] = float(loss)
 
-        self.iteration = ITERATION
-        if self.iteration % self.config.gen_eval_samples_interval_steps == 0:
-            self.gen_valid_samples()
-
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
         self.logger.info(self.msg)
 
     def gen_valid_samples(self):
 
-        for i, (mel, wav) in enumerate(self.valid_generate_loader):
+        for i, item in enumerate(self.valid_generate_loader):
             if i >= self.config.generate_num:
-                print("before break")
                 break
             print(
                 '\n| Generating: {}/{}'.format(i + 1, self.config.generate_num))
-            wav = wav[0]
-            if self.mode == 'MOL':
-                bits = 16
-            else:
-                bits = self.config.model.bits
-            if self.config.mu_law and self.mode != 'MOL':
-                wav = decode_mu_law(wav, 2**bits, from_labels=True)
-            else:
-                wav = label_2_float(wav, bits)
+
+            mel = item['feats']
+            wav = item['wave']
+            wav = wav.squeeze(0)
+
             origin_save_path = self.valid_samples_dir / '{}_steps_{}_target.wav'.format(
                 self.iteration, i)
             sf.write(origin_save_path, wav.numpy(), samplerate=self.config.fs)
@@ -193,11 +182,20 @@ class WaveRNNEvaluator(StandardEvaluator):
             gen_save_path = str(self.valid_samples_dir /
                                 '{}_steps_{}_{}.wav'.format(self.iteration, i,
                                                             batch_str))
-            # (1, C_aux, T) -> (T, C_aux)
-            mel = mel.squeeze(0).transpose([1, 0])
+            # (1, T, C_aux) -> (T, C_aux)
+            mel = mel.squeeze(0)
             gen_sample = self.model.generate(
                 mel, self.config.inference.gen_batched,
                 self.config.inference.target, self.config.inference.overlap,
                 self.config.mu_law)
             sf.write(
                 gen_save_path, gen_sample.numpy(), samplerate=self.config.fs)
+
+    def __call__(self, trainer=None):
+        summary = self.evaluate()
+        for k, v in summary.items():
+            report(k, v)
+        # gen samples at then end of evaluate
+        self.iteration = ITERATION
+        if self.iteration % self.config.gen_eval_samples_interval_steps == 0:
+            self.gen_valid_samples()

@@ -15,13 +15,16 @@ import argparse
 import os
 from pathlib import Path
 
+import jsonlines
 import numpy as np
 import paddle
 import soundfile as sf
 import yaml
 from paddle import distributed as dist
+from timer import timer
 from yacs.config import CfgNode
 
+from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.wavernn import WaveRNN
 
 
@@ -30,10 +33,7 @@ def main():
 
     parser.add_argument("--config", type=str, help="GANVocoder config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        help="path of directory containing mel spectrogram (in .npy format)")
+    parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
@@ -65,24 +65,43 @@ def main():
 
     model.eval()
 
-    mel_dir = Path(args.input).expanduser()
-    output_dir = Path(args.output_dir).expanduser()
+    with jsonlines.open(args.test_metadata, 'r') as reader:
+        metadata = list(reader)
+    test_dataset = DataTable(
+        metadata,
+        fields=['utt_id', 'feats'],
+        converters={
+            'utt_id': None,
+            'feats': np.load,
+        })
+    output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    for file_path in sorted(mel_dir.iterdir()):
-        mel = np.load(str(file_path))
-        mel = paddle.to_tensor(mel)
-        mel = mel.transpose([1, 0])
-        # input shape is (T', C_aux)
-        audio = model.generate(
-            c=mel,
-            batched=config.inference.gen_batched,
-            target=config.inference.target,
-            overlap=config.inference.overlap,
-            mu_law=config.mu_law,
-            gen_display=True)
-        audio_path = output_dir / (os.path.splitext(file_path.name)[0] + ".wav")
-        sf.write(audio_path, audio.numpy(), samplerate=config.fs)
-        print("[synthesize] {} -> {}".format(file_path, audio_path))
+
+    N = 0
+    T = 0
+    for example in test_dataset:
+        utt_id = example['utt_id']
+        mel = example['feats']
+        mel = paddle.to_tensor(mel)  # (T, C)
+        with timer() as t:
+            with paddle.no_grad():
+                wav = model.generate(
+                    c=mel,
+                    batched=config.inference.gen_batched,
+                    target=config.inference.target,
+                    overlap=config.inference.overlap,
+                    mu_law=config.mu_law,
+                    gen_display=True)
+            wav = wav.numpy()
+            N += wav.size
+            T += t.elapse
+            speed = wav.size / t.elapse
+            rtf = config.fs / speed
+        print(
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+        )
+        sf.write(str(output_dir / (utt_id + ".wav")), wav, samplerate=config.fs)
+    print(f"generation speed: {N / T}Hz, RTF: {config.fs / (N / T) }")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ Add features to: CLI:
 
 Date: 2022-1-17, Author: Jackwaterveg.  
 Add features to: CLI:  
-  - Support deepspeech2 online/offline model.  
+  - Support deepspeech2 online/offline model(aishell). 
   - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1356
 
 ***

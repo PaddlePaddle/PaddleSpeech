@@ -13,38 +13,17 @@
 # limitations under the License.
 from fastapi import APIRouter
 
+
 router = APIRouter()
 
 
-router.include_router(auth_router)
-router.include_router(user_router)
-router.include_router(profile_router)
-router.include_router(comment_router)
-router.include_router(article_router)
-router.include_router(tag_router)
+@router.get('/paddlespeech/tts/help')
+def help():
+    """help
+
+    Returns:
+        json: [description]
+    """
+    return {'hello': 'world'}
 
 
-
-
-def init_app(app):
-    
-    asr,tts
-
-
-
-    
-    
-    if asr
-        backend
-            dyload(asr)
-
-        asr.register_router(router)
-    if tts
-        backend
-            dyload(asr)
-
-
-        asr.register_router(router)
-
-    app.include_router(router)
-    

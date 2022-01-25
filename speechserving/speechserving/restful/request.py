@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional
 from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
-
 __all__ = ['ASRRequest, TTSRequest']
+
 
 #****************************************************************************************/
 #************************************ ASR request ***************************************/
@@ -29,8 +29,8 @@ class ASRRequest(BaseModel):
         "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
         "audio_format": "wav",
         "sample_rate": 16000,
-        "lang ": "zh_cn",
-        "ptt ":false
+        "lang": "zh_cn",
+        "ptt":false
     }
     """
     audio: str

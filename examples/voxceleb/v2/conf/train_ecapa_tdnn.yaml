@@ -1,0 +1,89 @@
+# 数据部分
+# 数据集部分
+train_manifest: data/manifest_dev.json
+dev_manifest: data/manifest_dev.json
+mean_std_filepath: data/mean_std.json
+max_input_len: 27.0 # 最大的输入音频长度 second
+min_input_len: 0.0 # 最小的输入音频长度 second 
+min_output_len: 0.0 # 最小的输出长度
+max_output_len: .inf # 最大的输出长度
+min_output_input_ratio: 0.00
+max_output_input_ratio: .inf 
+
+
+# 数据增强部分
+batch_size: 32 # one gpu
+sortagrad: True # ???
+shuffle_method: batch_shuffle #??
+num_workers: 2
+augmentation_config: conf/augmentation.json
+
+# 是否保留ASR的文本内容
+keep_transcription_text: False
+
+# cmvn 数据
+# mean_std_filepath: None
+
+# 词典
+vocab_filepath: None
+
+# 特征类型
+spectrum_type: fbank
+feature_type: fbank
+
+# fft的数目
+n_fft: None
+
+# 建模单元
+unit_type: char
+
+# 
+spm_model_prefix: None
+feat_dim: 80
+delta_delta: False
+stride_ms: 10.0 # ms
+window_ms: 25.0
+max_freq: None
+target_sample_rate: 16000
+use_dB_normalization: False 
+target_dB: -20
+dither: 0.0
+
+# 解码部分
+checkpoint:
+  kbest_n: 50
+  latest_n: 5
+
+
+n_epoch: 20
+
+
+speaker_model: ecapa-xvector
+model_conf:
+  input_size: 80
+  channels: [1024, 1024, 1024, 1024, 3072]
+  kernel_sizes: [5, 3, 3, 3, 1]
+  dilations: [1, 2, 3, 4, 1]
+  # groups: [1, 1, 1, 1, 1]
+  attention_channels: 128
+  lin_neurons: 192
+
+classifier_type: cosclassifier
+classifier_conf:
+  input_size: 192
+  out_neurons: 10 # 这个表示说话人的数目
+
+loss_type: LogSoftmaxWrapper
+loss_conf:
+  loss_fn: AdditiveAngularMargin
+  margin: 0.2
+  scale: 30
+global_grad_clip: 5.0
+optim: adam
+optim_conf:
+  lr: 0.001
+  weight_decay: 1.0e-6
+scheduler: warmuplr     
+scheduler_conf:
+  warmup_steps: 5000
+  lr_decay: 1.0

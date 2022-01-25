@@ -590,3 +590,27 @@ class WaveRNN(nn.Layer):
         for i in range(size):
             bar += '█' if i <= done else '░'
         return bar
+
+
+class WaveRNNInference(nn.Layer):
+    def __init__(self, normalizer, wavernn):
+        super().__init__()
+        self.normalizer = normalizer
+        self.wavernn = wavernn
+
+    def forward(self,
+                logmel,
+                batched: bool=True,
+                target: int=12000,
+                overlap: int=600,
+                mu_law: bool=True,
+                gen_display: bool=False):
+        normalized_mel = self.normalizer(logmel)
+        wav = self.wavernn.generate(
+            normalized_mel,
+            batched=batched,
+            target=target,
+            overlap=overlap,
+            mu_law=mu_law,
+            gen_display=gen_display)
+        return wav

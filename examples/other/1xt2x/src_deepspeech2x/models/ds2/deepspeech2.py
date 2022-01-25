@@ -169,7 +169,7 @@ class DeepSpeech2Model(nn.Layer):
         eouts, eouts_len = self.encoder(audio, audio_len)
         probs = self.decoder.softmax(eouts)
         batch_size = probs.shape[0]
-        self.decoder.reset_decoder(batch_size = batch_size)
+        self.decoder.reset_decoder(batch_size=batch_size)
         self.decoder.next(probs, eouts_len)
         trans_best, trans_beam = self.decoder.decode()
         return trans_best

@@ -36,7 +36,3 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi
 
-if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-    # inference with static model
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} || exit -1
-fi

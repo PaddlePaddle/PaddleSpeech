@@ -173,8 +173,8 @@ class STExecutor(BaseExecutor):
         self.config.decode.decoding_method = "fullsentence"
 
         with UpdateConfig(self.config):
-            self.config.cmvn_path = os.path.join(
-                res_path, self.config.cmvn_path)
+            self.config.cmvn_path = os.path.join(res_path,
+                                                 self.config.cmvn_path)
             self.config.spm_model_prefix = os.path.join(
                 res_path, self.config.spm_model_prefix)
             self.text_feature = TextFeaturizer(

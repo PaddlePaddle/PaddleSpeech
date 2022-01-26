@@ -17,8 +17,8 @@
 . ./path.sh
 set -e
 
-stage=5         # start stage, the script start from the stage
-stop_stage=50   # stop stage, the script stop at the stop_stage
+stage=-1        # start stage, the script start from the stage
+stop_stage=100  # stop stage, the script stop at the stop_stage
 
 voxceleb1_root=/home/xiongxinlei/task/PaddleSpeech/examples/voxceleb/v1/demo-10
 data=./data/

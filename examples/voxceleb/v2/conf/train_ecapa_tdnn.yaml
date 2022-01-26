@@ -12,7 +12,7 @@ max_output_input_ratio: .inf
 
 
 # 数据增强部分
-batch_size: 32 # one gpu
+batch_size: 8 # one gpu
 sortagrad: True # ???
 shuffle_method: batch_shuffle #??
 num_workers: 2
@@ -55,7 +55,7 @@ checkpoint:
   latest_n: 5
 
 
-n_epoch: 10
+n_epoch: 5
 
 
 speaker_model: ecapa-xvector

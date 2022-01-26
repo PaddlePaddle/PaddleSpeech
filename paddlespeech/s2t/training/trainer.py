@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
 import sys
 import time
 from collections import OrderedDict
@@ -36,6 +38,7 @@ __all__ = ["Trainer"]
 
 logger = Log(__name__).getlog()
 
+# reuse the code: paddlespeech.s2t.training.trainer.py
 
 class Trainer():
     """

@@ -4,7 +4,7 @@
 import time
 
 from paddlespeech.s2t.io.dataset import ManifestDataset
-from paddlespeech.s2t.io.dataset import CSVManifestDataset
+from paddleaudio.datasets.dataset import SpeechDataset
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.io.collator import SIDSpeechCollator
 from paddlespeech.s2t.io.sampler import SortagradBatchSampler
@@ -17,6 +17,9 @@ from paddlespeech.vector.models.ecapa_tdnn import CosClassifier
 from paddlespeech.vector.models.ecapa_tdnn import AdditiveAngularMargin
 from paddlespeech.vector.models.ecapa_tdnn import LogSoftmaxWrapper
 from paddlespeech.s2t.training.scheduler import LRSchedulerFactory
+from paddleaudio.features.audiopipeline import CMVNNormalizer
+from paddlespeech.s2t.io.collator import SimpleCollator
+
 import paddle 
 
 logger = Log(__name__).getlog()
@@ -31,8 +34,9 @@ class SIDTrainer(Trainer):
         logger.info("config: \n{}".format(config))
 
         config.manifest = config.train_manifest
-        train_dataset = CSVManifestDataset.from_config(config)
-        collate_fn_train = SIDSpeechCollator.from_config(config)
+        train_dataset = SpeechDataset.from_config(config)
+        cmvn_normalizer = CMVNNormalizer(config, train_dataset.data)
+        collate_fn_train = SimpleCollator()
         if self.parallel:
             # 多GPU训练的时候，使用分布式数据
             pass
@@ -142,27 +146,30 @@ class SIDTrainer(Trainer):
                 logger.info(msg)
                 data_start_time = time.time()
 
-                # 开始计算模型的结果
-                # xs_pad = [batch, time, dim]
-                utts, xs_pad, ilens, spk_ids = batch
-                logger.info("xs_pad shape: {}".format(xs_pad.shape))
-                logger.info("spk_ids shape: {}".format(spk_ids.shape))
-                
-                # 经过transpose之后，xs_pad = [batch, dim, time]
+                # # 开始计算模型的结果
+                # # xs_pad = [batch, time, dim]
+                xs_pad, ilens, spk_ids = batch
+                # # 经过transpose之后，xs_pad = [batch, dim, time]
                 xs_pad = paddle.transpose(xs_pad, perm=[0,2,1])
                 model_output = self.model(xs_pad)
                 logits = self.classifier(model_output)
-                
-                # 计算 loss 
+
+                # # 计算 loss 
                 loss = self.loss(logits, spk_ids)
 
                 batch_train_time = time.time() - data_start_time
+                msg = "model forward time: {:>.3f}".format(batch_train_time)
                 data_start_time = time.time()
 
                 self.optimizer.step()
                 self.optimizer.clear_grad()
                 self.lr_scheduler.step()
 
+                msg = "Valid: Randk: "
+                msg += "epoch: {}, ".format(self.epoch)
+                msg += "step: {}, ".format(step)
+                msg += "loss: {}, ".format(loss.item())
+                logger.info(msg)
             # 开始新的epoch
             self.epoch += 1
 

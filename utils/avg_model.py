@@ -19,10 +19,14 @@ import os
 
 import numpy as np
 import paddle
-
+from packaging import version
 
 def main(args):
-    paddle.set_device('cpu')
+    # > 2.1 
+    if version.parse(paddle.__version__) > version.parse('2.1'):
+        paddle.device.set_device('cpu')
+    else:
+        paddle.set_device('cpu')
 
     val_scores = []
     beat_val_scores = None

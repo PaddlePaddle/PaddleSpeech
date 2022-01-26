@@ -11,13 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import os
 import math
+import logging
 
 import paddle
 import paddle.nn as nn
+from paddle import Tensor
 import paddle.nn.functional as F
+from paddle import distributed as dist
 from paddlespeech.s2t.utils.log import Log 
-logger = Log(__name__).getlog()
+from paddlespeech.t2s.training.reporter import report
+from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
+from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
+logging.basicConfig(
+    format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='[%Y-%m-%d %H:%M:%S]')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
 def length_to_mask(length, max_len=None, dtype=None):
     assert len(length.shape) == 1
 
@@ -436,7 +451,12 @@ class CosClassifier(nn.Layer):
         
         # x 的维度是 [batch, dim, 1]
         x = paddle.squeeze(x, axis=2)
-        logits = self.fc(x)
+        # self.fc.weight = 
+        # 对权重和x进行归一化
+        # self.fc.weight = F.normalize(self.fc.weight)
+        # x = F.normalize(x)
+        # logits = self.fc(x)
+        logits = F.linear(F.normalize(x), F.normalize(self.fc.weight))
         # logger.info("classifier logits shape: {}".format(logits.shape))
         return logits
 
@@ -499,17 +519,17 @@ class LogSoftmaxWrapper(nn.Layer):
         loss: torch.Tensor
             Loss for current examples.
         """
-        logger.info("output shape: {}".format(outputs))
-        logger.info("target shape: {}".format(targets))
+        # logger.info("output shape: {}".format(outputs))
+        # logger.info("target shape: {}".format(targets))
         # outputs = outputs.squeeze(1)
         # targets = targets.squeeze(1)
         targets = nn.functional.one_hot(targets, outputs.shape[1]).float()
-        logger.info("one host target: {}".format(targets))
+        # logger.info("one host target: {}".format(targets))
         try:
             predictions = self.loss_fn(outputs, targets)
         except TypeError:
             predictions = self.loss_fn(outputs)
-        
+        # logger.info("predicitions: {}".format(predictions))
         predictions = nn.functional.log_softmax(predictions)
         loss = self.criterion(predictions, targets) / targets.sum()
         return loss
@@ -598,7 +618,10 @@ class AdditiveAngularMargin(AngularMargin):
 
         self.cos_m = math.cos(self.margin)
         self.sin_m = math.sin(self.margin)
-        self.th = math.cos(math.pi - self.margin)
+        # cos(theta + m) = cos(theta -m)
+        # 原始 theta 的取值范围是 [0, \pi]，偏移m之后，取值范围是 [m, theta+m]
+        # 而 cos[\pi + m] = cos[\pi - m]，这里使用 cos[\pi - m] 的值代替 cos[\pi + m] 的值
+        self.th = math.cos(math.pi - self.margin) 
         self.mm = math.sin(math.pi - self.margin) * self.margin
 
     def forward(self, outputs, targets):
@@ -617,11 +640,95 @@ class AdditiveAngularMargin(AngularMargin):
         predictions : torch.Tensor
         """
         cosine = outputs.float()
-        sine = paddle.sqrt(1.0 - paddle.pow(cosine, 2))
+        # 如果cosine中有的值为1.0的话，那么会导致paddle.sqrt的结果出现nan
+        # 因此这里设置了最小值为1e-14
+        sine = paddle.sqrt(paddle.clip(1.0 - paddle.pow(cosine, 2), min=1e-14))
+        # logger.info("cosine: {}".format(cosine))
+        # logger.info("sine: {}".format(sine))
+        # logger.info("cos m: {}".format(self.cos_m))
+        # logger.info("sin m: {}".format(self.sin_m))
         phi = cosine * self.cos_m - sine * self.sin_m  # cos(theta + m)
+        # logger.info("output phi: {}".format(phi))
         if self.easy_margin:
+            # 使用最简单的模式之下，这里默认目标类别下cosine值为1，非目标类别值为0
+            # 因此将大于0的概率值设置为phi, 将其他类别的概率设置为原始的值
             phi = paddle.where(cosine > 0, phi, cosine)
         else:
             phi = paddle.where(cosine > self.th, phi, cosine - self.mm)
         outputs = (targets * phi) + ((1.0 - targets) * cosine)
         return self.scale * outputs
+
+
+class EcapaTdnn2Updater(StandardUpdater):
+    def __init__(self, 
+                 model, 
+                 optimizer,
+                 lr_scheduler,
+                 classifier,
+                 loss_fn,
+                 dataloader,
+                 config=None,
+                 init_state=None,
+                 output_dir=None):
+        super().__init__(model, optimizer, dataloader, init_state=None)
+        self.config = config
+        self.classifier = classifier
+        self.loss_fn = loss_fn
+        self.lr_scheduler = lr_scheduler
+        log_file = os.path.join(output_dir, 'worker_{}.log'.format(dist.get_rank()))
+        self.filehandler = logging.FileHandler(str(log_file))
+        logger.addHandler(self.filehandler)
+        self.logger = logger
+        self.msg = ""
+
+    def update_core(self, batch):
+        xs_pad, ilens, spk_ids = batch
+        xs_pad = paddle.transpose(xs_pad, perm=[0,2,1])
+        model_output = self.model(xs_pad)
+        logits = self.classifier(model_output)
+        loss = self.loss_fn(logits, spk_ids)
+        if isinstance(loss, Tensor):
+            loss_dict = {"main": loss}
+        else:
+            # Dict[str, Tensor]
+            loss_dict = loss
+            if "main" not in loss_dict:
+                main_loss = 0
+                for loss_item in loss.values():
+                    main_loss += loss_item
+                loss_dict["main"] = main_loss
+
+        for name, loss_item in loss_dict.items():
+            report(name, float(loss_item))
+
+        loss_dict["main"].backward()
+        self.optimizer.step()
+        self.optimizer.clear_grad()
+        self.lr_scheduler.step()
+
+class EcapaTdnn2Evaluator(StandardEvaluator):
+    def __init__(self,
+                 model,
+                 classifier,
+                 loss_fn,
+                 dataloader,
+                 output_dir=None):
+        super().__init__(model, dataloader)
+        self.classifier = classifier
+        self.loss_fn = loss_fn
+        self.output_dir = output_dir if output_dir else "./exp"
+        log_file = os.path.join(self.output_dir, "worker_{}.log".format(dist.get_rank()))
+        self.filehandler = logging.FileHandler(str(log_file))
+        logger.addHandler(self.filehandler)
+        self.logger = logger
+        self.msg = ""
+
+    def evaluate_core(self, batch):
+        self.msg = "Evaluate: "
+        xs_pad, ilens, spk_ids = batch
+        xs_pad = paddle.transpose(xs_pad, perm=[0,2,1])
+        model_output = self.model(xs_pad)
+        logits = self.classifier(model_output)
+        loss = self.loss_fn(logits, spk_ids)
+
+

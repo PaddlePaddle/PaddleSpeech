@@ -216,7 +216,25 @@ class SpeechCollatorBase():
         olens = np.array(text_lens).astype(np.int64)
         return utts, xs_pad, ilens, ys_pad, olens
 
+class SimpleCollator():
+    def __init__(self):
+        pass 
 
+    def __call__(self, batch):
+        audios = []
+        audios_len = []
+        spk_ids = []
+        # logger.info("batch: {}".format(batch))
+        for idx, item in enumerate(batch):
+            spectrum, label = item
+            # 这里需要确定是numpy的格式
+            audios.append(spectrum)
+            audios_len.append(spectrum.shape[0])
+            spk_ids.append(label)
+        xs_pad = pad_list(audios, 0.0).astype("float32")
+        ilens = np.array(audios_len).astype(np.int64)
+        spk_ids = np.array(spk_ids).astype(np.int64)
+        return xs_pad, ilens, spk_ids
 
 class SpeechCollator(SpeechCollatorBase):
     @classmethod

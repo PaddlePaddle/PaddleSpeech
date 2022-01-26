@@ -28,11 +28,16 @@ from paddlespeech.s2t.io.sampler import SortagradDistributedBatchSampler
 from paddlespeech.s2t.utils.log import Log
 from paddleaudio.datasets.dataset import SpeechDataset
 from paddlespeech.s2t.io.sampler import SortagradBatchSampler
+from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.s2t.io.collator import SimpleCollator
 from paddlespeech.vector.models.model import build_sid_models
 from paddlespeech.vector.models.model import build_sid_loss
 from paddlespeech.vector.training.optimizer import build_optimizers
 from paddlespeech.vector.models.model import build_sid_classifier
+from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn2Updater
+from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn2Evaluator
+from paddlespeech.t2s.training.extensions.visualizer import VisualDL
+
 # from paddlespeech.vector.training.trainer import valid
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
@@ -114,43 +119,30 @@ def train_sp(args, config):
     checkpoint_path = os.path.join(args.output_dir, "model")
     writer = LogWriter(os.path.join(args.output_dir, "visualdl"))
 
-    trainer = Trainer()
-    while epoch < config.n_epoch:
+    updater = EcapaTdnn2Updater(model=model,
+                                optimizer=optimizer,
+                                lr_scheduler=lr_scheduler,
+                                classifier=classifier,
+                                loss_fn=loss_fn,
+                                dataloader=train_loader,
+                                config=config,
+                                output_dir=args.output_dir)
+    evaluator = EcapaTdnn2Evaluator(model=model,
+                                    classifier=classifier,
+                                    loss_fn=loss_fn,
+                                    dataloader=dev_loader,
+                                    output_dir=args.output_dir)
 
-        trainer.train_batch(model, optimizer, lr_scheduler, 
-                            train_loader, classifier, 
-                            loss_fn, epoch, writer)
-        
-        total_loss = trainer.valid(model, dev_loader, classifier, loss_fn, epoch, writer)
+    trainer = Trainer(updater=updater, 
+                      stop_trigger=(config.n_epoch, "epoch"),
+                      out=args.output_dir)
+    
+    if dist.get_rank() == 0:
+        trainer.extend(evaluator, trigger=(1, "epoch"))
+        trainer.extend(VisualDL(args.output_dir), trigger=(1, "iteration"))
+        trainer.extend(Snapshot(max_size=config.n_epoch), trigger=(1, "epoch"))
 
-        if dist.get_rank() == 0:
-            logger.info("start to save the model")
-            # if total_loss < best_loss:
-            model_dict = model.state_dict()
-            opt_dict = optimizer.state_dict()
-            params_path = os.path.join(checkpoint_path,  str(epoch) + ".pdparams")
-            opt_path = os.path.join(checkpoint_path, str(epoch) + ".pdopt")
-            
-            paddle.save(model_dict, params_path)
-            paddle.save(opt_dict, opt_path)
-            logger.info("save the model to {}".format(params_path))
-            logger.info("save the optimizer to {}".format(opt_path))
-            infos = dict()
-            infos.update({
-                "step": trainer.iteration,
-                "epoch": epoch,
-                "lr": optimizer.get_lr(),
-                "val_loss": total_loss
-            })
-            info_path = re.sub('.pdparams$', '.json', params_path)
-            infos = {} if infos is None else infos
-            with open(info_path, 'w') as fout:
-                data = json.dumps(infos)
-                fout.write(data)
-            logger.info("epoch: {}, val loss: {}".format(epoch, total_loss))
-            
-        epoch += 1
-
+    trainer.run()
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", 

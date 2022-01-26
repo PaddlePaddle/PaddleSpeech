@@ -22,6 +22,8 @@ from engine.base_engine import BaseEngine
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
+from utils.errors import ErrorCode
+from utils.exception import ServerBaseException
 
 __all__ = ['TTSEngine']
 
@@ -128,16 +130,27 @@ class TTSEngine(BaseEngine):
 
         lang = self.conf_dict["lang"]
 
-        self.executor.infer(
-            text=sentence, lang=lang, am=self.conf_dict["am"], spk_id=spk_id)
+        try:
+            self.executor.infer(
+                text=sentence,
+                lang=lang,
+                am=self.conf_dict["am"],
+                spk_id=spk_id)
+        except:
+            raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
+                                      "tts infer failed.")
 
-        target_sample_rate, wav_base64 = self.postprocess(
-            wav=self.executor._outputs['wav'].numpy(),
-            original_fs=self.executor.am_config.fs,
-            target_fs=sample_rate,
-            volume=volume,
-            speed=speed,
-            audio_path=save_path,
-            audio_format=audio_format)
+        try:
+            target_sample_rate, wav_base64 = self.postprocess(
+                wav=self.executor._outputs['wav'].numpy(),
+                original_fs=self.executor.am_config.fs,
+                target_fs=sample_rate,
+                volume=volume,
+                speed=speed,
+                audio_path=save_path,
+                audio_format=audio_format)
+        except:
+            raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
+                                      "tts postprocess failed.")
 
         return lang, target_sample_rate, wav_base64

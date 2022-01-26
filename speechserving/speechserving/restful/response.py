@@ -68,7 +68,7 @@ class TTSResponse(BaseModel):
     response example
     {
         "success": true,
-        "code": 0,
+        "code": 200,
         "message": {
             "description": "success" 
         },

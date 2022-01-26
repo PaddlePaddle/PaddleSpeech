@@ -14,18 +14,21 @@
 from engine.base_engine import BaseEngine
 
 from utils.log import logger
+from utils.config import get_config
 
 __all__ = ['ASREngine']
 
 
 class ASREngine(BaseEngine):
-    def __init__(self, name=None):
+    def __init__(self):
         super(ASREngine, self).__init__()
-        self.executor = name
+
+    def init(self, config_file: str):
+        self.config_file = config_file
+        self.executor = None
         self.input = None
         self.output = None
-
-    def init(self):
+        config = get_config(self.config_file)
         pass
 
     def postprocess(self):
@@ -34,12 +37,3 @@ class ASREngine(BaseEngine):
     def run(self):
         logger.info("start run asr engine")
         return "hello world"
-
-
-if __name__ == "__main__":
-    # test Singleton 
-    class1 = ASREngine("ASREngine")
-    class2 = ASREngine()
-    print(class1 is class2)
-    print(id(class1))
-    print(id(class2))

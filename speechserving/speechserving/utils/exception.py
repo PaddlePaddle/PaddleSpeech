@@ -11,11 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from fastapi import APIRouter
+import traceback
 
-from .tts_api import router as tts_router
-#from .asr_api import router as asr_router
+from utils.errors import ErrorMsg
 
-router = APIRouter()
-#router.include_router(asr_router)
-router.include_router(tts_router)
+
+class ServerBaseException(Exception):
+    """ Server Base exception
+    """
+
+    def __init__(self, error_code, msg=None):
+        #if msg:
+        #log.error(msg)
+        msg = msg if msg else ErrorMsg.get(error_code, "")
+        super(ServerBaseException, self).__init__(error_code, msg)
+        self.error_code = error_code
+        self.msg = msg
+        traceback.print_exc()

@@ -82,39 +82,6 @@ class AudioPipeline:
             data[utt_id]["wav"] = spectrum # 将音频字段内容从采样点更新到特征数据
             
         return data
-            # cmvn_std_filepath = self.config.mean_std_filepath
-            # logger.info("process cmvn data: {}".format(cmvn_std_filepath))
-            # if self.config.mean_std_filepath:
-            #     all_mean_stat += np.sum(spectrum, axis=0)
-            #     all_var_stat += np.sum(np.square(spectrum), axis=0)
-            #     frame_num += spectrum.shape[0]
-
-        # # for utt_id in data.keys():
-        # #     logger.info("wav feature data: {}".format(data[utt_id]))
-        # if self.config.mean_std_filepath and \
-        #     frame_num != 0:
-        #     # D[x] = 1/n E[X^{2}] - {1/n E[x]}^{2}
-        #     all_mean_stat = all_mean_stat / (1.0 * frame_num)
-        #     self.mean = np.clip(all_mean_stat, eps, np.finfo(np.float32).max)
-            
-        #     all_var_stat = all_var_stat / (1.0 * frame_num) - np.power(self.mean, 2)
-        #     all_var_stat = np.clip(all_mean_stat, eps, np.finfo(np.float32).max)
-        #     self.std = 1.0 / np.sqrt(all_var_stat)
-            
-        #     # 进行cmvn操作
-        #     for utt_id in data.keys():
-        #         data[utt_id]["wav"] = data[utt_id]["wav"] - self.mean
-                
-        #     # 保存 cmvn 数据
-        #     cmvn_info = {
-        #         "mean": list(self.mean.tolist()),
-        #         "std" : list(self.std.tolist()),
-        #         "frame_num": frame_num,
-        #     }
-
-        #     with open(self.config.mean_std_filepath, 'w') as f:
-        #         json.dump(cmvn_info, f)
-
 
 class CMVNNormalizer():
     def __init__(self, 

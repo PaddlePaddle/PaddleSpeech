@@ -28,7 +28,6 @@ __all__ = [
 
 logger = Log(__name__).getlog()
 
-
 class ManifestDataset(Dataset):
     @classmethod
     def from_config(cls, config):

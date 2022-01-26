@@ -20,11 +20,19 @@ set -e
 stage=-1        # start stage, the script start from the stage
 stop_stage=100  # stop stage, the script stop at the stop_stage
 
-voxceleb1_root=/home/xiongxinlei/task/PaddleSpeech/examples/voxceleb/v1/demo-10
-data=./data/
+# in voxceleb1 dataset, there are three trial file, that is veri_test.txt, veri_test2.txt and list_test_hard.txt
+# generally, you can choose one of them to do the experiment
+voxceleb1_root=/mnt/dataset/voxceleb1/
+trial=/mnt/dataset/voxceleb1/veri_test.txt
+
+# once, you start to a new experiment, you should config a new experiment directory
+# refer the experiment directory to train_output_path variable
 train_output_path=exp/ecapa_tdnn/
+
+# training configuration, cantaing feature, model, loss, epoch etc.
 config=./conf/train_ecapa_tdnn.yaml
-trial=/home/xiongxinlei/task/PaddleSpeech/examples/voxceleb/v1/demo-10/veri_test.txt
+
+# do average to get more stable model
 avg_num=5
 
 . parse_options.sh || exit 1;

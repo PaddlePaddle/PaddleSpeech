@@ -93,50 +93,6 @@ class AudioClassificationDataset(paddle.io.Dataset):
     def __len__(self):
         return len(self.files)
 
-
-# class CSVManifestDataset(Dataset):
-#     def __init__(self,
-#                  data):
-#         super().__init__()
-#         self.data = data
-        
-
-#     @classmethod
-#     def from_config(cls, config):
-#         manifest_path = config.manifest
-#         data = load_data_csv(manifest_path)
-#         dataset = cls(data)
-#         return dataset
-
-#     def __len__(self):
-#         return len(self.data_ids)
-    
-#     def __getitem__(self, idx):
-#         utt_id = self.data_ids[idx]
-#         data_point = self.data[utt_id]
-#         # return data_point
-#         data_point["id"] = utt_id
-#         return data_point
-        
-#         # return self.compute_outputs(data_point)
-#     def update_utt_labels(self):
-#         self.labels = []
-#         for utt in self.data_ids:
-#             label = self.data[utt]["spk_id"]
-#             if label not in self.labels:
-#                 self.labels.append(label)
-#     # def compute_outputs(self, data):
-#         # 这里是动态计算，导致每次训练的时候特征要重复计算
-#         # print("compute outputs, data: {}".format(data))
-#         # duration = data["duration"]
-#         # start = data["start"]
-#         # stop = data["stop"]
-#         # wav_path = data["wav"]
-#         # logger.info("wav path: {}".format(wav_path))
-#         # num_samples = stop - start
-
-#         # return wav_path
-
 class SpeechDataset(Dataset):
     def __init__(self,
                  data,
@@ -153,6 +109,7 @@ class SpeechDataset(Dataset):
         self.data = data
         self.data_ids = list(data.keys())
         self.func = func
+        
         # 处理数据得到特征
         if self.func:
             self.data = self.func(data)

@@ -13,9 +13,10 @@
 # limitations under the License.
 from fastapi import APIRouter
 
-from .asr_api import router as asr_router
+
 from .tts_api import router as tts_router
+#from .asr_api import router as asr_router
 
 router = APIRouter()
-router.include_router(asr_router)
+#router.include_router(asr_router)
 router.include_router(tts_router)

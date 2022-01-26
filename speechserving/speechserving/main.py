@@ -15,11 +15,12 @@ import argparse
 
 import uvicorn
 import yaml
-from engine.asr.python.asr_engine import ASREngine
+
+from engine.tts.python.tts_engine import TTSEngine
 from fastapi import FastAPI
 from restful.api import router as api_router
 
-from utils.log import logger
+from paddlespeech.cli.log import logger
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
@@ -31,7 +32,8 @@ def init(args):
     app.include_router(api_router)
 
     # engine single 
-    ASR_ENGINE = ASREngine("asr")
+
+    TTS_ENGINE = TTSEngine()
 
     # todo others 
 
@@ -56,7 +58,8 @@ if __name__ == "__main__":
         "--config_file",
         action="store",
         help="yaml file of the app",
-        default="./conf/application.yaml")
+        default="./conf/tts/tts.yaml")
+
     parser.add_argument(
         "--log_file",
         action="store",

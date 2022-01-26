@@ -189,6 +189,7 @@ class UploadCommand(Command):
         sys.exit()
 
 
+remove_version_py()
 write_version_py()
 
 setup_info = dict(
@@ -258,4 +259,3 @@ setup_info = dict(
 
 setup(**setup_info)
 
-remove_version_py()

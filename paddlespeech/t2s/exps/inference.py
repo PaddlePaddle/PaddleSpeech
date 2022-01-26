@@ -54,7 +54,7 @@ def main():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc', 'mb_melgan_csmsc', 'hifigan_csmsc', 'pwgan_aishell3',
-            'pwgan_vctk'
+            'pwgan_vctk', 'wavernn_csmsc'
         ],
         help='Choose vocoder type of tts task.')
     # other

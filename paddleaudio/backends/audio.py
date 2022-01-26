@@ -32,7 +32,6 @@ __all__ = [
     'normalize',
     'save_wav',
     'load',
-    'save_pkl',
 ]
 NORMALMIZE_TYPES = ['linear', 'gaussian']
 MERGE_TYPES = ['ch0', 'ch1', 'random', 'average']
@@ -342,38 +341,6 @@ def load(
 
     y = depth_convert(y, dtype)
     return y, r
-
-
-
-def save_pkl(obj, file):
-    """Save an object in pkl format.
-    reference: https://github.com/speechbrain/speechbrain/blob/d3d267e86c3b5494cd970319a63d5dae8c0662d7/speechbrain/dataio/dataio.py#L819
-    Arguments
-    ---------
-    obj : object
-        Object to save in pkl format
-    file : str
-        Path to the output file
-    sampling_rate : int
-        Sampling rate of the audio file, TODO: this is not used?
-    Example
-    -------
-    >>> tmpfile = os.path.join(getfixture('tmpdir'), "example.pkl")
-    >>> save_pkl([1, 2, 3, 4, 5], tmpfile)
-    >>> load_pkl(tmpfile)
-    [1, 2, 3, 4, 5]
-    """
-    with open(file, "wb") as f:
-        pickle.dump(obj, f)
-
-_SUBTYPE2DTYPE = {
-    "PCM_S8": "int8",
-    "PCM_U8": "uint8",
-    "PCM_16": "int16",
-    "PCM_32": "int32",
-    "FLOAT": "float32",
-    "DOUBLE": "float64",
-}
 
 def load(
     filepath: str,

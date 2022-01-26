@@ -172,8 +172,8 @@ def main():
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument("--ngpu", 
-                        type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
     parser.add_argument(
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
@@ -209,6 +209,7 @@ def main():
         dist.spawn(train_sp, (args, config), nprocs=args.ngpu)
     else:
         train_sp(args, config)
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,11 @@ import paddleaudio
 import argparse
 SAMPLERATE = 16000 
 def main(args):
+    """
+
+    :param args: 
+
+    """
     
     enroll_uttlist = set()
     test_uttlist = set()
@@ -55,6 +60,11 @@ def main(args):
         f.write(json.dumps(test_info, indent=4, sort_keys=False))
 
 def get_utterance_info(utt_path):
+    """
+
+    :param utt_path: 
+
+    """
     utt_info = utt_path.split("/")[-3:]
     utt_name = utt_info[-1].replace(".wav", "")
     utt = {}
@@ -74,9 +84,18 @@ def get_utterance_info(utt_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--trial", default="./data/trial", type=str, help="trial file")
-    parser.add_argument("--voxceleb1", default="./voxceleb1", type=str, help="voxceleb root dir")
-    parser.add_argument("--dir", default="./data", type=str, help="target directory of enroll and test")
+    parser.add_argument("--trial", 
+                        default="./data/trial", 
+                        type=str, 
+                        help="trial file")
+    parser.add_argument("--voxceleb1", 
+                        default="./voxceleb1", 
+                        type=str, 
+                        help="voxceleb root dir")
+    parser.add_argument("--dir", 
+                        default="./data", 
+                        type=str, 
+                        help="target directory of enroll and test")
     paddle.device.set_device("cpu")
     args = parser.parse_args()
     main(args)

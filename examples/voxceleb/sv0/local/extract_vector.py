@@ -26,6 +26,11 @@ import argparse
 import paddle
 from paddlespeech.vector.models.model import build_sid_models
 def main(args):
+    """
+
+    :param args: 
+
+    """
     model_path = args.model + ".pdparams"
     print("model: {}".format(model_path))
     print("data: {}".format(args.data))
@@ -60,11 +65,22 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="./exp/model", type=str, help="speaker embedding model")
-    parser.add_argument("--data", default="./data/dataset.feat", type=str, help="dataset feature")
-    parser.add_argument("--config", default="./conf/default.yaml", type=str, help="train config")
-    parser.add_argument("--spker-embedding", default="./exp/model/spk_embedding.vector", type=str, help="speaker embedding")
+    parser.add_argument("--model", 
+                        default="./exp/model", 
+                        type=str, 
+                        help="speaker embedding model")
+    parser.add_argument("--data", 
+                        default="./data/dataset.feat", 
+                        type=str, 
+                        help="dataset feature")
+    parser.add_argument("--config", 
+                        default="./conf/default.yaml", 
+                        type=str, 
+                        help="train config")
+    parser.add_argument("--spker-embedding", 
+                        default="./exp/model/spk_embedding.vector", 
+                        type=str, 
+                        help="speaker embedding")
 
     args = parser.parse_args()
-    # paddle.device.set_device("cpu")
     main(args)

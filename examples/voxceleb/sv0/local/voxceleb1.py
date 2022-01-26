@@ -65,6 +65,7 @@ parser.add_argument("--amp-th",
 args = parser.parse_args()
 
 def create_manifest():
+    """ """
     data_dir = args.data_dir
     print("Voxceleb1 data directory is {} ... ".format(data_dir))
 
@@ -86,12 +87,24 @@ def create_manifest():
         f.write(dev_dataset)
 
 def split_utt_dataset(utt2spk, spk2utt):
+    """
+
+    :param utt2spk: 
+    :param spk2utt: 
+
+    """
     if args.split_speaker:
         return split_spkers_dataset(spk2utt, split_ratio)
     else:
         return split_utterances_dataset(utt2spk, split_ratio)
 
 def split_spkers_dataset(spk2utt, splits):
+    """
+
+    :param spk2utt: 
+    :param splits: 
+
+    """
     train_spks_num = int(len(spk2utt.keys()) * 0.01 * int(splits[0]))
     train_utts_dataset = []
     
@@ -105,11 +118,22 @@ def split_spkers_dataset(spk2utt, splits):
     return train_utts_dataset, dev_utts_dataset
 
 def split_utterances_dataset(utt2spk, splits):
+    """
+
+    :param utt2spk: 
+    :param splits: 
+
+    """
     train_utts_num = int(len(utt2spk.keys()) * 0.01 * int(split_ratio[0]))
     utts = list(utt2spk.keys())
     return utts[:train_utts_num], utts[train_utts_num:]
 
 def get_utterance_info(utt_path):
+    """
+
+    :param utt_path: 
+
+    """
     utt_info = utt_path.split("/")[-3:]
     utt_name = utt_info[-1].replace(".wav", "")
     utt = {}
@@ -128,6 +152,11 @@ def get_utterance_info(utt_path):
     return utt_name, utt
 
 def get_dataset_utterances(data_path):
+    """
+
+    :param data_path: 
+
+    """
     data_path = os.path.join(data_path, "wav", "**", "*.wav")
     spk2utt = {}
     utt2spk = {}
@@ -144,6 +173,12 @@ def get_dataset_utterances(data_path):
 
 
 def prepare_dataset_json(dataset, utt_list):
+    """
+
+    :param dataset: 
+    :param utt_list: 
+
+    """
     utts_json = {}
     dataset = json.loads(dataset)
     for utt_id in utt_list:
@@ -154,6 +189,12 @@ def prepare_dataset_json(dataset, utt_list):
     return utts_json
 
 def get_chunks(utt_name, utt):
+    """
+
+    :param utt_name: 
+    :param utt: 
+
+    """
     seg_dur = args.seg_dur
     duration = utt["duration"]
     segments = {}
@@ -179,3 +220,4 @@ if __name__ == "__main__":
     """
     paddle.device.set_device("cpu")
     create_manifest()
+    

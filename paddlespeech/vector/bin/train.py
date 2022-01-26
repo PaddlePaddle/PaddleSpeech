@@ -44,7 +44,7 @@ from paddle.io import DistributedBatchSampler
 from paddle.io import BatchSampler
 from yacs.config import CfgNode
 from visualdl import LogWriter
-from paddlespeech.vector.training.trainer import Trainer
+from paddlespeech.vector.training.trainer import SIDTrainer
 import paddle
 import yaml
 import time
@@ -133,7 +133,7 @@ def train_sp(args, config):
                                     dataloader=dev_loader,
                                     output_dir=args.output_dir)
 
-    trainer = Trainer(updater=updater, 
+    trainer = SIDTrainer(updater=updater, 
                       stop_trigger=(config.n_epoch, "epoch"),
                       out=args.output_dir)
     

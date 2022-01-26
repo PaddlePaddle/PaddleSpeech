@@ -40,7 +40,6 @@ class SpeechSegment(AudioSegment):
             tokens (List[str], optinal): Transcript tokens for the speech.
             token_ids (List[int], optional): Transcript token ids for the speech.
         """
-        # AudioSegment.__init__(self, samples, sample_rate)
         super().__init__(samples, sample_rate)
         self._transcript = transcript
         # must init `tokens` with `token_ids` at the same time

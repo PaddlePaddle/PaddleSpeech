@@ -115,7 +115,6 @@ class Trainer():
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
         if self.parallel:
             self.init_parallel()
-        
         self.checkpoint = Checkpoint(
             kbest_n=self.config.checkpoint.kbest_n,
             latest_n=self.config.checkpoint.latest_n)

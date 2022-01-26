@@ -82,6 +82,12 @@ def main():
     paddle.save(cmvn_info, args.cmvn)
 
 def compute_cmvn_statistics(dataset_path, feat_dim):
+    """
+
+    :param dataset_path: 
+    :param feat_dim: 
+
+    """
     logger.info("dataset name: {}".format(dataset_path))
     audio_dataset = paddle.load(dataset_path)
     frame_num = 0

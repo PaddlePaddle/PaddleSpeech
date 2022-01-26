@@ -13,24 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# this script extract the data vector embedding
 
-stage=-1
+model=$1
+dir=$2
+config_conf=$3
 
-. parse_options.sh || exit -1;
 
-dir=$1
-trial=$2
-
-if [ ${stage} -le 0 ]; then
-    echo "compute the speaker identification score"
-    python3 ./local/sid_score.py \
-                --enroll ${dir}/enroll/vector.npz \
-                --test ${dir}/test/vector.npz \
-                --trial ${trial}
-
-fi
-
-if [ ${stage} -le 1 ]; then
-    echo "compute the eer metrics"
-    python3 ./local/compute_eer.py ${dir}/model/scores
-fi
+python3 ./local/extract_vector.py \
+                    --model ${model} \
+                    --data ${dir}/feat.npz \
+                    --config ${config_conf} \
+                    --spker-embedding ${dir}/vector.npz

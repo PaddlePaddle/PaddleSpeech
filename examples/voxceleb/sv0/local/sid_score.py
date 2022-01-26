@@ -24,6 +24,11 @@ import paddle
 import argparse
 import paddle.nn as nn
 def main(args):
+    """
+
+    :param args: 
+
+    """
     print("enroll vector: {}".format(args.enroll))
     print("test vector: {}".format(args.test))
     print("trial vector: {}".format(args.trial))
@@ -44,9 +49,18 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--enroll", default="./exp/enroll.vector", type=str, help="enroll utterance embedding")
-    parser.add_argument("--test", default="./exp/test.vector", type=str, help="test utterance embedding")
-    parser.add_argument("--trial", default="./data/trial", type=str, help="trial file between enroll and test")
+    parser.add_argument("--enroll", 
+                        default="./exp/enroll.vector", 
+                        type=str, 
+                        help="enroll utterance embedding")
+    parser.add_argument("--test", 
+                        default="./exp/test.vector", 
+                        type=str, 
+                        help="test utterance embedding")
+    parser.add_argument("--trial", 
+                        default="./data/trial", 
+                        type=str, 
+                        help="trial file between enroll and test")
 
     args = parser.parse_args()
     paddle.device.set_device("cpu")

@@ -55,11 +55,6 @@ class TextFeaturizer():
             self.vocab_size = len(self.vocab_list)
         else:
             logger.warning("TextFeaturizer: not have vocab file or vocab list.")
-            # todo: xiongxinlei 
-            # 确定这里这是是0，-1，还是None
-            self.vocab_size = None
-            self.vocab_dict = None
-            self.vocab_list = None
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'

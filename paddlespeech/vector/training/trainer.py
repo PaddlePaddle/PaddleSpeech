@@ -39,7 +39,7 @@ from paddlespeech.t2s.training.trainer import Trainer
 from paddlespeech.t2s.utils import profiler
 logger = Log(__name__).getlog()
 
-class SIDTrainer(object):
+class SIDTrainer(Trainer):
     def __init__(self, 
                 updater: UpdaterBase,
                 stop_trigger: Callable=None,

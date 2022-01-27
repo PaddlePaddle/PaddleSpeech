@@ -13,7 +13,7 @@
 import base64
 
 
-def readwav2base64(wav_file):
+def wav2base64(wav_file):
     """
     read wave file and covert to base64 string
     """
@@ -23,7 +23,7 @@ def readwav2base64(wav_file):
     return base64_string
 
 
-def readbase64towav(base64_string):
+def base64towav(base64_string):
     pass
 
 

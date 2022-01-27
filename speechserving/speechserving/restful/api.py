@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import List
 from fastapi import APIRouter
 
 from .tts_api import router as tts_router
@@ -18,7 +19,7 @@ from .asr_api import router as asr_router
 
 _router = APIRouter()
 
-def setup_router(api_list: list):
+def setup_router(api_list: List):
 
     for api_name in api_list:
         if api_name == 'asr':

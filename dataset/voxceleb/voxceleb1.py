@@ -49,7 +49,7 @@ DATA_LIST = {
     "vox1_dev_wav_partab": "bbfaaccefab65d82b21903e81a8a8020",
     "vox1_dev_wav_partac": "017d579a2a96a077f40042ec33e51512",
     "vox1_dev_wav_partad": "7bb1e9f70fddc7a678fa998ea8b3ba19",
-    "vox1_test_wav.zip": "vox1_test_wav.zip",
+    "vox1_test_wav.zip": "185fdc63c3c739954633d50379a3d102",
 }
 
 TARGET_DATA = "vox1_dev_wav_parta* vox1_dev_wav.zip ae63e55b951748cc486645f532ba230b"

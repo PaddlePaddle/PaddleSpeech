@@ -1,0 +1,5 @@
+model: 'conformer_wenetspeech'
+lang: 'conformer_wenetspeech'
+lang: 'zh'
+sample_rate: 16000
+decode_method: 'attention_rescoring'

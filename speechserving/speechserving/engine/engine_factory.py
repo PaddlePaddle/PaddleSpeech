@@ -11,29 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from engine.base_engine import BaseEngine
-
-from utils.log import logger
-from utils.config import get_config
-
-__all__ = ['ASREngine']
+from engine.asr.python.asr_engine import ASREngine
+from engine.tts.python.tts_engine import TTSEngine
 
 
-class ASREngine(BaseEngine):
-    def __init__(self):
-        super(ASREngine, self).__init__()
-
-    def init(self, config_file: str):
-        self.config_file = config_file
-        self.executor = None
-        self.input = None
-        self.output = None
-        config = get_config(self.config_file)
-        pass
-
-    def postprocess(self):
-        pass
-
-    def run(self):
-        logger.info("start run asr engine")
-        return "hello world"
+class EngineFactory(object):
+    @staticmethod
+    def get_engine(engine_name):
+        if engine_name == 'asr':
+            return ASREngine()
+        elif engine_name == 'tts':
+            return TTSEngine()
+        else:
+            return None

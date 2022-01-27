@@ -14,8 +14,19 @@
 from fastapi import APIRouter
 
 from .tts_api import router as tts_router
-#from .asr_api import router as asr_router
+from .asr_api import router as asr_router
 
-router = APIRouter()
-#router.include_router(asr_router)
-router.include_router(tts_router)
+_router = APIRouter()
+
+def setup_router(api_list: list):
+
+    for api_name in api_list:
+        if api_name == 'asr':
+            _router.include_router(asr_router)
+        elif api_name == 'tts':
+            _router.include_router(tts_router)
+        else:
+            pass
+
+    return _router
+

@@ -6,3 +6,9 @@
 host: '0.0.0.0'
 port: 8090
 
+##################################################################
+#                     CONFIG FILE                                #
+##################################################################
+# add engine type (Options: asr, tts) and config file here.
+engine_backend:
+    asr: 'conf/asr/asr.yaml'

@@ -122,26 +122,34 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
 
-    # download all dataset part
-    for zip_part in data_list.keys():
-        download_url = base_url + "/" + zip_part + " --no-check-certificate "
-        download(
-            url=download_url, md5sum=data_list[zip_part], target_dir=target_dir)
+    # wav directory already exists, it need do nothing
+    if not os.path.exists(os.path.join(target_dir, "wav")):
+        # download all dataset part
+        for zip_part in data_list.keys():
+            download_url = base_url + "/" + zip_part + " --no-check-certificate "
+            download(
+                url=download_url,
+                md5sum=data_list[zip_part],
+                target_dir=target_dir)
 
-    # pack the all part to target zip file 
-    all_target_part, target_name, target_md5sum = target_data.split()
-    pack_part_cmd = "cat {}/{} > {}/{}".format(target_dir, all_target_part,
-                                               target_dir, target_name)
-    subprocess.call(pack_part_cmd, shell=True)
+        # pack the all part to target zip file
+        all_target_part, target_name, target_md5sum = target_data.split()
 
-    # check the target zip file md5sum
-    target_name = os.path.join(target_dir, target_name)
-    if not check_md5sum(target_name, target_md5sum):
-        raise RuntimeError("{} MD5 checkssum failed".format(target_name))
+        # check the target zip file md5sum
+        target_name = os.path.join(target_dir, target_name)
+        if not os.path.exists(target_name):
+            pack_part_cmd = "cat {}/{} > {}/{}".format(
+                target_dir, all_target_part, target_dir, target_name)
+            subprocess.call(pack_part_cmd, shell=True)
 
-    # unzip the all zip file
-    unzip(target_name, target_dir)
-    unzip(os.path.join(target_dir, "vox1_test_wav.zip"), target_dir)
+        if not check_md5sum(target_name, target_md5sum):
+            raise RuntimeError("{} MD5 checkssum failed".format(target_name))
+        else:
+            print("Check {} md5sum successfully".format(target_name))
+
+        # unzip the all zip file
+        unzip(target_name, target_dir)
+        unzip(os.path.join(target_dir, "vox1_test_wav.zip"), target_dir)
 
     # create the manifest file
     create_manifest(

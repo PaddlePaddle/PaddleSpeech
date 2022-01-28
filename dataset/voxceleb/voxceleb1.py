@@ -128,7 +128,6 @@ def create_manifest(data_dir, manifest_path_prefix):
         print(f"{total_text / total_sec} text/sec", file=f)
         print(f"{total_sec / total_num} sec/utt", file=f)
 
-    # with codecs.open
 def prepare_dataset(base_url, data_list, target_dir, manifest_path,
                     target_data):
     if not os.path.exists(target_dir):

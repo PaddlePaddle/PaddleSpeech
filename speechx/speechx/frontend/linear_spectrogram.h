@@ -28,7 +28,7 @@ class LinearSpectrogram : public FeatureExtractorInterface {
   private: 
     void Hanning(std::vector<kaldi::BaseFloat>& data) const;
     kaldi::int32 Compute(const std::vector<kaldi::BaseFloat>& wave,
-                         std::vector<std::vector<kaldi::BaseFloat>>& feat) const;
+                         std::vector<std::vector<kaldi::BaseFloat>>& feat);
     bool NumpyFft(std::vector<kaldi::BaseFloat>* v,
                   std::vector<kaldi::BaseFloat>* real,
                   std::vector<kaldi::BaseFloat>* img) const;

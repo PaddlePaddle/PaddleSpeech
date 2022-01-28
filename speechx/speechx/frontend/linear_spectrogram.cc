@@ -89,7 +89,7 @@ bool LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) const {
 
 // Compute spectrogram feat, return num frames
 // todo: refactor later (SmileGoat)
-int32 LinearSpectrogram::Compute(const vector<float>& wave,
+bool LinearSpectrogram::Compute(const vector<float>& wave,
                                  vector<vector<float>>& feat) {
   int num_samples = wave.size();
   const int& frame_length = opts.frame_opts.WindowSize();
@@ -99,7 +99,7 @@ int32 LinearSpectrogram::Compute(const vector<float>& wave,
   const float scale = hanning_window_energy_ * frame_shift;
 
   if (num_samples < frame_length) {
-          return 0;
+          return true;
   }
 
   int num_frames = 1 + ((num_samples - frame_length) / frame_shift);
@@ -118,7 +118,7 @@ int32 LinearSpectrogram::Compute(const vector<float>& wave,
     v.assign(data.begin(), data.end());
     if (NumpyFft(&v, fft_real, fft_img)) {
       LOG(ERROR)<< i  << " fft compute occurs error, please checkout the input data";
-      return -1;
+      return false;
     }
 
     feat[i].resize(fft_points / 2 + 1);  // the last dimension is Fs/2 Hz
@@ -135,5 +135,5 @@ int32 LinearSpectrogram::Compute(const vector<float>& wave,
       // log added eps=1e-14
       feat[i][j] = std::log(feat[i][j] + 1e-14);
     }
-  return 0;
+  return true;
 }

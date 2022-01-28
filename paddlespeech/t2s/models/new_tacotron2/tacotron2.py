@@ -410,7 +410,7 @@ class Tacotron2(nn.Layer):
 
         # add eos at the last of sequence
         x = F.pad(x, [0, 1], "constant", self.eos)
-        '''
+
         # inference with teacher forcing
         if use_teacher_forcing:
             assert speech is not None, "speech must be provided with teacher forcing."
@@ -429,7 +429,6 @@ class Tacotron2(nn.Layer):
                 lang_id=lang_id, )
 
             return dict(feat_gen=outs[0], att_w=att_ws[0])
-        '''
 
         # inference
         h = self.enc.inference(x)

@@ -199,7 +199,13 @@ def evaluate(args):
                         InputSpec([-1], dtype=paddle.int64),
                         InputSpec([-1], dtype=paddle.int64)
                     ])
-
+            paddle.jit.save(am_inference,
+                            os.path.join(args.inference_dir, args.am))
+            am_inference = paddle.jit.load(
+                os.path.join(args.inference_dir, args.am))
+        elif am_name == 'tacotron2':
+            am_inference = jit.to_static(
+                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
             paddle.jit.save(am_inference,
                             os.path.join(args.inference_dir, args.am))
             am_inference = paddle.jit.load(

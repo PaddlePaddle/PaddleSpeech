@@ -1,4 +1,7 @@
 model: 'conformer_wenetspeech'
 lang: 'zh'
 sample_rate: 16000
+cfg_path: "/home/users/zhangyinhui/.paddlespeech/models/conformer_wenetspeech-zh-16k/asr1_conformer_wenetspeech_ckpt_0.1.1.model.tar/model.yaml"
+ckpt_path: "/home/users/zhangyinhui/.paddlespeech/models/conformer_wenetspeech-zh-16k/asr1_conformer_wenetspeech_ckpt_0.1.1.model.tar/exp/conformer/checkpoints/wenetspeech"
 decode_method: 'attention_rescoring'
+force_yes: False

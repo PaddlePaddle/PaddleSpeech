@@ -41,12 +41,11 @@ def asr(request_body: ASRRequest):
     Returns:
         json: [description]
     """
+    audio_data = base64.b64decode(request_body.audio)
     # single 
     asr_engine = ASREngine()
-    print("asr_engine id :" ,id(asr_engine))
-
-    asr_results = asr_engine.run()
-    asr_engine.postprocess()
+    asr_engine.run(audio_data)
+    asr_results = asr_engine.postprocess()
 
     json_body = {
                     "success": True,

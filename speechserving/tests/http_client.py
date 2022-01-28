@@ -14,6 +14,8 @@ import requests
 import json
 import time
 import base64
+import soundfile
+import io
 
 import argparse
 
@@ -36,11 +38,11 @@ def main(args):
     # start Timestamp
     time_start=time.time()
 
-    # test_audio_dir = "test_data/16_audio.wav"
-    # audio = readwav2base64(test_audio_dir)
+    test_audio_dir = "./16_audio.wav"
+    audio = readwav2base64(test_audio_dir)
 
     data = {
-            "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf",
+            "audio": audio,
             "audio_format": "wav",
             "sample_rate": 16000,
             "lang": "zh_cn",
@@ -53,8 +55,6 @@ def main(args):
     print('time cost',time_end - time_start, 's')
 
     print(r.json())
-
-
 
 
 if __name__ == "__main__":

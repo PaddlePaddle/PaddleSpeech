@@ -14,13 +14,12 @@
 from fastapi import APIRouter
 import base64
 
-
 from engine.asr.python.asr_engine import ASREngine
 from .response import ASRResponse
 from .request import ASRRequest
 
-router = APIRouter()
 
+router = APIRouter()
 
 @router.get('/paddlespeech/asr/help')
 def help():
@@ -44,8 +43,8 @@ def asr(request_body: ASRRequest):
     """
     # single 
     asr_engine = ASREngine()
+    print("asr_engine id :" ,id(asr_engine))
 
-    asr_engine.init()
     asr_results = asr_engine.run()
     asr_engine.postprocess()
 

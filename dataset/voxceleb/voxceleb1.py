@@ -45,15 +45,26 @@ DATA_HOME = os.path.expanduser('.')
 # you need use --no-check-certificate to connect the target download url 
 
 BASE_URL = "https://thor.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a"
-DATA_LIST = {
+
+# dev data
+DEV_LIST = {
     "vox1_dev_wav_partaa": "e395d020928bc15670b570a21695ed96",
     "vox1_dev_wav_partab": "bbfaaccefab65d82b21903e81a8a8020",
     "vox1_dev_wav_partac": "017d579a2a96a077f40042ec33e51512",
     "vox1_dev_wav_partad": "7bb1e9f70fddc7a678fa998ea8b3ba19",
-    "vox1_test_wav.zip": "185fdc63c3c739954633d50379a3d102",
 }
+DEV_TARGET_DATA = "vox1_dev_wav_parta* vox1_dev_wav.zip ae63e55b951748cc486645f532ba230b"
 
-TARGET_DATA = "vox1_dev_wav_parta* vox1_dev_wav.zip ae63e55b951748cc486645f532ba230b"
+# test data
+TEST_LIST = {"vox1_test_wav.zip": "185fdc63c3c739954633d50379a3d102"}
+TEST_TARGET_DATA = "vox1_test_wav.zip vox1_test_wav.zip 185fdc63c3c739954633d50379a3d102"
+
+# kaldi trial
+# this trial file is organized by kaldi according the official file,
+# which is a little different with the official trial veri_test2.txt
+KALDI_BASE_URL = "http://www.openslr.org/resources/49/"
+TRIAL_LIST = {"voxceleb1_test_v2.txt": "29fc7cc1c5d59f0816dc15d6e8be60f7"}
+TRIAL_TARGET_DATA = "voxceleb1_test_v2.txt voxceleb1_test_v2.txt 29fc7cc1c5d59f0816dc15d6e8be60f7"
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -69,7 +80,6 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-
 def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
@@ -79,7 +89,7 @@ def create_manifest(data_dir, manifest_path_prefix):
     total_num = 0
     speakers = set()
     for audio_path in glob.glob(data_path, recursive=True):
-        audio_id = "/".join(audio_path.split("/")[-3:])
+        audio_id = "-".join(audio_path.split("/")[-3:])
         utt2spk = audio_path.split("/")[-3]
         duration = soundfile.info(audio_path).duration
         text = ""
@@ -99,14 +109,17 @@ def create_manifest(data_dir, manifest_path_prefix):
         total_num += 1
         speakers.add(utt2spk)
 
+    # data_dir_name refer to dev or test
+    # voxceleb1 is given explicit in the path
+    data_dir_name = Path(data_dir).name
+    manifest_path_prefix = manifest_path_prefix + "." + data_dir_name
     with codecs.open(manifest_path_prefix, 'w', encoding='utf-8') as f:
         for line in json_lines:
             f.write(line + "\n")
 
     manifest_dir = os.path.dirname(manifest_path_prefix)
-    # data_dir_name refer to voxceleb1, which is used to distingush the voxceleb2 dataset info
-    data_dir_name = Path(data_dir).name
-    meta_path = os.path.join(manifest_dir, data_dir_name) + ".meta"
+    meta_path = os.path.join(manifest_dir, "voxceleb1." +
+                             data_dir_name) + ".meta"
     with codecs.open(meta_path, 'w', encoding='utf-8') as f:
         print(f"{total_num} utts", file=f)
         print(f"{len(speakers)} speakers", file=f)
@@ -115,10 +128,8 @@ def create_manifest(data_dir, manifest_path_prefix):
         print(f"{total_text / total_sec} text/sec", file=f)
         print(f"{total_sec / total_num} sec/utt", file=f)
 
-
 def prepare_dataset(base_url, data_list, target_dir, manifest_path,
                     target_data):
-    data_dir = os.path.join(target_dir, "voxceleb1")
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
 
@@ -126,7 +137,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     if not os.path.exists(os.path.join(target_dir, "wav")):
         # download all dataset part
         for zip_part in data_list.keys():
-            download_url = base_url + "/" + zip_part + " --no-check-certificate "
+            download_url = " --no-check-certificate " + base_url + "/" + zip_part
             download(
                 url=download_url,
                 md5sum=data_list[zip_part],
@@ -136,8 +147,8 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
         all_target_part, target_name, target_md5sum = target_data.split()
         target_name = os.path.join(target_dir, target_name)
         if not os.path.exists(target_name):
-            pack_part_cmd = "cat {}/{} > {}/{}".format(
-                target_dir, all_target_part, target_dir, target_name)
+            pack_part_cmd = "cat {}/{} > {}".format(target_dir, all_target_part,
+                                                    target_name)
             subprocess.call(pack_part_cmd, shell=True)
 
         # check the target zip file md5sum
@@ -147,13 +158,11 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
             print("Check {} md5sum successfully".format(target_name))
 
         # unzip the all zip file
-        unzip(target_name, target_dir)
-        unzip(os.path.join(target_dir, "vox1_test_wav.zip"), target_dir)
+        if target_name.endswith(".zip"):
+            unzip(target_name, target_dir)
 
     # create the manifest file
-    create_manifest(
-        data_dir=args.target_dir, manifest_path_prefix=args.manifest_prefix)
-
+    create_manifest(data_dir=target_dir, manifest_path_prefix=manifest_path)
 
 def main():
     if args.target_dir.startswith('~'):
@@ -161,13 +170,19 @@ def main():
 
     prepare_dataset(
         base_url=BASE_URL,
-        data_list=DATA_LIST,
-        target_dir=args.target_dir,
+        data_list=DEV_LIST,
+        target_dir=os.path.join(args.target_dir, "dev"),
         manifest_path=args.manifest_prefix,
-        target_data=TARGET_DATA)
+        target_data=DEV_TARGET_DATA)
+
+    prepare_dataset(
+        base_url=BASE_URL,
+        data_list=TEST_LIST,
+        target_dir=os.path.join(args.target_dir, "test"),
+        manifest_path=args.manifest_prefix,
+        target_data=TEST_TARGET_DATA)
 
     print("Manifest prepare done!")
-
 
 if __name__ == '__main__':
     main()

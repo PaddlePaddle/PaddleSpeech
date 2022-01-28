@@ -35,7 +35,8 @@ from utils.utility import check_md5sum
 from utils.utility import download
 from utils.utility import unzip
 
-DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech/voxceleb/')
+# all the data will be download in the current data/voxceleb directory default
+DATA_HOME = os.path.expanduser('.')
 
 # if you use the http://www.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a/ as the download base url
 # you need to get the username & password via the google form
@@ -76,7 +77,7 @@ def create_manifest(data_dir, manifest_path_prefix):
     total_sec = 0.0
     total_text = 0.0
     total_num = 0
-    spkers = set()
+    speakers = set()
     for audio_path in glob.glob(data_path, recursive=True):
         audio_id = "/".join(audio_path.split("/")[-3:])
         utt2spk = audio_path.split("/")[-3]
@@ -88,16 +89,15 @@ def create_manifest(data_dir, manifest_path_prefix):
                     "utt": audio_id,
                     "utt2spk": str(utt2spk),
                     "feat": audio_path,
-                    "text_shape": (duration, ),
+                    "feat_shape": (duration, ),
                     "text": text  # compatible with asr data format
                 },
-                ensure_ascii=False,
-                indent=4))
+                ensure_ascii=False))
 
         total_sec += duration
         total_text += len(text)
         total_num += 1
-        spkers.add(utt2spk)
+        speakers.add(utt2spk)
 
     with codecs.open(manifest_path_prefix, 'w', encoding='utf-8') as f:
         for line in json_lines:
@@ -109,7 +109,7 @@ def create_manifest(data_dir, manifest_path_prefix):
     meta_path = os.path.join(manifest_dir, data_dir_name) + ".meta"
     with codecs.open(meta_path, 'w', encoding='utf-8') as f:
         print(f"{total_num} utts", file=f)
-        print(f"{len(spkers)} spkers", file=f)
+        print(f"{len(speakers)} speakers", file=f)
         print(f"{total_sec / (60 * 60)} h", file=f)
         print(f"{total_text} text", file=f)
         print(f"{total_text / total_sec} text/sec", file=f)
@@ -134,14 +134,13 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
 
         # pack the all part to target zip file
         all_target_part, target_name, target_md5sum = target_data.split()
-
-        # check the target zip file md5sum
         target_name = os.path.join(target_dir, target_name)
         if not os.path.exists(target_name):
             pack_part_cmd = "cat {}/{} > {}/{}".format(
                 target_dir, all_target_part, target_dir, target_name)
             subprocess.call(pack_part_cmd, shell=True)
 
+        # check the target zip file md5sum
         if not check_md5sum(target_name, target_md5sum):
             raise RuntimeError("{} MD5 checkssum failed".format(target_name))
         else:

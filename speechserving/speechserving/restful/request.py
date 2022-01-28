@@ -54,8 +54,7 @@ class TTSRequest(BaseModel):
         "speed": 1.0,
         "volume": 1.0,
         "sample_rate": 0,
-        "tts_audio_path": "./tts.wav",
-        "audio_format": "wav"
+        "tts_audio_path": "./tts.wav"
     }
     
     """
@@ -66,5 +65,3 @@ class TTSRequest(BaseModel):
     volume: float = 1.0
     sample_rate: int = 0
     save_path: str = None
-    audio_format: str = "wav"
-

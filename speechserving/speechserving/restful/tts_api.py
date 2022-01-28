@@ -19,7 +19,6 @@ from fastapi import APIRouter
 from .request import TTSRequest
 from .response import TTSResponse
 from utils.errors import ErrorCode
-from utils.errors import ErrorMsg
 from utils.errors import failed_response
 from utils.exception import ServerBaseException
 
@@ -33,9 +32,9 @@ def help():
     Returns:
         json: [description]
     """
-    json_body = {
+    response = {
         "success": "True",
-        "code": 0,
+        "code": 200,
         "message": {
             "global": "success"
         },
@@ -45,7 +44,7 @@ def help():
             "audio": "the base64 of audio"
         }
     }
-    return json_body
+    return response
 
 
 @router.post("/paddlespeech/tts", response_model=TTSResponse)
@@ -66,12 +65,11 @@ def tts(request_body: TTSRequest):
     volume = item_dict['volume']
     sample_rate = item_dict['sample_rate']
     save_path = item_dict['save_path']
-    audio_format = item_dict['audio_format']
 
     # Check parameters
     if speed <=0 or speed > 3 or volume <=0 or volume > 3 or \
         sample_rate not in [0, 16000, 8000] or \
-        audio_format not in ["pcm", "wav"]:
+        (save_path is not None and save_path.endswith("pcm") == False and save_path.endswith("wav") == False):
         return failed_response(ErrorCode.SERVER_PARAM_ERR)
 
     # single
@@ -80,29 +78,28 @@ def tts(request_body: TTSRequest):
     # run
     try:
         lang, target_sample_rate, wav_base64 = tts_engine.run(
-            sentence, spk_id, speed, volume, sample_rate, save_path,
-            audio_format)
+            sentence, spk_id, speed, volume, sample_rate, save_path)
+
+        response = {
+            "success": True,
+            "code": 200,
+            "message": {
+                "description": "success."
+            },
+            "result": {
+                "lang": lang,
+                "spk_id": spk_id,
+                "speed": speed,
+                "volume": volume,
+                "sample_rate": target_sample_rate,
+                "save_path": save_path,
+                "audio": wav_base64
+            }
+        }
     except ServerBaseException as e:
         response = failed_response(e.error_code, e.msg)
     except:
         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
         traceback.print_exc()
 
-    json_body = {
-        "success": True,
-        "code": 200,
-        "message": {
-            "description": "success."
-        },
-        "result": {
-            "lang": lang,
-            "spk_id": spk_id,
-            "speed": speed,
-            "volume": volume,
-            "sample_rate": target_sample_rate,
-            "save_path": save_path,
-            "audio": wav_base64
-        }
-    }
-
-    return json_body
+    return response

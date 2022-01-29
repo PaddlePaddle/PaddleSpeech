@@ -285,7 +285,7 @@ def main():
         choices=[
             'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
             'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc'
+            'tacotron2_csmsc', 'tacotron2_ljspeech'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(

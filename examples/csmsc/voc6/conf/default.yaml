@@ -12,7 +12,6 @@ n_mels: 80               # Number of mel basis.
 fmin: 80                 # Minimum freq in mel basis calculation. (Hz)
 fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
 mu_law: True             # Recommended to suppress noise if using raw bitsexit()
-peak_norm: True
 
 
 ###########################################################
@@ -22,13 +21,14 @@ model:
     rnn_dims: 512                     # Hidden dims of RNN Layers.
     fc_dims: 512
     bits: 9                           # Bit depth of signal
-    aux_context_window: 2
+    aux_context_window: 2             # Context window size for auxiliary feature.
+                                      # If set to 2, previous 2 and future 2 frames will be considered.
     aux_channels: 80                  # Number of channels for auxiliary feature conv.
                                       # Must be the same as num_mels.
     upsample_scales: [4, 5, 3, 5]     # Upsampling scales. Prodcut of these must be the same as hop size, same with pwgan here
-    compute_dims: 128
-    res_out_dims: 128
-    res_blocks: 10
+    compute_dims: 128                 # Dims of Conv1D in MelResNet.
+    res_out_dims: 128                 # Dims of output in MelResNet.
+    res_blocks: 10                    # Number of residual blocks.
     mode: RAW                         # either 'raw'(softmax on raw bits) or 'mold' (sample from mixture of logistics)
 inference:
     gen_batched: True                 # whether to genenate sample in batch mode
@@ -42,7 +42,6 @@ inference:
 batch_size: 64              # Batch size.
 batch_max_steps: 4500       # Length of each audio in batch. Make sure dividable by hop_size.
 num_workers: 2              # Number of workers in DataLoader.
-valid_size: 50
 
 ###########################################################
 #                     OPTIMIZER SETTING                   #

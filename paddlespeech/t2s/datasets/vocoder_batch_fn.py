@@ -11,35 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
-
 import numpy as np
 import paddle
 
-
-def label_2_float(x, bits):
-    return 2 * x / (2**bits - 1.) - 1.
-
-
-def float_2_label(x, bits):
-    assert abs(x).max() <= 1.0
-    x = (x + 1.) * (2**bits - 1) / 2
-    return x.clip(0, 2**bits - 1)
-
-
-def encode_mu_law(x, mu):
-    mu = mu - 1
-    fx = np.sign(x) * np.log(1 + mu * np.abs(x)) / np.log(1 + mu)
-    return np.floor((fx + 1) / 2 * mu + 0.5)
-
-
-def decode_mu_law(y, mu, from_labels=True):
-    # TODO: get rid of log2 - makes no sense
-    if from_labels:
-        y = label_2_float(y, math.log2(mu))
-    mu = mu - 1
-    x = paddle.sign(y) / mu * ((1 + mu)**paddle.abs(y) - 1)
-    return x
+from paddlespeech.t2s.audio.codec import encode_mu_law
+from paddlespeech.t2s.audio.codec import float_2_label
+from paddlespeech.t2s.audio.codec import label_2_float
 
 
 class Clip(object):
@@ -195,10 +172,12 @@ class WaveRNNClip(Clip):
         Returns
         ----------
         Tensor
-            Auxiliary feature batch (B, C, T'), where
-            T = (T' - 2 * aux_context_window) * hop_size.
+            Input signal batch (B, 1, T).
         Tensor
             Target signal batch (B, 1, T).
+        Tensor
+            Auxiliary feature batch (B, C, T'), where
+            T = (T' - 2 * aux_context_window) * hop_size.
 
         """
         # check length

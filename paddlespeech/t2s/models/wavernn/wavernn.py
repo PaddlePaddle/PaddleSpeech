@@ -20,7 +20,7 @@ import paddle
 from paddle import nn
 from paddle.nn import functional as F
 
-from paddlespeech.t2s.datasets.vocoder_batch_fn import decode_mu_law
+from paddlespeech.t2s.audio.codec import decode_mu_law
 from paddlespeech.t2s.modules.losses import sample_from_discretized_mix_logistic
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.upsample import Stretch2D
@@ -28,7 +28,7 @@ from paddlespeech.t2s.modules.upsample import Stretch2D
 
 class ResBlock(nn.Layer):
     def __init__(self, dims):
-        super(ResBlock, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv1D(dims, dims, kernel_size=1, bias_attr=False)
         self.conv2 = nn.Conv1D(dims, dims, kernel_size=1, bias_attr=False)
         self.batch_norm1 = nn.BatchNorm1D(dims)
@@ -205,7 +205,7 @@ class WaveRNN(nn.Layer):
         if self.mode == 'RAW':
             self.n_classes = 2**bits
         elif self.mode == 'MOL':
-            self.n_classes = 30
+            self.n_classes = 10 * 3
         else:
             RuntimeError('Unknown model mode value - ', self.mode)
 
@@ -333,7 +333,7 @@ class WaveRNN(nn.Layer):
         # (T, C_aux) -> (1, C_aux, T)
         c = paddle.transpose(c, [1, 0]).unsqueeze(0)
         T = paddle.shape(c)[-1]
-        wave_len = (T - 1) * self.hop_length
+        wave_len = T * self.hop_length
         # TODO remove two transpose op by modifying function pad_tensor
         c = self.pad_tensor(
             c.transpose([0, 2, 1]), pad=self.aux_context_window,
@@ -396,6 +396,8 @@ class WaveRNN(nn.Layer):
                 posterior = F.softmax(logits, axis=1)
                 distrib = paddle.distribution.Categorical(posterior)
                 # corresponding operate [np.floor((fx + 1) / 2 * mu + 0.5)] in enocde_mu_law
+                # distrib.sample([1])[0].cast('float32'): [0, 2**bits-1]
+                # sample: [-1, 1]
                 sample = 2 * distrib.sample([1])[0].cast('float32') / (
                     self.n_classes - 1.) - 1.
                 output.append(sample)
@@ -418,9 +420,9 @@ class WaveRNN(nn.Layer):
             output = output[0]
 
         # Fade-out at the end to avoid signal cutting out suddenly
-        fade_out = paddle.linspace(1, 0, 20 * self.hop_length)
+        fade_out = paddle.linspace(1, 0, 10 * self.hop_length)
         output = output[:wave_len]
-        output[-20 * self.hop_length:] *= fade_out
+        output[-10 * self.hop_length:] *= fade_out
 
         self.train()
 

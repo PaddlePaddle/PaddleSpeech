@@ -30,6 +30,7 @@ from yacs.config import CfgNode
 from paddlespeech.t2s.data.get_feats import LogMelFBank
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
+from paddlespeech.t2s.utils import str2bool
 
 
 def process_sentence(config: Dict[str, Any],
@@ -164,9 +165,6 @@ def main():
         "--num-cpu", type=int, default=1, help="number of process.")
     parser.add_argument(
         "--dur-file", default=None, type=str, help="path to durations.txt.")
-
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--cut-sil",

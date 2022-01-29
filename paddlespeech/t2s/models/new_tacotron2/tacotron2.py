@@ -432,6 +432,7 @@ class Tacotron2(nn.Layer):
 
         # inference
         h = self.enc.inference(x)
+
         if self.spk_num is not None:
             sid_emb = self.sid_emb(spk_id.reshape([-1]))
             h = h + sid_emb

@@ -36,8 +36,6 @@ from utils.errors import ErrorCode
 from utils.exception import ServerBaseException
 from utils.paddle_predictor import init_predictor
 from utils.paddle_predictor import run_model
-#from paddle.inference import Config
-#from paddle.inference import create_predictor
 
 __all__ = ['TTSEngine']
 
@@ -48,7 +46,7 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip',
         'md5':
-        '9a849a74d1be0c758dd5a1b9c8f77f3d',
+        'f10cbdedf47dc7a9668d2264494e1823',
         'model':
         'speedyspeech_csmsc.pdmodel',
         'params':
@@ -57,19 +55,23 @@ pretrained_models = {
         'phone_id_map.txt',
         'tones_dict':
         'tone_id_map.txt',
+        'sample_rate':
+        24000,
     },
     # fastspeech2
     "fastspeech2_csmsc-zh": {
         'url':
         'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip',
         'md5':
-        '8eb01c2e4bc7e8b59beaa9fa046069cf',
+        '9788cd9745e14c7a5d12d32670b2a5a7',
         'model':
         'fastspeech2_csmsc.pdmodel',
         'params':
         'fastspeech2_csmsc.pdiparams',
         'phones_dict':
         'phone_id_map.txt',
+        'sample_rate':
+        24000,
     },
     # pwgan
     "pwgan_csmsc-zh": {
@@ -139,6 +141,7 @@ class TTSServerExecutor(TTSExecutor):
             am: str='fastspeech2_csmsc',
             am_model: Optional[os.PathLike]=None,
             am_params: Optional[os.PathLike]=None,
+            sample_rate: int=24000,
             phones_dict: Optional[os.PathLike]=None,
             tones_dict: Optional[os.PathLike]=None,
             speaker_dict: Optional[os.PathLike]=None,
@@ -156,11 +159,7 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am
         am_tag = am + '-' + lang
-        if phones_dict is None:
-            print("please input phones_dict!")
-            ### 后续下载的模型里加上 phone 和 tone的 dict 就不用这个了
-        #if am_model is None or am_params is None or phones_dict is None:
-        if am_model is None or am_params is None:
+        if am_model is None or am_params is None or phones_dict is None:
             am_res_path = self._get_pretrained_path(am_tag)
             self.am_res_path = am_res_path
             self.am_model = os.path.join(am_res_path,
@@ -168,10 +167,10 @@ class TTSServerExecutor(TTSExecutor):
             self.am_params = os.path.join(am_res_path,
                                           pretrained_models[am_tag]['params'])
             # must have phones_dict in acoustic
-            #self.phones_dict = os.path.join(
-            #am_res_path, pretrained_models[am_tag]['phones_dict'])
+            self.phones_dict = os.path.join(
+                am_res_path, pretrained_models[am_tag]['phones_dict'])
+            self.sample_rate = pretrained_models[am_tag]['sample_rate']
 
-            self.phones_dict = os.path.abspath(phones_dict)
             logger.info(am_res_path)
             logger.info(self.am_model)
             logger.info(self.am_params)
@@ -179,6 +178,7 @@ class TTSServerExecutor(TTSExecutor):
             self.am_model = os.path.abspath(am_model)
             self.am_params = os.path.abspath(am_params)
             self.phones_dict = os.path.abspath(phones_dict)
+            self.sample_rate = sample_rate
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_model))
         print("self.phones_dict:", self.phones_dict)
 
@@ -343,6 +343,7 @@ class TTSEngine(BaseEngine):
             am=self.conf_dict["am"],
             am_model=self.conf_dict["am_model"],
             am_params=self.conf_dict["am_params"],
+            sample_rate=self.conf_dict["sample_rate"],
             phones_dict=self.conf_dict["phones_dict"],
             tones_dict=self.conf_dict["tones_dict"],
             speaker_dict=self.conf_dict["speaker_dict"],
@@ -450,8 +451,7 @@ class TTSEngine(BaseEngine):
         try:
             target_sample_rate, wav_base64 = self.postprocess(
                 wav=self.executor._outputs['wav'].numpy(),
-                #original_fs=self.executor.am_config.fs,
-                original_fs=24000,  # TODO get sample rate from model
+                original_fs=self.executor.sample_rate,
                 target_fs=sample_rate,
                 volume=volume,
                 speed=speed,

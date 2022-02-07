@@ -12,17 +12,18 @@ port: 8692
 # am choices=['speedyspeech_csmsc', 'fastspeech2_csmsc']
 ##################################################################
 am: 'fastspeech2_csmsc'   
-am_model: 
-am_params:  
-phones_dict: './dict_dir/phone_id_map.txt'
+am_model: # the pdmodel file of am static model
+am_params: # the pdiparams file of am static model
+sample_rate: 24000
+phones_dict: 
 tones_dict: 
 speaker_dict: 
 spk_id: 0
 
 am_predictor_conf:
-  use_gpu: 'true'
-  enable_mkldnn: 'true'
-  switch_ir_optim: 'true'
+  use_gpu: True
+  enable_mkldnn: True
+  switch_ir_optim: True
 
 
 ##################################################################
@@ -30,13 +31,13 @@ am_predictor_conf:
 # voc choices=['pwgan_csmsc', 'mb_melgan_csmsc','hifigan_csmsc']
 ##################################################################
 voc: 'pwgan_csmsc'
-voc_model: 
-voc_params: 
+voc_model: # the pdmodel file of vocoder static model
+voc_params: # the pdiparams file of vocoder static model 
 
 voc_predictor_conf:
-  use_gpu: 'true'
-  enable_mkldnn: 'true'
-  switch_ir_optim: 'true'  
+  use_gpu: True
+  enable_mkldnn: True  
+  switch_ir_optim: True  
 
 ##################################################################
 #                            OTHERS                              #

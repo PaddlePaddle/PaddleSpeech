@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+from typing import List
 from typing import Optional
 
 from paddle.inference import Config
@@ -31,21 +32,20 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
         predictor_conf (dict, optional): The configuration parameters of predictor. Defaults to None.
 
     Returns:
-        [type]: [description]
+        predictor (PaddleInferPredictor): created predictor
     """
+
     if model_dir is not None:
         config = Config(args.model_dir)
     else:
         config = Config(model_file, params_file)
 
     config.enable_memory_optim()
-    if "use_gpu" in predictor_conf and predictor_conf["use_gpu"] == "true":
+    if predictor_conf["use_gpu"]:
         config.enable_use_gpu(1000, 0)
-    if "enable_mkldnn" in predictor_conf and predictor_conf[
-            "enable_mkldnn"] == "true":
+    if predictor_conf["enable_mkldnn"]:
         config.enable_mkldnn()
-    if "switch_ir_optim" in predictor_conf and predictor_conf[
-            "switch_ir_optim"] == "true":
+    if predictor_conf["switch_ir_optim"]:
         config.switch_ir_optim()
 
     predictor = create_predictor(config)
@@ -53,7 +53,7 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
     return predictor
 
 
-def run_model(predictor, input: list):
+def run_model(predictor, input: List) -> List:
     """ run predictor
 
     Args:

@@ -1,3 +1,4 @@
+(简体中文|[English](./quick_start.md))
 # 语音合成快速开始
 这些PaddleSpeech中的样例主要按数据集分类，我们主要使用的TTS数据集有：
 

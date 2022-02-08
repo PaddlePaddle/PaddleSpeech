@@ -1,3 +1,4 @@
+(简体中文|[English](./README.md))
 # 用 CSMSC 数据集训练 FastSpeech2 模型
 
 本用例包含用于训练 [Fastspeech2](https://arxiv.org/abs/2006.04558) 模型的代码，使用 [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html) 数据集。

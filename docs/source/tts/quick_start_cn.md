@@ -43,7 +43,7 @@ PaddleSpeech 的 TTS 模型具有以下映射关系：
     ```bash
     bash run.sh
     ```
-    这只是一个演示，请确保源数据已经准备好，并且在下一个 `步骤` 之前每个 `步骤` 都运行正常.
+    这只是一个演示，请确保源数据已经准备好，并且在下一个 `step` 之前每个 `step` 都运行正常.
 ### 用CSMSC数据集训练FastSpeech2
 
 - 进入目录
@@ -62,7 +62,7 @@ PaddleSpeech 的 TTS 模型具有以下映射关系：
     ```bash
     bash run.sh
     ```
-    这只是一个演示，请确保源数据已经准备好，并且在下一个 `步骤` 之前每个 `步骤` 都运行正常。
+    这只是一个演示，请确保源数据已经准备好，并且在下一个 `step` 之前每个 `step` 都运行正常。
 
 `run.sh` 中主要包括以下步骤：
 
@@ -102,7 +102,7 @@ checkpoint_name
 - `*_stats.npy` 是特征的统计文件，如果它在训练前已被标准化。
 - `phone_id_map.txt` 是音素到音素 ID 的映射关系。
 - `tone_id_map.txt` 是在训练声学模型之前分割音调和拼音时，音调到音调 ID 的映射关系。（例如在 csmsc/speedyspeech 的示例中）
-- `spk_id_map.txt` 是多发音人声学模型中`发音人`到`spk_ids`的映射关系。
+- `spk_id_map.txt` 是多发音人声学模型中 "发音人" 到 "spk_ids" 的映射关系。
 
 下面的示例代码显示了如何使用模型进行预测。
 ### Acoustic Models 声学模型（文本到频谱图）

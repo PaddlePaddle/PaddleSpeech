@@ -1,38 +1,40 @@
-([简体中文](./README_cn.md)|English)
-# FastSpeech2 with CSMSC
-This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
+(简体中文|[English](./README.md))
+# 用 CSMSC 数据集训练 FastSpeech2 模型
 
-## Dataset
-### Download and Extract
-Download CSMSC from it's [Official Website](https://test.data-baker.com/data/index/source).
+本用例包含用于训练 [Fastspeech2](https://arxiv.org/abs/2006.04558) 模型的代码，使用 [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html) 数据集。
 
-### Get MFA Result and Extract
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+## 数据集
+### 下载并解压
+从 [官方网站](https://test.data-baker.com/data/index/source) 下载数据集
 
-## Get Started
-Assume the path to the dataset is `~/datasets/BZNSYP`.
-Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
-Run the command below to
-1. **source path**.
-2. preprocess the dataset.
-3. train the model.
-4. synthesize wavs.
-    - synthesize waveform from `metadata.jsonl`.
-    - synthesize waveform from a text file.
-5. inference using the static model.
+### 获取MFA结果并解压
+我们使用 [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 去获得 fastspeech2 的音素持续时间。
+你们可以从这里下载 [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
+
+## 开始
+假设数据集的路径是 `~/datasets/BZNSYP`.
+假设CSMSC的MFA结果路径为 `./baker_alignment_tone`.
+运行下面的命令会进行如下操作：
+
+1. **设置原路径**。
+2. 对数据集进行预处理。
+3. 训练模型
+4. 合成波形
+    - 从 `metadata.jsonl` 合成波形。
+    - 从文本文件合成波形。
+5. 使用静态模型进行推理。
 ```bash
 ./run.sh
 ```
-You can choose a range of stages you want to run, or set `stage` equal to `stop-stage` to use only one stage, for example, running the following command will only preprocess the dataset.
+您可以选择要运行的一系列阶段，或者将 `stage` 设置为 `stop-stage` 以仅使用一个阶段，例如，运行以下命令只会预处理数据集。
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
-### Data Preprocessing
+### 数据预处理
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
-When it is done. A `dump` folder is created in the current directory. The structure of the dump folder is listed below.
+当它完成时。将在当前目录中创建 `dump` 文件夹。转储文件夹的结构如下所示。
 
 ```text
 dump
@@ -51,16 +53,18 @@ dump
     ├── raw
     └── speech_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains speech、pitch and energy features of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
 
-Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, the path of energy features, speaker, and the id of each utterance.
+数据集分为三个部分，即 `train` 、 `dev` 和 `test` ，每个部分都包含一个 `norm` 和 `raw` 子文件夹。原始文件夹包含每个话语的语音、音调和能量特征，而 `norm` 文件夹包含规范化的特征。用于规范化特征的统计数据是从 `dump/train/*_stats.npy` 中的训练集计算出来的。
 
-### Model Training
+此外，还有一个 `metadata.jsonl` 在每个子文件夹中。它是一个类似表格的文件，包含音素、文本长度、语音长度、持续时间、语音特征路径、音调特征路径、能量特征路径、说话人和每个话语的 id。
+
+### 模型训练
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
-`./local/train.sh` calls `${BIN_DIR}/train.py`.
-Here's the complete help message.
+`./local/train.sh` 调用 `${BIN_DIR}/train.py` 。
+以下是完整的帮助信息。
+
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
@@ -86,26 +90,28 @@ optional arguments:
   --voice-cloning VOICE_CLONING
                         whether training voice cloning model.
 ```
-1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
-2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
-3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
-4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
-5. `--phones-dict` is the path of the phone vocabulary file.
+1. `--config` 是一个 yaml 格式的配置文件，用于覆盖默认配置，位于 `conf/default.yaml`.
+2. `--train-metadata` 和 `--dev-metadata` 应为 `dump` 文件夹中 `train` 和 `dev` 下的规范化元数据文件
+3. `--output-dir` 是保存结果的目录。 检查点保存在此目录中的 `checkpoints/` 目录下。
+4. `--ngpu` 要使用的 GPU 数，如果 ngpu==0，则使用 cpu 。
+5. `--phones-dict` 是音素词汇表文件的路径。
 
-### Synthesizing
-We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) and unzip it.
+### 合成
+我们使用 [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) 作为神经声码器（vocoder）。
+从 [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) 下载预训练的 parallel wavegan 模型并将其解压。
+
 ```bash
 unzip pwg_baker_ckpt_0.4.zip
 ```
-Parallel WaveGAN checkpoint contains files listed below.
+Parallel WaveGAN 检查点包含如下文件。
 ```text
 pwg_baker_ckpt_0.4
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_400000.pdz   # model parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+├── pwg_default.yaml               # 用于训练 parallel wavegan 的默认配置
+├── pwg_snapshot_iter_400000.pdz   # parallel wavegan 的模型参数
+└── pwg_stats.npy                  # 训练平行波形时用于规范化谱图的统计数据
 ```
-`./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
+`./local/synthesize.sh` 调用 `${BIN_DIR}/../synthesize.py` 即可从 `metadata.jsonl`中合成波形。
+
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
@@ -154,7 +160,8 @@ optional arguments:
   --output_dir OUTPUT_DIR
                         output dir.
 ```
-`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
+`./local/synthesize_e2e.sh` 调用 `${BIN_DIR}/../synthesize_e2e.py`，即可从文本文件中合成波形。
+
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
@@ -205,44 +212,45 @@ optional arguments:
   --output_dir OUTPUT_DIR
                         output dir.
 ```
-1. `--am` is acoustic model type with the format {model_name}_{dataset}
-2. `--am_config`, `--am_checkpoint`, `--am_stat` and `--phones_dict` are arguments for acoustic model, which correspond to the 4 files in the fastspeech2 pretrained model.
-3. `--voc` is vocoder type with the format {model_name}_{dataset}
-4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
-5. `--lang` is the model language, which can be `zh` or `en`.
-6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
-7. `--text` is the text file, which contains sentences to synthesize.
-8. `--output_dir` is the directory to save synthesized audio files.
-9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+1. `--am` 声学模型格式是否符合 {model_name}_{dataset}
+2. `--am_config`, `--am_checkpoint`, `--am_stat` 和 `--phones_dict` 是声学模型的参数，对应于 fastspeech2 预训练模型中的 4 个文件。
+3. `--voc` 声码器(vocoder)格式是否符合 {model_name}_{dataset}
+4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` 是声码器的参数，对应于 parallel wavegan 预训练模型中的 3 个文件。
+5. `--lang` 对应模型的语言可以是 `zh` 或 `en` 。
+6. `--test_metadata` 应为 `dump` 文件夹中 `test` 下的规范化元数据文件、
+7. `--text` 是文本文件，其中包含要合成的句子。
+8. `--output_dir` 是保存合成音频文件的目录。
+9. `--ngpu` 要使用的GPU数，如果 ngpu==0，则使用 cpu 。
 
-### Inferencing
-After synthesizing, we will get static models of fastspeech2 and pwgan in `${train_output_path}/inference`.
-`./local/inference.sh` calls `${BIN_DIR}/inference.py`, which provides a paddle static model inference example for fastspeech2 + pwgan synthesize.
+### 推理
+在合成之后，我们将在 `${train_output_path}/inference` 中得到 fastspeech2 和 pwgan 的静态模型
+`./local/inference.sh` 调用 `${BIN_DIR}/inference.py` 为 fastspeech2 + pwgan 综合提供了一个 paddle 静态模型推理示例。
+
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ```
 
-## Pretrained Model
-Pretrained FastSpeech2 model with no silence in the edge of audios:
+## 预训练模型
+预先训练的 FastSpeech2 模型，在音频边缘没有空白音频：
 - [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
 - [fastspeech2_conformer_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip)
 
-The static model can be downloaded here [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
+静态模型可以在这里下载 [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
 default| 2(gpu) x 76000|1.0991|0.59132|0.035815|0.31915|0.15287|
 conformer| 2(gpu) x 76000|1.0675|0.56103|0.035869|0.31553|0.15509|
 
-FastSpeech2 checkpoint contains files listed below.
+FastSpeech2检查点包含下列文件。
 ```text
 fastspeech2_nosil_baker_ckpt_0.4
-├── default.yaml            # default config used to train fastspeech2
-├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
-├── snapshot_iter_76000.pdz # model parameters and optimizer states
-└── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
+├── default.yaml            # 用于训练 fastspeech2 的默认配置
+├── phone_id_map.txt        # 训练 fastspeech2 时的音素词汇文件
+├── snapshot_iter_76000.pdz # 模型参数和优化器状态
+└── speech_stats.npy        # 训练 fastspeech2 时用于规范化频谱图的统计数据
 ```
-You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
+您可以使用以下脚本通过使用预训练的 fastspeech2 和 parallel wavegan 模型为 `${BIN_DIR}/../sentences.txt` 合成句子
 ```bash
 source path.sh
 

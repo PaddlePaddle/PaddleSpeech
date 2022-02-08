@@ -1,12 +1,14 @@
-([简体中文](./quick_start_cn.md)|English)
-# Quick Start of Text-to-Speech
-The examples in PaddleSpeech are mainly classified by datasets, the TTS datasets we mainly used are:
-* CSMCS (Mandarin single speaker)
-* AISHELL3 (Mandarin multiple speakers)
-* LJSpeech (English single speaker)
-* VCTK (English multiple speakers)
+(简体中文|[English](./quick_start.md))
+# 语音合成快速开始
+这些PaddleSpeech中的样例主要按数据集分类，我们主要使用的TTS数据集有：
 
-The models in PaddleSpeech TTS have the following mapping relationship:
+* CSMCS (普通话单发音人)
+* AISHELL3 (普通话多发音人)
+* LJSpeech (英文单发音人)
+* VCTK (英文多发音人)
+
+PaddleSpeech 的 TTS 模型具有以下映射关系：
+
 * tts0 - Tactron2
 * tts1 - TransformerTTS
 * tts2 - SpeedySpeech
@@ -20,59 +22,65 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 * vc0 - Tactron2 Voice Clone with GE2E
 * vc1 - FastSpeech2 Voice Clone with GE2E
 
-## Quick Start
+## 快速开始
 
-Let's take a FastSpeech2 + Parallel WaveGAN with CSMSC dataset for instance. [examples/csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
+让我们以 FastSpeech2 + Parallel WaveGAN 和 CSMSC 数据集 为例. [examples/csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
 
-### Train Parallel WaveGAN with CSMSC
-- Go to the directory
+### 用 CSMSC 数据集训练 Parallel WaveGAN
+
+- 进入目录
     ```bash
     cd examples/csmsc/voc1
     ```
-- Source env
+- 设置环境变量
     ```bash
     source path.sh
     ```
-    **Must do this before you start to do anything.**
-    Set `MAIN_ROOT` as project dir. Using `parallelwave_gan` model as `MODEL`.
+    **在你开始做任何事情之前，必须先做这步**
+    将 `MAIN_ROOT` 设置为项目目录. 使用 `parallelwave_gan` 模型作为 `MODEL`.
 
-- Main entrypoint
+- 运行
     ```bash
     bash run.sh
     ```
-    This is just a demo, please make sure source data have been prepared well and every `step` works well before the next `step`.
-### Train FastSpeech2 with CSMSC
-- Go to the directory
+    这只是一个演示，请确保源数据已经准备好，并且在下一个 `step` 之前每个 `step` 都运行正常.
+### 用CSMSC数据集训练FastSpeech2
+
+- 进入目录
     ```bash
     cd examples/csmsc/tts3
     ```
-- Source env
+    
+- 设置环境变量
     ```bash
     source path.sh
     ```
-    **Must do this before you start to do anything.**
-    Set `MAIN_ROOT` as project dir. Using `fastspeech2` model as `MODEL`.
-- Main entry point
+    **在你开始做任何事情之前，必须先做这步**
+    将 `MAIN_ROOT` 设置为项目目录. 使用 `fastspeech2` 模型作为 `MODEL` 。
+    
+- 运行
     ```bash
     bash run.sh
     ```
-    This is just a demo, please make sure source data have been prepared well and every `step` works well before the next `step`.
+    这只是一个演示，请确保源数据已经准备好，并且在下一个 `step` 之前每个 `step` 都运行正常。
 
-The steps in `run.sh` mainly include:
-- source path.
-- preprocess the dataset,
-- train the model.
-- synthesize waveform from metadata.jsonl.
-- synthesize waveform from a text file. (in acoustic models)
-- inference using a static model. (optional)
+`run.sh` 中主要包括以下步骤：
 
-For more details, you can see `README.md` in examples.
+- 设置路径。
+- 预处理数据集，
+- 训练模型。
+- 从 `metadata.jsonl` 中合成波形
+- 从文本文件合成波形。（在声学模型中）
+- 使用静态模型进行推理。（可选）
 
-## Pipeline of TTS
-This section shows how to use pretrained models provided by TTS and make an inference with them.
+有关更多详细信息，请参见 examples 中的 `README.md`
 
-Pretrained models in TTS are provided in an archive. Extract it to get a folder like this:
+## TTS 流水线
+本节介绍如何使用 TTS 提供的预训练模型，并对其进行推理。
+
+TTS中的预训练模型在压缩包中提供。将其解压缩以获得如下文件夹：
 **Acoustic Models:**
+
 ```text
 checkpoint_name
 ├── default.yaml
@@ -89,16 +97,16 @@ checkpoint_name
 ├── snapshot_iter_*.pdz
 └── stats.npy  
 ```
-- `default.yaml` stores the config used to train the model.
-- `snapshot_iter_*.pdz` is the checkpoint file, where `*` is the steps it has been trained.
-- `*_stats.npy` is the stats file of the feature if it has been normalized before training.
-- `phone_id_map.txt` is the map of phonemes to phoneme_ids.
-- `tone_id_map.txt` is the map of tones to tones_ids, when you split tones and phones before training acoustic models. (for example in our csmsc/speedyspeech example)
-- `spk_id_map.txt` is the map of speakers to spk_ids in multi-spk acoustic models. (for example in our aishell3/fastspeech2 example)
+- `default.yaml` 存储用于训练模型的配置。
+- `snapshot_iter_*.pdz` 是检查点文件，其中`*`是它经过训练的步骤。
+- `*_stats.npy` 是特征的统计文件，如果它在训练前已被标准化。
+- `phone_id_map.txt` 是音素到音素 ID 的映射关系。
+- `tone_id_map.txt` 是在训练声学模型之前分割音调和拼音时，音调到音调 ID 的映射关系。（例如在 csmsc/speedyspeech 的示例中）
+- `spk_id_map.txt` 是多发音人声学模型中 "发音人" 到 "spk_ids" 的映射关系。
 
-The example code below shows how to use the models for prediction.
-### Acoustic Models (text to spectrogram)
-The code below shows how to use a `FastSpeech2` model.  After loading the pretrained model, use it and the normalizer object to construct a prediction object，then use `fastspeech2_inferencet(phone_ids)` to generate spectrograms, which can be further used to synthesize raw audio with a vocoder.
+下面的示例代码显示了如何使用模型进行预测。
+### Acoustic Models 声学模型（文本到频谱图）
+下面的代码显示了如何使用 `FastSpeech2` 模型。加载预训练模型后，使用它和 normalizer 对象构建预测对象，然后使用 `fastspeech2_inferencet(phone_ids)` 生成频谱图，频谱图可进一步用于使用声码器合成原始音频。
 
 ```python
 from pathlib import Path
@@ -112,7 +120,7 @@ from paddlespeech.t2s.modules.normalizer import ZScore
 # examples/fastspeech2/baker/frontend.py
 from frontend import Frontend
 
-# load the pretrained model
+# 加载预训练模型
 checkpoint_dir = Path("fastspeech2_nosil_baker_ckpt_0.4")
 with open(checkpoint_dir / "phone_id_map.txt", "r") as f:
     phn_id = [line.strip().split() for line in f.readlines()]
@@ -126,25 +134,25 @@ model.set_state_dict(
     paddle.load(args.fastspeech2_checkpoint)["main_params"])
 model.eval()
 
-# load stats file
+# 加载特征文件
 stat = np.load(checkpoint_dir / "speech_stats.npy")
 mu, std = stat
 mu = paddle.to_tensor(mu)
 std = paddle.to_tensor(std)
 fastspeech2_normalizer = ZScore(mu, std)
 
-# construct a prediction object
+# 构建预测对象
 fastspeech2_inference = FastSpeech2Inference(fastspeech2_normalizer, model)
 
 # load Chinese Frontend
 frontend = Frontend(checkpoint_dir / "phone_id_map.txt")
 
-# text to spectrogram
+# 构建一个中文前端
 sentence = "你好吗？"
 input_ids = frontend.get_input_ids(sentence, merge_sentences=True)
 phone_ids = input_ids["phone_ids"]
 flags = 0
-# The output of Chinese text frontend is segmented
+# 构建预测对象加载中文前端，对中文文本前端的输出进行分段
 for part_phone_ids in phone_ids:
     with paddle.no_grad():
         temp_mel = fastspeech2_inference(part_phone_ids)
@@ -155,8 +163,8 @@ for part_phone_ids in phone_ids:
             mel = paddle.concat([mel, temp_mel])
 ```
 
-### Vocoder (spectrogram to wave)
-The code below shows how to use a  ` Parallel WaveGAN` model. Like the example above, after loading the pretrained model, use it and the normalizer object to construct a prediction object，then use `pwg_inference(mel)` to generate raw audio (in wav format).
+### Vcoder声码器（谱图到波形）
+下面的代码显示了如何使用 `Parallel WaveGAN` 模型。像上面的例子一样，加载预训练模型后，使用它和 normalizer 对象构建预测对象，然后使用 `pwg_inference(mel)` 生成原始音频（ wav 格式）。
 
 ```python
 from pathlib import Path
@@ -169,7 +177,7 @@ from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
 from paddlespeech.t2s.models.parallel_wavegan import PWGInference
 from paddlespeech.t2s.modules.normalizer import ZScore
 
-# load the pretrained model
+# 加载预训练模型
 checkpoint_dir = Path("parallel_wavegan_baker_ckpt_0.4")
 with open(checkpoint_dir / "pwg_default.yaml") as f:
     pwg_config = CfgNode(yaml.safe_load(f))
@@ -178,17 +186,17 @@ vocoder.set_state_dict(paddle.load(args.pwg_params))
 vocoder.remove_weight_norm()
 vocoder.eval()
 
-# load stats file
+# 加载特征文件
 stat = np.load(checkpoint_dir / "pwg_stats.npy")
 mu, std = stat
 mu = paddle.to_tensor(mu)
 std = paddle.to_tensor(std)
 pwg_normalizer = ZScore(mu, std)
 
-# construct a prediction object
+# 加载预训练模型构造预测对象
 pwg_inference = PWGInference(pwg_normalizer, vocoder)
 
-# spectrogram to wave
+# 频谱图到波形
 wav = pwg_inference(mel)
 sf.write(
         audio_path,

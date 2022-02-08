@@ -6,7 +6,7 @@
 * LJSpeech (英文单发音人)
 * VCTK (英文多发音人)
 
-PaddleSpeech的TTS模型具有以下映射关系：
+PaddleSpeech 的 TTS 模型具有以下映射关系：
 
 * tts0 - Tactron2
 * tts1 - TransformerTTS
@@ -25,7 +25,7 @@ PaddleSpeech的TTS模型具有以下映射关系：
 
 让我们以 FastSpeech2 + Parallel WaveGAN 和 CSMSC 数据集 为例. [examples/csmsc](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc)
 
-### 用CSMSC数据集训练Parallel WaveGAN
+### 用 CSMSC 数据集训练 Parallel WaveGAN
 
 - 进入目录
     ```bash
@@ -55,27 +55,27 @@ PaddleSpeech的TTS模型具有以下映射关系：
     source path.sh
     ```
     **在你开始做任何事情之前，必须先做这步**
-    将 `MAIN_ROOT` 设置为项目目录. 使用 `fastspeech2` 模型作为 `MODEL`.
+    将 `MAIN_ROOT` 设置为项目目录. 使用 `fastspeech2` 模型作为 `MODEL` 。
     
 - 运行
     ```bash
     bash run.sh
     ```
-    这只是一个演示，请确保源数据已经准备好，并且在下一个 `步骤` 之前每个 `步骤` 都运行正常.
+    这只是一个演示，请确保源数据已经准备好，并且在下一个 `步骤` 之前每个 `步骤` 都运行正常。
 
 `run.sh` 中主要包括以下步骤：
 
 - 设置路径。
 - 预处理数据集，
 - 训练模型。
-- 从`metadata.jsonl`中合成波形
+- 从 `metadata.jsonl` 中合成波形
 - 从文本文件合成波形。（在声学模型中）
 - 使用静态模型进行推理。（可选）
 
-有关更多详细信息，请参见examples中的`README.md`
+有关更多详细信息，请参见 examples 中的 `README.md`
 
-## TTS流水线
-本节介绍如何使用TTS提供的预训练模型，并对其进行推理。
+## TTS 流水线
+本节介绍如何使用 TTS 提供的预训练模型，并对其进行推理。
 
 TTS中的预训练模型在压缩包中提供。将其解压缩以获得如下文件夹：
 **Acoustic Models:**
@@ -99,13 +99,13 @@ checkpoint_name
 - `default.yaml` 存储用于训练模型的配置。
 - `snapshot_iter_*.pdz` 是检查点文件，其中`*`是它经过训练的步骤。
 - `*_stats.npy` 是特征的统计文件，如果它在训练前已被标准化。
-- `phone_id_map.txt` 是音素到音素ID的映射关系。
-- `tone_id_map.txt` 是在训练声学模型之前分割音调和拼音时，音调到音调ID的映射关系。（例如在csmsc/speedyspeech的示例中）
-- `spk_id_map.txt` 是多speaker声学模型中speaker到spk_ids的映射关系。
+- `phone_id_map.txt` 是音素到音素 ID 的映射关系。
+- `tone_id_map.txt` 是在训练声学模型之前分割音调和拼音时，音调到音调 ID 的映射关系。（例如在 csmsc/speedyspeech 的示例中）
+- `spk_id_map.txt` 是多发音人声学模型中`发音人`到`spk_ids`的映射关系。
 
 下面的示例代码显示了如何使用模型进行预测。
-### Acoustic Models声学模型（文本到频谱图）
-下面的代码显示了如何使用“FastSpeech2”模型。加载预训练模型后，使用它和normalizer对象构建预测对象，然后使用`fastspeech2_inferencet(phone_ids)`生成频谱图，频谱图可进一步用于使用声码器合成原始音频。
+### Acoustic Models 声学模型（文本到频谱图）
+下面的代码显示了如何使用 `FastSpeech2` 模型。加载预训练模型后，使用它和 normalizer 对象构建预测对象，然后使用 `fastspeech2_inferencet(phone_ids)` 生成频谱图，频谱图可进一步用于使用声码器合成原始音频。
 
 ```python
 from pathlib import Path
@@ -163,7 +163,7 @@ for part_phone_ids in phone_ids:
 ```
 
 ### Vcoder声码器（谱图到波形）
-下面的代码显示了如何使用` Parallel WaveGAN` 模型。像上面的例子一样，加载预训练模型后，使用它和normalizer对象构建预测对象，然后使用 `pwg_inference(mel)`生成原始音频（wav格式）。
+下面的代码显示了如何使用 `Parallel WaveGAN` 模型。像上面的例子一样，加载预训练模型后，使用它和 normalizer 对象构建预测对象，然后使用 `pwg_inference(mel)` 生成原始音频（ wav 格式）。
 
 ```python
 from pathlib import Path

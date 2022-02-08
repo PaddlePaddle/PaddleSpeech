@@ -1,15 +1,14 @@
-# 用CSMSC数据集训练FastSpeech2模型
-This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
+# 用 CSMSC 数据集训练 FastSpeech2 模型
 
-本用例包含用于训练 [Fastspeech2](https://arxiv.org/abs/2006.04558) 模型的代码，使用 [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html)数据集。
+本用例包含用于训练 [Fastspeech2](https://arxiv.org/abs/2006.04558) 模型的代码，使用 [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html) 数据集。
 
 ## 数据集
 ### 下载并解压
-从 [官方网站](https://test.data-baker.com/data/index/source)下载数据集
+从 [官方网站](https://test.data-baker.com/data/index/source) 下载数据集
 
 ### 获取MFA结果并解压
 我们使用 [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 去获得 fastspeech2 的音素持续时间。
-你们可以从这里下载 [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型of our repo.
+你们可以从这里下载 [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
 
 ## 开始
 假设数据集的路径是 `~/datasets/BZNSYP`.
@@ -20,13 +19,13 @@ This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2
 2. 对数据集进行预处理。
 3. 训练模型
 4. 合成波形
-    - 从 `metadata.jsonl`合成波形。
+    - 从 `metadata.jsonl` 合成波形。
     - 从文本文件合成波形。
 5. 使用静态模型进行推理。
 ```bash
 ./run.sh
 ```
-您可以选择要运行的一系列阶段，或者将 `stage` 设置为 `stop-stage`以仅使用一个阶段，例如，运行以下命令只会预处理数据集。
+您可以选择要运行的一系列阶段，或者将 `stage` 设置为 `stop-stage` 以仅使用一个阶段，例如，运行以下命令只会预处理数据集。
 ```bash
 ./run.sh --stage 0 --stop-stage 0
 ```
@@ -34,7 +33,7 @@ This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
-当它完成时。将在当前目录中创建`dump`文件夹。转储文件夹的结构如下所示。
+当它完成时。将在当前目录中创建 `dump` 文件夹。转储文件夹的结构如下所示。
 
 ```text
 dump
@@ -53,17 +52,16 @@ dump
     ├── raw
     └── speech_stats.npy
 ```
-The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains speech、pitch and energy features of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
 
-数据集分为三个部分，即`train`、`dev`和`test`，每个部分都包含一个`norm`和`raw`子文件夹。原始文件夹包含每个话语的语音、音调和能量特征，而`norm`文件夹包含规范化的特征。用于规范化特征的统计数据是从`dump/train/*_stats.npy`中的训练集计算出来的。
+数据集分为三个部分，即 `train` 、 `dev` 和 `test` ，每个部分都包含一个 `norm` 和 `raw` 子文件夹。原始文件夹包含每个话语的语音、音调和能量特征，而 `norm` 文件夹包含规范化的特征。用于规范化特征的统计数据是从 `dump/train/*_stats.npy` 中的训练集计算出来的。
 
-此外，还有一个`metadata.jsonl` 在每个子文件夹中。它是一个类似表格的文件，包含音素、文本长度、语音长度、持续时间、语音特征路径、音调特征路径、能量特征路径、说话人和每个话语的id。
+此外，还有一个 `metadata.jsonl` 在每个子文件夹中。它是一个类似表格的文件，包含音素、文本长度、语音长度、持续时间、语音特征路径、音调特征路径、能量特征路径、说话人和每个话语的 id。
 
 ### 模型训练
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
-`./local/train.sh` calls `${BIN_DIR}/train.py`.
+`./local/train.sh` 调用 `${BIN_DIR}/train.py` 。
 以下是完整的帮助信息。
 
 ```text
@@ -91,15 +89,15 @@ optional arguments:
   --voice-cloning VOICE_CLONING
                         whether training voice cloning model.
 ```
-1. `--config` 是一个yaml格式的配置文件，用于覆盖默认配置，位于 `conf/default.yaml`.
-2. `--train-metadata` 和 `--dev-metadata` 应为`dump`文件夹中`train`和`dev`下的规范化元数据文件
-3. `--output-dir` 是保存结果的目录。 检查点保存在此目录中的 `checkpoints/`目录下。
-4. `--ngpu` 要使用的GPU数，如果ngpu==0，则使用cpu。
+1. `--config` 是一个 yaml 格式的配置文件，用于覆盖默认配置，位于 `conf/default.yaml`.
+2. `--train-metadata` 和 `--dev-metadata` 应为 `dump` 文件夹中 `train` 和 `dev` 下的规范化元数据文件
+3. `--output-dir` 是保存结果的目录。 检查点保存在此目录中的 `checkpoints/` 目录下。
+4. `--ngpu` 要使用的 GPU 数，如果 ngpu==0，则使用 cpu 。
 5. `--phones-dict` 是音素词汇表文件的路径。
 
 ### 合成
 我们使用 [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) 作为神经声码器（vocoder）。
-从 [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) 下载预训练的parallel wavegan模型并将其解压。
+从 [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) 下载预训练的 parallel wavegan 模型并将其解压。
 
 ```bash
 unzip pwg_baker_ckpt_0.4.zip
@@ -214,25 +212,25 @@ optional arguments:
                         output dir.
 ```
 1. `--am` 声学模型格式是否符合 {model_name}_{dataset}
-2. `--am_config`, `--am_checkpoint`, `--am_stat` 和 `--phones_dict` 是声学模型的参数，对应于fastspeech2预训练模型中的4个文件。
+2. `--am_config`, `--am_checkpoint`, `--am_stat` 和 `--phones_dict` 是声学模型的参数，对应于 fastspeech2 预训练模型中的 4 个文件。
 3. `--voc` 声码器(vocoder)格式是否符合 {model_name}_{dataset}
-4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` 是声码器的参数，对应于parallel wavegan预训练模型中的3个文件。
-5. `--lang` 对应模型的语言可以是 `zh` 或 `en`.
-6. `--test_metadata` 应为`dump`文件夹中`test`下的规范化元数据文件、
+4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` 是声码器的参数，对应于 parallel wavegan 预训练模型中的 3 个文件。
+5. `--lang` 对应模型的语言可以是 `zh` 或 `en` 。
+6. `--test_metadata` 应为 `dump` 文件夹中 `test` 下的规范化元数据文件、
 7. `--text` 是文本文件，其中包含要合成的句子。
 8. `--output_dir` 是保存合成音频文件的目录。
-9. `--ngpu` 要使用的GPU数，如果ngpu==0，则使用cpu。
+9. `--ngpu` 要使用的GPU数，如果 ngpu==0，则使用 cpu 。
 
 ### 推理
-在合成之后，我们将在`${train_output_path}/inference`中得到fastspeech2和pwgan的静态模型
-`./local/inference.sh` 调用 `${BIN_DIR}/inference.py`为fastspeech2+pwgan综合提供了一个paddle静态模型推理示例。
+在合成之后，我们将在 `${train_output_path}/inference` 中得到 fastspeech2 和 pwgan 的静态模型
+`./local/inference.sh` 调用 `${BIN_DIR}/inference.py` 为 fastspeech2 + pwgan 综合提供了一个 paddle 静态模型推理示例。
 
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ```
 
 ## 预训练模型
-预先训练的FastSpeech2模型，在音频边缘没有空白音频：
+预先训练的 FastSpeech2 模型，在音频边缘没有空白音频：
 - [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
 - [fastspeech2_conformer_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip)
 
@@ -246,12 +244,12 @@ conformer| 2(gpu) x 76000|1.0675|0.56103|0.035869|0.31553|0.15509|
 FastSpeech2检查点包含下列文件。
 ```text
 fastspeech2_nosil_baker_ckpt_0.4
-├── default.yaml            # 用于训练fastspeech2的默认配置
-├── phone_id_map.txt        # 训练fastspeech2时的音素词汇文件
+├── default.yaml            # 用于训练 fastspeech2 的默认配置
+├── phone_id_map.txt        # 训练 fastspeech2 时的音素词汇文件
 ├── snapshot_iter_76000.pdz # 模型参数和优化器状态
-└── speech_stats.npy        # 训练fastspeech2时用于规范化频谱图的统计数据
+└── speech_stats.npy        # 训练 fastspeech2 时用于规范化频谱图的统计数据
 ```
-您可以使用以下脚本通过使用预训练的fastspeech2和并行wavegan模型为 `${BIN_DIR}/../sentences.txt` 合成句子
+您可以使用以下脚本通过使用预训练的 fastspeech2 和 parallel wavegan 模型为 `${BIN_DIR}/../sentences.txt` 合成句子
 ```bash
 source path.sh
 

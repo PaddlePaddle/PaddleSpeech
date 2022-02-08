@@ -22,7 +22,6 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 from paddlespeech.t2s.datasets.data_table import DataTable
-from paddlespeech.t2s.utils import str2bool
 
 
 def main():
@@ -41,6 +40,9 @@ def main():
         type=str,
         help="path to save statistics. if not provided, "
         "stats will be saved in the above root directory with name stats.npy")
+
+    def str2bool(str):
+        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--use-relative-path",

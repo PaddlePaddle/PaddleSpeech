@@ -123,3 +123,9 @@ class Collate(object):
         frame_clips = [self.random_crop(mel) for mel in examples]
         batced_clips = np.stack(frame_clips)
         return batced_clips
+
+
+if __name__ == "__main__":
+    mydataset = MultiSpeakerMelDataset(
+        Path("/home/chenfeiyu/datasets/SV2TTS/encoder"))
+    print(mydataset.get_example_by_index(0, 10))

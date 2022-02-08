@@ -21,43 +21,17 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
+from paddlespeech.t2s.models.fastspeech2 import FastSpeech2
+from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Inference
+from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
+from paddlespeech.t2s.models.parallel_wavegan import PWGInference
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
 from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
-model_alias = {
-    # acoustic model
-    "fastspeech2":
-    "paddlespeech.t2s.models.fastspeech2:FastSpeech2",
-    "fastspeech2_inference":
-    "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
-    "tacotron2":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2",
-    "tacotron2_inference":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2Inference",
-    # voc
-    "pwgan":
-    "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
-    "pwgan_inference":
-    "paddlespeech.t2s.models.parallel_wavegan:PWGInference",
-}
 
-
-def voice_cloning(args):
-    # Init body.
-    with open(args.am_config) as f:
-        am_config = CfgNode(yaml.safe_load(f))
-    with open(args.voc_config) as f:
-        voc_config = CfgNode(yaml.safe_load(f))
-
-    print("========Args========")
-    print(yaml.safe_dump(vars(args)))
-    print("========Config========")
-    print(am_config)
-    print(voc_config)
-
+def voice_cloning(args, fastspeech2_config, pwg_config):
     # speaker encoder
     p = SpeakerVerificationPreprocessor(
         sampling_rate=16000,
@@ -83,51 +57,39 @@ def voice_cloning(args):
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
+    odim = fastspeech2_config.n_mels
+    model = FastSpeech2(
+        idim=vocab_size, odim=odim, **fastspeech2_config["model"])
 
-    # acoustic model
-    odim = am_config.n_mels
-    # model: {model_name}_{dataset}
-    am_name = args.am[:args.am.rindex('_')]
-    am_dataset = args.am[args.am.rindex('_') + 1:]
+    model.set_state_dict(
+        paddle.load(args.fastspeech2_checkpoint)["main_params"])
+    model.eval()
 
-    am_class = dynamic_import(am_name, model_alias)
-    am_inference_class = dynamic_import(am_name + '_inference', model_alias)
-
-    if am_name == 'fastspeech2':
-        am = am_class(
-            idim=vocab_size, odim=odim, spk_num=None, **am_config["model"])
-    elif am_name == 'tacotron2':
-        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
-
-    am.set_state_dict(paddle.load(args.am_ckpt)["main_params"])
-    am.eval()
-    am_mu, am_std = np.load(args.am_stat)
-    am_mu = paddle.to_tensor(am_mu)
-    am_std = paddle.to_tensor(am_std)
-    am_normalizer = ZScore(am_mu, am_std)
-    am_inference = am_inference_class(am_normalizer, am)
-    am_inference.eval()
-    print("acoustic model done!")
-
-    # vocoder
-    # model: {model_name}_{dataset}
-    voc_name = args.voc[:args.voc.rindex('_')]
-    voc_class = dynamic_import(voc_name, model_alias)
-    voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
-    voc = voc_class(**voc_config["generator_params"])
-    voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
-    voc.remove_weight_norm()
-    voc.eval()
-    voc_mu, voc_std = np.load(args.voc_stat)
-    voc_mu = paddle.to_tensor(voc_mu)
-    voc_std = paddle.to_tensor(voc_std)
-    voc_normalizer = ZScore(voc_mu, voc_std)
-    voc_inference = voc_inference_class(voc_normalizer, voc)
-    voc_inference.eval()
-    print("voc done!")
+    vocoder = PWGGenerator(**pwg_config["generator_params"])
+    vocoder.set_state_dict(paddle.load(args.pwg_checkpoint)["generator_params"])
+    vocoder.remove_weight_norm()
+    vocoder.eval()
+    print("model done!")
 
     frontend = Frontend(phone_vocab_path=args.phones_dict)
     print("frontend done!")
+
+    stat = np.load(args.fastspeech2_stat)
+    mu, std = stat
+    mu = paddle.to_tensor(mu)
+    std = paddle.to_tensor(std)
+    fastspeech2_normalizer = ZScore(mu, std)
+
+    stat = np.load(args.pwg_stat)
+    mu, std = stat
+    mu = paddle.to_tensor(mu)
+    std = paddle.to_tensor(std)
+    pwg_normalizer = ZScore(mu, std)
+
+    fastspeech2_inference = FastSpeech2Inference(fastspeech2_normalizer, model)
+    fastspeech2_inference.eval()
+    pwg_inference = PWGInference(pwg_normalizer, vocoder)
+    pwg_inference.eval()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -150,23 +112,24 @@ def voice_cloning(args):
         # print("spk_emb shape: ", spk_emb.shape)
 
         with paddle.no_grad():
-            wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
+            wav = pwg_inference(
+                fastspeech2_inference(phone_ids, spk_emb=spk_emb))
 
         sf.write(
             str(output_dir / (utt_id + ".wav")),
             wav.numpy(),
-            samplerate=am_config.fs)
+            samplerate=fastspeech2_config.fs)
         print(f"{utt_id} done!")
     # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
     random_spk_emb = np.random.rand(256) * 0.2
     random_spk_emb = paddle.to_tensor(random_spk_emb)
     utt_id = "random_spk_emb"
     with paddle.no_grad():
-        wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
+        wav = pwg_inference(fastspeech2_inference(phone_ids, spk_emb=spk_emb))
     sf.write(
         str(output_dir / (utt_id + ".wav")),
         wav.numpy(),
-        samplerate=am_config.fs)
+        samplerate=fastspeech2_config.fs)
     print(f"{utt_id} done!")
 
 
@@ -174,53 +137,32 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_aishell3', 'tacotron2_aishell3'],
-        help='Choose acoustic model type of tts task.')
+        "--fastspeech2-config", type=str, help="fastspeech2 config file.")
     parser.add_argument(
-        '--am_config',
+        "--fastspeech2-checkpoint",
         type=str,
-        default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        help="fastspeech2 checkpoint to load.")
     parser.add_argument(
-        '--am_ckpt',
+        "--fastspeech2-stat",
         type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+        help="mean and standard deviation used to normalize spectrogram when training fastspeech2."
+    )
     parser.add_argument(
-        "--am_stat",
+        "--pwg-config", type=str, help="parallel wavegan config file.")
+    parser.add_argument(
+        "--pwg-checkpoint",
         type=str,
-        default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help="parallel wavegan generator parameters to load.")
+    parser.add_argument(
+        "--pwg-stat",
+        type=str,
+        help="mean and standard deviation used to normalize spectrogram when training parallel wavegan."
     )
     parser.add_argument(
         "--phones-dict",
         type=str,
         default="phone_id_map.txt",
         help="phone vocabulary file.")
-    # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=['pwgan_aishell3'],
-        help='Choose vocoder type of tts task.')
-
-    parser.add_argument(
-        '--voc_config',
-        type=str,
-        default=None,
-        help='Config of voc. Use deault config when it is None.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
-    parser.add_argument(
-        "--voc_stat",
-        type=str,
-        default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
-    )
     parser.add_argument(
         "--text",
         type=str,
@@ -248,7 +190,18 @@ def main():
     else:
         print("ngpu should >= 0 !")
 
-    voice_cloning(args)
+    with open(args.fastspeech2_config) as f:
+        fastspeech2_config = CfgNode(yaml.safe_load(f))
+    with open(args.pwg_config) as f:
+        pwg_config = CfgNode(yaml.safe_load(f))
+
+    print("========Args========")
+    print(yaml.safe_dump(vars(args)))
+    print("========Config========")
+    print(fastspeech2_config)
+    print(pwg_config)
+
+    voice_cloning(args, fastspeech2_config, pwg_config)
 
 
 if __name__ == "__main__":

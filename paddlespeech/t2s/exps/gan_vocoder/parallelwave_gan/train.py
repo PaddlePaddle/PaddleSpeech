@@ -41,7 +41,6 @@ from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
-from paddlespeech.t2s.utils import str2bool
 
 
 def train_sp(args, config):
@@ -205,6 +204,8 @@ def train_sp(args, config):
 
 def main():
     # parse args and config and redirect to train_sp
+    def str2bool(str):
+        return True if str.lower() == 'true' else False
 
     parser = argparse.ArgumentParser(
         description="Train a ParallelWaveGAN model.")

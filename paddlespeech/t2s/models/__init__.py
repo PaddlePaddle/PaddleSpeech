@@ -19,3 +19,4 @@ from .parallel_wavegan import *
 from .speedyspeech import *
 from .transformer_tts import *
 from .waveflow import *
+from .wavernn import *

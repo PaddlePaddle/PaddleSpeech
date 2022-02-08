@@ -49,3 +49,14 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt
 fi
+
+# wavernn
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+    python3 ${BIN_DIR}/../inference.py \
+        --inference_dir=${train_output_path}/inference \
+        --am=fastspeech2_csmsc \
+        --voc=wavernn_csmsc \
+        --text=${BIN_DIR}/../sentences.txt \
+        --output_dir=${train_output_path}/pd_infer_out \
+        --phones_dict=dump/phone_id_map.txt
+fi

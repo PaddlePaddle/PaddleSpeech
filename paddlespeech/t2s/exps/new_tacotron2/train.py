@@ -27,6 +27,7 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from yacs.config import CfgNode
 
+from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_single_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.new_tacotron2 import Tacotron2
@@ -37,6 +38,7 @@ from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
+from paddlespeech.t2s.utils import str2bool
 
 
 def train_sp(args, config):
@@ -60,33 +62,38 @@ def train_sp(args, config):
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True
 
+    fields = [
+        "text",
+        "text_lengths",
+        "speech",
+        "speech_lengths",
+    ]
+
+    converters = {
+        "speech": np.load,
+    }
+    if args.voice_cloning:
+        print("Training voice cloning!")
+        collate_fn = tacotron2_multi_spk_batch_fn
+        fields += ["spk_emb"]
+        converters["spk_emb"] = np.load
+    else:
+        print("single speaker tacotron2!")
+        collate_fn = tacotron2_single_spk_batch_fn
+
     # construct dataset for training and validation
     with jsonlines.open(args.train_metadata, 'r') as reader:
         train_metadata = list(reader)
     train_dataset = DataTable(
         data=train_metadata,
-        fields=[
-            "text",
-            "text_lengths",
-            "speech",
-            "speech_lengths",
-        ],
-        converters={
-            "speech": np.load,
-        }, )
+        fields=fields,
+        converters=converters, )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
-        fields=[
-            "text",
-            "text_lengths",
-            "speech",
-            "speech_lengths",
-        ],
-        converters={
-            "speech": np.load,
-        }, )
+        fields=fields,
+        converters=converters, )
 
     # collate function and dataloader
     train_sampler = DistributedBatchSampler(
@@ -100,7 +107,7 @@ def train_sp(args, config):
     train_dataloader = DataLoader(
         train_dataset,
         batch_sampler=train_sampler,
-        collate_fn=tacotron2_single_spk_batch_fn,
+        collate_fn=collate_fn,
         num_workers=config.num_workers)
 
     dev_dataloader = DataLoader(
@@ -108,7 +115,7 @@ def train_sp(args, config):
         shuffle=False,
         drop_last=False,
         batch_size=config.batch_size,
-        collate_fn=tacotron2_single_spk_batch_fn,
+        collate_fn=collate_fn,
         num_workers=config.num_workers)
     print("dataloaders done!")
 
@@ -165,6 +172,12 @@ def main():
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
+
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
 
     args = parser.parse_args()
 

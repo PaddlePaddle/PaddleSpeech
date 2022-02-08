@@ -114,7 +114,7 @@ ref_audio
 ├── LJ015-0254.wav
 └── audio_self_test.mp3
 ```
-`./local/voice_cloning.sh` calls `${BIN_DIR}/voice_cloning.py`
+`./local/voice_cloning.sh` calls `${BIN_DIR}/../voice_cloning.py`
 
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}

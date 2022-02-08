@@ -432,6 +432,7 @@ class Tacotron2(nn.Layer):
 
         # inference
         h = self.enc.inference(x)
+
         if self.spk_num is not None:
             sid_emb = self.sid_emb(spk_id.reshape([-1]))
             h = h + sid_emb
@@ -478,7 +479,7 @@ class Tacotron2(nn.Layer):
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                -1, paddle.shape(hs)[1], -1)
+                shape=[-1, paddle.shape(hs)[1], -1])
             hs = paddle.concat([hs, spk_emb], axis=-1)
         else:
             raise NotImplementedError("support only add or concat.")

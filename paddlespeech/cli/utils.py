@@ -34,7 +34,7 @@ from .entry import commands
 try:
     from .. import __version__
 except ImportError:
-    __version__ = 0.0.0 # for develop branch
+    __version__ = "0.0.0"  # for develop branch
 
 requests.adapters.DEFAULT_RETRIES = 3
 

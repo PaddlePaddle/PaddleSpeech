@@ -30,6 +30,7 @@ from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeech
 from paddlespeech.t2s.models.speedyspeech import SpeedySpeechInference
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.t2s.utils import str2bool
 
 
 def evaluate(args, speedyspeech_config):
@@ -212,9 +213,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--cut-sil",

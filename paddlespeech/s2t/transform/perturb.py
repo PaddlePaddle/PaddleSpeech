@@ -90,7 +90,8 @@ class SpeedPerturbation():
 
         # Note1: resample requires the sampling-rate of input and output,
         #        but actually only the ratio is used.
-        y = librosa.resample(x, ratio, 1, res_type=self.res_type)
+        y = librosa.resample(
+            x, orig_sr=ratio, target_sr=1, res_type=self.res_type)
 
         if self.keep_length:
             diff = abs(len(x) - len(y))

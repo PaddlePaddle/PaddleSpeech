@@ -27,7 +27,7 @@ cd a0
 应用程序会自动下载 THCHS-30数据集，处理成 MFA 所需的文件格式并开始训练，您可以修改 `run.sh` 中的参数 `LEXICON_NAME` 来决定您需要强制对齐的级别（word、syllable 和 phone）
 ## MFA 所使用的字典
 ---
-MFA 字典的格式请参考: [MFA 官方文档 Dictionary format ](https://montreal-forced-aligner.readthedocs.io/en/latest/dictionary.html)
+MFA 字典的格式请参考: [MFA 官方文档](https://montreal-forced-aligner.readthedocs.io/en/latest/)
 phone.lexicon 直接使用的是 `THCHS-30/data_thchs30/lm_phone/lexicon.txt`
 word.lexicon 考虑到了中文的多音字，使用**带概率的字典**, 生成规则请参考 `local/gen_word2phone.py`
 `syllable.lexicon` 获取自 [DNSun/thchs30-pinyin2tone](https://github.com/DNSun/thchs30-pinyin2tone)
@@ -39,4 +39,4 @@ word.lexicon 考虑到了中文的多音字，使用**带概率的字典**, 生�
 **syllabel 级别：** [syllable.lexicon](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/syllable.lexicon)、[对齐结果](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/thchs30_model.zip)
 **word 级别：** [word.lexicon](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/word.lexicon)、[对齐结果](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/thchs30_model.zip)
 
-随后，您可以参考 [MFA 官方文档 Align using pretrained models](https://montreal-forced-aligner.readthedocs.io/en/stable/aligning.html#align-using-pretrained-models) 使用我们给您提供好的模型直接对自己的数据集进行强制对齐，注意，您需要使用和模型对应的 lexicon 文件，当文本是汉字时，您需要用空格把不同的**汉字**（而不是词语）分开
+随后，您可以参考 [MFA 官方文档](https://montreal-forced-aligner.readthedocs.io/en/latest/) 使用我们给您提供好的模型直接对自己的数据集进行强制对齐，注意，您需要使用和模型对应的 lexicon 文件，当文本是汉字时，您需要用空格把不同的**汉字**（而不是词语）分开

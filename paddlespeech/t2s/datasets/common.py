@@ -38,7 +38,7 @@ class AudioSegmentDataset(Dataset):
 
     def __getitem__(self, i):
         fpath = self.file_paths[i]
-        y, sr = librosa.load(fpath, self.sr)
+        y, sr = librosa.load(fpath, sr=self.sr)
         y, _ = librosa.effects.trim(y, top_db=self.top_db)
         y = librosa.util.normalize(y)
         y = y.astype(np.float32)
@@ -70,7 +70,7 @@ class AudioDataset(Dataset):
 
     def __getitem__(self, i):
         fpath = self.file_paths[i]
-        y, sr = librosa.load(fpath, self.sr)
+        y, sr = librosa.load(fpath, sr=self.sr)
         y, _ = librosa.effects.trim(y, top_db=self.top_db)
         y = librosa.util.normalize(y)
         y = y.astype(np.float32)

@@ -67,7 +67,7 @@ def istft(x, n_shift, win_length=None, window="hann", center=True):
     x = np.stack(
         [
             librosa.istft(
-                y=x[:, ch].T,  # [Time, Freq] -> [Freq, Time]
+                stft_matrix=x[:, ch].T,  # [Time, Freq] -> [Freq, Time]
                 hop_length=n_shift,
                 win_length=win_length,
                 window=window,

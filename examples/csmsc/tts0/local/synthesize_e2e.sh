@@ -34,7 +34,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize_e2e.py \
-        --am=fastspeech2_csmsc \
+        --am=tacotron2_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
@@ -56,7 +56,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize_e2e.py \
-        --am=fastspeech2_csmsc \
+        --am=tacotron2_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
@@ -77,7 +77,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize_e2e.py \
-        --am=fastspeech2_csmsc \
+        --am=tacotron2_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
@@ -90,4 +90,25 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --inference_dir=${train_output_path}/inference \
         --phones_dict=dump/phone_id_map.txt
+fi
+
+# wavernn
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+    echo "in wavernn syn_e2e"
+    FLAGS_allocator_strategy=naive_best_fit \
+    FLAGS_fraction_of_gpu_memory_to_use=0.01 \
+    python3 ${BIN_DIR}/../synthesize_e2e.py \
+        --am=tacotron2_csmsc \
+        --am_config=${config_path} \
+        --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
+        --am_stat=dump/train/speech_stats.npy \
+        --voc=wavernn_csmsc \
+        --voc_config=wavernn_csmsc_ckpt_0.2.0/default.yaml \
+        --voc_ckpt=wavernn_csmsc_ckpt_0.2.0/snapshot_iter_400000.pdz \
+        --voc_stat=wavernn_csmsc_ckpt_0.2.0/feats_stats.npy \
+        --lang=zh \
+        --text=${BIN_DIR}/../sentences.txt \
+        --output_dir=${train_output_path}/test_e2e \
+        --phones_dict=dump/phone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi

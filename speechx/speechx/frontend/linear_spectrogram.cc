@@ -22,7 +22,10 @@ using kaldi::Vector;
 using kaldi::Matrix;
 using std::vector;
 
-LinearSpectrogram::LinearSpectrogram(const LinearSpectrogramOptions& opts) {
+LinearSpectrogram::LinearSpectrogram(
+    const LinearSpectrogramOptions& opts,
+    const std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+  base_extractor_ = std::move(base_extractor);
   int32 window_size = opts.frame_opts.WindowSize();
   int32 window_shift = opts.frame_opts.WindowShift();
   fft_points_ = window_size;
@@ -34,6 +37,8 @@ LinearSpectrogram::LinearSpectrogram(const LinearSpectrogramOptions& opts) {
     hanning_window_[i] = 0.5 - 0.5 * cos(a * i);
     hanning_window_energy_ += hanning_window_[i] * hanning_window_[i];
   }
+
+  dim_ = fft_points_ / 2 + 1;  // the dimension is Fs/2 Hz
 }
 
 void LinearSpectrogram::AcceptWavefrom(const Vector<BaseFloat>& input) {
@@ -70,27 +75,42 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
   return true;
 }
 
-// todo refactor later
+//todo remove later
+void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
+                          vector<BaseFloat>* output) {
+}
+
+// todo remove later
 bool LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) const {
-  vector<vector<BaseFloat>> feat;
-  if (wavefrom_.empty()) {
+  if (wavefrom_.Dim() == 0) {
       return false;
   }
+  kaldi::Vector<BaseFloat> feats;
+  Compute(wavefrom_, &feats);
   vector<vector<BaseFloat>> result;
-  Compute(wavefrom_, result);
+  vector<BaseFloat> feats_vec; 
+  CopyVector2StdVector(feats, &feats_vec);
+  Compute(feats_vec, result);
   feats->Resize(result.size(), result[0].size());
   for (int row_idx = 0; row_idx < result.size(); ++row_idx) {
     for (int col_idx = 0; col_idx < result.size(); ++col_idx) {
         feats(row_idx, col_idx) = result[row_idx][col_idx];
   }
-  wavefrom_.clear();
+  wavefrom_.Resize(0);
   return true;
 }
 
-// Compute spectrogram feat, return num frames
+// only for test, remove later
+// todo: compute the feature frame by frame.
+void LinearSpectrogram::Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
+                                kaldi::VectorBae<kaldi::BaseFloat>* feature) {
+    base_extractor_->Compute(input, feature);
+}
+
+// Compute spectrogram feat, only for test, remove later
 // todo: refactor later (SmileGoat)
 bool LinearSpectrogram::Compute(const vector<float>& wave,
-                                 vector<vector<float>>& feat) {
+                                vector<vector<float>>& feat) {
   int num_samples = wave.size();
   const int& frame_length = opts.frame_opts.WindowSize();
   const int& sample_rate = opts.frame_opts.samp_freq;

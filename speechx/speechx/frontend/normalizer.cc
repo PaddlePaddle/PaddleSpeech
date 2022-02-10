@@ -2,8 +2,7 @@
 #include "frontend/normalizer.h"
 
 DecibelNormalizer::DecibelNormalizer(
-    const DecibelNormalizerOptions& opts,
-    const std::unique_ptr<FeatureExtractorInterface>& pre_extractor) {
+    const DecibelNormalizerOptions& opts) {
 
 }
                                     

@@ -23,6 +23,8 @@ class FeatureExtractorInterface {
   public:
     virtual void AcceptWaveform(const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
     virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
+    virtual void Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
+                         kaldi::VectorBae<kaldi::BaseFloat>* feature) = 0;
     virtual size_t Dim() const = 0;
 };
 

@@ -43,7 +43,7 @@ def main(voxceleb_trial, trial):
         target_or_nontarget path1 path2
         --------------------------------
         target_or_nontarget is an integer: 1 target                 path1 is equal to path2
-                                        0 target_or_nontarget    path1 is unequal to path2    
+                                           0 nontarget              path1 is unequal to path2    
         path1: spkr_id/rec_id/name
         path2: spkr_id/rec_id/name
 

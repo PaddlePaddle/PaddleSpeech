@@ -83,6 +83,8 @@ pretrained_models = {
         'pwgan_csmsc.pdmodel',
         'params':
         'pwgan_csmsc.pdiparams',
+        'sample_rate':
+        24000,
     },
     # mb_melgan
     "mb_melgan_csmsc-zh": {
@@ -94,6 +96,8 @@ pretrained_models = {
         'mb_melgan_csmsc.pdmodel',
         'params':
         'mb_melgan_csmsc.pdiparams',
+        'sample_rate':
+        24000,
     },
     # hifigan
     "hifigan_csmsc-zh": {
@@ -105,6 +109,8 @@ pretrained_models = {
         'hifigan_csmsc.pdmodel',
         'params':
         'hifigan_csmsc.pdiparams',
+        'sample_rate':
+        24000,
     },
 }
 
@@ -141,13 +147,14 @@ class TTSServerExecutor(TTSExecutor):
             am: str='fastspeech2_csmsc',
             am_model: Optional[os.PathLike]=None,
             am_params: Optional[os.PathLike]=None,
-            sample_rate: int=24000,
+            am_sample_rate: int=24000,
             phones_dict: Optional[os.PathLike]=None,
             tones_dict: Optional[os.PathLike]=None,
             speaker_dict: Optional[os.PathLike]=None,
             voc: str='pwgan_csmsc',
             voc_model: Optional[os.PathLike]=None,
             voc_params: Optional[os.PathLike]=None,
+            voc_sample_rate: int=24000,
             lang: str='zh',
             am_predictor_conf: dict=None,
             voc_predictor_conf: dict=None, ):
@@ -169,7 +176,7 @@ class TTSServerExecutor(TTSExecutor):
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 am_res_path, pretrained_models[am_tag]['phones_dict'])
-            self.sample_rate = pretrained_models[am_tag]['sample_rate']
+            self.am_sample_rate = pretrained_models[am_tag]['sample_rate']
 
             logger.info(am_res_path)
             logger.info(self.am_model)
@@ -178,7 +185,7 @@ class TTSServerExecutor(TTSExecutor):
             self.am_model = os.path.abspath(am_model)
             self.am_params = os.path.abspath(am_params)
             self.phones_dict = os.path.abspath(phones_dict)
-            self.sample_rate = sample_rate
+            self.am_sample_rate = am_sample_rate
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_model))
         print("self.phones_dict:", self.phones_dict)
 
@@ -207,14 +214,17 @@ class TTSServerExecutor(TTSExecutor):
                                           pretrained_models[voc_tag]['model'])
             self.voc_params = os.path.join(voc_res_path,
                                            pretrained_models[voc_tag]['params'])
+            self.voc_sample_rate = pretrained_models[voc_tag]['sample_rate']
             logger.info(voc_res_path)
             logger.info(self.voc_model)
             logger.info(self.voc_params)
         else:
             self.voc_model = os.path.abspath(voc_model)
             self.voc_params = os.path.abspath(voc_params)
+            self.voc_sample_rate = voc_sample_rate
             self.voc_res_path = os.path.dirname(os.path.abspath(self.voc_model))
 
+        assert (self.voc_sample_rate == self.am_sample_rate)
         # Init body.
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
@@ -343,13 +353,14 @@ class TTSEngine(BaseEngine):
             am=self.conf_dict["am"],
             am_model=self.conf_dict["am_model"],
             am_params=self.conf_dict["am_params"],
-            sample_rate=self.conf_dict["sample_rate"],
+            am_sample_rate=self.conf_dict["am_sample_rate"],
             phones_dict=self.conf_dict["phones_dict"],
             tones_dict=self.conf_dict["tones_dict"],
             speaker_dict=self.conf_dict["speaker_dict"],
             voc=self.conf_dict["voc"],
             voc_model=self.conf_dict["voc_model"],
             voc_params=self.conf_dict["voc_params"],
+            voc_sample_rate=self.conf_dict["voc_sample_rate"],
             lang=self.conf_dict["lang"],
             am_predictor_conf=self.conf_dict["am_predictor_conf"],
             voc_predictor_conf=self.conf_dict["voc_predictor_conf"], )
@@ -451,7 +462,7 @@ class TTSEngine(BaseEngine):
         try:
             target_sample_rate, wav_base64 = self.postprocess(
                 wav=self.executor._outputs['wav'].numpy(),
-                original_fs=self.executor.sample_rate,
+                original_fs=self.executor.am_sample_rate,
                 target_fs=sample_rate,
                 volume=volume,
                 speed=speed,

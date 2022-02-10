@@ -14,7 +14,7 @@ port: 8692
 am: 'fastspeech2_csmsc'   
 am_model: # the pdmodel file of am static model
 am_params: # the pdiparams file of am static model
-sample_rate: 24000
+am_sample_rate: 24000
 phones_dict: 
 tones_dict: 
 speaker_dict: 
@@ -33,6 +33,7 @@ am_predictor_conf:
 voc: 'pwgan_csmsc'
 voc_model: # the pdmodel file of vocoder static model
 voc_params: # the pdiparams file of vocoder static model 
+voc_sample_rate: 24000
 
 voc_predictor_conf:
   use_gpu: True

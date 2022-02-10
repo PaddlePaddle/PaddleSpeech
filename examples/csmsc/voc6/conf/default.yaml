@@ -1,0 +1,67 @@
+
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+fs: 24000                # Sampling rate.
+n_fft: 2048              # FFT size (samples).
+n_shift: 300             # Hop size (samples). 12.5ms
+win_length: 1200         # Window length (samples). 50ms
+                         # If set to null, it will be the same as fft_size.
+window: "hann"           # Window function.
+n_mels: 80               # Number of mel basis.
+fmin: 80                 # Minimum freq in mel basis calculation. (Hz)
+fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
+mu_law: True             # Recommended to suppress noise if using raw bitsexit()
+
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model:
+    rnn_dims: 512                     # Hidden dims of RNN Layers.
+    fc_dims: 512
+    bits: 9                           # Bit depth of signal
+    aux_context_window: 2             # Context window size for auxiliary feature.
+                                      # If set to 2, previous 2 and future 2 frames will be considered.
+    aux_channels: 80                  # Number of channels for auxiliary feature conv.
+                                      # Must be the same as num_mels.
+    upsample_scales: [4, 5, 3, 5]     # Upsampling scales. Prodcut of these must be the same as hop size, same with pwgan here
+    compute_dims: 128                 # Dims of Conv1D in MelResNet.
+    res_out_dims: 128                 # Dims of output in MelResNet.
+    res_blocks: 10                    # Number of residual blocks.
+    mode: RAW                         # either 'raw'(softmax on raw bits) or 'mold' (sample from mixture of logistics)
+inference:
+    gen_batched: True                 # whether to genenate sample in batch mode
+    target: 12000                     # target number of samples to be generated in each batch entry
+    overlap: 600                      # number of samples for crossfading between batches
+
+
+###########################################################
+#                  DATA LOADER SETTING                    #
+###########################################################
+batch_size: 64              # Batch size.
+batch_max_steps: 4500       # Length of each audio in batch. Make sure dividable by hop_size.
+num_workers: 2              # Number of workers in DataLoader.
+
+###########################################################
+#                     OPTIMIZER SETTING                   #
+###########################################################
+grad_clip: 4.0
+learning_rate: 1.0e-4                
+
+
+###########################################################
+#                    INTERVAL SETTING                     #
+###########################################################
+
+train_max_steps: 400000               # Number of training steps.
+save_interval_steps: 5000             # Interval steps to save checkpoint.
+eval_interval_steps: 1000             # Interval steps to evaluate the network.
+gen_eval_samples_interval_steps: 5000 # the iteration interval of generating valid samples
+generate_num: 5                       # number of samples to generate at each checkpoint
+
+###########################################################
+#                     OTHER SETTING                       #
+###########################################################
+num_snapshots: 10                 # max number of snapshots to keep while training
+seed: 42                          # random seed for paddle, random, and np.random

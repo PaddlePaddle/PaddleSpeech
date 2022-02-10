@@ -17,6 +17,6 @@ from .melgan import *
 from .new_tacotron2 import *
 from .parallel_wavegan import *
 from .speedyspeech import *
-from .tacotron2 import *
 from .transformer_tts import *
 from .waveflow import *
+from .wavernn import *

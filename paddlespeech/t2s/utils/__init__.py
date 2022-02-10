@@ -16,3 +16,7 @@ from . import display
 from . import layer_tools
 from . import mp_tools
 from . import scheduler
+
+
+def str2bool(str):
+    return True if str.lower() == 'true' else False

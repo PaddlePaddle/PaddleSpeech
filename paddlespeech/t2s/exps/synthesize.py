@@ -25,6 +25,7 @@ from yacs.config import CfgNode
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.t2s.utils import str2bool
 
 model_alias = {
     # acoustic model
@@ -97,6 +98,9 @@ def evaluate(args):
         fields = ["utt_id", "phones", "tones"]
     elif am_name == 'tacotron2':
         fields = ["utt_id", "text"]
+        if args.voice_cloning:
+            print("voice cloning!")
+            fields += ["spk_emb"]
 
     test_dataset = DataTable(data=test_metadata, fields=fields)
 
@@ -178,7 +182,11 @@ def evaluate(args):
                 mel = am_inference(phone_ids, tone_ids)
             elif am_name == 'tacotron2':
                 phone_ids = paddle.to_tensor(datum["text"])
-                mel = am_inference(phone_ids)
+                spk_emb = None
+                # multi speaker
+                if args.voice_cloning and "spk_emb" in datum:
+                    spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
+                mel = am_inference(phone_ids, spk_emb=spk_emb)
             # vocoder
             wav = voc_inference(mel)
         sf.write(
@@ -199,7 +207,8 @@ def main():
         default='fastspeech2_csmsc',
         choices=[
             'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
-            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc'
+            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc',
+            'tacotron2_ljspeech', 'tacotron2_aishell3'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -224,9 +233,6 @@ def main():
         "--tones_dict", type=str, default=None, help="tone vocabulary file.")
     parser.add_argument(
         "--speaker_dict", type=str, default=None, help="speaker id map file.")
-
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--voice-cloning",

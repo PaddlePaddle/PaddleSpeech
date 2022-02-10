@@ -14,7 +14,6 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Tacotron2 encoder related modules."""
 import paddle
-import six
 from paddle import nn
 
 
@@ -88,7 +87,7 @@ class Encoder(nn.Layer):
 
         if econv_layers > 0:
             self.convs = nn.LayerList()
-            for layer in six.moves.range(econv_layers):
+            for layer in range(econv_layers):
                 ichans = (embed_dim if layer == 0 and input_layer == "embed"
                           else econv_chans)
                 if use_batch_norm:
@@ -130,6 +129,7 @@ class Encoder(nn.Layer):
                 direction='bidirectional',
                 bias_ih_attr=True,
                 bias_hh_attr=True)
+            self.blstm.flatten_parameters()
         else:
             self.blstm = None
 
@@ -157,7 +157,7 @@ class Encoder(nn.Layer):
         """
         xs = self.embed(xs).transpose([0, 2, 1])
         if self.convs is not None:
-            for i in six.moves.range(len(self.convs)):
+            for i in range(len(self.convs)):
                 if self.use_residual:
                     xs += self.convs[i](xs)
                 else:
@@ -167,7 +167,8 @@ class Encoder(nn.Layer):
         if not isinstance(ilens, paddle.Tensor):
             ilens = paddle.to_tensor(ilens)
         xs = xs.transpose([0, 2, 1])
-        self.blstm.flatten_parameters()
+        # for dygraph to static graph
+        # self.blstm.flatten_parameters()
         # (B, Tmax, C)
         # see https://www.paddlepaddle.org.cn/documentation/docs/zh/faq/train_cn.html#paddletorch-nn-utils-rnn-pack-padded-sequencetorch-nn-utils-rnn-pad-packed-sequenceapi
         xs, _ = self.blstm(xs, sequence_length=ilens)
@@ -191,6 +192,6 @@ class Encoder(nn.Layer):
 
         """
         xs = x.unsqueeze(0)
-        ilens = paddle.to_tensor([x.shape[0]])
+        ilens = paddle.shape(x)[0]
 
         return self.forward(xs, ilens)[0][0]

@@ -59,6 +59,10 @@ model_alias = {
     "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
     "hifigan_inference":
     "paddlespeech.t2s.models.hifigan:HiFiGANInference",
+    "wavernn":
+    "paddlespeech.t2s.models.wavernn:WaveRNN",
+    "wavernn_inference":
+    "paddlespeech.t2s.models.wavernn:WaveRNNInference",
 }
 
 
@@ -151,10 +155,16 @@ def evaluate(args):
     voc_name = args.voc[:args.voc.rindex('_')]
     voc_class = dynamic_import(voc_name, model_alias)
     voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
-    voc = voc_class(**voc_config["generator_params"])
-    voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
-    voc.remove_weight_norm()
-    voc.eval()
+    if voc_name != 'wavernn':
+        voc = voc_class(**voc_config["generator_params"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
+        voc.remove_weight_norm()
+        voc.eval()
+    else:
+        voc = voc_class(**voc_config["model"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["main_params"])
+        voc.eval()
+
     voc_mu, voc_std = np.load(args.voc_stat)
     voc_mu = paddle.to_tensor(voc_mu)
     voc_std = paddle.to_tensor(voc_std)
@@ -178,10 +188,7 @@ def evaluate(args):
                 am_inference = jit.to_static(
                     am_inference,
                     input_spec=[InputSpec([-1], dtype=paddle.int64)])
-            paddle.jit.save(am_inference,
-                            os.path.join(args.inference_dir, args.am))
-            am_inference = paddle.jit.load(
-                os.path.join(args.inference_dir, args.am))
+
         elif am_name == 'speedyspeech':
             if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:
                 am_inference = jit.to_static(
@@ -200,10 +207,13 @@ def evaluate(args):
                         InputSpec([-1], dtype=paddle.int64)
                     ])
 
-            paddle.jit.save(am_inference,
-                            os.path.join(args.inference_dir, args.am))
-            am_inference = paddle.jit.load(
-                os.path.join(args.inference_dir, args.am))
+        elif am_name == 'tacotron2':
+            am_inference = jit.to_static(
+                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+
+        paddle.jit.save(am_inference, os.path.join(args.inference_dir, args.am))
+        am_inference = paddle.jit.load(
+            os.path.join(args.inference_dir, args.am))
 
         # vocoder
         voc_inference = jit.to_static(
@@ -285,7 +295,7 @@ def main():
         choices=[
             'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
             'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc'
+            'tacotron2_csmsc', 'tacotron2_ljspeech'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -322,7 +332,8 @@ def main():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc'
+            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc',
+            'wavernn_csmsc'
         ],
         help='Choose vocoder type of tts task.')
 

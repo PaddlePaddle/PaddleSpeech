@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .audio import AudioProcessor
+from .codec import *
 from .spec_normalizer import LogMagnitude
 from .spec_normalizer import NormalizerBase

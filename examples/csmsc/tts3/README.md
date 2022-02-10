@@ -1,3 +1,4 @@
+([简体中文](./README_cn.md)|English)
 # FastSpeech2 with CSMSC
 This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 

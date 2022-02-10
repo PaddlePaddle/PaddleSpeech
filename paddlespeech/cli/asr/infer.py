@@ -311,8 +311,10 @@ class ASRExecutor(BaseExecutor):
                     audio = audio[:, 0]
                 # pcm16 -> pcm 32
                 audio = self._pcm16to32(audio)
-                audio = librosa.resample(audio, audio_sample_rate,
-                                         self.sample_rate)
+                audio = librosa.resample(
+                    audio,
+                    orig_sr=audio_sample_rate,
+                    target_sr=self.sample_rate)
                 audio_sample_rate = self.sample_rate
                 # pcm32 -> pcm 16
                 audio = self._pcm32to16(audio)

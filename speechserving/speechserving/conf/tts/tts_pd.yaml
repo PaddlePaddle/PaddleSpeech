@@ -1,0 +1,47 @@
+# This is the parameter configuration file for TTS server.
+# These are the static models that support paddle inference.
+
+##################################################################
+#                     TTS SERVER SETTING                         #
+##################################################################
+host: '0.0.0.0'
+port: 8692
+
+##################################################################
+#                  ACOUSTIC MODEL SETTING                        #
+# am choices=['speedyspeech_csmsc', 'fastspeech2_csmsc']
+##################################################################
+am: 'fastspeech2_csmsc'   
+am_model: # the pdmodel file of am static model
+am_params: # the pdiparams file of am static model
+am_sample_rate: 24000
+phones_dict: 
+tones_dict: 
+speaker_dict: 
+spk_id: 0
+
+am_predictor_conf:
+  use_gpu: True
+  enable_mkldnn: True
+  switch_ir_optim: True
+
+
+##################################################################
+#                     VOCODER SETTING                            #
+# voc choices=['pwgan_csmsc', 'mb_melgan_csmsc','hifigan_csmsc']
+##################################################################
+voc: 'pwgan_csmsc'
+voc_model: # the pdmodel file of vocoder static model
+voc_params: # the pdiparams file of vocoder static model 
+voc_sample_rate: 24000
+
+voc_predictor_conf:
+  use_gpu: True
+  enable_mkldnn: True  
+  switch_ir_optim: True  
+
+##################################################################
+#                            OTHERS                              #
+##################################################################
+lang: 'zh'
+device: paddle.get_device()

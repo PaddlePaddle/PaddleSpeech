@@ -30,9 +30,9 @@ from yacs.config import CfgNode
 from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_single_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
-from paddlespeech.t2s.models.new_tacotron2 import Tacotron2
-from paddlespeech.t2s.models.new_tacotron2 import Tacotron2Evaluator
-from paddlespeech.t2s.models.new_tacotron2 import Tacotron2Updater
+from paddlespeech.t2s.models.tacotron2 import Tacotron2
+from paddlespeech.t2s.models.tacotron2 import Tacotron2Evaluator
+from paddlespeech.t2s.models.tacotron2 import Tacotron2Updater
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers

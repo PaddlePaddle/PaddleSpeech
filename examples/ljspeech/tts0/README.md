@@ -1,17 +1,17 @@
-# Tacotron2 with CSMSC
-This example contains code used to train a [Tacotron2](https://arxiv.org/abs/1712.05884) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
+# Tacotron2 with LJSpeech-1.1
+This example contains code used to train a [Tacotron2](https://arxiv.org/abs/1712.05884) model with [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/)
 
 ## Dataset
 ### Download and Extract
-Download CSMSC from it's [Official Website](https://test.data-baker.com/data/index/source).
+Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech-Dataset/).
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for Tacotron2, the durations of MFA are not needed here.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
-Assume the path to the dataset is `~/datasets/BZNSYP`.
-Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
+Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
+Assume the path to the MFA result of LJSpeech-1.1 is `./ljspeech_alignment`.
 Run the command below to
 1. **source path**.
 2. preprocess the dataset.
@@ -85,17 +85,17 @@ optional arguments:
 5. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesizing
-We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) and unzip it.
+We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc1) as the neural vocoder.
+Download pretrained parallel wavegan model from [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip) and unzip it.
 ```bash
-unzip pwg_baker_ckpt_0.4.zip
+unzip pwg_ljspeech_ckpt_0.5.zip
 ```
 Parallel WaveGAN checkpoint contains files listed below.
 ```text
-pwg_baker_ckpt_0.4
-├── pwg_default.yaml               # default config used to train parallel wavegan
-├── pwg_snapshot_iter_400000.pdz   # model parameters of parallel wavegan
-└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+pwg_ljspeech_ckpt_0.5
+├── pwg_default.yaml              # default config used to train parallel wavegan
+├── pwg_snapshot_iter_400000.pdz  # generator parameters of parallel wavegan
+└── pwg_stats.npy                 # statistics used to normalize spectrogram when training parallel wavegan
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
@@ -210,41 +210,38 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained Tacotron2 model with no silence in the edge of audios:
-- [tacotron2_csmsc_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_csmsc_ckpt_0.2.0.zip)
-
-The static model can be downloaded here [tacotron2_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_csmsc_static_0.2.0.zip).
+- [tacotron2_ljspeech_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.2.0.zip)
 
 
 Model | Step | eval/loss | eval/l1_loss | eval/mse_loss | eval/bce_loss| eval/attn_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
-default| 1(gpu) x 30600|0.57185|0.39614|0.14642|0.029|5.8e-05|
+default| 1(gpu) x 60300|0.554092|0.394260|0.141046|0.018747|3.8e-05|
 
 Tacotron2 checkpoint contains files listed below.
 ```text
-tacotron2_csmsc_ckpt_0.2.0
+tacotron2_ljspeech_ckpt_0.2.0
 ├── default.yaml            # default config used to train Tacotron2
 ├── phone_id_map.txt        # phone vocabulary file when training Tacotron2
-├── snapshot_iter_30600.pdz # model parameters and optimizer states
+├── snapshot_iter_60300.pdz # model parameters and optimizer states
 └── speech_stats.npy        # statistics used to normalize spectrogram when training Tacotron2
 ```
-You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained Tacotron2 and parallel wavegan models.
+You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_en.txt` using pretrained Tacotron2 and parallel wavegan models.
 ```bash
 source path.sh
 
 FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
-  --am=tacotron2_csmsc \
-  --am_config=tacotron2_csmsc_ckpt_0.2.0/default.yaml \
-  --am_ckpt=tacotron2_csmsc_ckpt_0.2.0/snapshot_iter_30600.pdz \
-  --am_stat=tacotron2_csmsc_ckpt_0.2.0/speech_stats.npy  \
-  --voc=pwgan_csmsc \
-  --voc_config=pwg_baker_ckpt_0.4/pwg_default.yaml \
-  --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
-  --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
-  --lang=zh \
-  --text=${BIN_DIR}/../sentences.txt \
+  --am=tacotron2_ljspeech \
+  --am_config=tacotron2_ljspeech_ckpt_0.2.0/default.yaml \
+  --am_ckpt=tacotron2_ljspeech_ckpt_0.2.0/snapshot_iter_60300.pdz \
+  --am_stat=tacotron2_ljspeech_ckpt_0.2.0/speech_stats.npy  \
+  --voc=pwgan_ljspeech\
+  --voc_config=pwg_ljspeech_ckpt_0.5/pwg_default.yaml \
+  --voc_ckpt=pwg_ljspeech_ckpt_0.5/pwg_snapshot_iter_400000.pdz  \
+  --voc_stat=pwg_ljspeech_ckpt_0.5/pwg_stats.npy \
+  --lang=en \
+  --text=${BIN_DIR}/../sentences_en.txt \
   --output_dir=exp/default/test_e2e \
-  --inference_dir=exp/default/inference \
-  --phones_dict=tacotron2_csmsc_ckpt_0.2.0/phone_id_map.txt
+  --phones_dict=tacotron2_ljspeech_ckpt_0.2.0/phone_id_map.txt
 ```

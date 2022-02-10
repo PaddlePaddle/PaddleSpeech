@@ -39,9 +39,9 @@ model_alias = {
     "fastspeech2_inference":
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
     "tacotron2":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2Inference",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -229,6 +229,11 @@ def evaluate(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     merge_sentences = False
+    # Avoid not stopping at the end of a sub sentence when tacotron2_ljspeech dygraph to static graph
+    # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
+    if am_name == 'tacotron2':
+        merge_sentences = True
+
     for utt_id, sentence in sentences:
         get_tone_ids = False
         if am_name == 'speedyspeech':

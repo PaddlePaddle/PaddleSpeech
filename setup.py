@@ -61,6 +61,9 @@ requirements = {
         "visualdl",
         "webrtcvad",
         "yacs~=0.1.8",
+        # fastapi server
+        "fastapi",
+        "uvicorn",
     ],
     "develop": [
         "ConfigArgParse",

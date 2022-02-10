@@ -13,19 +13,18 @@
 # limitations under the License.
 import argparse
 import base64
-import os
-import random
+import io
 
 import librosa
 import numpy as np
 import soundfile as sf
 import yaml
 from engine.base_engine import BaseEngine
-from ffmpeg import audio
+from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
-from utils.audio_types import wav2pcm
+from utils.audio_process import change_speed
 from utils.errors import ErrorCode
 from utils.exception import ServerBaseException
 
@@ -107,26 +106,27 @@ class TTSEngine(BaseEngine):
         wav_vol = wav_tar_fs * volume
 
         # transform speed
-        hash = random.getrandbits(128)
-        temp_wav = str(hash) + ".wav"
-        temp_speed_wav = str(hash + 1) + ".wav"
-        sf.write(temp_wav, wav_vol.reshape(-1, 1), target_fs)
-        audio.a_speed(temp_wav, speed, temp_speed_wav)
-        os.system("rm %s" % (temp_wav))
+        try:  # windows not support soxbindings
+            wav_speed = change_speed(wav_vol, speed, target_fs)
+        except:
+            raise ServerBaseException(
+                ErrorCode.SERVER_INTERNAL_ERR,
+                "Can not install soxbindings on your system.")
 
         # wav to base64
-        with open(temp_speed_wav, 'rb') as f:
-            base64_bytes = base64.b64encode(f.read())
-            wav_base64 = base64_bytes.decode('utf-8')
+        buf = io.BytesIO()
+        wavfile.write(buf, target_fs, wav_speed)
+        base64_bytes = base64.b64encode(buf.read())
+        wav_base64 = base64_bytes.decode('utf-8')
 
         # save audio
         if audio_path is not None and audio_path.endswith(".wav"):
-            os.system("mv %s %s" % (temp_speed_wav, audio_path))
+            sf.write(audio_path, wav_speed, target_fs)
         elif audio_path is not None and audio_path.endswith(".pcm"):
-            wav2pcm(temp_speed_wav, audio_path, data_type=np.int16)
-            os.system("rm %s" % (temp_speed_wav))
-        else:
-            os.system("rm %s" % (temp_speed_wav))
+            wav_norm = wav_speed * (32767 / max(0.001,
+                                                np.max(np.abs(wav_speed))))
+            with open(audio_path, "wb") as f:
+                f.write(wav_norm.astype(np.int16))
 
         return target_fs, wav_base64
 

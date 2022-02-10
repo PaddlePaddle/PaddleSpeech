@@ -1,4 +1,4 @@
-# FastSpeech2 with the LJSpeech-1.1
+# FastSpeech2 with LJSpeech-1.1
 This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/).
 
 ## Dataset

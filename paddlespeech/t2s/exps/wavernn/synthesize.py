@@ -31,7 +31,7 @@ from paddlespeech.t2s.models.wavernn import WaveRNN
 def main():
     parser = argparse.ArgumentParser(description="Synthesize with WaveRNN.")
 
-    parser.add_argument("--config", type=str, help="GANVocoder config file.")
+    parser.add_argument("--config", type=str, help="Vocoder config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")

@@ -1,14 +1,29 @@
 # Changelog
 
-Date: 2022-1-19, Author: yt605155624.  
-Add features to: T2S:  
-  - Add csmsc Tacotron2.  
+Date: 2022-1-29, Author: yt605155624.
+Add features to: T2S:
+  - Update aishell3 vc0 with new Tacotron2.
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1419
+
+Date: 2022-1-29, Author: yt605155624.
+Add features to: T2S:
+  - Add ljspeech Tacotron2.
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1416
+
+Date: 2022-1-24, Author: yt605155624.
+Add features to: T2S:
+  - Add csmsc WaveRNN.
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1379
+
+Date: 2022-1-19, Author: yt605155624.
+Add features to: T2S:
+  - Add csmsc Tacotron2.
   - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1314
 
 
 Date: 2022-1-10, Author: Jackwaterveg.  
-Add features to: CLI:  
-  - Support English (librispeech/asr1/transformer).  
+Add features to: CLI:
+  - Support English (librispeech/asr1/transformer).
   - Support choosing `decode_method` for conformer and transformer models.  
   - Refactor the config, using the unified config.  
   - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1297
@@ -16,8 +31,8 @@ Add features to: CLI:
 ***
 
 Date: 2022-1-17, Author: Jackwaterveg.  
-Add features to: CLI:  
-  - Support deepspeech2 online/offline model(aishell). 
+Add features to: CLI:
+  - Support deepspeech2 online/offline model(aishell).
   - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1356
 
 ***

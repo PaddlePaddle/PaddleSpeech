@@ -102,9 +102,9 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
         --voc=wavernn_csmsc \
-        --voc_config=wavernn_test/default.yaml \
-        --voc_ckpt=wavernn_test/snapshot_iter_5000.pdz \
-        --voc_stat=wavernn_test/feats_stats.npy \
+        --voc_config=wavernn_csmsc_ckpt_0.2.0/default.yaml \
+        --voc_ckpt=wavernn_csmsc_ckpt_0.2.0/snapshot_iter_400000.pdz \
+        --voc_stat=wavernn_csmsc_ckpt_0.2.0/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \

@@ -395,9 +395,6 @@ class Decoder(nn.Layer):
             iunits, odim * reduction_factor, bias_attr=False)
         self.prob_out = nn.Linear(iunits, reduction_factor)
 
-        # initialize
-        # self.apply(decoder_init)
-
     def _zero_state(self, hs):
         init_hs = paddle.zeros([paddle.shape(hs)[0], self.lstm[0].hidden_size])
         return init_hs
@@ -558,8 +555,11 @@ class Decoder(nn.Layer):
         assert len(paddle.shape(h)) == 2
         hs = h.unsqueeze(0)
         ilens = paddle.shape(h)[0]
-        maxlen = int(paddle.shape(h)[0] * maxlenratio)
-        minlen = int(paddle.shape(h)[0] * minlenratio)
+        # 本来 maxlen 和 minlen 外面有 int()，防止动转静的问题此处删除
+        maxlen = paddle.shape(h)[0] * maxlenratio
+        minlen = paddle.shape(h)[0] * minlenratio
+        # 本来是直接使用 threshold 的，此处为了防止动转静的问题把 threshold 转成 tensor
+        threshold = paddle.ones([1]) * threshold
 
         # initialize hidden states of decoder
         c_list = [self._zero_state(hs)]
@@ -645,11 +645,27 @@ class Decoder(nn.Layer):
             if use_att_constraint:
                 last_attended_idx = int(att_w.argmax())
 
+            # tacotron2 ljspeech 动转静的问题应该是这里没有正确判断 prob >= threshold 导致的
             if prob >= threshold or idx >= maxlen:
                 # check mininum length
                 if idx < minlen:
                     continue
                 break
+            """
+            仅解开 665~667 行的代码块，动转静时会卡死，但是动态图时可以正确生成音频，证明模型没问题
+            同时解开 665~667 行 和 668 ~ 670 行的代码块，动转静时不会卡死，但是生成的音频末尾有多余的噪声
+            证明动转静没有进入 prob >= threshold 的判断，但是静态图可以进入 prob >= threshold 并退出循环
+            动转静时是通过 idx >= maxlen 退出循环（所以没有这个逻辑的时候会一直循环，也就是卡死），
+            没有在模型判断该结束的时候结束，而是在超出最大长度时结束，所以合成的音频末尾有很长的额外预测的噪声
+            动转静用 prob <= threshold 的条件可以退出循环（虽然结果不正确），证明条件参数的类型本身没问题，可能是 prob 有问题
+            """
+            # if prob >= threshold:
+            #     print("prob >= threshold")
+            #     break
+            # elif idx >= maxlen:
+            #     print("idx >= maxlen")
+            #     break
+
         # (1, odim, L)
         outs = paddle.concat(outs, axis=2)
         if self.postnet is not None:

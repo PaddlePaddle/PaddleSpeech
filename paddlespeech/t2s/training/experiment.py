@@ -57,35 +57,30 @@ class ExperimentBase(object):
     Feel free to add/overwrite other methods and standalone functions if you
     need.
 
-    Parameters
-    ----------
-    config: yacs.config.CfgNode
-        The configuration used for the experiment.
+    Args:
+        config (yacs.config.CfgNode): The configuration used for the experiment.
+        args (argparse.Namespace): The parsed command line arguments.
 
-    args: argparse.Namespace
-        The parsed command line arguments.
-
-    Examples
-    --------
-    >>> def main_sp(config, args):
-    >>>     exp = Experiment(config, args)
-    >>>     exp.setup()
-    >>>     exe.resume_or_load()
-    >>>     exp.run()
-    >>>
-    >>> config = get_cfg_defaults()
-    >>> parser = default_argument_parser()
-    >>> args = parser.parse_args()
-    >>> if args.config:
-    >>>     config.merge_from_file(args.config)
-    >>> if args.opts:
-    >>>     config.merge_from_list(args.opts)
-    >>> config.freeze()
-    >>>
-    >>> if args.ngpu > 1:
-    >>>     dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
-    >>> else:
-    >>>     main_sp(config, args)
+    Examples:
+        >>> def main_sp(config, args):
+        >>>     exp = Experiment(config, args)
+        >>>     exp.setup()
+        >>>     exe.resume_or_load()
+        >>>     exp.run()
+        >>>
+        >>> config = get_cfg_defaults()
+        >>> parser = default_argument_parser()
+        >>> args = parser.parse_args()
+        >>> if args.config:
+        >>>     config.merge_from_file(args.config)
+        >>> if args.opts:
+        >>>     config.merge_from_list(args.opts)
+        >>> config.freeze()
+        >>>
+        >>> if args.ngpu > 1:
+        >>>     dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
+        >>> else:
+        >>>     main_sp(config, args)
     """
 
     def __init__(self, config, args):

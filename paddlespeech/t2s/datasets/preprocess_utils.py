@@ -18,14 +18,10 @@ import re
 def get_phn_dur(file_name):
     '''
     read MFA duration.txt
-    Parameters
-    ----------
-    file_name : str or Path
-        path of gen_duration_from_textgrid.py's result
-    Returns
-    ----------
-    Dict
-        sentence: {'utt': ([char], [int])}
+    Args:
+        file_name (str or Path): path of gen_duration_from_textgrid.py's result
+    Returns: 
+        Dict: sentence: {'utt': ([char], [int])}
     '''
     f = open(file_name, 'r')
     sentence = {}
@@ -48,10 +44,8 @@ def get_phn_dur(file_name):
 def merge_silence(sentence):
     '''
     merge silences
-    Parameters
-    ----------
-    sentence : Dict
-        sentence: {'utt': (([char], [int]), str)}
+    Args:
+        sentence (Dict): sentence: {'utt': (([char], [int]), str)}
     '''
     for utt in sentence:
         cur_phn, cur_dur, speaker = sentence[utt]
@@ -81,12 +75,9 @@ def merge_silence(sentence):
 def get_input_token(sentence, output_path, dataset="baker"):
     '''
     get phone set from training data and save it
-    Parameters
-    ----------
-    sentence : Dict
-        sentence: {'utt': ([char], [int])}
-    output_path : str or path
-        path to save phone_id_map
+    Args:
+        sentence (Dict): sentence: {'utt': ([char], [int])}
+        output_path (str or path):path to save phone_id_map
     '''
     phn_token = set()
     for utt in sentence:
@@ -112,14 +103,10 @@ def get_phones_tones(sentence,
                      dataset="baker"):
     '''
     get phone set and tone set from training data and save it
-    Parameters
-    ----------
-    sentence : Dict
-        sentence: {'utt': ([char], [int])}
-    phones_output_path : str or path
-        path to save phone_id_map
-    tones_output_path : str or path
-        path to save tone_id_map
+    Args:
+        sentence (Dict): sentence: {'utt': ([char], [int])}
+        phones_output_path (str or path): path to save phone_id_map
+        tones_output_path (str or path): path to save tone_id_map
     '''
     phn_token = set()
     tone_token = set()
@@ -162,14 +149,10 @@ def get_spk_id_map(speaker_set, output_path):
 def compare_duration_and_mel_length(sentences, utt, mel):
     '''
     check duration error, correct sentences[utt] if possible, else pop sentences[utt]
-    Parameters
-    ----------
-    sentences : Dict
-        sentences[utt] = [phones_list ,durations_list]
-    utt : str
-        utt_id
-    mel : np.ndarry
-        features (num_frames, n_mels)
+    Args:
+        sentences (Dict): sentences[utt] = [phones_list ,durations_list]
+        utt (str): utt_id
+        mel (np.ndarry): features (num_frames, n_mels)
     '''
 
     if utt in sentences:

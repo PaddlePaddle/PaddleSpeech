@@ -48,127 +48,67 @@ class TransformerTTS(nn.Layer):
     .. _`Neural Speech Synthesis with Transformer Network`:
         https://arxiv.org/pdf/1809.08895.pdf
 
-    Parameters
-    ----------
-    idim : int
-        Dimension of the inputs.
-    odim : int
-        Dimension of the outputs.
-    embed_dim : int, optional
-        Dimension of character embedding.
-    eprenet_conv_layers : int, optional
-        Number of encoder prenet convolution layers.
-    eprenet_conv_chans : int, optional
-        Number of encoder prenet convolution channels.
-    eprenet_conv_filts : int, optional
-        Filter size of encoder prenet convolution.
-    dprenet_layers : int, optional
-        Number of decoder prenet layers.
-    dprenet_units : int, optional
-        Number of decoder prenet hidden units.
-    elayers : int, optional
-        Number of encoder layers.
-    eunits : int, optional
-        Number of encoder hidden units.
-    adim : int, optional
-        Number of attention transformation dimensions.
-    aheads : int, optional
-        Number of heads for multi head attention.
-    dlayers : int, optional
-        Number of decoder layers.
-    dunits : int, optional
-        Number of decoder hidden units.
-    postnet_layers : int, optional
-        Number of postnet layers.
-    postnet_chans : int, optional
-        Number of postnet channels.
-    postnet_filts : int, optional
-        Filter size of postnet.
-    use_scaled_pos_enc : pool, optional
-        Whether to use trainable scaled positional encoding.
-    use_batch_norm : bool, optional
-        Whether to use batch normalization in encoder prenet.
-    encoder_normalize_before : bool, optional
-        Whether to perform layer normalization before encoder block.
-    decoder_normalize_before : bool, optional
-        Whether to perform layer normalization before decoder block.
-    encoder_concat_after : bool, optional
-        Whether to concatenate attention layer's input and output in encoder.
-    decoder_concat_after : bool, optional
-        Whether to concatenate attention layer's input and output in decoder.
-    positionwise_layer_type : str, optional
-        Position-wise operation type.
-    positionwise_conv_kernel_size : int, optional
-        Kernel size in position wise conv 1d.
-    reduction_factor : int, optional
-        Reduction factor.
-    spk_embed_dim : int, optional
-        Number of speaker embedding dimenstions.
-    spk_embed_integration_type : str, optional
-        How to integrate speaker embedding.
-    use_gst : str, optional
-        Whether to use global style token.
-    gst_tokens : int, optional
-        The number of GST embeddings.
-    gst_heads : int, optional
-        The number of heads in GST multihead attention.
-    gst_conv_layers : int, optional
-        The number of conv layers in GST.
-    gst_conv_chans_list : Sequence[int], optional
-            List of the number of channels of conv layers in GST.
-    gst_conv_kernel_size : int, optional
-        Kernal size of conv layers in GST.
-    gst_conv_stride : int, optional
-        Stride size of conv layers in GST.
-    gst_gru_layers : int, optional
-        The number of GRU layers in GST.
-    gst_gru_units : int, optional
-        The number of GRU units in GST.
-    transformer_lr : float, optional
-        Initial value of learning rate.
-    transformer_warmup_steps : int, optional
-        Optimizer warmup steps.
-    transformer_enc_dropout_rate : float, optional
-        Dropout rate in encoder except attention and positional encoding.
-    transformer_enc_positional_dropout_rate : float, optional
-        Dropout rate after encoder positional encoding.
-    transformer_enc_attn_dropout_rate : float, optional
-        Dropout rate in encoder self-attention module.
-    transformer_dec_dropout_rate : float, optional
-        Dropout rate in decoder except attention & positional encoding.
-    transformer_dec_positional_dropout_rate : float, optional
-        Dropout rate after decoder positional encoding.
-    transformer_dec_attn_dropout_rate : float, optional
-        Dropout rate in deocoder self-attention module.
-    transformer_enc_dec_attn_dropout_rate : float, optional
-        Dropout rate in encoder-deocoder attention module.
-    init_type : str, optional
-        How to initialize transformer parameters.
-    init_enc_alpha : float, optional
-        Initial value of alpha in scaled pos encoding of the encoder.
-    init_dec_alpha : float, optional
-        Initial value of alpha in scaled pos encoding of the decoder.
-    eprenet_dropout_rate : float, optional
-        Dropout rate in encoder prenet.
-    dprenet_dropout_rate : float, optional
-        Dropout rate in decoder prenet.
-    postnet_dropout_rate : float, optional
-        Dropout rate in postnet.
-    use_masking : bool, optional
-        Whether to apply masking for padded part in loss calculation.
-    use_weighted_masking : bool, optional
-        Whether to apply weighted masking in loss calculation.
-    bce_pos_weight : float, optional
-        Positive sample weight in bce calculation (only for use_masking=true).
-    loss_type : str, optional
-        How to calculate loss.
-    use_guided_attn_loss : bool, optional
-        Whether to use guided attention loss.
-    num_heads_applied_guided_attn : int, optional
-        Number of heads in each layer to apply guided attention loss.
-    num_layers_applied_guided_attn : int, optional
-        Number of layers to apply guided attention loss.
-        List of module names to apply guided attention loss.
+    Args:
+        idim (int): Dimension of the inputs.
+        odim (int): Dimension of the outputs.
+        embed_dim (int, optional): Dimension of character embedding.
+        eprenet_conv_layers (int, optional): Number of encoder prenet convolution layers.
+        eprenet_conv_chans (int, optional): Number of encoder prenet convolution channels.
+        eprenet_conv_filts (int, optional): Filter size of encoder prenet convolution.
+        dprenet_layers (int, optional): Number of decoder prenet layers.
+        dprenet_units (int, optional): Number of decoder prenet hidden units.
+        elayers (int, optional): Number of encoder layers.
+        eunits (int, optional): Number of encoder hidden units.
+        adim (int, optional): Number of attention transformation dimensions.
+        aheads (int, optional): Number of heads for multi head attention.
+        dlayers (int, optional): Number of decoder layers.
+        dunits (int, optional): Number of decoder hidden units.
+        postnet_layers (int, optional): Number of postnet layers.
+        postnet_chans (int, optional): Number of postnet channels.
+        postnet_filts (int, optional): Filter size of postnet.
+        use_scaled_pos_enc (pool, optional): Whether to use trainable scaled positional encoding.
+        use_batch_norm (bool, optional): Whether to use batch normalization in encoder prenet.
+        encoder_normalize_before (bool, optional): Whether to perform layer normalization before encoder block.
+        decoder_normalize_before (bool, optional): Whether to perform layer normalization before decoder block.
+        encoder_concat_after (bool, optional): Whether to concatenate attention layer's input and output in encoder.
+        decoder_concat_after (bool, optional): Whether to concatenate attention layer's input and output in decoder.
+        positionwise_layer_type (str, optional): Position-wise operation type.
+        positionwise_conv_kernel_size (int, optional): Kernel size in position wise conv 1d.
+        reduction_factor (int, optional): Reduction factor.
+        spk_embed_dim (int, optional): Number of speaker embedding dimenstions.
+        spk_embed_integration_type (str, optional): How to integrate speaker embedding.
+        use_gst (str, optional): Whether to use global style token.
+        gst_tokens (int, optional): The number of GST embeddings.
+        gst_heads (int, optional): The number of heads in GST multihead attention.
+        gst_conv_layers (int, optional): The number of conv layers in GST.
+        gst_conv_chans_list (Sequence[int], optional): List of the number of channels of conv layers in GST.
+        gst_conv_kernel_size (int, optional): Kernal size of conv layers in GST.
+        gst_conv_stride (int, optional): Stride size of conv layers in GST.
+        gst_gru_layers (int, optional): The number of GRU layers in GST.
+        gst_gru_units (int, optional): The number of GRU units in GST.
+        transformer_lr (float, optional): Initial value of learning rate.
+        transformer_warmup_steps (int, optional): Optimizer warmup steps.
+        transformer_enc_dropout_rate (float, optional): Dropout rate in encoder except attention and positional encoding.
+        transformer_enc_positional_dropout_rate (float, optional): Dropout rate after encoder positional encoding.
+        transformer_enc_attn_dropout_rate （float, optional): Dropout rate in encoder self-attention module.
+        transformer_dec_dropout_rate (float, optional): Dropout rate in decoder except attention & positional encoding.
+        transformer_dec_positional_dropout_rate (float, optional): Dropout rate after decoder positional encoding.
+        transformer_dec_attn_dropout_rate （float, optional): Dropout rate in deocoder self-attention module.
+        transformer_enc_dec_attn_dropout_rate (float, optional): Dropout rate in encoder-deocoder attention module.
+        init_type (str, optional): How to initialize transformer parameters.
+        init_enc_alpha （float, optional）: Initial value of alpha in scaled pos encoding of the encoder.
+        init_dec_alpha (float, optional): Initial value of alpha in scaled pos encoding of the decoder.
+        eprenet_dropout_rate (float, optional): Dropout rate in encoder prenet.
+        dprenet_dropout_rate (float, optional): Dropout rate in decoder prenet.
+        postnet_dropout_rate (float, optional): Dropout rate in postnet.
+        use_masking (bool, optional): Whether to apply masking for padded part in loss calculation.
+        use_weighted_masking (bool, optional): Whether to apply weighted masking in loss calculation.
+        bce_pos_weight (float, optional): Positive sample weight in bce calculation (only for use_masking=true).
+        loss_type (str, optional): How to calculate loss.
+        use_guided_attn_loss (bool, optional): Whether to use guided attention loss.
+        num_heads_applied_guided_attn (int, optional): Number of heads in each layer to apply guided attention loss.
+        num_layers_applied_guided_attn (int, optional): Number of layers to apply guided attention loss.
+            List of module names to apply guided attention loss.
     """
 
     def __init__(
@@ -398,25 +338,16 @@ class TransformerTTS(nn.Layer):
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        text : Tensor(int64)
-            Batch of padded character ids (B, Tmax).
-        text_lengths : Tensor(int64)
-            Batch of lengths of each input batch (B,).
-        speech : Tensor
-            Batch of padded target features (B, Lmax, odim).
-        speech_lengths : Tensor(int64)
-            Batch of the lengths of each target (B,).
-        spk_emb : Tensor, optional
-            Batch of speaker embeddings (B, spk_embed_dim).
+        Args:
+            text(Tensor(int64)): Batch of padded character ids (B, Tmax).
+            text_lengths(Tensor(int64)): Batch of lengths of each input batch (B,).
+            speech(Tensor): Batch of padded target features (B, Lmax, odim).
+            speech_lengths(Tensor(int64)): Batch of the lengths of each target (B,).
+            spk_emb(Tensor, optional): Batch of speaker embeddings (B, spk_embed_dim).
 
-        Returns
-        ----------
-        Tensor
-            Loss scalar value.
-        Dict
-            Statistics to be monitored.
+        Returns:
+            Tensor: Loss scalar value.
+            Dict: Statistics to be monitored.
 
         """
         # input of embedding must be int64
@@ -525,31 +456,19 @@ class TransformerTTS(nn.Layer):
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
-        Parameters
-        ----------
-        text : Tensor(int64)
-            Input sequence of characters (T,).
-        speech : Tensor, optional
-            Feature sequence to extract style (N, idim).
-        spk_emb : Tensor, optional
-            Speaker embedding vector (spk_embed_dim,).
-        threshold : float, optional
-            Threshold in inference.
-        minlenratio : float, optional
-            Minimum length ratio in inference.
-        maxlenratio : float, optional
-            Maximum length ratio in inference.
-        use_teacher_forcing : bool, optional
-            Whether to use teacher forcing.
+        Args:
+            text(Tensor(int64)): Input sequence of characters (T,).
+            speech(Tensor, optional): Feature sequence to extract style (N, idim).
+            spk_emb(Tensor, optional): Speaker embedding vector (spk_embed_dim,).
+            threshold(float, optional): Threshold in inference.
+            minlenratio(float, optional): Minimum length ratio in inference.
+            maxlenratio(float, optional): Maximum length ratio in inference.
+            use_teacher_forcing(bool, optional): Whether to use teacher forcing.
 
-        Returns
-        ----------
-        Tensor
-            Output sequence of features (L, odim).
-        Tensor
-            Output sequence of stop probabilities (L,).
-        Tensor
-            Encoder-decoder (source) attention weights (#layers, #heads, L, T).
+        Returns:
+            Tensor: Output sequence of features (L, odim).
+            Tensor: Output sequence of stop probabilities (L,).
+            Tensor: Encoder-decoder (source) attention weights (#layers, #heads, L, T).
 
         """
         # input of embedding must be int64
@@ -671,23 +590,17 @@ class TransformerTTS(nn.Layer):
     def _source_mask(self, ilens: paddle.Tensor) -> paddle.Tensor:
         """Make masks for self-attention.
 
-        Parameters
-        ----------
-        ilens : Tensor
-            Batch of lengths (B,).
+        Args:
+            ilens(Tensor): Batch of lengths (B,).
 
-        Returns
-        -------
-        Tensor
-            Mask tensor for self-attention.
-            dtype=paddle.bool
+        Returns:
+            Tensor: Mask tensor for self-attention. dtype=paddle.bool
 
-        Examples
-        -------
-        >>> ilens = [5, 3]
-        >>> self._source_mask(ilens)
-        tensor([[[1, 1, 1, 1, 1],
-                    [1, 1, 1, 0, 0]]]) bool
+        Examples:
+            >>> ilens = [5, 3]
+            >>> self._source_mask(ilens)
+            tensor([[[1, 1, 1, 1, 1],
+                        [1, 1, 1, 0, 0]]]) bool
 
         """
         x_masks = make_non_pad_mask(ilens)
@@ -696,30 +609,25 @@ class TransformerTTS(nn.Layer):
     def _target_mask(self, olens: paddle.Tensor) -> paddle.Tensor:
         """Make masks for masked self-attention.
 
-        Parameters
-        ----------
-            olens : LongTensor
-                Batch of lengths (B,).
+        Args:
+            olens (Tensor(int64)): Batch of lengths (B,).
 
-        Returns
-        ----------
-        Tensor
-            Mask tensor for masked self-attention.
+        Returns:
+            Tensor: Mask tensor for masked self-attention.
 
-        Examples
-        ----------
-        >>> olens = [5, 3]
-        >>> self._target_mask(olens)
-        tensor([[[1, 0, 0, 0, 0],
-                    [1, 1, 0, 0, 0],
-                    [1, 1, 1, 0, 0],
-                    [1, 1, 1, 1, 0],
-                    [1, 1, 1, 1, 1]],
-                [[1, 0, 0, 0, 0],
-                    [1, 1, 0, 0, 0],
-                    [1, 1, 1, 0, 0],
-                    [1, 1, 1, 0, 0],
-                    [1, 1, 1, 0, 0]]], dtype=paddle.uint8)
+        Examples:
+            >>> olens = [5, 3]
+            >>> self._target_mask(olens)
+            tensor([[[1, 0, 0, 0, 0],
+                        [1, 1, 0, 0, 0],
+                        [1, 1, 1, 0, 0],
+                        [1, 1, 1, 1, 0],
+                        [1, 1, 1, 1, 1]],
+                    [[1, 0, 0, 0, 0],
+                        [1, 1, 0, 0, 0],
+                        [1, 1, 1, 0, 0],
+                        [1, 1, 1, 0, 0],
+                        [1, 1, 1, 0, 0]]], dtype=paddle.uint8)
 
         """
         y_masks = make_non_pad_mask(olens)
@@ -731,17 +639,12 @@ class TransformerTTS(nn.Layer):
                                   spk_emb: paddle.Tensor) -> paddle.Tensor:
         """Integrate speaker embedding with hidden states.
 
-        Parameters
-        ----------
-        hs : Tensor
-            Batch of hidden state sequences (B, Tmax, adim).
-        spk_emb : Tensor
-            Batch of speaker embeddings (B, spk_embed_dim).
+        Args:
+            hs(Tensor): Batch of hidden state sequences (B, Tmax, adim).
+            spk_emb(Tensor): Batch of speaker embeddings (B, spk_embed_dim).
 
-        Returns
-        ----------
-        Tensor
-            Batch of integrated hidden state sequences (B, Tmax, adim).
+        Returns:
+            Tensor: Batch of integrated hidden state sequences (B, Tmax, adim).
 
         """
         if self.spk_embed_integration_type == "add":

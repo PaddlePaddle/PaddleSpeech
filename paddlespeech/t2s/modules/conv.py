@@ -40,36 +40,29 @@ class Conv1dCell(nn.Conv1D):
     2. padding must be a causal padding (recpetive_field - 1, 0).
     Thus, these arguments are removed from the ``__init__`` method of this
     class.
-    
-    Parameters
-    ----------
-    in_channels: int
-        The feature size of the input.
-    out_channels: int
-        The feature size of the output.
-    kernel_size: int or Tuple[int]
-        The size of the kernel.
-    dilation: int or Tuple[int]
-        The dilation of the convolution, by default 1
-    weight_attr: ParamAttr, Initializer, str or bool, optional
-        The parameter attribute of the convolution kernel, by default None.
-    bias_attr: ParamAttr, Initializer, str or bool, optional
-        The parameter attribute of the bias. If ``False``, this layer does not
-        have a bias, by default None.
-        
-    Examples
-    --------
-    >>> cell = Conv1dCell(3, 4, kernel_size=5)
-    >>> inputs = [paddle.randn([4, 3]) for _ in range(16)]
-    >>> outputs = []
-    >>> cell.eval()
-    >>> cell.start_sequence()
-    >>> for xt in inputs:
-    >>>     outputs.append(cell.add_input(xt))
-    >>> len(outputs))
-    16
-    >>> outputs[0].shape
-    [4, 4]
+
+    Args:
+        in_channels (int): The feature size of the input.
+        out_channels (int): The feature size of the output.
+        kernel_size (int or Tuple[int]): The size of the kernel.
+        dilation (int or Tuple[int]): The dilation of the convolution, by default 1
+        weight_attr (ParamAttr, Initializer, str or bool, optional) : The parameter attribute of the convolution kernel, 
+            by default None.
+        bias_attr (ParamAttr, Initializer, str or bool, optional):The parameter attribute of the bias. 
+            If ``False``, this layer does not have a bias, by default None.
+            
+    Examples: 
+        >>> cell = Conv1dCell(3, 4, kernel_size=5)
+        >>> inputs = [paddle.randn([4, 3]) for _ in range(16)]
+        >>> outputs = []
+        >>> cell.eval()
+        >>> cell.start_sequence()
+        >>> for xt in inputs:
+        >>>     outputs.append(cell.add_input(xt))
+        >>> len(outputs))
+        16
+        >>> outputs[0].shape
+        [4, 4]
     """
 
     def __init__(self,
@@ -103,15 +96,13 @@ class Conv1dCell(nn.Conv1D):
     def start_sequence(self):
         """Prepare the layer for a series of incremental forward.
         
-        Warnings
-        ---------
-        This method should be called before a sequence of calls to
-        ``add_input``.
+        Warnings:
+            This method should be called before a sequence of calls to
+            ``add_input``.
 
-        Raises
-        ------
-        Exception
-            If this method is called when the layer is in training mode.
+        Raises:
+            Exception
+                If this method is called when the layer is in training mode.
         """
         if self.training:
             raise Exception("only use start_sequence in evaluation")
@@ -130,10 +121,9 @@ class Conv1dCell(nn.Conv1D):
     def initialize_buffer(self, x_t):
         """Initialize the buffer for the step input.
 
-        Parameters
-        ----------
-        x_t : Tensor [shape=(batch_size, in_channels)]
-            The step input.
+        Args:
+            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+            
         """
         batch_size, _ = x_t.shape
         self._buffer = paddle.zeros(
@@ -143,26 +133,22 @@ class Conv1dCell(nn.Conv1D):
     def update_buffer(self, x_t):
         """Shift the buffer by one step.
 
-        Parameters
-        ----------
-        x_t : Tensor [shape=(batch_size, in_channels)]
-            The step input.
+        Args:
+            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+            
         """
         self._buffer = paddle.concat(
             [self._buffer[:, :, 1:], paddle.unsqueeze(x_t, -1)], -1)
 
     def add_input(self, x_t):
         """Add step input and compute step output.
-        
-        Parameters
-        -----------
-        x_t : Tensor [shape=(batch_size, in_channels)]
-            The step input.
-            
-        Returns
-        -------
-        y_t :Tensor [shape=(batch_size, out_channels)]
-            The step output.
+
+        Args:
+            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+          
+        Returns: 
+            y_t (Tensor): The step output. shape=(batch_size, out_channels)
+
         """
         batch_size = x_t.shape[0]
         if self.receptive_field > 1:
@@ -186,33 +172,26 @@ class Conv1dCell(nn.Conv1D):
 class Conv1dBatchNorm(nn.Layer):
     """A Conv1D Layer followed by a BatchNorm1D.
 
-    Parameters
-    ----------
-    in_channels : int
-        The feature size of the input.
-    out_channels : int
-        The feature size of the output.
-    kernel_size : int
-        The size of the convolution kernel.
-    stride : int, optional
-        The stride of the convolution, by default 1.
-    padding : int, str or Tuple[int], optional
-        The padding of the convolution.
-        If int, a symmetrical padding is applied before convolution;
-        If str, it should be "same" or "valid";
-        If Tuple[int], its length should be 2, meaning
-        ``(pad_before, pad_after)``, by default 0.
-    weight_attr : ParamAttr, Initializer, str or bool, optional
-        The parameter attribute of the convolution kernel, by default None.
-    bias_attr : ParamAttr, Initializer, str or bool, optional
-        The parameter attribute of the bias of the convolution, by default
-        None.
-    data_format : str ["NCL" or "NLC"], optional
-        The data layout of the input, by default "NCL"
-    momentum : float, optional
-        The momentum of the BatchNorm1D layer, by default 0.9
-    epsilon : [type], optional
-        The epsilon of the BatchNorm1D layer, by default 1e-05
+    Args:
+        in_channels (int): The feature size of the input.
+        out_channels (int): The feature size of the output.
+        kernel_size (int): The size of the convolution kernel.
+        stride (int, optional): The stride of the convolution, by default 1.
+        padding (int, str or Tuple[int], optional):
+            The padding of the convolution.
+            If int, a symmetrical padding is applied before convolution;
+            If str, it should be "same" or "valid";
+            If Tuple[int], its length should be 2, meaning
+            ``(pad_before, pad_after)``, by default 0.
+        weight_attr (ParamAttr, Initializer, str or bool, optional):
+            The parameter attribute of the convolution kernel,
+            by default None.
+        bias_attr (ParamAttr, Initializer, str or bool, optional):
+            The parameter attribute of the bias of the convolution,
+            by defaultNone.
+        data_format (str ["NCL" or "NLC"], optional): The data layout of the input, by default "NCL"
+        momentum (float, optional): The momentum of the BatchNorm1D layer, by default 0.9
+        epsilon (float, optional): The epsilon of the BatchNorm1D layer, by default 1e-05
     """
 
     def __init__(self,
@@ -244,16 +223,15 @@ class Conv1dBatchNorm(nn.Layer):
 
     def forward(self, x):
         """Forward pass of the Conv1dBatchNorm layer.
-
-        Parameters
-        ----------
-        x : Tensor [shape=(B, C_in, T_in) or (B, T_in, C_in)]
-            The input tensor. Its data layout depends on ``data_format``.
-
-        Returns
-        -------
-        Tensor [shape=(B, C_out, T_out) or (B, T_out, C_out)]
-            The output tensor. 
+        
+        Args:
+            x (Tensor): The input tensor. Its data layout depends on ``data_format``. 
+            shape=(B, C_in, T_in) or (B, T_in, C_in)
+    
+        Returns:
+            Tensor: The output tensor. 
+                shape=(B, C_out, T_out) or (B, T_out, C_out)
+                
         """
         x = self.conv(x)
         x = self.bn(x)

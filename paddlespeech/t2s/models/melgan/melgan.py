@@ -51,41 +51,26 @@ class MelGANGenerator(nn.Layer):
             use_causal_conv: bool=False,
             init_type: str="xavier_uniform", ):
         """Initialize MelGANGenerator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels,
-            the number of sub-band is out_channels in multi-band melgan.
-        kernel_size : int
-            Kernel size of initial and final conv layer.
-        channels : int
-            Initial number of channels for conv layer.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        upsample_scales : List[int]
-            List of upsampling scales.
-        stack_kernel_size : int
-            Kernel size of dilated conv layers in residual stack.
-        stacks : int
-            Number of stacks in a single residual stack.
-        nonlinear_activation : Optional[str], optional
-            Non linear activation in upsample network, by default None
-        nonlinear_activation_params : Dict[str, Any], optional
-            Parameters passed to the linear activation in the upsample network, 
-            by default {}
-        pad : str
-            Padding function module name before dilated convolution layer.
-        pad_params : dict
-            Hyperparameters for padding function.
-        use_final_nonlinear_activation : nn.Layer
-            Activation function for the final layer.
-        use_weight_norm : bool
-            Whether to use weight norm.
-            If set to true, it will be applied to all of the conv layers.
-        use_causal_conv : bool
-            Whether to use causal convolution.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels,
+                the number of sub-band is out_channels in multi-band melgan.
+            kernel_size (int): Kernel size of initial and final conv layer.
+            channels (int): Initial number of channels for conv layer.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            upsample_scales (List[int]): List of upsampling scales.
+            stack_kernel_size (int): Kernel size of dilated conv layers in residual stack.
+            stacks (int): Number of stacks in a single residual stack.
+            nonlinear_activation (Optional[str], optional): Non linear activation in upsample network, by default None
+            nonlinear_activation_params (Dict[str, Any], optional): Parameters passed to the linear activation in the upsample network, 
+                by default {}
+            pad (str): Padding function module name before dilated convolution layer.
+            pad_params （dict): Hyperparameters for padding function.
+            use_final_nonlinear_activation (nn.Layer): Activation function for the final layer.
+            use_weight_norm (bool): Whether to use weight norm.
+                If set to true, it will be applied to all of the conv layers.
+            use_causal_conv (bool): Whether to use causal convolution.
         """
         super().__init__()
 
@@ -207,14 +192,11 @@ class MelGANGenerator(nn.Layer):
 
     def forward(self, c):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        c : Tensor
-            Input tensor (B, in_channels, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, out_channels, T ** prod(upsample_scales)).
+
+        Args:
+            c (Tensor): Input tensor (B, in_channels, T).
+        Returns:
+            Tensor: Output tensor (B, out_channels, T ** prod(upsample_scales)).
         """
         out = self.melgan(c)
         return out
@@ -260,14 +242,11 @@ class MelGANGenerator(nn.Layer):
 
     def inference(self, c):
         """Perform inference.
-        Parameters
-        ----------
-        c : Union[Tensor, ndarray]
-            Input tensor (T, in_channels).
-        Returns
-        ----------
-        Tensor
-            Output tensor (out_channels*T ** prod(upsample_scales), 1).
+
+        Args:
+            c (Union[Tensor, ndarray]): Input tensor (T, in_channels).
+        Returns:
+            Tensor: Output tensor (out_channels*T ** prod(upsample_scales), 1).
         """
         # pseudo batch
         c = c.transpose([1, 0]).unsqueeze(0)
@@ -298,33 +277,22 @@ class MelGANDiscriminator(nn.Layer):
             pad_params: Dict[str, Any]={"mode": "reflect"},
             init_type: str="xavier_uniform", ):
         """Initilize MelGAN discriminator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels.
-        kernel_sizes : List[int]
-            List of two kernel sizes. The prod will be used for the first conv layer,
-            and the first and the second kernel sizes will be used for the last two layers.
-            For example if kernel_sizes = [5, 3], the first layer kernel size will be 5 * 3 = 15,
-            the last two layers' kernel size will be 5 and 3, respectively.
-        channels : int
-            Initial number of channels for conv layer.
-        max_downsample_channels : int
-            Maximum number of channels for downsampling layers.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        downsample_scales : List[int]
-            List of downsampling scales.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
-        pad : str
-            Padding function module name before dilated convolution layer.
-        pad_params : dict
-            Hyperparameters for padding function.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            kernel_sizes (List[int]): List of two kernel sizes. The prod will be used for the first conv layer,
+                and the first and the second kernel sizes will be used for the last two layers.
+                For example if kernel_sizes = [5, 3], the first layer kernel size will be 5 * 3 = 15,
+                the last two layers' kernel size will be 5 and 3, respectively.
+            channels (int): Initial number of channels for conv layer.
+            max_downsample_channels (int): Maximum number of channels for downsampling layers.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            downsample_scales (List[int]): List of downsampling scales.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
+            pad (str): Padding function module name before dilated convolution layer.
+            pad_params (dict): Hyperparameters for padding function.
         """
         super().__init__()
 
@@ -395,14 +363,10 @@ class MelGANDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List
-            List of output tensors of each layer (for feat_match_loss).
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List: List of output tensors of each layer (for feat_match_loss).
         """
         outs = []
         for f in self.layers:
@@ -440,39 +404,24 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
             use_weight_norm: bool=True,
             init_type: str="xavier_uniform", ):
         """Initilize MelGAN multi-scale discriminator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels.
-        scales : int
-            Number of multi-scales.
-        downsample_pooling : str
-            Pooling module name for downsampling of the inputs.
-        downsample_pooling_params : dict
-            Parameters for the above pooling module.
-        kernel_sizes : List[int]
-            List of two kernel sizes. The sum will be used for the first conv layer,
-            and the first and the second kernel sizes will be used for the last two layers.
-        channels : int
-            Initial number of channels for conv layer.
-        max_downsample_channels : int
-            Maximum number of channels for downsampling layers.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        downsample_scales : List[int]
-            List of downsampling scales.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
-        pad : str
-            Padding function module name before dilated convolution layer.
-        pad_params : dict
-            Hyperparameters for padding function.
-        use_causal_conv : bool
-            Whether to use causal convolution.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            scales (int): Number of multi-scales.
+            downsample_pooling (str): Pooling module name for downsampling of the inputs.
+            downsample_pooling_params (dict): Parameters for the above pooling module.
+            kernel_sizes (List[int]): List of two kernel sizes. The sum will be used for the first conv layer,
+                and the first and the second kernel sizes will be used for the last two layers.
+            channels (int): Initial number of channels for conv layer.
+            max_downsample_channels (int): Maximum number of channels for downsampling layers.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            downsample_scales (List[int]): List of downsampling scales.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
+            pad (str): Padding function module name before dilated convolution layer.
+            pad_params (dict): Hyperparameters for padding function.
+            use_causal_conv (bool): Whether to use causal convolution.
         """
         super().__init__()
 
@@ -514,14 +463,10 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List
-            List of list of each discriminator outputs, which consists of each layer output tensors.
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List: List of list of each discriminator outputs, which consists of each layer output tensors.
         """
         outs = []
         for f in self.discriminators:

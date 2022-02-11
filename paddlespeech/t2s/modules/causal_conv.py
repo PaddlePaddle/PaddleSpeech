@@ -41,14 +41,10 @@ class CausalConv1D(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, in_channels, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, out_channels, T).
+        Args:
+            x (Tensor): Input tensor (B, in_channels, T).
+        Returns: 
+            Tensor: Output tensor (B, out_channels, T).
         """
         return self.conv(self.pad(x))[:, :, :x.shape[2]]
 
@@ -70,13 +66,9 @@ class CausalConv1DTranspose(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, in_channels, T_in).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, out_channels, T_out).
+        Args:
+            x (Tensor): Input tensor (B, in_channels, T_in).
+        Returns:
+            Tensor: Output tensor (B, out_channels, T_out).
         """
         return self.deconv(x)[:, :, :-self.stride]

@@ -23,18 +23,12 @@ import numpy as np
 
 def read_hdf5(filename: Union[Path, str], dataset_name: str) -> Any:
     """Read a dataset from a HDF5 file.
+    Args:
+        filename (Union[Path, str]): Path of the HDF5 file.
+        dataset_name (str): Name of the dataset to read.
 
-    Parameters
-    ----------
-    filename : Union[Path, str]
-        Path of the HDF5 file.
-    dataset_name : str
-        Name of the dataset to read.
-
-    Returns
-    -------
-    Any
-        The retrieved dataset.
+    Returns:
+        Any: The retrieved dataset.
     """
     filename = Path(filename)
 
@@ -60,17 +54,11 @@ def write_hdf5(filename: Union[Path, str],
                write_data: np.ndarray,
                is_overwrite: bool=True) -> None:
     """Write dataset to HDF5 file.
-
-    Parameters
-    ----------
-    filename : Union[Path, str]
-        Path of the HDF5 file.
-    dataset_name : str
-        Name of the dataset to write to.
-    write_data : np.ndarrays
-        The data to write.
-    is_overwrite : bool, optional
-        Whether to overwrite, by default True
+    Args:
+        filename (Union[Path, str]): Path of the HDF5 file.
+        dataset_name (str): Name of the dataset to write to.
+        write_data (np.ndarrays): The data to write.
+        is_overwrite (bool, optional): Whether to overwrite, by default True
     """
     # convert to numpy array
     filename = Path(filename)

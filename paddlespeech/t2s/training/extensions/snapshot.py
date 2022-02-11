@@ -43,10 +43,8 @@ class Snapshot(extension.Extension):
     parameters and optimizer states. If the updater inside the trainer
     subclasses StandardUpdater, everything is good to go.
 
-    Parameters
-    ----------
-    checkpoint_dir : Union[str, Path]
-        The directory to save checkpoints into.
+    Arsg:
+        checkpoint_dir (Union[str, Path]): The directory to save checkpoints into.
     """
 
     trigger = (1, 'epoch')

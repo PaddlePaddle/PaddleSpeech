@@ -1,9 +1,13 @@
 #!/bin/bash
 
-preprocess_path=$1
+config_path=$1
 train_output_path=$2
 
 python3 ${BIN_DIR}/train.py \
-    --data=${preprocess_path} \
-    --output=${train_output_path} \
-    --ngpu=1
+    --train-metadata=dump/train/norm/metadata.jsonl \
+    --dev-metadata=dump/dev/norm/metadata.jsonl \
+    --config=${config_path} \
+    --output-dir=${train_output_path} \
+    --ngpu=2 \
+    --phones-dict=dump/phone_id_map.txt \
+    --voice-cloning=True

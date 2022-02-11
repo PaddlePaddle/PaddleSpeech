@@ -127,7 +127,7 @@ def compute_partial_slices(n_samples: int,
     partial_utterance_n_frames : int
         the number of mel spectrogram frames in each partial utterance.
 
-    min_pad_coverage : int 
+    min_pad_coverage : int
         when reaching the last partial utterance, it may or may not have enough frames.
         If at least <min_pad_coverage> of <partial_utterance_n_frames> are present,
         then the last partial utterance will be considered, as if we padded the audio. Otherwise,
@@ -137,7 +137,7 @@ def compute_partial_slices(n_samples: int,
         by how much the partial utterance should overlap. If set to 0, the partial utterances are entirely disjoint.
     Returns
     ----------
-        the waveform slices and mel spectrogram slices as lists of array slices. 
+        the waveform slices and mel spectrogram slices as lists of array slices.
         Index respectively the waveform and the mel spectrogram with these slices to obtain the partialutterances.
     """
     assert 0 <= overlap < 1
@@ -206,7 +206,8 @@ class SpeakerVerificationPreprocessor(object):
 
         # Resample if numpy.array is passed and sr does not match
         if source_sr is not None and source_sr != self.sampling_rate:
-            wav = librosa.resample(wav, source_sr, self.sampling_rate)
+            wav = librosa.resample(
+                wav, orig_sr=source_sr, target_sr=self.sampling_rate)
 
         # loudness normalization
         wav = normalize_volume(
@@ -221,7 +222,7 @@ class SpeakerVerificationPreprocessor(object):
 
     def melspectrogram(self, wav):
         mel = librosa.feature.melspectrogram(
-            wav,
+            y=wav,
             sr=self.sampling_rate,
             n_fft=self.n_fft,
             hop_length=self.hop_length,

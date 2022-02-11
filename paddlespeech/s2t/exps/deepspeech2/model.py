@@ -267,12 +267,9 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         errors_func = error_rate.char_errors if decode_cfg.error_rate_type == 'cer' else error_rate.word_errors
         error_rate_func = error_rate.cer if decode_cfg.error_rate_type == 'cer' else error_rate.wer
 
-        vocab_list = self.test_loader.collate_fn.vocab_list
-
         target_transcripts = self.ordid2token(texts, texts_len)
 
-        result_transcripts = self.compute_result_transcripts(
-            audio, audio_len, vocab_list, decode_cfg)
+        result_transcripts = self.compute_result_transcripts(audio, audio_len)
 
         for utt, target, result in zip(utts, target_transcripts,
                                        result_transcripts):
@@ -296,21 +293,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             error_rate=errors_sum / len_refs,
             error_rate_type=decode_cfg.error_rate_type)
 
-    def compute_result_transcripts(self, audio, audio_len, vocab_list,
-                                   decode_cfg):
-        result_transcripts = self.model.decode(
-            audio,
-            audio_len,
-            vocab_list,
-            decoding_method=decode_cfg.decoding_method,
-            lang_model_path=decode_cfg.lang_model_path,
-            beam_alpha=decode_cfg.alpha,
-            beam_beta=decode_cfg.beta,
-            beam_size=decode_cfg.beam_size,
-            cutoff_prob=decode_cfg.cutoff_prob,
-            cutoff_top_n=decode_cfg.cutoff_top_n,
-            num_processes=decode_cfg.num_proc_bsearch)
-
+    def compute_result_transcripts(self, audio, audio_len):
+        result_transcripts = self.model.decode(audio, audio_len)
         return result_transcripts
 
     @mp_tools.rank_zero_only
@@ -320,6 +304,17 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         self.model.eval()
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
+
+        # Initialized the decoder in model
+        decode_cfg = self.config.decode
+        vocab_list = self.test_loader.collate_fn.vocab_list
+        decode_batch_size = self.test_loader.batch_size
+        self.model.decoder.init_decoder(
+            decode_batch_size, vocab_list, decode_cfg.decoding_method,
+            decode_cfg.lang_model_path, decode_cfg.alpha, decode_cfg.beta,
+            decode_cfg.beam_size, decode_cfg.cutoff_prob,
+            decode_cfg.cutoff_top_n, decode_cfg.num_proc_bsearch)
+
         with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
@@ -339,6 +334,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         msg += "Final error rate [%s] (%d/%d) = %f" % (
             error_rate_type, num_ins, num_ins, errors_sum / len_refs)
         logger.info(msg)
+        self.model.decoder.del_decoder()
 
     @paddle.no_grad()
     def export(self):
@@ -377,6 +373,22 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         self.model.eval()
         error_rate_type = None
         errors_sum, len_refs, num_ins = 0.0, 0, 0
+
+        # Initialized the decoder in model
+        decode_cfg = self.config.decode
+        vocab_list = self.test_loader.collate_fn.vocab_list
+        if self.args.model_type == "online":
+            decode_batch_size = 1
+        elif self.args.model_type == "offline":
+            decode_batch_size = self.test_loader.batch_size
+        else:
+            raise Exception("wrong model type")
+        self.model.decoder.init_decoder(
+            decode_batch_size, vocab_list, decode_cfg.decoding_method,
+            decode_cfg.lang_model_path, decode_cfg.alpha, decode_cfg.beta,
+            decode_cfg.beam_size, decode_cfg.cutoff_prob,
+            decode_cfg.cutoff_top_n, decode_cfg.num_proc_bsearch)
+
         with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 utts, audio, audio_len, texts, texts_len = batch
@@ -388,7 +400,6 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 error_rate_type = metrics['error_rate_type']
                 logger.info("Error rate [%s] (%d/?) = %f" %
                             (error_rate_type, num_ins, errors_sum / len_refs))
-
         # logging
         msg = "Test: "
         msg += "epoch: {}, ".format(self.epoch)
@@ -398,30 +409,31 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         logger.info(msg)
         if self.args.enable_auto_log is True:
             self.autolog.report()
+        self.model.decoder.del_decoder()
 
-    def compute_result_transcripts(self, audio, audio_len, vocab_list,
-                                   decode_cfg):
+    def compute_result_transcripts(self, audio, audio_len):
         if self.args.model_type == "online":
-            output_probs, output_lens = self.static_forward_online(audio,
-                                                                   audio_len)
+            output_probs, output_lens, trans_batch = self.static_forward_online(
+                audio, audio_len, decoder_chunk_size=1)
+            result_transcripts = [trans[-1] for trans in trans_batch]
         elif self.args.model_type == "offline":
             output_probs, output_lens = self.static_forward_offline(audio,
                                                                     audio_len)
+            batch_size = output_probs.shape[0]
+            self.model.decoder.reset_decoder(batch_size=batch_size)
+
+            self.model.decoder.next(output_probs, output_lens)
+
+            trans_best, trans_beam = self.model.decoder.decode()
+
+            result_transcripts = trans_best
+
         else:
             raise Exception("wrong model type")
 
         self.predictor.clear_intermediate_tensor()
         self.predictor.try_shrink_memory()
 
-        self.model.decoder.init_decode(decode_cfg.alpha, decode_cfg.beta,
-                                       decode_cfg.lang_model_path, vocab_list,
-                                       decode_cfg.decoding_method)
-
-        result_transcripts = self.model.decoder.decode_probs(
-            output_probs, output_lens, vocab_list, decode_cfg.decoding_method,
-            decode_cfg.lang_model_path, decode_cfg.alpha, decode_cfg.beta,
-            decode_cfg.beam_size, decode_cfg.cutoff_prob,
-            decode_cfg.cutoff_top_n, decode_cfg.num_proc_bsearch)
         #replace the <space> with ' '
         result_transcripts = [
             self._text_featurizer.detokenize(sentence)
@@ -451,6 +463,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         -------
             output_probs(numpy.array): shape[B, T, vocab_size]
             output_lens(numpy.array): shape[B]
+            trans(list(list(str))): shape[B, T]
         """
         output_probs_list = []
         output_lens_list = []
@@ -464,14 +477,15 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         batch_size, Tmax, x_dim = x_batch.shape
         x_len_batch = audio_len.numpy().astype(np.int64)
         if (Tmax - chunk_size) % chunk_stride != 0:
-            padding_len_batch = chunk_stride - (
-                Tmax - chunk_size
-            ) % chunk_stride  # The length of padding for the batch
+            # The length of padding for the batch
+            padding_len_batch = chunk_stride - (Tmax - chunk_size
+                                                ) % chunk_stride
         else:
             padding_len_batch = 0
         x_list = np.split(x_batch, batch_size, axis=0)
         x_len_list = np.split(x_len_batch, batch_size, axis=0)
 
+        trans_batch = []
         for x, x_len in zip(x_list, x_len_list):
             if self.args.enable_auto_log is True:
                 self.autolog.times.start()
@@ -504,12 +518,14 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
             h_box_handle = self.predictor.get_input_handle(input_names[2])
             c_box_handle = self.predictor.get_input_handle(input_names[3])
 
+            trans = []
             probs_chunk_list = []
             probs_chunk_lens_list = []
             if self.args.enable_auto_log is True:
                 # record the model preprocessing time
                 self.autolog.times.stamp()
 
+            self.model.decoder.reset_decoder(batch_size=1)
             for i in range(0, num_chunk):
                 start = i * chunk_stride
                 end = start + chunk_size
@@ -518,9 +534,8 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                     x_chunk_lens = 0
                 else:
                     x_chunk_lens = min(x_len - i * chunk_stride, chunk_size)
-
-                if (x_chunk_lens <
-                        receptive_field_length):  #means the number of input frames in the chunk is not enough for predicting one prob
+                #means the number of input frames in the chunk is not enough for predicting one prob
+                if (x_chunk_lens < receptive_field_length):
                     break
                 x_chunk_lens = np.array([x_chunk_lens])
                 audio_handle.reshape(x_chunk.shape)
@@ -549,9 +564,12 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 output_chunk_lens = output_lens_handle.copy_to_cpu()
                 chunk_state_h_box = output_state_h_handle.copy_to_cpu()
                 chunk_state_c_box = output_state_c_handle.copy_to_cpu()
-
+                self.model.decoder.next(output_chunk_probs, output_chunk_lens)
                 probs_chunk_list.append(output_chunk_probs)
                 probs_chunk_lens_list.append(output_chunk_lens)
+                trans_best, trans_beam = self.model.decoder.decode()
+                trans.append(trans_best[0])
+            trans_batch.append(trans)
             output_probs = np.concatenate(probs_chunk_list, axis=1)
             output_lens = np.sum(probs_chunk_lens_list, axis=0)
             vocab_size = output_probs.shape[2]
@@ -573,7 +591,7 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 self.autolog.times.end()
         output_probs = np.concatenate(output_probs_list, axis=0)
         output_lens = np.concatenate(output_lens_list, axis=0)
-        return output_probs, output_lens
+        return output_probs, output_lens, trans_batch
 
     def static_forward_offline(self, audio, audio_len):
         """

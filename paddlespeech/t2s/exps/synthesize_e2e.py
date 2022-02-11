@@ -39,9 +39,9 @@ model_alias = {
     "fastspeech2_inference":
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
     "tacotron2":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2Inference",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -59,6 +59,10 @@ model_alias = {
     "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
     "hifigan_inference":
     "paddlespeech.t2s.models.hifigan:HiFiGANInference",
+    "wavernn":
+    "paddlespeech.t2s.models.wavernn:WaveRNN",
+    "wavernn_inference":
+    "paddlespeech.t2s.models.wavernn:WaveRNNInference",
 }
 
 
@@ -129,7 +133,10 @@ def evaluate(args):
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
     elif am_name == 'speedyspeech':
         am = am_class(
-            vocab_size=vocab_size, tone_size=tone_size, **am_config["model"])
+            vocab_size=vocab_size,
+            tone_size=tone_size,
+            spk_num=spk_num,
+            **am_config["model"])
     elif am_name == 'tacotron2':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
 
@@ -148,10 +155,16 @@ def evaluate(args):
     voc_name = args.voc[:args.voc.rindex('_')]
     voc_class = dynamic_import(voc_name, model_alias)
     voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
-    voc = voc_class(**voc_config["generator_params"])
-    voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
-    voc.remove_weight_norm()
-    voc.eval()
+    if voc_name != 'wavernn':
+        voc = voc_class(**voc_config["generator_params"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
+        voc.remove_weight_norm()
+        voc.eval()
+    else:
+        voc = voc_class(**voc_config["model"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["main_params"])
+        voc.eval()
+
     voc_mu, voc_std = np.load(args.voc_stat)
     voc_mu = paddle.to_tensor(voc_mu)
     voc_std = paddle.to_tensor(voc_std)
@@ -171,30 +184,36 @@ def evaluate(args):
                         InputSpec([-1], dtype=paddle.int64),
                         InputSpec([1], dtype=paddle.int64)
                     ])
-                paddle.jit.save(am_inference,
-                                os.path.join(args.inference_dir, args.am))
-                am_inference = paddle.jit.load(
-                    os.path.join(args.inference_dir, args.am))
             else:
                 am_inference = jit.to_static(
                     am_inference,
                     input_spec=[InputSpec([-1], dtype=paddle.int64)])
-                paddle.jit.save(am_inference,
-                                os.path.join(args.inference_dir, args.am))
-                am_inference = paddle.jit.load(
-                    os.path.join(args.inference_dir, args.am))
-        elif am_name == 'speedyspeech':
-            am_inference = jit.to_static(
-                am_inference,
-                input_spec=[
-                    InputSpec([-1], dtype=paddle.int64),
-                    InputSpec([-1], dtype=paddle.int64)
-                ])
 
-            paddle.jit.save(am_inference,
-                            os.path.join(args.inference_dir, args.am))
-            am_inference = paddle.jit.load(
-                os.path.join(args.inference_dir, args.am))
+        elif am_name == 'speedyspeech':
+            if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:
+                am_inference = jit.to_static(
+                    am_inference,
+                    input_spec=[
+                        InputSpec([-1], dtype=paddle.int64),  # text
+                        InputSpec([-1], dtype=paddle.int64),  # tone
+                        None,  # duration
+                        InputSpec([-1], dtype=paddle.int64)  # spk_id
+                    ])
+            else:
+                am_inference = jit.to_static(
+                    am_inference,
+                    input_spec=[
+                        InputSpec([-1], dtype=paddle.int64),
+                        InputSpec([-1], dtype=paddle.int64)
+                    ])
+
+        elif am_name == 'tacotron2':
+            am_inference = jit.to_static(
+                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+
+        paddle.jit.save(am_inference, os.path.join(args.inference_dir, args.am))
+        am_inference = paddle.jit.load(
+            os.path.join(args.inference_dir, args.am))
 
         # vocoder
         voc_inference = jit.to_static(
@@ -210,6 +229,11 @@ def evaluate(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     merge_sentences = False
+    # Avoid not stopping at the end of a sub sentence when tacotron2_ljspeech dygraph to static graph
+    # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
+    if am_name == 'tacotron2':
+        merge_sentences = True
+
     for utt_id, sentence in sentences:
         get_tone_ids = False
         if am_name == 'speedyspeech':
@@ -242,7 +266,12 @@ def evaluate(args):
                         mel = am_inference(part_phone_ids)
                 elif am_name == 'speedyspeech':
                     part_tone_ids = tone_ids[i]
-                    mel = am_inference(part_phone_ids, part_tone_ids)
+                    if am_dataset in {"aishell3", "vctk"}:
+                        spk_id = paddle.to_tensor(args.spk_id)
+                        mel = am_inference(part_phone_ids, part_tone_ids,
+                                           spk_id)
+                    else:
+                        mel = am_inference(part_phone_ids, part_tone_ids)
                 elif am_name == 'tacotron2':
                     mel = am_inference(part_phone_ids)
                 # vocoder
@@ -269,8 +298,9 @@ def main():
         type=str,
         default='fastspeech2_csmsc',
         choices=[
-            'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
-            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc'
+            'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
+            'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
+            'tacotron2_csmsc', 'tacotron2_ljspeech'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -307,7 +337,8 @@ def main():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc'
+            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc',
+            'wavernn_csmsc'
         ],
         help='Choose vocoder type of tts task.')
 

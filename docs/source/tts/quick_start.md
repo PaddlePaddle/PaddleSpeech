@@ -1,3 +1,4 @@
+([简体中文](./quick_start_cn.md)|English)
 # Quick Start of Text-to-Speech
 The examples in PaddleSpeech are mainly classified by datasets, the TTS datasets we mainly used are:
 * CSMCS (Mandarin single speaker)

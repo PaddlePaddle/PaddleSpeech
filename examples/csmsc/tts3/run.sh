@@ -40,3 +40,4 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # inference with static model
     CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} || exit -1
 fi
+

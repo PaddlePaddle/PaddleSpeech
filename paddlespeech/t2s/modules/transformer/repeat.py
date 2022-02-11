@@ -41,4 +41,4 @@ def repeat(N, fn):
     MultiSequential
         Repeated model instance.
     """
-    return MultiSequential(* [fn(n) for n in range(N)])
+    return MultiSequential(*[fn(n) for n in range(N)])

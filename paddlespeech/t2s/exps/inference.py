@@ -33,7 +33,7 @@ def main():
         default='fastspeech2_csmsc',
         choices=[
             'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_aishell3',
-            'fastspeech2_vctk'
+            'fastspeech2_vctk', 'tacotron2_csmsc'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -54,7 +54,7 @@ def main():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc', 'mb_melgan_csmsc', 'hifigan_csmsc', 'pwgan_aishell3',
-            'pwgan_vctk'
+            'pwgan_vctk', 'wavernn_csmsc'
         ],
         help='Choose vocoder type of tts task.')
     # other

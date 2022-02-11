@@ -83,11 +83,6 @@ class English(Phonetics):
         return phonemes
 
     def _p2id(self, phonemes: List[str]) -> np.array:
-        # replace unk phone with sp
-        phonemes = [
-            phn if (phn in self.vocab_phones and phn not in self.punc) else "sp"
-            for phn in phonemes
-        ]
         phone_ids = [self.vocab_phones[item] for item in phonemes]
         return np.array(phone_ids, np.int64)
 
@@ -102,6 +97,12 @@ class English(Phonetics):
             # remove start_symbol and end_symbol
             phones = phones[1:-1]
             phones = [phn for phn in phones if not phn.isspace()]
+            # replace unk phone with sp
+            phones = [
+                phn
+                if (phn in self.vocab_phones and phn not in self.punc) else "sp"
+                for phn in phones
+            ]
             phones_list.append(phones)
 
         if merge_sentences:

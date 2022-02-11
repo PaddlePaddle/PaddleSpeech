@@ -10,3 +10,5 @@
 * voc2 - MelGAN
 * voc3 - MultiBand MelGAN
 * voc4 - Style MelGAN
+* voc5 - HiFiGAN
+* voc6 - WaveRNN

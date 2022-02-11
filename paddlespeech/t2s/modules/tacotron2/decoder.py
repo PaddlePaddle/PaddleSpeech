@@ -15,7 +15,6 @@
 """Tacotron2 decoder related modules."""
 import paddle
 import paddle.nn.functional as F
-import six
 from paddle import nn
 
 from paddlespeech.t2s.modules.tacotron2.attentions import AttForwardTA
@@ -59,7 +58,7 @@ class Prenet(nn.Layer):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.prenet = nn.LayerList()
-        for layer in six.moves.range(n_layers):
+        for layer in range(n_layers):
             n_inputs = idim if layer == 0 else n_units
             self.prenet.append(
                 nn.Sequential(nn.Linear(n_inputs, n_units), nn.ReLU()))
@@ -78,7 +77,7 @@ class Prenet(nn.Layer):
             Batch of output tensors (B, ..., odim).
 
         """
-        for i in six.moves.range(len(self.prenet)):
+        for i in range(len(self.prenet)):
             # F.dropout 引入了随机, tacotron2 的 dropout 是不能去掉的
             x = F.dropout(self.prenet[i](x))
         return x
@@ -129,7 +128,7 @@ class Postnet(nn.Layer):
         """
         super().__init__()
         self.postnet = nn.LayerList()
-        for layer in six.moves.range(n_layers - 1):
+        for layer in range(n_layers - 1):
             ichans = odim if layer == 0 else n_chans
             ochans = odim if layer == n_layers - 1 else n_chans
             if use_batch_norm:
@@ -196,7 +195,7 @@ class Postnet(nn.Layer):
             Batch of padded output tensor. (B, odim, Tmax).
 
         """
-        for i in six.moves.range(len(self.postnet)):
+        for i in range(len(self.postnet)):
             xs = self.postnet[i](xs)
         return xs
 
@@ -360,7 +359,7 @@ class Decoder(nn.Layer):
         # define lstm network
         prenet_units = prenet_units if prenet_layers != 0 else odim
         self.lstm = nn.LayerList()
-        for layer in six.moves.range(dlayers):
+        for layer in range(dlayers):
             iunits = idim + prenet_units if layer == 0 else dunits
             lstm = nn.LSTMCell(iunits, dunits)
             if zoneout_rate > 0.0:
@@ -395,9 +394,6 @@ class Decoder(nn.Layer):
         self.feat_out = nn.Linear(
             iunits, odim * reduction_factor, bias_attr=False)
         self.prob_out = nn.Linear(iunits, reduction_factor)
-
-        # initialize
-        # self.apply(decoder_init)
 
     def _zero_state(self, hs):
         init_hs = paddle.zeros([paddle.shape(hs)[0], self.lstm[0].hidden_size])
@@ -437,47 +433,50 @@ class Decoder(nn.Layer):
         # initialize hidden states of decoder
         c_list = [self._zero_state(hs)]
         z_list = [self._zero_state(hs)]
-        for _ in six.moves.range(1, len(self.lstm)):
-            c_list += [self._zero_state(hs)]
-            z_list += [self._zero_state(hs)]
+        for _ in range(1, len(self.lstm)):
+            c_list.append(self._zero_state(hs))
+            z_list.append(self._zero_state(hs))
         prev_out = paddle.zeros([paddle.shape(hs)[0], self.odim])
 
         # initialize attention
-        prev_att_w = None
+        prev_att_ws = []
+        prev_att_w = paddle.zeros(paddle.shape(hlens))
+        prev_att_ws.append(prev_att_w)
         self.att.reset()
 
         # loop for an output sequence
         outs, logits, att_ws = [], [], []
         for y in ys.transpose([1, 0, 2]):
             if self.use_att_extra_inputs:
-                att_c, att_w = self.att(hs, hlens, z_list[0], prev_att_w,
+                att_c, att_w = self.att(hs, hlens, z_list[0], prev_att_ws[-1],
                                         prev_out)
             else:
-                att_c, att_w = self.att(hs, hlens, z_list[0], prev_att_w)
+                att_c, att_w = self.att(hs, hlens, z_list[0], prev_att_ws[-1])
             prenet_out = self.prenet(
                 prev_out) if self.prenet is not None else prev_out
             xs = paddle.concat([att_c, prenet_out], axis=1)
             # we only use the second output of LSTMCell in paddle
             _, next_hidden = self.lstm[0](xs, (z_list[0], c_list[0]))
             z_list[0], c_list[0] = next_hidden
-            for i in six.moves.range(1, len(self.lstm)):
+            for i in range(1, len(self.lstm)):
                 # we only use the second output of LSTMCell in paddle
                 _, next_hidden = self.lstm[i](z_list[i - 1],
                                               (z_list[i], c_list[i]))
                 z_list[i], c_list[i] = next_hidden
             zcs = (paddle.concat([z_list[-1], att_c], axis=1)
                    if self.use_concate else z_list[-1])
-            outs += [
-                self.feat_out(zcs).reshape([paddle.shape(hs)[0], self.odim, -1])
-            ]
-            logits += [self.prob_out(zcs)]
-            att_ws += [att_w]
+            outs.append(
+                self.feat_out(zcs).reshape([paddle.shape(hs)[0], self.odim, -1
+                                            ]))
+            logits.append(self.prob_out(zcs))
+            att_ws.append(att_w)
             # teacher forcing
             prev_out = y
-            if self.cumulate_att_w and prev_att_w is not None:
+            if self.cumulate_att_w and paddle.sum(prev_att_w) != 0:
                 prev_att_w = prev_att_w + att_w  # Note: error when use +=
             else:
                 prev_att_w = att_w
+            prev_att_ws.append(prev_att_w)
         # (B, Lmax)
         logits = paddle.concat(logits, axis=1)
         # (B, odim, Lmax) 
@@ -552,22 +551,29 @@ class Decoder(nn.Layer):
     .. _`Deep Voice 3`: https://arxiv.org/abs/1710.07654
         """
         # setup
+
         assert len(paddle.shape(h)) == 2
         hs = h.unsqueeze(0)
         ilens = paddle.shape(h)[0]
-        maxlen = int(paddle.shape(h)[0] * maxlenratio)
-        minlen = int(paddle.shape(h)[0] * minlenratio)
+        # 本来 maxlen 和 minlen 外面有 int()，防止动转静的问题此处删除
+        maxlen = paddle.shape(h)[0] * maxlenratio
+        minlen = paddle.shape(h)[0] * minlenratio
+        # 本来是直接使用 threshold 的，此处为了防止动转静的问题把 threshold 转成 tensor
+        threshold = paddle.ones([1]) * threshold
 
         # initialize hidden states of decoder
         c_list = [self._zero_state(hs)]
         z_list = [self._zero_state(hs)]
-        for _ in six.moves.range(1, len(self.lstm)):
-            c_list += [self._zero_state(hs)]
-            z_list += [self._zero_state(hs)]
+        for _ in range(1, len(self.lstm)):
+            c_list.append(self._zero_state(hs))
+            z_list.append(self._zero_state(hs))
         prev_out = paddle.zeros([1, self.odim])
 
         # initialize attention
-        prev_att_w = None
+        prev_att_ws = []
+        prev_att_w = paddle.zeros([ilens])
+        prev_att_ws.append(prev_att_w)
+
         self.att.reset()
 
         # setup for attention constraint
@@ -579,6 +585,7 @@ class Decoder(nn.Layer):
         # loop for an output sequence
         idx = 0
         outs, att_ws, probs = [], [], []
+        prob = paddle.zeros([1])
         while True:
             # updated index
             idx += self.reduction_factor
@@ -589,7 +596,7 @@ class Decoder(nn.Layer):
                     hs,
                     ilens,
                     z_list[0],
-                    prev_att_w,
+                    prev_att_ws[-1],
                     prev_out,
                     last_attended_idx=last_attended_idx,
                     backward_window=backward_window,
@@ -599,19 +606,20 @@ class Decoder(nn.Layer):
                     hs,
                     ilens,
                     z_list[0],
-                    prev_att_w,
+                    prev_att_ws[-1],
                     last_attended_idx=last_attended_idx,
                     backward_window=backward_window,
                     forward_window=forward_window, )
 
-            att_ws += [att_w]
+            att_ws.append(att_w)
             prenet_out = self.prenet(
                 prev_out) if self.prenet is not None else prev_out
             xs = paddle.concat([att_c, prenet_out], axis=1)
             # we only use the second output of LSTMCell in paddle
             _, next_hidden = self.lstm[0](xs, (z_list[0], c_list[0]))
+
             z_list[0], c_list[0] = next_hidden
-            for i in six.moves.range(1, len(self.lstm)):
+            for i in range(1, len(self.lstm)):
                 # we only use the second output of LSTMCell in paddle
                 _, next_hidden = self.lstm[i](z_list[i - 1],
                                               (z_list[i], c_list[i]))
@@ -619,38 +627,54 @@ class Decoder(nn.Layer):
             zcs = (paddle.concat([z_list[-1], att_c], axis=1)
                    if self.use_concate else z_list[-1])
             # [(1, odim, r), ...]
-            outs += [self.feat_out(zcs).reshape([1, self.odim, -1])]
+            outs.append(self.feat_out(zcs).reshape([1, self.odim, -1]))
 
-            # [(r), ...]
-            probs += [F.sigmoid(self.prob_out(zcs))[0]]
+            prob = F.sigmoid(self.prob_out(zcs))[0]
+            probs.append(prob)
+
             if self.output_activation_fn is not None:
                 prev_out = self.output_activation_fn(
                     outs[-1][:, :, -1])  # (1, odim)
             else:
                 prev_out = outs[-1][:, :, -1]  # (1, odim)
-            if self.cumulate_att_w and prev_att_w is not None:
+            if self.cumulate_att_w and paddle.sum(prev_att_w) != 0:
                 prev_att_w = prev_att_w + att_w  # Note: error when use +=
             else:
                 prev_att_w = att_w
+            prev_att_ws.append(prev_att_w)
             if use_att_constraint:
                 last_attended_idx = int(att_w.argmax())
 
-            # check whether to finish generation
-            if sum(paddle.cast(probs[-1] >= threshold,
-                               'int64')) > 0 or idx >= maxlen:
+            # tacotron2 ljspeech 动转静的问题应该是这里没有正确判断 prob >= threshold 导致的
+            if prob >= threshold or idx >= maxlen:
                 # check mininum length
                 if idx < minlen:
                     continue
-                # (1, odim, L)
-                outs = paddle.concat(outs, axis=2)
-                if self.postnet is not None:
-                    # (1, odim, L)
-                    outs = outs + self.postnet(outs)
-                # (L, odim)
-                outs = outs.transpose([0, 2, 1]).squeeze(0)
-                probs = paddle.concat(probs, axis=0)
-                att_ws = paddle.concat(att_ws, axis=0)
                 break
+            """
+            仅解开 665~667 行的代码块，动转静时会卡死，但是动态图时可以正确生成音频，证明模型没问题
+            同时解开 665~667 行 和 668 ~ 670 行的代码块，动转静时不会卡死，但是生成的音频末尾有多余的噪声
+            证明动转静没有进入 prob >= threshold 的判断，但是静态图可以进入 prob >= threshold 并退出循环
+            动转静时是通过 idx >= maxlen 退出循环（所以没有这个逻辑的时候会一直循环，也就是卡死），
+            没有在模型判断该结束的时候结束，而是在超出最大长度时结束，所以合成的音频末尾有很长的额外预测的噪声
+            动转静用 prob <= threshold 的条件可以退出循环（虽然结果不正确），证明条件参数的类型本身没问题，可能是 prob 有问题
+            """
+            # if prob >= threshold:
+            #     print("prob >= threshold")
+            #     break
+            # elif idx >= maxlen:
+            #     print("idx >= maxlen")
+            #     break
+
+        # (1, odim, L)
+        outs = paddle.concat(outs, axis=2)
+        if self.postnet is not None:
+            # (1, odim, L)
+            outs = outs + self.postnet(outs)
+        # (L, odim)
+        outs = outs.transpose([0, 2, 1]).squeeze(0)
+        probs = paddle.concat(probs, axis=0)
+        att_ws = paddle.concat(att_ws, axis=0)
 
         if self.output_activation_fn is not None:
             outs = self.output_activation_fn(outs)
@@ -685,9 +709,9 @@ class Decoder(nn.Layer):
         # initialize hidden states of decoder
         c_list = [self._zero_state(hs)]
         z_list = [self._zero_state(hs)]
-        for _ in six.moves.range(1, len(self.lstm)):
-            c_list += [self._zero_state(hs)]
-            z_list += [self._zero_state(hs)]
+        for _ in range(1, len(self.lstm)):
+            c_list.append(self._zero_state(hs))
+            z_list.append(self._zero_state(hs))
         prev_out = paddle.zeros([paddle.shape(hs)[0], self.odim])
 
         # initialize attention
@@ -702,14 +726,14 @@ class Decoder(nn.Layer):
                                         prev_out)
             else:
                 att_c, att_w = self.att(hs, hlens, z_list[0], prev_att_w)
-            att_ws += [att_w]
+            att_ws.append(att_w)
             prenet_out = self.prenet(
                 prev_out) if self.prenet is not None else prev_out
             xs = paddle.concat([att_c, prenet_out], axis=1)
             # we only use the second output of LSTMCell in paddle
             _, next_hidden = self.lstm[0](xs, (z_list[0], c_list[0]))
             z_list[0], c_list[0] = next_hidden
-            for i in six.moves.range(1, len(self.lstm)):
+            for i in range(1, len(self.lstm)):
                 z_list[i], c_list[i] = self.lstm[i](z_list[i - 1],
                                                     (z_list[i], c_list[i]))
             # teacher forcing

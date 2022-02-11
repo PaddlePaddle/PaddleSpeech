@@ -91,6 +91,20 @@ pretrained_models = {
         'lm_md5':
         '29e02312deb2e59b3c8686c7966d4fe3'
     },
+    "deepspeech2offline_librispeech-en-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr0/asr0_deepspeech2_librispeech_ckpt_0.1.1.model.tar.gz',
+        'md5':
+        'f5666c81ad015c8de03aac2bc92e5762',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/deepspeech2/checkpoints/avg_1',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm',
+        'lm_md5':
+        '099a601759d467cd0a8523ff939819c5'
+    },
 }
 
 model_alias = {
@@ -171,8 +185,9 @@ class ASRExecutor(BaseExecutor):
         """
         Download and returns pretrained resources path of current task.
         """
-        assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
-            tag)
+        support_models = list(pretrained_models.keys())
+        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
+            tag, '\n\t\t'.join(support_models))
 
         res_path = os.path.join(MODEL_HOME, tag)
         decompressed_path = download_and_decompress(pretrained_models[tag],
@@ -296,8 +311,10 @@ class ASRExecutor(BaseExecutor):
                     audio = audio[:, 0]
                 # pcm16 -> pcm 32
                 audio = self._pcm16to32(audio)
-                audio = librosa.resample(audio, audio_sample_rate,
-                                         self.sample_rate)
+                audio = librosa.resample(
+                    audio,
+                    orig_sr=audio_sample_rate,
+                    target_sr=self.sample_rate)
                 audio_sample_rate = self.sample_rate
                 # pcm32 -> pcm 16
                 audio = self._pcm32to16(audio)
@@ -328,18 +345,15 @@ class ASRExecutor(BaseExecutor):
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
         if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-            result_transcripts = self.model.decode(
-                audio,
-                audio_len,
-                self.text_feature.vocab_list,
-                decoding_method=cfg.decoding_method,
-                lang_model_path=cfg.lang_model_path,
-                beam_alpha=cfg.alpha,
-                beam_beta=cfg.beta,
-                beam_size=cfg.beam_size,
-                cutoff_prob=cfg.cutoff_prob,
-                cutoff_top_n=cfg.cutoff_top_n,
-                num_processes=cfg.num_proc_bsearch)
+            decode_batch_size = audio.shape[0]
+            self.model.decoder.init_decoder(
+                decode_batch_size, self.text_feature.vocab_list,
+                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
+                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
+                cfg.num_proc_bsearch)
+
+            result_transcripts = self.model.decode(audio, audio_len)
+            self.model.decoder.del_decoder()
             self._outputs["result"] = result_transcripts[0]
 
         elif "conformer" in model_type or "transformer" in model_type:

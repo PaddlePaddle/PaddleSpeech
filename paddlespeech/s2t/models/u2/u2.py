@@ -32,7 +32,7 @@ from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.models.asr_interface import ASRInterface
 from paddlespeech.s2t.modules.cmvn import GlobalCMVN
-from paddlespeech.s2t.modules.ctc import CTCDecoder
+from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
 from paddlespeech.s2t.modules.encoder import ConformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
@@ -63,7 +63,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
                  vocab_size: int,
                  encoder: TransformerEncoder,
                  decoder: TransformerDecoder,
-                 ctc: CTCDecoder,
+                 ctc: CTCDecoderBase,
                  ctc_weight: float=0.5,
                  ignore_id: int=IGNORE_ID,
                  lsm_weight: float=0.0,
@@ -663,7 +663,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         # (num_hyps, max_hyps_len, vocab_size)
         decoder_out, _ = self.decoder(encoder_out, encoder_mask, hyps,
                                       hyps_lens)
-        decoder_out = paddle.nn.functional.log_softmax(decoder_out, dim=-1)
+        decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
         return decoder_out
 
     @paddle.no_grad()
@@ -840,7 +840,7 @@ class U2Model(U2DecodeModel):
         model_conf = configs.get('model_conf', dict())
         dropout_rate = model_conf.get('ctc_dropout_rate', 0.0)
         grad_norm_type = model_conf.get('ctc_grad_norm_type', None)
-        ctc = CTCDecoder(
+        ctc = CTCDecoderBase(
             odim=vocab_size,
             enc_n_units=encoder.output_size(),
             blank_id=0,

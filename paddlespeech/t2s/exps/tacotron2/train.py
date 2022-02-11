@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,210 +11,193 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import time
-from collections import defaultdict
+import argparse
+import logging
+import os
+import shutil
+from pathlib import Path
 
+import jsonlines
 import numpy as np
 import paddle
+import yaml
+from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
+from yacs.config import CfgNode
 
-from paddlespeech.t2s.data import dataset
-from paddlespeech.t2s.exps.tacotron2.config import get_cfg_defaults
-from paddlespeech.t2s.exps.tacotron2.ljspeech import LJSpeech
-from paddlespeech.t2s.exps.tacotron2.ljspeech import LJSpeechCollector
+from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_multi_spk_batch_fn
+from paddlespeech.t2s.datasets.am_batch_fn import tacotron2_single_spk_batch_fn
+from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.tacotron2 import Tacotron2
-from paddlespeech.t2s.models.tacotron2 import Tacotron2Loss
-from paddlespeech.t2s.training.cli import default_argument_parser
-from paddlespeech.t2s.training.experiment import ExperimentBase
-from paddlespeech.t2s.utils import display
-from paddlespeech.t2s.utils import mp_tools
+from paddlespeech.t2s.models.tacotron2 import Tacotron2Evaluator
+from paddlespeech.t2s.models.tacotron2 import Tacotron2Updater
+from paddlespeech.t2s.training.extensions.snapshot import Snapshot
+from paddlespeech.t2s.training.extensions.visualizer import VisualDL
+from paddlespeech.t2s.training.optimizer import build_optimizers
+from paddlespeech.t2s.training.seeding import seed_everything
+from paddlespeech.t2s.training.trainer import Trainer
+from paddlespeech.t2s.utils import str2bool
 
 
-class Experiment(ExperimentBase):
-    def compute_losses(self, inputs, outputs):
-        texts, mel_targets, plens, slens = inputs
-
-        mel_outputs = outputs["mel_output"]
-        mel_outputs_postnet = outputs["mel_outputs_postnet"]
-        attention_weight = outputs["alignments"]
-        if self.config.model.use_stop_token:
-            stop_logits = outputs["stop_logits"]
-        else:
-            stop_logits = None
-
-        losses = self.criterion(mel_outputs, mel_outputs_postnet, mel_targets,
-                                attention_weight, slens, plens, stop_logits)
-        return losses
-
-    def train_batch(self):
-        start = time.time()
-        batch = self.read_batch()
-        data_loader_time = time.time() - start
-
-        self.optimizer.clear_grad()
-        self.model.train()
-        texts, mels, text_lens, output_lens = batch
-        outputs = self.model(texts, text_lens, mels, output_lens)
-        losses = self.compute_losses(batch, outputs)
-        loss = losses["loss"]
-        loss.backward()
-        self.optimizer.step()
-        iteration_time = time.time() - start
-
-        losses_np = {k: float(v) for k, v in losses.items()}
-        # logging
-        msg = "Rank: {}, ".format(dist.get_rank())
-        msg += "step: {}, ".format(self.iteration)
-        msg += "time: {:>.3f}s/{:>.3f}s, ".format(data_loader_time,
-                                                  iteration_time)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in losses_np.items())
-        self.logger.info(msg)
-
-        if dist.get_rank() == 0:
-            for k, v in losses_np.items():
-                self.visualizer.add_scalar(f"train_loss/{k}", v, self.iteration)
-
-    @mp_tools.rank_zero_only
-    @paddle.no_grad()
-    def valid(self):
-        valid_losses = defaultdict(list)
-        for i, batch in enumerate(self.valid_loader):
-            texts, mels, text_lens, output_lens = batch
-            outputs = self.model(texts, text_lens, mels, output_lens)
-            losses = self.compute_losses(batch, outputs)
-            for k, v in losses.items():
-                valid_losses[k].append(float(v))
-
-            attention_weights = outputs["alignments"]
-            self.visualizer.add_figure(
-                f"valid_sentence_{i}_alignments",
-                display.plot_alignment(attention_weights[0].numpy().T),
-                self.iteration)
-            self.visualizer.add_figure(
-                f"valid_sentence_{i}_target_spectrogram",
-                display.plot_spectrogram(mels[0].numpy().T), self.iteration)
-            self.visualizer.add_figure(
-                f"valid_sentence_{i}_predicted_spectrogram",
-                display.plot_spectrogram(outputs['mel_outputs_postnet'][0]
-                                         .numpy().T), self.iteration)
-
-        # write visual log
-        valid_losses = {k: np.mean(v) for k, v in valid_losses.items()}
-
-        # logging
-        msg = "Valid: "
-        msg += "step: {}, ".format(self.iteration)
-        msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                         for k, v in valid_losses.items())
-        self.logger.info(msg)
-
-        for k, v in valid_losses.items():
-            self.visualizer.add_scalar(f"valid/{k}", v, self.iteration)
-
-    def setup_model(self):
-        config = self.config
-        model = Tacotron2(
-            vocab_size=config.model.vocab_size,
-            d_mels=config.data.n_mels,
-            d_encoder=config.model.d_encoder,
-            encoder_conv_layers=config.model.encoder_conv_layers,
-            encoder_kernel_size=config.model.encoder_kernel_size,
-            d_prenet=config.model.d_prenet,
-            d_attention_rnn=config.model.d_attention_rnn,
-            d_decoder_rnn=config.model.d_decoder_rnn,
-            attention_filters=config.model.attention_filters,
-            attention_kernel_size=config.model.attention_kernel_size,
-            d_attention=config.model.d_attention,
-            d_postnet=config.model.d_postnet,
-            postnet_kernel_size=config.model.postnet_kernel_size,
-            postnet_conv_layers=config.model.postnet_conv_layers,
-            reduction_factor=config.model.reduction_factor,
-            p_encoder_dropout=config.model.p_encoder_dropout,
-            p_prenet_dropout=config.model.p_prenet_dropout,
-            p_attention_dropout=config.model.p_attention_dropout,
-            p_decoder_dropout=config.model.p_decoder_dropout,
-            p_postnet_dropout=config.model.p_postnet_dropout,
-            use_stop_token=config.model.use_stop_token)
-
-        if self.parallel:
-            model = paddle.DataParallel(model)
-
-        grad_clip = paddle.nn.ClipGradByGlobalNorm(
-            config.training.grad_clip_thresh)
-        optimizer = paddle.optimizer.Adam(
-            learning_rate=config.training.lr,
-            parameters=model.parameters(),
-            weight_decay=paddle.regularizer.L2Decay(
-                config.training.weight_decay),
-            grad_clip=grad_clip)
-        criterion = Tacotron2Loss(
-            use_stop_token_loss=config.model.use_stop_token,
-            use_guided_attention_loss=config.model.use_guided_attention_loss,
-            sigma=config.model.guided_attention_loss_sigma)
-        self.model = model
-        self.optimizer = optimizer
-        self.criterion = criterion
-
-    def setup_dataloader(self):
-        args = self.args
-        config = self.config
-        ljspeech_dataset = LJSpeech(args.data)
-
-        valid_set, train_set = dataset.split(ljspeech_dataset,
-                                             config.data.valid_size)
-        batch_fn = LJSpeechCollector(padding_idx=config.data.padding_idx)
-
-        if not self.parallel:
-            self.train_loader = DataLoader(
-                train_set,
-                batch_size=config.data.batch_size,
-                shuffle=True,
-                drop_last=True,
-                collate_fn=batch_fn)
-        else:
-            sampler = DistributedBatchSampler(
-                train_set,
-                batch_size=config.data.batch_size,
-                shuffle=True,
-                drop_last=True)
-            self.train_loader = DataLoader(
-                train_set, batch_sampler=sampler, collate_fn=batch_fn)
-
-        self.valid_loader = DataLoader(
-            valid_set,
-            batch_size=config.data.batch_size,
-            shuffle=False,
-            drop_last=False,
-            collate_fn=batch_fn)
-
-
-def main_sp(config, args):
-    exp = Experiment(config, args)
-    exp.setup()
-    exp.resume_or_load()
-    exp.run()
-
-
-def main(config, args):
-    if args.ngpu > 1:
-        dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
+def train_sp(args, config):
+    # decides device type and whether to run in parallel
+    # setup running environment correctly
+    if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
+        paddle.set_device("cpu")
     else:
-        main_sp(config, args)
+        paddle.set_device("gpu")
+    world_size = paddle.distributed.get_world_size()
+    if world_size > 1:
+        paddle.distributed.init_parallel_env()
+
+    # set the random seed, it is a must for multiprocess training
+    seed_everything(config.seed)
+
+    print(
+        f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
+    )
+
+    # dataloader has been too verbose
+    logging.getLogger("DataLoader").disabled = True
+
+    fields = [
+        "text",
+        "text_lengths",
+        "speech",
+        "speech_lengths",
+    ]
+
+    converters = {
+        "speech": np.load,
+    }
+    if args.voice_cloning:
+        print("Training voice cloning!")
+        collate_fn = tacotron2_multi_spk_batch_fn
+        fields += ["spk_emb"]
+        converters["spk_emb"] = np.load
+    else:
+        print("single speaker tacotron2!")
+        collate_fn = tacotron2_single_spk_batch_fn
+
+    # construct dataset for training and validation
+    with jsonlines.open(args.train_metadata, 'r') as reader:
+        train_metadata = list(reader)
+    train_dataset = DataTable(
+        data=train_metadata,
+        fields=fields,
+        converters=converters, )
+    with jsonlines.open(args.dev_metadata, 'r') as reader:
+        dev_metadata = list(reader)
+    dev_dataset = DataTable(
+        data=dev_metadata,
+        fields=fields,
+        converters=converters, )
+
+    # collate function and dataloader
+    train_sampler = DistributedBatchSampler(
+        train_dataset,
+        batch_size=config.batch_size,
+        shuffle=True,
+        drop_last=True)
+
+    print("samplers done!")
+
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_sampler=train_sampler,
+        collate_fn=collate_fn,
+        num_workers=config.num_workers)
+
+    dev_dataloader = DataLoader(
+        dev_dataset,
+        shuffle=False,
+        drop_last=False,
+        batch_size=config.batch_size,
+        collate_fn=collate_fn,
+        num_workers=config.num_workers)
+    print("dataloaders done!")
+
+    with open(args.phones_dict, "r") as f:
+        phn_id = [line.strip().split() for line in f.readlines()]
+    vocab_size = len(phn_id)
+    print("vocab_size:", vocab_size)
+
+    odim = config.n_mels
+    model = Tacotron2(idim=vocab_size, odim=odim, **config["model"])
+    if world_size > 1:
+        model = DataParallel(model)
+    print("model done!")
+
+    optimizer = build_optimizers(model, **config["optimizer"])
+    print("optimizer done!")
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    if dist.get_rank() == 0:
+        config_name = args.config.split("/")[-1]
+        # copy conf to output_dir
+        shutil.copyfile(args.config, output_dir / config_name)
+
+    updater = Tacotron2Updater(
+        model=model,
+        optimizer=optimizer,
+        dataloader=train_dataloader,
+        output_dir=output_dir,
+        **config["updater"])
+
+    trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
+
+    evaluator = Tacotron2Evaluator(
+        model, dev_dataloader, output_dir=output_dir, **config["updater"])
+
+    if dist.get_rank() == 0:
+        trainer.extend(evaluator, trigger=(1, "epoch"))
+        trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
+        trainer.extend(
+            Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    # print(trainer.extensions)
+    trainer.run()
+
+
+def main():
+    # parse args and config and redirect to train_sp
+    parser = argparse.ArgumentParser(description="Train a Tacotron2 model.")
+    parser.add_argument("--config", type=str, help="tacotron2 config file.")
+    parser.add_argument("--train-metadata", type=str, help="training data.")
+    parser.add_argument("--dev-metadata", type=str, help="dev data.")
+    parser.add_argument("--output-dir", type=str, help="output dir.")
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument(
+        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
+
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
+
+    args = parser.parse_args()
+
+    with open(args.config) as f:
+        config = CfgNode(yaml.safe_load(f))
+
+    print("========Args========")
+    print(yaml.safe_dump(vars(args)))
+    print("========Config========")
+    print(config)
+    print(
+        f"master see the word size: {dist.get_world_size()}, from pid: {os.getpid()}"
+    )
+
+    # dispatch
+    if args.ngpu > 1:
+        dist.spawn(train_sp, (args, config), nprocs=args.ngpu)
+    else:
+        train_sp(args, config)
 
 
 if __name__ == "__main__":
-    config = get_cfg_defaults()
-    parser = default_argument_parser()
-    args = parser.parse_args()
-    if args.config:
-        config.merge_from_file(args.config)
-    if args.opts:
-        config.merge_from_list(args.opts)
-    config.freeze()
-    print(config)
-    print(args)
-
-    main(config, args)
+    main()

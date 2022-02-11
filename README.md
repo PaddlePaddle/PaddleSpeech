@@ -236,7 +236,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">Speech Recogination</td>
+      <td rowspan="4">Speech Recogination</td>
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
@@ -249,7 +249,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <a href = "./examples/aishell/asr1">u2.transformer.conformer-aishell</a>
       </td>
     </tr>
-      <tr>
+    <tr>
       <td> Librispeech</td>
       <td>Transformer based Attention Models </td>
       <td>
@@ -257,6 +257,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
       </td>
     </tr>
+  <tr>
+      <td>TIMIT</td>
+      <td>Unified Streaming & Non-streaming Two-pass</td>
+      <td>
+    <a href = "./examples/timit/asr1"> u2-timit</a>
+      </td>
+  </tr>
   <tr>
   <td>Alignment</td>
   <td>THCHS30</td>
@@ -266,20 +273,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </td>
   </tr>
    <tr>
-      <td rowspan="2">Language Model</td>
+      <td rowspan="1">Language Model</td>
       <td colspan = "2">Ngram Language Model</td>
       <td>
       <a href = "./examples/other/ngram_lm">kenlm</a>
       </td>
     </tr>
-    <tr>
-      <td>TIMIT</td>
-      <td>Unified Streaming & Non-streaming Two-pass</td>
-      <td>
-    <a href = "./examples/timit/asr1"> u2-timit</a>
-      </td>
-    </tr>
-    <tr>
+  <tr>
       <td rowspan="2">Speech Translation (English to Chinese)</td> 
       <td rowspan="2">TED En-Zh</td>
       <td>Transformer + ASR MTL</td>
@@ -317,14 +317,15 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td rowspan="4">Acoustic Model</td>
-      <td >Tacotron2</td>
-      <td rowspan="2" >LJSpeech</td>
+      <td>Tacotron2</td>
+      <td>LJSpeech / CSMSC</td>
       <td>
-      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a>
+      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a> / <a href = "./examples/csmsc/tts0">tacotron2-csmsc</a>
       </td>
     </tr>
     <tr>
       <td>Transformer TTS</td>
+      <td>LJSpeech</td>
       <td>
       <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>
@@ -344,7 +345,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
    <tr>
-      <td rowspan="5">Vocoder</td>
+      <td rowspan="6">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -378,7 +379,14 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>
       <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
       </td>
-    <tr>                                                                                                                                       
+    </tr>
+    <tr>
+      <td >WaveRNN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc6">WaveRNN-csmsc</a>
+      </td>
+    </tr>
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>
@@ -416,7 +424,6 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </thead>
   <tbody>
-  
   <tr>
       <td>Audio Classification</td>
       <td>ESC-50</td>
@@ -440,7 +447,6 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </thead>
   <tbody>
-  
   <tr>
       <td>Punctuation Restoration</td>
       <td>IWLST2012_zh</td>
@@ -539,6 +545,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
 - Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.
 - Many thanks to [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) for contributing Punctuation Restoration model.
+- Many thanks to [kslz](https://github.com/745165806) for supplementary Chinese documents.
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 

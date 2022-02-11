@@ -415,11 +415,11 @@ def mfcc(x,
         **kwargs)
 
     # librosa mfcc:
-    spect = librosa.feature.melspectrogram(x,sr=16000,n_fft=512,
+    spect = librosa.feature.melspectrogram(y=x,sr=16000,n_fft=512,
                                               win_length=512,
                                               hop_length=320,
                                               n_mels=64, fmin=50)
-    b = librosa.feature.mfcc(x,
+    b = librosa.feature.mfcc(y=x,
         sr=16000,
         S=spect,
         n_mfcc=20,

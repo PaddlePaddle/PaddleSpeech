@@ -38,7 +38,7 @@ vi examples/librispeech/s0/data/vocab.txt
 ```
 
 #### CMVN
-For CMVN, a subset of the full of the training set is selected and be used to compute the feature mean and std.
+For CMVN, a subset of or full of the training set is selected and be used to compute the feature mean and std.
 ```
 # The code to compute the feature mean and std
 cd examples/aishell/s0

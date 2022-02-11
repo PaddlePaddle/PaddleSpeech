@@ -157,7 +157,7 @@ class AttLoc(nn.Layer):
         paddle.Tensor  
             previous attention weights (B, T_max)
         """
-        batch = len(enc_hs_pad)
+        batch = paddle.shape(enc_hs_pad)[0]
         # pre-compute all h outside the decoder loop
         if self.pre_compute_enc_h is None or self.han_mode:
             # (utt, frame, hdim)
@@ -172,33 +172,30 @@ class AttLoc(nn.Layer):
             dec_z = dec_z.reshape([batch, self.dunits])
 
         # initialize attention weight with uniform dist.
-        if att_prev is None:
+        if paddle.sum(att_prev) == 0:
             # if no bias, 0 0-pad goes 0
-
             att_prev = 1.0 - make_pad_mask(enc_hs_len)
             att_prev = att_prev / enc_hs_len.unsqueeze(-1)
 
         # att_prev: (utt, frame) -> (utt, 1, 1, frame)
         # -> (utt, att_conv_chans, 1, frame)
-
         att_conv = self.loc_conv(att_prev.reshape([batch, 1, 1, self.h_length]))
         # att_conv: (utt, att_conv_chans, 1, frame) -> (utt, frame, att_conv_chans)
         att_conv = att_conv.squeeze(2).transpose([0, 2, 1])
         # att_conv: (utt, frame, att_conv_chans) -> (utt, frame, att_dim)
         att_conv = self.mlp_att(att_conv)
-
-        # dec_z_tiled: (utt, frame, att_dim)
+        # dec_z_tiled: (utt, frame, att_dim)        
         dec_z_tiled = self.mlp_dec(dec_z).reshape([batch, 1, self.att_dim])
 
         # dot with gvec
         # (utt, frame, att_dim) -> (utt, frame)
-        e = self.gvec(
-            paddle.tanh(att_conv + self.pre_compute_enc_h +
-                        dec_z_tiled)).squeeze(2)
+        e = paddle.tanh(att_conv + self.pre_compute_enc_h + dec_z_tiled)
+        e = self.gvec(e).squeeze(2)
 
         # NOTE: consider zero padding when compute w.
         if self.mask is None:
             self.mask = make_pad_mask(enc_hs_len)
+
         e = masked_fill(e, self.mask, -float("inf"))
         # apply monotonic attention constraint (mainly for TTS)
         if last_attended_idx is not None:
@@ -211,7 +208,6 @@ class AttLoc(nn.Layer):
         # utt x hdim
         c = paddle.sum(
             self.enc_h * w.reshape([batch, self.h_length, 1]), axis=1)
-
         return c, w
 
 

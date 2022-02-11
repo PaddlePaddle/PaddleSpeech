@@ -24,14 +24,17 @@ from typing import Any
 from typing import Dict
 
 import paddle
-import paddleaudio
 import requests
 import yaml
 from paddle.framework import load
 
+import paddleaudio
 from . import download
-from .. import __version__
 from .entry import commands
+try:
+    from .. import __version__
+except ImportError:
+    __version__ = "0.0.0"  # for develop branch
 
 requests.adapters.DEFAULT_RETRIES = 3
 

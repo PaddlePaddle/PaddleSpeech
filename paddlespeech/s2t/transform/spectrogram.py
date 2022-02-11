@@ -38,7 +38,7 @@ def stft(x,
     x = np.stack(
         [
             librosa.stft(
-                x[:, ch],
+                y=x[:, ch],
                 n_fft=n_fft,
                 hop_length=n_shift,
                 win_length=win_length,
@@ -67,7 +67,7 @@ def istft(x, n_shift, win_length=None, window="hann", center=True):
     x = np.stack(
         [
             librosa.istft(
-                x[:, ch].T,  # [Time, Freq] -> [Freq, Time]
+                stft_matrix=x[:, ch].T,  # [Time, Freq] -> [Freq, Time]
                 hop_length=n_shift,
                 win_length=win_length,
                 window=window,
@@ -95,7 +95,8 @@ def stft2logmelspectrogram(x_stft,
     # spc: (Time, Channel, Freq) or (Time, Freq)
     spc = np.abs(x_stft)
     # mel_basis: (Mel_freq, Freq)
-    mel_basis = librosa.filters.mel(fs, n_fft, n_mels, fmin, fmax)
+    mel_basis = librosa.filters.mel(
+        sr=fs, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax)
     # lmspc: (Time, Channel, Mel_freq) or (Time, Mel_freq)
     lmspc = np.log10(np.maximum(eps, np.dot(spc, mel_basis.T)))
 

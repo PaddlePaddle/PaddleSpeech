@@ -71,7 +71,3 @@ Check our [website](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
 #### GE2E
 
 1. [ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip)
-
-## License
-
-Parakeet is provided under the [Apache-2.0 license](LICENSE).

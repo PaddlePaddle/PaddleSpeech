@@ -1,4 +1,4 @@
-%module swig_decoders
+%module paddlespeech_ctcdecoders
 %{
 #include "scorer.h"
 #include "ctc_greedy_decoder.h"

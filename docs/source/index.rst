@@ -41,12 +41,20 @@ Contents
    tts/gan_vocoder
    tts/demo
    tts/demo_2
+   tts/demo_video
 
 .. toctree::
    :maxdepth: 1
    :caption: Released Models
 
    released_model
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Demo Video
+
+   demo_video
+
 
 .. toctree::
    :maxdepth: 1

@@ -21,11 +21,12 @@ namespace ppspeech {
 using kaldi::int32;
 using kaldi::BaseFloat;
 using kaldi::Vector;
+using kaldi::VectorBase;
 using kaldi::Matrix;
 using std::vector;
 
 //todo remove later
-void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
+void CopyVector2StdVector_(const VectorBase<BaseFloat>& input,
                           vector<BaseFloat>* output) {
   if (input.Dim() == 0) return;
   output->resize(input.Dim());
@@ -34,7 +35,7 @@ void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
   }
 }
 
-void CopyStdVector2Vector(const vector<BaseFloat>& input,
+void CopyStdVector2Vector_(const vector<BaseFloat>& input,
                           Vector<BaseFloat>* output) {
   if (input.empty()) return;
   output->Resize(input.size());
@@ -62,7 +63,7 @@ LinearSpectrogram::LinearSpectrogram(
   dim_ = fft_points_ / 2 + 1;  // the dimension is Fs/2 Hz
 }
 
-void LinearSpectrogram::AcceptWavefrom(const kaldi::VectorBase<BaseFloat>& input) {
+void LinearSpectrogram::AcceptWaveform(const VectorBase<BaseFloat>& input) {
   base_extractor_->AcceptWaveform(input);
 }
 
@@ -78,9 +79,9 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
                                  vector<BaseFloat>* real,
                                  vector<BaseFloat>* img) const {
   Vector<BaseFloat> v_tmp;
-  CopyStdVector2Vector(*v, &v_tmp);
+  CopyStdVector2Vector_(*v, &v_tmp);
   RealFft(&v_tmp, true);
-  CopyVector2StdVector(v_tmp, v);
+  CopyVector2StdVector_(v_tmp, v);
   real->push_back(v->at(0));
   img->push_back(0);
   for (int i = 1; i < v->size() / 2; i++) {
@@ -96,10 +97,11 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
 // todo remove later
 void LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) {
   Vector<BaseFloat> tmp;
+  waveform_.Resize(base_extractor_->Dim());
   Compute(tmp, &waveform_);
   vector<vector<BaseFloat>> result;
   vector<BaseFloat> feats_vec; 
-  CopyVector2StdVector(waveform_, &feats_vec);
+  CopyVector2StdVector_(waveform_, &feats_vec);
   Compute(feats_vec, result);
   feats->Resize(result.size(), result[0].size());
   for (int row_idx = 0; row_idx < result.size(); ++row_idx) {
@@ -110,10 +112,15 @@ void LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) {
   waveform_.Resize(0);
 }
 
+void LinearSpectrogram::Read(VectorBase<BaseFloat>* feat) {
+  // todo
+  return;
+}
+
 // only for test, remove later
 // todo: compute the feature frame by frame.
-void LinearSpectrogram::Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
-                                kaldi::Vector<kaldi::BaseFloat>* feature) {
+void LinearSpectrogram::Compute(const VectorBase<kaldi::BaseFloat>& input,
+                                VectorBase<kaldi::BaseFloat>* feature) {
     base_extractor_->Read(feature);
 }
 

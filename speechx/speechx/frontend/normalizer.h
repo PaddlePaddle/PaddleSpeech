@@ -27,13 +27,14 @@ struct DecibelNormalizerOptions {
 class DecibelNormalizer : public FeatureExtractorInterface {
   public:
     explicit DecibelNormalizer(const DecibelNormalizerOptions& opts);
-    virtual void AcceptWavefrom(const kaldi::VectorBase<kaldi::BaseFloat>& input);
+    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input);
     virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
     virtual size_t Dim() const { return 0; }
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
-                 kaldi::Vector<kaldi::BaseFloat>* feat) const;
+    bool Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
+                 kaldi::VectorBase<kaldi::BaseFloat>* feat) const;
   private:
     DecibelNormalizerOptions opts_;
+    size_t dim_;
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     kaldi::Vector<kaldi::BaseFloat> waveform_;
 };

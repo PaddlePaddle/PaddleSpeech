@@ -4,24 +4,28 @@
 namespace ppspeech {
 
 using kaldi::Vector;
+using kaldi::VectorBase;
 using kaldi::BaseFloat;
 using std::vector;
 
 DecibelNormalizer::DecibelNormalizer(const DecibelNormalizerOptions& opts) {
   opts_ = opts;
+  dim_ = 0;
 }
                                     
-void DecibelNormalizer::AcceptWavefrom(const Vector<BaseFloat>& input) {
-  waveform_ = input;
+void DecibelNormalizer::AcceptWaveform(const kaldi::VectorBase<BaseFloat>& input) {
+  dim_ = input.Dim();
+  waveform_.Resize(input.Dim());
+  waveform_.CopyFromVec(input);
 }
 
-void DecibelNormalizer::Read(Vector<BaseFloat>* feat) {
+void DecibelNormalizer::Read(kaldi::VectorBase<BaseFloat>* feat) {
   if (waveform_.Dim() == 0) return;
   Compute(waveform_, feat);
 }
 
 //todo remove later
-void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
+void CopyVector2StdVector(const kaldi::VectorBase<BaseFloat>& input,
                           vector<BaseFloat>* output) {
   if (input.Dim() == 0) return;
   output->resize(input.Dim());
@@ -31,16 +35,16 @@ void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
 }
 
 void CopyStdVector2Vector(const vector<BaseFloat>& input,
-                          Vector<BaseFloat>* output) {
+                          VectorBase<BaseFloat>* output) {
   if (input.empty()) return;
-  output->Resize(input.size());
+  assert(input.size() == output->Dim());
   for (size_t idx = 0; idx < input.size(); ++idx) {
     (*output)(idx) = input[idx];
   }
 }
 
-bool DecibelNormalizer::Compute(const Vector<BaseFloat>& input,
-                                Vector<BaseFloat>* feat) const {
+bool DecibelNormalizer::Compute(const VectorBase<BaseFloat>& input,
+                                VectorBase<BaseFloat>* feat) const {
   // calculate db rms
   BaseFloat rms_db = 0.0;
   BaseFloat mean_square = 0.0;

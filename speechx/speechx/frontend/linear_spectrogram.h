@@ -21,7 +21,7 @@ class LinearSpectrogram : public FeatureExtractorInterface {
   public:
     explicit LinearSpectrogram(const LinearSpectrogramOptions& opts,
                                std::unique_ptr<FeatureExtractorInterface> base_extractor);
-    virtual void AcceptWavefrom(const kaldi::VectorBase<kaldi::BaseFloat>& input);
+    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input);
     virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
     virtual size_t Dim() const { return dim_; }
     void ReadFeats(kaldi::Matrix<kaldi::BaseFloat>* feats);
@@ -30,8 +30,8 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     void Hanning(std::vector<kaldi::BaseFloat>* data) const;
     bool Compute(const std::vector<kaldi::BaseFloat>& wave,
                  std::vector<std::vector<kaldi::BaseFloat>>& feat);
-    void Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
-                 kaldi::Vector<kaldi::BaseFloat>* feature);
+    void Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
+                 kaldi::VectorBase<kaldi::BaseFloat>* feature);
     bool NumpyFft(std::vector<kaldi::BaseFloat>* v,
                   std::vector<kaldi::BaseFloat>* real,
                   std::vector<kaldi::BaseFloat>* img) const;

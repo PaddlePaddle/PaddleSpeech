@@ -12,7 +12,7 @@ DEFINE_string(wav_rspecifier, "", "test wav path");
 DEFINE_string(feature_wspecifier, "", "test wav ark");
 
 int main(int argc, char* argv[]) {
-  google::ParseCommandLineFlags(&argc, &argv, false);
+  gflags::ParseCommandLineFlags(&argc, &argv, false);
   google::InitGoogleLogging(argv[0]);
   
   kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(FLAGS_wav_rspecifier);
@@ -22,9 +22,9 @@ int main(int argc, char* argv[]) {
   int32 num_done = 0, num_err = 0;
   ppspeech::LinearSpectrogramOptions opt;
   ppspeech::DecibelNormalizerOptions db_norm_opt;
-  std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor =
-      new ppspeech::DecibelNormalizer(db_norm_opt);
-  ppspeech::LinearSpectrogram linear_spectrogram(opt, base_featrue_extractor);
+  std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor(
+    new ppspeech::DecibelNormalizer(db_norm_opt));
+  ppspeech::LinearSpectrogram linear_spectrogram(opt, std::move(base_feature_extractor));
 
   for (; !wav_reader.Done(); wav_reader.Next()) {
     std::string utt = wav_reader.Key();

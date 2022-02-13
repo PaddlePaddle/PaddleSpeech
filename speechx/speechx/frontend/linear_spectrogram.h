@@ -8,7 +8,7 @@
 namespace ppspeech {
 
 struct LinearSpectrogramOptions {
-    kaldi::FrameExtrationOptions frame_opts;
+    kaldi::FrameExtractionOptions frame_opts;
     LinearSpectrogramOptions():
         frame_opts() {}
 
@@ -19,19 +19,19 @@ struct LinearSpectrogramOptions {
 
 class LinearSpectrogram : public FeatureExtractorInterface {
   public:
-    explict LinearSpectrogram(const LinearSpectrogramOptions& opts,
-                              const std::unique_ptr<FeatureExtractorInterface> base_extractor);
-    virtual void AcceptWavefrom(const kaldi::Vector<kaldi::BaseFloat>& input);
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat);
+    explicit LinearSpectrogram(const LinearSpectrogramOptions& opts,
+                               std::unique_ptr<FeatureExtractorInterface> base_extractor);
+    virtual void AcceptWavefrom(const kaldi::VectorBase<kaldi::BaseFloat>& input);
+    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
     virtual size_t Dim() const { return dim_; }
-    void ReadFeats(kaldi::Matrix<kaldi::BaesFloat>* feats) const;
+    void ReadFeats(kaldi::Matrix<kaldi::BaseFloat>* feats);
 
   private: 
-    void Hanning(std::vector<kaldi::BaseFloat>& data) const;
-    kaldi::int32 Compute(const std::vector<kaldi::BaseFloat>& wave,
-                         std::vector<std::vector<kaldi::BaseFloat>>& feat);
-    void Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                         kaldi::VectorBae<kaldi::BaseFloat>* feature);
+    void Hanning(std::vector<kaldi::BaseFloat>* data) const;
+    bool Compute(const std::vector<kaldi::BaseFloat>& wave,
+                 std::vector<std::vector<kaldi::BaseFloat>>& feat);
+    void Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
+                 kaldi::Vector<kaldi::BaseFloat>* feature);
     bool NumpyFft(std::vector<kaldi::BaseFloat>* v,
                   std::vector<kaldi::BaseFloat>* real,
                   std::vector<kaldi::BaseFloat>* img) const;
@@ -41,7 +41,7 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     std::vector<kaldi::BaseFloat> hanning_window_;
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
-    kaldi::Vector<kaldi::BaseFloat> wavefrom_; // remove later, todo(SmileGoat)
+    kaldi::Vector<kaldi::BaseFloat> waveform_; // remove later, todo(SmileGoat)
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 };

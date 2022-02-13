@@ -1,7 +1,9 @@
 
 #pragma once
 
+#include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
+#include "kaldi/util/options-itf.h"
 
 namespace ppspeech {
 
@@ -9,6 +11,7 @@ namespace ppspeech {
 struct DecibelNormalizerOptions {
   float target_db;
   float max_gain_db;
+  bool convert_int_float;
   DecibelNormalizerOptions() :
     target_db(-20),
     max_gain_db(300.0),
@@ -23,16 +26,19 @@ struct DecibelNormalizerOptions {
 
 class DecibelNormalizer : public FeatureExtractorInterface {
   public:
-    explict DecibelNormalizer(const DecibelNormalizerOptions& opts,
-                              const std::unique_ptr<FeatureExtractorInterface>& pre_extractor);
-    virtual void AcceptWavefrom(const kaldi::Vector<kaldi::BaseFloat>& input);
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat);
-    virtual size_t Dim() const;
+    explicit DecibelNormalizer(const DecibelNormalizerOptions& opts);
+    virtual void AcceptWavefrom(const kaldi::VectorBase<kaldi::BaseFloat>& input);
+    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
+    virtual size_t Dim() const { return 0; }
     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
-                 kaldi::Vector<kaldi::BaseFloat>>* feat);
+                 kaldi::Vector<kaldi::BaseFloat>* feat) const;
   private:
+    DecibelNormalizerOptions opts_;
+    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
+    kaldi::Vector<kaldi::BaseFloat> waveform_;
 };
 
+/*
 struct NormalizerOptions {
   std::string mean_std_path;
   NormalizerOptions() :
@@ -61,5 +67,5 @@ class PPNormalizer : public FeatureExtractorInterface {
     kaldi::Vector<float> variance_;
     NormalizerOptions _opts;
 };
-
+*/
 }  // namespace ppspeech

@@ -1,35 +1,62 @@
 
 #include "frontend/normalizer.h"
 
-DecibelNormalizer::DecibelNormalizer(
-    const DecibelNormalizerOptions& opts) {
+namespace ppspeech {
 
+using kaldi::Vector;
+using kaldi::BaseFloat;
+using std::vector;
+
+DecibelNormalizer::DecibelNormalizer(const DecibelNormalizerOptions& opts) {
+  opts_ = opts;
 }
                                     
-void DecibelNormalizer::AcceptWavefrom(const kaldi::Vector<kaldi::BaseFloat>& input) {
-
+void DecibelNormalizer::AcceptWavefrom(const Vector<BaseFloat>& input) {
+  waveform_ = input;
 }
 
-void DecibelNormalizer::Read(kaldi::Vector<kaldi::BaseFloat>* feat) {
-
+void DecibelNormalizer::Read(Vector<BaseFloat>* feat) {
+  if (waveform_.Dim() == 0) return;
+  Compute(waveform_, feat);
 }
 
-bool DecibelNormalizer::Compute(const Vector<kaldi::BaseFloat>& input,
-                                kaldi::Vector<kaldi::BaseFloat>* feat) {
+//todo remove later
+void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
+                          vector<BaseFloat>* output) {
+  if (input.Dim() == 0) return;
+  output->resize(input.Dim());
+  for (size_t idx = 0; idx < input.Dim(); ++idx) {
+    (*output)[idx] = input(idx);
+  }
+}
+
+void CopyStdVector2Vector(const vector<BaseFloat>& input,
+                          Vector<BaseFloat>* output) {
+  if (input.empty()) return;
+  output->Resize(input.size());
+  for (size_t idx = 0; idx < input.size(); ++idx) {
+    (*output)(idx) = input[idx];
+  }
+}
+
+bool DecibelNormalizer::Compute(const Vector<BaseFloat>& input,
+                                Vector<BaseFloat>* feat) const {
   // calculate db rms
-  float rms_db = 0.0;
-  float mean_square = 0.0;
-  float gain = 0.0;
-  vector<BaseFloat> smaples;
-  samples.resize(input.Size());
+  BaseFloat rms_db = 0.0;
+  BaseFloat mean_square = 0.0;
+  BaseFloat gain = 0.0;
+  BaseFloat wave_float_normlization = 1.0f / (std::pow(2, 16 - 1));
+
+  vector<BaseFloat> samples;
+  samples.resize(input.Dim());
   for (int32 i = 0; i < samples.size(); ++i) {
     samples[i] = input(i);
   }
   
   // square
   for (auto &d : samples) {
-    if (_opts.convert_int_float) {
-    d = d * WAVE_FLOAT_NORMALIZATION;
+    if (opts_.convert_int_float) {
+    d = d * wave_float_normlization;
     }
     mean_square += d * d;
   }
@@ -37,12 +64,12 @@ bool DecibelNormalizer::Compute(const Vector<kaldi::BaseFloat>& input,
   // mean
   mean_square /= samples.size();
   rms_db = 10 * std::log10(mean_square);
-  gain = opts.target_db - rms_db;
+  gain = opts_.target_db - rms_db;
 
-  if (gain > opts.max_gain_db) {
-    LOG(ERROR) << "Unable to normalize segment to " << opts.target_db << "dB,"
-                << "because the the probable gain have exceeds opts.max_gain_db" 
-                <<  opts.max_gain_db << "dB.";
+  if (gain > opts_.max_gain_db) {
+    LOG(ERROR) << "Unable to normalize segment to " << opts_.target_db << "dB,"
+                << "because the the probable gain have exceeds opts_.max_gain_db" 
+                <<  opts_.max_gain_db << "dB.";
     return false;
   }
 
@@ -51,27 +78,28 @@ bool DecibelNormalizer::Compute(const Vector<kaldi::BaseFloat>& input,
     // python item *= 10.0 ** (gain / 20.0)
     item *= std::pow(10.0, gain / 20.0);
   }
-
+  
+  CopyStdVector2Vector(samples, feat);
   return true;
 }
 
-
+/*
 PPNormalizer::PPNormalizer(
     const PPNormalizerOptions& opts,
     const std::unique_ptr<FeatureExtractorInterface>& pre_extractor) {
 
 }
                                     
-void PPNormalizer::AcceptWavefrom(const kaldi::Vector<kaldi::BaseFloat>& input) {
+void PPNormalizer::AcceptWavefrom(const Vector<BaseFloat>& input) {
 
 }
 
-void PPNormalizer::Read(kaldi::Vector<kaldi::BaseFloat>* feat) {
+void PPNormalizer::Read(Vector<BaseFloat>* feat) {
 
 }
 
-bool PPNormalizer::Compute(const Vector<kaldi::BaseFloat>& input,
-                           kaldi::Vector<kaldi::BaseFloat>>* feat) {
+bool PPNormalizer::Compute(const Vector<BaseFloat>& input,
+                           Vector<BaseFloat>>* feat) {
    if ((input.Dim() % mean_.Dim()) == 0) {
         LOG(ERROR) << "CMVN dimension is wrong!";
         return false;
@@ -93,4 +121,6 @@ bool PPNormalizer::Compute(const Vector<kaldi::BaseFloat>& input,
     }
 
     return true;
-}
+}*/
+
+} // namespace ppspeech

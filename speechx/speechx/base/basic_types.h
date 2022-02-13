@@ -16,7 +16,7 @@
 
 #include "kaldi/base/kaldi-types.h"
 
-#include <limits.h>
+#include <limits>
 
 typedef float               BaseFloat;
 typedef double              double64;
@@ -35,7 +35,7 @@ typedef unsigned char      uint8;
 typedef unsigned short     uint16;
 typedef unsigned int       uint32;
 
-if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
+#if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
 typedef unsigned long uint64;
 #else
 typedef unsigned long long uint64;

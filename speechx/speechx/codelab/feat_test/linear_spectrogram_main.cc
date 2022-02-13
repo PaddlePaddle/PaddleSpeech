@@ -2,6 +2,7 @@
 
 #include "frontend/linear_spectrogram.h"
 #include "frontend/normalizer.h"
+#include "frontend/feature_extractor_interface.h"
 #include "kaldi/util/table-types.h"
 #include "base/log.h"
 #include "base/flags.h"
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
   ppspeech::LinearSpectrogramOptions opt;
   ppspeech::DecibelNormalizerOptions db_norm_opt;
   std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor =
-      new DecibelNormalizer(db_norm_opt);
+      new ppspeech::DecibelNormalizer(db_norm_opt);
   ppspeech::LinearSpectrogram linear_spectrogram(opt, base_featrue_extractor);
 
   for (; !wav_reader.Done(); wav_reader.Next()) {

@@ -16,15 +16,36 @@
 #include "kaldi/base/kaldi-math.h"
 #include "kaldi/matrix/matrix-functions.h"
 
+namespace ppspeech {
+
 using kaldi::int32;
 using kaldi::BaseFloat;
 using kaldi::Vector;
 using kaldi::Matrix;
 using std::vector;
 
+//todo remove later
+void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
+                          vector<BaseFloat>* output) {
+  if (input.Dim() == 0) return;
+  output->resize(input.Dim());
+  for (size_t idx = 0; idx < input.Dim(); ++idx) {
+    (*output)[idx] = input(idx);
+  }
+}
+
+void CopyStdVector2Vector(const vector<BaseFloat>& input,
+                          Vector<BaseFloat>* output) {
+  if (input.empty()) return;
+  output->Resize(input.size());
+  for (size_t idx = 0; idx < input.size(); ++idx) {
+    (*output)(idx) = input[idx];
+  }
+}
+
 LinearSpectrogram::LinearSpectrogram(
     const LinearSpectrogramOptions& opts,
-    const std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+    std::unique_ptr<FeatureExtractorInterface> base_extractor) {
   base_extractor_ = std::move(base_extractor);
   int32 window_size = opts.frame_opts.WindowSize();
   int32 window_shift = opts.frame_opts.WindowShift();
@@ -41,11 +62,8 @@ LinearSpectrogram::LinearSpectrogram(
   dim_ = fft_points_ / 2 + 1;  // the dimension is Fs/2 Hz
 }
 
-void LinearSpectrogram::AcceptWavefrom(const Vector<BaseFloat>& input) {
-  wavefrom_.resize(input.Dim());
-  for (size_t idx = 0; idx < input.Dim(); ++idx) {
-    waveform_[idx] = input(idx);
-  }
+void LinearSpectrogram::AcceptWavefrom(const kaldi::VectorBase<BaseFloat>& input) {
+  base_extractor_->AcceptWaveform(input);
 }
 
 void LinearSpectrogram::Hanning(vector<float>* data) const {
@@ -58,11 +76,11 @@ void LinearSpectrogram::Hanning(vector<float>* data) const {
 
 bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
                                  vector<BaseFloat>* real,
-                                 vector<BaseFloat>* img) {
-  if (RealFft(v, true)) {
-    LOG(ERROR) << "compute the fft occurs error";
-    return false;
-  }
+                                 vector<BaseFloat>* img) const {
+  Vector<BaseFloat> v_tmp;
+  CopyStdVector2Vector(*v, &v_tmp);
+  RealFft(&v_tmp, true);
+  CopyVector2StdVector(v_tmp, v);
   real->push_back(v->at(0));
   img->push_back(0);
   for (int i = 1; i < v->size() / 2; i++) {
@@ -75,36 +93,28 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
   return true;
 }
 
-//todo remove later
-void CopyVector2StdVector(const kaldi::Vector<BaseFloat>& input,
-                          vector<BaseFloat>* output) {
-}
-
 // todo remove later
-bool LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) const {
-  if (wavefrom_.Dim() == 0) {
-      return false;
-  }
-  kaldi::Vector<BaseFloat> feats;
-  Compute(wavefrom_, &feats);
+void LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) {
+  Vector<BaseFloat> tmp;
+  Compute(tmp, &waveform_);
   vector<vector<BaseFloat>> result;
   vector<BaseFloat> feats_vec; 
-  CopyVector2StdVector(feats, &feats_vec);
+  CopyVector2StdVector(waveform_, &feats_vec);
   Compute(feats_vec, result);
   feats->Resize(result.size(), result[0].size());
   for (int row_idx = 0; row_idx < result.size(); ++row_idx) {
     for (int col_idx = 0; col_idx < result.size(); ++col_idx) {
-        feats(row_idx, col_idx) = result[row_idx][col_idx];
+        (*feats)(row_idx, col_idx) = result[row_idx][col_idx];
+    }
   }
-  wavefrom_.Resize(0);
-  return true;
+  waveform_.Resize(0);
 }
 
 // only for test, remove later
 // todo: compute the feature frame by frame.
-void LinearSpectrogram::Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                                kaldi::VectorBae<kaldi::BaseFloat>* feature) {
-    base_extractor_->Compute(input, feature);
+void LinearSpectrogram::Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
+                                kaldi::Vector<kaldi::BaseFloat>* feature) {
+    base_extractor_->Read(feature);
 }
 
 // Compute spectrogram feat, only for test, remove later
@@ -112,9 +122,9 @@ void LinearSpectrogram::Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input
 bool LinearSpectrogram::Compute(const vector<float>& wave,
                                 vector<vector<float>>& feat) {
   int num_samples = wave.size();
-  const int& frame_length = opts.frame_opts.WindowSize();
-  const int& sample_rate = opts.frame_opts.samp_freq;
-  const int& frame_shift = opts.frame_opts.WindowShift();
+  const int& frame_length = opts_.frame_opts.WindowSize();
+  const int& sample_rate = opts_.frame_opts.samp_freq;
+  const int& frame_shift = opts_.frame_opts.WindowShift();
   const int& fft_points = fft_points_;
   const float scale = hanning_window_energy_ * frame_shift;
 
@@ -132,11 +142,11 @@ bool LinearSpectrogram::Compute(const vector<float>& wave,
   for (int i = 0; i < num_frames; ++i) {
     vector<float> data(wave.data() + i * frame_shift,
                        wave.data() + i * frame_shift + frame_length);
-    Hanning(data);
+    Hanning(&data);
     fft_img.clear();
     fft_real.clear();
     v.assign(data.begin(), data.end());
-    if (NumpyFft(&v, fft_real, fft_img)) {
+    if (NumpyFft(&v, &fft_real, &fft_img)) {
       LOG(ERROR)<< i  << " fft compute occurs error, please checkout the input data";
       return false;
     }
@@ -155,5 +165,8 @@ bool LinearSpectrogram::Compute(const vector<float>& wave,
       // log added eps=1e-14
       feat[i][j] = std::log(feat[i][j] + 1e-14);
     }
+  }
   return true;
 }
+
+}  // namespace ppspeech

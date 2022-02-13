@@ -15,16 +15,14 @@
 #pragma once
 
 #include "base/basic_types.h"
-#incldue "kaldi/matrix/kaldi-vector.h"
+#include "kaldi/matrix/kaldi-vector.h"
 
 namespace ppspeech {
 
 class FeatureExtractorInterface {
   public:
-    virtual void AcceptWaveform(const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
-    virtual void Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                         kaldi::VectorBae<kaldi::BaseFloat>* feature) = 0;
+    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) = 0;
+    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat) = 0;
     virtual size_t Dim() const = 0;
 };
 

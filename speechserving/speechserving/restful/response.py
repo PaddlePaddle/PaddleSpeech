@@ -86,3 +86,22 @@ class TTSResponse(BaseModel):
     code: int
     message: Message
     result: TTSResult
+
+
+#****************************************************************************************/
+#********************************** Error response **************************************/
+#****************************************************************************************/
+class ErrorResponse(BaseModel):
+    """
+    response example
+    {
+        "success": false,
+        "code": 0,
+        "message": {
+            "description": "Unknown error occurred."
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message

@@ -1,4 +1,7 @@
 model: 'conformer_wenetspeech'
 lang: 'zh'
 sample_rate: 16000
+cfg_path: 
+ckpt_path: 
 decode_method: 'attention_rescoring'
+force_yes: False

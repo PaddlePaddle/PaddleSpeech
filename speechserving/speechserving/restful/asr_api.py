@@ -11,15 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from fastapi import APIRouter
 import base64
+import traceback
+from typing import Union
 
 from engine.asr.python.asr_engine import ASREngine
-from .response import ASRResponse
-from .request import ASRRequest
+from fastapi import APIRouter
 
+from .request import ASRRequest
+from .response import ASRResponse
+from .response import ErrorResponse
+from utils.errors import ErrorCode
+from utils.errors import failed_response
+from utils.exception import ServerBaseException
 
 router = APIRouter()
+
 
 @router.get('/paddlespeech/asr/help')
 def help():
@@ -28,10 +35,23 @@ def help():
     Returns:
         json: [description]
     """
-    return {'hello': 'world'}
+    response = {
+        "success": "True",
+        "code": 200,
+        "message": {
+            "global": "success"
+        },
+        "result": {
+            "description": "asr server",
+            "input": "base64 string of wavfile",
+            "output": "transcription"
+        }
+    }
+    return response
 
 
-@router.post("/paddlespeech/asr", response_model=ASRResponse)
+@router.post(
+    "/paddlespeech/asr", response_model=Union[ASRResponse, ErrorResponse])
 def asr(request_body: ASRRequest):
     """asr api 
 
@@ -41,22 +61,28 @@ def asr(request_body: ASRRequest):
     Returns:
         json: [description]
     """
-    # single 
-    asr_engine = ASREngine()
-    print("asr_engine id :" ,id(asr_engine))
+    try:
+        # single 
+        audio_data = base64.b64decode(request_body.audio)
+        asr_engine = ASREngine()
+        asr_engine.run(audio_data)
+        asr_results = asr_engine.postprocess()
 
-    asr_results = asr_engine.run()
-    asr_engine.postprocess()
+        response = {
+            "success": True,
+            "code": 200,
+            "message": {
+                "description": "success"
+            },
+            "result": {
+                "transcription": asr_results
+            }
+        }
 
-    json_body = {
-                    "success": True,
-                    "code": 0,
-                    "message": {
-                        "description": "success" 
-                    },
-                    "result": {
-                        "transcription": asr_results
-                    }
-                }
+    except ServerBaseException as e:
+        response = failed_response(e.error_code, e.msg)
+    except:
+        response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
+        traceback.print_exc()
 
-    return json_body
+    return response

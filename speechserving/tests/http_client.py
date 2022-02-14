@@ -14,8 +14,8 @@ import requests
 import json
 import time
 import base64
+import io
 
-import argparse
 
 def readwav2base64(wav_file):
     """
@@ -27,7 +27,7 @@ def readwav2base64(wav_file):
     return base64_string
 
 
-def main(args):
+def main():
     """
     main func
     """
@@ -36,11 +36,11 @@ def main(args):
     # start Timestamp
     time_start=time.time()
 
-    # test_audio_dir = "test_data/16_audio.wav"
-    # audio = readwav2base64(test_audio_dir)
+    test_audio_dir = "./16_audio.wav"
+    audio = readwav2base64(test_audio_dir)
 
     data = {
-            "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf",
+            "audio": audio,
             "audio_format": "wav",
             "sample_rate": 16000,
             "lang": "zh_cn",
@@ -55,12 +55,5 @@ def main(args):
     print(r.json())
 
 
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model_type", action="store",
-                        help="model type: u2, dp2", default="dp2")
-    args = parser.parse_args()
-
-    main(args)
+    main()

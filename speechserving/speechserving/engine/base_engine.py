@@ -18,6 +18,8 @@ from typing import Union
 
 from pattern_singleton import Singleton
 
+__all__ = ['BaseEngine']
+
 
 class BaseEngine(metaclass=Singleton):
     """

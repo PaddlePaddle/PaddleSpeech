@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import traceback
+from typing import Union
 
 from engine.tts.python.tts_engine import TTSEngine
 from fastapi import APIRouter
 
 from .request import TTSRequest
+from .response import ErrorResponse
 from .response import TTSResponse
 from utils.errors import ErrorCode
 from utils.errors import failed_response
@@ -47,7 +49,8 @@ def help():
     return response
 
 
-@router.post("/paddlespeech/tts", response_model=TTSResponse)
+@router.post(
+    "/paddlespeech/tts", response_model=Union[TTSResponse, ErrorResponse])
 def tts(request_body: TTSRequest):
     """tts api
 

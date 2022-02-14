@@ -15,7 +15,7 @@ import yaml
 from yacs.config import CfgNode
 
 
-def get_config(config_file):
+def get_config(config_file: str):
     """[summary]
 
     Args:

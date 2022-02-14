@@ -14,10 +14,12 @@
 from engine.asr.python.asr_engine import ASREngine
 from engine.tts.python.tts_engine import TTSEngine
 
+__all__ = ['EngineFactory']
+
 
 class EngineFactory(object):
     @staticmethod
-    def get_engine(engine_name):
+    def get_engine(engine_name: str):
         if engine_name == 'asr':
             return ASREngine()
         elif engine_name == 'tts':

@@ -11,23 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import paddle
 import io
-import soundfile
 import os
-import librosa
 from typing import List
 from typing import Optional
 from typing import Union
 
-from paddlespeech.cli.log import logger
+import librosa
+import paddle
+import soundfile
+from engine.base_engine import BaseEngine
+
 from paddlespeech.cli.asr.infer import ASRExecutor
+from paddlespeech.cli.log import logger
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
-
-from engine.base_engine import BaseEngine
 from utils.config import get_config
 
 __all__ = ['ASREngine']
@@ -141,42 +141,55 @@ class ASREngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
+
     def __init__(self):
         super(ASREngine, self).__init__()
 
-    def init(self, config_file: str):
+    def init(self, config_file: str) -> bool:
+        """init engine resource
 
-        self.executor = ASRServerExecutor()
-        self.config = get_config(config_file)
+        Args:
+            config_file (str): config file
 
-        paddle.set_device(paddle.get_device())
-        self.executor._init_from_path(
-            self.config.model,
-            self.config.lang,
-            self.config.sample_rate,
-            self.config.cfg_path,
-            self.config.decode_method,
-            self.config.ckpt_path)
-
-        logger.info("Initialize ASR server engine successfully.")
-
+        Returns:
+            bool: init failed or success
+        """
         self.input = None
         self.output = None
+        self.executor = ASRServerExecutor()
+
+        try:
+            self.config = get_config(config_file)
+            paddle.set_device(paddle.get_device())
+            self.executor._init_from_path(
+                self.config.model, self.config.lang, self.config.sample_rate,
+                self.config.cfg_path, self.config.decode_method,
+                self.config.ckpt_path)
+        except:
+            logger.info("Initialize ASR server engine Failed.")
+            return False
+
+        logger.info("Initialize ASR server engine successfully.")
+        return True
 
     def run(self, audio_data):
+        """engine run 
 
-        if self.executor._check(io.BytesIO(audio_data), self.config.sample_rate, self.config.force_yes):
+        Args:
+            audio_data (bytes): base64.b64decode
+        """
+        if self.executor._check(
+                io.BytesIO(audio_data), self.config.sample_rate,
+                self.config.force_yes):
+            logger.info("start run asr engine")
             self.executor.preprocess(self.config.model, io.BytesIO(audio_data))
             self.executor.infer(self.config.model)
-            self.output = self.executor.postprocess()   # Retrieve result of asr.
+            self.output = self.executor.postprocess()  # Retrieve result of asr.
         else:
             logger.info("file check failed!")
-
-        logger.info("start run asr engine")
+            self.output = None
 
     def postprocess(self):
-        
+        """postprocess
+        """
         return self.output
-
-
-

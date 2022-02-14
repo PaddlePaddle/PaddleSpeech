@@ -52,6 +52,6 @@ def failed_response(code, msg=""):
     if not msg:
         msg = ErrorMsg.get(code, "Unknown error occurred.")
 
-    res = {"success": False, "code": int(code), "message": {"global": msg}}
+    res = {"success": False, "code": int(code), "message": {"description": msg}}
 
     return Response(content=json.dumps(res), media_type="application/json")

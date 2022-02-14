@@ -12,21 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+
 import uvicorn
 import yaml
-from fastapi import FastAPI
-
-from restful.api import setup_router
-from utils.log import logger
-from utils.config import get_config
 from engine.engine_factory import EngineFactory
+from fastapi import FastAPI
+from restful.api import setup_router
+
+from utils.config import get_config
+from utils.log import logger
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
 
 
 def init(config):
-    """ system initialization
+    """system initialization
+
+    Args:
+        config (CfgNode): config object
+
+    Returns:
+        bool: 
     """
     # init api
     api_list = list(config.engine_backend)
@@ -34,10 +41,11 @@ def init(config):
     app.include_router(api_router)
 
     # init engine
-    engine_list = []
+    engine_pool = []
     for engine in config.engine_backend:
-        engine_list.append(EngineFactory.get_engine(engine_name=engine))
-        engine_list[-1].init(config_file=config.engine_backend[engine])
+        engine_pool.append(EngineFactory.get_engine(engine_name=engine))
+        if not engine_pool[-1].init(config_file=config.engine_backend[engine]):
+            return False
 
     return True
 

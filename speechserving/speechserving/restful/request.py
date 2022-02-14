@@ -19,7 +19,6 @@ from pydantic import BaseModel
 __all__ = ['ASRRequest', 'TTSRequest']
 
 
-
 #****************************************************************************************/
 #************************************ ASR request ***************************************/
 #****************************************************************************************/
@@ -31,14 +30,14 @@ class ASRRequest(BaseModel):
         "audio_format": "wav",
         "sample_rate": 16000,
         "lang": "zh_cn",
-        "ptt":false
+        "punc":false
     }
     """
     audio: str
     audio_format: str
     sample_rate: int
     lang: str
-    ptt: Optional[bool] = None
+    punc: Optional[bool] = None
 
 
 #****************************************************************************************/

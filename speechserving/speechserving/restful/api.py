@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import List
+
 from fastapi import APIRouter
 
-from .tts_api import router as tts_router
 from .asr_api import router as asr_router
+from .tts_api import router as tts_router
 
 _router = APIRouter()
+
 
 def setup_router(api_list: List):
 
@@ -30,4 +32,3 @@ def setup_router(api_list: List):
             pass
 
     return _router
-

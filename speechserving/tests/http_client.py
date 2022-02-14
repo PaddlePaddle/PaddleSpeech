@@ -14,10 +14,8 @@ import requests
 import json
 import time
 import base64
-import soundfile
 import io
 
-import argparse
 
 def readwav2base64(wav_file):
     """
@@ -29,7 +27,7 @@ def readwav2base64(wav_file):
     return base64_string
 
 
-def main(args):
+def main():
     """
     main func
     """
@@ -58,9 +56,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model_type", action="store",
-                        help="model type: u2, dp2", default="dp2")
-    args = parser.parse_args()
-
-    main(args)
+    main()

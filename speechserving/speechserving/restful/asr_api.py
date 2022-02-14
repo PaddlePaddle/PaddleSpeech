@@ -42,7 +42,7 @@ def help():
             "global": "success"
         },
         "result": {
-            "description": "tts server",
+            "description": "asr server",
             "input": "base64 string of wavfile",
             "output": "transcription"
         }

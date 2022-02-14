@@ -81,7 +81,6 @@ class ASRServerExecutor(ASRExecutor):
         """
 
         audio_file = input
-        # logger.info("Preprocess audio_file:" + audio_file)
 
         # Get the object for feature extraction
         if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:

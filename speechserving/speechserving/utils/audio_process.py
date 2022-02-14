@@ -17,11 +17,11 @@ import numpy as np
 
 
 def wav2pcm(wavfile, pcmfile, data_type=np.int16):
-    f = open(wavfile, "rb")
-    f.seek(0)
-    f.read(44)
-    data = np.fromfile(f, dtype=data_type)
-    data.tofile(pcmfile)
+    with open(wavfile, "rb") as f:
+        f.seek(0)
+        f.read(44)
+        data = np.fromfile(f, dtype=data_type)
+        data.tofile(pcmfile)
 
 
 def pcm2wav(pcm_file, wav_file, channels=1, bits=16, sample_rate=16000):
@@ -52,7 +52,7 @@ def change_speed(sample_raw, speed_rate, sample_rate):
     :raises ValueError: If speed_rate <= 0.0.
     """
     if speed_rate == 1.0:
-        return
+        return sample_raw
     if speed_rate <= 0:
         raise ValueError("speed_rate should be greater than zero.")
 

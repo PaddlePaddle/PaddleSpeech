@@ -114,7 +114,7 @@ The pretrained model can be downloaded here [wavernn_csmsc_ckpt_0.2.0.zip](https
 The static model can be downloaded here [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip).
 
 Model | Step | eval/loss
-:-------------:| :------------:
+:-------------:|:------------:| :------------:
 default| 1(gpu) x 400000|2.602768
 
 WaveRNN checkpoint contains files listed below.

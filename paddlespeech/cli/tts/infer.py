@@ -117,6 +117,36 @@ pretrained_models = {
         'speaker_dict':
         'speaker_id_map.txt',
     },
+    # tacotron2
+    "tacotron2_csmsc-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_csmsc_ckpt_0.2.0.zip',
+        'md5':
+        '0df4b6f0bcbe0d73c5ed6df8867ab91a',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_30600.pdz',
+        'speech_stats':
+        'speech_stats.npy',
+        'phones_dict':
+        'phone_id_map.txt',
+    },
+    "tacotron2_ljspeech-en": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.2.0.zip',
+        'md5':
+        '6a5eddd81ae0e81d16959b97481135f3',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_60300.pdz',
+        'speech_stats':
+        'speech_stats.npy',
+        'phones_dict':
+        'phone_id_map.txt',
+    },
+
     # pwgan
     "pwgan_csmsc-zh": {
         'url':
@@ -205,6 +235,20 @@ pretrained_models = {
         'speech_stats':
         'feats_stats.npy',
     },
+
+    # wavernn
+    "wavernn_csmsc-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_ckpt_0.2.0.zip',
+        'md5':
+        'ee37b752f09bcba8f2af3b777ca38e13',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_400000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    }
 }
 
 model_alias = {
@@ -217,6 +261,10 @@ model_alias = {
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2",
     "fastspeech2_inference":
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
+    "tacotron2":
+    "paddlespeech.t2s.models.tacotron2:Tacotron2",
+    "tacotron2_inference":
+    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -234,6 +282,10 @@ model_alias = {
     "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
     "hifigan_inference":
     "paddlespeech.t2s.models.hifigan:HiFiGANInference",
+    "wavernn":
+    "paddlespeech.t2s.models.wavernn:WaveRNN",
+    "wavernn_inference":
+    "paddlespeech.t2s.models.wavernn:WaveRNNInference",
 }
 
 
@@ -253,9 +305,13 @@ class TTSExecutor(BaseExecutor):
             type=str,
             default='fastspeech2_csmsc',
             choices=[
-                'speedyspeech_csmsc', 'fastspeech2_csmsc',
-                'fastspeech2_ljspeech', 'fastspeech2_aishell3',
-                'fastspeech2_vctk'
+                'speedyspeech_csmsc',
+                'fastspeech2_csmsc',
+                'fastspeech2_ljspeech',
+                'fastspeech2_aishell3',
+                'fastspeech2_vctk',
+                'tacotron2_csmsc',
+                'tacotron2_ljspeech',
             ],
             help='Choose acoustic model type of tts task.')
         self.parser.add_argument(
@@ -300,8 +356,14 @@ class TTSExecutor(BaseExecutor):
             type=str,
             default='pwgan_csmsc',
             choices=[
-                'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-                'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc'
+                'pwgan_csmsc',
+                'pwgan_ljspeech',
+                'pwgan_aishell3',
+                'pwgan_vctk',
+                'mb_melgan_csmsc',
+                'style_melgan_csmsc',
+                'hifigan_csmsc',
+                'wavernn_csmsc',
             ],
             help='Choose vocoder type of tts task.')
 
@@ -340,8 +402,9 @@ class TTSExecutor(BaseExecutor):
         """
         Download and returns pretrained resources path of current task.
         """
-        assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
-            tag)
+        support_models = list(pretrained_models.keys())
+        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
+            tag, '\n\t\t'.join(support_models))
 
         res_path = os.path.join(MODEL_HOME, tag)
         decompressed_path = download_and_decompress(pretrained_models[tag],
@@ -488,6 +551,8 @@ class TTSExecutor(BaseExecutor):
                 vocab_size=vocab_size,
                 tone_size=tone_size,
                 **self.am_config["model"])
+        elif am_name == 'tacotron2':
+            am = am_class(idim=vocab_size, odim=odim, **self.am_config["model"])
 
         am.set_state_dict(paddle.load(self.am_ckpt)["main_params"])
         am.eval()
@@ -505,10 +570,15 @@ class TTSExecutor(BaseExecutor):
         voc_class = dynamic_import(voc_name, model_alias)
         voc_inference_class = dynamic_import(voc_name + '_inference',
                                              model_alias)
-        voc = voc_class(**self.voc_config["generator_params"])
-        voc.set_state_dict(paddle.load(self.voc_ckpt)["generator_params"])
-        voc.remove_weight_norm()
-        voc.eval()
+        if voc_name != 'wavernn':
+            voc = voc_class(**self.voc_config["generator_params"])
+            voc.set_state_dict(paddle.load(self.voc_ckpt)["generator_params"])
+            voc.remove_weight_norm()
+            voc.eval()
+        else:
+            voc = voc_class(**self.voc_config["model"])
+            voc.set_state_dict(paddle.load(self.voc_ckpt)["main_params"])
+            voc.eval()
         voc_mu, voc_std = np.load(self.voc_stat)
         voc_mu = paddle.to_tensor(voc_mu)
         voc_std = paddle.to_tensor(voc_std)

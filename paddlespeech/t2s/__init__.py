@@ -13,7 +13,6 @@
 # limitations under the License.
 import logging
 
-from . import data
 from . import datasets
 from . import exps
 from . import frontend

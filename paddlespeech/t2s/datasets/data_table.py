@@ -22,26 +22,17 @@ from paddle.io import Dataset
 
 class DataTable(Dataset):
     """Dataset to load and convert data for general purpose.
+    Args:
+        data (List[Dict[str, Any]]): Metadata, a list of meta datum, each of which is composed of  several fields
+        fields (List[str], optional): Fields to use, if not specified, all the fields in the data are used, by default None
+        converters (Dict[str, Callable], optional): Converters used to process each field, by default None
+        use_cache (bool, optional): Whether to use cache, by default False
 
-    Parameters
-    ----------
-    data : List[Dict[str, Any]]
-        Metadata, a list of meta datum, each of which is composed of 
-        several fields
-    fields : List[str], optional
-        Fields to use, if not specified, all the fields in the data are 
-        used, by default None
-    converters : Dict[str, Callable], optional
-        Converters used to process each field, by default None
-    use_cache : bool, optional
-        Whether to use cache, by default False
-
-    Raises
-    ------
-    ValueError
-        If there is some field that does not exist in data. 
-    ValueError
-        If there is some field in converters that does not exist in fields.
+    Raises:
+        ValueError:
+            If there is some field that does not exist in data. 
+        ValueError:
+            If there is some field in converters that does not exist in fields.
     """
 
     def __init__(self,
@@ -95,15 +86,11 @@ class DataTable(Dataset):
         """Convert a meta datum to an example by applying the corresponding 
         converters to each fields requested.
 
-        Parameters
-        ----------
-        meta_datum : Dict[str, Any]
-            Meta datum
+        Args:
+            meta_datum (Dict[str, Any]): Meta datum
 
-        Returns
-        -------
-        Dict[str, Any]
-            Converted example
+        Returns:
+            Dict[str, Any]: Converted example
         """
         example = {}
         for field in self.fields:
@@ -118,16 +105,11 @@ class DataTable(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         """Get an example given an index.
+        Args:
+            idx (int): Index of the example to get
 
-        Parameters
-        ----------
-        idx : int
-            Index of the example to get
-
-        Returns
-        -------
-        Dict[str, Any]
-            A converted example
+        Returns:
+            Dict[str, Any]: A converted example
         """
         if self.use_cache and self.caches[idx] is not None:
             return self.caches[idx]

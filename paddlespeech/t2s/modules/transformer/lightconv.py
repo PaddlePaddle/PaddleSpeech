@@ -30,20 +30,13 @@ class LightweightConvolution(nn.Layer):
     This implementation is based on
     https://github.com/pytorch/fairseq/tree/master/fairseq
 
-    Parameters
-    ----------
-    wshare : int
-        the number of kernel of convolution
-    n_feat : int
-        the number of features
-    dropout_rate : float
-        dropout_rate
-    kernel_size : int
-        kernel size (length)
-    use_kernel_mask : bool
-        Use causal mask or not for convolution kernel
-    use_bias : bool
-        Use bias term or not.
+    Args:
+        wshare (int): the number of kernel of convolution
+        n_feat (int): the number of features
+        dropout_rate (float): dropout_rate
+        kernel_size (int): kernel size (length)
+        use_kernel_mask (bool): Use causal mask or not for convolution kernel
+        use_bias (bool): Use bias term or not.
 
     """
 
@@ -100,21 +93,14 @@ class LightweightConvolution(nn.Layer):
         This function takes query, key and value but uses only query.
         This is just for compatibility with self-attention layer (attention.py)
 
-        Parameters
-        ----------
-        query : paddle.Tensor
-            (batch, time1, d_model) input tensor
-        key : paddle.Tensor
-            (batch, time2, d_model) NOT USED
-        value : paddle.Tensor
-            (batch, time2, d_model) NOT USED
-        mask : paddle.Tensor
-            (batch, time1, time2) mask
+        Args:
+            query (Tensor): input tensor. (batch, time1, d_model)
+            key (Tensor): NOT USED. (batch, time2, d_model)  
+            value (Tensor): NOT USED. (batch, time2, d_model) 
+            mask : (Tensor): (batch, time1, time2) mask
 
-        Return
-        ----------
-        x : paddle.Tensor
-            (batch, time1, d_model) ouput
+        Return:
+            Tensor: ouput. (batch, time1, d_model) 
 
         """
         # linear -> GLU -> lightconv -> linear

@@ -22,12 +22,10 @@ RE_TEMPERATURE = re.compile(r'(-?)(\d+(\.\d+)?)(°C|℃|度|摄氏度)')
 
 def replace_temperature(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     sign = match.group(1)
     temperature = match.group(2)

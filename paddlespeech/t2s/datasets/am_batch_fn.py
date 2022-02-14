@@ -14,7 +14,7 @@
 import numpy as np
 import paddle
 
-from paddlespeech.t2s.data.batch import batch_sequences
+from paddlespeech.t2s.datasets.batch import batch_sequences
 
 
 def tacotron2_single_spk_batch_fn(examples):

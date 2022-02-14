@@ -29,15 +29,11 @@ class Clip(object):
             hop_size=256,
             aux_context_window=0, ):
         """Initialize customized collater for DataLoader.
+        Args:
 
-        Parameters
-        ----------
-        batch_max_steps : int
-            The maximum length of input signal in batch.
-        hop_size : int
-            Hop size of auxiliary features.
-        aux_context_window : int
-            Context window size for auxiliary feature conv.
+            batch_max_steps (int): The maximum length of input signal in batch.
+            hop_size (int): Hop size of auxiliary features.
+            aux_context_window (int): Context window size for auxiliary feature conv.
 
         """
         if batch_max_steps % hop_size != 0:
@@ -56,18 +52,15 @@ class Clip(object):
     def __call__(self, batch):
         """Convert into batch tensors.
 
-        Parameters
-        ----------
-        batch : list
-            list of tuple of the pair of audio and features. Audio shape (T, ), features shape(T', C).
+        Args:
+            batch (list): list of tuple of the pair of audio and features. Audio shape (T, ), features shape(T', C).
 
-        Returns
-        ----------
-        Tensor
-            Auxiliary feature batch (B, C, T'), where
-            T = (T' - 2 * aux_context_window) * hop_size.
-        Tensor
-            Target signal batch (B, 1, T).
+        Returns: 
+            Tensor:
+                Auxiliary feature batch (B, C, T'), where
+                T = (T' - 2 * aux_context_window) * hop_size.
+            Tensor:
+                Target signal batch (B, 1, T).
 
         """
         # check length
@@ -104,11 +97,10 @@ class Clip(object):
     def _adjust_length(self, x, c):
         """Adjust the audio and feature lengths.
 
-        Note
-        -------
-        Basically we assume that the length of x and c are adjusted
-        through preprocessing stage, but if we use other library processed
-        features, this process will be needed.
+        Note:
+            Basically we assume that the length of x and c are adjusted
+            through preprocessing stage, but if we use other library processed
+            features, this process will be needed.
 
         """
         if len(x) < c.shape[0] * self.hop_size:
@@ -162,22 +154,14 @@ class WaveRNNClip(Clip):
         # voc_pad = 2  this will pad the input so that the resnet can 'see' wider than input length
         # max_offsets = n_frames - 2 - (mel_win + 2 * hp.voc_pad) = n_frames - 15
         """Convert into batch tensors.
+        Args:
+            batch (list): list of tuple of the pair of audio and features. Audio shape (T, ), features shape(T', C).
 
-        Parameters
-        ----------
-        batch : list
-            list of tuple of the pair of audio and features. 
-            Audio shape (T, ), features shape(T', C).
-
-        Returns
-        ----------
-        Tensor
-            Input signal batch (B, 1, T).
-        Tensor
-            Target signal batch (B, 1, T).
-        Tensor
-            Auxiliary feature batch (B, C, T'), where
-            T = (T' - 2 * aux_context_window) * hop_size.
+        Returns:
+            Tensor: Input signal batch (B, 1, T).
+            Tensor: Target signal batch (B, 1, T).
+            Tensor: Auxiliary feature batch (B, C, T'), 
+                where T = (T' - 2 * aux_context_window) * hop_size.
 
         """
         # check length

@@ -62,9 +62,3 @@ Contents
    :caption: Acknowledgement
 
    asr/reference
-
-
-
-
-
-

@@ -252,8 +252,7 @@ class Trainer():
         if self.args.benchmark_max_step and self.iteration > self.args.benchmark_max_step:
             logger.info(
                 f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
-            sys.exit(
-                f"Reach benchmark-max-step: {self.args.benchmark_max_step}")
+            sys.exit(0)
 
     def do_train(self):
         """The training process control by epoch."""
@@ -282,7 +281,7 @@ class Trainer():
                         observation['batch_cost'] = observation[
                             'reader_cost'] + observation['step_cost']
                         observation['samples'] = observation['batch_size']
-                        observation['ips[sent./sec]'] = observation[
+                        observation['ips samples/s'] = observation[
                             'batch_size'] / observation['batch_cost']
                         for k, v in observation.items():
                             msg += f" {k}: "

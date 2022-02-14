@@ -41,7 +41,7 @@ Contents
    tts/gan_vocoder
    tts/demo
    tts/demo_2
-   tts/demo_video
+   
 
 .. toctree::
    :maxdepth: 1
@@ -51,9 +51,10 @@ Contents
 
 .. toctree::
    :maxdepth: 1
-   :caption: Demo Video
+   :caption: Demos
 
    demo_video
+   tts_demo_video
 
 
 .. toctree::

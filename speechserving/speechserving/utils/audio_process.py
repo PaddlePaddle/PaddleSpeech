@@ -15,8 +15,17 @@ import wave
 
 import numpy as np
 
+from paddlespeech.cli.log import logger
+
 
 def wav2pcm(wavfile, pcmfile, data_type=np.int16):
+    """ Save the wav file as a pcm file
+
+    Args:
+        wavfile (str): wav file path
+        pcmfile (str): pcm file save path
+        data_type (type, optional): pcm sample type. Defaults to np.int16.
+    """
     with open(wavfile, "rb") as f:
         f.seek(0)
         f.read(44)
@@ -25,12 +34,21 @@ def wav2pcm(wavfile, pcmfile, data_type=np.int16):
 
 
 def pcm2wav(pcm_file, wav_file, channels=1, bits=16, sample_rate=16000):
+    """Save the pcm file as a wav file
+
+    Args:
+        pcm_file (str): pcm file path
+        wav_file (str): wav file save path
+        channels (int, optional): audio channel. Defaults to 1.
+        bits (int, optional): Bit depth. Defaults to 16.
+        sample_rate (int, optional): sample rate. Defaults to 16000.
+    """
     pcmf = open(pcm_file, 'rb')
     pcmdata = pcmf.read()
     pcmf.close()
 
     if bits % 8 != 0:
-        raise ValueError("bits % 8 must == 0. now bits:" + str(bits))
+        logger.error("bits % 8 must == 0. now bits:" + str(bits))
 
     wavfile = wave.open(wav_file, 'wb')
     wavfile.setnchannels(channels)

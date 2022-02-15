@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse
 import base64
 import io
 import os
@@ -21,7 +20,6 @@ import librosa
 import numpy as np
 import paddle
 import soundfile as sf
-import yaml
 from engine.base_engine import BaseEngine
 from scipy.io import wavfile
 
@@ -32,6 +30,7 @@ from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from utils.audio_process import change_speed
+from utils.config import get_config
 from utils.errors import ErrorCode
 from utils.exception import ServerBaseException
 from utils.paddle_predictor import init_predictor
@@ -118,14 +117,7 @@ pretrained_models = {
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.tts', add_help=True)
-        self.parser.add_argument(
-            '--conf',
-            type=str,
-            default='./conf/tts/tts_pd.yaml',
-            help='Configuration parameters.')
+        pass
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
@@ -224,7 +216,10 @@ class TTSServerExecutor(TTSExecutor):
             self.voc_sample_rate = voc_sample_rate
             self.voc_res_path = os.path.dirname(os.path.abspath(self.voc_model))
 
-        assert (self.voc_sample_rate == self.am_sample_rate)
+        assert (
+            self.voc_sample_rate == self.am_sample_rate
+        ), "The sample rate of AM and Vocoder model are different, please check model."
+
         # Init body.
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
@@ -339,31 +334,31 @@ class TTSEngine(BaseEngine):
         metaclass: Defaults to Singleton.
     """
 
-    def __init__(self, name=None):
+    def __init__(self):
         """Initialize TTS server engine
         """
         super(TTSEngine, self).__init__()
-        self.executor = TTSServerExecutor()
 
-        config_path = self.executor.parser.parse_args().conf
-        with open(config_path, 'rt') as f:
-            self.conf_dict = yaml.safe_load(f)
+    def init(self, config_file: str):
+        self.executor = TTSServerExecutor()
+        self.config_file = config_file
+        self.config = get_config(config_file)
 
         self.executor._init_from_path(
-            am=self.conf_dict["am"],
-            am_model=self.conf_dict["am_model"],
-            am_params=self.conf_dict["am_params"],
-            am_sample_rate=self.conf_dict["am_sample_rate"],
-            phones_dict=self.conf_dict["phones_dict"],
-            tones_dict=self.conf_dict["tones_dict"],
-            speaker_dict=self.conf_dict["speaker_dict"],
-            voc=self.conf_dict["voc"],
-            voc_model=self.conf_dict["voc_model"],
-            voc_params=self.conf_dict["voc_params"],
-            voc_sample_rate=self.conf_dict["voc_sample_rate"],
-            lang=self.conf_dict["lang"],
-            am_predictor_conf=self.conf_dict["am_predictor_conf"],
-            voc_predictor_conf=self.conf_dict["voc_predictor_conf"], )
+            am=self.config.am,
+            am_model=self.config.am_model,
+            am_params=self.config.am_params,
+            am_sample_rate=self.config.am_sample_rate,
+            phones_dict=self.config.phones_dict,
+            tones_dict=self.config.tones_dict,
+            speaker_dict=self.config.speaker_dict,
+            voc=self.config.voc,
+            voc_model=self.config.voc_model,
+            voc_params=self.config.voc_params,
+            voc_sample_rate=self.config.voc_sample_rate,
+            lang=self.config.lang,
+            am_predictor_conf=self.config.am_predictor_conf,
+            voc_predictor_conf=self.config.voc_predictor_conf, )
 
         logger.info("Initialize TTS server engine successfully.")
 
@@ -382,6 +377,13 @@ class TTSEngine(BaseEngine):
             target_fs (int): target audio sample rate
             volume (float): target volume
             speed (float): target speed
+
+        Raises:
+            ServerBaseException: Throws an exception if the change speed unsuccessfully.
+
+        Returns:
+            target_fs: target sample rate for synthesized audio.
+            wav_base64: The base64 format of the synthesized audio.
         """
 
         # transform sample_rate
@@ -440,21 +442,20 @@ class TTSEngine(BaseEngine):
             save_path (str, optional): The save path of the synthesized audio. Defaults to None.
 
         Raises:
-            ServerBaseException: Exception
-            ServerBaseException: Exception
+            ServerBaseException: Throws an exception if tts inference unsuccessfully.
+            ServerBaseException: Throws an exception if postprocess unsuccessfully.
 
         Returns:
-            lang, target_sample_rate, wav_base64
+            lang: model language 
+            target_sample_rate: target sample rate for synthesized audio.
+            wav_base64: The base64 format of the synthesized audio.
         """
 
-        lang = self.conf_dict["lang"]
+        lang = self.config.lang
 
         try:
             self.executor.infer(
-                text=sentence,
-                lang=lang,
-                am=self.conf_dict["am"],
-                spk_id=spk_id)
+                text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
         except:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")

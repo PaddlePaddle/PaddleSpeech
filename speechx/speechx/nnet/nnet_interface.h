@@ -1,15 +1,16 @@
 
 #pragma once
 
-#include ""
+#include "base/basic_types.h"
+#include "kaldi/base/kaldi-types.h"
 
 namespace ppspeech {
 
-class NnetForwardInterface {
+class NnetInterface {
   public:
     virtual ~NnetForwardInterface() {}
     virtual void FeedForward(const kaldi::Matrix<BaseFloat>& features, 
-                             kaldi::Vector<kaldi::BaseFloat>* inference) const = 0;
+                             kaldi::Matrix<kaldi::BaseFloat>* inferences) const = 0;
 
 };
 

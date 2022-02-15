@@ -39,6 +39,7 @@ FetchContent_Declare(
   GIT_TAG "20210324.1"
 )
 FetchContent_MakeAvailable(absl)
+include_directories(${absl_SOURCE_DIR}/absl)
 
 # libsndfile
 include(FetchContent)

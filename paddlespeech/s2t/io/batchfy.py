@@ -419,7 +419,7 @@ def make_batchset(
         # sort it by input lengths (long to short)
         sorted_data = sorted(
             d.items(),
-            key=lambda data: int(data[1][batch_sort_key][batch_sort_axis]["shape"][0]),
+            key=lambda data: float(data[1][batch_sort_key][batch_sort_axis]["shape"][0]),
             reverse=not shortest_first, )
         logger.info("# utts: " + str(len(sorted_data)))
 

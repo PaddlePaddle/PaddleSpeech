@@ -208,7 +208,7 @@ def verbalize_digit(value_string: str, alt_one=False) -> str:
     result_symbols = [DIGITS[digit] for digit in value_string]
     result = ''.join(result_symbols)
     if alt_one:
-        result.replace("一", "幺")
+        result = result.replace("一", "幺")
     return result
 
 

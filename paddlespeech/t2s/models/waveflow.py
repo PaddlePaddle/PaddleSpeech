@@ -33,11 +33,11 @@ def fold(x, n_group):
     """Fold audio or spectrogram's temporal dimension in to groups.
 
     Args:
-        x(Tensor): The input tensor. shape=(\*, time_steps)
+        x(Tensor): The input tensor. shape=(*, time_steps)
         n_group(int): The size of a group.
 
     Returns:
-        Tensor: Folded tensor. shape=(\*, time_steps // n_group, group)
+        Tensor: Folded tensor. shape=(*, time_steps // n_group, group)
     """
     spatial_shape = list(x.shape[:-1])
     time_steps = paddle.shape(x)[-1]
@@ -98,11 +98,11 @@ class UpsampleNet(nn.LayerList):
             trim_conv_artifact(bool, optional, optional): Trim deconvolution artifact at each layer. Defaults to False.
 
         Returns:
-           Tensor: The upsampled spectrogram. shape=(batch_size, input_channels, time_steps \* upsample_factor)
+           Tensor: The upsampled spectrogram. shape=(batch_size, input_channels, time_steps * upsample_factor)
 
         Notes:
             If trim_conv_artifact is ``True``, the output time steps is less
-            than ``time_steps \* upsample_factors``.
+            than ``time_steps * upsample_factors``.
         """
         x = paddle.unsqueeze(x, 1)  # (B, C, T) -> (B, 1, C, T)
         for layer in self:
@@ -641,7 +641,7 @@ class ConditionalWaveFlow(nn.LayerList):
             mel(np.ndarray): Mel spectrogram of an utterance(in log-magnitude). shape=(C_mel, T_mel)
 
         Returns:
-            Tensor: The synthesized audio, where``T <= T_mel \* upsample_factors``. shape=(B, T)
+            Tensor: The synthesized audio, where``T <= T_mel * upsample_factors``. shape=(B, T)
         """
         start = time.time()
         condition = self.encoder(mel, trim_conv_artifact=True)  # (B, C, T)

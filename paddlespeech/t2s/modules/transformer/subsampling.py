@@ -21,16 +21,12 @@ from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
 
 class Conv2dSubsampling(nn.Layer):
     """Convolutional 2D subsampling (to 1/4 length).
-    Parameters
-    ----------
-    idim : int
-        Input dimension.
-    odim : int
-        Output dimension.
-    dropout_rate : float
-        Dropout rate.
-    pos_enc : nn.Layer
-        Custom position encoding layer.
+
+    Args:
+        idim (int): Input dimension.
+        odim (int): Output dimension.
+        dropout_rate (float): Dropout rate.
+        pos_enc (nn.Layer): Custom position encoding layer.
     """
 
     def __init__(self, idim, odim, dropout_rate, pos_enc=None):
@@ -48,20 +44,12 @@ class Conv2dSubsampling(nn.Layer):
 
     def forward(self, x, x_mask):
         """Subsample x.
-        Parameters
-        ----------
-        x : paddle.Tensor
-            Input tensor (#batch, time, idim).
-        x_mask : paddle.Tensor
-            Input mask (#batch, 1, time).
-        Returns
-        ----------
-        paddle.Tensor
-            Subsampled tensor (#batch, time', odim),
-            where time' = time // 4.
-        paddle.Tensor
-            Subsampled mask (#batch, 1, time'),
-            where time' = time // 4.
+        Args:
+            x (Tensor): Input tensor (#batch, time, idim).
+            x_mask (Tensor): Input mask (#batch, 1, time).
+        Returns:
+            Tensor: Subsampled tensor (#batch, time', odim), where time' = time // 4.
+            Tensor: Subsampled mask (#batch, 1, time'), where time' = time // 4.
         """
         # (b, c, t, f)
         x = x.unsqueeze(1)

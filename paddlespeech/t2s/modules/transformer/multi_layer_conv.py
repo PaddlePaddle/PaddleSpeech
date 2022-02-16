@@ -31,16 +31,11 @@ class MultiLayeredConv1d(nn.Layer):
     def __init__(self, in_chans, hidden_chans, kernel_size, dropout_rate):
         """Initialize MultiLayeredConv1d module.
 
-        Parameters
-        ----------
-        in_chans : int
-            Number of input channels.
-        hidden_chans : int
-            Number of hidden channels.
-        kernel_size : int
-            Kernel size of conv1d.
-        dropout_rate : float
-            Dropout rate.
+        Args: 
+            in_chans (int): Number of input channels.
+            hidden_chans (int): Number of hidden channels.
+            kernel_size (int): Kernel size of conv1d.
+            dropout_rate (float): Dropout rate.
 
         """
         super().__init__()
@@ -62,15 +57,11 @@ class MultiLayeredConv1d(nn.Layer):
     def forward(self, x):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        x : paddle.Tensor
-            Batch of input tensors (B, T, in_chans).
+        Args:
+            x (Tensor): Batch of input tensors (B, T, in_chans).
 
-        Returns
-        ----------
-        paddle.Tensor
-            Batch of output tensors (B, T, in_chans).
+        Returns: 
+            Tensor: Batch of output tensors (B, T, in_chans).
         """
         x = self.relu(self.w_1(x.transpose([0, 2, 1]))).transpose([0, 2, 1])
         return self.w_2(self.dropout(x).transpose([0, 2, 1])).transpose(
@@ -87,16 +78,11 @@ class Conv1dLinear(nn.Layer):
     def __init__(self, in_chans, hidden_chans, kernel_size, dropout_rate):
         """Initialize Conv1dLinear module.
 
-        Parameters
-        ----------
-        in_chans : int
-            Number of input channels.
-        hidden_chans : int
-            Number of hidden channels.
-        kernel_size : int
-            Kernel size of conv1d.
-        dropout_rate : float
-            Dropout rate.
+        Args:
+            in_chans (int): Number of input channels.
+            hidden_chans (int): Number of hidden channels.
+            kernel_size (int): Kernel size of conv1d.
+            dropout_rate (float): Dropout rate.
         """
         super().__init__()
         self.w_1 = nn.Conv1D(
@@ -112,15 +98,11 @@ class Conv1dLinear(nn.Layer):
     def forward(self, x):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        x : paddle.Tensor
-        Batch of input tensors (B, T, in_chans).
+        Args:
+            x (Tensor): Batch of input tensors (B, T, in_chans).
 
-        Returns
-        ----------
-        paddle.Tensor
-            Batch of output tensors (B, T, in_chans).
+        Returns:
+            Tensor: Batch of output tensors (B, T, in_chans).
 
         """
         x = self.relu(self.w_1(x.transpose([0, 2, 1]))).transpose([0, 2, 1])

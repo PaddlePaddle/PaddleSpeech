@@ -35,10 +35,8 @@ class LengthRegulator(nn.Layer):
     def __init__(self, pad_value=0.0):
         """Initilize length regulator module.
 
-        Parameters
-        ----------
-        pad_value : float, optional
-            Value used for padding.
+        Args:
+            pad_value (float, optional): Value used for padding.
 
         """
         super().__init__()
@@ -90,19 +88,13 @@ class LengthRegulator(nn.Layer):
     def forward(self, xs, ds, alpha=1.0, is_inference=False):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        xs : Tensor
-            Batch of sequences of char or phoneme embeddings (B, Tmax, D).
-        ds : Tensor(int64)
-            Batch of durations of each frame (B, T).
-        alpha : float, optional
-            Alpha value to control speed of speech.
+        Args:
+            xs (Tensor): Batch of sequences of char or phoneme embeddings (B, Tmax, D).
+            ds (Tensor(int64)): Batch of durations of each frame (B, T).
+            alpha (float, optional): Alpha value to control speed of speech.
 
-        Returns
-        ----------
-        Tensor
-            replicated input tensor based on durations (B, T*, D).
+        Returns:
+            Tensor: replicated input tensor based on durations (B, T*, D).
         """
 
         if alpha != 1.0:

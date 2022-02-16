@@ -17,8 +17,8 @@ import numpy as np
 import pandas
 from paddle.io import Dataset
 
-from paddlespeech.t2s.data.batch import batch_spec
-from paddlespeech.t2s.data.batch import batch_wav
+from paddlespeech.t2s.datasets.batch import batch_spec
+from paddlespeech.t2s.datasets.batch import batch_wav
 
 
 class LJSpeech(Dataset):

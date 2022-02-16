@@ -65,14 +65,10 @@ class English(Phonetics):
 
     def phoneticize(self, sentence):
         """ Normalize the input text sequence and convert it into pronunciation sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Args:
+            sentence (str): The input text sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         start = self.vocab.start_symbol
         end = self.vocab.end_symbol
@@ -123,14 +119,10 @@ class English(Phonetics):
 
     def numericalize(self, phonemes):
         """ Convert pronunciation sequence into pronunciation id sequence.
-        Parameters
-        -----------
-        phonemes: List[str]
-            The list of pronunciation sequence.
-        Returns
-        ----------
-        List[int]
-            The list of pronunciation id sequence.
+        Args:
+            phonemes (List[str]): The list of pronunciation sequence.
+        Returns: 
+            List[int]: The list of pronunciation id sequence.
         """
         ids = [
             self.vocab.lookup(item) for item in phonemes
@@ -140,27 +132,19 @@ class English(Phonetics):
 
     def reverse(self, ids):
         """ Reverse the list of pronunciation id sequence to a list of pronunciation sequence.
-        Parameters
-        -----------
-        ids: List[int]
-            The list of pronunciation id sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Args:
+            ids (List[int]): The list of pronunciation id sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         return [self.vocab.reverse(i) for i in ids]
 
     def __call__(self, sentence):
         """ Convert the input text sequence into pronunciation id sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation id sequence.
+        Args:
+            sentence(str): The input text sequence.
+        Returns: 
+            List[str]: The list of pronunciation id sequence.
         """
         return self.numericalize(self.phoneticize(sentence))
 
@@ -183,28 +167,21 @@ class EnglishCharacter(Phonetics):
 
     def phoneticize(self, sentence):
         """ Normalize the input text sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        str
-            A text sequence after normalize.
+        Args:
+            sentence(str): The input text sequence.
+        Returns:
+            str: A text sequence after normalize.
         """
         words = normalize(sentence)
         return words
 
     def numericalize(self, sentence):
         """ Convert a text sequence into ids.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[int]
-            List of a character id sequence.
+        Args:
+            sentence (str): The input text sequence.
+        Returns:
+            List[int]:
+                List of a character id sequence.
         """
         ids = [
             self.vocab.lookup(item) for item in sentence
@@ -214,27 +191,19 @@ class EnglishCharacter(Phonetics):
 
     def reverse(self, ids):
         """ Convert a character id sequence into text.
-        Parameters
-        -----------
-        ids: List[int]
-            List of a character id sequence.
-        Returns
-        ----------
-        str
-            The input text sequence.
+        Args:
+            ids (List[int]): List of a character id sequence.
+        Returns:
+            str: The input text sequence.
         """
         return [self.vocab.reverse(i) for i in ids]
 
     def __call__(self, sentence):
         """ Normalize the input text sequence and convert it into character id sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[int]
-            List of a character id sequence.
+        Args:
+            sentence (str): The input text sequence.
+        Returns: 
+            List[int]: List of a character id sequence.
         """
         return self.numericalize(self.phoneticize(sentence))
 
@@ -264,14 +233,10 @@ class Chinese(Phonetics):
 
     def phoneticize(self, sentence):
         """ Normalize the input text sequence and convert it into pronunciation sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Args:
+            sentence(str): The input text sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         # simplified = self.opencc_backend.convert(sentence)
         simplified = sentence
@@ -296,28 +261,20 @@ class Chinese(Phonetics):
 
     def numericalize(self, phonemes):
         """ Convert pronunciation sequence into pronunciation id sequence.
-        Parameters
-        -----------
-        phonemes: List[str]
-            The list of pronunciation sequence.
-        Returns
-        ----------
-        List[int]
-            The list of pronunciation id sequence.
+        Args:
+            phonemes(List[str]): The list of pronunciation sequence.
+        Returns:
+                List[int]: The list of pronunciation id sequence.
         """
         ids = [self.vocab.lookup(item) for item in phonemes]
         return ids
 
     def __call__(self, sentence):
         """ Convert the input text sequence into pronunciation id sequence.
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation id sequence.
+        Args:
+            sentence (str): The input text sequence.
+        Returns:
+            List[str]: The list of pronunciation id sequence.
         """
         return self.numericalize(self.phoneticize(sentence))
 
@@ -329,13 +286,9 @@ class Chinese(Phonetics):
 
     def reverse(self, ids):
         """ Reverse the list of pronunciation id sequence to a list of pronunciation sequence.
-        Parameters
-        -----------
-        ids: List[int]
-            The list of pronunciation id sequence.
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Args:
+        ids (List[int]): The list of pronunciation id sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         return [self.vocab.reverse(i) for i in ids]

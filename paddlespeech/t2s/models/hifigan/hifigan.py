@@ -37,35 +37,21 @@ class HiFiGANGenerator(nn.Layer):
             use_weight_norm: bool=True,
             init_type: str="xavier_uniform", ):
         """Initialize HiFiGANGenerator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels.
-        channels : int
-            Number of hidden representation channels.
-        kernel_size : int
-            Kernel size of initial and final conv layer.
-        upsample_scales : list
-            List of upsampling scales.
-        upsample_kernel_sizes : list
-            List of kernel sizes for upsampling layers.
-        resblock_kernel_sizes : list
-            List of kernel sizes for residual blocks.
-        resblock_dilations : list
-            List of dilation list for residual blocks.
-        use_additional_convs : bool
-            Whether to use additional conv layers in residual blocks.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
-        use_weight_norm : bool
-            Whether to use weight norm.
-            If set to true, it will be applied to all of the conv layers.
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            channels (int): Number of hidden representation channels.
+            kernel_size (int): Kernel size of initial and final conv layer.
+            upsample_scales (list): List of upsampling scales.
+            upsample_kernel_sizes (list): List of kernel sizes for upsampling layers.
+            resblock_kernel_sizes (list): List of kernel sizes for residual blocks.
+            resblock_dilations (list): List of dilation list for residual blocks.
+            use_additional_convs (bool): Whether to use additional conv layers in residual blocks.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
+            use_weight_norm (bool): Whether to use weight norm.
+                If set to true, it will be applied to all of the conv layers.
         """
         super().__init__()
 
@@ -134,14 +120,11 @@ class HiFiGANGenerator(nn.Layer):
 
     def forward(self, c):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        c : Tensor
-            Input tensor (B, in_channels, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, out_channels, T).
+        
+        Args:
+            c (Tensor): Input tensor (B, in_channels, T).
+        Returns:
+            Tensor: Output tensor (B, out_channels, T).
         """
         c = self.input_conv(c)
         for i in range(self.num_upsamples):
@@ -196,15 +179,12 @@ class HiFiGANGenerator(nn.Layer):
 
     def inference(self, c):
         """Perform inference.
-        Parameters
-        ----------
-        c : Tensor 
-            Input tensor (T, in_channels).
-            normalize_before (bool): Whether to perform normalization.
-        Returns
-        ----------
-        Tensor
-            Output tensor (T ** prod(upsample_scales), out_channels).
+        Args:
+            c (Tensor): Input tensor (T, in_channels).
+                normalize_before (bool): Whether to perform normalization.
+        Returns:
+            Tensor:
+                Output tensor (T ** prod(upsample_scales), out_channels).
         """
         c = self.forward(c.transpose([1, 0]).unsqueeze(0))
         return c.squeeze(0).transpose([1, 0])
@@ -229,36 +209,23 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
             use_spectral_norm: bool=False,
             init_type: str="xavier_uniform", ):
         """Initialize HiFiGANPeriodDiscriminator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels.
-        period : int
-            Period.
-        kernel_sizes : list
-            Kernel sizes of initial conv layers and the final conv layer.
-        channels : int
-            Number of initial channels.
-        downsample_scales : list
-            List of downsampling scales.
-        max_downsample_channels : int
-            Number of maximum downsampling channels.
-        use_additional_convs : bool
-            Whether to use additional conv layers in residual blocks.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
-        use_weight_norm : bool
-            Whether to use weight norm.
-            If set to true, it will be applied to all of the conv layers.
-        use_spectral_norm : bool
-            Whether to use spectral norm.
-            If set to true, it will be applied to all of the conv layers.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            period (int): Period.
+            kernel_sizes (list): Kernel sizes of initial conv layers and the final conv layer.
+            channels (int): Number of initial channels.
+            downsample_scales (list): List of downsampling scales.
+            max_downsample_channels (int): Number of maximum downsampling channels.
+            use_additional_convs (bool): Whether to use additional conv layers in residual blocks.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
+            use_weight_norm (bool): Whether to use weight norm.
+                If set to true, it will be applied to all of the conv layers.
+            use_spectral_norm (bool): Whether to use spectral norm.
+                If set to true, it will be applied to all of the conv layers.
         """
         super().__init__()
 
@@ -307,14 +274,11 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        c : Tensor
-            Input tensor (B, in_channels, T).
-        Returns
-        ----------
-        list
-            List of each layer's tensors.
+
+        Args:
+            c (Tensor): Input tensor (B, in_channels, T).
+        Returns:
+            list: List of each layer's tensors.
         """
         # transform 1d to 2d -> (B, C, T/P, P)
         b, c, t = paddle.shape(x)
@@ -379,13 +343,11 @@ class HiFiGANMultiPeriodDiscriminator(nn.Layer):
             },
             init_type: str="xavier_uniform", ):
         """Initialize HiFiGANMultiPeriodDiscriminator module.
-        Parameters
-        ----------
-        periods : list
-            List of periods.
-        discriminator_params : dict
-            Parameters for hifi-gan period discriminator module.
-            The period parameter will be overwritten.
+
+        Args:
+            periods (list): List of periods.
+            discriminator_params (dict): Parameters for hifi-gan period discriminator module.
+                The period parameter will be overwritten.
         """
         super().__init__()
         # initialize parameters
@@ -399,14 +361,11 @@ class HiFiGANMultiPeriodDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List
-            List of list of each discriminator outputs, which consists of each layer output tensors.
+
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List: List of list of each discriminator outputs, which consists of each layer output tensors.
         """
         outs = []
         for f in self.discriminators:
@@ -434,33 +393,22 @@ class HiFiGANScaleDiscriminator(nn.Layer):
             use_spectral_norm: bool=False,
             init_type: str="xavier_uniform", ):
         """Initilize HiFiGAN scale discriminator module.
-        Parameters
-        ----------
-        in_channels : int
-            Number of input channels.
-        out_channels : int
-            Number of output channels.
-        kernel_sizes : list
-            List of four kernel sizes. The first will be used for the first conv layer,
-            and the second is for downsampling part, and the remaining two are for output layers.
-        channels : int
-            Initial number of channels for conv layer.
-        max_downsample_channels : int
-            Maximum number of channels for downsampling layers.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        downsample_scales : list
-            List of downsampling scales.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
-        use_weight_norm : bool
-            Whether to use weight norm.
-            If set to true, it will be applied to all of the conv layers.
-        use_spectral_norm : bool
-            Whether to use spectral norm.
-            If set to true, it will be applied to all of the conv layers.
+
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            kernel_sizes (list): List of four kernel sizes. The first will be used for the first conv layer,
+                and the second is for downsampling part, and the remaining two are for output layers.
+            channels (int): Initial number of channels for conv layer.
+            max_downsample_channels (int): Maximum number of channels for downsampling layers.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            downsample_scales (list): List of downsampling scales.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
+            use_weight_norm (bool): Whether to use weight norm.
+                If set to true, it will be applied to all of the conv layers.
+            use_spectral_norm (bool): Whether to use spectral norm.
+                If set to true, it will be applied to all of the conv layers.
         """
         super().__init__()
 
@@ -546,14 +494,11 @@ class HiFiGANScaleDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List
-            List of output tensors of each layer.
+
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List: List of output tensors of each layer.
         """
         outs = []
         for f in self.layers:
@@ -613,20 +558,14 @@ class HiFiGANMultiScaleDiscriminator(nn.Layer):
             follow_official_norm: bool=False,
             init_type: str="xavier_uniform", ):
         """Initilize HiFiGAN multi-scale discriminator module.
-        Parameters
-        ----------
-        scales : int
-            Number of multi-scales.
-        downsample_pooling : str
-            Pooling module name for downsampling of the inputs.
-        downsample_pooling_params : dict
-            Parameters for the above pooling module.
-        discriminator_params : dict
-            Parameters for hifi-gan scale discriminator module.
-        follow_official_norm : bool
-            Whether to follow the norm setting of the official
-            implementaion. The first discriminator uses spectral norm and the other
-            discriminators use weight norm.
+   
+        Args:
+            scales (int): Number of multi-scales.
+            downsample_pooling (str): Pooling module name for downsampling of the inputs.
+            downsample_pooling_params (dict): Parameters for the above pooling module.
+            discriminator_params (dict): Parameters for hifi-gan scale discriminator module.
+            follow_official_norm (bool): Whether to follow the norm setting of the official
+                implementaion. The first discriminator uses spectral norm and the other discriminators use weight norm.
         """
         super().__init__()
 
@@ -651,14 +590,11 @@ class HiFiGANMultiScaleDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List
-            List of list of each discriminator outputs, which consists of each layer output tensors.
+
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List: List of list of each discriminator outputs, which consists of each layer output tensors.
         """
         outs = []
         for f in self.discriminators:
@@ -715,24 +651,17 @@ class HiFiGANMultiScaleMultiPeriodDiscriminator(nn.Layer):
             },
             init_type: str="xavier_uniform", ):
         """Initilize HiFiGAN multi-scale + multi-period discriminator module.
-        Parameters
-        ----------
-        scales : int
-            Number of multi-scales.
-        scale_downsample_pooling : str
-            Pooling module name for downsampling of the inputs.
-        scale_downsample_pooling_params : dict
-            Parameters for the above pooling module.
-        scale_discriminator_params : dict
-            Parameters for hifi-gan scale discriminator module.
-        follow_official_norm : bool): Whether to follow the norm setting of the official
-            implementaion. The first discriminator uses spectral norm and the other
-            discriminators use weight norm.
-        periods : list
-            List of periods.
-        period_discriminator_params : dict
-            Parameters for hifi-gan period discriminator module.
-            The period parameter will be overwritten.
+
+        Args:
+            scales (int): Number of multi-scales.
+            scale_downsample_pooling (str): Pooling module name for downsampling of the inputs.
+            scale_downsample_pooling_params (dict): Parameters for the above pooling module.
+            scale_discriminator_params (dict): Parameters for hifi-gan scale discriminator module.
+            follow_official_norm （bool): Whether to follow the norm setting of the official implementaion. 
+                The first discriminator uses spectral norm and the other discriminators use weight norm.
+            periods (list): List of periods.
+            period_discriminator_params (dict): Parameters for hifi-gan period discriminator module.
+                The period parameter will be overwritten.
         """
         super().__init__()
 
@@ -751,16 +680,14 @@ class HiFiGANMultiScaleMultiPeriodDiscriminator(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input noise signal (B, 1, T).
-        Returns
-        ----------
-        List:
-            List of list of each discriminator outputs,
-            which consists of each layer output tensors.
-            Multi scale and multi period ones are concatenated.
+
+        Args:
+            x (Tensor): Input noise signal (B, 1, T).
+        Returns:
+            List:
+                List of list of each discriminator outputs,
+                which consists of each layer output tensors.
+                Multi scale and multi period ones are concatenated.
         """
         msd_outs = self.msd(x)
         mpd_outs = self.mpd(x)

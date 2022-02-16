@@ -41,6 +41,7 @@ Contents
    tts/gan_vocoder
    tts/demo
    tts/demo_2
+   
 
 .. toctree::
    :maxdepth: 1
@@ -50,12 +51,14 @@ Contents
 
 .. toctree::
    :maxdepth: 1
+   :caption: Demos
+
+   demo_video
+   tts_demo_video
+
+
+.. toctree::
+   :maxdepth: 1
    :caption: Acknowledgement
 
    asr/reference
-
-
-
-
-
-

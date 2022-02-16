@@ -67,14 +67,10 @@ class MelResNet(nn.Layer):
 
     def forward(self, x):
         '''
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, in_dims, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, res_out_dims, T).
+        Args:
+            x (Tensor): Input tensor (B, in_dims, T).
+        Returns:
+            Tensor: Output tensor (B, res_out_dims, T).
         '''
 
         x = self.conv_in(x)
@@ -121,16 +117,11 @@ class UpsampleNetwork(nn.Layer):
 
     def forward(self, m):
         '''
-        Parameters
-        ----------
-        c : Tensor
-            Input tensor (B, C_aux, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), C_aux).
-        Tensor
-            Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), res_out_dims).
+        Args:
+            c (Tensor): Input tensor (B, C_aux, T).
+        Returns:
+            Tensor: Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), C_aux).
+            Tensor: Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), res_out_dims).
         '''
         # aux: [B, C_aux, T] 
         # -> [B, res_out_dims, T - 2 * aux_context_window]
@@ -172,32 +163,20 @@ class WaveRNN(nn.Layer):
             mode='RAW',
             init_type: str="xavier_uniform", ):
         '''
-        Parameters
-        ----------
-        rnn_dims : int, optional
-            Hidden dims of RNN Layers.
-        fc_dims : int, optional
-             Dims of FC Layers.
-        bits : int, optional
-            bit depth of signal.
-        aux_context_window : int, optional
-            The context window size of the first convolution applied to the 
-            auxiliary input, by default 2
-        upsample_scales : List[int], optional
-            Upsample scales of the upsample network.
-        aux_channels : int, optional
-            Auxiliary channel of the residual blocks.
-        compute_dims : int, optional
-            Dims of Conv1D in MelResNet.
-        res_out_dims : int, optional
-            Dims of output in MelResNet.
-        res_blocks : int, optional
-            Number of residual blocks.
-        mode : str, optional
-            Output mode of the WaveRNN vocoder. `MOL` for Mixture of Logistic Distribution,
-            and `RAW` for quantized bits as the model's output.
-        init_type : str
-            How to initialize parameters.
+        Args:
+            rnn_dims (int, optional): Hidden dims of RNN Layers.
+            fc_dims (int, optional): Dims of FC Layers.
+            bits (int, optional): bit depth of signal.
+            aux_context_window (int, optional): The context window size of the first convolution applied to the 
+                auxiliary input, by default 2
+            upsample_scales (List[int], optional): Upsample scales of the upsample network.
+            aux_channels (int, optional): Auxiliary channel of the residual blocks.
+            compute_dims (int, optional): Dims of Conv1D in MelResNet.
+            res_out_dims (int, optional): Dims of output in MelResNet.
+            res_blocks (int, optional): Number of residual blocks.
+            mode (str, optional): Output mode of the WaveRNN vocoder. 
+                `MOL` for Mixture of Logistic Distribution, and `RAW` for quantized bits as the model's output.
+            init_type (str): How to initialize parameters.
         '''
         super().__init__()
         self.mode = mode
@@ -245,18 +224,13 @@ class WaveRNN(nn.Layer):
 
     def forward(self, x, c):
         '''
-        Parameters
-        ----------
-        x : Tensor
-            wav sequence, [B, T]
-        c : Tensor
-            mel spectrogram [B, C_aux, T']
-        
-        T = (T' - 2 * aux_context_window ) * hop_length
-        Returns
-        ----------
-        Tensor
-            [B, T, n_classes]
+        Args:
+            x (Tensor): wav sequence, [B, T]
+            c (Tensor): mel spectrogram [B, C_aux, T']
+
+            T = (T' - 2 * aux_context_window ) * hop_length
+        Returns:
+            Tensor: [B, T, n_classes]
         '''
         # Although we `_flatten_parameters()` on init, when using DataParallel
         # the model gets replicated, making it no longer guaranteed that the
@@ -304,22 +278,14 @@ class WaveRNN(nn.Layer):
                  mu_law: bool=True,
                  gen_display: bool=False):
         """
-        Parameters
-        ----------
-        c : Tensor
-            input mels, (T', C_aux)
-        batched : bool
-            generate in batch or not
-        target : int
-            target number of samples to be generated in each batch entry
-        overlap : int
-            number of samples for crossfading between batches
-        mu_law : bool
-            use mu law or not
-        Returns
-        ----------
-        wav sequence
-            Output (T' * prod(upsample_scales), out_channels, C_out).
+        Args:
+            c(Tensor): input mels, (T', C_aux)
+            batched(bool): generate in batch or not
+            target(int): target number of samples to be generated in each batch entry
+            overlap(int): number of samples for crossfading between batches
+            mu_law(bool)
+        Returns: 
+            wav sequence: Output (T' * prod(upsample_scales), out_channels, C_out).
         """
 
         self.eval()
@@ -434,16 +400,13 @@ class WaveRNN(nn.Layer):
 
     def pad_tensor(self, x, pad, side='both'):
         '''
-        Parameters
-        ----------
-        x : Tensor
-            mel, [1, n_frames, 80]
-        pad : int
-        side : str 
-            'both', 'before' or 'after'
-        Returns
-        ----------
-        Tensor
+        Args:
+            x(Tensor): mel, [1, n_frames, 80]
+            pad(int): 
+            side(str, optional):  (Default value = 'both')
+
+        Returns:
+            Tensor
         '''
         b, t, _ = paddle.shape(x)
         # for dygraph to static graph
@@ -461,38 +424,29 @@ class WaveRNN(nn.Layer):
         Fold the tensor with overlap for quick batched inference.
         Overlap will be used for crossfading in xfade_and_unfold()
 
-        Parameters
-        ----------
-        x : Tensor
-            Upsampled conditioning features. mels or aux
-            shape=(1, T, features)
-            mels: [1, T, 80]
-            aux: [1, T, 128]
-        target : int
-            Target timesteps for each index of batch
-        overlap : int
-            Timesteps for both xfade and rnn warmup
-            overlap = hop_length * 2
+        Args:
+            x(Tensor): Upsampled conditioning features. mels or aux
+                shape=(1, T, features)
+                mels: [1, T, 80]
+                aux: [1, T, 128]
+            target(int): Target timesteps for each index of batch
+            overlap(int): Timesteps for both xfade and rnn warmup
 
-        Returns
-        ----------
-        Tensor 
-            shape=(num_folds, target + 2 * overlap, features)
-            num_flods = (time_seq - overlap) // (target + overlap)
-            mel: [num_folds, target + 2 * overlap, 80]
-            aux: [num_folds, target + 2 * overlap, 128]
+        Returns:
+            Tensor: 
+                shape=(num_folds, target + 2 * overlap, features)
+                num_flods = (time_seq - overlap) // (target + overlap)
+                mel: [num_folds, target + 2 * overlap, 80]
+                aux: [num_folds, target + 2 * overlap, 128]
 
-        Details
-        ----------
-        x = [[h1, h2, ... hn]]
+        Details:
+            x = [[h1, h2, ... hn]]
+            Where each h is a vector of conditioning features
+            Eg: target=2, overlap=1 with x.size(1)=10
 
-        Where each h is a vector of conditioning features
-
-        Eg: target=2, overlap=1 with x.size(1)=10
-
-        folded = [[h1, h2, h3, h4],
-                  [h4, h5, h6, h7],
-                  [h7, h8, h9, h10]]
+            folded = [[h1, h2, h3, h4],
+                    [h4, h5, h6, h7],
+                    [h7, h8, h9, h10]]
         '''
 
         _, total_len, features = paddle.shape(x)
@@ -520,37 +474,33 @@ class WaveRNN(nn.Layer):
     def xfade_and_unfold(self, y, target: int=12000, overlap: int=600):
         ''' Applies a crossfade and unfolds into a 1d array.
 
-        Parameters
-        ----------
-        y : Tensor
-            Batched sequences of audio samples
-            shape=(num_folds, target + 2 * overlap)
-            dtype=paddle.float32
-        overlap : int
-            Timesteps for both xfade and rnn warmup
+        Args:
+            y (Tensor): 
+                Batched sequences of audio samples
+                shape=(num_folds, target + 2 * overlap)
+                dtype=paddle.float32
+            overlap (int): Timesteps for both xfade and rnn warmup
 
-        Returns
-        ----------
-        Tensor
-            audio samples in a 1d array
-            shape=(total_len)
-            dtype=paddle.float32
+        Returns:
+            Tensor
+                audio samples in a 1d array
+                shape=(total_len)
+                dtype=paddle.float32
 
-        Details
-        ----------
-        y = [[seq1],
-            [seq2],
-            [seq3]]
+        Details:
+            y = [[seq1],
+                [seq2],
+                [seq3]]
 
-        Apply a gain envelope at both ends of the sequences
+            Apply a gain envelope at both ends of the sequences
 
-        y = [[seq1_in, seq1_target, seq1_out],
-            [seq2_in, seq2_target, seq2_out],
-            [seq3_in, seq3_target, seq3_out]]
+            y = [[seq1_in, seq1_target, seq1_out],
+                [seq2_in, seq2_target, seq2_out],
+                [seq3_in, seq3_target, seq3_out]]
 
-        Stagger and add up the groups of samples:
+            Stagger and add up the groups of samples:
 
-        [seq1_in, seq1_target, (seq1_out + seq2_in), seq2_target, ...]
+            [seq1_in, seq1_target, (seq1_out + seq2_in), seq2_target, ...]
 
         '''
         # num_folds = (total_len - overlap) // (target + overlap)

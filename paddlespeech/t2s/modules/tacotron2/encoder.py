@@ -45,31 +45,18 @@ class Encoder(nn.Layer):
             dropout_rate=0.5,
             padding_idx=0, ):
         """Initialize Tacotron2 encoder module.
-
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        input_layer : str
-            Input layer type.
-        embed_dim : int, optional
-            Dimension of character embedding.
-        elayers : int, optional
-            The number of encoder blstm layers.
-        eunits : int, optional
-            The number of encoder blstm units.
-        econv_layers : int, optional
-            The number of encoder conv layers.
-        econv_filts : int, optional
-            The number of encoder conv filter size.
-        econv_chans : int, optional
-            The number of encoder conv filter channels.
-        use_batch_norm : bool, optional
-            Whether to use batch normalization.
-        use_residual : bool, optional
-            Whether to use residual connection.
-        dropout_rate : float, optional
-            Dropout rate.
+        Args:
+            idim (int): Dimension of the inputs.
+            input_layer (str): Input layer type.
+            embed_dim (int, optional): Dimension of character embedding.
+            elayers (int, optional): The number of encoder blstm layers.
+            eunits (int, optional): The number of encoder blstm units.
+            econv_layers (int, optional): The number of encoder conv layers.
+            econv_filts (int, optional): The number of encoder conv filter size.
+            econv_chans (int, optional): The number of encoder conv filter channels.
+            use_batch_norm (bool, optional): Whether to use batch normalization.
+            use_residual (bool, optional): Whether to use residual connection.
+            dropout_rate (float, optional): Dropout rate.
 
         """
         super().__init__()
@@ -139,21 +126,15 @@ class Encoder(nn.Layer):
     def forward(self, xs, ilens=None):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        xs : Tensor
-            Batch of the padded sequence. Either character ids (B, Tmax)
-            or acoustic feature (B, Tmax, idim * encoder_reduction_factor). 
-            Padded value should be 0.
-        ilens : Tensor(int64)
-            Batch of lengths of each input batch (B,).
+        Args:
+            xs (Tensor): Batch of the padded sequence. Either character ids (B, Tmax)
+                or acoustic feature (B, Tmax, idim * encoder_reduction_factor). 
+                Padded value should be 0.
+            ilens (Tensor(int64)): Batch of lengths of each input batch (B,).
 
-        Returns
-        ----------
-        Tensor
-            Batch of the sequences of encoder states(B, Tmax, eunits).
-        Tensor(int64)
-            Batch of lengths of each sequence (B,)
+        Returns:
+            Tensor: Batch of the sequences of encoder states(B, Tmax, eunits).
+            Tensor(int64): Batch of lengths of each sequence (B,)
         """
         xs = self.embed(xs).transpose([0, 2, 1])
         if self.convs is not None:
@@ -179,16 +160,12 @@ class Encoder(nn.Layer):
     def inference(self, x):
         """Inference.
 
-        Parameters
-        ----------
-        x : Tensor
-            The sequeunce of character ids (T,) 
-            or acoustic feature (T, idim * encoder_reduction_factor).
+        Args:
+            x (Tensor): The sequeunce of character ids (T,) 
+                or acoustic feature (T, idim * encoder_reduction_factor).
 
-        Returns
-        ----------
-        Tensor
-            The sequences of encoder states(T, eunits).
+        Returns:
+            Tensor: The sequences of encoder states(T, eunits).
 
         """
         xs = x.unsqueeze(0)

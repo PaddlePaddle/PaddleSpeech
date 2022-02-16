@@ -28,26 +28,16 @@ class WaveNetResidualBlock(nn.Layer):
     unit and parametric redidual and skip connections. For more details, 
     refer to `WaveNet: A Generative Model for Raw Audio <https://arxiv.org/abs/1609.03499>`_.
 
-    Parameters
-    ----------
-    kernel_size : int, optional
-        Kernel size of the 1D convolution, by default 3
-    residual_channels : int, optional
-        Feature size of the resiaudl output(and also the input), by default 64
-    gate_channels : int, optional
-        Output feature size of the 1D convolution, by default 128
-    skip_channels : int, optional
-        Feature size of the skip output, by default 64
-    aux_channels : int, optional
-        Feature size of the auxiliary input (e.g. spectrogram), by default 80
-    dropout : float, optional
-        Probability of the dropout before the 1D convolution, by default 0.
-    dilation : int, optional
-        Dilation of the 1D convolution, by default 1
-    bias : bool, optional
-        Whether to use bias in the 1D convolution, by default True
-    use_causal_conv : bool, optional
-        Whether to use causal padding for the 1D convolution, by default False
+    Args:
+        kernel_size (int, optional): Kernel size of the 1D convolution, by default 3
+        residual_channels (int, optional): Feature size of the resiaudl output(and also the input), by default 64
+        gate_channels (int, optional): Output feature size of the 1D convolution, by default 128
+        skip_channels (int, optional): Feature size of the skip output, by default 64
+        aux_channels (int, optional): Feature size of the auxiliary input (e.g. spectrogram), by default 80
+        dropout (float, optional): Probability of the dropout before the 1D convolution, by default 0.
+        dilation (int, optional): Dilation of the 1D convolution, by default 1
+        bias (bool, optional): Whether to use bias in the 1D convolution, by default True
+        use_causal_conv (bool, optional): Whether to use causal padding for the 1D convolution, by default False
     """
 
     def __init__(self,
@@ -90,21 +80,15 @@ class WaveNetResidualBlock(nn.Layer):
 
     def forward(self, x, c):
         """
-        Parameters
-        ----------
-        x : Tensor
-            Shape (N, C_res, T), the input features.
-        c : Tensor
-            Shape (N, C_aux, T), the auxiliary input.
+        Args:
+            x (Tensor): the input features. Shape (N, C_res, T)
+            c (Tensor): the auxiliary input. Shape (N, C_aux, T)
 
-        Returns
-        -------
-        res : Tensor
-            Shape (N, C_res, T), the residual output, which is used as the 
-            input of the next ResidualBlock in a stack of ResidualBlocks.
-        skip : Tensor
-            Shape (N, C_skip, T), the skip output, which is collected among
-            each layer in a stack of ResidualBlocks.
+        Returns:
+            res (Tensor): Shape (N, C_res, T), the residual output, which is used as the 
+                input of the next ResidualBlock in a stack of ResidualBlocks.
+            skip (Tensor): Shape (N, C_skip, T), the skip output, which is collected among
+                each layer in a stack of ResidualBlocks.
         """
         x_input = x
         x = F.dropout(x, self.dropout, training=self.training)
@@ -136,22 +120,14 @@ class HiFiGANResidualBlock(nn.Layer):
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
     ):
         """Initialize HiFiGANResidualBlock module.
-        Parameters
-        ----------
-        kernel_size : int
-            Kernel size of dilation convolution layer.
-        channels : int
-            Number of channels for convolution layer.
-        dilations : List[int]
-            List of dilation factors.
-        use_additional_convs : bool
-            Whether to use additional convolution layers.
-        bias : bool
-            Whether to add bias parameter in convolution layers.
-        nonlinear_activation : str
-            Activation function module name.
-        nonlinear_activation_params : dict
-            Hyperparameters for activation function.
+        Args:
+            kernel_size (int): Kernel size of dilation convolution layer.
+            channels (int): Number of channels for convolution layer.
+            dilations (List[int]): List of dilation factors.
+            use_additional_convs (bool): Whether to use additional convolution layers.
+            bias (bool): Whether to add bias parameter in convolution layers.
+            nonlinear_activation (str): Activation function module name.
+            nonlinear_activation_params (dict): Hyperparameters for activation function.
         """
         super().__init__()
 
@@ -190,14 +166,10 @@ class HiFiGANResidualBlock(nn.Layer):
 
     def forward(self, x):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, channels, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, channels, T).
+        Args:
+            x (Tensor): Input tensor (B, channels, T).
+        Returns:
+            Tensor: Output tensor (B, channels, T).
         """
         for idx in range(len(self.convs1)):
             xt = self.convs1[idx](x)

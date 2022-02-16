@@ -26,20 +26,17 @@ import tqdm
 import yaml
 from yacs.config import CfgNode as Configuration
 
-from paddlespeech.t2s.data.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.frontend import English
 
 
 def get_lj_sentences(file_name, frontend):
-    '''
-    read MFA duration.txt
-    Parameters
-    ----------
-    file_name : str or Path
-    Returns
-    ----------
-    Dict
-        sentence: {'utt': ([char], [int])}
+    '''read MFA duration.txt
+
+    Args:
+        file_name (str or Path)
+    Returns:
+        Dict: sentence: {'utt': ([char], [int])}
     '''
     f = open(file_name, 'r')
     sentence = {}
@@ -59,14 +56,11 @@ def get_lj_sentences(file_name, frontend):
 
 
 def get_input_token(sentence, output_path):
-    '''
-    get phone set from training data and save it
-    Parameters
-    ----------
-    sentence : Dict
-        sentence: {'utt': ([char], str)}
-    output_path : str or path
-        path to save phone_id_map
+    '''get phone set from training data and save it
+    
+    Args:
+        sentence (Dict): sentence: {'utt': ([char], str)}
+        output_path (str or path): path to save phone_id_map
     '''
     phn_token = set()
     for utt in sentence:

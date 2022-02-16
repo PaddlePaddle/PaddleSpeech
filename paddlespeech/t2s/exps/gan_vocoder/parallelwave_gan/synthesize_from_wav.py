@@ -23,7 +23,7 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.data.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
 from paddlespeech.t2s.models.parallel_wavegan import PWGInference
 from paddlespeech.t2s.modules.normalizer import ZScore

@@ -231,9 +231,9 @@ def train_sp(args, config):
         trainer.extend(
             evaluator, trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-        trainer.extend(
-            Snapshot(max_size=config.num_snapshots),
-            trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(
+        Snapshot(max_size=config.num_snapshots),
+        trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()

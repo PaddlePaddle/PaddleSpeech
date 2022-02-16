@@ -20,22 +20,12 @@ __all__ = ["Vocab"]
 class Vocab(object):
     """  Vocabulary.
 
-    Parameters
-    -----------
-    symbols: Iterable[str]
-        Common symbols.
-
-    padding_symbol: str, optional
-        Symbol for pad. Defaults to "<pad>".
-
-    unk_symbol: str, optional
-        Symbol for unknow. Defaults to "<unk>"
-
-    start_symbol: str, optional
-        Symbol for start. Defaults to "<s>"
-
-    end_symbol: str, optional
-        Symbol for end. Defaults to "</s>"
+    Args:
+        symbols (Iterable[str]): Common symbols.
+        padding_symbol (str, optional): Symbol for pad. Defaults to "<pad>".
+        unk_symbol (str, optional): Symbol for unknow. Defaults to "<unk>"
+        start_symbol (str, optional): Symbol for start. Defaults to "<s>"
+        end_symbol (str, optional): Symbol for end. Defaults to "</s>"
     """
 
     def __init__(self,

@@ -36,12 +36,10 @@ RE_FRAC = re.compile(r'(-?)(\d+)/(\d+)')
 
 def replace_frac(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     sign = match.group(1)
     nominator = match.group(2)
@@ -59,12 +57,10 @@ RE_PERCENTAGE = re.compile(r'(-?)(\d+(\.\d+)?)%')
 
 def replace_percentage(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     sign = match.group(1)
     percent = match.group(2)
@@ -81,12 +77,10 @@ RE_INTEGER = re.compile(r'(-)' r'(\d+)')
 
 def replace_negative_num(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     sign = match.group(1)
     number = match.group(2)
@@ -103,12 +97,10 @@ RE_DEFAULT_NUM = re.compile(r'\d{3}\d*')
 
 def replace_default_num(match):
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     number = match.group(0)
     return verbalize_digit(number)
@@ -124,12 +116,10 @@ RE_NUMBER = re.compile(r'(-?)((\d+)(\.\d+)?)' r'|(\.(\d+))')
 
 def replace_positive_quantifier(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     number = match.group(1)
     match_2 = match.group(2)
@@ -142,12 +132,10 @@ def replace_positive_quantifier(match) -> str:
 
 def replace_number(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     sign = match.group(1)
     number = match.group(2)
@@ -169,12 +157,10 @@ RE_RANGE = re.compile(
 
 def replace_range(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     first, second = match.group(1), match.group(8)
     first = RE_NUMBER.sub(replace_number, first)

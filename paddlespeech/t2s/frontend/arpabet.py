@@ -133,16 +133,11 @@ class ARPABET(Phonetics):
 
     def phoneticize(self, sentence, add_start_end=False):
         """ Normalize the input text sequence and convert it into pronunciation sequence.
+        Args:
+            sentence (str): The input text sequence.
     
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-    
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Returns:
+            List[str]: The list of pronunciation sequence.
         """
         phonemes = [
             self._remove_vowels(item) for item in self.backend(sentence)
@@ -156,16 +151,12 @@ class ARPABET(Phonetics):
 
     def numericalize(self, phonemes):
         """ Convert pronunciation sequence into pronunciation id sequence.
-        
-        Parameters
-        -----------
-        phonemes: List[str]
-            The list of pronunciation sequence.
+
+        Args:
+            phonemes (List[str]): The list of pronunciation sequence.
     
-        Returns
-        ----------
-        List[int]
-            The list of pronunciation id sequence.
+        Returns:
+            List[int]: The list of pronunciation id sequence.
         """
         ids = [self.vocab.lookup(item) for item in phonemes]
         return ids
@@ -173,30 +164,23 @@ class ARPABET(Phonetics):
     def reverse(self, ids):
         """ Reverse the list of pronunciation id sequence to a list of pronunciation sequence.
         
-        Parameters
-        -----------
-        ids: List[int]
-            The list of pronunciation id sequence.
+        Args:
+            ids( List[int]): The list of pronunciation id sequence.
     
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Returns: 
+            List[str]: 
+                The list of pronunciation sequence.
         """
         return [self.vocab.reverse(i) for i in ids]
 
     def __call__(self, sentence, add_start_end=False):
         """ Convert the input text sequence into pronunciation id sequence.
     
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
+        Args:
+            sentence (str): The input text sequence.
     
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation id sequence.
+        Returns:
+            List[str]: The list of pronunciation id sequence.
         """
         return self.numericalize(
             self.phoneticize(sentence, add_start_end=add_start_end))
@@ -229,15 +213,11 @@ class ARPABETWithStress(Phonetics):
     def phoneticize(self, sentence, add_start_end=False):
         """ Normalize the input text sequence and convert it into pronunciation sequence.
     
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
+        Args: 
+            sentence (str): The input text sequence.
     
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         phonemes = self.backend(sentence)
         if add_start_end:
@@ -249,47 +229,33 @@ class ARPABETWithStress(Phonetics):
 
     def numericalize(self, phonemes):
         """ Convert pronunciation sequence into pronunciation id sequence.
-        
-        Parameters
-        -----------
-        phonemes: List[str]
-            The list of pronunciation sequence.
+
+        Args:
+            phonemes (List[str]): The list of pronunciation sequence.
     
-        Returns
-        ----------
-        List[int]
-            The list of pronunciation id sequence.
+        Returns:
+            List[int]: The list of pronunciation id sequence.
         """
         ids = [self.vocab.lookup(item) for item in phonemes]
         return ids
 
     def reverse(self, ids):
         """ Reverse the list of pronunciation id sequence to a list of pronunciation sequence.
-        
-        Parameters
-        -----------
-        ids: List[int]
-            The list of pronunciation id sequence.
+        Args:
+            ids (List[int]): The list of pronunciation id sequence.
     
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation sequence.
+        Returns: 
+            List[str]: The list of pronunciation sequence.
         """
         return [self.vocab.reverse(i) for i in ids]
 
     def __call__(self, sentence, add_start_end=False):
         """ Convert the input text sequence into pronunciation id sequence.
+        Args:
+            sentence (str): The input text sequence.
     
-        Parameters
-        -----------
-        sentence: str
-            The input text sequence.
-    
-        Returns
-        ----------
-        List[str]
-            The list of pronunciation id sequence.
+        Returns: 
+            List[str]: The list of pronunciation id sequence.
         """
         return self.numericalize(
             self.phoneticize(sentence, add_start_end=add_start_end))

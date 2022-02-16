@@ -44,16 +44,11 @@ class Prenet(nn.Layer):
     def __init__(self, idim, n_layers=2, n_units=256, dropout_rate=0.5):
         """Initialize prenet module.
 
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        odim : int
-            Dimension of the outputs.
-        n_layers : int, optional
-            The number of prenet layers.
-        n_units : int, optional
-            The number of prenet units.
+        Args:
+            idim (int): Dimension of the inputs.
+            odim (int): Dimension of the outputs.
+            n_layers (int, optional): The number of prenet layers.
+            n_units (int, optional): The number of prenet units.
         """
         super().__init__()
         self.dropout_rate = dropout_rate
@@ -66,15 +61,11 @@ class Prenet(nn.Layer):
     def forward(self, x):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        x : Tensor
-            Batch of input tensors (B, ..., idim).
+        Args:
+            x (Tensor): Batch of input tensors (B, ..., idim).
 
-        Returns
-        ----------
-        Tensor
-            Batch of output tensors (B, ..., odim).
+        Returns: 
+            Tensor: Batch of output tensors (B, ..., odim).
 
         """
         for i in range(len(self.prenet)):
@@ -109,22 +100,14 @@ class Postnet(nn.Layer):
             use_batch_norm=True, ):
         """Initialize postnet module.
 
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        odim : int
-            Dimension of the outputs.
-        n_layers : int, optional
-            The number of layers.
-        n_filts : int, optional
-            The number of filter size.
-        n_units : int, optional
-            The number of filter channels.
-        use_batch_norm : bool, optional
-            Whether to use batch normalization..
-        dropout_rate : float, optional
-            Dropout rate..
+        Args:
+            idim (int): Dimension of the inputs.
+            odim (int): Dimension of the outputs.
+            n_layers (int, optional): The number of layers.
+            n_filts (int, optional): The number of filter size.
+            n_units (int, optional): The number of filter channels.
+            use_batch_norm (bool, optional): Whether to use batch normalization..
+            dropout_rate (float, optional): Dropout rate..
         """
         super().__init__()
         self.postnet = nn.LayerList()
@@ -184,16 +167,10 @@ class Postnet(nn.Layer):
     def forward(self, xs):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        xs : Tensor
-            Batch of the sequences of padded input tensors (B, idim, Tmax).
-
-        Returns
-        ----------
-        Tensor
-            Batch of padded output tensor. (B, odim, Tmax).
-
+        Args:
+            xs (Tensor): Batch of the sequences of padded input tensors (B, idim, Tmax).
+        Returns:
+            Tensor: Batch of padded output tensor. (B, odim, Tmax).
         """
         for i in range(len(self.postnet)):
             xs = self.postnet[i](xs)
@@ -217,13 +194,11 @@ class ZoneOutCell(nn.Layer):
 
     def __init__(self, cell, zoneout_rate=0.1):
         """Initialize zone out cell module.
-        Parameters
-        ----------
-        cell : nn.Layer:
-            Paddle recurrent cell module
-            e.g. `paddle.nn.LSTMCell`.
-        zoneout_rate : float, optional
-            Probability of zoneout from 0.0 to 1.0.
+
+        Args:
+            cell (nn.Layer): Paddle recurrent cell module
+                e.g. `paddle.nn.LSTMCell`.
+            zoneout_rate (float, optional): Probability of zoneout from 0.0 to 1.0.
         """
         super().__init__()
         self.cell = cell
@@ -235,20 +210,18 @@ class ZoneOutCell(nn.Layer):
 
     def forward(self, inputs, hidden):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        inputs : Tensor
-            Batch of input tensor (B, input_size).
-        hidden : tuple
-            - Tensor: Batch of initial hidden states (B, hidden_size).
-            - Tensor: Batch of initial cell states (B, hidden_size).
-        Returns
-        ----------
-        Tensor
-            Batch of next hidden states (B, hidden_size).
-        tuple:
-            - Tensor: Batch of next hidden states (B, hidden_size).
-            - Tensor: Batch of next cell states (B, hidden_size).
+
+        Args:
+            inputs (Tensor): Batch of input tensor (B, input_size).
+            hidden (tuple):
+                - Tensor: Batch of initial hidden states (B, hidden_size).
+                - Tensor: Batch of initial cell states (B, hidden_size).
+        Returns:
+            Tensor:
+                Batch of next hidden states (B, hidden_size).
+            tuple:
+                - Tensor: Batch of next hidden states (B, hidden_size).
+                - Tensor: Batch of next cell states (B, hidden_size).
         """
         # we only use the second output of LSTMCell in paddle
         _, next_hidden = self.cell(inputs, hidden)
@@ -302,42 +275,29 @@ class Decoder(nn.Layer):
             zoneout_rate=0.1,
             reduction_factor=1, ):
         """Initialize Tacotron2 decoder module.
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        odim : int
-            Dimension of the outputs.
-        att nn.Layer
-            Instance of attention class.
-        dlayers int, optional
-            The number of decoder lstm layers.
-        dunits : int, optional
-            The number of decoder lstm units.
-        prenet_layers : int, optional
-            The number of prenet layers.
-        prenet_units : int, optional
-            The number of prenet units.
-        postnet_layers : int, optional
-            The number of postnet layers.
-        postnet_filts : int, optional
-            The number of postnet filter size.
-        postnet_chans : int, optional
-            The number of postnet filter channels.
-        output_activation_fn : nn.Layer, optional
-            Activation function for outputs.
-        cumulate_att_w : bool, optional
-            Whether to cumulate previous attention weight.
-        use_batch_norm : bool, optional
-            Whether to use batch normalization.
-        use_concate : bool, optional
-            Whether to concatenate encoder embedding with decoder lstm outputs.
-        dropout_rate : float, optional
-            Dropout rate.
-        zoneout_rate : float, optional
-            Zoneout rate.
-        reduction_factor : int, optional
-            Reduction factor.
+
+        Args:
+            idim (int): Dimension of the inputs.
+            odim (int): Dimension of the outputs.
+            att (nn.Layer): Instance of attention class.
+            dlayers (int, optional): The number of decoder lstm layers.
+            dunits (int, optional): The number of decoder lstm units.
+            prenet_layers (int, optional): The number of prenet layers.
+            prenet_units (int, optional): The number of prenet units.
+            postnet_layers (int, optional): The number of postnet layers.
+            postnet_filts (int, optional): The number of postnet filter size.
+            postnet_chans (int, optional): The number of postnet filter channels.
+            output_activation_fn (nn.Layer, optional): Activation function for outputs.
+            cumulate_att_w (bool, optional): Whether to cumulate previous attention weight.
+            use_batch_norm (bool, optional): Whether to use batch normalization.
+            use_concate : bool, optional
+                Whether to concatenate encoder embedding with decoder lstm outputs.
+            dropout_rate : float, optional
+                Dropout rate.
+            zoneout_rate : float, optional
+                Zoneout rate.
+            reduction_factor : int, optional
+                Reduction factor.
         """
         super().__init__()
 
@@ -401,26 +361,19 @@ class Decoder(nn.Layer):
 
     def forward(self, hs, hlens, ys):
         """Calculate forward propagation.
-        Parameters
-        ----------
-        hs : Tensor
-            Batch of the sequences of padded hidden states (B, Tmax, idim).
-        hlens : Tensor(int64) padded
-            Batch of lengths of each input batch (B,).
-        ys : Tensor
-            Batch of the sequences of padded target features (B, Lmax, odim).
-        Returns
-        ----------
-        Tensor
-            Batch of output tensors after postnet (B, Lmax, odim).
-        Tensor
-            Batch of output tensors before postnet (B, Lmax, odim).
-        Tensor
-            Batch of logits of stop prediction (B, Lmax).
-        Tensor
-            Batch of attention weights (B, Lmax, Tmax).
-        Note
-        ----------
+
+        Args:
+            hs (Tensor): Batch of the sequences of padded hidden states (B, Tmax, idim).
+            hlens (Tensor(int64) padded): Batch of lengths of each input batch (B,).
+            ys (Tensor): Batch of the sequences of padded target features (B, Lmax, odim).
+
+        Returns:
+            Tensor: Batch of output tensors after postnet (B, Lmax, odim).
+            Tensor: Batch of output tensors before postnet (B, Lmax, odim).
+            Tensor: Batch of logits of stop prediction (B, Lmax).
+            Tensor: Batch of attention weights (B, Lmax, Tmax).
+            
+        Note: 
             This computation is performed in teacher-forcing manner.
         """
         # thin out frames (B, Lmax, odim) ->  (B, Lmax/r, odim)
@@ -517,37 +470,24 @@ class Decoder(nn.Layer):
             backward_window=None,
             forward_window=None, ):
         """Generate the sequence of features given the sequences of characters.
-        Parameters
-        ----------
-        h : Tensor
-            Input sequence of encoder hidden states (T, C).
-        threshold : float, optional
-            Threshold to stop generation.
-        minlenratio : float, optional
-            Minimum length ratio.
-            If set to 1.0 and the length of input is 10,
-            the minimum length of outputs will be 10 * 1 = 10.
-        minlenratio : float, optional
-            Minimum length ratio.
-            If set to 10 and the length of input is 10,
-            the maximum length of outputs will be 10 * 10 = 100.
-        use_att_constraint : bool
-            Whether to apply attention constraint introduced in `Deep Voice 3`_.
-        backward_window : int
-            Backward window size in attention constraint.
-        forward_window : int
-            Forward window size in attention constraint.
-        Returns
-        ----------
-        Tensor
-            Output sequence of features (L, odim).
-        Tensor
-            Output sequence of stop probabilities (L,).
-        Tensor
-            Attention weights (L, T).
-        Note
-        ----------
-        This computation is performed in auto-regressive manner.
+        Args:
+            h(Tensor): Input sequence of encoder hidden states (T, C).
+            threshold(float, optional, optional): Threshold to stop generation. (Default value = 0.5)
+            minlenratio(float, optional, optional): Minimum length ratio. If set to 1.0 and the length of input is 10,
+                the minimum length of outputs will be 10 * 1 = 10. (Default value = 0.0)
+            maxlenratio(float, optional, optional): Minimum length ratio. If set to 10 and the length of input is 10,
+                the maximum length of outputs will be 10 * 10 = 100. (Default value = 0.0)
+            use_att_constraint(bool, optional): Whether to apply attention constraint introduced in `Deep Voice 3`_. (Default value = False)
+            backward_window(int, optional): Backward window size in attention constraint. (Default value = None)
+            forward_window(int, optional):  (Default value = None)
+
+        Returns:
+            Tensor: Output sequence of features (L, odim).
+            Tensor: Output sequence of stop probabilities (L,).
+            Tensor: Attention weights (L, T).
+
+        Note: 
+            This computation is performed in auto-regressive manner.
     .. _`Deep Voice 3`: https://arxiv.org/abs/1710.07654
         """
         # setup
@@ -683,21 +623,18 @@ class Decoder(nn.Layer):
 
     def calculate_all_attentions(self, hs, hlens, ys):
         """Calculate all of the attention weights.
-        Parameters
-        ----------
-        hs : Tensor
-            Batch of the sequences of padded hidden states (B, Tmax, idim).
-        hlens : Tensor(int64)
-            Batch of lengths of each input batch (B,).
-        ys : Tensor
-            Batch of the sequences of padded target features (B, Lmax, odim).
-        Returns
-        ----------
-        numpy.ndarray
-            Batch of attention weights (B, Lmax, Tmax).
-        Note
-        ----------
-        This computation is performed in teacher-forcing manner.
+
+        Args:
+            hs (Tensor): Batch of the sequences of padded hidden states (B, Tmax, idim).
+            hlens (Tensor(int64)): Batch of lengths of each input batch (B,).
+            ys (Tensor): Batch of the sequences of padded target features (B, Lmax, odim).
+
+        Returns:
+            numpy.ndarray:
+                Batch of attention weights (B, Lmax, Tmax).
+    
+        Note:
+            This computation is performed in teacher-forcing manner.
         """
         # thin out frames (B, Lmax, odim) ->  (B, Lmax/r, odim)
         if self.reduction_factor > 1:

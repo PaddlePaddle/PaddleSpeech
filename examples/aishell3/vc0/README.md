@@ -116,3 +116,25 @@ ref_audio
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}
 ```
+
+## Pretrained Model
+[tacotron2_aishell3_ckpt_vc0_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_aishell3_ckpt_vc0_0.2.0.zip)
+
+
+Model | Step | eval/loss | eval/l1_loss | eval/mse_loss | eval/bce_loss| eval/attn_loss
+:-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
+default| 2(gpu) x 37596|0.58704|0.39623|0.15073|0.039|1.9981e-04|
+
+Tacotron2 checkpoint contains files listed below.
+(There is no need for `speaker_id_map.txt` here )
+
+```text
+tacotron2_aishell3_ckpt_vc0_0.2.0
+├── default.yaml            # default config used to train tacotron2
+├── phone_id_map.txt        # phone vocabulary file when training tacotron2
+├── snapshot_iter_37596.pdz # model parameters and optimizer states
+└── speech_stats.npy        # statistics used to normalize spectrogram when training tacotron2
+```
+
+## More
+We strongly recommend that you use [FastSpeech2 + AISHELL-3 Voice Cloning](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc1) which works better.

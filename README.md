@@ -146,7 +146,7 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
   
 <div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
 
-- [PaddleSpeech Demo Video for NAACL 2022 Demo Paper](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+- [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 ### 🔥 Hot Activities
 

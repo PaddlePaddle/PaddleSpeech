@@ -499,7 +499,17 @@ author={PaddlePaddle Authors},
 howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
+
+@inproceedings{zheng2021fused,
+  title={Fused acoustic and text encoding for multimodal bilingual pretraining and speech translation},
+  author={Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Huang, Liang},
+  booktitle={International Conference on Machine Learning},
+  pages={12736--12746},
+  year={2021},
+  organization={PMLR}
+}
 ```
+
 <a name="contribution"></a>
 ## Contribute to PaddleSpeech
 

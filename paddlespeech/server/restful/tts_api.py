@@ -13,16 +13,16 @@
 # limitations under the License.
 import traceback
 from typing import Union
-
-from engine.tts.python.tts_engine import TTSEngine
 from fastapi import APIRouter
 
-from .request import TTSRequest
-from .response import ErrorResponse
-from .response import TTSResponse
-from utils.errors import ErrorCode
-from utils.errors import failed_response
-from utils.exception import ServerBaseException
+#from paddlespeech.server.engine.tts.python.tts_engine import TTSEngine
+from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
+from paddlespeech.server.restful.request import TTSRequest
+from paddlespeech.server.restful.response import ErrorResponse
+from paddlespeech.server.restful.response import TTSResponse
+from paddlespeech.server.utils.errors import ErrorCode
+from paddlespeech.server.utils.errors import failed_response
+from paddlespeech.server.utils.exception import ServerBaseException
 
 router = APIRouter()
 

@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-
 import uvicorn
 import yaml
-from engine.engine_factory import EngineFactory
 from fastapi import FastAPI
-from restful.api import setup_router
 
-from utils.config import get_config
-from utils.log import logger
+from paddlespeech.server.engine.engine_factory import EngineFactory
+from paddlespeech.server.restful.api import setup_router
+from paddlespeech.server.utils.config import get_config
+from paddlespeech.server.utils.log import logger
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")

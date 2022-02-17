@@ -339,7 +339,7 @@ class TTSEngine(BaseEngine):
         """
         super(TTSEngine, self).__init__()
 
-    def init(self, config_file: str):
+    def init(self, config_file: str) -> bool:
         self.executor = TTSServerExecutor()
         self.config_file = config_file
         self.config = get_config(config_file)
@@ -361,6 +361,7 @@ class TTSEngine(BaseEngine):
             voc_predictor_conf=self.config.voc_predictor_conf, )
 
         logger.info("Initialize TTS server engine successfully.")
+        return True
 
     def postprocess(self,
                     wav,

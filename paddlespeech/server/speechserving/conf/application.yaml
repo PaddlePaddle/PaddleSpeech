@@ -12,6 +12,6 @@ port: 8090
 # add engine type (Options: asr, tts) and config file here.
 
 engine_backend:
-    asr: 'conf/asr/asr.yaml'
+    #asr: 'conf/asr/asr.yaml'
     tts: 'conf/tts/tts.yaml'
 

@@ -1,4 +1,3 @@
-
 # Tacotron2 + AISHELL-3 Voice Cloning
 This example contains code used to train a [Tacotron2](https://arxiv.org/abs/1712.05884) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf). The general steps are as follows:
 1. Speaker Encoder: We use Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in `Tacotron2` because the transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e).
@@ -17,7 +16,7 @@ mkdir data_aishell3
 tar zxvf data_aishell3.tgz -C data_aishell3
 ```
 ### Get MFA Result and Extract
-We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
+We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for Tacotron2, the durations of MFA are not needed here.
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Pretrained GE2E Model
@@ -117,3 +116,25 @@ ref_audio
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}
 ```
+
+## Pretrained Model
+[tacotron2_aishell3_ckpt_vc0_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_aishell3_ckpt_vc0_0.2.0.zip)
+
+
+Model | Step | eval/loss | eval/l1_loss | eval/mse_loss | eval/bce_loss| eval/attn_loss
+:-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
+default| 2(gpu) x 37596|0.58704|0.39623|0.15073|0.039|1.9981e-04|
+
+Tacotron2 checkpoint contains files listed below.
+(There is no need for `speaker_id_map.txt` here )
+
+```text
+tacotron2_aishell3_ckpt_vc0_0.2.0
+├── default.yaml            # default config used to train tacotron2
+├── phone_id_map.txt        # phone vocabulary file when training tacotron2
+├── snapshot_iter_37596.pdz # model parameters and optimizer states
+└── speech_stats.npy        # statistics used to normalize spectrogram when training tacotron2
+```
+
+## More
+We strongly recommend that you use [FastSpeech2 + AISHELL-3 Voice Cloning](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc1) which works better.

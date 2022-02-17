@@ -19,7 +19,7 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 
-from paddlespeech.t2s.data import dataset
+from paddlespeech.t2s.datasets import dataset
 from paddlespeech.t2s.exps.waveflow.config import get_cfg_defaults
 from paddlespeech.t2s.exps.waveflow.ljspeech import LJSpeech
 from paddlespeech.t2s.exps.waveflow.ljspeech import LJSpeechClipCollector

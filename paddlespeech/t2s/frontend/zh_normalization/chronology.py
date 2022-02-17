@@ -44,12 +44,10 @@ RE_TIME_RANGE = re.compile(r'([0-1]?[0-9]|2[0-3])'
 
 def replace_time(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
 
     is_range = len(match.groups()) > 5
@@ -87,12 +85,10 @@ RE_DATE = re.compile(r'(\d{4}|\d{2})年'
 
 def replace_date(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     year = match.group(1)
     month = match.group(3)
@@ -114,12 +110,10 @@ RE_DATE2 = re.compile(
 
 def replace_date2(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     year = match.group(1)
     month = match.group(3)

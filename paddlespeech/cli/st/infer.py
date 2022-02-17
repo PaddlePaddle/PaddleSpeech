@@ -112,8 +112,9 @@ class STExecutor(BaseExecutor):
         """
             Download and returns pretrained resources path of current task.
         """
-        assert tag in pretrained_models, "Can not find pretrained resources of {}.".format(
-            tag)
+        support_models = list(pretrained_models.keys())
+        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
+            tag, '\n\t\t'.join(support_models))
 
         res_path = os.path.join(MODEL_HOME, tag)
         decompressed_path = download_and_decompress(pretrained_models[tag],

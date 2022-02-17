@@ -16,12 +16,15 @@
 
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
-    <a href="support os"><img src="https://img.shields.io/badge/os-linux-yellow.svg"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/releases"><img src="https://img.shields.io/github/v/release/PaddlePaddle/PaddleSpeech?color=ffa"></a>
+    <a href="support os"><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
     <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/graphs/contributors"><img src="https://img.shields.io/github/contributors/PaddlePaddle/PaddleSpeech?color=9ea"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/commits"><img src="https://img.shields.io/github/commit-activity/m/PaddlePaddle/PaddleSpeech?color=3af"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/issues"><img src="https://img.shields.io/github/issues/PaddlePaddle/PaddleSpeech?color=9cc"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/stargazers"><img src="https://img.shields.io/github/stars/PaddlePaddle/PaddleSpeech?color=ccf"></a>
+    <a href="=https://pypi.org/project/paddlespeech/"><img src="https://img.shields.io/pypi/dm/PaddleSpeech"></a>
+    <a href="=https://pypi.org/project/paddlespeech/"><img src="https://static.pepy.tech/badge/paddlespeech"></a>
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
 
@@ -142,6 +145,8 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 - **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): Use PaddleSpeech TTS to generate virtual human voice.**
   
 <div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
+
+- [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 ### 🔥 Hot Activities
 
@@ -317,14 +322,15 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td rowspan="4">Acoustic Model</td>
-      <td >Tacotron2</td>
-      <td rowspan="2" >LJSpeech</td>
+      <td>Tacotron2</td>
+      <td>LJSpeech / CSMSC</td>
       <td>
-      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a>
+      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a> / <a href = "./examples/csmsc/tts0">tacotron2-csmsc</a>
       </td>
     </tr>
     <tr>
       <td>Transformer TTS</td>
+      <td>LJSpeech</td>
       <td>
       <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>
@@ -344,7 +350,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
    <tr>
-      <td rowspan="5">Vocoder</td>
+      <td rowspan="6">Vocoder</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -378,7 +384,14 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>
       <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
       </td>
-    <tr>                                                                                                                                       
+    </tr>
+    <tr>
+      <td >WaveRNN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc6">WaveRNN-csmsc</a>
+      </td>
+    </tr>
     <tr>
       <td rowspan="3">Voice Cloning</td>
       <td>GE2E</td>
@@ -416,7 +429,6 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </thead>
   <tbody>
-  
   <tr>
       <td>Audio Classification</td>
       <td>ESC-50</td>
@@ -440,7 +452,6 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </thead>
   <tbody>
-  
   <tr>
       <td>Punctuation Restoration</td>
       <td>IWLST2012_zh</td>
@@ -488,7 +499,17 @@ author={PaddlePaddle Authors},
 howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
 }
+
+@inproceedings{zheng2021fused,
+  title={Fused acoustic and text encoding for multimodal bilingual pretraining and speech translation},
+  author={Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Huang, Liang},
+  booktitle={International Conference on Machine Learning},
+  pages={12736--12746},
+  year={2021},
+  organization={PMLR}
+}
 ```
+
 <a name="contribution"></a>
 ## Contribute to PaddleSpeech
 

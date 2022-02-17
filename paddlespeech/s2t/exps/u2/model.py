@@ -175,7 +175,7 @@ class U2Trainer(Trainer):
                         observation['batch_cost'] = observation[
                             'reader_cost'] + observation['step_cost']
                         observation['samples'] = observation['batch_size']
-                        observation['ips,sent./sec'] = observation[
+                        observation['ips,samples/s'] = observation[
                             'batch_size'] / observation['batch_cost']
                         for k, v in observation.items():
                             msg += f" {k.split(',')[0]}: "

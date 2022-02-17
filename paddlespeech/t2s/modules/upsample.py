@@ -27,17 +27,12 @@ class Stretch2D(nn.Layer):
     def __init__(self, w_scale: int, h_scale: int, mode: str="nearest"):
         """Strech an image (or image-like object) with some interpolation.
 
-        Parameters
-        ----------
-        w_scale : int
-            Scalar of width.
-        h_scale : int
-            Scalar of the height.
-        mode : str, optional
-            Interpolation mode, modes suppored are "nearest", "bilinear", 
-            "trilinear", "bicubic", "linear" and "area",by default "nearest"
-
-            For more details about interpolation, see 
+        Args:
+            w_scale (int): Scalar of width.
+            h_scale (int): Scalar of the height.
+            mode (str, optional): Interpolation mode, modes suppored are "nearest", "bilinear", 
+                "trilinear", "bicubic", "linear" and "area",by default "nearest"
+        For more details about interpolation, see 
             `paddle.nn.functional.interpolate <https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/nn/functional/interpolate_en.html>`_.
         """
         super().__init__()
@@ -47,16 +42,14 @@ class Stretch2D(nn.Layer):
 
     def forward(self, x):
         """
-        Parameters
-        ----------
-        x : Tensor
-            Shape (N, C, H, W)
 
-        Returns
-        -------
-        Tensor
-            Shape (N, C, H', W'), where ``H'=h_scale * H``, ``W'=w_scale * W``.
-            The stretched image.
+        Args: 
+            x (Tensor): Shape (N, C, H, W)
+
+        Returns:
+            Tensor: The stretched image.
+                Shape (N, C, H', W'), where ``H'=h_scale * H``, ``W'=w_scale * W``.
+            
         """
         out = F.interpolate(
             x, scale_factor=(self.h_scale, self.w_scale), mode=self.mode)
@@ -67,26 +60,16 @@ class UpsampleNet(nn.Layer):
     """A Layer to upsample spectrogram by applying consecutive stretch and
     convolutions.
 
-    Parameters
-    ----------
-    upsample_scales : List[int]
-        Upsampling factors for each strech.
-    nonlinear_activation : Optional[str], optional
-        Activation after each convolution, by default None
-    nonlinear_activation_params : Dict[str, Any], optional
-        Parameters passed to construct the activation, by default {}
-    interpolate_mode : str, optional
-        Interpolation mode of the strech, by default "nearest"
-    freq_axis_kernel_size : int, optional
-        Convolution kernel size along the frequency axis, by default 1
-    use_causal_conv : bool, optional
-        Whether to use causal padding before convolution, by default False
-
-        If True, Causal padding is used along the time axis, i.e. padding
-        amount is ``receptive field - 1`` and 0 for before and after,
-        respectively.
-
-        If False, "same" padding is used along the time axis.
+    Args:
+        upsample_scales (List[int]): Upsampling factors for each strech.
+        nonlinear_activation (Optional[str], optional): Activation after each convolution, by default None
+        nonlinear_activation_params (Dict[str, Any], optional): Parameters passed to construct the activation, by default {}
+        interpolate_mode (str, optional): Interpolation mode of the strech, by default "nearest"
+        freq_axis_kernel_size (int, optional): Convolution kernel size along the frequency axis, by default 1
+        use_causal_conv (bool, optional): Whether to use causal padding before convolution, by default False
+            If True, Causal padding is used along the time axis, 
+            i.e. padding amount is ``receptive field - 1`` and 0 for before and after, respectively.
+            If False, "same" padding is used along the time axis.
     """
 
     def __init__(self,
@@ -122,16 +105,12 @@ class UpsampleNet(nn.Layer):
 
     def forward(self, c):
         """
-        Parameters
-        ----------
-        c : Tensor
-            Shape (N, F, T), spectrogram
+        Args:
+            c (Tensor): spectrogram. Shape (N, F, T)
 
-        Returns
-        -------
-        Tensor
-            Shape (N, F, T'), where ``T' = upsample_factor * T``, upsampled 
-            spectrogram
+        Returns: 
+            Tensor: upsampled spectrogram.
+                Shape (N, F, T'), where ``T' = upsample_factor * T``, 
         """
         c = c.unsqueeze(1)
         for f in self.up_layers:
@@ -145,35 +124,22 @@ class UpsampleNet(nn.Layer):
 class ConvInUpsampleNet(nn.Layer):
     """A Layer to upsample spectrogram composed of a convolution and an 
     UpsampleNet.
-
-    Parameters
-    ----------
-    upsample_scales : List[int]
-        Upsampling factors for each strech.
-    nonlinear_activation : Optional[str], optional
-        Activation after each convolution, by default None
-    nonlinear_activation_params : Dict[str, Any], optional
-        Parameters passed to construct the activation, by default {}
-    interpolate_mode : str, optional
-        Interpolation mode of the strech, by default "nearest"
-    freq_axis_kernel_size : int, optional
-        Convolution kernel size along the frequency axis, by default 1
-    aux_channels : int, optional
-        Feature size of the input, by default 80
-    aux_context_window : int, optional
-        Context window of the first 1D convolution applied to the input. It 
-        related to the kernel size of the convolution, by default 0
-
-        If use causal convolution, the kernel size is ``window + 1``, else
-        the kernel size is ``2 * window + 1``.
-    use_causal_conv : bool, optional
-        Whether to use causal padding before convolution, by default False
-
-        If True, Causal padding is used along the time axis, i.e. padding 
-        amount is ``receptive field - 1`` and 0 for before and after, 
-        respectively.
-
-        If False, "same" padding is used along the time axis.
+    
+    Args:
+        upsample_scales (List[int]): Upsampling factors for each strech.
+        nonlinear_activation (Optional[str], optional): Activation after each convolution, by default None
+        nonlinear_activation_params (Dict[str, Any], optional): Parameters passed to construct the activation, by default {}
+        interpolate_mode (str, optional): Interpolation mode of the strech, by default "nearest"
+        freq_axis_kernel_size (int, optional): Convolution kernel size along the frequency axis, by default 1
+        aux_channels (int, optional): Feature size of the input, by default 80
+        aux_context_window (int, optional): Context window of the first 1D convolution applied to the input. It 
+            related to the kernel size of the convolution, by default 0
+            If use causal convolution, the kernel size is ``window + 1``, 
+            else the kernel size is ``2 * window + 1``.
+        use_causal_conv (bool, optional): Whether to use causal padding before convolution, by default False
+            If True, Causal padding is used along the time axis, i.e. padding 
+            amount is ``receptive field - 1`` and 0 for before and after, respectively.
+            If False, "same" padding is used along the time axis.
     """
 
     def __init__(self,
@@ -204,16 +170,11 @@ class ConvInUpsampleNet(nn.Layer):
 
     def forward(self, c):
         """
-        Parameters
-        ----------
-        c : Tensor
-            Shape (N, F, T), spectrogram
+        Args:
+            c (Tensor): spectrogram. Shape (N, F, T)
 
-        Returns
-        -------
-        Tensors
-            Shape (N, F, T'), where ``T' = upsample_factor * T``, upsampled 
-            spectrogram
+        Returns:
+            Tensors: upsampled spectrogram. Shape (N, F, T'), where ``T' = upsample_factor * T``, 
         """
         c_ = self.conv_in(c)
         c = c_[:, :, :-self.aux_context_window] if self.use_causal_conv else c_

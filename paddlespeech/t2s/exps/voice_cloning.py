@@ -34,9 +34,9 @@ model_alias = {
     "fastspeech2_inference":
     "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
     "tacotron2":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
-    "paddlespeech.t2s.models.new_tacotron2:Tacotron2Inference",
+    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",

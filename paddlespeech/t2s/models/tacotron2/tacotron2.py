@@ -81,69 +81,39 @@ class Tacotron2(nn.Layer):
             # training related
             init_type: str="xavier_uniform", ):
         """Initialize Tacotron2 module.
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        odim : int
-            Dimension of the outputs.
-        embed_dim : int
-            Dimension of the token embedding.
-        elayers : int
-            Number of encoder blstm layers.
-        eunits : int
-            Number of encoder blstm units.
-        econv_layers : int
-            Number of encoder conv layers.
-        econv_filts : int
-            Number of encoder conv filter size.
-        econv_chans : int
-            Number of encoder conv filter channels.
-        dlayers : int
-            Number of decoder lstm layers.
-        dunits : int
-            Number of decoder lstm units.
-        prenet_layers : int
-            Number of prenet layers.
-        prenet_units : int
-            Number of prenet units.
-        postnet_layers : int
-            Number of postnet layers.
-        postnet_filts : int
-            Number of postnet filter size.
-        postnet_chans : int
-            Number of postnet filter channels.
-        output_activation : str
-            Name of activation function for outputs.
-        adim : int
-            Number of dimension of mlp in attention.
-        aconv_chans : int
-            Number of attention conv filter channels.
-        aconv_filts : int
-            Number of attention conv filter size.
-        cumulate_att_w : bool
-            Whether to cumulate previous attention weight.
-        use_batch_norm : bool
-            Whether to use batch normalization.
-        use_concate : bool
-            Whether to concat enc outputs w/ dec lstm outputs.
-        reduction_factor : int
-            Reduction factor.
-        spk_num : Optional[int]
-            Number of speakers. If set to > 1, assume that the
-            sids will be provided as the input and use sid embedding layer.
-        lang_num : Optional[int]
-            Number of languages. If set to > 1, assume that the
-            lids will be provided as the input and use sid embedding layer.
-        spk_embed_dim : Optional[int]
-            Speaker embedding dimension. If set to > 0,
-            assume that spk_emb will be provided as the input.
-        spk_embed_integration_type : str
-            How to integrate speaker embedding.
-        dropout_rate : float
-            Dropout rate.
-        zoneout_rate : float
-            Zoneout rate.
+        Args:
+            idim (int): Dimension of the inputs.
+            odim (int): Dimension of the outputs.
+            embed_dim (int): Dimension of the token embedding.
+            elayers (int): Number of encoder blstm layers.
+            eunits (int): Number of encoder blstm units.
+            econv_layers (int): Number of encoder conv layers.
+            econv_filts (int): Number of encoder conv filter size.
+            econv_chans (int): Number of encoder conv filter channels.
+            dlayers (int): Number of decoder lstm layers.
+            dunits (int): Number of decoder lstm units.
+            prenet_layers (int): Number of prenet layers.
+            prenet_units (int): Number of prenet units.
+            postnet_layers (int): Number of postnet layers.
+            postnet_filts (int): Number of postnet filter size.
+            postnet_chans (int): Number of postnet filter channels.
+            output_activation (str): Name of activation function for outputs.
+            adim (int): Number of dimension of mlp in attention.
+            aconv_chans (int): Number of attention conv filter channels.
+            aconv_filts (int): Number of attention conv filter size.
+            cumulate_att_w (bool): Whether to cumulate previous attention weight.
+            use_batch_norm (bool): Whether to use batch normalization.
+            use_concate (bool): Whether to concat enc outputs w/ dec lstm outputs.
+            reduction_factor (int): Reduction factor.
+            spk_num (Optional[int]): Number of speakers. If set to > 1, assume that the
+                sids will be provided as the input and use sid embedding layer.
+            lang_num (Optional[int]): Number of languages. If set to > 1, assume that the
+                lids will be provided as the input and use sid embedding layer.
+            spk_embed_dim (Optional[int]): Speaker embedding dimension. If set to > 0,
+                assume that spk_emb will be provided as the input.
+            spk_embed_integration_type (str): How to integrate speaker embedding.
+            dropout_rate (float): Dropout rate.
+            zoneout_rate (float): Zoneout rate.
         """
         assert check_argument_types()
         super().__init__()
@@ -258,31 +228,19 @@ class Tacotron2(nn.Layer):
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        text : Tensor(int64)
-            Batch of padded character ids (B, T_text).
-        text_lengths : Tensor(int64)
-            Batch of lengths of each input batch (B,).
-        speech : Tensor
-            Batch of padded target features (B, T_feats, odim).
-        speech_lengths : Tensor(int64)
-            Batch of the lengths of each target (B,).
-        spk_emb : Optional[Tensor]
-            Batch of speaker embeddings (B, spk_embed_dim).
-        spk_id : Optional[Tensor]
-            Batch of speaker IDs (B, 1).
-        lang_id : Optional[Tensor]
-            Batch of language IDs (B, 1).
+        Args:
+            text (Tensor(int64)): Batch of padded character ids (B, T_text).
+            text_lengths (Tensor(int64)): Batch of lengths of each input batch (B,).
+            speech (Tensor): Batch of padded target features (B, T_feats, odim).
+            speech_lengths (Tensor(int64)): Batch of the lengths of each target (B,).
+            spk_emb (Optional[Tensor]): Batch of speaker embeddings (B, spk_embed_dim).
+            spk_id (Optional[Tensor]): Batch of speaker IDs (B, 1).
+            lang_id (Optional[Tensor]): Batch of language IDs (B, 1).
 
-        Returns
-        ----------
-        Tensor
-            Loss scalar value.
-        Dict
-            Statistics to be monitored.
-        Tensor
-            Weight value if not joint training else model outputs.
+        Returns:
+            Tensor: Loss scalar value.
+            Dict: Statistics to be monitored.
+            Tensor: Weight value if not joint training else model outputs.
 
         """
         text = text[:, :text_lengths.max()]
@@ -369,40 +327,26 @@ class Tacotron2(nn.Layer):
             use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
-        Parameters
-        ----------
-        text Tensor(int64)
-            Input sequence of characters (T_text,).
-        speech : Optional[Tensor]
-            Feature sequence to extract style (N, idim).
-        spk_emb : ptional[Tensor]
-            Speaker embedding (spk_embed_dim,).
-        spk_id : Optional[Tensor]
-            Speaker ID (1,).
-        lang_id : Optional[Tensor]
-            Language ID (1,).
-        threshold : float
-            Threshold in inference.
-        minlenratio : float
-            Minimum length ratio in inference.
-        maxlenratio : float
-            Maximum length ratio in inference.
-        use_att_constraint : bool
-            Whether to apply attention constraint.
-        backward_window : int
-            Backward window in attention constraint.
-        forward_window : int
-            Forward window in attention constraint.
-        use_teacher_forcing : bool
-            Whether to use teacher forcing.
+        Args:
+            text (Tensor(int64)): Input sequence of characters (T_text,).
+            speech (Optional[Tensor]): Feature sequence to extract style (N, idim).
+            spk_emb (ptional[Tensor]): Speaker embedding (spk_embed_dim,).
+            spk_id (Optional[Tensor]): Speaker ID (1,).
+            lang_id (Optional[Tensor]): Language ID (1,).
+            threshold (float): Threshold in inference.
+            minlenratio (float): Minimum length ratio in inference.
+            maxlenratio (float): Maximum length ratio in inference.
+            use_att_constraint (bool): Whether to apply attention constraint.
+            backward_window (int): Backward window in attention constraint.
+            forward_window (int): Forward window in attention constraint.
+            use_teacher_forcing (bool): Whether to use teacher forcing.
 
-        Return
-        ----------
-        Dict[str, Tensor]
-        Output dict including the following items:
-            * feat_gen (Tensor): Output sequence of features (T_feats, odim).
-            * prob (Tensor): Output sequence of stop probabilities (T_feats,).
-            * att_w (Tensor): Attention weights (T_feats, T).
+        Returns:
+            Dict[str, Tensor]
+            Output dict including the following items:
+                * feat_gen (Tensor): Output sequence of features (T_feats, odim).
+                * prob (Tensor): Output sequence of stop probabilities (T_feats,).
+                * att_w (Tensor): Attention weights (T_feats, T).
 
         """
         x = text
@@ -458,18 +402,13 @@ class Tacotron2(nn.Layer):
                                   spk_emb: paddle.Tensor) -> paddle.Tensor:
         """Integrate speaker embedding with hidden states.
 
-        Parameters
-        ----------
-         hs : Tensor
-            Batch of hidden state sequences (B, Tmax, eunits).
-         spk_emb : Tensor
-            Batch of speaker embeddings (B, spk_embed_dim).
+        Args:
+            hs (Tensor): Batch of hidden state sequences (B, Tmax, eunits).
+            spk_emb (Tensor): Batch of speaker embeddings (B, spk_embed_dim).
 
-        Returns
-        ----------
-         Tensor
-            Batch of integrated hidden state sequences (B, Tmax, eunits) if
-            integration_type is "add" else (B, Tmax, eunits + spk_embed_dim).
+        Returns:
+            Tensor: Batch of integrated hidden state sequences (B, Tmax, eunits) if
+                integration_type is "add" else (B, Tmax, eunits + spk_embed_dim).
 
         """
         if self.spk_embed_integration_type == "add":

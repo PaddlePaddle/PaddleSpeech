@@ -243,6 +243,8 @@ fastspeech2_nosil_baker_ckpt_0.4
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
+
+If you want to use fastspeech2_conformer, you must delete this line `--inference_dir=exp/default/inference \` to skip the step of dygraph to static graph, cause we haven't tested dygraph to static graph for fastspeech2_conformer till now.
 ```bash
 source path.sh
 

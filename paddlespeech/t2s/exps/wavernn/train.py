@@ -168,9 +168,9 @@ def train_sp(args, config):
         trainer.extend(
             evaluator, trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-        trainer.extend(
-            Snapshot(max_size=config.num_snapshots),
-            trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(
+        Snapshot(max_size=config.num_snapshots),
+        trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()
@@ -179,7 +179,7 @@ def train_sp(args, config):
 def main():
     # parse args and config and redirect to train_sp
 
-    parser = argparse.ArgumentParser(description="Train a HiFiGAN model.")
+    parser = argparse.ArgumentParser(description="Train a WaveRNN model.")
     parser.add_argument(
         "--config", type=str, help="config file to overwrite default config.")
     parser.add_argument("--train-metadata", type=str, help="training data.")

@@ -17,19 +17,16 @@ import paddle
 
 def subsequent_mask(size, dtype=paddle.bool):
     """Create mask for subsequent steps (size, size).
-    Parameters
-    ----------
-    size : int
-        size of mask
-    dtype : paddle.dtype
-        result dtype
-    Return
-    ----------
-    paddle.Tensor
-    >>> subsequent_mask(3)
-    [[1, 0, 0],
-     [1, 1, 0],
-     [1, 1, 1]]
+
+    Args:
+        size (int): size of mask
+        dtype (paddle.dtype): result dtype
+    Return:
+        Tensor:
+            >>> subsequent_mask(3)
+            [[1, 0, 0],
+            [1, 1, 0],
+            [1, 1, 1]]
     """
     ret = paddle.ones([size, size], dtype=dtype)
     return paddle.tril(ret)
@@ -37,19 +34,13 @@ def subsequent_mask(size, dtype=paddle.bool):
 
 def target_mask(ys_in_pad, ignore_id, dtype=paddle.bool):
     """Create mask for decoder self-attention.
-    Parameters
-    ----------
 
-    ys_pad : paddle.Tensor
-        batch of padded target sequences (B, Lmax)
-    ignore_id : int
-        index of padding
-    dtype : torch.dtype
-        result dtype
-    Return
-    ----------
-    paddle.Tensor 
-        (B, Lmax, Lmax)
+    Args:
+        ys_pad (Tensor): batch of padded target sequences (B, Lmax)
+        ignore_id (int): index of padding
+        dtype (paddle.dtype): result dtype
+    Return: 
+        Tensor: (B, Lmax, Lmax)
     """
     ys_mask = ys_in_pad != ignore_id
     m = subsequent_mask(ys_mask.shape[-1]).unsqueeze(0)

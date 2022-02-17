@@ -70,21 +70,14 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
     """Compute the levenshtein distance between reference sequence and
     hypothesis sequence in word-level.
 
-    Parameters
-    ----------
-    reference : str
-        The reference sentence.
-    hypothesis : str
-        The hypothesis sentence.
-    ignore_case : bool
-        Whether case-sensitive or not.
-    delimiter : char(str)
-        Delimiter of input sentences.
+    Args:
+        reference (str): The reference sentence.
+        hypothesis (str): The hypothesis sentence.
+        ignore_case (bool): Whether case-sensitive or not.
+        delimiter (char(str)): Delimiter of input sentences.
 
-    Returns
-    ----------
-    list
-        Levenshtein distance and word number of reference sentence.
+    Returns:
+        list: Levenshtein distance and word number of reference sentence.
     """
     if ignore_case:
         reference = reference.lower()
@@ -101,21 +94,14 @@ def char_errors(reference, hypothesis, ignore_case=False, remove_space=False):
     """Compute the levenshtein distance between reference sequence and
     hypothesis sequence in char-level.
 
-    Parameters
-    ----------
-    reference: str
-        The reference sentence.
-    hypothesis: str
-        The hypothesis sentence.
-    ignore_case: bool
-        Whether case-sensitive or not.
-    remove_space: bool
-        Whether remove internal space characters
+    Args:
+        reference (str): The reference sentence.
+        hypothesis (str): The hypothesis sentence.
+        ignore_case (bool): Whether case-sensitive or not.
+        remove_space (bool): Whether remove internal space characters
 
-    Returns
-    ----------
-    list
-        Levenshtein distance and length of reference sentence.
+    Returns:
+        list: Levenshtein distance and length of reference sentence.
     """
     if ignore_case:
         reference = reference.lower()
@@ -146,27 +132,17 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
     We can use levenshtein distance to calculate WER. Please draw an attention
     that empty items will be removed when splitting sentences by delimiter.
 
-    Parameters
-    ----------
-    reference: str
-        The reference sentence.
+    Args:
+        reference (str): The reference sentence.
+        hypothesis (str): The hypothesis sentence.
+        ignore_case (bool): Whether case-sensitive or not.
+        delimiter (char): Delimiter of input sentences.
 
-    hypothesis: str
-        The hypothesis sentence.
-    ignore_case: bool
-        Whether case-sensitive or not.
-    delimiter: char
-        Delimiter of input sentences.
+    Returns: 
+        float: Word error rate.
 
-    Returns
-    ----------
-    float
-         Word error rate.
-
-    Raises
-    ----------
-    ValueError
-        If word number of reference is zero.
+    Raises:
+        ValueError: If word number of reference is zero.
     """
     edit_distance, ref_len = word_errors(reference, hypothesis, ignore_case,
                                          delimiter)
@@ -194,26 +170,17 @@ def cer(reference, hypothesis, ignore_case=False, remove_space=False):
     space characters will be truncated and multiple consecutive space
     characters in a sentence will be replaced by one space character.
 
-    Parameters
-    ----------
-    reference: str
-        The reference sentence.
-    hypothesis: str
-        The hypothesis sentence.
-    ignore_case: bool
-        Whether case-sensitive or not.
-    remove_space: bool
-        Whether remove internal space characters
+    Args:
+        reference (str): The reference sentence.
+        hypothesis (str): The hypothesis sentence.
+        ignore_case (bool): Whether case-sensitive or not.
+        remove_space (bool): Whether remove internal space characters
 
-    Returns
-    ----------
-    float
-        Character error rate.
+    Returns: 
+        float: Character error rate.
 
-    Raises
-    ----------
-    ValueError
-        If the reference length is zero.
+    Raises: 
+        ValueError: If the reference length is zero.
     """
     edit_distance, ref_len = char_errors(reference, hypothesis, ignore_case,
                                          remove_space)

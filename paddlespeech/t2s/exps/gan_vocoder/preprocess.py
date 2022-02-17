@@ -27,7 +27,7 @@ import tqdm
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.data.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.utils import str2bool

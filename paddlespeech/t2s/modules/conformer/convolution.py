@@ -18,12 +18,10 @@ from paddle import nn
 
 class ConvolutionModule(nn.Layer):
     """ConvolutionModule in Conformer model.
-    Parameters
-    ----------
-    channels : int
-        The number of channels of conv layers.
-    kernel_size : int
-        Kernerl size of conv layers.
+
+    Args:
+        channels (int): The number of channels of conv layers.
+        kernel_size (int): Kernerl size of conv layers.
     """
 
     def __init__(self, channels, kernel_size, activation=nn.ReLU(), bias=True):
@@ -59,14 +57,11 @@ class ConvolutionModule(nn.Layer):
 
     def forward(self, x):
         """Compute convolution module.
-        Parameters
-        ----------
-        x : paddle.Tensor
-            Input tensor (#batch, time, channels).
-        Returns
-        ----------
-        paddle.Tensor
-            Output tensor (#batch, time, channels).
+
+        Args:
+            x (Tensor): Input tensor (#batch, time, channels).
+        Returns:
+            Tensor: Output tensor (#batch, time, channels).
         """
         # exchange the temporal dimension and the feature dimension
         x = x.transpose([0, 2, 1])

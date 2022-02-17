@@ -1,3 +1,0 @@
-export MAIN_ROOT=`realpath ${PWD}/../`
-export PYTHONIOENCODING=UTF-8
-export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}

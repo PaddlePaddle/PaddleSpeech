@@ -11,21 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Text
+from typing import List
 
-from engine.asr.python.asr_engine import ASREngine
-from engine.tts.python.tts_engine import TTSEngine
+from fastapi import APIRouter
+
+from paddlespeech.server.restful.asr_api import router as asr_router
+from paddlespeech.server.restful.tts_api import router as tts_router
+
+_router = APIRouter()
 
 
-__all__ = ['EngineFactory']
+def setup_router(api_list: List):
 
-
-class EngineFactory(object):
-    @staticmethod
-    def get_engine(engine_name: Text):
-        if engine_name == 'asr':
-            return ASREngine()
-        elif engine_name == 'tts':
-            return TTSEngine()
+    for api_name in api_list:
+        if api_name == 'asr':
+            _router.include_router(asr_router)
+        elif api_name == 'tts':
+            _router.include_router(tts_router)
         else:
-            return None
+            pass
+
+    return _router

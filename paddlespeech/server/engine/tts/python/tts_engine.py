@@ -17,15 +17,15 @@ import io
 import librosa
 import numpy as np
 import soundfile as sf
-from engine.base_engine import BaseEngine
 from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
-from utils.audio_process import change_speed
-from utils.config import get_config
-from utils.errors import ErrorCode
-from utils.exception import ServerBaseException
+from paddlespeech.server.utils.audio_process import change_speed
+from paddlespeech.server.engine.base_engine import BaseEngine
+from paddlespeech.server.utils.config import get_config
+from paddlespeech.server.utils.errors import ErrorCode
+from paddlespeech.server.utils.exception import ServerBaseException
 
 __all__ = ['TTSEngine']
 

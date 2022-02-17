@@ -14,16 +14,15 @@
 import base64
 import traceback
 from typing import Union
-
-from engine.asr.python.asr_engine import ASREngine
 from fastapi import APIRouter
 
-from .request import ASRRequest
-from .response import ASRResponse
-from .response import ErrorResponse
-from utils.errors import ErrorCode
-from utils.errors import failed_response
-from utils.exception import ServerBaseException
+from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
+from paddlespeech.server.restful.request import ASRRequest
+from paddlespeech.server.restful.response import ASRResponse
+from paddlespeech.server.restful.response import ErrorResponse
+from paddlespeech.server.utils.errors import ErrorCode
+from paddlespeech.server.utils.errors import failed_response
+from paddlespeech.server.utils.exception import ServerBaseException
 
 router = APIRouter()
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 import traceback
 
-from utils.errors import ErrorMsg
+from paddlespeech.server.utils.errors import ErrorMsg
 
 
 class ServerBaseException(Exception):

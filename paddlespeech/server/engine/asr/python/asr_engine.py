@@ -20,7 +20,6 @@ from typing import Union
 import librosa
 import paddle
 import soundfile
-from engine.base_engine import BaseEngine
 
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
@@ -28,7 +27,8 @@ from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
-from utils.config import get_config
+from paddlespeech.server.engine.base_engine import BaseEngine
+from paddlespeech.server.utils.config import get_config
 
 __all__ = ['ASREngine']
 

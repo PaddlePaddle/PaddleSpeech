@@ -20,7 +20,6 @@ import librosa
 import numpy as np
 import paddle
 import soundfile as sf
-from engine.base_engine import BaseEngine
 from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
@@ -29,12 +28,13 @@ from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
-from utils.audio_process import change_speed
-from utils.config import get_config
-from utils.errors import ErrorCode
-from utils.exception import ServerBaseException
-from utils.paddle_predictor import init_predictor
-from utils.paddle_predictor import run_model
+from paddlespeech.server.engine.base_engine import BaseEngine
+from paddlespeech.server.utils.audio_process import change_speed
+from paddlespeech.server.utils.config import get_config
+from paddlespeech.server.utils.errors import ErrorCode
+from paddlespeech.server.utils.exception import ServerBaseException
+from paddlespeech.server.utils.paddle_predictor import init_predictor
+from paddlespeech.server.utils.paddle_predictor import run_model
 
 __all__ = ['TTSEngine']
 

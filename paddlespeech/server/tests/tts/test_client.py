@@ -23,14 +23,7 @@ import numpy as np
 import requests
 import soundfile
 
-
-def wav2pcm(wavfile: str, pcmfile: str, data_type=np.int16):
-    with open(wavfile, "rb") as f:
-        f.seek(0)
-        f.read(44)
-        data = np.fromfile(f, dtype=data_type)
-        data.tofile(pcmfile)
-
+from paddlespeech.server.utils.audio_process import wav2pcm
 
 # Request and response
 def tts_client(args):

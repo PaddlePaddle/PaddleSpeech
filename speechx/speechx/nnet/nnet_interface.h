@@ -8,7 +8,7 @@ namespace ppspeech {
 
 class NnetInterface {
   public:
-    virtual ~NnetForwardInterface() {}
+    virtual ~NnetInterface() {}
     virtual void FeedForward(const kaldi::Matrix<BaseFloat>& features, 
                              kaldi::Matrix<kaldi::BaseFloat>* inferences) const = 0;
 

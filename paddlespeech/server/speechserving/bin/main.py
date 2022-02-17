@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-
 import uvicorn
 import yaml
-from engine.engine_factory import EngineFactory
 from fastapi import FastAPI
-from restful.api import setup_router
 
+from engine.engine_factory import EngineFactory
+from restful.api import setup_router
 from utils.config import get_config
 from utils.log import logger
 

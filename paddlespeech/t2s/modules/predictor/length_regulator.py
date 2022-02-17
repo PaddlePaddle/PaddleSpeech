@@ -13,6 +13,7 @@
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
 """Length regulator related modules."""
+import numpy as np
 import paddle
 from paddle import nn
 
@@ -34,14 +35,34 @@ class LengthRegulator(nn.Layer):
     def __init__(self, pad_value=0.0):
         """Initilize length regulator module.
 
-        Parameters
-        ----------
-        pad_value : float, optional
-            Value used for padding.
+        Args:
+            pad_value (float, optional): Value used for padding.
 
         """
         super().__init__()
         self.pad_value = pad_value
+
+    # expand_numpy is faster than expand
+    def expand_numpy(self, encodings: paddle.Tensor,
+                     durations: paddle.Tensor) -> paddle.Tensor:
+        """
+        encodings: (B, T, C)
+        durations: (B, T)
+        """
+        batch_size, t_enc = durations.shape
+        durations = durations.numpy()
+        slens = np.sum(durations, -1)
+        t_dec = np.max(slens)
+        M = np.zeros([batch_size, t_dec, t_enc])
+        for i in range(batch_size):
+            k = 0
+            for j in range(t_enc):
+                d = durations[i, j]
+                M[i, k:k + d, j] = 1
+                k += d
+        M = paddle.to_tensor(M, dtype=encodings.dtype)
+        encodings = paddle.matmul(M, encodings)
+        return encodings
 
     def expand(self, encodings: paddle.Tensor,
                durations: paddle.Tensor) -> paddle.Tensor:
@@ -50,39 +71,37 @@ class LengthRegulator(nn.Layer):
         durations: (B, T)
         """
         batch_size, t_enc = paddle.shape(durations)
-        slens = durations.sum(-1)
-        t_dec = slens.max()
+        slens = paddle.sum(durations, -1)
+        t_dec = paddle.max(slens)
         M = paddle.zeros([batch_size, t_dec, t_enc])
         for i in range(batch_size):
             k = 0
             for j in range(t_enc):
                 d = durations[i, j]
+                # If the d == 0, slice action is meaningless and not supported in paddle
                 if d >= 1:
                     M[i, k:k + d, j] = 1
                 k += d
         encodings = paddle.matmul(M, encodings)
         return encodings
 
-    def forward(self, xs, ds, alpha=1.0):
+    def forward(self, xs, ds, alpha=1.0, is_inference=False):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        xs : Tensor
-            Batch of sequences of char or phoneme embeddings (B, Tmax, D).
-        ds : Tensor(int64)
-            Batch of durations of each frame (B, T).
-        alpha : float, optional
-            Alpha value to control speed of speech.
+        Args:
+            xs (Tensor): Batch of sequences of char or phoneme embeddings (B, Tmax, D).
+            ds (Tensor(int64)): Batch of durations of each frame (B, T).
+            alpha (float, optional): Alpha value to control speed of speech.
 
-        Returns
-        ----------
-        Tensor
-            replicated input tensor based on durations (B, T*, D).
+        Returns:
+            Tensor: replicated input tensor based on durations (B, T*, D).
         """
 
         if alpha != 1.0:
             assert alpha > 0
             ds = paddle.round(ds.cast(dtype=paddle.float32) * alpha)
         ds = ds.cast(dtype=paddle.int64)
-        return self.expand(xs, ds)
+        if is_inference:
+            return self.expand(xs, ds)
+        else:
+            return self.expand_numpy(xs, ds)

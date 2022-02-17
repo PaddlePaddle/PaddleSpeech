@@ -37,7 +37,7 @@
  *     A vector that each element is a pair of score  and decoding result,
  *     in desending order.
 */
-std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
+std::vector<std::pair<double, std::string>> ctc_beam_search_decoding(
     const std::vector<std::vector<double>> &probs_seq,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -45,6 +45,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
     size_t cutoff_top_n = 40,
     Scorer *ext_scorer = nullptr,
     size_t blank_id = 0);
+
 
 /* CTC Beam Search Decoder for batch data
 
@@ -64,7 +65,7 @@ std::vector<std::pair<double, std::string>> ctc_beam_search_decoder(
  *     result for one audio sample.
 */
 std::vector<std::vector<std::pair<double, std::string>>>
-ctc_beam_search_decoder_batch(
+ctc_beam_search_decoding_batch(
     const std::vector<std::vector<std::vector<double>>> &probs_split,
     const std::vector<std::string> &vocabulary,
     size_t beam_size,
@@ -73,5 +74,102 @@ ctc_beam_search_decoder_batch(
     size_t cutoff_top_n = 40,
     Scorer *ext_scorer = nullptr,
     size_t blank_id = 0);
+
+/**
+ * Store the root and prefixes for decoder
+ */
+
+class CtcBeamSearchDecoderStorage {
+  public:
+    PathTrie *root = nullptr;
+    std::vector<PathTrie *> prefixes;
+
+    CtcBeamSearchDecoderStorage() {
+        // init prefixes' root
+        this->root = new PathTrie();
+        this->root->log_prob_b_prev = 0.0;
+        // The score of root is in log scale.Since the prob=1.0, the prob score
+        // in log scale is 0.0
+        this->root->score = root->log_prob_b_prev;
+        // std::vector<PathTrie *> prefixes;
+        this->prefixes.push_back(root);
+    };
+
+    ~CtcBeamSearchDecoderStorage() {
+        if (root != nullptr) {
+            delete root;
+            root = nullptr;
+        }
+    };
+};
+
+/**
+ * The ctc beam search decoder, support batchsize >= 1
+ */
+class CtcBeamSearchDecoderBatch {
+  public:
+    CtcBeamSearchDecoderBatch(const std::vector<std::string> &vocabulary,
+                              size_t batch_size,
+                              size_t beam_size,
+                              size_t num_processes,
+                              double cutoff_prob,
+                              size_t cutoff_top_n,
+                              Scorer *ext_scorer,
+                              size_t blank_id);
+
+    ~CtcBeamSearchDecoderBatch();
+    void next(const std::vector<std::vector<std::vector<double>>> &probs_split,
+              const std::vector<std::string> &has_value);
+
+    std::vector<std::vector<std::pair<double, std::string>>> decode();
+
+    void reset_state(size_t batch_size,
+                     size_t beam_size,
+                     size_t num_processes,
+                     double cutoff_prob,
+                     size_t cutoff_top_n);
+
+  private:
+    std::vector<std::string> vocabulary;
+    size_t batch_size;
+    size_t beam_size;
+    size_t num_processes;
+    double cutoff_prob;
+    size_t cutoff_top_n;
+    Scorer *ext_scorer;
+    size_t blank_id;
+    std::vector<std::unique_ptr<CtcBeamSearchDecoderStorage>>
+        decoder_storage_vector;
+};
+
+/**
+ * function for chunk decoding
+ */
+void ctc_beam_search_decode_chunk(
+    PathTrie *root,
+    std::vector<PathTrie *> &prefixes,
+    const std::vector<std::vector<double>> &probs_seq,
+    const std::vector<std::string> &vocabulary,
+    size_t beam_size,
+    double cutoff_prob,
+    size_t cutoff_top_n,
+    Scorer *ext_scorer,
+    size_t blank_id);
+
+std::vector<std::pair<double, std::string>> get_decode_result(
+    std::vector<PathTrie *> &prefixes,
+    const std::vector<std::string> &vocabulary,
+    size_t beam_size,
+    Scorer *ext_scorer);
+
+/**
+ * free the CtcBeamSearchDecoderStorage
+ */
+void free_storage(std::unique_ptr<CtcBeamSearchDecoderStorage> &storage);
+
+/**
+ * initialize the root
+ */
+void ctc_beam_search_decode_chunk_begin(PathTrie *root, Scorer *ext_scorer);
 
 #endif  // CTC_BEAM_SEARCH_DECODER_H_

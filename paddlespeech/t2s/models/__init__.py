@@ -19,3 +19,4 @@ from .speedyspeech import *
 from .tacotron2 import *
 from .transformer_tts import *
 from .waveflow import *
+from .wavernn import *

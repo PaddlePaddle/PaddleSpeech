@@ -38,6 +38,7 @@ from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
+from paddlespeech.t2s.utils import str2bool
 
 
 def train_sp(args, config):
@@ -170,8 +171,8 @@ def train_sp(args, config):
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
         trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
-        trainer.extend(
-            Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    trainer.extend(
+        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
     trainer.run()
 
 
@@ -185,9 +186,6 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--use-relative-path",

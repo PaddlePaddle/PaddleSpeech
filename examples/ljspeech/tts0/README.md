@@ -1,20 +1,25 @@
-# Tacotron2 with LJSpeech
-PaddlePaddle dynamic graph implementation of Tacotron2, a neural network architecture for speech synthesis directly from the text. The implementation is based on [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884).
+# Tacotron2 with LJSpeech-1.1
+This example contains code used to train a [Tacotron2](https://arxiv.org/abs/1712.05884) model with [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/)
 
 ## Dataset
-We experiment with the LJSpeech dataset. Download and unzip [LJSpeech](https://keithito.com/LJ-Speech-Dataset/).
+### Download and Extract
+Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech-Dataset/).
 
-```bash
-wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-tar xjvf LJSpeech-1.1.tar.bz2
-```
+### Get MFA Result and Extract
+We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for Tacotron2, the durations of MFA are not needed here.
+You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+
 ## Get Started
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
+Assume the path to the MFA result of LJSpeech-1.1 is `./ljspeech_alignment`.
 Run the command below to
 1. **source path**.
 2. preprocess the dataset.
 3. train the model.
-4. synthesize mels.
+4. synthesize wavs.
+    - synthesize waveform from `metadata.jsonl`.
+    - synthesize waveform from a text file.
+
 ```bash
 ./run.sh
 ```
@@ -26,64 +31,217 @@ You can choose a range of stages you want to run, or set `stage` equal to `stop-
 ```bash
 ./local/preprocess.sh ${conf_path}
 ```
+When it is done. A `dump` folder is created in the current directory. The structure of the dump folder is listed below.
+
+```text
+dump
+├── dev
+│   ├── norm
+│   └── raw
+├── phone_id_map.txt
+├── speaker_id_map.txt
+├── test
+│   ├── norm
+│   └── raw
+└── train
+    ├── norm
+    ├── raw
+    └── speech_stats.npy
+```
+The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of which contains a `norm` and `raw` subfolder. The raw folder contains speech features of each utterance, while the norm folder contains normalized ones. The statistics used to normalize features are computed from the training set, which is located in `dump/train/*_stats.npy`.
+
+Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, speaker, and the id of each utterance.
+
 ### Model Training
-`./local/train.sh` calls `${BIN_DIR}/train.py`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ```
+`./local/train.sh` calls `${BIN_DIR}/train.py`.
 Here's the complete help message.
 ```text
-usage: train.py [-h] [--config FILE] [--data DATA_DIR] [--output OUTPUT_DIR]
-                [--checkpoint_path CHECKPOINT_PATH] [--ngpu NGPU] [--opts ...]
+usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
+                [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
+                [--ngpu NGPU] [--phones-dict PHONES_DICT]
+
+Train a Tacotron2 model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config FILE         path of the config file to overwrite to default config
-                        with.
-  --data DATA_DIR       path to the dataset.
-  --output OUTPUT_DIR   path to save checkpoint and logs.
-  --checkpoint_path CHECKPOINT_PATH
-                        path of the checkpoint to load
+  --config CONFIG       tacotron2 config file.
+  --train-metadata TRAIN_METADATA
+                        training data.
+  --dev-metadata DEV_METADATA
+                        dev data.
+  --output-dir OUTPUT_DIR
+                        output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --opts ...            options to overwrite --config file and the default
-                        config, passing in KEY VALUE pairs
+  --phones-dict PHONES_DICT
+                        phone vocabulary file.
 ```
-
-If you want to train on CPU, just set `--ngpu=0`.
-If you want to train on multiple GPUs, just set `--ngpu` as the num of GPU.
-By default, training will be resumed from the latest checkpoint in `--output`, if you want to start a new training, please use a new `${OUTPUTPATH}` with no checkpoint.
-And if you want to resume from another existing model, you should set `checkpoint_path` to be the checkpoint path you want to load.
-**Note: The checkpoint path cannot contain the file extension.**
+1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.
+2. `--train-metadata` and `--dev-metadata` should be the metadata file in the normalized subfolder of `train` and `dev` in the `dump` folder.
+3. `--output-dir` is the directory to save the results of the experiment. Checkpoints are saved in `checkpoints/` inside this directory.
+4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+5. `--phones-dict` is the path of the phone vocabulary file.
 
 ### Synthesizing
-`./local/synthesize.sh` calls `${BIN_DIR}/synthesize.py`,  which synthesize **mels**  from text_list here.
+We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc1) as the neural vocoder.
+Download pretrained parallel wavegan model from [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip) and unzip it.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${train_output_path} ${ckpt_name}
+unzip pwg_ljspeech_ckpt_0.5.zip
+```
+Parallel WaveGAN checkpoint contains files listed below.
+```text
+pwg_ljspeech_ckpt_0.5
+├── pwg_default.yaml              # default config used to train parallel wavegan
+├── pwg_snapshot_iter_400000.pdz  # generator parameters of parallel wavegan
+└── pwg_stats.npy                 # statistics used to normalize spectrogram when training parallel wavegan
+```
+`./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
+```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 ```text
-usage: synthesize.py [-h] [--config FILE] [--checkpoint_path CHECKPOINT_PATH]
-                     [--input INPUT] [--output OUTPUT] [--ngpu NGPU]
-                     [--opts ...] [-v]
+usage: synthesize.py [-h]
+                     [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc}]
+                     [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                     [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                     [--tones_dict TONES_DICT] [--speaker_dict SPEAKER_DICT]
+                     [--voice-cloning VOICE_CLONING]
+                     [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}]
+                     [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                     [--voc_stat VOC_STAT] [--ngpu NGPU]
+                     [--test_metadata TEST_METADATA] [--output_dir OUTPUT_DIR]
 
-generate mel spectrogram with TransformerTTS.
+Synthesize with acoustic model & vocoder
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config FILE         extra config to overwrite the default config
-  --checkpoint_path CHECKPOINT_PATH
-                        path of the checkpoint to load.
-  --input INPUT         path of the text sentences
-  --output OUTPUT       path to save outputs
+  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model. Use deault config when it is
+                        None.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
+                        phone vocabulary file.
+  --tones_dict TONES_DICT
+                        tone vocabulary file.
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc. Use deault config when it is None.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
   --ngpu NGPU           if ngpu == 0, use cpu.
-  --opts ...            options to overwrite --config file and the default
-                        config, passing in KEY VALUE pairs
-  -v, --verbose         print msg
+  --test_metadata TEST_METADATA
+                        test metadata.
+  --output_dir OUTPUT_DIR
+                        output dir.
 ```
-**Ps.** You can use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder to synthesize mels to wavs. (Please  refer to `synthesize.sh` in our  LJSpeech waveflow example)
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
+```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+```
+```text
+usage: synthesize_e2e.py [-h]
+                         [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc}]
+                         [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                         [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                         [--tones_dict TONES_DICT]
+                         [--speaker_dict SPEAKER_DICT] [--spk_id SPK_ID]
+                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc}]
+                         [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                         [--voc_stat VOC_STAT] [--lang LANG]
+                         [--inference_dir INFERENCE_DIR] [--ngpu NGPU]
+                         [--text TEXT] [--output_dir OUTPUT_DIR]
 
-## Pretrained Models
-Pretrained Models can be downloaded from the links below. We provide 2 models with different configurations.
+Synthesize with acoustic model & vocoder
 
-1. This model uses a binary classifier to predict the stop token. [tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3.zip)
+optional arguments:
+  -h, --help            show this help message and exit
+  --am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model. Use deault config when it is
+                        None.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
+                        phone vocabulary file.
+  --tones_dict TONES_DICT
+                        tone vocabulary file.
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --spk_id SPK_ID       spk id for multi speaker acoustic model
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc. Use deault config when it is None.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
+  --lang LANG           Choose model language. zh or en
+  --inference_dir INFERENCE_DIR
+                        dir to save inference models
+  --ngpu NGPU           if ngpu == 0, use cpu.
+  --text TEXT           text to synthesize, a 'utt_id sentence' pair per line.
+  --output_dir OUTPUT_DIR
+                        output dir.
+```
+1. `--am` is acoustic model type with the format {model_name}_{dataset}
+2. `--am_config`, `--am_checkpoint`, `--am_stat` and `--phones_dict` are arguments for acoustic model, which correspond to the 4 files in the Tacotron2 pretrained model.
+3. `--voc` is vocoder type with the format {model_name}_{dataset}
+4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
+5. `--lang` is the model language, which can be `zh` or `en`.
+6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
+7. `--text` is the text file, which contains sentences to synthesize.
+8. `--output_dir` is the directory to save synthesized audio files.
+9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
-2. This model does not have a stop token predictor. It uses the attention peak position to decide whether all the contents have been uttered. Also, guided attention loss is used to speed up training. This model is trained with `configs/alternative.yaml`.[tacotron2_ljspeech_ckpt_0.3_alternative.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.3_alternative.zip)
+
+## Pretrained Model
+Pretrained Tacotron2 model with no silence in the edge of audios:
+- [tacotron2_ljspeech_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_ljspeech_ckpt_0.2.0.zip)
+
+
+Model | Step | eval/loss | eval/l1_loss | eval/mse_loss | eval/bce_loss| eval/attn_loss 
+:-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
+default| 1(gpu) x 60300|0.554092|0.394260|0.141046|0.018747|3.8e-05|
+
+Tacotron2 checkpoint contains files listed below.
+```text
+tacotron2_ljspeech_ckpt_0.2.0
+├── default.yaml            # default config used to train Tacotron2
+├── phone_id_map.txt        # phone vocabulary file when training Tacotron2
+├── snapshot_iter_60300.pdz # model parameters and optimizer states
+└── speech_stats.npy        # statistics used to normalize spectrogram when training Tacotron2
+```
+You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_en.txt` using pretrained Tacotron2 and parallel wavegan models.
+```bash
+source path.sh
+
+FLAGS_allocator_strategy=naive_best_fit \
+FLAGS_fraction_of_gpu_memory_to_use=0.01 \
+python3 ${BIN_DIR}/../synthesize_e2e.py \
+  --am=tacotron2_ljspeech \
+  --am_config=tacotron2_ljspeech_ckpt_0.2.0/default.yaml \
+  --am_ckpt=tacotron2_ljspeech_ckpt_0.2.0/snapshot_iter_60300.pdz \
+  --am_stat=tacotron2_ljspeech_ckpt_0.2.0/speech_stats.npy  \
+  --voc=pwgan_ljspeech\
+  --voc_config=pwg_ljspeech_ckpt_0.5/pwg_default.yaml \
+  --voc_ckpt=pwg_ljspeech_ckpt_0.5/pwg_snapshot_iter_400000.pdz  \
+  --voc_stat=pwg_ljspeech_ckpt_0.5/pwg_stats.npy \
+  --lang=en \
+  --text=${BIN_DIR}/../sentences_en.txt \
+  --output_dir=exp/default/test_e2e \
+  --phones_dict=tacotron2_ljspeech_ckpt_0.2.0/phone_id_map.txt
+```

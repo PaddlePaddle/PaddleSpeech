@@ -14,7 +14,6 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Tacotron2 encoder related modules."""
 import paddle
-import six
 from paddle import nn
 
 
@@ -46,31 +45,18 @@ class Encoder(nn.Layer):
             dropout_rate=0.5,
             padding_idx=0, ):
         """Initialize Tacotron2 encoder module.
-
-        Parameters
-        ----------
-        idim : int
-            Dimension of the inputs.
-        input_layer : str
-            Input layer type.
-        embed_dim : int, optional
-            Dimension of character embedding.
-        elayers : int, optional
-            The number of encoder blstm layers.
-        eunits : int, optional
-            The number of encoder blstm units.
-        econv_layers : int, optional
-            The number of encoder conv layers.
-        econv_filts : int, optional
-            The number of encoder conv filter size.
-        econv_chans : int, optional
-            The number of encoder conv filter channels.
-        use_batch_norm : bool, optional
-            Whether to use batch normalization.
-        use_residual : bool, optional
-            Whether to use residual connection.
-        dropout_rate : float, optional
-            Dropout rate.
+        Args:
+            idim (int): Dimension of the inputs.
+            input_layer (str): Input layer type.
+            embed_dim (int, optional): Dimension of character embedding.
+            elayers (int, optional): The number of encoder blstm layers.
+            eunits (int, optional): The number of encoder blstm units.
+            econv_layers (int, optional): The number of encoder conv layers.
+            econv_filts (int, optional): The number of encoder conv filter size.
+            econv_chans (int, optional): The number of encoder conv filter channels.
+            use_batch_norm (bool, optional): Whether to use batch normalization.
+            use_residual (bool, optional): Whether to use residual connection.
+            dropout_rate (float, optional): Dropout rate.
 
         """
         super().__init__()
@@ -88,7 +74,7 @@ class Encoder(nn.Layer):
 
         if econv_layers > 0:
             self.convs = nn.LayerList()
-            for layer in six.moves.range(econv_layers):
+            for layer in range(econv_layers):
                 ichans = (embed_dim if layer == 0 and input_layer == "embed"
                           else econv_chans)
                 if use_batch_norm:
@@ -130,6 +116,7 @@ class Encoder(nn.Layer):
                 direction='bidirectional',
                 bias_ih_attr=True,
                 bias_hh_attr=True)
+            self.blstm.flatten_parameters()
         else:
             self.blstm = None
 
@@ -139,26 +126,19 @@ class Encoder(nn.Layer):
     def forward(self, xs, ilens=None):
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        xs : Tensor
-            Batch of the padded sequence. Either character ids (B, Tmax)
-            or acoustic feature (B, Tmax, idim * encoder_reduction_factor). 
-            Padded value should be 0.
-        ilens : LongTensor
-            Batch of lengths of each input batch (B,).
+        Args:
+            xs (Tensor): Batch of the padded sequence. Either character ids (B, Tmax)
+                or acoustic feature (B, Tmax, idim * encoder_reduction_factor). 
+                Padded value should be 0.
+            ilens (Tensor(int64)): Batch of lengths of each input batch (B,).
 
-        Returns
-        ----------
-        Tensor
-            Batch of the sequences of encoder states(B, Tmax, eunits).
-        LongTensor
-            Batch of lengths of each sequence (B,)
-
+        Returns:
+            Tensor: Batch of the sequences of encoder states(B, Tmax, eunits).
+            Tensor(int64): Batch of lengths of each sequence (B,)
         """
         xs = self.embed(xs).transpose([0, 2, 1])
         if self.convs is not None:
-            for i in six.moves.range(len(self.convs)):
+            for i in range(len(self.convs)):
                 if self.use_residual:
                     xs += self.convs[i](xs)
                 else:
@@ -168,10 +148,11 @@ class Encoder(nn.Layer):
         if not isinstance(ilens, paddle.Tensor):
             ilens = paddle.to_tensor(ilens)
         xs = xs.transpose([0, 2, 1])
-        self.blstm.flatten_parameters()
+        # for dygraph to static graph
+        # self.blstm.flatten_parameters()
         # (B, Tmax, C)
-        xs, _ = self.blstm(xs)
-        # hlens 是什么
+        # see https://www.paddlepaddle.org.cn/documentation/docs/zh/faq/train_cn.html#paddletorch-nn-utils-rnn-pack-padded-sequencetorch-nn-utils-rnn-pad-packed-sequenceapi
+        xs, _ = self.blstm(xs, sequence_length=ilens)
         hlens = ilens
 
         return xs, hlens
@@ -179,19 +160,15 @@ class Encoder(nn.Layer):
     def inference(self, x):
         """Inference.
 
-        Parameters
-        ----------
-        x : Tensor
-            The sequeunce of character ids (T,) 
-            or acoustic feature (T, idim * encoder_reduction_factor).
+        Args:
+            x (Tensor): The sequeunce of character ids (T,) 
+                or acoustic feature (T, idim * encoder_reduction_factor).
 
-        Returns
-        ----------
-        Tensor
-            The sequences of encoder states(T, eunits).
+        Returns:
+            Tensor: The sequences of encoder states(T, eunits).
 
         """
         xs = x.unsqueeze(0)
-        ilens = paddle.to_tensor([x.shape[0]])
+        ilens = paddle.shape(x)[0]
 
         return self.forward(xs, ilens)[0][0]

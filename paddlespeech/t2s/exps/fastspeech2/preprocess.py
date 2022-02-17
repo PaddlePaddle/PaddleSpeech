@@ -27,14 +27,15 @@ import tqdm
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.data.get_feats import Energy
-from paddlespeech.t2s.data.get_feats import LogMelFBank
-from paddlespeech.t2s.data.get_feats import Pitch
+from paddlespeech.t2s.datasets.get_feats import Energy
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.get_feats import Pitch
 from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
+from paddlespeech.t2s.utils import str2bool
 
 
 def process_sentence(config: Dict[str, Any],
@@ -202,9 +203,6 @@ def main():
         help="logging level. higher is more logging. (default=1)")
     parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")
-
-    def str2bool(str):
-        return True if str.lower() == 'true' else False
 
     parser.add_argument(
         "--cut-sil",

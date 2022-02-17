@@ -1,4 +1,3 @@
-
 # FastSpeech2 + AISHELL-3 Voice Cloning
 This example contains code used to train a [FastSpeech2](https://arxiv.org/abs/2006.04558) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf). The general steps are as follows:
 1. Speaker Encoder: We use Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in `FastSpeech2` because the transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e).
@@ -114,7 +113,7 @@ ref_audio
 ├── LJ015-0254.wav
 └── audio_self_test.mp3
 ```
-`./local/voice_cloning.sh` calls `${BIN_DIR}/voice_cloning.py`
+`./local/voice_cloning.sh` calls `${BIN_DIR}/../voice_cloning.py`
 
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}

@@ -65,7 +65,7 @@ discriminator_params:
 ###########################################################
 #                   STFT LOSS SETTING                     #
 ###########################################################
-use_stft_loss: true
+use_stft_loss: True
 stft_loss_params:
     fft_sizes: [1024, 2048, 512]  # List of FFT size for STFT-based loss.
     hop_sizes: [120, 240, 50]     # List of hop size for STFT-based loss
@@ -78,9 +78,9 @@ lambda_aux: 1.0                   # Loss balancing coefficient for aux loss.
 ###########################################################
 lambda_adv: 1.0 # Loss balancing coefficient for adv loss.
 generator_adv_loss_params:
-    average_by_discriminators: false # Whether to average loss by #discriminators.
+    average_by_discriminators: False # Whether to average loss by #discriminators.
 discriminator_adv_loss_params:
-    average_by_discriminators: false # Whether to average loss by #discriminators.
+    average_by_discriminators: False # Whether to average loss by #discriminators.
 
 ###########################################################
 #                  DATA LOADER SETTING                    #

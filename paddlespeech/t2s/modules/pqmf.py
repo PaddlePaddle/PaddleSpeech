@@ -24,20 +24,16 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     """Design prototype filter for PQMF.
     This method is based on `A Kaiser window approach for the design of prototype
     filters of cosine modulated filterbanks`_.
-    Parameters
-    ----------
-    taps : int
-        The number of filter taps.
-    cutoff_ratio : float
-        Cut-off frequency ratio.
-    beta : float
-        Beta coefficient for kaiser window.
-    Returns
-    ----------
-    ndarray
-        Impluse response of prototype filter (taps + 1,).
-    .. _`A Kaiser window approach for the design of prototype filters of cosine modulated filterbanks`:
-        https://ieeexplore.ieee.org/abstract/document/681427
+
+    Args:
+        taps (int): The number of filter taps.
+        cutoff_ratio (float): Cut-off frequency ratio.
+        beta (float): Beta coefficient for kaiser window.
+    Returns:
+        ndarray:
+            Impluse response of prototype filter (taps + 1,).
+        .. _`A Kaiser window approach for the design of prototype filters of cosine modulated filterbanks`:
+            https://ieeexplore.ieee.org/abstract/document/681427
     """
     # check the arguments are valid
     assert taps % 2 == 0, "The number of taps mush be even number."
@@ -68,16 +64,12 @@ class PQMF(nn.Layer):
         """Initilize PQMF module.
         The cutoff_ratio and beta parameters are optimized for #subbands = 4.
         See dicussion in https://github.com/kan-bayashi/ParallelWaveGAN/issues/195.
-        Parameters
-        ----------
-        subbands : int
-            The number of subbands.
-        taps : int
-            The number of filter taps.
-        cutoff_ratio : float
-            Cut-off frequency ratio.
-        beta : float
-            Beta coefficient for kaiser window.
+
+        Args:
+            subbands (int): The number of subbands.
+            taps (int): The number of filter taps.
+            cutoff_ratio (float): Cut-off frequency ratio.
+            beta (float): Beta coefficient for kaiser window.
         """
         super().__init__()
 
@@ -110,28 +102,20 @@ class PQMF(nn.Layer):
 
     def analysis(self, x):
         """Analysis with PQMF.
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, 1, T).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, subbands, T // subbands).
+        Args:
+            x (Tensor): Input tensor (B, 1, T).
+        Returns:
+            Tensor: Output tensor (B, subbands, T // subbands).
         """
         x = F.conv1d(self.pad_fn(x), self.analysis_filter)
         return F.conv1d(x, self.updown_filter, stride=self.subbands)
 
     def synthesis(self, x):
         """Synthesis with PQMF.
-        Parameters
-        ----------
-        x : Tensor
-            Input tensor (B, subbands, T // subbands).
-        Returns
-        ----------
-        Tensor
-            Output tensor (B, 1, T).
+        Args:
+            x (Tensor): Input tensor (B, subbands, T // subbands).
+        Returns:
+            Tensor: Output tensor (B, 1, T).
         """
         x = F.conv1d_transpose(
             x, self.updown_filter * self.subbands, stride=self.subbands)

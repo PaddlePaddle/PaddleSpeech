@@ -30,20 +30,14 @@ __all__ = ["WaveFlow", "ConditionalWaveFlow", "WaveFlowLoss"]
 
 
 def fold(x, n_group):
-    r"""Fold audio or spectrogram's temporal dimension in to groups.
+    """Fold audio or spectrogram's temporal dimension in to groups.
 
-    Parameters
-    ----------
-    x : Tensor [shape=(\*, time_steps)
-        The input tensor.
+    Args:
+        x(Tensor): The input tensor. shape=(*, time_steps)
+        n_group(int): The size of a group.
 
-    n_group : int
-        The size of a group.
-
-    Returns
-    ---------
-    Tensor : [shape=(\*, time_steps // n_group, group)]
-        Folded tensor.
+    Returns:
+        Tensor: Folded tensor. shape=(*, time_steps // n_group, group)
     """
     spatial_shape = list(x.shape[:-1])
     time_steps = paddle.shape(x)[-1]
@@ -58,27 +52,23 @@ class UpsampleNet(nn.LayerList):
     It consists of several conv2dtranspose layers which perform deconvolution
     on mel and time dimension.
 
-    Parameters
-    ----------
-    upscale_factors : List[int], optional
-        Time upsampling factors for each Conv2DTranspose Layer.
+    Args:
+        upscale_factors(List[int], optional): Time upsampling factors for each Conv2DTranspose Layer.
+            The ``UpsampleNet`` contains ``len(upscale_factor)`` Conv2DTranspose
+            Layers. Each upscale_factor is used as the ``stride`` for the
+            corresponding Conv2DTranspose. Defaults to [16, 16], this the default
+            upsampling factor is 256.
 
-        The ``UpsampleNet`` contains ``len(upscale_factor)`` Conv2DTranspose
-        Layers. Each upscale_factor is used as the ``stride`` for the
-        corresponding Conv2DTranspose. Defaults to [16, 16], this the default
-        upsampling factor is 256.
+    Notes:
+        ``np.prod(upscale_factors)`` should equals the ``hop_length`` of the stft
+        transformation used to extract spectrogram features from audio.
 
-    Notes
-    ------
-    ``np.prod(upscale_factors)`` should equals the ``hop_length`` of the stft
-    transformation used to extract spectrogram features from audio.
+        For example, ``16 * 16 = 256``, then the spectrogram extracted with a stft
+        transformation whose ``hop_length`` equals 256 is suitable.
 
-    For example, ``16 * 16 = 256``, then the spectrogram extracted with a stft
-    transformation whose ``hop_length`` equals 256 is suitable.
-
-    See Also
-    ---------
-    ``librosa.core.stft``
+        See Also
+    
+        ``librosa.core.stft``
     """
 
     def __init__(self, upsample_factors):
@@ -101,25 +91,18 @@ class UpsampleNet(nn.LayerList):
         self.upsample_factors = upsample_factors
 
     def forward(self, x, trim_conv_artifact=False):
-        r"""Forward pass of the ``UpsampleNet``.
+        """Forward pass of the ``UpsampleNet``
 
-        Parameters
-        -----------
-        x : Tensor [shape=(batch_size, input_channels, time_steps)]
-            The input spectrogram.
+        Args:
+            x(Tensor): The input spectrogram. shape=(batch_size, input_channels, time_steps)
+            trim_conv_artifact(bool, optional, optional): Trim deconvolution artifact at each layer. Defaults to False.
 
-        trim_conv_artifact : bool, optional
-            Trim deconvolution artifact at each layer. Defaults to False.
+        Returns:
+           Tensor: The upsampled spectrogram. shape=(batch_size, input_channels, time_steps * upsample_factor)
 
-        Returns
-        --------
-        Tensor: [shape=(batch_size, input_channels, time_steps \* upsample_factor)]
-            The upsampled spectrogram.
-
-        Notes
-        --------
-        If trim_conv_artifact is ``True``, the output time steps is less
-        than ``time_steps \* upsample_factors``.
+        Notes:
+            If trim_conv_artifact is ``True``, the output time steps is less
+            than ``time_steps * upsample_factors``.
         """
         x = paddle.unsqueeze(x, 1)  # (B, C, T) -> (B, 1, C, T)
         for layer in self:
@@ -139,19 +122,11 @@ class ResidualBlock(nn.Layer):
     same paddign in width dimension. It also has projection for the condition
     and output.
 
-    Parameters
-    ----------
-    channels : int
-        Feature size of the input.
-
-    cond_channels : int
-        Featuer size of the condition.
-
-    kernel_size : Tuple[int]
-        Kernel size of the Convolution2d applied to the input.
-
-    dilations : int
-        Dilations of the Convolution2d applied to the input.
+    Args:
+        channels (int): Feature size of the input.
+        cond_channels (int): Featuer size of the condition.
+        kernel_size (Tuple[int]): Kernel size of the Convolution2d applied to the input.
+        dilations (int): Dilations of the Convolution2d applied to the input.
     """
 
     def __init__(self, channels, cond_channels, kernel_size, dilations):
@@ -197,21 +172,13 @@ class ResidualBlock(nn.Layer):
     def forward(self, x, condition):
         """Compute output for a whole folded sequence.
 
-        Parameters
-        ----------
-        x : Tensor [shape=(batch_size, channel, height, width)]
-            The input.
+        Args:
+            x (Tensor): The input. [shape=(batch_size, channel, height, width)]
+            condition (Tensor [shape=(batch_size, condition_channel, height, width)]): The local condition.
 
-        condition : Tensor [shape=(batch_size, condition_channel, height, width)]
-            The local condition.
-
-        Returns
-        -------
-        res : Tensor [shape=(batch_size, channel, height, width)]
-            The residual output.
-
-        skip : Tensor [shape=(batch_size, channel, height, width)]
-            The skip output.
+        Returns: 
+            res (Tensor): The residual output. [shape=(batch_size, channel, height, width)]
+            skip (Tensor): The skip output. [shape=(batch_size, channel, height, width)]
         """
         x_in = x
         x = self.conv(x)
@@ -248,21 +215,14 @@ class ResidualBlock(nn.Layer):
     def add_input(self, x_row, condition_row):
         """Compute the output for a row and update the buffer.
 
-        Parameters
-        ----------
-        x_row : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the input.
+        Args:
+            x_row (Tensor): A row of the input. shape=(batch_size, channel, 1, width)
+            condition_row (Tensor): A row of the condition. shape=(batch_size, condition_channel, 1, width)
 
-        condition_row : Tensor [shape=(batch_size, condition_channel, 1, width)]
-            A row of the condition.
+        Returns:
+            res (Tensor): A row of the the residual output. shape=(batch_size, channel, 1, width)
+            skip (Tensor): A row of the skip output. shape=(batch_size, channel, 1, width)
 
-        Returns
-        -------
-        res : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the the residual output.
-
-        skip : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the skip output.
         """
         x_row_in = x_row
         if len(paddle.shape(self._conv_buffer)) == 1:
@@ -297,27 +257,15 @@ class ResidualBlock(nn.Layer):
 class ResidualNet(nn.LayerList):
     """A stack of several ResidualBlocks. It merges condition at each layer.
 
-    Parameters
-    ----------
-    n_layer : int
-        Number of ResidualBlocks in the ResidualNet.
+    Args:
+        n_layer (int): Number of ResidualBlocks in the ResidualNet.
+        residual_channels (int): Feature size of each ResidualBlocks.
+        condition_channels (int): Feature size of the condition.
+        kernel_size (Tuple[int]): Kernel size of each ResidualBlock.
+        dilations_h (List[int]): Dilation in height dimension of every ResidualBlock.
 
-    residual_channels : int
-        Feature size of each ResidualBlocks.
-
-    condition_channels : int
-        Feature size of the condition.
-
-    kernel_size : Tuple[int]
-        Kernel size of each ResidualBlock.
-
-    dilations_h : List[int]
-        Dilation in height dimension of every ResidualBlock.
-
-    Raises
-    ------
-    ValueError
-        If the length of dilations_h does not equals n_layers.
+    Raises:
+        ValueError: If the length of dilations_h does not equals n_layers.
     """
 
     def __init__(self,
@@ -339,18 +287,13 @@ class ResidualNet(nn.LayerList):
     def forward(self, x, condition):
         """Comput the output of given the input and the condition.
 
-        Parameters
-        -----------
-        x : Tensor [shape=(batch_size, channel, height, width)]
-            The input.
-
-        condition : Tensor [shape=(batch_size, condition_channel, height, width)]
-            The local condition.
-
-        Returns
-        --------
-        Tensor : [shape=(batch_size, channel, height, width)]
-            The output, which is an aggregation of all the skip outputs.
+        Args:
+            x (Tensor): The input. shape=(batch_size, channel, height, width)
+            condition (Tensor): The local condition. shape=(batch_size, condition_channel, height, width)
+            
+        Returns: 
+            Tensor : The output, which is an aggregation of all the skip outputs. shape=(batch_size, channel, height, width)
+            
         """
         skip_connections = []
         for layer in self:
@@ -368,21 +311,14 @@ class ResidualNet(nn.LayerList):
     def add_input(self, x_row, condition_row):
         """Compute the output for a row and update the buffers.
 
-        Parameters
-        ----------
-        x_row : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the input.
-
-        condition_row : Tensor [shape=(batch_size, condition_channel, 1, width)]
-            A row of the condition.
-
-        Returns
-        -------
-        res : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the the residual output.
-
-        skip : Tensor [shape=(batch_size, channel, 1, width)]
-            A row of the skip output.
+        Args:
+            x_row (Tensor): A row of the input. shape=(batch_size, channel, 1, width)
+            condition_row (Tensor):  A row of the condition. shape=(batch_size, condition_channel, 1, width)
+            
+        Returns:
+            res (Tensor): A row of the the residual output. shape=(batch_size, channel, 1, width) 
+            skip (Tensor): A row of the skip output. shape=(batch_size, channel, 1, width)
+                
         """
         skip_connections = []
         for layer in self:
@@ -400,22 +336,12 @@ class Flow(nn.Layer):
     probability density estimation. The ``inverse`` method implements the
     sampling.
 
-    Parameters
-    ----------
-    n_layers : int
-        Number of ResidualBlocks in the Flow.
-
-    channels : int
-        Feature size of the ResidualBlocks.
-
-    mel_bands : int
-        Feature size of the mel spectrogram (mel bands).
-
-    kernel_size : Tuple[int]
-        Kernel size of each ResisualBlocks in the Flow.
-
-    n_group : int
-        Number of timesteps to the folded into a group.
+    Args:
+        n_layers (int): Number of ResidualBlocks in the Flow.
+        channels (int): Feature size of the ResidualBlocks.
+        mel_bands (int): Feature size of the mel spectrogram (mel bands).
+        kernel_size (Tuple[int]): Kernel size of each ResisualBlocks in the Flow.
+        n_group (int): Number of timesteps to the folded into a group.
     """
     dilations_dict = {
         8: [1, 1, 1, 1, 1, 1, 1, 1],
@@ -466,26 +392,16 @@ class Flow(nn.Layer):
         """Probability density estimation. It is done by inversely transform
         a sample from p(X) into a sample from p(Z).
 
-        Parameters
-        -----------
-        x : Tensor [shape=(batch, 1, height, width)]
-            A input sample of the distribution p(X).
-
-        condition : Tensor [shape=(batch, condition_channel, height, width)]
-            The local condition.
-
-        Returns
-        --------
-        z (Tensor): shape(batch, 1, height, width), the transformed sample.
-
-        Tuple[Tensor, Tensor]
-            The parameter of the transformation.
-
-            logs (Tensor): shape(batch, 1, height - 1, width), the log scale
-            of the transformation from x to z.
-
-            b (Tensor): shape(batch, 1, height - 1, width), the shift of the
-            transformation from x to z.
+        Args:
+            x (Tensor): A input sample of the distribution p(X). shape=(batch, 1, height, width)
+            condition (Tensor): The local condition. shape=(batch, condition_channel, height, width)
+            
+        Returns:
+            z (Tensor): shape(batch, 1, height, width), the transformed sample.
+            Tuple[Tensor, Tensor]:
+                The parameter of the transformation.
+                logs (Tensor): shape(batch, 1, height - 1, width), the log scale of the transformation from x to z.
+                b (Tensor): shape(batch, 1, height - 1, width), the shift of the transformation from x to z.
         """
         # (B, C, H-1, W)
         logs, b = self._predict_parameters(x[:, :, :-1, :],
@@ -516,27 +432,12 @@ class Flow(nn.Layer):
         """Sampling from the the distrition p(X). It is done by sample form
         p(Z) and transform the sample. It is a auto regressive transformation.
 
-        Parameters
-        -----------
-        z : Tensor [shape=(batch, 1, height, width)]
-            A sample of the distribution p(Z).
-
-        condition : Tensor [shape=(batch, condition_channel, height, width)]
-            The local condition.
-
-        Returns
-        ---------
-        x : Tensor [shape=(batch, 1, height, width)]
-            The transformed sample.
-
-        Tuple[Tensor, Tensor]
-            The parameter of the transformation.
-
-            logs (Tensor): shape(batch, 1, height - 1, width), the log scale
-            of the transformation from x to z.
-
-            b (Tensor): shape(batch, 1, height - 1, width), the shift of the
-            transformation from x to z.
+        Args:
+            z(Tensor): A sample of the distribution p(Z). shape=(batch, 1, time_steps
+            condition(Tensor): The local condition. shape=(batch, condition_channel, time_steps)
+        Returns:
+            Tensor:
+                The transformed sample. shape=(batch, 1, height, width)
         """
         z_0 = z[:, :, :1, :]
         x = paddle.zeros_like(z)
@@ -560,25 +461,13 @@ class WaveFlow(nn.LayerList):
     """An Deep Reversible layer that is composed of severel auto regressive
     flows.
 
-    Parameters
-    -----------
-    n_flows : int
-        Number of flows in the WaveFlow model.
-
-    n_layers : int
-        Number of ResidualBlocks in each Flow.
-
-    n_group : int
-        Number of timesteps to fold as a group.
-
-    channels : int
-        Feature size of each ResidualBlock.
-
-    mel_bands : int
-        Feature size of mel spectrogram (mel bands).
-
-    kernel_size : Union[int, List[int]]
-        Kernel size of the convolution layer in each ResidualBlock.
+    Args:
+        n_flows (int): Number of flows in the WaveFlow model.
+        n_layers (int): Number of ResidualBlocks in each Flow.
+        n_group (int): Number of timesteps to fold as a group.
+        channels (int): Feature size of each ResidualBlock.
+        mel_bands (int): Feature size of mel spectrogram (mel bands).
+        kernel_size (Union[int, List[int]]): Kernel size of the convolution layer in each ResidualBlock.
     """
 
     def __init__(self, n_flows, n_layers, n_group, channels, mel_bands,
@@ -628,22 +517,13 @@ class WaveFlow(nn.LayerList):
         """Probability density estimation of random variable x given the
         condition.
 
-        Parameters
-        -----------
-        x : Tensor [shape=(batch_size, time_steps)]
-            The audio.
-
-        condition : Tensor [shape=(batch_size, condition channel, time_steps)]
-            The local condition (mel spectrogram here).
-
-        Returns
-        --------
-        z : Tensor [shape=(batch_size, time_steps)]
-            The transformed random variable.
-
-        log_det_jacobian: Tensor [shape=(1,)]
-            The log determinant of the jacobian of the transformation from x
-            to z.
+        Args:
+            x (Tensor): The audio. shape=(batch_size, time_steps)
+            condition (Tensor): The local condition (mel spectrogram here). shape=(batch_size, condition channel, time_steps)
+                
+        Returns:
+            Tensor: The transformed random variable. shape=(batch_size, time_steps)
+            Tensor: The log determinant of the jacobian of the transformation from x to z. shape=(1,)
         """
         # x: (B, T)
         # condition: (B, C, T) upsampled condition
@@ -678,18 +558,13 @@ class WaveFlow(nn.LayerList):
         Each Flow transform .. math:: `z_{i-1}` to .. math:: `z_{i}` in an
         autoregressive manner.
 
-        Parameters
-        ----------
-        z : Tensor [shape=(batch, 1, time_steps]
-            A sample of the distribution p(Z).
+        Args:
+            z (Tensor): A sample of the distribution p(Z). shape=(batch, 1, time_steps
+            condition (Tensor): The local condition. shape=(batch, condition_channel, time_steps)    
 
-        condition : Tensor [shape=(batch, condition_channel, time_steps)]
-            The local condition.
-
-        Returns
-        --------
-        x : Tensor [shape=(batch_size, time_steps)]
-            The transformed sample (audio here).
+        Returns: 
+            Tensor: The transformed sample (audio here). shape=(batch_size, time_steps)
+            
         """
 
         z, condition = self._trim(z, condition)
@@ -714,29 +589,15 @@ class WaveFlow(nn.LayerList):
 class ConditionalWaveFlow(nn.LayerList):
     """ConditionalWaveFlow, a UpsampleNet with a WaveFlow model.
 
-    Parameters
-    ----------
-    upsample_factors : List[int]
-        Upsample factors for the upsample net.
-
-    n_flows : int
-        Number of flows in the WaveFlow model.
-
-    n_layers : int
-        Number of ResidualBlocks in each Flow.
-
-    n_group : int
-        Number of timesteps to fold as a group.
-
-    channels : int
-        Feature size of each ResidualBlock.
-
-    n_mels : int
-        Feature size of mel spectrogram (mel bands).
-
-    kernel_size : Union[int, List[int]]
-        Kernel size of the convolution layer in each ResidualBlock.
-    """
+    Args:
+        upsample_factors (List[int]): Upsample factors for the upsample net.
+        n_flows (int): Number of flows in the WaveFlow model.
+        n_layers (int): Number of ResidualBlocks in each Flow.
+        n_group (int): Number of timesteps to fold as a group.
+        channels (int): Feature size of each ResidualBlock.
+        n_mels (int): Feature size of mel spectrogram (mel bands).
+        kernel_size (Union[int, List[int]]): Kernel size of the convolution layer in each ResidualBlock.
+        """
 
     def __init__(self,
                  upsample_factors: List[int],
@@ -760,22 +621,13 @@ class ConditionalWaveFlow(nn.LayerList):
         """Compute the transformed random variable z (x to z) and the log of
         the determinant of the jacobian of the transformation from x to z.
 
-        Parameters
-        ----------
-        audio : Tensor [shape=(B, T)]
-            The audio.
+        Args:
+            audio(Tensor): The audio. shape=(B, T)
+            mel(Tensor): The mel spectrogram. shape=(B, C_mel, T_mel)
 
-        mel : Tensor [shape=(B, C_mel, T_mel)]
-            The mel spectrogram.
-
-        Returns
-        -------
-        z : Tensor [shape=(B, T)]
-            The inversely transformed random variable z (x to z)
-
-        log_det_jacobian: Tensor [shape=(1,)]
-            the log of the determinant of the jacobian of the transformation
-            from x to z.
+        Returns:
+            Tensor: The inversely transformed random variable z (x to z). shape=(B, T)
+            Tensor: the log of the determinant of the jacobian of the transformation from x to z. shape=(1,)
         """
         condition = self.encoder(mel)
         z, log_det_jacobian = self.decoder(audio, condition)
@@ -783,17 +635,13 @@ class ConditionalWaveFlow(nn.LayerList):
 
     @paddle.no_grad()
     def infer(self, mel):
-        r"""Generate raw audio given mel spectrogram.
+        """Generate raw audio given mel spectrogram.
 
-        Parameters
-        ----------
-        mel : Tensor [shape=(B, C_mel, T_mel)]
-            Mel spectrogram (in log-magnitude).
+        Args:
+            mel(np.ndarray): Mel spectrogram of an utterance(in log-magnitude). shape=(C_mel, T_mel)
 
-        Returns
-        -------
-        Tensor : [shape=(B, T)]
-            The synthesized audio, where``T <= T_mel \* upsample_factors``.
+        Returns:
+            Tensor: The synthesized audio, where``T <= T_mel * upsample_factors``. shape=(B, T)
         """
         start = time.time()
         condition = self.encoder(mel, trim_conv_artifact=True)  # (B, C, T)
@@ -808,15 +656,11 @@ class ConditionalWaveFlow(nn.LayerList):
     def predict(self, mel):
         """Generate raw audio given mel spectrogram.
 
-        Parameters
-        ----------
-        mel : np.ndarray [shape=(C_mel, T_mel)]
-            Mel spectrogram of an utterance(in log-magnitude).
+        Args:
+            mel(np.ndarray): Mel spectrogram of an utterance(in log-magnitude). shape=(C_mel, T_mel)
 
-        Returns
-        -------
-        np.ndarray [shape=(T,)]
-            The synthesized audio.
+        Returns:
+            np.ndarray: The synthesized audio. shape=(T,)
         """
         mel = paddle.to_tensor(mel)
         mel = paddle.unsqueeze(mel, 0)
@@ -828,18 +672,12 @@ class ConditionalWaveFlow(nn.LayerList):
     def from_pretrained(cls, config, checkpoint_path):
         """Build a ConditionalWaveFlow model from a pretrained model.
 
-        Parameters
-        ----------
-        config: yacs.config.CfgNode
-            model configs
+        Args:
+            config(yacs.config.CfgNode): model configs
+            checkpoint_path(Path or str): the path of pretrained model checkpoint, without extension name
 
-        checkpoint_path: Path or str
-            the path of pretrained model checkpoint, without extension name
-
-        Returns
-        -------
-        ConditionalWaveFlow
-            The model built from pretrained result.
+        Returns:
+            ConditionalWaveFlow The model built from pretrained result.
         """
         model = cls(upsample_factors=config.model.upsample_factors,
                     n_flows=config.model.n_flows,
@@ -855,11 +693,9 @@ class ConditionalWaveFlow(nn.LayerList):
 class WaveFlowLoss(nn.Layer):
     """Criterion of a WaveFlow model.
 
-    Parameters
-    ----------
-    sigma : float
-        The standard deviation of the gaussian noise used in WaveFlow, by
-        default 1.0.
+    Args:
+        sigma (float): The standard deviation of the gaussian noise used in WaveFlow, 
+            by default 1.0.
     """
 
     def __init__(self, sigma=1.0):
@@ -871,19 +707,13 @@ class WaveFlowLoss(nn.Layer):
         """Compute the loss given the transformed random variable z and the
         log_det_jacobian of transformation from x to z.
 
-        Parameters
-        ----------
-        z : Tensor [shape=(B, T)]
-            The transformed random variable (x to z).
+        Args:
+            z(Tensor): The transformed random variable (x to z). shape=(B, T)
+            log_det_jacobian(Tensor): The log of the determinant of the jacobian matrix of the
+                transformation from x to z.  shape=(1,)
 
-        log_det_jacobian : Tensor [shape=(1,)]
-            The log of the determinant of the jacobian matrix of the
-            transformation from x to z.
-
-        Returns
-        -------
-        Tensor [shape=(1,)]
-            The loss.
+        Returns:
+            Tensor: The loss. shape=(1,)
         """
         loss = paddle.sum(z * z) / (2 * self.sigma * self.sigma
                                     ) - log_det_jacobian
@@ -895,15 +725,12 @@ class ConditionalWaveFlow2Infer(ConditionalWaveFlow):
     def forward(self, mel):
         """Generate raw audio given mel spectrogram.
 
-        Parameters
-        ----------
-        mel : np.ndarray [shape=(C_mel, T_mel)]
-            Mel spectrogram of an utterance(in log-magnitude).
-
-        Returns
-        -------
-        np.ndarray [shape=(T,)]
-            The synthesized audio.
+        Args:
+            mel (np.ndarray): Mel spectrogram of an utterance(in log-magnitude). shape=(C_mel, T_mel)
+            
+        Returns:
+            np.ndarray: The synthesized audio. shape=(T,)
+            
         """
         audio = self.predict(mel)
         return audio

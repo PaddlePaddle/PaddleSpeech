@@ -1,0 +1,91 @@
+# This configuration is for Paddle to train Tacotron 2. Compared to the
+# original paper, this configuration additionally use the guided attention
+# loss to accelerate the learning of the diagonal attention. It requires
+# only a single GPU with 12 GB memory and it takes ~1 days to finish the
+# training on Titan V.
+
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+
+fs: 24000          # sr
+n_fft: 2048        # FFT size (samples).
+n_shift: 300       # Hop size (samples). 12.5ms
+win_length: 1200   # Window length (samples). 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+
+# Only used for feats_type != raw
+
+fmin: 80           # Minimum frequency of Mel basis.
+fmax: 7600         # Maximum frequency of Mel basis.
+n_mels: 80         # The number of mel basis.
+
+###########################################################
+#                       DATA SETTING                      #
+###########################################################
+batch_size: 64
+num_workers: 2
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model:                          # keyword arguments for the selected model
+    embed_dim: 512               # char or phn embedding dimension
+    elayers: 1                   # number of blstm layers in encoder
+    eunits: 512                  # number of blstm units
+    econv_layers: 3              # number of convolutional layers in encoder
+    econv_chans: 512             # number of channels in convolutional layer
+    econv_filts: 5               # filter size of convolutional layer
+    atype: location              # attention function type
+    adim: 512                    # attention dimension
+    aconv_chans: 32              # number of channels in convolutional layer of attention
+    aconv_filts: 15              # filter size of convolutional layer of attention
+    cumulate_att_w: True         # whether to cumulate attention weight
+    dlayers: 2                   # number of lstm layers in decoder
+    dunits: 1024                 # number of lstm units in decoder
+    prenet_layers: 2             # number of layers in prenet
+    prenet_units: 256            # number of units in prenet
+    postnet_layers: 5            # number of layers in postnet
+    postnet_chans: 512           # number of channels in postnet
+    postnet_filts: 5             # filter size of postnet layer
+    output_activation: null      # activation function for the final output
+    use_batch_norm: True         # whether to use batch normalization in encoder
+    use_concate: True            # whether to concatenate encoder embedding with decoder outputs
+    use_residual: False          # whether to use residual connection in encoder
+    dropout_rate: 0.5            # dropout rate
+    zoneout_rate: 0.1            # zoneout rate
+    reduction_factor: 1          # reduction factor
+    spk_embed_dim: null          # speaker embedding dimension
+
+
+###########################################################
+#                       UPDATER SETTING                   #
+###########################################################
+updater:
+    use_masking: True            # whether to apply masking for padded part in loss calculation
+    bce_pos_weight: 5.0          # weight of positive sample in binary cross entropy calculation
+    use_guided_attn_loss: True   # whether to use guided attention loss
+    guided_attn_loss_sigma: 0.4  # sigma of guided attention loss
+    guided_attn_loss_lambda: 1.0 # strength of guided attention loss
+
+
+##########################################################
+#                  OPTIMIZER SETTING                     #
+##########################################################
+optimizer:
+    optim: adam              # optimizer type
+    learning_rate: 1.0e-03   # learning rate
+    epsilon: 1.0e-06         # epsilon
+    weight_decay: 0.0        # weight decay coefficient
+
+###########################################################
+#                     TRAINING SETTING                    #
+###########################################################
+max_epoch: 200
+num_snapshots: 5
+
+###########################################################
+#                       OTHER SETTING                     #
+###########################################################
+seed: 42

@@ -30,33 +30,21 @@ class StyleEncoder(nn.Layer):
 
     .. _`Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End
         Speech Synthesis`: https://arxiv.org/abs/1803.09017
+    
+    Args:
+        idim (int, optional): Dimension of the input mel-spectrogram.
+        gst_tokens (int, optional): The number of GST embeddings.
+        gst_token_dim (int, optional): Dimension of each GST embedding.
+        gst_heads (int, optional): The number of heads in GST multihead attention.
+        conv_layers (int, optional): The number of conv layers in the reference encoder.
+        conv_chans_list (Sequence[int], optional): List of the number of channels of conv layers in the referece encoder.
+        conv_kernel_size (int, optional): Kernal size of conv layers in the reference encoder.
+        conv_stride (int, optional): Stride size of conv layers in the reference encoder.
+        gru_layers (int, optional): The number of GRU layers in the reference encoder.
+        gru_units (int, optional):The number of GRU units in the reference encoder.
 
-    Parameters
-    ----------
-    idim : int, optional
-        Dimension of the input mel-spectrogram.
-    gst_tokens : int, optional
-        The number of GST embeddings.
-    gst_token_dim : int, optional
-        Dimension of each GST embedding.
-    gst_heads : int, optional
-        The number of heads in GST multihead attention.
-    conv_layers : int, optional
-        The number of conv layers in the reference encoder.
-    conv_chans_list : Sequence[int], optional
-        List of the number of channels of conv layers in the referece encoder.
-    conv_kernel_size : int, optional
-        Kernal size of conv layers in the reference encoder.
-    conv_stride : int, optional
-        Stride size of conv layers in the reference encoder.
-    gru_layers : int, optional
-        The number of GRU layers in the reference encoder.
-    gru_units : int, optional
-        The number of GRU units in the reference encoder.
-
-    Todo
-    ----------
-    * Support manual weight specification in inference.
+    Todo:
+        * Support manual weight specification in inference.
 
     """
 
@@ -93,15 +81,11 @@ class StyleEncoder(nn.Layer):
     def forward(self, speech: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        speech : Tensor
-            Batch of padded target features (B, Lmax, odim).
+        Args:
+            speech (Tensor): Batch of padded target features (B, Lmax, odim).
 
-        Returns
-        ----------
-        Tensor:
-            Style token embeddings (B, token_dim).
+        Returns: 
+            Tensor: Style token embeddings (B, token_dim).
 
         """
         ref_embs = self.ref_enc(speech)
@@ -118,23 +102,15 @@ class ReferenceEncoder(nn.Layer):
 
     .. _`Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End
         Speech Synthesis`: https://arxiv.org/abs/1803.09017
-
-    Parameters
-    ----------
-    idim : int, optional
-        Dimension of the input mel-spectrogram.
-    conv_layers : int, optional
-        The number of conv layers in the reference encoder.
-    conv_chans_list: : Sequence[int], optional
-        List of the number of channels of conv layers in the referece encoder.
-    conv_kernel_size : int, optional
-        Kernal size of conv layers in the reference encoder.
-    conv_stride : int, optional
-        Stride size of conv layers in the reference encoder.
-    gru_layers : int, optional
-        The number of GRU layers in the reference encoder.
-    gru_units : int, optional
-        The number of GRU units in the reference encoder.
+    
+    Args:
+        idim (int, optional): Dimension of the input mel-spectrogram.
+        conv_layers (int, optional): The number of conv layers in the reference encoder.
+        conv_chans_list: (Sequence[int], optional): List of the number of channels of conv layers in the referece encoder.
+        conv_kernel_size (int, optional): Kernal size of conv layers in the reference encoder.
+        conv_stride (int, optional): Stride size of conv layers in the reference encoder.
+        gru_layers (int, optional): The number of GRU layers in the reference encoder.
+        gru_units (int, optional): The number of GRU units in the reference encoder.
 
     """
 
@@ -191,16 +167,11 @@ class ReferenceEncoder(nn.Layer):
 
     def forward(self, speech: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
+        Args:
+            speech (Tensor): Batch of padded target features (B, Lmax, idim).
 
-        Parameters
-        ----------
-        speech : Tensor
-            Batch of padded target features (B, Lmax, idim).
-
-        Return
-        ----------
-        Tensor
-            Reference embedding (B, gru_units)
+        Returns:
+            Tensor: Reference embedding (B, gru_units)
 
         """
         batch_size = speech.shape[0]
@@ -228,19 +199,12 @@ class StyleTokenLayer(nn.Layer):
 
     .. _`Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End
         Speech Synthesis`: https://arxiv.org/abs/1803.09017
-
-    Parameters
-    ----------
-    ref_embed_dim : int, optional
-        Dimension of the input reference embedding.
-    gst_tokens : int, optional
-        The number of GST embeddings.
-    gst_token_dim : int, optional
-        Dimension of each GST embedding.
-    gst_heads : int, optional
-        The number of heads in GST multihead attention.
-    dropout_rate : float, optional
-        Dropout rate in multi-head attention.
+    Args:
+        ref_embed_dim (int, optional): Dimension of the input reference embedding.
+        gst_tokens (int, optional): The number of GST embeddings.
+        gst_token_dim (int, optional): Dimension of each GST embedding.
+        gst_heads (int, optional): The number of heads in GST multihead attention.
+        dropout_rate (float, optional): Dropout rate in multi-head attention.
 
     """
 
@@ -271,15 +235,11 @@ class StyleTokenLayer(nn.Layer):
     def forward(self, ref_embs: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
 
-        Parameters
-        ----------
-        ref_embs : Tensor
-            Reference embeddings (B, ref_embed_dim).
+        Args:
+            ref_embs (Tensor): Reference embeddings (B, ref_embed_dim).
 
-        Returns
-        ----------
-        Tensor
-            Style token embeddings (B, gst_token_dim).
+        Returns: 
+            Tensor: Style token embeddings (B, gst_token_dim).
 
         """
         batch_size = ref_embs.shape[0]

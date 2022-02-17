@@ -18,7 +18,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
-    bash ./local/preprocess.sh ${conf_path} || exit -1
+    ./local/preprocess.sh ${conf_path} || exit -1
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
@@ -40,3 +40,4 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # inference with static model
     CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} || exit -1
 fi
+

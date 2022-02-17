@@ -55,14 +55,10 @@ class TextNormalizer():
 
     def _split(self, text: str, lang="zh") -> List[str]:
         """Split long text into sentences with sentence-splitting punctuations.
-        Parameters
-        ----------
-        text : str
-            The input text.
-        Returns
-        -------
-        List[str]
-            Sentences.
+        Args:
+            text (str): The input text.
+        Returns:
+            List[str]: Sentences.
         """
         # Only for pure Chinese here
         if lang == "zh":

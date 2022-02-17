@@ -35,12 +35,12 @@ generator_params:
         - [1, 3, 5]
         - [1, 3, 5]
         - [1, 3, 5]
-    use_additional_convs: true            # Whether to use additional conv layer in residual blocks.
-    bias: true                            # Whether to use bias parameter in conv.
+    use_additional_convs: True            # Whether to use additional conv layer in residual blocks.
+    bias: True                            # Whether to use bias parameter in conv.
     nonlinear_activation: "leakyrelu"     # Nonlinear activation type.
     nonlinear_activation_params:          # Nonlinear activation paramters.
         negative_slope: 0.1
-    use_weight_norm: true                 # Whether to apply weight normalization.
+    use_weight_norm: True                 # Whether to apply weight normalization.
 
 
 ###########################################################
@@ -60,12 +60,12 @@ discriminator_params:
         channels: 128                      # Initial number of channels.
         max_downsample_channels: 1024      # Maximum number of channels in downsampling conv layers.
         max_groups: 16                     # Maximum number of groups in downsampling conv layers.
-        bias: true
+        bias: True
         downsample_scales: [4, 4, 4, 4, 1] # Downsampling scales.
         nonlinear_activation: "leakyrelu"  # Nonlinear activation.
         nonlinear_activation_params:
             negative_slope: 0.1
-    follow_official_norm: true             # Whether to follow the official norm setting.
+    follow_official_norm: True             # Whether to follow the official norm setting.
     periods: [2, 3, 5, 7, 11]              # List of period for multi-period discriminator.
     period_discriminator_params:
         in_channels: 1                     # Number of input channels.
@@ -74,19 +74,19 @@ discriminator_params:
         channels: 32                       # Initial number of channels.
         downsample_scales: [3, 3, 3, 3, 1] # Downsampling scales.
         max_downsample_channels: 1024      # Maximum number of channels in downsampling conv layers.
-        bias: true                         # Whether to use bias parameter in conv layer."
+        bias: True                         # Whether to use bias parameter in conv layer."
         nonlinear_activation: "leakyrelu"  # Nonlinear activation.
         nonlinear_activation_params:       # Nonlinear activation paramters.
             negative_slope: 0.1
-        use_weight_norm: true              # Whether to apply weight normalization.
-        use_spectral_norm: false           # Whether to apply spectral normalization.
+        use_weight_norm: True              # Whether to apply weight normalization.
+        use_spectral_norm: False           # Whether to apply spectral normalization.
     
 
 ###########################################################
 #                   STFT LOSS SETTING                     #
 ###########################################################
-use_stft_loss: false                 # Whether to use multi-resolution STFT loss.
-use_mel_loss: true                   # Whether to use Mel-spectrogram loss.
+use_stft_loss: False                 # Whether to use multi-resolution STFT loss.
+use_mel_loss: True                   # Whether to use Mel-spectrogram loss.
 mel_loss_params:
     fs: 24000
     fft_size: 2048
@@ -98,14 +98,14 @@ mel_loss_params:
     fmax: 12000
     log_base: null
 generator_adv_loss_params:
-    average_by_discriminators: false # Whether to average loss by #discriminators.
+    average_by_discriminators: False # Whether to average loss by #discriminators.
 discriminator_adv_loss_params:
-    average_by_discriminators: false # Whether to average loss by #discriminators.
-use_feat_match_loss: true
+    average_by_discriminators: False # Whether to average loss by #discriminators.
+use_feat_match_loss: True
 feat_match_loss_params:
-    average_by_discriminators: false # Whether to average loss by #discriminators.
-    average_by_layers: false         # Whether to average loss by #layers in each discriminator.
-    include_final_outputs: false     # Whether to include final outputs in feat match loss calculation.
+    average_by_discriminators: False # Whether to average loss by #discriminators.
+    average_by_layers: False         # Whether to average loss by #layers in each discriminator.
+    include_final_outputs: False     # Whether to include final outputs in feat match loss calculation.
 
 ###########################################################
 #               ADVERSARIAL LOSS SETTING                  #

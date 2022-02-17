@@ -11,3 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from .swig_wrapper import ctc_beam_search_decoding
+from .swig_wrapper import ctc_beam_search_decoding_batch
+from .swig_wrapper import ctc_greedy_decoding
+from .swig_wrapper import CTCBeamSearchDecoder
+from .swig_wrapper import Scorer

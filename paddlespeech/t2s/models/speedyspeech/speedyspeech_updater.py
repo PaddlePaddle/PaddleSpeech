@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
 from paddle.fluid.layers import huber_loss
+from paddle.io import DataLoader
 from paddle.nn import functional as F
+from paddle.nn import Layer
+from paddle.optimizer import Optimizer
 
 from paddlespeech.t2s.modules.losses import masked_l1_loss
 from paddlespeech.t2s.modules.losses import ssim
@@ -33,11 +37,11 @@ logger.setLevel(logging.INFO)
 
 class SpeedySpeechUpdater(StandardUpdater):
     def __init__(self,
-                 model,
-                 optimizer,
-                 dataloader,
+                 model: Layer,
+                 optimizer: Optimizer,
+                 dataloader: DataLoader,
                  init_state=None,
-                 output_dir=None):
+                 output_dir: Path=None):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
@@ -103,7 +107,10 @@ class SpeedySpeechUpdater(StandardUpdater):
 
 
 class SpeedySpeechEvaluator(StandardEvaluator):
-    def __init__(self, model, dataloader, output_dir=None):
+    def __init__(self,
+                 model: Layer,
+                 dataloader: DataLoader,
+                 output_dir: Path=None):
         super().__init__(model, dataloader)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())

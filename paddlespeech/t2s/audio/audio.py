@@ -53,8 +53,8 @@ class AudioProcessor(object):
 
     def _create_mel_filter(self):
         mel_filter = librosa.filters.mel(
-            self.sample_rate,
-            self.n_fft,
+            sr=self.sample_rate,
+            n_fft=self.n_fft,
             n_mels=self.n_mels,
             fmin=self.fmin,
             fmax=self.fmax)

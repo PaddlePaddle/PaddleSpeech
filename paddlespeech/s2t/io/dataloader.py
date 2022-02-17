@@ -61,7 +61,7 @@ class BatchDataLoader():
     def __init__(self,
                  json_file: str,
                  train_mode: bool,
-                 sortagrad: bool=False,
+                 sortagrad: int=0,
                  batch_size: int=0,
                  maxlen_in: float=float('inf'),
                  maxlen_out: float=float('inf'),

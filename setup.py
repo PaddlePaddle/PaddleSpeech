@@ -27,6 +27,8 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
+VERSION = '0.1.1'
+
 requirements = {
     "install": [
         "editdistance",
@@ -83,6 +85,24 @@ requirements = {
         "zhon",
     ]
 }
+
+
+def write_version_py(filename='paddlespeech/__init__.py'):
+    import paddlespeech
+    if hasattr(paddlespeech,
+               "__version__") and paddlespeech.__version__ == VERSION:
+        return
+    with open(filename, "a") as f:
+        f.write(f"\n__version__ = '{VERSION}'\n")
+
+
+def remove_version_py(filename='paddlespeech/__init__.py'):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    with open(filename, "w") as f:
+        for line in lines:
+            if "__version__" not in line:
+                f.write(line)
 
 
 @contextlib.contextmanager
@@ -172,10 +192,12 @@ class UploadCommand(Command):
         sys.exit()
 
 
+write_version_py()
+
 setup_info = dict(
     # Metadata
     name='paddlespeech',
-    version='0.1.1',
+    version=VERSION,
     author='PaddlePaddle Speech and Language Team',
     author_email='paddlesl@baidu.com',
     url='https://github.com/PaddlePaddle/PaddleSpeech',
@@ -238,3 +260,5 @@ setup_info = dict(
     })
 
 setup(**setup_info)
+
+remove_version_py()

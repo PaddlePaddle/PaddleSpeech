@@ -13,14 +13,33 @@
 # limitations under the License.
 import setuptools
 
-import paddleaudio
-
 # set the version here
-version = paddleaudio.__version__
+VERSION = '0.1.0'
+
+
+def write_version_py(filename='paddleaudio/__init__.py'):
+    import paddleaudio
+    if hasattr(paddleaudio,
+               "__version__") and paddleaudio.__version__ == VERSION:
+        return
+    with open(filename, "a") as f:
+        f.write(f"\n__version__ = '{VERSION}'\n")
+
+
+def remove_version_py(filename='paddleaudio/__init__.py'):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    with open(filename, "w") as f:
+        for line in lines:
+            if "__version__" not in line:
+                f.write(line)
+
+
+write_version_py()
 
 setuptools.setup(
     name="paddleaudio",
-    version=version,
+    version=VERSION,
     author="",
     author_email="",
     description="PaddleAudio, in development",
@@ -41,3 +60,5 @@ setuptools.setup(
         'soundfile >= 0.9.0',
         'colorlog',
     ], )
+
+remove_version_py()

@@ -147,6 +147,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   
 <div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
 
+- [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+
 
 ### 🔥 热门活动
 
@@ -233,7 +235,7 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">语音识别</td>
+      <td rowspan="4">语音识别</td>
       <td rowspan="2" >Aishell</td>
       <td >DeepSpeech2 RNN + Conv based Models</td>
       <td>
@@ -254,6 +256,13 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
       </td>
       </td>
     </tr>
+    <tr>
+      <td>TIMIT</td>
+      <td>Unified Streaming & Non-streaming Two-pass</td>
+      <td>
+    <a href = "./examples/timit/asr1"> u2-timit</a>
+      </td>
+    </tr>
   <tr>
   <td>对齐</td>
   <td>THCHS30</td>
@@ -263,17 +272,10 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
   </td>
   </tr>
    <tr>
-      <td rowspan="2">语言模型</td>
+      <td rowspan="1">语言模型</td>
       <td colspan = "2">Ngram 语言模型</td>
       <td>
       <a href = "./examples/other/ngram_lm">kenlm</a>
-      </td>
-    </tr>
-    <tr>
-      <td>TIMIT</td>
-      <td>Unified Streaming & Non-streaming Two-pass</td>
-      <td>
-    <a href = "./examples/timit/asr1"> u2-timit</a>
       </td>
     </tr>
     <tr>
@@ -315,14 +317,15 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td rowspan="4">声学模型</td>
-      <td >Tacotron2</td>
-      <td rowspan="2" >LJSpeech</td>
+      <td>Tacotron2</td>
+      <td>LJSpeech / CSMSC</td>
       <td>
-      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a>
+      <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a> / <a href = "./examples/csmsc/tts0">tacotron2-csmsc</a>
       </td>
     </tr>
     <tr>
       <td>Transformer TTS</td>
+      <td>LJSpeech</td>
       <td>
       <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>
@@ -342,7 +345,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
    <tr>
-      <td rowspan="5">声码器</td>
+      <td rowspan="6">声码器</td>
       <td >WaveFlow</td>
       <td >LJSpeech</td>
       <td>
@@ -376,7 +379,14 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <td>
       <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
       </td>
-    <tr>                                                                                                                                       
+    </tr>
+    <tr>
+      <td >WaveRNN</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/voc6">WaveRNN-csmsc</a>
+      </td>
+    </tr>
     <tr>
       <td rowspan="3">声音克隆</td>
       <td>GE2E</td>
@@ -415,8 +425,6 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
   </thead>
   <tbody>
-  
-
   <tr>
       <td>声音分类</td>
       <td>ESC-50</td>
@@ -440,7 +448,6 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
   </thead>
   <tbody>
-  
   <tr>
       <td>标点恢复</td>
       <td>IWLST2012_zh</td>
@@ -468,7 +475,6 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   - [语音识别自定义训练](./docs/source/asr/quick_start.md)
     - [简介](./docs/source/asr/models_introduction.md)
     - [数据准备](./docs/source/asr/data_preparation.md)
-    - [数据增强](./docs/source/asr/augmentation.md)
     - [Ngram 语言模型](./docs/source/asr/ngram_lm.md)
   - [语音合成自定义训练](./docs/source/tts/quick_start.md)
     - [简介](./docs/source/tts/models_introduction.md)
@@ -549,6 +555,7 @@ year={2021}
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。
 - 非常感谢 [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) 贡献标点重建相关模型。
+- 非常感谢 [kslz](https://github.com/kslz) 补充中文文档。
   
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

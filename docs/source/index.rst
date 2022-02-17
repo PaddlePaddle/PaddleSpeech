@@ -27,7 +27,6 @@ Contents
 
    asr/models_introduction
    asr/data_preparation
-   asr/augmentation
    asr/feature_list
    asr/ngram_lm
 
@@ -42,6 +41,7 @@ Contents
    tts/gan_vocoder
    tts/demo
    tts/demo_2
+   
 
 .. toctree::
    :maxdepth: 1
@@ -51,12 +51,14 @@ Contents
 
 .. toctree::
    :maxdepth: 1
+   :caption: Demos
+
+   demo_video
+   tts_demo_video
+
+
+.. toctree::
+   :maxdepth: 1
    :caption: Acknowledgement
 
    asr/reference
-
-
-
-
-
-

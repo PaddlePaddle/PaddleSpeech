@@ -80,6 +80,12 @@ pull_request_rules:
     actions:
       label:
         add: ["CLI"]
+  - name: "auto add label=Server"
+    conditions:
+      - files~=^paddlespeech/server
+    actions:
+      label:
+        add: ["Server"]
   - name: "auto add label=Demo"
     conditions:
       - files~=^demos/
@@ -130,7 +136,7 @@ pull_request_rules:
         add: ["Docker"]
   - name: "auto add label=Deployment"
     conditions:
-      - files~=^speechnn/
+      - files~=^speechx/
     actions:
       label:
         add: ["Deployment"]

@@ -45,23 +45,19 @@ def phone2str(phone_string: str, mobile=True) -> str:
 
 def replace_phone(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     return phone2str(match.group(0), mobile=False)
 
 
 def replace_mobile(match) -> str:
     """
-    Parameters
-    ----------
-    match : re.Match
-    Returns
-    ----------
-    str
+    Args:
+        match (re.Match)
+    Returns:
+        str
     """
     return phone2str(match.group(0))

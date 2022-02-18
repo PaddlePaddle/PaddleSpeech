@@ -15,6 +15,7 @@ import os
 from abc import ABC
 from abc import abstractmethod
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Union
 
@@ -100,3 +101,50 @@ class BaseExecutor(ABC):
         Python API to call an executor.
         """
         pass
+
+    def _is_job_input(self, input_: Union[str, os.PathLike]) -> bool:
+        """
+        Check if current input file is a job input or not.
+
+        Args:
+            input_ (Union[str, os.PathLike]): Input file of current task.
+
+        Returns:
+            bool: return `True` for job input, `False` otherwise.
+        """
+        return os.path.isfile(input_) and input_.endswith('.job')
+
+    def _job_preprocess(self, job_input: os.PathLike) -> Dict[str, str]:
+        """
+        Read a job input file and return its contents in a dictionary.
+
+        Args:
+            job_input (os.PathLike): The job input file.
+
+        Returns:
+            Dict[str, str]: Contents of job input.
+        """
+        job_contents = {}
+        with open(job_input) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                k, v = line.split(' ')
+                job_contents[k] = v
+        return job_contents
+
+    def _job_postprecess(self, job_outputs: Dict[str, str]) -> str:
+        """
+        Convert job results to string.
+
+        Args:
+            job_outputs (Dict[str, str]): A dictionary with job ids and results.
+
+        Returns:
+            str: A string object contains job outputs.
+        """
+        ret = ''
+        for k, v in job_outputs.items():
+            ret += f'{k} {v}\n'
+        return ret

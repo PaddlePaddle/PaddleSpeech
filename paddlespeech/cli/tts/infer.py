@@ -431,7 +431,7 @@ class TTSExecutor(BaseExecutor):
         """
         Init model and other resources from a specific path.
         """
-        if hasattr(self, 'am') and hasattr(self, 'voc'):
+        if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
             logger.info('Models had been initialized.')
             return
         # am

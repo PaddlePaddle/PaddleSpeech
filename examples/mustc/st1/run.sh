@@ -5,8 +5,8 @@ set -e
 
 gpus=0,1,2,3
 stage=0
-stop_stage=1
-conf_path=conf/transformer_joint_noam_es.yaml
+stop_stage=3
+conf_path=conf/transformer_es.yaml
 decode_conf_path=conf/tuning/decode.yaml
 must_c_path=
 lang=es

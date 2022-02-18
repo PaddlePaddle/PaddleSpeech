@@ -198,10 +198,14 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    x=(${feat_tr_dir} ${feat_dt_dir} ${feat_trans_dir})
+    y=(train dev test)
     echo "stage 3: Format the Json Data"
-    python3 local/espnet_json_to_manifest.py --json-file ${feat_tr_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.train
-    python3 local/espnet_json_to_manifest.py --json-file ${feat_dt_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.dev
-    python3 local/espnet_json_to_manifest.py --json-file ${feat_trans_dir}/data_${bpemode}${nbpe}.json --manifest-file data/manifest.test
+    for (( i=0; i<${#x[*]}; ++i)); do
+        python3 ${MAIN_ROOT}/utils/espnet_json_to_manifest.py \
+         --json-file ${x[$i]}/data_${bpemode}${nbpe}.json 
+         --manifest-file data/manifest.${y[$i]}
+    done
 fi
 echo "Ted En-Zh Data preparation done."
 exit 0

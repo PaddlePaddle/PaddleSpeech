@@ -1,4 +1,5 @@
 #include "base/basic_types.h"
+#include "nnet/decodable-itf.h"
 
 #pragma once
 
@@ -44,12 +45,14 @@ public:
     ~CTCBeamSearch() {
     }
     bool InitDecoder();
+    void Decode(std::shared_ptr<kaldi::DecodableInterface> decodable);
+    std::string GetBestPath(); 
+    std::vector<std::pair<double, std::string>> GetNBestPath(); 
+    std::string GetFinalBestPath(); 
+    int NumFrameDecoded();
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>&probs, 
                           std::vector<std::string>& nbest_words);
-
-    std::vector<DecodeResult>& GetDecodeResult() {
-        return decoder_results_;
-    }
+    void Reset();
 
 private:
   void ResetPrefixes();
@@ -58,17 +61,18 @@ private:
                       const BaseFloat& min_cutoff);
   void CalculateApproxScore();
   void LMRescore();
-  std::vector<std::pair<double, std::string>> 
-    AdvanceDecoding(const std::vector<std::vector<double>>& probs_seq);
+  void AdvanceDecoding(const std::vector<std::vector<double>>& probs_seq);
+  
   CTCBeamSearchOptions opts_;
   std::shared_ptr<Scorer> init_ext_scorer_; // todo separate later
-  std::vector<DecodeResult> decoder_results_;
+  //std::vector<DecodeResult> decoder_results_;
   std::vector<std::vector<std::string>> vocabulary_; // todo remove later
 
   size_t blank_id;        
   int space_id;
   std::shared_ptr<PathTrie> root;
   std::vector<PathTrie*> prefixes;
+  int num_frame_decoded_;
 };
 
 } // namespace basr

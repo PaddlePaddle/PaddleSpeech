@@ -3,7 +3,7 @@
 
 namespace ppspeech {
 
-void PaddleNnet::init_cache_encouts(const ModelOptions& opts) {
+void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
   std::vector<std::string> cache_names;
   cache_names = absl::StrSplit(opts.cache_names, ", ");
   std::vector<std::string> cache_shapes;
@@ -66,7 +66,7 @@ PaddleNet::PaddleNnet(const ModelOptions& opts) {
     }
     release_predictor(predictor);
 
-    init_cache_encouts(opts);
+    InitCacheEncouts(opts);
 }
 
 paddle_infer::Predictor* PaddleNnet::get_predictor() {

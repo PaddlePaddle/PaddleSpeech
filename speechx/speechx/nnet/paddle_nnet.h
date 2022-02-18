@@ -94,7 +94,7 @@ class PaddleNnet : public NnetInterface {
     virtual void FeedForward(const kaldi::Matrix<BaseFloat>& features, 
                              kaldi::Matrix<kaldi::BaseFloat>* inferences) const;
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(const std::string& name);
-    void init_cache_encouts(const ModelOptions& opts); 
+    void InitCacheEncouts(const ModelOptions& opts); 
     
   private:
     std::unique_ptr<paddle_infer::services::PredictorPool> pool;

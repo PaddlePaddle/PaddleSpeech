@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import sys
 from abc import ABC
 from abc import abstractmethod
+from collections import OrderedDict
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Union
 
 import paddle
+
+from .log import logger
 
 
 class BaseExecutor(ABC):
@@ -28,8 +32,8 @@ class BaseExecutor(ABC):
     """
 
     def __init__(self):
-        self._inputs = dict()
-        self._outputs = dict()
+        self._inputs = OrderedDict()
+        self._outputs = OrderedDict()
 
     @abstractmethod
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
@@ -102,6 +106,61 @@ class BaseExecutor(ABC):
         """
         pass
 
+    def get_task_source(self, input_: Union[str, os.PathLike, None]
+                        ) -> Dict[str, Union[str, os.PathLike]]:
+        """
+        Get task input source from command line input.
+
+        Args:
+            input_ (Union[str, os.PathLike, None]): Input from command line.
+
+        Returns:
+            Dict[str, Union[str, os.PathLike]]: A dict with ids and inputs.
+        """
+        if self._is_job_input(input_):
+            ret = self._get_job_contents(input_)
+        else:
+            ret = OrderedDict()
+
+            if input_ is None:  # Take input from stdin
+                for i, line in enumerate(sys.stdin):
+                    line = line.strip()
+                    if len(line.split(' ')) == 1:
+                        ret[str(i + 1)] = line
+                    elif len(line.split(' ')) == 2:
+                        id_, info = line.split(' ')
+                        ret[id_] = info
+                    else:  # No valid input info from one line.
+                        continue
+            else:
+                ret[1] = input_
+        return ret
+
+    def process_task_results(self,
+                             input_: Union[str, os.PathLike, None],
+                             results: Dict[str, os.PathLike],
+                             job_dump_result: bool=False):
+        """
+        Handling task results and redirect stdout if needed.
+
+        Args:
+            input_ (Union[str, os.PathLike, None]): Input from command line.
+            results (Dict[str, os.PathLike]): Task outputs.
+            job_dump_result (bool, optional): if True, dumps job results into file. Defaults to False.
+        """
+
+        raw_text = self._format_task_results(results)
+        print(raw_text, end='')
+
+        if self._is_job_input(input_) and job_dump_result:
+            try:
+                job_output_file = os.path.abspath(input_) + '.done'
+                sys.stdout = open(job_output_file, 'w')
+                print(raw_text, end='')
+                logger.info(f'Results had been saved to: {job_output_file}')
+            finally:
+                sys.stdout.close()
+
     def _is_job_input(self, input_: Union[str, os.PathLike]) -> bool:
         """
         Check if current input file is a job input or not.
@@ -112,9 +171,10 @@ class BaseExecutor(ABC):
         Returns:
             bool: return `True` for job input, `False` otherwise.
         """
-        return os.path.isfile(input_) and input_.endswith('.job')
+        return input_ and os.path.isfile(input_) and input_.endswith('.job')
 
-    def _job_preprocess(self, job_input: os.PathLike) -> Dict[str, str]:
+    def _get_job_contents(
+            self, job_input: os.PathLike) -> Dict[str, Union[str, os.PathLike]]:
         """
         Read a job input file and return its contents in a dictionary.
 
@@ -124,7 +184,7 @@ class BaseExecutor(ABC):
         Returns:
             Dict[str, str]: Contents of job input.
         """
-        job_contents = {}
+        job_contents = OrderedDict()
         with open(job_input) as f:
             for line in f:
                 line = line.strip()
@@ -134,17 +194,18 @@ class BaseExecutor(ABC):
                 job_contents[k] = v
         return job_contents
 
-    def _job_postprecess(self, job_outputs: Dict[str, str]) -> str:
+    def _format_task_results(
+            self, results: Dict[str, Union[str, os.PathLike]]) -> str:
         """
-        Convert job results to string.
+        Convert task results to raw text.
 
         Args:
-            job_outputs (Dict[str, str]): A dictionary with job ids and results.
+            results (Dict[str, str]): A dictionary of task results.
 
         Returns:
-            str: A string object contains job outputs.
+            str: A string object contains task results.
         """
         ret = ''
-        for k, v in job_outputs.items():
+        for k, v in results.items():
             ret += f'{k} {v}\n'
         return ret

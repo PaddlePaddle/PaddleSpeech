@@ -14,7 +14,7 @@
 import argparse
 import ast
 import os
-import sys
+from collections import OrderedDict
 from typing import List
 from typing import Optional
 from typing import Union
@@ -79,7 +79,7 @@ class CLSExecutor(BaseExecutor):
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.cls', add_help=True)
         self.parser.add_argument(
-            '--input', type=str, required=True, help='Audio file to classify.')
+            '--input', type=str, default=None, help='Audio file to classify.')
         self.parser.add_argument(
             '--model',
             type=str,
@@ -221,7 +221,7 @@ class CLSExecutor(BaseExecutor):
         ret = ''
         for idx in topk_idx:
             label, score = self._label_list[idx], result[idx]
-            ret += f'{label} {score}\n'
+            ret += f'{label} {score} '
         return ret
 
     def postprocess(self, topk: int) -> Union[str, os.PathLike]:
@@ -241,36 +241,34 @@ class CLSExecutor(BaseExecutor):
         label_file = parser_args.label_file
         cfg_path = parser_args.config
         ckpt_path = parser_args.ckpt_path
-        input_file = parser_args.input
         topk = parser_args.topk
         device = parser_args.device
         job_dump_result = parser_args.job_dump_result
 
-        try:
-            if job_dump_result:
-                assert self._is_job_input(
-                    input_file
-                ), 'Input file should be a job file(*.job) when `job_dump_result` is True.'
-                job_output_file = os.path.abspath(input_file) + '.done'
-                sys.stdout = open(job_output_file, 'w')
+        task_source = self.get_task_source(parser_args.input)
+        task_results = OrderedDict()
+        has_exceptions = False
 
-            print(
-                self(input_file, model_type, cfg_path, ckpt_path, label_file,
-                     topk, device))
+        for id_, input_ in task_source.items():
+            try:
+                res = self(input_, model_type, cfg_path, ckpt_path, label_file,
+                           topk, device)
+                task_results[id_] = res
+            except Exception as e:
+                has_exceptions = True
+                task_results[id_] = f'{e.__class__.__name__}: {e}'
 
-            if job_dump_result:
-                logger.info(f'Results had been saved to: {job_output_file}')
+        self.process_task_results(parser_args.input, task_results,
+                                  job_dump_result)
 
-            return True
-        except Exception as e:
-            logger.exception(e)
+        if has_exceptions:
             return False
-        finally:
-            sys.stdout.close()
+        else:
+            return True
 
     @stats_wrapper
     def __call__(self,
-                 input_file: os.PathLike,
+                 audio_file: os.PathLike,
                  model: str='panns_cnn14',
                  config: Optional[os.PathLike]=None,
                  ckpt_path: Optional[os.PathLike]=None,
@@ -280,24 +278,11 @@ class CLSExecutor(BaseExecutor):
         """
             Python API to call an executor.
         """
-        input_file = os.path.abspath(input_file)
+        audio_file = os.path.abspath(os.path.expanduser(audio_file))
         paddle.set_device(device)
         self._init_from_path(model, config, ckpt_path, label_file)
-
-        if self._is_job_input(input_file):  # *.job
-            job_outputs = {}
-            job_contents = self._job_preprocess(input_file)
-            for id_, file in job_contents.items():
-                try:
-                    self.preprocess(file)
-                    self.infer()
-                    job_outputs[id_] = self.postprocess(topk).strip()
-                except Exception as e:
-                    job_outputs[id_] = f'{e.__class__.__name__}: {e}'
-            res = self._job_postprecess(job_outputs)
-        else:
-            self.preprocess(input_file)
-            self.infer()
-            res = self.postprocess(topk)  # Retrieve result of cls.
+        self.preprocess(audio_file)
+        self.infer()
+        res = self.postprocess(topk)  # Retrieve result of cls.
 
         return res

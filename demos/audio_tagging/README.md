@@ -65,7 +65,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
       config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
       label_file=None,
       ckpt_path=None,
-      input_file='./cat.wav',
+      audio_file='./cat.wav',
       topk=10,
       device=paddle.get_device())
   print('CLS Result: \n{}'.format(result))

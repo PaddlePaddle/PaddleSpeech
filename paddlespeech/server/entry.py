@@ -23,7 +23,6 @@ def _CommandDict():
 
 def _execute():
     com = commands
-    print("0000000000000: ", com)
 
     idx = 0
     for _argv in (['paddleserver'] + sys.argv[1:]):

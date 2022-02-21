@@ -12,4 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .paddlespeech_server import ServerExecutor
-#from .paddlespeech_client import ClientExecutor

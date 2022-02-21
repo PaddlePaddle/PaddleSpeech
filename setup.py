@@ -234,7 +234,10 @@ setup_info = dict(
         'Programming Language :: Python :: 3.9',
     ],
     entry_points={
-        'console_scripts': ['paddlespeech=paddlespeech.cli.entry:_execute']
+        'console_scripts': [
+            'paddlespeech=paddlespeech.cli.entry:_execute',
+            'paddleserver=paddlespeech.server.entry:_execute'
+        ]
     })
 
 setup(**setup_info)

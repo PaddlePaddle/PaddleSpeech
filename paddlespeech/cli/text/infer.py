@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import ast
 import os
 import re
+from collections import OrderedDict
 from typing import List
 from typing import Optional
 from typing import Union
@@ -80,7 +82,7 @@ class TextExecutor(BaseExecutor):
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.text', add_help=True)
         self.parser.add_argument(
-            '--input', type=str, required=True, help='Input text.')
+            '--input', type=str, default=None, help='Input text.')
         self.parser.add_argument(
             '--task',
             type=str,
@@ -119,6 +121,11 @@ class TextExecutor(BaseExecutor):
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
+        self.parser.add_argument(
+            '--job_dump_result',
+            type=ast.literal_eval,
+            default=False,
+            help='Save job result into file.')
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
@@ -256,7 +263,6 @@ class TextExecutor(BaseExecutor):
         """
         parser_args = self.parser.parse_args(argv)
 
-        text = parser_args.input
         task = parser_args.task
         model_type = parser_args.model
         lang = parser_args.lang
@@ -264,15 +270,28 @@ class TextExecutor(BaseExecutor):
         ckpt_path = parser_args.ckpt_path
         punc_vocab = parser_args.punc_vocab
         device = parser_args.device
+        job_dump_result = parser_args.job_dump_result
 
-        try:
-            res = self(text, task, model_type, lang, cfg_path, ckpt_path,
-                       punc_vocab, device)
-            logger.info('Text Result:\n{}'.format(res))
-            return True
-        except Exception as e:
-            logger.exception(e)
+        task_source = self.get_task_source(parser_args.input)
+        task_results = OrderedDict()
+        has_exceptions = False
+
+        for id_, input_ in task_source.items():
+            try:
+                res = self(input_, task, model_type, lang, cfg_path, ckpt_path,
+                           punc_vocab, device)
+                task_results[id_] = res
+            except Exception as e:
+                has_exceptions = True
+                task_results[id_] = f'{e.__class__.__name__}: {e}'
+
+        self.process_task_results(parser_args.input, task_results,
+                                  job_dump_result)
+
+        if has_exceptions:
             return False
+        else:
+            return True
 
     @stats_wrapper
     def __call__(

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,19 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-import _locale
-
-from .base_commands import BaseCommand
-from .base_commands import HelpCommand
-
-_locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
-"""
-import _locale
-
-from .base_commands import BaseCommand
-from .base_commands import HelpCommand
-from paddlespeech.server.bin.paddlespeech_client import TTSClientExecutor
-from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
-
-_locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+from .paddlespeech_server import ServerExecutor
+#from .paddlespeech_client import ClientExecutor

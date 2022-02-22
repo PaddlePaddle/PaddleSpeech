@@ -157,16 +157,12 @@ class ASREngine(BaseEngine):
         self.output = None
         self.executor = ASRServerExecutor()
 
-        try:
-            self.config = get_config(config_file)
-            paddle.set_device(paddle.get_device())
-            self.executor._init_from_path(
-                self.config.model, self.config.lang, self.config.sample_rate,
-                self.config.cfg_path, self.config.decode_method,
-                self.config.ckpt_path)
-        except:
-            logger.info("Initialize ASR server engine Failed.")
-            return False
+        self.config = get_config(config_file)
+        paddle.set_device(paddle.get_device())
+        self.executor._init_from_path(
+            self.config.model, self.config.lang, self.config.sample_rate,
+            self.config.cfg_path, self.config.decode_method,
+            self.config.ckpt_path)
 
         logger.info("Initialize ASR server engine successfully.")
         return True

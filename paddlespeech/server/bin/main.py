@@ -16,10 +16,9 @@ import uvicorn
 import yaml
 from fastapi import FastAPI
 
-from paddlespeech.server.engine.engine_factory import EngineFactory
+from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router
 from paddlespeech.server.utils.config import get_config
-from paddlespeech.server.utils.log import logger
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
@@ -39,12 +38,8 @@ def init(config):
     api_router = setup_router(api_list)
     app.include_router(api_router)
 
-    # init engine
-    engine_pool = []
-    for engine in config.engine_backend:
-        engine_pool.append(EngineFactory.get_engine(engine_name=engine))
-        if not engine_pool[-1].init(config_file=config.engine_backend[engine]):
-            return False
+    if not init_engine_pool(config):
+        return False
 
     return True
 

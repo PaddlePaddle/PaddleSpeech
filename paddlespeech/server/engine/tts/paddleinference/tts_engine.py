@@ -26,8 +26,6 @@ from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
 from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
-from paddlespeech.t2s.frontend import English
-from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
 from paddlespeech.server.utils.config import get_config
@@ -35,6 +33,8 @@ from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.exception import ServerBaseException
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
+from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
 __all__ = ['TTSEngine']
 
@@ -153,7 +153,7 @@ class TTSServerExecutor(TTSExecutor):
         """
         Init model and other resources from a specific path.
         """
-        if hasattr(self, 'am') and hasattr(self, 'voc'):
+        if hasattr(self, 'am_predictor') and hasattr(self, 'voc_predictor'):
             logger.info('Models had been initialized.')
             return
         # am
@@ -341,24 +341,29 @@ class TTSEngine(BaseEngine):
 
     def init(self, config_file: str) -> bool:
         self.executor = TTSServerExecutor()
-        self.config_file = config_file
-        self.config = get_config(config_file)
 
-        self.executor._init_from_path(
-            am=self.config.am,
-            am_model=self.config.am_model,
-            am_params=self.config.am_params,
-            am_sample_rate=self.config.am_sample_rate,
-            phones_dict=self.config.phones_dict,
-            tones_dict=self.config.tones_dict,
-            speaker_dict=self.config.speaker_dict,
-            voc=self.config.voc,
-            voc_model=self.config.voc_model,
-            voc_params=self.config.voc_params,
-            voc_sample_rate=self.config.voc_sample_rate,
-            lang=self.config.lang,
-            am_predictor_conf=self.config.am_predictor_conf,
-            voc_predictor_conf=self.config.voc_predictor_conf, )
+        try:
+            self.config = get_config(config_file)
+
+            self.executor._init_from_path(
+                am=self.config.am,
+                am_model=self.config.am_model,
+                am_params=self.config.am_params,
+                am_sample_rate=self.config.am_sample_rate,
+                phones_dict=self.config.phones_dict,
+                tones_dict=self.config.tones_dict,
+                speaker_dict=self.config.speaker_dict,
+                voc=self.config.voc,
+                voc_model=self.config.voc_model,
+                voc_params=self.config.voc_params,
+                voc_sample_rate=self.config.voc_sample_rate,
+                lang=self.config.lang,
+                am_predictor_conf=self.config.am_predictor_conf,
+                voc_predictor_conf=self.config.voc_predictor_conf, )
+
+        except:
+            logger.info("Initialize TTS server engine Failed.")
+            return False
 
         logger.info("Initialize TTS server engine successfully.")
         return True
@@ -404,7 +409,8 @@ class TTSEngine(BaseEngine):
         except:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
-                "Can not install soxbindings on your system.")
+                "Transform speed failed. Can not install soxbindings on your system. \
+                 You need to set speed value 1.0.")
 
         # wav to base64
         buf = io.BytesIO()

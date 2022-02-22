@@ -24,6 +24,7 @@ import numpy as np
 import requests
 import soundfile
 
+from ..executor import BaseExecutor
 from ..util import cli_client_register
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
@@ -33,7 +34,7 @@ __all__ = ['TTSClientExecutor', 'ASRClientExecutor']
 
 @cli_client_register(
     name='paddlespeech_client.tts', description='visit tts service')
-class TTSClientExecutor():
+class TTSClientExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()
         self.parser = argparse.ArgumentParser()
@@ -42,7 +43,7 @@ class TTSClientExecutor():
         self.parser.add_argument(
             '--port', type=int, default=8090, help='server port')
         self.parser.add_argument(
-            '--text',
+            '--input',
             type=str,
             default="你好，欢迎使用语音合成服务",
             help='A sentence to be synthesized')
@@ -60,20 +61,20 @@ class TTSClientExecutor():
         self.parser.add_argument(
             '--output',
             type=str,
-            default="./out.wav",
+            default="./output.wav",
             help='Synthesized audio file')
 
     # Request and response
     def tts_client(self, args):
         """ Request and response
         Args:
-            text: A sentence to be synthesized
+            input: A sentence to be synthesized
             outfile: Synthetic audio file
         """
         url = 'http://' + args.server_ip + ":" + str(
             args.port) + '/paddlespeech/tts'
         request = {
-            "text": args.text,
+            "text": args.input,
             "spk_id": args.spk_id,
             "speed": args.speed,
             "volume": args.volume,
@@ -119,7 +120,7 @@ class TTSClientExecutor():
 
 @cli_client_register(
     name='paddlespeech_client.asr', description='visit asr service')
-class ASRClientExecutor():
+class ASRClientExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()
         self.parser = argparse.ArgumentParser()
@@ -128,29 +129,34 @@ class ASRClientExecutor():
         self.parser.add_argument(
             '--port', type=int, default=8090, help='server port')
         self.parser.add_argument(
-            '--audio_file',
+            '--input',
             type=str,
             default="./paddlespeech/server/tests/16_audio.wav",
             help='Audio file to be recognized')
         self.parser.add_argument(
             '--sample_rate', type=int, default=16000, help='audio sample rate')
+        self.parser.add_argument(
+            '--lang', type=str, default="zh_cn", help='language')
+        self.parser.add_argument(
+            '--audio_format', type=str, default="wav", help='audio format')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
         url = 'http://' + args.server_ip + ":" + str(
             args.port) + '/paddlespeech/asr'
-        audio = wav2base64(args.audio_file)
+        audio = wav2base64(args.input)
         data = {
             "audio": audio,
-            "audio_format": "wav",
+            "audio_format": args.audio_format,
             "sample_rate": args.sample_rate,
-            "lang": "zh_cn",
+            "lang": args.lang,
         }
         time_start = time.time()
         try:
             r = requests.post(url=url, data=json.dumps(data))
             # ending Timestamp
             time_end = time.time()
+            print(r.json())
             print('time cost', time_end - time_start, 's')
         except:
             print("Failed to speech recognition.")

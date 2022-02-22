@@ -275,7 +275,7 @@ class TextExecutor(BaseExecutor):
         punc_vocab = parser_args.punc_vocab
         device = parser_args.device
 
-        if not args.verbose:
+        if not parser_args.verbose:
             self.disable_task_loggers()
 
         task_source = self.get_task_source(parser_args.input)
@@ -292,7 +292,7 @@ class TextExecutor(BaseExecutor):
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
 
         self.process_task_results(parser_args.input, task_results,
-                                  args.job_dump_result)
+                                  parser_args.job_dump_result)
 
         if has_exceptions:
             return False

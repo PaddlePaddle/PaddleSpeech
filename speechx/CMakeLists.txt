@@ -39,16 +39,40 @@ FetchContent_Declare(
   GIT_TAG "20210324.1"
 )
 FetchContent_MakeAvailable(absl)
-include_directories(${absl_SOURCE_DIR}/absl)
+include_directories(${absl_SOURCE_DIR})
 
 # libsndfile
+#include(FetchContent)
+#FetchContent_Declare(
+#  libsndfile
+#  GIT_REPOSITORY "https://github.com/libsndfile/libsndfile.git"
+#  GIT_TAG "1.0.31"
+#)
+#FetchContent_MakeAvailable(libsndfile)
+
+# todo boost build
+#include(FetchContent)
+#FetchContent_Declare(
+#  Boost
+#  URL      https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.zip
+#  URL_HASH SHA256=aeb26f80e80945e82ee93e5939baebdca47b9dee80a07d3144be1e1a6a66dd6a
+#)
+#FetchContent_MakeAvailable(Boost)
+#include_directories(${Boost_SOURCE_DIR})
+
+
+set(BOOST_ROOT ${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0)
+include_directories(${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0)
+link_directories(${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0/stage/lib)
 include(FetchContent)
 FetchContent_Declare(
-  libsndfile
-  GIT_REPOSITORY "https://github.com/libsndfile/libsndfile.git"
-  GIT_TAG "1.0.31"
+  kenlm
+  GIT_REPOSITORY "https://github.com/kpu/kenlm.git"
+  GIT_TAG "df2d717e95183f79a90b2fa6e4307083a351ca6a"
 )
-FetchContent_MakeAvailable(libsndfile)
+FetchContent_MakeAvailable(kenlm)
+add_dependencies(kenlm Boost)
+include_directories(${kenlm_SOURCE_DIR})
 
 # gflags
 FetchContent_Declare(
@@ -93,6 +117,22 @@ ExternalProject_Add(openfst
 add_dependencies(openfst gflags glog)
 link_directories(${openfst_PREFIX_DIR}/lib)
 include_directories(${openfst_PREFIX_DIR}/include)
+
+set(PADDLE_LIB ${fc_patch}/paddle-lib/paddle_inference)
+include_directories("${PADDLE_LIB}/paddle/include")
+set(PADDLE_LIB_THIRD_PARTY_PATH "${PADDLE_LIB}/third_party/install/")
+include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/include")
+#include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}glog/include")
+#include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}gflags/include")
+include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/include")
+include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/include")
+
+link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/lib")
+#link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}glog/lib")
+#link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}gflags/lib")
+link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/lib")
+link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/lib")
+link_directories("${PADDLE_LIB}/paddle/lib")
 
 add_subdirectory(speechx)
 

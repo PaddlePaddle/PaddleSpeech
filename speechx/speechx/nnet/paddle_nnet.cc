@@ -3,6 +3,11 @@
 
 namespace ppspeech {
 
+using std::vector;
+using std::string;
+using std::shared_ptr;
+using kaldi::Matrix;
+
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
   std::vector<std::string> cache_names;
   cache_names = absl::StrSplit(opts.cache_names, ", ");
@@ -25,14 +30,14 @@ void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
   }
 }
 
-PaddleNet::PaddleNnet(const ModelOptions& opts) {
+PaddleNnet::PaddleNnet(const ModelOptions& opts) {
     paddle_infer::Config config;
     config.SetModel(opts.model_path, opts.params_path);
     if (opts.use_gpu) {
       config.EnableUseGpu(500, 0);
     }
     config.SwitchIrOptim(opts.switch_ir_optim);
-    if (opts.enbale_fc_padding) {
+    if (opts.enable_fc_padding) {
       config.DisableFCPadding();
     }
     if (opts.enable_profile) {
@@ -42,7 +47,7 @@ PaddleNet::PaddleNnet(const ModelOptions& opts) {
     if (pool == nullptr) {
         LOG(ERROR) << "create the predictor pool failed";
     }
-    pool_usages.resize(num_thread);
+    pool_usages.resize(opts.thread_num);
     std::fill(pool_usages.begin(), pool_usages.end(), false);
     LOG(INFO) << "load paddle model success";
 
@@ -51,7 +56,7 @@ PaddleNet::PaddleNnet(const ModelOptions& opts) {
     LOG(INFO) << "output names: " << opts.output_names;
     vector<string> input_names_vec = absl::StrSplit(opts.input_names, ", ");
     vector<string> output_names_vec = absl::StrSplit(opts.output_names, ", ");
-    paddle_infer::Predictor* predictor = get_predictor();
+    paddle_infer::Predictor* predictor = GetPredictor();
         
     std::vector<std::string> model_input_names = predictor->GetInputNames();
     assert(input_names_vec.size() == model_input_names.size());
@@ -64,12 +69,12 @@ PaddleNet::PaddleNnet(const ModelOptions& opts) {
     for (size_t i = 0;i < output_names_vec.size(); i++) {
         assert(output_names_vec[i] == model_output_names[i]);
     }
-    release_predictor(predictor);
+    ReleasePredictor(predictor);
 
     InitCacheEncouts(opts);
 }
 
-paddle_infer::Predictor* PaddleNnet::get_predictor() {
+paddle_infer::Predictor* PaddleNnet::GetPredictor() {
     LOG(INFO) << "attempt to get a new predictor instance " << std::endl;
     paddle_infer::Predictor* predictor = nullptr;
     std::lock_guard<std::mutex> guard(pool_mutex);
@@ -111,19 +116,18 @@ int PaddleNnet::ReleasePredictor(paddle_infer::Predictor* predictor) {
     return 0;
 }
 
-
-
 shared_ptr<Tensor<BaseFloat>> PaddleNnet::GetCacheEncoder(const string& name) {
   auto iter = cache_names_idx_.find(name);
   if (iter == cache_names_idx_.end()) {
     return nullptr;
   }
   assert(iter->second < cache_encouts_.size());
-  return cache_encouts_[iter->second].get(); 
+  return cache_encouts_[iter->second]; 
 }
 
-void PaddleNet::FeedForward(const Matrix<BaseFloat>& features, Matrix<BaseFloat>* inferences) const {
+void PaddleNnet::FeedForward(const Matrix<BaseFloat>& features, Matrix<BaseFloat>* inferences) {
     
+    paddle_infer::Predictor* predictor = GetPredictor(); 
     // 1. 得到所有的 input tensor 的名称
     int row = features.NumRows();
     int col = features.NumCols();
@@ -144,15 +148,13 @@ void PaddleNet::FeedForward(const Matrix<BaseFloat>& features, Matrix<BaseFloat>
     input_len->CopyFromCpu(audio_len.data());
     // 输入流式的缓存数据
     std::unique_ptr<paddle_infer::Tensor> h_box = predictor->GetInputHandle(input_names[2]);
-    share_ptr<Tensor<BaseFloat>> h_cache = GetCacheEncoder(input_names[2]));
+    shared_ptr<Tensor<BaseFloat>> h_cache = GetCacheEncoder(input_names[2]);
     h_box->Reshape(h_cache->get_shape());
     h_box->CopyFromCpu(h_cache->get_data().data());
     std::unique_ptr<paddle_infer::Tensor> c_box = predictor->GetInputHandle(input_names[3]);
-    share_ptr<Tensor<float>> c_cache = GetCacheEncoder(input_names[3]);
+    shared_ptr<Tensor<float>> c_cache = GetCacheEncoder(input_names[3]);
     c_box->Reshape(c_cache->get_shape());
     c_box->CopyFromCpu(c_cache->get_data().data());
-    std::thread::id this_id = std::this_thread::get_id();
-    LOG(INFO) << this_id << " start to compute the probability";
     bool success = predictor->Run();
 
     if (success == false) {
@@ -172,8 +174,9 @@ void PaddleNet::FeedForward(const Matrix<BaseFloat>& features, Matrix<BaseFloat>
     std::vector<int> output_shape = output_tensor->shape();
     row = output_shape[1];
     col = output_shape[2];
-    inference.Resize(row, col);
-    output_tensor->CopyToCpu(inference.Data());
+    inferences->Resize(row, col);
+    output_tensor->CopyToCpu(inferences->Data());
+    ReleasePredictor(predictor);
 }
 
 } // namespace ppspeech           

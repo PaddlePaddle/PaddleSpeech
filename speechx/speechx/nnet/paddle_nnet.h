@@ -3,8 +3,12 @@
 
 #include "nnet/nnet_interface.h"
 #include "base/common.h"
-#include "paddle/paddle_inference_api.h"
+#include "paddle_inference_api.h"
 
+#include "kaldi/matrix/kaldi-matrix.h"
+#include "kaldi/util/options-itf.h"
+
+#include <numeric>
 
 namespace ppspeech {
 
@@ -20,7 +24,7 @@ struct ModelOptions {
   std::string cache_shape;
   bool enable_fc_padding;
   bool enable_profile;
-  ModelDecoderOptions() : 
+  ModelOptions() : 
       model_path("model/final.zip"),
       params_path("model/avg_1.jit.pdmodel"),
       thread_num(2),
@@ -48,16 +52,6 @@ struct ModelOptions {
     opts->Register("enable-profile", &enable_profile, "paddle EnableProfile option");
   }
 };
-
-    void Register(kaldi::OptionsItf* opts) {
-        _model_opts.Register(opts);
-        opts->Register("subsampling-rate", &subsampling_rate, 
-                       "subsampling rate for deepspeech model");
-        opts->Register("receptive-field-length", &receptive_field_length, 
-                       "receptive field length for deepspeech model");
-    }
-};
-
 
 template<typename T>
 class Tensor {
@@ -91,15 +85,19 @@ private:
 class PaddleNnet : public NnetInterface {
   public:
     PaddleNnet(const ModelOptions& opts);
-    virtual void FeedForward(const kaldi::Matrix<BaseFloat>& features, 
-                             kaldi::Matrix<kaldi::BaseFloat>* inferences) const;
+    virtual void FeedForward(const kaldi::Matrix<kaldi::BaseFloat>& features, 
+                             kaldi::Matrix<kaldi::BaseFloat>* inferences);
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(const std::string& name);
-    void InitCacheEncouts(const ModelOptions& opts); 
+    void InitCacheEncouts(const ModelOptions& opts);
     
   private:
+    paddle_infer::Predictor* GetPredictor();
+    int ReleasePredictor(paddle_infer::Predictor* predictor); 
+
     std::unique_ptr<paddle_infer::services::PredictorPool> pool;
     std::vector<bool> pool_usages;
     std::mutex pool_mutex;
+    std::map<paddle_infer::Predictor*, int> predictor_to_thread_id;
     std::map<std::string, int> cache_names_idx_;
     std::vector<std::shared_ptr<Tensor<kaldi::BaseFloat>>> cache_encouts_;
 

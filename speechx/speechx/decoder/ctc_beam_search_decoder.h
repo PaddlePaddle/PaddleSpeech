@@ -1,5 +1,8 @@
-#include "base/basic_types.h"
+#include "base/common.h"
 #include "nnet/decodable-itf.h"
+#include "util/parse-options.h"
+#include "decoder/ctc_decoders/scorer.h"
+#include "decoder/ctc_decoders/path_trie.h"
 
 #pragma once
 
@@ -38,41 +41,39 @@ struct CTCBeamSearchOptions {
 };
 
 class CTCBeamSearch {
-public: 
-
-    CTCBeamSearch(std::shared_ptr<CTCBeamSearchOptions> opts);
-
-    ~CTCBeamSearch() {
-    }
-    bool InitDecoder();
+ public: 
+    explicit CTCBeamSearch(const CTCBeamSearchOptions& opts);
+    ~CTCBeamSearch() {}
+    void InitDecoder();
     void Decode(std::shared_ptr<kaldi::DecodableInterface> decodable);
     std::string GetBestPath(); 
     std::vector<std::pair<double, std::string>> GetNBestPath(); 
-    std::string GetFinalBestPath(); 
+    std::string GetFinalBestPath();
     int NumFrameDecoded();
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>&probs, 
                           std::vector<std::string>& nbest_words);
+    void AdvanceDecode(const std::shared_ptr<kaldi::DecodableInterface>& decodable,
+                       int max_frames);
     void Reset();
-
-private:
+ private:
   void ResetPrefixes();
   int32 SearchOneChar(const bool& full_beam,
                       const std::pair<size_t, BaseFloat>& log_prob_idx,
                       const BaseFloat& min_cutoff);
   void CalculateApproxScore();
   void LMRescore();
-  void AdvanceDecoding(const std::vector<std::vector<double>>& probs_seq);
+  void AdvanceDecoding(const std::vector<std::vector<BaseFloat>>& probs);
   
   CTCBeamSearchOptions opts_;
   std::shared_ptr<Scorer> init_ext_scorer_; // todo separate later
   //std::vector<DecodeResult> decoder_results_;
-  std::vector<std::vector<std::string>> vocabulary_; // todo remove later
-
+  std::vector<std::string> vocabulary_; // todo remove later
   size_t blank_id;        
   int space_id;
   std::shared_ptr<PathTrie> root;
   std::vector<PathTrie*> prefixes;
   int num_frame_decoded_;
+  DISALLOW_COPY_AND_ASSIGN(CTCBeamSearch);
 };
 
 } // namespace basr

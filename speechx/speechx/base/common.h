@@ -17,6 +17,7 @@
 #include <deque>
 #include <iostream>
 #include <istream>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <ostream>
@@ -27,7 +28,9 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <mutex>
 
 #include "base/log.h"
+#include "base/flags.h"
 #include "base/basic_types.h"
 #include "base/macros.h"

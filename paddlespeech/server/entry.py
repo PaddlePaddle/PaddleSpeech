@@ -14,18 +14,17 @@
 import sys
 from collections import defaultdict
 
-__all__ = ['commands']
+__all__ = ['server_commands', 'client_commands']
 
 
 def _CommandDict():
     return defaultdict(_CommandDict)
 
 
-def _execute():
-    com = commands
-
+def server_execute():
+    com = server_commands
     idx = 0
-    for _argv in (['paddleserver'] + sys.argv[1:]):
+    for _argv in (['paddlespeech_server'] + sys.argv[1:]):
         if _argv not in com:
             break
         idx += 1
@@ -38,4 +37,21 @@ def _execute():
     return status
 
 
-commands = _CommandDict()
+def client_execute():
+    com = client_commands
+    idx = 0
+    for _argv in (['paddlespeech_client'] + sys.argv[1:]):
+        if _argv not in com:
+            break
+        idx += 1
+        com = com[_argv]
+
+    # The method 'execute' of a command instance returns 'True' for a success
+    # while 'False' for a failure. Here converts this result into a exit status
+    # in bash: 0 for a success and 1 for a failure.
+    status = 0 if com['_entry']().execute(sys.argv[idx:]) else 1
+    return status
+
+
+server_commands = _CommandDict()
+client_commands = _CommandDict()

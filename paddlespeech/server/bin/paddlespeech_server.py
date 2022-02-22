@@ -17,16 +17,19 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
+from ..util import cli_server_register
 from paddlespeech.server.engine.engine_factory import EngineFactory
 from paddlespeech.server.restful.api import setup_router
-from paddlespeech.server.util import cli_register
 from paddlespeech.server.utils.config import get_config
+
+__all__ = ['ServerExecutor']
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
 
 
-@cli_register(name='paddleserver.server', description='Start the service')
+@cli_server_register(
+    name='paddlespeech_server.server', description='Start the service')
 class ServerExecutor():
     def __init__(self):
         super().__init__()

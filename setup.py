@@ -236,7 +236,8 @@ setup_info = dict(
     entry_points={
         'console_scripts': [
             'paddlespeech=paddlespeech.cli.entry:_execute',
-            'paddleserver=paddlespeech.server.entry:_execute'
+            'paddlespeech_server=paddlespeech.server.entry:server_execute',
+            'paddlespeech_client=paddlespeech.server.entry:client_execute'
         ]
     })
 

@@ -31,24 +31,27 @@ from paddle.framework import load
 import paddleaudio
 from . import download
 from .. import __version__
-from .entry import commands
+from .entry import client_commands
+from .entry import server_commands
 
 requests.adapters.DEFAULT_RETRIES = 3
 
 __all__ = [
-    'cli_register',
-    'get_command',
+    'cli_server_register',
+    'get_server_command',
+    'cli_client_register',
+    'get_client_command',
     'download_and_decompress',
     'load_state_dict_from_url',
     'stats_wrapper',
 ]
 
 
-def cli_register(name: str, description: str='') -> Any:
+def cli_server_register(name: str, description: str='') -> Any:
     def _warpper(command):
         items = name.split('.')
 
-        com = commands
+        com = server_commands
         for item in items:
             com = com[item]
         com['_entry'] = command
@@ -59,9 +62,33 @@ def cli_register(name: str, description: str='') -> Any:
     return _warpper
 
 
-def get_command(name: str) -> Any:
+def get_server_command(name: str) -> Any:
     items = name.split('.')
-    com = commands
+    com = server_commands
+    for item in items:
+        com = com[item]
+
+    return com['_entry']
+
+
+def cli_client_register(name: str, description: str='') -> Any:
+    def _warpper(command):
+        items = name.split('.')
+
+        com = client_commands
+        for item in items:
+            com = com[item]
+        com['_entry'] = command
+        if description:
+            com['_description'] = description
+        return command
+
+    return _warpper
+
+
+def get_client_command(name: str) -> Any:
+    items = name.split('.')
+    com = client_commands
     for item in items:
         com = com[item]
 

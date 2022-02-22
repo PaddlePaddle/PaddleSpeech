@@ -13,30 +13,63 @@
 # limitations under the License.
 from typing import List
 
-from .entry import commands
-from .util import cli_register
-from .util import get_command
+from .entry import client_commands
+from .entry import server_commands
+from .util import cli_client_register
+from .util import cli_server_register
+from .util import get_client_command
+from .util import get_server_command
 
 __all__ = [
-    'BaseCommand',
-    'HelpCommand',
+    'ServerBaseCommand',
+    'ServerHelpCommand',
+    'ClientBaseCommand',
+    'ClientHelpCommand',
 ]
 
 
-@cli_register(name='paddleserver')
-class BaseCommand:
+@cli_server_register(name='paddlespeech_server')
+class ServerBaseCommand:
     def execute(self, argv: List[str]) -> bool:
-        help = get_command('paddleserver.help')
+        help = get_server_command('paddlespeech_server.help')
         return help().execute(argv)
 
 
-@cli_register(name='paddleserver.help', description='Show help for commands.')
-class HelpCommand:
+@cli_server_register(
+    name='paddlespeech_server.help', description='Show help for commands.')
+class ServerHelpCommand:
     def execute(self, argv: List[str]) -> bool:
         msg = 'Usage:\n'
-        msg += '    paddleserver <command> <options>\n\n'
+        msg += '    paddlespeech_server <command> <options>\n\n'
         msg += 'Commands:\n'
-        for command, detail in commands['paddleserver'].items():
+        for command, detail in server_commands['paddlespeech_server'].items():
+            if command.startswith('_'):
+                continue
+
+            if '_description' not in detail:
+                continue
+            msg += '    {:<15}        {}\n'.format(command,
+                                                   detail['_description'])
+
+        print(msg)
+        return True
+
+
+@cli_client_register(name='paddlespeech_client')
+class ClientBaseCommand:
+    def execute(self, argv: List[str]) -> bool:
+        help = get_client_command('paddlespeech_client.help')
+        return help().execute(argv)
+
+
+@cli_client_register(
+    name='paddlespeech_client.help', description='Show help for commands.')
+class ClientHelpCommand:
+    def execute(self, argv: List[str]) -> bool:
+        msg = 'Usage:\n'
+        msg += '    paddlespeech_client <command> <options>\n\n'
+        msg += 'Commands:\n'
+        for command, detail in client_commands['paddlespeech_client'].items():
             if command.startswith('_'):
                 continue
 

@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import ast
 import os
+from collections import OrderedDict
 from typing import Any
 from typing import List
 from typing import Optional
@@ -298,7 +300,7 @@ class TTSExecutor(BaseExecutor):
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.tts', add_help=True)
         self.parser.add_argument(
-            '--input', type=str, required=True, help='Input text to generate.')
+            '--input', type=str, default=None, help='Input text to generate.')
         # acoustic model
         self.parser.add_argument(
             '--am',
@@ -397,6 +399,11 @@ class TTSExecutor(BaseExecutor):
 
         self.parser.add_argument(
             '--output', type=str, default='output.wav', help='output file name')
+        self.parser.add_argument(
+            '--job_dump_result',
+            type=ast.literal_eval,
+            default=False,
+            help='Save job result into file.')
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
@@ -671,7 +678,6 @@ class TTSExecutor(BaseExecutor):
 
         args = self.parser.parse_args(argv)
 
-        text = args.input
         am = args.am
         am_config = args.am_config
         am_ckpt = args.am_ckpt
@@ -686,35 +692,53 @@ class TTSExecutor(BaseExecutor):
         voc_stat = args.voc_stat
         lang = args.lang
         device = args.device
-        output = args.output
         spk_id = args.spk_id
+        job_dump_result = args.job_dump_result
 
-        try:
-            res = self(
-                text=text,
-                # acoustic model related
-                am=am,
-                am_config=am_config,
-                am_ckpt=am_ckpt,
-                am_stat=am_stat,
-                phones_dict=phones_dict,
-                tones_dict=tones_dict,
-                speaker_dict=speaker_dict,
-                spk_id=spk_id,
-                # vocoder related
-                voc=voc,
-                voc_config=voc_config,
-                voc_ckpt=voc_ckpt,
-                voc_stat=voc_stat,
-                # other
-                lang=lang,
-                device=device,
-                output=output)
-            logger.info('Wave file has been generated: {}'.format(res))
-            return True
-        except Exception as e:
-            logger.exception(e)
+        task_source = self.get_task_source(args.input)
+        task_results = OrderedDict()
+        has_exceptions = False
+
+        for id_, input_ in task_source.items():
+            if len(task_source) > 1:
+                assert isinstance(args.output,
+                                  str) and args.output.endswith('.wav')
+                output = args.output.replace('.wav', f'_{id_}.wav')
+            else:
+                output = args.output
+
+            try:
+                res = self(
+                    text=input_,
+                    # acoustic model related
+                    am=am,
+                    am_config=am_config,
+                    am_ckpt=am_ckpt,
+                    am_stat=am_stat,
+                    phones_dict=phones_dict,
+                    tones_dict=tones_dict,
+                    speaker_dict=speaker_dict,
+                    spk_id=spk_id,
+                    # vocoder related
+                    voc=voc,
+                    voc_config=voc_config,
+                    voc_ckpt=voc_ckpt,
+                    voc_stat=voc_stat,
+                    # other
+                    lang=lang,
+                    device=device,
+                    output=output)
+                task_results[id_] = res
+            except Exception as e:
+                has_exceptions = True
+                task_results[id_] = f'{e.__class__.__name__}: {e}'
+
+        self.process_task_results(args.input, task_results, job_dump_result)
+
+        if has_exceptions:
             return False
+        else:
+            return True
 
     @stats_wrapper
     def __call__(self,

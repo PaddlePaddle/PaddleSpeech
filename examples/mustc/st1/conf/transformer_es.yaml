@@ -1,0 +1,90 @@
+# https://yaml.org/type/float.html
+###########################################
+#                   Data                  #
+###########################################
+train_manifest: data/manifest.es.train
+dev_manifest: data/manifest.es.dev
+test_manifest: data/manifest.es.test
+
+###########################################
+#              Dataloader                 #
+###########################################
+vocab_filepath: data/lang_1spm/train_sp.en-es.es_bpe8000_units_tc.txt
+unit_type: 'spm'
+spm_model_prefix: data/lang_1spm/train_sp.en-es.es_bpe8000_tc
+mean_std_filepath: ""
+# preprocess_config: conf/augmentation.json
+batch_size: 20
+feat_dim: 83
+stride_ms: 10.0
+window_ms: 25.0
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
+maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+preprocess_config:
+num_workers: 0
+subsampling_factor: 1
+num_encs: 1
+
+
+############################################
+#           Network Architecture           #
+############################################
+cmvn_file: None
+cmvn_file_type: "json"
+# encoder related
+encoder: transformer
+encoder_conf:
+    output_size: 256    # dimension of attention
+    attention_heads: 4
+    linear_units: 2048  # the number of units of position-wise feed forward
+    num_blocks: 12      # the number of encoder blocks
+    dropout_rate: 0.1
+    positional_dropout_rate: 0.1
+    attention_dropout_rate: 0.0
+    input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+    normalize_before: true
+
+# decoder related
+decoder: transformer
+decoder_conf:
+    attention_heads: 4
+    linear_units: 2048
+    num_blocks: 6
+    dropout_rate: 0.1
+    positional_dropout_rate: 0.1
+    self_attention_dropout_rate: 0.0
+    src_attention_dropout_rate: 0.0
+
+# hybrid CTC/attention
+model_conf:
+    asr_weight: 0.0
+    ctc_weight: 0.0
+    lsm_weight: 0.1     # label smoothing option
+    length_normalized_loss: false
+
+
+###########################################
+#                Training                 #
+###########################################
+n_epoch: 40
+accum_grad: 2
+global_grad_clip: 5.0
+optim: adam
+optim_conf:
+  lr: 2.5
+  weight_decay: 0.
+scheduler: noam    
+scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+log_interval: 50
+checkpoint:
+  kbest_n: 50
+  latest_n: 5

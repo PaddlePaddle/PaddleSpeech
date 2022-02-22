@@ -17,6 +17,7 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
+from ..executor import BaseExecutor
 from ..util import cli_server_register
 from paddlespeech.server.engine.engine_factory import EngineFactory
 from paddlespeech.server.restful.api import setup_router
@@ -29,8 +30,8 @@ app = FastAPI(
 
 
 @cli_server_register(
-    name='paddlespeech_server.server', description='Start the service')
-class ServerExecutor():
+    name='paddlespeech_server.start', description='Start the service')
+class ServerExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()
         self.parser = argparse.ArgumentParser()
@@ -48,10 +49,8 @@ class ServerExecutor():
 
     def init(self, config) -> bool:
         """system initialization
-
         Args:
             config (CfgNode): config object
-
         Returns:
             bool: 
         """
@@ -75,4 +74,4 @@ class ServerExecutor():
         config = get_config(args.config_file)
 
         if self.init(config):
-            uvicorn.run(app, host=config.host, port=config.port, debug=True)
+            uvicorn.run(app, host=config.host, port=config.port, debug=True)v

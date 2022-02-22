@@ -25,6 +25,7 @@ __all__ = [
     'Spectrogram',
     'MelSpectrogram',
     'LogMelSpectrogram',
+    'MFCC',
 ]
 
 
@@ -238,6 +239,20 @@ def power_to_db(magnitude: paddle.Tensor,
     return log_spec
 
 
+def create_dct(n_mfcc: int, n_mels: int, norm: str='ortho'):
+    n = paddle.arange(float(n_mels))
+    k = paddle.arange(float(n_mfcc)).unsqueeze(1)
+    dct = paddle.cos(math.pi / float(n_mels) * (n + 0.5) *
+                     k)  # size (n_mfcc, n_mels)
+    if norm is None:
+        dct *= 2.0
+    else:
+        assert norm == "ortho"
+        dct[0] *= 1.0 / math.sqrt(2.0)
+        dct *= math.sqrt(2.0 / float(n_mels))
+    return dct.t()
+
+
 class Spectrogram(nn.Layer):
     def __init__(self,
                  n_fft: int=512,
@@ -446,6 +461,11 @@ class LogMelSpectrogram(nn.Layer):
             norm=norm,
             dtype=dtype)
 
+        self.n_mels = n_mels
+        self.f_min = f_min
+        self.f_max = f_max
+        self.htk = htk
+        self.norm = norm
         self.ref_value = ref_value
         self.amin = amin
         self.top_db = top_db
@@ -459,3 +479,23 @@ class LogMelSpectrogram(nn.Layer):
             amin=self.amin,
             top_db=self.top_db)
         return log_mel_feature
+
+
+class MFCC(nn.Layer):
+    def __init__(self,
+                 sr: int=22050,
+                 n_mfcc: int=40,
+                 norm: str='ortho',
+                 **kwargs):
+        super(MFCC, self).__init__()
+        self._log_melspectrogram = LogMelSpectrogram(sr=sr, **kwargs)
+        self.dct_matrix = create_dct(
+            n_mfcc=n_mfcc, n_mels=self._log_melspectrogram.n_mels, norm=norm)
+        self.register_buffer('dct_matrix', self.dct_matrix)
+
+    def forward(self, x):
+        log_mel_feature = self._log_melspectrogram(x)
+        mfcc = paddle.matmul(
+            log_mel_feature.transpose((0, 2, 1)), self.dct_matrix).transpose(
+                (0, 2, 1))  # (B, n_mels, L)
+        return mfcc

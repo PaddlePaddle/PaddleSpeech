@@ -13,9 +13,9 @@
 # limitations under the License.
 import traceback
 from typing import Union
+
 from fastapi import APIRouter
 
-#from paddlespeech.server.engine.tts.python.tts_engine import TTSEngine
 from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
 from paddlespeech.server.restful.request import TTSRequest
 from paddlespeech.server.restful.response import ErrorResponse
@@ -72,7 +72,7 @@ def tts(request_body: TTSRequest):
     # Check parameters
     if speed <=0 or speed > 3 or volume <=0 or volume > 3 or \
         sample_rate not in [0, 16000, 8000] or \
-        (save_path is not None and save_path.endswith("pcm") == False and save_path.endswith("wav") == False):
+        (save_path is not None and not save_path.endswith("pcm") and not save_path.endswith("wav")):
         return failed_response(ErrorCode.SERVER_PARAM_ERR)
 
     # single

@@ -60,107 +60,10 @@ pretrained_models = {
 }
 
 
-
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
         pass
-
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool):
-        self.sample_rate = sample_rate
-        if self.sample_rate != 16000 and self.sample_rate != 8000:
-            logger.error("please input --sr 8000 or --sr 16000")
-            return False
-
-        logger.info("checking the audio file format......")
-        try:
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
-        except Exception as e:
-            logger.exception(e)
-            logger.error(
-                "can not open the audio file, please check the audio file format is 'wav'. \n \
-                 you can try to use sox to change the file format.\n \
-                 For example: \n \
-                 sample rate: 16k \n \
-                 sox input_audio.xx --rate 16k --bits 16 --channels 1 output_audio.wav \n \
-                 sample rate: 8k \n \
-                 sox input_audio.xx --rate 8k --bits 16 --channels 1 output_audio.wav \n \
-                 ")
-
-        logger.info("The sample rate is %d" % audio_sample_rate)
-        if audio_sample_rate != self.sample_rate:
-            logger.warning("The sample rate of the input file is not {}.\n \
-                            The program will resample the wav file to {}.\n \
-                            If the result does not meet your expectations，\n \
-                            Please input the 16k 16 bit 1 channel wav file. \
-                        ".format(self.sample_rate, self.sample_rate))
-            self.change_format = True
-        else:
-            logger.info("The audio file format is right")
-            self.change_format = False
-
-        return True
-
-    def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
-        """
-        Input preprocess and return paddle.Tensor stored in self.input.
-        Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
-        """
-
-        audio_file = input
-
-        # Get the object for feature extraction
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-            audio, _ = self.collate_fn_test.process_utterance(
-                audio_file=audio_file, transcript=" ")
-
-            audio_len = audio.shape[0]
-            audio = paddle.to_tensor(audio, dtype='float32')
-            audio_len = paddle.to_tensor(audio_len)
-            audio = paddle.unsqueeze(audio, axis=0)
-
-            self._inputs["audio"] = audio
-            self._inputs["audio_len"] = audio_len
-            logger.info(f"audio feat shape: {audio.shape}")
-
-        elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
-            logger.info("get the preprocess conf")
-            preprocess_conf = self.config.preprocess_config
-            preprocess_args = {"train": False}
-            preprocessing = Transformation(preprocess_conf)
-            logger.info("read the audio file")
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
-
-            if self.change_format:
-                if audio.shape[1] >= 2:
-                    audio = audio.mean(axis=1, dtype=np.int16)
-                else:
-                    audio = audio[:, 0]
-                # pcm16 -> pcm 32
-                audio = self._pcm16to32(audio)
-                audio = librosa.resample(audio, audio_sample_rate,
-                                         self.sample_rate)
-                audio_sample_rate = self.sample_rate
-                # pcm32 -> pcm 16
-                audio = self._pcm32to16(audio)
-            else:
-                audio = audio[:, 0]
-
-            logger.info(f"audio shape: {audio.shape}")
-            # fbank
-            audio = preprocessing(audio, **preprocess_args)
-
-            audio_len = paddle.to_tensor(audio.shape[0])
-            audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
-
-            self._inputs["audio"] = audio
-            self._inputs["audio_len"] = audio_len
-            logger.info(f"audio feat shape: {audio.shape}")
-
-        else:
-            raise Exception("wrong type")
 
     def _init_from_path(self,
                         model_type: str='wenetspeech',

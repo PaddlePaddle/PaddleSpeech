@@ -4,4 +4,4 @@ sample_rate: 16000
 cfg_path: # [optional]
 ckpt_path: # [optional]
 decode_method: 'attention_rescoring'
-force_yes: False
+force_yes: True

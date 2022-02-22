@@ -6,13 +6,13 @@
 # am choices=['deepspeech2offline_aishell'] TODO
 ##################################################################
 model_type: 'deepspeech2offline_aishell'
-am_model:  # the pdmodel file of am static model [optional]
+am_model: # the pdmodel file of am static model [optional]
 am_params:  # the pdiparams file of am static model [optional]
 lang: 'zh'
 sample_rate: 16000
 cfg_path: 
 decode_method: 
-force_yes: 
+force_yes: True
 
 am_predictor_conf:
   use_gpu: True

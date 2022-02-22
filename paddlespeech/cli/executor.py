@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import os
 import sys
 from abc import ABC
@@ -149,10 +150,16 @@ class BaseExecutor(ABC):
             job_dump_result (bool, optional): if True, dumps job results into file. Defaults to False.
         """
 
-        raw_text = self._format_task_results(results)
-        print(raw_text, end='')
+        if not self._is_job_input(input_) and len(
+                results) == 1:  # Only one input sample
+            raw_text = list(results.values())[0]
+        else:
+            raw_text = self._format_task_results(results)
 
-        if self._is_job_input(input_) and job_dump_result:
+        print(raw_text, end='')  # Stdout
+
+        if self._is_job_input(
+                input_) and job_dump_result:  # Dump to *.job.done 
             try:
                 job_output_file = os.path.abspath(input_) + '.done'
                 sys.stdout = open(job_output_file, 'w')
@@ -209,3 +216,13 @@ class BaseExecutor(ABC):
         for k, v in results.items():
             ret += f'{k} {v}\n'
         return ret
+
+    def disable_task_loggers(self):
+        """
+        Disable all loggers in current task.
+        """
+        loggers = [
+            logging.getLogger(name) for name in logging.root.manager.loggerDict
+        ]
+        for l in loggers:
+            l.disabled = True

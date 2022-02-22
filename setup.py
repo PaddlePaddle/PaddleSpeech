@@ -63,6 +63,9 @@ requirements = {
         "visualdl",
         "webrtcvad",
         "yacs~=0.1.8",
+        # fastapi server
+        "fastapi",
+        "uvicorn",
     ],
     "develop": [
         "ConfigArgParse",
@@ -253,7 +256,11 @@ setup_info = dict(
         'Programming Language :: Python :: 3.9',
     ],
     entry_points={
-        'console_scripts': ['paddlespeech=paddlespeech.cli.entry:_execute']
+        'console_scripts': [
+            'paddlespeech=paddlespeech.cli.entry:_execute',
+            'paddlespeech_server=paddlespeech.server.entry:server_execute',
+            'paddlespeech_client=paddlespeech.server.entry:client_execute'
+        ]
     })
 
 setup(**setup_info)

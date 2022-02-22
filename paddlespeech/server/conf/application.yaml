@@ -1,0 +1,17 @@
+# This is the parameter configuration file for PaddleSpeech Serving.
+
+##################################################################
+#                     SERVER SETTING                             #
+##################################################################
+host: '0.0.0.0'
+port: 8090
+
+##################################################################
+#                     CONFIG FILE                                #
+##################################################################
+# add engine type (Options: asr, tts) and config file here.
+
+engine_backend:
+    asr: 'conf/asr/asr.yaml'
+    tts: 'conf/tts/tts_pd.yaml'
+

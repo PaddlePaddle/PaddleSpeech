@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import ast
 import os
 from collections import OrderedDict
 from typing import List
@@ -112,10 +111,15 @@ class CLSExecutor(BaseExecutor):
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
         self.parser.add_argument(
+            '-d',
             '--job_dump_result',
-            type=ast.literal_eval,
-            default=False,
+            action='store_true',
             help='Save job result into file.')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true',
+            help='Increase logger verbosity of current task.')
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
@@ -243,7 +247,9 @@ class CLSExecutor(BaseExecutor):
         ckpt_path = parser_args.ckpt_path
         topk = parser_args.topk
         device = parser_args.device
-        job_dump_result = parser_args.job_dump_result
+
+        if not parser_args.verbose:
+            self.disable_task_loggers()
 
         task_source = self.get_task_source(parser_args.input)
         task_results = OrderedDict()
@@ -259,7 +265,7 @@ class CLSExecutor(BaseExecutor):
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
 
         self.process_task_results(parser_args.input, task_results,
-                                  job_dump_result)
+                                  parser_args.job_dump_result)
 
         if has_exceptions:
             return False

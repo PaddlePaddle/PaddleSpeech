@@ -19,6 +19,7 @@ from fastapi import FastAPI
 
 from ..executor import BaseExecutor
 from ..util import cli_server_register
+from ..util import stats_wrapper
 from paddlespeech.server.engine.engine_factory import EngineFactory
 from paddlespeech.server.restful.api import setup_router
 from paddlespeech.server.utils.config import get_config
@@ -33,8 +34,9 @@ app = FastAPI(
     name='paddlespeech_server.start', description='Start the service')
 class ServerExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.parser = argparse.ArgumentParser()
+        super(ServerExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_server.start', add_help=True)
         self.parser.add_argument(
             "--config_file",
             action="store",
@@ -73,5 +75,16 @@ class ServerExecutor(BaseExecutor):
         args = self.parser.parse_args(argv)
         config = get_config(args.config_file)
 
+        if self.init(config):
+            uvicorn.run(app, host=config.host, port=config.port, debug=True)
+
+    @stats_wrapper
+    def __call__(self,
+                 config_file: str="./conf/application.yaml",
+                 log_file: str="./log/paddlespeech.log"):
+        """
+        Python API to call an executor.
+        """
+        config = get_config(config_file)
         if self.init(config):
             uvicorn.run(app, host=config.host, port=config.port, debug=True)

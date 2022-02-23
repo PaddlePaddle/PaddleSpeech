@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import ast
 import os
 from collections import OrderedDict
 from typing import Any
@@ -400,10 +399,15 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             '--output', type=str, default='output.wav', help='output file name')
         self.parser.add_argument(
+            '-d',
             '--job_dump_result',
-            type=ast.literal_eval,
-            default=False,
+            action='store_true',
             help='Save job result into file.')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true',
+            help='Increase logger verbosity of current task.')
 
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
@@ -693,7 +697,9 @@ class TTSExecutor(BaseExecutor):
         lang = args.lang
         device = args.device
         spk_id = args.spk_id
-        job_dump_result = args.job_dump_result
+
+        if not args.verbose:
+            self.disable_task_loggers()
 
         task_source = self.get_task_source(args.input)
         task_results = OrderedDict()
@@ -733,7 +739,8 @@ class TTSExecutor(BaseExecutor):
                 has_exceptions = True
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
 
-        self.process_task_results(args.input, task_results, job_dump_result)
+        self.process_task_results(args.input, task_results,
+                                  args.job_dump_result)
 
         if has_exceptions:
             return False

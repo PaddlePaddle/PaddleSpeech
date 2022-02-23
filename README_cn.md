@@ -302,7 +302,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   <thead>
     <tr>
       <th> 语音合成模块类型 </th>
-      <th>  模型种类  </th>
+      <th> 模型种类 </th>
       <th> 数据集  </th>
       <th> 链接  </th>
     </tr>
@@ -341,7 +341,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <td>FastSpeech2</td>
       <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> /<a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
+      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
       </td>
     </tr>
    <tr>

@@ -412,6 +412,11 @@ class ASRExecutor(BaseExecutor):
             logger.error("invalid sample rate, please input --sr 8000 or --sr 16000")
             return False
 
+        if isinstance(audio_file, (str, os.PathLike)):
+            if not os.path.isfile(audio_file):
+                logger.error("Please input the right audio file path")
+                return False
+
         logger.info("checking the audio file format......")
         try:
             audio, audio_sample_rate = soundfile.read(

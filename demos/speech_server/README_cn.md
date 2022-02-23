@@ -15,6 +15,13 @@
 ### 2. 准备配置文件
 配置文件包含服务相关的配置文件和服务中包含的语音任务相关的模型配置。 它们都在 `conf` 文件夹下。
 
+这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
+
+可以下载此 ASR client的示例音频：
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+```
+
 ### 3. 服务端使用方法
 - 命令行 (推荐使用)
 
@@ -70,7 +77,7 @@
 ### 4. ASR客户端使用方法
 - 命令行 (推荐使用)
    ```
-   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./paddlespeech/server/tests/16_audio.wav
+   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
 
     使用帮助:
@@ -90,9 +97,8 @@
     输出:
 
     ```bash
-    [2022-02-23 11:19:45,646] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '广州医生跑北马中断比赛就心跳骤停者'}}
-    [2022-02-23 11:19:45,646] [    INFO] - time cost 0.659491 s.
-
+    [2022-02-23 18:11:22,819] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
+    [2022-02-23 18:11:22,820] [    INFO] - time cost 0.689145 s.
     ```
 
 - Python API
@@ -101,7 +107,7 @@
 
   asrclient_executor = ASRClientExecutor()
   asrclient_executor(
-      input="./16_audio.wav",
+      input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       sample_rate=16000,
@@ -111,8 +117,8 @@
 
   输出:
   ```bash
-  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '广州医生跑北马中断比赛就心跳骤停者'}}
-  time cost 0.802639 s.
+  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
+  time cost 0.604353 s.
 
   ```
  

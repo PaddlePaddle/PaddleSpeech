@@ -15,6 +15,13 @@ You can choose one way from easy, meduim and hard to install paddlespeech.
 ### 2. Prepare config File
 The configuration file contains the service-related configuration files and the model configuration related to the voice tasks contained in the service. They are all under the `conf` folder. 
 
+The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
+
+Here are sample files for thisASR client demo that can be downloaded:
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+```
+
 ### 3. Server Usage
 - Command Line (Recommended)
 
@@ -71,7 +78,7 @@ The configuration file contains the service-related configuration files and the 
 ### 4. ASR Client Usage
 - Command Line (Recommended)
    ```
-   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./16_audio.wav
+   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
 
   Usage:
@@ -89,8 +96,9 @@ The configuration file contains the service-related configuration files and the 
 
   Output:
   ```bash
-  [2022-02-23 11:19:45,646] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '广州医生跑北马中断比赛就心跳骤停者'}}
-  [2022-02-23 11:19:45,646] [    INFO] - time cost 0.659491 s.
+  [2022-02-23 18:11:22,819] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
+  [2022-02-23 18:11:22,820] [    INFO] - time cost 0.689145 s.
+
   ```
 
 - Python API
@@ -99,7 +107,7 @@ The configuration file contains the service-related configuration files and the 
 
   asrclient_executor = ASRClientExecutor()
   asrclient_executor(
-      input="./16_audio.wav",
+      input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       sample_rate=16000,
@@ -109,9 +117,8 @@ The configuration file contains the service-related configuration files and the 
 
   Output:
   ```bash
-  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '广州医生跑北马中断比赛就心跳骤停者'}}
-  time cost 0.802639 s.
-
+  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
+  time cost 0.604353 s.
   ```
  
 ### 5. TTS Client Usage

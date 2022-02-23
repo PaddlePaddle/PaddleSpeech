@@ -346,7 +346,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>FastSpeech2</td>
       <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> /<a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
+      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
       </td>
     </tr>
    <tr>

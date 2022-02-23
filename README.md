@@ -7,6 +7,7 @@
 
   <h3>
   <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
 </div>
@@ -217,12 +218,35 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
   ```bash
   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
   ```
-
   
 
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+
+
+<a name="quickstartserver"></a>
+## Quick Start Server
+
+Developers can have a try of our speech server with [PaddleSpeech Server Command Line](./paddlespeech/server/README.md).
+
+**Start server**     
+```shell
+paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+```
+
+**Access speech recognition services**     
+```shell
+paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./paddlespeech/server/tests/16_audio.wav
+```
+
+**Access text to speech services**     
+```shell
+paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+```
+
+For more information about server command lines, please see: [speech server demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
+
 
 ## Model List
 
@@ -469,6 +493,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
 
 - [Installation](./docs/source/install.md)
 - [Quick Start](#quickstart)
+- [Quick Start Server](#quickstartserver)
 - [Some Demos](./demos/README.md)
 - Tutorials
   - [Automatic Speech Recognition](./docs/source/asr/quick_start.md)

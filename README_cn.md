@@ -6,6 +6,7 @@
 
   <h3>
   <a href="#quick-start"> 快速开始 </a>
+  | <a href="#quick-start-server"> 快速使用服务 </a>
   | <a href="#documents"> 教程文档 </a>
   | <a href="#model-list"> 模型列表 </a>
 </div>
@@ -218,6 +219,27 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
 
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
+
+
+## 快速使用服务
+安装完成后，开发者可以通过命令行快速使用服务。
+
+**启动服务**     
+```shell
+paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+```
+
+**访问语音识别服务**     
+```shell
+paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./paddlespeech/server/tests/16_audio.wav
+```
+
+**访问语音合成服务**     
+```shell
+paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+```
+
+更多服务相关的命令行使用信息，请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
 
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
@@ -465,6 +487,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 - [下载安装](./docs/source/install_cn.md)
 - [快速开始](#快速开始)
+- [快速使用服务](#快速使用服务)
 - Notebook基础教程
   - [声音分类](./docs/tutorial/cls/cls_tutorial.ipynb)
   - [语音识别](./docs/tutorial/asr/tutorial_transformer.ipynb)

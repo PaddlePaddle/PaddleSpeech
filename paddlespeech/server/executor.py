@@ -16,6 +16,7 @@ from abc import ABC
 from abc import abstractmethod
 from typing import List
 
+
 class BaseExecutor(ABC):
     """
         An abstract executor of paddlespeech server tasks.
@@ -34,5 +35,12 @@ class BaseExecutor(ABC):
 
         Returns:
             int: Result of the command execution. `True` for a success and `False` for a failure.
+        """
+        pass
+
+    @abstractmethod
+    def __call__(self, *arg, **kwargs):
+        """
+        Python API to call an executor.
         """
         pass

@@ -34,7 +34,7 @@ def tts_client(args):
     """
     url = 'http://127.0.0.1:8090/paddlespeech/tts'
     request = {
-        "text": args.text,
+        "text": args.input,
         "spk_id": args.spk_id,
         "speed": args.speed,
         "volume": args.volume,
@@ -69,9 +69,9 @@ def tts_client(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--text',
+        '--input',
         type=str,
-        default="你好，欢迎使用语音合成服务",
+        default="您好，欢迎使用百度飞桨语音合成服务",
         help='A sentence to be synthesized')
     parser.add_argument('--spk_id', type=int, default=0, help='Speaker id')
     parser.add_argument('--speed', type=float, default=1.0, help='Audio speed')
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--output',
         type=str,
-        default="./out.wav",
+        default="./output.wav",
         help='Synthesized audio file')
     args = parser.parse_args()
 

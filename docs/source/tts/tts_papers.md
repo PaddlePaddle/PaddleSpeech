@@ -3,6 +3,8 @@
 ### Polyphone
 - [【g2pM】g2pM: A Neural Grapheme-to-Phoneme Conversion Package for Mandarin Chinese Based on a New Open Benchmark Dataset](https://arxiv.org/abs/2004.03136)
 - [Disambiguation of Chinese Polyphones in an End-to-End Framework with Semantic Features Extracted by Pre-trained BERT](https://www1.se.cuhk.edu.hk/~hccl/publications/pub/201909_INTERSPEECH_DongyangDAI.pdf)
+- [Polyphone Disambiguation in Mandarin Chinese with Semi-Supervised Learning](https://www.isca-speech.org/archive/pdfs/interspeech_2021/shi21d_interspeech.pdf)
+  * github: https://github.com/PaperMechanica/SemiPPL
 ### Text Normalization
 #### English
 - [applenob/text_normalization](https://github.com/applenob/text_normalization)

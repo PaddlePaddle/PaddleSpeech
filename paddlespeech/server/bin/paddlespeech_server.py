@@ -74,4 +74,4 @@ class ServerExecutor(BaseExecutor):
         config = get_config(args.config_file)
 
         if self.init(config):
-            uvicorn.run(app, host=config.host, port=config.port, debug=True)v
+            uvicorn.run(app, host=config.host, port=config.port, debug=True)

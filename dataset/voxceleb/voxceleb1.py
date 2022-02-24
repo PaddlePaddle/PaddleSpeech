@@ -80,6 +80,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+
 def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
@@ -128,6 +129,7 @@ def create_manifest(data_dir, manifest_path_prefix):
         print(f"{total_text / total_sec} text/sec", file=f)
         print(f"{total_sec / total_num} sec/utt", file=f)
 
+
 def prepare_dataset(base_url, data_list, target_dir, manifest_path,
                     target_data):
     if not os.path.exists(target_dir):
@@ -164,6 +166,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     # create the manifest file
     create_manifest(data_dir=target_dir, manifest_path_prefix=manifest_path)
 
+
 def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
@@ -183,6 +186,7 @@ def main():
         target_data=TEST_TARGET_DATA)
 
     print("Manifest prepare done!")
+
 
 if __name__ == '__main__':
     main()

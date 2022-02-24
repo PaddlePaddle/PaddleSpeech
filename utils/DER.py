@@ -23,10 +23,11 @@ Credits
  This code is adapted from https://github.com/nryant/dscore
 """
 import argparse
-from distutils.util import strtobool
 import os
 import re
 import subprocess
+from distutils.util import strtobool
+
 import numpy as np
 
 FILE_IDS = re.compile(r"(?<=Speaker Diarization for).+(?=\*\*\*)")

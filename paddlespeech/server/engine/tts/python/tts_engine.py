@@ -54,7 +54,10 @@ class TTSEngine(BaseEngine):
 
         try:
             self.config = get_config(config_file)
-            paddle.set_device(self.config.device)
+            if self.config.device is None:
+                paddle.set_device(paddle.get_device())
+            else:
+                paddle.set_device(self.config.device)
 
             self.executor._init_from_path(
                 am=self.config.am,

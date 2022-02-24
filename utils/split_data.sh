@@ -37,14 +37,9 @@ texts=""
 
 nu=`cat $data/utt2spk | wc -l`
 nf=`cat $data/feats.scp | wc -l`
-nt=`cat $data/text | wc -l`
+# nt=`cat $data/text | wc -l`
 if [ $nu -ne $nf ]; then
   echo "split_data.sh: warning, #lines is (utt2spk,feats.scp) is ($nu,$nf);"
-  echo "this script may produce incorrectly split data."
-  echo "use utils/fix_data_dir.sh to fix this."
-fi
-if [ $nt -ne 0 -a $nu -ne $nt ]; then
-  echo "split_data.sh: warning, #lines is (utt2spk,text) is ($nu,$nt);"
   echo "this script may produce incorrectly split data."
   echo "use utils/fix_data_dir.sh to fix this."
 fi
@@ -56,6 +51,7 @@ for n in `seq 1 $numsplit`; do  # Changed this to usual number sequence -Arnab
   feats="$feats $data/split$numsplit/$n/feats.scp"
   wavs="$wavs $data/split$numsplit/$n/wav.scp"
   texts="$texts $data/split$numsplit/$n/text"
+  vads="$vads $data/split$numsplit/$n/vad.scp"
   utt2spks="$utt2spks $data/split$numsplit/$n/utt2spk"
 done
 
@@ -65,7 +61,8 @@ split_scp.pl --utt2spk=$data/utt2spk $data/feats.scp $feats
   split_scp.pl --utt2spk=$data/utt2spk $data/wav.scp $wavs
 [ -f $data/text ] && \
   split_scp.pl --utt2spk=$data/utt2spk $data/text $texts
-
+[ -f $data/vad.scp ] && \
+  split_scp.pl --utt2spk=$data/utt2spk $data/vad.scp $vads
 # for n in `get_splits.pl $numsplit`; do
 for n in `seq 1 $numsplit`; do  # Changed this to usual number sequence -Arnab
   utt2spk_to_spk2utt.pl $data/split$numsplit/$n/utt2spk \

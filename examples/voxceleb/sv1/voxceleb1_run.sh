@@ -20,7 +20,7 @@ voxceleb1_trials=data/voxceleb1_test/trials
 voxceleb1_root=/home/dataset/sv/voxCeleb1_v2
 nnet_dir=exp/xvector_nnet_1a
 nj=28 # cpu cores 
-stage=8
+stage=0
 
 if [ $stage -le 0 ]; then
   echo "======================================================================================================"

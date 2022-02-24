@@ -413,7 +413,8 @@ class ASRExecutor(BaseExecutor):
     def _check(self, audio_file: str, sample_rate: int, force_yes: bool):
         self.sample_rate = sample_rate
         if self.sample_rate != 16000 and self.sample_rate != 8000:
-            logger.error("invalid sample rate, please input --sr 8000 or --sr 16000")
+            logger.error(
+                "invalid sample rate, please input --sr 8000 or --sr 16000")
             return False
 
         if isinstance(audio_file, (str, os.PathLike)):

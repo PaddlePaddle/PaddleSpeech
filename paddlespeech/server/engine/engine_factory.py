@@ -13,20 +13,24 @@
 # limitations under the License.
 from typing import Text
 
-from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
-#from paddlespeech.server.engine.tts.python.tts_engine import TTSEngine
-from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
-
 
 __all__ = ['EngineFactory']
 
 
 class EngineFactory(object):
     @staticmethod
-    def get_engine(engine_name: Text):
-        if engine_name == 'asr':
+    def get_engine(engine_name: Text, engine_type: Text):
+        if engine_name == 'asr' and engine_type == 'inference':
+            from paddlespeech.server.engine.asr.paddleinference.asr_engine import ASREngine
             return ASREngine()
-        elif engine_name == 'tts':
+        elif engine_name == 'asr' and engine_type == 'python':
+            from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
+            return ASREngine()
+        elif engine_name == 'tts' and engine_type == 'inference':
+            from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
+            return TTSEngine()
+        elif engine_name == 'tts' and engine_type == 'python':
+            from paddlespeech.server.engine.tts.python.tts_engine import TTSEngine
             return TTSEngine()
         else:
             return None

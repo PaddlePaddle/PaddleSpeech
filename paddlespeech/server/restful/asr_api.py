@@ -16,7 +16,7 @@ import traceback
 from typing import Union
 from fastapi import APIRouter
 
-from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
+from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.restful.request import ASRRequest
 from paddlespeech.server.restful.response import ASRResponse
 from paddlespeech.server.restful.response import ErrorResponse
@@ -61,9 +61,12 @@ def asr(request_body: ASRRequest):
         json: [description]
     """
     try:
-        # single 
         audio_data = base64.b64decode(request_body.audio)
-        asr_engine = ASREngine()
+
+        # get single engine from engine pool
+        engine_pool = get_engine_pool()
+        asr_engine = engine_pool['asr']
+
         asr_engine.run(audio_data)
         asr_results = asr_engine.postprocess()
 

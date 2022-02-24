@@ -51,10 +51,8 @@ class ServerExecutor(BaseExecutor):
 
     def init(self, config) -> bool:
         """system initialization
-
         Args:
             config (CfgNode): config object
-
         Returns:
             bool: 
         """

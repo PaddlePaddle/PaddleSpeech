@@ -48,8 +48,9 @@ class TTSClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--input',
             type=str,
-            default="你好，欢迎使用语音合成服务",
-            help='A sentence to be synthesized.')
+            default=None,
+            help='Text to be synthesized.',
+            required=True)
         self.parser.add_argument(
             '--spk_id', type=int, default=0, help='Speaker id')
         self.parser.add_argument(
@@ -181,8 +182,9 @@ class ASRClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--input',
             type=str,
-            default="./paddlespeech/server/tests/16_audio.wav",
-            help='Audio file to be recognized')
+            default=None,
+            help='Audio file to be recognized',
+            required=True)
         self.parser.add_argument(
             '--sample_rate', type=int, default=16000, help='audio sample rate')
         self.parser.add_argument(

@@ -14,12 +14,23 @@
 
 #pragma once
 
-namespace ppspeech {
+#include <deque>
+#include <iostream>
+#include <istream>
+#include <fstream>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <mutex>
 
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete;               \
-  void operator=(const TypeName&) = delete
-#endif
-
-}  // namespace pp_speech
+#include "base/log.h"
+#include "base/flags.h"
+#include "base/basic_types.h"
+#include "base/macros.h"

@@ -12,14 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+// extract the window of kaldi feat.
 
-namespace ppspeech {
-
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete;               \
-  void operator=(const TypeName&) = delete
-#endif
-
-}  // namespace pp_speech

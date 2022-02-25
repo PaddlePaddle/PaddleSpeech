@@ -14,12 +14,16 @@
 
 #pragma once
 
+#include "base/basic_types.h"
+#include "kaldi/matrix/kaldi-vector.h"
+
 namespace ppspeech {
 
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete;               \
-  void operator=(const TypeName&) = delete
-#endif
+class FeatureExtractorInterface {
+  public:
+    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) = 0;
+    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat) = 0;
+    virtual size_t Dim() const = 0;
+};
 
-}  // namespace pp_speech
+}  // namespace ppspeech

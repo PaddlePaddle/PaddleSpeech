@@ -20,7 +20,7 @@ from paddle import Tensor
 
 __all__ = [
     'get_window',
-    
+
     # windows
     'taylor',
     'hamming',

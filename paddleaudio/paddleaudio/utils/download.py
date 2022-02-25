@@ -28,6 +28,7 @@ __all__ = [
     'load_state_dict_from_url',
 ]
 
+
 def decompress(file: str):
     """
     Extracts all files from a compressed file.

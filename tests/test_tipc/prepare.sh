@@ -32,7 +32,7 @@ if [ ${MODE} = "benchmark_train" ];then
     cd -
     if [ ${model_name} == "conformer" ]; then
         # set the URL for aishell_tiny dataset
-        URL='None'
+        URL=${conformer_data_URL:-"None"}
         echo "URL:"${URL}
         if [ ${URL} == 'None' ];then
             echo "please contact author to get the URL.\n"

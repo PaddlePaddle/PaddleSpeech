@@ -25,6 +25,7 @@ import soundfile
 
 from paddlespeech.server.utils.audio_process import wav2pcm
 
+
 # Request and response
 def tts_client(args):
     """ Request and response
@@ -99,5 +100,5 @@ if __name__ == "__main__":
         print("Inference time: %f" % (time_consume))
         print("The duration of synthesized audio: %f" % (duration))
         print("The RTF is: %f" % (rtf))
-    except:
+    except BaseException:
         print("Failed to synthesized audio.")

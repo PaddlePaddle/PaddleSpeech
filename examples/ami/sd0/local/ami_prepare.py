@@ -22,19 +22,17 @@ Authors
  * qingenz123@126.com (Qingen ZHAO) 2022
 
 """
-
-import os
-import logging
 import argparse
-import xml.etree.ElementTree as et
 import glob
 import json
-from ami_splits import get_AMI_split
+import logging
+import os
+import xml.etree.ElementTree as et
 from distutils.util import strtobool
 
-from dataio import (
-    load_pkl,
-    save_pkl, )
+from ami_splits import get_AMI_split
+from dataio import load_pkl
+from dataio import save_pkl
 
 logger = logging.getLogger(__name__)
 SAMPLERATE = 16000

@@ -41,7 +41,8 @@ class ServerExecutor(BaseExecutor):
             "--config_file",
             action="store",
             help="yaml file of the app",
-            default="./conf/application.yaml")
+            default=None,
+            required=True)
 
         self.parser.add_argument(
             "--log_file",

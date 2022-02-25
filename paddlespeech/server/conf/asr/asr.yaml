@@ -5,4 +5,4 @@ cfg_path: # [optional]
 ckpt_path: # [optional]
 decode_method: 'attention_rescoring'
 force_yes: True
-device: 'gpu:3'  # set 'gpu:id' or 'cpu'
+device: 'cpu'  # set 'gpu:id' or 'cpu'

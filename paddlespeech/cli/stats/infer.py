@@ -31,7 +31,9 @@ model_name_format = {
 }
 
 
-@cli_register(name='paddlespeech.stats', description='Text infer command.')
+@cli_register(
+    name='paddlespeech.stats',
+    description='Get speech tasks support models list.')
 class StatsExecutor():
     def __init__(self):
         super(StatsExecutor, self).__init__()
@@ -73,7 +75,14 @@ class StatsExecutor():
                     "Here is the list of ASR pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
                 self.show_support_models(pretrained_models)
-                # TODO show pretrained static model
+
+                # show ASR static pretrained model
+                from paddlespeech.server.engine.asr.paddleinference.asr_engine import pretrained_models
+                logger.info(
+                    "Here is the list of ASR static pretrained models released by PaddleSpeech that can be used by command line and python API"
+                )
+                self.show_support_models(pretrained_models)
+
                 return True
             except BaseException:
                 logger.error("Failed to get the list of ASR pretrained models.")
@@ -123,7 +132,14 @@ class StatsExecutor():
                     "Here is the list of TTS pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
                 self.show_support_models(pretrained_models)
-                # TODO show pretrained static model
+
+                # show TTS static pretrained model
+                from paddlespeech.server.engine.tts.paddleinference.tts_engine import pretrained_models
+                logger.info(
+                    "Here is the list of TTS static pretrained models released by PaddleSpeech that can be used by command line and python API"
+                )
+                self.show_support_models(pretrained_models)
+
                 return True
             except BaseException:
                 logger.error("Failed to get the list of TTS pretrained models.")

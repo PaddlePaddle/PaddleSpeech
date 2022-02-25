@@ -62,13 +62,13 @@ base = [
     "visualdl",
     "webrtcvad",
     "yacs~=0.1.8",
+    "prettytable",
 ]
 
 server = [
     "fastapi",
     "uvicorn",
     "pattern_singleton",
-    "prettytable",
 ]
 
 requirements = {

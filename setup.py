@@ -38,7 +38,7 @@ base = [
     "jieba",
     "jsonlines",
     "kaldiio",
-    "librosa",
+    "librosa==0.8.1",
     "loguru",
     "matplotlib",
     "nara_wpe",

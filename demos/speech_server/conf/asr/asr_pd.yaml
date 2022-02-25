@@ -1,0 +1,25 @@
+# This is the parameter configuration file for ASR server.
+# These are the static models that support paddle inference.
+
+##################################################################
+#                  ACOUSTIC MODEL SETTING                        #
+# am choices=['deepspeech2offline_aishell'] TODO
+##################################################################
+model_type: 'deepspeech2offline_aishell'
+am_model: # the pdmodel file of am static model [optional]
+am_params:  # the pdiparams file of am static model [optional]
+lang: 'zh'
+sample_rate: 16000
+cfg_path: 
+decode_method: 
+force_yes: True
+
+am_predictor_conf:
+  device: 'gpu:3'  # set 'gpu:id' or 'cpu'
+  enable_mkldnn: True
+  switch_ir_optim: True
+
+
+##################################################################
+#                            OTHERS                              #
+##################################################################

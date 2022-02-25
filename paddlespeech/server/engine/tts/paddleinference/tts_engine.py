@@ -344,7 +344,6 @@ class TTSEngine(BaseEngine):
 
         try:
             self.config = get_config(config_file)
-
             self.executor._init_from_path(
                 am=self.config.am,
                 am_model=self.config.am_model,

@@ -11,31 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List
+from paddlespeech.server.engine.engine_factory import EngineFactory
 
-from fastapi import APIRouter
-
-from paddlespeech.server.restful.asr_api import router as asr_router
-from paddlespeech.server.restful.tts_api import router as tts_router
-
-_router = APIRouter()
+# global value
+ENGINE_POOL = {}
 
 
-def setup_router(api_list: List):
-    """setup router for fastapi
-
-    Args:
-        api_list (List): [asr, tts]
-
-    Returns:
-        APIRouter
+def get_engine_pool() -> dict:
+    """ Get engine pool
     """
-    for api_name in api_list:
-        if api_name == 'asr':
-            _router.include_router(asr_router)
-        elif api_name == 'tts':
-            _router.include_router(tts_router)
-        else:
-            pass
+    global ENGINE_POOL
+    return ENGINE_POOL
 
-    return _router
+
+def init_engine_pool(config) -> bool:
+    """ Init engine pool
+    """
+    global ENGINE_POOL
+    for engine in config.engine_backend:
+        ENGINE_POOL[engine] = EngineFactory.get_engine(engine_name=engine, engine_type=config.engine_type[engine])
+        if not ENGINE_POOL[engine].init(config_file=config.engine_backend[engine]):
+            return False
+
+    return True

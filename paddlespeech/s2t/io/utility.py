@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import List
+from io import BytesIO
 
 import numpy as np
 
@@ -88,6 +89,10 @@ def pad_sequence(sequences: List[np.ndarray],
 
 
 def feat_type(filepath):
+    # deal with Byteio type for paddlespeech server
+    if isinstance(filepath, BytesIO):
+        return 'sound'
+
     suffix = filepath.split(":")[0].split('.')[-1].lower()
     if suffix == 'ark':
         return 'mat'

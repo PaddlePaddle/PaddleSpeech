@@ -291,7 +291,8 @@ class ASRExecutor(BaseExecutor):
         """
 
         audio_file = input
-        logger.info("Preprocess audio_file:" + audio_file)
+        if isinstance(audio_file, (str, os.PathLike)):
+            logger.info("Preprocess audio_file:" + audio_file)
 
         # Get the object for feature extraction
         if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
@@ -412,13 +413,13 @@ class ASRExecutor(BaseExecutor):
     def _check(self, audio_file: str, sample_rate: int, force_yes: bool):
         self.sample_rate = sample_rate
         if self.sample_rate != 16000 and self.sample_rate != 8000:
-            logger.error("please input --sr 8000 or --sr 16000")
-            raise Exception("invalid sample rate")
-            sys.exit(-1)
+            logger.error("invalid sample rate, please input --sr 8000 or --sr 16000")
+            return False
 
-        if not os.path.isfile(audio_file):
-            logger.error("Please input the right audio file path")
-            sys.exit(-1)
+        if isinstance(audio_file, (str, os.PathLike)):
+            if not os.path.isfile(audio_file):
+                logger.error("Please input the right audio file path")
+                return False
 
         logger.info("checking the audio file format......")
         try:
@@ -435,7 +436,7 @@ class ASRExecutor(BaseExecutor):
                  sample rate: 8k \n \
                  sox input_audio.xx --rate 8k --bits 16 --channels 1 output_audio.wav \n \
                  ")
-            sys.exit(-1)
+            return False
         logger.info("The sample rate is %d" % audio_sample_rate)
         if audio_sample_rate != self.sample_rate:
             logger.warning("The sample rate of the input file is not {}.\n \
@@ -468,6 +469,8 @@ class ASRExecutor(BaseExecutor):
         else:
             logger.info("The audio file format is right")
             self.change_format = False
+
+        return True
 
     def execute(self, argv: List[str]) -> bool:
         """
@@ -523,7 +526,8 @@ class ASRExecutor(BaseExecutor):
         Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
-        self._check(audio_file, sample_rate, force_yes)
+        if not self._check(audio_file, sample_rate, force_yes):
+            sys.exit(-1)
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
                              ckpt_path)

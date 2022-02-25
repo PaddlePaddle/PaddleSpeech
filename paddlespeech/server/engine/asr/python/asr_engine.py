@@ -12,21 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
-import os
-from typing import List
-from typing import Optional
-from typing import Union
 
-import librosa
 import paddle
-import soundfile
 
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.transform.transformation import Transformation
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.config import get_config
 
@@ -63,7 +53,10 @@ class ASREngine(BaseEngine):
         self.executor = ASRServerExecutor()
 
         self.config = get_config(config_file)
-        paddle.set_device(paddle.get_device())
+        if self.config.device is None:
+            paddle.set_device(paddle.get_device())
+        else:
+            paddle.set_device(self.config.device)
         self.executor._init_from_path(
             self.config.model, self.config.lang, self.config.sample_rate,
             self.config.cfg_path, self.config.decode_method,

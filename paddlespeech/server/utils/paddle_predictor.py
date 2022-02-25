@@ -41,8 +41,9 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
         config = Config(model_file, params_file)
 
     config.enable_memory_optim()
-    if predictor_conf["use_gpu"]:
-        config.enable_use_gpu(1000, 0)
+    if "gpu" in predictor_conf["device"]:
+        gpu_id = predictor_conf["device"].split(":")[-1]
+        config.enable_use_gpu(1000, int(gpu_id))
     if predictor_conf["enable_mkldnn"]:
         config.enable_mkldnn()
     if predictor_conf["switch_ir_optim"]:

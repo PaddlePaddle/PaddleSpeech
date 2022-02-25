@@ -29,4 +29,4 @@ voc_stat:
 #                            OTHERS                              #
 ##################################################################
 lang: 'zh'
-device: paddle.get_device()
+device: 'cpu'  # set 'gpu:id' or 'cpu'

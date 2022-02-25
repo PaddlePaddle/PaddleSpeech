@@ -59,6 +59,8 @@ setuptools.setup(
         'resampy >= 0.2.2',
         'soundfile >= 0.9.0',
         'colorlog',
+        'dtaidistance >= 2.3.6',
+        'mcd >= 0.4',
     ], )
 
 remove_version_py()

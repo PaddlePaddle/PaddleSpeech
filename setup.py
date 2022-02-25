@@ -66,6 +66,7 @@ requirements = {
         # fastapi server
         "fastapi",
         "uvicorn",
+        "prettytable"
     ],
     "develop": [
         "ConfigArgParse",

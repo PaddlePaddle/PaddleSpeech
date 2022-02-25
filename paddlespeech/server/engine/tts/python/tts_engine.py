@@ -72,8 +72,8 @@ class TTSEngine(BaseEngine):
                 voc_ckpt=self.config.voc_ckpt,
                 voc_stat=self.config.voc_stat,
                 lang=self.config.lang)
-        except:
-            logger.info("Initialize TTS server engine Failed.")
+        except BaseException:
+            logger.error("Initialize TTS server engine Failed.")
             return False
 
         logger.info("Initialize TTS server engine successfully.")
@@ -117,10 +117,13 @@ class TTSEngine(BaseEngine):
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
-                "Can not install soxbindings on your system.")
+                "Transform speed failed. Can not install soxbindings on your system. \
+                 You need to set speed value 1.0.")
+        except BaseException:
+            logger.error("Transform speed failed.")
 
         # wav to base64
         buf = io.BytesIO()
@@ -173,9 +176,11 @@ class TTSEngine(BaseEngine):
         try:
             self.executor.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
+        except BaseException:
+            logger.error("tts infer failed.")
 
         try:
             target_sample_rate, wav_base64 = self.postprocess(
@@ -185,8 +190,10 @@ class TTSEngine(BaseEngine):
                 volume=volume,
                 speed=speed,
                 audio_path=save_path)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
+        except BaseException:
+            logger.error("tts postprocess failed.")
 
         return lang, target_sample_rate, wav_base64

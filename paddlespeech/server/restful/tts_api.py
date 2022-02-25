@@ -114,7 +114,7 @@ def tts(request_body: TTSRequest):
         }
     except ServerBaseException as e:
         response = failed_response(e.error_code, e.msg)
-    except:
+    except BaseException:
         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
         traceback.print_exc()
 

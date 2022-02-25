@@ -124,7 +124,7 @@ class TTSClientExecutor(BaseExecutor):
             logger.info("RTF: %f " % (time_consume / duration))
 
             return True
-        except:
+        except BaseException:
             logger.error("Failed to synthesized audio.")
             return False
 
@@ -164,7 +164,7 @@ class TTSClientExecutor(BaseExecutor):
             print("Audio duration: %f s." % (duration))
             print("Response time: %f s." % (time_consume))
             print("RTF: %f " % (time_consume / duration))
-        except:
+        except BaseException:
             print("Failed to synthesized audio.")
 
 
@@ -211,7 +211,7 @@ class ASRClientExecutor(BaseExecutor):
             logger.info(r.json())
             logger.info("time cost %f s." % (time_end - time_start))
             return True
-        except:
+        except BaseException:
             logger.error("Failed to speech recognition.")
             return False
 
@@ -242,5 +242,5 @@ class ASRClientExecutor(BaseExecutor):
             time_end = time.time()
             print(r.json())
             print("time cost %f s." % (time_end - time_start))
-        except:
+        except BaseException:
             print("Failed to speech recognition.")

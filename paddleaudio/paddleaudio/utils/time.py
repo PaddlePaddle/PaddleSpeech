@@ -19,6 +19,7 @@ __all__ = [
     'seconds_to_hms',
 ]
 
+
 class Timer(object):
     '''Calculate runing speed and estimated time of arrival(ETA)'''
 

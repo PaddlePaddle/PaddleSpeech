@@ -23,9 +23,8 @@ from numpy import ndarray as array
 from numpy.lib.stride_tricks import as_strided
 from scipy import signal
 
-from ..utils import ParameterError
 from ..backends import depth_convert
-
+from ..utils import ParameterError
 
 __all__ = [
     # dsp

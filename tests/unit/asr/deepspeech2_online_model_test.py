@@ -191,7 +191,8 @@ class TestDeepSpeech2StaticModelOnline(unittest.TestCase):
     
     def setUp(self):
         export_prefix = "exp/deepspeech2_online/checkpoints/test_export"
-        os.makedirs( os.path.dirname(export_prefix), mode=0o755)
+        if not os.path.exists(os.path.dirname(export_prefix)):
+            os.makedirs(os.path.dirname(export_prefix), mode=0o755)
         infer_model =  DeepSpeech2InferModelOnline(
             feat_size=161,
             dict_size=4233,

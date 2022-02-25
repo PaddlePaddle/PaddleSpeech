@@ -13,7 +13,6 @@
 # limitations under the License.
 from typing import Text
 
-
 __all__ = ['EngineFactory']
 
 

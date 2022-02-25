@@ -344,7 +344,6 @@ class TTSEngine(BaseEngine):
 
         try:
             self.config = get_config(config_file)
-
             self.executor._init_from_path(
                 am=self.config.am,
                 am_model=self.config.am_model,
@@ -361,8 +360,8 @@ class TTSEngine(BaseEngine):
                 am_predictor_conf=self.config.am_predictor_conf,
                 voc_predictor_conf=self.config.voc_predictor_conf, )
 
-        except:
-            logger.info("Initialize TTS server engine Failed.")
+        except BaseException:
+            logger.error("Initialize TTS server engine Failed.")
             return False
 
         logger.info("Initialize TTS server engine successfully.")
@@ -406,11 +405,13 @@ class TTSEngine(BaseEngine):
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
                 "Transform speed failed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
+        except BaseException:
+            logger.error("Transform speed failed.")
 
         # wav to base64
         buf = io.BytesIO()
@@ -463,9 +464,11 @@ class TTSEngine(BaseEngine):
         try:
             self.executor.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
+        except BaseException:
+            logger.error("tts infer failed.")
 
         try:
             target_sample_rate, wav_base64 = self.postprocess(
@@ -475,8 +478,10 @@ class TTSEngine(BaseEngine):
                 volume=volume,
                 speed=speed,
                 audio_path=save_path)
-        except:
+        except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
+        except BaseException:
+            logger.error("tts postprocess failed.")
 
         return lang, target_sample_rate, wav_base64

@@ -27,46 +27,52 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
+
+base = [
+    "editdistance",
+    "g2p_en",
+    "g2pM",
+    "h5py",
+    "inflect",
+    "jieba",
+    "jsonlines",
+    "kaldiio",
+    "librosa==0.8.1",
+    "loguru",
+    "matplotlib",
+    "nara_wpe",
+    "pandas",
+    "paddleaudio",
+    "paddlenlp",
+    "paddlespeech_feat",
+    "praatio==5.0.0",
+    "pypinyin",
+    "python-dateutil",
+    "pyworld",
+    "resampy==0.2.2",
+    "sacrebleu",
+    "scipy",
+    "sentencepiece~=0.1.96",
+    "soundfile~=0.10",
+    "textgrid",
+    "timer",
+    "tqdm",
+    "typeguard",
+    "visualdl",
+    "webrtcvad",
+    "yacs~=0.1.8",
+]
+
+server = [
+    "fastapi",
+    "uvicorn",
+    "pattern_singleton",
+]
 
 requirements = {
-    "install": [
-        "editdistance",
-        "g2p_en",
-        "g2pM",
-        "h5py",
-        "inflect",
-        "jieba",
-        "jsonlines",
-        "kaldiio",
-        "librosa",
-        "loguru",
-        "matplotlib",
-        "nara_wpe",
-        "pandas",
-        "paddleaudio",
-        "paddlenlp",
-        "paddlespeech_feat",
-        "praatio==5.0.0",
-        "pypinyin",
-        "python-dateutil",
-        "pyworld",
-        "resampy==0.2.2",
-        "sacrebleu",
-        "scipy",
-        "sentencepiece~=0.1.96",
-        "soundfile~=0.10",
-        "textgrid",
-        "timer",
-        "tqdm",
-        "typeguard",
-        "visualdl",
-        "webrtcvad",
-        "yacs~=0.1.8",
-        # fastapi server
-        "fastapi",
-        "uvicorn",
-    ],
+    "install":
+    base + server,
     "develop": [
         "ConfigArgParse",
         "coverage",

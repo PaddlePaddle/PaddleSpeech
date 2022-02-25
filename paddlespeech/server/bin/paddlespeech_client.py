@@ -48,8 +48,9 @@ class TTSClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--input',
             type=str,
-            default="你好，欢迎使用语音合成服务",
-            help='A sentence to be synthesized.')
+            default=None,
+            help='Text to be synthesized.',
+            required=True)
         self.parser.add_argument(
             '--spk_id', type=int, default=0, help='Speaker id')
         self.parser.add_argument(
@@ -123,7 +124,7 @@ class TTSClientExecutor(BaseExecutor):
             logger.info("RTF: %f " % (time_consume / duration))
 
             return True
-        except:
+        except BaseException:
             logger.error("Failed to synthesized audio.")
             return False
 
@@ -163,7 +164,7 @@ class TTSClientExecutor(BaseExecutor):
             print("Audio duration: %f s." % (duration))
             print("Response time: %f s." % (time_consume))
             print("RTF: %f " % (time_consume / duration))
-        except:
+        except BaseException:
             print("Failed to synthesized audio.")
 
 
@@ -181,8 +182,9 @@ class ASRClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--input',
             type=str,
-            default="./paddlespeech/server/tests/16_audio.wav",
-            help='Audio file to be recognized')
+            default=None,
+            help='Audio file to be recognized',
+            required=True)
         self.parser.add_argument(
             '--sample_rate', type=int, default=16000, help='audio sample rate')
         self.parser.add_argument(
@@ -209,7 +211,7 @@ class ASRClientExecutor(BaseExecutor):
             logger.info(r.json())
             logger.info("time cost %f s." % (time_end - time_start))
             return True
-        except:
+        except BaseException:
             logger.error("Failed to speech recognition.")
             return False
 
@@ -240,5 +242,5 @@ class ASRClientExecutor(BaseExecutor):
             time_end = time.time()
             print(r.json())
             print("time cost %f s." % (time_end - time_start))
-        except:
+        except BaseException:
             print("Failed to speech recognition.")

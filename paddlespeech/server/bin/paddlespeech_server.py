@@ -20,7 +20,7 @@ from fastapi import FastAPI
 from ..executor import BaseExecutor
 from ..util import cli_server_register
 from ..util import stats_wrapper
-from paddlespeech.server.engine.engine_factory import EngineFactory
+from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router
 from paddlespeech.server.utils.config import get_config
 
@@ -41,7 +41,8 @@ class ServerExecutor(BaseExecutor):
             "--config_file",
             action="store",
             help="yaml file of the app",
-            default="./conf/application.yaml")
+            default=None,
+            required=True)
 
         self.parser.add_argument(
             "--log_file",
@@ -51,8 +52,10 @@ class ServerExecutor(BaseExecutor):
 
     def init(self, config) -> bool:
         """system initialization
+
         Args:
             config (CfgNode): config object
+
         Returns:
             bool: 
         """
@@ -61,13 +64,8 @@ class ServerExecutor(BaseExecutor):
         api_router = setup_router(api_list)
         app.include_router(api_router)
 
-        # init engine
-        engine_pool = []
-        for engine in config.engine_backend:
-            engine_pool.append(EngineFactory.get_engine(engine_name=engine))
-            if not engine_pool[-1].init(
-                    config_file=config.engine_backend[engine]):
-                return False
+        if not init_engine_pool(config):
+            return False
 
         return True
 

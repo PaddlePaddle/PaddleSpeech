@@ -26,7 +26,9 @@ if [ ${MODE} = "benchmark_train" ];then
     curPath=$(readlink -f "$(dirname "$0")")
         echo "curPath:"${curPath}
     cd ${curPath}/../..
-    pip install .
+    apt-get install libsndfile1
+    pip install pytest-runner kaldiio setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
+    pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple 
     cd -
     if [ ${model_name} == "conformer" ]; then
         # set the URL for aishell_tiny dataset
@@ -35,6 +37,8 @@ if [ ${MODE} = "benchmark_train" ];then
         if [ ${URL} == 'None' ];then
             echo "please contact author to get the URL.\n"
             exit
+	else
+	    wget -P ${curPath}/../../dataset/aishell/ ${URL} 
         fi
         sed -i "s#^URL_ROOT_TAG#URL_ROOT = '${URL}'#g" ${curPath}/conformer/scripts/aishell_tiny.py
         cp ${curPath}/conformer/scripts/aishell_tiny.py ${curPath}/../../dataset/aishell/
@@ -42,6 +46,7 @@ if [ ${MODE} = "benchmark_train" ];then
         source path.sh
         # download audio data
         sed -i "s#aishell.py#aishell_tiny.py#g" ./local/data.sh
+	sed -i "s#python3#python#g" ./local/data.sh
         bash ./local/data.sh || exit -1
         if [ $? -ne 0 ]; then
         exit 1
@@ -56,7 +61,6 @@ if [ ${MODE} = "benchmark_train" ];then
         sed -i "s#conf/#test_tipc/conformer/benchmark_train/conf/#g" ${curPath}/conformer/benchmark_train/conf/conformer.yaml
         sed -i "s#data/#test_tipc/conformer/benchmark_train/data/#g" ${curPath}/conformer/benchmark_train/conf/tuning/decode.yaml
         sed -i "s#data/#test_tipc/conformer/benchmark_train/data/#g" ${curPath}/conformer/benchmark_train/conf/preprocess.yaml
-
     fi
 
     if [ ${model_name} == "pwgan" ]; then

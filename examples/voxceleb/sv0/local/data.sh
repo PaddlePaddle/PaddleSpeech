@@ -9,7 +9,7 @@ mkdir -p data/{dev,test}
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     # download data, generate manifests
     # create data/{dev,test} directory to store the manifest files
-    /home/users/xiongxinlei/.conda/envs/xxl_base/bin/python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
+    python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
     --manifest_prefix="data/manifest" \
     --target_dir="${src}"
 

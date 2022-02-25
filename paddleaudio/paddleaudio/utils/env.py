@@ -20,6 +20,12 @@ PPAUDIO_HOME     -->  the root directory for storing PaddleAudio related data. D
 '''
 import os
 
+__all__ = [
+    'USER_HOME',
+    'PPAUDIO_HOME',
+'MODEL_HOME' ,
+'DATA_HOME' ,
+]
 
 def _get_user_home():
     return os.path.expanduser('~')

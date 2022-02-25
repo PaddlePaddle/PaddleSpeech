@@ -30,5 +30,6 @@ tools/OpenBLAS/
 tools/Miniconda3-latest-Linux-x86_64.sh
 tools/activate_python.sh
 tools/miniconda.sh
+tools/CRF++-0.58/
 
 *output/

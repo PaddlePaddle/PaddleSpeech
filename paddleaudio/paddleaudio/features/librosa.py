@@ -19,7 +19,7 @@ from typing import Union
 import paddle
 import paddle.nn as nn
 
-from .window import get_window
+from ..functional.window import get_window
 
 __all__ = [
     'Spectrogram',

@@ -45,7 +45,7 @@ if [ $stage -le 1 ]; then
     steps/make_mfcc.sh --write-utt2num-frames true --mfcc-config conf/mfcc.conf --nj ${nj} --cmd "$train_cmd" \
       data/${name} exp/make_mfcc $mfccdir
     utils/fix_data_dir.sh data/${name}
-    sid/compute_vad_decision.sh --nj 20 --cmd "$train_cmd" \
+    sid/compute_vad_decision.sh --nj ${nj} --cmd "$train_cmd" \
       data/${name} exp/make_vad $vaddir
     utils/fix_data_dir.sh data/${name}
   done
@@ -60,7 +60,7 @@ if [ $stage -le 2 ]; then
   # This script applies CMVN and removes nonspeech frames.  Note that this is somewhat
   # wasteful, as it roughly doubles the amount of training data on disk.  After
   # creating training examples, this can be removed.
-  local/nnet3/xvector/prepare_feats_for_egs.sh --nj 28 --cmd "$train_cmd" \
+  local/nnet3/xvector/prepare_feats_for_egs.sh --nj ${nj} --cmd "$train_cmd" \
     data/voxceleb1_train data/voxceleb1_train_no_sil exp/voxceleb1_train_no_sil
   utils/fix_data_dir.sh data/voxceleb1_train_no_sil
   echo ""

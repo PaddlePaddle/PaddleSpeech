@@ -20,7 +20,7 @@ voxceleb1_trials=data/voxceleb1_test/trials
 voxceleb1_root=/home/dataset/sv/voxCeleb1_v2
 nnet_dir=exp/xvector_nnet_1a
 nj=28 # cpu cores 
-stage=0
+stage=1
 
 if [ $stage -le 0 ]; then
   echo "======================================================================================================"
@@ -41,7 +41,7 @@ if [ $stage -le 1 ]; then
   echo "=========================== Stage 1: Extract the VoxCeleb1 dataset feature ==========================="
   echo "======================================================================================================"
   # Make MFCCs and compute the energy-based VAD for each dataset
-  for name in voxceleb1_train voxceleb1_test; do
+  for name in  voxceleb1_test; do
     steps/make_mfcc.sh --write-utt2num-frames true --mfcc-config conf/mfcc.conf --nj ${nj} --cmd "$train_cmd" \
       data/${name} exp/make_mfcc $mfccdir
     utils/fix_data_dir.sh data/${name}
@@ -60,12 +60,17 @@ if [ $stage -le 2 ]; then
   # This script applies CMVN and removes nonspeech frames.  Note that this is somewhat
   # wasteful, as it roughly doubles the amount of training data on disk.  After
   # creating training examples, this can be removed.
+#  local/nnet3/xvector/prepare_feats_for_egs.sh --nj ${nj} --cmd "$train_cmd" \
+#    data/voxceleb1_train data/voxceleb1_train_no_sil exp/voxceleb1_train_no_sil
+#  utils/fix_data_dir.sh data/voxceleb1_train_no_sil
+
   local/nnet3/xvector/prepare_feats_for_egs.sh --nj ${nj} --cmd "$train_cmd" \
-    data/voxceleb1_train data/voxceleb1_train_no_sil exp/voxceleb1_train_no_sil
-  utils/fix_data_dir.sh data/voxceleb1_train_no_sil
+    data/voxceleb1_test data/voxceleb1_test_no_sil exp/voxceleb1_test_no_sil
+  utils/fix_data_dir.sh data/voxceleb1_test_no_sil
+
   echo ""
 fi
-
+exit;
 if [ $stage -le 3 ]; then
   echo "======================================================================================================"
   echo "=========================== Stage 3: Remove too short and throw spkeakers with fewer utterances ======"

@@ -20,7 +20,7 @@ import sys
 import paddle
 import numpy as np
 
-from sidt import _logger as log
+from paddlespeech.vector import _logger as log
 
 
 def exit_if_not_exist(in_path):

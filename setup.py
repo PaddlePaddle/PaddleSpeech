@@ -48,6 +48,7 @@ base = [
     "paddlespeech_feat",
     "praatio==5.0.0",
     "pypinyin",
+    "pypinyin-dict",
     "python-dateutil",
     "pyworld",
     "resampy==0.2.2",

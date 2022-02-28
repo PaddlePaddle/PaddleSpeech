@@ -1,0 +1,2 @@
+bar: !new:collections.Counter
+ a: 2

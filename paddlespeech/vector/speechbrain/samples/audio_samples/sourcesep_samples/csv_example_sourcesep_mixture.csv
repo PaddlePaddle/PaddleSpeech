@@ -1,0 +1,8 @@
+ID, duration, wav, wav_format, wav_opts
+
+example0, 3.260, $data_folder/mixture_0.wav, wav,
+example1, 3.260, $data_folder/mixture_1.wav, wav,
+
+
+
+

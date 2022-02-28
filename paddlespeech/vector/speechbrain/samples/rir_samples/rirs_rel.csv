@@ -1,0 +1,7 @@
+ID, duration, wav, wav_format, wav_opts
+
+rir1, 1.0, $rir_folder/rir1.wav, wav,
+rir2, 1.3653125, $rir_folder/rir2.wav, wav,
+rir3, 2.0, $rir_folder/rir3.wav, wav,
+rir4, 0.5, $rir_folder/rir4.wav, wav,
+

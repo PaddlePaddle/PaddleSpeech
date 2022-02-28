@@ -1,0 +1,7 @@
+foo: !new:collections.Counter
+ - abracadabra
+
+bar: !new:collections.Counter
+  a: 2
+  b: 1
+  c: 5

@@ -1,0 +1,25 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console:
+    format: "%(name)s - %(message)s"
+
+handlers:
+  console:
+    class: speechbrain.utils.logger.TqdmCompatibleStreamHandler
+    level: INFO
+    formatter: console
+    stream: ext://sys.stdout
+
+  file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: simple
+    filename: log.txt
+    encoding: utf8
+
+root:
+  level: DEBUG
+  handlers: [console, file_handler]

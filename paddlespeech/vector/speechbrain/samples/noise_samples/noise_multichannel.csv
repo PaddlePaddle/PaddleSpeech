@@ -1,0 +1,4 @@
+ID, duration, wav, wav_format, wav_opts
+
+noise_multichannel1, 5.0, samples/noise_samples/noise_multichannel.wav, wav, start:0 stop:80000
+noise_multichannel2, 5.0, samples/noise_samples/noise_multichannel.wav, wav, start:80000 stop:160000

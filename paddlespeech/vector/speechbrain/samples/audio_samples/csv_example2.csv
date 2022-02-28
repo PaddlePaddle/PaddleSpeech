@@ -1,0 +1,4 @@
+ID, duration, wav, wav_format, wav_opts, spk_id, spk_id_format, spk_id_opts
+
+example1, 3.260,  $data_folder/example1.wav, wav, , spk01, string,
+

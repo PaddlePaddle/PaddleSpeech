@@ -1,0 +1,6 @@
+ID, duration, wav, wav_format, wav_opts
+rir1, 1.0, samples/rir_samples/rir1.wav, wav,
+rir2, 1.3653125, samples/rir_samples/rir2.wav, wav,
+rir3, 2.0, samples/rir_samples/rir3.wav, wav,
+rir4, 0.5, samples/rir_samples/rir4.wav, wav,
+

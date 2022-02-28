@@ -1,0 +1,7 @@
+ID, duration, wav, wav_format, wav_opts
+
+noise1, 33.12325, samples/noise_samples/noise1.wav, wav,
+noise2, 5.0, samples/noise_samples/noise2.wav, wav,
+noise3, 1.0, samples/noise_samples/noise3.wav, wav, start:0 stop:16000
+noise4, 17.65875, samples/noise_samples/noise4.wav, wav,
+noise5, 13.685625, samples/noise_samples/noise5.wav, wav,

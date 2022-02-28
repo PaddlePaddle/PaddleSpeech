@@ -1,0 +1,2 @@
+ID, duration, wav, wav_format, wav_opts
+1, 1.0, ./noise.wav, wav,

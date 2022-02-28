@@ -1,0 +1,8 @@
+ID, duration, wav, wav_format, wav_opts
+
+example2, 3.260, $data_folder/source2_0.wav, wav,
+example4, 3.260, $data_folder/source2_1.wav, wav,
+
+
+
+

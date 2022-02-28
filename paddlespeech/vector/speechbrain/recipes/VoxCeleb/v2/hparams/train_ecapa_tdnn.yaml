@@ -1,0 +1,197 @@
+# ################################
+# Model: Speaker identification with ECAPA
+# Authors: Hwidong Na & Mirco Ravanelli
+# ################################
+
+# Basic parameters
+seed: 1986
+__set_seed: !apply:paddle.seed [!ref <seed>]
+output_folder: !ref ./exp/results/ecapa_augment/<seed>
+save_folder: !ref ./exp/save
+train_log: !ref ./exp/log/train_log.txt
+
+# Data files
+data_folder: /home/users/xiongxinlei/task/asr/PaddleSpeech/paddlespeech/vector/speechbrain/recipes/VoxCeleb/dataset/voxCeleb1/dev/  # e.g. /path/to/Voxceleb
+train_annotation: !ref <save_folder>/train.csv
+valid_annotation: !ref <save_folder>/dev.csv
+
+# # Folder to extract data augmentation files
+# # rir_folder: !ref /home/users/xiongxinlei/task/asr/PaddleSpeech/paddlespeech/vector/speechbrain/recipes/VoxCeleb/
+rir_folder: !ref /home/users/xiongxinlei/task/asr/PaddleSpeech/paddlespeech/vector/speechbrain/recipes/VoxCeleb/dataset/ # Change it if needed
+
+# Use the following links for the official voxceleb splits:
+# VoxCeleb1 (cleaned): https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt
+# VoxCeleb1-H (cleaned): https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/list_test_hard2.txt
+# VoxCeleb1-E (cleaned): https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/list_test_all2.txt.
+# VoxCeleb1-E and VoxCeleb1-H lists are drawn from the VoxCeleb1 training set.
+# Therefore you cannot use any files in VoxCeleb1 for training if you are using these lists for testing.
+verification_file: https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt
+
+skip_prep: False
+# ckpt_interval_minutes: 15 # save checkpoint every N min
+pretrain_path: speechbrain/spkrec-ecapa-voxceleb
+
+# # Training parameters
+number_of_epochs: 1
+batch_size: 32
+lr: 0.001
+base_lr: 0.00000001
+max_lr: !ref <lr>
+step_size: 65000
+sample_rate: 16000
+sentence_len: 3.0 # seconds
+shuffle: False
+random_chunk: False
+
+# Feature parameters
+n_mels: 80
+left_frames: 0
+right_frames: 0
+deltas: False
+
+# Number of speakers
+out_n_neurons: 1211 #1211 for vox1  # 5994 for vox2, 7205 for vox1+vox2
+
+dataloader_options:
+    batch_size: !ref <batch_size>
+    shuffle: !ref <shuffle>
+    num_workers: 0
+
+# Functions
+compute_features: !new:speechbrain.lobes.features.Fbank
+    n_mels: !ref <n_mels>
+    left_frames: !ref <left_frames>
+    right_frames: !ref <right_frames>
+    deltas: !ref <deltas>
+
+embedding_model: !new:speechbrain.lobes.models.ECAPA_TDNN.ECAPA_TDNN
+    input_size: !ref <n_mels>
+    channels: [1024, 1024, 1024, 1024, 3072]
+    kernel_sizes: [5, 3, 3, 3, 1]
+    dilations: [1, 2, 3, 4, 1]
+    groups: [1, 1, 1, 1, 1]
+    attention_channels: 128
+    lin_neurons: 192
+
+classifier: !new:speechbrain.lobes.models.ECAPA_TDNN.Classifier
+    input_size: 192
+    out_neurons: !ref <out_n_neurons>
+
+epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter
+    limit: !ref <number_of_epochs>
+
+
+augment_wavedrop: !new:speechbrain.lobes.augment.TimeDomainSpecAugment
+    sample_rate: !ref <sample_rate>
+    speeds: [100]
+
+augment_speed: !new:speechbrain.lobes.augment.TimeDomainSpecAugment
+    sample_rate: !ref <sample_rate>
+    speeds: [95, 100, 105]
+
+add_rev: !new:speechbrain.lobes.augment.EnvCorrupt
+    openrir_folder: !ref <rir_folder>
+    target_dir: ./audios/ # 将处理之后的音频存储在这个文件夹，避免对原始音频进行处理
+    openrir_max_noise_len: 3.0  # seconds
+    sorting: "original"
+    reverb_prob: 1.0
+    noise_prob: 0.0
+    noise_snr_low: 0
+    noise_snr_high: 15
+    rir_scale_factor: 1.0
+
+add_noise: !new:speechbrain.lobes.augment.EnvCorrupt
+    openrir_folder: !ref <rir_folder>
+    target_dir: ./audios/ # 将处理之后的音频存储在这个文件夹，避免对原始音频进行处理
+    openrir_max_noise_len: 3.0  # seconds
+    sorting: "original"
+    reverb_prob: 0.0
+    noise_prob: 1.0
+    noise_snr_low: 0
+    noise_snr_high: 15
+    rir_scale_factor: 1.0
+
+add_rev_noise: !new:speechbrain.lobes.augment.EnvCorrupt
+    openrir_folder: !ref <rir_folder>
+    target_dir: ./audios/ # 将处理之后的音频存储在这个文件夹，避免对原始音频进行处理
+    openrir_max_noise_len: 3.0  # seconds
+    sorting: "original"
+    reverb_prob: 1.0
+    noise_prob: 1.0
+    noise_snr_low: 0
+    noise_snr_high: 15
+    rir_scale_factor: 1.0
+
+
+# # Definition of the augmentation pipeline.
+# # If concat_augment = False, the augmentation techniques are applied
+# # in sequence. If concat_augment = True, all the augmented signals
+# # # are concatenated in a single big batch.
+
+augment_pipeline: [
+    !ref <augment_wavedrop>,
+    !ref <augment_speed>,
+    !ref <add_rev>,
+    !ref <add_noise>,
+    !ref <add_rev_noise>
+]
+
+# 默认情况下将所有的加噪音频缓存起来
+concat_augment: True
+
+mean_var_norm: !new:speechbrain.processing.features.InputNormalization
+    norm_type: sentence
+    std_norm: False
+
+modules:
+    compute_features: !ref <compute_features>
+    augment_wavedrop: !ref <augment_wavedrop>
+    augment_speed: !ref <augment_speed>
+    add_rev: !ref <add_rev>
+    add_noise: !ref <add_noise>
+    add_rev_noise: !ref <add_rev_noise>
+    embedding_model: !ref <embedding_model>
+    classifier: !ref <classifier>
+    mean_var_norm: !ref <mean_var_norm>
+
+compute_cost: !new:speechbrain.nnet.losses.LogSoftmaxWrapper
+    loss_fn: !new:speechbrain.nnet.losses.AdditiveAngularMargin
+        margin: 0.2
+        scale: 30
+
+compute_error: !name:speechbrain.nnet.losses.classification_error
+
+# opt_class: 
+opt_class: !name:paddle.optimizer.Adam
+    learning_rate: !ref <lr>
+    weight_decay: 0.000002
+
+lr_annealing: !new:speechbrain.nnet.schedulers.CyclicLRScheduler
+    base_lr: !ref <base_lr>
+    max_lr: !ref <max_lr>
+    step_size: !ref <step_size>
+
+# # Logging + checkpoints
+train_logger: !new:speechbrain.utils.train_logger.FileTrainLogger
+    save_file: !ref <train_log>
+
+error_stats: !name:speechbrain.utils.metric_stats.MetricStats
+    metric: !name:speechbrain.nnet.losses.classification_error
+        reduction: batch
+
+# checkpointer:
+checkpointer: !new:speechbrain.utils.checkpoints.Checkpointer
+    checkpoints_dir: !ref <save_folder>
+    recoverables:
+        embedding_model: !ref <embedding_model>
+        classifier: !ref <classifier>
+        normalizer: !ref <mean_var_norm>
+        counter: !ref <epoch_counter>
+
+
+# pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+#     collect_in: !ref <save_folder>
+#     loadables:
+#         embedding_model: !ref <embedding_model>
+#     paths:
+#         embedding_model: !ref <pretrain_path>/embedding_model.ckpt

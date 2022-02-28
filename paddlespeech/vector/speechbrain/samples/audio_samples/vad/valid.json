@@ -1,0 +1,38 @@
+{
+    "example_1": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/valid.wav",
+            "start": 0,
+            "stop": 32000
+        },
+        "speech": "0.38 2"
+    },
+    "example_2": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/valid.wav",
+            "start": 32000,
+            "stop": 64000
+        },
+        "speech": "0 0.7"
+    },
+    "example_3": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/valid.wav",
+            "start": 64000,
+            "stop": 96000
+        },
+        "speech": "0.1 1.88"
+    },
+    "example_4": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/valid.wav",
+            "start": 96000,
+            "stop": 128000
+        },
+        "speech": ""
+    }
+}

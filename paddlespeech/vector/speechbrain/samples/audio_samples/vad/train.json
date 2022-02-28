@@ -1,0 +1,20 @@
+{
+    "example_1": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/train.wav",
+            "start": 0,
+            "stop": 32000
+        },
+        "speech": "0.52 0.85 1.32 1.83"
+    },
+    "example_2": {
+        "length": 32000,
+        "wav": {
+            "file": "{data_folder}/train.wav",
+            "start": 32000,
+            "stop": 64000
+        },
+        "speech": "0.35 1.70"
+    }
+}

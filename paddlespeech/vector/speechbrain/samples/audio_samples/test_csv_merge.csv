@@ -1,0 +1,9 @@
+ID, duration, wav, wav_format, wav_opts, spk_id, spk_id_format, spk_id_opts
+
+example1, 3.260, $data_folder/example1.wav, wav, , spk01, string,
+example2, 2.068, $data_folder/example2.flac, flac, , spk02, string,
+example3, 2.890, $data_folder/example3.sph, wav, , spk03, string,
+example5, 1.000, $data_folder/example5.wav, wav, start:10000 stop:26000, spk05, string,
+
+example1, 3.260,  $data_folder/example1.wav, wav, , spk01, string,
+

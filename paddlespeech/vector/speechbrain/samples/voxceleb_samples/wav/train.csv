@@ -1,0 +1,7 @@
+ID,duration,wav,wav_format,wav_opts,spk_id,spk_id_format,spk_id_opts
+id10001---1zcIwhmdeo4---00003_0_300,3.0,$data_folder/id10001/1zcIwhmdeo4/00003.wav,wav,start:0 stop:48000,id10001,string,
+id10002---xTV-jFAUKcw---00002_0_300,3.0,$data_folder/id10002/xTV-jFAUKcw/00002.wav,wav,start:0 stop:48000,id10002,string,
+id10001---1zcIwhmdeo4---00002_0_300,3.0,$data_folder/id10001/1zcIwhmdeo4/00002.wav,wav,start:0 stop:48000,id10001,string,
+id10002---xTV-jFAUKcw---00003_0_300,3.0,$data_folder/id10002/xTV-jFAUKcw/00003.wav,wav,start:0 stop:48000,id10002,string,
+id10001---1zcIwhmdeo4---00002_300_600,3.0,$data_folder/id10001/1zcIwhmdeo4/00002.wav,wav,start:48000 stop:96000,id10001,string,
+id10002---xTV-jFAUKcw---00003_300_600,3.0,$data_folder/id10002/xTV-jFAUKcw/00003.wav,wav,start:48000 stop:96000,id10002,string,

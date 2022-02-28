@@ -1,0 +1,3 @@
+ID, duration, wav, wav_format, wav_opts, spk_id, spk_id_format, spk_id_opts, ali, ali_format, ali_opts, phn, phn_format, phn_opts,char,char_format,char_opts
+spk1_snt5,2.6,$data_folder/spk1_snt5.wav, wav, ,spk1,string, ,$data_folder/spk1_snt5.pkl,pkl, ,s ah n vcl d ey ih z dh ax vcl b eh s cl t cl p aa r dx ax v dh ax w iy cl,string, ,s u n d a y i s t h e b e s t p a r t o f t h e w e e k,string,
+spk2_snt5,1.98,$data_folder/spk2_snt5.wav, wav, ,spk2,string, ,$data_folder/spk2_snt5.pkl,pkl, ,vcl jh ah m cl p dh ax f eh n s ae n hh er iy ah cl p dh ax vcl b ae ng cl,string, ,k e n p a I r s l a c k f u l l f l a v o r,string,

@@ -1,0 +1,2 @@
+ID, duration, mix_wav, mix_wav_format, mix_wav_opts, s1_wav, s1_wav_format, s1_wav_opts, s2_wav, s2_wav_format, s2_wav_opts
+0,1.0,$data_root/mixture_2.wav,wav,,$data_root/source1_2.wav,wav,,$data_root/source2_2.wav,wav,

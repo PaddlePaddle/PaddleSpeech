@@ -20,6 +20,12 @@ from paddle import Tensor
 from .spectrum import create_dct
 from .window import get_window
 
+__all__ = [
+    'spectrogram',
+    'fbank',
+    'mfcc',
+]
+
 # window types
 HANNING = 'hann'
 HAMMING = 'hamming'

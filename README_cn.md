@@ -216,6 +216,17 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
    paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
    ```
 
+**批处理**
+```
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+```  
+
+**Shell管道**
+ASR + Punc:
+```
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+```
+
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
 

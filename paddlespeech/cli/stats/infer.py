@@ -26,7 +26,7 @@ model_name_format = {
     'asr': 'Model-Language-Sample Rate',
     'cls': 'Model-Sample Rate',
     'st': 'Model-Source language-Target language',
-    'text': 'Model-Task-Sample Rate',
+    'text': 'Model-Task-Language',
     'tts': 'Model-Language'
 }
 
@@ -180,8 +180,7 @@ class StatsExecutor():
                 )
                 self.show_support_models(pretrained_models)
             except BaseException:
-                print(
-                    "Failed to get the list of TEXT pretrained models.")
+                print("Failed to get the list of TEXT pretrained models.")
 
         elif self.task == 'tts':
             try:

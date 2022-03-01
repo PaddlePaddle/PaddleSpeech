@@ -6,6 +6,7 @@ ckpt_name=$3
 stage=0
 stop_stage=0
 
+# pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
@@ -42,6 +43,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --phones_dict=dump/phone_id_map.txt
 fi
 
+# style melgan
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \

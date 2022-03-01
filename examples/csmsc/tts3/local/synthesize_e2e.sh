@@ -7,6 +7,7 @@ ckpt_name=$3
 stage=0
 stop_stage=0
 
+# pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \

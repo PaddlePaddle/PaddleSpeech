@@ -68,7 +68,7 @@ class StatsExecutor():
             )
             return False
 
-        if self.task == 'asr':
+        elif self.task == 'asr':
             try:
                 from ..asr.infer import pretrained_models
                 logger.info(

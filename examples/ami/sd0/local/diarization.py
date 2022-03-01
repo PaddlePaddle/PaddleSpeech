@@ -15,10 +15,6 @@
 This script contains basic functions used for speaker diarization.
 This script has an optional dependency on open source sklearn library.
 A few sklearn functions are modified in this script as per requirement.
-
-Authors
- * qingenz123@126.com (Qingen ZHAO) 2022
- 
 """
 
 import argparse
@@ -377,7 +373,7 @@ class EmbeddingMeta:
         self.stats = (self.stats.transpose() / vect_norm).transpose()
 
 
-class Spec_Clust_unorm:
+class SpecClustUnorm:
     """
     This class implements the spectral clustering with unnormalized affinity matrix.
     Useful when affinity matrix is based on cosine similarities.
@@ -390,7 +386,7 @@ class Spec_Clust_unorm:
     Example
     -------
     >>> import diarization as diar
-    >>> clust = diar.Spec_Clust_unorm(min_num_spkrs=2, max_num_spkrs=10)
+    >>> clust = diar.SpecClustUnorm(min_num_spkrs=2, max_num_spkrs=10)
     >>> emb = [[ 2.1, 3.1, 4.1, 4.2, 3.1],
     ... [ 2.2, 3.1, 4.2, 4.2, 3.2],
     ... [ 2.0, 3.0, 4.0, 4.1, 3.0],
@@ -586,7 +582,7 @@ class Spec_Clust_unorm:
         if k_oracle is not None:
             num_of_spk = k_oracle
         else:
-            lambda_gap_list = self.getEigenGaps(lambdas[1:self.max_num_spkrs])
+            lambda_gap_list = self.get_eigen_gaps(lambdas[1:self.max_num_spkrs])
 
             num_of_spk = (np.argmax(
                 lambda_gap_list[:min(self.max_num_spkrs, len(lambda_gap_list))])
@@ -617,7 +613,7 @@ class Spec_Clust_unorm:
         """
         _, self.labels_, _ = k_means(emb, k)
 
-    def getEigenGaps(self, eig_vals):
+    def get_eigen_gaps(self, eig_vals):
         """
         Returns the difference (gaps) between the Eigen values.
 
@@ -641,7 +637,7 @@ class Spec_Clust_unorm:
         return eig_vals_gap_list
 
 
-class Spec_Cluster(SpectralClustering):
+class SpecCluster(SpectralClustering):
     def perform_sc(self, X, n_neighbors=10):
         """
         Performs spectral clustering using sklearn on embeddings.
@@ -969,12 +965,12 @@ def do_spec_clustering(diary_obj, out_rttm_file, rec_id, k, pval, affinity_type,
     """
 
     if affinity_type == "cos":
-        clust_obj = Spec_Clust_unorm(min_num_spkrs=2, max_num_spkrs=10)
+        clust_obj = SpecClustUnorm(min_num_spkrs=2, max_num_spkrs=10)
         k_oracle = k  # use it only when oracle num of speakers
         clust_obj.do_spec_clust(diary_obj.stats, k_oracle, pval)
         labels = clust_obj.labels_
     else:
-        clust_obj = Spec_Cluster(
+        clust_obj = SpecCluster(
             n_clusters=k,
             assign_labels="kmeans",
             random_state=1234,

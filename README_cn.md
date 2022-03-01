@@ -216,6 +216,17 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
    paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
    ```
 
+**批处理**
+```
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+```  
+
+**Shell管道**
+ASR + Punc:
+```
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+```
+
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
 
@@ -558,6 +569,7 @@ year={2021}
 - 非常感谢 [kslz](https://github.com/kslz) 补充中文文档。
 - 非常感谢 [awmmmm](https://github.com/awmmmm) 提供 fastspeech2 aishell3 conformer 预训练模型。
 - 非常感谢 [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) 基于 PaddleSpeech 的 TTS 模型搭建带 GUI 操作界面的配音工具。
+
   
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

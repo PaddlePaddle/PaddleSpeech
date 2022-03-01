@@ -24,6 +24,10 @@
         ```bash
         paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
         ```
+    - 批处理
+        ```bash
+        echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+        ```
     - 中文，使用 `SpeedySpeech` 作为声学模型
         ```bash
         paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"

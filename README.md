@@ -225,8 +225,8 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
 echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
 ```  
 
-**Shell Pipeline**
-ASR + Punc:
+**Shell Pipeline**   
+- ASR + Punctuation Restoration
 ```
 paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 ```

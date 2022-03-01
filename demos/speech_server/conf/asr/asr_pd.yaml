@@ -15,9 +15,10 @@ decode_method:
 force_yes: True
 
 am_predictor_conf:
-  device: 'cpu'  # set 'gpu:id' or 'cpu'
-  enable_mkldnn: True
+  device:  # set 'gpu:id' or 'cpu'
   switch_ir_optim: True
+  glog_info: False  # True -> print glog
+  summary: True  # False -> do not show predictor config
 
 
 ##################################################################

@@ -13,6 +13,7 @@
 # limitations under the License.
 import base64
 import io
+import time
 
 import librosa
 import numpy as np
@@ -54,11 +55,20 @@ class TTSEngine(BaseEngine):
 
         try:
             self.config = get_config(config_file)
-            if self.config.device is None:
-                paddle.set_device(paddle.get_device())
+            if self.config.device:
+                self.device = self.config.device
             else:
-                paddle.set_device(self.config.device)
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except BaseException:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            return False
 
+        try:
             self.executor._init_from_path(
                 am=self.config.am,
                 am_config=self.config.am_config,
@@ -73,16 +83,19 @@ class TTSEngine(BaseEngine):
                 voc_stat=self.config.voc_stat,
                 lang=self.config.lang)
         except BaseException:
-            logger.error("Initialize TTS server engine Failed.")
+            logger.error("Failed to get model related files.")
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
             return False
 
-        logger.info("Initialize TTS server engine successfully.")
+        logger.info("Initialize TTS server engine successfully on device: %s." %
+                    (self.device))
         return True
 
     def postprocess(self,
                     wav,
                     original_fs: int,
-                    target_fs: int=16000,
+                    target_fs: int=0,
                     volume: float=1.0,
                     speed: float=1.0,
                     audio_path: str=None):
@@ -107,38 +120,50 @@ class TTSEngine(BaseEngine):
         if target_fs == 0 or target_fs > original_fs:
             target_fs = original_fs
             wav_tar_fs = wav
+            logger.info(
+                "The sample rate of synthesized audio is the same as model, which is {}Hz".
+                format(original_fs))
         else:
             wav_tar_fs = librosa.resample(
                 np.squeeze(wav), original_fs, target_fs)
-
+            logger.info(
+                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
+                format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
+        logger.info("Transform the volume of the audio successfully.")
 
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
+            logger.info("Transform the speed of the audio successfully.")
         except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
-                "Transform speed failed. Can not install soxbindings on your system. \
+                "Failed to transform speed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
         except BaseException:
-            logger.error("Transform speed failed.")
+            logger.error("Failed to transform speed.")
 
         # wav to base64
         buf = io.BytesIO()
         wavfile.write(buf, target_fs, wav_speed)
         base64_bytes = base64.b64encode(buf.read())
         wav_base64 = base64_bytes.decode('utf-8')
+        logger.info("Audio to string successfully.")
 
         # save audio
-        if audio_path is not None and audio_path.endswith(".wav"):
-            sf.write(audio_path, wav_speed, target_fs)
-        elif audio_path is not None and audio_path.endswith(".pcm"):
-            wav_norm = wav_speed * (32767 / max(0.001,
-                                                np.max(np.abs(wav_speed))))
-            with open(audio_path, "wb") as f:
-                f.write(wav_norm.astype(np.int16))
+        if audio_path is not None:
+            if audio_path.endswith(".wav"):
+                sf.write(audio_path, wav_speed, target_fs)
+            elif audio_path.endswith(".pcm"):
+                wav_norm = wav_speed * (32767 / max(0.001,
+                                                    np.max(np.abs(wav_speed))))
+                with open(audio_path, "wb") as f:
+                    f.write(wav_norm.astype(np.int16))
+            logger.info("Save audio to {} successfully.".format(audio_path))
+        else:
+            logger.info("There is no need to save audio.")
 
         return target_fs, wav_base64
 
@@ -174,8 +199,15 @@ class TTSEngine(BaseEngine):
         lang = self.config.lang
 
         try:
+            infer_st = time.time()
             self.executor.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
+            infer_et = time.time()
+            infer_time = infer_et - infer_st
+            duration = len(self.executor._outputs['wav']
+                           .numpy()) / self.executor.am_config.fs
+            rtf = infer_time / duration
+
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
@@ -183,6 +215,7 @@ class TTSEngine(BaseEngine):
             logger.error("tts infer failed.")
 
         try:
+            postprocess_st = time.time()
             target_sample_rate, wav_base64 = self.postprocess(
                 wav=self.executor._outputs['wav'].numpy(),
                 original_fs=self.executor.am_config.fs,
@@ -190,10 +223,32 @@ class TTSEngine(BaseEngine):
                 volume=volume,
                 speed=speed,
                 audio_path=save_path)
+            postprocess_et = time.time()
+            postprocess_time = postprocess_et - postprocess_st
+
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
         except BaseException:
             logger.error("tts postprocess failed.")
+
+        logger.info("AM model: {}".format(self.config.am))
+        logger.info("Vocoder model: {}".format(self.config.voc))
+        logger.info("Language: {}".format(lang))
+        logger.info("tts engine type: python")
+
+        logger.info("audio duration: {}".format(duration))
+        logger.info(
+            "frontend inference time: {}".format(self.executor.frontend_time))
+        logger.info("AM inference time: {}".format(self.executor.am_time))
+        logger.info("Vocoder inference time: {}".format(self.executor.voc_time))
+        logger.info("total inference time: {}".format(infer_time))
+        logger.info(
+            "postprocess (change speed, volume, target sample rate) time: {}".
+            format(postprocess_time))
+        logger.info("total generate audio time: {}".format(infer_time +
+                                                           postprocess_time))
+        logger.info("RTF: {}".format(rtf))
+        logger.info("device: {}".format(self.device))
 
         return lang, target_sample_rate, wav_base64

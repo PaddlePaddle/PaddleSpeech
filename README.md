@@ -196,16 +196,18 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 ```shell
 paddlespeech cls --input input.wav
 ```
+
 **Automatic Speech Recognition**
 ```shell
 paddlespeech asr --lang zh --input input_16k.wav
 ```
-**Speech Translation** (English to Chinese)
 
+**Speech Translation** (English to Chinese)
 (not support for Mac and Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```
+
 **Text-to-Speech** 
 ```shell
 paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
@@ -218,7 +220,16 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
   ```
 
-  
+**Batch Process**
+```
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+```  
+
+**Shell Pipeline**
+ASR + Punc:
+```
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+```
 
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 

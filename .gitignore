@@ -2,6 +2,7 @@
 *.pyc
 .vscode
 *log
+*.wav
 *.pdmodel
 *.pdiparams*
 *.zip
@@ -30,5 +31,8 @@ tools/OpenBLAS/
 tools/Miniconda3-latest-Linux-x86_64.sh
 tools/activate_python.sh
 tools/miniconda.sh
+tools/CRF++-0.58/
+
+speechx/fc_patch/
 
 *output/

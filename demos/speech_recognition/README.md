@@ -27,6 +27,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   paddlespeech asr --input ./zh.wav
   # English
   paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+  # Chinese ASR + Punctuation Restoration
+  paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
   ```
   (It doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
   

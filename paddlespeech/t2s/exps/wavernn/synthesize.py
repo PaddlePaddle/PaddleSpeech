@@ -91,7 +91,7 @@ def main():
                     target=config.inference.target,
                     overlap=config.inference.overlap,
                     mu_law=config.mu_law,
-                    gen_display=True)
+                    gen_display=False)
             wav = wav.numpy()
             N += wav.size
             T += t.elapse

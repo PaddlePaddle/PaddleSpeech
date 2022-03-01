@@ -22,9 +22,9 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --inference_dir=${train_output_path}/inference \
         --phones_dict=dump/phone_id_map.txt \
-        --tones_dict=dump/tone_id_map.txt
+        --tones_dict=dump/tone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi
 
 # for more GAN Vocoders
@@ -44,9 +44,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --inference_dir=${train_output_path}/inference \
         --phones_dict=dump/phone_id_map.txt \
-        --tones_dict=dump/tone_id_map.txt
+        --tones_dict=dump/tone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi
 
 # the pretrained models haven't release now
@@ -88,9 +88,9 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --inference_dir=${train_output_path}/inference \
         --phones_dict=dump/phone_id_map.txt \
-        --tones_dict=dump/tone_id_map.txt
+        --tones_dict=dump/tone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi
 
 

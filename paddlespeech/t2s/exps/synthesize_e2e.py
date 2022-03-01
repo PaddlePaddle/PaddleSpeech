@@ -21,6 +21,7 @@ import soundfile as sf
 import yaml
 from paddle import jit
 from paddle.static import InputSpec
+from timer import timer
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
@@ -233,59 +234,68 @@ def evaluate(args):
     # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
     if am_name == 'tacotron2':
         merge_sentences = True
-
+    N = 0
+    T = 0
     for utt_id, sentence in sentences:
-        get_tone_ids = False
-        if am_name == 'speedyspeech':
-            get_tone_ids = True
-        if args.lang == 'zh':
-            input_ids = frontend.get_input_ids(
-                sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids)
-            phone_ids = input_ids["phone_ids"]
-            if get_tone_ids:
-                tone_ids = input_ids["tone_ids"]
-        elif args.lang == 'en':
-            input_ids = frontend.get_input_ids(
-                sentence, merge_sentences=merge_sentences)
-            phone_ids = input_ids["phone_ids"]
-        else:
-            print("lang should in {'zh', 'en'}!")
-        with paddle.no_grad():
-            flags = 0
-            for i in range(len(phone_ids)):
-                part_phone_ids = phone_ids[i]
-                # acoustic model
-                if am_name == 'fastspeech2':
-                    # multi speaker
-                    if am_dataset in {"aishell3", "vctk"}:
-                        spk_id = paddle.to_tensor(args.spk_id)
-                        mel = am_inference(part_phone_ids, spk_id)
-                    else:
+        with timer() as t:
+            get_tone_ids = False
+            if am_name == 'speedyspeech':
+                get_tone_ids = True
+            if args.lang == 'zh':
+                input_ids = frontend.get_input_ids(
+                    sentence,
+                    merge_sentences=merge_sentences,
+                    get_tone_ids=get_tone_ids)
+                phone_ids = input_ids["phone_ids"]
+                if get_tone_ids:
+                    tone_ids = input_ids["tone_ids"]
+            elif args.lang == 'en':
+                input_ids = frontend.get_input_ids(
+                    sentence, merge_sentences=merge_sentences)
+                phone_ids = input_ids["phone_ids"]
+            else:
+                print("lang should in {'zh', 'en'}!")
+            with paddle.no_grad():
+                flags = 0
+                for i in range(len(phone_ids)):
+                    part_phone_ids = phone_ids[i]
+                    # acoustic model
+                    if am_name == 'fastspeech2':
+                        # multi speaker
+                        if am_dataset in {"aishell3", "vctk"}:
+                            spk_id = paddle.to_tensor(args.spk_id)
+                            mel = am_inference(part_phone_ids, spk_id)
+                        else:
+                            mel = am_inference(part_phone_ids)
+                    elif am_name == 'speedyspeech':
+                        part_tone_ids = tone_ids[i]
+                        if am_dataset in {"aishell3", "vctk"}:
+                            spk_id = paddle.to_tensor(args.spk_id)
+                            mel = am_inference(part_phone_ids, part_tone_ids,
+                                               spk_id)
+                        else:
+                            mel = am_inference(part_phone_ids, part_tone_ids)
+                    elif am_name == 'tacotron2':
                         mel = am_inference(part_phone_ids)
-                elif am_name == 'speedyspeech':
-                    part_tone_ids = tone_ids[i]
-                    if am_dataset in {"aishell3", "vctk"}:
-                        spk_id = paddle.to_tensor(args.spk_id)
-                        mel = am_inference(part_phone_ids, part_tone_ids,
-                                           spk_id)
+                    # vocoder
+                    wav = voc_inference(mel)
+                    if flags == 0:
+                        wav_all = wav
+                        flags = 1
                     else:
-                        mel = am_inference(part_phone_ids, part_tone_ids)
-                elif am_name == 'tacotron2':
-                    mel = am_inference(part_phone_ids)
-                # vocoder
-                wav = voc_inference(mel)
-                if flags == 0:
-                    wav_all = wav
-                    flags = 1
-                else:
-                    wav_all = paddle.concat([wav_all, wav])
+                        wav_all = paddle.concat([wav_all, wav])
+        wav = wav_all.numpy()
+        N += wav.size
+        T += t.elapse
+        speed = wav.size / t.elapse
+        rtf = am_config.fs / speed
+        print(
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+        )
         sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            wav_all.numpy(),
-            samplerate=am_config.fs)
+            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
         print(f"{utt_id} done!")
+    print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
 
 def main():

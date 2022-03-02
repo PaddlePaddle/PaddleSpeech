@@ -150,6 +150,12 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 - [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 
+- **[VTuberTalk](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 ### 🔥 热门活动
 
 - 2021.12.21~12.24
@@ -569,6 +575,7 @@ year={2021}
 - 非常感谢 [kslz](https://github.com/kslz) 补充中文文档。
 - 非常感谢 [awmmmm](https://github.com/awmmmm) 提供 fastspeech2 aishell3 conformer 预训练模型。
 - 非常感谢 [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) 基于 PaddleSpeech 的 TTS 模型搭建带 GUI 操作界面的配音工具。
+- 非常感谢 [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) 基于 PaddleSpeech 的 TTS GUI 界面和基于 ASR 制作数据集的相关代码。
 
   
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。

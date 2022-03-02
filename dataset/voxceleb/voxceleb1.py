@@ -11,23 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import collections
 import csv
 import glob
 import os
 import random
-from typing import Dict, List, Tuple
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 from paddle.io import Dataset
-from tqdm import tqdm
 from pathos.multiprocessing import Pool
+from tqdm import tqdm
 
 from paddleaudio.backends import load as load_audio
-from paddleaudio.utils import DATA_HOME, decompress, download_and_decompress
 from paddleaudio.datasets.dataset import feat_funcs
-from utils.utility import unpack
+from paddleaudio.utils import DATA_HOME
+from paddleaudio.utils import decompress
+from paddleaudio.utils import download_and_decompress
 from utils.utility import download
+from utils.utility import unpack
 
 __all__ = ['VoxCeleb1']
 
@@ -60,11 +63,12 @@ class VoxCeleb1(Dataset):
     ]
     archieves_meta = [
         {
-            'url': 'https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt',
-            'md5': 'b73110731c9223c1461fe49cb48dddfc',
+            'url':
+            'https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt',
+            'md5':
+            'b73110731c9223c1461fe49cb48dddfc',
         },
     ]
-
 
     num_speakers = 1211  # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
     sample_rate = 16000
@@ -74,15 +78,16 @@ class VoxCeleb1(Dataset):
     wav_path = os.path.join(base_path, 'wav')
     subsets = ['train', 'dev', 'enrol', 'test']
 
-    def __init__(self,
-                 subset: str = 'train',
-                 feat_type: str = 'raw',
-                 random_chunk: bool = True,
-                 chunk_duration: float = 3.0,       # seconds
-                 split_ratio: float = 0.9,          # train split ratio
-                 seed: int = 0,
-                 target_dir: str = None,
-                 **kwargs):
+    def __init__(
+            self,
+            subset: str='train',
+            feat_type: str='raw',
+            random_chunk: bool=True,
+            chunk_duration: float=3.0,  # seconds
+            split_ratio: float=0.9,  # train split ratio
+            seed: int=0,
+            target_dir: str=None,
+            **kwargs):
 
         assert subset in self.subsets, \
             'Dataset subset must be one in {}, but got {}'.format(self.subsets, subset)
@@ -95,8 +100,12 @@ class VoxCeleb1(Dataset):
         self.chunk_duration = chunk_duration
         self.split_ratio = split_ratio
         self.target_dir = target_dir if target_dir else self.base_path
-        self.csv_path = os.path.join(target_dir, 'csv') if target_dir else os.path.join(self.base_path, 'csv')
-        self.meta_path = os.path.join(target_dir, 'meta') if target_dir else os.path.join(base_path, 'meta')
+        self.csv_path = os.path.join(
+            target_dir, 'csv') if target_dir else os.path.join(self.base_path,
+                                                               'csv')
+        self.meta_path = os.path.join(
+            target_dir, 'meta') if target_dir else os.path.join(base_path,
+                                                                'meta')
         self.veri_test_file = os.path.join(self.meta_path, 'veri_test2.txt')
         # self._data = self._get_data()[:1000]  # KP: Small dataset test.
         self._data = self._get_data()
@@ -112,10 +121,14 @@ class VoxCeleb1(Dataset):
         print("wav base path: {}".format(self.wav_path))
         if not os.path.isdir(self.wav_path):
             print("start to download the voxceleb1 dataset")
-            download_and_decompress(    # multi-zip parts concatenate to vox1_dev_wav.zip
-                self.archieves_audio_dev, self.base_path, decompress=False)
-            download_and_decompress(    # download the vox1_test_wav.zip and unzip
-                self.archieves_audio_test, self.base_path, decompress=True)
+            download_and_decompress(  # multi-zip parts concatenate to vox1_dev_wav.zip
+                self.archieves_audio_dev,
+                self.base_path,
+                decompress=False)
+            download_and_decompress(  # download the vox1_test_wav.zip and unzip
+                self.archieves_audio_test,
+                self.base_path,
+                decompress=True)
 
             # Download all parts and concatenate the files into one zip file.
             dev_zipfile = os.path.join(self.base_path, 'vox1_dev_wav.zip')
@@ -131,7 +144,7 @@ class VoxCeleb1(Dataset):
         if not os.path.isdir(self.meta_path):
             download_and_decompress(
                 self.archieves_meta, self.meta_path, decompress=False)
-        
+
         # Data preparation.
         if not os.path.isdir(self.csv_path):
             os.makedirs(self.csv_path)
@@ -143,8 +156,9 @@ class VoxCeleb1(Dataset):
                 audio_id, duration, wav, start, stop, spk_id = line.strip(
                 ).split(',')
                 data.append(
-                    self.meta_info(audio_id, float(duration), wav, int(start),
-                                   int(stop), spk_id))
+                    self.meta_info(audio_id,
+                                   float(duration), wav,
+                                   int(start), int(stop), spk_id))
 
         with open(os.path.join(self.meta_path, 'spk_id2label.txt'), 'r') as f:
             for line in f.readlines():
@@ -228,14 +242,16 @@ class VoxCeleb1(Dataset):
     def generate_csv(self,
                      wav_files: List[str],
                      output_file: str,
-                     split_chunks: bool = True):
+                     split_chunks: bool=True):
         print(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav", "start", "stop", "spk_id"]
 
         with Pool(64) as p:
             infos = list(
                 tqdm(
-                    p.imap(lambda x: self._get_audio_info(x, split_chunks), wav_files), total=len(wav_files)))
+                    p.imap(lambda x: self._get_audio_info(x, split_chunks),
+                           wav_files),
+                    total=len(wav_files)))
 
         csv_lines = []
         for info in infos:
@@ -272,35 +288,39 @@ class VoxCeleb1(Dataset):
         audio_files = []
         speakers = set()
         for path in [self.wav_path]:
-            for file in glob.glob(os.path.join(path, "**", "*.wav"), recursive=True):
+            for file in glob.glob(
+                    os.path.join(path, "**", "*.wav"), recursive=True):
                 spk = file.split('/wav/')[1].split('/')[0]
                 if spk in test_spks:
                     continue
                 speakers.add(spk)
                 audio_files.append(file)
 
-        print("start to generate the {}".format(os.path.join(self.meta_path, 'spk_id2label.txt')))
+        print("start to generate the {}".format(
+            os.path.join(self.meta_path, 'spk_id2label.txt')))
         # encode the train and dev speakers label to spk_id2label.txt
         with open(os.path.join(self.meta_path, 'spk_id2label.txt'), 'w') as f:
-            for label, spk_id in enumerate(sorted(speakers)):  # 1211 vox1, 5994 vox2, 7205 vox1+2
+            for label, spk_id in enumerate(
+                    sorted(speakers)):  # 1211 vox1, 5994 vox2, 7205 vox1+2
                 f.write(f'{spk_id} {label}\n')
 
         audio_files = sorted(audio_files)
         random.shuffle(audio_files)
         split_idx = int(self.split_ratio * len(audio_files))
         # split_ratio to train
-        train_files, dev_files = audio_files[:split_idx], audio_files[split_idx:]
+        train_files, dev_files = audio_files[:split_idx], audio_files[
+            split_idx:]
 
-        self.generate_csv(train_files, 
-                          os.path.join(self.csv_path, 'train.csv'))
-        self.generate_csv(dev_files, 
-                          os.path.join(self.csv_path, 'dev.csv'))
-        self.generate_csv(enrol_files,
-                          os.path.join(self.csv_path, 'enrol.csv'),
-                          split_chunks=False)
-        self.generate_csv(test_files,
-                          os.path.join(self.csv_path, 'test.csv'),
-                          split_chunks=False)
+        self.generate_csv(train_files, os.path.join(self.csv_path, 'train.csv'))
+        self.generate_csv(dev_files, os.path.join(self.csv_path, 'dev.csv'))
+        self.generate_csv(
+            enrol_files,
+            os.path.join(self.csv_path, 'enrol.csv'),
+            split_chunks=False)
+        self.generate_csv(
+            test_files,
+            os.path.join(self.csv_path, 'test.csv'),
+            split_chunks=False)
 
     def __getitem__(self, idx):
         return self._convert_to_record(idx)

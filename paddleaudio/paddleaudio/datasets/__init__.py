@@ -15,10 +15,3 @@ from .esc50 import ESC50
 from .gtzan import GTZAN
 from .tess import TESS
 from .urban_sound import UrbanSound8K
-
-__all__ = [
-    'ESC50',
-    'UrbanSound8K',
-    'GTZAN',
-    'TESS',
-]

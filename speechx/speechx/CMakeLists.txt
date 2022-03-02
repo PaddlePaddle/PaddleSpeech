@@ -32,8 +32,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/decoder
 )
 add_subdirectory(decoder)
 
-link_libraries(dl)
-
 add_executable(mfcc-test codelab/feat_test/feature-mfcc-test.cc)
 target_link_libraries(mfcc-test kaldi-mfcc ${MATH_LIB})
 

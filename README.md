@@ -148,6 +148,12 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 - [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 ### 🔥 Hot Activities
 
 - 2021.12.21~12.24
@@ -574,6 +580,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [kslz](https://github.com/745165806) for supplementary Chinese documents.
 - Many thanks to [awmmmm](https://github.com/awmmmm) for contributing fastspeech2 aishell3 conformer pretrained model.
 - Many thanks to [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) for developing a dubbing tool with GUI based on PaddleSpeech TTS model.
+- Many thanks to [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) for developing a GUI tool based on PaddleSpeech TTS and code for making datasets from videos based on PaddleSpeech ASR.
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 

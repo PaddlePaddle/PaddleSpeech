@@ -15,9 +15,10 @@ speaker_dict:
 spk_id: 0
 
 am_predictor_conf:
-  device: 'cpu'  # set 'gpu:id' or 'cpu'
-  enable_mkldnn: False
-  switch_ir_optim: False
+  device:  # set 'gpu:id' or 'cpu'
+  switch_ir_optim: True
+  glog_info: False # True -> print glog
+  summary: True  # False -> do not show predictor config
 
 
 ##################################################################
@@ -30,9 +31,10 @@ voc_params: # the pdiparams file of your vocoder static model (XX.pdipparams)
 voc_sample_rate: 24000
 
 voc_predictor_conf:
-  device: 'cpu'  # set 'gpu:id' or 'cpu'
-  enable_mkldnn: False  
-  switch_ir_optim: False  
+  device:  # set 'gpu:id' or 'cpu'  
+  switch_ir_optim: True  
+  glog_info: False # True -> print glog
+  summary: True  # False -> do not show predictor config
 
 ##################################################################
 #                            OTHERS                              #

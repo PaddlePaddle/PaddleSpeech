@@ -29,4 +29,4 @@ voc_stat:
 #                            OTHERS                              #
 ##################################################################
 lang: 'zh'
-device: 'cpu'  # set 'gpu:id' or 'cpu'
+device:  # set 'gpu:id' or 'cpu'

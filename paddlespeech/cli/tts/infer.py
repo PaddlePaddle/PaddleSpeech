@@ -13,6 +13,7 @@
 # limitations under the License.
 import argparse
 import os
+import time
 from collections import OrderedDict
 from typing import Any
 from typing import List
@@ -621,6 +622,7 @@ class TTSExecutor(BaseExecutor):
         am_dataset = am[am.rindex('_') + 1:]
         get_tone_ids = False
         merge_sentences = False
+        frontend_st = time.time()
         if am_name == 'speedyspeech':
             get_tone_ids = True
         if lang == 'zh':
@@ -637,9 +639,13 @@ class TTSExecutor(BaseExecutor):
             phone_ids = input_ids["phone_ids"]
         else:
             print("lang should in {'zh', 'en'}!")
+        self.frontend_time = time.time() - frontend_st
 
+        self.am_time = 0
+        self.voc_time = 0
         flags = 0
         for i in range(len(phone_ids)):
+            am_st = time.time()
             part_phone_ids = phone_ids[i]
             # am
             if am_name == 'speedyspeech':
@@ -653,13 +659,16 @@ class TTSExecutor(BaseExecutor):
                         part_phone_ids, spk_id=paddle.to_tensor(spk_id))
                 else:
                     mel = self.am_inference(part_phone_ids)
+            self.am_time += (time.time() - am_st)
             # voc
+            voc_st = time.time()
             wav = self.voc_inference(mel)
             if flags == 0:
                 wav_all = wav
                 flags = 1
             else:
                 wav_all = paddle.concat([wav_all, wav])
+            self.voc_time += (time.time() - voc_st)
         self._outputs['wav'] = wav_all
 
     def postprocess(self, output: str='output.wav') -> Union[str, os.PathLike]:

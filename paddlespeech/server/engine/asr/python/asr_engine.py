@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
+import time
 
 import paddle
 
@@ -53,16 +54,24 @@ class ASREngine(BaseEngine):
         self.executor = ASRServerExecutor()
 
         self.config = get_config(config_file)
-        if self.config.device is None:
-            paddle.set_device(paddle.get_device())
-        else:
-            paddle.set_device(self.config.device)
+        try:
+            if self.config.device:
+                self.device = self.config.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except BaseException:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+
         self.executor._init_from_path(
             self.config.model, self.config.lang, self.config.sample_rate,
             self.config.cfg_path, self.config.decode_method,
             self.config.ckpt_path)
 
-        logger.info("Initialize ASR server engine successfully.")
+        logger.info("Initialize ASR server engine successfully on device: %s." %
+                    (self.device))
         return True
 
     def run(self, audio_data):
@@ -76,11 +85,16 @@ class ASREngine(BaseEngine):
                 self.config.force_yes):
             logger.info("start run asr engine")
             self.executor.preprocess(self.config.model, io.BytesIO(audio_data))
+            st = time.time()
             self.executor.infer(self.config.model)
+            infer_time = time.time() - st
             self.output = self.executor.postprocess()  # Retrieve result of asr.
         else:
             logger.info("file check failed!")
             self.output = None
+
+        logger.info("inference time: {}".format(infer_time))
+        logger.info("asr engine type: python")
 
     def postprocess(self):
         """postprocess

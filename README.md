@@ -148,7 +148,7 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 - [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
-- **[VTuberTalk](https://github.com/JiehangXie/PaddleBoBo): Use PaddleSpeech TTS and ASR to clone voice from videos.**
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />

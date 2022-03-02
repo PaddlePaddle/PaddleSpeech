@@ -150,7 +150,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 - [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 
-- **[VTuberTalk](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />

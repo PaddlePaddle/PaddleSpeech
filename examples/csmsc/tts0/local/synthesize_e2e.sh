@@ -8,6 +8,7 @@ stage=0
 stop_stage=0
 
 # TODO: tacotron2 动转静的结果没有静态图的响亮, 可能还是 decode 的时候某个函数动静不对齐
+# pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
@@ -39,14 +40,14 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
         --voc=mb_melgan_csmsc \
-        --voc_config=mb_melgan_baker_finetune_ckpt_0.5/finetune.yaml \
-        --voc_ckpt=mb_melgan_baker_finetune_ckpt_0.5/snapshot_iter_2000000.pdz\
-        --voc_stat=mb_melgan_baker_finetune_ckpt_0.5/feats_stats.npy \
+        --voc_config=mb_melgan_csmsc_ckpt_0.1.1/default.yaml \
+        --voc_ckpt=mb_melgan_csmsc_ckpt_0.1.1/snapshot_iter_1000000.pdz\
+        --voc_stat=mb_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --inference_dir=${train_output_path}/inference \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi
 
 # the pretrained models haven't release now
@@ -88,8 +89,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --inference_dir=${train_output_path}/inference \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt \
+        --inference_dir=${train_output_path}/inference
 fi
 
 # wavernn

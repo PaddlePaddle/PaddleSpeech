@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+
 import uvicorn
-import yaml
 from fastapi import FastAPI
 
 from paddlespeech.server.engine.engine_pool import init_engine_pool

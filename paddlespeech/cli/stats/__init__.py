@@ -11,7 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .paddlespeech_client import ASRClientExecutor
-from .paddlespeech_client import TTSClientExecutor
-from .paddlespeech_server import ServerExecutor
-from .paddlespeech_server import ServerStatsExecutor
+from .infer import StatsExecutor

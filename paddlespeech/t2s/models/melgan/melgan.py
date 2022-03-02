@@ -66,7 +66,7 @@ class MelGANGenerator(nn.Layer):
             nonlinear_activation_params (Dict[str, Any], optional): Parameters passed to the linear activation in the upsample network, 
                 by default {}
             pad (str): Padding function module name before dilated convolution layer.
-            pad_params （dict): Hyperparameters for padding function.
+            pad_params (dict): Hyperparameters for padding function.
             use_final_nonlinear_activation (nn.Layer): Activation function for the final layer.
             use_weight_norm (bool): Whether to use weight norm.
                 If set to true, it will be applied to all of the conv layers.

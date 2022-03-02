@@ -10,7 +10,7 @@ Run the command below to get the results of the test.
 ```bash
 ./run.sh
 ```
-The `avg WER` of g2p is: 0.027124048652822204
+The `avg WER` of g2p is: 0.026014352515701198
 ```text
      ,--------------------------------------------------------------------.
      |        | # Snt    # Wrd  | Corr    Sub    Del    Ins    Err  S.Err |

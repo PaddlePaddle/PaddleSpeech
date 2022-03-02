@@ -17,8 +17,8 @@ import numpy as np
 import paddle
 
 from ..backends import load as load_audio
-from ..features import melspectrogram
-from ..features import mfcc
+from ..compliance.librosa import melspectrogram
+from ..compliance.librosa import mfcc
 
 feat_funcs = {
     'raw': None,

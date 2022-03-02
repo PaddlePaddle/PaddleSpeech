@@ -17,8 +17,8 @@ from typing import Tuple
 import paddle
 from paddle import Tensor
 
+from ..functional import create_dct
 from ..functional.window import get_window
-from .spectrum import create_dct
 
 __all__ = [
     'spectrogram',

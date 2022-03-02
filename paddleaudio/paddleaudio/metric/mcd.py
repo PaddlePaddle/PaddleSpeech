@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import mcd.metrics_fast as mt
+import numpy as np
 from mcd import dtw
 
 __all__ = [

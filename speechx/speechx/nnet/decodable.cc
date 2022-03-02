@@ -38,6 +38,15 @@ void Decodable::FeedFeatures(const Matrix<kaldi::BaseFloat>& features) {
   return ;
 }
 
+std::vector<BaseFloat> Decodable::FrameLogLikelihood(int32 frame) {
+  std::vector<BaseFloat> result;
+  result.reserve(nnet_cache_.NumCols());
+  for (int32 idx = 0; idx < nnet_cache_.NumCols(); ++idx) {
+    result[idx] = nnet_cache_(frame, idx); 
+  }
+  return result;
+}
+
 void Decodable::Reset() {
   // frontend_.Reset();
   nnet_->Reset();

@@ -47,6 +47,7 @@ void CopyStdVector2Vector_(const vector<BaseFloat>& input,
 LinearSpectrogram::LinearSpectrogram(
     const LinearSpectrogramOptions& opts,
     std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+  opts_ = opts;
   base_extractor_ = std::move(base_extractor);
   int32 window_size = opts.frame_opts.WindowSize();
   int32 window_shift = opts.frame_opts.WindowShift();
@@ -105,7 +106,7 @@ void LinearSpectrogram::ReadFeats(Matrix<BaseFloat>* feats) {
   Compute(feats_vec, result);
   feats->Resize(result.size(), result[0].size());
   for (int row_idx = 0; row_idx < result.size(); ++row_idx) {
-    for (int col_idx = 0; col_idx < result.size(); ++col_idx) {
+    for (int col_idx = 0; col_idx < result[0].size(); ++col_idx) {
         (*feats)(row_idx, col_idx) = result[row_idx][col_idx];
     }
   }
@@ -133,7 +134,7 @@ bool LinearSpectrogram::Compute(const vector<float>& wave,
   const int& sample_rate = opts_.frame_opts.samp_freq;
   const int& frame_shift = opts_.frame_opts.WindowShift();
   const int& fft_points = fft_points_;
-  const float scale = hanning_window_energy_ * frame_shift;
+  const float scale = hanning_window_energy_ * sample_rate;
 
   if (num_samples < frame_length) {
           return true;
@@ -153,10 +154,7 @@ bool LinearSpectrogram::Compute(const vector<float>& wave,
     fft_img.clear();
     fft_real.clear();
     v.assign(data.begin(), data.end());
-    if (NumpyFft(&v, &fft_real, &fft_img)) {
-      LOG(ERROR)<< i  << " fft compute occurs error, please checkout the input data";
-      return false;
-    }
+    NumpyFft(&v, &fft_real, &fft_img);
 
     feat[i].resize(fft_points / 2 + 1);  // the last dimension is Fs/2 Hz
     for (int j = 0; j < (fft_points / 2 + 1); ++j) {

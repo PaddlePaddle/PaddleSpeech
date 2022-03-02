@@ -42,7 +42,7 @@
 
 
 
-#define HAVE_OPENBLAS
+#define HAVE_MKL
 
 #if (defined(HAVE_CLAPACK) && (defined(HAVE_ATLAS) || defined(HAVE_MKL))) \
     || (defined(HAVE_ATLAS) && defined(HAVE_MKL))

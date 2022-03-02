@@ -26,7 +26,6 @@ option(TEST_DEBUG "option for debug" OFF)
 # Include third party
 ###############################################################################
 # #example for include third party
-# FetchContent_Declare()
 # # FetchContent_MakeAvailable was not added until CMake 3.14
 # FetchContent_MakeAvailable()
 # include_directories()
@@ -50,20 +49,25 @@ include_directories(${absl_SOURCE_DIR})
 #)
 #FetchContent_MakeAvailable(libsndfile)
 
-# todo boost build
-#include(FetchContent)
-#FetchContent_Declare(
-#  Boost
-#  URL      https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.zip
-#  URL_HASH SHA256=aeb26f80e80945e82ee93e5939baebdca47b9dee80a07d3144be1e1a6a66dd6a
-#)
-#FetchContent_MakeAvailable(Boost)
-#include_directories(${Boost_SOURCE_DIR})
+#boost
+set(boost_SOURCE_DIR ${fc_patch}/boost-src)
+set(boost_PREFIX_DIR ${fc_patch}/boost-subbuild/boost-prefix)
+include(ExternalProject)
+ExternalProject_Add(
+  boost
+  URL      https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
+  URL_HASH SHA256=aeb26f80e80945e82ee93e5939baebdca47b9dee80a07d3144be1e1a6a66dd6a
+  SOURCE_DIR        ${boost_SOURCE_DIR}
+  PREFIX            ${boost_PREFIX_DIR}
+  BUILD_IN_SOURCE   1
+  CONFIGURE_COMMAND ./bootstrap.sh
+  BUILD_COMMAND     ./b2
+  INSTALL_COMMAND   ""
+)
+link_directories(${boost_SOURCE_DIR}/stage/lib)
+include_directories(${boost_SOURCE_DIR})
 
-
-set(BOOST_ROOT ${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0)
-include_directories(${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0)
-link_directories(${fc_patch}/boost-subbuild/boost-populate-prefix/src/boost_1_75_0/stage/lib)
+set(BOOST_ROOT ${boost_SOURCE_DIR})
 include(FetchContent)
 FetchContent_Declare(
   kenlm
@@ -71,9 +75,10 @@ FetchContent_Declare(
   GIT_TAG "df2d717e95183f79a90b2fa6e4307083a351ca6a"
 )
 FetchContent_MakeAvailable(kenlm)
-add_dependencies(kenlm Boost)
+add_dependencies(kenlm boost)
 include_directories(${kenlm_SOURCE_DIR})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
 # gflags
 FetchContent_Declare(
   gflags
@@ -106,19 +111,34 @@ set(openfst_PREFIX_DIR ${fc_patch}/openfst-subbuild/openfst-populate-prefix)
 ExternalProject_Add(openfst
   URL               https://github.com/mjansche/openfst/archive/refs/tags/1.7.2.zip
   URL_HASH          SHA256=ffc56931025579a8af3515741c0f3b0fc3a854c023421472c07ca0c6389c75e6
+#  PREFIX            ${openfst_PREFIX_DIR} 
   SOURCE_DIR        ${openfst_SOURCE_DIR}
   BINARY_DIR        ${openfst_BINARY_DIR}
   CONFIGURE_COMMAND ${openfst_SOURCE_DIR}/configure --prefix=${openfst_PREFIX_DIR}
                       "CPPFLAGS=-I${gflags_BINARY_DIR}/include -I${glog_SOURCE_DIR}/src -I${glog_BINARY_DIR}"
                       "LDFLAGS=-L${gflags_BINARY_DIR} -L${glog_BINARY_DIR}"
                       "LIBS=-lgflags_nothreads -lglog -lpthread"
+  COMMAND           ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/patch/openfst ${openfst_SOURCE_DIR}
   BUILD_COMMAND     make -j 4
 )
 add_dependencies(openfst gflags glog)
 link_directories(${openfst_PREFIX_DIR}/lib)
 include_directories(${openfst_PREFIX_DIR}/include)
 
-set(PADDLE_LIB ${fc_patch}/paddle-lib/paddle_inference)
+# paddle lib
+set(paddle_SOURCE_DIR ${fc_patch}/paddle-lib)
+set(paddle_PREFIX_DIR ${fc_patch}/paddle-lib-prefix)
+ExternalProject_Add(paddle
+  URL      https://paddle-inference-lib.bj.bcebos.com/2.2.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
+  URL_HASH SHA256=7c6399e778c6554a929b5a39ba2175e702e115145e8fa690d2af974101d98873
+  PREFIX            ${paddle_PREFIX_DIR} 
+  SOURCE_DIR        ${paddle_SOURCE_DIR}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+)
+
+set(PADDLE_LIB ${fc_patch}/paddle-lib)
 include_directories("${PADDLE_LIB}/paddle/include")
 set(PADDLE_LIB_THIRD_PARTY_PATH "${PADDLE_LIB}/third_party/install/")
 include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/include")
@@ -133,6 +153,23 @@ link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/lib")
 link_directories("${PADDLE_LIB}/paddle/lib")
+link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}mklml/lib")
+
+##paddle with mkl
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+set(MATH_LIB_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mklml")
+include_directories("${MATH_LIB_PATH}/include")
+set(MATH_LIB ${MATH_LIB_PATH}/lib/libmklml_intel${CMAKE_SHARED_LIBRARY_SUFFIX}
+                 ${MATH_LIB_PATH}/lib/libiomp5${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(MKLDNN_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mkldnn")
+include_directories("${MKLDNN_PATH}/include")
+set(MKLDNN_LIB ${MKLDNN_PATH}/lib/libmkldnn.so.0)
+set(EXTERNAL_LIB "-lrt -ldl -lpthread")
+set(DEPS ${PADDLE_LIB}/paddle/lib/libpaddle_inference${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(DEPS ${DEPS}
+      ${MATH_LIB} ${MKLDNN_LIB}
+      glog gflags protobuf xxhash cryptopp
+      ${EXTERNAL_LIB})
 
 add_subdirectory(speechx)
 

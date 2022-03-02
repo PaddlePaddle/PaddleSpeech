@@ -29,7 +29,7 @@ class DecibelNormalizer : public FeatureExtractorInterface {
     explicit DecibelNormalizer(const DecibelNormalizerOptions& opts);
     virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input);
     virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
-    virtual size_t Dim() const { return 0; }
+    virtual size_t Dim() const { return dim_; }
     bool Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
                  kaldi::VectorBase<kaldi::BaseFloat>* feat) const;
   private:

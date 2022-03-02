@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include "gflags/gflags.h"
+#include "fst/flags.h"

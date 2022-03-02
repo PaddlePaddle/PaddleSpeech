@@ -13,4 +13,4 @@ srfft.cc
 tp-matrix.cc
 )
 
-target_link_libraries(kaldi-matrix gfortran kaldi-base libopenblas.a)
+target_link_libraries(kaldi-matrix gfortran kaldi-base ${MATH_LIB})

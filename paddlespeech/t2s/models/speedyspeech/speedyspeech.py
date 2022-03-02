@@ -247,7 +247,7 @@ class SpeedySpeechInference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = speedyspeech_model
 
-    def forward(self, phones, tones, durations=None, spk_id=None):
+    def forward(self, phones, tones, spk_id=None, durations=None):
         normalized_mel = self.acoustic_model.inference(
             phones, tones, durations=durations, spk_id=spk_id)
         logmel = self.normalizer.inverse(normalized_mel)

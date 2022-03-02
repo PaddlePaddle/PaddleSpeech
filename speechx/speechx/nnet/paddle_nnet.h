@@ -25,14 +25,14 @@ struct ModelOptions {
   bool enable_fc_padding;
   bool enable_profile;
   ModelOptions() : 
-      model_path("model/final.zip"),
-      params_path("model/avg_1.jit.pdmodel"),
+      model_path("../../../../model/paddle_online_deepspeech/model/avg_1.jit.pdmodel"),
+      params_path("../../../../model/paddle_online_deepspeech/model/avg_1.jit.pdiparams"),
       thread_num(2),
       use_gpu(false),
-      input_names("audio"),
-      output_names("probs"),
-      cache_names("enouts"),
-      cache_shape("1-1-1"),
+      input_names("audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box"),
+      output_names("save_infer_model/scale_0.tmp_1,save_infer_model/scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/scale_3.tmp_1"),
+      cache_names("chunk_state_h_box,chunk_state_c_box"),
+      cache_shape("3-1-1024,3-1-1024"),
       switch_ir_optim(false),
       enable_fc_padding(false),
       enable_profile(false) {
@@ -87,6 +87,7 @@ class PaddleNnet : public NnetInterface {
     PaddleNnet(const ModelOptions& opts);
     virtual void FeedForward(const kaldi::Matrix<kaldi::BaseFloat>& features, 
                              kaldi::Matrix<kaldi::BaseFloat>* inferences);
+    virtual void Reset();
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(const std::string& name);
     void InitCacheEncouts(const ModelOptions& opts);
     
@@ -100,6 +101,7 @@ class PaddleNnet : public NnetInterface {
     std::map<paddle_infer::Predictor*, int> predictor_to_thread_id;
     std::map<std::string, int> cache_names_idx_;
     std::vector<std::shared_ptr<Tensor<kaldi::BaseFloat>>> cache_encouts_;
+    ModelOptions opts_;
 
   public:
     DISALLOW_COPY_AND_ASSIGN(PaddleNnet);

@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(speechx LANGUAGES CXX)
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/openblas)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR}
 ${CMAKE_CURRENT_SOURCE_DIR}/kaldi
@@ -37,10 +33,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/decoder
 add_subdirectory(decoder)
 
 add_executable(mfcc-test codelab/feat_test/feature-mfcc-test.cc)
-target_link_libraries(mfcc-test kaldi-mfcc)
+target_link_libraries(mfcc-test kaldi-mfcc ${MATH_LIB})
 
 add_executable(linear_spectrogram_main codelab/feat_test/linear_spectrogram_main.cc)
 target_link_libraries(linear_spectrogram_main frontend kaldi-util kaldi-feat-common gflags glog)
 
-#add_executable(offline_decoder_main codelab/decoder_test/offline_decoder_main.cc)
-#target_link_libraries(offline_decoder_main nnet decoder gflags glog)
+add_executable(offline_decoder_main codelab/decoder_test/offline_decoder_main.cc)
+target_link_libraries(offline_decoder_main PUBLIC nnet decoder fst utils gflags glog kaldi-base kaldi-matrix kaldi-util ${DEPS})
+
+add_executable(model_test codelab/nnet_test/model_test.cc)
+target_link_libraries(model_test PUBLIC nnet gflags ${DEPS})

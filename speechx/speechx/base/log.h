@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include "glog/logging.h"
+#include "fst/log.h"

@@ -1,5 +1,7 @@
 #include "utils/file_utils.h"
 
+namespace ppspeech {
+
 bool ReadFileToVector(const std::string& filename,
                       std::vector<std::string>* vocabulary) {
     std::ifstream file_in(filename);
@@ -14,4 +16,6 @@ bool ReadFileToVector(const std::string& filename,
     }
 
     return true;
+}
+
 }

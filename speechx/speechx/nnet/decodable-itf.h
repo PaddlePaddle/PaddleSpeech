@@ -114,7 +114,7 @@ class DecodableInterface {
   /// this is for compatibility with OpenFst).
   virtual int32 NumIndices() const = 0;
 
-  virtual std::vector<BaseFloat> FrameLogLikelihood(int32 frame);
+  virtual std::vector<BaseFloat> FrameLogLikelihood(int32 frame) = 0;
 
   virtual ~DecodableInterface() {}
 };

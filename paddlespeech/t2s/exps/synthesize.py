@@ -20,6 +20,7 @@ import numpy as np
 import paddle
 import soundfile as sf
 import yaml
+from timer import timer
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
@@ -50,6 +51,18 @@ model_alias = {
     "paddlespeech.t2s.models.melgan:MelGANGenerator",
     "mb_melgan_inference":
     "paddlespeech.t2s.models.melgan:MelGANInference",
+    "style_melgan":
+    "paddlespeech.t2s.models.melgan:StyleMelGANGenerator",
+    "style_melgan_inference":
+    "paddlespeech.t2s.models.melgan:StyleMelGANInference",
+    "hifigan":
+    "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
+    "hifigan_inference":
+    "paddlespeech.t2s.models.hifigan:HiFiGANInference",
+    "wavernn":
+    "paddlespeech.t2s.models.wavernn:WaveRNN",
+    "wavernn_inference":
+    "paddlespeech.t2s.models.wavernn:WaveRNNInference",
 }
 
 
@@ -146,10 +159,15 @@ def evaluate(args):
     voc_name = args.voc[:args.voc.rindex('_')]
     voc_class = dynamic_import(voc_name, model_alias)
     voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
-    voc = voc_class(**voc_config["generator_params"])
-    voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
-    voc.remove_weight_norm()
-    voc.eval()
+    if voc_name != 'wavernn':
+        voc = voc_class(**voc_config["generator_params"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
+        voc.remove_weight_norm()
+        voc.eval()
+    else:
+        voc = voc_class(**voc_config["model"])
+        voc.set_state_dict(paddle.load(args.voc_ckpt)["main_params"])
+        voc.eval()
     voc_mu, voc_std = np.load(args.voc_stat)
     voc_mu = paddle.to_tensor(voc_mu)
     voc_std = paddle.to_tensor(voc_std)
@@ -162,38 +180,51 @@ def evaluate(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    N = 0
+    T = 0
+
     for datum in test_dataset:
         utt_id = datum["utt_id"]
-        with paddle.no_grad():
-            # acoustic model
-            if am_name == 'fastspeech2':
-                phone_ids = paddle.to_tensor(datum["text"])
-                spk_emb = None
-                spk_id = None
-                # multi speaker
-                if args.voice_cloning and "spk_emb" in datum:
-                    spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
-                elif "spk_id" in datum:
-                    spk_id = paddle.to_tensor(datum["spk_id"])
-                mel = am_inference(phone_ids, spk_id=spk_id, spk_emb=spk_emb)
-            elif am_name == 'speedyspeech':
-                phone_ids = paddle.to_tensor(datum["phones"])
-                tone_ids = paddle.to_tensor(datum["tones"])
-                mel = am_inference(phone_ids, tone_ids)
-            elif am_name == 'tacotron2':
-                phone_ids = paddle.to_tensor(datum["text"])
-                spk_emb = None
-                # multi speaker
-                if args.voice_cloning and "spk_emb" in datum:
-                    spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
-                mel = am_inference(phone_ids, spk_emb=spk_emb)
+        with timer() as t:
+            with paddle.no_grad():
+                # acoustic model
+                if am_name == 'fastspeech2':
+                    phone_ids = paddle.to_tensor(datum["text"])
+                    spk_emb = None
+                    spk_id = None
+                    # multi speaker
+                    if args.voice_cloning and "spk_emb" in datum:
+                        spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
+                    elif "spk_id" in datum:
+                        spk_id = paddle.to_tensor(datum["spk_id"])
+                    mel = am_inference(
+                        phone_ids, spk_id=spk_id, spk_emb=spk_emb)
+                elif am_name == 'speedyspeech':
+                    phone_ids = paddle.to_tensor(datum["phones"])
+                    tone_ids = paddle.to_tensor(datum["tones"])
+                    mel = am_inference(phone_ids, tone_ids)
+                elif am_name == 'tacotron2':
+                    phone_ids = paddle.to_tensor(datum["text"])
+                    spk_emb = None
+                    # multi speaker
+                    if args.voice_cloning and "spk_emb" in datum:
+                        spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
+                    mel = am_inference(phone_ids, spk_emb=spk_emb)
             # vocoder
             wav = voc_inference(mel)
+
+            wav = wav.numpy()
+            N += wav.size
+            T += t.elapse
+            speed = wav.size / t.elapse
+            rtf = am_config.fs / speed
+        print(
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+        )
         sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            wav.numpy(),
-            samplerate=am_config.fs)
+            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
         print(f"{utt_id} done!")
+    print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
 
 def main():
@@ -246,7 +277,8 @@ def main():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc'
+            'mb_melgan_csmsc', 'wavernn_csmsc', 'hifigan_csmsc',
+            'style_melgan_csmsc'
         ],
         help='Choose vocoder type of tts task.')
 

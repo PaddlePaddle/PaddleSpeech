@@ -10,7 +10,9 @@
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
+推荐使用 **paddlepaddle 2.2.1** 或以上版本。
 你可以从 easy，medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+
 
 ### 2. 准备配置文件
 配置文件包含服务相关的配置文件和服务中包含的语音任务相关的模型配置。 它们都在 `conf` 文件夹下。

@@ -15,10 +15,14 @@ import argparse
 
 import paddle
 
-from dataset.voxceleb.voxceleb1 import VoxCeleb1
+from paddleaudio.datasets.voxceleb import VoxCeleb1
+from paddlespeech.vector.layers.lr import CyclicLRScheduler
+from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
+from paddlespeech.vector.training.sid_model import SpeakerIdetification
 
 
 def main(args):
+    # stage0: set the training device, cpu or gpu
     paddle.set_device(args.device)
 
     # stage1: we must call the paddle.distributed.init_parallel_env() api at the begining
@@ -27,7 +31,31 @@ def main(args):
     local_rank = paddle.distributed.get_rank()
 
     # stage2: data prepare
+    # note: some cmd must do in rank==0
     train_ds = VoxCeleb1('train', target_dir=args.data_dir)
+
+    # stage3: build the dnn backbone model network
+    model_conf = {
+        "input_size": 80,
+        "channels": [1024, 1024, 1024, 1024, 3072],
+        "kernel_sizes": [5, 3, 3, 3, 1],
+        "dilations": [1, 2, 3, 4, 1],
+        "attention_channels": 128,
+        "lin_neurons": 192,
+    }
+    ecapa_tdnn = EcapaTdnn(**model_conf)
+
+    # stage4: build the speaker verification train instance with backbone model
+    model = SpeakerIdetification(
+        backbone=ecapa_tdnn, num_class=VoxCeleb1.num_speakers)
+
+    # stage5: build the optimizer, we now only construct the AdamW optimizer
+    lr_schedule = CyclicLRScheduler(
+        base_lr=args.learning_rate, max_lr=1e-3, step_size=140000 // nranks)
+    optimizer = paddle.optimizer.AdamW(
+        learning_rate=lr_schedule, parameters=model.parameters())
+
+    # stage6: build the loss function, we now only support LogSoftmaxWrapper
 
 
 if __name__ == "__main__":
@@ -41,6 +69,10 @@ if __name__ == "__main__":
                         default="./data/",
                         type=str,
                         help="data directory")
+    parser.add_argument("--learning_rate",
+                        type=float,
+                        default=1e-8,
+                        help="Learning rate used to train with warmup.")
     args = parser.parse_args()
     # yapf: enable
 

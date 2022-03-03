@@ -1,4 +1,5 @@
 #!/bin/bash
+# bash test_server_client.sh
 
 StartService(){
     # Start service 

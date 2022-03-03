@@ -23,15 +23,29 @@ from .log import logger
 download.logger = logger
 
 
-def decompress(file: str):
+def decompress(file: str, path: str=os.PathLike):
     """
-    Extracts all files from a compressed file.
+    Extracts all files from a compressed file to specific path.
     """
     assert os.path.isfile(file), "File: {} not exists.".format(file)
-    download._decompress(file)
+
+    if path is None:
+        print("decompress the data: {}".format(file))
+        download._decompress(file)
+    else:
+        print("decompress the data: {} to {}".format(file, path))
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+        tmp_file = os.path.join(path, os.path.basename(file))
+        os.rename(file, tmp_file)
+        download._decompress(tmp_file)
+        os.rename(tmp_file, file)
 
 
-def download_and_decompress(archives: List[Dict[str, str]], path: str):
+def download_and_decompress(archives: List[Dict[str, str]],
+                            path: str,
+                            decompress: bool=True):
     """
     Download archieves and decompress to specific path.
     """
@@ -41,8 +55,8 @@ def download_and_decompress(archives: List[Dict[str, str]], path: str):
     for archive in archives:
         assert 'url' in archive and 'md5' in archive, \
             'Dictionary keys of "url" and "md5" are required in the archive, but got: {list(archieve.keys())}'
-
-        download.get_path_from_url(archive['url'], path, archive['md5'])
+        download.get_path_from_url(
+            archive['url'], path, archive['md5'], decompress=decompress)
 
 
 def load_state_dict_from_url(url: str, path: str, md5: str=None):

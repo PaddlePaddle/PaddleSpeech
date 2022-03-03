@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import argparse
 
 import paddle
@@ -19,7 +20,7 @@ from paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddlespeech.vector.layers.lr import CyclicLRScheduler
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.training.sid_model import SpeakerIdetification
-
+from paddlespeech.vector.layers.loss import AdditiveAngularMargin, LogSoftmaxWrapper
 
 def main(args):
     # stage0: set the training device, cpu or gpu
@@ -33,6 +34,7 @@ def main(args):
     # stage2: data prepare
     # note: some cmd must do in rank==0
     train_ds = VoxCeleb1('train', target_dir=args.data_dir)
+    dev_ds = VoxCeleb1('dev', target_dir=args.data_dir)
 
     # stage3: build the dnn backbone model network
     model_conf = {
@@ -56,8 +58,38 @@ def main(args):
         learning_rate=lr_schedule, parameters=model.parameters())
 
     # stage6: build the loss function, we now only support LogSoftmaxWrapper
+    criterion = LogSoftmaxWrapper(
+        loss_fn=AdditiveAngularMargin(margin=0.2, scale=30))
 
+    
+    # stage7: confirm training start epoch
+    #         if pre-trained model exists, start epoch confirmed by the pre-trained model
+    start_epoch = 0
+    if args.load_checkpoint:
+        args.load_checkpoint = os.path.abspath(
+            os.path.expanduser(args.load_checkpoint))
+        try:
+            # load model checkpoint
+            state_dict = paddle.load(
+                os.path.join(args.load_checkpoint, 'model.pdparams'))
+            model.set_state_dict(state_dict)
 
+            # load optimizer checkpoint
+            state_dict = paddle.load(
+                os.path.join(args.load_checkpoint, 'model.pdopt'))
+            optimizer.set_state_dict(state_dict)
+            if local_rank == 0:
+                print(f'Checkpoint loaded from {args.load_checkpoint}')
+        except FileExistsError:
+            if local_rank == 0:
+                print('Train from scratch.')
+
+        try:
+            start_epoch = int(args.load_checkpoint[-1])
+            print(f'Restore training from epoch {start_epoch}.')
+        except ValueError:
+            pass
+    
 if __name__ == "__main__":
     # yapf: disable
     parser = argparse.ArgumentParser(__doc__)
@@ -73,6 +105,11 @@ if __name__ == "__main__":
                         type=float,
                         default=1e-8,
                         help="Learning rate used to train with warmup.")
+    parser.add_argument("--load_checkpoint", 
+                        type=str, 
+                        default=None, 
+                        help="Directory to load model checkpoint to contiune trainning.")
+
     args = parser.parse_args()
     # yapf: enable
 

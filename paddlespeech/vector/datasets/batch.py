@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import numpy as np
+import paddle
 
 
 def waveform_collate_fn(batch):
@@ -18,3 +20,14 @@ def waveform_collate_fn(batch):
     labels = np.stack([item['label'] for item in batch])
 
     return {'waveforms': waveforms, 'labels': labels}
+
+
+def feature_normalize(feats: paddle.Tensor,
+                      mean_norm: bool=True,
+                      std_norm: bool=True):
+    # Features normalization if needed
+    mean = feats.mean(axis=-1, keepdim=True) if mean_norm else 0
+    std = feats.std(axis=-1, keepdim=True) if std_norm else 1
+    feats = (feats - mean) / std
+
+    return feats

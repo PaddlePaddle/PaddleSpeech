@@ -2,18 +2,29 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(paddlespeech VERSION 0.1)
 
+set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0048.cmake")
+
 set(CMAKE_VERBOSE_MAKEFILE on)
+
 # set std-14
 set(CMAKE_CXX_STANDARD 14)
 
-# include file 
+# cmake dir
+set(speechx_cmake_dir ${PROJECT_SOURCE_DIR}/cmake)
+
+# Modules
+list(APPEND CMAKE_MODULE_PATH ${speechx_cmake_dir}/external)
+list(APPEND CMAKE_MODULE_PATH ${speechx_cmake_dir})
 include(FetchContent)
 include(ExternalProject)
+
 # fc_patch dir
 set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
+# compiler option
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g")
 
 ###############################################################################
 # Option Configurations
@@ -25,66 +36,39 @@ option(TEST_DEBUG "option for debug" OFF)
 ###############################################################################
 # Include third party
 ###############################################################################
-# #example for include third party
-# # FetchContent_MakeAvailable was not added until CMake 3.14
+# example for include third party
+# FetchContent_MakeAvailable was not added until CMake 3.14
 # FetchContent_MakeAvailable()
 # include_directories()
 
-# ABSEIL-CPP
-include(FetchContent)
-FetchContent_Declare(
-  absl
-  GIT_REPOSITORY "https://github.com/abseil/abseil-cpp.git"
-  GIT_TAG "20210324.1"
-)
-FetchContent_MakeAvailable(absl)
-include_directories(${absl_SOURCE_DIR})
-
-# libsndfile
-#include(FetchContent)
-#FetchContent_Declare(
-#  libsndfile
-#  GIT_REPOSITORY "https://github.com/libsndfile/libsndfile.git"
-#  GIT_TAG "1.0.31"
-#)
-#FetchContent_MakeAvailable(libsndfile)
-
-set(boost_SOURCE_DIR ${fc_patch}/boost-src)
-set(BOOST_ROOT ${boost_SOURCE_DIR})
-include(FetchContent)
-FetchContent_Declare(
-  kenlm
-  GIT_REPOSITORY "https://github.com/kpu/kenlm.git"
-  GIT_TAG "df2d717e95183f79a90b2fa6e4307083a351ca6a"
-)
-FetchContent_MakeAvailable(kenlm)
-include_directories(${kenlm_SOURCE_DIR})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -fPIC -O0 -Wall -g")
 # gflags
-FetchContent_Declare(
-  gflags
-  URL      https://github.com/gflags/gflags/archive/v2.2.1.zip
-  URL_HASH SHA256=4e44b69e709c826734dbbbd5208f61888a2faf63f239d73d8ba0011b2dccc97a
-)
-FetchContent_MakeAvailable(gflags)
-include_directories(${gflags_BINARY_DIR}/include)
+include(gflags)
 
 # glog
-FetchContent_Declare(
-  glog
-  URL      https://github.com/google/glog/archive/v0.4.0.zip
-  URL_HASH SHA256=9e1b54eb2782f53cd8af107ecf08d2ab64b8d0dc2b7f5594472f3bd63ca85cdc
-)
-FetchContent_MakeAvailable(glog)
-include_directories(${glog_BINARY_DIR} ${glog_SOURCE_DIR}/src)
+include(glog)
 
 # gtest
-#FetchContent_Declare(googletest
-  #URL      https://github.com/google/googletest/archive/release-1.10.0.zip
-  #URL_HASH SHA256=94c634d499558a76fa649edb13721dce6e98fb1e7018dfaeba3cd7a083945e91
-#)
-#FetchContent_MakeAvailable(googletest)
+include(gtest)
+
+# ABSEIL-CPP
+include(absl)
+
+# libsndfile, not work
+#include(libsndfile)
+
+# boost
+set(boost_SOURCE_DIR ${fc_patch}/boost-src)
+set(BOOST_ROOT ${boost_SOURCE_DIR})
+#find_package(boost REQUIRED PATHS ${BOOST_ROOT})
+
+# Eigen
+include(eigen)
+find_package(Eigen3 REQUIRED)
+
+# Kenlm
+include(kenlm)
+add_dependencies(kenlm eigen boost)
+
 
 # openfst
 set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
@@ -174,8 +158,6 @@ include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
 # gfortan dir in the docker.
 link_directories(/usr/local/gcc-8.2/lib64)
 
-add_subdirectory(speechx)
-
 ###############################################################################
 # Add local library
 ###############################################################################
@@ -187,3 +169,5 @@ add_subdirectory(speechx)
 #add_library(lib_name STATIC file.cc)
 #target_link_libraries(lib_name item0 item1)
 #add_dependencies(lib_name depend-target)
+
+add_subdirectory(speechx)

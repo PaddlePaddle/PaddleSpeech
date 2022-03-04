@@ -71,15 +71,17 @@ class Spectrogram(nn.Layer):
         if win_length is None:
             win_length = n_fft
 
-        fft_window = get_window(window, win_length, fftbins=True, dtype=dtype)
+        self.fft_window = get_window(
+            window, win_length, fftbins=True, dtype=dtype)
         self._stft = partial(
             paddle.signal.stft,
             n_fft=n_fft,
             hop_length=hop_length,
             win_length=win_length,
-            window=fft_window,
+            window=self.fft_window,
             center=center,
             pad_mode=pad_mode)
+        self.register_buffer('fft_window', self.fft_window)
 
     def forward(self, x):
         stft = self._stft(x)
@@ -259,12 +261,18 @@ class MFCC(nn.Layer):
                  sr: int=22050,
                  n_mfcc: int=40,
                  norm: str='ortho',
+                 dtype: str=paddle.float32,
                  **kwargs):
-        """[summary]
+        """Compute mel frequency cepstral coefficients(MFCCs) feature of given waveforms.
+
         Parameters:
-            sr (int, optional): [description]. Defaults to 22050.
-            n_mfcc (int, optional): [description]. Defaults to 40.
-            norm (str, optional): [description]. Defaults to 'ortho'.
+            sr(int): the audio sample rate.
+                The default value is 22050.
+            n_mfcc (int, optional): Number of cepstra in MFCC. Defaults to 40.
+            norm(str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
+                You can specify norm=1.0/2.0 to use customized p-norm normalization.
+            dtype(str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
+                accuracy. Note that the final transform will be conducted in float32 regardless of dtype of fbank matrix.
         """
         super(MFCC, self).__init__()
         self._log_melspectrogram = LogMelSpectrogram(sr=sr, **kwargs)

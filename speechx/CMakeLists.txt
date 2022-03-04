@@ -24,7 +24,7 @@ get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
 # compiler option
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -fPIC -O0 -Wall -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g")
 
 ###############################################################################
 # Option Configurations
@@ -41,7 +41,16 @@ option(TEST_DEBUG "option for debug" OFF)
 # FetchContent_MakeAvailable()
 # include_directories()
 
-# ABSEIL-CPP, need before gtest
+# gflags
+include(gflags)
+
+# glog
+include(glog)
+
+# gtest
+include(gtest)
+
+# ABSEIL-CPP
 include(absl)
 
 # libsndfile, not work
@@ -60,15 +69,6 @@ find_package(Eigen3 REQUIRED)
 include(kenlm)
 add_dependencies(kenlm eigen boost)
 
-
-# gflags
-include(gflags)
-
-# glog
-include(glog)
-
-# gtest
-#include(gtest)
 
 # openfst
 set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
@@ -158,8 +158,6 @@ include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
 # gfortan dir in the docker.
 link_directories(/usr/local/gcc-8.2/lib64)
 
-add_subdirectory(speechx)
-
 ###############################################################################
 # Add local library
 ###############################################################################
@@ -171,3 +169,5 @@ add_subdirectory(speechx)
 #add_library(lib_name STATIC file.cc)
 #target_link_libraries(lib_name item0 item1)
 #add_dependencies(lib_name depend-target)
+
+add_subdirectory(speechx)

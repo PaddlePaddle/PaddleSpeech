@@ -44,22 +44,22 @@ class Spectrogram(nn.Layer):
         The spectorgram is defined as the complex norm of the short-time
         Fourier transformation.
         Parameters:
-            n_fft(int): the number of frequency components of the discrete Fourier transform.
+            n_fft (int): the number of frequency components of the discrete Fourier transform.
                 The default value is 2048,
-            hop_length(int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
+            hop_length (int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
                 The default value is None.
             win_length: the window length of the short time FFt. If None, it is set to same as n_fft.
                 The default value is None.
-            window(str): the name of the window function applied to the single before the Fourier transform.
+            window (str): the name of the window function applied to the single before the Fourier transform.
                 The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
                 'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
                 The default value is 'hann'
-            center(bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
+            center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
                 If False, frame t begins at x[t * hop_length]
                 The default value is True
-            pad_mode(str): the mode to pad the signal if necessary. The supported modes are 'reflect'
+            pad_mode (str): the mode to pad the signal if necessary. The supported modes are 'reflect'
                 and 'constant'. The default value is 'reflect'.
-            dtype(str): the data type of input and window.
+            dtype (str): the data type of input and window.
         Notes:
             The Spectrogram transform relies on STFT transform to compute the spectrogram.
             By default, the weights are not learnable. To fine-tune the Fourier coefficients,
@@ -190,39 +190,39 @@ class LogMelSpectrogram(nn.Layer):
         """Compute log-mel-spectrogram(also known as LogFBank) feature of a given signal,
         typically an audio waveform.
         Parameters:
-            sr(int): the audio sample rate.
+            sr (int): the audio sample rate.
                 The default value is 22050.
-            n_fft(int): the number of frequency components of the discrete Fourier transform.
+            n_fft (int): the number of frequency components of the discrete Fourier transform.
                 The default value is 2048,
-            hop_length(int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
+            hop_length (int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
                 The default value is None.
             win_length: the window length of the short time FFt. If None, it is set to same as n_fft.
                 The default value is None.
-            window(str): the name of the window function applied to the single before the Fourier transform.
+            window (str): the name of the window function applied to the single before the Fourier transform.
                 The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
                 'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
                 The default value is 'hann'
-            center(bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
+            center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
                 If False, frame t begins at x[t * hop_length]
                 The default value is True
-            pad_mode(str): the mode to pad the signal if necessary. The supported modes are 'reflect'
+            pad_mode (str): the mode to pad the signal if necessary. The supported modes are 'reflect'
                 and 'constant'.
                 The default value is 'reflect'.
-            n_mels(int): the mel bins.
-            f_min(float): the lower cut-off frequency, below which the filter response is zero.
-            f_max(float): the upper cut-off frequency, above which the filter response is zeros.
-            ref_value(float): the reference value. If smaller than 1.0, the db level
-            htk(bool): whether to use HTK formula in computing fbank matrix.
-            norm(str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
+            n_mels (int): the mel bins.
+            f_min (float): the lower cut-off frequency, below which the filter response is zero.
+            f_max (float): the upper cut-off frequency, above which the filter response is zeros.
+            htk (bool): whether to use HTK formula in computing fbank matrix.
+            norm (str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
                 You can specify norm=1.0/2.0 to use customized p-norm normalization.
-            dtype(str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
-                accuracy. Note that the final transform will be conducted in float32 regardless of dtype of fbank matrix.
-            amin(float): the minimum value of input magnitude, below which the input of the signal will be pulled up accordingly.
+            ref_value (float): the reference value. If smaller than 1.0, the db level
+            amin (float): the minimum value of input magnitude, below which the input of the signal will be pulled up accordingly.
                 Otherwise, the db level is pushed down.
                 magnitude is clipped(to amin). For numerical stability, set amin to a larger value,
                 e.g., 1e-3.
-            top_db(float): the maximum db value of resulting spectrum, above which the
+            top_db (float): the maximum db value of resulting spectrum, above which the
                 spectrum is clipped(to top_db).
+            dtype (str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
+                accuracy. Note that the final transform will be conducted in float32 regardless of dtype of fbank matrix.
         """
         super(LogMelSpectrogram, self).__init__()
 
@@ -260,24 +260,80 @@ class MFCC(nn.Layer):
     def __init__(self,
                  sr: int=22050,
                  n_mfcc: int=40,
-                 norm: str='ortho',
-                 dtype: str=paddle.float32,
-                 **kwargs):
+                 n_fft: int=512,
+                 hop_length: Optional[int]=None,
+                 win_length: Optional[int]=None,
+                 window: str='hann',
+                 center: bool=True,
+                 pad_mode: str='reflect',
+                 n_mels: int=64,
+                 f_min: float=50.0,
+                 f_max: Optional[float]=None,
+                 htk: bool=False,
+                 norm: Union[str, float]='slaney',
+                 ref_value: float=1.0,
+                 amin: float=1e-10,
+                 top_db: Optional[float]=None,
+                 dtype: str=paddle.float32):
         """Compute mel frequency cepstral coefficients(MFCCs) feature of given waveforms.
 
         Parameters:
             sr(int): the audio sample rate.
                 The default value is 22050.
             n_mfcc (int, optional): Number of cepstra in MFCC. Defaults to 40.
-            norm(str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
+            n_fft (int): the number of frequency components of the discrete Fourier transform.
+                The default value is 2048,
+            hop_length (int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
+                The default value is None.
+            win_length: the window length of the short time FFt. If None, it is set to same as n_fft.
+                The default value is None.
+            window (str): the name of the window function applied to the single before the Fourier transform.
+                The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
+                'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
+                The default value is 'hann'
+            center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
+                If False, frame t begins at x[t * hop_length]
+                The default value is True
+            pad_mode (str): the mode to pad the signal if necessary. The supported modes are 'reflect'
+                and 'constant'.
+                The default value is 'reflect'.
+            n_mels (int): the mel bins.
+            f_min (float): the lower cut-off frequency, below which the filter response is zero.
+            f_max (float): the upper cut-off frequency, above which the filter response is zeros.
+            htk (bool): whether to use HTK formula in computing fbank matrix.
+            norm (str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
                 You can specify norm=1.0/2.0 to use customized p-norm normalization.
-            dtype(str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
+            ref_value (float): the reference value. If smaller than 1.0, the db level
+            amin (float): the minimum value of input magnitude, below which the input of the signal will be pulled up accordingly.
+                Otherwise, the db level is pushed down.
+                magnitude is clipped(to amin). For numerical stability, set amin to a larger value,
+                e.g., 1e-3.
+            top_db (float): the maximum db value of resulting spectrum, above which the
+                spectrum is clipped(to top_db).
+            dtype (str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
                 accuracy. Note that the final transform will be conducted in float32 regardless of dtype of fbank matrix.
         """
         super(MFCC, self).__init__()
-        self._log_melspectrogram = LogMelSpectrogram(sr=sr, **kwargs)
-        self.dct_matrix = create_dct(
-            n_mfcc=n_mfcc, n_mels=self._log_melspectrogram.n_mels, norm=norm)
+        assert n_mfcc <= n_mels, 'n_mfcc cannot be larger than n_mels: %d vs %d' % (
+            n_mfcc, n_mels)
+        self._log_melspectrogram = LogMelSpectrogram(
+            sr=sr,
+            n_fft=n_fft,
+            hop_length=hop_length,
+            win_length=win_length,
+            window=window,
+            center=center,
+            pad_mode=pad_mode,
+            n_mels=n_mels,
+            f_min=f_min,
+            f_max=f_max,
+            htk=htk,
+            norm=norm,
+            ref_value=ref_value,
+            amin=amin,
+            top_db=top_db,
+            dtype=dtype)
+        self.dct_matrix = create_dct(n_mfcc=n_mfcc, n_mels=n_mels, dtype=dtype)
         self.register_buffer('dct_matrix', self.dct_matrix)
 
     def forward(self, x):

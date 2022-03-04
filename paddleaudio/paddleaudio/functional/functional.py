@@ -242,14 +242,15 @@ def power_to_db(magnitude: paddle.Tensor,
 def create_dct(n_mfcc: int,
                n_mels: int,
                norm: Optional[str]='ortho',
-               dtype: Optional[str]=paddle.float32):
-    """[summary]
+               dtype: Optional[str]=paddle.float32) -> paddle.Tensor:
+    """Create a discrete cosine transform(DCT) matrix.
+
     Parameters:
-        n_mfcc (int): [description]
-        n_mels (int): [description]
-        norm (str, optional): [description]. Defaults to 'ortho'.
+        n_mfcc (int): Number of mel frequency cepstral coefficients. 
+        n_mels (int): Number of mel filterbanks.
+        norm (str, optional): Normalizaiton type. Defaults to 'ortho'.
     Returns:
-        [type]: [description]
+        Tensor: The DCT matrix with shape (n_mels, n_mfcc).
     """
     n = paddle.arange(n_mels, dtype=dtype)
     k = paddle.arange(n_mfcc, dtype=dtype).unsqueeze(1)

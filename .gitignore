@@ -14,6 +14,7 @@
 *.whl
 *.egg-info
 build
+*output/
 
 docs/build/
 docs/topic/ctc/warp-ctc/
@@ -34,5 +35,3 @@ tools/miniconda.sh
 tools/CRF++-0.58/
 
 speechx/fc_patch/
-
-*output/

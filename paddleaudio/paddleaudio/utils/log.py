@@ -19,7 +19,10 @@ import time
 
 import colorlog
 
-loggers = {}
+__all__ = [
+    'Logger',
+    'logger',
+]
 
 log_config = {
     'DEBUG': {

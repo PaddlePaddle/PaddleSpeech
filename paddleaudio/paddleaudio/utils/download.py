@@ -22,6 +22,12 @@ from .log import logger
 
 download.logger = logger
 
+__all__ = [
+    'decompress',
+    'download_and_decompress',
+    'load_state_dict_from_url',
+]
+
 
 def decompress(file: str):
     """

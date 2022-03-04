@@ -20,6 +20,19 @@ from paddle import Tensor
 
 __all__ = [
     'get_window',
+
+    # windows
+    'taylor',
+    'hamming',
+    'hann',
+    'tukey',
+    'kaiser',
+    'gaussian',
+    'exponential',
+    'triang',
+    'bohman',
+    'blackman',
+    'cosine',
 ]
 
 
@@ -70,6 +83,21 @@ def general_gaussian(M: int, p, sig, sym: bool=True,
     n = paddle.arange(0, M, dtype=dtype) - (M - 1.0) / 2.0
     w = paddle.exp(-0.5 * paddle.abs(n / sig)**(2 * p))
 
+    return _truncate(w, needs_trunc)
+
+
+def general_cosine(M: int, a: float, sym: bool=True,
+                   dtype: str='float64') -> Tensor:
+    """Compute a generic weighted sum of cosine terms window.
+    This function is consistent with scipy.signal.windows.general_cosine().
+    """
+    if _len_guards(M):
+        return paddle.ones((M, ), dtype=dtype)
+    M, needs_trunc = _extend(M, sym)
+    fac = paddle.linspace(-math.pi, math.pi, M, dtype=dtype)
+    w = paddle.zeros((M, ), dtype=dtype)
+    for k in range(len(a)):
+        w += a[k] * paddle.cos(k * fac)
     return _truncate(w, needs_trunc)
 
 
@@ -140,21 +168,6 @@ def taylor(M: int,
         scale = 1.0 / W((M - 1) / 2)
         w *= scale
     w = w.squeeze()
-    return _truncate(w, needs_trunc)
-
-
-def general_cosine(M: int, a: float, sym: bool=True,
-                   dtype: str='float64') -> Tensor:
-    """Compute a generic weighted sum of cosine terms window.
-    This function is consistent with scipy.signal.windows.general_cosine().
-    """
-    if _len_guards(M):
-        return paddle.ones((M, ), dtype=dtype)
-    M, needs_trunc = _extend(M, sym)
-    fac = paddle.linspace(-math.pi, math.pi, M, dtype=dtype)
-    w = paddle.zeros((M, ), dtype=dtype)
-    for k in range(len(a)):
-        w += a[k] * paddle.cos(k * fac)
     return _truncate(w, needs_trunc)
 
 
@@ -375,6 +388,7 @@ def cosine(M: int, sym: bool=True, dtype: str='float64') -> Tensor:
     return _truncate(w, needs_trunc)
 
 
+## factory function
 def get_window(window: Union[str, Tuple[str, float]],
                win_length: int,
                fftbins: bool=True,

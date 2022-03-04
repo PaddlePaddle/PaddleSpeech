@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ __all__ = [
     'to_mono',
     'depth_convert',
     'normalize',
-    'save_wav',
+    'save',
     'load',
 ]
 NORMALMIZE_TYPES = ['linear', 'gaussian']
@@ -41,12 +41,9 @@ EPS = 1e-8
 def resample(y: array, src_sr: int, target_sr: int,
              mode: str='kaiser_fast') -> array:
     """ Audio resampling
-
      This function is the same as using resampy.resample().
-
      Notes:
         The default mode is kaiser_fast.  For better audio quality, use mode = 'kaiser_fast'
-
      """
 
     if mode == 'kaiser_best':
@@ -106,7 +103,6 @@ def to_mono(y: array, merge_type: str='average') -> array:
 
 def _safe_cast(y: array, dtype: Union[type, str]) -> array:
     """ data type casting in a safe way, i.e., prevent overflow or underflow
-
     This function is used internally.
     """
     return np.clip(y, np.iinfo(dtype).min, np.iinfo(dtype).max).astype(dtype)
@@ -115,10 +111,8 @@ def _safe_cast(y: array, dtype: Union[type, str]) -> array:
 def depth_convert(y: array, dtype: Union[type, str],
                   dithering: bool=True) -> array:
     """Convert audio array to target dtype safely
-
     This function convert audio waveform to a target dtype, with addition steps of
     preventing overflow/underflow and preserving audio range.
-
     """
 
     SUPPORT_DTYPE = ['int16', 'int8', 'float32', 'float64']
@@ -168,12 +162,9 @@ def sound_file_load(file: str,
                     dtype: str='int16',
                     duration: Optional[int]=None) -> Tuple[array, int]:
     """Load audio using soundfile library
-
     This function load audio file using libsndfile.
-
     Reference:
         http://www.mega-nerd.com/libsndfile/#Features
-
     """
     with sf.SoundFile(file) as sf_desc:
         sr_native = sf_desc.samplerate
@@ -188,33 +179,9 @@ def sound_file_load(file: str,
     return y, sf_desc.samplerate
 
 
-def audio_file_load():
-    """Load audio using audiofile library
-
-    This function load audio file using audiofile.
-
-    Reference:
-        https://audiofile.68k.org/
-
-    """
-    raise NotImplementedError()
-
-
-def sox_file_load():
-    """Load audio using sox library
-
-    This function load audio file using sox.
-
-    Reference:
-        http://sox.sourceforge.net/
-    """
-    raise NotImplementedError()
-
-
 def normalize(y: array, norm_type: str='linear',
               mul_factor: float=1.0) -> array:
     """ normalize an input audio with additional multiplier.
-
     """
 
     if norm_type == 'linear':
@@ -232,14 +199,12 @@ def normalize(y: array, norm_type: str='linear',
     return y
 
 
-def save_wav(y: array, sr: int, file: str) -> None:
+def save(y: array, sr: int, file: str) -> None:
     """Save audio file to disk.
     This function saves audio to disk using scipy.io.wavfile, with additional step
     to convert input waveform to int16 unless it already is int16
-
     Notes:
         It only support raw wav format.
-
     """
     if not file.endswith('.wav'):
         raise ParameterError(
@@ -274,11 +239,8 @@ def load(
         resample_mode: str='kaiser_fast') -> Tuple[array, int]:
     """Load audio file from disk.
     This function loads audio from disk using using audio beackend.
-
     Parameters:
-
     Notes:
-
     """
 
     y, r = sound_file_load(file, offset=offset, dtype=dtype, duration=duration)

@@ -76,6 +76,9 @@ class VoxCeleb1(Dataset):
         'META_INFO', ('id', 'duration', 'wav', 'start', 'stop', 'spk_id'))
     base_path = os.path.join(DATA_HOME, 'vox1')
     wav_path = os.path.join(base_path, 'wav')
+    meta_path = os.path.join(base_path, 'meta')
+    veri_test_file = os.path.join(meta_path, 'veri_test2.txt')
+    csv_path = os.path.join(base_path, 'csv')
     subsets = ['train', 'dev', 'enrol', 'test']
 
     def __init__(

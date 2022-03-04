@@ -11,21 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
 import ast
 import os
 
 import numpy as np
 import paddle
+import paddle.nn.functional as F
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
-import paddle.nn.functional as F
-from paddlespeech.vector.training.metrics import compute_eer
+from tqdm import tqdm
+
 from paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
-from paddlespeech.vector.training.sid_model import SpeakerIdetification
-from tqdm import tqdm
+from paddlespeech.vector.modules.sid_model import SpeakerIdetification
+from paddlespeech.vector.training.metrics import compute_eer
 
 
 def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
@@ -44,7 +44,7 @@ def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
     return np.pad(x, pad_width, mode=mode, **kwargs)
 
 
-def feature_normalize(batch, mean_norm: bool = True, std_norm: bool = True):
+def feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
     ids = [item['id'] for item in batch]
     lengths = np.asarray([item['feat'].shape[1] for item in batch])
     feats = list(
@@ -58,8 +58,8 @@ def feature_normalize(batch, mean_norm: bool = True, std_norm: bool = True):
         mean = feat.mean(axis=-1, keepdims=True) if mean_norm else 0
         std = feat.std(axis=-1, keepdims=True) if std_norm else 1
         feats[i][:, :lengths[i]] = (feat - mean) / std
-        assert feats[i][:, lengths[i]:].sum(
-        ) == 0  # Padding valus should all be 0.
+        assert feats[i][:, lengths[
+            i]:].sum() == 0  # Padding valus should all be 0.
 
     # Converts into ratios.
     lengths = (lengths / lengths.max()).astype(np.float32)
@@ -98,16 +98,16 @@ def main(args):
     print(f'Checkpoint loaded from {args.load_checkpoint}')
 
     # stage4: construct the enroll and test dataloader
-    enrol_ds = VoxCeleb1(subset='enrol',
-                        feat_type='melspectrogram',
-                        random_chunk=False,
-                        n_mels=80,
-                        window_size=400,
-                        hop_length=160)
+    enrol_ds = VoxCeleb1(
+        subset='enrol',
+        feat_type='melspectrogram',
+        random_chunk=False,
+        n_mels=80,
+        window_size=400,
+        hop_length=160)
     enrol_sampler = BatchSampler(
-                    enrol_ds, 
-                    batch_size=args.batch_size,
-                    shuffle=True)  # Shuffle to make embedding normalization more robust.
+        enrol_ds, batch_size=args.batch_size,
+        shuffle=True)  # Shuffle to make embedding normalization more robust.
     enrol_loader = DataLoader(enrol_ds,
                     batch_sampler=enrol_sampler,
                     collate_fn=lambda x: feature_normalize(
@@ -115,16 +115,16 @@ def main(args):
                     num_workers=args.num_workers,
                     return_list=True,)
 
-    test_ds = VoxCeleb1(subset='test',
-                        feat_type='melspectrogram',
-                        random_chunk=False,
-                        n_mels=80,
-                        window_size=400,
-                        hop_length=160)
+    test_ds = VoxCeleb1(
+        subset='test',
+        feat_type='melspectrogram',
+        random_chunk=False,
+        n_mels=80,
+        window_size=400,
+        hop_length=160)
 
-    test_sampler = BatchSampler(test_ds, 
-                                batch_size=args.batch_size, 
-                                shuffle=True)
+    test_sampler = BatchSampler(
+        test_ds, batch_size=args.batch_size, shuffle=True)
     test_loader = DataLoader(test_ds,
                             batch_sampler=test_sampler,
                             collate_fn=lambda x: feature_normalize(
@@ -169,12 +169,13 @@ def main(args):
                             embedding_mean, embedding_std = mean, std
                         else:
                             weight = 1 / batch_count  # Weight decay by batches.
-                            embedding_mean = (
-                                1 - weight) * embedding_mean + weight * mean
-                            embedding_std = (
-                                1 - weight) * embedding_std + weight * std
+                            embedding_mean = (1 - weight
+                                              ) * embedding_mean + weight * mean
+                            embedding_std = (1 - weight
+                                             ) * embedding_std + weight * std
                         # Apply global embedding normalization.
-                        embeddings = (embeddings - embedding_mean) / embedding_std
+                        embeddings = (
+                            embeddings - embedding_mean) / embedding_std
 
                     # Update embedding dict.
                     id2embedding.update(dict(zip(ids, embeddings)))
@@ -201,36 +202,37 @@ def main(args):
         f'EER of verification test: {EER*100:.4f}%, score threshold: {threshold:.5f}'
     )
 
+
 if __name__ == "__main__":
     # yapf: disable
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument('--device', 
-                        choices=['cpu', 'gpu'], 
-                        default="gpu", 
+    parser.add_argument('--device',
+                        choices=['cpu', 'gpu'],
+                        default="gpu",
                         help="Select which device to train model, defaults to gpu.")
-    parser.add_argument("--batch-size", 
-                        type=int, 
-                        default=16, 
+    parser.add_argument("--batch-size",
+                        type=int,
+                        default=16,
                         help="Total examples' number in batch for training.")
-    parser.add_argument("--num-workers", 
-                        type=int, 
-                        default=0, 
+    parser.add_argument("--num-workers",
+                        type=int,
+                        default=0,
                         help="Number of workers in dataloader.")
-    parser.add_argument("--load-checkpoint", 
-                        type=str, 
-                        default='', 
+    parser.add_argument("--load-checkpoint",
+                        type=str,
+                        default='',
                         help="Directory to load model checkpoint to contiune trainning.")
-    parser.add_argument("--global-embedding-norm", 
-                        type=bool, 
-                        default=True, 
+    parser.add_argument("--global-embedding-norm",
+                        type=bool,
+                        default=True,
                         help="Apply global normalization on speaker embeddings.")
-    parser.add_argument("--embedding-mean-norm", 
-                        type=bool, 
-                        default=True, 
+    parser.add_argument("--embedding-mean-norm",
+                        type=bool,
+                        default=True,
                         help="Apply mean normalization on speaker embeddings.")
-    parser.add_argument("--embedding-std-norm", 
-                        type=bool, 
-                        default=False, 
+    parser.add_argument("--embedding-std-norm",
+                        type=bool,
+                        default=False,
                         help="Apply std normalization on speaker embeddings.")
     args = parser.parse_args()
     # yapf: enable

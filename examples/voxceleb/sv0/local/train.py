@@ -22,21 +22,22 @@ from paddle.io import DistributedBatchSampler
 
 from paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddleaudio.features.core import melspectrogram
-from paddlespeech.vector.training.time import Timer
-from paddlespeech.vector.datasets.batch import feature_normalize
-from paddlespeech.vector.datasets.batch import waveform_collate_fn
-from paddlespeech.vector.layers.loss import AdditiveAngularMargin
-from paddlespeech.vector.layers.loss import LogSoftmaxWrapper
-from paddlespeech.vector.layers.lr import CyclicLRScheduler
+from paddlespeech.vector.io.batch import feature_normalize
+from paddlespeech.vector.io.batch import waveform_collate_fn
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
-from paddlespeech.vector.training.sid_model import SpeakerIdetification
+from paddlespeech.vector.modules.loss import AdditiveAngularMargin
+from paddlespeech.vector.modules.loss import LogSoftmaxWrapper
+from paddlespeech.vector.modules.lr import CyclicLRScheduler
+from paddlespeech.vector.modules.sid_model import SpeakerIdetification
+from paddlespeech.vector.utils.time import Timer
 
 # feat configuration
 cpu_feat_conf = {
     'n_mels': 80,
-    'window_size': 400,
-    'hop_length': 160,
+    'window_size': 400,  #ms
+    'hop_length': 160,  #ms
 }
+
 
 def main(args):
     # stage0: set the training device, cpu or gpu

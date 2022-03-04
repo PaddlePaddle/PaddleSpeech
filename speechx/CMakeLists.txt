@@ -53,8 +53,8 @@ include(gtest)
 # ABSEIL-CPP
 include(absl)
 
-# libsndfile, not work
-#include(libsndfile)
+# libsndfile
+include(libsndfile)
 
 # boost
 set(boost_SOURCE_DIR ${fc_patch}/boost-src)

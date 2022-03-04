@@ -49,24 +49,7 @@ include_directories(${absl_SOURCE_DIR})
 #)
 #FetchContent_MakeAvailable(libsndfile)
 
-#boost
 set(boost_SOURCE_DIR ${fc_patch}/boost-src)
-set(boost_PREFIX_DIR ${fc_patch}/boost-subbuild/boost-prefix)
-include(ExternalProject)
-ExternalProject_Add(
-  boost
-  URL      https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
-  URL_HASH SHA256=aeb26f80e80945e82ee93e5939baebdca47b9dee80a07d3144be1e1a6a66dd6a
-  SOURCE_DIR        ${boost_SOURCE_DIR}
-  PREFIX            ${boost_PREFIX_DIR}
-  BUILD_IN_SOURCE   1
-  CONFIGURE_COMMAND ./bootstrap.sh
-  BUILD_COMMAND     ./b2
-  INSTALL_COMMAND   ""
-)
-link_directories(${boost_SOURCE_DIR}/stage/lib)
-include_directories(${boost_SOURCE_DIR})
-
 set(BOOST_ROOT ${boost_SOURCE_DIR})
 include(FetchContent)
 FetchContent_Declare(
@@ -75,10 +58,9 @@ FetchContent_Declare(
   GIT_TAG "df2d717e95183f79a90b2fa6e4307083a351ca6a"
 )
 FetchContent_MakeAvailable(kenlm)
-add_dependencies(kenlm boost)
 include_directories(${kenlm_SOURCE_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -fPIC -O0 -Wall -g")
 # gflags
 FetchContent_Declare(
   gflags
@@ -98,11 +80,11 @@ FetchContent_MakeAvailable(glog)
 include_directories(${glog_BINARY_DIR} ${glog_SOURCE_DIR}/src)
 
 # gtest
-FetchContent_Declare(googletest
-  URL      https://github.com/google/googletest/archive/release-1.10.0.zip
-  URL_HASH SHA256=94c634d499558a76fa649edb13721dce6e98fb1e7018dfaeba3cd7a083945e91
-)
-FetchContent_MakeAvailable(googletest)
+#FetchContent_Declare(googletest
+  #URL      https://github.com/google/googletest/archive/release-1.10.0.zip
+  #URL_HASH SHA256=94c634d499558a76fa649edb13721dce6e98fb1e7018dfaeba3cd7a083945e91
+#)
+#FetchContent_MakeAvailable(googletest)
 
 # openfst
 set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
@@ -111,7 +93,7 @@ set(openfst_PREFIX_DIR ${fc_patch}/openfst-subbuild/openfst-populate-prefix)
 ExternalProject_Add(openfst
   URL               https://github.com/mjansche/openfst/archive/refs/tags/1.7.2.zip
   URL_HASH          SHA256=ffc56931025579a8af3515741c0f3b0fc3a854c023421472c07ca0c6389c75e6
-#  PREFIX            ${openfst_PREFIX_DIR} 
+  #PREFIX            ${openfst_PREFIX_DIR} 
   SOURCE_DIR        ${openfst_SOURCE_DIR}
   BINARY_DIR        ${openfst_BINARY_DIR}
   CONFIGURE_COMMAND ${openfst_SOURCE_DIR}/configure --prefix=${openfst_PREFIX_DIR}
@@ -142,14 +124,10 @@ set(PADDLE_LIB ${fc_patch}/paddle-lib)
 include_directories("${PADDLE_LIB}/paddle/include")
 set(PADDLE_LIB_THIRD_PARTY_PATH "${PADDLE_LIB}/third_party/install/")
 include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/include")
-#include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}glog/include")
-#include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}gflags/include")
 include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/include")
 include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/include")
 
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/lib")
-#link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}glog/lib")
-#link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}gflags/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/lib")
 link_directories("${PADDLE_LIB}/paddle/lib")
@@ -171,23 +149,32 @@ set(DEPS ${DEPS}
       glog gflags protobuf xxhash cryptopp
       ${EXTERNAL_LIB})
 
-add_subdirectory(speechx)
-
 #openblas
+set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
 #set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/OpenBLAS)
 #set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
+#set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
 #ExternalProject_Add(
-#  OpenBLAS
-#  GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
-#  GIT_TAG v0.3.13
-#  GIT_SHALLOW TRUE
-#  GIT_PROGRESS TRUE
-#  CONFIGURE_COMMAND ""
-#  BUILD_IN_SOURCE TRUE
-#  BUILD_COMMAND make USE_LOCKING=1 USE_THREAD=0
-#  INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
-#  UPDATE_DISCONNECTED TRUE
+  #OpenBLAS
+  #GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
+  #GIT_TAG        1ef97c470ccf23d06d3bb0597c52df4a2e9093b9
+  #GIT_SHALLOW TRUE
+  #GIT_PROGRESS TRUE
+  #PREFIX      ${OpenBLAS_PREFIX}
+  #SOURCE_DIR  ${OpenBLAS_SOURCE_DIR}
+  #BUILD_IN_SOURCE TRUE
+  #CONFIGURE_COMMAND ""
+  #BUILD_COMMAND make
+  #INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
+  #UPDATE_DISCONNECTED TRUE
 #)
+link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
+include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
+
+# gfortan dir in the docker.
+link_directories(/usr/local/gcc-8.2/lib64)
+
+add_subdirectory(speechx)
 
 ###############################################################################
 # Add local library

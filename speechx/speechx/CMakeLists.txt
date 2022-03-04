@@ -33,7 +33,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/decoder
 add_subdirectory(decoder)
 
 add_executable(mfcc-test codelab/feat_test/feature-mfcc-test.cc)
-target_link_libraries(mfcc-test kaldi-mfcc ${MATH_LIB})
+target_link_libraries(mfcc-test kaldi-mfcc)
 
 add_executable(linear_spectrogram_main codelab/feat_test/linear_spectrogram_main.cc)
 target_link_libraries(linear_spectrogram_main frontend kaldi-util kaldi-feat-common gflags glog)

@@ -16,7 +16,8 @@ from typing import Union
 
 from fastapi import APIRouter
 
-from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
+from paddlespeech.cli.log import logger
+from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.restful.request import TTSRequest
 from paddlespeech.server.restful.response import ErrorResponse
 from paddlespeech.server.restful.response import TTSResponse
@@ -60,28 +61,45 @@ def tts(request_body: TTSRequest):
     Returns:
         json: [description]
     """
-    # json to dict 
-    item_dict = request_body.dict()
-    sentence = item_dict['text']
-    spk_id = item_dict['spk_id']
-    speed = item_dict['speed']
-    volume = item_dict['volume']
-    sample_rate = item_dict['sample_rate']
-    save_path = item_dict['save_path']
+
+    logger.info("request: {}".format(request_body))
+
+    # get params
+    text = request_body.text
+    spk_id = request_body.spk_id
+    speed = request_body.speed
+    volume = request_body.volume
+    sample_rate = request_body.sample_rate
+    save_path = request_body.save_path
 
     # Check parameters
-    if speed <=0 or speed > 3 or volume <=0 or volume > 3 or \
-        sample_rate not in [0, 16000, 8000] or \
-        (save_path is not None and not save_path.endswith("pcm") and not save_path.endswith("wav")):
-        return failed_response(ErrorCode.SERVER_PARAM_ERR)
-
-    # single
-    tts_engine = TTSEngine()
+    if speed <= 0 or speed > 3:
+        return failed_response(
+            ErrorCode.SERVER_PARAM_ERR,
+            "invalid speed value, the value should be between 0 and 3.")
+    if volume <= 0 or volume > 3:
+        return failed_response(
+            ErrorCode.SERVER_PARAM_ERR,
+            "invalid volume value, the value should be between 0 and 3.")
+    if sample_rate not in [0, 16000, 8000]:
+        return failed_response(
+            ErrorCode.SERVER_PARAM_ERR,
+            "invalid sample_rate value, the choice of value is 0, 8000, 16000.")
+    if save_path is not None and not save_path.endswith(
+            "pcm") and not save_path.endswith("wav"):
+        return failed_response(
+            ErrorCode.SERVER_PARAM_ERR,
+            "invalid save_path, saved audio formats support pcm and wav")
 
     # run
     try:
+        # get single engine from engine pool
+        engine_pool = get_engine_pool()
+        tts_engine = engine_pool['tts']
+        logger.info("Get tts engine successfully.")
+
         lang, target_sample_rate, wav_base64 = tts_engine.run(
-            sentence, spk_id, speed, volume, sample_rate, save_path)
+            text, spk_id, speed, volume, sample_rate, save_path)
 
         response = {
             "success": True,
@@ -101,7 +119,7 @@ def tts(request_body: TTSRequest):
         }
     except ServerBaseException as e:
         response = failed_response(e.error_code, e.msg)
-    except:
+    except BaseException:
         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
         traceback.print_exc()
 

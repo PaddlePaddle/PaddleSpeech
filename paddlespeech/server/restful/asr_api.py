@@ -14,6 +14,7 @@
 import base64
 import traceback
 from typing import Union
+
 from fastapi import APIRouter
 
 from paddlespeech.server.engine.engine_pool import get_engine_pool
@@ -83,7 +84,7 @@ def asr(request_body: ASRRequest):
 
     except ServerBaseException as e:
         response = failed_response(e.error_code, e.msg)
-    except:
+    except BaseException:
         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
         traceback.print_exc()
 

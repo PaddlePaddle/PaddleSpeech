@@ -3,18 +3,25 @@
 ##################################################################
 #                     SERVER SETTING                             #
 ##################################################################
-host: '0.0.0.0'
+host: 127.0.0.1
 port: 8090
 
 ##################################################################
 #                     CONFIG FILE                                #
 ##################################################################
+# add engine backend type (Options: asr, tts) and config file here.
+# Adding a speech task to engine_backend means starting the service.
+engine_backend:
+    asr: 'conf/asr/asr.yaml'
+    tts: 'conf/tts/tts.yaml'
+
+# The engine_type of speech task needs to keep the same type as the config file of speech task.
+# E.g: The engine_type of asr is 'python', the engine_backend of asr is 'XX/asr.yaml'
+# E.g: The engine_type of asr is 'inference', the engine_backend of asr is 'XX/asr_pd.yaml'
+#
 # add engine type (Options: python, inference) 
 engine_type:
-    asr: 'inference'
-    # tts: 'inference'
+    asr: 'python'
+    tts: 'python'
 
-# add engine backend type (Options: asr, tts) and config file here.
-engine_backend:
-    asr: 'conf/asr/asr_pd.yaml'
-    #tts: 'conf/tts/tts_pd.yaml'
+

@@ -15,6 +15,7 @@ import os
 from typing import List
 from typing import Optional
 
+import paddle
 from paddle.inference import Config
 from paddle.inference import create_predictor
 
@@ -40,13 +41,29 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
     else:
         config = Config(model_file, params_file)
 
-    config.enable_memory_optim()
-    if predictor_conf["use_gpu"]:
-        config.enable_use_gpu(1000, 0)
-    if predictor_conf["enable_mkldnn"]:
-        config.enable_mkldnn()
+    # set device
+    if predictor_conf["device"]:
+        device = predictor_conf["device"]
+    else:
+        device = paddle.get_device()
+    if "gpu" in device:
+        gpu_id = device.split(":")[-1]
+        config.enable_use_gpu(1000, int(gpu_id))
+
+    # IR optim
     if predictor_conf["switch_ir_optim"]:
         config.switch_ir_optim()
+
+    # glog
+    if not predictor_conf["glog_info"]:
+        config.disable_glog_info()
+
+    # config summary
+    if predictor_conf["summary"]:
+        print(config.summary())
+
+    # memory optim
+    config.enable_memory_optim()
 
     predictor = create_predictor(config)
 

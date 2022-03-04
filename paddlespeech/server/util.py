@@ -219,7 +219,7 @@ class ConfigCache:
             try:
                 cfg = yaml.load(file, Loader=yaml.FullLoader)
                 self._data.update(cfg)
-            except:
+            except BaseException:
                 self.flush()
 
     @property

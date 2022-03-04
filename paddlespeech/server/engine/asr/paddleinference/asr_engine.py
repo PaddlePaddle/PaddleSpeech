@@ -13,30 +13,24 @@
 # limitations under the License.
 import io
 import os
-from typing import List
+import time
 from typing import Optional
-from typing import Union
 
-import librosa
 import paddle
-import soundfile
 from yacs.config import CfgNode
 
-from paddlespeech.cli.utils import MODEL_HOME
-from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
+from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.transform.transformation import Transformation
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
+from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
-from paddlespeech.server.engine.base_engine import BaseEngine
 
 __all__ = ['ASREngine']
-
 
 pretrained_models = {
     "deepspeech2offline_aishell-zh-16k": {
@@ -143,7 +137,6 @@ class ASRServerExecutor(ASRExecutor):
             batch_average=True,  # sum / batch_size
             grad_norm_type=self.config.get('ctc_grad_norm_type', None))
 
-
     @paddle.no_grad()
     def infer(self, model_type: str):
         """
@@ -161,9 +154,8 @@ class ASRServerExecutor(ASRExecutor):
                 cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
                 cfg.num_proc_bsearch)
 
-            output_data = run_model(
-                                self.am_predictor,
-                                [audio.numpy(), audio_len.numpy()])
+            output_data = run_model(self.am_predictor,
+                                    [audio.numpy(), audio_len.numpy()])
 
             probs = output_data[0]
             eouts_len = output_data[1]
@@ -206,16 +198,15 @@ class ASREngine(BaseEngine):
         self.executor = ASRServerExecutor()
         self.config = get_config(config_file)
 
-        paddle.set_device(paddle.get_device())
         self.executor._init_from_path(
-                    model_type=self.config.model_type,
-                    am_model=self.config.am_model,
-                    am_params=self.config.am_params,
-                    lang=self.config.lang,
-                    sample_rate=self.config.sample_rate,
-                    cfg_path=self.config.cfg_path,
-                    decode_method=self.config.decode_method,
-                    am_predictor_conf=self.config.am_predictor_conf)
+            model_type=self.config.model_type,
+            am_model=self.config.am_model,
+            am_params=self.config.am_params,
+            lang=self.config.lang,
+            sample_rate=self.config.sample_rate,
+            cfg_path=self.config.cfg_path,
+            decode_method=self.config.decode_method,
+            am_predictor_conf=self.config.am_predictor_conf)
 
         logger.info("Initialize ASR server engine successfully.")
         return True
@@ -230,13 +221,19 @@ class ASREngine(BaseEngine):
                 io.BytesIO(audio_data), self.config.sample_rate,
                 self.config.force_yes):
             logger.info("start running asr engine")
-            self.executor.preprocess(self.config.model_type, io.BytesIO(audio_data))
+            self.executor.preprocess(self.config.model_type,
+                                     io.BytesIO(audio_data))
+            st = time.time()
             self.executor.infer(self.config.model_type)
+            infer_time = time.time() - st
             self.output = self.executor.postprocess()  # Retrieve result of asr.
             logger.info("end inferring asr engine")
         else:
             logger.info("file check failed!")
             self.output = None
+
+        logger.info("inference time: {}".format(infer_time))
+        logger.info("asr engine type: paddle inference")
 
     def postprocess(self):
         """postprocess

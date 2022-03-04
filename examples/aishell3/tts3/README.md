@@ -225,7 +225,9 @@ optional arguments:
 9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-Pretrained FastSpeech2 model with no silence in the edge of audios. [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
+Pretrained FastSpeech2 model with no silence in the edge of audios:
+- [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
+- [fastspeech2_conformer_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_aishell3_ckpt_0.2.0.zip) (Thanks for [@awmmmm](https://github.com/awmmmm)'s contribution)
 
 FastSpeech2 checkpoint contains files listed below.
 

@@ -20,7 +20,10 @@ import numpy as np
 import paddle
 from g2pM import G2pM
 from pypinyin import lazy_pinyin
+from pypinyin import load_phrases_dict
+from pypinyin import load_single_dict
 from pypinyin import Style
+from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
@@ -41,6 +44,8 @@ class Frontend():
             self.g2pM_model = G2pM()
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
+        else:
+            self.__init__pypinyin()
         self.must_erhua = {"小院儿", "胡同儿", "范儿", "老汉儿", "撒欢儿", "寻老礼儿", "妥妥儿"}
         self.not_erhua = {
             "虐儿", "为儿", "护儿", "瞒儿", "救儿", "替儿", "有儿", "一儿", "我儿", "俺儿", "妻儿",
@@ -61,6 +66,23 @@ class Frontend():
                 tone_id = [line.strip().split() for line in f.readlines()]
             for tone, id in tone_id:
                 self.vocab_tones[tone] = int(id)
+
+    def __init__pypinyin(self):
+        large_pinyin.load()
+
+        load_phrases_dict({u'开户行': [[u'ka1i'], [u'hu4'], [u'hang2']]})
+        load_phrases_dict({u'发卡行': [[u'fa4'], [u'ka3'], [u'hang2']]})
+        load_phrases_dict({u'放款行': [[u'fa4ng'], [u'kua3n'], [u'hang2']]})
+        load_phrases_dict({u'茧行': [[u'jia3n'], [u'hang2']]})
+        load_phrases_dict({u'行号': [[u'hang2'], [u'ha4o']]})
+        load_phrases_dict({u'各地': [[u'ge4'], [u'di4']]})
+        load_phrases_dict({u'借还款': [[u'jie4'], [u'hua2n'], [u'kua3n']]})
+        load_phrases_dict({u'时间为': [[u'shi2'], [u'jia1n'], [u'we2i']]})
+        load_phrases_dict({u'为准': [[u'we2i'], [u'zhu3n']]})
+        load_phrases_dict({u'色差': [[u'se4'], [u'cha1']]})
+
+        # 调整字的拼音顺序
+        load_single_dict({ord(u'地'): u'de,di4'})
 
     def _get_initials_finals(self, word: str) -> List[List[str]]:
         initials = []

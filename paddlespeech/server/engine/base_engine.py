@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-from typing import Any
-from typing import List
 from typing import Union
 
 from pattern_singleton import Singleton

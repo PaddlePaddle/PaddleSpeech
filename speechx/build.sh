@@ -6,7 +6,7 @@
 
 boost_SOURCE_DIR=$PWD/fc_patch/boost-src
 if [ ! -d ${boost_SOURCE_DIR} ]; then
-  wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz 
+  wget -c https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz 
   tar xzfv boost_1_75_0.tar.gz
   mkdir -p $PWD/fc_patch
   mv boost_1_75_0 ${boost_SOURCE_DIR} 
@@ -17,7 +17,7 @@ if [ ! -d ${boost_SOURCE_DIR} ]; then
   echo -e "\n"
 fi
 
-mkdir build
+mkdir -p build
 cd build
 
 cmake .. -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}

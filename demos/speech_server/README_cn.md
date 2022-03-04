@@ -136,9 +136,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
  
 ### 5. TTS客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
-   ```bash
-   paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
-   ```
+- 命令行 (推荐使用)
+
+    ```bash
+    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```
     使用帮助:
   
     ```bash

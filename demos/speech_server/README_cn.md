@@ -86,7 +86,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
 
 ### 4. ASR客户端使用方法
-**注意：**初次使用客户端时响应时间会略长
+**注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav

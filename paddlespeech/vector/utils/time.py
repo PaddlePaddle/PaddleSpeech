@@ -53,8 +53,7 @@ class Timer(object):
     def eta(self) -> str:
         if not self.is_running:
             return '00:00:00'
-        scale = self.total_step / self.current_step
-        remaining_time = (time.time() - self.start_time) * scale
+        remaining_time = time.time() - self.start_time
         return seconds_to_hms(remaining_time)
 
 

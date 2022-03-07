@@ -99,8 +99,8 @@ echo "**************************************************************************
 
 
 # start server: asr engine type: python; tts engine type: python; device: cpu
-python change_yaml.py --change_task speech-asr-cpu    # change asr.yaml device: cpu
-python change_yaml.py --change_task speech-tts-cpu    # change tts.yaml device: cpu
+python change_yaml.py --change_task device-asr_python-cpu    # change asr.yaml device: cpu
+python change_yaml.py --change_task device-tts_python-cpu    # change tts.yaml device: cpu
 
 echo "Start the service: asr engine type: python; tts engine type: python; device: cpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
@@ -125,8 +125,8 @@ echo "**************************************************************************
 
 
 # start server: asr engine type: inference; tts engine type: inference; device: gpu
-python change_yaml.py --change_task app-asr-inference    # change application.yaml, asr engine_type: inference; asr engine_backend: asr_pd.yaml
-python change_yaml.py --change_task app-tts-inference    # change application.yaml, tts engine_type: inference; tts engine_backend: tts_pd.yaml
+python change_yaml.py --change_task enginetype-asr_inference    # change application.yaml, asr engine_type: inference; asr engine_backend: asr_pd.yaml
+python change_yaml.py --change_task enginetype-tts_inference    # change application.yaml, tts engine_type: inference; tts engine_backend: tts_pd.yaml
 
 echo "Start the service: asr engine type: inference; tts engine type: inference; device: gpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
@@ -151,8 +151,8 @@ echo "**************************************************************************
 
 
 # start server: asr engine type: inference; tts engine type: inference; device: cpu
-python change_yaml.py --change_task speech-asr_pd-cpu    # change asr_pd.yaml device: cpu
-python change_yaml.py --change_task speech-tts_pd-cpu    # change tts_pd.yaml device: cpu
+python change_yaml.py --change_task device-asr_inference-cpu    # change asr_pd.yaml device: cpu
+python change_yaml.py --change_task device-tts_inference-cpu    # change tts_pd.yaml device: cpu
 
 echo "start the service: asr engine type: inference; tts engine type: inference; device: cpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
@@ -182,4 +182,5 @@ echo "***************** Here are all the test results ********************"
 cat ./log/test_result.log
 
 # Restoring conf is the same as demos/speech_server
+rm -rf ./conf
 cp ../../../demos/speech_server/conf/ ./ -rf

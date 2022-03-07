@@ -29,7 +29,6 @@ from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
-from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.exception import ServerBaseException
 from paddlespeech.server.utils.paddle_predictor import init_predictor
@@ -357,11 +356,11 @@ class TTSEngine(BaseEngine):
         """
         super(TTSEngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
 
         try:
-            self.config = get_config(config_file)
+            self.config = config
             self.executor._init_from_path(
                 am=self.config.am,
                 am_model=self.config.am_model,

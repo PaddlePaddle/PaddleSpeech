@@ -19,6 +19,16 @@ import paddle.nn.functional as F
 
 
 def length_to_mask(length, max_len=None, dtype=None):
+    """_summary_
+
+    Args:
+        length (_type_): _description_
+        max_len (_type_, optional): _description_. Defaults to None.
+        dtype (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     assert len(length.shape) == 1
 
     if max_len is None:
@@ -47,6 +57,19 @@ class Conv1d(nn.Layer):
             groups=1,
             bias=True,
             padding_mode="reflect", ):
+        """_summary_
+
+        Args:
+            in_channels (_type_): _description_
+            out_channels (_type_): _description_
+            kernel_size (_type_): _description_
+            stride (int, optional): _description_. Defaults to 1.
+            padding (str, optional): _description_. Defaults to "same".
+            dilation (int, optional): _description_. Defaults to 1.
+            groups (int, optional): _description_. Defaults to 1.
+            bias (bool, optional): _description_. Defaults to True.
+            padding_mode (str, optional): _description_. Defaults to "reflect".
+        """
         super().__init__()
 
         self.kernel_size = kernel_size
@@ -66,6 +89,17 @@ class Conv1d(nn.Layer):
             bias_attr=bias, )
 
     def forward(self, x):
+        """_summary_
+
+        Args:
+            x (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         if self.padding == "same":
             x = self._manage_padding(x, self.kernel_size, self.dilation,
                                      self.stride)
@@ -75,6 +109,17 @@ class Conv1d(nn.Layer):
         return self.conv(x)
 
     def _manage_padding(self, x, kernel_size: int, dilation: int, stride: int):
+        """_summary_
+
+        Args:
+            x (_type_): _description_
+            kernel_size (int): _description_
+            dilation (int): _description_
+            stride (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
         L_in = x.shape[-1]  # Detecting input shape
         padding = self._get_padding_elem(L_in, stride, kernel_size,
                                          dilation)  # Time padding
@@ -88,6 +133,17 @@ class Conv1d(nn.Layer):
                           stride: int,
                           kernel_size: int,
                           dilation: int):
+        """_summary_
+
+        Args:
+            L_in (int): _description_
+            stride (int): _description_
+            kernel_size (int): _description_
+            dilation (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
         if stride > 1:
             n_steps = math.ceil(((L_in - kernel_size * dilation) / stride) + 1)
             L_out = stride * (n_steps - 1) + kernel_size * dilation
@@ -134,6 +190,15 @@ class TDNNBlock(nn.Layer):
             kernel_size,
             dilation,
             activation=nn.ReLU, ):
+        """Implementation of TDNN network
+
+        Args:
+            in_channels (int): input channels or input embedding dimensions
+            out_channels (int): output channels or output embedding dimensions
+            kernel_size (int): the kernel size of the TDNN network block
+            dilation (int): the dilation of the TDNN network block
+            activation (paddle class, optional): the activation layers. Defaults to nn.ReLU.
+        """
         super().__init__()
         self.conv = Conv1d(
             in_channels=in_channels,
@@ -149,6 +214,15 @@ class TDNNBlock(nn.Layer):
 
 class Res2NetBlock(nn.Layer):
     def __init__(self, in_channels, out_channels, scale=8, dilation=1):
+        """Implementation of Res2Net Block with dilation
+           The paper is refered as "Res2Net: A New Multi-scale Backbone Architecture",
+           whose url is https://arxiv.org/abs/1904.01169
+        Args:
+            in_channels (int): input channels or input dimensions
+            out_channels (int): output channels or output dimensions
+            scale (int, optional): _description_. Defaults to 8.
+            dilation (int, optional): _description_. Defaults to 1.
+        """
         super().__init__()
         assert in_channels % scale == 0
         assert out_channels % scale == 0
@@ -179,6 +253,14 @@ class Res2NetBlock(nn.Layer):
 
 class SEBlock(nn.Layer):
     def __init__(self, in_channels, se_channels, out_channels):
+        """Implementation of SEBlock
+           The paper is refered as "Squeeze-and-Excitation Networks"
+           whose url is https://arxiv.org/abs/1709.01507
+        Args:
+            in_channels (int): input channels or input data dimensions
+            se_channels (_type_): _description_
+            out_channels (int): output channels or output data dimensions
+        """
         super().__init__()
 
         self.conv1 = Conv1d(
@@ -275,6 +357,17 @@ class SERes2NetBlock(nn.Layer):
             kernel_size=1,
             dilation=1,
             activation=nn.ReLU, ):
+        """Implementation of Squeeze-Extraction Res2Blocks in ECAPA-TDNN network model
+
+        Args:
+            in_channels (int): input channels or input data dimensions
+            out_channels (_type_): _description_
+            res2net_scale (int, optional): _description_. Defaults to 8.
+            se_channels (int, optional): _description_. Defaults to 128.
+            kernel_size (int, optional): _description_. Defaults to 1.
+            dilation (int, optional): _description_. Defaults to 1.
+            activation (_type_, optional): _description_. Defaults to nn.ReLU.
+        """
         super().__init__()
         self.out_channels = out_channels
         self.tdnn1 = TDNNBlock(

@@ -22,6 +22,9 @@ from paddle.io import DistributedBatchSampler
 
 from paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddleaudio.features.core import melspectrogram
+from paddlespeech.s2t.utils.log import Log
+from paddlespeech.vector.io.augment import build_augment_pipeline
+from paddlespeech.vector.io.augment import waveform_augment
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.io.batch import waveform_collate_fn
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
@@ -29,7 +32,10 @@ from paddlespeech.vector.modules.loss import AdditiveAngularMargin
 from paddlespeech.vector.modules.loss import LogSoftmaxWrapper
 from paddlespeech.vector.modules.lr import CyclicLRScheduler
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
+from paddlespeech.vector.training.seeding import seed_everything
 from paddlespeech.vector.utils.time import Timer
+
+logger = Log(__name__).getlog()
 
 # feat configuration
 cpu_feat_conf = {
@@ -47,11 +53,18 @@ def main(args):
     paddle.distributed.init_parallel_env()
     nranks = paddle.distributed.get_world_size()
     local_rank = paddle.distributed.get_rank()
+    # set the random seed, it is a must for multiprocess training
+    seed_everything(args.seed)
 
-    # stage2: data prepare
-    # note: some cmd must do in rank==0
+    # stage2: data prepare, such vox1 and vox2 data, and augment data and pipline
+    # note: some cmd must do in rank==0, so wo will refactor the data prepare code
     train_ds = VoxCeleb1('train', target_dir=args.data_dir)
     dev_ds = VoxCeleb1('dev', target_dir=args.data_dir)
+
+    if args.augment:
+        augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
+    else:
+        augment_pipeline = []
 
     # stage3: build the dnn backbone model network
     #"channels": [1024, 1024, 1024, 1024, 3072],
@@ -83,7 +96,7 @@ def main(args):
     #         if pre-trained model exists, start epoch confirmed by the pre-trained model
     start_epoch = 0
     if args.load_checkpoint:
-        print("load the check point")
+        logger.info("load the check point")
         args.load_checkpoint = os.path.abspath(
             os.path.expanduser(args.load_checkpoint))
         try:
@@ -97,14 +110,14 @@ def main(args):
                 os.path.join(args.load_checkpoint, 'model.pdopt'))
             optimizer.set_state_dict(state_dict)
             if local_rank == 0:
-                print(f'Checkpoint loaded from {args.load_checkpoint}')
+                logger.info(f'Checkpoint loaded from {args.load_checkpoint}')
         except FileExistsError:
             if local_rank == 0:
-                print('Train from scratch.')
+                logger.info('Train from scratch.')
 
         try:
             start_epoch = int(args.load_checkpoint[-1])
-            print(f'Restore training from epoch {start_epoch}.')
+            logger.info(f'Restore training from epoch {start_epoch}.')
         except ValueError:
             pass
 
@@ -137,7 +150,10 @@ def main(args):
             waveforms, labels = batch['waveforms'], batch['labels']
 
             # stage 9-2: audio sample augment method, which is done on the audio sample point
-            # todo
+            if len(augment_pipeline) != 0:
+                waveforms = waveform_augment(waveforms, augment_pipeline)
+                labels = paddle.concat(
+                    [labels for i in range(len(augment_pipeline) + 1)])
 
             # stage 9-3: extract the audio feats,such fbank, mfcc, spectrogram
             feats = []
@@ -185,7 +201,7 @@ def main(args):
                 print_msg += ' acc={:.4f}'.format(avg_acc)
                 print_msg += ' lr={:.4E} step/sec={:.2f} | ETA {}'.format(
                     lr, timer.timing, timer.eta)
-                print(print_msg)
+                logger.info(print_msg)
 
                 avg_loss = 0
                 num_corrects = 0
@@ -217,7 +233,7 @@ def main(args):
             num_samples = 0
 
             # stage 9-13: evaluation the valid dataset batch data
-            print('Evaluate on validation dataset')
+            logger.info('Evaluate on validation dataset')
             with paddle.no_grad():
                 for batch_idx, batch in enumerate(dev_loader):
                     waveforms, labels = batch['waveforms'], batch['labels']
@@ -238,12 +254,12 @@ def main(args):
 
             print_msg = '[Evaluation result]'
             print_msg += ' dev_acc={:.4f}'.format(num_corrects / num_samples)
-            print(print_msg)
+            logger.info(print_msg)
 
             # stage 9-14: Save model parameters
             save_dir = os.path.join(args.checkpoint_dir,
                                     'epoch_{}'.format(epoch))
-            print('Saving model checkpoint to {}'.format(save_dir))
+            logger.info('Saving model checkpoint to {}'.format(save_dir))
             paddle.save(model.state_dict(),
                         os.path.join(save_dir, 'model.pdparams'))
             paddle.save(optimizer.state_dict(),
@@ -260,6 +276,10 @@ if __name__ == "__main__":
                         choices=['cpu', 'gpu'],
                         default="cpu",
                         help="Select which device to train model, defaults to gpu.")
+    parser.add_argument("--seed",
+                        default=0,
+                        type=int,
+                        help="random seed for paddle, numpy and python random package")
     parser.add_argument("--data-dir",
                         default="./data/",
                         type=str,
@@ -295,6 +315,10 @@ if __name__ == "__main__":
                         type=str,
                         default='./checkpoint',
                         help="Directory to save model checkpoints.")
+    parser.add_argument("--augment",
+                        action="store_true",
+                        default=False,
+                        help="Apply audio augments.")
 
     args = parser.parse_args()
     # yapf: enable

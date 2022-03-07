@@ -29,8 +29,11 @@ from paddleaudio.datasets.dataset import feat_funcs
 from paddleaudio.utils import DATA_HOME
 from paddleaudio.utils import decompress
 from paddleaudio.utils import download_and_decompress
+from paddlespeech.s2t.utils.log import Log
 from utils.utility import download
 from utils.utility import unpack
+
+logger = Log(__name__).getlog()
 
 __all__ = ['VoxCeleb1']
 
@@ -121,9 +124,9 @@ class VoxCeleb1(Dataset):
         # Download audio files.
         # We need the users to decompress all vox1/dev/wav and vox1/test/wav/ to vox1/wav/ dir
         # so, we check the vox1/wav dir status
-        print("wav base path: {}".format(self.wav_path))
+        logger.info(f"wav base path: {self.wav_path}")
         if not os.path.isdir(self.wav_path):
-            print("start to download the voxceleb1 dataset")
+            logger.info(f"start to download the voxceleb1 dataset")
             download_and_decompress(  # multi-zip parts concatenate to vox1_dev_wav.zip
                 self.archieves_audio_dev,
                 self.base_path,
@@ -135,7 +138,7 @@ class VoxCeleb1(Dataset):
 
             # Download all parts and concatenate the files into one zip file.
             dev_zipfile = os.path.join(self.base_path, 'vox1_dev_wav.zip')
-            print(f'Concatenating all parts to: {dev_zipfile}')
+            logger.info(f'Concatenating all parts to: {dev_zipfile}')
             os.system(
                 f'cat {os.path.join(self.base_path, "vox1_dev_wav_parta*")} > {dev_zipfile}'
             )
@@ -154,6 +157,9 @@ class VoxCeleb1(Dataset):
             self.prepare_data()
 
         data = []
+        logger.info(
+            f"read the {self.subset} from {os.path.join(self.csv_path, f'{self.subset}.csv')}"
+        )
         with open(os.path.join(self.csv_path, f'{self.subset}.csv'), 'r') as rf:
             for line in rf.readlines()[1:]:
                 audio_id, duration, wav, start, stop, spk_id = line.strip(
@@ -246,7 +252,7 @@ class VoxCeleb1(Dataset):
                      wav_files: List[str],
                      output_file: str,
                      split_chunks: bool=True):
-        print(f'Generating csv: {output_file}')
+        logger.info(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav", "start", "stop", "spk_id"]
 
         with Pool(64) as p:
@@ -269,7 +275,7 @@ class VoxCeleb1(Dataset):
 
     def prepare_data(self):
         # Audio of speakers in veri_test_file should not be included in training set.
-        print("start to prepare the data csv file")
+        logger.info("start to prepare the data csv file")
         enrol_files = set()
         test_files = set()
         # get the enroll and test audio file path
@@ -299,7 +305,7 @@ class VoxCeleb1(Dataset):
                 speakers.add(spk)
                 audio_files.append(file)
 
-        print("start to generate the {}".format(
+        logger.info("start to generate the {}".format(
             os.path.join(self.meta_path, 'spk_id2label.txt')))
         # encode the train and dev speakers label to spk_id2label.txt
         with open(os.path.join(self.meta_path, 'spk_id2label.txt'), 'w') as f:

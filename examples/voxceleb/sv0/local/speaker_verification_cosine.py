@@ -23,9 +23,13 @@ from paddle.io import DataLoader
 from tqdm import tqdm
 
 from paddleaudio.datasets.voxceleb import VoxCeleb1
+from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.metrics import compute_eer
+from paddlespeech.vector.training.seeding import seed_everything
+
+logger = Log(__name__).getlog()
 
 
 def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
@@ -67,9 +71,19 @@ def feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
     return {'ids': ids, 'feats': feats, 'lengths': lengths}
 
 
+# feat configuration
+cpu_feat_conf = {
+    'n_mels': 80,
+    'window_size': 400,  #ms
+    'hop_length': 160,  #ms
+}
+
+
 def main(args):
     # stage0: set the training device, cpu or gpu
     paddle.set_device(args.device)
+    # set the random seed, it is a must for multiprocess training
+    seed_everything(args.seed)
 
     # stage1: build the dnn backbone model network
     ##"channels": [1024, 1024, 1024, 1024, 3072],
@@ -95,19 +109,18 @@ def main(args):
     state_dict = paddle.load(
         os.path.join(args.load_checkpoint, 'model.pdparams'))
     model.set_state_dict(state_dict)
-    print(f'Checkpoint loaded from {args.load_checkpoint}')
+    logger.info(f'Checkpoint loaded from {args.load_checkpoint}')
 
     # stage4: construct the enroll and test dataloader
     enrol_ds = VoxCeleb1(
         subset='enrol',
+        target_dir=args.data_dir,
         feat_type='melspectrogram',
         random_chunk=False,
-        n_mels=80,
-        window_size=400,
-        hop_length=160)
+        **cpu_feat_conf)
     enrol_sampler = BatchSampler(
         enrol_ds, batch_size=args.batch_size,
-        shuffle=True)  # Shuffle to make embedding normalization more robust.
+        shuffle=False)  # Shuffle to make embedding normalization more robust.
     enrol_loader = DataLoader(enrol_ds,
                     batch_sampler=enrol_sampler,
                     collate_fn=lambda x: feature_normalize(
@@ -117,14 +130,13 @@ def main(args):
 
     test_ds = VoxCeleb1(
         subset='test',
+        target_dir=args.data_dir,
         feat_type='melspectrogram',
         random_chunk=False,
-        n_mels=80,
-        window_size=400,
-        hop_length=160)
+        **cpu_feat_conf)
 
     test_sampler = BatchSampler(
-        test_ds, batch_size=args.batch_size, shuffle=True)
+        test_ds, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_ds,
                             batch_sampler=test_sampler,
                             collate_fn=lambda x: feature_normalize(
@@ -136,10 +148,10 @@ def main(args):
 
     # stage7: global embedding norm to imporve the performance
     if args.global_embedding_norm:
-        embedding_mean = None
-        embedding_std = None
-        mean_norm = args.embedding_mean_norm
-        std_norm = args.embedding_std_norm
+        global_embedding_mean = None
+        global_embedding_std = None
+        mean_norm_flag = args.embedding_mean_norm
+        std_norm_flag = args.embedding_std_norm
         batch_count = 0
 
     # stage8: Compute embeddings of audios in enrol and test dataset from model.
@@ -147,7 +159,7 @@ def main(args):
     # Run multi times to make embedding normalization more stable.
     for i in range(2):
         for dl in [enrol_loader, test_loader]:
-            print(
+            logger.info(
                 f'Loop {[i+1]}: Computing embeddings on {dl.dataset.subset} dataset'
             )
             with paddle.no_grad():
@@ -162,20 +174,24 @@ def main(args):
                     # Global embedding normalization.
                     if args.global_embedding_norm:
                         batch_count += 1
-                        mean = embeddings.mean(axis=0) if mean_norm else 0
-                        std = embeddings.std(axis=0) if std_norm else 1
+                        current_mean = embeddings.mean(
+                            axis=0) if mean_norm_flag else 0
+                        current_std = embeddings.std(
+                            axis=0) if std_norm_flag else 1
                         # Update global mean and std.
-                        if embedding_mean is None and embedding_std is None:
-                            embedding_mean, embedding_std = mean, std
+                        if global_embedding_mean is None and global_embedding_std is None:
+                            global_embedding_mean, global_embedding_std = current_mean, current_std
                         else:
                             weight = 1 / batch_count  # Weight decay by batches.
-                            embedding_mean = (1 - weight
-                                              ) * embedding_mean + weight * mean
-                            embedding_std = (1 - weight
-                                             ) * embedding_std + weight * std
+                            global_embedding_mean = (
+                                1 - weight
+                            ) * global_embedding_mean + weight * current_mean
+                            global_embedding_std = (
+                                1 - weight
+                            ) * global_embedding_std + weight * current_std
                         # Apply global embedding normalization.
-                        embeddings = (
-                            embeddings - embedding_mean) / embedding_std
+                        embeddings = (embeddings - global_embedding_mean
+                                      ) / global_embedding_std
 
                     # Update embedding dict.
                     id2embedding.update(dict(zip(ids, embeddings)))
@@ -198,7 +214,7 @@ def main(args):
                                              ])  # (N, emb_size)
     scores = cos_sim_func(enrol_embeddings, test_embeddings)
     EER, threshold = compute_eer(np.asarray(labels), scores.numpy())
-    print(
+    logger.info(
         f'EER of verification test: {EER*100:.4f}%, score threshold: {threshold:.5f}'
     )
 
@@ -210,10 +226,18 @@ if __name__ == "__main__":
                         choices=['cpu', 'gpu'],
                         default="gpu",
                         help="Select which device to train model, defaults to gpu.")
+    parser.add_argument("--seed",
+                        default=0,
+                        type=int,
+                        help="random seed for paddle, numpy and python random package")
+    parser.add_argument("--data-dir",
+                        default="./data/",
+                        type=str,
+                        help="data directory")
     parser.add_argument("--batch-size",
                         type=int,
                         default=16,
-                        help="Total examples' number in batch for training.")
+                        help="Total examples' number in batch for extract the embedding.")
     parser.add_argument("--num-workers",
                         type=int,
                         default=0,

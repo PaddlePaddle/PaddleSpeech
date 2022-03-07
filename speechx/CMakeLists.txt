@@ -26,6 +26,9 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 # compiler option
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g")
 
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
+
 ###############################################################################
 # Option Configurations
 ###############################################################################
@@ -134,29 +137,10 @@ set(DEPS ${DEPS}
       ${EXTERNAL_LIB})
 
 #openblas
-set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
-#set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/OpenBLAS)
-#set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
-#set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
-#ExternalProject_Add(
-  #OpenBLAS
-  #GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
-  #GIT_TAG        1ef97c470ccf23d06d3bb0597c52df4a2e9093b9
-  #GIT_SHALLOW TRUE
-  #GIT_PROGRESS TRUE
-  #PREFIX      ${OpenBLAS_PREFIX}
-  #SOURCE_DIR  ${OpenBLAS_SOURCE_DIR}
-  #BUILD_IN_SOURCE TRUE
-  #CONFIGURE_COMMAND ""
-  #BUILD_COMMAND make
-  #INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
-  #UPDATE_DISCONNECTED TRUE
-#)
-link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
-include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
+include(openblas)
 
-# gfortan dir in the docker.
-link_directories(/usr/local/gcc-8.2/lib64)
+# openblas need, gfortan dir in the docker.
+#link_directories(/usr/local/gcc-8.2/lib64)
 
 ###############################################################################
 # Add local library

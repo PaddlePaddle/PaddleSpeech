@@ -113,7 +113,6 @@ int main(int argc, char* argv[]) {
           ++cur_idx;
       }
     }
-    std::cout << "xxx: " << feats[0].Data()[0];
     feat_cmvn_check_writer.Write(utt, features_check);
 
     if (num_done % 50 == 0 && num_done != 0)

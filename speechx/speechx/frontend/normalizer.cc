@@ -104,6 +104,7 @@ void CMVN::Read(kaldi::VectorBase<BaseFloat>* feat) {
   return;
 }
 
+// feats contain num_frames feature.
 void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
   KALDI_ASSERT(feats != NULL); 
   int32 dim = stats_.NumCols() - 1;
@@ -128,6 +129,8 @@ void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
     Vector<BaseFloat> offset(feats->Dim());
     SubVector<double> mean_stats(stats_.RowData(0), dim);
     Vector<double> mean_stats_apply(feats->Dim());
+    //fill the datat of mean_stats in mean_stats_appy whose dim is equal with the dim of feature.
+    //the dim of feats = dim * num_frames;
     for (int32 idx = 0; idx < feats->Dim() / dim; ++idx) {
       SubVector<double> stats_tmp(mean_stats_apply.Data() + dim*idx, dim);
       stats_tmp.CopyFromVec(mean_stats);

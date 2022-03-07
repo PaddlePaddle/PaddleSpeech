@@ -22,6 +22,6 @@ cd build
 
 cmake .. -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}
 
-make -j
+make -j1
 
 cd -

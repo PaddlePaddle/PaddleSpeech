@@ -1,25 +1,7 @@
 include(FetchContent)
 
-# set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
-# set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/OpenBLAS)
-
 set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
 set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
-
-# ExternalProject_Add(
-#   OpenBLAS
-#   GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
-#   GIT_TAG        1ef97c470ccf23d06d3bb0597c52df4a2e9093b9
-#   GIT_SHALLOW TRUE
-#   GIT_PROGRESS TRUE
-#   PREFIX      ${OpenBLAS_PREFIX}
-#   SOURCE_DIR  ${OpenBLAS_SOURCE_DIR}
-#   BUILD_IN_SOURCE TRUE
-#   CONFIGURE_COMMAND ""
-#   BUILD_COMMAND make
-#   INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
-#   UPDATE_DISCONNECTED TRUE
-# )
 
 # ######################################################################################################################
 # OPENBLAS  https://github.com/lattice/quda/blob/develop/CMakeLists.txt#L575

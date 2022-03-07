@@ -72,6 +72,8 @@ find_package(Eigen3 REQUIRED)
 include(kenlm)
 add_dependencies(kenlm eigen boost)
 
+#openblas
+include(openblas)
 
 # openfst
 set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
@@ -93,6 +95,8 @@ ExternalProject_Add(openfst
 add_dependencies(openfst gflags glog)
 link_directories(${openfst_PREFIX_DIR}/lib)
 include_directories(${openfst_PREFIX_DIR}/include)
+
+
 
 # paddle lib
 set(paddle_SOURCE_DIR ${fc_patch}/paddle-lib)
@@ -136,11 +140,7 @@ set(DEPS ${DEPS}
       glog gflags protobuf xxhash cryptopp
       ${EXTERNAL_LIB})
 
-#openblas
-include(openblas)
 
-# openblas need, gfortan dir in the docker.
-#link_directories(/usr/local/gcc-8.2/lib64)
 
 ###############################################################################
 # Add local library

@@ -13,4 +13,3 @@
 // limitations under the License.
 
 // extract the window of kaldi feat.
-

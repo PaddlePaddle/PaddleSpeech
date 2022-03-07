@@ -15,22 +15,22 @@
 #pragma once
 
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <istream>
-#include <fstream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <ostream>
 #include <set>
 #include <sstream>
 #include <stack>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <mutex>
+#include <vector>
 
-#include "base/log.h"
-#include "base/flags.h"
 #include "base/basic_types.h"
+#include "base/flags.h"
+#include "base/log.h"
 #include "base/macros.h"

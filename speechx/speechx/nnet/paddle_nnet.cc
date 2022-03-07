@@ -1,3 +1,17 @@
+// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "nnet/paddle_nnet.h"
 #include "absl/strings/str_split.h"
 
@@ -9,43 +23,44 @@ using std::shared_ptr;
 using kaldi::Matrix;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
-  std::vector<std::string> cache_names;
-  cache_names = absl::StrSplit(opts.cache_names, ",");
-  std::vector<std::string> cache_shapes;
-  cache_shapes = absl::StrSplit(opts.cache_shape, ",");
-  assert(cache_shapes.size() == cache_names.size());
-  
-  cache_encouts_.clear();
-  cache_names_idx_.clear();
-  for (size_t i = 0; i < cache_shapes.size(); i++) {
-    std::vector<std::string> tmp_shape;
-    tmp_shape = absl::StrSplit(cache_shapes[i], "-");
-    std::vector<int> cur_shape;
-    std::transform(tmp_shape.begin(), tmp_shape.end(),
-                    std::back_inserter(cur_shape),
-                    [](const std::string& s) {
-                        return atoi(s.c_str());
-                    });
-    cache_names_idx_[cache_names[i]] = i;
-    std::shared_ptr<Tensor<BaseFloat>> cache_eout = std::make_shared<Tensor<BaseFloat>>(cur_shape);
-    cache_encouts_.push_back(cache_eout);
-  }
+    std::vector<std::string> cache_names;
+    cache_names = absl::StrSplit(opts.cache_names, ",");
+    std::vector<std::string> cache_shapes;
+    cache_shapes = absl::StrSplit(opts.cache_shape, ",");
+    assert(cache_shapes.size() == cache_names.size());
+
+    cache_encouts_.clear();
+    cache_names_idx_.clear();
+    for (size_t i = 0; i < cache_shapes.size(); i++) {
+        std::vector<std::string> tmp_shape;
+        tmp_shape = absl::StrSplit(cache_shapes[i], "-");
+        std::vector<int> cur_shape;
+        std::transform(tmp_shape.begin(),
+                       tmp_shape.end(),
+                       std::back_inserter(cur_shape),
+                       [](const std::string& s) { return atoi(s.c_str()); });
+        cache_names_idx_[cache_names[i]] = i;
+        std::shared_ptr<Tensor<BaseFloat>> cache_eout =
+            std::make_shared<Tensor<BaseFloat>>(cur_shape);
+        cache_encouts_.push_back(cache_eout);
+    }
 }
 
-PaddleNnet::PaddleNnet(const ModelOptions& opts):opts_(opts) {
+PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
     paddle_infer::Config config;
     config.SetModel(opts.model_path, opts.params_path);
     if (opts.use_gpu) {
-      config.EnableUseGpu(500, 0);
+        config.EnableUseGpu(500, 0);
     }
     config.SwitchIrOptim(opts.switch_ir_optim);
     if (opts.enable_fc_padding == false) {
-      config.DisableFCPadding();
+        config.DisableFCPadding();
     }
     if (opts.enable_profile) {
-      config.EnableProfile();
+        config.EnableProfile();
     }
-    pool.reset(new paddle_infer::services::PredictorPool(config, opts.thread_num));
+    pool.reset(
+        new paddle_infer::services::PredictorPool(config, opts.thread_num));
     if (pool == nullptr) {
         LOG(ERROR) << "create the predictor pool failed";
     }
@@ -59,7 +74,7 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts):opts_(opts) {
     vector<string> input_names_vec = absl::StrSplit(opts.input_names, ",");
     vector<string> output_names_vec = absl::StrSplit(opts.output_names, ",");
     paddle_infer::Predictor* predictor = GetPredictor();
-        
+
     std::vector<std::string> model_input_names = predictor->GetInputNames();
     assert(input_names_vec.size() == model_input_names.size());
     for (size_t i = 0; i < model_input_names.size(); i++) {
@@ -68,16 +83,14 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts):opts_(opts) {
 
     std::vector<std::string> model_output_names = predictor->GetOutputNames();
     assert(output_names_vec.size() == model_output_names.size());
-    for (size_t i = 0;i < output_names_vec.size(); i++) {
+    for (size_t i = 0; i < output_names_vec.size(); i++) {
         assert(output_names_vec[i] == model_output_names[i]);
     }
     ReleasePredictor(predictor);
     InitCacheEncouts(opts);
 }
 
-void PaddleNnet::Reset() {
-  InitCacheEncouts(opts_);
-}
+void PaddleNnet::Reset() { InitCacheEncouts(opts_); }
 
 paddle_infer::Predictor* PaddleNnet::GetPredictor() {
     LOG(INFO) << "attempt to get a new predictor instance " << std::endl;
@@ -122,80 +135,88 @@ int PaddleNnet::ReleasePredictor(paddle_infer::Predictor* predictor) {
 }
 
 shared_ptr<Tensor<BaseFloat>> PaddleNnet::GetCacheEncoder(const string& name) {
-  auto iter = cache_names_idx_.find(name);
-  if (iter == cache_names_idx_.end()) {
-    return nullptr;
-  }
-  assert(iter->second < cache_encouts_.size());
-  return cache_encouts_[iter->second]; 
+    auto iter = cache_names_idx_.find(name);
+    if (iter == cache_names_idx_.end()) {
+        return nullptr;
+    }
+    assert(iter->second < cache_encouts_.size());
+    return cache_encouts_[iter->second];
 }
 
-void PaddleNnet::FeedForward(const Matrix<BaseFloat>& features, Matrix<BaseFloat>* inferences) {
-  paddle_infer::Predictor* predictor = GetPredictor();
-  int row = features.NumRows();
-  int col = features.NumCols();
-  std::vector<BaseFloat> feed_feature;
-  // todo refactor feed feature: SmileGoat
-  feed_feature.reserve(row*col);
-  for (size_t row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
-    for (size_t col_idx = 0; col_idx < features.NumCols(); ++col_idx) {
-      feed_feature.push_back(features(row_idx, col_idx));
+void PaddleNnet::FeedForward(const Matrix<BaseFloat>& features,
+                             Matrix<BaseFloat>* inferences) {
+    paddle_infer::Predictor* predictor = GetPredictor();
+    int row = features.NumRows();
+    int col = features.NumCols();
+    std::vector<BaseFloat> feed_feature;
+    // todo refactor feed feature: SmileGoat
+    feed_feature.reserve(row * col);
+    for (size_t row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
+        for (size_t col_idx = 0; col_idx < features.NumCols(); ++col_idx) {
+            feed_feature.push_back(features(row_idx, col_idx));
+        }
     }
-  }
-  std::vector<std::string> input_names = predictor->GetInputNames();
-  std::vector<std::string> output_names = predictor->GetOutputNames();
-  LOG(INFO) << "feat info: row=" << row << ", col= " << col;
+    std::vector<std::string> input_names = predictor->GetInputNames();
+    std::vector<std::string> output_names = predictor->GetOutputNames();
+    LOG(INFO) << "feat info: row=" << row << ", col= " << col;
 
-  std::unique_ptr<paddle_infer::Tensor> input_tensor = predictor->GetInputHandle(input_names[0]);
-  std::vector<int> INPUT_SHAPE = {1, row, col};
-  input_tensor->Reshape(INPUT_SHAPE);
-  input_tensor->CopyFromCpu(feed_feature.data());
-  std::unique_ptr<paddle_infer::Tensor> input_len = predictor->GetInputHandle(input_names[1]);
-  std::vector<int> input_len_size = {1};
-  input_len->Reshape(input_len_size);
-  std::vector<int64_t> audio_len;
-  audio_len.push_back(row);
-  input_len->CopyFromCpu(audio_len.data());
+    std::unique_ptr<paddle_infer::Tensor> input_tensor =
+        predictor->GetInputHandle(input_names[0]);
+    std::vector<int> INPUT_SHAPE = {1, row, col};
+    input_tensor->Reshape(INPUT_SHAPE);
+    input_tensor->CopyFromCpu(feed_feature.data());
+    std::unique_ptr<paddle_infer::Tensor> input_len =
+        predictor->GetInputHandle(input_names[1]);
+    std::vector<int> input_len_size = {1};
+    input_len->Reshape(input_len_size);
+    std::vector<int64_t> audio_len;
+    audio_len.push_back(row);
+    input_len->CopyFromCpu(audio_len.data());
 
-  std::unique_ptr<paddle_infer::Tensor> h_box = predictor->GetInputHandle(input_names[2]);
-  shared_ptr<Tensor<BaseFloat>> h_cache = GetCacheEncoder(input_names[2]);
-  h_box->Reshape(h_cache->get_shape());
-  h_box->CopyFromCpu(h_cache->get_data().data());
-  std::unique_ptr<paddle_infer::Tensor> c_box = predictor->GetInputHandle(input_names[3]);
-  shared_ptr<Tensor<float>> c_cache = GetCacheEncoder(input_names[3]);
-  c_box->Reshape(c_cache->get_shape());
-  c_box->CopyFromCpu(c_cache->get_data().data());
-  bool success = predictor->Run();
+    std::unique_ptr<paddle_infer::Tensor> h_box =
+        predictor->GetInputHandle(input_names[2]);
+    shared_ptr<Tensor<BaseFloat>> h_cache = GetCacheEncoder(input_names[2]);
+    h_box->Reshape(h_cache->get_shape());
+    h_box->CopyFromCpu(h_cache->get_data().data());
+    std::unique_ptr<paddle_infer::Tensor> c_box =
+        predictor->GetInputHandle(input_names[3]);
+    shared_ptr<Tensor<float>> c_cache = GetCacheEncoder(input_names[3]);
+    c_box->Reshape(c_cache->get_shape());
+    c_box->CopyFromCpu(c_cache->get_data().data());
+    bool success = predictor->Run();
 
-  if (success == false) {
-      LOG(INFO) << "predictor run occurs error";
-  }
-
-  LOG(INFO) << "get the model success";
-  std::unique_ptr<paddle_infer::Tensor> h_out = predictor->GetOutputHandle(output_names[2]);
-  assert(h_cache->get_shape() == h_out->shape());
-  h_out->CopyToCpu(h_cache->get_data().data());
-  std::unique_ptr<paddle_infer::Tensor> c_out = predictor->GetOutputHandle(output_names[3]);
-  assert(c_cache->get_shape() == c_out->shape());
-  c_out->CopyToCpu(c_cache->get_data().data());
-
-  // get result
-  std::unique_ptr<paddle_infer::Tensor> output_tensor =
-      predictor->GetOutputHandle(output_names[0]);
-  std::vector<int> output_shape = output_tensor->shape();
-  row = output_shape[1];
-  col = output_shape[2];
-  vector<float> inferences_result;
-  inferences->Resize(row, col);
-  inferences_result.resize(row*col);
-  output_tensor->CopyToCpu(inferences_result.data());
-  ReleasePredictor(predictor);
-
-  for (int row_idx = 0; row_idx < row; ++row_idx) {
-    for (int col_idx = 0; col_idx < col; ++col_idx) {
-      (*inferences)(row_idx, col_idx) = inferences_result[col*row_idx + col_idx];
+    if (success == false) {
+        LOG(INFO) << "predictor run occurs error";
     }
-  }
+
+    LOG(INFO) << "get the model success";
+    std::unique_ptr<paddle_infer::Tensor> h_out =
+        predictor->GetOutputHandle(output_names[2]);
+    assert(h_cache->get_shape() == h_out->shape());
+    h_out->CopyToCpu(h_cache->get_data().data());
+    std::unique_ptr<paddle_infer::Tensor> c_out =
+        predictor->GetOutputHandle(output_names[3]);
+    assert(c_cache->get_shape() == c_out->shape());
+    c_out->CopyToCpu(c_cache->get_data().data());
+
+    // get result
+    std::unique_ptr<paddle_infer::Tensor> output_tensor =
+        predictor->GetOutputHandle(output_names[0]);
+    std::vector<int> output_shape = output_tensor->shape();
+    row = output_shape[1];
+    col = output_shape[2];
+    vector<float> inferences_result;
+    inferences->Resize(row, col);
+    inferences_result.resize(row * col);
+    output_tensor->CopyToCpu(inferences_result.data());
+    ReleasePredictor(predictor);
+
+    for (int row_idx = 0; row_idx < row; ++row_idx) {
+        for (int col_idx = 0; col_idx < col; ++col_idx) {
+            (*inferences)(row_idx, col_idx) =
+                inferences_result[col * row_idx + col_idx];
+        }
+    }
 }
 
-} // namespace ppspeech           
+}  // namespace ppspeech

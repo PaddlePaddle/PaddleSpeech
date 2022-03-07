@@ -25,6 +25,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   paddlespeech asr --input ./zh.wav
   # 英文
   paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+  # 中文 + 标点恢复
+  paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
   ```
   (如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
   

@@ -17,10 +17,13 @@ The input of this demo should be a text of the specific language that can be pas
 ### 3. Usage
 - Command Line (Recommended)
     - Chinese
-    
         The default acoustic model is `Fastspeech2`, and the default vocoder is `Parallel WaveGAN`.
         ```bash
         paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
+        ```
+    - Batch Process
+        ```bash
+        echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
         ```
     - Chinese, use `SpeedySpeech` as the acoustic model
         ```bash

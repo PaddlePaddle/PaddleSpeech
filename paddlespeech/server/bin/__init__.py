@@ -14,3 +14,4 @@
 from .paddlespeech_client import ASRClientExecutor
 from .paddlespeech_client import TTSClientExecutor
 from .paddlespeech_server import ServerExecutor
+from .paddlespeech_server import ServerStatsExecutor

@@ -10,10 +10,15 @@ This demo is an implementation of starting the voice service and accessing the s
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+It is recommended to use **paddlepaddle 2.2.1** or above.
+You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File
-The configuration file contains the service-related configuration files and the model configuration related to the voice tasks contained in the service. They are all under the `conf` folder. 
+The configuration file can be found in `conf/application.yaml` .
+Among them, `engine_list` indicates the speech engine that will be included in the service to be started, in the format of <speech task>_<engine type>.
+At present, the speech tasks integrated by the service include: asr (speech recognition) and tts (speech synthesis).
+Currently the engine type supports two forms: python and inference (Paddle Inference)
+
 
 The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
@@ -76,6 +81,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 
 ### 4. ASR Client Usage
+**Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
@@ -122,6 +128,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
  
 ### 5. TTS Client Usage
+**Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
    ```bash
    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
@@ -147,8 +154,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
     [2022-02-23 15:20:37,875] [    INFO] - Save synthesized audio successfully on output.wav.
     [2022-02-23 15:20:37,875] [    INFO] - Audio duration: 3.612500 s.
     [2022-02-23 15:20:37,875] [    INFO] - Response time: 0.348050 s.
-    [2022-02-23 15:20:37,875] [    INFO] - RTF: 0.096346
-
 
     ```
 
@@ -174,51 +179,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
   Response time: 0.388317 s.
-  RTF: 0.107493
 
   ```
 
 
-## Pretrained Models
+## Models supported by the service
 ### ASR model
-Here is a list of [ASR pretrained models](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_recognition/README.md#4pretrained-models) released by PaddleSpeech, both command line and python interfaces are available:
-
-| Model | Language | Sample Rate
-| :--- | :---: | :---: |
-| conformer_wenetspeech| zh| 16000
-| transformer_librispeech| en| 16000
+Get all models supported by the ASR service via `paddlespeech_server stats --task asr`, where static models can be used for paddle inference inference.
 
 ### TTS model
-Here is a list of [TTS pretrained models](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/text_to_speech/README.md#4-pretrained-models) released by PaddleSpeech, both command line and python interfaces are available:
-
-- Acoustic model
-  | Model | Language
-  | :--- | :---: |
-  | speedyspeech_csmsc| zh
-  | fastspeech2_csmsc| zh
-  | fastspeech2_aishell3| zh
-  | fastspeech2_ljspeech| en
-  | fastspeech2_vctk| en
-
-- Vocoder
-  | Model | Language
-  | :--- | :---: |
-  | pwgan_csmsc| zh
-  | pwgan_aishell3| zh
-  | pwgan_ljspeech| en
-  | pwgan_vctk| en
-  | mb_melgan_csmsc| zh
-
-Here is a list of **TTS pretrained static models** released by PaddleSpeech, both command line and python interfaces are available:
-- Acoustic model
-  | Model | Language
-  | :--- | :---: |
-  | speedyspeech_csmsc| zh
-  | fastspeech2_csmsc| zh
-
-- Vocoder
-  | Model | Language
-  | :--- | :---: |
-  | pwgan_csmsc| zh
-  | mb_melgan_csmsc| zh
-  | hifigan_csmsc| zh
+Get all models supported by the TTS service via `paddlespeech_server stats --task tts`, where static models can be used for paddle inference inference.

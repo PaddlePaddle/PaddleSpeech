@@ -2,6 +2,7 @@
 *.pyc
 .vscode
 *log
+*.wav
 *.pdmodel
 *.pdiparams*
 *.zip
@@ -13,6 +14,7 @@
 *.whl
 *.egg-info
 build
+*output/
 
 docs/build/
 docs/topic/ctc/warp-ctc/
@@ -30,5 +32,6 @@ tools/OpenBLAS/
 tools/Miniconda3-latest-Linux-x86_64.sh
 tools/activate_python.sh
 tools/miniconda.sh
+tools/CRF++-0.58/
 
-*output/
+speechx/fc_patch/

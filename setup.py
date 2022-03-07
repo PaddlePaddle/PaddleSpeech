@@ -48,6 +48,7 @@ base = [
     "paddlespeech_feat",
     "praatio==5.0.0",
     "pypinyin",
+    "pypinyin-dict",
     "python-dateutil",
     "pyworld",
     "resampy==0.2.2",
@@ -62,6 +63,7 @@ base = [
     "visualdl",
     "webrtcvad",
     "yacs~=0.1.8",
+    "prettytable",
 ]
 
 server = [

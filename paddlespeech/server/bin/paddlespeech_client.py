@@ -121,7 +121,6 @@ class TTSClientExecutor(BaseExecutor):
                         (args.output))
             logger.info("Audio duration: %f s." % (duration))
             logger.info("Response time: %f s." % (time_consume))
-            logger.info("RTF: %f " % (time_consume / duration))
 
             return True
         except BaseException:

@@ -33,8 +33,6 @@ from paddlespeech.s2t.modules.decoder import TransformerDecoder
 from paddlespeech.s2t.modules.encoder import ConformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
 from paddlespeech.s2t.modules.loss import LabelSmoothingLoss
-from paddlespeech.s2t.modules.mask import mask_finished_preds
-from paddlespeech.s2t.modules.mask import mask_finished_scores
 from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
@@ -291,7 +289,7 @@ class U2STBaseModel(nn.Layer):
         device = speech.place
 
         # Let's assume B = batch_size and N = beam_size
-        # 1. Encoder and init hypothesis 
+        # 1. Encoder and init hypothesis
         encoder_out, encoder_mask = self._forward_encoder(
             speech, speech_lengths, decoding_chunk_size,
             num_decoding_left_chunks,

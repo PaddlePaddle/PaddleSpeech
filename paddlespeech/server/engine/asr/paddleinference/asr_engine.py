@@ -13,6 +13,7 @@
 # limitations under the License.
 import io
 import os
+import time
 from typing import Optional
 
 import paddle
@@ -25,7 +26,6 @@ from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
-from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
 
@@ -183,7 +183,7 @@ class ASREngine(BaseEngine):
     def __init__(self):
         super(ASREngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         """init engine resource
 
         Args:
@@ -195,9 +195,8 @@ class ASREngine(BaseEngine):
         self.input = None
         self.output = None
         self.executor = ASRServerExecutor()
-        self.config = get_config(config_file)
+        self.config = config
 
-        paddle.set_device(paddle.get_device())
         self.executor._init_from_path(
             model_type=self.config.model_type,
             am_model=self.config.am_model,
@@ -223,12 +222,17 @@ class ASREngine(BaseEngine):
             logger.info("start running asr engine")
             self.executor.preprocess(self.config.model_type,
                                      io.BytesIO(audio_data))
+            st = time.time()
             self.executor.infer(self.config.model_type)
+            infer_time = time.time() - st
             self.output = self.executor.postprocess()  # Retrieve result of asr.
             logger.info("end inferring asr engine")
         else:
             logger.info("file check failed!")
             self.output = None
+
+        logger.info("inference time: {}".format(infer_time))
+        logger.info("asr engine type: paddle inference")
 
     def postprocess(self):
         """postprocess

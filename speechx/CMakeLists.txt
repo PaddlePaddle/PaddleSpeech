@@ -117,6 +117,7 @@ set(MKLDNN_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mkldnn")
 include_directories("${MKLDNN_PATH}/include")
 set(MKLDNN_LIB ${MKLDNN_PATH}/lib/libmkldnn.so.0)
 set(EXTERNAL_LIB "-lrt -ldl -lpthread")
+
 set(DEPS ${PADDLE_LIB}/paddle/lib/libpaddle_inference${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(DEPS ${DEPS}
       ${MATH_LIB} ${MKLDNN_LIB}
@@ -137,4 +138,7 @@ set(DEPS ${DEPS}
 #target_link_libraries(lib_name item0 item1)
 #add_dependencies(lib_name depend-target)
 
+set(SPEECHX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/speechx)
+
 add_subdirectory(speechx)
+add_subdirectory(examples)

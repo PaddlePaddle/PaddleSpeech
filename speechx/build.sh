@@ -16,7 +16,7 @@ if [ ! -d ${boost_SOURCE_DIR} ]; then wget -c https://boostorg.jfrog.io/artifact
   echo -e "\n"
 fi
 
-rm -rf build
+#rm -rf build
 mkdir -p build
 cd build
 

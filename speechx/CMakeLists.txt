@@ -24,7 +24,10 @@ get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
 # compiler option
+# Keep the same with openfst, -fPIC or -fpic
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
 
 ###############################################################################
 # Option Configurations
@@ -57,9 +60,10 @@ include(absl)
 include(libsndfile)
 
 # boost
+# include(boost) # not work
 set(boost_SOURCE_DIR ${fc_patch}/boost-src)
 set(BOOST_ROOT ${boost_SOURCE_DIR})
-#find_package(boost REQUIRED PATHS ${BOOST_ROOT})
+# #find_package(boost REQUIRED PATHS ${BOOST_ROOT})
 
 # Eigen
 include(eigen)
@@ -69,27 +73,13 @@ find_package(Eigen3 REQUIRED)
 include(kenlm)
 add_dependencies(kenlm eigen boost)
 
+#openblas
+include(openblas)
 
 # openfst
-set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
-set(openfst_BINARY_DIR ${fc_patch}/openfst-build)
-set(openfst_PREFIX_DIR ${fc_patch}/openfst-subbuild/openfst-populate-prefix)
-ExternalProject_Add(openfst
-  URL               https://github.com/mjansche/openfst/archive/refs/tags/1.7.2.zip
-  URL_HASH          SHA256=ffc56931025579a8af3515741c0f3b0fc3a854c023421472c07ca0c6389c75e6
-  #PREFIX            ${openfst_PREFIX_DIR} 
-  SOURCE_DIR        ${openfst_SOURCE_DIR}
-  BINARY_DIR        ${openfst_BINARY_DIR}
-  CONFIGURE_COMMAND ${openfst_SOURCE_DIR}/configure --prefix=${openfst_PREFIX_DIR}
-                      "CPPFLAGS=-I${gflags_BINARY_DIR}/include -I${glog_SOURCE_DIR}/src -I${glog_BINARY_DIR}"
-                      "LDFLAGS=-L${gflags_BINARY_DIR} -L${glog_BINARY_DIR}"
-                      "LIBS=-lgflags_nothreads -lglog -lpthread"
-  COMMAND           ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/patch/openfst ${openfst_SOURCE_DIR}
-  BUILD_COMMAND     make -j 4
-)
+include(openfst)
 add_dependencies(openfst gflags glog)
-link_directories(${openfst_PREFIX_DIR}/lib)
-include_directories(${openfst_PREFIX_DIR}/include)
+
 
 # paddle lib
 set(paddle_SOURCE_DIR ${fc_patch}/paddle-lib)
@@ -133,30 +123,7 @@ set(DEPS ${DEPS}
       glog gflags protobuf xxhash cryptopp
       ${EXTERNAL_LIB})
 
-#openblas
-set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
-#set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/OpenBLAS)
-#set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
-#set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
-#ExternalProject_Add(
-  #OpenBLAS
-  #GIT_REPOSITORY https://github.com/xianyi/OpenBLAS
-  #GIT_TAG        1ef97c470ccf23d06d3bb0597c52df4a2e9093b9
-  #GIT_SHALLOW TRUE
-  #GIT_PROGRESS TRUE
-  #PREFIX      ${OpenBLAS_PREFIX}
-  #SOURCE_DIR  ${OpenBLAS_SOURCE_DIR}
-  #BUILD_IN_SOURCE TRUE
-  #CONFIGURE_COMMAND ""
-  #BUILD_COMMAND make
-  #INSTALL_COMMAND make PREFIX=${OpenBLAS_INSTALL_PREFIX} install
-  #UPDATE_DISCONNECTED TRUE
-#)
-link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
-include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
 
-# gfortan dir in the docker.
-link_directories(/usr/local/gcc-8.2/lib64)
 
 ###############################################################################
 # Add local library

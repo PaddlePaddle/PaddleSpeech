@@ -16,11 +16,13 @@ if [ ! -d ${boost_SOURCE_DIR} ]; then wget -c https://boostorg.jfrog.io/artifact
   echo -e "\n"
 fi
 
+rm -rf build
 mkdir -p build
 cd build
 
-cmake .. -DBOOST_ROOT:STRING=${boost_SOURCE_DIR} --target clean
+cmake .. -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}
+#cmake .. 
 
-make
+make -j1
 
 cd -

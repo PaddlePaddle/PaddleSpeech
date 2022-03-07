@@ -1,5 +1,7 @@
 
 #include "frontend/normalizer.h"
+#include "kaldi/feat/cmvn.h"
+#include "kaldi/util/kaldi-io.h"
 
 namespace ppspeech {
 
@@ -7,6 +9,7 @@ using kaldi::Vector;
 using kaldi::VectorBase;
 using kaldi::BaseFloat;
 using std::vector;
+using kaldi::SubVector;
 
 DecibelNormalizer::DecibelNormalizer(const DecibelNormalizerOptions& opts) {
   opts_ = opts;
@@ -87,44 +90,91 @@ bool DecibelNormalizer::Compute(const VectorBase<BaseFloat>& input,
   return true;
 }
 
-/*
-PPNormalizer::PPNormalizer(
-    const PPNormalizerOptions& opts,
-    const std::unique_ptr<FeatureExtractorInterface>& pre_extractor) {
-
-}
-                                    
-void PPNormalizer::AcceptWavefrom(const Vector<BaseFloat>& input) {
-
+CMVN::CMVN(std::string cmvn_file) : var_norm_(true) {
+  bool binary;
+  kaldi::Input ki(cmvn_file, &binary);
+  stats_.Read(ki.Stream(), binary);
 }
 
-void PPNormalizer::Read(Vector<BaseFloat>* feat) {
-
+void CMVN::AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) {
+  return;
 }
 
-bool PPNormalizer::Compute(const Vector<BaseFloat>& input,
-                           Vector<BaseFloat>>* feat) {
-   if ((input.Dim() % mean_.Dim()) == 0) {
-        LOG(ERROR) << "CMVN dimension is wrong!";
-        return false;
-   }
+void CMVN::Read(kaldi::VectorBase<BaseFloat>* feat) {
+  return;
+}
 
-    try {
-      int32 size = mean_.Dim();
-      feat->Resize(input.Dim());
-      for (int32 row_idx = 0; row_idx < j; ++row_idx) {
-        int32 base_idx  = row_idx * size;
-        for (int32 idx = 0; idx < mean_.Dim(); ++idx) {
-          (*feat)(base_idx + idx) = (input(base_dix + idx) - mean_(idx))* variance_(idx);
-        }       
-      }
+// feats contain num_frames feature.
+void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
+  KALDI_ASSERT(feats != NULL); 
+  int32 dim = stats_.NumCols() - 1;
+  if (stats_.NumRows() > 2 || stats_.NumRows() < 1 || feats->Dim() % dim != 0) {
+    KALDI_ERR << "Dim mismatch: cmvn "
+              << stats_.NumRows() << 'x' << stats_.NumCols()
+              << ", feats " << feats->Dim() << 'x';
+  }
+  if (stats_.NumRows() == 1 && var_norm) {
+    KALDI_ERR << "You requested variance normalization but no variance stats_ "
+              << "are supplied.";
+  }
 
-    } catch(const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        return false;
+  double count = stats_(0, dim);
+  // Do not change the threshold of 1.0 here: in the balanced-cmvn code, when
+  // computing an offset and representing it as stats_, we use a count of one.
+  if (count < 1.0)
+    KALDI_ERR << "Insufficient stats_ for cepstral mean and variance normalization: "
+              << "count = " << count;
+
+  if (!var_norm) {
+    Vector<BaseFloat> offset(feats->Dim());
+    SubVector<double> mean_stats(stats_.RowData(0), dim);
+    Vector<double> mean_stats_apply(feats->Dim());
+    //fill the datat of mean_stats in mean_stats_appy whose dim is equal with the dim of feature.
+    //the dim of feats = dim * num_frames;
+    for (int32 idx = 0; idx < feats->Dim() / dim; ++idx) {
+      SubVector<double> stats_tmp(mean_stats_apply.Data() + dim*idx, dim);
+      stats_tmp.CopyFromVec(mean_stats);
     }
+    offset.AddVec(-1.0 / count, mean_stats_apply);
+    feats->AddVec(1.0, offset);
+    return;
+  }
+  // norm(0, d) = mean offset;
+  // norm(1, d) = scale, e.g. x(d) <-- x(d)*norm(1, d) + norm(0, d).
+  kaldi::Matrix<BaseFloat> norm(2, feats->Dim());
+  for (int32 d = 0; d < dim; d++) {
+    double mean, offset, scale;
+    mean = stats_(0, d)/count;
+    double var = (stats_(1, d)/count) - mean*mean,
+        floor = 1.0e-20;
+    if (var < floor) {
+      KALDI_WARN << "Flooring cepstral variance from " << var << " to "
+                 << floor;
+      var = floor;
+    }
+    scale = 1.0 / sqrt(var);
+    if (scale != scale || 1/scale == 0.0)
+      KALDI_ERR << "NaN or infinity in cepstral mean/variance computation";
+    offset = -(mean*scale);
+    for (int32 d_skip = d; d_skip < feats->Dim();) {
+      norm(0, d_skip) = offset;
+      norm(1, d_skip) = scale;
+      d_skip = d_skip + dim;
+    }
+  }
+  // Apply the normalization.
+  feats->MulElements(norm.Row(1));
+  feats->AddVec(1.0, norm.Row(0));
+}
 
-    return true;
-}*/
+void CMVN::ApplyCMVNMatrix(bool var_norm, kaldi::MatrixBase<BaseFloat>* feats) {
+  ApplyCmvn(stats_, var_norm, feats);
+}
+
+bool CMVN::Compute(const VectorBase<BaseFloat>& input,
+                   VectorBase<BaseFloat>* feat) const {
+                     return false;
+}
+
 
 } // namespace ppspeech

@@ -4,9 +4,9 @@
 #include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
 #include "kaldi/util/options-itf.h"
+#include "kaldi/matrix/kaldi-matrix.h"
 
 namespace ppspeech {
-
 
 struct DecibelNormalizerOptions {
   float target_db;
@@ -39,34 +39,23 @@ class DecibelNormalizer : public FeatureExtractorInterface {
     kaldi::Vector<kaldi::BaseFloat> waveform_;
 };
 
-/*
-struct NormalizerOptions {
-  std::string mean_std_path;
-  NormalizerOptions() :
-    mean_std_path("") {}
 
-  void Register(kaldi::OptionsItf* opts) {
-    opts->Register("mean-std", &mean_std_path, "mean std file");
-  }
-};
-
-// todo refactor later (SmileGoat)
-class PPNormalizer : public FeatureExtractorInterface {
+class CMVN : public FeatureExtractorInterface {
   public:
-    explicit PPNormalizer(const NormalizerOptions& opts, 
-                          const std::unique_ptr<FeatureExtractorInterface>& pre_extractor);
-    ~PPNormalizer() {}
-    virtual void AcceptWavefrom(const kaldi::Vector<kaldi::BaseFloat>& input);
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat);
-    virtual size_t Dim() const;
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& input,
-                 kaldi::Vector<kaldi::BaseFloat>>& feat);
-
+    explicit CMVN(std::string cmvn_file);
+    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input);
+    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
+    virtual size_t Dim() const { return stats_.NumCols() - 1; }
+    bool Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
+                 kaldi::VectorBase<kaldi::BaseFloat>* feat) const;
+    // for test
+    void ApplyCMVN(bool var_norm, kaldi::VectorBase<BaseFloat>* feats);
+    void ApplyCMVNMatrix(bool var_norm, kaldi::MatrixBase<BaseFloat>* feats);
   private:
-    bool _initialized;
-    kaldi::Vector<float> mean_;
-    kaldi::Vector<float> variance_;
-    NormalizerOptions _opts;
+    kaldi::Matrix<double> stats_;
+    std::shared_ptr<FeatureExtractorInterface> base_extractor_;
+    size_t dim_;
+    bool var_norm_;
 };
-*/
+
 }  // namespace ppspeech

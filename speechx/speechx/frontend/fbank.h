@@ -22,15 +22,16 @@ namespace ppspeech {
 
 class FbankExtractor : FeatureExtractorInterface {
   public:
-    explicit FbankExtractor(const FbankOptions& opts, 
+    explicit FbankExtractor(const FbankOptions& opts,
                             share_ptr<FeatureExtractorInterface> pre_extractor);
-    virtual void AcceptWaveform(const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
+    virtual void AcceptWaveform(
+        const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
     virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
     virtual size_t Dim() const = 0;
 
   private:
-     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& wave,
-                  kaldi::Vector<kaldi::BaseFloat>* feat) const; 
+    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& wave,
+                 kaldi::Vector<kaldi::BaseFloat>* feat) const;
 };
 
 }  // namespace ppspeech

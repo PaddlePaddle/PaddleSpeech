@@ -37,6 +37,7 @@ class Spectrogram(nn.Layer):
                  hop_length: Optional[int]=None,
                  win_length: Optional[int]=None,
                  window: str='hann',
+                 power: float=2.0,
                  center: bool=True,
                  pad_mode: str='reflect',
                  dtype: str=paddle.float32):
@@ -54,6 +55,7 @@ class Spectrogram(nn.Layer):
                 The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
                 'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
                 The default value is 'hann'
+            power (float): Exponent for the magnitude spectrogram. The default value is 2.0.
             center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
                 If False, frame t begins at x[t * hop_length]
                 The default value is True
@@ -67,6 +69,9 @@ class Spectrogram(nn.Layer):
             For more information, see STFT().
         """
         super(Spectrogram, self).__init__()
+
+        assert power > 0, 'Power of spectrogram must be > 0.'
+        self.power = power
 
         if win_length is None:
             win_length = n_fft
@@ -85,7 +90,7 @@ class Spectrogram(nn.Layer):
 
     def forward(self, x):
         stft = self._stft(x)
-        spectrogram = paddle.square(paddle.abs(stft))
+        spectrogram = paddle.pow(paddle.abs(stft), self.power)
         return spectrogram
 
 
@@ -96,6 +101,7 @@ class MelSpectrogram(nn.Layer):
                  hop_length: Optional[int]=None,
                  win_length: Optional[int]=None,
                  window: str='hann',
+                 power: float=2.0,
                  center: bool=True,
                  pad_mode: str='reflect',
                  n_mels: int=64,
@@ -120,6 +126,7 @@ class MelSpectrogram(nn.Layer):
                 The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
                 'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
                 The default value is 'hann'
+            power (float): Exponent for the magnitude spectrogram. The default value is 2.0.
             center(bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
                 If False, frame t begins at x[t * hop_length]
                 The default value is True
@@ -142,6 +149,7 @@ class MelSpectrogram(nn.Layer):
             hop_length=hop_length,
             win_length=win_length,
             window=window,
+            power=power,
             center=center,
             pad_mode=pad_mode,
             dtype=dtype)
@@ -176,6 +184,7 @@ class LogMelSpectrogram(nn.Layer):
                  hop_length: Optional[int]=None,
                  win_length: Optional[int]=None,
                  window: str='hann',
+                 power: float=2.0,
                  center: bool=True,
                  pad_mode: str='reflect',
                  n_mels: int=64,
@@ -214,11 +223,8 @@ class LogMelSpectrogram(nn.Layer):
             htk (bool): whether to use HTK formula in computing fbank matrix.
             norm (str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
                 You can specify norm=1.0/2.0 to use customized p-norm normalization.
-            ref_value (float): the reference value. If smaller than 1.0, the db level
-            amin (float): the minimum value of input magnitude, below which the input of the signal will be pulled up accordingly.
-                Otherwise, the db level is pushed down.
-                magnitude is clipped(to amin). For numerical stability, set amin to a larger value,
-                e.g., 1e-3.
+            ref_value (float): the reference value. If smaller than 1.0, the db level of the signal will be pulled up accordingly. Otherwise, the db level is pushed down.
+            amin (float): the minimum value of input magnitude, below which the input magnitude is clipped(to amin).
             top_db (float): the maximum db value of resulting spectrum, above which the
                 spectrum is clipped(to top_db).
             dtype (str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
@@ -232,6 +238,7 @@ class LogMelSpectrogram(nn.Layer):
             hop_length=hop_length,
             win_length=win_length,
             window=window,
+            power=power,
             center=center,
             pad_mode=pad_mode,
             n_mels=n_mels,
@@ -246,7 +253,6 @@ class LogMelSpectrogram(nn.Layer):
         self.top_db = top_db
 
     def forward(self, x):
-        # import ipdb; ipdb.set_trace()
         mel_feature = self._melspectrogram(x)
         log_mel_feature = power_to_db(
             mel_feature,
@@ -264,6 +270,7 @@ class MFCC(nn.Layer):
                  hop_length: Optional[int]=None,
                  win_length: Optional[int]=None,
                  window: str='hann',
+                 power: float=2.0,
                  center: bool=True,
                  pad_mode: str='reflect',
                  n_mels: int=64,
@@ -291,6 +298,7 @@ class MFCC(nn.Layer):
                 The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
                 'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
                 The default value is 'hann'
+            power (float): Exponent for the magnitude spectrogram. The default value is 2.0.
             center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
                 If False, frame t begins at x[t * hop_length]
                 The default value is True
@@ -303,11 +311,8 @@ class MFCC(nn.Layer):
             htk (bool): whether to use HTK formula in computing fbank matrix.
             norm (str|float): the normalization type in computing fbank matrix. Slaney-style is used by default.
                 You can specify norm=1.0/2.0 to use customized p-norm normalization.
-            ref_value (float): the reference value. If smaller than 1.0, the db level
-            amin (float): the minimum value of input magnitude, below which the input of the signal will be pulled up accordingly.
-                Otherwise, the db level is pushed down.
-                magnitude is clipped(to amin). For numerical stability, set amin to a larger value,
-                e.g., 1e-3.
+            ref_value (float): the reference value. If smaller than 1.0, the db level of the signal will be pulled up accordingly. Otherwise, the db level is pushed down.
+            amin (float): the minimum value of input magnitude, below which the input magnitude is clipped(to amin).
             top_db (float): the maximum db value of resulting spectrum, above which the
                 spectrum is clipped(to top_db).
             dtype (str): the datatype of fbank matrix used in the transform. Use float64 to increase numerical
@@ -322,6 +327,7 @@ class MFCC(nn.Layer):
             hop_length=hop_length,
             win_length=win_length,
             window=window,
+            power=power,
             center=center,
             pad_mode=pad_mode,
             n_mels=n_mels,

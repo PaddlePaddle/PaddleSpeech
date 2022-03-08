@@ -1,0 +1,12 @@
+soundfile==0.10.3.post1
+librosa==0.8.0
+numpy
+pymysql
+fastapi
+uvicorn
+diskcache==5.2.1
+pymilvus==2.0.1
+python-multipart
+typing
+starlette
+pydantic

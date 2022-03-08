@@ -1,0 +1,42 @@
+# This is the parameter configuration file for TTS server.
+# These are the static models that support paddle inference.
+
+##################################################################
+#                  ACOUSTIC MODEL SETTING                        #
+# am choices=['speedyspeech_csmsc', 'fastspeech2_csmsc']
+##################################################################
+am: 'fastspeech2_csmsc'   
+am_model: # the pdmodel file of your am static model (XX.pdmodel)
+am_params: # the pdiparams file of your am static model (XX.pdipparams)
+am_sample_rate: 24000
+phones_dict: 
+tones_dict: 
+speaker_dict: 
+spk_id: 0
+
+am_predictor_conf:
+  device:  # set 'gpu:id' or 'cpu'
+  switch_ir_optim: True
+  glog_info: False # True -> print glog
+  summary: True  # False -> do not show predictor config
+
+
+##################################################################
+#                     VOCODER SETTING                            #
+# voc choices=['pwgan_csmsc', 'mb_melgan_csmsc','hifigan_csmsc']
+##################################################################
+voc: 'pwgan_csmsc'
+voc_model: # the pdmodel file of your vocoder static model (XX.pdmodel)
+voc_params: # the pdiparams file of your vocoder static model (XX.pdipparams)
+voc_sample_rate: 24000
+
+voc_predictor_conf:
+  device:  # set 'gpu:id' or 'cpu'  
+  switch_ir_optim: True  
+  glog_info: False # True -> print glog
+  summary: True  # False -> do not show predictor config
+
+##################################################################
+#                            OTHERS                              #
+##################################################################
+lang: 'zh'

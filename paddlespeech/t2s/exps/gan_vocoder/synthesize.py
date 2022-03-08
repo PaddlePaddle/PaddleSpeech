@@ -34,7 +34,7 @@ def main():
         "--generator-type",
         type=str,
         default="pwgan",
-        help="type of GANVocoder, should in {pwgan, mb_melgan, style_melgan, } now"
+        help="type of GANVocoder, should in {pwgan, mb_melgan, style_melgan, hifigan, } now"
     )
     parser.add_argument("--config", type=str, help="GANVocoder config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")

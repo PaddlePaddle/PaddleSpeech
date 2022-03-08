@@ -13,13 +13,14 @@
 # limitations under the License.
 import os
 import unittest
+import urllib.request
 
 import numpy as np
 import paddle
 
 from paddleaudio import load
 
-file_dir = os.path.dirname(os.path.realpath(__file__))
+wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 
 
 class FeatTest(unittest.TestCase):
@@ -31,9 +32,10 @@ class FeatTest(unittest.TestCase):
     def setUpDevice(self, device='cpu'):
         paddle.set_device(device)
 
-    def initWavInput(self):
-        self.waveform, self.sr = load(
-            os.path.abspath(os.path.join(file_dir, '../wav/zh.wav')))
+    def initWavInput(self, url=wav_url):
+        if not os.path.isfile(os.path.basename(url)):
+            urllib.request.urlretrieve(url, os.path.basename(url))
+        self.waveform, self.sr = load(os.path.abspath(os.path.basename(url)))
         self.waveform = self.waveform.astype(
             np.float32
         )  # paddlespeech.s2t.transform.spectrogram only supports float32 

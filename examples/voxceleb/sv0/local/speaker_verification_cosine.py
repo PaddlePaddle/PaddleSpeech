@@ -120,7 +120,7 @@ def main(args):
         **cpu_feat_conf)
     enrol_sampler = BatchSampler(
         enrol_ds, batch_size=args.batch_size,
-        shuffle=False)  # Shuffle to make embedding normalization more robust.
+        shuffle=True)  # Shuffle to make embedding normalization more robust.
     enrol_loader = DataLoader(enrol_ds,
                     batch_sampler=enrol_sampler,
                     collate_fn=lambda x: feature_normalize(
@@ -136,7 +136,7 @@ def main(args):
         **cpu_feat_conf)
 
     test_sampler = BatchSampler(
-        test_ds, batch_size=args.batch_size, shuffle=False)
+        test_ds, batch_size=args.batch_size, shuffle=True)
     test_loader = DataLoader(test_ds,
                             batch_sampler=test_sampler,
                             collate_fn=lambda x: feature_normalize(

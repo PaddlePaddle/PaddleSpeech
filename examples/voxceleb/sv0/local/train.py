@@ -56,10 +56,10 @@ def main(args):
     # set the random seed, it is a must for multiprocess training
     seed_everything(args.seed)
 
-    # stage2: data prepare, such vox1 and vox2 data, and augment data and pipline
+    # stage2: data prepare, such vox1 and vox2 data, and augment noise data and pipline
     # note: some cmd must do in rank==0, so wo will refactor the data prepare code
-    train_ds = VoxCeleb1('train', target_dir=args.data_dir)
-    dev_ds = VoxCeleb1('dev', target_dir=args.data_dir)
+    train_dataset = VoxCeleb1('train', target_dir=args.data_dir)
+    dev_dataset = VoxCeleb1('dev', target_dir=args.data_dir)
 
     if args.augment:
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
@@ -123,9 +123,9 @@ def main(args):
 
     # stage8: we build the batch sampler for paddle.DataLoader
     train_sampler = DistributedBatchSampler(
-        train_ds, batch_size=args.batch_size, shuffle=True, drop_last=False)
+        train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False)
     train_loader = DataLoader(
-        train_ds,
+        train_dataset,
         batch_sampler=train_sampler,
         num_workers=args.num_workers,
         collate_fn=waveform_collate_fn,
@@ -216,12 +216,12 @@ def main(args):
 
             # stage 9-12: construct the valid dataset dataloader
             dev_sampler = BatchSampler(
-                dev_ds,
+                dev_dataset,
                 batch_size=args.batch_size // 4,
                 shuffle=False,
                 drop_last=False)
             dev_loader = DataLoader(
-                dev_ds,
+                dev_dataset,
                 batch_sampler=dev_sampler,
                 collate_fn=waveform_collate_fn,
                 num_workers=args.num_workers,

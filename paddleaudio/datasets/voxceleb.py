@@ -28,7 +28,7 @@ from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets.dataset import feat_funcs
 from paddleaudio.utils import DATA_HOME
 from paddleaudio.utils import decompress
-from paddleaudio.utils import download_and_decompress
+from paddlespeech.vector.utils.download import download_and_decompress
 from paddlespeech.s2t.utils.log import Log
 from utils.utility import download
 from utils.utility import unpack
@@ -106,13 +106,14 @@ class VoxCeleb1(Dataset):
         self.chunk_duration = chunk_duration
         self.split_ratio = split_ratio
         self.target_dir = target_dir if target_dir else self.base_path
-        self.csv_path = os.path.join(
+        VoxCeleb1.csv_path = os.path.join(
             target_dir, 'csv') if target_dir else os.path.join(self.base_path,
                                                                'csv')
-        self.meta_path = os.path.join(
+        VoxCeleb1.meta_path = os.path.join(
             target_dir, 'meta') if target_dir else os.path.join(self.base_path,
                                                                 'meta')
-        self.veri_test_file = os.path.join(self.meta_path, 'veri_test2.txt')
+        VoxCeleb1.veri_test_file = os.path.join(self.meta_path,
+                                                'veri_test2.txt')
         # self._data = self._get_data()[:1000]  # KP: Small dataset test.
         self._data = self._get_data()
         super(VoxCeleb1, self).__init__()

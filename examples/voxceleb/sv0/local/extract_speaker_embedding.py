@@ -22,11 +22,11 @@ from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from tqdm import tqdm
 
+from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddleaudio.features.core import melspectrogram
-from paddleaudio.backends import load as load_audio
-from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.metrics import compute_eer
@@ -40,6 +40,7 @@ cpu_feat_conf = {
     'window_size': 400,  #ms
     'hop_length': 160,  #ms
 }
+
 
 def extract_audio_embedding(args):
     # stage 0: set the training device, cpu or gpu
@@ -59,6 +60,8 @@ def extract_audio_embedding(args):
     }
     ecapa_tdnn = EcapaTdnn(**model_conf)
 
+    # stage4: build the speaker verification train instance with backbone model
+    model = SpeakerIdetification(backbone=ecapa_tdnn, num_class=1211)
     # stage 2: load the pre-trained model
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
@@ -71,18 +74,29 @@ def extract_audio_embedding(args):
 
     # stage 3: we must set the model to eval mode
     model.eval()
-    
+
     # stage 4: read the audio data and extract the embedding
+    # wavform is one dimension numpy array 
     waveform, sr = load_audio(args.audio_path)
+
+    # feat type is numpy array, whose shape is [dim, time]
+    # we need convert the audio feat to one-batch shape [batch, dim, time], where the batch is one
+    # so the final shape is [1, dim, time]
     feat = melspectrogram(x=waveform, **cpu_feat_conf)
     feat = paddle.to_tensor(feat).unsqueeze(0)
-    lengths = paddle.ones([1]) # in paddle inference model, the lengths is all one without padding
-    feat = feature_normalize(feat, mean_norm=True, std_norm=False)
-    embedding = ecapa_tdnn(feat, lengths
-                ).squeeze().numpy() # (1, emb_size, 1) -> (emb_size)
+
+    # in inference period, the lengths is all one without padding
+    lengths = paddle.ones([1])
+    feat = feature_normalize(
+        feat, mean_norm=True, std_norm=False, convert_to_numpy=True)
+
+    # model backbone network forward the feats and get the embedding
+    embedding = model.backbone(
+        feat, lengths).squeeze().numpy()  # (1, emb_size, 1) -> (emb_size)
 
     # stage 5: do global norm with external mean and std
     # todo
+    # np.save("audio-embedding", embedding)
     return embedding
 
 

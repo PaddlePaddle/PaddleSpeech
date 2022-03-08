@@ -24,10 +24,19 @@ def waveform_collate_fn(batch):
 
 def feature_normalize(feats: paddle.Tensor,
                       mean_norm: bool=True,
-                      std_norm: bool=True):
+                      std_norm: bool=True,
+                      convert_to_numpy: bool=False):
     # Features normalization if needed
-    mean = feats.mean(axis=-1, keepdim=True) if mean_norm else 0
-    std = feats.std(axis=-1, keepdim=True) if std_norm else 1
-    feats = (feats - mean) / std
+    # numpy.mean is a little with paddle.mean about 1e-6
+    if convert_to_numpy:
+        feats_np = feats.numpy()
+        mean = feats_np.mean(axis=-1, keepdims=True) if mean_norm else 0
+        std = feats_np.std(axis=-1, keepdims=True) if std_norm else 1
+        feats_np = (feats_np - mean) / std
+        feats = paddle.to_tensor(feats_np, dtype=feats.dtype)
+    else:
+        mean = feats.mean(axis=-1, keepdim=True) if mean_norm else 0
+        std = feats.std(axis=-1, keepdim=True) if std_norm else 1
+        feats = (feats - mean) / std
 
     return feats

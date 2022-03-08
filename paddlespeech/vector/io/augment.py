@@ -178,7 +178,8 @@ class DropChunk(nn.Layer):
             # Update waveform
             if not self.noise_factor:
                 for j in range(drop_times[i]):
-                    dropped_waveform[i, start[j]:end[j]] = 0.0
+                    if start[j] < end[j]:
+                        dropped_waveform[i, start[j]:end[j]] = 0.0
             else:
                 # Uniform distribution of -2 to +2 * avg amplitude should
                 # preserve the average for normalization

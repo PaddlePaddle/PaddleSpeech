@@ -12,9 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import setuptools
+from setuptools.command.install import install
+from setuptools.command.test import test as TestCommand
 
 # set the version here
 VERSION = '0.2.0'
+
+
+# Inspired by the example at https://pytest.org/latest/goodpractises.html
+class NoseTestCommand(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # Run nose ensuring that argv simulates running nosetests directly
+        import nose
+        nose.run_exit(argv=['nosetests', '-w', 'tests'])
+
+
+class InstallCommand(install):
+    def run(self):
+        install.run(self)
 
 
 def write_version_py(filename='paddleaudio/__init__.py'):
@@ -23,7 +43,7 @@ def write_version_py(filename='paddleaudio/__init__.py'):
                "__version__") and paddleaudio.__version__ == VERSION:
         return
     with open(filename, "a") as f:
-        f.write(f"\n__version__ = '{VERSION}'\n")
+        f.write(f"__version__ = '{VERSION}'")
 
 
 def remove_version_py(filename='paddleaudio/__init__.py'):
@@ -61,6 +81,11 @@ setuptools.setup(
         'colorlog',
         'dtaidistance >= 2.3.6',
         'mcd >= 0.4',
-    ], )
+    ],
+    setup_requires=['nose'],
+    cmdclass={
+        'install': InstallCommand,
+        'test': NoseTestCommand,
+    }, )
 
 remove_version_py()

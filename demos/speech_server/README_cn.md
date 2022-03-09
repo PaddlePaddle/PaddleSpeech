@@ -10,19 +10,16 @@
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-你可以从 easy，medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+推荐使用 **paddlepaddle 2.2.1** 或以上版本。
+你可以从 medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+
 
 ### 2. 准备配置文件
-配置文件包含服务相关的配置文件和服务中包含的语音任务相关的模型配置。 它们都在 `conf` 文件夹下。
-**注意：`application.yaml` 中 `engine_backend` 的配置表示启动的服务中包含的所有语音任务。**
-如果你想启动的服务中只包含某项语音任务，那么你需要注释掉不需要包含的语音任务。例如你只想使用语音识别（ASR）服务，那么你可以将语音合成（TTS）服务注释掉，如下示例：
-```bash
-engine_backend:
-    asr: 'conf/asr/asr.yaml'
-    #tts: 'conf/tts/tts.yaml'
-```
-**注意：`application.yaml` 中 `engine_backend` 的配置文件需要和 `engine_type` 的配置类型匹配。**
-当`engine_backend` 的配置文件为`XXX.yaml`时，需要设置`engine_type`的配置类型为`python`;当`engine_backend` 的配置文件为`XXX_pd.yaml`时，需要设置`engine_type`的配置类型为`inference`;
+配置文件可参见 `conf/application.yaml` 。
+其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
+目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)。
+目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
+
 
 这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 
@@ -84,7 +81,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
 
 ### 4. ASR客户端使用方法
-**注意：**初次使用客户端时响应时间会略长
+**注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
@@ -133,10 +130,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
  
 ### 5. TTS客户端使用方法
-**注意：**初次使用客户端时响应时间会略长
-   ```bash
-   paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
-   ```
+**注意：** 初次使用客户端时响应时间会略长
+- 命令行 (推荐使用)
+
+    ```bash
+    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```
     使用帮助:
   
     ```bash

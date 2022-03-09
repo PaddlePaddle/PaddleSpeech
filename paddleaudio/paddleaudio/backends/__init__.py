@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import _locale
-
-_locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+from .soundfile_backend import depth_convert
+from .soundfile_backend import load
+from .soundfile_backend import normalize
+from .soundfile_backend import resample
+from .soundfile_backend import save
+from .soundfile_backend import to_mono

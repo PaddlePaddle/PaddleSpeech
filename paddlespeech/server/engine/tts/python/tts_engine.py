@@ -25,7 +25,6 @@ from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
-from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.exception import ServerBaseException
 
@@ -50,11 +49,11 @@ class TTSEngine(BaseEngine):
         """
         super(TTSEngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
 
         try:
-            self.config = get_config(config_file)
+            self.config = config
             if self.config.device:
                 self.device = self.config.device
             else:

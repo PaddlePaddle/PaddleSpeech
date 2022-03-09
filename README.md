@@ -397,9 +397,9 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td >HiFiGAN</td>
-      <td >CSMSC</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
       </td>
     </tr>
     <tr>

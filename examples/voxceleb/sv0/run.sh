@@ -31,20 +31,22 @@ if [ $stage -le 1 ]; then
      python3 \
           -m paddle.distributed.launch --gpus=0,1,2,3 \
           ${BIN_DIR}/train.py --device "gpu" --checkpoint-dir ${exp_dir} --augment \
-          --save-freq 10 --data-dir ${dir} --batch-size 64 --epochs 100
+          --data-dir ${dir} --config conf/ecapa_tdnn.yaml
 fi
 
 if [ $stage -le 2 ]; then
      # stage 1: get the speaker verification scores with cosine function
      python3 \
           ${BIN_DIR}/speaker_verification_cosine.py\
-          --batch-size 4 --data-dir ${dir} --load-checkpoint ${exp_dir}/epoch_10/
+          --config conf/ecapa_tdnn.yaml \
+          --data-dir ${dir} --load-checkpoint ${exp_dir}/epoch_10/
 fi
 
 if [ $stage -le 3 ]; then
      # stage 3: extract the audio embedding
      python3 \
           ${BIN_DIR}/extract_speaker_embedding.py\
+          --config conf/ecapa_tdnn.yaml \
           --audio-path "demo/csv/00001.wav" --load-checkpoint ${exp_dir}/epoch_60/
 fi
 

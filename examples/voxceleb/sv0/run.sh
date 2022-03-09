@@ -20,10 +20,10 @@ exp_dir=exp/ecapa-tdnn/           # experiment directory
 mkdir -p ${dir}
 mkdir -p ${exp_dir}
 
-# if [ $stage -le 0 ]; then 
-#      # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
-#      # todo
-# fi 
+if [ $stage -le 0 ]; then 
+     # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
+     python3 local/data_prepare.py --data-dir ${dir} --augment
+fi 
 
 if [ $stage -le 1 ]; then
      # stage 1: train the speaker identification model

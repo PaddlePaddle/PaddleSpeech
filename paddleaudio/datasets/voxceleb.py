@@ -16,6 +16,7 @@ import csv
 import glob
 import os
 import random
+from multiprocessing import cpu_count
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -28,8 +29,8 @@ from paddleaudio.backends import load as load_audio
 from paddleaudio.datasets.dataset import feat_funcs
 from paddleaudio.utils import DATA_HOME
 from paddleaudio.utils import decompress
-from paddlespeech.vector.utils.download import download_and_decompress
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.vector.utils.download import download_and_decompress
 from utils.utility import download
 from utils.utility import unpack
 
@@ -105,14 +106,15 @@ class VoxCeleb1(Dataset):
         self.random_chunk = random_chunk
         self.chunk_duration = chunk_duration
         self.split_ratio = split_ratio
-        self.target_dir = target_dir if target_dir else self.base_path
+        self.target_dir = target_dir if target_dir else VoxCeleb1.base_path
+
+        # if we set the target dir, we will change the vox data info data from base path to target dir
         VoxCeleb1.csv_path = os.path.join(
-            target_dir, 'csv') if target_dir else os.path.join(self.base_path,
-                                                               'csv')
+            target_dir, "voxceleb", 'csv') if target_dir else VoxCeleb1.csv_path
         VoxCeleb1.meta_path = os.path.join(
-            target_dir, 'meta') if target_dir else os.path.join(self.base_path,
-                                                                'meta')
-        VoxCeleb1.veri_test_file = os.path.join(self.meta_path,
+            target_dir, "voxceleb",
+            'meta') if target_dir else VoxCeleb1.meta_path
+        VoxCeleb1.veri_test_file = os.path.join(VoxCeleb1.meta_path,
                                                 'veri_test2.txt')
         # self._data = self._get_data()[:1000]  # KP: Small dataset test.
         self._data = self._get_data()
@@ -255,8 +257,9 @@ class VoxCeleb1(Dataset):
                      split_chunks: bool=True):
         logger.info(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav", "start", "stop", "spk_id"]
-
-        with Pool(64) as p:
+        # Note: this may occurs c++ execption, but the program will execute fine
+        # so we can ignore the execption 
+        with Pool(cpu_count()) as p:
             infos = list(
                 tqdm(
                     p.imap(lambda x: self._get_audio_info(x, split_chunks),
@@ -277,20 +280,20 @@ class VoxCeleb1(Dataset):
     def prepare_data(self):
         # Audio of speakers in veri_test_file should not be included in training set.
         logger.info("start to prepare the data csv file")
-        enrol_files = set()
+        enroll_files = set()
         test_files = set()
         # get the enroll and test audio file path
         with open(self.veri_test_file, 'r') as f:
             for line in f.readlines():
                 _, enrol_file, test_file = line.strip().split(' ')
-                enrol_files.add(os.path.join(self.wav_path, enrol_file))
+                enroll_files.add(os.path.join(self.wav_path, enrol_file))
                 test_files.add(os.path.join(self.wav_path, test_file))
-            enrol_files = sorted(enrol_files)
+            enroll_files = sorted(enroll_files)
             test_files = sorted(test_files)
 
         # get the enroll and test speakers
         test_spks = set()
-        for file in (enrol_files + test_files):
+        for file in (enroll_files + test_files):
             spk = file.split('/wav/')[1].split('/')[0]
             test_spks.add(spk)
 
@@ -306,8 +309,9 @@ class VoxCeleb1(Dataset):
                 speakers.add(spk)
                 audio_files.append(file)
 
-        logger.info("start to generate the {}".format(
-            os.path.join(self.meta_path, 'spk_id2label.txt')))
+        logger.info(
+            f"start to generate the {os.path.join(self.meta_path, 'spk_id2label.txt')}"
+        )
         # encode the train and dev speakers label to spk_id2label.txt
         with open(os.path.join(self.meta_path, 'spk_id2label.txt'), 'w') as f:
             for label, spk_id in enumerate(
@@ -323,8 +327,9 @@ class VoxCeleb1(Dataset):
 
         self.generate_csv(train_files, os.path.join(self.csv_path, 'train.csv'))
         self.generate_csv(dev_files, os.path.join(self.csv_path, 'dev.csv'))
+
         self.generate_csv(
-            enrol_files,
+            enroll_files,
             os.path.join(self.csv_path, 'enrol.csv'),
             split_chunks=False)
         self.generate_csv(

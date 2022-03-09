@@ -840,7 +840,7 @@ def build_augment_pipeline(target_dir=None) -> List[paddle.nn.Layer]:
     """
     logger.info("start to build the augment pipeline")
     noise_dataset = OpenRIRNoise('noise', target_dir=target_dir)
-    rir_dataset = OpenRIRNoise('rir')
+    rir_dataset = OpenRIRNoise('rir', target_dir=target_dir)
 
     wavedrop = TimeDomainSpecAugment(
         sample_rate=16000,

@@ -69,8 +69,9 @@ class OpenRIRNoise(Dataset):
         self.random_chunk = random_chunk
         self.chunk_duration = chunk_duration
 
-        self.csv_path = os.path.join(target_dir, "open_rir_noise",
-                                     "csv") if target_dir else self.csv_path
+        OpenRIRNoise.csv_path = os.path.join(
+            target_dir, "open_rir_noise",
+            "csv") if target_dir else self.csv_path
         self._data = self._get_data()
         super(OpenRIRNoise, self).__init__()
 

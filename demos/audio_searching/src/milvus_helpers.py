@@ -59,7 +59,7 @@ class MilvusHelper:
                 raise Exception(
                     f"There is no collection named:{collection_name}")
         except Exception as e:
-            LOGGER.error(f"Failed to load data to Milvus: {e}")
+            LOGGER.error(f"Failed to set collection in Milvus: {e}")
             sys.exit(1)
 
     def has_collection(self, collection_name):
@@ -67,7 +67,7 @@ class MilvusHelper:
         try:
             return utility.has_collection(collection_name)
         except Exception as e:
-            LOGGER.error(f"Failed to load data to Milvus: {e}")
+            LOGGER.error(f"Failed to check state of collection in Milvus: {e}")
             sys.exit(1)
 
     def create_collection(self, collection_name):
@@ -95,7 +95,7 @@ class MilvusHelper:
                 self.set_collection(collection_name)
             return "OK"
         except Exception as e:
-            LOGGER.error(f"Failed to load data to Milvus: {e}")
+            LOGGER.error(f"Failed to create collection in Milvus: {e}")
             sys.exit(1)
 
     def insert(self, collection_name, vectors):
@@ -112,7 +112,7 @@ class MilvusHelper:
             )
             return ids
         except Exception as e:
-            LOGGER.error(f"Failed to load data to Milvus: {e}")
+            LOGGER.error(f"Failed to insert data to Milvus: {e}")
             sys.exit(1)
 
     def create_index(self, collection_name):
@@ -160,7 +160,6 @@ class MilvusHelper:
                     "nprobe": 16
                 }
             }
-            # data = [vectors]
             res = self.collection.search(
                 vectors,
                 anns_field="embedding",

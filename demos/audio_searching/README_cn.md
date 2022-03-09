@@ -1,27 +1,28 @@
-([简体中文](./README_cn.md)|English)
 
-# Audio Searching
+(简体中文|[English](./README.md))
 
-## Introduction
-As the Internet continues to evolve, unstructured data such as emails, social media photos, live videos, and customer service voice calls have become increasingly common.  If we want to process the data on a computer, we need to use embedding technology to transform the data into vector and store, index, and query it
+# 音频相似性检索
+## 介绍
 
-However, when there is a large amount of data, such as hundreds of millions of audio tracks, it is more difficult to do a similarity search.  The exhaustive method is feasible, but very time consuming.  For this scenario, this demo will introduce how to build an audio similarity retrieval system using the open source vector database Milvus
+随着互联网不断发展，电子邮件、社交媒体照片、直播视频、客服语音等非结构化数据已经变得越来越普遍。如果想要使用计算机来处理这些数据，需要使用 embedding 技术将这些数据转化为向量 vector，然后进行存储、建索引、并查询
 
-Audio retrieval (speech, music, speaker, etc.) enables querying and finding similar sounds (or the same speaker) in a large amount of audio data.  The audio similarity retrieval system can be used to identify similar sound effects, minimize intellectual property infringement, quickly retrieve the voice print library, and help enterprises control fraud and identity theft.  Audio retrieval also plays an important role in the classification and statistical analysis of audio data
+但是，当数据量很大，比如上亿条音频要做相似度搜索，就比较困难了。穷举法固然可行，但非常耗时。针对这种场景，该demo 将介绍如何使用开源向量数据库 Milvus 搭建音频相似度检索系统
 
-In this demo, you will learn how to build an audio retrieval system to retrieve similar sound snippets.  The uploaded audio clips are converted into vector data using paddlespeech-based pre-training models (audio classification model, speaker recognition model, etc.) and stored in Milvus.  Milvus automatically generates a unique ID for each vector, then stores the ID and the corresponding audio information (audio ID, audio speaker ID, etc.) in MySQL to complete the library construction.  During retrieval, users upload test audio to obtain vector, and then conduct vector similarity search in Milvus. The retrieval result returned by Milvus is vector ID, and the corresponding audio information can be queried in MySQL by ID
+音频检索（如演讲、音乐、说话人等检索）实现了在海量音频数据中查询并找出相似声音（或相同说话人）片段。音频相似性检索系统可用于识别相似的音效、最大限度减少知识产权侵权等，还可以快速的检索声纹库、帮助企业控制欺诈和身份盗用等。在音频数据的分类和统计分析中，音频检索也发挥着重要作用
 
-The demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least 650,000 audio entries and 3000 speakers to build the audio vector library, which is then retrieved using a preset distance calculation. The dataset can also use other,  Adjust as needed, e.g. Librispeech, VoxCeleb, UrbanSound, etc
+在本 demo 中，你将学会如何构建一个音频检索系统，用来检索相似的声音片段。使用基于 PaddleSpeech 预训练模型（音频分类模型，说话人识别模型等）将上传的音频片段转换为向量数据，并存储在 Milvus 中。Milvus 自动为每个向量生成唯一的 ID，然后将 ID 和 相应的音频信息（音频id，音频的说话人id等等）存储在 MySQL，这样就完成建库的工作。用户在检索时，上传测试音频，得到向量，然后在 Milvus 中进行向量相似度搜索，Milvus 返回的检索结果为向量 ID，通过 ID 在 MySQL 内部查询相应的音频信息即可
 
-## Usage
-### 1. Prepare MySQL and Milvus services by docker-compose
-The audio similarity search system requires Milvus, MySQL services. We can start these containers with one click through [docker-compose.yaml](./docker-compose.yaml), so please make sure you have [installed Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) before running. then
+这个 demo 使用 [CN-Celeb](http://openslr.org/82/) 数据集，包括至少 650000 条音频，3000 个说话人，来建立音频向量库，然后通过预设的距离计算方式进行检索，这里面数据集也可以使用其他的，根据需要调整，如Librispeech，VoxCeleb，UrbanSound等
+
+## 使用方法
+### 1. MySQL 和 Milvus 安装
+音频相似度搜索系统需要Milvus, MySQL服务。 我们可以通过[Docker-Compose.yaml](./ Docker-Compose.yaml)一键启动这些容器，所以请确保在运行之前已经安装了[Docker Engine](https://docs.docker.com/engine/install/) 和[Docker Compose](https://docs.docker.com/compose/install/)。 即
 
 ```bash
 docker-compose -f docker-compose.yaml up -d
 ```
 
-Then you will see the that all containers are created:
+然后你会看到所有的容器都被创建: 
 
 ```bash
 Creating network "quick_deploy_app_net" with driver "bridge"
@@ -31,7 +32,7 @@ Creating audio-mysql     ... done
 Creating milvus-standalone ... done
 ```
 
-And show all containers with `docker ps`, and you can use `docker logs audio-mysql` to get the logs of server container
+可以采用'docker ps'来显示所有的容器，还可以使用'docker logs audio-mysql'来获取服务器容器的日志：
 
 ```bash
 CONTAINER ID  IMAGE COMMAND CREATED STATUS  PORTS NAMES
@@ -42,21 +43,21 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
 
 ```
 
-### 2. Start API Server
-Then to start the system server, and it provides HTTP backend services.
+### 2. 配置并启动 API 服务
+启动系统服务程序，它会提供基于 Http 后端服务
 
-- Install the Python packages
+- 安装服务依赖的 python 基础包
 
 ```bash
 pip install -r requirements.txt
 ```
-- Set configuration
+- 修改配置
 
 ```bash
 vim src/config.py
 ```
 
-Modify the parameters according to your own environment. Here listing some parameters that need to be set, for more information please refer to [config.py](./src/config.py).
+请根据实际环境进行修改。 这里列出了一些需要设置的参数，更多信息请参考[config.py](./src/config.py)  
 
 | **Parameter**    | **Description**                                       | **Default setting** |
 | ---------------- | ----------------------------------------------------- | ------------------- |
@@ -67,15 +68,15 @@ Modify the parameters according to your own environment. Here listing some param
 | MYSQL_PORT       | Port of Milvus.                                       | 3306                |
 | DEFAULT_TABLE    | The milvus and mysql default collection name.         | audio_table          |
 
-- Run the code
+- 运行程序
 
-Then start the server with Fastapi.
+启动用 Fastapi 构建的服务
 
 ```bash
 python src/main.py
 ```
 
-Then you will see the Application is started:
+然后你会看到应用程序启动:
 
 ```bash
 INFO:     Started server process [3949]
@@ -88,20 +89,20 @@ INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
 2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
 ```
 
-### 3. Usage
-- Prepare data
+### 3. 使用方法
+- 准备数据
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  Note: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it download 20 audio files , Subsequent results show this collection as an example
+  注：如果希望快速搭建 demo，可以采用 ./src/test_main.py:download_audio_data 内部的 20 条音频，后续结果展示以该集合为例
  
- - Run
-  The internal process is downloading data, loading the Paddlespeech model, extracting embedding, storing library, retrieving and deleting library  
+ - 运行测试程序
+  内部将依次下载数据，加载 paddlespeech 模型，提取 embedding，存储建库，检索，删库
   ```bash
   python ./src/test_main.py
   ```
 
-  Output：
+  输出：
   ```bash
   Checkpoint path: %your model path%
   Extracting feature from audio No. 1 , 20 audios in total
@@ -119,13 +120,13 @@ INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
   2022-03-09 17:22:33,658 ｜ INFO ｜ main.py ｜ drop_tables ｜ 159 ｜ Successfully drop tables in Milvus and MySQL!
   ```
 
-### 4.Pretrained Models
+### 4. 预训练模型
 
-Here is a list of pretrained models released by PaddleSpeech :
+以下是 PaddleSpeech 提供的预训练模型列表：
 
-| Model | Sample Rate
+| 模型 | 采样率
 | :--- | :---: 
-| ecapa_tdnn | 16000
+| ecapa_tdnn| 16000
 | panns_cnn6| 32000
 | panns_cnn10| 32000
 | panns_cnn14| 32000

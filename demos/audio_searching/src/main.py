@@ -126,8 +126,9 @@ async def search_local_audio(request: Request,
         _, paths, distances = do_search(host, table_name, query_audio_path,
                                         MILVUS_CLI, MYSQL_CLI)
         names = []
-        for i in paths:
-            names.append(os.path.basename(i))
+        for path, dist in zip(paths, distances):
+            names.append(os.path.basename(path))
+            LOGGER.info(f"search result {path}, distance {dist}")
         res = dict(zip(paths, zip(names, distances)))
         # Sort results by distance metric, closest distances first
         res = sorted(res.items(), key=lambda item: item[1][1])

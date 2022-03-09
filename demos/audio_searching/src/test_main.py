@@ -89,7 +89,6 @@ def test_data():
 
 if __name__ == "__main__":
     download_audio_data()
-    test_drop()
     test_load()
     test_count()
     test_search()

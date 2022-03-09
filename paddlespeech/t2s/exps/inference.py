@@ -195,13 +195,29 @@ def main():
     sentences = get_sentences(args)
 
     merge_sentences = True
+    fs = 24000 if am_dataset != 'ljspeech' else 22050
+    # warmup
+    for utt_id, sentence in sentences[:3]:
+        with timer() as t:
+            am_output_data = get_am_output(
+                args,
+                am_predictor=am_predictor,
+                frontend=frontend,
+                merge_sentences=merge_sentences,
+                input=sentence)
+            wav = get_voc_output(
+                args, voc_predictor=voc_predictor, input=am_output_data)
+        speed = wav.size / t.elapse
+        rtf = fs / speed
+        print(
+            f"{utt_id}, mel: {am_output_data.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+        )
+
+    print("warm up done!")
+
     N = 0
     T = 0
-    fs = 24000 if am_dataset != 'ljspeech' else 22050
-    i = 0
     for utt_id, sentence in sentences:
-        # warmup
-        i += 1
         with timer() as t:
             am_output_data = get_am_output(
                 args,
@@ -212,9 +228,8 @@ def main():
             wav = get_voc_output(
                 args, voc_predictor=voc_predictor, input=am_output_data)
 
-        if i >= 3:
-            N += wav.size
-            T += t.elapse
+        N += wav.size
+        T += t.elapse
         speed = wav.size / t.elapse
         rtf = fs / speed
 

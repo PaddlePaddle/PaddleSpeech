@@ -100,8 +100,6 @@ def evaluate(args):
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, spk_id)
                         else:
-                            # import pdb
-                            # pdb.set_trace()
                             mel = am_inference(part_phone_ids)
                     elif am_name == 'speedyspeech':
                         part_tone_ids = tone_ids[i]

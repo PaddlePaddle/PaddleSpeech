@@ -13,3 +13,4 @@
 # limitations under the License.
 from .dtw import dtw_distance
 from .mcd import mcd_distance
+from .eer import compute_eer

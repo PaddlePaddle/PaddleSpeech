@@ -23,11 +23,11 @@ from typing import Tuple
 from paddle.io import Dataset
 from tqdm import tqdm
 
-from paddleaudio.backends import load as load_audio
-from paddleaudio.backends import save_wav
-from paddleaudio.datasets.dataset import feat_funcs
-from paddleaudio.utils import DATA_HOME
-from paddleaudio.utils import decompress
+from ..backends import load as load_audio
+from ..backends import save as save_wav
+from .dataset import feat_funcs
+from ..utils import DATA_HOME
+from ..utils import decompress
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.utils.download import download_and_decompress
 

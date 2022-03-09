@@ -9,3 +9,6 @@ export PYTHONIOENCODING=UTF-8
 export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
+
+MODEL=ecapa-tdnn
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/vector/exps/${MODEL}

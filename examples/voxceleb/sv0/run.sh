@@ -30,23 +30,21 @@ if [ $stage -le 1 ]; then
      # stage 1: train the speaker identification model
      python3 \
           -m paddle.distributed.launch --gpus=0,1,2,3 \
-          local/train.py --device "gpu" --checkpoint-dir ${exp_dir} --augment \
+          ${BIN_DIR}/train.py --device "gpu" --checkpoint-dir ${exp_dir} --augment \
           --save-freq 10 --data-dir ${dir} --batch-size 64 --epochs 100
 fi
 
 if [ $stage -le 2 ]; then
-     # stage 1: train the speaker identification model
-     # you can set the variable PPAUDIO_HOME to specifiy the downloaded the vox1 and vox2 dataset
+     # stage 1: get the speaker verification scores with cosine function
      python3 \
-          local/speaker_verification_cosine.py\
+          ${BIN_DIR}/speaker_verification_cosine.py\
           --batch-size 4 --data-dir ${dir} --load-checkpoint ${exp_dir}/epoch_10/
 fi
 
 if [ $stage -le 3 ]; then
-     # stage 1: train the speaker identification model
-     # you can set the variable PPAUDIO_HOME to specifiy the downloaded the vox1 and vox2 dataset
+     # stage 3: extract the audio embedding
      python3 \
-          local/extract_speaker_embedding.py\
+          ${BIN_DIR}/extract_speaker_embedding.py\
           --audio-path "demo/csv/00001.wav" --load-checkpoint ${exp_dir}/epoch_60/
 fi
 

@@ -3,24 +3,11 @@ import os
 
 import numpy as np
 import paddle
-from paddle.io import BatchSampler
-from paddle.io import DataLoader
-from paddle.io import DistributedBatchSampler
 
-from paddleaudio.datasets.voxceleb import VoxCeleb1
-from paddleaudio.features.core import melspectrogram
+from paddleaudio.paddleaudio.datasets.voxceleb import VoxCeleb1
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
-from paddlespeech.vector.io.augment import waveform_augment
-from paddlespeech.vector.io.batch import feature_normalize
-from paddlespeech.vector.io.batch import waveform_collate_fn
-from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
-from paddlespeech.vector.modules.loss import AdditiveAngularMargin
-from paddlespeech.vector.modules.loss import LogSoftmaxWrapper
-from paddlespeech.vector.modules.lr import CyclicLRScheduler
-from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.seeding import seed_everything
-from paddlespeech.vector.utils.time import Timer
 
 logger = Log(__name__).getlog()
 

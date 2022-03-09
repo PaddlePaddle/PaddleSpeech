@@ -20,8 +20,8 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddleaudio.backends import load as load_audio
-from paddleaudio.datasets.rirs_noises import OpenRIRNoise
+from paddleaudio.paddleaudio import load as load_audio
+from paddleaudio.paddleaudio.datasets.rirs_noises import OpenRIRNoise
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.signal_processing import compute_amplitude
 from paddlespeech.vector.io.signal_processing import convolve1d

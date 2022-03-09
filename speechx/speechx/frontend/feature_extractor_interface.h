@@ -21,9 +21,13 @@ namespace ppspeech {
 
 class FeatureExtractorInterface {
   public:
-    virtual void AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) = 0;
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
+    virtual void AcceptWaveform(
+        const kaldi::VectorBase<kaldi::BaseFloat>& input) = 0;
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
     virtual size_t Dim() const = 0;
+    virtual void SetFinished() = 0;
+    virtual bool IsFinished() const = 0;
+    // virtual void Reset();
 };
 
 }  // namespace ppspeech

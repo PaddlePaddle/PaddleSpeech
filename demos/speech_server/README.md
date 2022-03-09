@@ -10,21 +10,15 @@ This demo is an implementation of starting the voice service and accessing the s
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+It is recommended to use **paddlepaddle 2.2.1** or above.
+You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File
-The configuration file contains the service-related configuration files and the model configuration related to the voice tasks contained in the service. They are all under the `conf` folder. 
+The configuration file can be found in `conf/application.yaml` .
+Among them, `engine_list` indicates the speech engine that will be included in the service to be started, in the format of <speech task>_<engine type>.
+At present, the speech tasks integrated by the service include: asr (speech recognition) and tts (speech synthesis).
+Currently the engine type supports two forms: python and inference (Paddle Inference)
 
-**Note: The configuration of `engine_backend` in `application.yaml` represents all speech tasks included in the started service. **
-If the service you want to start contains only a certain speech task, then you need to comment out the speech tasks that do not need to be included. For example, if you only want to use the speech recognition (ASR) service, then you can comment out the speech synthesis (TTS) service, as in the following example:
-```bash
-engine_backend:
-    asr: 'conf/asr/asr.yaml'
-    #tts: 'conf/tts/tts.yaml'
-```
-
-**Note: The configuration file of `engine_backend` in `application.yaml` needs to match the configuration type of `engine_type`. **
-When the configuration file of `engine_backend` is `XXX.yaml`, the configuration type of `engine_type` needs to be set to `python`; when the configuration file of `engine_backend` is `XXX_pd.yaml`, the configuration of `engine_type` needs to be set type is `inference`;
 
 The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 

@@ -26,7 +26,6 @@ from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
-from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
 
@@ -184,7 +183,7 @@ class ASREngine(BaseEngine):
     def __init__(self):
         super(ASREngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         """init engine resource
 
         Args:
@@ -196,7 +195,7 @@ class ASREngine(BaseEngine):
         self.input = None
         self.output = None
         self.executor = ASRServerExecutor()
-        self.config = get_config(config_file)
+        self.config = config
 
         self.executor._init_from_path(
             model_type=self.config.model_type,

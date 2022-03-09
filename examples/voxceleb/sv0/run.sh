@@ -1,4 +1,5 @@
 #!/bin/bash
+
 . ./path.sh
 set -e
 

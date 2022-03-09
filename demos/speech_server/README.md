@@ -182,6 +182,52 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
+### 6. CLS Client Usage
+**Note:** The response time will be slightly longer when using the client for the first time
+- Command Line (Recommended)
+   ```
+   paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   ```
+
+  Usage:
+  
+  ```bash
+  paddlespeech_client cls --help
+  ```
+  Arguments:
+  - `server_ip`: server ip. Default: 127.0.0.1
+  - `port`: server port. Default: 8090
+  - `input`(required): Audio file to be classified.
+  - `topk`: topk scores of classification result.
+
+  Output:
+  ```bash
+  [2022-03-09 20:44:39,974] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+  [2022-03-09 20:44:39,975] [    INFO] - Response time 0.104360 s.
+
+
+  ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import CLSClientExecutor
+
+  clsclient_executor = CLSClientExecutor()
+  clsclient_executor(
+      input="./zh.wav",
+      server_ip="127.0.0.1",
+      port=8090,
+      topk=1)
+
+  ```
+
+  Output:
+  ```bash
+  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+  Response time 0.150897 s.
+
+  ```
+
 
 ## Models supported by the service
 ### ASR model
@@ -189,3 +235,6 @@ Get all models supported by the ASR service via `paddlespeech_server stats --tas
 
 ### TTS model
 Get all models supported by the TTS service via `paddlespeech_server stats --task tts`, where static models can be used for paddle inference inference.
+
+### CLS model
+Get all models supported by the CLS service via `paddlespeech_server stats --task cls`, where static models can be used for paddle inference inference.

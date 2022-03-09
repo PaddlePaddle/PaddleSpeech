@@ -80,7 +80,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
-### 4. ASR客户端使用方法
+### 4. ASR 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
@@ -129,7 +129,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
  
-### 5. TTS客户端使用方法
+### 5. TTS 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
 
@@ -185,9 +185,59 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
+  ### 5. CLS 客户端使用方法
+  **注意：** 初次使用客户端时响应时间会略长
+  - 命令行 (推荐使用)
+   ```
+   paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   ```
+
+  使用帮助:
+  
+  ```bash
+  paddlespeech_client cls --help
+  ```
+  参数:
+  - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+  - `port`: 服务端口，默认: 8090。
+  - `input`(必须输入): 用于分类的音频文件。
+  - `topk`: 分类结果的topk。
+
+  输出:
+  ```bash
+  [2022-03-09 20:44:39,974] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+  [2022-03-09 20:44:39,975] [    INFO] - Response time 0.104360 s.
+
+
+  ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import CLSClientExecutor
+
+  clsclient_executor = CLSClientExecutor()
+  clsclient_executor(
+      input="./zh.wav",
+      server_ip="127.0.0.1",
+      port=8090,
+      topk=1)
+
+  ```
+
+  输出:
+  ```bash
+  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+  Response time 0.150897 s.
+
+  ```
+
+
 ## 服务支持的模型
 ### ASR支持的模型
 通过 `paddlespeech_server stats --task asr` 获取ASR服务支持的所有模型，其中静态模型可用于 paddle inference 推理。 
 
 ### TTS支持的模型
 通过 `paddlespeech_server stats --task tts` 获取TTS服务支持的所有模型，其中静态模型可用于 paddle inference 推理。
+
+### CLS支持的模型
+通过 `paddlespeech_server stats --task cls` 获取CLS服务支持的所有模型，其中静态模型可用于 paddle inference 推理。

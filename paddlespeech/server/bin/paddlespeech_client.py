@@ -31,7 +31,7 @@ from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
-__all__ = ['TTSClientExecutor', 'ASRClientExecutor']
+__all__ = ['TTSClientExecutor', 'ASRClientExecutor', 'CLSClientExecutor']
 
 
 @cli_client_register(
@@ -243,3 +243,71 @@ class ASRClientExecutor(BaseExecutor):
             print("time cost %f s." % (time_end - time_start))
         except BaseException:
             print("Failed to speech recognition.")
+
+
+@cli_client_register(
+    name='paddlespeech_client.cls', description='visit cls service')
+class CLSClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(CLSClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.cls', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8090, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Audio file to classify.',
+            required=True)
+        self.parser.add_argument(
+            '--topk',
+            type=int,
+            default=1,
+            help='Return topk scores of classification result.')
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        url = 'http://' + args.server_ip + ":" + str(
+            args.port) + '/paddlespeech/cls'
+        audio = wav2base64(args.input)
+        data = {
+            "audio": audio,
+            "topk": args.topk,
+        }
+        time_start = time.time()
+        try:
+            r = requests.post(url=url, data=json.dumps(data))
+            # ending Timestamp
+            time_end = time.time()
+            logger.info(r.json())
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except BaseException:
+            logger.error("Failed to speech classification.")
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8090,
+                 topk: int=1):
+        """
+        Python API to call an executor.
+        """
+
+        url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/cls'
+        audio = wav2base64(input)
+        data = {"audio": audio, "topk": topk}
+        time_start = time.time()
+        try:
+            r = requests.post(url=url, data=json.dumps(data))
+            # ending Timestamp
+            time_end = time.time()
+            print(r.json())
+            print("Response time %f s." % (time_end - time_start))
+        except BaseException:
+            print("Failed to speech classification.")

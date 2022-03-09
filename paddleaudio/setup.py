@@ -82,9 +82,7 @@ setuptools.setup(
         'dtaidistance >= 2.3.6',
         'mcd >= 0.4',
     ],
-    setup_requires=[
-        'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1', 'filecmp'
-    ],
+    setup_requires=['nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1'],
     cmdclass={
         'install': InstallCommand,
         'test': NoseTestCommand,

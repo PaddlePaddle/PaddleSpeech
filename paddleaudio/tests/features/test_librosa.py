@@ -27,9 +27,11 @@ class TestLibrosa(FeatTest):
         self.n_fft = 512
         self.hop_length = 128
         self.n_mels = 40
+        self.n_mfcc = 20
         self.fmin = 0.0
         self.window_str = 'hann'
         self.pad_mode = 'reflect'
+        self.top_db = 80.0
 
     def test_stft(self):
         if len(self.waveform.shape) == 2:  # (C, T)
@@ -219,6 +221,58 @@ class TestLibrosa(FeatTest):
 
         np.testing.assert_array_almost_equal(
             feature_librosa, feature_compliance, decimal=5)
+        np.testing.assert_array_almost_equal(
+            feature_librosa, feature_layer, decimal=4)
+
+    def test_mfcc(self):
+        if len(self.waveform.shape) == 2:  # (C, T)
+            self.waveform = self.waveform.squeeze(
+                0)  # 1D input for librosa.feature.melspectrogram
+
+        # librosa:
+        feature_librosa = librosa.feature.mfcc(
+            y=self.waveform,
+            sr=self.sr,
+            S=None,
+            n_mfcc=self.n_mfcc,
+            dct_type=2,
+            norm='ortho',
+            lifter=0,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            n_mels=self.n_mels,
+            fmin=self.fmin)
+
+        # paddleaudio.compliance.librosa:
+        feature_compliance = paddleaudio.compliance.librosa.mfcc(
+            x=self.waveform,
+            sr=self.sr,
+            n_mfcc=self.n_mfcc,
+            dct_type=2,
+            norm='ortho',
+            lifter=0,
+            window_size=self.n_fft,
+            hop_length=self.hop_length,
+            n_mels=self.n_mels,
+            fmin=self.fmin,
+            top_db=self.top_db)
+
+        # paddleaudio.features.layer
+        x = paddle.to_tensor(
+            self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
+        feature_extractor = paddleaudio.features.MFCC(
+            sr=self.sr,
+            n_mfcc=self.n_mfcc,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            n_mels=self.n_mels,
+            f_min=self.fmin,
+            top_db=self.top_db,
+            dtype=x.dtype)
+        feature_layer = feature_extractor(x).squeeze(0).numpy()
+
+        np.testing.assert_array_almost_equal(
+            feature_librosa, feature_compliance, decimal=4)
         np.testing.assert_array_almost_equal(
             feature_librosa, feature_layer, decimal=4)
 

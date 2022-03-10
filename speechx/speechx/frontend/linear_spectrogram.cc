@@ -70,7 +70,7 @@ void LinearSpectrogram::Accept(const VectorBase<BaseFloat>& inputs) {
     base_extractor_->Accept(inputs);
 }
 
-bool LinearSpectrogram::Read(Vector<BaseFloat>* output_feats) {
+bool LinearSpectrogram::Read(Vector<BaseFloat>* feats) {
     Vector<BaseFloat> input_feats(chunk_sample_size_);
     bool flag = base_extractor_->Read(&input_feats);
     if (flag == false || input_feats.Dim() == 0) return false;
@@ -83,10 +83,10 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* output_feats) {
     if (result.size() != 0) {
         feat_size = result.size() * result[0].size();
     }
-    output_feats->Resize(feat_size);
+    feats->Resize(feat_size);
     // todo refactor (SimleGoat)
     for (size_t idx = 0; idx < feat_size; ++idx) {
-        (*output_feats)(idx) = result[idx / dim_][idx % dim_];
+        (*feats)(idx) = result[idx / dim_][idx % dim_];
     }
     return true;
 }
@@ -120,9 +120,9 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
 
 // Compute spectrogram feat
 // todo: refactor later (SmileGoat)
-bool LinearSpectrogram::Compute(const vector<float>& wave,
-                                vector<vector<float>>& feat) {
-    int num_samples = wave.size();
+bool LinearSpectrogram::Compute(const vector<float>& waves,
+                                vector<vector<float>>& feats) {
+    int num_samples = waves.size();
     const int& frame_length = opts_.frame_opts.WindowSize();
     const int& sample_rate = opts_.frame_opts.samp_freq;
     const int& frame_shift = opts_.frame_opts.WindowShift();
@@ -134,34 +134,34 @@ bool LinearSpectrogram::Compute(const vector<float>& wave,
     }
 
     int num_frames = 1 + ((num_samples - frame_length) / frame_shift);
-    feat.resize(num_frames);
+    feats.resize(num_frames);
     vector<float> fft_real((fft_points_ / 2 + 1), 0);
     vector<float> fft_img((fft_points_ / 2 + 1), 0);
     vector<float> v(frame_length, 0);
     vector<float> power((fft_points / 2 + 1));
 
     for (int i = 0; i < num_frames; ++i) {
-        vector<float> data(wave.data() + i * frame_shift,
-                           wave.data() + i * frame_shift + frame_length);
+        vector<float> data(waves.data() + i * frame_shift,
+                           waves.data() + i * frame_shift + frame_length);
         Hanning(&data);
         fft_img.clear();
         fft_real.clear();
         v.assign(data.begin(), data.end());
         NumpyFft(&v, &fft_real, &fft_img);
 
-        feat[i].resize(fft_points / 2 + 1);  // the last dimension is Fs/2 Hz
+        feats[i].resize(fft_points / 2 + 1);  // the last dimension is Fs/2 Hz
         for (int j = 0; j < (fft_points / 2 + 1); ++j) {
             power[j] = fft_real[j] * fft_real[j] + fft_img[j] * fft_img[j];
-            feat[i][j] = power[j];
+            feats[i][j] = power[j];
 
-            if (j == 0 || j == feat[0].size() - 1) {
-                feat[i][j] /= scale;
+            if (j == 0 || j == feats[0].size() - 1) {
+                feats[i][j] /= scale;
             } else {
-                feat[i][j] *= (2.0 / scale);
+                feats[i][j] *= (2.0 / scale);
             }
 
             // log added eps=1e-14
-            feat[i][j] = std::log(feat[i][j] + 1e-14);
+            feats[i][j] = std::log(feats[i][j] + 1e-14);
         }
     }
     return true;

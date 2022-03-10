@@ -23,8 +23,8 @@ namespace ppspeech {
 class RawAudioCache : public FeatureExtractorInterface {
   public:
     explicit RawAudioCache(int buffer_size = kint16max);
-    virtual void Accept(const kaldi::VectorBase<BaseFloat>& input_audio);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* output_audio);
+    virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
     // the audio dim is 1
     virtual size_t Dim() const { return 1; }
     virtual void SetFinished() {
@@ -45,19 +45,20 @@ class RawAudioCache : public FeatureExtractorInterface {
     DISALLOW_COPY_AND_ASSIGN(RawAudioCache);
 };
 
-// it is a datasource for testing different frontend module.
+// it is a data source to test different frontend module.
+// it Accepts waves or feats. 
 class RawDataCache: public FeatureExtractorInterface {
   public:
     explicit RawDataCache() { finished_ = false; }
     virtual void Accept(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input) {
-        data_ = input;
+        const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+        data_ = inputs;
     }
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat) {
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
         if (data_.Dim() == 0) {
             return false;
         }
-        (*feat) = data_;
+        (*feats) = data_;
         data_.Resize(0);
         return true;
     }

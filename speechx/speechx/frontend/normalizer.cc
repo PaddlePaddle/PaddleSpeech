@@ -35,16 +35,16 @@ DecibelNormalizer::DecibelNormalizer(
 }
 
 void DecibelNormalizer::Accept(
-    const kaldi::VectorBase<BaseFloat>& inputs_wave) {
-    base_extractor_->Accept(inputs_wave);
+    const kaldi::VectorBase<BaseFloat>& waves) {
+    base_extractor_->Accept(waves);
 }
 
-bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* outputs_wave) {
-    if (base_extractor_->Read(outputs_wave) == false || 
-        outputs_wave->Dim() == 0) {
+bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* waves) {
+    if (base_extractor_->Read(waves) == false || 
+        waves->Dim() == 0) {
         return false;
     }
-    Compute(outputs_wave);
+    Compute(waves);
     return true;
 }
 
@@ -67,7 +67,7 @@ void CopyStdVector2Vector(const vector<BaseFloat>& input,
     }
 }
 
-bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feats) const {
+bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
     // calculate db rms
     BaseFloat rms_db = 0.0;
     BaseFloat mean_square = 0.0;
@@ -75,9 +75,9 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feats) const {
     BaseFloat wave_float_normlization = 1.0f / (std::pow(2, 16 - 1));
 
     vector<BaseFloat> samples;
-    samples.resize(feats->Dim());
+    samples.resize(waves->Dim());
     for (size_t i = 0; i < samples.size(); ++i) {
-        samples[i] = (*feats)(i);
+        samples[i] = (*waves)(i);
     }
 
     // square
@@ -107,7 +107,7 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feats) const {
         item *= std::pow(10.0, gain / 20.0);
     }
 
-    CopyStdVector2Vector(samples, feats);
+    CopyStdVector2Vector(samples, waves);
     return true;
 }
 
@@ -121,16 +121,16 @@ CMVN::CMVN(std::string cmvn_file,
     dim_ = stats_.NumCols() - 1;
 }
 
-void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& feats) {
-    base_extractor_->Accept(feats);
+void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    base_extractor_->Accept(inputs);
     return;
 }
 
-bool CMVN::Read(kaldi::Vector<BaseFloat>* outputs) {
-    if (base_extractor_->Read(outputs) == false) {
+bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
+    if (base_extractor_->Read(feats) == false) {
         return false;
     }
-    Compute(outputs);
+    Compute(feats);
     return true;
 }
 

@@ -26,20 +26,20 @@ RawAudioCache::RawAudioCache(int buffer_size)
     ring_buffer_.resize(buffer_size);
 }
 
-void RawAudioCache::Accept(const VectorBase<BaseFloat>& input_audio) {
+void RawAudioCache::Accept(const VectorBase<BaseFloat>& waves) {
     std::unique_lock<std::mutex> lock(mutex_);
-    while (data_length_ + input_audio.Dim() > ring_buffer_.size()) {
+    while (data_length_ + waves.Dim() > ring_buffer_.size()) {
         ready_feed_condition_.wait(lock);
     }
-    for (size_t idx = 0; idx < input_audio.Dim(); ++idx) {
+    for (size_t idx = 0; idx < waves.Dim(); ++idx) {
         int32 buffer_idx = (idx + start_) % ring_buffer_.size(); 
-        ring_buffer_[buffer_idx] = input_audio(idx);
+        ring_buffer_[buffer_idx] = waves(idx);
     }
-    data_length_ += input_audio.Dim();
+    data_length_ += waves.Dim();
 }
 
-bool RawAudioCache::Read(Vector<BaseFloat>* output_audio) {
-    size_t chunk_size = output_audio->Dim();
+bool RawAudioCache::Read(Vector<BaseFloat>* waves) {
+    size_t chunk_size = waves->Dim();
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
     while (chunk_size > data_length_) {
@@ -61,12 +61,12 @@ bool RawAudioCache::Read(Vector<BaseFloat>* output_audio) {
     // read last chunk data
     if (chunk_size > data_length_) {
         chunk_size = data_length_;
-        output_audio->Resize(chunk_size);
+        waves->Resize(chunk_size);
     }
 
     for (size_t idx = 0; idx < chunk_size; ++idx) {
         int buff_idx = (start_ + idx) % ring_buffer_.size();
-        output_audio->Data()[idx] = ring_buffer_[buff_idx];
+        waves->Data()[idx] = ring_buffer_[buff_idx];
     }
     data_length_ -= chunk_size;
     start_ = (start_ + chunk_size) % ring_buffer_.size();

@@ -40,7 +40,7 @@ void FeatureCache::Accept(
 }
 
 // pop feature chunk
-bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* output_feats) {
+bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
@@ -53,8 +53,8 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* output_feats) {
         usleep(1000);  // sleep 1 ms
     }
     if (cache_.empty()) return false;
-    output_feats->Resize(cache_.front().Dim());
-    output_feats->CopyFromVec(cache_.front());
+    feats->Resize(cache_.front().Dim());
+    feats->CopyFromVec(cache_.front());
     cache_.pop();
     ready_feed_condition_.notify_one();
     return true;

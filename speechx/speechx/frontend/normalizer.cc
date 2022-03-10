@@ -31,23 +31,20 @@ DecibelNormalizer::DecibelNormalizer(
     std::unique_ptr<FeatureExtractorInterface> base_extractor) {
     base_extractor_ = std::move(base_extractor);
     opts_ = opts;
-    dim_ = 0;
+    dim_ = 1;
 }
 
-void DecibelNormalizer::AcceptWaveform(
-    const kaldi::VectorBase<BaseFloat>& input) {
-    // dim_ = input.Dim();
-    // waveform_.Resize(input.Dim());
-    // waveform_.CopyFromVec(input);
-    base_extractor_->AcceptWaveform(input);
+void DecibelNormalizer::Accept(
+    const kaldi::VectorBase<BaseFloat>& inputs_wave) {
+    base_extractor_->Accept(inputs_wave);
 }
 
-bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* feat) {
-    // if (waveform_.Dim() == 0) return;
-    if (base_extractor_->Read(feat) == false || feat->Dim() == 0) {
+bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* outputs_wave) {
+    if (base_extractor_->Read(outputs_wave) == false || 
+        outputs_wave->Dim() == 0) {
         return false;
     }
-    Compute(feat);
+    Compute(outputs_wave);
     return true;
 }
 
@@ -70,7 +67,7 @@ void CopyStdVector2Vector(const vector<BaseFloat>& input,
     }
 }
 
-bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feat) const {
+bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feats) const {
     // calculate db rms
     BaseFloat rms_db = 0.0;
     BaseFloat mean_square = 0.0;
@@ -78,9 +75,9 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feat) const {
     BaseFloat wave_float_normlization = 1.0f / (std::pow(2, 16 - 1));
 
     vector<BaseFloat> samples;
-    samples.resize(feat->Dim());
+    samples.resize(feats->Dim());
     for (size_t i = 0; i < samples.size(); ++i) {
-        samples[i] = (*feat)(i);
+        samples[i] = (*feats)(i);
     }
 
     // square
@@ -110,7 +107,7 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* feat) const {
         item *= std::pow(10.0, gain / 20.0);
     }
 
-    CopyStdVector2Vector(samples, feat);
+    CopyStdVector2Vector(samples, feats);
     return true;
 }
 
@@ -124,16 +121,16 @@ CMVN::CMVN(std::string cmvn_file,
     dim_ = stats_.NumCols() - 1;
 }
 
-void CMVN::AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) {
-    base_extractor_->AcceptWaveform(input);
+void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& feats) {
+    base_extractor_->Accept(feats);
     return;
 }
 
-bool CMVN::Read(kaldi::Vector<BaseFloat>* feat) {
-    if (base_extractor_->Read(feat) == false) {
+bool CMVN::Read(kaldi::Vector<BaseFloat>* outputs) {
+    if (base_extractor_->Read(outputs) == false) {
         return false;
     }
-    Compute(feat);
+    Compute(outputs);
     return true;
 }
 

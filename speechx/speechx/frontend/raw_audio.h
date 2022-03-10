@@ -20,12 +20,13 @@
 
 namespace ppspeech {
 
-class RawAudioSource : public FeatureExtractorInterface {
+class RawAudioCache : public FeatureExtractorInterface {
   public:
-    explicit RawAudioSource(int buffer_size = kint16max);
-    virtual void AcceptWaveform(const kaldi::VectorBase<BaseFloat>& data);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat);
-    virtual size_t Dim() const { return data_length_; }
+    explicit RawAudioCache(int buffer_size = kint16max);
+    virtual void Accept(const kaldi::VectorBase<BaseFloat>& input_audio);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* output_audio);
+    // the audio dim is 1
+    virtual size_t Dim() const { return 1; }
     virtual void SetFinished() {
         std::lock_guard<std::mutex> lock(mutex_);
         finished_ = true;
@@ -41,14 +42,14 @@ class RawAudioSource : public FeatureExtractorInterface {
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;
 
-    DISALLOW_COPY_AND_ASSIGN(RawAudioSource);
+    DISALLOW_COPY_AND_ASSIGN(RawAudioCache);
 };
 
 // it is a datasource for testing different frontend module.
-class RawDataSource : public FeatureExtractorInterface {
+class RawDataCache: public FeatureExtractorInterface {
   public:
-    explicit RawDataSource() { finished_ = false; }
-    virtual void AcceptWaveform(
+    explicit RawDataCache() { finished_ = false; }
+    virtual void Accept(
         const kaldi::VectorBase<kaldi::BaseFloat>& input) {
         data_ = input;
     }
@@ -60,6 +61,7 @@ class RawDataSource : public FeatureExtractorInterface {
         data_.Resize(0);
         return true;
     }
+    //the dim is data_ length
     virtual size_t Dim() const { return data_.Dim(); }
     virtual void SetFinished() { finished_ = true; }
     virtual bool IsFinished() const { return finished_; }
@@ -68,7 +70,7 @@ class RawDataSource : public FeatureExtractorInterface {
     kaldi::Vector<kaldi::BaseFloat> data_;
     bool finished_;
 
-    DISALLOW_COPY_AND_ASSIGN(RawDataSource);
+    DISALLOW_COPY_AND_ASSIGN(RawDataCache);
 };
 
 }  // namespace ppspeech

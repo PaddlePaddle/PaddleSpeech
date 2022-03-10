@@ -38,9 +38,10 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     explicit LinearSpectrogram(
         const LinearSpectrogramOptions& opts,
         std::unique_ptr<FeatureExtractorInterface> base_extractor);
-    virtual void AcceptWaveform(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat);
+    virtual void Accept(
+        const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* output_feats);
+    // the dim_ is the dim of single frame feature
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
@@ -49,8 +50,6 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     void Hanning(std::vector<kaldi::BaseFloat>* data) const;
     bool Compute(const std::vector<kaldi::BaseFloat>& wave,
                  std::vector<std::vector<kaldi::BaseFloat>>& feat);
-    void Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                 kaldi::VectorBase<kaldi::BaseFloat>* feature);
     bool NumpyFft(std::vector<kaldi::BaseFloat>* v,
                   std::vector<kaldi::BaseFloat>* real,
                   std::vector<kaldi::BaseFloat>* img) const;
@@ -60,7 +59,6 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     std::vector<kaldi::BaseFloat> hanning_window_;
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
-    kaldi::Vector<kaldi::BaseFloat> waveform_;  // remove later, todo(SmileGoat)
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     int chunk_sample_size_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);

@@ -25,10 +25,9 @@
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
 
-DEFINE_string(wav_rspecifier, "", "test wav path");
-DEFINE_string(feature_wspecifier, "", "test wav ark");
-DEFINE_string(feature_check_wspecifier, "", "test wav ark");
-DEFINE_string(cmvn_write_path, "./cmvn.ark", "test wav ark");
+DEFINE_string(wav_rspecifier, "", "test wav scp path");
+DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
+DEFINE_string(cmvn_write_path, "./cmvn.ark", "write cmvn");
 
 
 std::vector<float> mean_{
@@ -165,10 +164,10 @@ int main(int argc, char* argv[]) {
     // test feature linear_spectorgram: wave --> decibel_normalizer --> hanning
     // window -->linear_spectrogram --> cmvn
     int32 num_done = 0, num_err = 0;
-    // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
-    // ppspeech::RawDataSource());
+    //std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
+     //ppspeech::RawDataCache());
     std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
-        new ppspeech::RawAudioSource());
+        new ppspeech::RawAudioCache());
 
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
@@ -211,7 +210,7 @@ int main(int argc, char* argv[]) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
             kaldi::Vector<BaseFloat> features;
-            feature_cache.AcceptWaveform(wav_chunk);
+            feature_cache.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
                 feature_cache.SetFinished();
             }

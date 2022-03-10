@@ -66,11 +66,11 @@ LinearSpectrogram::LinearSpectrogram(
     dim_ = fft_points_ / 2 + 1;  // the dimension is Fs/2 Hz
 }
 
-void LinearSpectrogram::AcceptWaveform(const VectorBase<BaseFloat>& input) {
-    base_extractor_->AcceptWaveform(input);
+void LinearSpectrogram::Accept(const VectorBase<BaseFloat>& inputs) {
+    base_extractor_->Accept(inputs);
 }
 
-bool LinearSpectrogram::Read(Vector<BaseFloat>* feat) {
+bool LinearSpectrogram::Read(Vector<BaseFloat>* output_feats) {
     Vector<BaseFloat> input_feats(chunk_sample_size_);
     bool flag = base_extractor_->Read(&input_feats);
     if (flag == false || input_feats.Dim() == 0) return false;
@@ -83,9 +83,10 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* feat) {
     if (result.size() != 0) {
         feat_size = result.size() * result[0].size();
     }
-    feat->Resize(feat_size);
+    output_feats->Resize(feat_size);
+    // todo refactor (SimleGoat)
     for (size_t idx = 0; idx < feat_size; ++idx) {
-        (*feat)(idx) = result[idx / dim_][idx % dim_];
+        (*output_feats)(idx) = result[idx / dim_][idx % dim_];
     }
     return true;
 }
@@ -117,7 +118,7 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
     return true;
 }
 
-// Compute spectrogram feat, only for test, remove later
+// Compute spectrogram feat
 // todo: refactor later (SmileGoat)
 bool LinearSpectrogram::Compute(const vector<float>& wave,
                                 vector<vector<float>>& feat) {

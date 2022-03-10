@@ -21,33 +21,25 @@ using kaldi::BaseFloat;
 using kaldi::VectorBase;
 using kaldi::Vector;
 
-RawAudioSource::RawAudioSource(int buffer_size)
+RawAudioCache::RawAudioCache(int buffer_size)
     : finished_(false), data_length_(0), start_(0), timeout_(1) {
     ring_buffer_.resize(buffer_size);
 }
 
-void RawAudioSource::AcceptWaveform(const VectorBase<BaseFloat>& data) {
+void RawAudioCache::Accept(const VectorBase<BaseFloat>& input_audio) {
     std::unique_lock<std::mutex> lock(mutex_);
-    while (data_length_ + data.Dim() > ring_buffer_.size()) {
+    while (data_length_ + input_audio.Dim() > ring_buffer_.size()) {
         ready_feed_condition_.wait(lock);
     }
-    for (size_t idx = 0; idx < data.Dim(); ++idx) {
-        ring_buffer_[idx % ring_buffer_.size()] = data(idx);
+    for (size_t idx = 0; idx < input_audio.Dim(); ++idx) {
+        int32 buffer_idx = (idx + start_) % ring_buffer_.size(); 
+        ring_buffer_[buffer_idx] = input_audio(idx);
     }
-    data_length_ += data.Dim();
+    data_length_ += input_audio.Dim();
 }
 
-// bool RawAudioSource::AcceptWaveform(BaseFloat* data, int length) {
-// std::unique_lock<std::mutex> lock(mutex_);
-// for (size_t idx = 0; idx < length; ++idx) {
-// ring_buffer_[idx % ring_buffer_.size()] = data[idx];
-//}
-// data_length_ += length;
-// finish_condition_.notify_one();
-//}
-
-bool RawAudioSource::Read(Vector<BaseFloat>* feat) {
-    size_t chunk_size = feat->Dim();
+bool RawAudioCache::Read(Vector<BaseFloat>* output_audio) {
+    size_t chunk_size = output_audio->Dim();
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
     while (chunk_size > data_length_) {
@@ -69,11 +61,12 @@ bool RawAudioSource::Read(Vector<BaseFloat>* feat) {
     // read last chunk data
     if (chunk_size > data_length_) {
         chunk_size = data_length_;
-        feat->Resize(chunk_size);
+        output_audio->Resize(chunk_size);
     }
 
     for (size_t idx = 0; idx < chunk_size; ++idx) {
-        feat->Data()[idx] = ring_buffer_[idx];
+        int buff_idx = (start_ + idx) % ring_buffer_.size();
+        output_audio->Data()[idx] = ring_buffer_[buff_idx];
     }
     data_length_ -= chunk_size;
     start_ = (start_ + chunk_size) % ring_buffer_.size();

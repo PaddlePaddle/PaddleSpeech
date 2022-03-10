@@ -29,9 +29,9 @@ FeatureCache::FeatureCache(
     base_extractor_ = std::move(base_extractor);
 }
 
-void FeatureCache::AcceptWaveform(
-    const kaldi::VectorBase<kaldi::BaseFloat>& input) {
-    base_extractor_->AcceptWaveform(input);
+void FeatureCache::Accept(
+    const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    base_extractor_->Accept(inputs);
     // feed current data
     bool result = false;
     do {
@@ -40,7 +40,7 @@ void FeatureCache::AcceptWaveform(
 }
 
 // pop feature chunk
-bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feat) {
+bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* output_feats) {
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
@@ -53,8 +53,8 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feat) {
         usleep(1000);  // sleep 1 ms
     }
     if (cache_.empty()) return false;
-    feat->Resize(cache_.front().Dim());
-    feat->CopyFromVec(cache_.front());
+    output_feats->Resize(cache_.front().Dim());
+    output_feats->CopyFromVec(cache_.front());
     cache_.pop();
     ready_feed_condition_.notify_one();
     return true;

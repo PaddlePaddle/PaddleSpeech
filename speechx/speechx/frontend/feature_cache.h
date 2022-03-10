@@ -24,12 +24,15 @@ class FeatureCache : public FeatureExtractorInterface {
     explicit FeatureCache(
         int32 max_size = kint16max,
         std::unique_ptr<FeatureExtractorInterface> base_extractor = NULL);
-    virtual void AcceptWaveform(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat);
+    virtual void Accept(
+        const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    // output_feats dim = num_frames * feature_dim
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* output_feats);
+    // feature cache only cache feature which from base extractor
     virtual size_t Dim() const { return base_extractor_->Dim(); }
     virtual void SetFinished() {
         base_extractor_->SetFinished();
+        // read the last chunk data
         Compute();
     }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
@@ -44,7 +47,7 @@ class FeatureCache : public FeatureExtractorInterface {
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
-    //    DISALLOW_COPY_AND_ASSGIN(FeatureCache);
+    //DISALLOW_COPY_AND_ASSGIN(FeatureCache);
 };
 
 }  // namespace ppspeech

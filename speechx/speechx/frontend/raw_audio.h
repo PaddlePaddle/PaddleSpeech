@@ -18,8 +18,6 @@
 #include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
 
-#pragma once
-
 namespace ppspeech {
 
 class RawAudioSource : public FeatureExtractorInterface {
@@ -40,7 +38,6 @@ class RawAudioSource : public FeatureExtractorInterface {
     size_t data_length_;
     bool finished_;
     mutable std::mutex mutex_;
-    std::condition_variable ready_read_condition_;
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;
 

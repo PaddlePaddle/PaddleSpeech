@@ -35,7 +35,6 @@ void RawAudioSource::AcceptWaveform(const VectorBase<BaseFloat>& data) {
         ring_buffer_[idx % ring_buffer_.size()] = data(idx);
     }
     data_length_ += data.Dim();
-    ready_read_condition_.notify_one();
 }
 
 // bool RawAudioSource::AcceptWaveform(BaseFloat* data, int length) {
@@ -53,7 +52,7 @@ bool RawAudioSource::Read(Vector<BaseFloat>* feat) {
     std::unique_lock<std::mutex> lock(mutex_);
     while (chunk_size > data_length_) {
         // when audio is empty and no more data feed
-        // ready_read_condition will block in dead lock.
+        // ready_read_condition will block in dead lock. so replace with timeout_
         // ready_read_condition_.wait(lock);
         int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);
         if (elapsed > timeout_) {

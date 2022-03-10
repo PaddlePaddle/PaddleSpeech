@@ -54,10 +54,11 @@ class ASRResponse(BaseModel):
 #****************************************************************************************/
 class TTSResult(BaseModel):
     lang: str = "zh"
-    sample_rate: int
     spk_id: int = 0
     speed: float = 1.0
     volume: float = 1.0
+    sample_rate: int
+    duration: float
     save_path: str = None
     audio: str
 

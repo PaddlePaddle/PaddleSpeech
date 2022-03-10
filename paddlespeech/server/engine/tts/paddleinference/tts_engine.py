@@ -531,4 +531,4 @@ class TTSEngine(BaseEngine):
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
 
-        return lang, target_sample_rate, wav_base64
+        return lang, target_sample_rate, duration, wav_base64

@@ -92,7 +92,6 @@ class CLSServerExecutor(CLSExecutor):
         res_path = os.path.join(MODEL_HOME, tag)
         decompressed_path = download_and_decompress(pretrained_models[tag],
                                                     res_path)
-        print("aaaaaaaaaaaaa: ", decompressed_path)
         decompressed_path = os.path.abspath(decompressed_path)
         logger.info(
             'Use pretrained model stored in: {}'.format(decompressed_path))

@@ -11,15 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import _locale
-
-from .base_commands import ClientBaseCommand
-from .base_commands import ClientHelpCommand
-from .base_commands import ServerBaseCommand
-from .base_commands import ServerHelpCommand
-from .bin.paddlespeech_client import ASRClientExecutor
-from .bin.paddlespeech_client import CLSClientExecutor
-from .bin.paddlespeech_client import TTSClientExecutor
-from .bin.paddlespeech_server import ServerExecutor
-
-_locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])

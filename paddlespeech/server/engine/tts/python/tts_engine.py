@@ -250,4 +250,4 @@ class TTSEngine(BaseEngine):
         logger.info("RTF: {}".format(rtf))
         logger.info("device: {}".format(self.device))
 
-        return lang, target_sample_rate, wav_base64
+        return lang, target_sample_rate, duration, wav_base64

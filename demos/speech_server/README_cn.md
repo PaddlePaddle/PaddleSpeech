@@ -111,21 +111,22 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import ASRClientExecutor
+  import json
 
   asrclient_executor = ASRClientExecutor()
-  asrclient_executor(
+  res = asrclient_executor(
       input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       sample_rate=16000,
       lang="zh_cn",
       audio_format="wav")
+  print(res.json())
   ```
 
   输出:
   ```bash
   {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
-  time cost 0.604353 s.
 
   ```
  
@@ -150,7 +151,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
     - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
     - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
     - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认与模型相同。 默认值：0
-    - `output`: 输出音频的路径， 默认值：output.wav。
+    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
 
     输出:
     ```bash
@@ -163,9 +164,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import TTSClientExecutor
+  import json
 
   ttsclient_executor = TTSClientExecutor()
-  ttsclient_executor(
+  res = ttsclient_executor(
       input="您好，欢迎使用百度飞桨语音合成服务。",
       server_ip="127.0.0.1",
       port=8090,
@@ -174,6 +176,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       volume=1.0,
       sample_rate=0,
       output="./output.wav")
+
+  response_dict = res.json()
+  print(response_dict["message"])
+  print("Save synthesized audio successfully on %s." % (response_dict['result']['save_path']))
+  print("Audio duration: %f s." %(response_dict['result']['duration']))
   ```
 
   输出:
@@ -181,7 +188,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   {'description': 'success.'}
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
-  Response time: 0.388317 s.
 
   ```
 
@@ -214,20 +220,21 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import CLSClientExecutor
+  import json
 
   clsclient_executor = CLSClientExecutor()
-  clsclient_executor(
+  res = clsclient_executor(
       input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       topk=1)
+  print(res.jaon())
 
   ```
 
   输出:
   ```bash
   {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
-  Response time 0.150897 s.
 
   ```
 

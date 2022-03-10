@@ -74,9 +74,11 @@ class TTSResponse(BaseModel):
         },
         "result": {
             "lang": "zh",
-            "sample_rate": 24000,
+            "spk_id": 0,
             "speed": 1.0,
             "volume": 1.0,
+            "sample_rate": 24000,
+            "duration": 3.6125,
             "audio": "LTI1OTIuNjI1OTUwMzQsOTk2OS41NDk4...",
             "save_path": "./tts.wav"
         }

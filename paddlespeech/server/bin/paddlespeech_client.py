@@ -73,7 +73,6 @@ class TTSClientExecutor(BaseExecutor):
             '--output', type=str, default=None, help='Synthesized audio file')
 
     def postprocess(self, wav_base64: str, outfile: str) -> float:
-        #wav_base64 = response_dict["result"]["audio"]
         audio_data_byte = base64.b64decode(wav_base64)
         # from byte
         samples, sample_rate = soundfile.read(

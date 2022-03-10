@@ -228,7 +228,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       server_ip="127.0.0.1",
       port=8090,
       topk=1)
-  print(res.jaon())
+  print(res.json())
 
   ```
 

@@ -42,15 +42,19 @@ struct DecibelNormalizerOptions {
 
 class DecibelNormalizer : public FeatureExtractorInterface {
   public:
-    explicit DecibelNormalizer(const DecibelNormalizerOptions& opts);
-    virtual void AcceptWaveform(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input);
-    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
+    explicit DecibelNormalizer(
+        const DecibelNormalizerOptions& opts,
+        std::unique_ptr<FeatureExtractorInterface> base_extractor);
+    virtual void Accept(
+        const kaldi::VectorBase<kaldi::BaseFloat>& waves);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
+    // noramlize audio, the dim is 1.
     virtual size_t Dim() const { return dim_; }
-    bool Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                 kaldi::VectorBase<kaldi::BaseFloat>* feat) const;
+    virtual void SetFinished() { base_extractor_->SetFinished(); }
+    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
   private:
+    bool Compute(kaldi::VectorBase<kaldi::BaseFloat>* waves) const;
     DecibelNormalizerOptions opts_;
     size_t dim_;
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
@@ -60,20 +64,24 @@ class DecibelNormalizer : public FeatureExtractorInterface {
 
 class CMVN : public FeatureExtractorInterface {
   public:
-    explicit CMVN(std::string cmvn_file);
-    virtual void AcceptWaveform(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input);
-    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat);
-    virtual size_t Dim() const { return stats_.NumCols() - 1; }
-    bool Compute(const kaldi::VectorBase<kaldi::BaseFloat>& input,
-                 kaldi::VectorBase<kaldi::BaseFloat>* feat) const;
-    // for test
-    void ApplyCMVN(bool var_norm, kaldi::VectorBase<BaseFloat>* feats);
-    void ApplyCMVNMatrix(bool var_norm, kaldi::MatrixBase<BaseFloat>* feats);
+    explicit CMVN(std::string cmvn_file,
+                  std::unique_ptr<FeatureExtractorInterface> base_extractor);
+    virtual void Accept(
+        const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+
+    // the length of feats = feature_row * feature_dim,
+    // the Matrix is squashed into Vector
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+    // the dim_ is the feautre dim.
+    virtual size_t Dim() const { return dim_; }
+    virtual void SetFinished() { base_extractor_->SetFinished(); }
+    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
   private:
+    void Compute(kaldi::VectorBase<kaldi::BaseFloat>* feats) const;
+    void ApplyCMVN(kaldi::MatrixBase<BaseFloat>* feats);
     kaldi::Matrix<double> stats_;
-    std::shared_ptr<FeatureExtractorInterface> base_extractor_;
+    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     size_t dim_;
     bool var_norm_;
 };

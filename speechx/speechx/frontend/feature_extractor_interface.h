@@ -21,10 +21,19 @@ namespace ppspeech {
 
 class FeatureExtractorInterface {
   public:
-    virtual void AcceptWaveform(
-        const kaldi::VectorBase<kaldi::BaseFloat>& input) = 0;
-    virtual void Read(kaldi::VectorBase<kaldi::BaseFloat>* feat) = 0;
+    // accept input data, accept feature or raw waves which decided 
+    // by the base_extractor
+    virtual void Accept(
+        const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;
+    // get the processed result
+    // the length of output = feature_row * feature_dim,
+    // the Matrix is squashed into Vector
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* outputs) = 0;
+    // the Dim is the feature dim
     virtual size_t Dim() const = 0;
+    virtual void SetFinished() = 0;
+    virtual bool IsFinished() const = 0;
+    // virtual void Reset();
 };
 
 }  // namespace ppspeech

@@ -24,22 +24,28 @@ using kaldi::VectorBase;
 using kaldi::BaseFloat;
 using std::vector;
 using kaldi::SubVector;
+using std::unique_ptr;
 
-DecibelNormalizer::DecibelNormalizer(const DecibelNormalizerOptions& opts) {
+DecibelNormalizer::DecibelNormalizer(
+    const DecibelNormalizerOptions& opts,
+    std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+    base_extractor_ = std::move(base_extractor);
     opts_ = opts;
-    dim_ = 0;
+    dim_ = 1;
 }
 
-void DecibelNormalizer::AcceptWaveform(
-    const kaldi::VectorBase<BaseFloat>& input) {
-    dim_ = input.Dim();
-    waveform_.Resize(input.Dim());
-    waveform_.CopyFromVec(input);
+void DecibelNormalizer::Accept(
+    const kaldi::VectorBase<BaseFloat>& waves) {
+    base_extractor_->Accept(waves);
 }
 
-void DecibelNormalizer::Read(kaldi::VectorBase<BaseFloat>* feat) {
-    if (waveform_.Dim() == 0) return;
-    Compute(waveform_, feat);
+bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* waves) {
+    if (base_extractor_->Read(waves) == false || 
+        waves->Dim() == 0) {
+        return false;
+    }
+    Compute(waves);
+    return true;
 }
 
 // todo remove later
@@ -61,8 +67,7 @@ void CopyStdVector2Vector(const vector<BaseFloat>& input,
     }
 }
 
-bool DecibelNormalizer::Compute(const VectorBase<BaseFloat>& input,
-                                VectorBase<BaseFloat>* feat) const {
+bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
     // calculate db rms
     BaseFloat rms_db = 0.0;
     BaseFloat mean_square = 0.0;
@@ -70,9 +75,9 @@ bool DecibelNormalizer::Compute(const VectorBase<BaseFloat>& input,
     BaseFloat wave_float_normlization = 1.0f / (std::pow(2, 16 - 1));
 
     vector<BaseFloat> samples;
-    samples.resize(input.Dim());
-    for (int32 i = 0; i < samples.size(); ++i) {
-        samples[i] = input(i);
+    samples.resize(waves->Dim());
+    for (size_t i = 0; i < samples.size(); ++i) {
+        samples[i] = (*waves)(i);
     }
 
     // square
@@ -102,24 +107,35 @@ bool DecibelNormalizer::Compute(const VectorBase<BaseFloat>& input,
         item *= std::pow(10.0, gain / 20.0);
     }
 
-    CopyStdVector2Vector(samples, feat);
+    CopyStdVector2Vector(samples, waves);
     return true;
 }
 
-CMVN::CMVN(std::string cmvn_file) : var_norm_(true) {
+CMVN::CMVN(std::string cmvn_file,
+           unique_ptr<FeatureExtractorInterface> base_extractor)
+    : var_norm_(true) {
+    base_extractor_ = std::move(base_extractor);
     bool binary;
     kaldi::Input ki(cmvn_file, &binary);
     stats_.Read(ki.Stream(), binary);
+    dim_ = stats_.NumCols() - 1;
 }
 
-void CMVN::AcceptWaveform(const kaldi::VectorBase<kaldi::BaseFloat>& input) {
+void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    base_extractor_->Accept(inputs);
     return;
 }
 
-void CMVN::Read(kaldi::VectorBase<BaseFloat>* feat) { return; }
+bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
+    if (base_extractor_->Read(feats) == false) {
+        return false;
+    }
+    Compute(feats);
+    return true;
+}
 
 // feats contain num_frames feature.
-void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
+void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
     KALDI_ASSERT(feats != NULL);
     int32 dim = stats_.NumCols() - 1;
     if (stats_.NumRows() > 2 || stats_.NumRows() < 1 ||
@@ -127,7 +143,7 @@ void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
         KALDI_ERR << "Dim mismatch: cmvn " << stats_.NumRows() << 'x'
                   << stats_.NumCols() << ", feats " << feats->Dim() << 'x';
     }
-    if (stats_.NumRows() == 1 && var_norm) {
+    if (stats_.NumRows() == 1 && var_norm_) {
         KALDI_ERR
             << "You requested variance normalization but no variance stats_ "
             << "are supplied.";
@@ -141,7 +157,7 @@ void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
                      "normalization: "
                   << "count = " << count;
 
-    if (!var_norm) {
+    if (!var_norm_) {
         Vector<BaseFloat> offset(feats->Dim());
         SubVector<double> mean_stats(stats_.RowData(0), dim);
         Vector<double> mean_stats_apply(feats->Dim());
@@ -185,14 +201,8 @@ void CMVN::ApplyCMVN(bool var_norm, VectorBase<BaseFloat>* feats) {
     feats->AddVec(1.0, norm.Row(0));
 }
 
-void CMVN::ApplyCMVNMatrix(bool var_norm, kaldi::MatrixBase<BaseFloat>* feats) {
-    ApplyCmvn(stats_, var_norm, feats);
+void CMVN::ApplyCMVN(kaldi::MatrixBase<BaseFloat>* feats) {
+    ApplyCmvn(stats_, var_norm_, feats);
 }
-
-bool CMVN::Compute(const VectorBase<BaseFloat>& input,
-                   VectorBase<BaseFloat>* feat) const {
-    return false;
-}
-
 
 }  // namespace ppspeech

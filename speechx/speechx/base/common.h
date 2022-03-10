@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <condition_variable>
 #include <deque>
 #include <fstream>
 #include <iostream>
@@ -22,6 +23,7 @@
 #include <memory>
 #include <mutex>
 #include <ostream>
+#include <queue>
 #include <set>
 #include <sstream>
 #include <stack>

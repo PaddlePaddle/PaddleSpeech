@@ -14,19 +14,20 @@
 
 // todo refactor, repalce with gtest
 
+#include "frontend/linear_spectrogram.h"
 #include "base/flags.h"
 #include "base/log.h"
+#include "frontend/feature_cache.h"
 #include "frontend/feature_extractor_interface.h"
-#include "frontend/linear_spectrogram.h"
 #include "frontend/normalizer.h"
+#include "frontend/raw_audio.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
 
-DEFINE_string(wav_rspecifier, "", "test wav path");
-DEFINE_string(feature_wspecifier, "", "test wav ark");
-DEFINE_string(feature_check_wspecifier, "", "test wav ark");
-DEFINE_string(cmvn_write_path, "./cmvn.ark", "test wav ark");
+DEFINE_string(wav_rspecifier, "", "test wav scp path");
+DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
+DEFINE_string(cmvn_write_path, "./cmvn.ark", "write cmvn");
 
 
 std::vector<float> mean_{
@@ -158,37 +159,36 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
     kaldi::BaseFloatMatrixWriter feat_writer(FLAGS_feature_wspecifier);
-    kaldi::BaseFloatMatrixWriter feat_cmvn_check_writer(
-        FLAGS_feature_check_wspecifier);
     WriteMatrix();
 
     // test feature linear_spectorgram: wave --> decibel_normalizer --> hanning
     // window -->linear_spectrogram --> cmvn
     int32 num_done = 0, num_err = 0;
+    //std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
+     //ppspeech::RawDataCache());
+    std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
+        new ppspeech::RawAudioCache());
+
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
     opt.frame_opts.frame_shift_ms = 10;
     ppspeech::DecibelNormalizerOptions db_norm_opt;
     std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor(
-        new ppspeech::DecibelNormalizer(db_norm_opt));
-    ppspeech::LinearSpectrogram linear_spectrogram(
-        opt, std::move(base_feature_extractor));
+        new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
 
-    ppspeech::CMVN cmvn(FLAGS_cmvn_write_path);
+    std::unique_ptr<ppspeech::FeatureExtractorInterface> linear_spectrogram(
+        new ppspeech::LinearSpectrogram(opt,
+                                        std::move(base_feature_extractor)));
+
+    std::unique_ptr<ppspeech::FeatureExtractorInterface> cmvn(
+        new ppspeech::CMVN(FLAGS_cmvn_write_path,
+                           std::move(linear_spectrogram)));
+
+    ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
 
     float streaming_chunk = 0.36;
     int sample_rate = 16000;
     int chunk_sample_size = streaming_chunk * sample_rate;
-
-    LOG(INFO) << mean_.size();
-    for (size_t i = 0; i < mean_.size(); i++) {
-        mean_[i] /= count_;
-        variance_[i] = variance_[i] / count_ - mean_[i] * mean_[i];
-        if (variance_[i] < 1.0e-20) {
-            variance_[i] = 1.0e-20;
-        }
-        variance_[i] = 1.0 / std::sqrt(variance_[i]);
-    }
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();
@@ -199,53 +199,44 @@ int main(int argc, char* argv[]) {
                                                     this_channel);
         int tot_samples = waveform.Dim();
         int sample_offset = 0;
-        std::vector<kaldi::Matrix<BaseFloat>> feats;
+        std::vector<kaldi::Vector<BaseFloat>> feats;
         int feature_rows = 0;
         while (sample_offset < tot_samples) {
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
+
             kaldi::Vector<kaldi::BaseFloat> wav_chunk(cur_chunk_size);
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
-            kaldi::Matrix<BaseFloat> features;
-            linear_spectrogram.AcceptWaveform(wav_chunk);
-            linear_spectrogram.ReadFeats(&features);
+            kaldi::Vector<BaseFloat> features;
+            feature_cache.Accept(wav_chunk);
+            if (cur_chunk_size < chunk_sample_size) {
+                feature_cache.SetFinished();
+            }
+            feature_cache.Read(&features);
+            if (features.Dim() == 0) break;
 
             feats.push_back(features);
             sample_offset += cur_chunk_size;
-            feature_rows += features.NumRows();
+            feature_rows += features.Dim() / feature_cache.Dim();
         }
 
         int cur_idx = 0;
         kaldi::Matrix<kaldi::BaseFloat> features(feature_rows,
-                                                 feats[0].NumCols());
+                                                 feature_cache.Dim());
         for (auto feat : feats) {
-            for (int row_idx = 0; row_idx < feat.NumRows(); ++row_idx) {
-                for (int col_idx = 0; col_idx < feat.NumCols(); ++col_idx) {
+            int num_rows = feat.Dim() / feature_cache.Dim();
+            for (int row_idx = 0; row_idx < num_rows; ++row_idx) {
+                for (size_t col_idx = 0; col_idx < feature_cache.Dim();
+                     ++col_idx) {
                     features(cur_idx, col_idx) =
-                        (feat(row_idx, col_idx) - mean_[col_idx]) *
-                        variance_[col_idx];
+                        feat(row_idx * feature_cache.Dim() + col_idx);
                 }
                 ++cur_idx;
             }
         }
         feat_writer.Write(utt, features);
-
-        cur_idx = 0;
-        kaldi::Matrix<kaldi::BaseFloat> features_check(feature_rows,
-                                                       feats[0].NumCols());
-        for (auto feat : feats) {
-            for (int row_idx = 0; row_idx < feat.NumRows(); ++row_idx) {
-                for (int col_idx = 0; col_idx < feat.NumCols(); ++col_idx) {
-                    features_check(cur_idx, col_idx) = feat(row_idx, col_idx);
-                }
-                kaldi::SubVector<BaseFloat> row_feat(features_check, cur_idx);
-                cmvn.ApplyCMVN(true, &row_feat);
-                ++cur_idx;
-            }
-        }
-        feat_cmvn_check_writer.Write(utt, features_check);
 
         if (num_done % 50 == 0 && num_done != 0)
             KALDI_VLOG(2) << "Processed " << num_done << " utterances";

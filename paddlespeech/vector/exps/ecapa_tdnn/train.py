@@ -20,8 +20,9 @@ from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from yacs.config import CfgNode
+
 from paddleaudio.paddleaudio.compliance.librosa import melspectrogram
-from paddleaudio.paddleaudio.datasets.voxceleb import VoxCeleb1
+from paddleaudio.paddleaudio.datasets.voxceleb import VoxCeleb
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.io.augment import waveform_augment
@@ -30,12 +31,13 @@ from paddlespeech.vector.io.batch import waveform_collate_fn
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.loss import AdditiveAngularMargin
 from paddlespeech.vector.modules.loss import LogSoftmaxWrapper
-from paddlespeech.vector.training.scheduler import CyclicLRScheduler
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
+from paddlespeech.vector.training.scheduler import CyclicLRScheduler
 from paddlespeech.vector.training.seeding import seed_everything
 from paddlespeech.vector.utils.time import Timer
 
 logger = Log(__name__).getlog()
+
 
 def main(args, config):
     # stage0: set the training device, cpu or gpu
@@ -50,8 +52,8 @@ def main(args, config):
 
     # stage2: data prepare, such vox1 and vox2 data, and augment noise data and pipline
     # note: some cmd must do in rank==0, so wo will refactor the data prepare code
-    train_dataset = VoxCeleb1('train', target_dir=args.data_dir)
-    dev_dataset = VoxCeleb1('dev', target_dir=args.data_dir)
+    train_dataset = VoxCeleb('train', target_dir=args.data_dir)
+    dev_dataset = VoxCeleb('dev', target_dir=args.data_dir)
 
     if args.augment:
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
@@ -63,7 +65,7 @@ def main(args, config):
 
     # stage4: build the speaker verification train instance with backbone model
     model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=VoxCeleb1.num_speakers)
+        backbone=ecapa_tdnn, num_class=VoxCeleb.num_speakers)
 
     # stage5: build the optimizer, we now only construct the AdamW optimizer
     lr_schedule = CyclicLRScheduler(
@@ -263,7 +265,7 @@ if __name__ == "__main__":
                         choices=['cpu', 'gpu'],
                         default="cpu",
                         help="Select which device to train model, defaults to gpu.")
-    parser.add_argument("--config", 
+    parser.add_argument("--config",
                         default=None,
                         type=str,
                         help="configuration file")

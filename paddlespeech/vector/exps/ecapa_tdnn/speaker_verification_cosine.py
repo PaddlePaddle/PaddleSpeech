@@ -17,21 +17,22 @@ import os
 
 import numpy as np
 import paddle
-from yacs.config import CfgNode
 import paddle.nn.functional as F
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from tqdm import tqdm
+from yacs.config import CfgNode
 
-from paddleaudio.paddleaudio.datasets import VoxCeleb1
-from paddlespeech.s2t.utils.log import Log
+from paddleaudio.paddleaudio.datasets import VoxCeleb
 from paddleaudio.paddleaudio.metric import compute_eer
+from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import batch_feature_normalize
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.seeding import seed_everything
 
 logger = Log(__name__).getlog()
+
 
 def main(args, config):
     # stage0: set the training device, cpu or gpu
@@ -44,7 +45,7 @@ def main(args, config):
 
     # stage2: build the speaker verification eval instance with backbone model
     model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=VoxCeleb1.num_speakers)
+        backbone=ecapa_tdnn, num_class=VoxCeleb.num_speakers)
 
     # stage3: load the pre-trained model
     args.load_checkpoint = os.path.abspath(
@@ -57,7 +58,7 @@ def main(args, config):
     logger.info(f'Checkpoint loaded from {args.load_checkpoint}')
 
     # stage4: construct the enroll and test dataloader
-    enroll_dataset = VoxCeleb1(
+    enroll_dataset = VoxCeleb(
         subset='enroll',
         target_dir=args.data_dir,
         feat_type='melspectrogram',
@@ -73,7 +74,7 @@ def main(args, config):
                     num_workers=config.num_workers,
                     return_list=True,)
 
-    test_dataset = VoxCeleb1(
+    test_dataset = VoxCeleb(
         subset='test',
         target_dir=args.data_dir,
         feat_type='melspectrogram',
@@ -145,7 +146,7 @@ def main(args, config):
     labels = []
     enrol_ids = []
     test_ids = []
-    with open(VoxCeleb1.veri_test_file, 'r') as f:
+    with open(VoxCeleb.veri_test_file, 'r') as f:
         for line in f.readlines():
             label, enrol_id, test_id = line.strip().split(' ')
             labels.append(int(label))
@@ -171,7 +172,7 @@ if __name__ == "__main__":
                         choices=['cpu', 'gpu'],
                         default="gpu",
                         help="Select which device to train model, defaults to gpu.")
-    parser.add_argument("--config", 
+    parser.add_argument("--config",
                         default=None,
                         type=str,
                         help="configuration file")

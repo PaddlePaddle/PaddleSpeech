@@ -19,16 +19,6 @@ import paddle.nn.functional as F
 
 
 def length_to_mask(length, max_len=None, dtype=None):
-    """_summary_
-
-    Args:
-        length (_type_): _description_
-        max_len (_type_, optional): _description_. Defaults to None.
-        dtype (_type_, optional): _description_. Defaults to None.
-
-    Returns:
-        _type_: _description_
-    """
     assert len(length.shape) == 1
 
     if max_len is None:
@@ -60,15 +50,15 @@ class Conv1d(nn.Layer):
         """_summary_
 
         Args:
-            in_channels (_type_): _description_
-            out_channels (_type_): _description_
-            kernel_size (_type_): _description_
-            stride (int, optional): _description_. Defaults to 1.
-            padding (str, optional): _description_. Defaults to "same".
-            dilation (int, optional): _description_. Defaults to 1.
-            groups (int, optional): _description_. Defaults to 1.
-            bias (bool, optional): _description_. Defaults to True.
-            padding_mode (str, optional): _description_. Defaults to "reflect".
+            in_channels (int): intput channel or input data dimensions
+            out_channels (int): output channel or output data dimensions
+            kernel_size (int): kernel size of 1-d convolution
+            stride (int, optional): strid in 1-d convolution . Defaults to 1.
+            padding (str, optional): padding value. Defaults to "same".
+            dilation (int, optional): dilation in 1-d convolution. Defaults to 1.
+            groups (int, optional): groups in 1-d convolution. Defaults to 1.
+            bias (bool, optional): bias in 1-d convolution . Defaults to True.
+            padding_mode (str, optional): padding mode. Defaults to "reflect".
         """
         super().__init__()
 
@@ -89,17 +79,6 @@ class Conv1d(nn.Layer):
             bias_attr=bias, )
 
     def forward(self, x):
-        """_summary_
-
-        Args:
-            x (_type_): _description_
-
-        Raises:
-            ValueError: _description_
-
-        Returns:
-            _type_: _description_
-        """
         if self.padding == "same":
             x = self._manage_padding(x, self.kernel_size, self.dilation,
                                      self.stride)
@@ -109,17 +88,6 @@ class Conv1d(nn.Layer):
         return self.conv(x)
 
     def _manage_padding(self, x, kernel_size: int, dilation: int, stride: int):
-        """_summary_
-
-        Args:
-            x (_type_): _description_
-            kernel_size (int): _description_
-            dilation (int): _description_
-            stride (int): _description_
-
-        Returns:
-            _type_: _description_
-        """
         L_in = x.shape[-1]  # Detecting input shape
         padding = self._get_padding_elem(L_in, stride, kernel_size,
                                          dilation)  # Time padding
@@ -133,17 +101,6 @@ class Conv1d(nn.Layer):
                           stride: int,
                           kernel_size: int,
                           dilation: int):
-        """_summary_
-
-        Args:
-            L_in (int): _description_
-            stride (int): _description_
-            kernel_size (int): _description_
-            dilation (int): _description_
-
-        Returns:
-            _type_: _description_
-        """
         if stride > 1:
             n_steps = math.ceil(((L_in - kernel_size * dilation) / stride) + 1)
             L_out = stride * (n_steps - 1) + kernel_size * dilation
@@ -220,8 +177,8 @@ class Res2NetBlock(nn.Layer):
         Args:
             in_channels (int): input channels or input dimensions
             out_channels (int): output channels or output dimensions
-            scale (int, optional): _description_. Defaults to 8.
-            dilation (int, optional): _description_. Defaults to 1.
+            scale (int, optional): scale in res2net bolck. Defaults to 8.
+            dilation (int, optional): dilation of 1-d convolution in TDNN block. Defaults to 1.
         """
         super().__init__()
         assert in_channels % scale == 0
@@ -358,15 +315,16 @@ class SERes2NetBlock(nn.Layer):
             dilation=1,
             activation=nn.ReLU, ):
         """Implementation of Squeeze-Extraction Res2Blocks in ECAPA-TDNN network model
-
+           The paper is refered "Squeeze-and-Excitation Networks"
+           whose url is: https://arxiv.org/pdf/1709.01507.pdf
         Args:
             in_channels (int): input channels or input data dimensions
-            out_channels (_type_): _description_
-            res2net_scale (int, optional): _description_. Defaults to 8.
-            se_channels (int, optional): _description_. Defaults to 128.
-            kernel_size (int, optional): _description_. Defaults to 1.
-            dilation (int, optional): _description_. Defaults to 1.
-            activation (_type_, optional): _description_. Defaults to nn.ReLU.
+            out_channels (int): output channels or output data dimensions
+            res2net_scale (int, optional): scale in the res2net block. Defaults to 8.
+            se_channels (int, optional): embedding dimensions of res2net block. Defaults to 128.
+            kernel_size (int, optional): kernel size of 1-d convolution in TDNN block. Defaults to 1.
+            dilation (int, optional): dilation of 1-d convolution in TDNN block. Defaults to 1.
+            activation (paddle.nn.class, optional): activation function. Defaults to nn.ReLU.
         """
         super().__init__()
         self.out_channels = out_channels
@@ -419,7 +377,21 @@ class EcapaTdnn(nn.Layer):
             res2net_scale=8,
             se_channels=128,
             global_context=True, ):
-
+        """Implementation of ECAPA-TDNN backbone model network
+           The paper is refered as "ECAPA-TDNN: Emphasized Channel Attention, Propagation and Aggregation in TDNN Based Speaker Verification"
+           whose url is: https://arxiv.org/abs/2005.07143
+        Args:
+            input_size (_type_): input fature dimension
+            lin_neurons (int, optional): speaker embedding size. Defaults to 192.
+            activation (paddle.nn.class, optional): activation function. Defaults to nn.ReLU.
+            channels (list, optional): inter embedding dimension. Defaults to [512, 512, 512, 512, 1536].
+            kernel_sizes (list, optional): kernel size of 1-d convolution in TDNN block . Defaults to [5, 3, 3, 3, 1].
+            dilations (list, optional): dilations of 1-d convolution in TDNN block. Defaults to [1, 2, 3, 4, 1].
+            attention_channels (int, optional): attention dimensions. Defaults to 128.
+            res2net_scale (int, optional): scale value in res2net. Defaults to 8.
+            se_channels (int, optional): dimensions of squeeze-excitation block. Defaults to 128.
+            global_context (bool, optional): global context flag. Defaults to True.
+        """
         super().__init__()
         assert len(channels) == len(kernel_sizes)
         assert len(channels) == len(dilations)

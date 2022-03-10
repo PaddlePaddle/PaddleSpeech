@@ -25,10 +25,10 @@ from paddle.io import Dataset
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
 
-from .dataset import feat_funcs
 from ..backends import load as load_audio
 from ..utils import DATA_HOME
 from ..utils import decompress
+from .dataset import feat_funcs
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.utils.download import download_and_decompress
 from utils.utility import download
@@ -36,10 +36,10 @@ from utils.utility import unpack
 
 logger = Log(__name__).getlog()
 
-__all__ = ['VoxCeleb1']
+__all__ = ['VoxCeleb']
 
 
-class VoxCeleb1(Dataset):
+class VoxCeleb(Dataset):
     source_url = 'https://thor.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a/'
     archieves_audio_dev = [
         {
@@ -94,8 +94,18 @@ class VoxCeleb1(Dataset):
             split_ratio: float=0.9,  # train split ratio
             seed: int=0,
             target_dir: str=None,
+            vox2_base_path=None,
             **kwargs):
+        """VoxCeleb data prepare and get the specific dataset audio info
 
+        Args:
+            subset (str, optional): dataset name, such as train, dev, enroll or test. Defaults to 'train'.
+            feat_type (str, optional): feat type, such raw, melspectrogram(fbank) or mfcc . Defaults to 'raw'.
+            random_chunk (bool, optional): random select a duration from audio. Defaults to True.
+            chunk_duration (float, optional): chunk duration if random_chunk flag is set. Defaults to 3.0.
+            target_dir (str, optional): data dir, audio info will be stored in this directory. Defaults to None.
+            vox2_base_path (_type_, optional): vox2 directory. vox2 data must be converted from m4a to wav. Defaults to None.
+        """
         assert subset in self.subsets, \
             'Dataset subset must be one in {}, but got {}'.format(self.subsets, subset)
 
@@ -106,19 +116,20 @@ class VoxCeleb1(Dataset):
         self.random_chunk = random_chunk
         self.chunk_duration = chunk_duration
         self.split_ratio = split_ratio
-        self.target_dir = target_dir if target_dir else VoxCeleb1.base_path
+        self.target_dir = target_dir if target_dir else VoxCeleb.base_path
+        self.vox2_base_path = vox2_base_path
 
         # if we set the target dir, we will change the vox data info data from base path to target dir
-        VoxCeleb1.csv_path = os.path.join(
-            target_dir, "voxceleb", 'csv') if target_dir else VoxCeleb1.csv_path
-        VoxCeleb1.meta_path = os.path.join(
+        VoxCeleb.csv_path = os.path.join(
+            target_dir, "voxceleb", 'csv') if target_dir else VoxCeleb.csv_path
+        VoxCeleb.meta_path = os.path.join(
             target_dir, "voxceleb",
-            'meta') if target_dir else VoxCeleb1.meta_path
-        VoxCeleb1.veri_test_file = os.path.join(VoxCeleb1.meta_path,
-                                                'veri_test2.txt')
+            'meta') if target_dir else VoxCeleb.meta_path
+        VoxCeleb.veri_test_file = os.path.join(VoxCeleb.meta_path,
+                                               'veri_test2.txt')
         # self._data = self._get_data()[:1000]  # KP: Small dataset test.
         self._data = self._get_data()
-        super(VoxCeleb1, self).__init__()
+        super(VoxCeleb, self).__init__()
 
         # Set up a seed to reproduce training or predicting result.
         # random.seed(seed)
@@ -300,7 +311,14 @@ class VoxCeleb1(Dataset):
         # get all the train and dev audios file path
         audio_files = []
         speakers = set()
-        for path in [self.wav_path]:
+        for path in [self.wav_path, self.vox2_base_path]:
+            # if vox2 directory is not set and vox2 is not a directory 
+            # we will not process this directory
+            if not path or not os.path.exists(path):
+                logger.warning(
+                    f"{path} is an invalid path, please check again, "
+                    "and we will ignore the vox2 base path")
+                continue
             for file in glob.glob(
                     os.path.join(path, "**", "*.wav"), recursive=True):
                 spk = file.split('/wav/')[1].split('/')[0]

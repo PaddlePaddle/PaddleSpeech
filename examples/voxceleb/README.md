@@ -23,39 +23,6 @@ VoxCeleb2 stores files with the m4a audio format. To use them in PaddleSpeech,  
 ffmpeg -y -i %s -ac 1 -vn -acodec pcm_s16le -ar 16000 %s
 ```
 
-``` shell
-# copy this to root directory of data and 
-# chmod a+x convert.sh
-# ./convert.sh
-# https://unix.stackexchange.com/questions/103920/parallelize-a-bash-for-loop
-
-open_sem(){
-    mkfifo pipe-$$
-    exec 3<>pipe-$$
-    rm pipe-$$
-    local i=$1
-    for((;i>0;i--)); do
-        printf %s 000 >&3
-    done
-}
-run_with_lock(){
-    local x
-    read -u 3 -n 3 x && ((0==x)) || exit $x
-    (
-     ( "$@"; )
-    printf '%.3d' $? >&3
-    )&
-}
-
-N=32 # number of vCPU
-open_sem $N
-for f in $(find . -name "*.m4a"); do
-    run_with_lock ffmpeg -loglevel panic -i "$f" -ar 16000 "${f%.*}.wav"
-done
-```
-
 You can do the conversion using ffmpeg  https://gist.github.com/seungwonpark/4f273739beef2691cd53b5c39629d830). This operation might take several hours and should be only once.
 
 3. Put all the wav files in a folder called `wav`. You should have something like `voxceleb2/wav/id*/*.wav` (e.g, `voxceleb2/wav/id00012/21Uxsk56VDQ/00001.wav`)
-
-4. 

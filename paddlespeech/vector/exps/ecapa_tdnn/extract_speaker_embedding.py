@@ -28,6 +28,7 @@ from paddlespeech.vector.training.seeding import seed_everything
 
 logger = Log(__name__).getlog()
 
+
 def extract_audio_embedding(args, config):
     # stage 0: set the training device, cpu or gpu
     paddle.set_device(args.device)
@@ -83,7 +84,7 @@ if __name__ == "__main__":
                         choices=['cpu', 'gpu'],
                         default="gpu",
                         help="Select which device to train model, defaults to gpu.")
-    parser.add_argument("--config", 
+    parser.add_argument("--config",
                         default=None,
                         type=str,
                         help="configuration file")

@@ -1,4 +1,17 @@
 #!/bin/bash
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 . ./path.sh
 set -e
@@ -11,19 +24,30 @@ set -e
 # stage 3: extract the training embeding to train the LDA and PLDA
 ######################################################################
 
-# you can set the variable PPAUDIO_HOME to specifiy the downloaded the vox1 and vox2 dataset
-# default the dataset is the ~/.paddleaudio/
+# we can set the variable PPAUDIO_HOME to specifiy the root directory of the downloaded vox1 and vox2 dataset 
+# default the dataset will be stored in the ~/.paddleaudio/
+# the vox2 dataset is stored in m4a format, we need to convert the audio from m4a to wav yourself
+# and put all of them to ${PPAUDIO_HOME}/datasets/vox2
+# we will find the wav from ${PPAUDIO_HOME}/datasets/vox1/wav and ${PPAUDIO_HOME}/datasets/vox2/wav
 # export PPAUDIO_HOME=
 
 stage=0
-dir=data.bak/                     # data directory
-exp_dir=exp/ecapa-tdnn/           # experiment directory
+# data directory
+# if we set the variable ${dir}, we will store the wav info to this directory
+# otherwise, we will store the wav info to vox1 and vox2 directory respectively
+dir=data/                          
+exp_dir=exp/ecapa-tdnn/            # experiment directory
+
+# vox2 wav path, we must convert the m4a format to wav format 
+# and store them in the ${PPAUDIO_HOME}/datasets/vox2/wav/ directory
+vox2_base_path=${PPAUDIO_HOME}/datasets/vox2/wav/
 mkdir -p ${dir}
 mkdir -p ${exp_dir}
 
 if [ $stage -le 0 ]; then 
      # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
-     python3 local/data_prepare.py --data-dir ${dir} --augment
+     python3 local/data_prepare.py \
+     --data-dir ${dir} --augment --vox2-base-path ${vox2_base_path}
 fi 
 
 if [ $stage -le 1 ]; then

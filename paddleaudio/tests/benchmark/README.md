@@ -1,45 +1,40 @@
 # 1. Prepare
-First, install `line_profiler` via pip.
+First, install `pytest-benchmark` via pip.
 ```sh
-pip install line_profiler
+pip install pytest-benchmark
 ```
 
 # 2. Run
 Run the specific script for profiling.
 ```sh
-kernprof -l features/mel_spectrogram.py
-python -m line_profiler -u 1e-3 mel_spectrogram.py.lprof
+pytest features.py
 ```
 
 Result:
 ```sh
-Timer unit: 0.001 s                                                                 
+========================================================================== test session starts ==========================================================================
+platform linux -- Python 3.7.7, pytest-7.0.1, pluggy-1.0.0
+benchmark: 3.4.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /ssd3/chenxiaojie06/PaddleSpeech/DeepSpeech/paddleaudio
+plugins: typeguard-2.12.1, benchmark-3.4.1, anyio-3.5.0
+collected 6 items
 
-Total time: 22.1208 s
-File: features/mel_spectrogram.py
-Function: test_melspect_cpu at line 13
-                                                                                                                                                                         
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-    13                                           @profile
-    14                                           def test_melspect_cpu(input_shape, times):
-    15         1          0.1      0.1      0.0      paddle.set_device('cpu')
-    16         1        234.5    234.5      1.1      x = paddle.randn(input_shape)
-    17         1         85.3     85.3      0.4      feature_extractor = paddleaudio.features.MelSpectrogram(**feat_conf, dtype=x.dtype)
-    18       101          0.5      0.0      0.0      for i in range(times):
-    19       100      21800.5    218.0     98.6          y = feature_extractor(x)
+features.py ......                                                                                                                                                [100%]
 
-Total time: 4.80543 s
-File: features/mel_spectrogram.py
-Function: test_melspect_gpu at line 22
 
-Line #      Hits         Time  Per Hit   % Time  Line Contents
-==============================================================
-    22                                           @profile
-    23                                           def test_melspect_gpu(input_shape, times):
-    24         1          0.5      0.5      0.0      paddle.set_device('gpu')
-    25         1       4144.8   4144.8     86.3      x = paddle.randn(input_shape)
-    26         1         41.9     41.9      0.9      feature_extractor = paddleaudio.features.MelSpectrogram(**feat_conf, dtype=x.dtype)
-    27       101          0.2      0.0      0.0      for i in range(times):
-    28       100        618.1      6.2     12.9          y = feature_extractor(x)
+------------------------------------------------------------------------------------------------- benchmark: 6 tests ------------------------------------------------------------------------------------------------
+Name (time in us)                 Min                    Max                   Mean                StdDev                 Median                    IQR            Outliers         OPS            Rounds  Iterations
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_melspect_gpu            632.2041 (1.0)         898.7449 (1.0)         709.3824 (1.0)        109.7022 (6.91)        676.1923 (1.0)         115.2642 (22.19)         1;0  1,409.6768 (1.0)           5           1
+test_log_melspect_gpu        912.9159 (1.44)      1,222.0535 (1.36)        931.2489 (1.31)        34.4270 (2.17)        924.9896 (1.37)          5.1949 (1.0)          4;13  1,073.8268 (0.76)         82           1
+test_mfcc_gpu              1,244.8374 (1.97)      1,321.3232 (1.47)      1,262.1319 (1.78)        15.8698 (1.0)       1,258.3155 (1.86)         14.1086 (2.72)         17;9    792.3102 (0.56)         91           1
+test_melspect_cpu         19,106.5744 (30.22)    46,194.2125 (51.40)    27,458.7850 (38.71)    9,786.1071 (616.65)   23,830.0692 (35.24)    14,344.4724 (>1000.0)       3;0     36.4182 (0.03)         14           1
+test_log_melspect_cpu     19,513.7132 (30.87)    20,367.2443 (22.66)    19,765.4018 (27.86)      167.1289 (10.53)    19,750.2729 (29.21)       188.9346 (36.37)        16;1     50.5935 (0.04)         49           1
+test_mfcc_cpu             19,881.3528 (31.45)    20,427.2158 (22.73)    20,104.6574 (28.34)      129.5621 (8.16)     20,075.8977 (29.69)       150.9022 (29.05)        12;2     49.7397 (0.04)         48           1
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+    OPS: Operations Per Second, computed as 1 / Mean
+    ========================================================================== 6 passed in 20.51s ===========================================================================
 ```

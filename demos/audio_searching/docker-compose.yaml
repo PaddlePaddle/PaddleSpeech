@@ -48,7 +48,6 @@ services:
     depends_on:
       - "etcd"
       - "minio"
-
   
   mysql:
     container_name: audio-mysql
@@ -62,6 +61,22 @@ services:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/mysql:/var/lib/mysql
     ports:
       - "3306:3306"
+
+  webclient:
+    container_name: audio-webclient
+    image: iregistry.baidu-int.com/paddlespeech/audio-search-client:1.0
+    networks:
+      app_net:
+        ipv4_address: 172.16.23.13
+    environment:
+      API_URL: 'http://127.0.0.1:8002'
+    ports:
+      - "8068:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
 networks:
   app_net:

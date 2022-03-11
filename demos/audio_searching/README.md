@@ -11,7 +11,9 @@ Audio retrieval (speech, music, speaker, etc.) enables querying and finding simi
 
 In this demo, you will learn how to build an audio retrieval system to retrieve similar sound snippets.  The uploaded audio clips are converted into vector data using paddlespeech-based pre-training models (audio classification model, speaker recognition model, etc.) and stored in Milvus.  Milvus automatically generates a unique ID for each vector, then stores the ID and the corresponding audio information (audio ID, audio speaker ID, etc.) in MySQL to complete the library construction.  During retrieval, users upload test audio to obtain vector, and then conduct vector similarity search in Milvus. The retrieval result returned by Milvus is vector ID, and the corresponding audio information can be queried in MySQL by ID
 
-The demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least 650,000 audio entries and 3000 speakers to build the audio vector library, which is then retrieved using a preset distance calculation. The dataset can also use other,  Adjust as needed, e.g. Librispeech, VoxCeleb, UrbanSound, etc
+![Workflow of an audio searching system](./img/audo_searching.png)
+
+Note：this demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least 650,000 audio entries and 3000 speakers to build the audio vector library, which is then retrieved using a preset distance calculation. The dataset can also use other,  Adjust as needed, e.g. Librispeech, VoxCeleb, UrbanSound, etc
 
 ## Usage
 ### 1. Prepare MySQL and Milvus services by docker-compose

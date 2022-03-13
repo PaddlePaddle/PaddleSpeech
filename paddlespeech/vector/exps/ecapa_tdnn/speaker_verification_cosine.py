@@ -45,7 +45,7 @@ def main(args, config):
 
     # stage2: build the speaker verification eval instance with backbone model
     model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=VoxCeleb.num_speakers)
+        backbone=ecapa_tdnn, num_class=config.num_speakers)
 
     # stage3: load the pre-trained model
     args.load_checkpoint = os.path.abspath(
@@ -93,6 +93,7 @@ def main(args, config):
     model.eval()
 
     # stage7: global embedding norm to imporve the performance
+    print("global embedding norm: {}".format(args.global_embedding_norm))
     if args.global_embedding_norm:
         global_embedding_mean = None
         global_embedding_std = None
@@ -118,6 +119,8 @@ def main(args, config):
                         -1).numpy()  # (N, emb_size, 1) -> (N, emb_size)
 
                     # Global embedding normalization.
+                    # if we use the global embedding norm
+                    # eer can reduece about relative 10%
                     if args.global_embedding_norm:
                         batch_count += 1
                         current_mean = embeddings.mean(
@@ -150,8 +153,8 @@ def main(args, config):
         for line in f.readlines():
             label, enrol_id, test_id = line.strip().split(' ')
             labels.append(int(label))
-            enrol_ids.append(enrol_id.split('.')[0].replace('/', '-'))
-            test_ids.append(test_id.split('.')[0].replace('/', '-'))
+            enrol_ids.append(enrol_id.split('.')[0].replace('/', '--'))
+            test_ids.append(test_id.split('.')[0].replace('/', '--'))
 
     cos_sim_func = paddle.nn.CosineSimilarity(axis=1)
     enrol_embeddings, test_embeddings = map(lambda ids: paddle.to_tensor(
@@ -185,11 +188,10 @@ if __name__ == "__main__":
                         default='',
                         help="Directory to load model checkpoint to contiune trainning.")
     parser.add_argument("--global-embedding-norm",
-                        type=bool,
-                        default=True,
+                        default=False,
+                        action="store_true",
                         help="Apply global normalization on speaker embeddings.")
     parser.add_argument("--embedding-mean-norm",
-                        type=bool,
                         default=True,
                         help="Apply mean normalization on speaker embeddings.")
     parser.add_argument("--embedding-std-norm",

@@ -47,7 +47,8 @@ mkdir -p ${exp_dir}
 if [ $stage -le 0 ]; then 
      # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
      python3 local/data_prepare.py \
-     --data-dir ${dir} --augment --vox2-base-path ${vox2_base_path}
+     --data-dir ${dir} --augment --vox2-base-path ${vox2_base_path} \
+     --config conf/ecapa_tdnn.yaml
 fi 
 
 if [ $stage -le 1 ]; then

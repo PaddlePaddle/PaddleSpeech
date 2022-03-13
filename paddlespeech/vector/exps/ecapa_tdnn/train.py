@@ -178,9 +178,9 @@ def main(args, config):
             timer.count()  # step plus one in timer
 
             # stage 9-10: print the log information only on 0-rank per log-freq batchs
-            if (batch_idx + 1) % config.log_freq == 0 and local_rank == 0:
+            if (batch_idx + 1) % config.log_interval == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
-                avg_loss /= config.log_freq
+                avg_loss /= config.log_interval
                 avg_acc = num_corrects / num_samples
 
                 print_msg = 'Train Epoch={}/{}, Step={}/{}'.format(
@@ -196,7 +196,7 @@ def main(args, config):
                 num_samples = 0
 
         # stage 9-11: save the model parameters only on 0-rank per save-freq batchs
-        if epoch % config.save_freq == 0 and batch_idx + 1 == steps_per_epoch:
+        if epoch % config.save_interval == 0 and batch_idx + 1 == steps_per_epoch:
             if local_rank != 0:
                 paddle.distributed.barrier(
                 )  # Wait for valid step in main process

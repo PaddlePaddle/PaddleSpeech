@@ -75,6 +75,9 @@ def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
             i]:].sum() == 0  # Padding valus should all be 0.
 
     # Converts into ratios.
+    # the utterance of the max length doesn't need to padding
+    # the remaining utterances need to padding and all of them will be padded to max length
+    # we convert the original length of each utterance to the ratio of the max length
     lengths = (lengths / lengths.max()).astype(np.float32)
 
     return {'ids': ids, 'feats': feats, 'lengths': lengths}

@@ -21,7 +21,6 @@ using std::vector;
 using std::string;
 using std::shared_ptr;
 using kaldi::Matrix;
-using kaldi::Vector;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
     std::vector<std::string> cache_names;
@@ -144,27 +143,34 @@ shared_ptr<Tensor<BaseFloat>> PaddleNnet::GetCacheEncoder(const string& name) {
     return cache_encouts_[iter->second];
 }
 
-void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
-                             int32 feature_dim,
-                             Vector<BaseFloat>* inferences,
-                             int32* inference_dim) {
+void PaddleNnet::FeedForward(const Matrix<BaseFloat>& features,
+                             Matrix<BaseFloat>* inferences) {
     paddle_infer::Predictor* predictor = GetPredictor();
-    int feat_row = features.Dim() / feature_dim;
+    int row = features.NumRows();
+    int col = features.NumCols();
+    std::vector<BaseFloat> feed_feature;
+    // todo refactor feed feature: SmileGoat
+    feed_feature.reserve(row * col);
+    for (size_t row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
+        for (size_t col_idx = 0; col_idx < features.NumCols(); ++col_idx) {
+            feed_feature.push_back(features(row_idx, col_idx));
+        }
+    }
     std::vector<std::string> input_names = predictor->GetInputNames();
     std::vector<std::string> output_names = predictor->GetOutputNames();
-    LOG(INFO) << "feat info: rows, cols: " << feat_row << ", " << feature_dim;
+    LOG(INFO) << "feat info: row=" << row << ", col= " << col;
 
     std::unique_ptr<paddle_infer::Tensor> input_tensor =
         predictor->GetInputHandle(input_names[0]);
-    std::vector<int> INPUT_SHAPE = {1, feat_row, feature_dim};
+    std::vector<int> INPUT_SHAPE = {1, row, col};
     input_tensor->Reshape(INPUT_SHAPE);
-    input_tensor->CopyFromCpu(features.Data());
+    input_tensor->CopyFromCpu(feed_feature.data());
     std::unique_ptr<paddle_infer::Tensor> input_len =
         predictor->GetInputHandle(input_names[1]);
     std::vector<int> input_len_size = {1};
     input_len->Reshape(input_len_size);
     std::vector<int64_t> audio_len;
-    audio_len.push_back(feat_row);
+    audio_len.push_back(row);
     input_len->CopyFromCpu(audio_len.data());
 
     std::unique_ptr<paddle_infer::Tensor> h_box =
@@ -197,12 +203,20 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     std::unique_ptr<paddle_infer::Tensor> output_tensor =
         predictor->GetOutputHandle(output_names[0]);
     std::vector<int> output_shape = output_tensor->shape();
-    int32 row = output_shape[1];
-    int32 col = output_shape[2];
-    inferences->Resize(row * col);
-    *inference_dim = col;
-    output_tensor->CopyToCpu(inferences->Data());
+    row = output_shape[1];
+    col = output_shape[2];
+    vector<float> inferences_result;
+    inferences->Resize(row, col);
+    inferences_result.resize(row * col);
+    output_tensor->CopyToCpu(inferences_result.data());
     ReleasePredictor(predictor);
+
+    for (int row_idx = 0; row_idx < row; ++row_idx) {
+        for (int col_idx = 0; col_idx < col; ++col_idx) {
+            (*inferences)(row_idx, col_idx) =
+                inferences_result[col * row_idx + col_idx];
+        }
+    }
 }
 
 }  // namespace ppspeech

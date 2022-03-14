@@ -23,10 +23,8 @@ namespace ppspeech {
 
 class NnetInterface {
   public:
-    virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                             int32 feature_dim,
-                             kaldi::Vector<kaldi::BaseFloat>* inferences,
-                             int32* inference_dim) = 0;
+    virtual void FeedForward(const kaldi::Matrix<kaldi::BaseFloat>& features,
+                             kaldi::Matrix<kaldi::BaseFloat>* inferences) = 0;
     virtual void Reset() = 0;
     virtual ~NnetInterface() {}
 };

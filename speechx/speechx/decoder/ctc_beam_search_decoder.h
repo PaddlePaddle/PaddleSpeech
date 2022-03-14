@@ -32,8 +32,8 @@ struct CTCBeamSearchOptions {
     int cutoff_top_n;
     int num_proc_bsearch;
     CTCBeamSearchOptions()
-        : dict_file("vocab.txt"),
-          lm_path("lm.klm"),
+        : dict_file("./model/words.txt"),
+          lm_path("./model/lm.arpa"),
           alpha(1.9f),
           beta(5.0),
           beam_size(300),
@@ -68,7 +68,8 @@ class CTCBeamSearch {
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           std::vector<std::string>& nbest_words);
     void AdvanceDecode(
-        const std::shared_ptr<kaldi::DecodableInterface>& decodable);
+        const std::shared_ptr<kaldi::DecodableInterface>& decodable,
+        int max_frames);
     void Reset();
 
   private:
@@ -82,7 +83,8 @@ class CTCBeamSearch {
 
     CTCBeamSearchOptions opts_;
     std::shared_ptr<Scorer> init_ext_scorer_;  // todo separate later
-    std::vector<std::string> vocabulary_;      // todo remove later
+    // std::vector<DecodeResult> decoder_results_;
+    std::vector<std::string> vocabulary_;  // todo remove later
     size_t blank_id;
     int space_id;
     std::shared_ptr<PathTrie> root;

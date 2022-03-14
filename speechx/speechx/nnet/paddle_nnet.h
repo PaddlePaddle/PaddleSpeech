@@ -39,8 +39,12 @@ struct ModelOptions {
     bool enable_fc_padding;
     bool enable_profile;
     ModelOptions()
-        : model_path("avg_1.jit.pdmodel"),
-          params_path("avg_1.jit.pdiparams"),
+        : model_path(
+              "../../../../model/paddle_online_deepspeech/model/"
+              "avg_1.jit.pdmodel"),
+          params_path(
+              "../../../../model/paddle_online_deepspeech/model/"
+              "avg_1.jit.pdiparams"),
           thread_num(2),
           use_gpu(false),
           input_names(
@@ -103,11 +107,8 @@ class Tensor {
 class PaddleNnet : public NnetInterface {
   public:
     PaddleNnet(const ModelOptions& opts);
-    virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                             int32 feature_dim,
-                             kaldi::Vector<kaldi::BaseFloat>* inferences,
-                             int32* inference_dim);
-    void Dim();
+    virtual void FeedForward(const kaldi::Matrix<kaldi::BaseFloat>& features,
+                             kaldi::Matrix<kaldi::BaseFloat>* inferences);
     virtual void Reset();
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(
         const std::string& name);

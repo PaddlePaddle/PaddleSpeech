@@ -18,9 +18,16 @@ namespace ppspeech {
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
+using std::vector;
+using kaldi::Vector;
 
-Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet)
-    : frontend_(NULL), nnet_(nnet), finished_(false), frames_ready_(0) {}
+Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
+                     const std::shared_ptr<FeatureExtractorInterface>& frontend)
+    : frontend_(frontend),
+      nnet_(nnet),
+      finished_(false),
+      frame_offset_(0),
+      frames_ready_(0) {}
 
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
     frames_ready_ += likelihood.NumRows();
@@ -31,26 +38,46 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
 
 bool Decodable::IsLastFrame(int32 frame) const {
     CHECK_LE(frame, frames_ready_);
-    return finished_ && (frame == frames_ready_ - 1);
+    return IsInputFinished() && (frame == frames_ready_ - 1);
 }
 
 int32 Decodable::NumIndices() const { return 0; }
 
-BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) { return 0; }
-
-void Decodable::FeedFeatures(const Matrix<kaldi::BaseFloat>& features) {
-    nnet_->FeedForward(features, &nnet_cache_);
-    frames_ready_ += nnet_cache_.NumRows();
-    return;
+BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
+    CHECK_LE(index, nnet_cache_.NumCols());
+    return 0;
 }
 
-std::vector<BaseFloat> Decodable::FrameLogLikelihood(int32 frame) {
-    std::vector<BaseFloat> result;
-    result.reserve(nnet_cache_.NumCols());
-    for (int32 idx = 0; idx < nnet_cache_.NumCols(); ++idx) {
-        result[idx] = nnet_cache_(frame, idx);
+bool Decodable::EnsureFrameHaveComputed(int32 frame) {
+    if (frame >= frames_ready_) {
+        return AdvanceChunk();
     }
-    return result;
+    return true;
+}
+
+bool Decodable::AdvanceChunk() {
+    Vector<BaseFloat> features;
+    if (frontend_->Read(&features) == false) {
+        return false;
+    }
+    int32 nnet_dim = 0;
+    Vector<BaseFloat> inferences;
+    nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
+    nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
+    nnet_cache_.CopyRowsFromVec(inferences);
+    frame_offset_ = frames_ready_;
+    frames_ready_ += nnet_cache_.NumRows();
+    return true;
+}
+
+bool Decodable::FrameLogLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
+    std::vector<BaseFloat> result;
+    if (EnsureFrameHaveComputed(frame) == false) return false;
+    likelihood->resize(nnet_cache_.NumCols());
+    for (int32 idx = 0; idx < nnet_cache_.NumCols(); ++idx) {
+        (*likelihood)[idx] = nnet_cache_(frame - frame_offset_, idx);
+    }
+    return true;
 }
 
 void Decodable::Reset() {

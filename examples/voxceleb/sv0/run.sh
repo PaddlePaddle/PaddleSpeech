@@ -18,7 +18,7 @@ set -e
 
 #######################################################################
 # stage 0: data prepare, including voxceleb1 download and generate {train,dev,enroll,test}.csv
-#          voxceleb2 data is m4a format, so we need user to convert the m4a to wav yourselves as described in Readme.md
+#          voxceleb2 data is m4a format, so we need user to convert the m4a to wav yourselves as described in Readme.md with the script local/convert.sh
 # stage 1: train the speaker identification model
 # stage 2: test speaker identification 
 # stage 3: extract the training embeding to train the LDA and PLDA
@@ -30,49 +30,39 @@ set -e
 # and put all of them to ${PPAUDIO_HOME}/datasets/vox2
 # we will find the wav from ${PPAUDIO_HOME}/datasets/vox1/wav and ${PPAUDIO_HOME}/datasets/vox2/wav
 # export PPAUDIO_HOME=
-
 stage=0
+stop_stage=50
+
 # data directory
 # if we set the variable ${dir}, we will store the wav info to this directory
 # otherwise, we will store the wav info to vox1 and vox2 directory respectively
-dir=data/                          
-exp_dir=exp/ecapa-tdnn/            # experiment directory
-
 # vox2 wav path, we must convert the m4a format to wav format 
-# and store them in the ${PPAUDIO_HOME}/datasets/vox2/wav/ directory
-vox2_base_path=${PPAUDIO_HOME}/datasets/vox2/wav/
-mkdir -p ${dir}
+# dir=data-demo/                          # data info directory    
+dir=demo/                          # data info directory   
+
+exp_dir=exp/ecapa-tdnn-vox12-big//            # experiment directory
+conf_path=conf/ecapa_tdnn.yaml          
+gpus=0,1,2,3
+
+source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
+
 mkdir -p ${exp_dir}
 
-if [ $stage -le 0 ]; then 
+if [ $stage -le 0 ] && [ ${stop_stage} -ge 0 ]; then 
      # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
-     python3 local/data_prepare.py \
-     --data-dir ${dir} --augment --vox2-base-path ${vox2_base_path} \
-     --config conf/ecapa_tdnn.yaml
+     # and we should specifiy the vox2 data in the data.sh
+     bash ./local/data.sh ${dir} ${conf_path}|| exit -1;
 fi 
 
-if [ $stage -le 1 ]; then
+if [ $stage -le 1 ] && [ ${stop_stage} -ge 1 ]; then
      # stage 1: train the speaker identification model
-     python3 \
-          -m paddle.distributed.launch --gpus=0,1,2,3 \
-          ${BIN_DIR}/train.py --device "gpu" --checkpoint-dir ${exp_dir} --augment \
-          --data-dir ${dir} --config conf/ecapa_tdnn.yaml
+     CUDA_VISIBLE_DEVICES=${gpus} bash ./local/train.sh ${dir} ${exp_dir} ${conf_path} 
 fi
 
 if [ $stage -le 2 ]; then
-     # stage 1: get the speaker verification scores with cosine function
-     python3 \
-          ${BIN_DIR}/speaker_verification_cosine.py\
-          --config conf/ecapa_tdnn.yaml \
-          --data-dir ${dir} --load-checkpoint ${exp_dir}/epoch_10/
-fi
-
-if [ $stage -le 3 ]; then
-     # stage 3: extract the audio embedding
-     python3 \
-          ${BIN_DIR}/extract_speaker_embedding.py\
-          --config conf/ecapa_tdnn.yaml \
-          --audio-path "demo/csv/00001.wav" --load-checkpoint ${exp_dir}/epoch_60/
+     # stage 2: get the speaker verification scores with cosine function
+     #          now we only support use cosine to get the scores
+     CUDA_VISIBLE_DEVICES=0 bash ./local/test.sh ${dir} ${exp_dir} ${conf_path}
 fi
 
 # if [ $stage -le 3 ]; then

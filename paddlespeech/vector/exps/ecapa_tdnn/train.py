@@ -21,8 +21,8 @@ from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
 from yacs.config import CfgNode
 
-from paddleaudio.paddleaudio.compliance.librosa import melspectrogram
-from paddleaudio.paddleaudio.datasets.voxceleb import VoxCeleb
+from paddleaudio.compliance.librosa import melspectrogram
+from paddleaudio.datasets.voxceleb import VoxCeleb
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.io.augment import waveform_augment
@@ -68,6 +68,8 @@ def main(args, config):
         backbone=ecapa_tdnn, num_class=VoxCeleb.num_speakers)
 
     # stage5: build the optimizer, we now only construct the AdamW optimizer
+    #         140000 is single gpu steps
+    #         so, in multi-gpu mode, wo reduce the step_size to 140000//nranks to enable CyclicLRScheduler
     lr_schedule = CyclicLRScheduler(
         base_lr=config.learning_rate, max_lr=1e-3, step_size=140000 // nranks)
     optimizer = paddle.optimizer.AdamW(
@@ -138,6 +140,10 @@ def main(args, config):
             waveforms, labels = batch['waveforms'], batch['labels']
 
             # stage 9-2: audio sample augment method, which is done on the audio sample point
+            #            the original wavefrom and the augmented waveform is concatented in a batch
+            #            eg. five augment method in the augment pipeline
+            #                the final data nums is batch_size * [five + one] 
+            #                -> five augmented waveform batch plus one original batch waveform
             if len(augment_pipeline) != 0:
                 waveforms = waveform_augment(waveforms, augment_pipeline)
                 labels = paddle.concat(
@@ -146,7 +152,11 @@ def main(args, config):
             # stage 9-3: extract the audio feats,such fbank, mfcc, spectrogram
             feats = []
             for waveform in waveforms.numpy():
-                feat = melspectrogram(x=waveform, **config.feature)
+                feat = melspectrogram(x=waveform, 
+                                      sr=config.sample_rate, 
+                                      n_mels=config.n_mels, 
+                                      window_size=config.window_size, 
+                                      hop_length=config.hop_length)
                 feats.append(feat)
             feats = paddle.to_tensor(np.asarray(feats))
 
@@ -205,7 +215,7 @@ def main(args, config):
             # stage 9-12: construct the valid dataset dataloader
             dev_sampler = BatchSampler(
                 dev_dataset,
-                batch_size=config.batch_size // 4,
+                batch_size=config.batch_size,
                 shuffle=False,
                 drop_last=False)
             dev_loader = DataLoader(
@@ -228,8 +238,11 @@ def main(args, config):
 
                     feats = []
                     for waveform in waveforms.numpy():
-                        # feat = melspectrogram(x=waveform, **cpu_feat_conf)
-                        feat = melspectrogram(x=waveform, **config.feature)
+                        feat = melspectrogram(x=waveform, 
+                                              sr=config.sample_rate,
+                                              n_mels=config.n_mels,
+                                              window_size=config.window_size,
+                                              hop_length=config.hop_length)
                         feats.append(feat)
 
                     feats = paddle.to_tensor(np.asarray(feats))

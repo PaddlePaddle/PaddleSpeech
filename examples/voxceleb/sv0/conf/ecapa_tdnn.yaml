@@ -1,7 +1,10 @@
 ###########################################
 #                Data                 #
 ###########################################
-batch_size: 32
+# we should explicitly specify the wav path of vox2 audio data converted from m4a
+vox2_base_path: 
+augment: True
+batch_size: 16
 num_workers: 2
 num_speakers: 7205 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
 shuffle: True
@@ -11,10 +14,10 @@ random_chunk: True
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
 # currently, we only support fbank
-feature:
-  n_mels: 80
-  window_size: 400     #25ms, sample rate 16000, 25 * 16000 / 1000 = 400 
-  hop_length: 160     #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
+sample_rate: 16000
+n_mels: 80
+window_size: 400     #25ms, sample rate 16000, 25 * 16000 / 1000 = 400 
+hop_length: 160     #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
 
 ###########################################################
 #                       MODEL SETTING                     #
@@ -35,6 +38,15 @@ model:
 ###########################################
 seed: 1986 # according from speechbrain configuration
 epochs: 10
-save_interval: 10
-log_interval: 10
+save_interval: 1
+log_interval: 1
 learning_rate: 1e-8
+
+
+###########################################
+#                Testing                  #
+###########################################
+global_embedding_norm: True
+embedding_mean_norm: True
+embedding_std_norm: False
+

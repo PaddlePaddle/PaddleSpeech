@@ -22,8 +22,8 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddleaudio.paddleaudio import load as load_audio
-from paddleaudio.paddleaudio.datasets.rirs_noises import OpenRIRNoise
+from paddleaudio import load as load_audio
+from paddleaudio.datasets.rirs_noises import OpenRIRNoise
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.signal_processing import compute_amplitude
 from paddlespeech.vector.io.signal_processing import convolve1d
@@ -879,14 +879,18 @@ def waveform_augment(waveforms: paddle.Tensor,
     """process the augment pipeline and return all the waveforms
 
     Args:
-        waveforms (paddle.Tensor): _description_
-        augment_pipeline (List[paddle.nn.Layer]): _description_
+        waveforms (paddle.Tensor): original batch waveform
+        augment_pipeline (List[paddle.nn.Layer]): agument pipeline process
 
     Returns:
-        paddle.Tensor: _description_
+        paddle.Tensor: all the audio waveform including the original waveform and augmented waveform
     """
+    # stage 0: store the original waveforms
     waveforms_aug_list = [waveforms]
+
+    # augment the original batch waveform
     for aug in augment_pipeline:
+        # stage 1: augment the data
         waveforms_aug = aug(waveforms)  # (N, L)
         if waveforms_aug.shape[1] >= waveforms.shape[1]:
             # Trunc
@@ -897,6 +901,8 @@ def waveform_augment(waveforms: paddle.Tensor,
             waveforms_aug = F.pad(
                 waveforms_aug.unsqueeze(-1), [0, lengths_to_pad],
                 data_format='NLC').squeeze(-1)
+        # stage 2: append the augmented waveform into the list
         waveforms_aug_list.append(waveforms_aug)
 
+    # get the all the waveforms
     return paddle.concat(waveforms_aug_list, axis=0)

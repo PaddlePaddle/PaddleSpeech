@@ -28,13 +28,8 @@ from tqdm import tqdm
 from ..backends import load as load_audio
 from ..utils import DATA_HOME
 from ..utils import decompress
+from ..utils.download import download_and_decompress
 from .dataset import feat_funcs
-from paddlespeech.s2t.utils.log import Log
-from paddlespeech.vector.utils.download import download_and_decompress
-from utils.utility import download
-from utils.utility import unpack
-
-logger = Log(__name__).getlog()
 
 __all__ = ['VoxCeleb']
 
@@ -138,9 +133,9 @@ class VoxCeleb(Dataset):
         # Download audio files.
         # We need the users to decompress all vox1/dev/wav and vox1/test/wav/ to vox1/wav/ dir
         # so, we check the vox1/wav dir status
-        logger.info(f"wav base path: {self.wav_path}")
+        print(f"wav base path: {self.wav_path}")
         if not os.path.isdir(self.wav_path):
-            logger.info(f"start to download the voxceleb1 dataset")
+            print(f"start to download the voxceleb1 dataset")
             download_and_decompress(  # multi-zip parts concatenate to vox1_dev_wav.zip
                 self.archieves_audio_dev,
                 self.base_path,
@@ -152,7 +147,7 @@ class VoxCeleb(Dataset):
 
             # Download all parts and concatenate the files into one zip file.
             dev_zipfile = os.path.join(self.base_path, 'vox1_dev_wav.zip')
-            logger.info(f'Concatenating all parts to: {dev_zipfile}')
+            print(f'Concatenating all parts to: {dev_zipfile}')
             os.system(
                 f'cat {os.path.join(self.base_path, "vox1_dev_wav_parta*")} > {dev_zipfile}'
             )
@@ -162,6 +157,7 @@ class VoxCeleb(Dataset):
 
         # Download meta files.
         if not os.path.isdir(self.meta_path):
+            print("prepare the meta data")
             download_and_decompress(
                 self.archieves_meta, self.meta_path, decompress=False)
 
@@ -171,7 +167,7 @@ class VoxCeleb(Dataset):
             self.prepare_data()
 
         data = []
-        logger.info(
+        print(
             f"read the {self.subset} from {os.path.join(self.csv_path, f'{self.subset}.csv')}"
         )
         with open(os.path.join(self.csv_path, f'{self.subset}.csv'), 'r') as rf:
@@ -266,8 +262,8 @@ class VoxCeleb(Dataset):
                      wav_files: List[str],
                      output_file: str,
                      split_chunks: bool=True):
-        logger.info(f'Generating csv: {output_file}')
-        header = ["id", "duration", "wav", "start", "stop", "spk_id"]
+        print(f'Generating csv: {output_file}')
+        header = ["ID", "duration", "wav", "start", "stop", "spk_id"]
         # Note: this may occurs c++ execption, but the program will execute fine
         # so we can ignore the execption 
         with Pool(cpu_count()) as p:
@@ -290,7 +286,7 @@ class VoxCeleb(Dataset):
 
     def prepare_data(self):
         # Audio of speakers in veri_test_file should not be included in training set.
-        logger.info("start to prepare the data csv file")
+        print("start to prepare the data csv file")
         enroll_files = set()
         test_files = set()
         # get the enroll and test audio file path
@@ -311,13 +307,13 @@ class VoxCeleb(Dataset):
         # get all the train and dev audios file path
         audio_files = []
         speakers = set()
+        print("Getting file list...")
         for path in [self.wav_path, self.vox2_base_path]:
             # if vox2 directory is not set and vox2 is not a directory 
             # we will not process this directory
             if not path or not os.path.exists(path):
-                logger.warning(
-                    f"{path} is an invalid path, please check again, "
-                    "and we will ignore the vox2 base path")
+                print(f"{path} is an invalid path, please check again, "
+                      "and we will ignore the vox2 base path")
                 continue
             for file in glob.glob(
                     os.path.join(path, "**", "*.wav"), recursive=True):
@@ -327,7 +323,7 @@ class VoxCeleb(Dataset):
                 speakers.add(spk)
                 audio_files.append(file)
 
-        logger.info(
+        print(
             f"start to generate the {os.path.join(self.meta_path, 'spk_id2label.txt')}"
         )
         # encode the train and dev speakers label to spk_id2label.txt

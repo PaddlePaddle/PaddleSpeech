@@ -14,10 +14,10 @@
 import argparse
 import os
 
-import numpy as np
 import paddle
+from yacs.config import CfgNode
 
-from paddleaudio.paddleaudio.datasets.voxceleb import VoxCeleb
+from paddleaudio.datasets.voxceleb import VoxCeleb
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.training.seeding import seed_everything
@@ -25,46 +25,47 @@ from paddlespeech.vector.training.seeding import seed_everything
 logger = Log(__name__).getlog()
 
 
-def main(args):
+def main(args, config):
 
     # stage0: set the cpu device, all data prepare process will be done in cpu mode
     paddle.set_device("cpu")
     # set the random seed, it is a must for multiprocess training
-    seed_everything(args.seed)
+    seed_everything(config.seed)
 
     # stage 1: generate the voxceleb csv file
     # Note: this may occurs c++ execption, but the program will execute fine
     # so we ignore the execption 
     # we explicitly pass the vox2 base path to data prepare and generate the audio info
+    logger.info("start to generate the voxceleb dataset info")
     train_dataset = VoxCeleb(
-        'train', target_dir=args.data_dir, vox2_base_path=args.vox2_base_path)
-    dev_dataset = VoxCeleb(
-        'dev', target_dir=args.data_dir, vox2_base_path=args.vox2_base_path)
+        'train', target_dir=args.data_dir, vox2_base_path=config.vox2_base_path)
 
     # stage 2: generate the augment noise csv file
-    if args.augment:
+    if config.augment:
+        logger.info("start to generate the augment dataset info")
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
 
 
 if __name__ == "__main__":
     # yapf: disable
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument("--seed",
-                        default=0,
-                        type=int,
-                        help="random seed for paddle, numpy and python random package")
     parser.add_argument("--data-dir",
                         default="./data/",
                         type=str,
                         help="data directory")
-    parser.add_argument("--vox2-base-path",
+    parser.add_argument("--config",
                         default=None,
                         type=str,
-                        help="vox2 base path, where is store the wav audio")
-    parser.add_argument("--augment",
-                        action="store_true",
-                        default=False,
-                        help="Apply audio augments.")
+                        help="configuration file")
     args = parser.parse_args()
     # yapf: enable
-    main(args)
+
+    # https://yaml.org/type/float.html
+    config = CfgNode(new_allowed=True)
+    if args.config:
+        config.merge_from_file(args.config)
+
+    config.freeze()
+    print(config)
+
+    main(args, config)

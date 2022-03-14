@@ -23,8 +23,8 @@ from paddle.io import DataLoader
 from tqdm import tqdm
 from yacs.config import CfgNode
 
-from paddleaudio.paddleaudio.datasets import VoxCeleb
-from paddleaudio.paddleaudio.metric import compute_eer
+from paddleaudio.datasets import VoxCeleb
+from paddleaudio.metric import compute_eer
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import batch_feature_normalize
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
@@ -48,6 +48,9 @@ def main(args, config):
         backbone=ecapa_tdnn, num_class=config.num_speakers)
 
     # stage3: load the pre-trained model
+    #         we get the last model from the epoch and save_interval
+    last_save_epoch = (config.epochs // config.save_interval) * config.save_interval
+    args.load_checkpoint = os.path.join(args.load_checkpoint, "epoch_" + str(last_save_epoch))
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
 
@@ -63,7 +66,9 @@ def main(args, config):
         target_dir=args.data_dir,
         feat_type='melspectrogram',
         random_chunk=False,
-        **config.feature)
+        n_mels=config.n_mels,
+        window_size=config.window_size,
+        hop_length=config.hop_length)
     enroll_sampler = BatchSampler(
         enroll_dataset, batch_size=config.batch_size,
         shuffle=True)  # Shuffle to make embedding normalization more robust.
@@ -73,13 +78,14 @@ def main(args, config):
                             x, mean_norm=True, std_norm=False),
                     num_workers=config.num_workers,
                     return_list=True,)
-
     test_dataset = VoxCeleb(
         subset='test',
         target_dir=args.data_dir,
         feat_type='melspectrogram',
         random_chunk=False,
-        **config.feature)
+        n_mels=config.n_mels,
+        window_size=config.window_size,
+        hop_length=config.hop_length)
 
     test_sampler = BatchSampler(
         test_dataset, batch_size=config.batch_size, shuffle=True)
@@ -89,19 +95,19 @@ def main(args, config):
                                 x, mean_norm=True, std_norm=False),
                             num_workers=config.num_workers,
                             return_list=True,)
-    # stage6: we must set the model to eval mode
+    # stage5: we must set the model to eval mode
     model.eval()
 
-    # stage7: global embedding norm to imporve the performance
-    print("global embedding norm: {}".format(args.global_embedding_norm))
-    if args.global_embedding_norm:
+    # stage6: global embedding norm to imporve the performance
+    logger.info(f"global embedding norm: {config.global_embedding_norm}")
+    if config.global_embedding_norm:
         global_embedding_mean = None
         global_embedding_std = None
-        mean_norm_flag = args.embedding_mean_norm
-        std_norm_flag = args.embedding_std_norm
+        mean_norm_flag = config.embedding_mean_norm
+        std_norm_flag = config.embedding_std_norm
         batch_count = 0
 
-    # stage8: Compute embeddings of audios in enrol and test dataset from model.
+    # stage7: Compute embeddings of audios in enrol and test dataset from model.
     id2embedding = {}
     # Run multi times to make embedding normalization more stable.
     for i in range(2):
@@ -121,7 +127,7 @@ def main(args, config):
                     # Global embedding normalization.
                     # if we use the global embedding norm
                     # eer can reduece about relative 10%
-                    if args.global_embedding_norm:
+                    if config.global_embedding_norm:
                         batch_count += 1
                         current_mean = embeddings.mean(
                             axis=0) if mean_norm_flag else 0
@@ -145,21 +151,22 @@ def main(args, config):
                     # Update embedding dict.
                     id2embedding.update(dict(zip(ids, embeddings)))
 
-    # stage 9: Compute cosine scores.
+    # stage 8: Compute cosine scores.
     labels = []
-    enrol_ids = []
+    enroll_ids = []
     test_ids = []
+    logger.info(f"read the trial from {VoxCeleb.veri_test_file}")
     with open(VoxCeleb.veri_test_file, 'r') as f:
         for line in f.readlines():
-            label, enrol_id, test_id = line.strip().split(' ')
+            label, enroll_id, test_id = line.strip().split(' ')
             labels.append(int(label))
-            enrol_ids.append(enrol_id.split('.')[0].replace('/', '--'))
-            test_ids.append(test_id.split('.')[0].replace('/', '--'))
+            enroll_ids.append(enroll_id.split('.')[0].replace('/', '-'))
+            test_ids.append(test_id.split('.')[0].replace('/', '-'))
 
     cos_sim_func = paddle.nn.CosineSimilarity(axis=1)
     enrol_embeddings, test_embeddings = map(lambda ids: paddle.to_tensor(
-        np.asarray([id2embedding[id] for id in ids], dtype='float32')),
-                                            [enrol_ids, test_ids
+        np.asarray([id2embedding[uttid] for uttid in ids], dtype='float32')),
+                                            [enroll_ids, test_ids
                                              ])  # (N, emb_size)
     scores = cos_sim_func(enrol_embeddings, test_embeddings)
     EER, threshold = compute_eer(np.asarray(labels), scores.numpy())
@@ -187,17 +194,6 @@ if __name__ == "__main__":
                         type=str,
                         default='',
                         help="Directory to load model checkpoint to contiune trainning.")
-    parser.add_argument("--global-embedding-norm",
-                        default=False,
-                        action="store_true",
-                        help="Apply global normalization on speaker embeddings.")
-    parser.add_argument("--embedding-mean-norm",
-                        default=True,
-                        help="Apply mean normalization on speaker embeddings.")
-    parser.add_argument("--embedding-std-norm",
-                        type=bool,
-                        default=False,
-                        help="Apply std normalization on speaker embeddings.")
     args = parser.parse_args()
     # yapf: enable
     # https://yaml.org/type/float.html

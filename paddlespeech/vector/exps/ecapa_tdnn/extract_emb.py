@@ -14,12 +14,13 @@
 import argparse
 import os
 
+import time
 import numpy as np
 import paddle
 from yacs.config import CfgNode
 
-from paddleaudio.paddleaudio.backends import load as load_audio
-from paddleaudio.paddleaudio.compliance.librosa import melspectrogram
+from paddleaudio.backends import load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
@@ -39,7 +40,7 @@ def extract_audio_embedding(args, config):
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage4: build the speaker verification train instance with backbone model
-    model = SpeakerIdetification(backbone=ecapa_tdnn, num_class=1211)
+    model = SpeakerIdetification(backbone=ecapa_tdnn, num_class=config.num_speakers)
     # stage 2: load the pre-trained model
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
@@ -60,7 +61,12 @@ def extract_audio_embedding(args, config):
     # feat type is numpy array, whose shape is [dim, time]
     # we need convert the audio feat to one-batch shape [batch, dim, time], where the batch is one
     # so the final shape is [1, dim, time]
-    feat = melspectrogram(x=waveform, **config.feature)
+    start_time = time.time()
+    feat = melspectrogram(x=waveform, 
+                          sr=config.sample_rate,
+                          n_mels=config.n_mels,
+                          window_size=config.window_size,
+                          hop_length=config.hop_length)
     feat = paddle.to_tensor(feat).unsqueeze(0)
 
     # in inference period, the lengths is all one without padding
@@ -71,9 +77,13 @@ def extract_audio_embedding(args, config):
     # model backbone network forward the feats and get the embedding
     embedding = model.backbone(
         feat, lengths).squeeze().numpy()  # (1, emb_size, 1) -> (emb_size)
+    elapsed_time = time.time() - start_time
+    audio_length = waveform.shape[0] / sr
+
 
     # stage 5: do global norm with external mean and std
-    # todo
+    rtf = elapsed_time / audio_length
+    logger.info(f"{args.device} rft={rtf}")
     return embedding
 
 
@@ -92,10 +102,6 @@ if __name__ == "__main__":
                         type=str,
                         default='',
                         help="Directory to load model checkpoint to contiune trainning.")
-    parser.add_argument("--global-embedding-norm",
-                        type=str,
-                        default=None,
-                        help="Apply global normalization on speaker embeddings.")
     parser.add_argument("--audio-path",
                         default="./data/demo.wav",
                         type=str,

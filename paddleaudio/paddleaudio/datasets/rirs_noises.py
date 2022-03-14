@@ -25,13 +25,10 @@ from tqdm import tqdm
 
 from ..backends import load as load_audio
 from ..backends import save as save_wav
-from .dataset import feat_funcs
 from ..utils import DATA_HOME
 from ..utils import decompress
-from paddlespeech.s2t.utils.log import Log
-from paddlespeech.vector.utils.download import download_and_decompress
-
-logger = Log(__name__).getlog()
+from ..utils.download import download_and_decompress
+from .dataset import feat_funcs
 
 __all__ = ['OpenRIRNoise']
 
@@ -80,17 +77,17 @@ class OpenRIRNoise(Dataset):
 
     def _get_data(self):
         # Download audio files.
-        logger.info(f"rirs noises base path: {self.base_path}")
+        print(f"rirs noises base path: {self.base_path}")
         if not os.path.isdir(self.base_path):
             download_and_decompress(
                 self.archieves, self.base_path, decompress=True)
         else:
-            logger.info(
+            print(
                 f"{self.base_path} already exists, we will not download and decompress again"
             )
 
         # Data preparation.
-        logger.info(f"prepare the csv to {self.csv_path}")
+        print(f"prepare the csv to {self.csv_path}")
         if not os.path.isdir(self.csv_path):
             os.makedirs(self.csv_path)
             self.prepare_data()
@@ -161,7 +158,7 @@ class OpenRIRNoise(Dataset):
                      wav_files: List[str],
                      output_file: str,
                      split_chunks: bool=True):
-        logger.info(f'Generating csv: {output_file}')
+        print(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav"]
 
         infos = list(

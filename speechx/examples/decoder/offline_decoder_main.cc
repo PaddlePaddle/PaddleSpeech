@@ -23,10 +23,10 @@
 #include "nnet/paddle_nnet.h"
 
 DEFINE_string(feature_respecifier, "", "test feature rspecifier");
-DEFINE_string(model_path, "avg_1.jit.pdmodel", "xxx.pdmodel");
-DEFINE_string(param_path, "avg_1.jit.pdiparams", "xxx.pdiparams");
-DEFINE_string(dict_file, "vocab.txt", "xxx.pdmodel");
-DEFINE_string(lm_path, "lm.klm", "xxx.pdiparams");
+DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
+DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
+DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
+DEFINE_string(lm_path, "lm.klm", "language model");
 
 
 using kaldi::BaseFloat;

@@ -26,7 +26,7 @@ class RawAudioCache : public FeatureExtractorInterface {
   public:
     explicit RawAudioCache(int buffer_size = kint16max);
     virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feat);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
     // the audio dim is 1
     virtual size_t Dim() const { return 1; }
     virtual void SetFinished() {

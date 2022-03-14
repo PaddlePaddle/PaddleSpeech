@@ -11,7 +11,7 @@ Audio retrieval (speech, music, speaker, etc.) enables querying and finding simi
 
 In this demo, you will learn how to build an audio retrieval system to retrieve similar sound snippets.  The uploaded audio clips are converted into vector data using paddlespeech-based pre-training models (audio classification model, speaker recognition model, etc.) and stored in Milvus.  Milvus automatically generates a unique ID for each vector, then stores the ID and the corresponding audio information (audio ID, audio speaker ID, etc.) in MySQL to complete the library construction.  During retrieval, users upload test audio to obtain vector, and then conduct vector similarity search in Milvus. The retrieval result returned by Milvus is vector ID, and the corresponding audio information can be queried in MySQL by ID
 
-![Workflow of an audio searching system](./img/audo_searching.png)
+![Workflow of an audio searching system](./img/audio_searching.png)
 
 Note：this demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least 650,000 audio entries and 3000 speakers to build the audio vector library, which is then retrieved using a preset distance calculation. The dataset can also use other,  Adjust as needed, e.g. Librispeech, VoxCeleb, UrbanSound, etc
 
@@ -31,6 +31,7 @@ Creating milvus-minio    ... done
 Creating milvus-etcd     ... done
 Creating audio-mysql     ... done
 Creating milvus-standalone ... done
+Creating audio-webclient     ... done
 ```
 
 And show all containers with `docker ps`, and you can use `docker logs audio-mysql` to get the logs of server container
@@ -41,7 +42,7 @@ b2bcf279e599  milvusdb/milvus:v2.0.1  "/tini -- milvus run…"  22 hours ago  Up
 d8ef4c84e25c  mysql:5.7 "docker-entrypoint.s…"  22 hours ago  Up 22 hours 0.0.0.0:3306->3306/tcp, 33060/tcp audio-mysql
 8fb501edb4f3  quay.io/coreos/etcd:v3.5.0  "etcd -advertise-cli…"  22 hours ago  Up 22 hours 2379-2380/tcp milvus-etcd
 ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"  22 hours ago  Up 22 hours (healthy) 9000/tcp  milvus-minio
-
+15c84a506754  iregistry.baidu-int.com/paddlespeech/audio-search-client:1.0  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
 ```
 
 ### 2. Start API Server
@@ -49,79 +50,112 @@ Then to start the system server, and it provides HTTP backend services.
 
 - Install the Python packages
 
-```bash
-pip install -r requirements.txt
-```
+  ```bash
+  pip install -r requirements.txt
+  ```
 - Set configuration
 
-```bash
-vim src/config.py
-```
+  ```bash
+  vim src/config.py
+  ```
 
-Modify the parameters according to your own environment. Here listing some parameters that need to be set, for more information please refer to [config.py](./src/config.py).
+  Modify the parameters according to your own environment. Here listing some parameters that need to be set, for more information please refer to [config.py](./src/config.py).
 
-| **Parameter**    | **Description**                                       | **Default setting** |
-| ---------------- | ----------------------------------------------------- | ------------------- |
-| MILVUS_HOST      | The IP address of Milvus, you can get it by ifconfig. If running everything on one machine, most likely 127.0.0.1 | 127.0.0.1           |
-| MILVUS_PORT      | Port of Milvus.                                       | 19530               |
-| VECTOR_DIMENSION | Dimension of the vectors.                             | 2048                |
-| MYSQL_HOST       | The IP address of Mysql.                              | 127.0.0.1           |
-| MYSQL_PORT       | Port of Milvus.                                       | 3306                |
-| DEFAULT_TABLE    | The milvus and mysql default collection name.         | audio_table          |
+  | **Parameter**    | **Description**                                       | **Default setting** |
+  | ---------------- | ----------------------------------------------------- | ------------------- |
+  | MILVUS_HOST      | The IP address of Milvus, you can get it by ifconfig. If running everything on one machine, most likely 127.0.0.1 | 127.0.0.1           |
+  | MILVUS_PORT      | Port of Milvus.                                       | 19530               |
+  | VECTOR_DIMENSION | Dimension of the vectors.                             | 2048                |
+  | MYSQL_HOST       | The IP address of Mysql.                              | 127.0.0.1           |
+  | MYSQL_PORT       | Port of Milvus.                                       | 3306                |
+  | DEFAULT_TABLE    | The milvus and mysql default collection name.         | audio_table          |
 
 - Run the code
 
-Then start the server with Fastapi.
+  Then start the server with Fastapi.
 
-```bash
-python src/main.py
-```
+  ```bash
+  python src/main.py
+  ```
 
-Then you will see the Application is started:
+  Then you will see the Application is started:
 
-```bash
-INFO:     Started server process [3949]
-2022-03-07 17:39:14,864 ｜ INFO ｜ server.py ｜ serve ｜ 75 ｜ Started server process [3949]
-INFO:     Waiting for application startup.
-2022-03-07 17:39:14,865 ｜ INFO ｜ on.py ｜ startup ｜ 45 ｜ Waiting for application startup.
-INFO:     Application startup complete.
-2022-03-07 17:39:14,866 ｜ INFO ｜ on.py ｜ startup ｜ 59 ｜ Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
-2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
-```
+  ```bash
+  INFO:     Started server process [3949]
+  2022-03-07 17:39:14,864 ｜ INFO ｜ server.py ｜ serve ｜ 75 ｜ Started server process [3949]
+  INFO:     Waiting for application startup.
+  2022-03-07 17:39:14,865 ｜ INFO ｜ on.py ｜ startup ｜ 45 ｜ Waiting for application startup.
+  INFO:     Application startup complete.
+  2022-03-07 17:39:14,866 ｜ INFO ｜ on.py ｜ startup ｜ 59 ｜ Application startup complete.
+  INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+  2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+  ```
 
 ### 3. Usage
 - Prepare data
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  Note: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it download 20 audio files , Subsequent results show this collection as an example
+  Note: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it downloads 20 audio files , Subsequent results show this collection as an example
  
- - Run
-  The internal process is downloading data, loading the Paddlespeech model, extracting embedding, storing library, retrieving and deleting library  
-  ```bash
-  python ./src/test_main.py
-  ```
+ - scripts test (recommend!)
 
-  Output：
-  ```bash
-  Checkpoint path: %your model path%
-  Extracting feature from audio No. 1 , 20 audios in total
-  Extracting feature from audio No. 2 , 20 audios in total
-  ...
-  2022-03-09 17:22:13,870 ｜ INFO ｜ main.py ｜ load_audios ｜ 85 ｜ Successfully loaded data, total count: 20
-  2022-03-09 17:22:13,898 ｜ INFO ｜ main.py ｜ count_audio ｜ 147 ｜ Successfully count the number of data!
-  2022-03-09 17:22:13,918 ｜ INFO ｜ main.py ｜ audio_path ｜ 57 ｜ Successfully load audio: ./example_audio/test.wav
-  ...
-  2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/test.wav, distance 0.0
-  2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/knife_chopping.wav, distance 0.021805256605148315
-  2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/knife_cut_into_flesh.wav, distance 0.052762262523174286
-  ...
-  2022-03-09 17:22:32,582 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 135 ｜ Successfully searched similar audio!
-  2022-03-09 17:22:33,658 ｜ INFO ｜ main.py ｜ drop_tables ｜ 159 ｜ Successfully drop tables in Milvus and MySQL!
-  ```
+    The internal process is downloading data, loading the Paddlespeech model, extracting embedding, storing library, retrieving and deleting library  
+    ```bash
+    python ./src/test_main.py
+    ```
 
-### 4.Pretrained Models
+    Output：
+    ```bash
+    Checkpoint path: %your model path%
+    Extracting feature from audio No. 1 , 20 audios in total
+    Extracting feature from audio No. 2 , 20 audios in total
+    ...
+    2022-03-09 17:22:13,870 ｜ INFO ｜ main.py ｜ load_audios ｜ 85 ｜ Successfully loaded data, total count: 20
+    2022-03-09 17:22:13,898 ｜ INFO ｜ main.py ｜ count_audio ｜ 147 ｜ Successfully count the number of data!
+    2022-03-09 17:22:13,918 ｜ INFO ｜ main.py ｜ audio_path ｜ 57 ｜ Successfully load audio: ./example_audio/test.wav
+    ...
+    2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/test.wav, distance 0.0
+    2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/knife_chopping.wav, distance 0.021805256605148315
+    2022-03-09 17:22:32,580 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 131 ｜ search result http://testserver/data?audio_path=./example_audio/knife_cut_into_flesh.wav, distance 0.052762262523174286
+    ...
+    2022-03-09 17:22:32,582 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 135 ｜ Successfully searched similar audio!
+    2022-03-09 17:22:33,658 ｜ INFO ｜ main.py ｜ drop_tables ｜ 159 ｜ Successfully drop tables in Milvus and MySQL!
+    ```
+- GUI test (optional)
+  
+    Navigate to 127.0.0.1:8068 in your browser to access the front-end interface.
+    - Insert data
+
+      Download the data and decompress it to a path named /home/speech/data. Then enter /home/speech/data in the address bar of the upload page to upload the data  
+    
+      ![](./img/insert.png)
+
+    - Search for similar audio
+
+      Select the magnifying glass icon on the left side of the interface. Then, press the "Default Target Audio File" button and upload a .wav sound file you'd like to search. Results will be displayed
+
+      ![](./img/search.png)
+
+### 4.Result
+
+ machine configuration：
+- OS: CentOS release 7.6 
+- kernel：4.17.11-1.el7.elrepo.x86_64
+- CPU：Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz 
+- memory：132G
+
+dataset：
+- CN-Celeb, train size 650,000, test size 10,000, dimention 256, distance L2
+
+recall and elapsed time statistics are shown in the following figure：
+
+  ![](./img/result.png)
+
+
+Compared with other algorithms, the retrieval framework based on Milvus ranks in the middle in terms of speed and performance. Under the premise of 90% recall rate, the retrieval time is about 2.9 milliseconds, which can meet most application scenarios
+
+### 5.Pretrained Models
 
 Here is a list of pretrained models released by PaddleSpeech :
 

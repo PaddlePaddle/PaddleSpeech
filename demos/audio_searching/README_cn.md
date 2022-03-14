@@ -12,9 +12,9 @@
 
 在本 demo 中，你将学会如何构建一个音频检索系统，用来检索相似的声音片段。使用基于 PaddleSpeech 预训练模型（音频分类模型，说话人识别模型等）将上传的音频片段转换为向量数据，并存储在 Milvus 中。Milvus 自动为每个向量生成唯一的 ID，然后将 ID 和 相应的音频信息（音频id，音频的说话人id等等）存储在 MySQL，这样就完成建库的工作。用户在检索时，上传测试音频，得到向量，然后在 Milvus 中进行向量相似度搜索，Milvus 返回的检索结果为向量 ID，通过 ID 在 MySQL 内部查询相应的音频信息即可
 
-![音频检索程图](./img/audio_searching.png)
+![音频检索流程图](./img/audio_searching.png)
 
-注：该 demo 使用 [CN-Celeb](http://openslr.org/82/) 数据集，包括至少 650000 条音频，3000 个说话人，来建立音频向量库（音频特征，或音频说话人特征），然后通过预设的距离计算方式进行音频（或说话人）检索，这里面数据集也可以使用其他的，根据需要调整，如Librispeech，VoxCeleb，UrbanSound等
+注：该 demo 使用 [CN-Celeb](http://openslr.org/82/) 数据集，包括至少 650000 条音频，3000 个说话人，来建立音频向量库（音频特征，或音频说话人特征），然后通过预设的距离计算方式进行音频（或说话人）检索，这里面数据集也可以使用其他的，根据需要调整，如Librispeech，VoxCeleb，UrbanSound，GloVe，MNIST等
 
 ## 使用方法
 ### 1. MySQL 和 Milvus 安装
@@ -129,13 +129,34 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
     在浏览器中输入 127.0.0.1:8068 访问前端页面
     - 上传音频
     
+      下载数据并解压到一文件夹，假设为 /home/speech/data，那么在上传页面地址栏输入 /home/speech/data 进行数据上传
+    
       ![](./img/insert.png)
 
     - 检索相似音频
 
+      选择左上角放大镜，点击 “Default Target Audio File” 按钮，上传测试音频，接着你将看到检索结果
+
       ![](./img/search.png)
 
-### 4. 预训练模型
+### 4. 结果
+
+机器配置：
+- 操作系统: CentOS release 7.6 
+- 内核：4.17.11-1.el7.elrepo.x86_64
+- 处理器：Intel(R) Xeon(R) CPU E5-2620 v4 @ 2.10GHz 
+- 内存：132G
+
+数据集：
+- CN-Celeb, 训练集 65万, 测试集 1万，向量维度 256，距离 L2
+
+召回和耗时统计如下图：
+
+  ![](./img/result.png)
+
+和其他算法比较，基于 milvus 的检索框架在速度与性能排名居中，在召回率 90% 的前提下，检索耗时约 2.9 毫秒，可以满足大多数应用场景
+
+### 5. 预训练模型
 
 以下是 PaddleSpeech 提供的预训练模型列表：
 

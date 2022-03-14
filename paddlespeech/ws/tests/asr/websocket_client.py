@@ -9,7 +9,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the 
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 #!/usr/bin/env python3
 #! coding:utf-8
@@ -30,10 +31,9 @@ class ASRAudioHandler:
         self.port = port
         self.url = "ws://" + self.url + ":" + str(self.port) + "/ws/asr"
         self.chunk = 0.36
-        # self.ws = websockets.connect('ws://szth-yc2-bce-ai2b-audio-727611.szth.baidu.com:8310')
 
     # def read_wave(self):
-    #     audio = wave.open("/Users/zhangyinhui/Downloads/ffmpeg_audio-16k.wav", "rb")
+    #     audio = wave.open("./Downloads/ffmpeg_audio-16k.wav", "rb")
     #     params = audio.getparams()
     #     nchannels, sampwidth, framerate, samplenum = params[:4]
     #     self.audio_data = np.frombuffer(audio.readframes(samplenum), np.int16)

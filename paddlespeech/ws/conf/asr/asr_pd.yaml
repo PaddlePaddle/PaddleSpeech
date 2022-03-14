@@ -5,7 +5,7 @@
 #                  ACOUSTIC MODEL SETTING                        #
 # am choices=['deepspeech2offline_aishell'] TODO
 ##################################################################
-model_type: 'deepspeech2offline_aishell'
+model_type: 'deepspeech2online_aishell'
 am_model: # the pdmodel file of am static model [optional]
 am_params:  # the pdiparams file of am static model [optional]
 lang: 'zh'

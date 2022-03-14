@@ -15,6 +15,9 @@ import io
 import os
 import time
 from typing import Optional
+import pickle
+import numpy as np
+from numpy import float32
 
 import paddle
 from yacs.config import CfgNode
@@ -33,19 +36,19 @@ from paddlespeech.server.utils.paddle_predictor import run_model
 __all__ = ['ASREngine']
 
 pretrained_models = {
-    "deepspeech2offline_aishell-zh-16k": {
+    "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
         'md5':
-        '932c3593d62fe5c741b59b31318aa314',
+        'd5e076217cf60486519f72c217d21b9b',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
-        'exp/deepspeech2/checkpoints/avg_1',
+        'exp/deepspeech2_online/checkpoints/avg_1',
         'model':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdmodel',
+        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
         'params':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdiparams',
+        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
         'lm_url':
         'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
         'lm_md5':
@@ -136,37 +139,85 @@ class ASRServerExecutor(ASRExecutor):
             reduction=True,  # sum
             batch_average=True,  # sum / batch_size
             grad_norm_type=self.config.get('ctc_grad_norm_type', None))
-
-    @paddle.no_grad()
-    def infer(self, model_type: str):
-        """
-        Model inference and result stored in self.output.
-        """
+        
+        # init decoder
         cfg = self.config.decode
-        audio = self._inputs["audio"]
-        audio_len = self._inputs["audio_len"]
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-            decode_batch_size = audio.shape[0]
-            # init once
-            self.decoder.init_decoder(
-                decode_batch_size, self.text_feature.vocab_list,
-                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
-                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
-                cfg.num_proc_bsearch)
+        decode_batch_size = 1      # for online
+        self.decoder.init_decoder(
+            decode_batch_size, self.text_feature.vocab_list,
+            cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
+            cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
+            cfg.num_proc_bsearch)
 
-            output_data = run_model(self.am_predictor,
-                                    [audio.numpy(), audio_len.numpy()])
+        # init state box
+        self.chunk_state_h_box = np.zeros(
+            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+            dtype=float32)
+        self.chunk_state_c_box = np.zeros(
+            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+            dtype=float32)
 
-            probs = output_data[0]
-            eouts_len = output_data[1]
+    def reset_decoder_and_chunk(self):
+        """reset decoder and chunk state for an new audio
+        """
+        self.decoder.reset_decoder(batch_size=1)
+        # init state box, for new audio request
+        self.chunk_state_h_box = np.zeros(
+            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+            dtype=float32)
+        self.chunk_state_c_box = np.zeros(
+            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+            dtype=float32)
 
-            batch_size = probs.shape[0]
-            self.decoder.reset_decoder(batch_size=batch_size)
-            self.decoder.next(probs, eouts_len)
+    def decode_one_chunk(self, x_chunk, x_chunk_lens, model_type: str):
+        """decode one chunk
+
+        Args:
+            x_chunk (numpy.array): shape[B, T, D]
+            x_chunk_lens (numpy.array): shape[B]
+            model_type (str): online model type
+
+        Returns:
+            [type]: [description]
+        """
+        if "deepspeech2online" in model_type :
+            input_names = self.am_predictor.get_input_names()
+            audio_handle = self.am_predictor.get_input_handle(input_names[0])
+            audio_len_handle = self.am_predictor.get_input_handle(input_names[1])
+            h_box_handle = self.am_predictor.get_input_handle(input_names[2])
+            c_box_handle = self.am_predictor.get_input_handle(input_names[3])
+
+            audio_handle.reshape(x_chunk.shape)
+            audio_handle.copy_from_cpu(x_chunk)
+
+            audio_len_handle.reshape(x_chunk_lens.shape)
+            audio_len_handle.copy_from_cpu(x_chunk_lens)
+
+            h_box_handle.reshape(self.chunk_state_h_box.shape)
+            h_box_handle.copy_from_cpu(self.chunk_state_h_box)
+
+            c_box_handle.reshape(self.chunk_state_c_box.shape)
+            c_box_handle.copy_from_cpu(self.chunk_state_c_box)
+
+            output_names = self.am_predictor.get_output_names()
+            output_handle = self.am_predictor.get_output_handle(output_names[0])
+            output_lens_handle = self.am_predictor.get_output_handle(output_names[1])
+            output_state_h_handle = self.am_predictor.get_output_handle(
+                output_names[2])
+            output_state_c_handle = self.am_predictor.get_output_handle(
+                output_names[3])
+
+            self.am_predictor.run()
+
+            output_chunk_probs = output_handle.copy_to_cpu()
+            output_chunk_lens = output_lens_handle.copy_to_cpu()
+            self.chunk_state_h_box = output_state_h_handle.copy_to_cpu()
+            self.chunk_state_c_box = output_state_c_handle.copy_to_cpu()
+
+            self.decoder.next(output_chunk_probs, output_chunk_lens)
             trans_best, trans_beam = self.decoder.decode()
 
-            # self.model.decoder.del_decoder()
-            self._outputs["result"] = trans_best[0]
+            return trans_best[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
             raise Exception("invalid model name")
@@ -211,31 +262,65 @@ class ASREngine(BaseEngine):
         logger.info("Initialize ASR server engine successfully.")
         return True
 
-    def run(self, audio_data):
-        """engine run 
+    def run(self, x_chunk, x_chunk_lens, decoder_chunk_size=1):
+        """run online engine
 
         Args:
-            audio_data (bytes): base64.b64decode
+            x_chunk (numpy.array): shape[B, T, D]
+            x_chunk_lens (numpy.array): shape[B]
+            decoder_chunk_size(int)
         """
-        if self.executor._check(
-                io.BytesIO(audio_data), self.config.sample_rate,
-                self.config.force_yes):
-            logger.info("start running asr engine")
-            self.executor.preprocess(self.config.model_type,
-                                     io.BytesIO(audio_data))
-            st = time.time()
-            self.executor.infer(self.config.model_type)
-            infer_time = time.time() - st
-            self.output = self.executor.postprocess()  # Retrieve result of asr.
-            logger.info("end inferring asr engine")
-        else:
-            logger.info("file check failed!")
-            self.output = None
-
-        logger.info("inference time: {}".format(infer_time))
+        self.output = self.executor.decode_one_chunk(x_chunk, x_chunk_lens, self.config.model_type)
         logger.info("asr engine type: paddle inference")
 
     def postprocess(self):
         """postprocess
         """
         return self.output
+
+
+if __name__ == "__main__":
+    engine = ASREngine()
+    engine.init('../../../conf/asr/asr_pd.yaml')
+
+    import numpy as np
+    import pickle
+    with open("./data.pickle", "rb") as f:
+        data_dict = pickle.load(f)
+    audio = data_dict["audio"]
+    audio_len = data_dict["audio_len"]
+    decoder_chunk_size = 1
+
+    x = audio
+    x_len = audio_len
+    x_len = x_len[0]
+
+    subsampling_rate = 4
+    receptive_field_length = 2 * (
+        3 - 1) + 3  # stride_1 * (kernel_size_2 - 1) + kerel_size_1
+
+    chunk_stride = subsampling_rate * decoder_chunk_size
+    chunk_size = (decoder_chunk_size - 1
+                ) * subsampling_rate + receptive_field_length
+
+    padding_len_x = 0
+    num_chunk = (x_len + padding_len_x - chunk_size) / chunk_stride + 1
+    num_chunk = int(num_chunk)
+    padded_x = x
+
+    for i in range(0, num_chunk):
+        start = i * chunk_stride
+        end = start + chunk_size
+        x_chunk = padded_x[:, start:end, :]
+        if x_len < i * chunk_stride:
+            x_chunk_lens = 0
+        else:
+            x_chunk_lens = min(x_len - i * chunk_stride, chunk_size)
+        #means the number of input frames in the chunk is not enough for predicting one prob
+        if (x_chunk_lens < receptive_field_length):
+            break
+        x_chunk_lens = np.array([x_chunk_lens])
+
+        x_chunk_res = engine.run(x_chunk, x_chunk_lens)
+        output_res = engine.postprocess()
+        print(output_res)

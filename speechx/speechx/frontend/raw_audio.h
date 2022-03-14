@@ -18,6 +18,8 @@
 #include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
 
+#pragma once
+
 namespace ppspeech {
 
 class RawAudioCache : public FeatureExtractorInterface {
@@ -45,13 +47,12 @@ class RawAudioCache : public FeatureExtractorInterface {
     DISALLOW_COPY_AND_ASSIGN(RawAudioCache);
 };
 
-// it is a data source to test different frontend module.
-// it Accepts waves or feats. 
-class RawDataCache: public FeatureExtractorInterface {
+// it is a datasource for testing different frontend module.
+// it accepts waves or feats.
+class RawDataCache : public FeatureExtractorInterface {
   public:
     explicit RawDataCache() { finished_ = false; }
-    virtual void Accept(
-        const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
         data_ = inputs;
     }
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
@@ -62,14 +63,15 @@ class RawDataCache: public FeatureExtractorInterface {
         data_.Resize(0);
         return true;
     }
-    //the dim is data_ length
-    virtual size_t Dim() const { return data_.Dim(); }
+    virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { finished_ = true; }
     virtual bool IsFinished() const { return finished_; }
+    void SetDim(int32 dim) { dim_ = dim; }
 
   private:
     kaldi::Vector<kaldi::BaseFloat> data_;
     bool finished_;
+    int32 dim_;
 
     DISALLOW_COPY_AND_ASSIGN(RawDataCache);
 };

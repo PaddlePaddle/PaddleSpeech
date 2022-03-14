@@ -24,25 +24,35 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(const std::shared_ptr<NnetInterface>& nnet);
+    explicit Decodable(
+        const std::shared_ptr<NnetInterface>& nnet,
+        const std::shared_ptr<FeatureExtractorInterface>& frontend);
     // void Init(DecodableOpts config);
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
     virtual bool IsLastFrame(int32 frame) const;
     virtual int32 NumIndices() const;
-    virtual std::vector<BaseFloat> FrameLogLikelihood(int32 frame);
-    void Acceptlikelihood(
-        const kaldi::Matrix<kaldi::BaseFloat>& likelihood);  // remove later
-    void FeedFeatures(const kaldi::Matrix<kaldi::BaseFloat>&
-                          feature);  // only for test, todo remove later
+    virtual bool FrameLogLikelihood(int32 frame,
+                                    std::vector<kaldi::BaseFloat>* likelihood);
+    // for offline test
+    void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
     void Reset();
-    void InputFinished() { finished_ = true; }
+    bool IsInputFinished() const { return frontend_->IsFinished(); }
+    bool EnsureFrameHaveComputed(int32 frame);
 
   private:
+    bool AdvanceChunk();
     std::shared_ptr<FeatureExtractorInterface> frontend_;
     std::shared_ptr<NnetInterface> nnet_;
     kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
+    // std::vector<std::vector<kaldi::BaseFloat>> nnet_cache_;
     bool finished_;
+    int32 frame_offset_;
     int32 frames_ready_;
+    // todo: feature frame mismatch with nnet inference frame
+    // eg: 35 frame features output 8 frame inferences
+    // so use subsampled_frame
+    int32 current_log_post_subsampled_offset_;
+    int32 num_chunk_computed_;
 };
 
 }  // namespace ppspeech

@@ -17,21 +17,21 @@
 #include "base/flags.h"
 #include "base/log.h"
 #include "decoder/ctc_beam_search_decoder.h"
+#include "frontend/raw_audio.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
 
-DEFINE_string(feature_respecifier, "", "test nnet prob");
+DEFINE_string(feature_respecifier, "", "test feature rspecifier");
+DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
+DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
+DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
+DEFINE_string(lm_path, "lm.klm", "language model");
+
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
-
-// void SplitFeature(kaldi::Matrix<BaseFloat> feature,
-//                  int32 chunk_size,
-//                  std::vector<kaldi::Matrix<BaseFloat>* feature_chunks) {
-
-//}
 
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -39,28 +39,53 @@ int main(int argc, char* argv[]) {
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_respecifier);
+    std::string model_graph = FLAGS_model_path;
+    std::string model_params = FLAGS_param_path;
+    std::string dict_file = FLAGS_dict_file;
+    std::string lm_path = FLAGS_lm_path;
 
-    // test nnet_output --> decoder result
     int32 num_done = 0, num_err = 0;
 
     ppspeech::CTCBeamSearchOptions opts;
+    opts.dict_file = dict_file;
+    opts.lm_path = lm_path;
     ppspeech::CTCBeamSearch decoder(opts);
 
     ppspeech::ModelOptions model_opts;
+    model_opts.model_path = model_graph;
+    model_opts.params_path = model_params;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
-
+    std::shared_ptr<ppspeech::RawDataCache> raw_data(
+        new ppspeech::RawDataCache());
     std::shared_ptr<ppspeech::Decodable> decodable(
-        new ppspeech::Decodable(nnet));
+        new ppspeech::Decodable(nnet, raw_data));
 
-    // int32 chunk_size = 35;
+    int32 chunk_size = 35;
     decoder.InitDecoder();
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
         const kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
-        decodable->FeedFeatures(feature);
-        decoder.AdvanceDecode(decodable, 8);
-        decodable->InputFinished();
+        raw_data->SetDim(feature.NumCols());
+        int32 row_idx = 0;
+        int32 num_chunks = feature.NumRows() / chunk_size;
+        for (int chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
+            kaldi::Vector<kaldi::BaseFloat> feature_chunk(chunk_size *
+                                                          feature.NumCols());
+            for (int row_id = 0; row_id < chunk_size; ++row_id) {
+                kaldi::SubVector<kaldi::BaseFloat> tmp(feature, row_idx);
+                kaldi::SubVector<kaldi::BaseFloat> f_chunk_tmp(
+                    feature_chunk.Data() + row_id * feature.NumCols(),
+                    feature.NumCols());
+                f_chunk_tmp.CopyFromVec(tmp);
+                row_idx++;
+            }
+            raw_data->Accept(feature_chunk);
+            if (chunk_idx == num_chunks - 1) {
+                raw_data->SetFinished();
+            }
+            decoder.AdvanceDecode(decodable);
+        }
         std::string result;
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;

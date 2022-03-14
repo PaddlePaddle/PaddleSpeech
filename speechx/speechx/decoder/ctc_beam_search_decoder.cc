@@ -79,21 +79,19 @@ void CTCBeamSearch::Decode(
     return;
 }
 
-int32 CTCBeamSearch::NumFrameDecoded() { return num_frame_decoded_; }
+int32 CTCBeamSearch::NumFrameDecoded() { return num_frame_decoded_ + 1; }
 
 // todo rename, refactor
 void CTCBeamSearch::AdvanceDecode(
-    const std::shared_ptr<kaldi::DecodableInterface>& decodable,
-    int max_frames) {
-    while (max_frames > 0) {
+    const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
+    while (1) {
         vector<vector<BaseFloat>> likelihood;
-        if (decodable->IsLastFrame(NumFrameDecoded() + 1)) {
-            break;
-        }
-        likelihood.push_back(
-            decodable->FrameLogLikelihood(NumFrameDecoded() + 1));
+        vector<BaseFloat> frame_prob;
+        bool flag =
+            decodable->FrameLogLikelihood(num_frame_decoded_, &frame_prob);
+        if (flag == false) break;
+        likelihood.push_back(frame_prob);
         AdvanceDecoding(likelihood);
-        max_frames--;
     }
 }
 

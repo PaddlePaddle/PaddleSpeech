@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
 
     int32 chunk_size = 35;
     decoder.InitDecoder();
+
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
         const kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
@@ -90,6 +91,7 @@ int main(int argc, char* argv[]) {
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;
         decodable->Reset();
+        decoder.Reset();
         ++num_done;
     }
 

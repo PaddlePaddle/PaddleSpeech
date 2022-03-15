@@ -52,6 +52,9 @@ class DecibelNormalizer : public FeatureExtractorInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    virtual void Reset() {
+        base_extractor_->Reset();
+    }
 
   private:
     bool Compute(kaldi::VectorBase<kaldi::BaseFloat>* waves) const;
@@ -76,6 +79,9 @@ class CMVN : public FeatureExtractorInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    virtual void Reset() {
+        base_extractor_->Reset();
+    }
 
   private:
     void Compute(kaldi::VectorBase<kaldi::BaseFloat>* feats) const;

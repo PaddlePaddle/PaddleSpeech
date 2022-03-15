@@ -11,25 +11,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import glob
+import os
+
 import setuptools
 from setuptools.command.install import install
-from setuptools.command.test import test as TestCommand
+from setuptools.command.test import test
 
 # set the version here
 VERSION = '0.2.0'
 
 
 # Inspired by the example at https://pytest.org/latest/goodpractises.html
-class NoseTestCommand(TestCommand):
+class TestCommand(test):
     def finalize_options(self):
-        TestCommand.finalize_options(self)
+        test.finalize_options(self)
         self.test_args = []
         self.test_suite = True
+
+    def run(self):
+        self.run_benchmark()
+        super(TestCommand, self).run()
 
     def run_tests(self):
         # Run nose ensuring that argv simulates running nosetests directly
         import nose
         nose.run_exit(argv=['nosetests', '-w', 'tests'])
+
+    def run_benchmark(self):
+        for benchmark_item in glob.glob('tests/benchmark/*py'):
+            os.system(f'pytest {benchmark_item}')
 
 
 class InstallCommand(install):
@@ -84,11 +95,11 @@ setuptools.setup(
     ],
     setup_requires=[
         'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1',
-        'torchaudio==0.10.2'
+        'torchaudio==0.10.2', 'pytest-benchmark'
     ],
     cmdclass={
         'install': InstallCommand,
-        'test': NoseTestCommand,
+        'test': TestCommand,
     }, )
 
 remove_version_py()

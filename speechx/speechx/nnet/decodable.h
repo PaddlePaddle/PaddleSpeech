@@ -45,7 +45,6 @@ class Decodable : public kaldi::DecodableInterface {
     std::shared_ptr<NnetInterface> nnet_;
     kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
     // std::vector<std::vector<kaldi::BaseFloat>> nnet_cache_;
-    bool finished_;
     int32 frame_offset_;
     int32 frames_ready_;
     // todo: feature frame mismatch with nnet inference frame

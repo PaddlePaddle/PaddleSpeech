@@ -48,25 +48,6 @@ bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* waves) {
     return true;
 }
 
-// todo remove later
-void CopyVector2StdVector(const kaldi::VectorBase<BaseFloat>& input,
-                          vector<BaseFloat>* output) {
-    if (input.Dim() == 0) return;
-    output->resize(input.Dim());
-    for (size_t idx = 0; idx < input.Dim(); ++idx) {
-        (*output)[idx] = input(idx);
-    }
-}
-
-void CopyStdVector2Vector(const vector<BaseFloat>& input,
-                          VectorBase<BaseFloat>* output) {
-    if (input.empty()) return;
-    assert(input.size() == output->Dim());
-    for (size_t idx = 0; idx < input.size(); ++idx) {
-        (*output)(idx) = input[idx];
-    }
-}
-
 bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
     // calculate db rms
     BaseFloat rms_db = 0.0;
@@ -107,7 +88,7 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
         item *= std::pow(10.0, gain / 20.0);
     }
 
-    CopyStdVector2Vector(samples, waves);
+    std::memcpy(waves->Data(), samples.data(), sizeof(BaseFloat)*samples.size());
     return true;
 }
 

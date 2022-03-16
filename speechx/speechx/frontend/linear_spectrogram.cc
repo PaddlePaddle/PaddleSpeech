@@ -25,25 +25,6 @@ using kaldi::VectorBase;
 using kaldi::Matrix;
 using std::vector;
 
-// todo remove later
-void CopyVector2StdVector_(const VectorBase<BaseFloat>& input,
-                           vector<BaseFloat>* output) {
-    if (input.Dim() == 0) return;
-    output->resize(input.Dim());
-    for (size_t idx = 0; idx < input.Dim(); ++idx) {
-        (*output)[idx] = input(idx);
-    }
-}
-
-void CopyStdVector2Vector_(const vector<BaseFloat>& input,
-                           Vector<BaseFloat>* output) {
-    if (input.empty()) return;
-    output->Resize(input.size());
-    for (size_t idx = 0; idx < input.size(); ++idx) {
-        (*output)(idx) = input[idx];
-    }
-}
-
 LinearSpectrogram::LinearSpectrogram(
     const LinearSpectrogramOptions& opts,
     std::unique_ptr<FeatureExtractorInterface> base_extractor) {
@@ -76,7 +57,8 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* feats) {
     if (flag == false || input_feats.Dim() == 0) return false;
 
     vector<BaseFloat> input_feats_vec(input_feats.Dim());
-    CopyVector2StdVector_(input_feats, &input_feats_vec);
+    std::memcpy(input_feats_vec.data(), input_feats.Data(), 
+        input_feats.Dim()*sizeof(BaseFloat));
     vector<vector<BaseFloat>> result;
     Compute(input_feats_vec, result);
     int32 feat_size = 0;
@@ -103,9 +85,12 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
                                  vector<BaseFloat>* real,
                                  vector<BaseFloat>* img) const {
     Vector<BaseFloat> v_tmp;
-    CopyStdVector2Vector_(*v, &v_tmp);
+    v_tmp.Resize(v->size());
+    std::memcpy(v_tmp.Data(), v->data(), sizeof(BaseFloat)*(v->size()));
     RealFft(&v_tmp, true);
-    CopyVector2StdVector_(v_tmp, v);
+    v->resize(v_tmp.Dim());
+    std::memcpy(v->data(), v_tmp.Data(), sizeof(BaseFloat)*(v->size()));
+
     real->push_back(v->at(0));
     img->push_back(0);
     for (int i = 1; i < v->size() / 2; i++) {

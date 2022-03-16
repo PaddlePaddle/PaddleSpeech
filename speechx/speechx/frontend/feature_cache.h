@@ -36,18 +36,23 @@ class FeatureCache : public FeatureExtractorInterface {
         Compute();
     }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    virtual void Reset() {
+        base_extractor_->Reset();
+        while (!cache_.empty()) {
+            cache_.pop();
+        }
+    }
 
   private:
     bool Compute();
 
-    bool finished_;
     std::mutex mutex_;
     size_t max_size_;
     std::queue<kaldi::Vector<BaseFloat>> cache_;
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
-    //DISALLOW_COPY_AND_ASSGIN(FeatureCache);
+    // DISALLOW_COPY_AND_ASSGIN(FeatureCache);
 };
 
 }  // namespace ppspeech

@@ -25,7 +25,6 @@ Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
                      const std::shared_ptr<FeatureExtractorInterface>& frontend)
     : frontend_(frontend),
       nnet_(nnet),
-      finished_(false),
       frame_offset_(0),
       frames_ready_(0) {}
 
@@ -81,8 +80,10 @@ bool Decodable::FrameLogLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
 }
 
 void Decodable::Reset() {
-    // frontend_.Reset();
+    frontend_->Reset();
     nnet_->Reset();
+    frame_offset_ = 0;
+    frames_ready_ = 0; 
 }
 
 }  // namespace ppspeech

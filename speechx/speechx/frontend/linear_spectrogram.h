@@ -45,6 +45,9 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    virtual void Reset() {
+        base_extractor_->Reset();
+    }
 
   private:
     void Hanning(std::vector<kaldi::BaseFloat>* data) const;

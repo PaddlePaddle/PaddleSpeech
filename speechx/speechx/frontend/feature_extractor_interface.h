@@ -33,7 +33,7 @@ class FeatureExtractorInterface {
     virtual size_t Dim() const = 0;
     virtual void SetFinished() = 0;
     virtual bool IsFinished() const = 0;
-    // virtual void Reset();
+    virtual void Reset() = 0;
 };
 
 }  // namespace ppspeech

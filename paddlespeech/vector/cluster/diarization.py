@@ -1,4 +1,4 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 SpeechBrain Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -359,7 +359,7 @@ class EmbeddingMeta:
 
         if segset is None:
             self.segset = numpy.empty(0, dtype="|O")
-            self.stats = numpy.array([], dtype=STAT_TYPE)
+            self.stats = numpy.array([], dtype=np.float64)
         else:
             self.segset = segset
             self.stats = stats
@@ -631,7 +631,6 @@ class SpecClustUnorm:
         eig_vals_gap_list = []
         for i in range(len(eig_vals) - 1):
             gap = float(eig_vals[i + 1]) - float(eig_vals[i])
-            # eig_vals_gap_list.append(float(eig_vals[i + 1]) - float(eig_vals[i]))
             eig_vals_gap_list.append(gap)
 
         return eig_vals_gap_list
@@ -658,7 +657,7 @@ class SpecCluster(SpectralClustering):
         self.affinity_matrix_ = 0.5 * (connectivity + connectivity.T)
 
         # Perform spectral clustering on affinity matrix
-        self.labels_ = spectral_clustering_sb(
+        self.labels_ = spectral_clustering(
             self.affinity_matrix_,
             n_clusters=self.n_clusters, )
         return self

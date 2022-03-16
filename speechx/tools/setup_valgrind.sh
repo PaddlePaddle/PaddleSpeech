@@ -11,7 +11,7 @@ url=https://sourceware.org/pub/valgrind/valgrind-3.18.1.tar.bz2
 if [ -f $tarball ]; then
   echo "use the $tarball have downloaded."
 else
-  wget -t3 --no-check-certificate $url
+  wget -c -t3 --no-check-certificate $url
 fi
 
 tar xjfv $tarball

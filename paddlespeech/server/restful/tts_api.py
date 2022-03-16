@@ -16,6 +16,7 @@ from typing import Union
 
 from fastapi import APIRouter
 
+from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.restful.request import TTSRequest
 from paddlespeech.server.restful.response import ErrorResponse
@@ -60,6 +61,9 @@ def tts(request_body: TTSRequest):
     Returns:
         json: [description]
     """
+
+    logger.info("request: {}".format(request_body))
+
     # get params
     text = request_body.text
     spk_id = request_body.spk_id
@@ -92,6 +96,7 @@ def tts(request_body: TTSRequest):
         # get single engine from engine pool
         engine_pool = get_engine_pool()
         tts_engine = engine_pool['tts']
+        logger.info("Get tts engine successfully.")
 
         lang, target_sample_rate, wav_base64 = tts_engine.run(
             text, spk_id, speed, volume, sample_rate, save_path)

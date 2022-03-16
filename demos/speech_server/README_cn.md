@@ -10,10 +10,16 @@
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-你可以从 easy，medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+推荐使用 **paddlepaddle 2.2.1** 或以上版本。
+你可以从 medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+
 
 ### 2. 准备配置文件
-配置文件包含服务相关的配置文件和服务中包含的语音任务相关的模型配置。 它们都在 `conf` 文件夹下。
+配置文件可参见 `conf/application.yaml` 。
+其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
+目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)。
+目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
+
 
 这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 
@@ -75,6 +81,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
 
 ### 4. ASR客户端使用方法
+**注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
@@ -123,9 +130,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
  
 ### 5. TTS客户端使用方法
-   ```bash
-   paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
-   ```
+**注意：** 初次使用客户端时响应时间会略长
+- 命令行 (推荐使用)
+
+    ```bash
+    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```
     使用帮助:
   
     ```bash
@@ -148,7 +158,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
     [2022-02-23 15:20:37,875] [    INFO] - Save synthesized audio successfully on output.wav.
     [2022-02-23 15:20:37,875] [    INFO] - Audio duration: 3.612500 s.
     [2022-02-23 15:20:37,875] [    INFO] - Response time: 0.348050 s.
-    [2022-02-23 15:20:37,875] [    INFO] - RTF: 0.096346
     ```
 
 - Python API
@@ -173,50 +182,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
   Response time: 0.388317 s.
-  RTF: 0.107493
 
   ```
 
-## Pretrained Models
-### ASR model
-下面是PaddleSpeech发布的[ASR预训练模型](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_recognition/README.md#4pretrained-models)列表，命令行和python接口均可用：
+## 服务支持的模型
+### ASR支持的模型
+通过 `paddlespeech_server stats --task asr` 获取ASR服务支持的所有模型，其中静态模型可用于 paddle inference 推理。 
 
-| Model | Language | Sample Rate
-| :--- | :---: | :---: |
-| conformer_wenetspeech| zh| 16000
-| transformer_librispeech| en| 16000
-
-### TTS model
-下面是PaddleSpeech发布的 [TTS预训练模型](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/text_to_speech/README.md#4-pretrained-models) 列表，命令行和python接口均可用：
-
-- Acoustic model
-  | Model | Language
-  | :--- | :---: |
-  | speedyspeech_csmsc| zh
-  | fastspeech2_csmsc| zh
-  | fastspeech2_aishell3| zh
-  | fastspeech2_ljspeech| en
-  | fastspeech2_vctk| en
-
-- Vocoder
-  | Model | Language
-  | :--- | :---: |
-  | pwgan_csmsc| zh
-  | pwgan_aishell3| zh
-  | pwgan_ljspeech| en
-  | pwgan_vctk| en
-  | mb_melgan_csmsc| zh
-
-下面是PaddleSpeech发布的 **TTS预训练静态模型** 列表，命令行和python接口均可用：
-- Acoustic model
-  | Model | Language
-  | :--- | :---: |
-  | speedyspeech_csmsc| zh
-  | fastspeech2_csmsc| zh
-
-- Vocoder
-  | Model | Language
-  | :--- | :---: |
-  | pwgan_csmsc| zh
-  | mb_melgan_csmsc| zh
-  | hifigan_csmsc| zh
+### TTS支持的模型
+通过 `paddlespeech_server stats --task tts` 获取TTS服务支持的所有模型，其中静态模型可用于 paddle inference 推理。

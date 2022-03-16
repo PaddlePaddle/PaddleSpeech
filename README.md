@@ -148,6 +148,12 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 - [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 ### 🔥 Hot Activities
 
 - 2021.12.21~12.24
@@ -196,16 +202,18 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 ```shell
 paddlespeech cls --input input.wav
 ```
+
 **Automatic Speech Recognition**
 ```shell
 paddlespeech asr --lang zh --input input_16k.wav
 ```
-**Speech Translation** (English to Chinese)
 
+**Speech Translation** (English to Chinese)
 (not support for Mac and Windows now)
 ```shell
 paddlespeech st --input input_16k.wav
 ```
+
 **Text-to-Speech** 
 ```shell
 paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
@@ -218,7 +226,16 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
   ```
 
-  
+**Batch Process**
+```
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+```  
+
+**Shell Pipeline**   
+- ASR + Punctuation Restoration
+```
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+```
 
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 
@@ -561,6 +578,9 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.
 - Many thanks to [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) for contributing Punctuation Restoration model.
 - Many thanks to [kslz](https://github.com/745165806) for supplementary Chinese documents.
+- Many thanks to [awmmmm](https://github.com/awmmmm) for contributing fastspeech2 aishell3 conformer pretrained model.
+- Many thanks to [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) for developing a dubbing tool with GUI based on PaddleSpeech TTS model.
+- Many thanks to [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) for developing a GUI tool based on PaddleSpeech TTS and code for making datasets from videos based on PaddleSpeech ASR.
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 

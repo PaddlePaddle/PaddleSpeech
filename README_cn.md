@@ -150,6 +150,12 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 - [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 ### 🔥 热门活动
 
 - 2021.12.21~12.24
@@ -215,6 +221,17 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
    ```bash
    paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
    ```
+
+**批处理**
+```
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+```  
+
+**Shell管道**
+ASR + Punc:
+```
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+```
 
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
@@ -556,6 +573,10 @@ year={2021}
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。
 - 非常感谢 [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) 贡献标点重建相关模型。
 - 非常感谢 [kslz](https://github.com/kslz) 补充中文文档。
+- 非常感谢 [awmmmm](https://github.com/awmmmm) 提供 fastspeech2 aishell3 conformer 预训练模型。
+- 非常感谢 [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) 基于 PaddleSpeech 的 TTS 模型搭建带 GUI 操作界面的配音工具。
+- 非常感谢 [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) 基于 PaddleSpeech 的 TTS GUI 界面和基于 ASR 制作数据集的相关代码。
+
   
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

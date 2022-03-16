@@ -28,11 +28,13 @@ def init_engine_pool(config) -> bool:
     """ Init engine pool
     """
     global ENGINE_POOL
-    for engine in config.engine_backend:
+
+    for engine_and_type in config.engine_list:
+        engine = engine_and_type.split("_")[0]
+        engine_type = engine_and_type.split("_")[1]
         ENGINE_POOL[engine] = EngineFactory.get_engine(
-            engine_name=engine, engine_type=config.engine_type[engine])
-        if not ENGINE_POOL[engine].init(
-                config_file=config.engine_backend[engine]):
+            engine_name=engine, engine_type=engine_type)
+        if not ENGINE_POOL[engine].init(config=config[engine_and_type]):
             return False
 
     return True

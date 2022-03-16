@@ -63,7 +63,7 @@ class ToneSandhi():
             '扫把', '惦记'
         }
         self.must_not_neural_tone_words = {
-            "男子", "女子", "分子", "原子", "量子", "莲子", "石子", "瓜子", "电子"
+            "男子", "女子", "分子", "原子", "量子", "莲子", "石子", "瓜子", "电子", "人人", "虎虎"
         }
         self.punc = "：，；。？！“”‘’':,;.?!"
 
@@ -77,7 +77,9 @@ class ToneSandhi():
 
         # reduplication words for n. and v. e.g. 奶奶, 试试, 旺旺
         for j, item in enumerate(word):
-            if j - 1 >= 0 and item == word[j - 1] and pos[0] in {"n", "v", "a"}:
+            if j - 1 >= 0 and item == word[j - 1] and pos[0] in {
+                    "n", "v", "a"
+            } and word not in self.must_not_neural_tone_words:
                 finals[j] = finals[j][:-1] + "5"
         ge_idx = word.find("个")
         if len(word) >= 1 and word[-1] in "吧呢哈啊呐噻嘛吖嗨呐哦哒额滴哩哟喽啰耶喔诶":

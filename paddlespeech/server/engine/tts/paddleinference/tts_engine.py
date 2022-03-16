@@ -14,6 +14,7 @@
 import base64
 import io
 import os
+import time
 from typing import Optional
 
 import librosa
@@ -28,7 +29,6 @@ from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
-from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.exception import ServerBaseException
 from paddlespeech.server.utils.paddle_predictor import init_predictor
@@ -179,7 +179,7 @@ class TTSServerExecutor(TTSExecutor):
             self.phones_dict = os.path.abspath(phones_dict)
             self.am_sample_rate = am_sample_rate
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_model))
-        print("self.phones_dict:", self.phones_dict)
+        logger.info("self.phones_dict: {}".format(self.phones_dict))
 
         # for speedyspeech
         self.tones_dict = None
@@ -224,21 +224,21 @@ class TTSServerExecutor(TTSExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
-        print("vocab_size:", vocab_size)
+        logger.info("vocab_size: {}".format(vocab_size))
 
         tone_size = None
         if self.tones_dict:
             with open(self.tones_dict, "r") as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
-            print("tone_size:", tone_size)
+            logger.info("tone_size: {}".format(tone_size))
 
         spk_num = None
         if self.speaker_dict:
             with open(self.speaker_dict, 'rt') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
-            print("spk_num:", spk_num)
+            logger.info("spk_num: {}".format(spk_num))
 
         # frontend
         if lang == 'zh':
@@ -248,21 +248,29 @@ class TTSServerExecutor(TTSExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        print("frontend done!")
+        logger.info("frontend done!")
 
-        # am predictor
-        self.am_predictor_conf = am_predictor_conf
-        self.am_predictor = init_predictor(
-            model_file=self.am_model,
-            params_file=self.am_params,
-            predictor_conf=self.am_predictor_conf)
+        try:
+            # am predictor
+            self.am_predictor_conf = am_predictor_conf
+            self.am_predictor = init_predictor(
+                model_file=self.am_model,
+                params_file=self.am_params,
+                predictor_conf=self.am_predictor_conf)
+            logger.info("Create AM predictor successfully.")
+        except BaseException:
+            logger.error("Failed to create AM predictor.")
 
-        # voc predictor
-        self.voc_predictor_conf = voc_predictor_conf
-        self.voc_predictor = init_predictor(
-            model_file=self.voc_model,
-            params_file=self.voc_params,
-            predictor_conf=self.voc_predictor_conf)
+        try:
+            # voc predictor
+            self.voc_predictor_conf = voc_predictor_conf
+            self.voc_predictor = init_predictor(
+                model_file=self.voc_model,
+                params_file=self.voc_params,
+                predictor_conf=self.voc_predictor_conf)
+            logger.info("Create Vocoder predictor successfully.")
+        except BaseException:
+            logger.error("Failed to create Vocoder predictor.")
 
     @paddle.no_grad()
     def infer(self,
@@ -277,6 +285,7 @@ class TTSServerExecutor(TTSExecutor):
         am_dataset = am[am.rindex('_') + 1:]
         get_tone_ids = False
         merge_sentences = False
+        frontend_st = time.time()
         if am_name == 'speedyspeech':
             get_tone_ids = True
         if lang == 'zh':
@@ -292,10 +301,14 @@ class TTSServerExecutor(TTSExecutor):
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
-            print("lang should in {'zh', 'en'}!")
+            logger.error("lang should in {'zh', 'en'}!")
+        self.frontend_time = time.time() - frontend_st
 
+        self.am_time = 0
+        self.voc_time = 0
         flags = 0
         for i in range(len(phone_ids)):
+            am_st = time.time()
             part_phone_ids = phone_ids[i]
             # am
             if am_name == 'speedyspeech':
@@ -314,7 +327,10 @@ class TTSServerExecutor(TTSExecutor):
                     am_result = run_model(self.am_predictor,
                                           [part_phone_ids.numpy()])
                     mel = am_result[0]
+            self.am_time += (time.time() - am_st)
+
             # voc
+            voc_st = time.time()
             voc_result = run_model(self.voc_predictor, [mel])
             wav = voc_result[0]
             wav = paddle.to_tensor(wav)
@@ -324,6 +340,7 @@ class TTSServerExecutor(TTSExecutor):
                 flags = 1
             else:
                 wav_all = paddle.concat([wav_all, wav])
+            self.voc_time += (time.time() - voc_st)
         self._outputs['wav'] = wav_all
 
 
@@ -339,11 +356,11 @@ class TTSEngine(BaseEngine):
         """
         super(TTSEngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
 
         try:
-            self.config = get_config(config_file)
+            self.config = config
             self.executor._init_from_path(
                 am=self.config.am,
                 am_model=self.config.am_model,
@@ -370,7 +387,7 @@ class TTSEngine(BaseEngine):
     def postprocess(self,
                     wav,
                     original_fs: int,
-                    target_fs: int=16000,
+                    target_fs: int=0,
                     volume: float=1.0,
                     speed: float=1.0,
                     audio_path: str=None):
@@ -395,38 +412,50 @@ class TTSEngine(BaseEngine):
         if target_fs == 0 or target_fs > original_fs:
             target_fs = original_fs
             wav_tar_fs = wav
+            logger.info(
+                "The sample rate of synthesized audio is the same as model, which is {}Hz".
+                format(original_fs))
         else:
             wav_tar_fs = librosa.resample(
                 np.squeeze(wav), original_fs, target_fs)
-
+            logger.info(
+                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
+                format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
+        logger.info("Transform the volume of the audio successfully.")
 
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
+            logger.info("Transform the speed of the audio successfully.")
         except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
-                "Transform speed failed. Can not install soxbindings on your system. \
+                "Failed to transform speed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
         except BaseException:
-            logger.error("Transform speed failed.")
+            logger.error("Failed to transform speed.")
 
         # wav to base64
         buf = io.BytesIO()
         wavfile.write(buf, target_fs, wav_speed)
         base64_bytes = base64.b64encode(buf.read())
         wav_base64 = base64_bytes.decode('utf-8')
+        logger.info("Audio to string successfully.")
 
         # save audio
-        if audio_path is not None and audio_path.endswith(".wav"):
-            sf.write(audio_path, wav_speed, target_fs)
-        elif audio_path is not None and audio_path.endswith(".pcm"):
-            wav_norm = wav_speed * (32767 / max(0.001,
-                                                np.max(np.abs(wav_speed))))
-            with open(audio_path, "wb") as f:
-                f.write(wav_norm.astype(np.int16))
+        if audio_path is not None:
+            if audio_path.endswith(".wav"):
+                sf.write(audio_path, wav_speed, target_fs)
+            elif audio_path.endswith(".pcm"):
+                wav_norm = wav_speed * (32767 / max(0.001,
+                                                    np.max(np.abs(wav_speed))))
+                with open(audio_path, "wb") as f:
+                    f.write(wav_norm.astype(np.int16))
+            logger.info("Save audio to {} successfully.".format(audio_path))
+        else:
+            logger.info("There is no need to save audio.")
 
         return target_fs, wav_base64
 
@@ -462,8 +491,12 @@ class TTSEngine(BaseEngine):
         lang = self.config.lang
 
         try:
+            infer_st = time.time()
             self.executor.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
+            infer_et = time.time()
+            infer_time = infer_et - infer_st
+
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
@@ -471,6 +504,7 @@ class TTSEngine(BaseEngine):
             logger.error("tts infer failed.")
 
         try:
+            postprocess_st = time.time()
             target_sample_rate, wav_base64 = self.postprocess(
                 wav=self.executor._outputs['wav'].numpy(),
                 original_fs=self.executor.am_sample_rate,
@@ -478,10 +512,34 @@ class TTSEngine(BaseEngine):
                 volume=volume,
                 speed=speed,
                 audio_path=save_path)
+            postprocess_et = time.time()
+            postprocess_time = postprocess_et - postprocess_st
+            duration = len(self.executor._outputs['wav']
+                           .numpy()) / self.executor.am_sample_rate
+            rtf = infer_time / duration
+
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
         except BaseException:
             logger.error("tts postprocess failed.")
+
+        logger.info("AM model: {}".format(self.config.am))
+        logger.info("Vocoder model: {}".format(self.config.voc))
+        logger.info("Language: {}".format(lang))
+        logger.info("tts engine type: paddle inference")
+
+        logger.info("audio duration: {}".format(duration))
+        logger.info(
+            "frontend inference time: {}".format(self.executor.frontend_time))
+        logger.info("AM inference time: {}".format(self.executor.am_time))
+        logger.info("Vocoder inference time: {}".format(self.executor.voc_time))
+        logger.info("total inference time: {}".format(infer_time))
+        logger.info(
+            "postprocess (change speed, volume, target sample rate) time: {}".
+            format(postprocess_time))
+        logger.info("total generate audio time: {}".format(infer_time +
+                                                           postprocess_time))
+        logger.info("RTF: {}".format(rtf))
 
         return lang, target_sample_rate, wav_base64

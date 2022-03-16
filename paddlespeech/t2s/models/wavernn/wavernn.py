@@ -509,16 +509,20 @@ class WaveRNN(nn.Layer):
         total_len = num_folds * (target + overlap) + overlap
 
         # Need some silence for the run warmup
-        slience_len = overlap // 2
+        slience_len = 0
+        linear_len = slience_len
         fade_len = overlap - slience_len
         slience = paddle.zeros([slience_len], dtype=paddle.float32)
-        linear = paddle.ones([fade_len], dtype=paddle.float32)
+        linear = paddle.ones([linear_len], dtype=paddle.float32)
 
         # Equal power crossfade
         # fade_in increase from 0 to 1, fade_out reduces from 1 to 0
-        t = paddle.linspace(-1, 1, fade_len, dtype=paddle.float32)
-        fade_in = paddle.sqrt(0.5 * (1 + t))
-        fade_out = paddle.sqrt(0.5 * (1 - t))
+        sigmoid_scale = 2.3
+        t = paddle.linspace(
+            -sigmoid_scale, sigmoid_scale, fade_len, dtype=paddle.float32)
+        # sigmoid 曲线应该更好
+        fade_in = paddle.nn.functional.sigmoid(t)
+        fade_out = 1 - paddle.nn.functional.sigmoid(t)
         # Concat the silence to the fades
         fade_out = paddle.concat([linear, fade_out])
         fade_in = paddle.concat([slience, fade_in])

@@ -49,10 +49,6 @@ class InstallCommand(install):
 
 
 def write_version_py(filename='paddleaudio/__init__.py'):
-    import paddleaudio
-    if hasattr(paddleaudio,
-               "__version__") and paddleaudio.__version__ == VERSION:
-        return
     with open(filename, "a") as f:
         f.write(f"__version__ = '{VERSION}'")
 
@@ -65,7 +61,7 @@ def remove_version_py(filename='paddleaudio/__init__.py'):
             if "__version__" not in line:
                 f.write(line)
 
-
+remove_version_py()
 write_version_py()
 
 setuptools.setup(
@@ -93,10 +89,12 @@ setuptools.setup(
         'dtaidistance >= 2.3.6',
         'mcd >= 0.4',
     ],
-    setup_requires=[
-        'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1',
-        'torchaudio==0.10.2', 'pytest-benchmark'
-    ],
+    extras_require={
+        'test': [
+            'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1',
+            'torchaudio==0.10.2', 'pytest-benchmark'
+        ],
+    },
     cmdclass={
         'install': InstallCommand,
         'test': TestCommand,

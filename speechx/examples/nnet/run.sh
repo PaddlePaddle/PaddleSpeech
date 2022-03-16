@@ -9,6 +9,8 @@ if [ ! -d ../../build/examples ]; then
     cd -
 fi
 
+. ../path.sh
+
 # 2. download model
 if [ ! -d ../paddle_asr_model ]; then
     wget https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/paddle_asr_model.tar.gz
@@ -22,5 +24,5 @@ model_dir=../paddle_asr_model
 
 
 # 4. run decoder
-../../build/examples/nnet/pp-model-test --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams
+pp-model-test --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams
 

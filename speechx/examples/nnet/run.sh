@@ -2,14 +2,14 @@
 set +x
 set -e
 
-# 1. compile
-if [ ! -d ../../build/examples ]; then
-    cd ../..
-    bash build.sh
-    cd -
-fi
+. path.sh
 
-. ../path.sh
+# 1. compile
+if [ ! -d ${SPEECHX_EXAMPLES} ]; then
+    pushd ${SPEECHX_ROOT} 
+    bash build.sh
+    popd
+fi
 
 # 2. download model
 if [ ! -d ../paddle_asr_model ]; then
@@ -23,5 +23,7 @@ fi
 model_dir=../paddle_asr_model
 
 # 4. run decoder
-pp-model-test --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams
+pp-model-test \
+    --model_path=$model_dir/avg_1.jit.pdmodel \
+    --param_path=$model_dir/avg_1.jit.pdparams
 

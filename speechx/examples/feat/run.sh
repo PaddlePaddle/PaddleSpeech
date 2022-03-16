@@ -2,14 +2,14 @@
 set +x
 set -e
 
-# 1. compile
-if [ ! -d ../../build/examples ]; then
-    cd ../..
-    bash build.sh
-    cd -
-fi
+. ./path.sh
 
-. ../path.sh
+# 1. compile
+if [ ! -d ${SPEECHX_EXAMPLES} ]; then
+    pushd ${SPEECHX_ROOT} 
+    bash build.sh
+    popd
+fi
 
 # 2. download model
 if [ ! -d ../paddle_asr_model ]; then
@@ -25,4 +25,7 @@ feat_wspecifier=./feats.ark
 cmvn=./cmvn.ark
 
 # 3. run feat
-linear_spectrogram_main --wav_rspecifier=scp:$model_dir/wav.scp --feature_wspecifier=ark,t:$feat_wspecifier --cmvn_write_path=$cmvn
+linear_spectrogram_main \
+    --wav_rspecifier=scp:$model_dir/wav.scp \
+    --feature_wspecifier=ark,t:$feat_wspecifier \
+    --cmvn_write_path=$cmvn

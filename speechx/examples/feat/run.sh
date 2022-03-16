@@ -25,4 +25,4 @@ feat_wspecifier=./feats.ark
 cmvn=./cmvn.ark
 
 # 3. run feat
-linear_spectrogram_main --wav_rspecifier=scp:$model_dir/wav.scp --feature_wspecifier=ark,t:$feat_wspecifier --cmvn_write_path=$cmvn
+../../fc_patch/valgrind-build/bin/valgrind --tool=memcheck --track-origins=yes --leak-check=full --show-leak-kinds=all linear_spectrogram_main --wav_rspecifier=scp:$model_dir/wav.scp --feature_wspecifier=ark,t:$feat_wspecifier --cmvn_write_path=$cmvn

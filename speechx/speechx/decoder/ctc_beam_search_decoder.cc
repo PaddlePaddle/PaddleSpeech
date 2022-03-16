@@ -206,9 +206,9 @@ int32 CTCBeamSearch::SearchOneChar(
     size_t beam_size = opts_.beam_size;
     const auto& c = log_prob_idx.first;
     const auto& log_prob_c = log_prob_idx.second;
-    size_t prefixes__len = std::min(prefixes_.size(), beam_size);
+    size_t prefixes_len = std::min(prefixes_.size(), beam_size);
 
-    for (size_t i = 0; i < prefixes__len; ++i) {
+    for (size_t i = 0; i < prefixes_len; ++i) {
         auto prefix = prefixes_[i];
         if (full_beam && log_prob_c + prefix->score < min_cutoff) {
             break;

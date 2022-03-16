@@ -28,5 +28,5 @@ cmvn=./cmvn.ark
 linear_spectrogram_main --wav_rspecifier=scp:$model_dir/wav.scp --feature_wspecifier=ark:$feat_wspecifier --cmvn_write_path=$cmvn
 
 # 4. run decoder
-../../build/examples/decoder/offline_decoder_main --feature_respecifier=ark:$feat_wspecifier --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams --dict_file=$model_dir/vocab.txt --lm_path=$model_dir/avg_1.jit.klm
+offline_decoder_main --feature_respecifier=ark:$feat_wspecifier --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams --dict_file=$model_dir/vocab.txt --lm_path=$model_dir/avg_1.jit.klm
 

@@ -22,7 +22,6 @@ fi
 
 model_dir=../paddle_asr_model
 
-
 # 4. run decoder
 pp-model-test --model_path=$model_dir/avg_1.jit.pdmodel --param_path=$model_dir/avg_1.jit.pdparams
 

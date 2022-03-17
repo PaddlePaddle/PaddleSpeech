@@ -180,9 +180,17 @@ def parse_args():
         type=str,
         default='pwgan_csmsc',
         choices=[
-            'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc',
-            'wavernn_csmsc'
+            'pwgan_csmsc',
+            'pwgan_ljspeech',
+            'pwgan_aishell3',
+            'pwgan_vctk',
+            'mb_melgan_csmsc',
+            'style_melgan_csmsc',
+            'hifigan_csmsc',
+            'hifigan_ljspeech',
+            'hifigan_aishell3',
+            'hifigan_vctk',
+            'wavernn_csmsc',
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(

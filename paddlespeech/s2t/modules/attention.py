@@ -95,7 +95,7 @@ class MultiHeadedAttention(nn.Layer):
             mask (paddle.Tensor): Mask, size (#batch, 1, time2) or
                 (#batch, time1, time2).
         Returns:
-            paddle.Tensor: Transformed value weighted 
+            paddle.Tensor: Transformed value weighted
                 by the attention score, (#batch, time1, d_model).
         """
         n_batch = value.shape[0]

@@ -21,6 +21,7 @@ from paddle import nn
 from paddle.fluid import core
 from paddle.nn import functional as F
 
+from paddlespeech.s2t.modules import initializer
 from paddlespeech.s2t.utils.log import Log
 
 #TODO(Hui Zhang): remove  fluid import
@@ -505,3 +506,8 @@ if not hasattr(paddle.nn, 'LayerDict'):
     logger.debug(
         "register user LayerDict to paddle.nn, remove this when fixed!")
     setattr(paddle.nn, 'LayerDict', LayerDict)
+
+"""
+    hack KaiminigUniform: change limit from np.sqrt(6.0 / float(fan_in)) to np.sqrt(1.0 / float(fan_in))
+"""
+paddle.nn.initializer.KaimingUniform = initializer.KaimingUniform

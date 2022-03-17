@@ -39,7 +39,7 @@ class TransformerEncoderLayer(nn.Layer):
             normalize_before: bool=True,
             concat_after: bool=False, ):
         """Construct an EncoderLayer object.
-        
+
         Args:
             size (int): Input dimension.
             self_attn (nn.Layer): Self-attention module instance.
@@ -147,7 +147,7 @@ class ConformerEncoderLayer(nn.Layer):
             normalize_before: bool=True,
             concat_after: bool=False, ):
         """Construct an EncoderLayer object.
-        
+
         Args:
             size (int): Input dimension.
             self_attn (nn.Layer): Self-attention module instance.
@@ -174,18 +174,46 @@ class ConformerEncoderLayer(nn.Layer):
         self.feed_forward = feed_forward
         self.feed_forward_macaron = feed_forward_macaron
         self.conv_module = conv_module
-        self.norm_ff = nn.LayerNorm(size, epsilon=1e-12)  # for the FNN module
-        self.norm_mha = nn.LayerNorm(size, epsilon=1e-12)  # for the MHA module
+        self.norm_ff = nn.LayerNorm(
+            size,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))  # for the FNN module
+        self.norm_mha = nn.LayerNorm(
+            size,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))  # for the MHA module
         if feed_forward_macaron is not None:
-            self.norm_ff_macaron = nn.LayerNorm(size, epsilon=1e-12)
+            self.norm_ff_macaron = nn.LayerNorm(
+                size,
+                epsilon=1e-12,
+                weight_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(1.0)),
+                bias_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(0.0)))
             self.ff_scale = 0.5
         else:
             self.ff_scale = 1.0
         if self.conv_module is not None:
             self.norm_conv = nn.LayerNorm(
-                size, epsilon=1e-12)  # for the CNN module
+                size,
+                epsilon=1e-12,
+                weight_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(1.0)),
+                bias_attr=paddle.ParamAttr(initializer=nn.initializer.Constant(
+                    0.0)))  # for the CNN module
             self.norm_final = nn.LayerNorm(
-                size, epsilon=1e-12)  # for the final output of the block
+                size,
+                epsilon=1e-12,
+                weight_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(1.0)),
+                bias_attr=paddle.ParamAttr(initializer=nn.initializer.Constant(
+                    0.0)))  # for the final output of the block
         self.dropout = nn.Dropout(dropout_rate)
         self.size = size
         self.normalize_before = normalize_before

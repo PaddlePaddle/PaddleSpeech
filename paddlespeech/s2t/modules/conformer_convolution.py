@@ -60,8 +60,8 @@ class ConvolutionModule(nn.Layer):
         )
 
         # self.lorder is used to distinguish if it's a causal convolution,
-        # if self.lorder > 0: 
-        #    it's a causal convolution, the input will be padded with 
+        # if self.lorder > 0:
+        #    it's a causal convolution, the input will be padded with
         #    `self.lorder` frames on the left in forward (causal conv impl).
         # else: it's a symmetrical convolution
         if causal:
@@ -87,10 +87,20 @@ class ConvolutionModule(nn.Layer):
         assert norm in ['batch_norm', 'layer_norm']
         if norm == "batch_norm":
             self.use_layer_norm = False
-            self.norm = nn.BatchNorm1D(channels)
+            self.norm = nn.BatchNorm1D(
+                channels,
+                weight_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(1.0)),
+                bias_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(0.0)))
         else:
             self.use_layer_norm = True
-            self.norm = nn.LayerNorm(channels)
+            self.norm = nn.LayerNorm(
+                channels,
+                weight_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(1.0)),
+                bias_attr=paddle.ParamAttr(
+                    initializer=nn.initializer.Constant(0.0)))
 
         self.pointwise_conv2 = nn.Conv1D(
             channels,

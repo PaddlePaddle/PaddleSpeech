@@ -76,19 +76,30 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             concat_after: bool=False, ):
 
         assert check_argument_types()
+
         nn.Layer.__init__(self)
         self.selfattention_layer_type = 'selfattn'
         attention_dim = encoder_output_size
 
         if input_layer == "embed":
             self.embed = nn.Sequential(
-                nn.Embedding(vocab_size, attention_dim),
+                nn.Embedding(
+                    vocab_size,
+                    attention_dim,
+                    weight_attr=paddle.ParamAttr(
+                        initializer=nn.initializer.Normal())),
                 PositionalEncoding(attention_dim, positional_dropout_rate), )
         else:
             raise ValueError(f"only 'embed' is supported: {input_layer}")
 
         self.normalize_before = normalize_before
-        self.after_norm = nn.LayerNorm(attention_dim, epsilon=1e-12)
+        self.after_norm = nn.LayerNorm(
+            attention_dim,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))
         self.use_output_layer = use_output_layer
         self.output_layer = nn.Linear(attention_dim, vocab_size)
 

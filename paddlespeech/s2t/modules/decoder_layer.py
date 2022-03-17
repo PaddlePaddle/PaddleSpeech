@@ -62,9 +62,27 @@ class DecoderLayer(nn.Layer):
         self.self_attn = self_attn
         self.src_attn = src_attn
         self.feed_forward = feed_forward
-        self.norm1 = nn.LayerNorm(size, epsilon=1e-12)
-        self.norm2 = nn.LayerNorm(size, epsilon=1e-12)
-        self.norm3 = nn.LayerNorm(size, epsilon=1e-12)
+        self.norm1 = nn.LayerNorm(
+            size,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))
+        self.norm2 = nn.LayerNorm(
+            size,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))
+        self.norm3 = nn.LayerNorm(
+            size,
+            epsilon=1e-12,
+            weight_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(1.0)),
+            bias_attr=paddle.ParamAttr(
+                initializer=nn.initializer.Constant(0.0)))
         self.dropout = nn.Dropout(dropout_rate)
         self.normalize_before = normalize_before
         self.concat_after = concat_after

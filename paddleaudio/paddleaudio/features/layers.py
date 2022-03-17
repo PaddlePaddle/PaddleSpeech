@@ -44,29 +44,16 @@ class Spectrogram(nn.Layer):
         """Compute spectrogram of a given signal, typically an audio waveform.
         The spectorgram is defined as the complex norm of the short-time
         Fourier transformation.
-        Parameters:
-            n_fft (int): the number of frequency components of the discrete Fourier transform.
-                The default value is 2048,
-            hop_length (int|None): the hop length of the short time FFT. If None, it is set to win_length//4.
-                The default value is None.
-            win_length: the window length of the short time FFt. If None, it is set to same as n_fft.
-                The default value is None.
-            window (str): the name of the window function applied to the single before the Fourier transform.
-                The folllowing window names are supported: 'hamming','hann','kaiser','gaussian',
-                'exponential','triang','bohman','blackman','cosine','tukey','taylor'.
-                The default value is 'hann'
-            power (float): Exponent for the magnitude spectrogram. The default value is 2.0.
-            center (bool): if True, the signal is padded so that frame t is centered at x[t * hop_length].
-                If False, frame t begins at x[t * hop_length]
-                The default value is True
-            pad_mode (str): the mode to pad the signal if necessary. The supported modes are 'reflect'
-                and 'constant'. The default value is 'reflect'.
-            dtype (str): the data type of input and window.
-        Notes:
-            The Spectrogram transform relies on STFT transform to compute the spectrogram.
-            By default, the weights are not learnable. To fine-tune the Fourier coefficients,
-            set stop_gradient=False before training.
-            For more information, see STFT().
+
+        Args:
+            n_fft (int, optional): The number of frequency components of the discrete Fourier transform. Defaults to 512.
+            hop_length (Optional[int], optional): The hop length of the short time FFT. If `None`, it is set to `win_length//4`. Defaults to None.
+            win_length (Optional[int], optional): The window length of the short time FFT. If `None`, it is set to same as `n_fft`. Defaults to None.
+            window (str, optional): The window function applied to the single before the Fourier transform. Supported window functions: 'hamming', 'hann', 'kaiser', 'gaussian', 'exponential', 'triang', 'bohman', 'blackman', 'cosine', 'tukey', 'taylor'. Defaults to 'hann'.
+            power (float, optional): Exponent for the magnitude spectrogram. Defaults to 2.0.
+            center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+            pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to 'reflect'.
+            dtype (str, optional): Data type of input and window. Defaults to paddle.float32.
         """
         super(Spectrogram, self).__init__()
 

@@ -29,8 +29,7 @@ FeatureCache::FeatureCache(
     base_extractor_ = std::move(base_extractor);
 }
 
-void FeatureCache::Accept(
-    const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
     base_extractor_->Accept(inputs);
     // feed current data
     bool result = false;

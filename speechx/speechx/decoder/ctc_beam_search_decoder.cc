@@ -52,14 +52,14 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
 }
 
 void CTCBeamSearch::Reset() {
-    //num_frame_decoded_ = 0;
-    //ResetPrefixes();
+    // num_frame_decoded_ = 0;
+    // ResetPrefixes();
     InitDecoder();
 }
 
 void CTCBeamSearch::InitDecoder() {
     num_frame_decoded_ = 0;
-    //ResetPrefixes();
+    // ResetPrefixes();
     prefixes_.clear();
 
     root_ = std::make_shared<PathTrie>();

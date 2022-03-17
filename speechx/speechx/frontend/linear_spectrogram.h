@@ -38,16 +38,13 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     explicit LinearSpectrogram(
         const LinearSpectrogramOptions& opts,
         std::unique_ptr<FeatureExtractorInterface> base_extractor);
-    virtual void Accept(
-        const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
     // the dim_ is the dim of single frame feature
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() {
-        base_extractor_->Reset();
-    }
+    virtual void Reset() { base_extractor_->Reset(); }
 
   private:
     void Hanning(std::vector<kaldi::BaseFloat>* data) const;

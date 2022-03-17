@@ -21,10 +21,9 @@ namespace ppspeech {
 
 class FeatureExtractorInterface {
   public:
-    // accept input data, accept feature or raw waves which decided 
+    // accept input data, accept feature or raw waves which decided
     // by the base_extractor
-    virtual void Accept(
-        const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;
     // get the processed result
     // the length of output = feature_row * feature_dim,
     // the Matrix is squashed into Vector

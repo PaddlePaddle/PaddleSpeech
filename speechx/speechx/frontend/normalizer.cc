@@ -34,14 +34,12 @@ DecibelNormalizer::DecibelNormalizer(
     dim_ = 1;
 }
 
-void DecibelNormalizer::Accept(
-    const kaldi::VectorBase<BaseFloat>& waves) {
+void DecibelNormalizer::Accept(const kaldi::VectorBase<BaseFloat>& waves) {
     base_extractor_->Accept(waves);
 }
 
 bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* waves) {
-    if (base_extractor_->Read(waves) == false || 
-        waves->Dim() == 0) {
+    if (base_extractor_->Read(waves) == false || waves->Dim() == 0) {
         return false;
     }
     Compute(waves);
@@ -88,7 +86,8 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
         item *= std::pow(10.0, gain / 20.0);
     }
 
-    std::memcpy(waves->Data(), samples.data(), sizeof(BaseFloat)*samples.size());
+    std::memcpy(
+        waves->Data(), samples.data(), sizeof(BaseFloat) * samples.size());
     return true;
 }
 

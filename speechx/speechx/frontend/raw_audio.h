@@ -35,9 +35,9 @@ class RawAudioCache : public FeatureExtractorInterface {
     }
     virtual bool IsFinished() const { return finished_; }
     virtual void Reset() {
-      start_ = 0;
-      data_length_ = 0;
-      finished_ = false;
+        start_ = 0;
+        data_length_ = 0;
+        finished_ = false;
     }
 
   private:
@@ -72,9 +72,7 @@ class RawDataCache : public FeatureExtractorInterface {
     virtual void SetFinished() { finished_ = true; }
     virtual bool IsFinished() const { return finished_; }
     void SetDim(int32 dim) { dim_ = dim; }
-    virtual void Reset() {
-      finished_ = true;
-    }
+    virtual void Reset() { finished_ = true; }
 
   private:
     kaldi::Vector<kaldi::BaseFloat> data_;

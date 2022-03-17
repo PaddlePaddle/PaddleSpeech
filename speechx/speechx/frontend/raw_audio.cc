@@ -32,7 +32,7 @@ void RawAudioCache::Accept(const VectorBase<BaseFloat>& waves) {
         ready_feed_condition_.wait(lock);
     }
     for (size_t idx = 0; idx < waves.Dim(); ++idx) {
-        int32 buffer_idx = (idx + start_) % ring_buffer_.size(); 
+        int32 buffer_idx = (idx + start_) % ring_buffer_.size();
         ring_buffer_[buffer_idx] = waves(idx);
     }
     data_length_ += waves.Dim();
@@ -44,7 +44,8 @@ bool RawAudioCache::Read(Vector<BaseFloat>* waves) {
     std::unique_lock<std::mutex> lock(mutex_);
     while (chunk_size > data_length_) {
         // when audio is empty and no more data feed
-        // ready_read_condition will block in dead lock. so replace with timeout_
+        // ready_read_condition will block in dead lock. so replace with
+        // timeout_
         // ready_read_condition_.wait(lock);
         int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);
         if (elapsed > timeout_) {

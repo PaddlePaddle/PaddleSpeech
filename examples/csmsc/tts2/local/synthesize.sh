@@ -14,7 +14,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am=speedyspeech_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=dump/train/speech_stats.npy \
+        --am_stat=dump/train/feats_stats.npy \
         --voc=pwgan_csmsc \
         --voc_config=pwg_baker_ckpt_0.4/pwg_default.yaml \
         --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
@@ -34,7 +34,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=speedyspeech_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=dump/train/speech_stats.npy \
+        --am_stat=dump/train/feats_stats.npy \
         --voc=mb_melgan_csmsc \
         --voc_config=mb_melgan_csmsc_ckpt_0.1.1/default.yaml \
         --voc_ckpt=mb_melgan_csmsc_ckpt_0.1.1/snapshot_iter_1000000.pdz\
@@ -53,7 +53,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --am=speedyspeech_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=dump/train/speech_stats.npy \
+        --am_stat=dump/train/feats_stats.npy \
         --voc=style_melgan_csmsc \
         --voc_config=style_melgan_csmsc_ckpt_0.1.1/default.yaml \
         --voc_ckpt=style_melgan_csmsc_ckpt_0.1.1/snapshot_iter_1500000.pdz \
@@ -73,7 +73,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --am=speedyspeech_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=dump/train/speech_stats.npy \
+        --am_stat=dump/train/feats_stats.npy \
         --voc=hifigan_csmsc \
         --voc_config=hifigan_csmsc_ckpt_0.1.1/default.yaml \
         --voc_ckpt=hifigan_csmsc_ckpt_0.1.1/snapshot_iter_2500000.pdz \
@@ -93,7 +93,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --am=speedyspeech_csmsc \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=dump/train/speech_stats.npy \
+        --am_stat=dump/train/feats_stats.npy \
         --voc=wavernn_csmsc \
         --voc_config=wavernn_csmsc_ckpt_0.2.0/default.yaml \
         --voc_ckpt=wavernn_csmsc_ckpt_0.2.0/snapshot_iter_400000.pdz \

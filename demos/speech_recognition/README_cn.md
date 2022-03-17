@@ -81,5 +81,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
-| conformer_wenetspeech| zh| 16000
-| transformer_librispeech| en| 16000
+| conformer_wenetspeech | zh | 16k
+| transformer_librispeech | en | 16k
+| deepspeech2offline_aishell| zh| 16k
+| deepspeech2online_aishell | zh | 16k
+| deepspeech2offline_librispeech | en | 16k

@@ -38,7 +38,8 @@ function _train(){
 
     case ${run_mode} in
     sp) train_cmd="python paddlespeech/t2s/exps/gan_vocoder/parallelwave_gan/train.py --ngpu=1 ${train_cmd}" ;;
-    mp) train_cmd="python paddlespeech/t2s/exps/gan_vocoder/parallelwave_gan/train.py --ngpu=8 ${train_cmd}"
+    mp) rm -rf ./mylog 
+        train_cmd="python paddlespeech/t2s/exps/gan_vocoder/parallelwave_gan/train.py --ngpu=8 ${train_cmd}"
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac

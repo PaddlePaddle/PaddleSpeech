@@ -28,3 +28,15 @@ paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input 
 
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav
+
+
+# batch process
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+
+# shell pipeline
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+
+# stats
+paddlespeech stats --task asr
+paddlespeech stats --task tts
+paddlespeech stats --task cls

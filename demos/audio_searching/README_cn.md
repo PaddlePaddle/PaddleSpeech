@@ -89,8 +89,8 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   2022-03-07 17:39:14,865 ｜ INFO ｜ on.py ｜ startup ｜ 45 ｜ Waiting for application startup.
   INFO:     Application startup complete.
   2022-03-07 17:39:14,866 ｜ INFO ｜ on.py ｜ startup ｜ 59 ｜ Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
-  2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+  2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
   ```
 
 ### 3. 测试方法
@@ -127,6 +127,9 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   - 前端测试（可选）
   
     在浏览器中输入 127.0.0.1:8068 访问前端页面
+    
+    注：如果浏览器和服务不在同一台机器上，那么 IP需要修改成服务所在的机器 IP，并且docker-compose.yaml 中相应的 API_URL 也要修改，并重新起服务即可
+
     - 上传音频
     
       下载数据并解压到一文件夹，假设为 /home/speech/data，那么在上传页面地址栏输入 /home/speech/data 进行数据上传

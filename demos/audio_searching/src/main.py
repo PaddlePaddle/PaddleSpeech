@@ -104,11 +104,12 @@ async def search_audio(request: Request,
         _, paths, distances = do_search(host, table_name, query_audio_path,
                                         MILVUS_CLI, MYSQL_CLI)
         names = []
-        for i in paths:
-            names.append(os.path.basename(i))
+        for path, score in zip(paths, distances):
+            names.append(os.path.basename(path))
+            LOGGER.info(f"search result {path}, score {score}")
         res = dict(zip(paths, zip(names, distances)))
         # Sort results by distance metric, closest distances first
-        res = sorted(res.items(), key=lambda item: item[1][1])
+        res = sorted(res.items(), key=lambda item: item[1][1], reverse=True)
         LOGGER.info("Successfully searched similar audio!")
         return res
     except Exception as e:
@@ -126,12 +127,12 @@ async def search_local_audio(request: Request,
         _, paths, distances = do_search(host, table_name, query_audio_path,
                                         MILVUS_CLI, MYSQL_CLI)
         names = []
-        for path, dist in zip(paths, distances):
+        for path, score in zip(paths, distances):
             names.append(os.path.basename(path))
-            LOGGER.info(f"search result {path}, distance {dist}")
+            LOGGER.info(f"search result {path}, score {score}")
         res = dict(zip(paths, zip(names, distances)))
         # Sort results by distance metric, closest distances first
-        res = sorted(res.items(), key=lambda item: item[1][1])
+        res = sorted(res.items(), key=lambda item: item[1][1], reverse=True)
         LOGGER.info("Successfully searched similar audio!")
         return res
     except Exception as e:
@@ -164,4 +165,4 @@ async def drop_tables(table_name: str=None):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app=app, host='127.0.0.1', port=8002)
+    uvicorn.run(app=app, host='0.0.0.0', port=8002)

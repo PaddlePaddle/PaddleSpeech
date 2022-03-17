@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
-
+sys.path.append("..")
 from config import DEFAULT_TABLE
 from config import TOP_K
 from encode import get_audio_embedding
@@ -34,6 +34,7 @@ def do_search(host, table_name, audio_path, milvus_cli, mysql_cli):
         for i in range(len(paths)):
             tmp = "http://" + str(host) + "/data?audio_path=" + str(paths[i])
             paths[i] = tmp
+            distances[i] = (1 - distances[i]) * 100
         return vids, paths, distances
     except Exception as e:
         LOGGER.error(f"Error with search: {e}")

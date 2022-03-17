@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+
 import librosa
 import numpy as np
 from logs import LOGGER
@@ -27,7 +29,7 @@ def get_audio_embedding(path):
         # TODO add infer/python interface to get embedding, now fake it by rand
         # vpr = ECAPATDNN(checkpoint_path=None, device='cuda')
         # embedding = vpr.inference(audio)
-
+        np.random.seed(hash(os.path.basename(path)) % 1000000)
         embedding = np.random.rand(1, 2048)
         embedding = embedding / np.linalg.norm(embedding)
         embedding = embedding.tolist()[0]

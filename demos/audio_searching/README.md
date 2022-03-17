@@ -87,8 +87,8 @@ Then to start the system server, and it provides HTTP backend services.
   2022-03-07 17:39:14,865 ｜ INFO ｜ on.py ｜ startup ｜ 45 ｜ Waiting for application startup.
   INFO:     Application startup complete.
   2022-03-07 17:39:14,866 ｜ INFO ｜ on.py ｜ startup ｜ 59 ｜ Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
-  2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+  2022-03-07 17:39:14,867 ｜ INFO ｜ server.py ｜ _log_started_message ｜ 206 ｜ Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
   ```
 
 ### 3. Usage
@@ -124,7 +124,10 @@ Then to start the system server, and it provides HTTP backend services.
     ```
 - GUI test (optional)
   
-    Navigate to 127.0.0.1:8068 in your browser to access the front-end interface.
+    Navigate to 127.0.0.1:8068 in your browser to access the front-end interface
+
+    Note: If the browser and the service are not on the same machine, then the IP needs to be changed to the IP of the machine where the service is located, and the corresponding API_URL in docker-comemater. yaml needs to be changed and the service can be restarted  
+    
     - Insert data
 
       Download the data and decompress it to a path named /home/speech/data. Then enter /home/speech/data in the address bar of the upload page to upload the data  

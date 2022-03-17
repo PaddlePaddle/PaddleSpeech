@@ -77,6 +77,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   启动用 Fastapi 构建的服务
 
   ```bash
+  export PYTHONPATH=$PYTHONPATH:./src
   python src/main.py
   ```
 
@@ -128,7 +129,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   
     在浏览器中输入 127.0.0.1:8068 访问前端页面
     
-    注：如果浏览器和服务不在同一台机器上，那么 IP需要修改成服务所在的机器 IP，并且docker-compose.yaml 中相应的 API_URL 也要修改，并重新起服务即可
+    注：如果浏览器和服务不在同一台机器上，那么 IP 需要修改成服务所在的机器 IP，并且docker-compose.yaml 中相应的 API_URL 也要修改，并重新起服务即可
 
     - 上传音频
     

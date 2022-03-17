@@ -75,6 +75,7 @@ Then to start the system server, and it provides HTTP backend services.
   Then start the server with Fastapi.
 
   ```bash
+  export PYTHONPATH=$PYTHONPATH:./src
   python src/main.py
   ```
 
@@ -126,8 +127,8 @@ Then to start the system server, and it provides HTTP backend services.
   
     Navigate to 127.0.0.1:8068 in your browser to access the front-end interface
 
-    Note: If the browser and the service are not on the same machine, then the IP needs to be changed to the IP of the machine where the service is located, and the corresponding API_URL in docker-comemater. yaml needs to be changed and the service can be restarted  
-    
+    Note: If the browser and the service are not on the same machine, then the IP needs to be changed to the IP of the machine where the service is located, and the corresponding API_URL in docker-compose.yaml needs to be changed and the service can be restarted
+
     - Insert data
 
       Download the data and decompress it to a path named /home/speech/data. Then enter /home/speech/data in the address bar of the upload page to upload the data  

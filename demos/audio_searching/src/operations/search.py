@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
-sys.path.append("..")
+
 from config import DEFAULT_TABLE
 from config import TOP_K
 from encode import get_audio_embedding

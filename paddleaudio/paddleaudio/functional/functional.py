@@ -17,6 +17,7 @@ from typing import Optional
 from typing import Union
 
 import paddle
+from paddle import Tensor
 
 __all__ = [
     'hz_to_mel',
@@ -29,19 +30,20 @@ __all__ = [
 ]
 
 
-def hz_to_mel(freq: Union[paddle.Tensor, float],
-              htk: bool=False) -> Union[paddle.Tensor, float]:
+def hz_to_mel(freq: Union[Tensor, float],
+              htk: bool=False) -> Union[Tensor, float]:
     """Convert Hz to Mels.
-    Parameters:
-        freq: the input tensor of arbitrary shape, or a single floating point number.
-        htk: use HTK formula to do the conversion.
-            The default value is False.
+
+    Args:
+        freq (Union[Tensor, float]): The input tensor with arbitrary shape.
+        htk (bool, optional): Use htk scaling. Defaults to False.
+
     Returns:
-        The frequencies represented in Mel-scale.
+        Union[Tensor, float]: Frequency in mels.
     """
 
     if htk:
-        if isinstance(freq, paddle.Tensor):
+        if isinstance(freq, Tensor):
             return 2595.0 * paddle.log10(1.0 + freq / 700.0)
         else:
             return 2595.0 * math.log10(1.0 + freq / 700.0)
@@ -58,7 +60,7 @@ def hz_to_mel(freq: Union[paddle.Tensor, float],
     min_log_mel = (min_log_hz - f_min) / f_sp  # same (Mels)
     logstep = math.log(6.4) / 27.0  # step size for log region
 
-    if isinstance(freq, paddle.Tensor):
+    if isinstance(freq, Tensor):
         target = min_log_mel + paddle.log(
             freq / min_log_hz + 1e-10) / logstep  # prevent nan with 1e-10
         mask = (freq > min_log_hz).astype(freq.dtype)
@@ -71,14 +73,16 @@ def hz_to_mel(freq: Union[paddle.Tensor, float],
     return mels
 
 
-def mel_to_hz(mel: Union[float, paddle.Tensor],
-              htk: bool=False) -> Union[float, paddle.Tensor]:
+def mel_to_hz(mel: Union[float, Tensor],
+              htk: bool=False) -> Union[float, Tensor]:
     """Convert mel bin numbers to frequencies.
-    Parameters:
-        mel: the mel frequency represented as a tensor of arbitrary shape, or a floating point number.
-        htk: use HTK formula to do the conversion.
+
+    Args:
+        mel (Union[float, Tensor]): The mel frequency represented as a tensor with arbitrary shape.
+        htk (bool, optional): Use htk scaling. Defaults to False.
+
     Returns:
-        The frequencies represented in hz.
+        Union[float, Tensor]: Frequencies in Hz.
     """
     if htk:
         return 700.0 * (10.0**(mel / 2595.0) - 1.0)
@@ -90,7 +94,7 @@ def mel_to_hz(mel: Union[float, paddle.Tensor],
     min_log_hz = 1000.0  # beginning of log region (Hz)
     min_log_mel = (min_log_hz - f_min) / f_sp  # same (Mels)
     logstep = math.log(6.4) / 27.0  # step size for log region
-    if isinstance(mel, paddle.Tensor):
+    if isinstance(mel, Tensor):
         target = min_log_hz * paddle.exp(logstep * (mel - min_log_mel))
         mask = (mel > min_log_mel).astype(mel.dtype)
         freqs = target * mask + freqs * (
@@ -106,16 +110,18 @@ def mel_frequencies(n_mels: int=64,
                     f_min: float=0.0,
                     f_max: float=11025.0,
                     htk: bool=False,
-                    dtype: str=paddle.float32):
+                    dtype: str='float32') -> Tensor:
     """Compute mel frequencies.
-    Parameters:
-        n_mels(int): number of Mel bins.
-        f_min(float): the lower cut-off frequency, below which the filter response is zero.
-        f_max(float): the upper cut-off frequency, above which the filter response is zero.
-        htk(bool): whether to use htk formula.
-        dtype(str): the datatype of the return frequencies.
+
+    Args:
+        n_mels (int, optional): Number of mel bins. Defaults to 64.
+        f_min (float, optional): Minimum frequency in Hz. Defaults to 0.0.
+        fmax (float, optional): Maximum frequency in Hz. Defaults to 11025.0.
+        htk (bool, optional): Use htk scaling. Defaults to False.
+        dtype (str, optional): The data type of the return frequencies. Defaults to 'float32'.
+
     Returns:
-        The frequencies represented in Mel-scale
+        Tensor: Tensor of n_mels frequencies in Hz with shape `(n_mels,)`.
     """
     # 'Center freqs' of mel bands - uniformly spaced between limits
     min_mel = hz_to_mel(f_min, htk=htk)
@@ -125,14 +131,16 @@ def mel_frequencies(n_mels: int=64,
     return freqs
 
 
-def fft_frequencies(sr: int, n_fft: int, dtype: str=paddle.float32):
+def fft_frequencies(sr: int, n_fft: int, dtype: str='float32') -> Tensor:
     """Compute fourier frequencies.
-    Parameters:
-        sr(int): the audio sample rate.
-        n_fft(float): the number of fft bins.
-        dtype(str): the datatype of the return frequencies.
+
+    Args:
+        sr (int): Sample rate.
+        n_fft (int): Number of fft bins.
+        dtype (str, optional): The data type of the return frequencies. Defaults to 'float32'.
+
     Returns:
-        The frequencies represented in hz.
+        Tensor: FFT frequencies in Hz with shape `(n_fft//2 + 1,)`.
     """
     return paddle.linspace(0, float(sr) / 2, int(1 + n_fft // 2), dtype=dtype)
 
@@ -144,23 +152,21 @@ def compute_fbank_matrix(sr: int,
                          f_max: Optional[float]=None,
                          htk: bool=False,
                          norm: Union[str, float]='slaney',
-                         dtype: str=paddle.float32):
+                         dtype: str='float32') -> Tensor:
     """Compute fbank matrix.
-    Parameters:
-        sr(int): the audio sample rate.
-        n_fft(int): the number of fft bins.
-        n_mels(int): the number of Mel bins.
-        f_min(float): the lower cut-off frequency, below which the filter response is zero.
-        f_max(float): the upper cut-off frequency, above which the filter response is zero.
-        htk: whether to use htk formula.
-        return_complex(bool): whether to return complex matrix. If True, the matrix will
-            be complex type. Otherwise, the real and image part will be stored in the last
-            axis of returned tensor.
-        dtype(str): the datatype of the returned fbank matrix.
+
+    Args:
+        sr (int): Sample rate.
+        n_fft (int): Number of fft bins.
+        n_mels (int, optional): Number of mel bins. Defaults to 64.
+        f_min (float, optional): Minimum frequency in Hz. Defaults to 0.0.
+        f_max (Optional[float], optional): Maximum frequency in Hz. Defaults to None.
+        htk (bool, optional): Use htk scaling. Defaults to False.
+        norm (Union[str, float], optional): Type of normalization. Defaults to 'slaney'.
+        dtype (str, optional): The data type of the return matrix. Defaults to 'float32'.
+
     Returns:
-        The fbank matrix of shape (n_mels, int(1+n_fft//2)).
-    Shape:
-        output: (n_mels, int(1+n_fft//2))
+        Tensor: Mel transform matrix with shape `(n_mels, n_fft//2 + 1)`.
     """
 
     if f_max is None:
@@ -199,27 +205,20 @@ def compute_fbank_matrix(sr: int,
     return weights
 
 
-def power_to_db(magnitude: paddle.Tensor,
+def power_to_db(spect: Tensor,
                 ref_value: float=1.0,
                 amin: float=1e-10,
-                top_db: Optional[float]=None) -> paddle.Tensor:
-    """Convert a power spectrogram (amplitude squared) to decibel (dB) units.
-    The function computes the scaling ``10 * log10(x / ref)`` in a numerically
-    stable way.
-    Parameters:
-        magnitude(Tensor): the input magnitude tensor of any shape.
-        ref_value(float): the reference value. If smaller than 1.0, the db level
-            of the signal will be pulled up accordingly. Otherwise, the db level
-            is pushed down.
-        amin(float): the minimum value of input magnitude, below which the input
-            magnitude is clipped(to amin).
-        top_db(float): the maximum db value of resulting spectrum, above which the
-            spectrum is clipped(to top_db).
+                top_db: Optional[float]=None) -> Tensor:
+    """Convert a power spectrogram (amplitude squared) to decibel (dB) units. The function computes the scaling `10 * log10(x / ref)` in a numerically stable way.
+
+    Args:
+        spect (Tensor): STFT power spectrogram.
+        ref_value (float, optional): The reference value. If smaller than 1.0, the db level of the signal will be pulled up accordingly. Otherwise, the db level is pushed down. Defaults to 1.0.
+        amin (float, optional): Minimum threshold. Defaults to 1e-10.
+        top_db (Optional[float], optional): Threshold the output at `top_db` below the peak. Defaults to None.
+
     Returns:
-        The spectrogram in log-scale.
-    shape:
-        input: any shape
-        output: same as input
+        Tensor: Power spectrogram in db scale.
     """
     if amin <= 0:
         raise Exception("amin must be strictly positive")
@@ -227,8 +226,8 @@ def power_to_db(magnitude: paddle.Tensor,
     if ref_value <= 0:
         raise Exception("ref_value must be strictly positive")
 
-    ones = paddle.ones_like(magnitude)
-    log_spec = 10.0 * paddle.log10(paddle.maximum(ones * amin, magnitude))
+    ones = paddle.ones_like(spect)
+    log_spec = 10.0 * paddle.log10(paddle.maximum(ones * amin, spect))
     log_spec -= 10.0 * math.log10(max(ref_value, amin))
 
     if top_db is not None:
@@ -242,15 +241,17 @@ def power_to_db(magnitude: paddle.Tensor,
 def create_dct(n_mfcc: int,
                n_mels: int,
                norm: Optional[str]='ortho',
-               dtype: Optional[str]=paddle.float32) -> paddle.Tensor:
+               dtype: str='float32') -> Tensor:
     """Create a discrete cosine transform(DCT) matrix.
 
-    Parameters:
+    Args:
         n_mfcc (int): Number of mel frequency cepstral coefficients. 
         n_mels (int): Number of mel filterbanks.
-        norm (str, optional): Normalizaiton type. Defaults to 'ortho'.
+        norm (Optional[str], optional): Normalizaiton type. Defaults to 'ortho'.
+        dtype (str, optional): The data type of the return matrix. Defaults to 'float32'.
+
     Returns:
-        Tensor: The DCT matrix with shape (n_mels, n_mfcc).
+        Tensor: The DCT matrix with shape `(n_mels, n_mfcc)`.
     """
     n = paddle.arange(n_mels, dtype=dtype)
     k = paddle.arange(n_mfcc, dtype=dtype).unsqueeze(1)

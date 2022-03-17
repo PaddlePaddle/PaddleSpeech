@@ -403,11 +403,11 @@ def power_to_db(spect: np.ndarray,
                 ref: float=1.0,
                 amin: float=1e-10,
                 top_db: Optional[float]=80.0) -> np.ndarray:
-    """Convert a power spectrogram (amplitude squared) to decibel (dB) units.  This computes the scaling `10 * log10(spect / ref)` in a numerically stable way.
+    """Convert a power spectrogram (amplitude squared) to decibel (dB) units. The function computes the scaling `10 * log10(x / ref)` in a numerically stable way.
 
     Args:
         spect (np.ndarray): STFT power spectrogram of an input waveform.
-        ref (float, optional): Scaling factor of spectrogram. Defaults to 1.0.
+        ref (float, optional): The reference value. If smaller than 1.0, the db level of the signal will be pulled up accordingly. Otherwise, the db level is pushed down. Defaults to 1.0.
         amin (float, optional): Minimum threshold. Defaults to 1e-10.
         top_db (Optional[float], optional): Threshold the output at `top_db` below the peak. Defaults to 80.0.
 
@@ -513,7 +513,7 @@ def melspectrogram(x: np.ndarray,
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to "reflect".
         power (float, optional): Exponent for the magnitude melspectrogram. Defaults to 2.0.
         to_db (bool, optional): Enable db scale. Defaults to True.
-        ref (float, optional): Scaling factor of spectrogram. Defaults to 1.0.
+        ref (float, optional): The reference value. If smaller than 1.0, the db level of the signal will be pulled up accordingly. Otherwise, the db level is pushed down. Defaults to 1.0.
         amin (float, optional): Minimum threshold. Defaults to 1e-10.
         top_db (Optional[float], optional): Threshold the output at `top_db` below the peak. Defaults to None.
 

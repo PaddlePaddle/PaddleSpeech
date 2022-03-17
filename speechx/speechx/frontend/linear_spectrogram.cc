@@ -57,8 +57,9 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* feats) {
     if (flag == false || input_feats.Dim() == 0) return false;
 
     vector<BaseFloat> input_feats_vec(input_feats.Dim());
-    std::memcpy(input_feats_vec.data(), input_feats.Data(), 
-        input_feats.Dim()*sizeof(BaseFloat));
+    std::memcpy(input_feats_vec.data(),
+                input_feats.Data(),
+                input_feats.Dim() * sizeof(BaseFloat));
     vector<vector<BaseFloat>> result;
     Compute(input_feats_vec, result);
     int32 feat_size = 0;
@@ -86,10 +87,10 @@ bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
                                  vector<BaseFloat>* img) const {
     Vector<BaseFloat> v_tmp;
     v_tmp.Resize(v->size());
-    std::memcpy(v_tmp.Data(), v->data(), sizeof(BaseFloat)*(v->size()));
+    std::memcpy(v_tmp.Data(), v->data(), sizeof(BaseFloat) * (v->size()));
     RealFft(&v_tmp, true);
     v->resize(v_tmp.Dim());
-    std::memcpy(v->data(), v_tmp.Data(), sizeof(BaseFloat)*(v->size()));
+    std::memcpy(v->data(), v_tmp.Data(), sizeof(BaseFloat) * (v->size()));
 
     real->push_back(v->at(0));
     img->push_back(0);

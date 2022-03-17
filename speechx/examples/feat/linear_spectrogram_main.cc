@@ -164,8 +164,8 @@ int main(int argc, char* argv[]) {
     // test feature linear_spectorgram: wave --> decibel_normalizer --> hanning
     // window -->linear_spectrogram --> cmvn
     int32 num_done = 0, num_err = 0;
-    //std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
-     //ppspeech::RawDataCache());
+    // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
+    // ppspeech::RawDataCache());
     std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
         new ppspeech::RawAudioCache());
 

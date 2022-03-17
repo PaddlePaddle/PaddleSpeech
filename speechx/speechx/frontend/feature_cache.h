@@ -24,8 +24,7 @@ class FeatureCache : public FeatureExtractorInterface {
     explicit FeatureCache(
         int32 max_size = kint16max,
         std::unique_ptr<FeatureExtractorInterface> base_extractor = NULL);
-    virtual void Accept(
-        const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
     // feats dim = num_frames * feature_dim
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
     // feature cache only cache feature which from base extractor

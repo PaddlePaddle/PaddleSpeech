@@ -18,6 +18,7 @@ from fastapi import FastAPI
 
 from paddlespeech.ws.socket.api import setup_router
 from paddlespeech.ws.utils.config import get_config
+from paddlespeech.ws.engine.engine_pool import init_engine_pool
 
 app = FastAPI(
     title="PaddleSpeech Streaming Serving API", description="Api", version="0.0.1")
@@ -36,6 +37,9 @@ def init(config):
     api_list = list(config.engine_backend)
     api_router = setup_router(api_list)
     app.include_router(api_router)
+
+    if not init_engine_pool(config):
+        return False
 
     return True
 

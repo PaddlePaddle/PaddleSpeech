@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from paddlespeech.server.engine.engine_factory import EngineFactory
+from paddlespeech.ws.engine.engine_factory import EngineFactory
 
 # global value
 ENGINE_POOL = {}

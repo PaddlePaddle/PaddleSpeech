@@ -12,16 +12,16 @@ port: 8090
 # add engine backend type (Options: asr, tts) and config file here.
 # Adding a speech task to engine_backend means starting the service.
 engine_backend:
-    asr: 'conf/asr/asr.yaml'
+    asr: 'conf/asr/asr_online.yaml'
     # tts: 'conf/tts/tts.yaml'
 
 # The engine_type of speech task needs to keep the same type as the config file of speech task.
 # E.g: The engine_type of asr is 'python', the engine_backend of asr is 'XX/asr.yaml'
 # E.g: The engine_type of asr is 'inference', the engine_backend of asr is 'XX/asr_pd.yaml'
 #
-# add engine type (Options: python, inference) 
+# add engine type (Options: python, inference, online) 
 engine_type:
-    asr: 'python'
+    asr: 'online'
     # tts: 'python'
 
 

@@ -14,6 +14,7 @@
 
 #!/usr/bin/env python3
 #! coding:utf-8
+import argparse
 import logging
 import time
 import os
@@ -22,25 +23,43 @@ import wave
 import numpy as np
 import asyncio
 import websockets
+import soundfile
+
 
 class ASRAudioHandler:
     def __init__(self,
                  url="127.0.0.1",
-                 port=8310):
+                 port=8090):
         self.url = url
         self.port = port
         self.url = "ws://" + self.url + ":" + str(self.port) + "/ws/asr"
-        self.chunk = 0.36
 
-    # def read_wave(self):
-    #     audio = wave.open("./Downloads/ffmpeg_audio-16k.wav", "rb")
-    #     params = audio.getparams()
-    #     nchannels, sampwidth, framerate, samplenum = params[:4]
-    #     self.audio_data = np.frombuffer(audio.readframes(samplenum), np.int16)
-    #     self.chunk = self.chunk * framerate
-    #     audio.close()
+    def read_wave(self, wavfile_path: str):
+        samples, sample_rate = soundfile.read(wavfile_path, dtype='float32')
+        x_len = len(samples)
+        chunk_stride = 40 * 16      #sample_rate = 16kHz
+        chunk_size = 80 * 16        #sample_rate = 16kHz
 
-    async def run(self):
+        if (x_len - chunk_size) % chunk_stride != 0:
+            padding_len_x = chunk_stride - (x_len - chunk_size
+                                            ) % chunk_stride
+        else:
+            padding_len_x = 0
+
+        padding = np.zeros(
+            (padding_len_x), dtype=samples.dtype)
+        padded_x = np.concatenate([samples, padding], axis=0)
+
+        num_chunk = (x_len + padding_len_x - chunk_size) / chunk_stride + 1
+        num_chunk = int(num_chunk)
+
+        for i in range(0, num_chunk):
+            start = i * chunk_stride
+            end = start + chunk_size
+            x_chunk = padded_x[start:end]
+            yield x_chunk
+
+    async def run(self, wavfile_path: str):
         logging.info("send a message to the server")
         # 读取音频
         # self.read_wave()
@@ -57,33 +76,39 @@ class ASRAudioHandler:
             msg = await ws.recv()
             logging.info("receive msg={}".format(msg))
 
-            # start = 0
-            # isFinished = False
-            # while start < len(self.audio_data):
-            #     end = int(min(start + self.chunk, len(self.audio_data)))
-            #     if end >= len(self.audio_data):
-            #         isFinished = True
-            #     chunk_data = self.audio_data[start:end].tobytes()
-            #     await ws.send(chunk_data)
-            #     logging.info("start={}, end={}, chunk size={}, isFinished={}".format(start, end, end-start, isFinished))
-            #     start = end
-            #     msg = await ws.recv()
-            #     logging.info("receive msg={}".format(msg))
+            # send chunk audio data to engine
+            for chunk_data in self.read_wave(wavfile_path):
+                await ws.send(chunk_data.tobytes())
+                msg = await ws.recv()
+                logging.info("receive msg={}".format(msg))
 
-            # audio_info = json.dumps({
-            #                 "name": "test.wav",
-            #                 "signal": "end",
-            #                 "nbest": 5
-            #                 }, sort_keys=True, indent=4, separators=(',', ': '))
-            # await ws.send(audio_info)
-            # msg = await ws.recv()
-            # logging.info("receive msg={}".format(msg))
+            # finished 
+            audio_info = json.dumps({
+                            "name": "test.wav",
+                            "signal": "end",
+                            "nbest": 5
+                            }, sort_keys=True, indent=4, separators=(',', ': '))
+            await ws.send(audio_info)
+            msg = await ws.recv()
+            logging.info("receive msg={}".format(msg))
 
 
-if __name__ == "__main__":
+def main(args):
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
     handler = ASRAudioHandler("127.0.0.1", 8090)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(handler.run())
+    loop.run_until_complete(handler.run(args.wavfile))
     logging.info("asr websocket client finished")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--wavfile",
+        action="store",
+        help="wav file path ",
+        default="./16_audio.wav")
+    args = parser.parse_args()
+
+    main(args)

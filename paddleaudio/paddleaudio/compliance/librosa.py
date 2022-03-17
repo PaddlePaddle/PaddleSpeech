@@ -346,7 +346,7 @@ def stft(x: np.ndarray,
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to "reflect".
 
     Returns:
-        np.ndarray: The complex STFT output with shape `(n_fft//2 + 1, num_frames)`
+        np.ndarray: The complex STFT output with shape `(n_fft//2 + 1, num_frames)`.
     """
     _check_audio(x)
 
@@ -465,7 +465,7 @@ def mfcc(x: np.ndarray,
         lifter (int, optional): Cepstral filtering. Defaults to 0.
 
     Returns:
-        np.ndarray: A mel frequency cepstral coefficients tensor with shape `(n_mfcc, num_frames)`.
+        np.ndarray: Mel frequency cepstral coefficients array with shape `(n_mfcc, num_frames)`.
     """
     if spect is None:
         spect = melspectrogram(x, sr=sr, **kwargs)

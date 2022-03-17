@@ -6,7 +6,7 @@
 
 ```
 ./build.sh
-```l
+```
 
 ## Valgrind
 

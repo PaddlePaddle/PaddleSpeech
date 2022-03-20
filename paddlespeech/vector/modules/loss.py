@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# This is modified from SpeechBrain
+# https://github.com/speechbrain/speechbrain/blob/085be635c07f16d42cd1295045bc46c407f1e15b/speechbrain/nnet/losses.py
 import math
 
 import paddle
@@ -20,6 +22,14 @@ import paddle.nn.functional as F
 
 class AngularMargin(nn.Layer):
     def __init__(self, margin=0.0, scale=1.0):
+        """An implementation of Angular Margin (AM) proposed in the following
+           paper: '''Margin Matters: Towards More Discriminative Deep Neural Network
+           Embeddings for Speaker Recognition''' (https://arxiv.org/abs/1906.07317)
+
+        Args:
+            margin (float, optional): The margin for cosine similiarity. Defaults to 0.0.
+            scale (float, optional): The scale for cosine similiarity. Defaults to 1.0.
+        """
         super(AngularMargin, self).__init__()
         self.margin = margin
         self.scale = scale
@@ -31,6 +41,15 @@ class AngularMargin(nn.Layer):
 
 class AdditiveAngularMargin(AngularMargin):
     def __init__(self, margin=0.0, scale=1.0, easy_margin=False):
+        """The Implementation of Additive Angular Margin (AAM) proposed
+       in the following paper: '''Margin Matters: Towards More Discriminative Deep Neural Network Embeddings for Speaker Recognition'''
+       (https://arxiv.org/abs/1906.07317)
+
+        Args:
+            margin (float, optional): margin factor. Defaults to 0.0.
+            scale (float, optional): scale factor. Defaults to 1.0.
+            easy_margin (bool, optional): easy_margin flag. Defaults to False.
+        """
         super(AdditiveAngularMargin, self).__init__(margin, scale)
         self.easy_margin = easy_margin
 
@@ -53,6 +72,11 @@ class AdditiveAngularMargin(AngularMargin):
 
 class LogSoftmaxWrapper(nn.Layer):
     def __init__(self, loss_fn):
+        """Speaker identificatin loss function wrapper 
+           including all of compositions of the loss transformation
+        Args:
+            loss_fn (_type_): the loss value of a batch
+        """
         super(LogSoftmaxWrapper, self).__init__()
         self.loss_fn = loss_fn
         self.criterion = paddle.nn.KLDivLoss(reduction="sum")

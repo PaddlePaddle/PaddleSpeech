@@ -15,6 +15,7 @@ import argparse
 import os
 
 import numpy as np
+import time
 import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
@@ -35,6 +36,7 @@ from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.scheduler import CyclicLRScheduler
 from paddlespeech.vector.training.seeding import seed_everything
 from paddlespeech.vector.utils.time import Timer
+from paddlespeech.vector.io.batch import batch_pad_right
 
 logger = Log(__name__).getlog()
 
@@ -55,7 +57,7 @@ def main(args, config):
     train_dataset = VoxCeleb('train', target_dir=args.data_dir)
     dev_dataset = VoxCeleb('dev', target_dir=args.data_dir)
 
-    if args.augment:
+    if config.augment:
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
     else:
         augment_pipeline = []
@@ -126,6 +128,7 @@ def main(args, config):
     #         we will comment the training process
     steps_per_epoch = len(train_sampler)
     timer = Timer(steps_per_epoch * config.epochs)
+    last_saved_epoch = ""
     timer.start()
 
     for epoch in range(start_epoch + 1, config.epochs + 1):
@@ -135,9 +138,19 @@ def main(args, config):
         avg_loss = 0
         num_corrects = 0
         num_samples = 0
+        train_reader_cost = 0.0
+        train_feat_cost = 0.0
+        train_run_cost = 0.0
+
+        reader_start = time.time()
         for batch_idx, batch in enumerate(train_loader):
+            train_reader_cost += time.time() - reader_start
+            
             # stage 9-1: batch data is audio sample points and speaker id label
+            feat_start = time.time()
             waveforms, labels = batch['waveforms'], batch['labels']
+            waveforms, lengths = batch_pad_right(waveforms.numpy())
+            waveforms = paddle.to_tensor(waveforms)
 
             # stage 9-2: audio sample augment method, which is done on the audio sample point
             #            the original wavefrom and the augmented waveform is concatented in a batch
@@ -153,18 +166,20 @@ def main(args, config):
             feats = []
             for waveform in waveforms.numpy():
                 feat = melspectrogram(x=waveform, 
-                                      sr=config.sample_rate, 
+                                      sr=config.sr, 
                                       n_mels=config.n_mels, 
                                       window_size=config.window_size, 
-                                      hop_length=config.hop_length)
+                                      hop_length=config.hop_size)
                 feats.append(feat)
             feats = paddle.to_tensor(np.asarray(feats))
 
             # stage 9-4: feature normalize, which help converge and imporve the performance
             feats = feature_normalize(
                 feats, mean_norm=True, std_norm=False)  # Features normalization
+            train_feat_cost += time.time() - feat_start
 
             # stage 9-5: model forward, such ecapa-tdnn, x-vector
+            train_start = time.time()
             logits = model(feats)
 
             # stage 9-6: loss function criterion, such AngularMargin, AdditiveAngularMargin
@@ -177,6 +192,7 @@ def main(args, config):
                           paddle.optimizer.lr.LRScheduler):
                 optimizer._learning_rate.step()
             optimizer.clear_grad()
+            train_run_cost += time.time() - train_start
 
             # stage 9-8: Calculate average loss per batch
             avg_loss += loss.numpy()[0]
@@ -186,7 +202,7 @@ def main(args, config):
             num_corrects += (preds == labels).numpy().sum()
             num_samples += feats.shape[0]
             timer.count()  # step plus one in timer
-
+            
             # stage 9-10: print the log information only on 0-rank per log-freq batchs
             if (batch_idx + 1) % config.log_interval == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
@@ -197,6 +213,9 @@ def main(args, config):
                     epoch, config.epochs, batch_idx + 1, steps_per_epoch)
                 print_msg += ' loss={:.4f}'.format(avg_loss)
                 print_msg += ' acc={:.4f}'.format(avg_acc)
+                print_msg += ' avg_reader_cost: {:.5f} sec,'.format(train_reader_cost / config.log_interval)
+                print_msg += ' avg_feat_cost: {:.5f} sec,'.format(train_feat_cost / config.log_interval)
+                print_msg += ' avg_train_cost: {:.5f} sec,'.format(train_run_cost / config.log_interval)
                 print_msg += ' lr={:.4E} step/sec={:.2f} | ETA {}'.format(
                     lr, timer.timing, timer.eta)
                 logger.info(print_msg)
@@ -204,6 +223,11 @@ def main(args, config):
                 avg_loss = 0
                 num_corrects = 0
                 num_samples = 0
+                train_reader_cost = 0.0
+                train_feat_cost = 0.0
+                train_run_cost = 0.0
+
+            reader_start = time.time()
 
         # stage 9-11: save the model parameters only on 0-rank per save-freq batchs
         if epoch % config.save_interval == 0 and batch_idx + 1 == steps_per_epoch:
@@ -239,10 +263,10 @@ def main(args, config):
                     feats = []
                     for waveform in waveforms.numpy():
                         feat = melspectrogram(x=waveform, 
-                                              sr=config.sample_rate,
+                                              sr=config.sr,
                                               n_mels=config.n_mels,
                                               window_size=config.window_size,
-                                              hop_length=config.hop_length)
+                                              hop_length=config.hop_size)
                         feats.append(feat)
 
                     feats = paddle.to_tensor(np.asarray(feats))
@@ -261,6 +285,7 @@ def main(args, config):
             # stage 9-14: Save model parameters
             save_dir = os.path.join(args.checkpoint_dir,
                                     'epoch_{}'.format(epoch))
+            last_saved_epoch = os.path.join('epoch_{}'.format(epoch), "model.pdparams")
             logger.info('Saving model checkpoint to {}'.format(save_dir))
             paddle.save(model.state_dict(),
                         os.path.join(save_dir, 'model.pdparams'))
@@ -270,6 +295,14 @@ def main(args, config):
             if nranks > 1:
                 paddle.distributed.barrier()  # Main process
 
+    # stage 10: create the final trained model.pdparams with soft link
+    if local_rank == 0:
+        final_model = os.path.join(args.checkpoint_dir, "model.pdparams")
+        logger.info(f"we will create the final model: {final_model}")
+        if os.path.islink(final_model):
+            logger.info(f"An {final_model} already exists, we will rm is and create it again")
+            os.unlink(final_model)
+        os.symlink(last_saved_epoch, final_model)
 
 if __name__ == "__main__":
     # yapf: disable
@@ -294,10 +327,6 @@ if __name__ == "__main__":
                         type=str,
                         default='./checkpoint',
                         help="Directory to save model checkpoints.")
-    parser.add_argument("--augment",
-                        action="store_true",
-                        default=False,
-                        help="Apply audio augments.")
 
     args = parser.parse_args()
     # yapf: enable

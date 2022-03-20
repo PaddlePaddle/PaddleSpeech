@@ -49,8 +49,6 @@ def main(args, config):
 
     # stage3: load the pre-trained model
     #         we get the last model from the epoch and save_interval
-    last_save_epoch = (config.epochs // config.save_interval) * config.save_interval
-    args.load_checkpoint = os.path.join(args.load_checkpoint, "epoch_" + str(last_save_epoch))
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
 
@@ -61,6 +59,7 @@ def main(args, config):
     logger.info(f'Checkpoint loaded from {args.load_checkpoint}')
 
     # stage4: construct the enroll and test dataloader
+
     enroll_dataset = VoxCeleb(
         subset='enroll',
         target_dir=args.data_dir,
@@ -68,7 +67,7 @@ def main(args, config):
         random_chunk=False,
         n_mels=config.n_mels,
         window_size=config.window_size,
-        hop_length=config.hop_length)
+        hop_length=config.hop_size)
     enroll_sampler = BatchSampler(
         enroll_dataset, batch_size=config.batch_size,
         shuffle=True)  # Shuffle to make embedding normalization more robust.
@@ -85,7 +84,7 @@ def main(args, config):
         random_chunk=False,
         n_mels=config.n_mels,
         window_size=config.window_size,
-        hop_length=config.hop_length)
+        hop_length=config.hop_size)
 
     test_sampler = BatchSampler(
         test_dataset, batch_size=config.batch_size, shuffle=True)

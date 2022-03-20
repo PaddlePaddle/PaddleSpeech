@@ -14,10 +14,10 @@ random_chunk: True
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
 # currently, we only support fbank
-sample_rate: 16000
+sr: 16000           # sample rate
 n_mels: 80
 window_size: 400     #25ms, sample rate 16000, 25 * 16000 / 1000 = 400 
-hop_length: 160     #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
+hop_size: 160        #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
 
 ###########################################################
 #                       MODEL SETTING                     #

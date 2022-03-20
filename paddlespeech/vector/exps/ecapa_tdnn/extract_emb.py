@@ -63,16 +63,16 @@ def extract_audio_embedding(args, config):
     # so the final shape is [1, dim, time]
     start_time = time.time()
     feat = melspectrogram(x=waveform, 
-                          sr=config.sample_rate,
+                          sr=config.sr,
                           n_mels=config.n_mels,
                           window_size=config.window_size,
-                          hop_length=config.hop_length)
+                          hop_length=config.hop_size)
     feat = paddle.to_tensor(feat).unsqueeze(0)
 
     # in inference period, the lengths is all one without padding
     lengths = paddle.ones([1])
     feat = feature_normalize(
-        feat, mean_norm=True, std_norm=False, convert_to_numpy=True)
+        feat, mean_norm=True, std_norm=False)
 
     # model backbone network forward the feats and get the embedding
     embedding = model.backbone(

@@ -36,11 +36,10 @@ stop_stage=50
 # data directory
 # if we set the variable ${dir}, we will store the wav info to this directory
 # otherwise, we will store the wav info to vox1 and vox2 directory respectively
-# vox2 wav path, we must convert the m4a format to wav format 
-# dir=data-demo/                          # data info directory    
-dir=demo/                          # data info directory   
+# vox2 wav path, we must convert the m4a format to wav format    
+dir=data/                                 # data info directory   
 
-exp_dir=exp/ecapa-tdnn-vox12-big//            # experiment directory
+exp_dir=exp/ecapa-tdnn-vox12-big/            # experiment directory
 conf_path=conf/ecapa_tdnn.yaml          
 gpus=0,1,2,3
 
@@ -50,16 +49,15 @@ mkdir -p ${exp_dir}
 
 if [ $stage -le 0 ] && [ ${stop_stage} -ge 0 ]; then 
      # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
-     # and we should specifiy the vox2 data in the data.sh
      bash ./local/data.sh ${dir} ${conf_path}|| exit -1;
-fi 
+fi
 
 if [ $stage -le 1 ] && [ ${stop_stage} -ge 1 ]; then
      # stage 1: train the speaker identification model
      CUDA_VISIBLE_DEVICES=${gpus} bash ./local/train.sh ${dir} ${exp_dir} ${conf_path} 
 fi
 
-if [ $stage -le 2 ]; then
+if [ $stage -le 2 ] && [ ${stop_stage} -ge 2 ]; then
      # stage 2: get the speaker verification scores with cosine function
      #          now we only support use cosine to get the scores
      CUDA_VISIBLE_DEVICES=0 bash ./local/test.sh ${dir} ${exp_dir} ${conf_path}

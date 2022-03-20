@@ -19,9 +19,15 @@ from sklearn.metrics import roc_curve
 
 
 def compute_eer(labels: np.ndarray, scores: np.ndarray) -> List[float]:
-    '''
-    Compute EER and return score threshold.
-    '''
+    """Compute EER and return score threshold.
+
+    Args:
+        labels (np.ndarray): the trial label, shape: [N], one-dimention, N refer to the samples num
+        scores (np.ndarray): the trial scores, shape: [N], one-dimention, N refer to the samples num
+
+    Returns:
+        List[float]: eer and the specific threshold
+    """
     fpr, tpr, threshold = roc_curve(y_true=labels, y_score=scores)
     fnr = 1 - tpr
     eer_threshold = threshold[np.nanargmin(np.absolute((fnr - fpr)))]
@@ -54,7 +60,7 @@ def compute_minDCF(positive_scores,
         p_target (float, optional): Prior probability of having a target (default 0.01).
 
     Returns:
-        _type_: min dcf 
+        List[float]: min dcf and the specific threshold
     """
     # Computing candidate thresholds
     if len(positive_scores.shape) > 1:

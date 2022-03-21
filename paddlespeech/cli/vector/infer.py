@@ -43,10 +43,10 @@ from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 
 pretrained_models = {
     # The tags for pretrained_models should be "{model_name}[-{dataset}][-{sr}][-...]".
-    # e.g. "ecapa_tdnn-voxceleb12-16k".
+    # e.g. "EcapaTdnn_voxceleb12-16k".
     # Command line and python api use "{model_name}[-{dataset}]" as --model, usage:
-    # "paddlespeech vector --task spk --model ecapa_tdnn-voxceleb12-16k --sr 16000 --input ./input.wav"
-    "ecapa_tdnn-voxceleb12-16k": {
+    # "paddlespeech vector --task spk --model EcapaTdnn_voxceleb12-voxceleb12-16k --sr 16000 --input ./input.wav"
+    "EcapaTdnn_voxceleb12-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz',
         'md5':
@@ -59,7 +59,7 @@ pretrained_models = {
 }
 
 model_alias = {
-    "ecapa_tdnn": "paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn",
+    "EcapaTdnn": "paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn",
 }
 
 
@@ -75,8 +75,8 @@ class VectorExecutor(BaseExecutor):
         self.parser.add_argument(
             "--model",
             type=str,
-            default="ecapa_tdnn-voxceleb12",
-            choices=["ecapa_tdnn"],
+            default="EcapaTdnn_voxceleb12",
+            choices=["EcapaTdnn_voxceleb12"],
             help="Choose model type of asr task.")
         self.parser.add_argument(
             "--task",
@@ -175,7 +175,7 @@ class VectorExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='ecapa_tdnn-voxceleb12',
+                 model: str='EcapaTdnn-voxceleb12',
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
@@ -212,7 +212,7 @@ class VectorExecutor(BaseExecutor):
         return decompressed_path
 
     def _init_from_path(self,
-                        model_type: str='ecapa_tdnn-voxceleb12',
+                        model_type: str='EcapaTdnn_voxceleb12',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         ckpt_path: Optional[os.PathLike]=None):
@@ -247,7 +247,7 @@ class VectorExecutor(BaseExecutor):
         # stage 3: get the model name to instance the model network with dynamic_import
         # Noet: we use the '-' to get the model name instead of '_'
         logger.info("start to dynamic import the model class")
-        model_name = model_type[:model_type.rindex('-')]
+        model_name = model_type[:model_type.rindex('_')]
         logger.info(f"model name {model_name}")
         model_class = dynamic_import(model_name, model_alias)
         model_conf = self.config.model

@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import List
+
 from pydantic import BaseModel
 
-__all__ = ['ASRResponse', 'TTSResponse']
+__all__ = ['ASRResponse', 'TTSResponse', 'CLSResponse']
 
 
 class Message(BaseModel):
@@ -52,10 +54,11 @@ class ASRResponse(BaseModel):
 #****************************************************************************************/
 class TTSResult(BaseModel):
     lang: str = "zh"
-    sample_rate: int
     spk_id: int = 0
     speed: float = 1.0
     volume: float = 1.0
+    sample_rate: int
+    duration: float
     save_path: str = None
     audio: str
 
@@ -71,9 +74,11 @@ class TTSResponse(BaseModel):
         },
         "result": {
             "lang": "zh",
-            "sample_rate": 24000,
+            "spk_id": 0,
             "speed": 1.0,
             "volume": 1.0,
+            "sample_rate": 24000,
+            "duration": 3.6125,
             "audio": "LTI1OTIuNjI1OTUwMzQsOTk2OS41NDk4...",
             "save_path": "./tts.wav"
         }
@@ -83,6 +88,45 @@ class TTSResponse(BaseModel):
     code: int
     message: Message
     result: TTSResult
+
+
+#****************************************************************************************/
+#************************************ CLS response **************************************/
+#****************************************************************************************/
+class CLSResults(BaseModel):
+    class_name: str
+    prob: float
+
+
+class CLSResult(BaseModel):
+    topk: int
+    results: List[CLSResults]
+
+
+class CLSResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            topk: 1
+            results: [
+            {
+                "class":"Speech",
+                "prob": 0.9027184844017029
+            }
+            ]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: CLSResult
 
 
 #****************************************************************************************/

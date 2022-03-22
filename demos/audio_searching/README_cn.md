@@ -6,7 +6,7 @@
 
 随着互联网不断发展，电子邮件、社交媒体照片、直播视频、客服语音等非结构化数据已经变得越来越普遍。如果想要使用计算机来处理这些数据，需要使用 embedding 技术将这些数据转化为向量 vector，然后进行存储、建索引、并查询
 
-但是，当数据量很大，比如上亿条音频要做相似度搜索，就比较困难了。穷举法固然可行，但非常耗时。针对这种场景，该demo 将介绍如何使用开源向量数据库 Milvus 搭建音频相似度检索系统
+但是，当数据量很大，比如上亿条音频要做相似度搜索，就比较困难了。穷举法固然可行，但非常耗时。针对这种场景，该 demo 将介绍如何使用开源向量数据库 Milvus 搭建音频相似度检索系统
 
 音频检索（如演讲、音乐、说话人等检索）实现了在海量音频数据中查询并找出相似声音（或相同说话人）片段。音频相似性检索系统可用于识别相似的音效、最大限度减少知识产权侵权等，还可以快速的检索声纹库、帮助企业控制欺诈和身份盗用等。在音频数据的分类和统计分析中，音频检索也发挥着重要作用
 
@@ -43,7 +43,7 @@ b2bcf279e599  milvusdb/milvus:v2.0.1  "/tini -- milvus run…"  22 hours ago  Up
 d8ef4c84e25c  mysql:5.7 "docker-entrypoint.s…"  22 hours ago  Up 22 hours 0.0.0.0:3306->3306/tcp, 33060/tcp audio-mysql
 8fb501edb4f3  quay.io/coreos/etcd:v3.5.0  "etcd -advertise-cli…"  22 hours ago  Up 22 hours 2379-2380/tcp milvus-etcd
 ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"  22 hours ago  Up 22 hours (healthy) 9000/tcp  milvus-minio
-15c84a506754  iregistry.baidu-int.com/paddlespeech/audio-search-client:1.0  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
+15c84a506754  qingen1/paddlespeech-audio-search-client:2.3  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
 
 ```
 
@@ -129,7 +129,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   
     在浏览器中输入 127.0.0.1:8068 访问前端页面
     
-    注：如果浏览器和服务不在同一台机器上，那么 IP 需要修改成服务所在的机器 IP，并且docker-compose.yaml 中相应的 API_URL 也要修改，并重新起服务即可
+    注：如果浏览器和服务不在同一台机器上，那么 IP 需要修改成服务所在的机器 IP，并且 docker-compose.yaml 中相应的 API_URL 也要修改，并重新起服务即可
 
     - 上传音频
     
@@ -158,7 +158,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
 
   ![](./img/result.png)
 
-基于 milvus 的检索框架在召回率 90% 的前提下，检索耗时约 2.9 毫秒，加上特征提取(Embedding)耗时约 500毫秒(测试音频时长约 5秒)，即单条音频测试总共耗时约 503 毫秒，可以满足大多数应用场景
+基于 Milvus 的检索框架在召回率 90% 的前提下，检索耗时约 2.9 毫秒，加上特征提取(Embedding)耗时约 500毫秒(测试音频时长约 5秒)，即单条音频测试总共耗时约 503 毫秒，可以满足大多数应用场景
 
 ### 5. 预训练模型
 

@@ -51,7 +51,6 @@ from paddlespeech.s2t.utils.tensor_utils import pad_sequence
 from paddlespeech.s2t.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.utility import UpdateConfig
-# from paddlespeech.s2t.modules.initializer import initialize
 
 __all__ = ["U2Model", "U2InferModel"]
 

@@ -174,7 +174,7 @@ class ServerStatsExecutor():
                     "Failed to get the table of TTS pretrained models supported in the service."
                 )
                 return False
-        
+
         elif self.task == 'cls':
             try:
                 from paddlespeech.cli.cls.infer import pretrained_models

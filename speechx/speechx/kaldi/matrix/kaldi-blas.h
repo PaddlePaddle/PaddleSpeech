@@ -96,8 +96,8 @@
 #elif defined(HAVE_OPENBLAS)
   // getting cblas.h and lapacke.h from <openblas-install-dir>/.
   // putting in "" not <> to search -I before system libraries.
-  #include "third_party/openblas/cblas.h"
-  #include "third_party/openblas/lapacke.h"
+  #include "cblas.h"
+  #include "lapacke.h"
   #undef I
   #undef complex
   // get rid of macros from f2c.h -- these are dangerous.

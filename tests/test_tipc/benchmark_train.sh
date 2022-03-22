@@ -61,7 +61,7 @@ function get_repo_name(){
     cur_dir=$(pwd)
     IFS="/"
     arr=(${cur_dir})
-    echo ${arr[-1]}
+    echo ${arr[-2]}
 }
 
 FILENAME=$1

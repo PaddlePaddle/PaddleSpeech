@@ -61,6 +61,7 @@ def remove_version_py(filename='paddleaudio/__init__.py'):
             if "__version__" not in line:
                 f.write(line)
 
+
 remove_version_py()
 write_version_py()
 

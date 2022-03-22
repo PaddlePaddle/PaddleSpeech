@@ -178,7 +178,8 @@ class BaseExecutor(ABC):
         Returns:
             bool: return `True` for job input, `False` otherwise.
         """
-        return input_ and os.path.isfile(input_) and input_.endswith('.job')
+        return input_ and os.path.isfile(input_) and (input_.endswith('.job') or
+                                                      input_.endswith('.txt'))
 
     def _get_job_contents(
             self, job_input: os.PathLike) -> Dict[str, Union[str, os.PathLike]]:

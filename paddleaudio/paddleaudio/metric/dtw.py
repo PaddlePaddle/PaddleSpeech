@@ -20,9 +20,7 @@ __all__ = [
 
 
 def dtw_distance(xs: np.ndarray, ys: np.ndarray) -> float:
-    """dtw distance
-
-    Dynamic Time Warping.
+    """Dynamic Time Warping.
     This function keeps a compact matrix, not the full warping paths matrix.
     Uses dynamic programming to compute:
 

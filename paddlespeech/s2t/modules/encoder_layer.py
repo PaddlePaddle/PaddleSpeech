@@ -20,6 +20,8 @@ from typing import Tuple
 import paddle
 from paddle import nn
 
+from paddlespeech.s2t.modules.align import LayerNorm
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -59,15 +61,15 @@ class TransformerEncoderLayer(nn.Layer):
         super().__init__()
         self.self_attn = self_attn
         self.feed_forward = feed_forward
-        self.norm1 = nn.LayerNorm(size, epsilon=1e-12)
-        self.norm2 = nn.LayerNorm(size, epsilon=1e-12)
+        self.norm1 = LayerNorm(size, epsilon=1e-12)
+        self.norm2 = LayerNorm(size, epsilon=1e-12)
         self.dropout = nn.Dropout(dropout_rate)
         self.size = size
         self.normalize_before = normalize_before
         self.concat_after = concat_after
         # concat_linear may be not used in forward fuction,
         # but will be saved in the *.pt
-        self.concat_linear = nn.Linear(size + size, size)
+        self.concat_linear = Linear(size + size, size)
 
     def forward(
             self,
@@ -174,51 +176,23 @@ class ConformerEncoderLayer(nn.Layer):
         self.feed_forward = feed_forward
         self.feed_forward_macaron = feed_forward_macaron
         self.conv_module = conv_module
-        self.norm_ff = nn.LayerNorm(
-            size,
-            epsilon=1e-12,
-            weight_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(1.0)),
-            bias_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(0.0)))  # for the FNN module
-        self.norm_mha = nn.LayerNorm(
-            size,
-            epsilon=1e-12,
-            weight_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(1.0)),
-            bias_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(0.0)))  # for the MHA module
+        self.norm_ff = LayerNorm(size, epsilon=1e-12)  # for the FNN module
+        self.norm_mha = LayerNorm(size, epsilon=1e-12)  # for the MHA module
         if feed_forward_macaron is not None:
-            self.norm_ff_macaron = nn.LayerNorm(
-                size,
-                epsilon=1e-12,
-                weight_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(1.0)),
-                bias_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(0.0)))
+            self.norm_ff_macaron = LayerNorm(size, epsilon=1e-12)
             self.ff_scale = 0.5
         else:
             self.ff_scale = 1.0
         if self.conv_module is not None:
-            self.norm_conv = nn.LayerNorm(
-                size,
-                epsilon=1e-12,
-                weight_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(1.0)),
-                bias_attr=paddle.ParamAttr(initializer=nn.initializer.Constant(
-                    0.0)))  # for the CNN module
-            self.norm_final = nn.LayerNorm(
-                size,
-                epsilon=1e-12,
-                weight_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(1.0)),
-                bias_attr=paddle.ParamAttr(initializer=nn.initializer.Constant(
-                    0.0)))  # for the final output of the block
+            self.norm_conv = LayerNorm(
+                size, epsilon=1e-12)  # for the CNN module
+            self.norm_final = LayerNorm(
+                size, epsilon=1e-12)  # for the final output of the block
         self.dropout = nn.Dropout(dropout_rate)
         self.size = size
         self.normalize_before = normalize_before
         self.concat_after = concat_after
-        self.concat_linear = nn.Linear(size + size, size)
+        self.concat_linear = Linear(size + size, size)
 
     def forward(
             self,

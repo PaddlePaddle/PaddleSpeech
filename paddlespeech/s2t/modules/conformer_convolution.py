@@ -21,6 +21,9 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
+from paddlespeech.s2t.modules.align import BatchNorm1D
+from paddlespeech.s2t.modules.align import Conv1D
+from paddlespeech.s2t.modules.align import LayerNorm
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -49,7 +52,7 @@ class ConvolutionModule(nn.Layer):
         """
         assert check_argument_types()
         super().__init__()
-        self.pointwise_conv1 = nn.Conv1D(
+        self.pointwise_conv1 = Conv1D(
             channels,
             2 * channels,
             kernel_size=1,
@@ -73,7 +76,7 @@ class ConvolutionModule(nn.Layer):
             padding = (kernel_size - 1) // 2
             self.lorder = 0
 
-        self.depthwise_conv = nn.Conv1D(
+        self.depthwise_conv = Conv1D(
             channels,
             channels,
             kernel_size,
@@ -87,22 +90,12 @@ class ConvolutionModule(nn.Layer):
         assert norm in ['batch_norm', 'layer_norm']
         if norm == "batch_norm":
             self.use_layer_norm = False
-            self.norm = nn.BatchNorm1D(
-                channels,
-                weight_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(1.0)),
-                bias_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(0.0)))
+            self.norm = BatchNorm1D(channels)
         else:
             self.use_layer_norm = True
-            self.norm = nn.LayerNorm(
-                channels,
-                weight_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(1.0)),
-                bias_attr=paddle.ParamAttr(
-                    initializer=nn.initializer.Constant(0.0)))
+            self.norm = LayerNorm(channels)
 
-        self.pointwise_conv2 = nn.Conv1D(
+        self.pointwise_conv2 = Conv1D(
             channels,
             channels,
             kernel_size=1,

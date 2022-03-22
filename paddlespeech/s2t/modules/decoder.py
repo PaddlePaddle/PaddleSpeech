@@ -24,6 +24,9 @@ from paddle import nn
 from typeguard import check_argument_types
 
 from paddlespeech.s2t.decoders.scorers.scorer_interface import BatchScorerInterface
+from paddlespeech.s2t.modules.align import Embedding
+from paddlespeech.s2t.modules.align import LayerNorm
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.decoder_layer import DecoderLayer
 from paddlespeech.s2t.modules.embedding import PositionalEncoding
@@ -83,25 +86,15 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
 
         if input_layer == "embed":
             self.embed = nn.Sequential(
-                nn.Embedding(
-                    vocab_size,
-                    attention_dim,
-                    weight_attr=paddle.ParamAttr(
-                        initializer=nn.initializer.Normal())),
+                Embedding(vocab_size, attention_dim),
                 PositionalEncoding(attention_dim, positional_dropout_rate), )
         else:
             raise ValueError(f"only 'embed' is supported: {input_layer}")
 
         self.normalize_before = normalize_before
-        self.after_norm = nn.LayerNorm(
-            attention_dim,
-            epsilon=1e-12,
-            weight_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(1.0)),
-            bias_attr=paddle.ParamAttr(
-                initializer=nn.initializer.Constant(0.0)))
+        self.after_norm = LayerNorm(attention_dim, epsilon=1e-12)
         self.use_output_layer = use_output_layer
-        self.output_layer = nn.Linear(attention_dim, vocab_size)
+        self.output_layer = Linear(attention_dim, vocab_size)
 
         self.decoders = nn.LayerList([
             DecoderLayer(

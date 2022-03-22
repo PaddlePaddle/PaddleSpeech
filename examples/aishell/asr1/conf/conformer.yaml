@@ -85,7 +85,7 @@ scheduler: warmuplr
 scheduler_conf:
   warmup_steps: 25000
   lr_decay: 1.0
-log_interval: 1
+log_interval: 100
 checkpoint:
   kbest_n: 50
   latest_n: 5

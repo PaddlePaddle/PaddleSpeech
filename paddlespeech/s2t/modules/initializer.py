@@ -160,9 +160,12 @@ class DefaultInitializerContext(object):
         self.init_type = init_type
 
     def __enter__(self):
-        from paddlespeech.s2t.modules import align
-        align.global_init_type = self.init_type
-        return self
+        if self.init_type is None:
+            return
+        else:
+            from paddlespeech.s2t.modules import align
+            align.global_init_type = self.init_type
+            return
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         from paddlespeech.s2t.modules import align

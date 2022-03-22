@@ -34,7 +34,7 @@ def init(config):
         bool: 
     """
     # init api
-    api_list = list(config.engine_backend)
+    api_list = list(engine.split("_")[0] for engine in config.engine_list)
     api_router = setup_router(api_list)
     app.include_router(api_router)
 

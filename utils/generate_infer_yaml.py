@@ -148,7 +148,7 @@ def merge_configs(
     for item in remove_train_list:
         try:
             remove_config_part(config, [item])
-        except:
+        except Exception as e:
             print(item + " " + "can not be removed")
 
     # Save the config

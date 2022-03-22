@@ -19,7 +19,6 @@ import paddle
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.base_engine import BaseEngine
-from paddlespeech.server.utils.config import get_config
 
 __all__ = ['ASREngine']
 
@@ -40,7 +39,7 @@ class ASREngine(BaseEngine):
     def __init__(self):
         super(ASREngine, self).__init__()
 
-    def init(self, config_file: str) -> bool:
+    def init(self, config: dict) -> bool:
         """init engine resource
 
         Args:
@@ -52,8 +51,7 @@ class ASREngine(BaseEngine):
         self.input = None
         self.output = None
         self.executor = ASRServerExecutor()
-
-        self.config = get_config(config_file)
+        self.config = config
         try:
             if self.config.device:
                 self.device = self.config.device

@@ -63,7 +63,7 @@ def evaluate(args):
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    merge_sentences = True
+    merge_sentences = False
     # Avoid not stopping at the end of a sub sentence when tacotron2_ljspeech dygraph to static graph
     # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
     if am_name == 'tacotron2':

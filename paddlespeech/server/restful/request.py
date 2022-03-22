@@ -15,7 +15,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-__all__ = ['ASRRequest', 'TTSRequest']
+__all__ = ['ASRRequest', 'TTSRequest', 'CLSRequest']
 
 
 #****************************************************************************************/
@@ -63,3 +63,18 @@ class TTSRequest(BaseModel):
     volume: float = 1.0
     sample_rate: int = 0
     save_path: str = None
+
+
+#****************************************************************************************/
+#************************************ CLS request ***************************************/
+#****************************************************************************************/
+class CLSRequest(BaseModel):
+    """
+    request body example
+    {
+        "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
+        "topk": 1
+    }
+    """
+    audio: str
+    topk: int = 1

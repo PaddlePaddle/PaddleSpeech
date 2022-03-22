@@ -17,11 +17,8 @@ Data preparation.
 Download: http://groups.inf.ed.ac.uk/ami/download/
 
 Prepares metadata files (JSON) from manual annotations "segments/" using RTTM format (Oracle VAD).
-
-Authors
- * qingenz123@126.com (Qingen ZHAO) 2022
-
 """
+
 import argparse
 import glob
 import json

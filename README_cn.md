@@ -392,9 +392,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td >HiFiGAN</td>
-      <td >CSMSC</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
       </td>
     </tr>
     <tr>

@@ -101,6 +101,16 @@ class LengthRegulator(nn.Layer):
             assert alpha > 0
             ds = paddle.round(ds.cast(dtype=paddle.float32) * alpha)
         ds = ds.cast(dtype=paddle.int64)
+        '''
+        from distutils.version import LooseVersion
+        from paddlespeech.t2s.modules.nets_utils import pad_list
+        # 这里在 paddle 2.2.2 的动转静是不通的
+        # if LooseVersion(paddle.__version__) >= "2.3.0" or hasattr(paddle, 'repeat_interleave'):
+        # if LooseVersion(paddle.__version__) >= "2.3.0":
+        if hasattr(paddle, 'repeat_interleave'):
+            repeat = [paddle.repeat_interleave(x, d, axis=0) for x, d in zip(xs, ds)]
+            return pad_list(repeat, self.pad_value)
+        '''
         if is_inference:
             return self.expand(xs, ds)
         else:

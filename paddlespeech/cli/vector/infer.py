@@ -19,34 +19,28 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import librosa
-import numpy as np
 import paddle
 import soundfile
 from yacs.config import CfgNode
 
-from paddleaudio.backends import load as load_audio
-from paddleaudio.compliance.librosa import melspectrogram
-from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
-from paddlespeech.vector.io.batch import feature_normalize
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.transform.transformation import Transformation
+from paddleaudio.backends import load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import UpdateConfig
+from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 
 pretrained_models = {
     # The tags for pretrained_models should be "{model_name}[-{dataset}][-{sr}][-...]".
-    # e.g. "EcapaTdnn_voxceleb12-16k".
+    # e.g. "ecapatdnn_voxceleb12-16k".
     # Command line and python api use "{model_name}[-{dataset}]" as --model, usage:
-    # "paddlespeech vector --task spk --model EcapaTdnn_voxceleb12-voxceleb12-16k --sr 16000 --input ./input.wav"
-    "EcapaTdnn_voxceleb12-16k": {
+    # "paddlespeech vector --task spk --model ecapatdnn_voxceleb12-voxceleb12-16k --sr 16000 --input ./input.wav"
+    "ecapatdnn_voxceleb12-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz',
         'md5':
@@ -59,7 +53,7 @@ pretrained_models = {
 }
 
 model_alias = {
-    "EcapaTdnn": "paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn",
+    "ecapatdnn": "paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn",
 }
 
 
@@ -75,8 +69,8 @@ class VectorExecutor(BaseExecutor):
         self.parser.add_argument(
             "--model",
             type=str,
-            default="EcapaTdnn_voxceleb12",
-            choices=["EcapaTdnn_voxceleb12"],
+            default="ecapatdnn_voxceleb12",
+            choices=["ecapatdnn_voxceleb12"],
             help="Choose model type of asr task.")
         self.parser.add_argument(
             "--task",
@@ -90,7 +84,7 @@ class VectorExecutor(BaseExecutor):
             "--sample_rate",
             type=int,
             default=16000,
-            choices=[16000, 8000],
+            choices=[16000],
             help="Choose the audio sample rate of the model. 8000 or 16000")
         self.parser.add_argument(
             "--ckpt_path",
@@ -175,7 +169,7 @@ class VectorExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='EcapaTdnn-voxceleb12',
+                 model: str='ecapatdnn-voxceleb12',
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
@@ -197,9 +191,9 @@ class VectorExecutor(BaseExecutor):
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         support_models = list(pretrained_models.keys())
         assert tag in pretrained_models, \
-            'The model "{}" you want to use has not been supported, \
-            please choose other models.\n \
-            The support models includes \n\t\t{}'.format(tag, "\n\t\t".join(support_models))
+            'The model "{}" you want to use has not been supported,'\
+            'please choose other models.\n' \
+            'The support models includes\n\t\t{}'.format(tag, "\n\t\t".join(support_models))
 
         res_path = os.path.join(MODEL_HOME, tag)
         decompressed_path = download_and_decompress(pretrained_models[tag],
@@ -212,7 +206,7 @@ class VectorExecutor(BaseExecutor):
         return decompressed_path
 
     def _init_from_path(self,
-                        model_type: str='EcapaTdnn_voxceleb12',
+                        model_type: str='ecapatdnn_voxceleb12',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         ckpt_path: Optional[os.PathLike]=None):
@@ -228,8 +222,10 @@ class VectorExecutor(BaseExecutor):
             res_path = self._get_pretrained_path(tag)
             self.res_path = res_path
 
-            self.cfg_path = os.path.join(res_path, pretrained_models[tag]['cfg_path'])
-            self.ckpt_path = os.path.join(res_path, pretrained_models[tag]['ckpt_path'] + '.pdparams')
+            self.cfg_path = os.path.join(res_path,
+                                         pretrained_models[tag]['cfg_path'])
+            self.ckpt_path = os.path.join(
+                res_path, pretrained_models[tag]['ckpt_path'] + '.pdparams')
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
@@ -239,7 +235,7 @@ class VectorExecutor(BaseExecutor):
         logger.info(f"start to read the ckpt from {self.ckpt_path}")
         logger.info(f"read the config from {self.cfg_path}")
         logger.info(f"get the res path {self.res_path}")
-        
+
         # stage 2: read and config and init the model body
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
@@ -269,7 +265,7 @@ class VectorExecutor(BaseExecutor):
 
         feats = self._inputs["feats"]
         lengths = self._inputs["lengths"]
-        logger.info(f"start to do backbone network model forward")
+        logger.info("start to do backbone network model forward")
         logger.info(
             f"feats shape:{feats.shape}, lengths shape: {lengths.shape}")
         # embedding from (1, emb_size, 1) -> (emb_size)

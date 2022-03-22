@@ -24,7 +24,8 @@ class SpeakerIdetification(nn.Layer):
             lin_blocks=0,
             lin_neurons=192,
             dropout=0.1, ):
-        """_summary_
+        """The speaker identification model, which includes the speaker backbone network 
+           and the a linear transform to speaker class num in training
 
         Args:
             backbone (Paddle.nn.Layer class): the speaker identification backbone network model
@@ -41,7 +42,7 @@ class SpeakerIdetification(nn.Layer):
             self.dropout = nn.Dropout(dropout)
         else:
             self.dropout = None
-        
+
         # construct the speaker classifer
         input_size = self.backbone.emb_size
         self.blocks = nn.LayerList()
@@ -63,14 +64,14 @@ class SpeakerIdetification(nn.Layer):
            including the speaker embedding model and the classifier model network
 
         Args:
-            x (Paddle.Tensor): input audio feats, 
+            x (paddle.Tensor): input audio feats, 
                                shape=[batch, dimension, times]
-            lengths (_type_, optional): input audio length.
+            lengths (paddle.Tensor, optional): input audio length.
                                         shape=[batch, times]
                                         Defaults to None.
 
         Returns:
-            _type_: _description_
+            paddle.Tensor: return the logits of the feats
         """
         # x.shape: (N, C, L)
         x = self.backbone(x, lengths).squeeze(

@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import numpy
 import numpy as np
 import paddle
-import numpy
+
 
 def waveform_collate_fn(batch):
     waveforms = np.stack([item['feat'] for item in batch])
@@ -56,6 +57,7 @@ def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
         pad_width = [[0, 0], [0, w]]
 
     return np.pad(x, pad_width, mode=mode, **kwargs)
+
 
 def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
     ids = [item['id'] for item in batch]
@@ -100,12 +102,11 @@ def pad_right_to(array, target_shape, mode="constant", value=0):
     """
     assert len(target_shape) == array.ndim
     pads = []  # this contains the abs length of the padding for each dimension.
-    valid_vals = []  # thic contains the relative lengths for each dimension.
-    i = 0 # iterating over target_shape ndims
+    valid_vals = []  # this contains the relative lengths for each dimension.
+    i = 0  # iterating over target_shape ndims
     while i < len(target_shape):
-        assert (
-            target_shape[i] >= array.shape[i]
-        ), "Target shape must be >= original shape for every dim"
+        assert (target_shape[i] >= array.shape[i]
+                ), "Target shape must be >= original shape for every dim"
         pads.append([0, target_shape[i] - array.shape[i]])
         valid_vals.append(array.shape[i] / target_shape[i])
         i += 1
@@ -136,11 +137,8 @@ def batch_pad_right(arrays, mode="constant", value=0):
         # if there is only one array in the batch we simply unsqueeze it.
         return numpy.expand_dims(arrays[0], axis=0), numpy.array([1.0])
 
-    if not (
-        any(
-            [arrays[i].ndim == arrays[0].ndim for i in range(1, len(arrays))]
-        )
-    ):
+    if not (any(
+        [arrays[i].ndim == arrays[0].ndim for i in range(1, len(arrays))])):
         raise IndexError("All arrays must have same number of dimensions")
 
     # FIXME we limit the support here: we allow padding of only the last dimension
@@ -149,11 +147,9 @@ def batch_pad_right(arrays, mode="constant", value=0):
     for dim in range(arrays[0].ndim):
         if dim != (arrays[0].ndim - 1):
             if not all(
-                [x.shape[dim] == arrays[0].shape[dim] for x in arrays[1:]]
-            ):
+                [x.shape[dim] == arrays[0].shape[dim] for x in arrays[1:]]):
                 raise EnvironmentError(
-                    "arrays should have same dimensions except for last one"
-                )
+                    "arrays should have same dimensions except for last one")
         max_shape.append(max([x.shape[dim] for x in arrays]))
 
     batched = []
@@ -161,8 +157,7 @@ def batch_pad_right(arrays, mode="constant", value=0):
     for t in arrays:
         # for each array we apply pad_right_to
         padded, valid_percent = pad_right_to(
-            t, max_shape, mode=mode, value=value
-        )
+            t, max_shape, mode=mode, value=value)
         batched.append(padded)
         valid.append(valid_percent[-1])
 

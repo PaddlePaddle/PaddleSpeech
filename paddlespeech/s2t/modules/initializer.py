@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-from paddle import nn
 from paddle.fluid import framework
 from paddle.fluid import unique_name
 from paddle.fluid.core import VarDesc
-from paddle.fluid.framework import default_main_program
-from paddle.fluid.framework import in_dygraph_mode
-from paddle.fluid.initializer import Initializer
 from paddle.fluid.initializer import MSRAInitializer
-from typeguard import check_argument_types
 
 __all__ = ['KaimingUniform']
 
@@ -160,16 +155,15 @@ class DefaultInitializerContext(object):
         with DefaultInitializerContext("kaiming_uniform"):
             code for setup_model
     """
+
     def __init__(self, init_type=None):
         self.init_type = init_type
- 
+
     def __enter__(self):
         from paddlespeech.s2t.modules import align
         align.global_init_type = self.init_type
         return self
- 
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         from paddlespeech.s2t.modules import align
         align.global_init_type = None
-
-

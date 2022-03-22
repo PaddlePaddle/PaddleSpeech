@@ -36,6 +36,7 @@ from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
 from paddlespeech.s2t.modules.encoder import ConformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
+from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.modules.loss import LabelSmoothingLoss
 from paddlespeech.s2t.modules.mask import make_pad_mask
 from paddlespeech.s2t.modules.mask import mask_finished_preds
@@ -50,7 +51,6 @@ from paddlespeech.s2t.utils.tensor_utils import pad_sequence
 from paddlespeech.s2t.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.utility import UpdateConfig
-from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 # from paddlespeech.s2t.modules.initializer import initialize
 
 __all__ = ["U2Model", "U2InferModel"]
@@ -786,7 +786,8 @@ class U2Model(U2DecodeModel):
         model_conf = configs.get('model_conf', dict())
         init_type = model_conf.get("init_type", None)
         with DefaultInitializerContext(init_type):
-            vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
+            vocab_size, encoder, decoder, ctc = U2Model._init_from_config(
+                configs)
 
         super().__init__(
             vocab_size=vocab_size,

@@ -24,7 +24,6 @@ from typeguard import check_argument_types
 
 from paddlespeech.s2t.modules.activation import get_activation
 from paddlespeech.s2t.modules.align import LayerNorm
-from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention
 from paddlespeech.s2t.modules.conformer_convolution import ConvolutionModule

@@ -16,8 +16,9 @@ from collections import OrderedDict
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from paddlespeech.s2t.modules.align import Linear
+
 from paddlespeech.s2t.modules.align import Conv2D
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()

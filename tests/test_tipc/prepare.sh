@@ -24,7 +24,7 @@ trainer_list=$(func_parser_value "${lines[14]}")
 
 if [ ${MODE} = "benchmark_train" ];then
     curPath=$(readlink -f "$(dirname "$0")")
-        echo "curPath:"${curPath}
+        echo "curPath:"${curPath}    # /PaddleSpeech/tests/test_tipc/
     cd ${curPath}/../..
     apt-get install libsndfile1 -y 
     pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -40,19 +40,17 @@ if [ ${MODE} = "benchmark_train" ];then
             echo "please contact author to get the URL.\n"
             exit
 	else
-	    wget -P ${curPath}/../../dataset/aishell/ ${URL} 
+	    wget -P ${curPath}/../../dataset/aishell/ ${URL}
+            mv ${curPath}/../../dataset/aishell/aishell.py ${curPath}/../../dataset/aishell/aishell_tiny.py  
         fi
-        sed -i "s#^URL_ROOT_TAG#URL_ROOT = '${URL}'#g" ${curPath}/conformer/scripts/aishell_tiny.py
-        cp ${curPath}/conformer/scripts/aishell_tiny.py ${curPath}/../../dataset/aishell/
         cd ${curPath}/../../examples/aishell/asr1
-        source path.sh
-        # download audio data
+
+        #Prepare the data
         sed -i "s#aishell.py#aishell_tiny.py#g" ./local/data.sh
 	sed -i "s#python3#python#g" ./local/data.sh
-        bash ./local/data.sh || exit -1
-        if [ $? -ne 0 ]; then
-        exit 1
-        fi
+        bash run.sh --stage 0 --stop_stage 0   # 执行第一遍的时候会偶现报错
+        bash run.sh --stage 0 --stop_stage 0
+
         mkdir -p ${curPath}/conformer/benchmark_train/
         cp -rf conf ${curPath}/conformer/benchmark_train/
         cp -rf data ${curPath}/conformer/benchmark_train/

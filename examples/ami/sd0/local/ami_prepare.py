@@ -18,7 +18,6 @@ Download: http://groups.inf.ed.ac.uk/ami/download/
 
 Prepares metadata files (JSON) from manual annotations "segments/" using RTTM format (Oracle VAD).
 """
-
 import argparse
 import glob
 import json

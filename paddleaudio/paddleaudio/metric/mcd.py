@@ -22,7 +22,9 @@ __all__ = [
 ]
 
 
-def mcd_distance(xs: np.ndarray, ys: np.ndarray, cost_fn: Callable=mt.logSpecDbDist) -> float:
+def mcd_distance(xs: np.ndarray,
+                 ys: np.ndarray,
+                 cost_fn: Callable=mt.logSpecDbDist) -> float:
     """Mel cepstral distortion (MCD), dtw distance.
 
     Dynamic Time Warping.

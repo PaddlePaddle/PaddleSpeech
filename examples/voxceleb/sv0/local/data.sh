@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-stage=0
+stage=1
 stop_stage=100
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
@@ -37,3 +37,22 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
                         --data-dir ${dir} \
                         --config ${conf_path}
 fi 
+
+TARGET_DIR=${MAIN_ROOT}/dataset
+mkdir -p ${TARGET_DIR}
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # download data, generate manifests
+    python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
+      --manifest_prefix="data/vox1/manifest" \
+      --target_dir="${TARGET_DIR}/voxceleb/vox1/"
+
+    if [ $? -ne 0 ]; then
+        echo "Prepare voxceleb failed. Terminated."
+        exit 1
+    fi
+
+   #  for dataset in train dev test; do
+   #      mv data/manifest.${dataset} data/manifest.${dataset}.raw
+   #  done
+fi

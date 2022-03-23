@@ -1,13 +1,14 @@
 # Aishell
 
 ## Conformer
-
-| Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |  paddle version
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention | - | 0.0548 |  2.2.2
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_greedy_search | - | 0.05127 | 2.2.2 
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug| test | ctc_prefix_beam_search | - | 0.05131 |  2.2.2
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.04829 |  2.2.2
+paddle version: 2.2.2  
+paddlespeech version: 0.1.2
+| Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |
+| --- | --- | --- | --- | --- | --- | --- | --- | 
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention | - | 0.0548 |
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_greedy_search | - | 0.05127 |
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug| test | ctc_prefix_beam_search | - | 0.05131 | 
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.04829 | 
 
 
 ## Chunk Conformer

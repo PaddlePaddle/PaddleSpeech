@@ -37,7 +37,9 @@ def decompress(file: str):
     download._decompress(file)
 
 
-def download_and_decompress(archives: List[Dict[str, str]], path: str):
+def download_and_decompress(archives: List[Dict[str, str]],
+                            path: str,
+                            decompress: bool=True):
     """
     Download archieves and decompress to specific path.
     """
@@ -47,8 +49,8 @@ def download_and_decompress(archives: List[Dict[str, str]], path: str):
     for archive in archives:
         assert 'url' in archive and 'md5' in archive, \
             'Dictionary keys of "url" and "md5" are required in the archive, but got: {list(archieve.keys())}'
-
-        download.get_path_from_url(archive['url'], path, archive['md5'])
+        download.get_path_from_url(
+            archive['url'], path, archive['md5'], decompress=decompress)
 
 
 def load_state_dict_from_url(url: str, path: str, md5: str=None):

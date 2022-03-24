@@ -43,3 +43,16 @@ paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 paddlespeech stats --task asr
 paddlespeech stats --task tts
 paddlespeech stats --task cls
+
+# Speaker Verification 
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+paddlespeech vector --task spk --input 85236145389.wav
+
+echo -e "demo1 85236145389.wav \n demo2 85236145389.wav" > vec.job
+paddlespeech vector --task spk --input vec.job
+
+echo -e "demo3 85236145389.wav \n demo4 85236145389.wav" | paddlespeech vector --task spk
+rm 85236145389.wav 
+rm vec.job
+
+

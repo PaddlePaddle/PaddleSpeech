@@ -1,6 +1,7 @@
+#!/bin/bash
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -11,9 +12,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .esc50 import ESC50
-from .gtzan import GTZAN
-from .tess import TESS
-from .urban_sound import UrbanSound8K
-from .voxceleb import VoxCeleb
-from .rirs_noises import OpenRIRNoise
+export MAIN_ROOT=`realpath ${PWD}/../../../`
+
+export PATH=${MAIN_ROOT}:${MAIN_ROOT}/utils:${PATH}
+export LC_ALL=C
+
+export PYTHONDONTWRITEBYTECODE=1
+# Use UTF-8 in Python to avoid UnicodeDecodeError when LC_ALL=C
+export PYTHONIOENCODING=UTF-8
+export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
+
+MODEL=ecapa_tdnn
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/vector/exps/${MODEL}

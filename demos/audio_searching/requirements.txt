@@ -2,7 +2,8 @@ diskcache==5.2.1
 fastapi
 librosa==0.8.0
 numpy
-pydanticpymilvus==2.0.1
+pydantic
+pymilvus==2.0.1
 pymysql
 python-multipart
 soundfile==0.10.3.post1

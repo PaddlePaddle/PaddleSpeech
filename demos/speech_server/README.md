@@ -15,8 +15,8 @@ You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/application.yaml` .
-Among them, `engine_list` indicates the speech engine that will be included in the service to be started, in the format of <speech task>_<engine type>.
-At present, the speech tasks integrated by the service include: asr (speech recognition) and tts (speech synthesis).
+Among them, `engine_list` indicates the speech engine that will be included in the service to be started, in the format of speech task_engine type.
+At present, the speech tasks integrated by the service include: asr (speech recognition), tts (text to sppech) and cls (audio classification).
 Currently the engine type supports two forms: python and inference (Paddle Inference)
 
 

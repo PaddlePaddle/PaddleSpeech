@@ -39,7 +39,7 @@ pretrained_models = {
     # The tags for pretrained_models should be "{model_name}[-{dataset}][-{sr}][-...]".
     # e.g. "ecapatdnn_voxceleb12-16k".
     # Command line and python api use "{model_name}[-{dataset}]" as --model, usage:
-    # "paddlespeech vector --task spk --model ecapatdnn_voxceleb12-voxceleb12-16k --sr 16000 --input ./input.wav"
+    # "paddlespeech vector --task spk --model ecapatdnn_voxceleb12-16k --sr 16000 --input ./input.wav"
     "ecapatdnn_voxceleb12-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz',

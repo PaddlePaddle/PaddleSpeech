@@ -28,3 +28,7 @@ paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input 
 
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav
+
+# Speaker Verification 
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+paddlespeech vector --task spk --input 85236145389.wav

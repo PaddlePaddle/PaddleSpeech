@@ -48,10 +48,10 @@ paddlespeech stats --task cls
 wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
 paddlespeech vector --task spk --input 85236145389.wav
 
-echo "demo 85236145389.wav" > vec.job
+echo -e "demo1 85236145389.wav \n demo2 85236145389.wav" > vec.job
 paddlespeech vector --task spk --input vec.job
 
-echo "demo 85236145389.wav" | paddlespeech vector --task spk
+echo -e "demo3 85236145389.wav \n demo4 85236145389.wav" | paddlespeech vector --task spk
 rm 85236145389.wav 
 rm vec.job
 

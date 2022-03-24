@@ -31,17 +31,23 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
 
 // Decodable::Init(DecodableConfig config) {
 //}
+int32 Decodable::NumFramesReady() const {
+    return frames_ready_;
+}
 
-bool Decodable::IsLastFrame(int32 frame) const {
+bool Decodable::IsLastFrame(int32 frame) {
     CHECK_LE(frame, frames_ready_);
-    return IsInputFinished() && (frame == frames_ready_ - 1);
+    bool flag = EnsureFrameHaveComputed(frame);
+    return (flag == false) && (frame == frames_ready_ - 1);
 }
 
 int32 Decodable::NumIndices() const { return 0; }
 
 BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     CHECK_LE(index, nnet_cache_.NumCols());
-    return 0;
+    CHECK_LE(frame, frames_ready_);
+    int32 frame_idx = frame - frame_offset_;
+    return nnet_cache_(frame_idx, index);
 }
 
 bool Decodable::EnsureFrameHaveComputed(int32 frame) {

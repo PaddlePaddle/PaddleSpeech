@@ -23,7 +23,7 @@
 
 #include "fstext/fstext-lib.h"
 #include "base/kaldi-common.h"
-#include "util/common-utils.h"
+// #include "util/common-utils.h"
 
 
 namespace kaldi {
@@ -142,13 +142,13 @@ class LatticeHolder {
   T *t_;
 };
 
-typedef TableWriter<LatticeHolder> LatticeWriter;
-typedef SequentialTableReader<LatticeHolder> SequentialLatticeReader;
-typedef RandomAccessTableReader<LatticeHolder> RandomAccessLatticeReader;
-
-typedef TableWriter<CompactLatticeHolder> CompactLatticeWriter;
-typedef SequentialTableReader<CompactLatticeHolder> SequentialCompactLatticeReader;
-typedef RandomAccessTableReader<CompactLatticeHolder> RandomAccessCompactLatticeReader;
+// typedef TableWriter<LatticeHolder> LatticeWriter;
+// typedef SequentialTableReader<LatticeHolder> SequentialLatticeReader;
+// typedef RandomAccessTableReader<LatticeHolder> RandomAccessLatticeReader;
+//
+// typedef TableWriter<CompactLatticeHolder> CompactLatticeWriter;
+// typedef SequentialTableReader<CompactLatticeHolder> SequentialCompactLatticeReader;
+// typedef RandomAccessTableReader<CompactLatticeHolder> RandomAccessCompactLatticeReader;
 
 
 } // namespace kaldi

@@ -6,5 +6,6 @@ add_library(decoder STATIC
   ctc_decoders/decoder_utils.cpp
   ctc_decoders/path_trie.cpp
   ctc_decoders/scorer.cpp
+  ctc_tlg_decoder.cc
 )
 target_link_libraries(decoder PUBLIC kenlm utils fst)

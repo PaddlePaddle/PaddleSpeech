@@ -28,8 +28,8 @@
 #include <set>
 #include <vector>
 #include "fstext/lattice-weight.h"
-#include "itf/transition-information.h"
-#include "itf/options-itf.h"
+// #include "hmm/transition-model.h"
+#include "util/options-itf.h"
 #include "lat/kaldi-lattice.h"
 
 namespace fst {
@@ -212,82 +212,82 @@ bool DeterminizeLatticePruned(
     MutableFst<ArcTpl<CompactLatticeWeightTpl<Weight, IntType> > > *ofst,
     DeterminizeLatticePrunedOptions opts = DeterminizeLatticePrunedOptions());
 
-/** This function takes in lattices and inserts phones at phone boundaries. It
-    uses the transition model to work out the transition_id to phone map. The
-    returning value is the starting index of the phone label. Typically we pick
-    (maximum_output_label_index + 1) as this value. The inserted phones are then
-    mapped to (returning_value + original_phone_label) in the new lattice. The
-    returning value will be used by DeterminizeLatticeDeletePhones() where it
-    works out the phones according to this value.
-*/
-template<class Weight>
-typename ArcTpl<Weight>::Label DeterminizeLatticeInsertPhones(
-    const kaldi::TransitionInformation &trans_model,
-    MutableFst<ArcTpl<Weight> > *fst);
-
-/** This function takes in lattices and deletes "phones" from them. The "phones"
-    here are actually any label that is larger than first_phone_label because
-    when we insert phones into the lattice, we map the original phone label to
-    (first_phone_label + original_phone_label). It is supposed to be used
-    together with DeterminizeLatticeInsertPhones()
-*/
-template<class Weight>
-void DeterminizeLatticeDeletePhones(
-    typename ArcTpl<Weight>::Label first_phone_label,
-    MutableFst<ArcTpl<Weight> > *fst);
-
-/** This function is a wrapper of DeterminizeLatticePhonePrunedFirstPass() and
-    DeterminizeLatticePruned(). If --phone-determinize is set to true, it first
-    calls DeterminizeLatticePhonePrunedFirstPass() to do the initial pass of
-    determinization on the phone + word lattices. If --word-determinize is set
-    true, it then does a second pass of determinization on the word lattices by
-    calling DeterminizeLatticePruned(). If both are set to false, then it gives
-    a warning and copying the lattices without determinization.
-
-    Note: the point of doing first a phone-level determinization pass and then
-    a word-level determinization pass is that it allows us to determinize
-    deeper lattices without "failing early" and returning a too-small lattice
-    due to the max-mem constraint.  The result should be the same as word-level
-    determinization in general, but for deeper lattices it is a bit faster,
-    despite the fact that we now have two passes of determinization by default.
-*/
-template<class Weight, class IntType>
-bool DeterminizeLatticePhonePruned(
-    const kaldi::TransitionInformation &trans_model,
-    const ExpandedFst<ArcTpl<Weight> > &ifst,
-    double prune,
-    MutableFst<ArcTpl<CompactLatticeWeightTpl<Weight, IntType> > > *ofst,
-    DeterminizeLatticePhonePrunedOptions opts
-      = DeterminizeLatticePhonePrunedOptions());
-
-/** "Destructive" version of DeterminizeLatticePhonePruned() where the input
-    lattice might be changed.
-*/
-template<class Weight, class IntType>
-bool DeterminizeLatticePhonePruned(
-    const kaldi::TransitionInformation &trans_model,
-    MutableFst<ArcTpl<Weight> > *ifst,
-    double prune,
-    MutableFst<ArcTpl<CompactLatticeWeightTpl<Weight, IntType> > > *ofst,
-    DeterminizeLatticePhonePrunedOptions opts
-      = DeterminizeLatticePhonePrunedOptions());
-
-/** This function is a wrapper of DeterminizeLatticePhonePruned() that works for
-    Lattice type FSTs.  It simplifies the calling process by calling
-    TopSort() Invert() and ArcSort() for you.
-    Unlike other determinization routines, the function
-    requires "ifst" to have transition-id's on the input side and words on the
-    output side.
-    This function can be used as the top-level interface to all the determinization
-    code.
-*/
-bool DeterminizeLatticePhonePrunedWrapper(
-    const kaldi::TransitionInformation &trans_model,
-    MutableFst<kaldi::LatticeArc> *ifst,
-    double prune,
-    MutableFst<kaldi::CompactLatticeArc> *ofst,
-    DeterminizeLatticePhonePrunedOptions opts
-      = DeterminizeLatticePhonePrunedOptions());
+// /** This function takes in lattices and inserts phones at phone boundaries. It
+//     uses the transition model to work out the transition_id to phone map. The
+//     returning value is the starting index of the phone label. Typically we pick
+//     (maximum_output_label_index + 1) as this value. The inserted phones are then
+//     mapped to (returning_value + original_phone_label) in the new lattice. The
+//     returning value will be used by DeterminizeLatticeDeletePhones() where it
+//     works out the phones according to this value.
+// */
+// template<class Weight>
+// typename ArcTpl<Weight>::Label DeterminizeLatticeInsertPhones(
+//     const kaldi::TransitionModel &trans_model,
+//     MutableFst<ArcTpl<Weight> > *fst);
+//
+// /** This function takes in lattices and deletes "phones" from them. The "phones"
+//     here are actually any label that is larger than first_phone_label because
+//     when we insert phones into the lattice, we map the original phone label to
+//     (first_phone_label + original_phone_label). It is supposed to be used
+//     together with DeterminizeLatticeInsertPhones()
+// */
+// template<class Weight>
+// void DeterminizeLatticeDeletePhones(
+//     typename ArcTpl<Weight>::Label first_phone_label,
+//     MutableFst<ArcTpl<Weight> > *fst);
+//
+// /** This function is a wrapper of DeterminizeLatticePhonePrunedFirstPass() and
+//     DeterminizeLatticePruned(). If --phone-determinize is set to true, it first
+//     calls DeterminizeLatticePhonePrunedFirstPass() to do the initial pass of
+//     determinization on the phone + word lattices. If --word-determinize is set
+//     true, it then does a second pass of determinization on the word lattices by
+//     calling DeterminizeLatticePruned(). If both are set to false, then it gives
+//     a warning and copying the lattices without determinization.
+//
+//     Note: the point of doing first a phone-level determinization pass and then
+//     a word-level determinization pass is that it allows us to determinize
+//     deeper lattices without "failing early" and returning a too-small lattice
+//     due to the max-mem constraint.  The result should be the same as word-level
+//     determinization in general, but for deeper lattices it is a bit faster,
+//     despite the fact that we now have two passes of determinization by default.
+// */
+// template<class Weight, class IntType>
+// bool DeterminizeLatticePhonePruned(
+//     const kaldi::TransitionModel &trans_model,
+//     const ExpandedFst<ArcTpl<Weight> > &ifst,
+//     double prune,
+//     MutableFst<ArcTpl<CompactLatticeWeightTpl<Weight, IntType> > > *ofst,
+//     DeterminizeLatticePhonePrunedOptions opts
+//       = DeterminizeLatticePhonePrunedOptions());
+//
+// /** "Destructive" version of DeterminizeLatticePhonePruned() where the input
+//     lattice might be changed.
+// */
+// template<class Weight, class IntType>
+// bool DeterminizeLatticePhonePruned(
+//     const kaldi::TransitionModel &trans_model,
+//     MutableFst<ArcTpl<Weight> > *ifst,
+//     double prune,
+//     MutableFst<ArcTpl<CompactLatticeWeightTpl<Weight, IntType> > > *ofst,
+//     DeterminizeLatticePhonePrunedOptions opts
+//       = DeterminizeLatticePhonePrunedOptions());
+//
+// /** This function is a wrapper of DeterminizeLatticePhonePruned() that works for
+//     Lattice type FSTs.  It simplifies the calling process by calling
+//     TopSort() Invert() and ArcSort() for you.
+//     Unlike other determinization routines, the function
+//     requires "ifst" to have transition-id's on the input side and words on the
+//     output side.
+//     This function can be used as the top-level interface to all the determinization
+//     code.
+// */
+// bool DeterminizeLatticePhonePrunedWrapper(
+//     const kaldi::TransitionModel &trans_model,
+//     MutableFst<kaldi::LatticeArc> *ifst,
+//     double prune,
+//     MutableFst<kaldi::CompactLatticeArc> *ofst,
+//     DeterminizeLatticePhonePrunedOptions opts
+//       = DeterminizeLatticePhonePrunedOptions());
 
 /// @} end "addtogroup fst_extensions"
 

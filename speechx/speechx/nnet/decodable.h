@@ -15,7 +15,7 @@
 #include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
 #include "kaldi/matrix/kaldi-matrix.h"
-#include "nnet/decodable-itf.h"
+#include "kaldi/decoder/decodable-itf.h"
 #include "nnet/nnet_interface.h"
 
 namespace ppspeech {
@@ -29,15 +29,17 @@ class Decodable : public kaldi::DecodableInterface {
         const std::shared_ptr<FeatureExtractorInterface>& frontend);
     // void Init(DecodableOpts config);
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
-    virtual bool IsLastFrame(int32 frame) const;
+    virtual bool IsLastFrame(int32 frame);
     virtual int32 NumIndices() const;
     virtual bool FrameLogLikelihood(int32 frame,
                                     std::vector<kaldi::BaseFloat>* likelihood);
+    virtual int32 NumFramesReady() const;
     // for offline test
     void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
     void Reset();
     bool IsInputFinished() const { return frontend_->IsFinished(); }
     bool EnsureFrameHaveComputed(int32 frame);
+    
 
   private:
     bool AdvanceChunk();

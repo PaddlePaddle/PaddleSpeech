@@ -15,7 +15,7 @@
 #include "base/common.h"
 #include "decoder/ctc_decoders/path_trie.h"
 #include "decoder/ctc_decoders/scorer.h"
-#include "nnet/decodable-itf.h"
+#include "kaldi/decoder/decodable-itf.h"
 #include "util/parse-options.h"
 
 #pragma once

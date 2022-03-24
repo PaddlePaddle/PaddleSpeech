@@ -237,6 +237,42 @@ pretrained_models = {
         'speech_stats':
         'feats_stats.npy',
     },
+    "hifigan_ljspeech-en": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_ljspeech_ckpt_0.2.0.zip',
+        'md5':
+        '70e9131695decbca06a65fe51ed38a72',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_2500000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    },
+    "hifigan_aishell3-zh": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip',
+        'md5':
+        '3bb49bc75032ed12f79c00c8cc79a09a',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_2500000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    },
+    "hifigan_vctk-en": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip',
+        'md5':
+        '7da8f88359bca2457e705d924cf27bd4',
+        'config':
+        'default.yaml',
+        'ckpt':
+        'snapshot_iter_2500000.pdz',
+        'speech_stats':
+        'feats_stats.npy',
+    },
 
     # wavernn
     "wavernn_csmsc-zh": {
@@ -365,6 +401,9 @@ class TTSExecutor(BaseExecutor):
                 'mb_melgan_csmsc',
                 'style_melgan_csmsc',
                 'hifigan_csmsc',
+                'hifigan_ljspeech',
+                'hifigan_aishell3',
+                'hifigan_vctk',
                 'wavernn_csmsc',
             ],
             help='Choose vocoder type of tts task.')

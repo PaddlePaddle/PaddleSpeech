@@ -48,7 +48,8 @@ function _train(){
 
     case ${run_mode} in
     sp) train_cmd="python -u ${BIN_DIR}/train.py "${train_cmd} ;;
-    mp) train_cmd="python -u ${BIN_DIR}/train.py "${train_cmd} ;;
+    mp) rm -rf ./mylog
+        train_cmd="python -u ${BIN_DIR}/train.py "${train_cmd} ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
     echo ${train_cmd}

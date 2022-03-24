@@ -239,7 +239,7 @@ class U2Trainer(Trainer):
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 num_encs=1,
-                dist_sampler=False,
+                dist_sampler=config.get('dist_sampler', False),
                 shortest_first=False)
 
             self.valid_loader = BatchDataLoader(
@@ -260,7 +260,7 @@ class U2Trainer(Trainer):
                 n_iter_processes=config.num_workers,
                 subsampling_factor=1,
                 num_encs=1,
-                dist_sampler=False,
+                dist_sampler=config.get('dist_sampler', False),
                 shortest_first=False)
             logger.info("Setup train/valid Dataloader!")
         else:

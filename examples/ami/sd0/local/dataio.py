@@ -13,10 +13,6 @@
 # limitations under the License.
 """
 Data reading and writing.
-
-Authors
- * qingenz123@126.com (Qingen ZHAO) 2022
- 
 """
 import os
 import pickle

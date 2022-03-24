@@ -135,8 +135,22 @@ optional arguments:
 3. `--test-metadata` is the metadata of the test dataset. Use the `metadata.jsonl` in the `dev/norm` subfolder from the processed directory.
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
-
 ## Pretrained Models
+The pretrained model can be downloaded here [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip).
+
+
+Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1(gpu) x 2500000|24.060|0.1068|7.499
+
+HiFiGAN checkpoint contains files listed below.
+
+```text
+hifigan_aishell3_ckpt_0.2.0
+├── default.yaml                  # default config used to train hifigan
+├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
+└── snapshot_iter_2500000.pdz     # generator parameters of hifigan
+```
 
 ## Acknowledgement
 We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

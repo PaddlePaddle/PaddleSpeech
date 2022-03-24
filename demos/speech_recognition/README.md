@@ -84,5 +84,8 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
 
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |
-| conformer_wenetspeech| zh| 16000
-| transformer_librispeech| en| 16000
+| conformer_wenetspeech| zh| 16k
+| transformer_librispeech| en| 16k
+| deepspeech2offline_aishell| zh| 16k
+| deepspeech2online_aishell | zh | 16k
+|deepspeech2offline_librispeech|en| 16k

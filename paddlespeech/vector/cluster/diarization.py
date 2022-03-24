@@ -16,22 +16,20 @@ This script contains basic functions used for speaker diarization.
 This script has an optional dependency on open source sklearn library.
 A few sklearn functions are modified in this script as per requirement.
 """
-
 import argparse
 import warnings
-import scipy
-import numpy as np
 from distutils.util import strtobool
 
+import numpy as np
+import scipy
+import sklearn
 from scipy import sparse
-from scipy.sparse.linalg import eigsh
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import laplacian as csgraph_laplacian
-
-import sklearn
-from sklearn.neighbors import kneighbors_graph
+from scipy.sparse.linalg import eigsh
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster._kmeans import k_means
+from sklearn.neighbors import kneighbors_graph
 
 
 def _graph_connected_component(graph, node_id):

@@ -5,17 +5,13 @@
 # This file does only contain a selection of the most common options. For a
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
-
 # -- Path setup --------------------------------------------------------------
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
-
 
 # -- Project information -----------------------------------------------------
 
@@ -27,7 +23,6 @@ author = 'PaddlePaddle'
 version = ''
 # The full version, including alpha/beta/rc tags
 release = '0.2.0'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -75,7 +70,6 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -112,12 +106,10 @@ html_css_files = [
 #
 # html_sidebars = {}
 
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'PaddleAudiodoc'
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -143,20 +135,16 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PaddleAudio.tex', 'PaddleAudio Documentation',
-     'PaddlePaddle', 'manual'),
+    (master_doc, 'PaddleAudio.tex', 'PaddleAudio Documentation', 'PaddlePaddle',
+     'manual'),
 ]
-
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'paddleaudio', 'PaddleAudio Documentation',
-     [author], 1)
-]
-
+man_pages = [(master_doc, 'paddleaudio', 'PaddleAudio Documentation', [author],
+              1)]
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -164,11 +152,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PaddleAudio', 'PaddleAudio Documentation',
-     author, 'PaddleAudio', 'One line description of project.',
-     'Miscellaneous'),
+    (master_doc, 'PaddleAudio', 'PaddleAudio Documentation', author,
+     'PaddleAudio', 'One line description of project.', 'Miscellaneous'),
 ]
-
 
 # -- Options for Epub output -------------------------------------------------
 
@@ -186,7 +172,6 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
 
 # -- Extension configuration -------------------------------------------------
 

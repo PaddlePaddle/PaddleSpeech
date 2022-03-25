@@ -97,7 +97,7 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
       sample_rate=16000,
       config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
       ckpt_path=None,
-      audio_file='./zh.wav',
+      audio_file='./85236145389.wav',
       force_yes=False,
       device=paddle.get_device())
   print('Audio embedding Result: \n{}'.format(audio_emb))

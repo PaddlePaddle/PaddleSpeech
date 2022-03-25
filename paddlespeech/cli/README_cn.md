@@ -14,6 +14,12 @@
  paddlespeech cls --input input.wav
  ```
 
+  ## 声纹识别
+
+ ```bash
+ paddlespeech vector --task spk --input input_16k.wav
+ ```
+
  ## 语音识别
  ```
  paddlespeech asr --lang zh --input input_16k.wav

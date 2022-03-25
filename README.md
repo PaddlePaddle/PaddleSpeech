@@ -203,6 +203,11 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 paddlespeech cls --input input.wav
 ```
 
+**Speaker Verification**
+```
+paddlespeech vector --task spk --input input_16k.wav
+```
+
 **Automatic Speech Recognition**
 ```shell
 paddlespeech asr --lang zh --input input_16k.wav
@@ -458,6 +463,29 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+**Speaker Verification**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Verification</td>
+      <td>VoxCeleb12</td>
+      <td>ECAPA-TDNN</td>
+      <td>
+      <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 **Punctuation Restoration**
 
 <table style="width:100%">
@@ -499,6 +527,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - [Audio Classification](./demos/audio_tagging/README.md)
+  - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Speech Translation](./demos/speech_translation/README.md)
 - [Released Models](./docs/source/released_model.md)
 - [Community](#Community)

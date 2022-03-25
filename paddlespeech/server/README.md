@@ -10,7 +10,7 @@
  paddlespeech_server help
  ```
  ### Start the server
- First set the service-related configuration parameters, similar to `./conf/application.yaml`,
+ First set the service-related configuration parameters, similar to `./conf/application.yaml`. Set `engine_list`, which represents the speech tasks included in the service to be started
  Then start the service:
  ```bash
  paddlespeech_server start --config_file ./conf/application.yaml
@@ -23,7 +23,7 @@
  ```
  ### Access speech recognition services 
  ```
- paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./tests/16_audio.wav
+ paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
  ```
  
  ### Access text to speech services
@@ -31,3 +31,7 @@
  paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
  ```
  
+ ### Access audio classification services
+ ```bash
+ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
+ ```

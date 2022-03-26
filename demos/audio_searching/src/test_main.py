@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import zipfile
-
-import gdown
 from fastapi.testclient import TestClient
 from main import app
+
+from utils.utility import download
+from utils.utility import unpack
 
 client = TestClient(app)
 
@@ -24,11 +24,11 @@ def download_audio_data():
     """
     download audio data
     """
-    url = 'https://drive.google.com/uc?id=1bKu21JWBfcZBuEuzFEvPoAX6PmRrgnUp'
-    gdown.download(url)
-
-    with zipfile.ZipFile('example_audio.zip', 'r') as zip_ref:
-        zip_ref.extractall('./example_audio')
+    url = "https://paddlespeech.bj.bcebos.com/vector/audio/example_audio.tar.gz"
+    md5sum = "52ac69316c1aa1fdef84da7dd2c67b39"
+    target_dir = "./"
+    filepath = download(url, md5sum, target_dir)
+    unpack(filepath, target_dir, True)
 
 
 def test_drop():

@@ -169,7 +169,7 @@ class VectorExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='ecapatdnn-voxceleb12',
+                 model: str='ecapatdnn_voxceleb12',
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,

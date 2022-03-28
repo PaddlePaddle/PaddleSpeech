@@ -13,7 +13,7 @@ paddlespeech version: 0.1.2
 
 ## Chunk Conformer
 paddle version: 2.2.2  
-paddlespeech version: 0.1.2
+paddlespeech version: 0.1.2  
 Need set `decoding.decoding_chunk_size=16` when decoding.
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | CER |  

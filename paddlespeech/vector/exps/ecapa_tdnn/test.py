@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import ast
 import os
 
 import numpy as np
 import paddle
-import paddle.nn.functional as F
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from tqdm import tqdm

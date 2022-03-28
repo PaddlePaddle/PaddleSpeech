@@ -82,7 +82,10 @@ class VectorExecutor(BaseExecutor):
             choices=["spk"],
             help="task type in vector domain")
         self.parser.add_argument(
-            "--input", type=str, default=None, help="Audio file to extract embedding.")
+            "--input",
+            type=str,
+            default=None,
+            help="Audio file to extract embedding.")
         self.parser.add_argument(
             "--sample_rate",
             type=int,
@@ -344,8 +347,7 @@ class VectorExecutor(BaseExecutor):
             Union[str, os.PathLike]: audio embedding info
         """
         embedding = self._outputs["embedding"]
-        dim = embedding.shape[0]
-        return {"dim": dim, "embedding": embedding}
+        return embedding
 
     def preprocess(self, model_type: str, input_file: Union[str, os.PathLike]):
         """Extract the audio feat

@@ -13,12 +13,9 @@
 # limitations under the License.
 import collections
 import csv
-import glob
 import os
 import random
-from typing import Dict
 from typing import List
-from typing import Tuple
 
 from paddle.io import Dataset
 from tqdm import tqdm
@@ -26,7 +23,6 @@ from tqdm import tqdm
 from ..backends import load as load_audio
 from ..backends import save as save_wav
 from ..utils import DATA_HOME
-from ..utils import decompress
 from ..utils.download import download_and_decompress
 from .dataset import feat_funcs
 

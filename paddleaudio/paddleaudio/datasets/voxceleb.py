@@ -17,9 +17,7 @@ import glob
 import os
 import random
 from multiprocessing import cpu_count
-from typing import Dict
 from typing import List
-from typing import Tuple
 
 from paddle.io import Dataset
 from pathos.multiprocessing import Pool
@@ -135,7 +133,7 @@ class VoxCeleb(Dataset):
         # so, we check the vox1/wav dir status
         print(f"wav base path: {self.wav_path}")
         if not os.path.isdir(self.wav_path):
-            print(f"start to download the voxceleb1 dataset")
+            print("start to download the voxceleb1 dataset")
             download_and_decompress(  # multi-zip parts concatenate to vox1_dev_wav.zip
                 self.archieves_audio_dev,
                 self.base_path,

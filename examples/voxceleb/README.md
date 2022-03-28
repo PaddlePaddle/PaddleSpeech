@@ -48,9 +48,3 @@ You can do the conversion using ffmpeg  https://gist.github.com/seungwonpark/4f2
 |VoxCeleb1-H(cleaned) |list_test_hard2.txt | 550894 | 275488 | 275406 |
 |VoxCeleb1-E | list_test_all.txt | 581480 | 290743 | 290737 | 
 |VoxCeleb1-E(cleaned) | list_test_all2.txt |579818 |289921 |289897 |
-
-
-
-
-
-

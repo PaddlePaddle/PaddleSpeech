@@ -14,7 +14,6 @@
 # this is modified from SpeechBrain
 # https://github.com/speechbrain/speechbrain/blob/085be635c07f16d42cd1295045bc46c407f1e15b/speechbrain/lobes/augment.py
 import math
-import os
 from typing import List
 
 import numpy as np
@@ -22,7 +21,6 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddleaudio import load as load_audio
 from paddleaudio.datasets.rirs_noises import OpenRIRNoise
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.signal_processing import compute_amplitude

@@ -22,12 +22,10 @@ import codecs
 import glob
 import json
 import os
-import subprocess
 from pathlib import Path
 
 import soundfile
 
-from utils.utility import check_md5sum
 from utils.utility import download
 from utils.utility import unzip
 
@@ -40,9 +38,8 @@ BASE_URL = "--no-check-certificate https://www.robots.ox.ac.uk/~vgg/data/voxcele
 DEV_DATA_URL = BASE_URL + '/vox2_aac.zip'
 DEV_MD5SUM = "bbc063c46078a602ca71605645c2a402"
 
-
 # test data
-TEST_DATA_URL = BASE_URL +  '/vox2_test_aac.zip'
+TEST_DATA_URL = BASE_URL + '/vox2_test_aac.zip'
 TEST_MD5SUM = "0d2b3ea430a821c33263b5ea37ede312"
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -56,14 +53,16 @@ parser.add_argument(
     default="manifest",
     type=str,
     help="Filepath prefix for output manifests. (default: %(default)s)")
-parser.add_argument("--download", 
-                    default=False, 
-                    action="store_true", 
-                    help="Download the voxceleb2 dataset. (default: %(default)s)")
-parser.add_argument("--generate", 
-                    default=False, 
-                    action="store_true", 
-                    help="Generate the manifest files. (default: %(default)s)")
+parser.add_argument(
+    "--download",
+    default=False,
+    action="store_true",
+    help="Download the voxceleb2 dataset. (default: %(default)s)")
+parser.add_argument(
+    "--generate",
+    default=False,
+    action="store_true",
+    help="Generate the manifest files. (default: %(default)s)")
 
 args = parser.parse_args()
 
@@ -138,7 +137,7 @@ def download_dataset(url, md5sum, target_dir, dataset):
 def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
-    
+
     # download and unpack the vox2-dev data
     print("download: {}".format(args.download))
     if args.download:
@@ -157,7 +156,9 @@ def main():
         print("VoxCeleb2 download is done!")
 
     if args.generate:
-        create_manifest(args.target_dir, manifest_path_prefix=args.manifest_prefix)
+        create_manifest(
+            args.target_dir, manifest_path_prefix=args.manifest_prefix)
+
 
 if __name__ == '__main__':
     main()

@@ -63,13 +63,15 @@ TEST_TARGET_DATA = "vox1_test_wav.zip vox1_test_wav.zip 185fdc63c3c739954633d503
 
 TRIAL_BASE_URL = "https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/"
 TRIAL_LIST = {
-    "veri_test.txt": "29fc7cc1c5d59f0816dc15d6e8be60f7",             # voxceleb1
-    "veri_test2.txt": "b73110731c9223c1461fe49cb48dddfc",            # voxceleb1(cleaned)
-    "list_test_hard.txt": "21c341b6b2168eea2634df0fb4b8fff1",        # voxceleb1-H
-    "list_test_hard2.txt": "857790e09d579a68eb2e339a090343c8",       # voxceleb1-H(cleaned)
-    "list_test_all.txt": "b9ecf7aa49d4b656aa927a8092844e4a",         # voxceleb1-E
-    "list_test_all2.txt": "a53e059deb562ffcfc092bf5d90d9f3a"         # voxceleb1-E(cleaned)
-    }
+    "veri_test.txt": "29fc7cc1c5d59f0816dc15d6e8be60f7",  # voxceleb1
+    "veri_test2.txt": "b73110731c9223c1461fe49cb48dddfc",  # voxceleb1(cleaned)
+    "list_test_hard.txt": "21c341b6b2168eea2634df0fb4b8fff1",  # voxceleb1-H
+    "list_test_hard2.txt":
+    "857790e09d579a68eb2e339a090343c8",  # voxceleb1-H(cleaned)
+    "list_test_all.txt": "b9ecf7aa49d4b656aa927a8092844e4a",  # voxceleb1-E
+    "list_test_all2.txt":
+    "a53e059deb562ffcfc092bf5d90d9f3a"  # voxceleb1-E(cleaned)
+}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -176,6 +178,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     # create the manifest file
     create_manifest(data_dir=target_dir, manifest_path_prefix=manifest_path)
 
+
 def prepare_trial(base_url, data_list, target_dir):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
@@ -185,10 +188,12 @@ def prepare_trial(base_url, data_list, target_dir):
         if not os.path.exists(os.path.join(target_dir, trial)):
             download_url = " --no-check-certificate " + base_url + "/" + trial
             download(url=download_url, md5sum=md5sum, target_dir=target_dir)
+
+
 def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
-    
+
     # prepare the vox1 dev data
     prepare_dataset(
         base_url=BASE_URL,
@@ -209,8 +214,7 @@ def main():
     prepare_trial(
         base_url=TRIAL_BASE_URL,
         data_list=TRIAL_LIST,
-        target_dir=os.path.dirname(args.manifest_prefix)
-    )
+        target_dir=os.path.dirname(args.manifest_prefix))
 
     print("Manifest prepare done!")
 

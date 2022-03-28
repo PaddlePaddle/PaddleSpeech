@@ -7,6 +7,7 @@
 
   <h3>
   <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
 </div>
@@ -178,6 +179,8 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
+- 👏🏻  2022.03.28: PaddleSpeech Server is available for Audio Classification, Automatic Speech Recognition and Text-to-Speech.
+- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verfication.
 - 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
@@ -201,6 +204,11 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 **Audio Classification**     
 ```shell
 paddlespeech cls --input input.wav
+```
+
+**Speaker Verification**
+```
+paddlespeech vector --task spk --input input_16k.wav
 ```
 
 **Automatic Speech Recognition**
@@ -241,6 +249,36 @@ paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+
+
+<a name="quickstartserver"></a>
+## Quick Start Server
+
+Developers can have a try of our speech server with [PaddleSpeech Server Command Line](./paddlespeech/server/README.md).
+
+**Start server**     
+```shell
+paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+```
+
+**Access Speech Recognition Services**     
+```shell
+paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```
+
+**Access Text to Speech Services**     
+```shell
+paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+```
+
+**Access Audio Classification Services**     
+```shell
+paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
+```
+
+
+For more information about server command lines, please see: [speech server demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
+
 
 ## Model List
 
@@ -458,6 +496,29 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+**Speaker Verification**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Verification</td>
+      <td>VoxCeleb12</td>
+      <td>ECAPA-TDNN</td>
+      <td>
+      <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 **Punctuation Restoration**
 
 <table style="width:100%">
@@ -499,6 +560,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - [Audio Classification](./demos/audio_tagging/README.md)
+  - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Speech Translation](./demos/speech_translation/README.md)
 - [Released Models](./docs/source/released_model.md)
 - [Community](#Community)

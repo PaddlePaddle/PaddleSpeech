@@ -23,12 +23,14 @@ namespace ppspeech {
 
 struct LinearSpectrogramOptions {
     kaldi::FrameExtractionOptions frame_opts;
-    kaldi::BaseFloat streaming_chunk;
+    kaldi::BaseFloat streaming_chunk;  // second
+
     LinearSpectrogramOptions() : streaming_chunk(0.36), frame_opts() {}
 
     void Register(kaldi::OptionsItf* opts) {
-        opts->Register(
-            "streaming-chunk", &streaming_chunk, "streaming chunk size");
+        opts->Register("streaming-chunk",
+                       &streaming_chunk,
+                       "streaming chunk size, default: 0.36 sec");
         frame_opts.Register(opts);
     }
 };

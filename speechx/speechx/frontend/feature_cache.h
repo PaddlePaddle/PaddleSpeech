@@ -24,17 +24,24 @@ class FeatureCache : public FeatureExtractorInterface {
     explicit FeatureCache(
         int32 max_size = kint16max,
         std::unique_ptr<FeatureExtractorInterface> base_extractor = NULL);
+
+    // Feed feats or waves
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+
     // feats dim = num_frames * feature_dim
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+
     // feature cache only cache feature which from base extractor
     virtual size_t Dim() const { return base_extractor_->Dim(); }
+
     virtual void SetFinished() {
         base_extractor_->SetFinished();
         // read the last chunk data
         Compute();
     }
+
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+
     virtual void Reset() {
         base_extractor_->Reset();
         while (!cache_.empty()) {
@@ -45,12 +52,14 @@ class FeatureCache : public FeatureExtractorInterface {
   private:
     bool Compute();
 
-    std::mutex mutex_;
     size_t max_size_;
-    std::queue<kaldi::Vector<BaseFloat>> cache_;
     std::unique_ptr<FeatureExtractorInterface> base_extractor_;
+
+    std::mutex mutex_;
+    std::queue<kaldi::Vector<BaseFloat>> cache_;
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
+
     // DISALLOW_COPY_AND_ASSGIN(FeatureCache);
 };
 

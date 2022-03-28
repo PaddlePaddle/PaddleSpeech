@@ -27,6 +27,8 @@ DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(word_symbol_table, "vocab.txt", "word symbol table");
 DEFINE_string(graph_path, "TLG", "decoder graph");
+DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
+DEFINE_int32(max_active, 5000, "decoder graph");
 
 
 using kaldi::BaseFloat;
@@ -49,11 +51,13 @@ int main(int argc, char* argv[]) {
     ppspeech::TLGDecoderOptions opts;
     opts.word_symbol_table = word_symbol_table;
     opts.fst_path = graph_path;
+    opts.opts.max_active = FLAGS_max_active;
     ppspeech::TLGDecoder decoder(opts);
 
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
+    model_opts.cache_shape = "5-1-1024,5-1-1024";
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::RawDataCache> raw_data(

@@ -36,9 +36,9 @@ int32 Decodable::NumFramesReady() const {
 }
 
 bool Decodable::IsLastFrame(int32 frame) {
-    CHECK_LE(frame, frames_ready_);
     bool flag = EnsureFrameHaveComputed(frame);
-    return (flag == false) && (frame == frames_ready_ - 1);
+    //CHECK_LE(frame, frames_ready_);
+    return (flag == false) && (frame == frames_ready_);
 }
 
 int32 Decodable::NumIndices() const { return 0; }

@@ -3,8 +3,9 @@ process:
   - type: fbank_kaldi
     fs: 16000
     n_mels: 80
-    n_shift: 160
-    win_length: 400
+    n_frame_length: 25
+    n_frame_shift: 10
+    energy_floor: 0.0
     dither: 0.1
   - type: cmvn_json
     cmvn_path: data/mean_std.json
@@ -23,7 +24,3 @@ process:
     n_mask: 2
     inplace: true
     replace_with_zero: false
-
-
-
-

@@ -31,6 +31,7 @@ import_alias = dict(
     freq_mask="paddlespeech.s2t.transform.spec_augment:FreqMask",
     spec_augment="paddlespeech.s2t.transform.spec_augment:SpecAugment",
     speed_perturbation="paddlespeech.s2t.transform.perturb:SpeedPerturbation",
+    speed_perturbation_sox="paddlespeech.s2t.transform.perturb:SpeedPerturbationSox",
     volume_perturbation="paddlespeech.s2t.transform.perturb:VolumePerturbation",
     noise_injection="paddlespeech.s2t.transform.perturb:NoiseInjection",
     bandpass_perturbation="paddlespeech.s2t.transform.perturb:BandpassPerturbation",

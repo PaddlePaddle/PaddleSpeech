@@ -14,7 +14,10 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 import librosa
 import numpy as np
+import paddle
 from python_speech_features import logfbank
+
+import paddleaudio.compliance.kaldi as kaldi
 
 
 def stft(x,
@@ -309,6 +312,48 @@ class IStft():
 
 
 class LogMelSpectrogramKaldi():
+    def __init__(self,
+                 fs=16000,
+                 n_mels=80,
+                 n_frame_length=25,
+                 n_frame_shift=10,
+                 energy_floor=0.0,
+                 dither=0.1):
+        self.fs = fs
+        self.n_mels = n_mels
+        self.n_frame_length = n_frame_length
+        self.n_frame_shift = n_frame_shift
+        self.energy_floor = energy_floor
+        self.dither = dither
+
+    def __repr__(self):
+        return (
+            "{name}(fs={fs}, n_mels={n_mels}, "
+            "n_frame_shift={n_frame_shift}, n_frame_length={n_frame_length}, "
+            "dither={dither}))".format(
+                name=self.__class__.__name__,
+                fs=self.fs,
+                n_mels=self.n_mels,
+                n_frame_shift=self.n_frame_shift,
+                n_frame_length=self.n_frame_length,
+                dither=self.dither, ))
+
+    def __call__(self, x, train):
+        dither = self.dither if train else 0.0
+        waveform = paddle.to_tensor(np.expand_dims(x, 0), dtype=paddle.float32)
+        mat = kaldi.fbank(
+            waveform,
+            n_mels=self.n_mels,
+            frame_length=self.n_frame_length,
+            frame_shift=self.n_frame_shift,
+            dither=dither,
+            energy_floor=self.energy_floor,
+            sr=self.fs)
+        mat = np.squeeze(mat.numpy())
+        return mat
+
+
+class LogMelSpectrogramKaldi_decay():
     def __init__(
             self,
             fs=16000,

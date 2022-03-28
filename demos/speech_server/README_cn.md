@@ -17,7 +17,7 @@
 ### 2. 准备配置文件
 配置文件可参见 `conf/application.yaml` 。
 其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)。
+目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)以及cls(音频分类)。
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
 
 

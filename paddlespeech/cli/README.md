@@ -13,6 +13,12 @@
  paddlespeech cls --input input.wav
  ```
 
+ ## Speaker Verification
+
+ ```bash
+ paddlespeech vector --task spk --input input_16k.wav
+ ```
+
  ## Automatic Speech Recognition
  ```
  paddlespeech asr --lang zh --input input_16k.wav

@@ -33,7 +33,7 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
   
   使用方法：
   ```bash
-  paddlespeech asr --help
+  paddlespeech vector --help
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。

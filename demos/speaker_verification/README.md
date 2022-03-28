@@ -34,13 +34,13 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
   
   Usage:
   ```bash
-  paddlespeech asr --help
+  paddlespeech vector --help
   ```
   Arguments:
   - `input`(required): Audio file to recognize.
-  - `model`: Model type of asr task. Default: `conformer_wenetspeech`.
+  - `model`: Model type of vector task. Default: `ecapatdnn_voxceleb12`.
   - `sample_rate`: Sample rate of the model. Default: `16000`.
-  - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
+  - `config`: Config of vector task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
 

@@ -25,13 +25,21 @@ from starlette.websockets import WebSocketState as WebSocketState
 
 from paddlespeech.ws.engine.asr.online.asr_engine import ASREngine
 from paddlespeech.ws.engine.engine_pool import get_engine_pool
+from paddlespeech.ws.utils.buffer import ChunkBuffer
+from paddlespeech.ws.utils.vad import VADAudio
+
 
 router = APIRouter()
 
-
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
+
     await websocket.accept()
+
+    # init buffer
+    chunk_buffer = ChunkBuffer(sample_width=2)
+    # init vad
+    vad = VADAudio(2, 16000, 20)
 
     try:
         while True:
@@ -75,15 +83,21 @@ async def websocket_endpoint(websocket: WebSocket):
             elif "bytes" in message:
                 message = message["bytes"]
 
-                # run engine here
+                # vad for input bytes audio
+                vad.add_audio(message)
+                message = b''.join(f for f in vad.vad_collector() if f is not None)
+
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
-                # float 32 
-                samples = np.frombuffer(message, dtype=np.float32)
-                sample_rate = asr_engine.config.sample_rate
+                asr_results = ""
+                frames = chunk_buffer.frame_generator(message)
+                for frame in frames:
+                    samples = np.frombuffer(frame.bytes, dtype=np.int16)
+                    sample_rate = asr_engine.config.sample_rate
+                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples, sample_rate)
+                    asr_engine.run(x_chunk, x_chunk_lens)
+                    asr_results = asr_engine.postprocess()
 
-                x_chunk, x_chunk_lens = asr_engine.preprocess(samples, sample_rate)
-                asr_engine.run(x_chunk, x_chunk_lens)
                 asr_results = asr_engine.postprocess()
                 resp = {'asr_results': asr_results}
 

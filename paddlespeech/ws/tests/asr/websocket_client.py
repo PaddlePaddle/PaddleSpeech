@@ -35,10 +35,10 @@ class ASRAudioHandler:
         self.url = "ws://" + self.url + ":" + str(self.port) + "/ws/asr"
 
     def read_wave(self, wavfile_path: str):
-        samples, sample_rate = soundfile.read(wavfile_path, dtype='float32')
+        samples, sample_rate = soundfile.read(wavfile_path, dtype='int16')
         x_len = len(samples)
-        chunk_stride = 40 * 16      #sample_rate = 16kHz
-        chunk_size = 80 * 16        #sample_rate = 16kHz
+        chunk_stride = 40 * 16      #40ms, sample_rate = 16kHz
+        chunk_size = 80 * 16        #80ms, sample_rate = 16kHz
 
         if (x_len - chunk_size) % chunk_stride != 0:
             padding_len_x = chunk_stride - (x_len - chunk_size

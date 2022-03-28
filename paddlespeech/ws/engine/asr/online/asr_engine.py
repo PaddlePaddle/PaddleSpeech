@@ -226,6 +226,20 @@ class ASRServerExecutor(ASRExecutor):
         else:
             raise Exception("invalid model name")
 
+    def _pcm16to32(self, audio):
+        """pcm int16 to float32
+
+        Args:
+            audio(numpy.array): numpy.int16
+
+        Returns:
+            audio(numpy.array): numpy.float32
+        """
+        if audio.dtype == np.int16:
+            audio = audio.astype("float32")
+            bits = np.iinfo(np.int16).bits
+            audio = audio / (2**(bits - 1))
+        return audio
 
     def extract_feat(self, samples, sample_rate):
         """extract feat
@@ -238,6 +252,9 @@ class ASRServerExecutor(ASRExecutor):
             x_chunk (numpy.array): shape[B, T, D]
             x_chunk_lens (numpy.array): shape[B]
         """
+        # pcm16 -> pcm 32
+        samples = self._pcm16to32(samples)
+
         # read audio
         speech_segment = SpeechSegment.from_pcm(
             samples, sample_rate, transcript=" ")
@@ -285,7 +302,7 @@ class ASREngine(BaseEngine):
             bool: init failed or success
         """
         self.input = None
-        self.output = None
+        self.output = ""
         self.executor = ASRServerExecutor()
         self.config = get_config(config_file)
 

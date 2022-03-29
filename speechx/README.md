@@ -5,7 +5,7 @@
 We develop under:
 * docker - registry.baidubce.com/paddlepaddle/paddle:2.1.1-gpu-cuda10.2-cudnn7
 * os - Ubuntu 16.04.7 LTS
-* ** gcc/g++/gfortran - 8.2.0 **
+* gcc/g++/gfortran - 8.2.0
 * cmake - 3.16.0
 
 > We make sure all things work fun under docker, and recommend using it to develop and deploy.
@@ -24,7 +24,7 @@ nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspac
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).
 
-* If you want only work under cpu, please download corresponded [image](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html), and using `docker` instead `nviida-docker`.
+* If you want only work under cpu, please download corresponded [image](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html), and using `docker` instead `nvida-docker`.
 
 
 2. Build `speechx` and `examples`.

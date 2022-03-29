@@ -16,8 +16,8 @@ import os
 import librosa
 import numpy as np
 from config import DEFAULT_TABLE
-
 from logs import LOGGER
+
 from paddlespeech.cli import VectorExecutor
 
 vector_executor = VectorExecutor()

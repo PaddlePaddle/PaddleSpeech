@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import logging
+
 from distutils.util import strtobool
 
 from paddlespeech.s2t.transform.transformation import Transformation

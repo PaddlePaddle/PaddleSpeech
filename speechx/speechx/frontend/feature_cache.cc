@@ -41,6 +41,7 @@ void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
 // pop feature chunk
 bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     kaldi::Timer timer;
+
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
         ready_read_condition_.wait(lock);
@@ -64,10 +65,13 @@ bool FeatureCache::Compute() {
     // compute and feed
     Vector<BaseFloat> feature_chunk;
     bool result = base_extractor_->Read(&feature_chunk);
+
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.size() >= max_size_) {
         ready_feed_condition_.wait(lock);
     }
+
+    // feed cache
     if (feature_chunk.Dim() != 0) {
         cache_.push(feature_chunk);
     }

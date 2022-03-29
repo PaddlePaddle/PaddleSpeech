@@ -17,10 +17,10 @@ import logging
 import os
 import random
 import sys
-from distutils.util import strtobool
 
 import configargparse
 import numpy as np
+from distutils.util import strtobool
 
 
 def get_parser():

@@ -24,7 +24,7 @@ nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspac
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).
 
-* If you want only work under cpu, please download corresponded [image](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html), and using `docker` instead `nvida-docker`.
+* If you want only work under cpu, please download corresponded [image](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html), and using `docker` instead `nvidia-docker`.
 
 
 2. Build `speechx` and `examples`.

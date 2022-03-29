@@ -26,11 +26,11 @@ if [ ${MODE} = "benchmark_train" ];then
     curPath=$(readlink -f "$(dirname "$0")")
         echo "curPath:"${curPath}
     cd ${curPath}/../..
-    apt-get install libsndfile1 -y 
+    apt-get install libsndfile1 -y
     pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
-    pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
-    pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple 
+    pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
     cd -
     if [ ${model_name} == "conformer" ]; then
         # set the URL for aishell_tiny dataset
@@ -39,8 +39,8 @@ if [ ${MODE} = "benchmark_train" ];then
         if [ ${URL} == 'None' ];then
             echo "please contact author to get the URL.\n"
             exit
-	else
-	    wget -P ${curPath}/../../dataset/aishell/ ${URL} 
+        else
+            wget -P ${curPath}/../../dataset/aishell/ ${URL}
         fi
         sed -i "s#^URL_ROOT_TAG#URL_ROOT = '${URL}'#g" ${curPath}/conformer/scripts/aishell_tiny.py
         cp ${curPath}/conformer/scripts/aishell_tiny.py ${curPath}/../../dataset/aishell/
@@ -48,10 +48,10 @@ if [ ${MODE} = "benchmark_train" ];then
         source path.sh
         # download audio data
         sed -i "s#aishell.py#aishell_tiny.py#g" ./local/data.sh
-	sed -i "s#python3#python#g" ./local/data.sh
+        sed -i "s#python3#python#g" ./local/data.sh
         bash ./local/data.sh || exit -1
         if [ $? -ne 0 ]; then
-        exit 1
+            exit 1
         fi
         mkdir -p ${curPath}/conformer/benchmark_train/
         cp -rf conf ${curPath}/conformer/benchmark_train/
@@ -79,4 +79,46 @@ if [ ${MODE} = "benchmark_train" ];then
         python ../paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
     fi
 
+elif [ ${MODE} = "lite_train_lite_infer" ];then
+    curPath=$(readlink -f "$(dirname "$0")")
+        echo "curPath:"${curPath}
+    cd ${curPath}/../..
+    apt-get install libsndfile1 -y
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+    cd -
+    if [ ${model_name} == "conformer" ]; then
+        # set the URL for aishell_tiny dataset
+        URL=${conformer_data_URL:-"None"}
+        echo "URL:"${URL}
+        if [ ${URL} == 'None' ];then
+            echo "please contact author to get the URL.\n"
+            exit
+	    else
+	        wget -P ${curPath}/../../dataset/aishell/ ${URL}
+        fi
+        sed -i "s#^URL_ROOT_TAG#URL_ROOT = '${URL}'#g" ${curPath}/conformer/scripts/aishell_tiny.py
+        cp ${curPath}/conformer/scripts/aishell_tiny.py ${curPath}/../../dataset/aishell/
+        cd ${curPath}/../../examples/aishell/asr1
+        source path.sh
+        # download audio data
+        sed -i "s#aishell.py#aishell_tiny.py#g" ./local/data.sh
+	    sed -i "s#python3#python#g" ./local/data.sh
+        bash ./local/data.sh || exit -1
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+        mkdir -p ${curPath}/conformer/lite_train_lite_infer/
+        cp -rf conf ${curPath}/conformer/lite_train_lite_infer/
+        cp -rf data ${curPath}/conformer/lite_train_lite_infer/
+        cd ${curPath}
+
+        sed -i "s#accum_grad: 2#accum_grad: 1#g" ${curPath}/conformer/lite_train_lite_infer/conf/conformer.yaml
+        sed -i "s#data/#test_tipc/conformer/lite_train_lite_infer/data/#g" ${curPath}/conformer/lite_train_lite_infer/conf/conformer.yaml
+        sed -i "s#conf/#test_tipc/conformer/lite_train_lite_infer/conf/#g" ${curPath}/conformer/lite_train_lite_infer/conf/conformer.yaml
+        sed -i "s#data/#test_tipc/conformer/lite_train_lite_infer/data/#g" ${curPath}/conformer/lite_train_lite_infer/conf/tuning/decode.yaml
+        sed -i "s#data/#test_tipc/conformer/lite_train_lite_infer/data/#g" ${curPath}/conformer/lite_train_lite_infer/conf/preprocess.yaml
+    fi
 fi

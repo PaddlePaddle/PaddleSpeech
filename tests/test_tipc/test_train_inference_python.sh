@@ -183,7 +183,7 @@ function func_inference(){
                     if [[ ${precision} =~ "fp16" || ${precision} =~ "int8" ]] && [ ${use_trt} = "False" ]; then
                         continue
                     fi
-                    if [[ ${use_trt} = "False" && ${precision} =~ "int8" ]] && [ ${_flag_quant} = "True" ]; then
+                    if [[ ${use_trt} = "False" || ${precision} =~ "int8" ]] && [ ${_flag_quant} = "True" ]; then
                         continue
                     fi
                     for batch_size in ${batch_size_list[*]}; do
@@ -227,12 +227,7 @@ if [ ${MODE} = "whole_infer" ] || [ ${MODE} = "klquant_whole_infer" ]; then
     for infer_model in ${infer_model_dir_list[*]}; do
         # run export
         if [ ${infer_run_exports[Count]} != "null" ];then
-            if [ ${MODE} = "klquant_whole_infer" ]; then
-                save_infer_dir="${infer_model}_klquant"
-            fi
-            if [ ${MODE} = "whole_infer" ]; then
-                save_infer_dir="${infer_model}"
-            fi
+            save_infer_dir=$(dirname $infer_model)
             set_export_weight=$(func_set_params "${export_weight}" "${infer_model}")
             set_save_infer_key=$(func_set_params "${save_infer_key}" "${save_infer_dir}")
             export_cmd="${python} ${infer_run_exports[Count]} ${set_export_weight} ${set_save_infer_key}"
@@ -264,6 +259,7 @@ else
             env=""
         elif [ ${#gpu} -le 1 ];then
             env="export CUDA_VISIBLE_DEVICES=${gpu}"
+            eval ${env}
         elif [ ${#gpu} -le 15 ];then
             IFS=","
             array=(${gpu})
@@ -336,6 +332,7 @@ else
                     cmd="${python} -m paddle.distributed.launch --ips=${ips} --gpus=${gpu} ${run_train} ${set_use_gpu} ${set_save_model} ${set_pretrain} ${set_epoch} ${set_autocast} ${set_batchsize} ${set_train_params1} ${set_amp_config}"
                 fi
                 # run train
+                eval "unset CUDA_VISIBLE_DEVICES"
                 eval $cmd
                 status_check $? "${cmd}" "${status_log}"
 
@@ -343,7 +340,6 @@ else
 
                 # run eval 
                 if [ ${eval_py} != "null" ]; then
-                    eval ${env}
                     set_eval_params1=$(func_set_params "${eval_key1}" "${eval_value1}")
                     eval_cmd="${python} ${eval_py} ${set_eval_pretrain} ${set_use_gpu} ${set_eval_params1}" 
                     eval $eval_cmd

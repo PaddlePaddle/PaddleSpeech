@@ -47,14 +47,22 @@ class U2Trainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
 
-    def train_batch(self, batch_index, batch_data, msg):
+    def train_batch(self, batch_index, batch_data, scaler, msg):
         train_conf = self.config
+        # For Mixed Precision Training
+        amp_level = self.args.amp_level
         start = time.time()
 
         # forward
         utt, audio, audio_len, text, text_len = batch_data
-        loss, attention_loss, ctc_loss = self.model(audio, audio_len, text,
-                                                    text_len)
+
+        if amp_level is not None:
+            with paddle.amp.auto_cast(level=amp_level):
+                loss, attention_loss, ctc_loss = self.model(audio, audio_len,
+                                                            text, text_len)
+        else:
+            loss, attention_loss, ctc_loss = self.model(audio, audio_len, text,
+                                                        text_len)
 
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
@@ -77,12 +85,19 @@ class U2Trainer(Trainer):
             # processes.
             context = nullcontext
         with context():
-            loss.backward()
+            if amp_level is not None:
+                scaled = scaler.scale(loss)
+                scaled.backward()
+            else:
+                loss.backward()
             layer_tools.print_grads(self.model, print_func=None)
 
         # optimizer step
         if (batch_index + 1) % train_conf.accum_grad == 0:
-            self.optimizer.step()
+            if amp_level is not None:
+                scaler.minimize(self.optimizer, scaled)
+            else:
+                self.optimizer.step()
             self.optimizer.clear_grad()
             self.lr_scheduler.step()
             self.iteration += 1
@@ -153,6 +168,15 @@ class U2Trainer(Trainer):
         self.before_train()
 
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+        # For Mixed Precision Training
+        if self.args.amp_level is not None:
+            logger.info(f"Doing Mixed Precision Training, The mode is {self.args.amp_level}")
+            scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
+            if self.args.amp_level == 'O2':
+                self.model = paddle.amp.decorate(models=self.model, level='O2')
+        else:
+            scaler = None
+
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -167,7 +191,7 @@ class U2Trainer(Trainer):
                             report("epoch", self.epoch)
                             report('step', self.iteration)
                             report("lr", self.lr_scheduler())
-                            self.train_batch(batch_index, batch, msg)
+                            self.train_batch(batch_index, batch, scaler, msg)
                             self.after_train_batch()
                             report('iter', batch_index + 1)
                             report('total', len(self.train_loader))
@@ -325,6 +349,7 @@ class U2Trainer(Trainer):
 
         logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
+
         self.model = model
         logger.info("Setup model!")
 

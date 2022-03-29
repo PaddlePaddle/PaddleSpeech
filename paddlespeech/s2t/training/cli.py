@@ -18,7 +18,7 @@ class ExtendAction(argparse.Action):
     """
     [Since Python 3.8, the "extend" is available directly in stdlib]
     (https://docs.python.org/3.8/library/argparse.html#action).
-    If you only have to support 3.8+ then defining it yourself is no longer required. 
+    If you only have to support 3.8+ then defining it yourself is no longer required.
     Usage of stdlib "extend" action is exactly the same way as this answer originally described:
     """
 
@@ -124,4 +124,11 @@ def default_argument_parser(parser=None):
         default=None,
         help='max iteration for benchmark.')
 
+    amp_group = parser.add_argument_group(title='AMP Options', description=None)
+    amp_group.add_argument(
+        '--amp_level',
+        type=str,
+        default=None,
+        choices=[None, 'O1', 'O2'],
+        help='The option of amp_level, input O1 or O2')
     return parser

@@ -355,7 +355,20 @@ class LogMelSpectrogramKaldi():
                 dither=self.dither, ))
 
     def __call__(self, x, train):
+        """
+        Args:
+            x (np.ndarray): shape (Ti,)
+            train (bool): True, train mode.
+
+        Raises:
+            ValueError: not support (Ti, C)
+
+        Returns:
+            np.ndarray: (T, D)
+        """
         dither = self.dither if train else 0.0
+        if x.ndim != 1:
+            raise ValueError("Not support x: [Time, Channel]")
         waveform = paddle.to_tensor(np.expand_dims(x, 0), dtype=paddle.float32)
         mat = kaldi.fbank(
             waveform,

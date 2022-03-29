@@ -312,17 +312,33 @@ class IStft():
 
 
 class LogMelSpectrogramKaldi():
-    def __init__(self,
-                 fs=16000,
-                 n_mels=80,
-                 n_frame_length=25,
-                 n_frame_shift=10,
-                 energy_floor=0.0,
-                 dither=0.1):
+    def __init__(
+            self,
+            fs=16000,
+            n_mels=80,
+            n_shift=160,  # unit:sample, 10ms
+            win_length=400,  # unit:sample, 25ms
+            energy_floor=0.0,
+            dither=0.1):
+        """
+        The Kaldi implementation of LogMelSpectrogram 
+        Args:
+            fs (int): sample rate of the audio
+            n_mels (int): number of mel filter banks
+            n_shift (int): number of points in a frame shift
+            win_length (int): number of points in a frame windows
+            energy_floor (float): Floor on energy in Spectrogram computation (absolute)
+            dither (float): Dithering constant
+
+        Returns:
+            LogMelSpectrogramKaldi
+        """
+
         self.fs = fs
         self.n_mels = n_mels
-        self.n_frame_length = n_frame_length
-        self.n_frame_shift = n_frame_shift
+        num_point_ms = fs / 1000
+        self.n_frame_length = win_length / num_point_ms
+        self.n_frame_shift = n_shift / num_point_ms
         self.energy_floor = energy_floor
         self.dither = dither
 

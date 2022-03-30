@@ -59,12 +59,19 @@ DEV_TARGET_DATA = "vox1_dev_wav_parta* vox1_dev_wav.zip ae63e55b951748cc486645f5
 TEST_LIST = {"vox1_test_wav.zip": "185fdc63c3c739954633d50379a3d102"}
 TEST_TARGET_DATA = "vox1_test_wav.zip vox1_test_wav.zip 185fdc63c3c739954633d50379a3d102"
 
-# kaldi trial
-# this trial file is organized by kaldi according the official file,
-# which is a little different with the official trial veri_test2.txt
-KALDI_BASE_URL = "http://www.openslr.org/resources/49/"
-TRIAL_LIST = {"voxceleb1_test_v2.txt": "29fc7cc1c5d59f0816dc15d6e8be60f7"}
-TRIAL_TARGET_DATA = "voxceleb1_test_v2.txt voxceleb1_test_v2.txt 29fc7cc1c5d59f0816dc15d6e8be60f7"
+# voxceleb trial
+
+TRIAL_BASE_URL = "https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/"
+TRIAL_LIST = {
+    "veri_test.txt": "29fc7cc1c5d59f0816dc15d6e8be60f7",  # voxceleb1
+    "veri_test2.txt": "b73110731c9223c1461fe49cb48dddfc",  # voxceleb1(cleaned)
+    "list_test_hard.txt": "21c341b6b2168eea2634df0fb4b8fff1",  # voxceleb1-H
+    "list_test_hard2.txt":
+    "857790e09d579a68eb2e339a090343c8",  # voxceleb1-H(cleaned)
+    "list_test_all.txt": "b9ecf7aa49d4b656aa927a8092844e4a",  # voxceleb1-E
+    "list_test_all2.txt":
+    "a53e059deb562ffcfc092bf5d90d9f3a"  # voxceleb1-E(cleaned)
+}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -82,7 +89,7 @@ args = parser.parse_args()
 
 
 def create_manifest(data_dir, manifest_path_prefix):
-    print("Creating manifest %s ..." % manifest_path_prefix)
+    print(f"Creating manifest {manifest_path_prefix} from {data_dir}")
     json_lines = []
     data_path = os.path.join(data_dir, "wav", "**", "*.wav")
     total_sec = 0.0
@@ -114,6 +121,9 @@ def create_manifest(data_dir, manifest_path_prefix):
     # voxceleb1 is given explicit in the path
     data_dir_name = Path(data_dir).name
     manifest_path_prefix = manifest_path_prefix + "." + data_dir_name
+    if not os.path.exists(os.path.dirname(manifest_path_prefix)):
+        os.makedirs(os.path.dirname(manifest_path_prefix))
+
     with codecs.open(manifest_path_prefix, 'w', encoding='utf-8') as f:
         for line in json_lines:
             f.write(line + "\n")
@@ -133,11 +143,13 @@ def create_manifest(data_dir, manifest_path_prefix):
 def prepare_dataset(base_url, data_list, target_dir, manifest_path,
                     target_data):
     if not os.path.exists(target_dir):
-        os.mkdir(target_dir)
+        os.makedirs(target_dir)
 
     # wav directory already exists, it need do nothing
+    # we will download the voxceleb1 data to ${target_dir}/vox1/dev/ or ${target_dir}/vox1/test directory 
     if not os.path.exists(os.path.join(target_dir, "wav")):
         # download all dataset part
+        print("start to download the vox1 dev zip package")
         for zip_part in data_list.keys():
             download_url = " --no-check-certificate " + base_url + "/" + zip_part
             download(
@@ -167,10 +179,22 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     create_manifest(data_dir=target_dir, manifest_path_prefix=manifest_path)
 
 
+def prepare_trial(base_url, data_list, target_dir):
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    for trial, md5sum in data_list.items():
+        target_trial = os.path.join(target_dir, trial)
+        if not os.path.exists(os.path.join(target_dir, trial)):
+            download_url = " --no-check-certificate " + base_url + "/" + trial
+            download(url=download_url, md5sum=md5sum, target_dir=target_dir)
+
+
 def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
+    # prepare the vox1 dev data
     prepare_dataset(
         base_url=BASE_URL,
         data_list=DEV_LIST,
@@ -178,12 +202,19 @@ def main():
         manifest_path=args.manifest_prefix,
         target_data=DEV_TARGET_DATA)
 
+    # prepare the vox1 test data
     prepare_dataset(
         base_url=BASE_URL,
         data_list=TEST_LIST,
         target_dir=os.path.join(args.target_dir, "test"),
         manifest_path=args.manifest_prefix,
         target_data=TEST_TARGET_DATA)
+
+    # prepare the vox1 trial
+    prepare_trial(
+        base_url=TRIAL_BASE_URL,
+        data_list=TRIAL_LIST,
+        target_dir=os.path.dirname(args.manifest_prefix))
 
     print("Manifest prepare done!")
 

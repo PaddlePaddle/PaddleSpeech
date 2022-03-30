@@ -47,6 +47,19 @@ class Conv1d(nn.Layer):
             groups=1,
             bias=True,
             padding_mode="reflect", ):
+        """_summary_
+
+        Args:
+            in_channels (int): intput channel or input data dimensions
+            out_channels (int): output channel or output data dimensions
+            kernel_size (int): kernel size of 1-d convolution
+            stride (int, optional): strid in 1-d convolution . Defaults to 1.
+            padding (str, optional): padding value. Defaults to "same".
+            dilation (int, optional): dilation in 1-d convolution. Defaults to 1.
+            groups (int, optional): groups in 1-d convolution. Defaults to 1.
+            bias (bool, optional): bias in 1-d convolution . Defaults to True.
+            padding_mode (str, optional): padding mode. Defaults to "reflect".
+        """
         super().__init__()
 
         self.kernel_size = kernel_size
@@ -134,6 +147,15 @@ class TDNNBlock(nn.Layer):
             kernel_size,
             dilation,
             activation=nn.ReLU, ):
+        """Implementation of TDNN network
+
+        Args:
+            in_channels (int): input channels or input embedding dimensions
+            out_channels (int): output channels or output embedding dimensions
+            kernel_size (int): the kernel size of the TDNN network block
+            dilation (int): the dilation of the TDNN network block
+            activation (paddle class, optional): the activation layers. Defaults to nn.ReLU.
+        """
         super().__init__()
         self.conv = Conv1d(
             in_channels=in_channels,
@@ -149,6 +171,15 @@ class TDNNBlock(nn.Layer):
 
 class Res2NetBlock(nn.Layer):
     def __init__(self, in_channels, out_channels, scale=8, dilation=1):
+        """Implementation of Res2Net Block with dilation
+           The paper is refered as "Res2Net: A New Multi-scale Backbone Architecture",
+           whose url is https://arxiv.org/abs/1904.01169
+        Args:
+            in_channels (int): input channels or input dimensions
+            out_channels (int): output channels or output dimensions
+            scale (int, optional): scale in res2net bolck. Defaults to 8.
+            dilation (int, optional): dilation of 1-d convolution in TDNN block. Defaults to 1.
+        """
         super().__init__()
         assert in_channels % scale == 0
         assert out_channels % scale == 0
@@ -179,6 +210,14 @@ class Res2NetBlock(nn.Layer):
 
 class SEBlock(nn.Layer):
     def __init__(self, in_channels, se_channels, out_channels):
+        """Implementation of SEBlock
+           The paper is refered as "Squeeze-and-Excitation Networks"
+           whose url is https://arxiv.org/abs/1709.01507
+        Args:
+            in_channels (int): input channels or input data dimensions
+            se_channels (_type_): _description_
+            out_channels (int): output channels or output data dimensions
+        """
         super().__init__()
 
         self.conv1 = Conv1d(
@@ -275,6 +314,18 @@ class SERes2NetBlock(nn.Layer):
             kernel_size=1,
             dilation=1,
             activation=nn.ReLU, ):
+        """Implementation of Squeeze-Extraction Res2Blocks in ECAPA-TDNN network model
+           The paper is refered "Squeeze-and-Excitation Networks"
+           whose url is: https://arxiv.org/pdf/1709.01507.pdf
+        Args:
+            in_channels (int): input channels or input data dimensions
+            out_channels (int): output channels or output data dimensions
+            res2net_scale (int, optional): scale in the res2net block. Defaults to 8.
+            se_channels (int, optional): embedding dimensions of res2net block. Defaults to 128.
+            kernel_size (int, optional): kernel size of 1-d convolution in TDNN block. Defaults to 1.
+            dilation (int, optional): dilation of 1-d convolution in TDNN block. Defaults to 1.
+            activation (paddle.nn.class, optional): activation function. Defaults to nn.ReLU.
+        """
         super().__init__()
         self.out_channels = out_channels
         self.tdnn1 = TDNNBlock(
@@ -326,7 +377,21 @@ class EcapaTdnn(nn.Layer):
             res2net_scale=8,
             se_channels=128,
             global_context=True, ):
-
+        """Implementation of ECAPA-TDNN backbone model network
+           The paper is refered as "ECAPA-TDNN: Emphasized Channel Attention, Propagation and Aggregation in TDNN Based Speaker Verification"
+           whose url is: https://arxiv.org/abs/2005.07143
+        Args:
+            input_size (_type_): input fature dimension
+            lin_neurons (int, optional): speaker embedding size. Defaults to 192.
+            activation (paddle.nn.class, optional): activation function. Defaults to nn.ReLU.
+            channels (list, optional): inter embedding dimension. Defaults to [512, 512, 512, 512, 1536].
+            kernel_sizes (list, optional): kernel size of 1-d convolution in TDNN block . Defaults to [5, 3, 3, 3, 1].
+            dilations (list, optional): dilations of 1-d convolution in TDNN block. Defaults to [1, 2, 3, 4, 1].
+            attention_channels (int, optional): attention dimensions. Defaults to 128.
+            res2net_scale (int, optional): scale value in res2net. Defaults to 8.
+            se_channels (int, optional): dimensions of squeeze-excitation block. Defaults to 128.
+            global_context (bool, optional): global context flag. Defaults to True.
+        """
         super().__init__()
         assert len(channels) == len(kernel_sizes)
         assert len(channels) == len(dilations)

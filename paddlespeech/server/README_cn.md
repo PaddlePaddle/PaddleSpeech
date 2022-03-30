@@ -10,7 +10,7 @@
  paddlespeech_server help
  ```
  ### 启动服务
- 首先设置服务相关配置文件，类似于 `./conf/application.yaml`，同时设置服务配置中的语音任务模型相关配置，类似于 `./conf/tts/tts.yaml`。
+ 首先设置服务相关配置文件，类似于 `./conf/application.yaml`，设置 `engine_list`，该值表示即将启动的服务中包含的语音任务。
  然后启动服务：
  ```bash
  paddlespeech_server start --config_file ./conf/application.yaml
@@ -29,4 +29,9 @@
  ### 访问语音合成服务
  ```bash
  paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+ ```
+
+ ### 访问音频分类服务
+ ```bash
+ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
  ```

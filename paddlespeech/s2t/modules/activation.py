@@ -17,6 +17,8 @@ import paddle
 from paddle import nn
 from paddle.nn import functional as F
 
+from paddlespeech.s2t.modules.align import Conv2D
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -51,7 +53,7 @@ class LinearGLUBlock(nn.Layer):
             idim (int): input and output dimension
         """
         super().__init__()
-        self.fc = nn.Linear(idim, idim * 2)
+        self.fc = Linear(idim, idim * 2)
 
     def forward(self, xs):
         return glu(self.fc(xs), dim=-1)
@@ -75,7 +77,7 @@ class ConvGLUBlock(nn.Layer):
         self.conv_residual = None
         if in_ch != out_ch:
             self.conv_residual = nn.utils.weight_norm(
-                nn.Conv2D(
+                Conv2D(
                     in_channels=in_ch, out_channels=out_ch, kernel_size=(1, 1)),
                 name='weight',
                 dim=0)
@@ -86,7 +88,7 @@ class ConvGLUBlock(nn.Layer):
         layers = OrderedDict()
         if bottlececk_dim == 0:
             layers['conv'] = nn.utils.weight_norm(
-                nn.Conv2D(
+                Conv2D(
                     in_channels=in_ch,
                     out_channels=out_ch * 2,
                     kernel_size=(kernel_size, 1)),
@@ -106,7 +108,7 @@ class ConvGLUBlock(nn.Layer):
                 dim=0)
             layers['dropout_in'] = nn.Dropout(p=dropout)
             layers['conv_bottleneck'] = nn.utils.weight_norm(
-                nn.Conv2D(
+                Conv2D(
                     in_channels=bottlececk_dim,
                     out_channels=bottlececk_dim,
                     kernel_size=(kernel_size, 1)),
@@ -115,7 +117,7 @@ class ConvGLUBlock(nn.Layer):
             layers['dropout'] = nn.Dropout(p=dropout)
             layers['glu'] = GLU()
             layers['conv_out'] = nn.utils.weight_norm(
-                nn.Conv2D(
+                Conv2D(
                     in_channels=bottlececk_dim,
                     out_channels=out_ch * 2,
                     kernel_size=(1, 1)),

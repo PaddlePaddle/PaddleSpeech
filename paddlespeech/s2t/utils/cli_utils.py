@@ -14,9 +14,9 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 import sys
 from collections.abc import Sequence
-from distutils.util import strtobool as dist_strtobool
 
 import numpy
+from distutils.util import strtobool as dist_strtobool
 
 
 def strtobool(x):

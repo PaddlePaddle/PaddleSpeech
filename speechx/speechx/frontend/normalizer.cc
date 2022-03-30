@@ -107,7 +107,7 @@ void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
 }
 
 bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
-    if (base_extractor_->Read(feats) == false) {
+    if (base_extractor_->Read(feats) == false || feats->Dim() == 0) {
         return false;
     }
     Compute(feats);

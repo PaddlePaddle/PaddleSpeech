@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import codecs
 import datetime
 import logging
 import os
@@ -124,7 +123,7 @@ class MultiprocessHandler(logging.FileHandler):
             logging.FileHandler.emit(self, record)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception as e:
             self.handleError(record)
 
 

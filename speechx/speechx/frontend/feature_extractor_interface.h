@@ -21,17 +21,26 @@ namespace ppspeech {
 
 class FeatureExtractorInterface {
   public:
-    // accept input data, accept feature or raw waves which decided
-    // by the base_extractor
+    // Feed inputs: features(2D saved in 1D) or waveforms(1D).
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;
-    // get the processed result
-    // the length of output = feature_row * feature_dim,
-    // the Matrix is squashed into Vector
+
+    // Fetch processed data: features or waveforms.
+    // For features(2D saved in 1D), the Matrix is squashed into Vector,
+    //    the length of output = feature_row * feature_dim.
+    // For waveforms(1D), samples saved in vector.
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* outputs) = 0;
-    // the Dim is the feature dim
+
+    // Dim is the feature dim. For waveforms(1D), Dim is zero; else is specific,
+    // e.g 80 for fbank.
     virtual size_t Dim() const = 0;
+
+    // End Flag for Streaming Data.
     virtual void SetFinished() = 0;
+
+    // whether is end of Streaming Data.
     virtual bool IsFinished() const = 0;
+
+    // Reset to start state.
     virtual void Reset() = 0;
 };
 

@@ -36,6 +36,7 @@ from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
 from paddlespeech.s2t.modules.encoder import ConformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
+from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.modules.loss import LabelSmoothingLoss
 from paddlespeech.s2t.modules.mask import make_pad_mask
 from paddlespeech.s2t.modules.mask import mask_finished_preds
@@ -72,6 +73,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
         nn.Layer.__init__(self)
+
         # note that eos is the same as sos (equivalent ID)
         self.sos = vocab_size - 1
         self.eos = vocab_size - 1
@@ -780,9 +782,12 @@ class U2DecodeModel(U2BaseModel):
 
 class U2Model(U2DecodeModel):
     def __init__(self, configs: dict):
-        vocab_size, encoder, decoder, ctc = U2Model._init_from_config(configs)
-
         model_conf = configs.get('model_conf', dict())
+        init_type = model_conf.get("init_type", None)
+        with DefaultInitializerContext(init_type):
+            vocab_size, encoder, decoder, ctc = U2Model._init_from_config(
+                configs)
+
         super().__init__(
             vocab_size=vocab_size,
             encoder=encoder,

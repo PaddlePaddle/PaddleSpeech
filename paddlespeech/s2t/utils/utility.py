@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Contains common utility functions."""
-import distutils.util
 import math
 import os
 import random
@@ -21,6 +20,7 @@ from contextlib import contextmanager
 from pprint import pformat
 from typing import List
 
+import distutils.util
 import numpy as np
 import paddle
 import soundfile

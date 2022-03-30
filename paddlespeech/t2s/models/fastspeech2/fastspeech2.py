@@ -14,6 +14,7 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Fastspeech2 related modules for paddle"""
 from typing import Dict
+from typing import List
 from typing import Sequence
 from typing import Tuple
 from typing import Union
@@ -32,6 +33,8 @@ from paddlespeech.t2s.modules.predictor.duration_predictor import DurationPredic
 from paddlespeech.t2s.modules.predictor.length_regulator import LengthRegulator
 from paddlespeech.t2s.modules.predictor.variance_predictor import VariancePredictor
 from paddlespeech.t2s.modules.tacotron2.decoder import Postnet
+from paddlespeech.t2s.modules.transformer.encoder import CNNDecoder
+from paddlespeech.t2s.modules.transformer.encoder import CNNPostnet
 from paddlespeech.t2s.modules.transformer.encoder import ConformerEncoder
 from paddlespeech.t2s.modules.transformer.encoder import TransformerEncoder
 
@@ -97,6 +100,12 @@ class FastSpeech2(nn.Layer):
             zero_triu: bool=False,
             conformer_enc_kernel_size: int=7,
             conformer_dec_kernel_size: int=31,
+            # for CNN Decoder
+            cnn_dec_dropout_rate: float=0.2,
+            cnn_postnet_dropout_rate: float=0.2,
+            cnn_postnet_resblock_kernel_sizes: List[int]=[256, 256],
+            cnn_postnet_kernel_size: int=5,
+            cnn_decoder_embedding_dim: int=256,
             # duration predictor
             duration_predictor_layers: int=2,
             duration_predictor_chans: int=384,
@@ -392,6 +401,13 @@ class FastSpeech2(nn.Layer):
                 activation_type=conformer_activation_type,
                 use_cnn_module=use_cnn_in_conformer,
                 cnn_module_kernel=conformer_dec_kernel_size, )
+        elif decoder_type == 'cnndecoder':
+            self.decoder = CNNDecoder(
+                emb_dim=adim,
+                odim=odim,
+                kernel_size=cnn_postnet_kernel_size,
+                dropout_rate=cnn_dec_dropout_rate,
+                resblock_kernel_sizes=cnn_postnet_resblock_kernel_sizes)
         else:
             raise ValueError(f"{decoder_type} is not supported.")
 
@@ -399,14 +415,21 @@ class FastSpeech2(nn.Layer):
         self.feat_out = nn.Linear(adim, odim * reduction_factor)
 
         # define postnet
-        self.postnet = (None if postnet_layers == 0 else Postnet(
-            idim=idim,
-            odim=odim,
-            n_layers=postnet_layers,
-            n_chans=postnet_chans,
-            n_filts=postnet_filts,
-            use_batch_norm=use_batch_norm,
-            dropout_rate=postnet_dropout_rate, ))
+        if decoder_type == 'cnndecoder':
+            self.postnet = CNNPostnet(
+                odim=odim,
+                kernel_size=cnn_postnet_kernel_size,
+                dropout_rate=cnn_postnet_dropout_rate,
+                resblock_kernel_sizes=cnn_postnet_resblock_kernel_sizes)
+        else:
+            self.postnet = (None if postnet_layers == 0 else Postnet(
+                idim=idim,
+                odim=odim,
+                n_layers=postnet_layers,
+                n_chans=postnet_chans,
+                n_filts=postnet_filts,
+                use_batch_norm=use_batch_norm,
+                dropout_rate=postnet_dropout_rate, ))
 
         nn.initializer.set_global_initializer(None)
 
@@ -562,6 +585,7 @@ class FastSpeech2(nn.Layer):
                     [olen // self.reduction_factor for olen in olens.numpy()])
             else:
                 olens_in = olens
+            # (B, 1, T)
             h_masks = self._source_mask(olens_in)
         else:
             h_masks = None
@@ -569,8 +593,11 @@ class FastSpeech2(nn.Layer):
 
         zs, _ = self.decoder(hs, h_masks)
         # (B, Lmax, odim)
-        before_outs = self.feat_out(zs).reshape(
-            (paddle.shape(zs)[0], -1, self.odim))
+        if self.decoder_type == 'cnndecoder':
+            before_outs = zs
+        else:
+            before_outs = self.feat_out(zs).reshape(
+                (paddle.shape(zs)[0], -1, self.odim))
 
         # postnet -> (B, Lmax//r * r, odim)
         if self.postnet is None:

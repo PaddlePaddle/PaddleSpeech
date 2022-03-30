@@ -8,7 +8,10 @@ batch_size: 16
 num_workers: 2
 num_speakers: 7205 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
 shuffle: True
+split_ratio: 0.9
+chunk_duration: 3.0 # seconds
 random_chunk: True
+verification_file: data/vox1/veri_test2.txt
 
 ###########################################################
 #                FEATURE EXTRACTION SETTING               #

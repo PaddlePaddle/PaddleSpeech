@@ -28,10 +28,10 @@ class FeatureCache : public FeatureExtractorInterface {
     // Feed feats or waves
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
 
-    // feats dim = num_frames * feature_dim
+    // feats size = num_frames * feat_dim
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
 
-    // feature cache only cache feature which from base extractor
+    // feat dim
     virtual size_t Dim() const { return base_extractor_->Dim(); }
 
     virtual void SetFinished() {

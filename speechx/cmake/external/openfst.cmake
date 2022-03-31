@@ -13,7 +13,7 @@ ExternalProject_Add(openfst
                       "CPPFLAGS=-I${gflags_BINARY_DIR}/include -I${glog_SOURCE_DIR}/src -I${glog_BINARY_DIR}"
                       "LDFLAGS=-L${gflags_BINARY_DIR} -L${glog_BINARY_DIR}"
                       "LIBS=-lgflags_nothreads -lglog -lpthread"
-  COMMAND           ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/patch/openfst ${openfst_SOURCE_DIR}
+  COMMAND           ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/patch/openfst ${openfst_SOURCE_DIR}
   BUILD_COMMAND     make -j 4
 )
 link_directories(${openfst_PREFIX_DIR}/lib)

@@ -4,6 +4,7 @@
 
 The directory containes many speech applications in multi scenarios.
 
+* audio searching - mass audio similarity retrieval
 * audio tagging - multi-label tagging of an audio file
 * automatic_video_subtitiles - generate subtitles from a video
 * metaverse - 2D AR with TTS  

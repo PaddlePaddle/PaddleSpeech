@@ -11,23 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
-from logs import LOGGER
+from typing import List
 
-from paddlespeech.cli import VectorExecutor
+from fastapi import APIRouter
 
-vector_executor = VectorExecutor()
+from paddlespeech.server.ws.asr_socket import router as asr_router
+
+_router = APIRouter()
 
 
-def get_audio_embedding(path):
+def setup_router(api_list: List):
+    """setup router for fastapi
+    Args:
+        api_list (List): [asr, tts]
+    Returns:
+        APIRouter
     """
-    Use vpr_inference to generate embedding of audio
-    """
-    try:
-        embedding = vector_executor(audio_file=path)
-        embedding = embedding / np.linalg.norm(embedding)
-        embedding = embedding.tolist()
-        return embedding
-    except Exception as e:
-        LOGGER.error(f"Error with embedding:{e}")
-        return None
+    for api_name in api_list:
+        if api_name == 'asr':
+            _router.include_router(asr_router)
+        elif api_name == 'tts':
+            pass
+        else:
+            pass
+
+    return _router

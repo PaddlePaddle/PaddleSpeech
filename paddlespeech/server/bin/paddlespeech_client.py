@@ -150,7 +150,7 @@ class TTSClientExecutor(BaseExecutor):
 
         res = requests.post(url, json.dumps(request))
         response_dict = res.json()
-        if not output:
+        if output is not None:
             self.postprocess(response_dict["result"]["audio"], output)
         return res
 

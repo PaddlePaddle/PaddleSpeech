@@ -1,8 +1,9 @@
 # Examples
 
-* decoder - online decoder to work as offline
+* glog - glog usage
 * feat - mfcc, linear 
 * nnet - ds2 nn
+* decoder - online decoder to work as offline
 
 ## How to run
 

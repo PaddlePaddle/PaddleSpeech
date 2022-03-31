@@ -11,23 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
-from logs import LOGGER
-
-from paddlespeech.cli import VectorExecutor
-
-vector_executor = VectorExecutor()
-
-
-def get_audio_embedding(path):
-    """
-    Use vpr_inference to generate embedding of audio
-    """
-    try:
-        embedding = vector_executor(audio_file=path)
-        embedding = embedding / np.linalg.norm(embedding)
-        embedding = embedding.tolist()
-        return embedding
-    except Exception as e:
-        LOGGER.error(f"Error with embedding:{e}")
-        return None

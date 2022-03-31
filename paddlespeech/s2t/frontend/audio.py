@@ -209,6 +209,18 @@ class AudioSegment():
         return cls(samples, sample_rate)
 
     @classmethod
+    def from_pcm(cls, samples, sample_rate):
+        """Create audio segment from a byte string containing audio samples.
+        :param samples: Audio samples [num_samples x num_channels].
+        :type samples: numpy.ndarray
+        :param sample_rate: Audio sample rate.
+        :type sample_rate: int
+        :return: Audio segment instance.
+        :rtype: AudioSegment
+        """
+        return cls(samples, sample_rate)
+
+    @classmethod
     def concatenate(cls, *segments):
         """Concatenate an arbitrary number of audio segments together.
 

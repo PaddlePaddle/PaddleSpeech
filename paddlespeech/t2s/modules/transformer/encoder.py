@@ -587,7 +587,6 @@ class CNNDecoder(nn.Layer):
         Returns:
             Tensor: Output tensor (#batch, time, odim).
         """
-        # print("input.shape in CNNDecoder:",xs.shape)
         # exchange the temporal dimension and the feature dimension
         xs = xs.transpose([0, 2, 1])
         if masks is not None:
@@ -603,7 +602,6 @@ class CNNDecoder(nn.Layer):
         if masks is not None:
             outputs = outputs * masks
         outputs = outputs.transpose([0, 2, 1])
-        # print("outputs.shape in CNNDecoder:",outputs.shape)
         return outputs, masks
 
 
@@ -636,7 +634,6 @@ class CNNPostnet(nn.Layer):
         Returns:
             Tensor: Output tensor (#batch, odim, time).
         """
-        # print("xs.shape in CNNPostnet:",xs.shape)
         for layer in self.residual_blocks:
             outputs = layer(xs)
             if masks is not None:
@@ -646,5 +643,4 @@ class CNNPostnet(nn.Layer):
         outputs = self.conv1d(outputs)
         if masks is not None:
             outputs = outputs * masks
-        # print("outputs.shape in CNNPostnet:",outputs.shape)
         return outputs

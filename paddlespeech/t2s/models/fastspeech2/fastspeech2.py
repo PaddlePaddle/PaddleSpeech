@@ -509,6 +509,7 @@ class FastSpeech2(nn.Layer):
                  ps: paddle.Tensor=None,
                  es: paddle.Tensor=None,
                  is_inference: bool=False,
+                 return_after_enc=False,
                  alpha: float=1.0,
                  spk_emb=None,
                  spk_id=None,
@@ -589,8 +590,10 @@ class FastSpeech2(nn.Layer):
             h_masks = self._source_mask(olens_in)
         else:
             h_masks = None
-        # (B, Lmax, adim)
 
+        if return_after_enc:
+            return hs, h_masks
+        # (B, Lmax, adim)
         zs, _ = self.decoder(hs, h_masks)
         # (B, Lmax, odim)
         if self.decoder_type == 'cnndecoder':
@@ -608,10 +611,42 @@ class FastSpeech2(nn.Layer):
 
         return before_outs, after_outs, d_outs, p_outs, e_outs
 
+    def encoder_infer(
+            self,
+            text: paddle.Tensor,
+            alpha: float=1.0,
+            spk_emb=None,
+            spk_id=None,
+            tone_id=None,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+        # input of embedding must be int64
+        x = paddle.cast(text, 'int64')
+        # setup batch axis
+        ilens = paddle.shape(x)[0]
+
+        xs = x.unsqueeze(0)
+
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
+
+        if tone_id is not None:
+            tone_id = tone_id.unsqueeze(0)
+
+        # (1, L, odim)
+        hs, h_masks = self._forward(
+            xs,
+            ilens,
+            is_inference=True,
+            return_after_enc=True,
+            alpha=alpha,
+            spk_emb=spk_emb,
+            spk_id=spk_id,
+            tone_id=tone_id)
+        return hs, h_masks
+
     def inference(
             self,
             text: paddle.Tensor,
-            speech: paddle.Tensor=None,
             durations: paddle.Tensor=None,
             pitch: paddle.Tensor=None,
             energy: paddle.Tensor=None,
@@ -625,7 +660,6 @@ class FastSpeech2(nn.Layer):
 
         Args:
             text(Tensor(int64)): Input sequence of characters (T,).
-            speech(Tensor, optional): Feature sequence to extract style (N, idim).
             durations(Tensor, optional (int64)): Groundtruth of duration (T,).
             pitch(Tensor, optional): Groundtruth of token-averaged pitch (T, 1).
             energy(Tensor, optional): Groundtruth of token-averaged energy (T, 1).
@@ -642,15 +676,11 @@ class FastSpeech2(nn.Layer):
         """
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
-        y = speech
         d, p, e = durations, pitch, energy
         # setup batch axis
         ilens = paddle.shape(x)[0]
 
-        xs, ys = x.unsqueeze(0), None
-
-        if y is not None:
-            ys = y.unsqueeze(0)
+        xs = x.unsqueeze(0)
 
         if spk_emb is not None:
             spk_emb = spk_emb.unsqueeze(0)
@@ -668,7 +698,6 @@ class FastSpeech2(nn.Layer):
             _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
                 ilens,
-                ys,
                 ds=ds,
                 ps=ps,
                 es=es,
@@ -681,7 +710,6 @@ class FastSpeech2(nn.Layer):
             _, outs, d_outs, p_outs, e_outs = self._forward(
                 xs,
                 ilens,
-                ys,
                 is_inference=True,
                 alpha=alpha,
                 spk_emb=spk_emb,
@@ -829,7 +857,6 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
 
         Args:
             text(Tensor(int64)): Input sequence of characters (T,).
-            speech(Tensor, optional): Feature sequence to extract style (N, idim).
             durations(paddle.Tensor/np.ndarray, optional (int64)): Groundtruth of duration (T,), this will overwrite the set of durations_scale and durations_bias
             durations_scale(int/float, optional): 
             durations_bias(int/float, optional): 

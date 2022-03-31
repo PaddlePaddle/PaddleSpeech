@@ -22,9 +22,9 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
-        --output_dir=${train_output_path}/test_e2e \
+        --output_dir=${train_output_path}/test_e2e_streaming \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --am_streaming=True
 fi
 
 # for more GAN Vocoders
@@ -43,9 +43,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_stat=mb_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
-        --output_dir=${train_output_path}/test_e2e \
+        --output_dir=${train_output_path}/test_e2e_streaming \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --am_streaming=True
 fi
 
 # the pretrained models haven't release now
@@ -65,9 +65,9 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --voc_stat=style_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
-        --output_dir=${train_output_path}/test_e2e \
-        --phones_dict=dump/phone_id_map.txt
-        # --inference_dir=${train_output_path}/inference
+        --output_dir=${train_output_path}/test_e2e_streaming \
+        --phones_dict=dump/phone_id_map.txt \
+        --am_streaming=True
 fi
 
 # hifigan
@@ -86,7 +86,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --voc_stat=hifigan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
-        --output_dir=${train_output_path}/test_e2e \
+        --output_dir=${train_output_path}/test_e2e_streaming \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --am_streaming=True
 fi

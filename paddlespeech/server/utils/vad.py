@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import collections
-import logging
 
 import webrtcvad
 
 
 class VADAudio():
     def __init__(self,
-                 aggressiveness,
-                 rate,
-                 frame_duration_ms,
+                 aggressiveness=2,
+                 rate=16000,
+                 frame_duration_ms=20,
                  sample_width=2,
                  padding_ms=200,
                  padding_ratio=0.9):

@@ -11,35 +11,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import base64
-import traceback
-from typing import Union
-import random
-import numpy as np
 import json
 
+import numpy as np
 from fastapi import APIRouter
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
-from paddlespeech.server.engine.asr.online.asr_engine import ASREngine
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.utils.buffer import ChunkBuffer
 from paddlespeech.server.utils.vad import VADAudio
 
-
 router = APIRouter()
+
 
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
 
     await websocket.accept()
 
+    engine_pool = get_engine_pool()
+    asr_engine = engine_pool['asr']
     # init buffer
-    chunk_buffer = ChunkBuffer(sample_width=2)
+    chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
+    chunk_buffer = ChunkBuffer(
+        sample_rate=chunk_buffer_conf['sample_rate'],
+        sample_width=chunk_buffer_conf['sample_width'])
     # init vad
-    vad = VADAudio(2, 16000, 20)
+    vad_conf = asr_engine.config.vad_conf
+    vad = VADAudio(
+        aggressiveness=vad_conf['aggressiveness'],
+        rate=vad_conf['sample_rate'],
+        frame_duration_ms=vad_conf['frame_duration_ms'])
 
     try:
         while True:
@@ -50,17 +54,11 @@ async def websocket_endpoint(websocket: WebSocket):
             if "text" in message:
                 message = json.loads(message["text"])
                 if 'signal' not in message:
-                    resp = {
-                            "status": "ok",
-                            "message": "no valid json data"
-                            }
+                    resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
 
                 if message['signal'] == 'start':
-                    resp = {
-                            "status": "ok",
-                            "signal": "server_ready"
-                            }
+                    resp = {"status": "ok", "signal": "server_ready"}
                     # do something at begining here
                     await websocket.send_json(resp)
                 elif message['signal'] == 'end':
@@ -68,24 +66,19 @@ async def websocket_endpoint(websocket: WebSocket):
                     asr_engine = engine_pool['asr']
                     # reset single  engine for an new connection
                     asr_engine.reset()
-                    resp = {
-                            "status": "ok",
-                            "signal": "finished"
-                            }
+                    resp = {"status": "ok", "signal": "finished"}
                     await websocket.send_json(resp)
                     break
                 else:
-                    resp = {
-                            "status": "ok",
-                            "message": "no valid json data"
-                            }
+                    resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
             elif "bytes" in message:
                 message = message["bytes"]
 
                 # vad for input bytes audio
                 vad.add_audio(message)
-                message = b''.join(f for f in vad.vad_collector() if f is not None)
+                message = b''.join(f for f in vad.vad_collector()
+                                   if f is not None)
 
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
@@ -94,7 +87,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 for frame in frames:
                     samples = np.frombuffer(frame.bytes, dtype=np.int16)
                     sample_rate = asr_engine.config.sample_rate
-                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples, sample_rate)
+                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
+                                                                  sample_rate)
                     asr_engine.run(x_chunk, x_chunk_lens)
                     asr_results = asr_engine.postprocess()
 

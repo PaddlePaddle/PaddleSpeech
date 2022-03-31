@@ -3,18 +3,15 @@
 #################################################################################
 #                             SERVER SETTING                                    #
 #################################################################################
-host: 0.0.0.0
+host: 127.0.0.1
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference']
-# protocol: 'http'
-# engine_list: ['asr_python', 'tts_python', 'cls_python']
-
-
-# websocket, http (only choose one). websocket only support online engine type.
-protocol: 'websocket'
-engine_list: ['asr_online']
+# protocol = ['websocket', 'http'] (only one can be selected). 
+# http only support offline engine type.
+protocol: 'http'
+engine_list: ['asr_python', 'tts_python', 'cls_python']
 
 
 #################################################################################

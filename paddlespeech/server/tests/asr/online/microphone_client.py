@@ -11,25 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """
 record wave from the mic
 """
-
-import threading
-import pyaudio
-import wave
-import logging
 import asyncio
-import websockets
 import json
-from signal import SIGINT, SIGTERM
+import logging
+import threading
+import wave
+from signal import SIGINT
+from signal import SIGTERM
+
+import pyaudio
+import websockets
 
 
 class ASRAudioHandler(threading.Thread):
-    def __init__(self,
-                 url="127.0.0.1",
-                 port=8090):
+    def __init__(self, url="127.0.0.1", port=8091):
         threading.Thread.__init__(self)
         self.url = url
         self.port = port
@@ -56,12 +54,13 @@ class ASRAudioHandler(threading.Thread):
         self._running = True
         self._frames = []
         p = pyaudio.PyAudio()
-        stream = p.open(format=self.format,
-                               channels=self.channels,
-                               rate=self.rate,
-                               input=True,
-                               frames_per_buffer=self.chunk)
-        while(self._running):
+        stream = p.open(
+            format=self.format,
+            channels=self.channels,
+            rate=self.rate,
+            input=True,
+            frames_per_buffer=self.chunk)
+        while (self._running):
             data = stream.read(self.chunk)
             self._frames.append(data)
             self.data_backup.append(data)
@@ -97,11 +96,15 @@ class ASRAudioHandler(threading.Thread):
 
             async with websockets.connect(self.url) as ws:
                 # 发送开始指令
-                audio_info = json.dumps({
-                                "name": "test.wav",
-                                "signal": "start",
-                                "nbest": 5
-                                }, sort_keys=True, indent=4, separators=(',', ': '))
+                audio_info = json.dumps(
+                    {
+                        "name": "test.wav",
+                        "signal": "start",
+                        "nbest": 5
+                    },
+                    sort_keys=True,
+                    indent=4,
+                    separators=(',', ': '))
                 await ws.send(audio_info)
                 msg = await ws.recv()
                 logging.info("receive msg={}".format(msg))
@@ -117,11 +120,15 @@ class ASRAudioHandler(threading.Thread):
                 except asyncio.CancelledError:
                     # quit
                     # send finished 
-                    audio_info = json.dumps({
-                                    "name": "test.wav",
-                                    "signal": "end",
-                                    "nbest": 5
-                                    }, sort_keys=True, indent=4, separators=(',', ': '))
+                    audio_info = json.dumps(
+                        {
+                            "name": "test.wav",
+                            "signal": "end",
+                            "nbest": 5
+                        },
+                        sort_keys=True,
+                        indent=4,
+                        separators=(',', ': '))
                     await ws.send(audio_info)
                     msg = await ws.recv()
                     logging.info("receive msg={}".format(msg))
@@ -141,7 +148,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
 
-    handler = ASRAudioHandler("127.0.0.1", 8090)
+    handler = ASRAudioHandler("127.0.0.1", 8091)
     loop = asyncio.get_event_loop()
     main_task = asyncio.ensure_future(handler.run())
     for signal in [SIGINT, SIGTERM]:

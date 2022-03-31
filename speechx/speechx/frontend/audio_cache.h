@@ -18,69 +18,44 @@
 #include "base/common.h"
 #include "frontend/feature_extractor_interface.h"
 
-#pragma once
-
 namespace ppspeech {
 
-class RawAudioCache : public FeatureExtractorInterface {
+// waves cache
+class AudioCache : public FeatureExtractorInterface {
   public:
-    explicit RawAudioCache(int buffer_size = kint16max);
+    explicit AudioCache(int buffer_size = kint16max);
+
     virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
+
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
-    // the audio dim is 1
+
+    // the audio dim is 1, one sample
     virtual size_t Dim() const { return 1; }
+
     virtual void SetFinished() {
         std::lock_guard<std::mutex> lock(mutex_);
         finished_ = true;
     }
+
     virtual bool IsFinished() const { return finished_; }
+
     virtual void Reset() {
-        start_ = 0;
-        data_length_ = 0;
+        offset_ = 0;
+        size_ = 0;
         finished_ = false;
     }
 
   private:
     std::vector<kaldi::BaseFloat> ring_buffer_;
-    size_t start_;
-    size_t data_length_;
-    bool finished_;
+    size_t offset_;    // offset in ring_buffer_
+    size_t size_;      // samples in ring_buffer_ now
+    size_t capacity_;  // capacity of ring_buffer_
+    bool finished_;    // reach audio end
     mutable std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
-    kaldi::int32 timeout_;
+    kaldi::int32 timeout_;  // millisecond
 
-    DISALLOW_COPY_AND_ASSIGN(RawAudioCache);
-};
-
-// it is a datasource for testing different frontend module.
-// it accepts waves or feats.
-class RawDataCache : public FeatureExtractorInterface {
-  public:
-    explicit RawDataCache() { finished_ = false; }
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
-        data_ = inputs;
-    }
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
-        if (data_.Dim() == 0) {
-            return false;
-        }
-        (*feats) = data_;
-        data_.Resize(0);
-        return true;
-    }
-
-    virtual void SetFinished() { finished_ = true; }
-    virtual bool IsFinished() const { return finished_; }
-    virtual size_t Dim() const { return dim_; }
-    void SetDim(int32 dim) { dim_ = dim; }
-    virtual void Reset() { finished_ = true; }
-
-  private:
-    kaldi::Vector<kaldi::BaseFloat> data_;
-    bool finished_;
-    int32 dim_;
-
-    DISALLOW_COPY_AND_ASSIGN(RawDataCache);
+    DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };
 
 }  // namespace ppspeech

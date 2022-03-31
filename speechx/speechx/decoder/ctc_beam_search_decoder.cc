@@ -38,8 +38,10 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
               << vocabulary_.size();
 
     LOG(INFO) << "language model path: " << opts_.lm_path;
-    init_ext_scorer_ = std::make_shared<Scorer>(
-        opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
+    if (opts_.lm_path != "") {
+        init_ext_scorer_ = std::make_shared<Scorer>(
+            opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
+    }
 
     blank_id_ = 0;
     auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");

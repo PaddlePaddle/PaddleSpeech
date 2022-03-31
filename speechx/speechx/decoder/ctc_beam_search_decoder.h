@@ -33,13 +33,13 @@ struct CTCBeamSearchOptions {
     int num_proc_bsearch;
     CTCBeamSearchOptions()
         : dict_file("vocab.txt"),
-          lm_path("lm.klm"),
+          lm_path(""),
           alpha(1.9f),
           beta(5.0),
           beam_size(300),
           cutoff_prob(0.99f),
           cutoff_top_n(40),
-          num_proc_bsearch(0) {}
+          num_proc_bsearch(10) {}
 
     void Register(kaldi::OptionsItf* opts) {
         opts->Register("dict", &dict_file, "dict file ");

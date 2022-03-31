@@ -52,9 +52,9 @@ int main(int argc, char* argv[]) {
     ppspeech::CTCBeamSearch decoder(opts);
 
     ppspeech::ModelOptions model_opts;
-    model_opts.cache_shape = "5-1-1024,5-1-1024";
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
+    model_opts.cache_shape = "5-1-1024,5-1-1024";
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::RawDataCache> raw_data(
@@ -62,25 +62,42 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet, raw_data));
 
-    int32 chunk_size = 35;
+    int32 chunk_size = 7;
+    int32 chunk_stride = 4;
+    int32 receptive_field_length = 7;
     decoder.InitDecoder();
 
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
-        const kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
+        kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
         raw_data->SetDim(feature.NumCols());
         int32 row_idx = 0;
-        int32 num_chunks = feature.NumRows() / chunk_size;
+        int32 padding_len = 0;
+        int32 ori_feature_len = feature.NumRows(); 
+        if ( (feature.NumRows() - chunk_size) % chunk_stride != 0) {
+            padding_len = chunk_stride - (feature.NumRows() - chunk_size) % chunk_stride;
+            feature.Resize(feature.NumRows() + padding_len, feature.NumCols(), kaldi::kCopyData);
+        }
+        int32 num_chunks = (feature.NumRows() - chunk_size) / chunk_stride + 1;
         for (int chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
             kaldi::Vector<kaldi::BaseFloat> feature_chunk(chunk_size *
                                                           feature.NumCols());
+            int32 feature_chunk_size = 0; 
+            if ( ori_feature_len > chunk_idx * chunk_stride) {
+                feature_chunk_size = std::min(ori_feature_len - chunk_idx * chunk_stride, chunk_size);
+            }
+            if (feature_chunk_size < receptive_field_length) break;
+
+            int32 start = chunk_idx * chunk_stride;
+            int32 end = start + chunk_size;
+
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
-                kaldi::SubVector<kaldi::BaseFloat> tmp(feature, row_idx);
+                kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> f_chunk_tmp(
                     feature_chunk.Data() + row_id * feature.NumCols(),
                     feature.NumCols());
                 f_chunk_tmp.CopyFromVec(tmp);
-                row_idx++;
+                ++start;
             }
             raw_data->Accept(feature_chunk);
             if (chunk_idx == num_chunks - 1) {

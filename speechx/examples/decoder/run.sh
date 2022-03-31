@@ -25,6 +25,9 @@ model_dir=../paddle_asr_model
 feat_wspecifier=./feats.ark
 cmvn=./cmvn.ark
 
+
+export GLOG_logtostderr=1
+
 # 3. run feat
 linear_spectrogram_main \
     --wav_rspecifier=scp:$model_dir/wav.scp \

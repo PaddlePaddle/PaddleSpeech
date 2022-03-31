@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
 
     int32 chunk_size = 35;
     decoder.InitDecoder();
+    LOG(INFO) << "chunk size: " << chunk_size;
 
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();

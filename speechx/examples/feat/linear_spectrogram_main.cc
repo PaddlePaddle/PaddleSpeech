@@ -25,6 +25,8 @@
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
 
+#include <glog/logging.h>
+
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
 DEFINE_string(cmvn_write_path, "./cmvn.ark", "write cmvn");
@@ -172,6 +174,9 @@ int main(int argc, char* argv[]) {
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
     opt.frame_opts.frame_shift_ms = 10;
+    LOG(INFO) << "frame length (ms):" << opt.frame_opts.frame_length_ms;
+    LOG(INFO) << "frame shift (ms):" << opt.frame_opts.frame_shift_ms;
+
     ppspeech::DecibelNormalizerOptions db_norm_opt;
     std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor(
         new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
@@ -189,6 +194,11 @@ int main(int argc, char* argv[]) {
     float streaming_chunk = 0.36;
     int sample_rate = 16000;
     int chunk_sample_size = streaming_chunk * sample_rate;
+
+    LOG(INFO) << "sr:" << sample_rate;
+    LOG(INFO) << "chunk size (s):" << streaming_chunk;
+    LOG(INFO) << "chunk size (sample):" << chunk_sample_size;
+
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();

@@ -28,7 +28,7 @@ cmvn=./cmvn.ark
 
 export GLOG_logtostderr=1
 
-# 3. run feat
+# 3. gen linear feat
 linear_spectrogram_main \
     --wav_rspecifier=scp:$model_dir/wav.scp \
     --feature_wspecifier=ark,t:$feat_wspecifier \

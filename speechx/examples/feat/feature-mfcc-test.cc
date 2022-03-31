@@ -41,7 +41,6 @@
 
 using namespace kaldi;
 
-
 static void UnitTestReadWave() {
     std::cout << "=== UnitTestReadWave() ===\n";
 

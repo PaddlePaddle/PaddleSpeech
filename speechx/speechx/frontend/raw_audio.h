@@ -68,9 +68,10 @@ class RawDataCache : public FeatureExtractorInterface {
         data_.Resize(0);
         return true;
     }
-    virtual size_t Dim() const { return dim_; }
+
     virtual void SetFinished() { finished_ = true; }
     virtual bool IsFinished() const { return finished_; }
+    virtual size_t Dim() const { return dim_; }
     void SetDim(int32 dim) { dim_ = dim; }
     virtual void Reset() { finished_ = true; }
 

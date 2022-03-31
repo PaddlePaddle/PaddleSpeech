@@ -43,10 +43,10 @@ class ChunkBuffer(object):
         audio = self.remained_audio + audio
         self.remained_audio = b''
 
-        n = int(self.sample_rate *
-                (self.frame_duration_ms / 1000.0) * self.sample_width)
-        shift_n = int(self.sample_rate *
-                      (self.shift_ms / 1000.0) * self.sample_width)
+        n = int(self.sample_rate * (self.frame_duration_ms / 1000.0) *
+                self.sample_width)
+        shift_n = int(self.sample_rate * (self.shift_ms / 1000.0) *
+                      self.sample_width)
         offset = 0
         timestamp = 0.0
         duration = (float(n) / self.sample_rate) / self.sample_width

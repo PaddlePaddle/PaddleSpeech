@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-stage=5
-stop_stage=5
+stage=7
+stop_stage=100
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
 
@@ -38,13 +38,14 @@ mkdir -p ${TARGET_DIR}
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
    # download data, generate manifests
+   # we will generate the manifest.{dev, test} file in ${dir}/vox1/ directory
    echo "Start to download vox1 dataset and generate the manifest files "
-    python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
-      --manifest_prefix="data/vox1/manifest" \
+   python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
+      --manifest_prefix="${dir}/vox1/manifest" \
       --target_dir="${TARGET_DIR}/voxceleb/vox1/"
 
    if [ $? -ne 0 ]; then
-      echo "Prepare voxceleb failed. Terminated."
+      echo "Prepare voxceleb1 failed. Terminated."
       exit 1
    fi
 
@@ -58,7 +59,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
       --target_dir="${TARGET_DIR}/voxceleb/vox2/"
 
    if [ $? -ne 0 ]; then
-      echo "Prepare voxceleb failed. Terminated."
+      echo "Download voxceleb2 dataset failed. Terminated."
       exit 1
    fi
 
@@ -66,32 +67,41 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
    # convert the m4a to wav
+   # and we will not delete the original m4a file
    echo "start to convert the m4a to wav"
    bash local/convert.sh ${TARGET_DIR}/voxceleb/vox2/test/ || exit 1;
+   
+   if [ $? -ne 0 ]; then
+      echo "Convert voxceleb2 dataset from m4a to wav failed. Terminated."
+      exit 1
+   fi
    echo "m4a convert to wav operation finished"
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-   # generate the vox2 manifest file 
+   # generate the vox2 manifest file from wav file
+   # we will generate the manifest.vox2 in ${dir}/vox2 directory
+   # because we use all the vox2 dataset to train, so collect all the vox2 data in one file
    echo "start generate the vox2 manifest files"
    python3 ${TARGET_DIR}/voxceleb/voxceleb2.py \
       --generate \
-      --manifest_prefix="data/vox2/manifest" \
+      --manifest_prefix="${dir}/vox2/manifest" \
       --target_dir="${TARGET_DIR}/voxceleb/vox2/"
 
    if [ $? -ne 0 ]; then
-      echo "Prepare voxceleb failed. Terminated."
+      echo "Prepare voxceleb2 dataset failed. Terminated."
       exit 1
    fi
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-   # generate the vox2 manifest file 
+   # generate the vox csv file
+   # Currently, our training system use csv file for dataset
    echo "convert the json format to csv format to be compatible with training process"
    python3 local/make_csv_dataset_from_json.py\
-      --train "data/vox1/manifest.dev" \
-      --test "data/vox1/manifest.test" \
-      --target_dir "data/vox/" \
+      --train "${dir}/vox1/manifest.dev" \
+      --test "${dir}/vox1/manifest.test" \
+      --target_dir "${dir}/vox/" \
       --config ${conf_path}
 
    if [ $? -ne 0 ]; then
@@ -99,6 +109,35 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
       exit 1
    fi
 fi
+
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
+   # generate the open rir noise manifest file
+   echo "generate the open rir noise manifest file"
+   python3 ${TARGET_DIR}/rir_noise/rir_noise.py\
+      --manifest_prefix="${dir}/rir_noise/manifest" \
+      --target_dir="${TARGET_DIR}/rir_noise/"
+
+   if [ $? -ne 0 ]; then
+      echo "Prepare rir_noise failed. Terminated."
+      exit 1
+   fi
+fi
+
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+   # generate the open rir noise manifest file
+   echo "generate the open rir noise csv file"
+   python3 local/make_rirs_noise_csv_dataset_from_json.py \
+      --noise_dir="${TARGET_DIR}/rir_noise/" \
+      --data_dir="${dir}/rir_noise/" \
+      --config ${conf_path}
+
+   if [ $? -ne 0 ]; then
+      echo "Prepare rir_noise failed. Terminated."
+      exit 1
+   fi
+fi
+
+
 
 
 

@@ -9,7 +9,7 @@ Execute the following steps in **current directory**.
 
 ## 2. Generate API docs
 
-Generate API docs from doc string `*py`
+Generate API docs from doc string.
 
 `sphinx-apidoc -fMeT -o source ../paddleaudio ../paddleaudio/utils --templatedir source/_templates`
 

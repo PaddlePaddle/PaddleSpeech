@@ -55,7 +55,6 @@ int main(int argc, char* argv[]) {
 
     // frontend + nnet is decodable
     ppspeech::ModelOptions model_opts;
-    model_opts.cache_shape = "5-1-1024,5-1-1024";
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(

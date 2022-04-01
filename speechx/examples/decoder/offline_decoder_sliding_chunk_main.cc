@@ -22,12 +22,11 @@
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
 
-DEFINE_string(feature_respecifier, "", "feature matrix rspecifier");
+DEFINE_string(feature_respecifier, "", "test feature rspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
 DEFINE_string(lm_path, "lm.klm", "language model");
-DEFINE_int32(chunk_size, 35, "feat chunk size");
 
 
 using kaldi::BaseFloat;
@@ -44,70 +43,68 @@ int main(int argc, char* argv[]) {
     std::string model_params = FLAGS_param_path;
     std::string dict_file = FLAGS_dict_file;
     std::string lm_path = FLAGS_lm_path;
-    int32 chunk_size = FLAGS_chunk_size;
-    LOG(INFO) << "model path: " << model_graph;
-    LOG(INFO) << "model param: " << model_params;
-    LOG(INFO) << "dict path: " << dict_file;
-    LOG(INFO) << "lm path: " << lm_path;
-    LOG(INFO) << "chunk size (frame): " << chunk_size;
 
     int32 num_done = 0, num_err = 0;
 
-    // frontend + nnet is decodable
+    ppspeech::CTCBeamSearchOptions opts;
+    opts.dict_file = dict_file;
+    opts.lm_path = lm_path;
+    ppspeech::CTCBeamSearch decoder(opts);
+
     ppspeech::ModelOptions model_opts;
-    model_opts.cache_shape = "5-1-1024,5-1-1024";
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
+    model_opts.cache_shape = "5-1-1024,5-1-1024";
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::RawDataCache> raw_data(
         new ppspeech::RawDataCache());
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet, raw_data));
-    LOG(INFO) << "Init decodeable.";
 
-    // init decoder
-    ppspeech::CTCBeamSearchOptions opts;
-    opts.dict_file = dict_file;
-    opts.lm_path = lm_path;
-    ppspeech::CTCBeamSearch decoder(opts);
-    LOG(INFO) << "Init decoder.";
-
+    int32 chunk_size = 7;
+    int32 chunk_stride = 4;
+    int32 receptive_field_length = 7;
     decoder.InitDecoder();
+
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
-        const kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
-        LOG(INFO) << "utt: " << utt;
-
-        // feat dim
+        kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
         raw_data->SetDim(feature.NumCols());
-        LOG(INFO) << "dim: " << raw_data->Dim();
-
         int32 row_idx = 0;
-        int32 num_chunks = feature.NumRows() / chunk_size;
-        LOG(INFO) << "n chunks: " << num_chunks;
+        int32 padding_len = 0;
+        int32 ori_feature_len = feature.NumRows(); 
+        if ( (feature.NumRows() - chunk_size) % chunk_stride != 0) {
+            padding_len = chunk_stride - (feature.NumRows() - chunk_size) % chunk_stride;
+            feature.Resize(feature.NumRows() + padding_len, feature.NumCols(), kaldi::kCopyData);
+        }
+        int32 num_chunks = (feature.NumRows() - chunk_size) / chunk_stride + 1;
         for (int chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
-            // feat chunk
             kaldi::Vector<kaldi::BaseFloat> feature_chunk(chunk_size *
                                                           feature.NumCols());
+            int32 feature_chunk_size = 0; 
+            if ( ori_feature_len > chunk_idx * chunk_stride) {
+                feature_chunk_size = std::min(ori_feature_len - chunk_idx * chunk_stride, chunk_size);
+            }
+            if (feature_chunk_size < receptive_field_length) break;
+
+            int32 start = chunk_idx * chunk_stride;
+            int32 end = start + chunk_size;
+
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
-                kaldi::SubVector<kaldi::BaseFloat> feat_one_row(feature,
-                                                                row_idx);
+                kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> f_chunk_tmp(
                     feature_chunk.Data() + row_id * feature.NumCols(),
                     feature.NumCols());
-                f_chunk_tmp.CopyFromVec(feat_one_row);
-                row_idx++;
+                f_chunk_tmp.CopyFromVec(tmp);
+                ++start;
             }
-            // feed to raw cache
             raw_data->Accept(feature_chunk);
             if (chunk_idx == num_chunks - 1) {
                 raw_data->SetFinished();
             }
-            // decode step
             decoder.AdvanceDecode(decodable);
         }
-
         std::string result;
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;

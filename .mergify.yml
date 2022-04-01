@@ -52,7 +52,7 @@ pull_request_rules:
         add: ["T2S"]
   - name: "auto add label=Audio"
     conditions:
-      - files~=^audio/
+      - files~=^paddleaudio/
     actions:
       label:
         add: ["Audio"]

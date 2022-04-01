@@ -16,7 +16,7 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/frontend_itf.h"
 #include "kaldi/feat/feature-window.h"
 
 namespace ppspeech {
@@ -35,11 +35,11 @@ struct LinearSpectrogramOptions {
     }
 };
 
-class LinearSpectrogram : public FeatureExtractorInterface {
+class LinearSpectrogram : public FrontendInterface {
   public:
     explicit LinearSpectrogram(
         const LinearSpectrogramOptions& opts,
-        std::unique_ptr<FeatureExtractorInterface> base_extractor);
+        std::unique_ptr<FrontendInterface> base_extractor);
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
     // the dim_ is the dim of single frame feature
@@ -61,7 +61,7 @@ class LinearSpectrogram : public FeatureExtractorInterface {
     std::vector<kaldi::BaseFloat> hanning_window_;
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
-    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
+    std::unique_ptr<FrontendInterface> base_extractor_;
     int chunk_sample_size_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 };

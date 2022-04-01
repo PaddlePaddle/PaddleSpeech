@@ -28,7 +28,7 @@ using std::unique_ptr;
 
 DecibelNormalizer::DecibelNormalizer(
     const DecibelNormalizerOptions& opts,
-    std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+    std::unique_ptr<FrontendInterface> base_extractor) {
     base_extractor_ = std::move(base_extractor);
     opts_ = opts;
     dim_ = 1;
@@ -92,7 +92,7 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
 }
 
 CMVN::CMVN(std::string cmvn_file,
-           unique_ptr<FeatureExtractorInterface> base_extractor)
+           unique_ptr<FrontendInterface> base_extractor)
     : var_norm_(true) {
     base_extractor_ = std::move(base_extractor);
     bool binary;

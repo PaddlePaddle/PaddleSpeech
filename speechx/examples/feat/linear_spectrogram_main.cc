@@ -20,7 +20,7 @@
 #include "frontend/audio_cache.h"
 #include "frontend/data_cache.h"
 #include "frontend/feature_cache.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/frontend_itf.h"
 #include "frontend/normalizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
@@ -170,13 +170,13 @@ int main(int argc, char* argv[]) {
     // feature pipeline: wave cache --> decibel_normalizer --> hanning
     // window -->linear_spectrogram --> global cmvn -> feat cache
 
-    // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
+    // std::unique_ptr<ppspeech::FrontendInterface> data_source(new
     // ppspeech::DataCache());
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
+    std::unique_ptr<ppspeech::FrontendInterface> data_source(
         new ppspeech::AudioCache());
 
     ppspeech::DecibelNormalizerOptions db_norm_opt;
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> db_norm(
+    std::unique_ptr<ppspeech::FrontendInterface> db_norm(
         new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
 
     ppspeech::LinearSpectrogramOptions opt;
@@ -185,10 +185,10 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "frame length (ms): " << opt.frame_opts.frame_length_ms;
     LOG(INFO) << "frame shift (ms): " << opt.frame_opts.frame_shift_ms;
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> linear_spectrogram(
+    std::unique_ptr<ppspeech::FrontendInterface> linear_spectrogram(
         new ppspeech::LinearSpectrogram(opt, std::move(db_norm)));
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> cmvn(
+    std::unique_ptr<ppspeech::FrontendInterface> cmvn(
         new ppspeech::CMVN(FLAGS_cmvn_write_path,
                            std::move(linear_spectrogram)));
 

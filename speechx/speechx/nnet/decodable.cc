@@ -22,7 +22,7 @@ using std::vector;
 using kaldi::Vector;
 
 Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
-                     const std::shared_ptr<FeatureExtractorInterface>& frontend)
+                     const std::shared_ptr<FrontendInterface>& frontend)
     : frontend_(frontend), nnet_(nnet), frame_offset_(0), frames_ready_(0) {}
 
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {

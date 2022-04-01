@@ -18,8 +18,8 @@ from fastapi import FastAPI
 
 from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router as setup_http_router
-from paddlespeech.server.ws.api import setup_router as setup_ws_router
 from paddlespeech.server.utils.config import get_config
+from paddlespeech.server.ws.api import setup_router as setup_ws_router
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")

@@ -17,10 +17,11 @@
 #include "frontend/linear_spectrogram.h"
 #include "base/flags.h"
 #include "base/log.h"
+#include "frontend/audio_cache.h"
+#include "frontend/data_cache.h"
 #include "frontend/feature_cache.h"
 #include "frontend/feature_extractor_interface.h"
 #include "frontend/normalizer.h"
-#include "frontend/raw_audio.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
@@ -170,9 +171,9 @@ int main(int argc, char* argv[]) {
     // window -->linear_spectrogram --> global cmvn -> feat cache
 
     // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
-    // ppspeech::RawDataCache());
+    // ppspeech::DataCache());
     std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
-        new ppspeech::RawAudioCache());
+        new ppspeech::AudioCache());
 
     ppspeech::DecibelNormalizerOptions db_norm_opt;
     std::unique_ptr<ppspeech::FeatureExtractorInterface> db_norm(

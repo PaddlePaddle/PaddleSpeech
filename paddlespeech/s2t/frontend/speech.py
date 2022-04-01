@@ -108,7 +108,12 @@ class SpeechSegment(AudioSegment):
                    token_ids)
 
     @classmethod
-    def from_pcm(cls, samples, sample_rate, transcript, tokens=None, token_ids=None):
+    def from_pcm(cls,
+                 samples,
+                 sample_rate,
+                 transcript,
+                 tokens=None,
+                 token_ids=None):
         """Create speech segment from pcm on online mode 
         Args:
             samples (numpy.ndarray): Audio samples [num_samples x num_channels].

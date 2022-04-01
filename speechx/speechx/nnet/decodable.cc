@@ -82,7 +82,7 @@ void Decodable::Reset() {
     if (nnet_ != nullptr) nnet_->Reset();
     frame_offset_ = 0;
     frames_ready_ = 0;
-    nnet_cache_.Resize(0,0);
+    nnet_cache_.Resize(0, 0);
 }
 
 }  // namespace ppspeech

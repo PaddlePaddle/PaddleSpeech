@@ -3,7 +3,7 @@ project(frontend)
 add_library(frontend STATIC
   normalizer.cc
   linear_spectrogram.cc
-  raw_audio.cc
+  audio_cache.cc
   feature_cache.cc
 )
 

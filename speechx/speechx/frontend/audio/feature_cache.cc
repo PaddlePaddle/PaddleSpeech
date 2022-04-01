@@ -23,8 +23,8 @@ using std::vector;
 using kaldi::SubVector;
 using std::unique_ptr;
 
-FeatureCache::FeatureCache(
-    int max_size, unique_ptr<FrontendInterface> base_extractor) {
+FeatureCache::FeatureCache(int max_size,
+                           unique_ptr<FrontendInterface> base_extractor) {
     max_size_ = max_size;
     base_extractor_ = std::move(base_extractor);
 }

@@ -20,11 +20,11 @@
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
 
-#include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
+#include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
@@ -187,9 +187,8 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> linear_spectrogram(
         new ppspeech::LinearSpectrogram(opt, std::move(db_norm)));
 
-    std::unique_ptr<ppspeech::FrontendInterface> cmvn(
-        new ppspeech::CMVN(FLAGS_cmvn_write_path,
-                           std::move(linear_spectrogram)));
+    std::unique_ptr<ppspeech::FrontendInterface> cmvn(new ppspeech::CMVN(
+        FLAGS_cmvn_write_path, std::move(linear_spectrogram)));
 
     ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();

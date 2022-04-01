@@ -24,9 +24,8 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(
-        const std::shared_ptr<NnetInterface>& nnet,
-        const std::shared_ptr<FrontendInterface>& frontend);
+    explicit Decodable(const std::shared_ptr<NnetInterface>& nnet,
+                       const std::shared_ptr<FrontendInterface>& frontend);
     // void Init(DecodableOpts config);
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
     virtual bool IsLastFrame(int32 frame) const;

@@ -81,6 +81,10 @@ def create_manifest(data_dir, manifest_path_prefix):
                         },
                         ensure_ascii=False))
         manifest_path = manifest_path_prefix + '.' + dtype
+
+        if not os.path.exists(os.path.dirname(manifest_path)):
+            os.makedirs(os.path.dirname(manifest_path))
+
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')

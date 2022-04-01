@@ -17,7 +17,7 @@
 #include "base/flags.h"
 #include "base/log.h"
 #include "decoder/ctc_beam_search_decoder.h"
-#include "frontend/raw_audio.h"
+#include "frontend/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
     model_opts.cache_shape = "5-1-1024,5-1-1024";
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
-    std::shared_ptr<ppspeech::RawDataCache> raw_data(
-        new ppspeech::RawDataCache());
+    std::shared_ptr<ppspeech::DataCache> raw_data(
+        new ppspeech::DataCache());
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet, raw_data));
 

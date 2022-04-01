@@ -93,8 +93,8 @@ def evaluate(args):
 
     N = 0
     T = 0
-    chunk_size = 42
-    pad_size = 12
+    chunk_size = args.chunk_size
+    pad_size = args.pad_size
 
     for utt_id, sentence in sentences:
         with timer() as t:
@@ -109,7 +109,7 @@ def evaluate(args):
                 phone_ids = input_ids["phone_ids"]
             else:
                 print("lang should in be 'zh' here!")
-            # merge_sentences=False here, so we only use the first item of phone_ids
+            # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0]
             with paddle.no_grad():
                 # acoustic model
@@ -246,6 +246,11 @@ def parse_args():
         type=str2bool,
         default=False,
         help="whether use streaming acoustic model")
+    parser.add_argument(
+        "--chunk_size", type=int, default=42, help="chunk size of am streaming")
+    parser.add_argument(
+        "--pad_size", type=int, default=12, help="pad size of am streaming")
+
     parser.add_argument("--output_dir", type=str, help="output dir.")
 
     args = parser.parse_args()

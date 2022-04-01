@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "frontend/audio_cache.h"
+#include "frontend/audio/audio_cache.h"
 #include "kaldi/base/timer.h"
 
 namespace ppspeech {

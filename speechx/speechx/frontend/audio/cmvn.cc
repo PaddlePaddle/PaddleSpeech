@@ -1,5 +1,5 @@
 
-#include "frontend/normalizer.h"
+#include "frontend/audio/cmvn.h"
 #include "kaldi/feat/cmvn.h"
 #include "kaldi/util/kaldi-io.h"
 
@@ -11,7 +11,6 @@ using kaldi::BaseFloat;
 using std::vector;
 using kaldi::SubVector;
 using std::unique_ptr;
-
 
 
 CMVN::CMVN(std::string cmvn_file,

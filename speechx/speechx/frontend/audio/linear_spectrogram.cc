@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "frontend/linear_spectrogram.h"
+#include "frontend/audio/linear_spectrogram.h"
 #include "kaldi/base/kaldi-math.h"
 #include "kaldi/matrix/matrix-functions.h"
 

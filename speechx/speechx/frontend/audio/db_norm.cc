@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-#include "frontend/normalizer.h"
+#include "frontend/audio/db_norm.h"
 #include "kaldi/feat/cmvn.h"
 #include "kaldi/util/kaldi-io.h"
 

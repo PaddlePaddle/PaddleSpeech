@@ -16,7 +16,7 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/frontend_itf.h"
+#include "frontend/audio/frontend_itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
 

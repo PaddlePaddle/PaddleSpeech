@@ -17,7 +17,7 @@
 
 
 #include "base/common.h"
-#include "frontend/frontend_itf.h"
+#include "frontend/audio/frontend_itf.h"
 
 
 namespace ppspeech {

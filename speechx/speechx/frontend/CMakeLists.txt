@@ -1,11 +1,2 @@
-project(frontend)
 
-add_library(frontend STATIC
-  cmvn.cc
-  db_norm.cc
-  linear_spectrogram.cc
-  audio_cache.cc
-  feature_cache.cc
-)
-
-target_link_libraries(frontend PUBLIC kaldi-matrix)
+add_subdirectory(audio)

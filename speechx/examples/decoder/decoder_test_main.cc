@@ -24,11 +24,11 @@ DEFINE_string(nnet_prob_respecifier, "", "test nnet prob rspecifier");
 DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
 DEFINE_string(lm_path, "lm.klm", "language model");
 
-
 using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
+// test decoder by feeding nnet posterior probability
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
@@ -37,6 +37,8 @@ int main(int argc, char* argv[]) {
         FLAGS_nnet_prob_respecifier);
     std::string dict_file = FLAGS_dict_file;
     std::string lm_path = FLAGS_lm_path;
+    LOG(INFO) << "dict path: " << dict_file;
+    LOG(INFO) << "lm path: " << lm_path;
 
     int32 num_done = 0, num_err = 0;
 
@@ -53,6 +55,9 @@ int main(int argc, char* argv[]) {
     for (; !likelihood_reader.Done(); likelihood_reader.Next()) {
         string utt = likelihood_reader.Key();
         const kaldi::Matrix<BaseFloat> likelihood = likelihood_reader.Value();
+        LOG(INFO) << "process utt: " << utt;
+        LOG(INFO) << "rows: " << likelihood.NumRows();
+        LOG(INFO) << "cols: " << likelihood.NumCols();
         decodable->Acceptlikelihood(likelihood);
         decoder.AdvanceDecode(decodable);
         std::string result;

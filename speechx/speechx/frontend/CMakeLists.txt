@@ -1,7 +1,8 @@
 project(frontend)
 
 add_library(frontend STATIC
-  normalizer.cc
+  cmvn.cc
+  db_norm.cc
   linear_spectrogram.cc
   audio_cache.cc
   feature_cache.cc

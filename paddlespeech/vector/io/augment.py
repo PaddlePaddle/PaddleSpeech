@@ -21,13 +21,14 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddleaudio.datasets.rirs_noises import OpenRIRNoise
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.vector.io.dataset import RIRSNoiseDataset
 from paddlespeech.vector.io.signal_processing import compute_amplitude
 from paddlespeech.vector.io.signal_processing import convolve1d
 from paddlespeech.vector.io.signal_processing import dB_to_amplitude
 from paddlespeech.vector.io.signal_processing import notch_filter
 from paddlespeech.vector.io.signal_processing import reverberate
+# from paddleaudio.datasets.rirs_noises import OpenRIRNoise
 
 logger = Log(__name__).getlog()
 
@@ -839,8 +840,10 @@ def build_augment_pipeline(target_dir=None) -> List[paddle.nn.Layer]:
         List[paddle.nn.Layer]: all augment process
     """
     logger.info("start to build the augment pipeline")
-    noise_dataset = OpenRIRNoise('noise', target_dir=target_dir)
-    rir_dataset = OpenRIRNoise('rir', target_dir=target_dir)
+    noise_dataset = RIRSNoiseDataset(csv_path=os.path.join(
+        target_dir, "rir_noise/csv/noise.csv"))
+    rir_dataset = OpenRIRNoise(csv_path=os.path.join(target_dir,
+                                                     "rir_noise/csv/rir.csv"))
 
     wavedrop = TimeDomainSpecAugment(
         sample_rate=16000,

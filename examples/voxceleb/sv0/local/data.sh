@@ -136,10 +136,3 @@ if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
       exit 1
    fi
 fi
-
-
-
-
-
-
-

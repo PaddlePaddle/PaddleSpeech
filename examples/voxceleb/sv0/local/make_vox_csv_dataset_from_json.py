@@ -53,7 +53,7 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
     # wav: utterance file path
     # start: start point in the original wav file
     # stop: stop point in the original wav file
-    # spk_id: the utterance segment's speaker name
+    # lab_id: the utterance segment's speaker name
     for item in tqdm.tqdm(wav_files, total=len(wav_files)):
         item = json.loads(item.strip())
         audio_id = item['utt'].replace(".wav", "")

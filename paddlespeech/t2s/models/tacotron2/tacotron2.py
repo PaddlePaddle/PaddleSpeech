@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from espnet(https://github.com/espnet/espnet)
 """Tacotron 2 related modules for paddle"""
 import logging
 from typing import Dict

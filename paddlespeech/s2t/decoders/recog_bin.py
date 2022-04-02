@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Reference espnet Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+# Modified from espnet(https://github.com/espnet/espnet)
 """End-to-end speech recognition model decoding script."""
 import logging
 import os

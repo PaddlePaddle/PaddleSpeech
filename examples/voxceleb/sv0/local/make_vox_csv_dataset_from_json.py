@@ -21,51 +21,34 @@ import json
 import os
 import random
 
-import paddle
 import tqdm
 from yacs.config import CfgNode
 
 from paddleaudio import load as load_audio
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.vector.training.seeding import seed_everything
+from paddlespeech.vector.utils.utils import get_chunks
+
 logger = Log(__name__).getlog()
-
-
-def get_chunks(seg_dur, audio_id, audio_duration):
-    """Get all chunk segments from a utterance
-
-    Args:
-        seg_dur (float): segment chunk duration
-        audio_id (str): utterance name
-        audio_duration (float): utterance duration
-
-    Returns:
-        List: all the chunk segments 
-    """
-    num_chunks = int(audio_duration / seg_dur)  # all in milliseconds
-    chunk_lst = [
-        audio_id + "_" + str(i * seg_dur) + "_" + str(i * seg_dur + seg_dur)
-        for i in range(num_chunks)
-    ]
-    return chunk_lst
 
 
 def prepare_csv(wav_files, output_file, config, split_chunks=True):
     """Prepare the csv file according the wav files
 
     Args:
-        dataset_list (list): all the dataset to get the test utterances
-        verification_file (str): voxceleb1 trial file
+        wav_files (list): all the audio list to prepare the csv file
+        output_file (str): the output csv file
+        config (CfgNode): yaml configuration content
+        split_chunks (bool): audio split flag
     """
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file))
     csv_lines = []
-    header = ["id", "duration", "wav", "start", "stop", "spk_id"]
+    header = ["utt_id", "duration", "wav", "start", "stop", "lab_id"]
     # voxceleb meta info for each training utterance segment
     # we extract a segment from a utterance to train 
     # and the segment' period is between start and stop time point in the original wav file
     # each field in the meta means as follows:
-    # id: the utterance segment name
+    # utt_id: the utterance segment name
     # duration: utterance segment time
     # wav: utterance file path
     # start: start point in the original wav file
@@ -194,11 +177,9 @@ def prepare_data(args, config):
         args (argparse.Namespace): scripts args
         config (CfgNode): yaml configuration content
     """
-    # stage0: set the cpu device, 
-    # all data prepare process will be done in cpu mode
-    paddle.device.set_device("cpu")
-    # set the random seed, it is a must for multiprocess training
-    seed_everything(config.seed)
+    # stage0: set the random seed
+    random.seed(config.seed)
+
     # if external config set the skip_prep flat, we will do nothing
     if config.skip_prep:
         return

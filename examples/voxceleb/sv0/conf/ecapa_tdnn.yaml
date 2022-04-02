@@ -4,9 +4,9 @@
 # we should explicitly specify the wav path of vox2 audio data converted from m4a
 vox2_base_path: 
 augment: True
-batch_size: 16
+batch_size: 32
 num_workers: 2
-num_speakers: 7205 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
+num_speakers: 1211 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
 shuffle: True
 skip_prep: False
 split_ratio: 0.9

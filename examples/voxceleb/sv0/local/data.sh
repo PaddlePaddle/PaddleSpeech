@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-stage=7
+stage=0
 stop_stage=100
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
@@ -32,7 +32,7 @@ mkdir -p ${dir}
 
 # Generally the `MAIN_ROOT` refers to the root of PaddleSpeech,
 # which is defined in the path.sh
-# And we will download the 
+# And we will download the voxceleb data and rirs noise to ${MAIN_ROOT}/dataset
 TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 
@@ -98,7 +98,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
    # generate the vox csv file
    # Currently, our training system use csv file for dataset
    echo "convert the json format to csv format to be compatible with training process"
-   python3 local/make_csv_dataset_from_json.py\
+   python3 local/make_vox_csv_dataset_from_json.py\
       --train "${dir}/vox1/manifest.dev" \
       --test "${dir}/vox1/manifest.test" \
       --target_dir "${dir}/vox/" \

@@ -29,7 +29,7 @@ from paddlespeech.vector.io.augment import waveform_augment
 from paddlespeech.vector.io.batch import batch_pad_right
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.io.batch import waveform_collate_fn
-from paddlespeech.vector.io.dataset import VoxCelebDataset
+from paddlespeech.vector.io.dataset import CSVDataset
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.loss import AdditiveAngularMargin
 from paddlespeech.vector.modules.loss import LogSoftmaxWrapper
@@ -55,11 +55,11 @@ def main(args, config):
 
     # stage2: data prepare, such vox1 and vox2 data, and augment noise data and pipline
     # note: some cmd must do in rank==0, so wo will refactor the data prepare code
-    train_dataset = VoxCelebDataset(
+    train_dataset = CSVDataset(
         csv_path=os.path.join(args.data_dir, "vox/csv/train.csv"),
         spk_id2label_path=os.path.join(args.data_dir,
                                        "vox/meta/spk_id2label.txt"))
-    dev_dataset = VoxCelebDataset(
+    dev_dataset = CSVDataset(
         csv_path=os.path.join(args.data_dir, "vox/csv/dev.csv"),
         spk_id2label_path=os.path.join(args.data_dir,
                                        "vox/meta/spk_id2label.txt"))
@@ -74,7 +74,7 @@ def main(args, config):
 
     # stage4: build the speaker verification train instance with backbone model
     model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=VoxCeleb.num_speakers)
+        backbone=ecapa_tdnn, num_class=config.num_speakers)
 
     # stage5: build the optimizer, we now only construct the AdamW optimizer
     #         140000 is single gpu steps
@@ -148,6 +148,7 @@ def main(args, config):
         train_reader_cost = 0.0
         train_feat_cost = 0.0
         train_run_cost = 0.0
+        train_misce_cost = 0.0
 
         reader_start = time.time()
         for batch_idx, batch in enumerate(train_loader):
@@ -203,12 +204,14 @@ def main(args, config):
             train_run_cost += time.time() - train_start
 
             # stage 9-8: Calculate average loss per batch
-            avg_loss += loss.numpy()[0]
+            train_misce_start = time.time()
+            avg_loss = loss.item()
 
             # stage 9-9: Calculate metrics, which is one-best accuracy
             preds = paddle.argmax(logits, axis=1)
             num_corrects += (preds == labels).numpy().sum()
             num_samples += feats.shape[0]
+
             timer.count()  # step plus one in timer
 
             # stage 9-10: print the log information only on 0-rank per log-freq batchs
@@ -227,6 +230,7 @@ def main(args, config):
                     train_feat_cost / config.log_interval)
                 print_msg += ' avg_train_cost: {:.5f} sec,'.format(
                     train_run_cost / config.log_interval)
+
                 print_msg += ' lr={:.4E} step/sec={:.2f} | ETA {}'.format(
                     lr, timer.timing, timer.eta)
                 logger.info(print_msg)

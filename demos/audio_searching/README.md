@@ -25,10 +25,14 @@ You can choose one way from easy, meduim and hard to install paddlespeech.
 The audio similarity search system requires Milvus, MySQL services. We can start these containers with one click through [docker-compose.yaml](./docker-compose.yaml), so please make sure you have [installed Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) before running. then
 
 ```bash
+## Enter the audio_searching directory for the following example
+cd ~/PaddleSpeech/demos/audio_searching/
+
+## Then start the related services within the container
 docker-compose -f docker-compose.yaml up -d
 ```
 
-Then you will see the that all containers are created:
+You will see the that all containers are created:
 
 ```bash
 Creating network "quick_deploy_app_net" with driver "bridge"
@@ -47,7 +51,7 @@ b2bcf279e599  milvusdb/milvus:v2.0.1  "/tini -- milvus run…"  22 hours ago  Up
 d8ef4c84e25c  mysql:5.7 "docker-entrypoint.s…"  22 hours ago  Up 22 hours 0.0.0.0:3306->3306/tcp, 33060/tcp audio-mysql
 8fb501edb4f3  quay.io/coreos/etcd:v3.5.0  "etcd -advertise-cli…"  22 hours ago  Up 22 hours 2379-2380/tcp milvus-etcd
 ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"  22 hours ago  Up 22 hours (healthy) 9000/tcp  milvus-minio
-15c84a506754  qingen1/paddlespeech-audio-search-client:2.3  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
+15c84a506754  paddlepaddle/paddlespeech-audio-search-client:2.3  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
 ```
 
 ### 3. Start API Server
@@ -58,22 +62,27 @@ Then to start the system server, and it provides HTTP backend services.
   ```bash
   pip install -r requirements.txt
   ```
-- Set configuration
+- Set configuration(In the case of local running, you can skip this step.)
 
   ```bash
+  ## Method 1: Modify the source file
   vim src/config.py
+
+  ## Method 2: Modify the environment variables, as shown in
+  export MILVUS_HOST=127.0.0.1
+  export MYSQL_HOST=127.0.0.1
   ```
 
-  Modify the parameters according to your own environment. Here listing some parameters that need to be set, for more information please refer to [config.py](./src/config.py).
+  Here listing some parameters that need to be set, for more information please refer to [config.py](./src/config.py).
 
-  | **Parameter**    | **Description**                                       | **Default setting** |
-  | ---------------- | ----------------------------------------------------- | ------------------- |
-  | MILVUS_HOST      | The IP address of Milvus, you can get it by ifconfig. If running everything on one machine, most likely 127.0.0.1 | 127.0.0.1           |
-  | MILVUS_PORT      | Port of Milvus.                                       | 19530               |
-  | VECTOR_DIMENSION | Dimension of the vectors.                             | 2048                |
-  | MYSQL_HOST       | The IP address of Mysql.                              | 127.0.0.1           |
-  | MYSQL_PORT       | Port of Milvus.                                       | 3306                |
-  | DEFAULT_TABLE    | The milvus and mysql default collection name.         | audio_table          |
+  | **Parameter**    |**Description**         | **Default setting** |
+  | ---------------- | -----------------------| ------------------- |
+  | MILVUS_HOST      | The IP address of Milvus, you can get it by ifconfig. If running everything on one machine, most likely 127.0.0.1 | 127.0.0.1
+  | MILVUS_PORT      | Port of Milvus.    | 19530               |
+  | VECTOR_DIMENSION | Dimension of the vectors.        | 2048          |
+  | MYSQL_HOST       | The IP address of Mysql.    | 127.0.0.1           |
+  | MYSQL_PORT       | Port of Mysql.        | 3306                |
+  | DEFAULT_TABLE    | The milvus and mysql default collection name.  | audio_table          |
 
 - Run the code
 
@@ -102,7 +111,13 @@ Then to start the system server, and it provides HTTP backend services.
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  Note: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it downloads 20 audio files , Subsequent results show this collection as an example
+  **Note**: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it downloads 20 audio files , Subsequent results show this collection as an example
+
+- Prepare model(Skip this step if you use the default model.)
+  ```bash
+  ## Modify model configuration parameters. Currently, only ecapatdnn_voxceleb12 is supported, and multiple types will be supported in the future
+  vim ./src/encode.py
+  ```
  
 - Scripts test (Recommended)
 
@@ -179,7 +194,7 @@ Then to start the system server, and it provides HTTP backend services.
   
     Navigate to 127.0.0.1:8068 in your browser to access the front-end interface.
 
-    Note: If the browser and the service are not on the same machine, then the IP needs to be changed to the IP of the machine where the service is located, and the corresponding API_URL in docker-compose.yaml needs to be changed, and the docker-compose.yaml file needs to be re-executed for the change to take effect.
+    **Note**: If the browser and the service are not on the same machine, then the IP needs to be changed to the IP of the machine where the service is located, and the corresponding API_URL in docker-compose.yaml needs to be changed, and the docker-compose.yaml file needs to be re-executed for the change to take effect.
 
     - Insert data
 
@@ -218,6 +233,3 @@ Here is a list of pretrained models released by PaddleSpeech :
 | Model | Sample Rate
 | :--- | :---: 
 | ecapa_tdnn | 16000
-| panns_cnn6| 32000
-| panns_cnn10| 32000
-| panns_cnn14| 32000

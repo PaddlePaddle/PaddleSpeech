@@ -20,16 +20,20 @@
 ### 1. PaddleSpeech 安装
 音频向量的提取需要用到基于 PaddleSpeech 训练的模型，所以请确保在运行之前已经安装了 PaddleSpeech，具体安装步骤，详见[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
 
-你可以从 easy，medium，hard 三中方式中选择一种方式安装。
+你可以从 easy，medium，hard 三种方式中选择一种方式安装。
 
 ### 2. MySQL 和 Milvus 安装
 音频相似性的检索需要用到 Milvus, MySQL 服务。 我们可以通过 [docker-compose.yaml](./docker-compose.yaml) 一键启动这些容器，所以请确保在运行之前已经安装了 [Docker Engine](https://docs.docker.com/engine/install/) 和 [Docker Compose](https://docs.docker.com/compose/install/)。 即
 
 ```bash
+## 先进入到 audio_searching 目录，如下示例
+cd ~/PaddleSpeech/demos/audio_searching/
+
+## 然后启动容器内的相关服务
 docker-compose -f docker-compose.yaml up -d
 ```
 
-然后你会看到所有的容器都被创建: 
+你会看到所有的容器都被创建:
 
 ```bash
 Creating network "quick_deploy_app_net" with driver "bridge"
@@ -48,7 +52,7 @@ b2bcf279e599  milvusdb/milvus:v2.0.1  "/tini -- milvus run…"  22 hours ago  Up
 d8ef4c84e25c  mysql:5.7 "docker-entrypoint.s…"  22 hours ago  Up 22 hours 0.0.0.0:3306->3306/tcp, 33060/tcp audio-mysql
 8fb501edb4f3  quay.io/coreos/etcd:v3.5.0  "etcd -advertise-cli…"  22 hours ago  Up 22 hours 2379-2380/tcp milvus-etcd
 ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"  22 hours ago  Up 22 hours (healthy) 9000/tcp  milvus-minio
-15c84a506754  qingen1/paddlespeech-audio-search-client:2.3  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
+15c84a506754  paddlepaddle/paddlespeech-audio-search-client:2.3  "/bin/bash -c '/usr/…"  22 hours ago  Up 22 hours (healthy) 0.0.0.0:8068->80/tcp  audio-webclient
 
 ```
 
@@ -60,22 +64,27 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   ```bash
   pip install -r requirements.txt
   ```
-- 修改配置
+- 修改配置(本地运行情况下，一般不用修改，可以跳过该步骤)
 
   ```bash
+  ## 方法一：修改源码文件
   vim src/config.py
+
+  ## 方法二：修改环境变量，如下所示
+  export MILVUS_HOST=127.0.0.1
+  export MYSQL_HOST=127.0.0.1
   ```
 
-  请根据实际环境进行修改。 这里列出了一些需要设置的参数，更多信息请参考 [config.py](./src/config.py)  
+  这里列出了一些需要设置的参数，更多信息请参考 [config.py](./src/config.py)
 
-  | **Parameter**    | **Description**                                       | **Default setting** |
-  | ---------------- | ----------------------------------------------------- | ------------------- |
-  | MILVUS_HOST      | The IP address of Milvus, you can get it by ifconfig. If running everything on one machine, most likely 127.0.0.1 | 127.0.0.1           |
-  | MILVUS_PORT      | Port of Milvus.                                       | 19530               |
-  | VECTOR_DIMENSION | Dimension of the vectors.                             | 2048                |
-  | MYSQL_HOST       | The IP address of Mysql.                              | 127.0.0.1           |
-  | MYSQL_PORT       | Port of Milvus.                                       | 3306                |
-  | DEFAULT_TABLE    | The milvus and mysql default collection name.         | audio_table          |
+  | **参数**    | **描述**                | **默认设置** |
+  | ---------------- | -------------------- | ------------------- |
+  | MILVUS_HOST      | Milvus 服务的 IP 地址 | 127.0.0.1           |
+  | MILVUS_PORT      | Milvus 服务的端口号   | 19530               |
+  | VECTOR_DIMENSION | 特征向量的维度        | 192                 |
+  | MYSQL_HOST       | Mysql 服务的 IP 地址  | 127.0.0.1           |
+  | MYSQL_PORT       | Mysql 服务的端口号    | 3306                |
+  | DEFAULT_TABLE    | 默认存储的表名        | audio_table         |
 
 - 运行程序
 
@@ -104,7 +113,13 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  注：如果希望快速搭建 demo，可以采用 ./src/test_main.py:download_audio_data 内部的 20 条音频，另外后续结果展示以该集合为例
+  **注**：如果希望快速搭建 demo，可以采用 ./src/test_main.py:download_audio_data 内部的 20 条音频，另外后续结果展示以该集合为例
+
+- 准备模型（如果使用默认模型，可以跳过此步骤）
+  ```bash
+  ## 修改模型配置参数，目前 model 仅支持 ecapatdnn_voxceleb12，后续将支持多种类型
+  vim ./src/encode.py
+  ```
  
  - 脚本测试（推荐）
 
@@ -182,7 +197,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   
     在浏览器中输入 127.0.0.1:8068 访问前端页面
     
-    注：如果浏览器和服务不在同一台机器上，那么 IP 需要修改成服务所在的机器 IP，并且 docker-compose.yaml 中相应的 API_URL 也要修改，然后重新执行 docker-compose.yaml 文件，使修改生效。
+    **注**：如果浏览器和服务不在同一台机器上，那么 IP 需要修改成服务所在的机器 IP，并且 docker-compose.yaml 中相应的 API_URL 也要修改，然后重新执行 docker-compose.yaml 文件，使修改生效。
 
     - 上传音频
     
@@ -220,6 +235,3 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
 | 模型 | 采样率
 | :--- | :---: 
 | ecapa_tdnn| 16000
-| panns_cnn6| 32000
-| panns_cnn10| 32000
-| panns_cnn14| 32000

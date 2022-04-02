@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-from logs import LOGGER
 
+from logs import LOGGER
 from paddlespeech.cli import VectorExecutor
 
 vector_executor = VectorExecutor()
@@ -24,7 +24,8 @@ def get_audio_embedding(path):
     Use vpr_inference to generate embedding of audio
     """
     try:
-        embedding = vector_executor(audio_file=path)
+        embedding = vector_executor(
+            audio_file=path, model='ecapatdnn_voxceleb12')
         embedding = embedding / np.linalg.norm(embedding)
         embedding = embedding.tolist()
         return embedding

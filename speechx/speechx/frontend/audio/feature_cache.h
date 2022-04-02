@@ -15,15 +15,15 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/audio/frontend_itf.h"
 
 namespace ppspeech {
 
-class FeatureCache : public FeatureExtractorInterface {
+class FeatureCache : public FrontendInterface {
   public:
     explicit FeatureCache(
         int32 max_size = kint16max,
-        std::unique_ptr<FeatureExtractorInterface> base_extractor = NULL);
+        std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
@@ -53,7 +53,7 @@ class FeatureCache : public FeatureExtractorInterface {
     bool Compute();
 
     size_t max_size_;
-    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
+    std::unique_ptr<FrontendInterface> base_extractor_;
 
     std::mutex mutex_;
     std::queue<kaldi::Vector<BaseFloat>> cache_;

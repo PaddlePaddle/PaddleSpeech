@@ -16,7 +16,7 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/audio/frontend_itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
 
@@ -40,11 +40,11 @@ struct DecibelNormalizerOptions {
     }
 };
 
-class DecibelNormalizer : public FeatureExtractorInterface {
+class DecibelNormalizer : public FrontendInterface {
   public:
     explicit DecibelNormalizer(
         const DecibelNormalizerOptions& opts,
-        std::unique_ptr<FeatureExtractorInterface> base_extractor);
+        std::unique_ptr<FrontendInterface> base_extractor);
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
     // noramlize audio, the dim is 1.
@@ -57,33 +57,9 @@ class DecibelNormalizer : public FeatureExtractorInterface {
     bool Compute(kaldi::VectorBase<kaldi::BaseFloat>* waves) const;
     DecibelNormalizerOptions opts_;
     size_t dim_;
-    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
+    std::unique_ptr<FrontendInterface> base_extractor_;
     kaldi::Vector<kaldi::BaseFloat> waveform_;
 };
 
-
-class CMVN : public FeatureExtractorInterface {
-  public:
-    explicit CMVN(std::string cmvn_file,
-                  std::unique_ptr<FeatureExtractorInterface> base_extractor);
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
-
-    // the length of feats = feature_row * feature_dim,
-    // the Matrix is squashed into Vector
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
-    // the dim_ is the feautre dim.
-    virtual size_t Dim() const { return dim_; }
-    virtual void SetFinished() { base_extractor_->SetFinished(); }
-    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() { base_extractor_->Reset(); }
-
-  private:
-    void Compute(kaldi::VectorBase<kaldi::BaseFloat>* feats) const;
-    void ApplyCMVN(kaldi::MatrixBase<BaseFloat>* feats);
-    kaldi::Matrix<double> stats_;
-    std::unique_ptr<FeatureExtractorInterface> base_extractor_;
-    size_t dim_;
-    bool var_norm_;
-};
 
 }  // namespace ppspeech

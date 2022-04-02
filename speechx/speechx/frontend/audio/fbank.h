@@ -20,10 +20,10 @@
 
 namespace ppspeech {
 
-class FbankExtractor : FeatureExtractorInterface {
+class FbankExtractor : FrontendInterface {
   public:
     explicit FbankExtractor(const FbankOptions& opts,
-                            share_ptr<FeatureExtractorInterface> pre_extractor);
+                            share_ptr<FrontendInterface> pre_extractor);
     virtual void AcceptWaveform(
         const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
     virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;

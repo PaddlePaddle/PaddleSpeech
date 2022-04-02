@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/audio/frontend_itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "nnet/decodable-itf.h"
 #include "nnet/nnet_interface.h"
@@ -24,9 +24,8 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(
-        const std::shared_ptr<NnetInterface>& nnet,
-        const std::shared_ptr<FeatureExtractorInterface>& frontend);
+    explicit Decodable(const std::shared_ptr<NnetInterface>& nnet,
+                       const std::shared_ptr<FrontendInterface>& frontend);
     // void Init(DecodableOpts config);
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
     virtual bool IsLastFrame(int32 frame) const;
@@ -41,7 +40,7 @@ class Decodable : public kaldi::DecodableInterface {
 
   private:
     bool AdvanceChunk();
-    std::shared_ptr<FeatureExtractorInterface> frontend_;
+    std::shared_ptr<FrontendInterface> frontend_;
     std::shared_ptr<NnetInterface> nnet_;
     kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
     // std::vector<std::vector<kaldi::BaseFloat>> nnet_cache_;

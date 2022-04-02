@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "frontend/linear_spectrogram.h"
+#include "frontend/audio/linear_spectrogram.h"
 #include "kaldi/base/kaldi-math.h"
 #include "kaldi/matrix/matrix-functions.h"
 
@@ -27,7 +27,7 @@ using std::vector;
 
 LinearSpectrogram::LinearSpectrogram(
     const LinearSpectrogramOptions& opts,
-    std::unique_ptr<FeatureExtractorInterface> base_extractor) {
+    std::unique_ptr<FrontendInterface> base_extractor) {
     opts_ = opts;
     base_extractor_ = std::move(base_extractor);
     int32 window_size = opts.frame_opts.WindowSize();

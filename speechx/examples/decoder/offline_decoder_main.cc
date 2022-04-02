@@ -17,7 +17,7 @@
 #include "base/flags.h"
 #include "base/log.h"
 #include "decoder/ctc_beam_search_decoder.h"
-#include "frontend/data_cache.h"
+#include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"

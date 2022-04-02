@@ -19,7 +19,7 @@
 
 namespace ppspeech {
 
-class FeatureExtractorInterface {
+class FrontendInterface {
   public:
     // Feed inputs: features(2D saved in 1D) or waveforms(1D).
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;

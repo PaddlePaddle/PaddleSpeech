@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-#include "frontend/normalizer.h"
+#include "frontend/audio/cmvn.h"
 #include "kaldi/feat/cmvn.h"
 #include "kaldi/util/kaldi-io.h"
 
@@ -26,73 +26,8 @@ using std::vector;
 using kaldi::SubVector;
 using std::unique_ptr;
 
-DecibelNormalizer::DecibelNormalizer(
-    const DecibelNormalizerOptions& opts,
-    std::unique_ptr<FeatureExtractorInterface> base_extractor) {
-    base_extractor_ = std::move(base_extractor);
-    opts_ = opts;
-    dim_ = 1;
-}
 
-void DecibelNormalizer::Accept(const kaldi::VectorBase<BaseFloat>& waves) {
-    base_extractor_->Accept(waves);
-}
-
-bool DecibelNormalizer::Read(kaldi::Vector<BaseFloat>* waves) {
-    if (base_extractor_->Read(waves) == false || waves->Dim() == 0) {
-        return false;
-    }
-    Compute(waves);
-    return true;
-}
-
-bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
-    // calculate db rms
-    BaseFloat rms_db = 0.0;
-    BaseFloat mean_square = 0.0;
-    BaseFloat gain = 0.0;
-    BaseFloat wave_float_normlization = 1.0f / (std::pow(2, 16 - 1));
-
-    vector<BaseFloat> samples;
-    samples.resize(waves->Dim());
-    for (size_t i = 0; i < samples.size(); ++i) {
-        samples[i] = (*waves)(i);
-    }
-
-    // square
-    for (auto& d : samples) {
-        if (opts_.convert_int_float) {
-            d = d * wave_float_normlization;
-        }
-        mean_square += d * d;
-    }
-
-    // mean
-    mean_square /= samples.size();
-    rms_db = 10 * std::log10(mean_square);
-    gain = opts_.target_db - rms_db;
-
-    if (gain > opts_.max_gain_db) {
-        LOG(ERROR)
-            << "Unable to normalize segment to " << opts_.target_db << "dB,"
-            << "because the the probable gain have exceeds opts_.max_gain_db"
-            << opts_.max_gain_db << "dB.";
-        return false;
-    }
-
-    // Note that this is an in-place transformation.
-    for (auto& item : samples) {
-        // python item *= 10.0 ** (gain / 20.0)
-        item *= std::pow(10.0, gain / 20.0);
-    }
-
-    std::memcpy(
-        waves->Data(), samples.data(), sizeof(BaseFloat) * samples.size());
-    return true;
-}
-
-CMVN::CMVN(std::string cmvn_file,
-           unique_ptr<FeatureExtractorInterface> base_extractor)
+CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
     : var_norm_(true) {
     base_extractor_ = std::move(base_extractor);
     bool binary;

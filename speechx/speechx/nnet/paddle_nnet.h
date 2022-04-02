@@ -15,12 +15,13 @@
 
 #pragma once
 
-#include "base/common.h"
-#include "nnet/nnet_interface.h"
-#include "paddle_inference_api.h"
 
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
+
+#include "base/common.h"
+#include "nnet/nnet_itf.h"
+#include "paddle_inference_api.h"
 
 #include <numeric>
 

@@ -16,12 +16,12 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/audio/frontend_itf.h"
 
 namespace ppspeech {
 
 // waves cache
-class AudioCache : public FeatureExtractorInterface {
+class AudioCache : public FrontendInterface {
   public:
     explicit AudioCache(int buffer_size = kint16max);
 

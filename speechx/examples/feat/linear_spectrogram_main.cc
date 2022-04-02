@@ -14,19 +14,18 @@
 
 // todo refactor, repalce with gtest
 
-#include "frontend/linear_spectrogram.h"
 #include "base/flags.h"
 #include "base/log.h"
-#include "frontend/audio_cache.h"
-#include "frontend/data_cache.h"
-#include "frontend/feature_cache.h"
-#include "frontend/feature_extractor_interface.h"
-#include "frontend/normalizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
 
-#include <glog/logging.h>
+#include "frontend/audio/audio_cache.h"
+#include "frontend/audio/data_cache.h"
+#include "frontend/audio/feature_cache.h"
+#include "frontend/audio/frontend_itf.h"
+#include "frontend/audio/linear_spectrogram.h"
+#include "frontend/audio/normalizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
@@ -170,13 +169,13 @@ int main(int argc, char* argv[]) {
     // feature pipeline: wave cache --> decibel_normalizer --> hanning
     // window -->linear_spectrogram --> global cmvn -> feat cache
 
-    // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
+    // std::unique_ptr<ppspeech::FrontendInterface> data_source(new
     // ppspeech::DataCache());
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
+    std::unique_ptr<ppspeech::FrontendInterface> data_source(
         new ppspeech::AudioCache());
 
     ppspeech::DecibelNormalizerOptions db_norm_opt;
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> db_norm(
+    std::unique_ptr<ppspeech::FrontendInterface> db_norm(
         new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
 
     ppspeech::LinearSpectrogramOptions opt;
@@ -185,12 +184,11 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "frame length (ms): " << opt.frame_opts.frame_length_ms;
     LOG(INFO) << "frame shift (ms): " << opt.frame_opts.frame_shift_ms;
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> linear_spectrogram(
+    std::unique_ptr<ppspeech::FrontendInterface> linear_spectrogram(
         new ppspeech::LinearSpectrogram(opt, std::move(db_norm)));
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> cmvn(
-        new ppspeech::CMVN(FLAGS_cmvn_write_path,
-                           std::move(linear_spectrogram)));
+    std::unique_ptr<ppspeech::FrontendInterface> cmvn(new ppspeech::CMVN(
+        FLAGS_cmvn_write_path, std::move(linear_spectrogram)));
 
     ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();

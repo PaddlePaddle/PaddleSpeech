@@ -17,13 +17,13 @@
 
 
 #include "base/common.h"
-#include "frontend/feature_extractor_interface.h"
+#include "frontend/audio/frontend_itf.h"
 
 
 namespace ppspeech {
 // A data source for testing different frontend module.
 // It accepts waves or feats.
-class DataCache : public FeatureExtractorInterface {
+class DataCache : public FrontendInterface {
   public:
     explicit DataCache() { finished_ = false; }
 

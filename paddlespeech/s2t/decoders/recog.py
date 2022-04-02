@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Reference espnet Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+# Modified from espnet(https://github.com/espnet/espnet)
 """V2 backend for `asr_recog.py` using py:class:`decoders.beam_search.BeamSearch`."""
 import jsonlines
 import paddle

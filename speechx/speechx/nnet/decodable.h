@@ -16,7 +16,7 @@
 #include "frontend/audio/frontend_itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "nnet/decodable-itf.h"
-#include "nnet/nnet_interface.h"
+#include "nnet/nnet_itf.h"
 
 namespace ppspeech {
 

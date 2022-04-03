@@ -25,7 +25,7 @@ from yacs.config import CfgNode
 
 from paddleaudio import load as load_audio
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.vector.utils.utils import get_chunks
+from paddlespeech.vector.utils.vector_utils import get_chunks
 
 logger = Log(__name__).getlog()
 
@@ -57,7 +57,9 @@ def get_chunks_list(wav_file: str,
             end_sample = int(float(e) * sr)
 
             # currently, all vector csv data format use one representation
-            # id, duration, wav, start, stop, spk_id
+            # id, duration, wav, start, stop, label
+            # in rirs noise, all the label name is 'noise'
+            # the label is string type and we will convert it to integer type in training
             ret.append([
                 chunk, audio_duration, wav_file, start_sample, end_sample,
                 "noise"
@@ -81,7 +83,7 @@ def generate_csv(wav_files,
         split_chunks (bool): audio split flag
     """
     logger.info(f'Generating csv: {output_file}')
-    header = ["utt_id", "duration", "wav", "start", "stop", "lab_id"]
+    header = ["utt_id", "duration", "wav", "start", "stop", "label"]
     csv_lines = []
     for item in tqdm.tqdm(wav_files):
         csv_lines.extend(

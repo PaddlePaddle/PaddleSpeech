@@ -26,7 +26,7 @@ from yacs.config import CfgNode
 
 from paddleaudio import load as load_audio
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.vector.utils.utils import get_chunks
+from paddlespeech.vector.utils.vector_utils import get_chunks
 
 logger = Log(__name__).getlog()
 
@@ -38,28 +38,31 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
         wav_files (list): all the audio list to prepare the csv file
         output_file (str): the output csv file
         config (CfgNode): yaml configuration content
-        split_chunks (bool): audio split flag
+        split_chunks (bool, optional): audio split flag. Defaults to True.
     """
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file))
     csv_lines = []
-    header = ["utt_id", "duration", "wav", "start", "stop", "lab_id"]
+    header = ["utt_id", "duration", "wav", "start", "stop", "label"]
     # voxceleb meta info for each training utterance segment
     # we extract a segment from a utterance to train 
     # and the segment' period is between start and stop time point in the original wav file
-    # each field in the meta means as follows:
-    # utt_id: the utterance segment name
-    # duration: utterance segment time
-    # wav: utterance file path
-    # start: start point in the original wav file
-    # stop: stop point in the original wav file
-    # lab_id: the utterance segment's speaker name
+    # each field in the meta info means as follows:
+    # utt_id: the utterance segment name, which is uniq in training dataset
+    # duration: the total utterance time
+    # wav: utterance file path, which should be absoulute path
+    # start: start point in the original wav file sample point range
+    # stop: stop point in the original wav file sample point range
+    # label: the utterance segment's label name, 
+    #        which is speaker name in speaker verification domain
     for item in tqdm.tqdm(wav_files, total=len(wav_files)):
         item = json.loads(item.strip())
-        audio_id = item['utt'].replace(".wav", "")
+        audio_id = item['utt'].replace(".wav",
+                                       "")  # we remove the wav suffix name
         audio_duration = item['feat_shape'][0]
         wav_file = item['feat']
-        spk_id = audio_id.split('-')[0]
+        label = audio_id.split('-')[
+            0]  # speaker name in speaker verification domain
         waveform, sr = load_audio(wav_file)
         if split_chunks:
             uniq_chunks_list = get_chunks(config.chunk_duration, audio_id,
@@ -68,14 +71,15 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
                 s, e = chunk.split("_")[-2:]  # Timestamps of start and end
                 start_sample = int(float(s) * sr)
                 end_sample = int(float(e) * sr)
-                # id, duration, wav, start, stop, spk_id
+                # id, duration, wav, start, stop, label
+                # in vector, the label in speaker id
                 csv_lines.append([
                     chunk, audio_duration, wav_file, start_sample, end_sample,
-                    spk_id
+                    label
                 ])
         else:
             csv_lines.append([
-                audio_id, audio_duration, wav_file, 0, waveform.shape[0], spk_id
+                audio_id, audio_duration, wav_file, 0, waveform.shape[0], label
             ])
 
     with open(output_file, mode="w") as csv_f:
@@ -113,6 +117,9 @@ def get_enroll_test_list(dataset_list, verification_file):
     for dataset in dataset_list:
         with open(dataset, 'r') as f:
             for line in f:
+                # audio_id may be in enroll and test at the same time
+                # eg: 1 a.wav a.wav
+                # the audio a.wav is enroll and test file at the same time
                 audio_id = json.loads(line.strip())['utt']
                 if audio_id in enroll_audios:
                     enroll_files.append(line)
@@ -145,17 +152,18 @@ def get_train_dev_list(dataset_list, target_dir, split_ratio):
     for dataset in dataset_list:
         with open(dataset, 'r') as f:
             for line in f:
-                spk_id = json.loads(line.strip())['utt2spk']
-                speakers.add(spk_id)
+                # the label is speaker name
+                label_name = json.loads(line.strip())['utt2spk']
+                speakers.add(label_name)
                 audio_files.append(line.strip())
     speakers = sorted(speakers)
     logger.info(f"we get {len(speakers)} speakers from all the train dataset")
 
-    with open(os.path.join(target_dir, "meta", "spk_id2label.txt"), 'w') as f:
-        for label, spk_id in enumerate(speakers):
-            f.write(f'{spk_id} {label}\n')
+    with open(os.path.join(target_dir, "meta", "label2id.txt"), 'w') as f:
+        for label_id, label_name in enumerate(speakers):
+            f.write(f'{label_name} {label_id}\n')
     logger.info(
-        f'we store the speakers to {os.path.join(target_dir, "meta", "spk_id2label.txt")}'
+        f'we store the speakers to {os.path.join(target_dir, "meta", "label2id.txt")}'
     )
 
     # the split_ratio is for train dataset 
@@ -185,7 +193,7 @@ def prepare_data(args, config):
         return
 
     # stage 1: prepare the enroll and test csv file
-    #          And we generate the speaker to label file spk_id2label.txt
+    #          And we generate the speaker to label file label2id.txt
     logger.info("start to prepare the data csv file")
     enroll_files, test_files = get_enroll_test_list(
         [args.test], verification_file=config.verification_file)

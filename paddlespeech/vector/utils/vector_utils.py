@@ -17,14 +17,14 @@ def get_chunks(seg_dur, audio_id, audio_duration):
     """Get all chunk segments from a utterance
 
     Args:
-        seg_dur (float): segment chunk duration
-        audio_id (str): utterance name
-        audio_duration (float): utterance duration
+        seg_dur (float): segment chunk duration, seconds
+        audio_id (str): utterance name, 
+        audio_duration (float): utterance duration, seconds
 
     Returns:
         List: all the chunk segments 
     """
-    num_chunks = int(audio_duration / seg_dur)  # all in milliseconds
+    num_chunks = int(audio_duration / seg_dur)  # all in seconds
     chunk_lst = [
         audio_id + "_" + str(i * seg_dur) + "_" + str(i * seg_dur + seg_dur)
         for i in range(num_chunks)

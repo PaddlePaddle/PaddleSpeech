@@ -21,10 +21,10 @@ from paddle.io import DataLoader
 from tqdm import tqdm
 from yacs.config import CfgNode
 
-from paddleaudio.datasets import VoxCeleb
 from paddleaudio.metric import compute_eer
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import batch_feature_normalize
+from paddlespeech.vector.io.dataset import CSVDataset
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.seeding import seed_everything
@@ -58,9 +58,8 @@ def main(args, config):
 
     # stage4: construct the enroll and test dataloader
 
-    enroll_dataset = VoxCeleb(
-        subset='enroll',
-        target_dir=args.data_dir,
+    enroll_dataset = CSVDataset(
+        os.path.join(args.data_dir, "vox/csv/enroll.csv"),
         feat_type='melspectrogram',
         random_chunk=False,
         n_mels=config.n_mels,
@@ -69,15 +68,14 @@ def main(args, config):
     enroll_sampler = BatchSampler(
         enroll_dataset, batch_size=config.batch_size,
         shuffle=True)  # Shuffle to make embedding normalization more robust.
-    enrol_loader = DataLoader(enroll_dataset,
+    enroll_loader = DataLoader(enroll_dataset,
                     batch_sampler=enroll_sampler,
                     collate_fn=lambda x: batch_feature_normalize(
-                            x, mean_norm=True, std_norm=False),
+                                x, mean_norm=True, std_norm=False),
                     num_workers=config.num_workers,
                     return_list=True,)
-    test_dataset = VoxCeleb(
-        subset='test',
-        target_dir=args.data_dir,
+    test_dataset = CSVDataset(
+        os.path.join(args.data_dir, "vox/csv/test.csv"),
         feat_type='melspectrogram',
         random_chunk=False,
         n_mels=config.n_mels,
@@ -108,9 +106,9 @@ def main(args, config):
     id2embedding = {}
     # Run multi times to make embedding normalization more stable.
     for i in range(2):
-        for dl in [enrol_loader, test_loader]:
+        for dl in [enroll_loader, test_loader]:
             logger.info(
-                f'Loop {[i+1]}: Computing embeddings on {dl.dataset.subset} dataset'
+                f'Loop {[i+1]}: Computing embeddings on {dl.dataset.csv_path} dataset'
             )
             with paddle.no_grad():
                 for batch_idx, batch in enumerate(tqdm(dl)):
@@ -152,8 +150,8 @@ def main(args, config):
     labels = []
     enroll_ids = []
     test_ids = []
-    logger.info(f"read the trial from {VoxCeleb.veri_test_file}")
-    with open(VoxCeleb.veri_test_file, 'r') as f:
+    logger.info(f"read the trial from {config.verification_file}")
+    with open(config.verification_file, 'r') as f:
         for line in f.readlines():
             label, enroll_id, test_id = line.strip().split(' ')
             labels.append(int(label))

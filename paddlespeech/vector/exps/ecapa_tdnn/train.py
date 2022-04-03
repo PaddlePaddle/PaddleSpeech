@@ -57,12 +57,10 @@ def main(args, config):
     # note: some cmd must do in rank==0, so wo will refactor the data prepare code
     train_dataset = CSVDataset(
         csv_path=os.path.join(args.data_dir, "vox/csv/train.csv"),
-        spk_id2label_path=os.path.join(args.data_dir,
-                                       "vox/meta/spk_id2label.txt"))
+        label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
     dev_dataset = CSVDataset(
         csv_path=os.path.join(args.data_dir, "vox/csv/dev.csv"),
-        spk_id2label_path=os.path.join(args.data_dir,
-                                       "vox/meta/spk_id2label.txt"))
+        label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
 
     if config.augment:
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
@@ -148,7 +146,6 @@ def main(args, config):
         train_reader_cost = 0.0
         train_feat_cost = 0.0
         train_run_cost = 0.0
-        train_misce_cost = 0.0
 
         reader_start = time.time()
         for batch_idx, batch in enumerate(train_loader):

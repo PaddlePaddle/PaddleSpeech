@@ -25,7 +25,7 @@ logger = Log(__name__).getlog()
 # wav: utterance file path
 # start: start point in the original wav file
 # stop: stop point in the original wav file
-# lab_id: the utterance segment's label id
+# label: the utterance segment's label id
 
 
 @dataclass
@@ -45,24 +45,24 @@ class meta_info:
     wav: str
     start: int
     stop: int
-    lab_id: str
+    label: str
 
 
 class CSVDataset(Dataset):
-    def __init__(self, csv_path, spk_id2label_path=None, config=None):
+    def __init__(self, csv_path, label2id_path=None, config=None):
         """Implement the CSV Dataset
 
         Args:
             csv_path (str): csv dataset file path
-            spk_id2label_path (str): the utterance label to integer id map file path
+            label2id_path (str): the utterance label to integer id map file path
             config (CfgNode): yaml config
         """
         super().__init__()
         self.csv_path = csv_path
-        self.spk_id2label_path = spk_id2label_path
+        self.label2id_path = label2id_path
         self.config = config
-        self.spk_id2label = {}
-        self.label2spk_id = {}
+        self.id2label = {}
+        self.label2id = {}
         self.data = self.load_data_csv()
         self.load_speaker_to_label()
 
@@ -71,7 +71,7 @@ class CSVDataset(Dataset):
         the csv dataset's format has six fields, 
         that is audio_id or utt_id, audio duration, segment start point, segment stop point 
         and utterance label.
-        Note in training period, the utterance label must has a map to integer id in spk_id2label_path 
+        Note in training period, the utterance label must has a map to integer id in label2id_path 
         """
         data = []
 
@@ -91,16 +91,15 @@ class CSVDataset(Dataset):
         The speaker label is real speaker label in speaker verification domain,
         and in language identification is language label.
         """
-        if not self.spk_id2label_path:
+        if not self.label2id_path:
             logger.warning("No speaker id to label file")
             return
-        self.spk_id2label = {}
-        self.label2spk_id = {}
-        with open(self.spk_id2label_path, 'r') as f:
+
+        with open(self.label2id_path, 'r') as f:
             for line in f.readlines():
-                spk_id, label = line.strip().split(' ')
-                self.spk_id2label[spk_id] = int(label)
-                self.label2spk_id[int(label)] = spk_id
+                label_name, label_id = line.strip().split(' ')
+                self.label2id[label_name] = int(label_id)
+                self.id2label[int(label_id)] = label_name
 
     def convert_to_record(self, idx: int):
         """convert the dataset sample to training record the CSV Dataset
@@ -130,8 +129,8 @@ class CSVDataset(Dataset):
         # we only return the waveform as feat
         waveform = waveform[start:stop]
         record.update({'feat': waveform})
-        if self.spk_id2label:
-            record.update({'label': self.spk_id2label[record['lab_id']]})
+        if self.label2id:
+            record.update({'label': self.label2id[record['label']]})
 
         return record
 

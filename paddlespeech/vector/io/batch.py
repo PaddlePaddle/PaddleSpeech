@@ -60,7 +60,7 @@ def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
 
 
 def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
-    ids = [item['id'] for item in batch]
+    ids = [item['utt_id'] for item in batch]
     lengths = np.asarray([item['feat'].shape[1] for item in batch])
     feats = list(
         map(lambda x: pad_right_2d(x, lengths.max()),

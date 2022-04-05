@@ -1,13 +1,3 @@
-# ##################################################
-# Model: Speaker Diarization Baseline
-# Embeddings: Deep embedding
-# Clustering Technique: Spectral clustering
-# Authors: Nauman Dawalatabad 2020
-# #################################################
-
-seed: 1234
-num_speakers: 7205
-
 ###########################################################
 #                AMI DATA PREPARE SETTING               #
 ###########################################################
@@ -44,6 +34,7 @@ hop_size: 160        #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
 ###########################################################
 # currently, we only support ecapa-tdnn in the ecapa_tdnn.yaml
 # if we want use another model, please choose another configuration yaml file
+seed: 1234
 emb_dim: 192
 batch_size: 16
 model:

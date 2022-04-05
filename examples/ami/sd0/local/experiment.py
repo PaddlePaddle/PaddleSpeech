@@ -1,22 +1,16 @@
-#!/usr/bin/python3
-"""This recipe implements diarization system using deep embedding extraction followed by spectral clustering.
-
-To run this recipe:
-> python experiment.py hparams/<your_hyperparams_file.yaml>
- e.g., python experiment.py hparams/ecapa_tdnn.yaml
-
-Condition: Oracle VAD (speech regions taken from the groundtruth).
-
-Note: There are multiple ways to write this recipe. We iterate over individual recordings.
- This approach is less GPU memory demanding and also makes code easy to understand.
-
-Citation: This recipe is based on the following paper,
- N. Dawalatabad, M. Ravanelli, F. Grondin, J. Thienpondt, B. Desplanques, H. Na,
- "ECAPA-TDNN Embeddings for Speaker Diarization," arXiv:2104.01466, 2021.
-
-Authors
- * Nauman Dawalatabad 2020
-"""
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import argparse
 import glob
 import json
@@ -81,10 +75,6 @@ def diarize_dataset(
     # diarizing different recordings in a dataset.
     for rec_id in tqdm(all_rec_ids):
         # this tag will be displayed in the log.
-        if rec_id == "IS1008a":
-            continue
-        if rec_id == "ES2011a":
-            continue
         tag = ("[" + str(split_type) + ": " + str(i) + "/" +
                str(len(all_rec_ids)) + "]")
         i = i + 1
@@ -434,6 +424,5 @@ if __name__ == "__main__":
         config.merge_from_file(args.config)
 
     config.freeze()
-    print(config)
 
     main(args, config)

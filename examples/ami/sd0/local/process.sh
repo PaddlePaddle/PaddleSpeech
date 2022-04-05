@@ -1,6 +1,6 @@
 #!/bin/bash
 
-stage=2
+stage=0
 set=L
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

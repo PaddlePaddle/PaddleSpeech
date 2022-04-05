@@ -94,7 +94,7 @@ def main(args, config):
 
     # stage2: build the speaker verification eval instance with backbone model
     model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=config.num_speakers)
+        backbone=ecapa_tdnn, num_class=1)
 
     # stage3: load the pre-trained model
     #         we get the last model from the epoch and save_interval
@@ -228,6 +228,5 @@ if __name__ == "__main__":
         config.merge_from_file(args.config)
 
     config.freeze()
-    print(config)
 
     main(args, config)

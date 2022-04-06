@@ -49,19 +49,15 @@ class LinearSpectrogram : public FrontendInterface {
     virtual void Reset() { base_extractor_->Reset(); }
 
   private:
-    void Hanning(std::vector<kaldi::BaseFloat>* data) const;
-    bool Compute(const std::vector<kaldi::BaseFloat>& waves,
-                 std::vector<std::vector<kaldi::BaseFloat>>& feats);
-    bool NumpyFft(std::vector<kaldi::BaseFloat>* v,
-                  std::vector<kaldi::BaseFloat>* real,
-                  std::vector<kaldi::BaseFloat>* img) const;
+    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
+                 kaldi::Vector<kaldi::BaseFloat>* feats);
 
-    kaldi::int32 fft_points_;
     size_t dim_;
-    std::vector<kaldi::BaseFloat> hanning_window_;
+    kaldi::FeatureWindowFunction feature_window_funtion_;
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
+    kaldi::Vector<kaldi::BaseFloat> reminded_wav_;
     int chunk_sample_size_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 };

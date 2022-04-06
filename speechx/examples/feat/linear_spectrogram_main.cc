@@ -181,6 +181,10 @@ int main(int argc, char* argv[]) {
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
     opt.frame_opts.frame_shift_ms = 10;
+    opt.frame_opts.dither = 0.0;
+    opt.frame_opts.remove_dc_offset = false;
+    opt.frame_opts.window_type = "hanning";
+    opt.frame_opts.preemph_coeff = 0.0;
     LOG(INFO) << "frame length (ms): " << opt.frame_opts.frame_length_ms;
     LOG(INFO) << "frame shift (ms): " << opt.frame_opts.frame_shift_ms;
 

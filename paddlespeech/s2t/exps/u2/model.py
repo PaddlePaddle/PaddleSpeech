@@ -170,10 +170,10 @@ class U2Trainer(Trainer):
         logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         # For Mixed Precision Training
         if self.args.amp_level is not None:
-            logger.info(f"Doing Mixed Precision Training, The mode is {self.args.amp_level}")
+            logger.info(
+                f"Doing Mixed Precision Training, The mode is {self.args.amp_level}"
+            )
             scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
-            if self.args.amp_level == 'O2':
-                self.model = paddle.amp.decorate(models=self.model, level='O2')
         else:
             scaler = None
 
@@ -343,6 +343,8 @@ class U2Trainer(Trainer):
                 model_conf.output_dim = self.test_loader.vocab_size
 
         model = U2Model.from_config(model_conf)
+        if self.args.amp_level == 'O2':
+            model = paddle.amp.decorate(models=model, level='O2')
 
         if self.parallel:
             model = paddle.DataParallel(model)

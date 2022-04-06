@@ -106,12 +106,12 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
                               clip_var)
                 new_grad = layers.elementwise_mul(x=g, y=clip_input)
                 params_and_grads.append((p, new_grad))
+                # debug log, not dump all since slow down train process
+                if i < 10:
+                    logger.debug(
+                        f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"
+                    )
             else:
                 params_and_grads.append((p, g))
 
-            # debug log, not dump all since slow down train process
-            if i < 10:
-                logger.debug(
-                    f"Grad After Clip: {p.name}: {float(new_grad.square().sum().sqrt())}"
-                )
         return params_and_grads

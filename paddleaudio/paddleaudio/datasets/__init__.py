@@ -13,5 +13,7 @@
 # limitations under the License.
 from .esc50 import ESC50
 from .gtzan import GTZAN
+from .rirs_noises import OpenRIRNoise
 from .tess import TESS
 from .urban_sound import UrbanSound8K
+from .voxceleb import VoxCeleb

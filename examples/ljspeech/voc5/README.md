@@ -127,6 +127,21 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
+The pretrained model can be downloaded here [hifigan_ljspeech_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_ljspeech_ckpt_0.2.0.zip).
+
+
+Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
+:-------------:| :------------:| :-----: | :-----: | :--------:
+default| 1(gpu) x 2500000|24.492|0.115|7.227
+
+HiFiGAN checkpoint contains files listed below.
+
+```text
+hifigan_ljspeech_ckpt_0.2.0
+├── default.yaml                  # default config used to train hifigan
+├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
+└── snapshot_iter_2500000.pdz     # generator parameters of hifigan
+```
 
 
 ## Acknowledgement

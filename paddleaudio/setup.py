@@ -82,13 +82,9 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'numpy >= 1.15.0',
-        'scipy >= 1.0.0',
-        'resampy >= 0.2.2',
-        'soundfile >= 0.9.0',
-        'colorlog',
-        'dtaidistance >= 2.3.6',
-        'mcd >= 0.4',
+        'numpy >= 1.15.0', 'scipy >= 1.0.0', 'resampy >= 0.2.2',
+        'soundfile >= 0.9.0', 'colorlog', 'dtaidistance == 2.3.1', 'mcd >= 0.4',
+        'pathos'
     ],
     extras_require={
         'test': [

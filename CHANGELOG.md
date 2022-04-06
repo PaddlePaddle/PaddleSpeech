@@ -1,4 +1,15 @@
 # Changelog
+
+Date: 2022-3-22, Author: yt605155624.
+Add features to: CLI:
+  - Support aishell3_hifigan、vctk_hifigan
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1587
+
+Date: 2022-3-09, Author: yt605155624.
+Add features to: T2S:
+  - Add ljspeech hifigan egs.
+  - PRLink: https://github.com/PaddlePaddle/PaddleSpeech/pull/1549
+
 Date: 2022-3-08, Author: yt605155624.
 Add features to: T2S:
   - Add aishell3 hifigan egs.

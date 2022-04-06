@@ -14,16 +14,18 @@
 
 // todo refactor, repalce with gtest
 
-#include "frontend/linear_spectrogram.h"
 #include "base/flags.h"
 #include "base/log.h"
-#include "frontend/feature_cache.h"
-#include "frontend/feature_extractor_interface.h"
-#include "frontend/normalizer.h"
-#include "frontend/raw_audio.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
+
+#include "frontend/audio/audio_cache.h"
+#include "frontend/audio/data_cache.h"
+#include "frontend/audio/feature_cache.h"
+#include "frontend/audio/frontend_itf.h"
+#include "frontend/audio/linear_spectrogram.h"
+#include "frontend/audio/normalizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
@@ -149,7 +151,7 @@ void WriteMatrix() {
         cmvn_stats(1, idx) = variance_[idx];
     }
     cmvn_stats(0, mean_.size()) = count_;
-    kaldi::WriteKaldiObject(cmvn_stats, FLAGS_cmvn_write_path, true);
+    kaldi::WriteKaldiObject(cmvn_stats, FLAGS_cmvn_write_path, false);
 }
 
 int main(int argc, char* argv[]) {
@@ -161,43 +163,59 @@ int main(int argc, char* argv[]) {
     kaldi::BaseFloatMatrixWriter feat_writer(FLAGS_feature_wspecifier);
     WriteMatrix();
 
-    // test feature linear_spectorgram: wave --> decibel_normalizer --> hanning
-    // window -->linear_spectrogram --> cmvn
+
     int32 num_done = 0, num_err = 0;
-    // std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(new
-    // ppspeech::RawDataCache());
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> data_source(
-        new ppspeech::RawAudioCache());
+
+    // feature pipeline: wave cache --> decibel_normalizer --> hanning
+    // window -->linear_spectrogram --> global cmvn -> feat cache
+
+    // std::unique_ptr<ppspeech::FrontendInterface> data_source(new
+    // ppspeech::DataCache());
+    std::unique_ptr<ppspeech::FrontendInterface> data_source(
+        new ppspeech::AudioCache());
+
+    ppspeech::DecibelNormalizerOptions db_norm_opt;
+    std::unique_ptr<ppspeech::FrontendInterface> db_norm(
+        new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
 
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
     opt.frame_opts.frame_shift_ms = 10;
-    ppspeech::DecibelNormalizerOptions db_norm_opt;
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> base_feature_extractor(
-        new ppspeech::DecibelNormalizer(db_norm_opt, std::move(data_source)));
+    opt.frame_opts.dither = 0.0;
+    opt.frame_opts.remove_dc_offset = false;
+    opt.frame_opts.window_type = "hanning";
+    opt.frame_opts.preemph_coeff = 0.0;
+    LOG(INFO) << "frame length (ms): " << opt.frame_opts.frame_length_ms;
+    LOG(INFO) << "frame shift (ms): " << opt.frame_opts.frame_shift_ms;
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> linear_spectrogram(
-        new ppspeech::LinearSpectrogram(opt,
-                                        std::move(base_feature_extractor)));
+    std::unique_ptr<ppspeech::FrontendInterface> linear_spectrogram(
+        new ppspeech::LinearSpectrogram(opt, std::move(db_norm)));
 
-    std::unique_ptr<ppspeech::FeatureExtractorInterface> cmvn(
-        new ppspeech::CMVN(FLAGS_cmvn_write_path,
-                           std::move(linear_spectrogram)));
+    std::unique_ptr<ppspeech::FrontendInterface> cmvn(new ppspeech::CMVN(
+        FLAGS_cmvn_write_path, std::move(linear_spectrogram)));
 
     ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
+    LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
-    float streaming_chunk = 0.36;
     int sample_rate = 16000;
+    float streaming_chunk = 0.36;
     int chunk_sample_size = streaming_chunk * sample_rate;
+    LOG(INFO) << "sr: " << sample_rate;
+    LOG(INFO) << "chunk size (s): " << streaming_chunk;
+    LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
+
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
+        LOG(INFO) << "process utt: " << utt;
 
         int32 this_channel = 0;
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
                                                     this_channel);
         int tot_samples = waveform.Dim();
+        LOG(INFO) << "wav len (sample): " << tot_samples;
+
         int sample_offset = 0;
         std::vector<kaldi::Vector<BaseFloat>> feats;
         int feature_rows = 0;
@@ -209,6 +227,7 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
+
             kaldi::Vector<BaseFloat> features;
             feature_cache.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {

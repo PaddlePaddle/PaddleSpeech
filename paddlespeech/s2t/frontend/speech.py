@@ -108,6 +108,27 @@ class SpeechSegment(AudioSegment):
                    token_ids)
 
     @classmethod
+    def from_pcm(cls,
+                 samples,
+                 sample_rate,
+                 transcript,
+                 tokens=None,
+                 token_ids=None):
+        """Create speech segment from pcm on online mode 
+        Args:
+            samples (numpy.ndarray): Audio samples [num_samples x num_channels].
+            sample_rate (int): Audio sample rate.
+            transcript (str): Transcript text for the speech.
+            tokens (List[str], optional): text tokens. Defaults to None.
+            token_ids (List[int], optional): text token ids. Defaults to None.
+        Returns: 
+            SpeechSegment: Speech segment instance.
+        """
+        audio = AudioSegment.from_pcm(samples, sample_rate)
+        return cls(audio.samples, audio.sample_rate, transcript, tokens,
+                   token_ids)
+
+    @classmethod
     def concatenate(cls, *segments):
         """Concatenate an arbitrary number of speech segments together, both
         audio and transcript will be concatenated.

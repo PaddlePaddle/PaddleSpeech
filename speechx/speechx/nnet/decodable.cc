@@ -22,10 +22,11 @@ using std::vector;
 using kaldi::Vector;
 
 Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
-                     const std::shared_ptr<FeatureExtractorInterface>& frontend)
+                     const std::shared_ptr<FrontendInterface>& frontend)
     : frontend_(frontend), nnet_(nnet), frame_offset_(0), frames_ready_(0) {}
 
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
+    nnet_cache_ = likelihood;
     frames_ready_ += likelihood.NumRows();
 }
 
@@ -59,7 +60,7 @@ bool Decodable::EnsureFrameHaveComputed(int32 frame) {
 
 bool Decodable::AdvanceChunk() {
     Vector<BaseFloat> features;
-    if (frontend_->Read(&features) == false) {
+    if (frontend_ == NULL || frontend_->Read(&features) == false) {
         return false;
     }
     int32 nnet_dim = 0;
@@ -83,10 +84,11 @@ bool Decodable::FrameLogLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
 }
 
 void Decodable::Reset() {
-    frontend_->Reset();
-    nnet_->Reset();
+    if (frontend_ != nullptr) frontend_->Reset();
+    if (nnet_ != nullptr) nnet_->Reset();
     frame_offset_ = 0;
     frames_ready_ = 0;
+    nnet_cache_.Resize(0, 0);
 }
 
 }  // namespace ppspeech

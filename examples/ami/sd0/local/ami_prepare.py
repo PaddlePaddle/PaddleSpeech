@@ -18,18 +18,17 @@ Download: http://groups.inf.ed.ac.uk/ami/download/
 
 Prepares metadata files (JSON) from manual annotations "segments/" using RTTM format (Oracle VAD).
 """
-
 import argparse
 import glob
 import json
 import logging
 import os
 import xml.etree.ElementTree as et
-from distutils.util import strtobool
 
 from ami_splits import get_AMI_split
 from dataio import load_pkl
 from dataio import save_pkl
+from distutils.util import strtobool
 
 logger = logging.getLogger(__name__)
 SAMPLERATE = 16000

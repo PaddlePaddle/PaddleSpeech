@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
-
-import librosa
 import numpy as np
+
 from logs import LOGGER
+from paddlespeech.cli import VectorExecutor
+
+vector_executor = VectorExecutor()
 
 
 def get_audio_embedding(path):
@@ -23,16 +24,10 @@ def get_audio_embedding(path):
     Use vpr_inference to generate embedding of audio
     """
     try:
-        RESAMPLE_RATE = 16000
-        audio, _ = librosa.load(path, sr=RESAMPLE_RATE, mono=True)
-
-        # TODO add infer/python interface to get embedding, now fake it by rand
-        # vpr = ECAPATDNN(checkpoint_path=None, device='cuda')
-        # embedding = vpr.inference(audio)
-        np.random.seed(hash(os.path.basename(path)) % 1000000)
-        embedding = np.random.rand(1, 2048)
+        embedding = vector_executor(
+            audio_file=path, model='ecapatdnn_voxceleb12')
         embedding = embedding / np.linalg.norm(embedding)
-        embedding = embedding.tolist()[0]
+        embedding = embedding.tolist()
         return embedding
     except Exception as e:
         LOGGER.error(f"Error with embedding:{e}")

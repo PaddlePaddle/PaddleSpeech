@@ -64,7 +64,7 @@ services:
 
   webclient:
     container_name: audio-webclient
-    image: qingen1/paddlespeech-audio-search-client:2.3
+    image: paddlepaddle/paddlespeech-audio-search-client:2.3
     networks:
       app_net:
         ipv4_address: 172.16.23.13

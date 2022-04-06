@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .dtw import dtw_distance
+from .eer import compute_eer
+from .eer import compute_minDCF
 from .mcd import mcd_distance

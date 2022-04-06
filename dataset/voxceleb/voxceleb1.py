@@ -149,7 +149,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
     # we will download the voxceleb1 data to ${target_dir}/vox1/dev/ or ${target_dir}/vox1/test directory 
     if not os.path.exists(os.path.join(target_dir, "wav")):
         # download all dataset part
-        print("start to download the vox1 dev zip package")
+        print(f"start to download the vox1 zip package to {target_dir}")
         for zip_part in data_list.keys():
             download_url = " --no-check-certificate " + base_url + "/" + zip_part
             download(

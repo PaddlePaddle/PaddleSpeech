@@ -22,10 +22,12 @@ import codecs
 import glob
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import soundfile
 
+from utils.utility import check_md5sum
 from utils.utility import download
 from utils.utility import unzip
 
@@ -35,12 +37,22 @@ DATA_HOME = os.path.expanduser('.')
 BASE_URL = "--no-check-certificate https://www.robots.ox.ac.uk/~vgg/data/voxceleb/data/"
 
 # dev data
-DEV_DATA_URL = BASE_URL + '/vox2_aac.zip'
-DEV_MD5SUM = "bbc063c46078a602ca71605645c2a402"
+DEV_LIST = {
+    "vox2_dev_aac_partaa": "da070494c573e5c0564b1d11c3b20577",
+    "vox2_dev_aac_partab": "17fe6dab2b32b48abaf1676429cdd06f",
+    "vox2_dev_aac_partac": "1de58e086c5edf63625af1cb6d831528",
+    "vox2_dev_aac_partad": "5a043eb03e15c5a918ee6a52aad477f9",
+    "vox2_dev_aac_partae": "cea401b624983e2d0b2a87fb5d59aa60",
+    "vox2_dev_aac_partaf": "fc886d9ba90ab88e7880ee98effd6ae9",
+    "vox2_dev_aac_partag": "d160ecc3f6ee3eed54d55349531cb42e",
+    "vox2_dev_aac_partah": "6b84a81b9af72a9d9eecbb3b1f602e65",
+}
+
+DEV_TARGET_DATA = "vox2_dev_aac_parta* vox2_dev_aac.zip bbc063c46078a602ca71605645c2a402"
 
 # test data
-TEST_DATA_URL = BASE_URL + '/vox2_test_aac.zip'
-TEST_MD5SUM = "0d2b3ea430a821c33263b5ea37ede312"
+TEST_LIST = {"vox2_test_aac.zip": "0d2b3ea430a821c33263b5ea37ede312"}
+TEST_TARGET_DATA = "vox2_test_aac.zip vox2_test_aac.zip 0d2b3ea430a821c33263b5ea37ede312"
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -68,6 +80,14 @@ args = parser.parse_args()
 
 
 def create_manifest(data_dir, manifest_path_prefix):
+    """Generate the voxceleb2 dataset manifest file.
+    We will create the ${manifest_path_prefix}.vox2 as the final manifest file 
+    The dev and test wav info will be put in one manifest file.
+
+    Args:
+        data_dir (str): voxceleb2 wav directory, which include dev and test subdataset
+        manifest_path_prefix (str): manifest file prefix
+    """
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
     data_path = os.path.join(data_dir, "**", "*.wav")
@@ -119,7 +139,19 @@ def create_manifest(data_dir, manifest_path_prefix):
         print(f"{total_sec / total_num} sec/utt", file=f)
 
 
-def download_dataset(url, md5sum, target_dir, dataset):
+def download_dataset(base_url, data_list, target_data, target_dir, dataset):
+    """Download the voxceleb2 zip package
+
+    Args:
+        base_url (str): the voxceleb2 dataset download baseline url
+        data_list (dict): the dataset part zip package and the md5 value
+        target_data (str): the final dataset zip info
+        target_dir (str): the dataset stored directory
+        dataset (str): the dataset name, dev or test
+
+    Raises:
+        RuntimeError: the md5sum occurs error
+    """
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
@@ -129,9 +161,34 @@ def download_dataset(url, md5sum, target_dir, dataset):
     # but the test dataset will unzip to aac
     # so, wo create the ${target_dir}/test and unzip the m4a to test dir
     if not os.path.exists(os.path.join(target_dir, dataset)):
-        filepath = download(url, md5sum, target_dir)
+        print(f"start to download the vox2 zip package to {target_dir}")
+        for zip_part in data_list.keys():
+            download_url = " --no-check-certificate " + base_url + "/" + zip_part
+            download(
+                url=download_url,
+                md5sum=data_list[zip_part],
+                target_dir=target_dir)
+
+        # pack the all part to target zip file
+        all_target_part, target_name, target_md5sum = target_data.split()
+        target_name = os.path.join(target_dir, target_name)
+        if not os.path.exists(target_name):
+            pack_part_cmd = "cat {}/{} > {}".format(target_dir, all_target_part,
+                                                    target_name)
+            subprocess.call(pack_part_cmd, shell=True)
+
+        # check the target zip file md5sum
+        if not check_md5sum(target_name, target_md5sum):
+            raise RuntimeError("{} MD5 checkssum failed".format(target_name))
+        else:
+            print("Check {} md5sum successfully".format(target_name))
+
         if dataset == "test":
-            unzip(filepath, os.path.join(target_dir, "test"))
+            # we need make the test directory
+            unzip(target_name, os.path.join(target_dir, "test"))
+        else:
+            # upzip dev zip pacakge and will create the dev directory
+            unzip(target_name, target_dir)
 
 
 def main():
@@ -142,14 +199,16 @@ def main():
     print("download: {}".format(args.download))
     if args.download:
         download_dataset(
-            url=DEV_DATA_URL,
-            md5sum=DEV_MD5SUM,
+            base_url=BASE_URL,
+            data_list=DEV_LIST,
+            target_data=DEV_TARGET_DATA,
             target_dir=args.target_dir,
             dataset="dev")
 
         download_dataset(
-            url=TEST_DATA_URL,
-            md5sum=TEST_MD5SUM,
+            base_url=BASE_URL,
+            data_list=TEST_LIST,
+            target_data=TEST_TARGET_DATA,
             target_dir=args.target_dir,
             dataset="test")
 

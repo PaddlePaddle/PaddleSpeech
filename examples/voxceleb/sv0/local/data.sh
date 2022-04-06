@@ -38,7 +38,10 @@ mkdir -p ${TARGET_DIR}
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
    # download data, generate manifests
-   # we will generate the manifest.{dev, test} file in ${dir}/vox1/ directory
+   # we will generate the manifest.{dev,test} file from ${TARGET_DIR}/voxceleb/vox1/{dev,test} directory
+   # and generate the meta info and download the trial file
+   # manifest.dev: 148642
+   # manifest.test: 4847
    echo "Start to download vox1 dataset and generate the manifest files "
    python3 ${TARGET_DIR}/voxceleb/voxceleb1.py \
       --manifest_prefix="${dir}/vox1/manifest" \
@@ -53,6 +56,8 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
    # download voxceleb2 data
+   # we will download the data and unzip the package
+   # and we will store the m4a file in ${TARGET_DIR}/voxceleb/vox2/{dev,test}
    echo "start to download vox2 dataset"
    python3 ${TARGET_DIR}/voxceleb/voxceleb2.py \
       --download \
@@ -99,7 +104,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
    # Currently, our training system use csv file for dataset
    echo "convert the json format to csv format to be compatible with training process"
    python3 local/make_vox_csv_dataset_from_json.py\
-      --train "${dir}/vox1/manifest.dev" \
+      --train "${dir}/vox1/manifest.dev" "${dir}/vox2/manifest.vox2"\
       --test "${dir}/vox1/manifest.test" \
       --target_dir "${dir}/vox/" \
       --config ${conf_path}

@@ -11,29 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List
-
-from fastapi import APIRouter
-
-from paddlespeech.server.ws.asr_socket import router as asr_router
-from paddlespeech.server.ws.tts_socket import router as tts_router
-
-_router = APIRouter()
-
-
-def setup_router(api_list: List):
-    """setup router for fastapi
-    Args:
-        api_list (List): [asr, tts]
-    Returns:
-        APIRouter
-    """
-    for api_name in api_list:
-        if api_name == 'asr':
-            _router.include_router(asr_router)
-        elif api_name == 'tts':
-            _router.include_router(tts_router)
-        else:
-            pass
-
-    return _router

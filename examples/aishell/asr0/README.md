@@ -173,7 +173,7 @@ bash local/data.sh --stage 2  --stop_stage 2
 
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
 ```
-The performance of the released models are shown in [this](./RESULT.md)
+The performance of the released models are shown in [this](./RESULTS.md)
 ## Stage 4: Static graph model Export
 This stage is to transform dygraph to static graph.
 ```bash

@@ -14,6 +14,8 @@
 
 #include "frontend/audio/linear_spectrogram.h"
 #include "kaldi/base/kaldi-math.h"
+#include "kaldi/feat/feature-common.h"
+#include "kaldi/feat/feature-functions.h"
 #include "kaldi/matrix/matrix-functions.h"
 
 namespace ppspeech {
@@ -21,30 +23,23 @@ namespace ppspeech {
 using kaldi::int32;
 using kaldi::BaseFloat;
 using kaldi::Vector;
+using kaldi::SubVector;
 using kaldi::VectorBase;
 using kaldi::Matrix;
 using std::vector;
 
 LinearSpectrogram::LinearSpectrogram(
     const LinearSpectrogramOptions& opts,
-    std::unique_ptr<FrontendInterface> base_extractor) {
-    opts_ = opts;
+    std::unique_ptr<FrontendInterface> base_extractor)
+    : opts_(opts), feature_window_funtion_(opts.frame_opts) {
     base_extractor_ = std::move(base_extractor);
     int32 window_size = opts.frame_opts.WindowSize();
     int32 window_shift = opts.frame_opts.WindowShift();
-    fft_points_ = window_size;
+    dim_ = window_size / 2 + 1;
     chunk_sample_size_ =
         static_cast<int32>(opts.streaming_chunk * opts.frame_opts.samp_freq);
-    hanning_window_.resize(window_size);
-
-    double a = M_2PI / (window_size - 1);
-    hanning_window_energy_ = 0;
-    for (int i = 0; i < window_size; ++i) {
-        hanning_window_[i] = 0.5 - 0.5 * cos(a * i);
-        hanning_window_energy_ += hanning_window_[i] * hanning_window_[i];
-    }
-
-    dim_ = fft_points_ / 2 + 1;  // the dimension is Fs/2 Hz
+    hanning_window_energy_ = kaldi::VecVec(feature_window_funtion_.window,
+                                           feature_window_funtion_.window);
 }
 
 void LinearSpectrogram::Accept(const VectorBase<BaseFloat>& inputs) {
@@ -56,99 +51,57 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* feats) {
     bool flag = base_extractor_->Read(&input_feats);
     if (flag == false || input_feats.Dim() == 0) return false;
 
-    vector<BaseFloat> input_feats_vec(input_feats.Dim());
-    std::memcpy(input_feats_vec.data(),
-                input_feats.Data(),
-                input_feats.Dim() * sizeof(BaseFloat));
-    vector<vector<BaseFloat>> result;
-    Compute(input_feats_vec, result);
-    int32 feat_size = 0;
-    if (result.size() != 0) {
-        feat_size = result.size() * result[0].size();
-    }
-    feats->Resize(feat_size);
-    // todo refactor (SimleGoat)
-    for (size_t idx = 0; idx < feat_size; ++idx) {
-        (*feats)(idx) = result[idx / dim_][idx % dim_];
-    }
-    return true;
-}
-
-void LinearSpectrogram::Hanning(vector<float>* data) const {
-    CHECK_GE(data->size(), hanning_window_.size());
-
-    for (size_t i = 0; i < hanning_window_.size(); ++i) {
-        data->at(i) *= hanning_window_[i];
-    }
-}
-
-bool LinearSpectrogram::NumpyFft(vector<BaseFloat>* v,
-                                 vector<BaseFloat>* real,
-                                 vector<BaseFloat>* img) const {
-    Vector<BaseFloat> v_tmp;
-    v_tmp.Resize(v->size());
-    std::memcpy(v_tmp.Data(), v->data(), sizeof(BaseFloat) * (v->size()));
-    RealFft(&v_tmp, true);
-    v->resize(v_tmp.Dim());
-    std::memcpy(v->data(), v_tmp.Data(), sizeof(BaseFloat) * (v->size()));
-
-    real->push_back(v->at(0));
-    img->push_back(0);
-    for (int i = 1; i < v->size() / 2; i++) {
-        real->push_back(v->at(2 * i));
-        img->push_back(v->at(2 * i + 1));
-    }
-    real->push_back(v->at(1));
-    img->push_back(0);
-
+    int32 feat_len = input_feats.Dim();
+    int32 left_len = reminded_wav_.Dim();
+    Vector<BaseFloat> waves(feat_len + left_len);
+    waves.Range(0, left_len).CopyFromVec(reminded_wav_);
+    waves.Range(left_len, feat_len).CopyFromVec(input_feats);
+    Compute(waves, feats);
+    int32 frame_shift = opts_.frame_opts.WindowShift();
+    int32 num_frames = kaldi::NumFrames(waves.Dim(), opts_.frame_opts);
+    int32 left_samples = waves.Dim() - frame_shift * num_frames;
+    reminded_wav_.Resize(left_samples);
+    reminded_wav_.CopyFromVec(
+        waves.Range(frame_shift * num_frames, left_samples));
     return true;
 }
 
 // Compute spectrogram feat
-// todo: refactor later (SmileGoat)
-bool LinearSpectrogram::Compute(const vector<float>& waves,
-                                vector<vector<float>>& feats) {
-    int num_samples = waves.size();
-    const int& frame_length = opts_.frame_opts.WindowSize();
-    const int& sample_rate = opts_.frame_opts.samp_freq;
-    const int& frame_shift = opts_.frame_opts.WindowShift();
-    const int& fft_points = fft_points_;
-    const float scale = hanning_window_energy_ * sample_rate;
+bool LinearSpectrogram::Compute(const Vector<BaseFloat>& waves,
+                                Vector<BaseFloat>* feats) {
+    int32 num_samples = waves.Dim();
+    int32 frame_length = opts_.frame_opts.WindowSize();
+    int32 sample_rate = opts_.frame_opts.samp_freq;
+    BaseFloat scale = 2.0 / (hanning_window_energy_ * sample_rate);
 
     if (num_samples < frame_length) {
         return true;
     }
 
-    int num_frames = 1 + ((num_samples - frame_length) / frame_shift);
-    feats.resize(num_frames);
-    vector<float> fft_real((fft_points_ / 2 + 1), 0);
-    vector<float> fft_img((fft_points_ / 2 + 1), 0);
-    vector<float> v(frame_length, 0);
-    vector<float> power((fft_points / 2 + 1));
+    int32 num_frames = kaldi::NumFrames(num_samples, opts_.frame_opts);
+    feats->Resize(num_frames * dim_);
+    Vector<BaseFloat> window;
 
-    for (int i = 0; i < num_frames; ++i) {
-        vector<float> data(waves.data() + i * frame_shift,
-                           waves.data() + i * frame_shift + frame_length);
-        Hanning(&data);
-        fft_img.clear();
-        fft_real.clear();
-        v.assign(data.begin(), data.end());
-        NumpyFft(&v, &fft_real, &fft_img);
+    for (int frame_idx = 0; frame_idx < num_frames; ++frame_idx) {
+        kaldi::ExtractWindow(0,
+                             waves,
+                             frame_idx,
+                             opts_.frame_opts,
+                             feature_window_funtion_,
+                             &window,
+                             NULL);
 
-        feats[i].resize(fft_points / 2 + 1);  // the last dimension is Fs/2 Hz
-        for (int j = 0; j < (fft_points / 2 + 1); ++j) {
-            power[j] = fft_real[j] * fft_real[j] + fft_img[j] * fft_img[j];
-            feats[i][j] = power[j];
-
-            if (j == 0 || j == feats[0].size() - 1) {
-                feats[i][j] /= scale;
-            } else {
-                feats[i][j] *= (2.0 / scale);
-            }
-
-            // log added eps=1e-14
-            feats[i][j] = std::log(feats[i][j] + 1e-14);
-        }
+        SubVector<BaseFloat> output_row(feats->Data() + frame_idx * dim_, dim_);
+        window.Resize(frame_length, kaldi::kCopyData);
+        RealFft(&window, true);
+        kaldi::ComputePowerSpectrum(&window);
+        SubVector<BaseFloat> power_spectrum(window, 0, dim_);
+        power_spectrum.Scale(scale);
+        power_spectrum(0) = power_spectrum(0) / 2;
+        power_spectrum(dim_ - 1) = power_spectrum(dim_ - 1) / 2;
+        power_spectrum.Add(1e-14);
+        power_spectrum.ApplyLog();
+        output_row.CopyFromVec(power_spectrum);
     }
     return true;
 }

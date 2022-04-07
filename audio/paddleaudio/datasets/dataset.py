@@ -17,6 +17,8 @@ import numpy as np
 import paddle
 
 from ..backends import load as load_audio
+from ..compliance.kaldi import fbank as kaldi_fbank
+from ..compliance.kaldi import mfcc as kaldi_mfcc
 from ..compliance.librosa import melspectrogram
 from ..compliance.librosa import mfcc
 
@@ -24,6 +26,8 @@ feat_funcs = {
     'raw': None,
     'melspectrogram': melspectrogram,
     'mfcc': mfcc,
+    'kaldi_fbank': kaldi_fbank,
+    'kaldi_mfcc': kaldi_mfcc,
 }
 
 
@@ -73,16 +77,24 @@ class AudioClassificationDataset(paddle.io.Dataset):
         feat_func = feat_funcs[self.feat_type]
 
         record = {}
-        record['feat'] = feat_func(
-            waveform, sample_rate,
-            **self.feat_config) if feat_func else waveform
+        if self.feat_type in ['kaldi_fbank', 'kaldi_mfcc']:
+            waveform = paddle.to_tensor(waveform).unsqueeze(0)  # (C, T)
+            record['feat'] = feat_func(
+                waveform=waveform, sr=self.sample_rate, **self.feat_config)
+        else:
+            record['feat'] = feat_func(
+                waveform, sample_rate,
+                **self.feat_config) if feat_func else waveform
         record['label'] = label
         return record
 
     def __getitem__(self, idx):
         record = self._convert_to_record(idx)
-        return np.array(record['feat']).transpose(), np.array(
-            record['label'], dtype=np.int64)
+        if self.feat_type in ['kaldi_fbank', 'kaldi_mfcc']:
+            return self.keys[idx], record['feat'], record['label']
+        else:
+            return np.array(record['feat']).transpose(), np.array(
+                record['label'], dtype=np.int64)
 
     def __len__(self):
         return len(self.files)

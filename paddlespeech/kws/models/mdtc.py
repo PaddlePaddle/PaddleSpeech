@@ -179,6 +179,7 @@ class MDTC(nn.Layer):
                          causal))
             self.receptive_fields += self.blocks[-1].receptive_fields
         self.half_receptive_fields = self.receptive_fields // 2
+        self.hidden_dim = res_channels
 
     def forward(self, x: paddle.Tensor):
         if self.causal:
@@ -216,3 +217,30 @@ class MDTC(nn.Layer):
             outputs += x
         outputs = outputs.transpose([0, 2, 1])
         return outputs, None
+
+
+class KWSModel(nn.Layer):
+    def __init__(self, backbone, num_keywords):
+        super(KWSModel, self).__init__()
+        self.backbone = backbone
+        self.linear = nn.Linear(self.backbone.hidden_dim, num_keywords)
+        self.activation = nn.Sigmoid()
+
+    def forward(self, x):
+        outputs = self.backbone(x)
+        outputs = self.linear(outputs)
+        return self.activation(outputs)
+
+
+if __name__ == '__main__':
+    paddle.set_device('cpu')
+    from paddleaudio.features import LogMelSpectrogram
+    mdtc = MDTC(3, 4, 80, 32, 5, causal=True)
+
+    x = paddle.randn(shape=(32, 16000 * 5))
+    feature_extractor = LogMelSpectrogram(sr=16000, n_fft=512, n_mels=80)
+    feats = feature_extractor(x).transpose([0, 2, 1])
+    print(feats.shape)
+
+    res, _ = mdtc(feats)
+    print(res.shape)

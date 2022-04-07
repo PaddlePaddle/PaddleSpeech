@@ -564,8 +564,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     - [中文文本前端](./docs/source/tts/zh_text_frontend.md)
     - [测试语音样本](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - 声纹识别
-    - [音频检索](./demos/audio_searching/README_cn.md)
     - [声纹识别](./demos/speaker_verification/README_cn.md)
+    - [音频检索](./demos/audio_searching/README_cn.md)
   - [声音分类](./demos/audio_tagging/README_cn.md)
   - [语音翻译](./demos/speech_translation/README_cn.md)
   - [服务化部署](./demos/speech_server/README_cn.md)

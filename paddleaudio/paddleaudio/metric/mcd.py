@@ -13,7 +13,7 @@
 # limitations under the License.
 from typing import Callable
 
-import mcd.metrics_fast as mt
+import mcd.metrics as mt
 import numpy as np
 from mcd import dtw
 

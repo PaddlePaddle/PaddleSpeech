@@ -273,6 +273,8 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
+<a name="语音识别模型"></a>
+
 PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识别语言模型和语音翻译, 详情如下：
 
 <table style="width:100%">
@@ -347,6 +349,7 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
 </table>
 
 <a name="语音合成模型"></a>
+
 PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声学模型和声码器。声学模型和声码器模型如下：
 
 <table>

@@ -22,7 +22,8 @@
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
 
-DEFINE_string(feature_respecifier, "", "test feature rspecifier");
+DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
+DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
@@ -45,7 +46,8 @@ int main(int argc, char* argv[]) {
     google::InitGoogleLogging(argv[0]);
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
-        FLAGS_feature_respecifier);
+        FLAGS_feature_rspecifier);
+    kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
     std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
     std::string dict_file = FLAGS_dict_file;
@@ -130,6 +132,7 @@ int main(int argc, char* argv[]) {
         std::string result;
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;
+        result_writer.Write(utt, result);
         decodable->Reset();
         decoder.Reset();
         ++num_done;

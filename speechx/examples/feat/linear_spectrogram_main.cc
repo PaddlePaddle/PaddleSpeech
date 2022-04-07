@@ -30,6 +30,7 @@
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
 DEFINE_string(cmvn_write_path, "./cmvn.ark", "write cmvn");
+DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 
 
 std::vector<float> mean_{
@@ -198,7 +199,7 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
     int sample_rate = 16000;
-    float streaming_chunk = 0.36;
+    float streaming_chunk = FLAGS_streaming_chunk;
     int chunk_sample_size = streaming_chunk * sample_rate;
     LOG(INFO) << "sr: " << sample_rate;
     LOG(INFO) << "chunk size (s): " << streaming_chunk;

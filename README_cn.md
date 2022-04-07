@@ -565,7 +565,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     - [声纹提取](./demos/speaker_verification/README_cn.md)
   - [声音分类](./demos/audio_tagging/README_cn.md)
   - [语音翻译](./demos/speech_translation/README_cn.md)
-  - [服务化部署](./demos/speech_server)
+  - [服务化部署](./demos/speech_server/README_cn.md)
 - [模型列表](#模型列表)
   - [语音识别](#语音识别模型)
   - [语音合成](#语音合成模型)

@@ -1,7 +1,7 @@
 train_output_path=$1
 
-stage=1
-stop_stage=1
+stage=0
+stop_stage=0
 
 # only support default_fastspeech2 + hifigan now!
 

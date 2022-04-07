@@ -29,11 +29,6 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
   paddlespeech vector --task spk --input vec.job
 
   echo -e "demo2 85236145389.wav \n demo3 85236145389.wav" | paddlespeech vector --task spk
-  
-  paddlespeech vector --task score --input "./85236145389.wav ./123456789.wav"
-  
-  echo -e "demo4 85236145389.wav 85236145389.wav \n demo5 85236145389.wav 123456789.wav" > vec.job
-  paddlespeech vector --task score --input vec.job
   ```
   
   使用方法：

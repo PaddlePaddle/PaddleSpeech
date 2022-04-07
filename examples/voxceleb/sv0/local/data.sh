@@ -85,7 +85,7 @@ fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
    # generate the vox2 manifest file from wav file
-   # we will generate the manifest.vox2 in ${dir}/vox2 directory
+   # we will generate the ${dir}/vox2/manifest.vox2
    # because we use all the vox2 dataset to train, so collect all the vox2 data in one file
    echo "start generate the vox2 manifest files"
    python3 ${TARGET_DIR}/voxceleb/voxceleb2.py \

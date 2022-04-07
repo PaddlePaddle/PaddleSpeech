@@ -37,7 +37,6 @@ from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.scheduler import CyclicLRScheduler
 from paddlespeech.vector.training.seeding import seed_everything
 from paddlespeech.vector.utils.time import Timer
-# from paddleaudio.datasets.voxceleb import VoxCeleb
 
 logger = Log(__name__).getlog()
 

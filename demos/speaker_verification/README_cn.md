@@ -115,6 +115,8 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
       audio_file='./123456789.wav',
       device=paddle.get_device())
   print('Test embedding Result: \n{}'.format(test_emb))
+
+  # score range [0, 1]
   score = vector_executor.get_embeddings_score(audio_emb, test_emb)
   print(f"Eembeddings Score: {score}")
   ```

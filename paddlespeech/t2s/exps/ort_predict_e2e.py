@@ -79,6 +79,13 @@ def ort_predict(args):
         voc_sess.run(None, {"logmel": data})
     print("warm up done!")
 
+    # frontend warmup
+    # Loading model cost 0.5+ seconds
+    if args.lang == 'zh':
+        frontend.get_input_ids("你好，欢迎使用飞桨框架进行深度学习研究！", merge_sentences=True)
+    else:
+        print("lang should in be 'zh' here!")
+
     N = 0
     T = 0
     merge_sentences = True
@@ -132,9 +139,7 @@ def parse_args():
         '--voc',
         type=str,
         default='hifigan_csmsc',
-        choices=[
-            'hifigan_csmsc', 'mb_melgan_csmsc'
-        ],
+        choices=['hifigan_csmsc', 'mb_melgan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
     parser.add_argument(

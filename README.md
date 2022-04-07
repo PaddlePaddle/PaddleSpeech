@@ -571,7 +571,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Advanced Usage](./docs/source/tts/advanced_usage.md)
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
-  - [Speaker Verification]
+  - Speaker Verification
     - [Audio Searching](./demos/audio_searching/README.md)
     - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Audio Classification](./demos/audio_tagging/README.md)

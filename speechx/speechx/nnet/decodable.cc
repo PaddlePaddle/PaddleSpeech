@@ -48,7 +48,7 @@ BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     CHECK_LE(index, nnet_cache_.NumCols());
     CHECK_LE(frame, frames_ready_);
     int32 frame_idx = frame - frame_offset_;
-    return nnet_cache_(frame_idx, index);
+    return std::log(nnet_cache_(frame_idx, index) + std::numeric_limits<float>::min());
 }
 
 bool Decodable::EnsureFrameHaveComputed(int32 frame) {
@@ -65,9 +65,20 @@ bool Decodable::AdvanceChunk() {
     }
     int32 nnet_dim = 0;
     Vector<BaseFloat> inferences;
+    Matrix<BaseFloat> nnet_cache_tmp;
     nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
-    nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
-    nnet_cache_.CopyRowsFromVec(inferences);
+    nnet_cache_tmp.Resize(inferences.Dim() / nnet_dim, nnet_dim);
+    nnet_cache_tmp.CopyRowsFromVec(inferences);
+    // skip blank
+    vector<int> no_blank_record;
+    BaseFloat blank_threshold = 0.98;
+    for (int32 idx = 0; idx < nnet_cache_.NumRows(); ++idx) {
+      if (nnet_cache_(idx, 0) > blank_threshold) {
+             
+      }
+    }
+    
+    
     frame_offset_ = frames_ready_;
     frames_ready_ += nnet_cache_.NumRows();
     return true;

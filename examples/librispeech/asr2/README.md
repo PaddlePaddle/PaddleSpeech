@@ -1,4 +1,4 @@
-# Transformer/Conformer ASR with Librispeech Asr2
+# Transformer/Conformer ASR with Librispeech ASR2
 
 This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Librispeech dataset](http://www.openslr.org/resources/12) and use some functions in kaldi.
 

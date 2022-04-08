@@ -25,7 +25,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.cluster import diarization as diar
-from utils.compute_der import DER
+from utils.DER import DER
 
 # Logger setup
 logger = Log(__name__).getlog()

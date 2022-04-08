@@ -145,7 +145,6 @@ CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoi
 ## Pretrained Model
 You can get the pretrained transformer or conformer from [this](../../../docs/source/released_model.md)
 
-```
 using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:

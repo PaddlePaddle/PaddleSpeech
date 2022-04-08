@@ -165,7 +165,7 @@ bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
 ```
-The performance of the released models are shown in (here)[./RESULTS.md].
+The performance of the released models are shown in [here](./RESULTS.md).
 
 ## Stage 4: CTC Alignment 
 If you want to get the alignment between the audio and the text, you can use the ctc alignment. The code of this stage is shown below:

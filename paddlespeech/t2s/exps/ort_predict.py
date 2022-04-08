@@ -69,13 +69,13 @@ def ort_predict(args):
     voc_sess = get_sess(args, filed='voc')
 
     # am warmup
-    for batch in [27, 38, 54]:
-        data = np.random.randint(1, 266, size=(batch, ))
+    for T in [27, 38, 54]:
+        data = np.random.randint(1, 266, size=(T, ))
         am_sess.run(None, {"text": data})
 
     # voc warmup
-    for batch in [227, 308, 544]:
-        data = np.random.rand(batch, 80).astype("float32")
+    for T in [227, 308, 544]:
+        data = np.random.rand(T, 80).astype("float32")
         voc_sess.run(None, {"logmel": data})
     print("warm up done!")
 
@@ -120,9 +120,7 @@ def parse_args():
         '--voc',
         type=str,
         default='hifigan_csmsc',
-        choices=[
-            'hifigan_csmsc', 'mb_melgan_csmsc'
-        ],
+        choices=['hifigan_csmsc', 'mb_melgan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
     parser.add_argument(

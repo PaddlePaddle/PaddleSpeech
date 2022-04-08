@@ -126,3 +126,17 @@ def float2pcm(sig, dtype='int16'):
     abs_max = 2**(i.bits - 1)
     offset = i.min + abs_max
     return (sig * abs_max + offset).clip(i.min, i.max).astype(dtype)
+
+
+def pcm2float(data):
+    """pcm int16 to float32
+    Args:
+        audio(numpy.array): numpy.int16
+    Returns:
+        audio(numpy.array): numpy.float32
+    """
+    if data.dtype == np.int16:
+        data = data.astype("float32")
+        bits = np.iinfo(np.int16).bits
+        data = data / (2**(bits - 1))
+    return data

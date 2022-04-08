@@ -35,10 +35,23 @@ def self_check():
 
 
 def denorm(data, mean, std):
+    """stream am model need to denorm
+    """
     return data * std + mean
 
 
 def get_chunks(data, block_size, pad_size, step):
+    """Divide data into multiple chunks
+
+    Args:
+        data (tensor): data
+        block_size (int): [description]
+        pad_size (int): [description]
+        step (str): set "am" or "voc", generate chunk for step am or vocoder(voc)
+
+    Returns:
+        list: chunks list
+    """
     if step == "am":
         data_len = data.shape[1]
     elif step == "voc":

@@ -25,7 +25,7 @@ st = 0.0
 all_bytes = b''
 
 
-class Ws_Param(object):
+class WsParam(object):
     # 初始化
     def __init__(self, text, server="127.0.0.1", port=8090):
         self.server = server
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print("Sentence to be synthesized: ", args.text)
     print("***************************************")
 
-    wsParam = Ws_Param(text=args.text, server=args.server, port=args.port)
+    wsParam = WsParam(text=args.text, server=args.server, port=args.port)
 
     websocket.enableTrace(False)
     wsUrl = wsParam.create_url()

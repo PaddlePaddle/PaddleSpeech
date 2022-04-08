@@ -44,11 +44,11 @@ async def websocket_endpoint(websocket: WebSocket):
         sentence = tts_engine.preprocess(text_bese64=text_bese64)
 
         # run
-        wav = tts_engine.run(sentence)
+        wav_generator = tts_engine.run(sentence)
 
         while True:
             try:
-                tts_results = next(wav)
+                tts_results = next(wav_generator)
                 resp = {"status": 1, "audio": tts_results}
                 await websocket.send_json(resp)
                 logger.info("streaming audio...")

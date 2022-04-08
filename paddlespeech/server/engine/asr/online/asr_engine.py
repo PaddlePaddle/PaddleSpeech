@@ -36,7 +36,7 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
         'md5':
-        'd5e076217cf60486519f72c217d21b9b',
+        '23e16c69730a1cb5d735c98c83c21e16',
         'cfg_path':
         'model.yaml',
         'ckpt_path':

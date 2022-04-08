@@ -151,15 +151,8 @@ avg.sh best exp/deepspeech2/checkpoints 1
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
 ```
 ## Pretrained Model
-You can get the pretrained transformer or conformer using the scripts below:
-```bash
-Deepspeech2 offline:
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
+You can get the pretrained models from [this](../../../docs/source/released_model.md).
 
-Deepspeech2 online:
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
-
-```
 using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:

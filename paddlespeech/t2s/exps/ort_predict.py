@@ -36,7 +36,7 @@ def get_sess(args, filed='am'):
     sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
 
     if args.device == "gpu":
-        # fastspeech2 can't use trt now!
+        # fastspeech2/mb_melgan can't use trt now!
         if args.use_trt:
             providers = ['TensorrtExecutionProvider']
         else:

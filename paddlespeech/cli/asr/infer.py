@@ -80,9 +80,9 @@ pretrained_models = {
     },
     "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
         'md5':
-        'd5e076217cf60486519f72c217d21b9b',
+        '23e16c69730a1cb5d735c98c83c21e16',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
@@ -426,6 +426,11 @@ class ASRExecutor(BaseExecutor):
         try:
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
+            audio_duration = audio.shape[0] / audio_sample_rate
+            max_duration = 50.0
+            if audio_duration >= max_duration:
+                logger.error("Please input audio file less then 50 seconds.\n")
+                return
         except Exception as e:
             logger.exception(e)
             logger.error(

@@ -463,10 +463,10 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tactron2</td>
+      <td>GE2E + Tacotron2</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
       </td>
     </tr>
     <tr>

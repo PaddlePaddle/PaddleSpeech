@@ -450,10 +450,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tactron2</td>
+      <td>GE2E + Tacotron2</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
       </td>
     </tr>
     <tr>

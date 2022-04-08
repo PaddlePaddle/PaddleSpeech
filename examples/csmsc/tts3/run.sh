@@ -52,6 +52,6 @@ fi
 
 # inference with onnxruntime, use fastspeech2 + hifigan by default
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
-    # pip install onnxruntime
+    pip install onnxruntime
     ./local/ort_predict.sh ${train_output_path}
 fi

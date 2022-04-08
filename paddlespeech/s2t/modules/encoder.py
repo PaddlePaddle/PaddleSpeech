@@ -23,6 +23,7 @@ from paddle import nn
 from typeguard import check_argument_types
 
 from paddlespeech.s2t.modules.activation import get_activation
+from paddlespeech.s2t.modules.align import LayerNorm
 from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention
 from paddlespeech.s2t.modules.conformer_convolution import ConvolutionModule
@@ -129,7 +130,7 @@ class BaseEncoder(nn.Layer):
                 d_model=output_size, dropout_rate=positional_dropout_rate), )
 
         self.normalize_before = normalize_before
-        self.after_norm = nn.LayerNorm(output_size, epsilon=1e-12)
+        self.after_norm = LayerNorm(output_size, epsilon=1e-12)
         self.static_chunk_size = static_chunk_size
         self.use_dynamic_chunk = use_dynamic_chunk
         self.use_dynamic_left_chunk = use_dynamic_left_chunk
@@ -457,6 +458,7 @@ class ConformerEncoder(BaseEncoder):
             cnn_module_norm (str): cnn conv norm type, Optional['batch_norm','layer_norm']
         """
         assert check_argument_types()
+
         super().__init__(input_size, output_size, attention_heads, linear_units,
                          num_blocks, dropout_rate, positional_dropout_rate,
                          attention_dropout_rate, input_layer,

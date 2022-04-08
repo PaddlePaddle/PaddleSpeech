@@ -7,7 +7,7 @@ ckpt_name=$3
 stage=0
 stop_stage=0
 
-# TODO: tacotron2 动转静的结果没有静态图的响亮, 可能还是 decode 的时候某个函数动静不对齐
+# TODO: tacotron2 动转静的结果没有动态图的响亮, 可能还是 decode 的时候某个函数动静不对齐
 # pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_allocator_strategy=naive_best_fit \

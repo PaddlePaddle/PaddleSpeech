@@ -11,19 +11,46 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import glob
+import os
+
 import setuptools
+from setuptools.command.install import install
+from setuptools.command.test import test
 
 # set the version here
-VERSION = '0.2.0'
+VERSION = '0.2.1'
+
+
+# Inspired by the example at https://pytest.org/latest/goodpractises.html
+class TestCommand(test):
+    def finalize_options(self):
+        test.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run(self):
+        self.run_benchmark()
+        super(TestCommand, self).run()
+
+    def run_tests(self):
+        # Run nose ensuring that argv simulates running nosetests directly
+        import nose
+        nose.run_exit(argv=['nosetests', '-w', 'tests'])
+
+    def run_benchmark(self):
+        for benchmark_item in glob.glob('tests/benchmark/*py'):
+            os.system(f'pytest {benchmark_item}')
+
+
+class InstallCommand(install):
+    def run(self):
+        install.run(self)
 
 
 def write_version_py(filename='paddleaudio/__init__.py'):
-    import paddleaudio
-    if hasattr(paddleaudio,
-               "__version__") and paddleaudio.__version__ == VERSION:
-        return
     with open(filename, "a") as f:
-        f.write(f"\n__version__ = '{VERSION}'\n")
+        f.write(f"__version__ = '{VERSION}'")
 
 
 def remove_version_py(filename='paddleaudio/__init__.py'):
@@ -35,6 +62,7 @@ def remove_version_py(filename='paddleaudio/__init__.py'):
                 f.write(line)
 
 
+remove_version_py()
 write_version_py()
 
 setuptools.setup(
@@ -54,13 +82,18 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'numpy >= 1.15.0',
-        'scipy >= 1.0.0',
-        'resampy >= 0.2.2',
-        'soundfile >= 0.9.0',
-        'colorlog',
-        'dtaidistance >= 2.3.6',
-        'mcd >= 0.4',
-    ], )
+        'numpy >= 1.15.0', 'scipy >= 1.0.0', 'resampy >= 0.2.2',
+        'soundfile >= 0.9.0', 'colorlog', 'dtaidistance == 2.3.1', 'pathos'
+        ],
+    extras_require={
+        'test': [
+            'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1',
+            'torchaudio==0.10.2', 'pytest-benchmark'
+        ],
+    },
+    cmdclass={
+        'install': InstallCommand,
+        'test': TestCommand,
+    }, )
 
 remove_version_py()

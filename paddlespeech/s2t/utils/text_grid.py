@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from wenet(https://github.com/wenet-e2e/wenet)
 from typing import Dict
 from typing import List
 from typing import Text

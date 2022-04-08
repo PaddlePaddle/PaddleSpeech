@@ -18,6 +18,7 @@ from .base_commands import ClientHelpCommand
 from .base_commands import ServerBaseCommand
 from .base_commands import ServerHelpCommand
 from .bin.paddlespeech_client import ASRClientExecutor
+from .bin.paddlespeech_client import CLSClientExecutor
 from .bin.paddlespeech_client import TTSClientExecutor
 from .bin.paddlespeech_server import ServerExecutor
 

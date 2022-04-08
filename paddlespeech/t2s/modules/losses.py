@@ -489,7 +489,7 @@ def stft(x,
     """
     # calculate window
     window = signal.get_window(window, win_length, fftbins=True)
-    window = paddle.to_tensor(window)
+    window = paddle.to_tensor(window, dtype=x.dtype)
     x_stft = paddle.signal.stft(
         x,
         fft_size,
@@ -896,7 +896,7 @@ class MelSpectrogram(nn.Layer):
             # calculate window
             window = signal.get_window(
                 self.window, self.win_length, fftbins=True)
-            window = paddle.to_tensor(window)
+            window = paddle.to_tensor(window, dtype=x.dtype)
         else:
             window = None
 

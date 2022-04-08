@@ -20,12 +20,12 @@ of each audio file in the data set.
 """
 import argparse
 import codecs
-import distutils.util
 import io
 import json
 import os
 from multiprocessing.pool import Pool
 
+import distutils.util
 import soundfile
 
 from utils.utility import download

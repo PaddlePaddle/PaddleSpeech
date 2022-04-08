@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from espnet(https://github.com/espnet/espnet)
 """This module provides functions to calculate bleu score in different level.
 e.g. wer for word-level, cer for char-level.
 """

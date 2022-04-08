@@ -21,28 +21,11 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.t2s.exps.syn_utils import get_am_inference
+from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
-from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPreprocessor
 from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
-
-model_alias = {
-    # acoustic model
-    "fastspeech2":
-    "paddlespeech.t2s.models.fastspeech2:FastSpeech2",
-    "fastspeech2_inference":
-    "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
-    "tacotron2":
-    "paddlespeech.t2s.models.tacotron2:Tacotron2",
-    "tacotron2_inference":
-    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
-    # voc
-    "pwgan":
-    "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
-    "pwgan_inference":
-    "paddlespeech.t2s.models.parallel_wavegan:PWGInference",
-}
 
 
 def voice_cloning(args):
@@ -79,55 +62,14 @@ def voice_cloning(args):
     speaker_encoder.eval()
     print("GE2E Done!")
 
-    with open(args.phones_dict, "r") as f:
-        phn_id = [line.strip().split() for line in f.readlines()]
-    vocab_size = len(phn_id)
-    print("vocab_size:", vocab_size)
-
-    # acoustic model
-    odim = am_config.n_mels
-    # model: {model_name}_{dataset}
-    am_name = args.am[:args.am.rindex('_')]
-    am_dataset = args.am[args.am.rindex('_') + 1:]
-
-    am_class = dynamic_import(am_name, model_alias)
-    am_inference_class = dynamic_import(am_name + '_inference', model_alias)
-
-    if am_name == 'fastspeech2':
-        am = am_class(
-            idim=vocab_size, odim=odim, spk_num=None, **am_config["model"])
-    elif am_name == 'tacotron2':
-        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
-
-    am.set_state_dict(paddle.load(args.am_ckpt)["main_params"])
-    am.eval()
-    am_mu, am_std = np.load(args.am_stat)
-    am_mu = paddle.to_tensor(am_mu)
-    am_std = paddle.to_tensor(am_std)
-    am_normalizer = ZScore(am_mu, am_std)
-    am_inference = am_inference_class(am_normalizer, am)
-    am_inference.eval()
-    print("acoustic model done!")
-
-    # vocoder
-    # model: {model_name}_{dataset}
-    voc_name = args.voc[:args.voc.rindex('_')]
-    voc_class = dynamic_import(voc_name, model_alias)
-    voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
-    voc = voc_class(**voc_config["generator_params"])
-    voc.set_state_dict(paddle.load(args.voc_ckpt)["generator_params"])
-    voc.remove_weight_norm()
-    voc.eval()
-    voc_mu, voc_std = np.load(args.voc_stat)
-    voc_mu = paddle.to_tensor(voc_mu)
-    voc_std = paddle.to_tensor(voc_std)
-    voc_normalizer = ZScore(voc_mu, voc_std)
-    voc_inference = voc_inference_class(voc_normalizer, voc)
-    voc_inference.eval()
-    print("voc done!")
-
     frontend = Frontend(phone_vocab_path=args.phones_dict)
     print("frontend done!")
+
+    # acoustic model
+    am_inference, *_ = get_am_inference(args, am_config)
+
+    # vocoder
+    voc_inference = get_voc_inference(args, voc_config)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -170,7 +112,7 @@ def voice_cloning(args):
     print(f"{utt_id} done!")
 
 
-def main():
+def parse_args():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
@@ -240,6 +182,11 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
 
     args = parser.parse_args()
+    return args
+
+
+def main():
+    args = parse_args()
 
     if args.ngpu == 0:
         paddle.set_device("cpu")

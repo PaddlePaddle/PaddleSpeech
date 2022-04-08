@@ -18,6 +18,7 @@ from paddle import nn
 from paddle.nn import functional as F
 from typeguard import check_argument_types
 
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.loss import CTCLoss
 from paddlespeech.s2t.utils import ctc_utils
 from paddlespeech.s2t.utils.log import Log
@@ -69,7 +70,7 @@ class CTCDecoderBase(nn.Layer):
         self.blank_id = blank_id
         self.odim = odim
         self.dropout = nn.Dropout(dropout_rate)
-        self.ctc_lo = nn.Linear(enc_n_units, self.odim)
+        self.ctc_lo = Linear(enc_n_units, self.odim)
         reduction_type = "sum" if reduction else "none"
         self.criterion = CTCLoss(
             blank=self.blank_id,

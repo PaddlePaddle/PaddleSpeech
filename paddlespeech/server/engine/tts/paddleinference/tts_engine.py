@@ -250,27 +250,21 @@ class TTSServerExecutor(TTSExecutor):
             self.frontend = English(phone_vocab_path=self.phones_dict)
         logger.info("frontend done!")
 
-        try:
-            # am predictor
-            self.am_predictor_conf = am_predictor_conf
-            self.am_predictor = init_predictor(
-                model_file=self.am_model,
-                params_file=self.am_params,
-                predictor_conf=self.am_predictor_conf)
-            logger.info("Create AM predictor successfully.")
-        except BaseException:
-            logger.error("Failed to create AM predictor.")
+        # Create am predictor
+        self.am_predictor_conf = am_predictor_conf
+        self.am_predictor = init_predictor(
+            model_file=self.am_model,
+            params_file=self.am_params,
+            predictor_conf=self.am_predictor_conf)
+        logger.info("Create AM predictor successfully.")
 
-        try:
-            # voc predictor
-            self.voc_predictor_conf = voc_predictor_conf
-            self.voc_predictor = init_predictor(
-                model_file=self.voc_model,
-                params_file=self.voc_params,
-                predictor_conf=self.voc_predictor_conf)
-            logger.info("Create Vocoder predictor successfully.")
-        except BaseException:
-            logger.error("Failed to create Vocoder predictor.")
+        # Create voc predictor
+        self.voc_predictor_conf = voc_predictor_conf
+        self.voc_predictor = init_predictor(
+            model_file=self.voc_model,
+            params_file=self.voc_params,
+            predictor_conf=self.voc_predictor_conf)
+        logger.info("Create Vocoder predictor successfully.")
 
     @paddle.no_grad()
     def infer(self,
@@ -359,27 +353,22 @@ class TTSEngine(BaseEngine):
     def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
 
-        try:
-            self.config = config
-            self.executor._init_from_path(
-                am=self.config.am,
-                am_model=self.config.am_model,
-                am_params=self.config.am_params,
-                am_sample_rate=self.config.am_sample_rate,
-                phones_dict=self.config.phones_dict,
-                tones_dict=self.config.tones_dict,
-                speaker_dict=self.config.speaker_dict,
-                voc=self.config.voc,
-                voc_model=self.config.voc_model,
-                voc_params=self.config.voc_params,
-                voc_sample_rate=self.config.voc_sample_rate,
-                lang=self.config.lang,
-                am_predictor_conf=self.config.am_predictor_conf,
-                voc_predictor_conf=self.config.voc_predictor_conf, )
-
-        except BaseException:
-            logger.error("Initialize TTS server engine Failed.")
-            return False
+        self.config = config
+        self.executor._init_from_path(
+            am=self.config.am,
+            am_model=self.config.am_model,
+            am_params=self.config.am_params,
+            am_sample_rate=self.config.am_sample_rate,
+            phones_dict=self.config.phones_dict,
+            tones_dict=self.config.tones_dict,
+            speaker_dict=self.config.speaker_dict,
+            voc=self.config.voc,
+            voc_model=self.config.voc_model,
+            voc_params=self.config.voc_params,
+            voc_sample_rate=self.config.voc_sample_rate,
+            lang=self.config.lang,
+            am_predictor_conf=self.config.am_predictor_conf,
+            voc_predictor_conf=self.config.voc_predictor_conf, )
 
         logger.info("Initialize TTS server engine successfully.")
         return True
@@ -542,4 +531,4 @@ class TTSEngine(BaseEngine):
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
 
-        return lang, target_sample_rate, wav_base64
+        return lang, target_sample_rate, duration, wav_base64

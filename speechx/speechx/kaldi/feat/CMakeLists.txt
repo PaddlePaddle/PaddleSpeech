@@ -15,5 +15,6 @@ add_library(kaldi-feat-common
   feature-window.cc
   resample.cc
   mel-computations.cc
+  cmvn.cc
 )
 target_link_libraries(kaldi-feat-common PUBLIC kaldi-base kaldi-matrix kaldi-util)

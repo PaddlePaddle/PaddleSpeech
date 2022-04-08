@@ -1,0 +1,88 @@
+version: '3.5'
+
+services:
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.0
+    networks:
+      app_net:
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2020-12-03T00-03-10Z
+    networks:
+      app_net:
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.0.1
+    networks:
+      app_net:
+        ipv4_address: 172.16.23.10
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    ports:
+      - "19530:19530"
+    depends_on:
+      - "etcd"
+      - "minio"
+  
+  mysql:
+    container_name: audio-mysql
+    image: mysql:5.7
+    networks:
+      app_net:
+        ipv4_address: 172.16.23.11
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  webclient:
+    container_name: audio-webclient
+    image: paddlepaddle/paddlespeech-audio-search-client:2.3
+    networks:
+      app_net:
+        ipv4_address: 172.16.23.13
+    environment:
+      API_URL: 'http://127.0.0.1:8002'
+    ports:
+      - "8068:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.23.0/24
+          gateway: 172.16.23.1

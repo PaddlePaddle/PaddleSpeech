@@ -7,6 +7,7 @@
 
   <h3>
   <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
 </div>
@@ -178,7 +179,9 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos on Hugging Face Spaces are available!
+- 👏🏻  2022.03.28: PaddleSpeech Server is available for Audio Classification, Automatic Speech Recognition and Text-to-Speech.
+- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verification.
+- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
 ### Community
@@ -203,10 +206,16 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 paddlespeech cls --input input.wav
 ```
 
+**Speaker Verification**
+```
+paddlespeech vector --task spk --input input_16k.wav
+```
+
 **Automatic Speech Recognition**
 ```shell
 paddlespeech asr --lang zh --input input_16k.wav
 ```
+- web demo for Automatic Speech Recognition is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [ASR Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR)
 
 **Speech Translation** (English to Chinese)
 (not support for Mac and Windows now)
@@ -218,7 +227,7 @@ paddlespeech st --input input_16k.wav
 ```shell
 paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
 ```
-- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
+- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS)
 
 **Text Postprocessing** 
 - Punctuation Restoration
@@ -240,6 +249,36 @@ paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 
 If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+
+
+<a name="quickstartserver"></a>
+## Quick Start Server
+
+Developers can have a try of our speech server with [PaddleSpeech Server Command Line](./paddlespeech/server/README.md).
+
+**Start server**     
+```shell
+paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+```
+
+**Access Speech Recognition Services**     
+```shell
+paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```
+
+**Access Text to Speech Services**     
+```shell
+paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+```
+
+**Access Audio Classification Services**     
+```shell
+paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
+```
+
+
+For more information about server command lines, please see: [speech server demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
+
 
 ## Model List
 
@@ -397,9 +436,9 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td >HiFiGAN</td>
-      <td >CSMSC</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
       </td>
     </tr>
     <tr>
@@ -457,6 +496,29 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+**Speaker Verification**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Verification</td>
+      <td>VoxCeleb12</td>
+      <td>ECAPA-TDNN</td>
+      <td>
+      <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 **Punctuation Restoration**
 
 <table style="width:100%">
@@ -498,6 +560,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - [Audio Classification](./demos/audio_tagging/README.md)
+  - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Speech Translation](./demos/speech_translation/README.md)
 - [Released Models](./docs/source/released_model.md)
 - [Community](#Community)
@@ -573,7 +636,6 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) for years of attention, constructive advice and great help.
-- Many thanks to [AK391](https://github.com/AK391) for TTS web demo on Huggingface Spaces using Gradio.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
 - Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.
 - Many thanks to [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) for contributing Punctuation Restoration model.

@@ -35,10 +35,12 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
     Returns:
         predictor (PaddleInferPredictor): created predictor
     """
-
     if model_dir is not None:
+        assert os.path.isdir(model_dir), 'Please check model dir.'
         config = Config(args.model_dir)
     else:
+        assert os.path.isfile(model_file) and os.path.isfile(
+            params_file), 'Please check model and parameter files.'
         config = Config(model_file, params_file)
 
     # set device
@@ -66,7 +68,6 @@ def init_predictor(model_dir: Optional[os.PathLike]=None,
     config.enable_memory_optim()
 
     predictor = create_predictor(config)
-
     return predictor
 
 
@@ -84,10 +85,8 @@ def run_model(predictor, input: List) -> List:
     for i, name in enumerate(input_names):
         input_handle = predictor.get_input_handle(name)
         input_handle.copy_from_cpu(input[i])
-
     # do the inference
     predictor.run()
-
     results = []
     # get out data from output tensor
     output_names = predictor.get_output_names()

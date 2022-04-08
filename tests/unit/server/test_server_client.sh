@@ -33,15 +33,21 @@ ClientTest(){
     ((test_times+=1))
     paddlespeech_client tts --server_ip $server_ip --port $port --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav 
     ((test_times+=1))  
+
+    # test cls client
+    paddlespeech_client cls --server_ip $server_ip --port $port --input ./zh.wav 
+    ((test_times+=1))
+    paddlespeech_client cls --server_ip $server_ip --port $port --input ./zh.wav 
+    ((test_times+=1)) 
 }
 
 GetTestResult() {
     # Determine if the test was successful
     response_success_time=$(cat log/server.log | grep "200 OK" -c)
     if (( $response_success_time == $test_times )) ; then
-        echo "Testing successfully. The service configuration is: asr engine type: $1; tts engine type: $1; device: $2."  | tee -a ./log/test_result.log
+        echo "Testing successfully. The service configuration is: asr engine type: $1; tts engine type: $1; cls engine type: $1; device: $2."  | tee -a ./log/test_result.log
     else
-        echo "Testing failed. The service configuration is: asr engine type: $1; tts engine type: $1; device: $2." | tee -a ./log/test_result.log
+        echo "Testing failed. The service configuration is: asr engine type: $1; tts engine type: $1; cls engine type: $1; device: $2." | tee -a ./log/test_result.log
     fi
     test_times=$response_success_time
 }
@@ -74,8 +80,8 @@ target_start_num=0  # the number of start service
 test_times=0  # The number of client test
 error_time=0  # The number of error occurrences in the startup failure server.log.wf file
 
-# start server: asr engine type: python; tts engine type: python; device: gpu
-echo "Start the service: asr engine type: python; tts engine type: python; device: gpu"  | tee -a ./log/test_result.log
+# start server: asr engine type: python; tts engine type: python; cls engine type: python; device: gpu
+echo "Start the service: asr engine type: python; tts engine type: python; cls engine type: python; device: gpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
 StartService
 
@@ -98,11 +104,12 @@ echo "**************************************************************************
 
 
 
-# start server: asr engine type: python; tts engine type: python; device: cpu
-python change_yaml.py --change_task device-asr_python-cpu    # change asr.yaml device: cpu
-python change_yaml.py --change_task device-tts_python-cpu    # change tts.yaml device: cpu
+# start server: asr engine type: python; tts engine type: python; cls engine type: python; device: cpu
+python change_yaml.py --change_task device-asr_python-cpu    # change asr_python device: cpu
+python change_yaml.py --change_task device-tts_python-cpu    # change tts_python device: cpu
+python change_yaml.py --change_task device-cls_python-cpu    # change cls_python device: cpu
 
-echo "Start the service: asr engine type: python; tts engine type: python; device: cpu"  | tee -a ./log/test_result.log
+echo "Start the service: asr engine type: python; tts engine type: python; cls engine type: python; device: cpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
 StartService
 
@@ -124,11 +131,12 @@ sleep 2s
 echo "**************************************************************************************" | tee -a ./log/test_result.log
 
 
-# start server: asr engine type: inference; tts engine type: inference; device: gpu
-python change_yaml.py --change_task enginetype-asr_inference    # change application.yaml, asr engine_type: inference; asr engine_backend: asr_pd.yaml
-python change_yaml.py --change_task enginetype-tts_inference    # change application.yaml, tts engine_type: inference; tts engine_backend: tts_pd.yaml
+# start server: asr engine type: inference; tts engine type: inference; cls engine type: inference; device: gpu
+python change_yaml.py --change_task enginetype-asr_inference    # change engine_list: 'asr_python' -> 'asr_inference'
+python change_yaml.py --change_task enginetype-tts_inference    # change engine_list: 'tts_python' -> 'tts_inference'
+python change_yaml.py --change_task enginetype-cls_inference    # change engine_list: 'cls_python' -> 'cls_inference'
 
-echo "Start the service: asr engine type: inference; tts engine type: inference; device: gpu"  | tee -a ./log/test_result.log
+echo "Start the service: asr engine type: inference; tts engine type: inference; cls engine type: inference; device: gpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
 StartService
 
@@ -150,11 +158,12 @@ sleep 2s
 echo "**************************************************************************************" | tee -a ./log/test_result.log
 
 
-# start server: asr engine type: inference; tts engine type: inference; device: cpu
-python change_yaml.py --change_task device-asr_inference-cpu    # change asr_pd.yaml device: cpu
-python change_yaml.py --change_task device-tts_inference-cpu    # change tts_pd.yaml device: cpu
+# start server: asr engine type: inference; tts engine type: inference; cls engine type: inference; device: cpu
+python change_yaml.py --change_task device-asr_inference-cpu    # change asr_inference device: cpu
+python change_yaml.py --change_task device-tts_inference-cpu    # change tts_inference device: cpu
+python change_yaml.py --change_task device-cls_inference-cpu    # change cls_inference device: cpu
 
-echo "start the service: asr engine type: inference; tts engine type: inference; device: cpu"  | tee -a ./log/test_result.log
+echo "start the service: asr engine type: inference; tts engine type: inference; cls engine type: inference; device: cpu"  | tee -a ./log/test_result.log
 ((target_start_num+=1))
 StartService
 

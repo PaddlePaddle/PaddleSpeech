@@ -6,6 +6,7 @@
 
   <h3>
   <a href="#quick-start"> 快速开始 </a>
+  | <a href="#quick-start-server"> 快速使用服务 </a>
   | <a href="#documents"> 教程文档 </a>
   | <a href="#model-list"> 模型列表 </a>
 </div>
@@ -179,7 +180,9 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 🤗 2021.12.14: 我们在 Hugging Face Spaces 上的 [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) 以及 [TTS](https://huggingface.co/spaces/akhaliq/paddlespeech) Demos 上线啦!
+- 👏🏻 2022.03.28: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、以及语音合成。
+- 👏🏻 2022.03.28: PaddleSpeech CLI 上线声纹验证。
+- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
 
 ### 技术交流群
@@ -201,6 +204,10 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 **声音分类**     
 ```shell
 paddlespeech cls --input input.wav
+```
+**声纹识别**
+```shell
+paddlespeech vector --task spk --input input_16k.wav
 ```
 **语音识别**
 ```shell
@@ -235,6 +242,33 @@ paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
+
+
+## 快速使用服务
+安装完成后，开发者可以通过命令行快速使用服务。
+
+**启动服务**     
+```shell
+paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+```
+
+**访问语音识别服务**     
+```shell
+paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```
+
+**访问语音合成服务**     
+```shell
+paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+```
+
+**访问音频分类服务**     
+```shell
+paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
+```
+
+更多服务相关的命令行使用信息，请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
+
 
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
@@ -392,9 +426,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td >HiFiGAN</td>
-      <td >CSMSC</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> 
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
       </td>
     </tr>
     <tr>
@@ -453,6 +487,30 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </tbody>
 </table>
 
+
+**声纹识别**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Link </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Verification</td>
+      <td>VoxCeleb12</td>
+      <td>ECAPA-TDNN</td>
+      <td>
+      <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 **标点恢复**
 
 <table style="width:100%">
@@ -499,6 +557,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     - [中文文本前端](./docs/source/tts/zh_text_frontend.md)
     - [测试语音样本](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
   - [声音分类](./demos/audio_tagging/README_cn.md)
+  - [声纹识别](./demos/speaker_verification/README_cn.md)
   - [语音翻译](./demos/speech_translation/README_cn.md)
 - [模型列表](#模型列表)
   - [语音识别](#语音识别模型)
@@ -520,6 +579,15 @@ title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
 author={PaddlePaddle Authors},
 howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
 year={2021}
+}
+
+@inproceedings{zheng2021fused,
+  title={Fused acoustic and text encoding for multimodal bilingual pretraining and speech translation},
+  author={Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Huang, Liang},
+  booktitle={International Conference on Machine Learning},
+  pages={12736--12746},
+  year={2021},
+  organization={PMLR}
 }
 ```
 
@@ -568,7 +636,6 @@ year={2021}
 ## 致谢
 
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
-- 非常感谢 [AK391](https://github.com/AK391) 在 Huggingface Spaces 上使用 Gradio 对我们的语音合成功能进行网页版演示。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。
 - 非常感谢 [745165806](https://github.com/745165806)/[PaddleSpeechTask](https://github.com/745165806/PaddleSpeechTask) 贡献标点重建相关模型。

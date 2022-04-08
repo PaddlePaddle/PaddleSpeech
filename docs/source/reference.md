@@ -35,3 +35,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 * [librosa](https://github.com/librosa/librosa/blob/main/LICENSE.md)
 - ISC License
 - Audio feature
+
+* [ThreadPool](https://github.com/progschj/ThreadPool/blob/master/COPYING)
+- zlib License
+- ThreadPool

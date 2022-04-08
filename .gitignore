@@ -1,7 +1,7 @@
 .DS_Store
 *.pyc
 .vscode
-*log
+*.log
 *.wav
 *.pdmodel
 *.pdiparams*
@@ -35,3 +35,5 @@ tools/miniconda.sh
 tools/CRF++-0.58/
 
 speechx/fc_patch/
+
+third_party/ctc_decoders/paddlespeech_ctcdecoders.py

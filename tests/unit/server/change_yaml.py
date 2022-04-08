@@ -25,13 +25,15 @@ def change_device(yamlfile: str, engine: str, device: str):
 
     with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
         y = yaml.safe_load(f)
-        if engine == 'asr_python' or engine == 'tts_python':
+        if engine == 'asr_python' or engine == 'tts_python' or engine == 'cls_python':
             y[engine]['device'] = set_device
         elif engine == 'asr_inference':
             y[engine]['am_predictor_conf']['device'] = set_device
         elif engine == 'tts_inference':
             y[engine]['am_predictor_conf']['device'] = set_device
             y[engine]['voc_predictor_conf']['device'] = set_device
+        elif engine == 'cls_inference':
+            y[engine]['predictor_conf']['device'] = set_device
         else:
             print(
                 "Please set correct engine: asr_python, tts_python, asr_inference, tts_inference."
@@ -84,6 +86,8 @@ if __name__ == "__main__":
             'enginetype-asr_inference',
             'enginetype-tts_python',
             'enginetype-tts_inference',
+            'enginetype-cls_python',
+            'enginetype-cls_inference',
             'device-asr_python-cpu',
             'device-asr_python-gpu',
             'device-asr_inference-cpu',
@@ -92,6 +96,10 @@ if __name__ == "__main__":
             'device-tts_python-gpu',
             'device-tts_inference-cpu',
             'device-tts_inference-gpu',
+            'device-cls_python-cpu',
+            'device-cls_python-gpu',
+            'device-cls_inference-cpu',
+            'device-cls_inference-gpu',
         ],
         required=True)
     args = parser.parse_args()

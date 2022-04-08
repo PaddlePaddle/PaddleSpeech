@@ -17,7 +17,7 @@
 ### 2. 准备配置文件
 配置文件可参见 `conf/application.yaml` 。
 其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)。
+目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)以及cls(音频分类)。
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
 
 
@@ -80,7 +80,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
-### 4. ASR客户端使用方法
+### 4. ASR 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
@@ -111,25 +111,26 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import ASRClientExecutor
+  import json
 
   asrclient_executor = ASRClientExecutor()
-  asrclient_executor(
+  res = asrclient_executor(
       input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       sample_rate=16000,
       lang="zh_cn",
       audio_format="wav")
+  print(res.json())
   ```
 
   输出:
   ```bash
   {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
-  time cost 0.604353 s.
 
   ```
  
-### 5. TTS客户端使用方法
+### 5. TTS 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
 
@@ -150,7 +151,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
     - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
     - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
     - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认与模型相同。 默认值：0
-    - `output`: 输出音频的路径， 默认值：output.wav。
+    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
 
     输出:
     ```bash
@@ -163,9 +164,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import TTSClientExecutor
+  import json
 
   ttsclient_executor = TTSClientExecutor()
-  ttsclient_executor(
+  res = ttsclient_executor(
       input="您好，欢迎使用百度飞桨语音合成服务。",
       server_ip="127.0.0.1",
       port=8090,
@@ -174,6 +176,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       volume=1.0,
       sample_rate=0,
       output="./output.wav")
+
+  response_dict = res.json()
+  print(response_dict["message"])
+  print("Save synthesized audio successfully on %s." % (response_dict['result']['save_path']))
+  print("Audio duration: %f s." %(response_dict['result']['duration']))
   ```
 
   输出:
@@ -181,9 +188,56 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   {'description': 'success.'}
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
-  Response time: 0.388317 s.
 
   ```
+
+  ### 5. CLS 客户端使用方法
+  **注意：** 初次使用客户端时响应时间会略长
+  - 命令行 (推荐使用)
+   ```
+   paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   ```
+
+  使用帮助:
+  
+  ```bash
+  paddlespeech_client cls --help
+  ```
+  参数:
+  - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+  - `port`: 服务端口，默认: 8090。
+  - `input`(必须输入): 用于分类的音频文件。
+  - `topk`: 分类结果的topk。
+
+  输出:
+  ```bash
+  [2022-03-09 20:44:39,974] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+  [2022-03-09 20:44:39,975] [    INFO] - Response time 0.104360 s.
+
+
+  ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import CLSClientExecutor
+  import json
+
+  clsclient_executor = CLSClientExecutor()
+  res = clsclient_executor(
+      input="./zh.wav",
+      server_ip="127.0.0.1",
+      port=8090,
+      topk=1)
+  print(res.json())
+
+  ```
+
+  输出:
+  ```bash
+  {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
+
+  ```
+
 
 ## 服务支持的模型
 ### ASR支持的模型
@@ -191,3 +245,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 ### TTS支持的模型
 通过 `paddlespeech_server stats --task tts` 获取TTS服务支持的所有模型，其中静态模型可用于 paddle inference 推理。
+
+### CLS支持的模型
+通过 `paddlespeech_server stats --task cls` 获取CLS服务支持的所有模型，其中静态模型可用于 paddle inference 推理。

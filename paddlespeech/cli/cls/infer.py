@@ -193,7 +193,8 @@ class CLSExecutor(BaseExecutor):
             sr=feat_conf['sample_rate'],
             mono=True,
             dtype='float32')
-        logger.info("Preprocessing audio_file:" + audio_file)
+        if isinstance(audio_file, (str, os.PathLike)):
+            logger.info("Preprocessing audio_file:" + audio_file)
 
         # Feature extraction
         feature_extractor = LogMelSpectrogram(

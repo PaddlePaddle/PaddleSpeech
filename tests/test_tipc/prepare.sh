@@ -26,8 +26,10 @@ if [ ${MODE} = "benchmark_train" ];then
     curPath=$(readlink -f "$(dirname "$0")")
         echo "curPath:"${curPath}
     cd ${curPath}/../..
-    apt-get install libsndfile1
-    pip install pytest-runner kaldiio setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
+    apt-get install libsndfile1 -y 
+    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
     pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple 
     cd -
     if [ ${model_name} == "conformer" ]; then

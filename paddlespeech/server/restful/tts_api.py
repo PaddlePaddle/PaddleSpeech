@@ -98,7 +98,7 @@ def tts(request_body: TTSRequest):
         tts_engine = engine_pool['tts']
         logger.info("Get tts engine successfully.")
 
-        lang, target_sample_rate, wav_base64 = tts_engine.run(
+        lang, target_sample_rate, duration, wav_base64 = tts_engine.run(
             text, spk_id, speed, volume, sample_rate, save_path)
 
         response = {
@@ -113,6 +113,7 @@ def tts(request_body: TTSRequest):
                 "speed": speed,
                 "volume": volume,
                 "sample_rate": target_sample_rate,
+                "duration": duration,
                 "save_path": save_path,
                 "audio": wav_base64
             }

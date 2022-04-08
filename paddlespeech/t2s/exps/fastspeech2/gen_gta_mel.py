@@ -13,7 +13,6 @@
 # limitations under the License.
 # generate mels using durations.txt
 # for mb melgan finetune
-# 长度和原本的 mel 不一致怎么办？
 import argparse
 import os
 from pathlib import Path

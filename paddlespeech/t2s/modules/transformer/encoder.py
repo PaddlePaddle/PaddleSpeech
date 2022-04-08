@@ -515,3 +515,132 @@ class ConformerEncoder(BaseEncoder):
         if self.intermediate_layers is not None:
             return xs, masks, intermediate_outputs
         return xs, masks
+
+
+class Conv1dResidualBlock(nn.Layer):
+    """
+    Special module for simplified version of Encoder class.
+    """
+
+    def __init__(self,
+                 idim: int=256,
+                 odim: int=256,
+                 kernel_size: int=5,
+                 dropout_rate: float=0.2):
+        super().__init__()
+        self.main_block = nn.Sequential(
+            nn.Conv1D(
+                idim, odim, kernel_size=kernel_size, padding=kernel_size // 2),
+            nn.ReLU(),
+            nn.BatchNorm1D(odim),
+            nn.Dropout(p=dropout_rate))
+        self.conv1d_residual = nn.Conv1D(idim, odim, kernel_size=1)
+
+    def forward(self, xs):
+        """Encode input sequence.
+        Args:
+            xs (Tensor): Input tensor (#batch, idim, T).
+        Returns:
+            Tensor: Output tensor (#batch, odim, T).
+        """
+        outputs = self.main_block(xs)
+        outputs = self.conv1d_residual(xs) + outputs
+        return outputs
+
+
+class CNNDecoder(nn.Layer):
+    """
+    Much simplified decoder than the original one with Prenet.
+    """
+
+    def __init__(
+            self,
+            emb_dim: int=256,
+            odim: int=80,
+            kernel_size: int=5,
+            dropout_rate: float=0.2,
+            resblock_kernel_sizes: List[int]=[256, 256], ):
+
+        super().__init__()
+
+        input_shape = emb_dim
+        out_sizes = resblock_kernel_sizes
+        out_sizes.append(out_sizes[-1])
+
+        in_sizes = [input_shape] + out_sizes[:-1]
+        self.residual_blocks = nn.LayerList([
+            Conv1dResidualBlock(
+                idim=in_channels,
+                odim=out_channels,
+                kernel_size=kernel_size,
+                dropout_rate=dropout_rate, )
+            for in_channels, out_channels in zip(in_sizes, out_sizes)
+        ])
+        self.conv1d = nn.Conv1D(
+            in_channels=out_sizes[-1], out_channels=odim, kernel_size=1)
+
+    def forward(self, xs, masks=None):
+        """Encode input sequence.
+        Args:
+            xs (Tensor): Input tensor (#batch, time, idim).
+            masks (Tensor): Mask tensor (#batch, 1, time).
+        Returns:
+            Tensor: Output tensor (#batch, time, odim).
+        """
+        # exchange the temporal dimension and the feature dimension
+        xs = xs.transpose([0, 2, 1])
+        if masks is not None:
+            xs = xs * masks
+
+        for layer in self.residual_blocks:
+            outputs = layer(xs)
+            if masks is not None:
+                # input_mask B * 1 * T
+                outputs = outputs * masks
+            xs = outputs
+        outputs = self.conv1d(outputs)
+        if masks is not None:
+            outputs = outputs * masks
+        outputs = outputs.transpose([0, 2, 1])
+        return outputs, masks
+
+
+class CNNPostnet(nn.Layer):
+    def __init__(
+            self,
+            odim: int=80,
+            kernel_size: int=5,
+            dropout_rate: float=0.2,
+            resblock_kernel_sizes: List[int]=[256, 256], ):
+        super().__init__()
+        out_sizes = resblock_kernel_sizes
+        in_sizes = [odim] + out_sizes[:-1]
+        self.residual_blocks = nn.LayerList([
+            Conv1dResidualBlock(
+                idim=in_channels,
+                odim=out_channels,
+                kernel_size=kernel_size,
+                dropout_rate=dropout_rate)
+            for in_channels, out_channels in zip(in_sizes, out_sizes)
+        ])
+        self.conv1d = nn.Conv1D(
+            in_channels=out_sizes[-1], out_channels=odim, kernel_size=1)
+
+    def forward(self, xs, masks=None):
+        """Encode input sequence.
+        Args:
+            xs (Tensor): Input tensor (#batch, odim, time).
+            masks (Tensor): Mask tensor (#batch, 1, time).
+        Returns:
+            Tensor: Output tensor (#batch, odim, time).
+        """
+        for layer in self.residual_blocks:
+            outputs = layer(xs)
+            if masks is not None:
+                # input_mask B * 1 * T
+                outputs = outputs * masks
+            xs = outputs
+        outputs = self.conv1d(outputs)
+        if masks is not None:
+            outputs = outputs * masks
+        return outputs

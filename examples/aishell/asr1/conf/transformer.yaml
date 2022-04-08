@@ -61,16 +61,17 @@ batch_frames_in: 0
 batch_frames_out: 0
 batch_frames_inout: 0
 preprocess_config: conf/preprocess.yaml 
-num_workers: 0
+num_workers: 2
 subsampling_factor: 1
 num_encs: 1
 
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 240 
+n_epoch: 30
 accum_grad: 2
 global_grad_clip: 5.0
+dist_sampler: False
 optim: adam
 optim_conf:
   lr: 0.002

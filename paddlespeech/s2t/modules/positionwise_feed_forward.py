@@ -17,6 +17,7 @@
 import paddle
 from paddle import nn
 
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
@@ -44,10 +45,10 @@ class PositionwiseFeedForward(nn.Layer):
             activation (paddle.nn.Layer): Activation function
         """
         super().__init__()
-        self.w_1 = nn.Linear(idim, hidden_units)
+        self.w_1 = Linear(idim, hidden_units)
         self.activation = activation
         self.dropout = nn.Dropout(dropout_rate)
-        self.w_2 = nn.Linear(hidden_units, idim)
+        self.w_2 = Linear(hidden_units, idim)
 
     def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
         """Forward function.

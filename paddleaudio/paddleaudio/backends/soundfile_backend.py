@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import warnings
 from typing import Optional
 from typing import Tuple
@@ -19,7 +20,6 @@ from typing import Union
 import numpy as np
 import resampy
 import soundfile as sf
-from numpy import ndarray as array
 from scipy.io import wavfile
 
 from ..utils import ParameterError
@@ -38,13 +38,21 @@ RESAMPLE_MODES = ['kaiser_best', 'kaiser_fast']
 EPS = 1e-8
 
 
-def resample(y: array, src_sr: int, target_sr: int,
-             mode: str='kaiser_fast') -> array:
-    """ Audio resampling
-     This function is the same as using resampy.resample().
-     Notes:
-        The default mode is kaiser_fast.  For better audio quality, use mode = 'kaiser_fast'
-     """
+def resample(y: np.ndarray,
+             src_sr: int,
+             target_sr: int,
+             mode: str='kaiser_fast') -> np.ndarray:
+    """Audio resampling.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        src_sr (int): Source sample rate.
+        target_sr (int): Target sample rate.
+        mode (str, optional): The resampling filter to use. Defaults to 'kaiser_fast'.
+
+    Returns:
+        np.ndarray: `y` resampled to `target_sr`
+    """
 
     if mode == 'kaiser_best':
         warnings.warn(
@@ -53,7 +61,7 @@ def resample(y: array, src_sr: int, target_sr: int,
 
     if not isinstance(y, np.ndarray):
         raise ParameterError(
-            'Only support numpy array, but received y in {type(y)}')
+            'Only support numpy np.ndarray, but received y in {type(y)}')
 
     if mode not in RESAMPLE_MODES:
         raise ParameterError(f'resample mode must in {RESAMPLE_MODES}')
@@ -61,9 +69,17 @@ def resample(y: array, src_sr: int, target_sr: int,
     return resampy.resample(y, src_sr, target_sr, filter=mode)
 
 
-def to_mono(y: array, merge_type: str='average') -> array:
-    """ convert sterior audio to mono
+def to_mono(y: np.ndarray, merge_type: str='average') -> np.ndarray:
+    """Convert sterior audio to mono.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        merge_type (str, optional): Merge type to generate mono waveform. Defaults to 'average'.
+
+    Returns:
+        np.ndarray: `y` with mono channel.
     """
+
     if merge_type not in MERGE_TYPES:
         raise ParameterError(
             f'Unsupported merge type {merge_type}, available types are {MERGE_TYPES}'
@@ -101,18 +117,34 @@ def to_mono(y: array, merge_type: str='average') -> array:
     return y_out
 
 
-def _safe_cast(y: array, dtype: Union[type, str]) -> array:
-    """ data type casting in a safe way, i.e., prevent overflow or underflow
-    This function is used internally.
+def _safe_cast(y: np.ndarray, dtype: Union[type, str]) -> np.ndarray:
+    """Data type casting in a safe way, i.e., prevent overflow or underflow.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        dtype (Union[type, str]): Data type of waveform.
+
+    Returns:
+        np.ndarray: `y` after safe casting.
     """
-    return np.clip(y, np.iinfo(dtype).min, np.iinfo(dtype).max).astype(dtype)
+    if 'float' in str(y.dtype):
+        return np.clip(y, np.finfo(dtype).min,
+                       np.finfo(dtype).max).astype(dtype)
+    else:
+        return np.clip(y, np.iinfo(dtype).min,
+                       np.iinfo(dtype).max).astype(dtype)
 
 
-def depth_convert(y: array, dtype: Union[type, str],
-                  dithering: bool=True) -> array:
-    """Convert audio array to target dtype safely
-    This function convert audio waveform to a target dtype, with addition steps of
+def depth_convert(y: np.ndarray, dtype: Union[type, str]) -> np.ndarray:
+    """Convert audio array to target dtype safely. This function convert audio waveform to a target dtype, with addition steps of
     preventing overflow/underflow and preserving audio range.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        dtype (Union[type, str]): Data type of waveform.
+
+    Returns:
+        np.ndarray: `y` after safe casting.
     """
 
     SUPPORT_DTYPE = ['int16', 'int8', 'float32', 'float64']
@@ -157,14 +189,20 @@ def depth_convert(y: array, dtype: Union[type, str],
     return y
 
 
-def sound_file_load(file: str,
+def sound_file_load(file: os.PathLike,
                     offset: Optional[float]=None,
                     dtype: str='int16',
-                    duration: Optional[int]=None) -> Tuple[array, int]:
-    """Load audio using soundfile library
-    This function load audio file using libsndfile.
-    Reference:
-        http://www.mega-nerd.com/libsndfile/#Features
+                    duration: Optional[int]=None) -> Tuple[np.ndarray, int]:
+    """Load audio using soundfile library. This function load audio file using libsndfile.
+
+    Args:
+        file (os.PathLike): File of waveform.
+        offset (Optional[float], optional): Offset to the start of waveform. Defaults to None.
+        dtype (str, optional): Data type of waveform. Defaults to 'int16'.
+        duration (Optional[int], optional): Duration of waveform to read. Defaults to None.
+
+    Returns:
+        Tuple[np.ndarray, int]: Waveform in ndarray and its samplerate.
     """
     with sf.SoundFile(file) as sf_desc:
         sr_native = sf_desc.samplerate
@@ -179,9 +217,17 @@ def sound_file_load(file: str,
     return y, sf_desc.samplerate
 
 
-def normalize(y: array, norm_type: str='linear',
-              mul_factor: float=1.0) -> array:
-    """ normalize an input audio with additional multiplier.
+def normalize(y: np.ndarray, norm_type: str='linear',
+              mul_factor: float=1.0) -> np.ndarray:
+    """Normalize an input audio with additional multiplier.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        norm_type (str, optional): Type of normalization. Defaults to 'linear'.
+        mul_factor (float, optional): Scaling factor. Defaults to 1.0.
+
+    Returns:
+        np.ndarray: `y` after normalization.
     """
 
     if norm_type == 'linear':
@@ -199,12 +245,13 @@ def normalize(y: array, norm_type: str='linear',
     return y
 
 
-def save(y: array, sr: int, file: str) -> None:
-    """Save audio file to disk.
-    This function saves audio to disk using scipy.io.wavfile, with additional step
-    to convert input waveform to int16 unless it already is int16
-    Notes:
-        It only support raw wav format.
+def save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
+    """Save audio file to disk. This function saves audio to disk using scipy.io.wavfile, with additional step to convert input waveform to int16.
+
+    Args:
+        y (np.ndarray): Input waveform array in 1D or 2D.
+        sr (int): Sample rate.
+        file (os.PathLike): Path of auido file to save.
     """
     if not file.endswith('.wav'):
         raise ParameterError(
@@ -226,7 +273,7 @@ def save(y: array, sr: int, file: str) -> None:
 
 
 def load(
-        file: str,
+        file: os.PathLike,
         sr: Optional[int]=None,
         mono: bool=True,
         merge_type: str='average',  # ch0,ch1,random,average
@@ -236,11 +283,24 @@ def load(
         offset: float=0.0,
         duration: Optional[int]=None,
         dtype: str='float32',
-        resample_mode: str='kaiser_fast') -> Tuple[array, int]:
-    """Load audio file from disk.
-    This function loads audio from disk using using audio beackend.
-    Parameters:
-    Notes:
+        resample_mode: str='kaiser_fast') -> Tuple[np.ndarray, int]:
+    """Load audio file from disk. This function loads audio from disk using using audio beackend.
+
+    Args:
+        file (os.PathLike): Path of auido file to load.
+        sr (Optional[int], optional): Sample rate of loaded waveform. Defaults to None.
+        mono (bool, optional): Return waveform with mono channel. Defaults to True.
+        merge_type (str, optional): Merge type of multi-channels waveform. Defaults to 'average'.
+        normal (bool, optional): Waveform normalization. Defaults to True.
+        norm_type (str, optional): Type of normalization. Defaults to 'linear'.
+        norm_mul_factor (float, optional): Scaling factor. Defaults to 1.0.
+        offset (float, optional): Offset to the start of waveform. Defaults to 0.0.
+        duration (Optional[int], optional): Duration of waveform to read. Defaults to None.
+        dtype (str, optional): Data type of waveform. Defaults to 'float32'.
+        resample_mode (str, optional): The resampling filter to use. Defaults to 'kaiser_fast'.
+
+    Returns:
+        Tuple[np.ndarray, int]: Waveform in ndarray and its samplerate.
     """
 
     y, r = sound_file_load(file, offset=offset, dtype=dtype, duration=duration)

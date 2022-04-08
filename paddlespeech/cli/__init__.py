@@ -21,5 +21,6 @@ from .st import STExecutor
 from .stats import StatsExecutor
 from .text import TextExecutor
 from .tts import TTSExecutor
+from .vector import VectorExecutor
 
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])

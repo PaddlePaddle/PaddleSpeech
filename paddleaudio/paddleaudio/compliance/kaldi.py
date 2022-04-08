@@ -220,7 +220,7 @@ def spectrogram(waveform: Tensor,
     """Compute and return a spectrogram from a waveform. The output is identical to Kaldi's.
 
     Args:
-        waveform (Tensor): A waveform tensor with shape [C, T].
+        waveform (Tensor): A waveform tensor with shape `(C, T)`.
         blackman_coeff (float, optional): Coefficient for Blackman window.. Defaults to 0.42.
         channel (int, optional): Select the channel of waveform. Defaults to -1.
         dither (float, optional): Dithering constant . Defaults to 0.0.
@@ -239,7 +239,7 @@ def spectrogram(waveform: Tensor,
         window_type (str, optional): Choose type of window for FFT computation. Defaults to POVEY.
 
     Returns:
-        Tensor: A spectrogram tensor with shape (m, padded_window_size // 2 + 1) where m is the number of frames
+        Tensor: A spectrogram tensor with shape `(m, padded_window_size // 2 + 1)` where m is the number of frames
             depends on frame_length and frame_shift.
     """
     dtype = waveform.dtype
@@ -422,7 +422,7 @@ def fbank(waveform: Tensor,
     """Compute and return filter banks from a waveform. The output is identical to Kaldi's.
 
     Args:
-        waveform (Tensor): A waveform tensor with shape [C, T].
+        waveform (Tensor): A waveform tensor with shape `(C, T)`.
         blackman_coeff (float, optional): Coefficient for Blackman window.. Defaults to 0.42.
         channel (int, optional): Select the channel of waveform. Defaults to -1.
         dither (float, optional): Dithering constant . Defaults to 0.0.
@@ -451,7 +451,7 @@ def fbank(waveform: Tensor,
         window_type (str, optional): Choose type of window for FFT computation. Defaults to POVEY.
 
     Returns:
-        Tensor: A filter banks tensor with shape (m, n_mels).
+        Tensor: A filter banks tensor with shape `(m, n_mels)`.
     """
     dtype = waveform.dtype
 
@@ -542,7 +542,7 @@ def mfcc(waveform: Tensor,
             identical to Kaldi's.
 
     Args:
-        waveform (Tensor): A waveform tensor with shape [C, T].
+        waveform (Tensor): A waveform tensor with shape `(C, T)`.
         blackman_coeff (float, optional): Coefficient for Blackman window.. Defaults to 0.42.
         cepstral_lifter (float, optional): Scaling of output mfccs. Defaults to 22.0.
         channel (int, optional): Select the channel of waveform. Defaults to -1.
@@ -571,7 +571,7 @@ def mfcc(waveform: Tensor,
         window_type (str, optional): Choose type of window for FFT computation. Defaults to POVEY.
 
     Returns:
-        Tensor: A mel frequency cepstral coefficients tensor with shape (m, n_mfcc).
+        Tensor: A mel frequency cepstral coefficients tensor with shape `(m, n_mfcc)`.
     """
     assert n_mfcc <= n_mels, 'n_mfcc cannot be larger than n_mels: %d vs %d' % (
         n_mfcc, n_mels)

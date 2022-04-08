@@ -73,15 +73,21 @@ class LengthRegulator(nn.Layer):
         batch_size, t_enc = paddle.shape(durations)
         slens = paddle.sum(durations, -1)
         t_dec = paddle.max(slens)
-        M = paddle.zeros([batch_size, t_dec, t_enc])
-        for i in range(batch_size):
-            k = 0
-            for j in range(t_enc):
-                d = durations[i, j]
-                # If the d == 0, slice action is meaningless and not supported in paddle
-                if d >= 1:
-                    M[i, k:k + d, j] = 1
-                k += d
+        t_dec_1 = t_dec + 1
+        flatten_duration = paddle.cumsum(
+            paddle.reshape(durations, [batch_size * t_enc])) + 1
+        init = paddle.zeros(t_dec_1)
+        m_batch = batch_size * t_enc
+        M = paddle.zeros([t_dec_1, m_batch])
+        for i in range(m_batch):
+            d = flatten_duration[i]
+            m = paddle.concat(
+                [paddle.ones(d), paddle.zeros(t_dec_1 - d)], axis=0)
+            M[:, i] = m - init
+            init = m
+        M = paddle.reshape(M, shape=[t_dec_1, batch_size, t_enc])
+        M = M[1:, :, :]
+        M = paddle.transpose(M, (1, 0, 2))
         encodings = paddle.matmul(M, encodings)
         return encodings
 
@@ -101,6 +107,16 @@ class LengthRegulator(nn.Layer):
             assert alpha > 0
             ds = paddle.round(ds.cast(dtype=paddle.float32) * alpha)
         ds = ds.cast(dtype=paddle.int64)
+        '''
+        from distutils.version import LooseVersion
+        from paddlespeech.t2s.modules.nets_utils import pad_list
+        # 这里在 paddle 2.2.2 的动转静是不通的
+        # if LooseVersion(paddle.__version__) >= "2.3.0" or hasattr(paddle, 'repeat_interleave'):
+        # if LooseVersion(paddle.__version__) >= "2.3.0":
+        if hasattr(paddle, 'repeat_interleave'):
+            repeat = [paddle.repeat_interleave(x, d, axis=0) for x, d in zip(xs, ds)]
+            return pad_list(repeat, self.pad_value)
+        '''
         if is_inference:
             return self.expand(xs, ds)
         else:

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import logging
-from distutils.util import strtobool
 
 import kaldiio
 import numpy
+from distutils.util import strtobool
 
 from paddlespeech.s2t.transform.cmvn import CMVN
 from paddlespeech.s2t.utils.cli_readers import file_reader_helper

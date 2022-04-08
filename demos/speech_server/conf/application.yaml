@@ -9,12 +9,14 @@ port: 8090
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference']
 
-engine_list: ['asr_python', 'tts_python']
+engine_list: ['asr_python', 'tts_python', 'cls_python']
 
 
 #################################################################################
 #                                ENGINE CONFIG                                  #
 #################################################################################
+
+################################### ASR #########################################
 ################### speech task: asr; engine_type: python #######################
 asr_python:
     model: 'conformer_wenetspeech'
@@ -46,6 +48,7 @@ asr_inference:
         summary: True  # False -> do not show predictor config
 
 
+################################### TTS #########################################
 ################### speech task: tts; engine_type: python #######################
 tts_python: 
     # am (acoustic model) choices=['speedyspeech_csmsc', 'fastspeech2_csmsc', 
@@ -104,4 +107,31 @@ tts_inference:
 
     # others
     lang: 'zh'
+
+
+################################### CLS #########################################
+################### speech task: cls; engine_type: python #######################
+cls_python:
+    # model choices=['panns_cnn14', 'panns_cnn10', 'panns_cnn6']
+    model: 'panns_cnn14'
+    cfg_path: # [optional] Config of cls task.
+    ckpt_path: # [optional] Checkpoint file of model.
+    label_file: # [optional] Label file of cls task.
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################### speech task: cls; engine_type: inference #######################
+cls_inference:
+    # model_type choices=['panns_cnn14', 'panns_cnn10', 'panns_cnn6']
+    model_type: 'panns_cnn14' 
+    cfg_path: 
+    model_path:  # the pdmodel file of am static model [optional]
+    params_path:  # the pdiparams file of am static model [optional]
+    label_file:  # [optional] Label file of cls task.
+
+    predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False  # True -> print glog
+        summary: True  # False -> do not show predictor config
 

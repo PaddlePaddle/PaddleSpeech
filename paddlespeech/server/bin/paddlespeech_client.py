@@ -31,7 +31,7 @@ from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
-__all__ = ['TTSClientExecutor', 'ASRClientExecutor']
+__all__ = ['TTSClientExecutor', 'ASRClientExecutor', 'CLSClientExecutor']
 
 
 @cli_client_register(
@@ -70,13 +70,9 @@ class TTSClientExecutor(BaseExecutor):
             choices=[0, 8000, 16000],
             help='Sampling rate, the default is the same as the model')
         self.parser.add_argument(
-            '--output',
-            type=str,
-            default="./output.wav",
-            help='Synthesized audio file')
+            '--output', type=str, default=None, help='Synthesized audio file')
 
-    def postprocess(self, response_dict: dict, outfile: str) -> float:
-        wav_base64 = response_dict["result"]["audio"]
+    def postprocess(self, wav_base64: str, outfile: str) -> float:
         audio_data_byte = base64.b64decode(wav_base64)
         # from byte
         samples, sample_rate = soundfile.read(
@@ -93,37 +89,38 @@ class TTSClientExecutor(BaseExecutor):
         else:
             logger.error("The format for saving audio only supports wav or pcm")
 
-        duration = len(samples) / sample_rate
-        return duration
-
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        spk_id = args.spk_id
+        speed = args.speed
+        volume = args.volume
+        sample_rate = args.sample_rate
+        output = args.output
+
         try:
-            url = 'http://' + args.server_ip + ":" + str(
-                args.port) + '/paddlespeech/tts'
-            request = {
-                "text": args.input,
-                "spk_id": args.spk_id,
-                "speed": args.speed,
-                "volume": args.volume,
-                "sample_rate": args.sample_rate,
-                "save_path": args.output
-            }
-            st = time.time()
-            response = requests.post(url, json.dumps(request))
-            time_consume = time.time() - st
-
-            response_dict = response.json()
-            duration = self.postprocess(response_dict, args.output)
-
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                spk_id=spk_id,
+                speed=speed,
+                volume=volume,
+                sample_rate=sample_rate,
+                output=output)
+            time_end = time.time()
+            time_consume = time_end - time_start
+            response_dict = res.json()
             logger.info(response_dict["message"])
-            logger.info("Save synthesized audio successfully on %s." %
-                        (args.output))
-            logger.info("Audio duration: %f s." % (duration))
+            logger.info("Save synthesized audio successfully on %s." % (output))
+            logger.info("Audio duration: %f s." %
+                        (response_dict['result']['duration']))
             logger.info("Response time: %f s." % (time_consume))
-
             return True
-        except BaseException:
+        except Exception as e:
             logger.error("Failed to synthesized audio.")
             return False
 
@@ -136,7 +133,7 @@ class TTSClientExecutor(BaseExecutor):
                  speed: float=1.0,
                  volume: float=1.0,
                  sample_rate: int=0,
-                 output: str="./output.wav"):
+                 output: str=None):
         """
         Python API to call an executor.
         """
@@ -151,20 +148,11 @@ class TTSClientExecutor(BaseExecutor):
             "save_path": output
         }
 
-        try:
-            st = time.time()
-            response = requests.post(url, json.dumps(request))
-            time_consume = time.time() - st
-            response_dict = response.json()
-            duration = self.postprocess(response_dict, output)
-
-            print(response_dict["message"])
-            print("Save synthesized audio successfully on %s." % (output))
-            print("Audio duration: %f s." % (duration))
-            print("Response time: %f s." % (time_consume))
-            print("RTF: %f " % (time_consume / duration))
-        except BaseException:
-            print("Failed to synthesized audio.")
+        res = requests.post(url, json.dumps(request))
+        response_dict = res.json()
+        if output is not None:
+            self.postprocess(response_dict["result"]["audio"], output)
+        return res
 
 
 @cli_client_register(
@@ -193,24 +181,27 @@ class ASRClientExecutor(BaseExecutor):
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
-        url = 'http://' + args.server_ip + ":" + str(
-            args.port) + '/paddlespeech/asr'
-        audio = wav2base64(args.input)
-        data = {
-            "audio": audio,
-            "audio_format": args.audio_format,
-            "sample_rate": args.sample_rate,
-            "lang": args.lang,
-        }
-        time_start = time.time()
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        sample_rate = args.sample_rate
+        lang = args.lang
+        audio_format = args.audio_format
+
         try:
-            r = requests.post(url=url, data=json.dumps(data))
-            # ending Timestamp
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                sample_rate=sample_rate,
+                lang=lang,
+                audio_format=audio_format)
             time_end = time.time()
-            logger.info(r.json())
-            logger.info("time cost %f s." % (time_end - time_start))
+            logger.info(res.json())
+            logger.info("Response time %f s." % (time_end - time_start))
             return True
-        except BaseException:
+        except Exception as e:
             logger.error("Failed to speech recognition.")
             return False
 
@@ -234,12 +225,65 @@ class ASRClientExecutor(BaseExecutor):
             "sample_rate": sample_rate,
             "lang": lang,
         }
-        time_start = time.time()
+
+        res = requests.post(url=url, data=json.dumps(data))
+        return res
+
+
+@cli_client_register(
+    name='paddlespeech_client.cls', description='visit cls service')
+class CLSClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(CLSClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.cls', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8090, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Audio file to classify.',
+            required=True)
+        self.parser.add_argument(
+            '--topk',
+            type=int,
+            default=1,
+            help='Return topk scores of classification result.')
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        topk = args.topk
+
         try:
-            r = requests.post(url=url, data=json.dumps(data))
-            # ending Timestamp
+            time_start = time.time()
+            res = self(input=input_, server_ip=server_ip, port=port, topk=topk)
             time_end = time.time()
-            print(r.json())
-            print("time cost %f s." % (time_end - time_start))
-        except BaseException:
-            print("Failed to speech recognition.")
+            logger.info(res.json())
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to speech classification.")
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8090,
+                 topk: int=1):
+        """
+        Python API to call an executor.
+        """
+
+        url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/cls'
+        audio = wav2base64(input)
+        data = {"audio": audio, "topk": topk}
+
+        res = requests.post(url=url, data=json.dumps(data))
+        return res

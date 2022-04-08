@@ -19,7 +19,6 @@ import sys
 
 import numpy as np
 import paddle
-from ami_dataset import AMIDataset
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from tqdm.contrib import tqdm
@@ -28,6 +27,7 @@ from yacs.config import CfgNode
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.cluster.diarization import EmbeddingMeta
 from paddlespeech.vector.io.batch import batch_feature_normalize
+from paddlespeech.vector.io.dataset_from_json import JSONDataset
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 from paddlespeech.vector.training.seeding import seed_everything
@@ -65,7 +65,7 @@ def create_dataloader(json_file, batch_size):
     """
 
     # create datasets
-    dataset = AMIDataset(
+    dataset = JSONDataset(
         json_file=json_file,
         feat_type='melspectrogram',
         n_mels=config.n_mels,
@@ -93,8 +93,7 @@ def main(args, config):
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage2: build the speaker verification eval instance with backbone model
-    model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=1)
+    model = SpeakerIdetification(backbone=ecapa_tdnn, num_class=1)
 
     # stage3: load the pre-trained model
     #         we get the last model from the epoch and save_interval

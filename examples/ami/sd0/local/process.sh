@@ -4,7 +4,6 @@ stage=0
 set=L
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
-set -u
 set -o pipefail
 
 data_folder=$1
@@ -12,6 +11,7 @@ manual_annot_folder=$2
 save_folder=$3
 pretrained_model_dir=$4
 conf_path=$5
+device=$6
 
 ref_rttm_dir=${save_folder}/ref_rttms
 meta_data_dir=${save_folder}/metadata
@@ -35,7 +35,7 @@ if [ ${stage} -le 1 ]; then
     for name in dev eval; do
         python local/compute_embdding.py --config ${conf_path} \
                 --data-dir ${save_folder} \
-                --device gpu:0 \
+                --device ${device} \
                 --dataset ${name} \
                 --load-checkpoint ${pretrained_model_dir}
     done

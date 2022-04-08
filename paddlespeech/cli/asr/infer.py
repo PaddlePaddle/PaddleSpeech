@@ -426,6 +426,11 @@ class ASRExecutor(BaseExecutor):
         try:
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
+            audio_duration = audio.shape[0] / audio_sample_rate
+            max_duration = 50.0
+            if audio_duration >= max_duration:
+                logger.error("Please input audio file less then 50 seconds.\n")
+                return
         except Exception as e:
             logger.exception(e)
             logger.error(

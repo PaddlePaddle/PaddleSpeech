@@ -232,6 +232,9 @@ The static model can be downloaded here:
 - [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip)
 - [fastspeech2_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_static_0.2.0.zip)
 
+The ONNX model can be downloaded here:
+- [fastspeech2_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_onnx_0.2.0.zip)
+
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
 default| 2(gpu) x 76000|1.0991|0.59132|0.035815|0.31915|0.15287|

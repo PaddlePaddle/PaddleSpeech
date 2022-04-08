@@ -50,4 +50,5 @@ Synthesize waveform.
 6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-Pretrained Model with residual channel equals 128 can be downloaded here. [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip).
+Pretrained Model with residual channel equals 128 can be downloaded here:
+- [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip)

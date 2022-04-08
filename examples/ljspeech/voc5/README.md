@@ -127,7 +127,8 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-The pretrained model can be downloaded here [hifigan_ljspeech_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_ljspeech_ckpt_0.2.0.zip).
+The pretrained model can be downloaded here:
+- [hifigan_ljspeech_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_ljspeech_ckpt_0.2.0.zip)
 
 
 Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
@@ -142,7 +143,6 @@ hifigan_ljspeech_ckpt_0.2.0
 ├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
 └── snapshot_iter_2500000.pdz     # generator parameters of hifigan
 ```
-
 
 ## Acknowledgement
 We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

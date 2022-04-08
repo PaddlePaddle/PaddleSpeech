@@ -31,8 +31,9 @@ def sinusoid_position_encoding(num_positions: int,
 
     channel = paddle.arange(0, feature_size, 2, dtype=dtype)
     index = paddle.arange(start_pos, start_pos + num_positions, 1, dtype=dtype)
-    p = (paddle.unsqueeze(index, -1) *
-         omega) / (10000.0**(channel / float(feature_size)))
+    denominator = channel / float(feature_size)
+    denominator = paddle.to_tensor([10000.0], dtype='float32')**denominator
+    p = (paddle.unsqueeze(index, -1) * omega) / denominator
     encodings = paddle.zeros([num_positions, feature_size], dtype=dtype)
     encodings[:, 0::2] = paddle.sin(p)
     encodings[:, 1::2] = paddle.cos(p)

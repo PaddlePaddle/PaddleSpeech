@@ -226,7 +226,7 @@ Pretrained SpeedySpeech model with no silence in the edge of audios:
 
 The static model can be downloaded here:
 - [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip)
-- [speedyspeech_csmsc_static_2.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_static_2.0.0.zip)
+- [speedyspeech_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_static_0.2.0.zip)
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:

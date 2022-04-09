@@ -18,4 +18,7 @@ namespace ppspeech {
 
 bool ReadFileToVector(const std::string& filename,
                       std::vector<std::string>* data);
+
+std::string ReadFile2String(const std::string& path);
+
 }

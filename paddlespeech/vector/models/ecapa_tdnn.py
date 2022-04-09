@@ -79,6 +79,20 @@ class Conv1d(nn.Layer):
             bias_attr=bias, )
 
     def forward(self, x):
+        """Do conv1d forward
+
+        Args:
+            x (paddle.Tensor): [N, C, L] input data, 
+                                N is the batch,
+                                C is the data dimension, 
+                                L is the time
+
+        Raises:
+            ValueError: only support the same padding type
+
+        Returns:
+            paddle.Tensor: the value of conv1d
+        """
         if self.padding == "same":
             x = self._manage_padding(x, self.kernel_size, self.dilation,
                                      self.stride)
@@ -88,6 +102,20 @@ class Conv1d(nn.Layer):
         return self.conv(x)
 
     def _manage_padding(self, x, kernel_size: int, dilation: int, stride: int):
+        """Padding the input data
+
+        Args:
+            x (paddle.Tensor): [N, C, L] input data
+                                N is the batch,
+                                C is the data dimension, 
+                                L is the time
+            kernel_size (int): 1-d convolution kernel size
+            dilation (int): 1-d convolution dilation
+            stride (int): 1-d convolution stride
+
+        Returns:
+            paddle.Tensor: the padded input data
+        """
         L_in = x.shape[-1]  # Detecting input shape
         padding = self._get_padding_elem(L_in, stride, kernel_size,
                                          dilation)  # Time padding
@@ -101,6 +129,17 @@ class Conv1d(nn.Layer):
                           stride: int,
                           kernel_size: int,
                           dilation: int):
+        """Calculate the padding value in same mode
+
+        Args:
+            L_in (int): the times of the input data, 
+            stride (int): 1-d convolution stride
+            kernel_size (int): 1-d convolution kernel size
+            dilation (int): 1-d convolution stride
+
+        Returns:
+            int: return the padding value in same mode
+        """
         if stride > 1:
             n_steps = math.ceil(((L_in - kernel_size * dilation) / stride) + 1)
             L_out = stride * (n_steps - 1) + kernel_size * dilation
@@ -245,6 +284,13 @@ class SEBlock(nn.Layer):
 
 class AttentiveStatisticsPooling(nn.Layer):
     def __init__(self, channels, attention_channels=128, global_context=True):
+        """Compute the speaker verification statistics
+           The detail info is section 3.1 in https://arxiv.org/pdf/1709.01507.pdf 
+        Args:
+            channels (int): input data channel or data dimension
+            attention_channels (int, optional): attention dimension. Defaults to 128.
+            global_context (bool, optional): If use the global context information. Defaults to True.
+        """
         super().__init__()
 
         self.eps = 1e-12

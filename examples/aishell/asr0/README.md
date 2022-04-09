@@ -173,12 +173,7 @@ bash local/data.sh --stage 2  --stop_stage 2
 
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
 ```
-The performance of the released models are shown below:
-
-|         Acoustic Model         |  Training Data  | Token-based |   Size | Descriptions                                       | CER   | WER  | Hours of speech |
-| :----------------------------: | :-------------: | :---------: | -----: | :------------------------------------------------- | :---- | :--- | :-------------- |
-| Ds2 Online Aishell ASR0 Model  | Aishell Dataset | Char-based  | 345 MB | 2 Conv + 5 LSTM layers with only forward direction | 0.080 | -    | 151 h           |
-| Ds2 Offline Aishell ASR0 Model | Aishell Dataset | Char-based  | 306 MB | 2 Conv + 3 bidirectional GRU layers                | 0.064 | -    | 151 h           |
+The performance of the released models are shown in [this](./RESULTS.md)
 ## Stage 4: Static graph model Export
 This stage is to transform dygraph to static graph.
 ```bash

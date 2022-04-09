@@ -104,7 +104,7 @@ def get_voc_output(args, voc_predictor, input):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Paddle Infernce with speedyspeech & parallel wavegan.")
+        description="Paddle Infernce with acoustic model & vocoder.")
     # acoustic model
     parser.add_argument(
         '--am',

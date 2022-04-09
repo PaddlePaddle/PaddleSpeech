@@ -22,54 +22,60 @@ if [ ! -d ../paddle_asr_model ]; then
 fi
 
 mkdir -p data
-if [ ! -d ./test ]; then
+data=$PWD/data
+aishell_wav_scp=aishell_test.scp
+if [ ! -d $data/test ]; then
     wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_test.zip
-    unzip aishell_test.zip
-    realpath ./test/*/*.wav > wavlist
-    awk -F '/' '{ print $(NF) }' wavlist | awk -F '.' '{ print $1 }' > utt_id
-    paste utt_id wavlist > aishell_test.scp
+    unzip -d $data aishell_test.zip
+    realpath $data/test/*/*.wav > $data/wavlist
+    awk -F '/' '{ print $(NF) }' $data/wavlist | awk -F '.' '{ print $1 }' > $data/utt_id
+    paste $data/utt_id $data/wavlist > $data/$aishell_wav_scp
 fi
 
-if [ ! -d aishell_ds2_online_model ]; then
-    mkdir -p aishell_ds2_online_model 
-    wget -P ./aishell_ds2_online_model -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz
-    tar xzfv ./aishell_ds2_online_model/aishell_ds2_online_cer8.00_release.tar.gz -C ./aishell_ds2_online_model
+model_dir=$PWD/aishell_ds2_online_model
+if [ ! -d $model_dir ]; then
+    mkdir -p $model_dir 
+    wget -P $model_dir -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
+    tar xzfv $model_dir/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz -C $model_dir
 fi
 
 # 3. make feature
-aishell_wav_scp=./aishell_test.scp
-aishell_online_model=./aishell_ds2_online_model/exp/deepspeech2_online/checkpoints
-model_dir=../paddle_asr_model
-feat_ark=./feats.ark
-feat_scp=./aishell_feat.scp
-cmvn=./cmvn.ark
+aishell_online_model=$model_dir/exp/deepspeech2_online/checkpoints
+lm_model_dir=../paddle_asr_model
 label_file=./aishell_result
 wer=./aishell_wer
 
+nj=40
 export GLOG_logtostderr=1
 
+./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
+
+data=$PWD/data
 # 3. gen linear feat
-linear_spectrogram_main \
-    --wav_rspecifier=scp:$aishell_wav_scp \
-    --feature_wspecifier=ark,scp:$feat_ark,$feat_scp \
-    --cmvn_write_path=$cmvn \
-    --streaming_chunk=10
+cmvn=$PWD/cmvn.ark
+cmvn_json2binary_main --json_file=$model_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
-nj=10
-data=./data
-text=./test/text
-# recognizer
-./local/split_data.sh data aishell_feat.scp $nj
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/feat_log \
+linear_spectrogram_without_db_norm_main \
+    --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
+    --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
+    --cmvn_file=$cmvn \
+    --streaming_chunk=0.36
 
+text=$data/test/text
+
+# 4. recognizer
 utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log \
   offline_decoder_sliding_chunk_main \
-    --feature_rspecifier=scp:$data/split${nj}/JOB/feats.scp \
+    --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$aishell_online_model/avg_1.jit.pdmodel \
     --param_path=$aishell_online_model/avg_1.jit.pdiparams \
-    --dict_file=$model_dir/vocab.txt \
-    --lm_path=$model_dir/avg_1.jit.klm \
+    --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
+    --dict_file=$lm_model_dir/vocab.txt \
+    --lm_path=$lm_model_dir/avg_1.jit.klm \
     --result_wspecifier=ark,t:$data/split${nj}/JOB/result
 
 cat $data/split${nj}/*/result > $label_file
 
 local/compute-wer.py --char=1 --v=1 $label_file $text > $wer
+tail $wer

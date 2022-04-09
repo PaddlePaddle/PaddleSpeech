@@ -34,6 +34,12 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
+DEFINE_string(model_output_names,
+              "save_infer_model/scale_0.tmp_1,save_infer_model/"
+              "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"
+              "scale_3.tmp_1",
+              "model output names");
+DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
@@ -68,7 +74,8 @@ int main(int argc, char* argv[]) {
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
-    model_opts.cache_shape = "5-1-1024,5-1-1024";
+    model_opts.cache_shape = FLAGS_model_cache_names;
+    model_opts.output_names = FLAGS_model_output_names;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());

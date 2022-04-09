@@ -182,6 +182,7 @@ int main(int argc, char* argv[]) {
     ppspeech::LinearSpectrogramOptions opt;
     opt.frame_opts.frame_length_ms = 20;
     opt.frame_opts.frame_shift_ms = 10;
+    opt.streaming_chunk = FLAGS_streaming_chunk;
     opt.frame_opts.dither = 0.0;
     opt.frame_opts.remove_dc_offset = false;
     opt.frame_opts.window_type = "hanning";
@@ -257,6 +258,7 @@ int main(int argc, char* argv[]) {
             }
         }
         feat_writer.Write(utt, features);
+        feature_cache.Reset();
 
         if (num_done % 50 == 0 && num_done != 0)
             KALDI_VLOG(2) << "Processed " << num_done << " utterances";

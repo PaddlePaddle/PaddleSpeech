@@ -46,7 +46,10 @@ class LinearSpectrogram : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() { base_extractor_->Reset(); }
+    virtual void Reset() { 
+        base_extractor_->Reset();
+        reminded_wav_.Resize(0);
+     }
 
   private:
     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,

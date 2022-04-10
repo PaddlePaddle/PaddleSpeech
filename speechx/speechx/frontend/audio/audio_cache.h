@@ -54,7 +54,7 @@ class AudioCache : public FrontendInterface {
     size_t size_;      // samples in ring_buffer_ now
     size_t capacity_;  // capacity of ring_buffer_
     bool finished_;    // reach audio end
-    mutable std::mutex mutex_;
+    std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;  // millisecond
     bool convert2PCM32_;

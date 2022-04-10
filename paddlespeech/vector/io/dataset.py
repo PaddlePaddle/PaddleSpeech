@@ -65,6 +65,7 @@ class CSVDataset(Dataset):
                  config=None,
                  random_chunk=True,
                  feat_type: str="raw",
+                 n_train_snts: int=-1,
                  **kwargs):
         """Implement the CSV Dataset
 
@@ -73,6 +74,9 @@ class CSVDataset(Dataset):
             label2id_path (str): the utterance label to integer id map file path
             config (CfgNode): yaml config
             feat_type (str): dataset feature type. if it is raw, it return pcm data.
+            n_train_snts (int): select the n_train_snts sample from the dataset. 
+                                if n_train_snts = -1, dataset will load all the sample.
+                                Default value is -1.
             kwargs : feature type args
         """
         super().__init__()
@@ -81,6 +85,7 @@ class CSVDataset(Dataset):
         self.config = config
         self.random_chunk = random_chunk
         self.feat_type = feat_type
+        self.n_train_snts = n_train_snts
         self.feat_config = kwargs
         self.id2label = {}
         self.label2id = {}
@@ -93,6 +98,9 @@ class CSVDataset(Dataset):
         that is audio_id or utt_id, audio duration, segment start point, segment stop point 
         and utterance label.
         Note in training period, the utterance label must has a map to integer id in label2id_path 
+
+        Returns:
+            list: the csv data with meta_info type
         """
         data = []
 
@@ -104,6 +112,10 @@ class CSVDataset(Dataset):
                     meta_info(audio_id,
                               float(duration), wav,
                               int(start), int(stop), spk_id))
+        if self.n_train_snts > 0:
+            sample_num = min(self.n_train_snts, len(data))
+            data = data[0:sample_num]
+
         return data
 
     def load_speaker_to_label(self):
@@ -173,5 +185,8 @@ class CSVDataset(Dataset):
 
     def __len__(self):
         """Return the dataset length
+
+        Returns:
+            int: the length num of the dataset
         """
         return len(self.data)

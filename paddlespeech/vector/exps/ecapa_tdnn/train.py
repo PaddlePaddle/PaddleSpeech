@@ -197,17 +197,15 @@ def main(args, config):
                           paddle.optimizer.lr.LRScheduler):
                 optimizer._learning_rate.step()
             optimizer.clear_grad()
-            train_run_cost += time.time() - train_start
 
             # stage 9-8: Calculate average loss per batch
-            train_misce_start = time.time()
             avg_loss = loss.item()
 
             # stage 9-9: Calculate metrics, which is one-best accuracy
             preds = paddle.argmax(logits, axis=1)
             num_corrects += (preds == labels).numpy().sum()
             num_samples += feats.shape[0]
-
+            train_run_cost += time.time() - train_start
             timer.count()  # step plus one in timer
 
             # stage 9-10: print the log information only on 0-rank per log-freq batchs
@@ -227,8 +225,8 @@ def main(args, config):
                 print_msg += ' avg_train_cost: {:.5f} sec,'.format(
                     train_run_cost / config.log_interval)
 
-                print_msg += ' lr={:.4E} step/sec={:.2f} | ETA {}'.format(
-                    lr, timer.timing, timer.eta)
+                print_msg += ' lr={:.4E} step/sec={:.2f} ips={:.2f}| ETA {}'.format(
+                    lr, timer.timing, timer.ips, timer.eta)
                 logger.info(print_msg)
 
                 avg_loss = 0

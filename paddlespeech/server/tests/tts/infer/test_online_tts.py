@@ -71,8 +71,7 @@ def get_stream_am_inference(args, am_config):
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
 
-    am_name = args.am[:args.am.rindex('_')]
-    am_dataset = args.am[args.am.rindex('_') + 1:]
+    am_name = "fastspeech2"
     odim = am_config.n_mels
 
     am_class = dynamic_import(am_name, model_alias)
@@ -100,7 +99,7 @@ def init(args):
     frontend = get_frontend(args)
 
     # acoustic model
-    if args.am_support_stream:
+    if args.am == 'fastspeech2-C_csmsc':
         am, am_mu, am_std = get_stream_am_inference(args, am_config)
         am_infer_info = [am, am_mu, am_std, am_config]
     else:
@@ -117,8 +116,6 @@ def init(args):
 def get_phone(args, frontend, sentence, merge_sentences, get_tone_ids):
     am_name = args.am[:args.am.rindex('_')]
     tone_ids = None
-    if am_name == 'speedyspeech':
-        get_tone_ids = True
 
     if args.lang == 'zh':
         input_ids = frontend.get_input_ids(
@@ -142,7 +139,7 @@ def get_phone(args, frontend, sentence, merge_sentences, get_tone_ids):
 # 生成完整的mel
 def gen_mel(args, am_infer_info, part_phone_ids, part_tone_ids):
     # 如果是支持流式的AM模型
-    if args.am_support_stream:
+    if args.am == 'fastspeech2-C_csmsc':
         am, am_mu, am_std, am_config = am_infer_info
         orig_hs, h_masks = am.encoder_infer(part_phone_ids)
         if args.am_streaming:
@@ -180,23 +177,7 @@ def gen_mel(args, am_infer_info, part_phone_ids, part_tone_ids):
 
     else:
         am_inference, am_name, am_dataset, am_config = am_infer_info
-        # acoustic model
-        if am_name == 'fastspeech2':
-            # multi speaker
-            if am_dataset in {"aishell3", "vctk"}:
-                spk_id = paddle.to_tensor(args.spk_id)
-                mel = am_inference(part_phone_ids, spk_id)
-            else:
-                mel = am_inference(part_phone_ids)
-        elif am_name == 'speedyspeech':
-            part_tone_ids = tone_ids[i]
-            if am_dataset in {"aishell3", "vctk"}:
-                spk_id = paddle.to_tensor(args.spk_id)
-                mel = am_inference(part_phone_ids, part_tone_ids, spk_id)
-            else:
-                mel = am_inference(part_phone_ids, part_tone_ids)
-        elif am_name == 'tacotron2':
-            mel = am_inference(part_phone_ids)
+        mel = am_inference(part_phone_ids)
 
     return mel
 
@@ -297,7 +278,8 @@ def stream_am_stream_voc(args, am_infer_info, voc_infer_info, part_phone_ids,
     global wav_streaming
     global voc_stream_st
     mel_streaming = None
-    flag = 1  #用来表示开启流式voc的线程
+    #用来表示开启流式voc的线程
+    flag = 1
 
     am, am_mu, am_std, am_config = am_infer_info
     orig_hs, h_masks = am.encoder_infer(part_phone_ids)
@@ -343,7 +325,7 @@ def stream_am_stream_voc(args, am_infer_info, voc_infer_info, part_phone_ids,
     return am_infer_time, voc_infer_time, first_response_time, final_response_time, wav
 
 
-def try_infer(args, logger, frontend, am_infer_info, voc_infer_info):
+def warm_up(args, logger, frontend, am_infer_info, voc_infer_info):
     global sample_rate
     logger.info(
         "Before the formal test, we test a few texts to make the inference speed more stable."
@@ -363,7 +345,7 @@ def try_infer(args, logger, frontend, am_infer_info, voc_infer_info):
 
     merge_sentences = True
     get_tone_ids = False
-    for i in range(3):  # 推理3次
+    for i in range(5):  # 推理5次
         st = time.time()
         phone_ids, tone_ids = get_phone(args, frontend, sentence,
                                         merge_sentences, get_tone_ids)
@@ -500,18 +482,10 @@ def parse_args():
         '--am',
         type=str,
         default='fastspeech2_csmsc',
-        choices=[
-            'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
-            'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech'
-        ],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        '--am_support_stream',
-        type=str2bool,
-        default=False,
-        help='if am model is fastspeech2_csmsc, specify whether it supports streaming'
+        choices=['fastspeech2_csmsc', 'fastspeech2-C_csmsc'],
+        help='Choose acoustic model type of tts task. where fastspeech2-C_csmsc supports streaming inference'
     )
+
     parser.add_argument(
         '--am_config',
         type=str,
@@ -532,23 +506,12 @@ def parse_args():
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
         "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
     # vocoder
     parser.add_argument(
         '--voc',
         type=str,
         default='mb_melgan_csmsc',
-        choices=[
-            'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc', 'style_melgan_csmsc', 'hifigan_csmsc',
-            'wavernn_csmsc'
-        ],
+        choices=['mb_melgan_csmsc', 'hifigan_csmsc'],
         help='Choose vocoder type of tts task.')
     parser.add_argument(
         '--voc_config',
@@ -612,12 +575,8 @@ def parse_args():
 def main():
     args = parse_args()
     paddle.set_device(args.device)
-    if args.am_support_stream:
-        assert (args.am == 'fastspeech2_csmsc')
     if args.am_streaming:
-        assert (args.am_support_stream and args.am == 'fastspeech2_csmsc')
-    if args.voc_streaming:
-        assert (args.voc == 'mb_melgan_csmsc' or args.voc == 'hifigan_csmsc')
+        assert (args.am == 'fastspeech2-C_csmsc')
 
     logger = logging.getLogger()
     fhandler = logging.FileHandler(filename=args.log_file, mode='w')
@@ -639,8 +598,8 @@ def main():
     # get information about model
     frontend, am_infer_info, voc_infer_info = init(args)
     logger.info(
-        "************************ try infer *********************************")
-    try_infer(args, logger, frontend, am_infer_info, voc_infer_info)
+        "************************ warm up *********************************")
+    warm_up(args, logger, frontend, am_infer_info, voc_infer_info)
     logger.info(
         "************************ normal test *******************************")
     evaluate(args, logger, frontend, am_infer_info, voc_infer_info)

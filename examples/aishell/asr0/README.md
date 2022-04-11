@@ -151,21 +151,14 @@ avg.sh best exp/deepspeech2/checkpoints 1
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
 ```
 ## Pretrained Model
-You can get the pretrained transformer or conformer using the scripts below:
-```bash
-Deepspeech2 offline:
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
+You can get the pretrained models from [this](../../../docs/source/released_model.md).
 
-Deepspeech2 online:
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/aishell_ds2_online_cer8.00_release.tar.gz
-
-```
 using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:
 ```
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
-tar xzvf ds2.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
+tar xzvf asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
@@ -173,12 +166,7 @@ bash local/data.sh --stage 2  --stop_stage 2
 
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
 ```
-The performance of the released models are shown below:
-
-|         Acoustic Model         |  Training Data  | Token-based |   Size | Descriptions                                       | CER   | WER  | Hours of speech |
-| :----------------------------: | :-------------: | :---------: | -----: | :------------------------------------------------- | :---- | :--- | :-------------- |
-| Ds2 Online Aishell ASR0 Model  | Aishell Dataset | Char-based  | 345 MB | 2 Conv + 5 LSTM layers with only forward direction | 0.080 | -    | 151 h           |
-| Ds2 Offline Aishell ASR0 Model | Aishell Dataset | Char-based  | 306 MB | 2 Conv + 3 bidirectional GRU layers                | 0.064 | -    | 151 h           |
+The performance of the released models are shown in [this](./RESULTS.md)
 ## Stage 4: Static graph model Export
 This stage is to transform dygraph to static graph.
 ```bash
@@ -214,8 +202,8 @@ if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
 ```
 you can train the model by yourself, or you can download the pretrained model by the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/ds2.model.tar.gz
-tar xzvf ds2.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
+tar xzvf asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
 ```
 You can download the audio demo:
 ```bash

@@ -33,7 +33,8 @@ def tts_client(args):
         text: A sentence to be synthesized
         outfile: Synthetic audio file
     """
-    url = 'http://127.0.0.1:8090/paddlespeech/tts'
+    url = "http://" + str(args.server) + ":" + str(
+        args.port) + "/paddlespeech/tts"
     request = {
         "text": args.text,
         "spk_id": args.spk_id,
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--text',
         type=str,
-        default="你好，欢迎使用语音合成服务",
+        default="您好，欢迎使用语音合成服务。",
         help='A sentence to be synthesized')
     parser.add_argument('--spk_id', type=int, default=0, help='Speaker id')
     parser.add_argument('--speed', type=float, default=1.0, help='Audio speed')
@@ -88,6 +89,9 @@ if __name__ == "__main__":
         type=str,
         default="./out.wav",
         help='Synthesized audio file')
+    parser.add_argument(
+        "--server", type=str, help="server ip", default="127.0.0.1")
+    parser.add_argument("--port", type=int, help="server port", default=8090)
     args = parser.parse_args()
 
     st = time.time()

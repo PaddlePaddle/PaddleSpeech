@@ -180,7 +180,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
 - 👏🏻  2022.03.28: PaddleSpeech Server is available for Audio Classification, Automatic Speech Recognition and Text-to-Speech.
-- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verfication.
+- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verification.
 - 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
@@ -280,9 +280,13 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 For more information about server command lines, please see: [speech server demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
 
 
+<a name="ModelList"></a>
+
 ## Model List
 
 PaddleSpeech supports a series of most popular models. They are summarized in [released models](./docs/source/released_model.md) and attached with available pretrained models.
+
+<a name="SpeechToText"></a>
 
 **Speech-to-Text** contains *Acoustic Model*, *Language Model*, and *Speech Translation*, with the following details:
 
@@ -356,6 +360,8 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tr>
   </tbody>
 </table>
+
+<a name="TextToSpeech"></a>
 
 **Text-to-Speech** in PaddleSpeech mainly contains three modules: *Text Frontend*, *Acoustic Model* and *Vocoder*. Acoustic Model and Vocoder models are listed as follow:
 
@@ -457,10 +463,10 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tactron2</td>
+      <td>GE2E + Tacotron2</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
       </td>
     </tr>
     <tr>
@@ -472,6 +478,8 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </tbody>
 </table>
+
+<a name="AudioClassification"></a>
 
 **Audio Classification**
 
@@ -496,6 +504,8 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+<a name="SpeakerVerification"></a>
+
 **Speaker Verification**
 
 <table style="width:100%">
@@ -518,6 +528,8 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
   </tbody>
 </table>
+
+<a name="PunctuationRestoration"></a>
 
 **Punctuation Restoration**
 
@@ -559,10 +571,18 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
     - [Advanced Usage](./docs/source/tts/advanced_usage.md)
     - [Chinese Rule Based Text Frontend](./docs/source/tts/zh_text_frontend.md)
     - [Test Audio Samples](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
+  - Speaker Verification
+    - [Audio Searching](./demos/audio_searching/README.md)
+    - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Audio Classification](./demos/audio_tagging/README.md)
-  - [Speaker Verification](./demos/speaker_verification/README.md)
   - [Speech Translation](./demos/speech_translation/README.md)
+  - [Speech Server](./demos/speech_server/README.md)
 - [Released Models](./docs/source/released_model.md)
+  - [Speech-to-Text](#SpeechToText)
+  - [Text-to-Speech](#TextToSpeech)
+  - [Audio Classification](#AudioClassification)
+  - [Speaker Verification](#SpeakerVerification)
+  - [Punctuation Restoration](#PunctuationRestoration)
 - [Community](#Community)
 - [Welcome to contribute](#contribution)
 - [License](#License)

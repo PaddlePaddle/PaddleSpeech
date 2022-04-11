@@ -261,7 +261,7 @@ class VoxCeleb(Dataset):
                      output_file: str,
                      split_chunks: bool=True):
         print(f'Generating csv: {output_file}')
-        header = ["ID", "duration", "wav", "start", "stop", "spk_id"]
+        header = ["id", "duration", "wav", "start", "stop", "spk_id"]
         # Note: this may occurs c++ execption, but the program will execute fine
         # so we can ignore the execption 
         with Pool(cpu_count()) as p:

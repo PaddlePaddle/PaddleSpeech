@@ -27,6 +27,7 @@ from paddlespeech.s2t.frontend.speech import SpeechSegment
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
+from paddlespeech.server.utils.audio_process import pcm2float
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 
 __all__ = ['ASREngine']
@@ -36,7 +37,7 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
         'md5':
-        'd5e076217cf60486519f72c217d21b9b',
+        '23e16c69730a1cb5d735c98c83c21e16',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
@@ -222,21 +223,6 @@ class ASRServerExecutor(ASRExecutor):
         else:
             raise Exception("invalid model name")
 
-    def _pcm16to32(self, audio):
-        """pcm int16 to float32
-
-        Args:
-            audio(numpy.array): numpy.int16
-
-        Returns:
-            audio(numpy.array): numpy.float32
-        """
-        if audio.dtype == np.int16:
-            audio = audio.astype("float32")
-            bits = np.iinfo(np.int16).bits
-            audio = audio / (2**(bits - 1))
-        return audio
-
     def extract_feat(self, samples, sample_rate):
         """extract feat
 
@@ -249,7 +235,7 @@ class ASRServerExecutor(ASRExecutor):
             x_chunk_lens (numpy.array): shape[B]
         """
         # pcm16 -> pcm 32
-        samples = self._pcm16to32(samples)
+        samples = pcm2float(samples)
 
         # read audio
         speech_segment = SpeechSegment.from_pcm(

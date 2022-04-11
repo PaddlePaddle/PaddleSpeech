@@ -16,6 +16,7 @@ from typing import List
 from fastapi import APIRouter
 
 from paddlespeech.server.ws.asr_socket import router as asr_router
+from paddlespeech.server.ws.tts_socket import router as tts_router
 
 _router = APIRouter()
 
@@ -31,7 +32,7 @@ def setup_router(api_list: List):
         if api_name == 'asr':
             _router.include_router(asr_router)
         elif api_name == 'tts':
-            pass
+            _router.include_router(tts_router)
         else:
             pass
 

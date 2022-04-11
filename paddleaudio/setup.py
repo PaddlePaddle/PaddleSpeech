@@ -19,7 +19,7 @@ from setuptools.command.install import install
 from setuptools.command.test import test
 
 # set the version here
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 # Inspired by the example at https://pytest.org/latest/goodpractises.html
@@ -83,9 +83,8 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         'numpy >= 1.15.0', 'scipy >= 1.0.0', 'resampy >= 0.2.2',
-        'soundfile >= 0.9.0', 'colorlog', 'dtaidistance == 2.3.1', 'mcd >= 0.4',
-        'pathos'
-    ],
+        'soundfile >= 0.9.0', 'colorlog', 'dtaidistance == 2.3.1', 'pathos'
+        ],
     extras_require={
         'test': [
             'nose', 'librosa==0.8.1', 'soundfile==0.10.3.post1',

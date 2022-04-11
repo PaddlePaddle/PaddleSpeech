@@ -103,3 +103,40 @@ def change_speed(sample_raw, speed_rate, sample_rate):
         sample_rate_in=sample_rate).squeeze(-1).astype(np.float32).copy()
 
     return sample_speed
+
+
+def float2pcm(sig, dtype='int16'):
+    """Convert floating point signal with a range from -1 to 1 to PCM.
+
+    Args:
+        sig (array): Input array, must have floating point type.
+        dtype (str, optional): Desired (integer) data type. Defaults to 'int16'.
+
+    Returns:
+        numpy.ndarray: Integer data, scaled and clipped to the range of the given
+    """
+    sig = np.asarray(sig)
+    if sig.dtype.kind != 'f':
+        raise TypeError("'sig' must be a float array")
+    dtype = np.dtype(dtype)
+    if dtype.kind not in 'iu':
+        raise TypeError("'dtype' must be an integer type")
+
+    i = np.iinfo(dtype)
+    abs_max = 2**(i.bits - 1)
+    offset = i.min + abs_max
+    return (sig * abs_max + offset).clip(i.min, i.max).astype(dtype)
+
+
+def pcm2float(data):
+    """pcm int16 to float32
+    Args:
+        audio(numpy.array): numpy.int16
+    Returns:
+        audio(numpy.array): numpy.float32
+    """
+    if data.dtype == np.int16:
+        data = data.astype("float32")
+        bits = np.iinfo(np.int16).bits
+        data = data / (2**(bits - 1))
+    return data

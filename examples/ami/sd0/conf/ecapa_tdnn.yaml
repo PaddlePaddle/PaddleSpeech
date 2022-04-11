@@ -1,0 +1,62 @@
+###########################################################
+#                AMI DATA PREPARE SETTING               #
+###########################################################
+split_type: 'full_corpus_asr'
+skip_TNO: True
+# Options for mic_type: 'Mix-Lapel', 'Mix-Headset', 'Array1', 'Array1-01', 'BeamformIt'
+mic_type: 'Mix-Headset'
+vad_type: 'oracle'
+max_subseg_dur: 3.0
+overlap: 1.5
+# Some more exp folders (for cleaner structure).
+embedding_dir: emb #!ref <save_folder>/emb
+meta_data_dir: metadata #!ref <save_folder>/metadata
+ref_rttm_dir: ref_rttms #!ref <save_folder>/ref_rttms
+sys_rttm_dir: sys_rttms #!ref <save_folder>/sys_rttms
+der_dir: DER #!ref <save_folder>/DER
+
+
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+# currently, we only support fbank
+sr: 16000           # sample rate
+n_mels: 80
+window_size: 400     #25ms, sample rate 16000, 25 * 16000 / 1000 = 400 
+hop_size: 160        #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
+#left_frames: 0
+#right_frames: 0
+#deltas: False
+
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+# currently, we only support ecapa-tdnn in the ecapa_tdnn.yaml
+# if we want use another model, please choose another configuration yaml file
+seed: 1234
+emb_dim: 192
+batch_size: 16
+model:
+  input_size: 80
+  channels: [1024, 1024, 1024, 1024, 3072]
+  kernel_sizes: [5, 3, 3, 3, 1]
+  dilations: [1, 2, 3, 4, 1]
+  attention_channels: 128
+  lin_neurons: 192
+# Will automatically download ECAPA-TDNN model (best).
+
+###########################################################
+#               SPECTRAL CLUSTERING SETTING               #
+###########################################################
+backend: 'SC' # options: 'kmeans' # Note: kmeans goes only with cos affinity
+affinity: 'cos'  # options: cos, nn
+max_num_spkrs: 10
+oracle_n_spkrs: True
+
+
+###########################################################
+#                  DER EVALUATION SETTING                 #
+###########################################################
+ignore_overlap: True
+forgiveness_collar: 0.25

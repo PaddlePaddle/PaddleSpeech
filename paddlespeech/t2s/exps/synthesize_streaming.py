@@ -90,6 +90,7 @@ def evaluate(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     merge_sentences = True
+    get_tone_ids = False
 
     N = 0
     T = 0
@@ -98,8 +99,6 @@ def evaluate(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            get_tone_ids = False
-
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
                     sentence,

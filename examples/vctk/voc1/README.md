@@ -132,7 +132,8 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Model
-Pretrained models can be downloaded here [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip).
+Pretrained models can be downloaded here:
+- [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip)
 
 Parallel WaveGAN checkpoint contains files listed below.
 

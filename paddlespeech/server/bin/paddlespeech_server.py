@@ -23,8 +23,9 @@ from ..util import cli_server_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import init_engine_pool
-from paddlespeech.server.restful.api import setup_router
+from paddlespeech.server.restful.api import setup_router as setup_http_router
 from paddlespeech.server.utils.config import get_config
+from paddlespeech.server.ws.api import setup_router as setup_ws_router
 
 __all__ = ['ServerExecutor', 'ServerStatsExecutor']
 
@@ -63,7 +64,12 @@ class ServerExecutor(BaseExecutor):
         """
         # init api
         api_list = list(engine.split("_")[0] for engine in config.engine_list)
-        api_router = setup_router(api_list)
+        if config.protocol == "websocket":
+            api_router = setup_ws_router(api_list)
+        elif config.protocol == "http":
+            api_router = setup_http_router(api_list)
+        else:
+            raise Exception("unsupported protocol")
         app.include_router(api_router)
 
         if not init_engine_pool(config):

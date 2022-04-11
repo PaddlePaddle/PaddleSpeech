@@ -225,7 +225,7 @@ def main(args, config):
                 print_msg += ' avg_train_cost: {:.5f} sec,'.format(
                     train_run_cost / config.log_interval)
 
-                print_msg += ' lr={:.4E} step/sec={:.2f} ips={:.2f}| ETA {}'.format(
+                print_msg += ' lr={:.4E} step/sec={:.2f} ips:{:.5f}| ETA {}'.format(
                     lr, timer.timing, timer.ips, timer.eta)
                 logger.info(print_msg)
 

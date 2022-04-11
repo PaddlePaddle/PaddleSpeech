@@ -94,7 +94,6 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
 void PaddleNnet::Reset() { InitCacheEncouts(opts_); }
 
 paddle_infer::Predictor* PaddleNnet::GetPredictor() {
-    LOG(INFO) << "attempt to get a new predictor instance " << std::endl;
     paddle_infer::Predictor* predictor = nullptr;
     std::lock_guard<std::mutex> guard(pool_mutex);
     int pred_id = 0;
@@ -110,7 +109,6 @@ paddle_infer::Predictor* PaddleNnet::GetPredictor() {
     if (predictor) {
         pool_usages[pred_id] = true;
         predictor_to_thread_id[predictor] = pred_id;
-        LOG(INFO) << pred_id << " predictor create success";
     } else {
         LOG(INFO) << "Failed to get predictor from pool !!!";
     }
@@ -119,7 +117,6 @@ paddle_infer::Predictor* PaddleNnet::GetPredictor() {
 }
 
 int PaddleNnet::ReleasePredictor(paddle_infer::Predictor* predictor) {
-    LOG(INFO) << "attempt to releae a predictor";
     std::lock_guard<std::mutex> guard(pool_mutex);
     auto iter = predictor_to_thread_id.find(predictor);
 
@@ -128,10 +125,8 @@ int PaddleNnet::ReleasePredictor(paddle_infer::Predictor* predictor) {
         return 0;
     }
 
-    LOG(INFO) << iter->second << " predictor will be release";
     pool_usages[iter->second] = false;
     predictor_to_thread_id.erase(predictor);
-    LOG(INFO) << "release success";
     return 0;
 }
 
@@ -152,7 +147,6 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     int feat_row = features.Dim() / feature_dim;
     std::vector<std::string> input_names = predictor->GetInputNames();
     std::vector<std::string> output_names = predictor->GetOutputNames();
-    LOG(INFO) << "feat info: rows, cols: " << feat_row << ", " << feature_dim;
 
     std::unique_ptr<paddle_infer::Tensor> input_tensor =
         predictor->GetInputHandle(input_names[0]);

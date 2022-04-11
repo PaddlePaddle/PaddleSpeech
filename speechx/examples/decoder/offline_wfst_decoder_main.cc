@@ -22,10 +22,11 @@
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
 
-DEFINE_string(feature_respecifier, "", "test feature rspecifier");
+DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
+DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
-DEFINE_string(word_symbol_table, "vocab.txt", "word symbol table");
+DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
 DEFINE_string(graph_path, "TLG", "decoder graph");
 DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
 DEFINE_int32(max_active, 7500, "decoder graph");
@@ -35,22 +36,33 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
+DEFINE_string(model_output_names,
+              "save_infer_model/scale_0.tmp_1,save_infer_model/"
+              "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"
+              "scale_3.tmp_1",
+              "model output names");
+DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
-// test clg decoder by feeding speech feature.
+// test TLG decoder by feeding speech feature.
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
-        FLAGS_feature_respecifier);
+        FLAGS_feature_rspecifier);
+    kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
     std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
     std::string word_symbol_table = FLAGS_word_symbol_table;
     std::string graph_path = FLAGS_graph_path;
+    LOG(INFO) << "model path: " << model_graph;
+    LOG(INFO) << "model param: " << model_params;
+    LOG(INFO) << "word symbol path: " << word_symbol_table;
+    LOG(INFO) << "graph path: " << graph_path;
 
     int32 num_done = 0, num_err = 0;
 
@@ -65,7 +77,8 @@ int main(int argc, char* argv[]) {
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_graph;
     model_opts.params_path = model_params;
-    model_opts.cache_shape = "5-1-1024,5-1-1024";
+    model_opts.cache_shape = FLAGS_model_cache_names;
+    model_opts.output_names = FLAGS_model_output_names;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
@@ -127,6 +140,11 @@ int main(int argc, char* argv[]) {
         std::string result;
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;
+         if (result.empty()) {
+            // the TokenWriter can not write empty string.
+            result = " ";
+        }
+        result_writer.Write(utt, result);
         decodable->Reset();
         decoder.Reset();
         ++num_done;

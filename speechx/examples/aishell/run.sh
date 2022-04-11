@@ -48,7 +48,7 @@ wer=./aishell_wer
 nj=40
 export GLOG_logtostderr=1
 
-./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
+#./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
 data=$PWD/data
 # 3. gen linear feat
@@ -72,10 +72,42 @@ utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log \
     --param_path=$aishell_online_model/avg_1.jit.pdiparams \
     --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
     --dict_file=$lm_model_dir/vocab.txt \
-    --lm_path=$lm_model_dir/avg_1.jit.klm \
     --result_wspecifier=ark,t:$data/split${nj}/JOB/result
 
-cat $data/split${nj}/*/result > $label_file
+cat $data/split${nj}/*/result > ${label_file}
+local/compute-wer.py --char=1 --v=1 ${label_file} $text > ${wer}
 
-local/compute-wer.py --char=1 --v=1 $label_file $text > $wer
-tail $wer
+# 4. decode with lm
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log_lm \
+  offline_decoder_sliding_chunk_main \
+    --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
+    --model_path=$aishell_online_model/avg_1.jit.pdmodel \
+    --param_path=$aishell_online_model/avg_1.jit.pdiparams \
+    --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
+    --dict_file=$lm_model_dir/vocab.txt \
+    --lm_path=$lm_model_dir/avg_1.jit.klm \
+    --result_wspecifier=ark,t:$data/split${nj}/JOB/result_lm
+
+cat $data/split${nj}/*/result_lm > ${label_file}_lm
+local/compute-wer.py --char=1 --v=1 ${label_file}_lm $text > ${wer}_lm
+
+graph_dir=./aishell_graph
+if [ ! -d $ ]; then
+    wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_graph.zip
+    unzip -d aishell_graph.zip
+fi
+
+# 5. test TLG decoder
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log_tlg \
+  offline_wfst_decoder_main \
+    --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
+    --model_path=$aishell_online_model/avg_1.jit.pdmodel \
+    --param_path=$aishell_online_model/avg_1.jit.pdiparams \
+    --word_symbol_table=$graph_dir/words.txt \
+    --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
+     --graph_path=$graph_dir/TLG.fst --max_active=7500 \
+    --acoustic_scale=1.2 \
+    --result_wspecifier=ark,t:$data/split${nj}/JOB/result_tlg
+
+cat $data/split${nj}/*/result_tlg > ${label_file}_tlg
+local/compute-wer.py --char=1 --v=1 ${label_file}_tlg $text > ${wer}_tlg

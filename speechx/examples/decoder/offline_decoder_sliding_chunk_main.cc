@@ -27,7 +27,7 @@ DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
-DEFINE_string(lm_path, "lm.klm", "language model");
+DEFINE_string(lm_path, "", "language model");
 DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=5) downsampling module.");
@@ -45,7 +45,6 @@ using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
-
 // test ds2 online decoder by feeding speech feature
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -62,7 +61,6 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "model param: " << model_params;
     LOG(INFO) << "dict path: " << dict_file;
     LOG(INFO) << "lm path: " << lm_path;
-
 
     int32 num_done = 0, num_err = 0;
 
@@ -139,6 +137,10 @@ int main(int argc, char* argv[]) {
         std::string result;
         result = decoder.GetFinalBestPath();
         KALDI_LOG << " the result of " << utt << " is " << result;
+        if (result.empty()) {
+            // the TokenWriter can not write empty string.
+            result = " ";
+        }
         result_writer.Write(utt, result);
         decodable->Reset();
         decoder.Reset();

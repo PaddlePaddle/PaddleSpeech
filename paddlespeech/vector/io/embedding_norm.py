@@ -57,14 +57,14 @@ class InputNormalization:
             lengths (paddle.Tensor): A batch of tensors containing the relative length of each
                                     sentence (e.g, [0.7, 0.9, 1.0]). It is used to avoid
                                     computing stats on zero-padded steps.
-            spk_ids (_type_, optional): tensor containing the ids of each speaker (e.g, [0 10 6]).
+            spk_ids (paddle.Tensor, optional): tensor containing the ids of each speaker (e.g, [0 10 6]).
                                         It is used to perform per-speaker normalization when
                                         norm_type='speaker'. Defaults to paddle.to_tensor([], dtype="float32").
         Returns:
             paddle.Tensor: The normalized feature or embedding
         """
         N_batches = x.shape[0]
-        # print(f"x shape: {x.shape[1]}")
+
         current_means = []
         current_stds = []
 
@@ -75,6 +75,9 @@ class InputNormalization:
             actual_size = paddle.round(lengths[snt_id] *
                                        x.shape[1]).astype("int32")
             # computing actual time data statistics
+            # we extract the snt_id embedding from the x
+            # and the target paddle.Tensor will reduce an 0-axis
+            # so we need unsqueeze operation to recover the all axis 
             current_mean, current_std = self._compute_current_stats(
                 x[snt_id, 0:actual_size, ...].unsqueeze(0))
             current_means.append(current_mean)

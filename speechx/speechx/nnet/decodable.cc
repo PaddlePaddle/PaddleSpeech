@@ -78,7 +78,6 @@ bool Decodable::AdvanceChunk() {
 
     frame_offset_ = frames_ready_;
     frames_ready_ += nnet_cache_.NumRows();
-    LOG(INFO) << "nnet size: " << nnet_cache_.NumRows();
     return true;
 }
 

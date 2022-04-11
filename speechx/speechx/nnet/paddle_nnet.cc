@@ -177,7 +177,6 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
         LOG(INFO) << "predictor run occurs error";
     }
 
-    LOG(INFO) << "get the model success";
     std::unique_ptr<paddle_infer::Tensor> h_out =
         predictor->GetOutputHandle(output_names[2]);
     assert(h_cache->get_shape() == h_out->shape());

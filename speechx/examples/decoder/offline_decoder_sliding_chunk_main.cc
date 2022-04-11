@@ -136,14 +136,16 @@ int main(int argc, char* argv[]) {
         }
         std::string result;
         result = decoder.GetFinalBestPath();
-        KALDI_LOG << " the result of " << utt << " is " << result;
-        if (result.empty()) {
-            // the TokenWriter can not write empty string.
-            result = " ";
-        }
-        result_writer.Write(utt, result);
         decodable->Reset();
         decoder.Reset();
+        if (result.empty()) {
+            // the TokenWriter can not write empty string.
+            ++num_err;
+            KALDI_LOG << " the result of " << utt << " is empty";
+            continue;
+        }
+        KALDI_LOG << " the result of " << utt << " is " << result;
+        result_writer.Write(utt, result);
         ++num_done;
     }
 

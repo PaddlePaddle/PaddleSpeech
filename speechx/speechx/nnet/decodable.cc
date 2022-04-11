@@ -22,8 +22,13 @@ using std::vector;
 using kaldi::Vector;
 
 Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
-                     const std::shared_ptr<FrontendInterface>& frontend)
-    : frontend_(frontend), nnet_(nnet), frame_offset_(0), frames_ready_(0) {}
+                     const std::shared_ptr<FrontendInterface>& frontend,
+                     kaldi::BaseFloat acoustic_scale)
+    : frontend_(frontend),
+      nnet_(nnet),
+      frame_offset_(0),
+      frames_ready_(0),
+      acoustic_scale_(acoustic_scale) {}
 
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
     nnet_cache_ = likelihood;
@@ -32,14 +37,14 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
 
 // Decodable::Init(DecodableConfig config) {
 //}
-int32 Decodable::NumFramesReady() const {
-    return frames_ready_;
-}
 
+// return the size of frame have computed.
+int32 Decodable::NumFramesReady() const { return frames_ready_; }
+
+// frame idx is from 0 to frame_ready_ -1;
 bool Decodable::IsLastFrame(int32 frame) {
     bool flag = EnsureFrameHaveComputed(frame);
-    //CHECK_LE(frame, frames_ready_);
-    return (flag == false) && (frame == frames_ready_);
+    return frame >= frames_ready_;
 }
 
 int32 Decodable::NumIndices() const { return 0; }
@@ -48,7 +53,8 @@ BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     CHECK_LE(index, nnet_cache_.NumCols());
     CHECK_LE(frame, frames_ready_);
     int32 frame_idx = frame - frame_offset_;
-    return std::log(nnet_cache_(frame_idx, index) + std::numeric_limits<float>::min());
+    return acoustic_scale_ * std::log(nnet_cache_(frame_idx, index - 1) +
+                                      std::numeric_limits<float>::min());
 }
 
 bool Decodable::EnsureFrameHaveComputed(int32 frame) {
@@ -67,20 +73,12 @@ bool Decodable::AdvanceChunk() {
     Vector<BaseFloat> inferences;
     Matrix<BaseFloat> nnet_cache_tmp;
     nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
-    nnet_cache_tmp.Resize(inferences.Dim() / nnet_dim, nnet_dim);
-    nnet_cache_tmp.CopyRowsFromVec(inferences);
-    // skip blank
-    vector<int> no_blank_record;
-    BaseFloat blank_threshold = 0.98;
-    for (int32 idx = 0; idx < nnet_cache_.NumRows(); ++idx) {
-      if (nnet_cache_(idx, 0) > blank_threshold) {
-             
-      }
-    }
-    
-    
+    nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
+    nnet_cache_.CopyRowsFromVec(inferences);
+
     frame_offset_ = frames_ready_;
     frames_ready_ += nnet_cache_.NumRows();
+    LOG(INFO) << "nnet size: " << nnet_cache_.NumRows();
     return true;
 }
 
@@ -89,7 +87,8 @@ bool Decodable::FrameLogLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
     if (EnsureFrameHaveComputed(frame) == false) return false;
     likelihood->resize(nnet_cache_.NumCols());
     for (int32 idx = 0; idx < nnet_cache_.NumCols(); ++idx) {
-        (*likelihood)[idx] = nnet_cache_(frame - frame_offset_, idx);
+        (*likelihood)[idx] =
+            nnet_cache_(frame - frame_offset_, idx) * acoustic_scale_;
     }
     return true;
 }

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 SpeechBrain Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle and SpeechBrain Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -569,7 +569,7 @@ if __name__ == '__main__':
     te_sgs = ['te' + str(i) for i in range(te_N)]
     te_sets = numpy.array(te_sgs, dtype="|O")
     te_stat = EmbeddingMeta(modelset=te_sets, segset=te_sets, stats=te_xv)
-    ndx = Ndx(models=en_sets, testsegs=te_sets)
+    ndx = Ndx(models=en_sets, testsegs=te_sets)  # trials
     # PLDA Scoring
     scores_plda = plda.scoring(en_stat, te_stat, ndx)
     print(scores_plda.scoremat.shape)  #(20, 30)

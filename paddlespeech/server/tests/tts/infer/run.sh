@@ -1,6 +1,6 @@
 model_path=~/.paddlespeech/models/
-am_model_dir=$model_path/fastspeech2_csmsc-zh/fastspeech2_cnndecoder_csmsc_ckpt_1.0.0/    ## fastspeech2_c
-voc_model_dir=$model_path/mb_melgan_csmsc-zh/mb_melgan_csmsc_ckpt_0.1.1/    ## mb_melgan
+am_model_dir=$model_path/fastspeech2_csmsc-zh/fastspeech2_cnndecoder_csmsc_ckpt_1.0.0/   
+voc_model_dir=$model_path/mb_melgan_csmsc-zh/mb_melgan_csmsc_ckpt_0.1.1/    
 testdata=../../../../t2s/exps/csmsc_test.txt
 
 # get am file
@@ -33,9 +33,13 @@ done
 
 
 # run test
-# am can choose fastspeech2_csmsc or fastspeech2-C_csmsc, where fastspeech2-C_csmsc supports streaming inference.
+# am can choose fastspeech2_csmsc or fastspeech2_cnndecoder_csmsc, where fastspeech2_cnndecoder_csmsc supports streaming inference.
 # voc can choose hifigan_csmsc and mb_melgan_csmsc, They can both support streaming inference.
-python test_online_tts.py --am fastspeech2-C_csmsc \
+# When am is fastspeech2_cnndecoder_csmsc and am_pad is set to 12, there is no diff between streaming and non-streaming inference results.
+# When voc is mb_melgan_csmsc and voc_pad is set to 14, there is no diff between streaming and non-streaming inference results.
+# When voc is hifigan_csmsc and voc_pad is set to 20, there is no diff between streaming and non-streaming inference results.
+
+python test_online_tts.py --am fastspeech2_cnndecoder_csmsc \
                           --am_config $am_model_dir/$am_config_file \
                           --am_ckpt $am_model_dir/$am_ckpt_file \
                           --am_stat $am_model_dir/$am_stat_file \

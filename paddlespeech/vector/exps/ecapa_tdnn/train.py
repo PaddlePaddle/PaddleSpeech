@@ -42,6 +42,12 @@ logger = Log(__name__).getlog()
 
 
 def main(args, config):
+    """The main process for test the speaker verification model
+
+    Args:
+        args (argparse.Namespace): the command line args namespace
+        config (yacs.config.CfgNode): the yaml config
+    """
     # stage0: set the training device, cpu or gpu
     paddle.set_device(args.device)
 
@@ -49,11 +55,11 @@ def main(args, config):
     paddle.distributed.init_parallel_env()
     nranks = paddle.distributed.get_world_size()
     local_rank = paddle.distributed.get_rank()
-    # set the random seed, it is a must for multiprocess training
+    # set the random seed, it is the necessary measures for multiprocess training
     seed_everything(config.seed)
 
     # stage2: data prepare, such vox1 and vox2 data, and augment noise data and pipline
-    # note: some cmd must do in rank==0, so wo will refactor the data prepare code
+    # note: some operations must be done in rank==0
     train_dataset = CSVDataset(
         csv_path=os.path.join(args.data_dir, "vox/csv/train.csv"),
         label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
@@ -61,12 +67,14 @@ def main(args, config):
         csv_path=os.path.join(args.data_dir, "vox/csv/dev.csv"),
         label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
 
+    # we will build the augment pipeline process list
     if config.augment:
         augment_pipeline = build_augment_pipeline(target_dir=args.data_dir)
     else:
         augment_pipeline = []
 
     # stage3: build the dnn backbone model network
+    #         in speaker verification period, we use the backbone mode to extract the audio embedding
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage4: build the speaker verification train instance with backbone model
@@ -77,13 +85,15 @@ def main(args, config):
     #         140000 is single gpu steps
     #         so, in multi-gpu mode, wo reduce the step_size to 140000//nranks to enable CyclicLRScheduler
     lr_schedule = CyclicLRScheduler(
-        base_lr=config.learning_rate, max_lr=1e-3, step_size=140000 // nranks)
+        base_lr=config.learning_rate,
+        max_lr=config.max_lr,
+        step_size=config.step_size // nranks)
     optimizer = paddle.optimizer.AdamW(
         learning_rate=lr_schedule, parameters=model.parameters())
 
     # stage6: build the loss function, we now only support LogSoftmaxWrapper
     criterion = LogSoftmaxWrapper(
-        loss_fn=AdditiveAngularMargin(margin=0.2, scale=30))
+        loss_fn=AdditiveAngularMargin(margin=config.margin, scale=config.scale))
 
     # stage7: confirm training start epoch
     #         if pre-trained model exists, start epoch confirmed by the pre-trained model
@@ -225,7 +235,7 @@ def main(args, config):
                 print_msg += ' avg_train_cost: {:.5f} sec,'.format(
                     train_run_cost / config.log_interval)
 
-                print_msg += ' lr={:.4E} step/sec={:.2f} ips:{:.5f}| ETA {}'.format(
+                print_msg += ' lr={:.4E} step/sec={:.2f} ips={:.5f}| ETA {}'.format(
                     lr, timer.timing, timer.ips, timer.eta)
                 logger.info(print_msg)
 

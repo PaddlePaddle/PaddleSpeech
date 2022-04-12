@@ -4,7 +4,7 @@
 augment: True
 batch_size: 32
 num_workers: 2
-num_speakers: 1211 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
+num_speakers: 7205 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
 shuffle: True
 skip_prep: False
 split_ratio: 0.9
@@ -42,7 +42,15 @@ epochs: 10
 save_interval: 10
 log_interval: 10
 learning_rate: 1e-8
+max_lr: 1e-3
+step_size: 140000
 
+
+###########################################
+#                loss                     #
+###########################################
+margin: 0.2
+scale: 30
 
 ###########################################
 #                Testing                  #

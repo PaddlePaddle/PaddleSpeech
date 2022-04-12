@@ -38,10 +38,10 @@ def compute_dataset_embedding(data_loader, model, mean_var_norm_emb, config,
     """compute the dataset embeddings
 
     Args:
-        data_loader (_type_): _description_
-        model (_type_): _description_
-        mean_var_norm_emb (_type_): _description_
-        config (_type_): _description_
+        data_loader (paddle.io.Dataloader): the dataset loader to be compute the embedding
+        model (paddle.nn.Layer): the speaker verification model
+        mean_var_norm_emb : compute the embedding mean and std norm
+        config (yacs.config.CfgNode): the yaml config
     """
     logger.info(
         f'Computing embeddings on {data_loader.dataset.csv_path} dataset')
@@ -65,6 +65,17 @@ def compute_dataset_embedding(data_loader, model, mean_var_norm_emb, config,
 
 
 def compute_verification_scores(id2embedding, train_cohort, config):
+    """Compute the verification trial scores
+
+    Args:
+        id2embedding (dict): the utterance embedding
+        train_cohort (paddle.tensor): the cohort dataset embedding
+        config (yacs.config.CfgNode): the yaml config
+
+    Returns:
+        the scores and the trial labels, 
+        1 refers the target and 0 refers the nontarget in labels
+    """
     labels = []
     enroll_ids = []
     test_ids = []
@@ -119,20 +130,32 @@ def compute_verification_scores(id2embedding, train_cohort, config):
 
 
 def main(args, config):
+    """The main process for test the speaker verification model
+
+    Args:
+        args (argparse.Namespace): the command line args namespace
+        config (yacs.config.CfgNode): the yaml config
+    """
+
     # stage0: set the training device, cpu or gpu
+    #         if set the gpu, paddlespeech will select a gpu according the env CUDA_VISIBLE_DEVICES
     paddle.set_device(args.device)
-    # set the random seed, it is a must for multiprocess training
+    # set the random seed, it is the necessary measures for multiprocess training
     seed_everything(config.seed)
 
     # stage1: build the dnn backbone model network
+    #         we will extract the audio embedding from the backbone model
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage2: build the speaker verification eval instance with backbone model
+    #         because the checkpoint dict name has the SpeakerIdetification prefix
+    #         so we need to create the SpeakerIdetification instance
+    #         but we acutally use the backbone model to extact the audio embedding 
     model = SpeakerIdetification(
         backbone=ecapa_tdnn, num_class=config.num_speakers)
 
     # stage3: load the pre-trained model
-    #         we get the last model from the epoch and save_interval
+    #         generally, we get the last model from the epoch
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
 
@@ -143,7 +166,8 @@ def main(args, config):
     logger.info(f'Checkpoint loaded from {args.load_checkpoint}')
 
     # stage4: construct the enroll and test dataloader
-
+    #         Now, wo think the enroll dataset is in the {args.data_dir}/vox/csv/enroll.csv,
+    #         and the test dataset is in the {args.data_dir}/vox/csv/test.csv
     enroll_dataset = CSVDataset(
         os.path.join(args.data_dir, "vox/csv/enroll.csv"),
         feat_type='melspectrogram',
@@ -152,14 +176,14 @@ def main(args, config):
         window_size=config.window_size,
         hop_length=config.hop_size)
     enroll_sampler = BatchSampler(
-        enroll_dataset, batch_size=config.batch_size,
-        shuffle=False)  # Shuffle to make embedding normalization more robust.
+        enroll_dataset, batch_size=config.batch_size, shuffle=False)
     enroll_loader = DataLoader(enroll_dataset,
                     batch_sampler=enroll_sampler,
                     collate_fn=lambda x: batch_feature_normalize(
                                 x, mean_norm=True, std_norm=False),
                     num_workers=config.num_workers,
                     return_list=True,)
+
     test_dataset = CSVDataset(
         os.path.join(args.data_dir, "vox/csv/test.csv"),
         feat_type='melspectrogram',
@@ -167,7 +191,6 @@ def main(args, config):
         n_mels=config.n_mels,
         window_size=config.window_size,
         hop_length=config.hop_size)
-
     test_sampler = BatchSampler(
         test_dataset, batch_size=config.batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset,
@@ -180,16 +203,17 @@ def main(args, config):
     model.eval()
 
     # stage6: global embedding norm to imporve the performance
+    #         and we create the InputNormalization instance to process the embedding mean and std norm
     logger.info(f"global embedding norm: {config.global_embedding_norm}")
-
-    # stage7: Compute embeddings of audios in enrol and test dataset from model.
-
     if config.global_embedding_norm:
         mean_var_norm_emb = InputNormalization(
             norm_type="global",
             mean_norm=config.embedding_mean_norm,
             std_norm=config.embedding_std_norm)
 
+    # stage 7: score norm need the imposters dataset
+    #          we select the train dataset as the idea imposters dataset
+    #          and we select the config.n_train_snts utterance to as the final imposters dataset
     if "score_norm" in config:
         logger.info(f"we will do score norm: {config.score_norm}")
         train_dataset = CSVDataset(
@@ -209,6 +233,7 @@ def main(args, config):
                             num_workers=config.num_workers,
                             return_list=True,)
 
+    # stage 8: Compute embeddings of audios in enrol and test dataset from model.
     id2embedding = {}
     # Run multi times to make embedding normalization more stable.
     logger.info("First loop for enroll and test dataset")
@@ -225,7 +250,7 @@ def main(args, config):
     mean_var_norm_emb.save(
         os.path.join(args.load_checkpoint, "mean_var_norm_emb"))
 
-    # stage 8: Compute cosine scores.
+    # stage 9: Compute cosine scores.
     train_cohort = None
     if "score_norm" in config:
         train_embeddings = {}
@@ -234,11 +259,11 @@ def main(args, config):
                                   train_embeddings)
         train_cohort = paddle.stack(list(train_embeddings.values()))
 
-    # compute the scores
+    # stage 10: compute the scores
     scores, labels = compute_verification_scores(id2embedding, train_cohort,
                                                  config)
 
-    # compute the EER and threshold
+    # stage 11: compute the EER and threshold
     scores = paddle.to_tensor(scores)
     EER, threshold = compute_eer(np.asarray(labels), scores.numpy())
     logger.info(

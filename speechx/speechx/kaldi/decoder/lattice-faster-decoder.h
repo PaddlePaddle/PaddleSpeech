@@ -23,11 +23,10 @@
 #ifndef KALDI_DECODER_LATTICE_FASTER_DECODER_H_
 #define KALDI_DECODER_LATTICE_FASTER_DECODER_H_
 
-#include "decoder/grammar-fst.h"
 #include "fst/fstlib.h"
 #include "fst/memory.h"
 #include "fstext/fstext-lib.h"
-#include "itf/decodable-itf.h"
+#include "decoder/decodable-itf.h"
 #include "lat/determinize-lattice-pruned.h"
 #include "lat/kaldi-lattice.h"
 #include "util/hash-list.h"

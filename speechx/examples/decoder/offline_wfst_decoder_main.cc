@@ -16,7 +16,7 @@
 
 #include "base/flags.h"
 #include "base/log.h"
-#include "decoder/ctc_beam_search_decoder.h"
+#include "decoder/ctc_tlg_decoder.h"
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
@@ -26,8 +26,10 @@ DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
-DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
-DEFINE_string(lm_path, "", "language model");
+DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
+DEFINE_string(graph_path, "TLG", "decoder graph");
+DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
+DEFINE_int32(max_active, 7500, "decoder graph");
 DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=5) downsampling module.");
@@ -45,7 +47,7 @@ using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
-// test ds2 online decoder by feeding speech feature
+// test TLG decoder by feeding speech feature.
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
@@ -55,19 +57,22 @@ int main(int argc, char* argv[]) {
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
     std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
-    std::string dict_file = FLAGS_dict_file;
-    std::string lm_path = FLAGS_lm_path;
+    std::string word_symbol_table = FLAGS_word_symbol_table;
+    std::string graph_path = FLAGS_graph_path;
     LOG(INFO) << "model path: " << model_graph;
     LOG(INFO) << "model param: " << model_params;
-    LOG(INFO) << "dict path: " << dict_file;
-    LOG(INFO) << "lm path: " << lm_path;
+    LOG(INFO) << "word symbol path: " << word_symbol_table;
+    LOG(INFO) << "graph path: " << graph_path;
 
     int32 num_done = 0, num_err = 0;
 
-    ppspeech::CTCBeamSearchOptions opts;
-    opts.dict_file = dict_file;
-    opts.lm_path = lm_path;
-    ppspeech::CTCBeamSearch decoder(opts);
+    ppspeech::TLGDecoderOptions opts;
+    opts.word_symbol_table = word_symbol_table;
+    opts.fst_path = graph_path;
+    opts.opts.max_active = FLAGS_max_active;
+    opts.opts.beam = 15.0;
+    opts.opts.lattice_beam = 7.5;
+    ppspeech::TLGDecoder decoder(opts);
 
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_graph;
@@ -78,7 +83,7 @@ int main(int argc, char* argv[]) {
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
     std::shared_ptr<ppspeech::Decodable> decodable(
-        new ppspeech::Decodable(nnet, raw_data));
+        new ppspeech::Decodable(nnet, raw_data, FLAGS_acoustic_scale));
 
     int32 chunk_size = FLAGS_receptive_field_length;
     int32 chunk_stride = FLAGS_downsampling_rate;
@@ -118,8 +123,6 @@ int main(int argc, char* argv[]) {
             if (feature_chunk_size < receptive_field_length) break;
 
             int32 start = chunk_idx * chunk_stride;
-            int32 end = start + chunk_size;
-
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> f_chunk_tmp(

@@ -49,11 +49,18 @@ bool Decodable::IsLastFrame(int32 frame) {
 
 int32 Decodable::NumIndices() const { return 0; }
 
+// the ilable(TokenId) of wfst(TLG) insert <eps>(id = 0) in front of Nnet prob id.
+int32 Decodable::TokenId2NnetId(int32 token_id) {
+   return token_id - 1;
+}
+
 BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     CHECK_LE(index, nnet_cache_.NumCols());
     CHECK_LE(frame, frames_ready_);
     int32 frame_idx = frame - frame_offset_;
-    return acoustic_scale_ * std::log(nnet_cache_(frame_idx, index - 1) +
+    // the nnet output is prob ranther than log prob
+    // the index - 1, because the ilabel 
+    return acoustic_scale_ * std::log(nnet_cache_(frame_idx, TokenId2NnetId(index)) +
                                       std::numeric_limits<float>::min());
 }
 
@@ -81,7 +88,7 @@ bool Decodable::AdvanceChunk() {
     return true;
 }
 
-bool Decodable::FrameLogLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
+bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
     std::vector<BaseFloat> result;
     if (EnsureFrameHaveComputed(frame) == false) return false;
     likelihood->resize(nnet_cache_.NumCols());

@@ -143,7 +143,7 @@ class DecodableInterface {
     /// this is for compatibility with OpenFst).
     virtual int32 NumIndices() const = 0;
 
-    virtual bool FrameLogLikelihood(
+    virtual bool FrameLikelihood(
         int32 frame, std::vector<kaldi::BaseFloat>* likelihood) = 0;
 
 

@@ -18,24 +18,22 @@ set -e
 
 #######################################################################
 # stage 0: data prepare, including voxceleb1 download and generate {train,dev,enroll,test}.csv
-#          voxceleb2 data is m4a format, so we need user to convert the m4a to wav yourselves as described in Readme.md with the script local/convert.sh
+#          voxceleb2 data is m4a format, so we need convert the m4a to wav yourselves with the script local/convert.sh
 # stage 1: train the speaker identification model
 # stage 2: test speaker identification 
-# stage 3: extract the training embeding to train the LDA and PLDA
+# stage 3: (todo)extract the training embeding to train the LDA and PLDA
 ######################################################################
 
-# we can set the variable PPAUDIO_HOME to specifiy the root directory of the downloaded vox1 and vox2 dataset 
-# default the dataset will be stored in the ~/.paddleaudio/
 # the vox2 dataset is stored in m4a format, we need to convert the audio from m4a to wav yourself
-# and put all of them to ${PPAUDIO_HOME}/datasets/vox2
-# we will find the wav from ${PPAUDIO_HOME}/datasets/vox1/wav and ${PPAUDIO_HOME}/datasets/vox2/wav
-# export PPAUDIO_HOME=
+# and put all of them to ${MAIN_ROOT}/datasets/vox2
+# we will find the wav from ${MAIN_ROOT}/datasets/vox1/{dev,test}/wav and ${MAIN_ROOT}/datasets/vox2/wav
+
 stage=0
 stop_stage=50
 
 # data directory
 # if we set the variable ${dir}, we will store the wav info to this directory
-# otherwise, we will store the wav info to vox1 and vox2 directory respectively
+# otherwise, we will store the wav info to data/vox1 and data/vox2 directory respectively
 # vox2 wav path, we must convert the m4a format to wav format    
 dir=data/                                 # data info directory   
 
@@ -64,6 +62,6 @@ if [ $stage -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 # if [ $stage -le 3 ]; then
-#      # stage 2: extract the training embeding to train the LDA and PLDA
+#      # stage 3: extract the training embeding to train the LDA and PLDA
 #      # todo: extract the training embedding
 # fi 

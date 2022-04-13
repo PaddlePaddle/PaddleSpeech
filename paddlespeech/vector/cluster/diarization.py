@@ -747,6 +747,77 @@ def merge_ssegs_same_speaker(lol):
     return new_lol
 
 
+def write_ders_file(ref_rttm, DER, out_der_file):
+    """Write the final DERs for individual recording.
+
+    Arguments
+    ---------
+    ref_rttm : str
+        Reference RTTM file.
+    DER : array
+        Array containing DER values of each recording.
+    out_der_file : str
+        File to write the DERs.
+    """
+
+    rttm = read_rttm(ref_rttm)
+    spkr_info = list(filter(lambda x: x.startswith("SPKR-INFO"), rttm))
+
+    rec_id_list = []
+    count = 0
+
+    with open(out_der_file, "w") as f:
+        for row in spkr_info:
+            a = row.split(" ")
+            rec_id = a[1]
+            if rec_id not in rec_id_list:
+                r = [rec_id, str(round(DER[count], 2))]
+                rec_id_list.append(rec_id)
+                line_str = " ".join(r)
+                f.write("%s\n" % line_str)
+                count += 1
+        r = ["OVERALL ", str(round(DER[count], 2))]
+        line_str = " ".join(r)
+        f.write("%s\n" % line_str)
+
+
+def get_oracle_num_spkrs(rec_id, spkr_info):
+    """
+    Returns actual number of speakers in a recording from the ground-truth.
+    This can be used when the condition is oracle number of speakers.
+
+    Arguments
+    ---------
+    rec_id : str
+        Recording ID for which the number of speakers have to be obtained.
+    spkr_info : list
+        Header of the RTTM file. Starting with `SPKR-INFO`.
+
+    Example
+    -------
+    >>> from speechbrain.processing import diarization as diar
+    >>> spkr_info = ['SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.A <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.B <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.C <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.D <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.A <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.B <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.C <NA> <NA>']
+    >>> diar.get_oracle_num_spkrs('ES2011a', spkr_info)
+    4
+    >>> diar.get_oracle_num_spkrs('ES2011b', spkr_info)
+    3
+    """
+
+    num_spkrs = 0
+    for line in spkr_info:
+        if rec_id in line:
+            # Since rec_id is prefix for each speaker
+            num_spkrs += 1
+
+    return num_spkrs
+
+
 def distribute_overlap(lol):
     """
     Distributes the overlapped speech equally among the adjacent segments
@@ -825,6 +896,29 @@ def distribute_overlap(lol):
     new_lol.append(next_sseg)
 
     return new_lol
+
+
+def read_rttm(rttm_file_path):
+    """
+    Reads and returns RTTM in list format.
+
+    Arguments
+    ---------
+    rttm_file_path : str
+        Path to the RTTM file to be read.
+
+    Returns
+    -------
+    rttm : list
+        List containing rows of RTTM file.
+    """
+
+    rttm = []
+    with open(rttm_file_path, "r") as f:
+        for line in f:
+            entry = line[:-1]
+            rttm.append(entry)
+    return rttm
 
 
 def write_rttm(segs_list, out_rttm_file):

@@ -112,7 +112,8 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Models
-The pretrained model can be downloaded here [style_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip).
+The pretrained model can be downloaded here:
+- [style_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip)
 
 The static model of Style MelGAN is not available now.
 

@@ -17,6 +17,17 @@ import paddle
 
 
 def waveform_collate_fn(batch):
+    """Wrap the waveform into a batch form
+
+    Args:
+        batch (list): the waveform list from the dataloader
+                      the item of data include several field
+                      feat: the utterance waveform data
+                      label: the utterance label encoding data
+
+    Returns:
+        dict: the batch data to dataloader
+    """
     waveforms = np.stack([item['feat'] for item in batch])
     labels = np.stack([item['label'] for item in batch])
 
@@ -27,6 +38,18 @@ def feature_normalize(feats: paddle.Tensor,
                       mean_norm: bool=True,
                       std_norm: bool=True,
                       convert_to_numpy: bool=False):
+    """Do one utterance feature normalization
+
+    Args:
+        feats (paddle.Tensor): the original utterance feat, such as fbank, mfcc
+        mean_norm (bool, optional): mean norm flag. Defaults to True.
+        std_norm (bool, optional): std norm flag. Defaults to True.
+        convert_to_numpy (bool, optional): convert the paddle.tensor to numpy 
+                                           and do feature norm with numpy. Defaults to False.
+
+    Returns:
+        paddle.Tensor : the normalized feats
+    """
     # Features normalization if needed
     # numpy.mean is a little with paddle.mean about 1e-6
     if convert_to_numpy:
@@ -60,7 +83,17 @@ def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
 
 
 def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
-    ids = [item['id'] for item in batch]
+    """Do batch utterance features normalization
+
+    Args:
+        batch (list): the batch feature from dataloader
+        mean_norm (bool, optional): mean normalization flag. Defaults to True.
+        std_norm (bool, optional): std normalization flag. Defaults to True.
+
+    Returns:
+        dict: the normalized batch features
+    """
+    ids = [item['utt_id'] for item in batch]
     lengths = np.asarray([item['feat'].shape[1] for item in batch])
     feats = list(
         map(lambda x: pad_right_2d(x, lengths.max()),

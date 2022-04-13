@@ -34,14 +34,14 @@ from utils.utility import unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
-URL_ROOT = 'http://www.openslr.org/resources/28'
+URL_ROOT = '--no-check-certificate http://www.openslr.org/resources/28'
 DATA_URL = URL_ROOT + '/rirs_noises.zip'
 MD5_DATA = 'e6f48e257286e05de56413b4779d8ffb'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--target_dir",
-    default=DATA_HOME + "/Aishell",
+    default=DATA_HOME + "/rirs_noise",
     type=str,
     help="Directory to save the dataset. (default: %(default)s)")
 parser.add_argument(
@@ -81,6 +81,10 @@ def create_manifest(data_dir, manifest_path_prefix):
                         },
                         ensure_ascii=False))
         manifest_path = manifest_path_prefix + '.' + dtype
+
+        if not os.path.exists(os.path.dirname(manifest_path)):
+            os.makedirs(os.path.dirname(manifest_path))
+
         with codecs.open(manifest_path, 'w', 'utf-8') as fout:
             for line in json_lines:
                 fout.write(line + '\n')

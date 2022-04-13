@@ -273,6 +273,8 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
+<a name="语音识别模型"></a>
+
 PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识别语言模型和语音翻译, 详情如下：
 
 <table style="width:100%">
@@ -347,6 +349,7 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
 </table>
 
 <a name="语音合成模型"></a>
+
 PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声学模型和声码器。声学模型和声码器模型如下：
 
 <table>
@@ -447,10 +450,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tactron2</td>
+      <td>GE2E + Tacotron2</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tactron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
       </td>
     </tr>
     <tr>
@@ -488,6 +491,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
+<a name="声纹识别模型"></a>
+
 **声纹识别**
 
 <table style="width:100%">
@@ -510,6 +515,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
   </tbody>
 </table>
+
+<a name="标点恢复模型"></a>
 
 **标点恢复**
 
@@ -556,13 +563,18 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     - [进阶用法](./docs/source/tts/advanced_usage.md)
     - [中文文本前端](./docs/source/tts/zh_text_frontend.md)
     - [测试语音样本](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
+  - 声纹识别
+    - [声纹识别](./demos/speaker_verification/README_cn.md)
+    - [音频检索](./demos/audio_searching/README_cn.md)
   - [声音分类](./demos/audio_tagging/README_cn.md)
-  - [声纹识别](./demos/speaker_verification/README_cn.md)
   - [语音翻译](./demos/speech_translation/README_cn.md)
+  - [服务化部署](./demos/speech_server/README_cn.md)
 - [模型列表](#模型列表)
   - [语音识别](#语音识别模型)
   - [语音合成](#语音合成模型)
   - [声音分类](#声音分类模型)
+  - [声纹识别](#声纹识别模型)
+  - [标点恢复](#标点恢复模型)
 - [技术交流群](#技术交流群)
 - [欢迎贡献](#欢迎贡献)
 - [License](#License)

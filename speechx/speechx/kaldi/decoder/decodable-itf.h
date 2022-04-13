@@ -121,7 +121,7 @@ class DecodableInterface {
     /// decoding-from-matrix setting where we want to allow the last delta or
     /// LDA
     /// features to be flushed out for compatibility with the baseline setup.
-    virtual bool IsLastFrame(int32 frame) const = 0;
+    virtual bool IsLastFrame(int32 frame) = 0;
 
     /// The call NumFramesReady() will return the number of frames currently
     /// available
@@ -143,7 +143,7 @@ class DecodableInterface {
     /// this is for compatibility with OpenFst).
     virtual int32 NumIndices() const = 0;
 
-    virtual bool FrameLogLikelihood(
+    virtual bool FrameLikelihood(
         int32 frame, std::vector<kaldi::BaseFloat>* likelihood) = 0;
 
 

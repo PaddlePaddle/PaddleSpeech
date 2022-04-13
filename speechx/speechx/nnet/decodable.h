@@ -14,8 +14,8 @@
 
 #include "base/common.h"
 #include "frontend/audio/frontend_itf.h"
+#include "kaldi/decoder/decodable-itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
-#include "nnet/decodable-itf.h"
 #include "nnet/nnet_itf.h"
 
 namespace ppspeech {
@@ -25,32 +25,38 @@ struct DecodableOpts;
 class Decodable : public kaldi::DecodableInterface {
   public:
     explicit Decodable(const std::shared_ptr<NnetInterface>& nnet,
-                       const std::shared_ptr<FrontendInterface>& frontend);
+                       const std::shared_ptr<FrontendInterface>& frontend,
+                       kaldi::BaseFloat acoustic_scale = 1.0);
     // void Init(DecodableOpts config);
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
-    virtual bool IsLastFrame(int32 frame) const;
+    virtual bool IsLastFrame(int32 frame);
     virtual int32 NumIndices() const;
-    virtual bool FrameLogLikelihood(int32 frame,
-                                    std::vector<kaldi::BaseFloat>* likelihood);
+    // not logprob
+    virtual bool FrameLikelihood(int32 frame,
+                                 std::vector<kaldi::BaseFloat>* likelihood);
+    virtual int32 NumFramesReady() const;
     // for offline test
     void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
     void Reset();
     bool IsInputFinished() const { return frontend_->IsFinished(); }
     bool EnsureFrameHaveComputed(int32 frame);
+    int32 TokenId2NnetId(int32 token_id);
 
   private:
     bool AdvanceChunk();
     std::shared_ptr<FrontendInterface> frontend_;
     std::shared_ptr<NnetInterface> nnet_;
     kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
-    // std::vector<std::vector<kaldi::BaseFloat>> nnet_cache_;
+    // the frame is nnet prob frame rather than audio feature frame
+    // nnet frame subsample the feature frame
+    // eg: 35 frame features output 8 frame inferences
     int32 frame_offset_;
     int32 frames_ready_;
     // todo: feature frame mismatch with nnet inference frame
-    // eg: 35 frame features output 8 frame inferences
     // so use subsampled_frame
     int32 current_log_post_subsampled_offset_;
     int32 num_chunk_computed_;
+    kaldi::BaseFloat acoustic_scale_;
 };
 
 }  // namespace ppspeech

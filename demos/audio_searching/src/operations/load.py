@@ -17,6 +17,7 @@ import sys
 from config import DEFAULT_TABLE
 from diskcache import Cache
 from encode import get_audio_embedding
+
 from logs import LOGGER
 
 
@@ -26,8 +27,9 @@ def get_audios(path):
     """
     supported_formats = [".wav", ".mp3", ".ogg", ".flac", ".m4a"]
     return [
-        item for sublist in [[os.path.join(dir, file) for file in files]
-                             for dir, _, files in list(os.walk(path))]
+        item
+        for sublist in [[os.path.join(dir, file) for file in files]
+                        for dir, _, files in list(os.walk(path))]
         for item in sublist if os.path.splitext(item)[1] in supported_formats
     ]
 
@@ -82,3 +84,16 @@ def do_load(table_name, audio_dir, milvus_cli, mysql_cli):
     mysql_cli.create_mysql_table(table_name)
     mysql_cli.load_data_to_mysql(table_name, format_data(ids, names))
     return len(ids)
+
+
+def do_enroll(table_name, spk_id, audio_path, mysql_cli):
+    """
+    Import spk_id,audio_path,embedding to Mysql
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    embedding = get_audio_embedding(audio_path)
+    mysql_cli.create_mysql_table_vpr(table_name)
+    data = (spk_id, audio_path, str(embedding))
+    mysql_cli.load_data_to_mysql_vpr(table_name, data)
+    return "OK"

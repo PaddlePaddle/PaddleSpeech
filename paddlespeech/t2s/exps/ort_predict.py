@@ -70,8 +70,15 @@ def ort_predict(args):
 
     # am warmup
     for T in [27, 38, 54]:
-        data = np.random.randint(1, 266, size=(T, ))
-        am_sess.run(None, {"text": data})
+        am_input_feed = {}
+        if am_name == 'fastspeech2':
+            phone_ids = np.random.randint(1, 266, size=(T, ))
+            am_input_feed.update({'text': phone_ids})
+        elif am_name == 'speedyspeech':
+            phone_ids = np.random.randint(1, 92, size=(T, ))
+            tone_ids = np.random.randint(1, 5, size=(T, ))
+            am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
+        am_sess.run(None, input_feed=am_input_feed)
 
     # voc warmup
     for T in [227, 308, 544]:
@@ -81,14 +88,20 @@ def ort_predict(args):
 
     N = 0
     T = 0
+    am_input_feed = {}
     for example in test_dataset:
         utt_id = example['utt_id']
-        phone_ids = example["text"]
+        if am_name == 'fastspeech2':
+            phone_ids = example["text"]
+            am_input_feed.update({'text': phone_ids})
+        elif am_name == 'speedyspeech':
+            phone_ids = example["phones"]
+            tone_ids = example["tones"]
+            am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
         with timer() as t:
-            mel = am_sess.run(output_names=None, input_feed={'text': phone_ids})
+            mel = am_sess.run(output_names=None, input_feed=am_input_feed)
             mel = mel[0]
             wav = voc_sess.run(output_names=None, input_feed={'logmel': mel})
-
             N += len(wav[0])
             T += t.elapse
             speed = len(wav[0]) / t.elapse
@@ -110,9 +123,7 @@ def parse_args():
         '--am',
         type=str,
         default='fastspeech2_csmsc',
-        choices=[
-            'fastspeech2_csmsc',
-        ],
+        choices=['fastspeech2_csmsc', 'speedyspeech_csmsc'],
         help='Choose acoustic model type of tts task.')
 
     # voc

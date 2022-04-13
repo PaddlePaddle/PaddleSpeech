@@ -347,7 +347,7 @@ class TransformerEncoder(BaseEncoder):
             encoder_type="transformer")
 
     def forward(self, xs, masks):
-        """Encode input sequence.
+        """Encoder input sequence.
 
         Args:
             xs(Tensor): Input tensor (#batch, time, idim).
@@ -355,7 +355,7 @@ class TransformerEncoder(BaseEncoder):
 
         Returns:
             Tensor: Output tensor (#batch, time, attention_dim).
-            Tensor:Mask tensor (#batch, 1, time).
+            Tensor: Mask tensor (#batch, 1, time).
         """
         xs = self.embed(xs)
         xs, masks = self.encoders(xs, masks)

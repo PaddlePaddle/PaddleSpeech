@@ -42,7 +42,7 @@ class Spectrogram(nn.Layer):
         win_length (Optional[int], optional): The window length of the short time FFT. If `None`, it is set to same as `n_fft`. Defaults to None.
         window (str, optional): The window function applied to the signal before the Fourier transform. Supported window functions: 'hamming', 'hann', 'kaiser', 'gaussian', 'exponential', 'triang', 'bohman', 'blackman', 'cosine', 'tukey', 'taylor'. Defaults to 'hann'.
         power (float, optional): Exponent for the magnitude spectrogram. Defaults to 2.0.
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to 'reflect'.
         dtype (str, optional): Data type of input and window. Defaults to 'float32'.
     """
@@ -99,7 +99,7 @@ class MelSpectrogram(nn.Layer):
         win_length (Optional[int], optional): The window length of the short time FFT. If `None`, it is set to same as `n_fft`. Defaults to None.
         window (str, optional): The window function applied to the signal before the Fourier transform. Supported window functions: 'hamming', 'hann', 'kaiser', 'gaussian', 'exponential', 'triang', 'bohman', 'blackman', 'cosine', 'tukey', 'taylor'. Defaults to 'hann'.
         power (float, optional): Exponent for the magnitude spectrogram. Defaults to 2.0.
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to 'reflect'.
         n_mels (int, optional): Number of mel bins. Defaults to 64.
         f_min (float, optional): Minimum frequency in Hz. Defaults to 50.0.
@@ -176,7 +176,7 @@ class LogMelSpectrogram(nn.Layer):
         win_length (Optional[int], optional): The window length of the short time FFT. If `None`, it is set to same as `n_fft`. Defaults to None.
         window (str, optional): The window function applied to the signal before the Fourier transform. Supported window functions: 'hamming', 'hann', 'kaiser', 'gaussian', 'exponential', 'triang', 'bohman', 'blackman', 'cosine', 'tukey', 'taylor'. Defaults to 'hann'.
         power (float, optional): Exponent for the magnitude spectrogram. Defaults to 2.0.
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to 'reflect'.
         n_mels (int, optional): Number of mel bins. Defaults to 64.
         f_min (float, optional): Minimum frequency in Hz. Defaults to 50.0.
@@ -257,7 +257,7 @@ class MFCC(nn.Layer):
         win_length (Optional[int], optional): The window length of the short time FFT. If `None`, it is set to same as `n_fft`. Defaults to None.
         window (str, optional): The window function applied to the signal before the Fourier transform. Supported window functions: 'hamming', 'hann', 'kaiser', 'gaussian', 'exponential', 'triang', 'bohman', 'blackman', 'cosine', 'tukey', 'taylor'. Defaults to 'hann'.
         power (float, optional): Exponent for the magnitude spectrogram. Defaults to 2.0.
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to 'reflect'.
         n_mels (int, optional): Number of mel bins. Defaults to 64.
         f_min (float, optional): Minimum frequency in Hz. Defaults to 50.0.

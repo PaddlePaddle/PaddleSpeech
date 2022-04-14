@@ -46,10 +46,10 @@ class LinearSpectrogram : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() { 
+    virtual void Reset() {
         base_extractor_->Reset();
-        reminded_wav_.Resize(0);
-     }
+        remained_wav_.Resize(0);
+    }
 
   private:
     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
@@ -60,7 +60,7 @@ class LinearSpectrogram : public FrontendInterface {
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
-    kaldi::Vector<kaldi::BaseFloat> reminded_wav_;
+    kaldi::Vector<kaldi::BaseFloat> remained_wav_;
     int chunk_sample_size_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 };

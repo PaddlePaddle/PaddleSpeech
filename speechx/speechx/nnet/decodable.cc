@@ -49,19 +49,19 @@ bool Decodable::IsLastFrame(int32 frame) {
 
 int32 Decodable::NumIndices() const { return 0; }
 
-// the ilable(TokenId) of wfst(TLG) insert <eps>(id = 0) in front of Nnet prob id.
-int32 Decodable::TokenId2NnetId(int32 token_id) {
-   return token_id - 1;
-}
+// the ilable(TokenId) of wfst(TLG) insert <eps>(id = 0) in front of Nnet prob
+// id.
+int32 Decodable::TokenId2NnetId(int32 token_id) { return token_id - 1; }
 
 BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     CHECK_LE(index, nnet_cache_.NumCols());
     CHECK_LE(frame, frames_ready_);
     int32 frame_idx = frame - frame_offset_;
     // the nnet output is prob ranther than log prob
-    // the index - 1, because the ilabel 
-    return acoustic_scale_ * std::log(nnet_cache_(frame_idx, TokenId2NnetId(index)) +
-                                      std::numeric_limits<float>::min());
+    // the index - 1, because the ilabel
+    return acoustic_scale_ *
+           std::log(nnet_cache_(frame_idx, TokenId2NnetId(index)) +
+                    std::numeric_limits<float>::min());
 }
 
 bool Decodable::EnsureFrameHaveComputed(int32 frame) {
@@ -78,7 +78,6 @@ bool Decodable::AdvanceChunk() {
     }
     int32 nnet_dim = 0;
     Vector<BaseFloat> inferences;
-    Matrix<BaseFloat> nnet_cache_tmp;
     nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
     nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
     nnet_cache_.CopyRowsFromVec(inferences);

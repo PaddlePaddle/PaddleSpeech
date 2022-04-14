@@ -12,29 +12,3 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
-#include <condition_variable>
-#include <deque>
-#include <fstream>
-#include <iostream>
-#include <istream>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <ostream>
-#include <queue>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <thread>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-
-#include "base/basic_types.h"
-#include "base/flags.h"
-#include "base/log.h"
-#include "base/macros.h"

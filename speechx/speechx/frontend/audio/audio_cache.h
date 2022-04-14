@@ -24,7 +24,7 @@ namespace ppspeech {
 class AudioCache : public FrontendInterface {
   public:
     explicit AudioCache(int buffer_size = 1000 * kint16max,
-                        bool convert2PCM32 = false);
+                        bool convert2PCM32 = true);
 
     virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
 

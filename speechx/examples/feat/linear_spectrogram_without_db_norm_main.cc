@@ -65,7 +65,8 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> cmvn(
         new ppspeech::CMVN(FLAGS_cmvn_file, std::move(linear_spectrogram)));
 
-    ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
+    ppspeech::FeatureCacheOptions feat_cache_opts;
+    ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
     int sample_rate = 16000;

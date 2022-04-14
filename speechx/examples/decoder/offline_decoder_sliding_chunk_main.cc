@@ -118,7 +118,6 @@ int main(int argc, char* argv[]) {
             if (feature_chunk_size < receptive_field_length) break;
 
             int32 start = chunk_idx * chunk_stride;
-            int32 end = start + chunk_size;
 
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);

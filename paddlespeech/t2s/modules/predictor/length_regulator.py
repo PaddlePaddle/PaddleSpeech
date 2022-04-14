@@ -86,7 +86,7 @@ class LengthRegulator(nn.Layer):
             M[:, i] = m - init
             init = m
         M = paddle.reshape(M, shape=[t_dec_1, batch_size, t_enc])
-        M = M[1:, :, :]
+        M = M[1:t_dec_1, :, :]
         M = paddle.transpose(M, (1, 0, 2))
         encodings = paddle.matmul(M, encodings)
         return encodings

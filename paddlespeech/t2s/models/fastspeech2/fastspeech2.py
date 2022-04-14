@@ -667,8 +667,8 @@ class FastSpeech2(nn.Layer):
             use_teacher_forcing(bool, optional): Whether to use teacher forcing.
                 If true, groundtruth of duration, pitch and energy will be used.
             spk_emb(Tensor, optional, optional): peaker embedding vector (spk_embed_dim,). (Default value = None)
-            spk_id(Tensor, optional(int64), optional): Batch of padded spk ids  (1,). (Default value = None)
-            tone_id(Tensor, optional(int64), optional): Batch of padded tone ids  (T,). (Default value = None)
+            spk_id(Tensor, optional(int64), optional): spk ids (1,). (Default value = None)
+            tone_id(Tensor, optional(int64), optional): tone ids (T,). (Default value = None)
 
         Returns:
 
@@ -751,7 +751,6 @@ class FastSpeech2(nn.Layer):
 
         Returns:
 
-        
         """
         if self.tone_embed_integration_type == "add":
             # apply projection and then add to hidden states

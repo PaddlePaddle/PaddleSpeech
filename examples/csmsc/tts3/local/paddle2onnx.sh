@@ -19,4 +19,5 @@ paddle2onnx \
     --model_filename ${model}.pdmodel \
     --params_filename ${model}.pdiparams \
     --save_file ${train_output_path}/${output_dir}/${model}.onnx \
+    --opset_version 11 \
     --enable_dev_version ${enable_dev_version}

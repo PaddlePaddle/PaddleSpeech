@@ -341,7 +341,7 @@ def stft(x: np.ndarray,
         hop_length (Optional[int], optional): Number of steps to advance between adjacent windows. Defaults to None.
         win_length (Optional[int], optional): The size of window. Defaults to None.
         window (str, optional): A string of window specification. Defaults to "hann".
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         dtype (type, optional): Data type of STFT results. Defaults to np.complex64.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to "reflect".
 
@@ -509,7 +509,7 @@ def melspectrogram(x: np.ndarray,
         fmin (float, optional): Minimum frequency in Hz. Defaults to 50.0.
         fmax (Optional[float], optional): Maximum frequency in Hz. Defaults to None.
         window (str, optional): A string of window specification. Defaults to "hann".
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to "reflect".
         power (float, optional): Exponent for the magnitude melspectrogram. Defaults to 2.0.
         to_db (bool, optional): Enable db scale. Defaults to True.
@@ -564,7 +564,7 @@ def spectrogram(x: np.ndarray,
         window_size (int, optional): Size of FFT and window length. Defaults to 512.
         hop_length (int, optional): Number of steps to advance between adjacent windows. Defaults to 320.
         window (str, optional): A string of window specification. Defaults to "hann".
-        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\_length` at the center of `t`-th frame. Defaults to True.
+        center (bool, optional): Whether to pad `x` to make that the :math:`t \times hop\\_length` at the center of `t`-th frame. Defaults to True.
         pad_mode (str, optional): Choose padding pattern when `center` is `True`. Defaults to "reflect".
         power (float, optional): Exponent for the magnitude melspectrogram. Defaults to 2.0.
 

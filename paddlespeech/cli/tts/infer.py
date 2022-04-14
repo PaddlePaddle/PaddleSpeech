@@ -43,13 +43,13 @@ pretrained_models = {
     # speedyspeech
     "speedyspeech_csmsc-zh": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_ckpt_0.5.zip',
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_ckpt_0.2.0.zip',
         'md5':
-        '9edce23b1a87f31b814d9477bf52afbc',
+        '6f6fa967b408454b6662c8c00c0027cb',
         'config':
         'default.yaml',
         'ckpt':
-        'snapshot_iter_11400.pdz',
+        'snapshot_iter_30600.pdz',
         'speech_stats':
         'feats_stats.npy',
         'phones_dict':

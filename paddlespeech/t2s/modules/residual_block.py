@@ -30,7 +30,7 @@ class WaveNetResidualBlock(nn.Layer):
 
     Args:
         kernel_size (int, optional): Kernel size of the 1D convolution, by default 3
-        residual_channels (int, optional): Feature size of the resiaudl output(and also the input), by default 64
+        residual_channels (int, optional): Feature size of the residual output(and also the input), by default 64
         gate_channels (int, optional): Output feature size of the 1D convolution, by default 128
         skip_channels (int, optional): Feature size of the skip output, by default 64
         aux_channels (int, optional): Feature size of the auxiliary input (e.g. spectrogram), by default 80

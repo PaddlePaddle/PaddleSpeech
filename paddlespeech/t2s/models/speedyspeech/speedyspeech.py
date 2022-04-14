@@ -29,7 +29,7 @@ class ResidualBlock(nn.Layer):
                  n: int=2):
         """SpeedySpeech encoder module.
         Args:
-            channels (int, optional): Feature size of the resiaudl output(and also the input).
+            channels (int, optional): Feature size of the residual output(and also the input).
             kernel_size (int, optional): Kernel size of the 1D convolution.
             dilation (int, optional): Dilation of the 1D convolution.
             n (int): Number of blocks.

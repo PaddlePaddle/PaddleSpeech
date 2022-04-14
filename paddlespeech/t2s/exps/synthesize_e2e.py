@@ -68,13 +68,15 @@ def evaluate(args):
     # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
     if am_name == 'tacotron2':
         merge_sentences = True
+
+    get_tone_ids = False
+    if am_name == 'speedyspeech':
+        get_tone_ids = True
+
     N = 0
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            get_tone_ids = False
-            if am_name == 'speedyspeech':
-                get_tone_ids = True
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
                     sentence,

@@ -5,7 +5,7 @@ source path.sh
 gpus=0,1,2,3
 stage=0
 stop_stage=100
-conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeeech2_online.yaml
+conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeech2_online.yaml
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=1
 model_type=offline    # offline or online

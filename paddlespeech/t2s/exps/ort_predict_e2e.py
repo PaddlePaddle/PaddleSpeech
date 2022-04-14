@@ -68,17 +68,6 @@ def ort_predict(args):
     # vocoder
     voc_sess = get_sess(args, filed='voc')
 
-    # am warmup
-    for T in [27, 38, 54]:
-        data = np.random.randint(1, 266, size=(T, ))
-        am_sess.run(None, {"text": data})
-
-    # voc warmup
-    for T in [227, 308, 544]:
-        data = np.random.rand(T, 80).astype("float32")
-        voc_sess.run(None, {"logmel": data})
-    print("warm up done!")
-
     # frontend warmup
     # Loading model cost 0.5+ seconds
     if args.lang == 'zh':
@@ -86,21 +75,51 @@ def ort_predict(args):
     else:
         print("lang should in be 'zh' here!")
 
+    # am warmup
+    for T in [27, 38, 54]:
+        am_input_feed = {}
+        if am_name == 'fastspeech2':
+            phone_ids = np.random.randint(1, 266, size=(T, ))
+            am_input_feed.update({'text': phone_ids})
+        elif am_name == 'speedyspeech':
+            phone_ids = np.random.randint(1, 92, size=(T, ))
+            tone_ids = np.random.randint(1, 5, size=(T, ))
+            am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
+        am_sess.run(None, input_feed=am_input_feed)
+
+    # voc warmup
+    for T in [227, 308, 544]:
+        data = np.random.rand(T, 80).astype("float32")
+        voc_sess.run(None, input_feed={"logmel": data})
+    print("warm up done!")
+
     N = 0
     T = 0
     merge_sentences = True
+    get_tone_ids = False
+    am_input_feed = {}
+    if am_name == 'speedyspeech':
+        get_tone_ids = True
     for utt_id, sentence in sentences:
         with timer() as t:
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
-                    sentence, merge_sentences=merge_sentences)
-
+                    sentence,
+                    merge_sentences=merge_sentences,
+                    get_tone_ids=get_tone_ids)
                 phone_ids = input_ids["phone_ids"]
+                if get_tone_ids:
+                    tone_ids = input_ids["tone_ids"]
             else:
                 print("lang should in be 'zh' here!")
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0].numpy()
-            mel = am_sess.run(output_names=None, input_feed={'text': phone_ids})
+            if am_name == 'fastspeech2':
+                am_input_feed.update({'text': phone_ids})
+            elif am_name == 'speedyspeech':
+                tone_ids = tone_ids[0].numpy()
+                am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
+            mel = am_sess.run(output_names=None, input_feed=am_input_feed)
             mel = mel[0]
             wav = voc_sess.run(output_names=None, input_feed={'logmel': mel})
 
@@ -125,9 +144,7 @@ def parse_args():
         '--am',
         type=str,
         default='fastspeech2_csmsc',
-        choices=[
-            'fastspeech2_csmsc',
-        ],
+        choices=['fastspeech2_csmsc', 'speedyspeech_csmsc'],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")

@@ -38,9 +38,7 @@ def get_predictor(args, filed='am'):
         config.enable_use_gpu(100, 0)
     elif args.device == "cpu":
         config.disable_gpu()
-    # This line must be commented for fastspeech2, if not, it will OOM
-    if model_name != 'fastspeech2':
-        config.enable_memory_optim()
+    config.enable_memory_optim()
     predictor = inference.create_predictor(config)
     return predictor
 

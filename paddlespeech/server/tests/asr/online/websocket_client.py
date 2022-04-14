@@ -15,8 +15,10 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import asyncio
+import codecs
 import json
 import logging
+import os
 
 import numpy as np
 import soundfile
@@ -54,12 +56,11 @@ class ASRAudioHandler:
 
     async def run(self, wavfile_path: str):
         logging.info("send a message to the server")
-        # 读取音频
         # self.read_wave()
-        # 发送 websocket 的 handshake 协议头
+        # send websocket handshake protocal
         async with websockets.connect(self.url) as ws:
-            # server 端已经接收到 handshake 协议头
-            # 发送开始指令
+            # server has already received handshake protocal
+            # client start to send the command
             audio_info = json.dumps(
                 {
                     "name": "test.wav",
@@ -77,8 +78,9 @@ class ASRAudioHandler:
             for chunk_data in self.read_wave(wavfile_path):
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
+                msg = json.loads(msg)
                 logging.info("receive msg={}".format(msg))
-
+            result = msg
             # finished 
             audio_info = json.dumps(
                 {
@@ -91,16 +93,36 @@ class ASRAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
+            # decode the bytes to str
+            msg = json.loads(msg)
             logging.info("receive msg={}".format(msg))
+
+            return result
 
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
-    handler = ASRAudioHandler("127.0.0.1", 8091)
+    handler = ASRAudioHandler("127.0.0.1", 8090)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(handler.run(args.wavfile))
-    logging.info("asr websocket client finished")
+
+    # support to process single audio file
+    if args.wavfile and os.path.exists(args.wavfile):
+        logging.info(f"start to process the wavscp: {args.wavfile}")
+        result = loop.run_until_complete(handler.run(args.wavfile))
+        result = result["asr_results"]
+        logging.info(f"asr websocket client finished : {result}")
+
+    # support to process batch audios from wav.scp 
+    if args.wavscp and os.path.exists(args.wavscp):
+        logging.info(f"start to process the wavscp: {args.wavscp}")
+        with codecs.open(args.wavscp, 'r', encoding='utf-8') as f,\
+             codecs.open("result.txt", 'w', encoding='utf-8') as w:
+            for line in f:
+                utt_name, utt_path = line.strip().split()
+                result = loop.run_until_complete(handler.run(utt_path))
+                result = result["asr_results"]
+                w.write(f"{utt_name} {result}\n")
 
 
 if __name__ == "__main__":
@@ -110,6 +132,8 @@ if __name__ == "__main__":
         action="store",
         help="wav file path ",
         default="./16_audio.wav")
+    parser.add_argument(
+        "--wavscp", type=str, default=None, help="The batch audios dict text")
     args = parser.parse_args()
 
     main(args)

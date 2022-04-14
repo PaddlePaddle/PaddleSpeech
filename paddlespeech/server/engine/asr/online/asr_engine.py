@@ -35,9 +35,9 @@ __all__ = ['ASREngine']
 pretrained_models = {
     "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.1.1.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
         'md5':
-        'd5e076217cf60486519f72c217d21b9b',
+        '23e16c69730a1cb5d735c98c83c21e16',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
@@ -75,6 +75,7 @@ class ASRServerExecutor(ASRExecutor):
         if cfg_path is None or am_model is None or am_params is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             tag = model_type + '-' + lang + '-' + sample_rate_str
+            logger.info(f"Load the pretrained model, tag = {tag}")
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
             self.cfg_path = os.path.join(res_path,
@@ -85,15 +86,16 @@ class ASRServerExecutor(ASRExecutor):
             self.am_params = os.path.join(res_path,
                                           pretrained_models[tag]['params'])
             logger.info(res_path)
-            logger.info(self.cfg_path)
-            logger.info(self.am_model)
-            logger.info(self.am_params)
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.am_model = os.path.abspath(am_model)
             self.am_params = os.path.abspath(am_params)
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
+
+        logger.info(self.cfg_path)
+        logger.info(self.am_model)
+        logger.info(self.am_params)
 
         #Init body.
         self.config = CfgNode(new_allowed=True)
@@ -112,15 +114,20 @@ class ASRServerExecutor(ASRExecutor):
 
                 lm_url = pretrained_models[tag]['lm_url']
                 lm_md5 = pretrained_models[tag]['lm_md5']
+                logger.info(f"Start to load language model {lm_url}")
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
             elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
-                raise Exception("wrong type")
+                # 开发 conformer 的流式模型
+                logger.info("start to create the stream conformer asr engine")
+                # 复用cli里面的代码
+
             else:
                 raise Exception("wrong type")
 
         # AM predictor
+        logger.info("ASR engine start to init the am predictor")
         self.am_predictor_conf = am_predictor_conf
         self.am_predictor = init_predictor(
             model_file=self.am_model,
@@ -128,6 +135,7 @@ class ASRServerExecutor(ASRExecutor):
             predictor_conf=self.am_predictor_conf)
 
         # decoder
+        logger.info("ASR engine start to create the ctc decoder instance")
         self.decoder = CTCDecoder(
             odim=self.config.output_dim,  # <blank> is in  vocab
             enc_n_units=self.config.rnn_layer_size * 2,
@@ -138,6 +146,7 @@ class ASRServerExecutor(ASRExecutor):
             grad_norm_type=self.config.get('ctc_grad_norm_type', None))
 
         # init decoder
+        logger.info("ASR engine start to init the ctc decoder")
         cfg = self.config.decode
         decode_batch_size = 1  # for online
         self.decoder.init_decoder(
@@ -215,7 +224,6 @@ class ASRServerExecutor(ASRExecutor):
 
             self.decoder.next(output_chunk_probs, output_chunk_lens)
             trans_best, trans_beam = self.decoder.decode()
-
             return trans_best[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
@@ -273,6 +281,7 @@ class ASREngine(BaseEngine):
 
     def __init__(self):
         super(ASREngine, self).__init__()
+        logger.info("create the online asr engine instache")
 
     def init(self, config: dict) -> bool:
         """init engine resource

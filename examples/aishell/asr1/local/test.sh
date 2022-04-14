@@ -5,8 +5,8 @@ if [ $# != 3 ];then
     exit -1
 fi
 
-stage=100
-stop_stage=101
+stage=0
+stop_stage=100
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 echo "using $ngpu gpus..."
 
@@ -30,7 +30,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # format the reference test file
     python utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
-        --trans_ref data/manifest.test.raw.text
+        --trans_ref data/manifest.test.text
 
     for type in attention ctc_greedy_search; do
         echo "decoding ${type}"
@@ -55,6 +55,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
 
+        fi
         # format the hyp file
         python utils/format_rsl.py \
             --origin_hyp ${output_dir}/${type}.rsl \
@@ -62,7 +63,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         python utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test.text ${output_dir}/${type}.rsl.text > ${output_dir}/${type}.error 
 
-    fi
     done
 
     for type in ctc_prefix_beam_search attention_rescoring; do
@@ -95,7 +95,7 @@ if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
     # format the reference test file for sclite
     python utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
-        --trans_ref_sclite data/manifest.test.raw.text.sclite
+        --trans_ref_sclite data/manifest.test.text.sclite
     
     output_dir=${ckpt_prefix}
     for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
@@ -104,7 +104,7 @@ if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
             --trans_hyp_sclite ${output_dir}/${type}.rsl.text.sclite
 
         mkdir -p ${output_dir}/${type}_sclite
-        sclite -i wsj -r data/manifest.test.raw.text.sclite -h  ${output_dir}/${type}.rsl.text.sclite  -e utf-8 -o all -O ${output_dir}/${type}_sclite -c NOASCII
+        sclite -i wsj -r data/manifest.test.text.sclite -h  ${output_dir}/${type}.rsl.text.sclite  -e utf-8 -o all -O ${output_dir}/${type}_sclite -c NOASCII
     done
 fi
 

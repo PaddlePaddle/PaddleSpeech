@@ -26,10 +26,10 @@ from paddlespeech.s2t.utils.log import Log
 #TODO(Hui Zhang): remove  fluid import
 logger = Log(__name__).getlog()
 
-########### hcak logging #############
+########### hack logging #############
 logger.warn = logger.warning
 
-########### hcak paddle #############
+########### hack paddle #############
 paddle.half = 'float16'
 paddle.float = 'float32'
 paddle.double = 'float64'
@@ -110,7 +110,7 @@ if not hasattr(paddle, 'cat'):
     paddle.cat = cat
 
 
-########### hcak paddle.Tensor #############
+########### hack paddle.Tensor #############
 def item(x: paddle.Tensor):
     return x.numpy().item()
 
@@ -353,7 +353,7 @@ if not hasattr(paddle.Tensor, 'tolist'):
     setattr(paddle.Tensor, 'tolist', tolist)
 
 
-########### hcak paddle.nn #############
+########### hack paddle.nn #############
 class GLU(nn.Layer):
     """Gated Linear Units (GLU) Layer"""
 

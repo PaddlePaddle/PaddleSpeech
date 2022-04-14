@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--origin_ref',
         type=str,
-        default = "data/manifest.test.raw",
+        default = None,
         help='origin ref file')
     parser.add_argument(
         '--trans_ref', type=str, default = None, help='ref file for caculating CER/WER')

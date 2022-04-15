@@ -12,3 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "decoder/recognizer.h"
+
+namespace ppspeech {
+
+Recognizer(const RecognizerResource& resource) : resource_(resource) {
+    const FeaturePipelineOptions& feature_opts =
+        recognizer_resource.feature_pipeline_opts;
+    feature_pipeline_.reset(new FeaturePipeline(feature_opts));
+    std::shared_ptr<PaddleNnet> nnet(new PaddleNnet());
+    BaseFloat ac_scale = resource.acoustic_scale;
+    decodable_.reset(
+        new Decodeable(std::move(nnet), feature_pipeline_, ac_scale));
+    input_finished_ = false;
+}
+
+void Recognizer::Accept(const Vector<BaseFloat>& waves) {
+    feature_pipeline_->Accept(waves);
+}
+
+void Recognizer::Decode() { decoder.AdvaceDecode(decodable); }
+
+std::string Recognizer::GetFinalResult() {
+    return decoder_->GetFinalBestPath();
+}
+
+void Recognizer::SetFinished() {
+    feature_pipeline_->SetFinished();
+    input_finished_ = false;
+}
+
+bool Recognizer::IsFinished() { return input_finished_; }
+
+void Recognizer::Reset() {
+    feature_pipeline->reset();
+    decodable->Reset();
+    decoder->Reset();
+}
+
+}  // namespace ppspeech

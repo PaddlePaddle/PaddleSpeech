@@ -28,20 +28,26 @@ struct RecognizerResource {
     FeaturePipelineOptions feature_pipeline_opts;
     ModelOptions model_opts;
     TLGDecoderOptions tlg_opts;
-    CTCBeamSearchOptions beam_search_opts;
+    //    CTCBeamSearchOptions beam_search_opts;
     kaldi::BaseFloat acoustic_scale;
 };
 
 class Recognizer {
   public:
-    explicit Recognizer(const RecognizerResource& recognizer_resouce);
-    void AcceptWaveInShort(kaldi::Vector<int16> waves);
+    explicit Recognizer(const RecognizerResource& resouce);
+    void Accept(kaldi::Vector<int16> waves);
     void Decode();
     std::string GetFinalResult();
     void SetFinished();
+    bool IsFinished();
+    void Reset();
 
   private:
-    RecognizerResource recognizer_resource_;
+    RecognizerResource resource_;
+    std::shared_ptr<FeaturePipeline> feature_pipeline_;
+    std::unique_ptr<Decodable> decodable_;
+    std::unique_ptr<TLGDecoder> decoder_;
+    bool input_finished_;
 };
 
 }  // namespace ppspeech

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from fastapi.testclient import TestClient
-from main import app
+from vpr_search import app
 
 from utils.utility import download
 from utils.utility import unpack
@@ -22,7 +22,7 @@ client = TestClient(app)
 
 def download_audio_data():
     """
-    download audio data
+    Download audio data
     """
     url = "https://paddlespeech.bj.bcebos.com/vector/audio/example_audio.tar.gz"
     md5sum = "52ac69316c1aa1fdef84da7dd2c67b39"
@@ -33,63 +33,83 @@ def download_audio_data():
 
 def test_drop():
     """
-    Delete the collection of Milvus and MySQL
+    Delete the table of MySQL
     """
-    response = client.post("/audio/drop")
+    response = client.post("/vpr/drop")
     assert response.status_code == 200
 
 
-def test_load():
+def test_enroll_local(spk: str, audio: str):
     """
-    Insert all the audio files under the file path to Milvus/MySQL
+    Enroll the audio to MySQL
     """
-    response = client.post("/audio/load", json={"File": "./example_audio"})
+    response = client.post("/vpr/enroll/local?spk_id=" + spk +
+                           "&audio_path=.%2Fexample_audio%2F" + audio + ".wav")
     assert response.status_code == 200
     assert response.json() == {
         'status': True,
-        'msg': "Successfully loaded data!"
+        'msg': "Successfully enroll data!"
     }
 
 
-def test_progress():
+def test_search_local():
     """
-    Get the progress of dealing with data
+    Search the spk in MySQL by audio
     """
-    response = client.get("/progress")
+    response = client.post(
+        "/vpr/recog/local?audio_path=.%2Fexample_audio%2Ftest.wav")
     assert response.status_code == 200
-    assert response.json() == "current: 20, total: 20"
+
+
+def test_list():
+    """
+    Get all records in MySQL
+    """
+    response = client.get("/vpr/list")
+    assert response.status_code == 200
+
+
+def test_data(spk: str):
+    """
+    Get the audio file by spk_id in MySQL
+    """
+    response = client.get("/vpr/data?spk_id=" + spk)
+    assert response.status_code == 200
+
+
+def test_del(spk: str):
+    """
+    Delete the record in MySQL by spk_id
+    """
+    response = client.post("/vpr/del?spk_id=" + spk)
+    assert response.status_code == 200
 
 
 def test_count():
     """
-    Returns the total number of vectors in the system
+    Get the number of spk in MySQL
     """
-    response = client.get("audio/count")
-    assert response.status_code == 200
-    assert response.json() == 20
-
-
-def test_search():
-    """
-    Search the uploaded audio in Milvus/MySQL
-    """
-    response = client.post(
-        "/audio/search/local?query_audio_path=.%2Fexample_audio%2Ftest.wav")
-    assert response.status_code == 200
-    assert len(response.json()) == 10
-
-
-def test_data():
-    """
-    Get the audio file
-    """
-    response = client.get("/data?audio_path=.%2Fexample_audio%2Ftest.wav")
+    response = client.get("/vpr/count")
     assert response.status_code == 200
 
 
 if __name__ == "__main__":
     download_audio_data()
-    test_load()
+
+    test_enroll_local("spk1", "arms_strikes")
+    test_enroll_local("spk2", "sword_wielding")
+    test_enroll_local("spk3", "test")
+    test_list()
+    test_data("spk1")
     test_count()
-    test_search()
+    test_search_local()
+
+    test_del("spk1")
+    test_count()
+    test_search_local()
+
+    test_enroll_local("spk1", "arms_strikes")
+    test_count()
+    test_search_local()
+
     test_drop()

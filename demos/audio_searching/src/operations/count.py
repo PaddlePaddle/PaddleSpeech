@@ -14,6 +14,7 @@
 import sys
 
 from config import DEFAULT_TABLE
+
 from logs import LOGGER
 
 
@@ -28,6 +29,48 @@ def do_count(table_name, milvus_cli):
             return None
         num = milvus_cli.count(table_name)
         return num
+    except Exception as e:
+        LOGGER.error(f"Error attempting to count table {e}")
+        sys.exit(1)
+
+
+def do_count_vpr(table_name, mysql_cli):
+    """
+    Returns the total number of spk in the system
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    try:
+        num = mysql_cli.count_table(table_name)
+        return num
+    except Exception as e:
+        LOGGER.error(f"Error attempting to count table {e}")
+        sys.exit(1)
+
+
+def do_list(table_name, mysql_cli):
+    """
+    Returns the total records of vpr in the system
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    try:
+        spk_ids, audio_paths, _ = mysql_cli.list_vpr(table_name)
+        return spk_ids, audio_paths
+    except Exception as e:
+        LOGGER.error(f"Error attempting to count table {e}")
+        sys.exit(1)
+
+
+def do_get(table_name, spk_id, mysql_cli):
+    """
+    Returns the audio path by spk_id in the system
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    try:
+        audio_apth = mysql_cli.search_audio_vpr(table_name, spk_id)
+        return audio_apth
     except Exception as e:
         LOGGER.error(f"Error attempting to count table {e}")
         sys.exit(1)

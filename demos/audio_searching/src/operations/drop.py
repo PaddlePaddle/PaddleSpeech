@@ -14,7 +14,6 @@
 import sys
 
 from config import DEFAULT_TABLE
-
 from logs import LOGGER
 
 

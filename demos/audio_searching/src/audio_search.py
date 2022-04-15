@@ -20,6 +20,7 @@ from diskcache import Cache
 from fastapi import FastAPI
 from fastapi import File
 from fastapi import UploadFile
+from logs import LOGGER
 from milvus_helpers import MilvusHelper
 from mysql_helpers import MySQLHelper
 from operations.count import do_count
@@ -30,8 +31,6 @@ from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse
-
-from logs import LOGGER
 
 app = FastAPI()
 app.add_middleware(

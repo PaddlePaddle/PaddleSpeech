@@ -20,7 +20,6 @@ from config import MYSQL_HOST
 from config import MYSQL_PORT
 from config import MYSQL_PWD
 from config import MYSQL_USER
-
 from logs import LOGGER
 
 

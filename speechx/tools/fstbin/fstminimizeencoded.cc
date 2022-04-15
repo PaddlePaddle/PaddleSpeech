@@ -33,42 +33,43 @@
 */
 
 int main(int argc, char *argv[]) {
-  try {
-    using namespace kaldi;  // NOLINT
-    using namespace fst;  // NOLINT
-    using kaldi::int32;
+    try {
+        using namespace kaldi;  // NOLINT
+        using namespace fst;    // NOLINT
+        using kaldi::int32;
 
-    const char *usage =
-        "Minimizes FST after encoding [similar to fstminimize, but no "
-        "weight-pushing]\n"
-        "\n"
-        "Usage:  fstminimizeencoded [in.fst [out.fst] ]\n";
+        const char *usage =
+            "Minimizes FST after encoding [similar to fstminimize, but no "
+            "weight-pushing]\n"
+            "\n"
+            "Usage:  fstminimizeencoded [in.fst [out.fst] ]\n";
 
-    float delta = kDelta;
-    ParseOptions po(usage);
-    po.Register("delta", &delta,
-                "Delta likelihood used for quantization of weights");
-    po.Read(argc, argv);
+        float delta = kDelta;
+        ParseOptions po(usage);
+        po.Register("delta",
+                    &delta,
+                    "Delta likelihood used for quantization of weights");
+        po.Read(argc, argv);
 
-    if (po.NumArgs() > 2) {
-      po.PrintUsage();
-      exit(1);
+        if (po.NumArgs() > 2) {
+            po.PrintUsage();
+            exit(1);
+        }
+
+        std::string fst_in_filename = po.GetOptArg(1),
+                    fst_out_filename = po.GetOptArg(2);
+
+        VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_filename);
+
+        MinimizeEncoded(fst, delta);
+
+        WriteFstKaldi(*fst, fst_out_filename);
+
+        delete fst;
+        return 0;
+    } catch (const std::exception &e) {
+        std::cerr << e.what();
+        return -1;
     }
-
-    std::string fst_in_filename = po.GetOptArg(1),
-                fst_out_filename = po.GetOptArg(2);
-
-    VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_filename);
-
-    MinimizeEncoded(fst, delta);
-
-    WriteFstKaldi(*fst, fst_out_filename);
-
-    delete fst;
     return 0;
-  } catch (const std::exception &e) {
-    std::cerr << e.what();
-    return -1;
-  }
-  return 0;
 }

@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import asyncio
 import base64
 import io
 import json
+import logging
 import os
 import random
 import time
 from typing import List
-import logging
-import asyncio
 
 import numpy as np
 import requests
@@ -30,9 +30,9 @@ from ..executor import BaseExecutor
 from ..util import cli_client_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
+from paddlespeech.server.tests.asr.online.websocket_client import ASRAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
-from paddlespeech.server.tests.asr.online.websocket_client import ASRAudioHandler
 
 __all__ = ['TTSClientExecutor', 'ASRClientExecutor', 'CLSClientExecutor']
 
@@ -234,7 +234,8 @@ class ASRClientExecutor(BaseExecutor):
 
 
 @cli_client_register(
-    name='paddlespeech_client.asr_online', description='visit asr online service')
+    name='paddlespeech_client.asr_online',
+    description='visit asr online service')
 class ASRClientExecutor(BaseExecutor):
     def __init__(self):
         super(ASRClientExecutor, self).__init__()

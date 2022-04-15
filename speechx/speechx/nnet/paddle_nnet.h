@@ -45,8 +45,7 @@ struct ModelOptions {
           thread_num(2),
           use_gpu(false),
           input_names(
-              "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_"
-              "box"),
+              "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box"),
           output_names(
               "save_infer_model/scale_0.tmp_1,save_infer_model/"
               "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"

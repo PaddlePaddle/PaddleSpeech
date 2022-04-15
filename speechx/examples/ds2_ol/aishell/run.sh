@@ -65,7 +65,7 @@ cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
 ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/feat_log \
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/feat.log \
 linear-spectrogram-wo-db-norm-ol \
     --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
     --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
@@ -75,7 +75,7 @@ linear-spectrogram-wo-db-norm-ol \
 text=$data/test/text
 
 # 4. recognizer
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log \
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
   ctc-prefix-beam-search-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \
@@ -88,7 +88,7 @@ cat $data/split${nj}/*/result > ${label_file}
 utils/compute-wer.py --char=1 --v=1 ${label_file} $text > ${wer}
 
 # 4. decode with lm
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log_lm \
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
   ctc-prefix-beam-search-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \
@@ -111,7 +111,7 @@ fi
 
 
 # 5. test TLG decoder
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/log_tlg \
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
   wfst-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \

@@ -13,6 +13,7 @@
 # limitations under the License.
 from dataclasses import dataclass
 from dataclasses import fields
+
 from paddle.io import Dataset
 
 from paddleaudio import load as load_audio

@@ -17,7 +17,6 @@ import sys
 from config import DEFAULT_TABLE
 from diskcache import Cache
 from encode import get_audio_embedding
-
 from logs import LOGGER
 
 
@@ -27,9 +26,8 @@ def get_audios(path):
     """
     supported_formats = [".wav", ".mp3", ".ogg", ".flac", ".m4a"]
     return [
-        item
-        for sublist in [[os.path.join(dir, file) for file in files]
-                        for dir, _, files in list(os.walk(path))]
+        item for sublist in [[os.path.join(dir, file) for file in files]
+                             for dir, _, files in list(os.walk(path))]
         for item in sublist if os.path.splitext(item)[1] in supported_formats
     ]
 

@@ -17,7 +17,6 @@ import numpy
 from config import DEFAULT_TABLE
 from config import TOP_K
 from encode import get_audio_embedding
-
 from logs import LOGGER
 
 

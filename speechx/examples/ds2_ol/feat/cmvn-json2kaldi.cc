@@ -30,8 +30,8 @@ using namespace simdjson;
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
-    
-    LOG(INFO) << "cmvn josn path: " << FLAGS_json_file ;
+
+    LOG(INFO) << "cmvn josn path: " << FLAGS_json_file;
     padded_string json = padded_string::load(FLAGS_json_file);
 
     ondemand::parser parser;
@@ -43,9 +43,11 @@ int main(int argc, char* argv[]) {
     for (double x : mean_stat) {
         mean_stat_vec.push_back(x);
     }
-    // LOG(INFO) << mean_stat; this line will casue simdjson::simdjson_error("Objects and arrays can only be iterated when they are first encountered")
+    // LOG(INFO) << mean_stat; this line will casue
+    // simdjson::simdjson_error("Objects and arrays can only be iterated when
+    // they are first encountered")
 
-    ondemand::array  var_stat = val["var_stat"];
+    ondemand::array var_stat = val["var_stat"];
     std::vector<kaldi::BaseFloat> var_stat_vec;
     for (double x : var_stat) {
         var_stat_vec.push_back(x);
@@ -53,7 +55,7 @@ int main(int argc, char* argv[]) {
 
     kaldi::int32 frame_num = uint64_t(val["frame_num"]);
     LOG(INFO) << "nframe: " << frame_num;
-   
+
     size_t mean_size = mean_stat_vec.size();
     kaldi::Matrix<double> cmvn_stats(2, mean_size + 1);
     for (size_t idx = 0; idx < mean_size; ++idx) {

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-
 from logs import LOGGER
+
 from paddlespeech.cli import VectorExecutor
 
 vector_executor = VectorExecutor()

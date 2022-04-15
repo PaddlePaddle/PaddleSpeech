@@ -14,8 +14,6 @@
 
 // deepspeech2 online model info
 
-#include "base/flags.h"
-#include "base/log.h"
 #include <algorithm>
 #include <fstream>
 #include <functional>
@@ -23,6 +21,8 @@
 #include <iterator>
 #include <numeric>
 #include <thread>
+#include "base/flags.h"
+#include "base/log.h"
 #include "paddle_inference_api.h"
 
 using std::cout;
@@ -40,7 +40,7 @@ void model_forward_test();
 
 void produce_data(std::vector<std::vector<float>>* data) {
     int chunk_size = FLAGS_chunk_size;  // chunk_size in frame
-    int col_size = FLAGS_feat_dim;   // feat dim
+    int col_size = FLAGS_feat_dim;      // feat dim
     cout << "chunk size: " << chunk_size << endl;
     cout << "feat dim: " << col_size << endl;
 
@@ -197,7 +197,7 @@ void model_forward_test() {
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
-    
+
     model_forward_test();
     return 0;
 }

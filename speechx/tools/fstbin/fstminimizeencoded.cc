@@ -1,3 +1,17 @@
+// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // fstbin/fstminimizeencoded.cc
 
 // Copyright 2009-2011  Microsoft Corporation
@@ -33,42 +47,43 @@
 */
 
 int main(int argc, char *argv[]) {
-  try {
-    using namespace kaldi;  // NOLINT
-    using namespace fst;  // NOLINT
-    using kaldi::int32;
+    try {
+        using namespace kaldi;  // NOLINT
+        using namespace fst;    // NOLINT
+        using kaldi::int32;
 
-    const char *usage =
-        "Minimizes FST after encoding [similar to fstminimize, but no "
-        "weight-pushing]\n"
-        "\n"
-        "Usage:  fstminimizeencoded [in.fst [out.fst] ]\n";
+        const char *usage =
+            "Minimizes FST after encoding [similar to fstminimize, but no "
+            "weight-pushing]\n"
+            "\n"
+            "Usage:  fstminimizeencoded [in.fst [out.fst] ]\n";
 
-    float delta = kDelta;
-    ParseOptions po(usage);
-    po.Register("delta", &delta,
-                "Delta likelihood used for quantization of weights");
-    po.Read(argc, argv);
+        float delta = kDelta;
+        ParseOptions po(usage);
+        po.Register("delta",
+                    &delta,
+                    "Delta likelihood used for quantization of weights");
+        po.Read(argc, argv);
 
-    if (po.NumArgs() > 2) {
-      po.PrintUsage();
-      exit(1);
+        if (po.NumArgs() > 2) {
+            po.PrintUsage();
+            exit(1);
+        }
+
+        std::string fst_in_filename = po.GetOptArg(1),
+                    fst_out_filename = po.GetOptArg(2);
+
+        VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_filename);
+
+        MinimizeEncoded(fst, delta);
+
+        WriteFstKaldi(*fst, fst_out_filename);
+
+        delete fst;
+        return 0;
+    } catch (const std::exception &e) {
+        std::cerr << e.what();
+        return -1;
     }
-
-    std::string fst_in_filename = po.GetOptArg(1),
-                fst_out_filename = po.GetOptArg(2);
-
-    VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_filename);
-
-    MinimizeEncoded(fst, delta);
-
-    WriteFstKaldi(*fst, fst_out_filename);
-
-    delete fst;
     return 0;
-  } catch (const std::exception &e) {
-    std::cerr << e.what();
-    return -1;
-  }
-  return 0;
 }

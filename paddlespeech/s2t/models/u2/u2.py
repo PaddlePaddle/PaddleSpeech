@@ -213,12 +213,14 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 num_decoding_left_chunks=num_decoding_left_chunks
             )  # (B, maxlen, encoder_dim)
         else:
+            print("offline decode from the asr")
             encoder_out, encoder_mask = self.encoder(
                 speech,
                 speech_lengths,
                 decoding_chunk_size=decoding_chunk_size,
                 num_decoding_left_chunks=num_decoding_left_chunks
             )  # (B, maxlen, encoder_dim)
+            print("offline decode success")
         return encoder_out, encoder_mask
 
     def recognize(
@@ -706,13 +708,15 @@ class U2BaseModel(ASRInterface, nn.Layer):
             List[List[int]]: transcripts.
         """
         batch_size = feats.shape[0]
+        print("start to decode the audio feat")
         if decoding_method in ['ctc_prefix_beam_search',
                                'attention_rescoring'] and batch_size > 1:
-            logger.fatal(
+            logger.error(
                 f'decoding mode {decoding_method} must be running with batch_size == 1'
             )
+            logger.error(f"current batch_size is {batch_size}")
             sys.exit(1)
-
+        print(f"use the {decoding_method} to decode the audio feat")
         if decoding_method == 'attention':
             hyps = self.recognize(
                 feats,

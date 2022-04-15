@@ -14,6 +14,7 @@
 import json
 
 import numpy as np
+import json
 from fastapi import APIRouter
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
@@ -28,7 +29,7 @@ router = APIRouter()
 
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
-
+    print("websocket protocal receive the dataset")
     await websocket.accept()
 
     engine_pool = get_engine_pool()
@@ -36,14 +37,18 @@ async def websocket_endpoint(websocket: WebSocket):
     # init buffer
     chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
     chunk_buffer = ChunkBuffer(
+        frame_duration_ms=chunk_buffer_conf['frame_duration_ms'],
         sample_rate=chunk_buffer_conf['sample_rate'],
         sample_width=chunk_buffer_conf['sample_width'])
     # init vad
-    vad_conf = asr_engine.config.vad_conf
-    vad = VADAudio(
-        aggressiveness=vad_conf['aggressiveness'],
-        rate=vad_conf['sample_rate'],
-        frame_duration_ms=vad_conf['frame_duration_ms'])
+    # print(asr_engine.config)
+    # print(type(asr_engine.config))
+    vad_conf = asr_engine.config.get('vad_conf', None)
+    if vad_conf:
+        vad = VADAudio(
+            aggressiveness=vad_conf['aggressiveness'],
+            rate=vad_conf['sample_rate'],
+            frame_duration_ms=vad_conf['frame_duration_ms'])
 
     try:
         while True:
@@ -65,7 +70,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     engine_pool = get_engine_pool()
                     asr_engine = engine_pool['asr']
                     # reset single  engine for an new connection
-                    asr_engine.reset()
+                    # asr_engine.reset()
                     resp = {"status": "ok", "signal": "finished"}
                     await websocket.send_json(resp)
                     break
@@ -75,16 +80,16 @@ async def websocket_endpoint(websocket: WebSocket):
             elif "bytes" in message:
                 message = message["bytes"]
 
-                # vad for input bytes audio
-                vad.add_audio(message)
-                message = b''.join(f for f in vad.vad_collector()
-                                   if f is not None)
-
+                # # vad for input bytes audio
+                # vad.add_audio(message)
+                # message = b''.join(f for f in vad.vad_collector()
+                #                    if f is not None)
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
                 asr_results = ""
                 frames = chunk_buffer.frame_generator(message)
                 for frame in frames:
+                    # get the pcm data from the bytes
                     samples = np.frombuffer(frame.bytes, dtype=np.int16)
                     sample_rate = asr_engine.config.sample_rate
                     x_chunk, x_chunk_lens = asr_engine.preprocess(samples,

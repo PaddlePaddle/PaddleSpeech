@@ -92,6 +92,20 @@ pretrained_models = {
         'lm_md5':
         '29e02312deb2e59b3c8686c7966d4fe3'
     },
+        "conformer2online_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_chunk_conformer_aishell_ckpt_0.1.2.model.tar.gz',
+        'md5':
+        '4814e52e0fc2fd48899373f95c84b0c9',
+        'cfg_path':
+        'config.yaml',
+        'ckpt_path':
+        'exp/deepspeech2_online/checkpoints/avg_30',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
+    },
     "deepspeech2offline_librispeech-en-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr0/asr0_deepspeech2_librispeech_ckpt_0.1.1.model.tar.gz',
@@ -114,6 +128,8 @@ model_alias = {
     "deepspeech2online":
     "paddlespeech.s2t.models.ds2_online:DeepSpeech2ModelOnline",
     "conformer":
+    "paddlespeech.s2t.models.u2:U2Model",
+    "conformer2online":
     "paddlespeech.s2t.models.u2:U2Model",
     "transformer":
     "paddlespeech.s2t.models.u2:U2Model",
@@ -219,6 +235,7 @@ class ASRExecutor(BaseExecutor):
         """
         Init model and other resources from a specific path.
         """
+        logger.info("start to init the model")
         if hasattr(self, 'model'):
             logger.info('Model had been initialized.')
             return
@@ -233,14 +250,15 @@ class ASRExecutor(BaseExecutor):
             self.ckpt_path = os.path.join(
                 res_path, pretrained_models[tag]['ckpt_path'] + ".pdparams")
             logger.info(res_path)
-            logger.info(self.cfg_path)
-            logger.info(self.ckpt_path)
+
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
-
+        logger.info(self.cfg_path)
+        logger.info(self.ckpt_path)
+        
         #Init body.
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
@@ -269,7 +287,6 @@ class ASRExecutor(BaseExecutor):
                     vocab=self.config.vocab_filepath,
                     spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.decoding_method = decode_method
-
             else:
                 raise Exception("wrong type")
         model_name = model_type[:model_type.rindex(
@@ -347,12 +364,14 @@ class ASRExecutor(BaseExecutor):
         else:
             raise Exception("wrong type")
 
+        logger.info("audio feat process success")
+
     @paddle.no_grad()
     def infer(self, model_type: str):
         """
         Model inference and result stored in self.output.
         """
-
+        logger.info("start to infer the model to get the output")
         cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
@@ -369,17 +388,22 @@ class ASRExecutor(BaseExecutor):
             self._outputs["result"] = result_transcripts[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
-            result_transcripts = self.model.decode(
-                audio,
-                audio_len,
-                text_feature=self.text_feature,
-                decoding_method=cfg.decoding_method,
-                beam_size=cfg.beam_size,
-                ctc_weight=cfg.ctc_weight,
-                decoding_chunk_size=cfg.decoding_chunk_size,
-                num_decoding_left_chunks=cfg.num_decoding_left_chunks,
-                simulate_streaming=cfg.simulate_streaming)
-            self._outputs["result"] = result_transcripts[0][0]
+            logger.info(f"we will use the transformer like model : {model_type}")
+            try:
+                result_transcripts = self.model.decode(
+                    audio,
+                    audio_len,
+                    text_feature=self.text_feature,
+                    decoding_method=cfg.decoding_method,
+                    beam_size=cfg.beam_size,
+                    ctc_weight=cfg.ctc_weight,
+                    decoding_chunk_size=cfg.decoding_chunk_size,
+                    num_decoding_left_chunks=cfg.num_decoding_left_chunks,
+                    simulate_streaming=cfg.simulate_streaming)
+                self._outputs["result"] = result_transcripts[0][0]
+            except Exception as e:
+                logger.exception(e)
+
         else:
             raise Exception("invalid model name")
 

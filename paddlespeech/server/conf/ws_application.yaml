@@ -4,7 +4,7 @@
 #                             SERVER SETTING                                    #
 #################################################################################
 host: 0.0.0.0
-port: 8091
+port: 8096
 
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_online', 'tts_online']
@@ -18,10 +18,44 @@ engine_list: ['asr_online']
 #                                ENGINE CONFIG                                  #
 #################################################################################
 
+# ################################### ASR #########################################
+# ################### speech task: asr; engine_type: online #######################
+# asr_online:
+#     model_type: 'deepspeech2online_aishell'
+#     am_model: # the pdmodel file of am static model [optional]
+#     am_params:  # the pdiparams file of am static model [optional]
+#     lang: 'zh'
+#     sample_rate: 16000
+#     cfg_path: 
+#     decode_method: 
+#     force_yes: True
+
+#     am_predictor_conf:
+#         device:  # set 'gpu:id' or 'cpu'
+#         switch_ir_optim: True
+#         glog_info: False  # True -> print glog
+#         summary: True  # False -> do not show predictor config
+
+#     chunk_buffer_conf:
+#         frame_duration_ms: 80
+#         shift_ms: 40
+#         sample_rate: 16000
+#         sample_width: 2
+
+#     vad_conf:
+#         aggressiveness: 2
+#         sample_rate: 16000
+#         frame_duration_ms: 20
+#         sample_width: 2
+#         padding_ms: 200
+#         padding_ratio: 0.9
+
+
+
 ################################### ASR #########################################
 ################### speech task: asr; engine_type: online #######################
 asr_online:
-    model_type: 'deepspeech2online_aishell'
+    model_type: 'conformer2online_aishell'
     am_model: # the pdmodel file of am static model [optional]
     am_params:  # the pdiparams file of am static model [optional]
     lang: 'zh'
@@ -37,15 +71,15 @@ asr_online:
         summary: True  # False -> do not show predictor config
 
     chunk_buffer_conf:
-        frame_duration_ms: 80
+        frame_duration_ms: 85
         shift_ms: 40
         sample_rate: 16000
         sample_width: 2
 
-    vad_conf:
-        aggressiveness: 2
-        sample_rate: 16000
-        frame_duration_ms: 20
-        sample_width: 2
-        padding_ms: 200
-        padding_ratio: 0.9
+    # vad_conf:
+    #     aggressiveness: 2
+    #     sample_rate: 16000
+    #     frame_duration_ms: 20
+    #     sample_width: 2
+    #     padding_ms: 200
+    #     padding_ratio: 0.9

@@ -20,11 +20,15 @@ from numpy import float32
 from yacs.config import CfgNode
 
 from paddlespeech.cli.asr.infer import ASRExecutor
+from paddlespeech.cli.asr.infer import model_alias
+from paddlespeech.cli.asr.infer import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.speech import SpeechSegment
 from paddlespeech.s2t.modules.ctc import CTCDecoder
+from paddlespeech.s2t.transform.transformation import Transformation
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import pcm2float
@@ -51,6 +55,24 @@ pretrained_models = {
         'lm_md5':
         '29e02312deb2e59b3c8686c7966d4fe3'
     },
+    "conformer2online_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr1_chunk_conformer_aishell_ckpt_0.1.2.model.tar.gz',
+        'md5':
+        '4814e52e0fc2fd48899373f95c84b0c9',
+        'cfg_path':
+        'exp/chunk_conformer//conf/config.yaml',
+        'ckpt_path':
+        'exp/chunk_conformer/checkpoints/avg_30/',
+        'model':
+        'exp/chunk_conformer/checkpoints/avg_30.pdparams',
+        'params':
+        'exp/chunk_conformer/checkpoints/avg_30.pdparams',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
+    },
 }
 
 
@@ -71,15 +93,17 @@ class ASRServerExecutor(ASRExecutor):
         """
         Init model and other resources from a specific path.
         """
-
+        self.model_type = model_type
+        self.sample_rate = sample_rate
         if cfg_path is None or am_model is None or am_params is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             tag = model_type + '-' + lang + '-' + sample_rate_str
             logger.info(f"Load the pretrained model, tag = {tag}")
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.cfg_path = "/home/users/xiongxinlei/task/paddlespeech-develop/PaddleSpeech/paddlespeech/server/tests/asr/online/conf/config.yaml"
+            # self.cfg_path = os.path.join(res_path,
+            #                              pretrained_models[tag]['cfg_path'])
 
             self.am_model = os.path.join(res_path,
                                          pretrained_models[tag]['model'])
@@ -119,49 +143,67 @@ class ASRServerExecutor(ASRExecutor):
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
             elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
-                # 开发 conformer 的流式模型
                 logger.info("start to create the stream conformer asr engine")
-                # 复用cli里面的代码
-
+                if self.config.spm_model_prefix:
+                    self.config.spm_model_prefix = os.path.join(
+                        self.res_path, self.config.spm_model_prefix)
+                self.config.vocab_filepath = os.path.join(
+                    self.res_path, self.config.vocab_filepath)
+                self.text_feature = TextFeaturizer(
+                    unit_type=self.config.unit_type,
+                    vocab=self.config.vocab_filepath,
+                    spm_model_prefix=self.config.spm_model_prefix)
+                # update the decoding method
+                if decode_method:
+                    self.config.decode.decoding_method = decode_method
             else:
                 raise Exception("wrong type")
+        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
+            # AM predictor
+            logger.info("ASR engine start to init the am predictor")
+            self.am_predictor_conf = am_predictor_conf
+            self.am_predictor = init_predictor(
+                model_file=self.am_model,
+                params_file=self.am_params,
+                predictor_conf=self.am_predictor_conf)
 
-        # AM predictor
-        logger.info("ASR engine start to init the am predictor")
-        self.am_predictor_conf = am_predictor_conf
-        self.am_predictor = init_predictor(
-            model_file=self.am_model,
-            params_file=self.am_params,
-            predictor_conf=self.am_predictor_conf)
+            # decoder
+            logger.info("ASR engine start to create the ctc decoder instance")
+            self.decoder = CTCDecoder(
+                odim=self.config.output_dim,  # <blank> is in  vocab
+                enc_n_units=self.config.rnn_layer_size * 2,
+                blank_id=self.config.blank_id,
+                dropout_rate=0.0,
+                reduction=True,  # sum
+                batch_average=True,  # sum / batch_size
+                grad_norm_type=self.config.get('ctc_grad_norm_type', None))
 
-        # decoder
-        logger.info("ASR engine start to create the ctc decoder instance")
-        self.decoder = CTCDecoder(
-            odim=self.config.output_dim,  # <blank> is in  vocab
-            enc_n_units=self.config.rnn_layer_size * 2,
-            blank_id=self.config.blank_id,
-            dropout_rate=0.0,
-            reduction=True,  # sum
-            batch_average=True,  # sum / batch_size
-            grad_norm_type=self.config.get('ctc_grad_norm_type', None))
+            # init decoder
+            logger.info("ASR engine start to init the ctc decoder")
+            cfg = self.config.decode
+            decode_batch_size = 1  # for online
+            self.decoder.init_decoder(
+                decode_batch_size, self.text_feature.vocab_list,
+                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
+                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
+                cfg.num_proc_bsearch)
 
-        # init decoder
-        logger.info("ASR engine start to init the ctc decoder")
-        cfg = self.config.decode
-        decode_batch_size = 1  # for online
-        self.decoder.init_decoder(
-            decode_batch_size, self.text_feature.vocab_list,
-            cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
-            cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
-            cfg.num_proc_bsearch)
-
-        # init state box
-        self.chunk_state_h_box = np.zeros(
-            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
-            dtype=float32)
-        self.chunk_state_c_box = np.zeros(
-            (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
-            dtype=float32)
+            # init state box
+            self.chunk_state_h_box = np.zeros(
+                (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+                dtype=float32)
+            self.chunk_state_c_box = np.zeros(
+                (self.config.num_rnn_layers, 1, self.config.rnn_layer_size),
+                dtype=float32)
+        elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+            model_name = model_type[:model_type.rindex(
+                '_')]  # model_type: {model_name}_{dataset}
+            logger.info(f"model name: {model_name}")
+            model_class = dynamic_import(model_name, model_alias)
+            model_conf = self.config
+            model = model_class.from_config(model_conf)
+            self.model = model
+            logger.info("create the transformer like model success")
 
     def reset_decoder_and_chunk(self):
         """reset decoder and chunk state for an new audio
@@ -186,6 +228,7 @@ class ASRServerExecutor(ASRExecutor):
         Returns:
             [type]: [description]
         """
+        logger.info("start to decoce chunk by chunk")
         if "deepspeech2online" in model_type:
             input_names = self.am_predictor.get_input_names()
             audio_handle = self.am_predictor.get_input_handle(input_names[0])
@@ -224,10 +267,29 @@ class ASRServerExecutor(ASRExecutor):
 
             self.decoder.next(output_chunk_probs, output_chunk_lens)
             trans_best, trans_beam = self.decoder.decode()
+            logger.info(f"decode one one best result: {trans_best[0]}")
             return trans_best[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
-            raise Exception("invalid model name")
+            try:
+                logger.info(
+                    f"we will use the transformer like model : {self.model_type}"
+                )
+                cfg = self.config.decode
+                result_transcripts = self.model.decode(
+                    x_chunk,
+                    x_chunk_lens,
+                    text_feature=self.text_feature,
+                    decoding_method=cfg.decoding_method,
+                    beam_size=cfg.beam_size,
+                    ctc_weight=cfg.ctc_weight,
+                    decoding_chunk_size=cfg.decoding_chunk_size,
+                    num_decoding_left_chunks=cfg.num_decoding_left_chunks,
+                    simulate_streaming=cfg.simulate_streaming)
+
+                return result_transcripts[0][0]
+            except Exception as e:
+                logger.exception(e)
         else:
             raise Exception("invalid model name")
 
@@ -244,32 +306,55 @@ class ASRServerExecutor(ASRExecutor):
         """
         # pcm16 -> pcm 32
         samples = pcm2float(samples)
+        if "deepspeech2online" in self.model_type:
+            # read audio
+            speech_segment = SpeechSegment.from_pcm(
+                samples, sample_rate, transcript=" ")
+            # audio augment
+            self.collate_fn_test.augmentation.transform_audio(speech_segment)
 
-        # read audio
-        speech_segment = SpeechSegment.from_pcm(
-            samples, sample_rate, transcript=" ")
-        # audio augment
-        self.collate_fn_test.augmentation.transform_audio(speech_segment)
+            # extract speech feature
+            spectrum, transcript_part = self.collate_fn_test._speech_featurizer.featurize(
+                speech_segment, self.collate_fn_test.keep_transcription_text)
+            # CMVN spectrum
+            if self.collate_fn_test._normalizer:
+                spectrum = self.collate_fn_test._normalizer.apply(spectrum)
 
-        # extract speech feature
-        spectrum, transcript_part = self.collate_fn_test._speech_featurizer.featurize(
-            speech_segment, self.collate_fn_test.keep_transcription_text)
-        # CMVN spectrum
-        if self.collate_fn_test._normalizer:
-            spectrum = self.collate_fn_test._normalizer.apply(spectrum)
+            # spectrum augment
+            audio = self.collate_fn_test.augmentation.transform_feature(
+                spectrum)
 
-        # spectrum augment
-        audio = self.collate_fn_test.augmentation.transform_feature(spectrum)
+            audio_len = audio.shape[0]
+            audio = paddle.to_tensor(audio, dtype='float32')
+            # audio_len = paddle.to_tensor(audio_len)
+            audio = paddle.unsqueeze(audio, axis=0)
 
-        audio_len = audio.shape[0]
-        audio = paddle.to_tensor(audio, dtype='float32')
-        # audio_len = paddle.to_tensor(audio_len)
-        audio = paddle.unsqueeze(audio, axis=0)
+            x_chunk = audio.numpy()
+            x_chunk_lens = np.array([audio_len])
 
-        x_chunk = audio.numpy()
-        x_chunk_lens = np.array([audio_len])
+            return x_chunk, x_chunk_lens
+        elif "conformer2online" in self.model_type:
 
-        return x_chunk, x_chunk_lens
+            if sample_rate != self.sample_rate:
+                logger.info(f"audio sample rate {sample_rate} is not match," \
+                            "the model sample_rate is {self.sample_rate}")
+            logger.info(f"ASR Engine use the {self.model_type} to process")
+            logger.info("Create the preprocess instance")
+            preprocess_conf = self.config.preprocess_config
+            preprocess_args = {"train": False}
+            preprocessing = Transformation(preprocess_conf)
+
+            logger.info("Read the audio file")
+            logger.info(f"audio shape: {samples.shape}")
+            # fbank
+            x_chunk = preprocessing(samples, **preprocess_args)
+            x_chunk_lens = paddle.to_tensor(x_chunk.shape[0])
+            x_chunk = paddle.to_tensor(
+                x_chunk, dtype="float32").unsqueeze(axis=0)
+            logger.info(
+                f"process the audio feature success, feat shape: {x_chunk.shape}"
+            )
+            return x_chunk, x_chunk_lens
 
 
 class ASREngine(BaseEngine):
@@ -310,7 +395,10 @@ class ASREngine(BaseEngine):
         logger.info("Initialize ASR server engine successfully.")
         return True
 
-    def preprocess(self, samples, sample_rate):
+    def preprocess(self,
+                   samples,
+                   sample_rate,
+                   model_type="deepspeech2online_aishell-zh-16k"):
         """preprocess
 
         Args:
@@ -321,6 +409,7 @@ class ASREngine(BaseEngine):
             x_chunk (numpy.array): shape[B, T, D]
             x_chunk_lens (numpy.array): shape[B]
         """
+        # if "deepspeech" in model_type:
         x_chunk, x_chunk_lens = self.executor.extract_feat(samples, sample_rate)
         return x_chunk, x_chunk_lens
 

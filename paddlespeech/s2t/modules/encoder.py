@@ -317,6 +317,8 @@ class BaseEncoder(nn.Layer):
         outputs = []
         offset = 0
         # Feed forward overlap input step by step
+        print(f"context: {context}")
+        print(f"stride: {stride}")
         for cur in range(0, num_frames - context + 1, stride):
             end = min(cur + decoding_window, num_frames)
             chunk_xs = xs[:, cur:end, :]

@@ -32,41 +32,50 @@ int main(int argc, char* argv[]) {
     google::InitGoogleLogging(argv[0]);
 
     LOG(INFO) << "cmvn josn path: " << FLAGS_json_file;
-    padded_string json = padded_string::load(FLAGS_json_file);
 
-    ondemand::parser parser;
-    ondemand::document doc = parser.iterate(json);
-    ondemand::value val = doc;
+    try {
+        padded_string json = padded_string::load(FLAGS_json_file);
 
-    ondemand::array mean_stat = val["mean_stat"];
-    std::vector<kaldi::BaseFloat> mean_stat_vec;
-    for (double x : mean_stat) {
-        mean_stat_vec.push_back(x);
+        ondemand::parser parser;
+        ondemand::document doc = parser.iterate(json);
+        ondemand::value val = doc;
+
+        ondemand::array mean_stat = val["mean_stat"];
+        std::vector<kaldi::BaseFloat> mean_stat_vec;
+        for (double x : mean_stat) {
+            mean_stat_vec.push_back(x);
+        }
+        // LOG(INFO) << mean_stat; this line will casue
+        // simdjson::simdjson_error("Objects and arrays can only be iterated
+        // when
+        // they are first encountered")
+
+        ondemand::array var_stat = val["var_stat"];
+        std::vector<kaldi::BaseFloat> var_stat_vec;
+        for (double x : var_stat) {
+            var_stat_vec.push_back(x);
+        }
+
+        kaldi::int32 frame_num = uint64_t(val["frame_num"]);
+        LOG(INFO) << "nframe: " << frame_num;
+
+        size_t mean_size = mean_stat_vec.size();
+        kaldi::Matrix<double> cmvn_stats(2, mean_size + 1);
+        for (size_t idx = 0; idx < mean_size; ++idx) {
+            cmvn_stats(0, idx) = mean_stat_vec[idx];
+            cmvn_stats(1, idx) = var_stat_vec[idx];
+        }
+        cmvn_stats(0, mean_size) = frame_num;
+        LOG(INFO) << cmvn_stats;
+
+        kaldi::WriteKaldiObject(
+            cmvn_stats, FLAGS_cmvn_write_path, FLAGS_binary);
+        LOG(INFO) << "cmvn stats have write into: " << FLAGS_cmvn_write_path;
+        LOG(INFO) << "Binary: " << FLAGS_binary;
+    } catch (simdjson::simdjson_error& err) {
+        LOG(ERR) << err.what();
     }
-    // LOG(INFO) << mean_stat; this line will casue
-    // simdjson::simdjson_error("Objects and arrays can only be iterated when
-    // they are first encountered")
 
-    ondemand::array var_stat = val["var_stat"];
-    std::vector<kaldi::BaseFloat> var_stat_vec;
-    for (double x : var_stat) {
-        var_stat_vec.push_back(x);
-    }
 
-    kaldi::int32 frame_num = uint64_t(val["frame_num"]);
-    LOG(INFO) << "nframe: " << frame_num;
-
-    size_t mean_size = mean_stat_vec.size();
-    kaldi::Matrix<double> cmvn_stats(2, mean_size + 1);
-    for (size_t idx = 0; idx < mean_size; ++idx) {
-        cmvn_stats(0, idx) = mean_stat_vec[idx];
-        cmvn_stats(1, idx) = var_stat_vec[idx];
-    }
-    cmvn_stats(0, mean_size) = frame_num;
-    LOG(INFO) << cmvn_stats;
-
-    kaldi::WriteKaldiObject(cmvn_stats, FLAGS_cmvn_write_path, FLAGS_binary);
-    LOG(INFO) << "cmvn stats have write into: " << FLAGS_cmvn_write_path;
-    LOG(INFO) << "Binary: " << FLAGS_binary;
     return 0;
 }

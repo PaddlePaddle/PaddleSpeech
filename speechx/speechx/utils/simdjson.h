@@ -2412,7 +2412,7 @@ enum error_code {
     CAPACITY,     ///< This parser can't support a document that big
     MEMALLOC,     ///< Error allocating memory, most likely out of memory
     TAPE_ERROR,   ///< Something went wrong while writing to the tape (stage 2),
-                  ///this is a generic error
+                  /// this is a generic error
     DEPTH_ERROR,  ///< Your document exceeds the user-specified depth limitation
     STRING_ERROR,   ///< Problem while parsing a string
     T_ATOM_ERROR,   ///< Problem while parsing an atom starting with the letter
@@ -2438,9 +2438,9 @@ enum error_code {
     UNEXPECTED_ERROR,            ///< indicative of a bug in simdjson
     PARSER_IN_USE,               ///< parser is already in use.
     OUT_OF_ORDER_ITERATION,      ///< tried to iterate an array or object out of
-                                 ///order
+                                 /// order
     INSUFFICIENT_PADDING,        ///< The JSON doesn't have enough padding for
-                                 ///simdjson to safely parse it.
+                                 /// simdjson to safely parse it.
     INCOMPLETE_ARRAY_OR_OBJECT,  ///< The document ends early.
     SCALAR_DOCUMENT_AS_VALUE,    ///< A scalar document is treated as a value.
     OUT_OF_BOUNDS,  ///< Attempted to access location outside of document.

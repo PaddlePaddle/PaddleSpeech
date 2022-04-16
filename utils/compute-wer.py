@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # CopyRight WeNet Apache-2.0 License
 import codecs
-import re
 import sys
 import unicodedata
 
@@ -33,7 +32,8 @@ def characterize(string):
         else:
             # some input looks like: <unk><noise>, we want to separate it to two words.
             sep = ' '
-            if char == '<': sep = '>'
+            if char == '<':
+                sep = '>'
             j = i + 1
             while j < len(string):
                 c = string[j]
@@ -48,7 +48,8 @@ def characterize(string):
 
 
 def stripoff_tags(x):
-    if not x: return ''
+    if not x:
+        return ''
     chars = []
     i = 0
     T = len(x)
@@ -365,7 +366,7 @@ if __name__ == '__main__':
             verbose = 0
             try:
                 verbose = int(b)
-            except:
+            except Exception as e:
                 if b == 'true' or b != '0':
                     verbose = 1
             continue
@@ -408,7 +409,8 @@ if __name__ == '__main__':
                 array = characterize(line)
             else:
                 array = line.strip().split()
-            if len(array) == 0: continue
+            if len(array) == 0:
+                continue
             fid = array[0]
             rec_set[fid] = normalize(array[1:], ignore_words, case_sensitive,
                                      split)
@@ -419,7 +421,8 @@ if __name__ == '__main__':
             array = characterize(line)
         else:
             array = line.rstrip('\n').split()
-        if len(array) == 0: continue
+        if len(array) == 0:
+            continue
         fid = array[0]
         if fid not in rec_set:
             continue
@@ -526,7 +529,7 @@ if __name__ == '__main__':
             for line in open(cluster_file, 'r', encoding='utf-8'):
                 for token in line.decode('utf-8').rstrip('\n').split():
                     # end of cluster reached, like </Keyword>
-                    if token[0:2] == '</' and token[len(token)-1] == '>' and \
+                    if token[0:2] == '</' and token[len(token) - 1] == '>' and \
                        token.lstrip('</').rstrip('>') == cluster_id :
                         result = calculator.cluster(cluster)
                         if result['all'] != 0:
@@ -541,7 +544,7 @@ if __name__ == '__main__':
                         cluster_id = ''
                         cluster = []
                     # begin of cluster reached, like <Keyword>
-                    elif token[0] == '<' and token[len(token)-1] == '>' and \
+                    elif token[0] == '<' and token[len(token) - 1] == '>' and \
                          cluster_id == '' :
                         cluster_id = token.lstrip('<').rstrip('>')
                         cluster = []

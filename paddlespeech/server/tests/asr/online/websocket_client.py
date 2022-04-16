@@ -105,7 +105,7 @@ class ASRAudioHandler:
 def main(args):
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
-    handler = ASRAudioHandler("127.0.0.1", 8096)
+    handler = ASRAudioHandler("127.0.0.1", 8090)
     loop = asyncio.get_event_loop()
 
     # support to process single audio file

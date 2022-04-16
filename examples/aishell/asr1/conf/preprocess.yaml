@@ -5,7 +5,7 @@ process:
     n_mels: 80
     n_shift: 160
     win_length: 400
-    dither: 0.0
+    dither: 0.1
   - type: cmvn_json
     cmvn_path: data/mean_std.json
   # these three processes are a.k.a. SpecAugument

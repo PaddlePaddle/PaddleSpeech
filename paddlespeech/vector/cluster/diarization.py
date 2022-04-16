@@ -18,11 +18,11 @@ A few sklearn functions are modified in this script as per requirement.
 """
 import argparse
 import warnings
+from distutils.util import strtobool
 
 import numpy as np
 import scipy
 import sklearn
-from distutils.util import strtobool
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import laplacian as csgraph_laplacian

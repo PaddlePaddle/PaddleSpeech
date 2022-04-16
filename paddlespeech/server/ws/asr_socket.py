@@ -93,7 +93,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     sample_rate = asr_engine.config.sample_rate
                     x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
                                                                   sample_rate)
-                    print(x_chunk_lens)
                     asr_engine.run(x_chunk, x_chunk_lens)
                     asr_results = asr_engine.postprocess()
                 asr_results = asr_engine.postprocess()

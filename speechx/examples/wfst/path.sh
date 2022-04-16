@@ -1,17 +1,9 @@
 # This contains the locations of binarys build required for running the examples.
 
-SPEECHX_ROOT=$PWD/../../../
-MAIN_ROOT=$SPEECHX_ROOT/../
-SPEECHX_EXAMPLES=$SPEECHX_ROOT/build/examples
-
-SPEECHX_TOOLS=$SPEECHX_ROOT/tools
-TOOLS_BIN=$SPEECHX_TOOLS/valgrind/install/bin
-
-[ -d $SPEECHX_EXAMPLES ] || { echo "Error: 'build/examples' directory not found. please ensure that the project build successfully"; }
+MAIN_ROOT=`realpath $PWD/../../../../`
+SPEECHX_ROOT=`realpath $MAIN_ROOT/speechx`
 
 export LC_AL=C
-
-export PATH=$PATH:$TOOLS_BIN
 
 # srilm
 export LIBLBFGS=${MAIN_ROOT}/tools/liblbfgs-1.10

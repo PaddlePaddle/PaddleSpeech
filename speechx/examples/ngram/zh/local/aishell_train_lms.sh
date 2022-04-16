@@ -28,10 +28,14 @@ mkdir -p $dir
 
 cleantext=$dir/text.no_oov
 
+# oov to <SPOKEN_NOISE>
+# line: utt word0 ... wordn -> line: <SPOKEN_NOISE> word0 ... wordn
 cat $text | awk -v lex=$lexicon 'BEGIN{while((getline<lex) >0){ seen[$1]=1; } }
   {for(n=1; n<=NF;n++) {  if (seen[$n]) { printf("%s ", $n); } else {printf("<SPOKEN_NOISE> ");} } printf("\n");}' \
   > $cleantext || exit 1;
 
+# compute word counts
+# line: count word
 cat $cleantext | awk '{for(n=2;n<=NF;n++) print $n; }' | sort | uniq -c | \
    sort -nr > $dir/word.counts || exit 1;
 
@@ -42,10 +46,13 @@ cat $cleantext | awk '{for(n=2;n<=NF;n++) print $n; }' | \
   cat - <(grep -w -v '!SIL' $lexicon | awk '{print $1}') | \
    sort | uniq -c | sort -nr > $dir/unigram.counts || exit 1;
 
+# word with <s> </s>
 cat $dir/unigram.counts | awk '{print $2}' | cat - <(echo "<s>"; echo "</s>" ) > $dir/wordlist
 
+# hold out to compute ppl
 heldout_sent=10000 # Don't change this if you want result to be comparable with
     # kaldi_lm results
+
 mkdir -p $dir
 cat $cleantext | awk '{for(n=2;n<=NF;n++){ printf $n; if(n<NF) printf " "; else print ""; }}' | \
   head -$heldout_sent > $dir/heldout

@@ -223,22 +223,28 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 ## Pretrained Model
 Pretrained SpeedySpeech model with no silence in the edge of audios:
 - [speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_ckpt_0.5.zip)
+- [speedyspeech_csmsc_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_ckpt_0.2.0.zip)
 
 The static model can be downloaded here:
 - [speedyspeech_nosil_baker_static_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip)
 - [speedyspeech_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_static_0.2.0.zip)
 
+The ONNX model can be downloaded here:
+- [speedyspeech_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_onnx_0.2.0.zip)
+
+
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:
-default| 1(gpu) x 11400|0.83655|0.42324|0.03211| 0.38119
+default| 1(gpu) x 11400|0.79532|0.400246|0.030259| 0.36482
 
 SpeedySpeech checkpoint contains files listed below.
+
 ```text
-speedyspeech_nosil_baker_ckpt_0.5
+speedyspeech_csmsc_ckpt_0.2.0
 ├── default.yaml            # default config used to train speedyspeech
 ├── feats_stats.npy         # statistics used to normalize spectrogram when training speedyspeech
 ├── phone_id_map.txt        # phone vocabulary file when training speedyspeech
-├── snapshot_iter_11400.pdz # model parameters and optimizer states
+├── snapshot_iter_30600.pdz # model parameters and optimizer states
 └── tone_id_map.txt         # tone vocabulary file when training speedyspeech
 ```
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained speedyspeech and parallel wavegan models.
@@ -249,9 +255,9 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=speedyspeech_csmsc \
-  --am_config=speedyspeech_nosil_baker_ckpt_0.5/default.yaml \
-  --am_ckpt=speedyspeech_nosil_baker_ckpt_0.5/snapshot_iter_11400.pdz \
-  --am_stat=speedyspeech_nosil_baker_ckpt_0.5/feats_stats.npy \
+  --am_config=speedyspeech_csmsc_ckpt_0.2.0/default.yaml \
+  --am_ckpt=speedyspeech_csmsc_ckpt_0.2.0/snapshot_iter_30600.pdz \
+  --am_stat=speedyspeech_csmsc_ckpt_0.2.0/feats_stats.npy \
   --voc=pwgan_csmsc \
   --voc_config=pwg_baker_ckpt_0.4/pwg_default.yaml \
   --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
@@ -260,6 +266,6 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --text=${BIN_DIR}/../sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
-  --phones_dict=speedyspeech_nosil_baker_ckpt_0.5/phone_id_map.txt \
-  --tones_dict=speedyspeech_nosil_baker_ckpt_0.5/tone_id_map.txt
+  --phones_dict=speedyspeech_csmsc_ckpt_0.2.0/phone_id_map.txt \
+  --tones_dict=speedyspeech_csmsc_ckpt_0.2.0/tone_id_map.txt
 ```

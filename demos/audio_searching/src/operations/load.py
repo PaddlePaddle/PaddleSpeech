@@ -82,3 +82,16 @@ def do_load(table_name, audio_dir, milvus_cli, mysql_cli):
     mysql_cli.create_mysql_table(table_name)
     mysql_cli.load_data_to_mysql(table_name, format_data(ids, names))
     return len(ids)
+
+
+def do_enroll(table_name, spk_id, audio_path, mysql_cli):
+    """
+    Import spk_id,audio_path,embedding to Mysql
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    embedding = get_audio_embedding(audio_path)
+    mysql_cli.create_mysql_table_vpr(table_name)
+    data = (spk_id, audio_path, str(embedding))
+    mysql_cli.load_data_to_mysql_vpr(table_name, data)
+    return "OK"

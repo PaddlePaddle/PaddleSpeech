@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from speechbrain(https://github.com/speechbrain/speechbrain)
 """
 This script contains basic functions used for speaker diarization.
 This script has an optional dependency on open source sklearn library.
@@ -18,11 +19,11 @@ A few sklearn functions are modified in this script as per requirement.
 """
 import argparse
 import warnings
+from distutils.util import strtobool
 
 import numpy as np
 import scipy
 import sklearn
-from distutils.util import strtobool
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import laplacian as csgraph_laplacian

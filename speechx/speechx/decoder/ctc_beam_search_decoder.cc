@@ -92,8 +92,7 @@ void CTCBeamSearch::AdvanceDecode(
     while (1) {
         vector<vector<BaseFloat>> likelihood;
         vector<BaseFloat> frame_prob;
-        bool flag =
-            decodable->FrameLikelihood(num_frame_decoded_, &frame_prob);
+        bool flag = decodable->FrameLikelihood(num_frame_decoded_, &frame_prob);
         if (flag == false) break;
         likelihood.push_back(frame_prob);
         AdvanceDecoding(likelihood);

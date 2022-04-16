@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import asyncio
 import base64
 import io
 import json
+import logging
 import os
 import random
 import time
@@ -28,6 +30,7 @@ from ..executor import BaseExecutor
 from ..util import cli_client_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
+from paddlespeech.server.tests.asr.online.websocket_client import ASRAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
@@ -228,6 +231,76 @@ class ASRClientExecutor(BaseExecutor):
 
         res = requests.post(url=url, data=json.dumps(data))
         return res
+
+
+@cli_client_register(
+    name='paddlespeech_client.asr_online',
+    description='visit asr online service')
+class ASRClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(ASRClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.asr', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8091, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Audio file to be recognized',
+            required=True)
+        self.parser.add_argument(
+            '--sample_rate', type=int, default=16000, help='audio sample rate')
+        self.parser.add_argument(
+            '--lang', type=str, default="zh_cn", help='language')
+        self.parser.add_argument(
+            '--audio_format', type=str, default="wav", help='audio format')
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        sample_rate = args.sample_rate
+        lang = args.lang
+        audio_format = args.audio_format
+
+        try:
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                sample_rate=sample_rate,
+                lang=lang,
+                audio_format=audio_format)
+            time_end = time.time()
+            logger.info(res.json())
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to speech recognition.")
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8091,
+                 sample_rate: int=16000,
+                 lang: str="zh_cn",
+                 audio_format: str="wav"):
+        """
+        Python API to call an executor.
+        """
+        logging.basicConfig(level=logging.INFO)
+        logging.info("asr websocket client start")
+        handler = ASRAudioHandler(server_ip, port)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(handler.run(input))
+        logging.info("asr websocket client finished")
 
 
 @cli_client_register(

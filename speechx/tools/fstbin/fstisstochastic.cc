@@ -42,50 +42,51 @@
 // though not stochastic because we gave it an absurdly large delta.
 
 int main(int argc, char *argv[]) {
-  try {
-    using namespace kaldi;  // NOLINT
-    using namespace fst;  // NOLINT
-    using kaldi::int32;
+    try {
+        using namespace kaldi;  // NOLINT
+        using namespace fst;    // NOLINT
+        using kaldi::int32;
 
-    const char *usage =
-        "Checks whether an FST is stochastic and exits with success if so.\n"
-        "Prints out maximum error (in log units).\n"
-        "\n"
-        "Usage:  fstisstochastic [ in.fst ]\n";
+        const char *usage =
+            "Checks whether an FST is stochastic and exits with success if "
+            "so.\n"
+            "Prints out maximum error (in log units).\n"
+            "\n"
+            "Usage:  fstisstochastic [ in.fst ]\n";
 
-    float delta = 0.01;
-    bool test_in_log = true;
+        float delta = 0.01;
+        bool test_in_log = true;
 
-    ParseOptions po(usage);
-    po.Register("delta", &delta, "Maximum error to accept.");
-    po.Register("test-in-log", &test_in_log,
-                "Test stochasticity in log semiring.");
-    po.Read(argc, argv);
+        ParseOptions po(usage);
+        po.Register("delta", &delta, "Maximum error to accept.");
+        po.Register(
+            "test-in-log", &test_in_log, "Test stochasticity in log semiring.");
+        po.Read(argc, argv);
 
-    if (po.NumArgs() > 1) {
-      po.PrintUsage();
-      exit(1);
+        if (po.NumArgs() > 1) {
+            po.PrintUsage();
+            exit(1);
+        }
+
+        std::string fst_in_filename = po.GetOptArg(1);
+
+        Fst<StdArc> *fst = ReadFstKaldiGeneric(fst_in_filename);
+
+        bool ans;
+        StdArc::Weight min, max;
+        if (test_in_log)
+            ans = IsStochasticFstInLog(*fst, delta, &min, &max);
+        else
+            ans = IsStochasticFst(*fst, delta, &min, &max);
+
+        std::cout << min.Value() << " " << max.Value() << '\n';
+        delete fst;
+        if (ans)
+            return 0;  // success;
+        else
+            return 1;
+    } catch (const std::exception &e) {
+        std::cerr << e.what();
+        return -1;
     }
-
-    std::string fst_in_filename = po.GetOptArg(1);
-
-    Fst<StdArc> *fst = ReadFstKaldiGeneric(fst_in_filename);
-
-    bool ans;
-    StdArc::Weight min, max;
-    if (test_in_log)
-      ans = IsStochasticFstInLog(*fst, delta, &min, &max);
-    else
-      ans = IsStochasticFst(*fst, delta, &min, &max);
-
-    std::cout << min.Value() << " " << max.Value() << '\n';
-    delete fst;
-    if (ans)
-      return 0;  // success;
-    else
-      return 1;
-  } catch (const std::exception &e) {
-    std::cerr << e.what();
-    return -1;
-  }
 }

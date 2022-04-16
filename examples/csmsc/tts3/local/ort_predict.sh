@@ -3,7 +3,7 @@ train_output_path=$1
 stage=0
 stop_stage=0
 
-# only support default_fastspeech2 + hifigan/mb_melgan now!
+# only support default_fastspeech2/speedyspeech + hifigan/mb_melgan now!
 
 # synthesize from metadata
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then

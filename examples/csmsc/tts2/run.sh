@@ -40,3 +40,25 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # inference with static model
     CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} || exit -1
 fi
+
+# paddle2onnx, please make sure the static models are in ${train_output_path}/inference first
+# we have only tested the following models so far
+if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+    # install paddle2onnx
+    version=$(echo `pip list |grep "paddle2onnx"` |awk -F" " '{print $2}')
+    if [[ -z "$version" || ${version} != '0.9.4' ]]; then
+        pip install paddle2onnx==0.9.4
+    fi
+    ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx speedyspeech_csmsc
+    ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_csmsc
+fi
+
+# inference with onnxruntime, use fastspeech2 + hifigan by default
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
+    # install onnxruntime
+    version=$(echo `pip list |grep "onnxruntime"` |awk -F" " '{print $2}')
+    if [[ -z "$version" || ${version} != '1.10.0' ]]; then
+        pip install onnxruntime==1.10.0
+    fi
+    ./local/ort_predict.sh ${train_output_path}
+fi

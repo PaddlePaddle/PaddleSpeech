@@ -92,7 +92,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
 
   ```bash
   export PYTHONPATH=$PYTHONPATH:./src:../../paddleaudio
-  python src/main.py
+  python src/audio_search.py
   ```
 
   然后你会看到应用程序启动:
@@ -113,7 +113,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  **注**：如果希望快速搭建 demo，可以采用 ./src/test_main.py:download_audio_data 内部的 20 条音频，另外后续结果展示以该集合为例
+  **注**：如果希望快速搭建 demo，可以采用 ./src/test_audio_search.py:download_audio_data 内部的 20 条音频，另外后续结果展示以该集合为例
 
 - 准备模型（如果使用默认模型，可以跳过此步骤）
   ```bash
@@ -124,7 +124,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
  - 脚本测试（推荐）
 
     ```bash
-    python ./src/test_main.py
+    python ./src/test_audio_search.py
     ```
     注：内部将依次下载数据，加载 paddlespeech 模型，提取 embedding，存储建库，检索，删库
 

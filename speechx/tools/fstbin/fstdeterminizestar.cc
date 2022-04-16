@@ -56,59 +56,61 @@ bool debug_location = false;
 void signal_handler(int) { debug_location = true; }
 
 int main(int argc, char *argv[]) {
-  try {
-    using namespace kaldi;  // NOLINT
-    using namespace fst;  // NOLINT
-    using kaldi::int32;
+    try {
+        using namespace kaldi;  // NOLINT
+        using namespace fst;    // NOLINT
+        using kaldi::int32;
 
-    const char *usage =
-        "Removes epsilons and determinizes in one step\n"
-        "\n"
-        "Usage:  fstdeterminizestar [in.fst [out.fst] ]\n"
-        "\n"
-        "See also: fstdeterminizelog, lattice-determinize\n";
+        const char *usage =
+            "Removes epsilons and determinizes in one step\n"
+            "\n"
+            "Usage:  fstdeterminizestar [in.fst [out.fst] ]\n"
+            "\n"
+            "See also: fstdeterminizelog, lattice-determinize\n";
 
-    float delta = kDelta;
-    int max_states = -1;
-    bool use_log = false;
-    ParseOptions po(usage);
-    po.Register("use-log", &use_log, "Determinize in log semiring.");
-    po.Register("delta", &delta,
-                "Delta value used to determine equivalence of weights.");
-    po.Register(
-        "max-states", &max_states,
-        "Maximum number of states in determinized FST before it will abort.");
-    po.Read(argc, argv);
+        float delta = kDelta;
+        int max_states = -1;
+        bool use_log = false;
+        ParseOptions po(usage);
+        po.Register("use-log", &use_log, "Determinize in log semiring.");
+        po.Register("delta",
+                    &delta,
+                    "Delta value used to determine equivalence of weights.");
+        po.Register("max-states",
+                    &max_states,
+                    "Maximum number of states in determinized FST before it "
+                    "will abort.");
+        po.Read(argc, argv);
 
-    if (po.NumArgs() > 2) {
-      po.PrintUsage();
-      exit(1);
-    }
+        if (po.NumArgs() > 2) {
+            po.PrintUsage();
+            exit(1);
+        }
 
-    std::string fst_in_str = po.GetOptArg(1), fst_out_str = po.GetOptArg(2);
+        std::string fst_in_str = po.GetOptArg(1), fst_out_str = po.GetOptArg(2);
 
-    // This enables us to get traceback info from determinization that is
-    // not seeming to terminate.
+// This enables us to get traceback info from determinization that is
+// not seeming to terminate.
 #if !defined(_MSC_VER) && !defined(__APPLE__)
-    signal(SIGUSR1, signal_handler);
+        signal(SIGUSR1, signal_handler);
 #endif
-    // Normal case: just files.
-    VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_str);
+        // Normal case: just files.
+        VectorFst<StdArc> *fst = ReadFstKaldi(fst_in_str);
 
-    ArcSort(fst, ILabelCompare<StdArc>());  // improves speed.
-    if (use_log) {
-      DeterminizeStarInLog(fst, delta, &debug_location, max_states);
-    } else {
-      VectorFst<StdArc> det_fst;
-      DeterminizeStar(*fst, &det_fst, delta, &debug_location, max_states);
-      *fst = det_fst;  // will do shallow copy and then det_fst goes
-      // out of scope anyway.
+        ArcSort(fst, ILabelCompare<StdArc>());  // improves speed.
+        if (use_log) {
+            DeterminizeStarInLog(fst, delta, &debug_location, max_states);
+        } else {
+            VectorFst<StdArc> det_fst;
+            DeterminizeStar(*fst, &det_fst, delta, &debug_location, max_states);
+            *fst = det_fst;  // will do shallow copy and then det_fst goes
+                             // out of scope anyway.
+        }
+        WriteFstKaldi(*fst, fst_out_str);
+        delete fst;
+        return 0;
+    } catch (const std::exception &e) {
+        std::cerr << e.what();
+        return -1;
     }
-    WriteFstKaldi(*fst, fst_out_str);
-    delete fst;
-    return 0;
-  } catch (const std::exception &e) {
-    std::cerr << e.what();
-    return -1;
-  }
 }

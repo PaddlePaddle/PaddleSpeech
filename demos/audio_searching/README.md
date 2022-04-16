@@ -90,7 +90,7 @@ Then to start the system server, and it provides HTTP backend services.
 
   ```bash
   export PYTHONPATH=$PYTHONPATH:./src:../../paddleaudio
-  python src/main.py
+  python src/audio_search.py
   ```
 
   Then you will see the Application is started:
@@ -111,7 +111,7 @@ Then to start the system server, and it provides HTTP backend services.
   ```bash
   wget -c https://www.openslr.org/resources/82/cn-celeb_v2.tar.gz && tar -xvf cn-celeb_v2.tar.gz 
   ```
-  **Note**: If you want to build a quick demo, you can use ./src/test_main.py:download_audio_data function, it downloads 20 audio files , Subsequent results show this collection as an example
+  **Note**: If you want to build a quick demo, you can use ./src/test_audio_search.py:download_audio_data function, it downloads 20 audio files , Subsequent results show this collection as an example
 
 - Prepare model(Skip this step if you use the default model.)
   ```bash
@@ -123,7 +123,7 @@ Then to start the system server, and it provides HTTP backend services.
 
     The internal process is downloading data, loading the paddlespeech model, extracting embedding, storing library, retrieving and deleting library  
     ```bash
-    python ./src/test_main.py
+    python ./src/test_audio_search.py
     ```
 
     Output：

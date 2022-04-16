@@ -34,22 +34,23 @@ class ASRAudioHandler:
     def read_wave(self, wavfile_path: str):
         samples, sample_rate = soundfile.read(wavfile_path, dtype='int16')
         x_len = len(samples)
-        chunk_stride = 40 * 16  #40ms, sample_rate = 16kHz
+        # chunk_stride = 40 * 16  #40ms, sample_rate = 16kHz
         chunk_size = 80 * 16  #80ms, sample_rate = 16kHz
 
-        if (x_len - chunk_size) % chunk_stride != 0:
-            padding_len_x = chunk_stride - (x_len - chunk_size) % chunk_stride
+        if x_len % chunk_size != 0:
+            padding_len_x = chunk_size - x_len % chunk_size
         else:
             padding_len_x = 0
 
         padding = np.zeros((padding_len_x), dtype=samples.dtype)
         padded_x = np.concatenate([samples, padding], axis=0)
 
-        num_chunk = (x_len + padding_len_x - chunk_size) / chunk_stride + 1
+        assert (x_len + padding_len_x) % chunk_size == 0
+        num_chunk = (x_len + padding_len_x) / chunk_size
         num_chunk = int(num_chunk)
 
         for i in range(0, num_chunk):
-            start = i * chunk_stride
+            start = i * chunk_size
             end = start + chunk_size
             x_chunk = padded_x[start:end]
             yield x_chunk
@@ -80,6 +81,7 @@ class ASRAudioHandler:
                 msg = await ws.recv()
                 msg = json.loads(msg)
                 logging.info("receive msg={}".format(msg))
+
             result = msg
             # finished 
             audio_info = json.dumps(
@@ -93,6 +95,7 @@ class ASRAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
+            
             # decode the bytes to str
             msg = json.loads(msg)
             logging.info("receive msg={}".format(msg))
@@ -103,7 +106,7 @@ class ASRAudioHandler:
 def main(args):
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
-    handler = ASRAudioHandler("127.0.0.1", 8096)
+    handler = ASRAudioHandler("127.0.0.1", 8090)
     loop = asyncio.get_event_loop()
 
     # support to process single audio file

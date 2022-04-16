@@ -22,12 +22,16 @@ pip install netron
 netron exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel  --port 8022 --host 10.21.55.20
 ```
 
+## For Developer  
+
+> Warning: Only for developer, make sure you know what's it.
+
+* dev - for speechx developer, using for test.
+
 ## Build WFST  
+
+> Warning: Using below example when you know what's it.
 
 * text_lm - process text for build lm
 * ngram - using to build NGram ARPA lm.
 * wfst - build wfst for TLG.
-
-## For Developer  
-
-* dev - for speechx developer, using for test.

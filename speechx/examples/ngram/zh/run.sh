@@ -42,11 +42,15 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # line: char/spm_pices
     cp $unit data/local/dict/units.txt
 
-    # line: word ph0 ... phn -> line: word char0 ... charn
-    utils/fst/prepare_dict.py \
-        --unit_file $unit \
-        --in_lexicon ${lexicon} \
-        --out_lexicon data/local/dict/lexicon.txt
+    if [ -f $lexicon ];then
+        # line: word ph0 ... phn -> line: word char0 ... charn
+        utils/fst/prepare_dict.py \
+            --unit_file $unit \
+            --in_lexicon ${lexicon} \
+            --out_lexicon data/local/dict/lexicon.txt
+    else
+        local/text_to_lexicon.py --has_key true --text $text --lexicon data/local/dict/lexicon.txt
+    fi
 fi
 
 lm=data/local/lm

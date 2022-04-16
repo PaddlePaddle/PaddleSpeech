@@ -26,23 +26,38 @@ def main(args):
     with wav_scp.open('w') as fwav, dur_scp.open('w') as fdur, text_scp.open(
             'w') as ftxt:
         for line_json in manifest_jsons:
+            # utt:str
+            # utt2spk:str
+            # input: [{name:str, shape:[dur_in_sec, feat_dim], feat:str, filetype:str}, ]
+            # output: [{name:str, shape:[tokenlen, vocab_dim], text:str, token:str, tokenid:str}, ] 
             utt = line_json['utt']
-            feat = line_json['feat']
+            utt2spk = line_json['utt2spk']
+
+            # input
+            assert(len(line_json['input']) == 1), "only support one input now"
+            input_json = line_json['input'][0]
+            feat = input_json['feat']
+            feat_shape = input_json['shape']
+            file_type = input_json['filetype']
+
             file_ext = Path(feat).suffix  # .wav
-            text = line_json['text']
-            feat_shape = line_json['feat_shape']
             dur = feat_shape[0]
             feat_dim = feat_shape[1]
-            if 'token' in line_json:
-                tokens = line_json['token']
-                tokenids = line_json['token_id']
-                token_shape = line_json['token_shape']
-                token_len = token_shape[0]
-                vocab_dim = token_shape[1]
 
             if file_ext == '.wav':
                 fwav.write(f"{utt} {feat}\n")
             fdur.write(f"{utt} {dur}\n")
+
+            # output
+            assert(len(line_json['output']) == 1), "only support one output now"
+            output_json = line_json['output'][0]
+            text = output_json['text']
+            if 'token' in output_json:
+                tokens = output_json['token']
+                tokenids = output_json['tokenid']
+                token_shape = output_json['shape']
+                token_len = token_shape[0]
+                vocab_dim = token_shape[1]
             ftxt.write(f"{utt} {text}\n")
 
             count += 1

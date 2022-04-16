@@ -79,11 +79,6 @@ async def websocket_endpoint(websocket: WebSocket):
             elif "bytes" in message:
                 message = message["bytes"]
 
-                # vad for input bytes audio
-                # vad.add_audio(message)
-                # message = b''.join(f for f in vad.vad_collector()
-                #                    if f is not None)
-
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
                 asr_results = ""
@@ -95,6 +90,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                                                   sample_rate)
                     asr_engine.run(x_chunk, x_chunk_lens)
                     asr_results = asr_engine.postprocess()
+
                 asr_results = asr_engine.postprocess()
                 resp = {'asr_results': asr_results}
 

@@ -15,10 +15,11 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import asyncio
+import codecs
 import json
 import logging
 import os
-import codecs
+
 import numpy as np
 import soundfile
 import websockets
@@ -35,17 +36,17 @@ class ASRAudioHandler:
         x_len = len(samples)
         # chunk_stride = 40 * 16  #40ms, sample_rate = 16kHz
         chunk_size = 80 * 16  #80ms, sample_rate = 16kHz
-        
+
         if x_len % chunk_size != 0:
-            padding_len_x =  chunk_size - x_len % chunk_size
+            padding_len_x = chunk_size - x_len % chunk_size
         else:
             padding_len_x = 0
 
         padding = np.zeros((padding_len_x), dtype=samples.dtype)
         padded_x = np.concatenate([samples, padding], axis=0)
 
-        assert ( x_len + padding_len_x ) % chunk_size == 0
-        num_chunk = (x_len + padding_len_x ) / chunk_size
+        assert (x_len + padding_len_x) % chunk_size == 0
+        num_chunk = (x_len + padding_len_x) / chunk_size
         num_chunk = int(num_chunk)
 
         for i in range(0, num_chunk):
@@ -56,12 +57,7 @@ class ASRAudioHandler:
 
     async def run(self, wavfile_path: str):
         logging.info("send a message to the server")
-        # 读取音频
-        # self.read_wave()
-        # 发送 websocket 的 handshake 协议头
         async with websockets.connect(self.url) as ws:
-            # server 端已经接收到 handshake 协议头
-            # 发送开始指令
             audio_info = json.dumps(
                 {
                     "name": "test.wav",
@@ -97,7 +93,6 @@ class ASRAudioHandler:
             msg = await ws.recv()
             msg = json.loads(msg)
             logging.info("receive msg={}".format(msg))
-        
 
         return result
 

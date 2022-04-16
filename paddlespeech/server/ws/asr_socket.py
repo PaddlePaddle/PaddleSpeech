@@ -14,7 +14,6 @@
 import json
 
 import numpy as np
-import json
 from fastapi import APIRouter
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
@@ -86,16 +85,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
                 asr_results = ""
-                frames = chunk_buffer.frame_generator(message)
-                for frame in frames:
-                    # get the pcm data from the bytes
-                    samples = np.frombuffer(frame.bytes, dtype=np.int16)
-                    sample_rate = asr_engine.config.sample_rate
-                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
-                                                                  sample_rate)
-                    asr_engine.run(x_chunk, x_chunk_lens)
-                    asr_results = asr_engine.postprocess()
-
+                # frames = chunk_buffer.frame_generator(message)
+                # for frame in frames:
+                #     # get the pcm data from the bytes
+                #     samples = np.frombuffer(frame.bytes, dtype=np.int16)
+                #     sample_rate = asr_engine.config.sample_rate
+                #     x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
+                #                                                   sample_rate)
+                #     asr_engine.run(x_chunk, x_chunk_lens)
+                #     asr_results = asr_engine.postprocess()
+                samples = np.frombuffer(message, dtype=np.int16)
+                sample_rate = asr_engine.config.sample_rate
+                x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
+                                                              sample_rate)
+                asr_engine.run(x_chunk, x_chunk_lens)
+                # asr_results = asr_engine.postprocess()
                 asr_results = asr_engine.postprocess()
                 resp = {'asr_results': asr_results}
 

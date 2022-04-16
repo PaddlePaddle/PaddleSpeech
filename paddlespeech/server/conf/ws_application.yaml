@@ -4,7 +4,7 @@
 #                             SERVER SETTING                                    #
 #################################################################################
 host: 0.0.0.0
-port: 8091
+port: 8096
 
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_online', 'tts_online']

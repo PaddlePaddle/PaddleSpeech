@@ -168,7 +168,7 @@ class DevelopCommand(develop):
     def run(self):
         develop.run(self)
         # must after develop.run, or pkg install by shell will not see
-        self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
+    #    self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 
 class InstallCommand(install):

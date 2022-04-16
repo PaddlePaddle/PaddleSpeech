@@ -1,10 +1,11 @@
 #!/bin/bash
 
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+# wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
 # asr
-paddlespeech asr --input ./zh.wav
+export CUDA_VISIBLE_DEVICES=0
+paddlespeech asr --input audio/119994.wav -v
 
 
 # asr + punc
-paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+# paddlespeech asr --input ./zh.wav | paddlespeech text --task punc

@@ -3,12 +3,12 @@ source path.sh
 set -e
 
 gpus=0,1,2,3
-stage=0
-stop_stage=50
-conf_path=conf/conformer.yaml
+stage=5
+stop_stage=5
+conf_path=conf/chunk_conformer.yaml
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=20
-audio_file=data/demo_01_03.wav
+audio_file=audio/zh.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -44,7 +44,7 @@ fi
 # Optionally, you can add LM and test it with runtime.
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # test a single .wav file
-    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/chunk_conformer/checkpoints/multi_cn ${audio_file} || exit -1
 fi
 
 # Not supported at now!!!

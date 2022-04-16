@@ -24,15 +24,25 @@ class Frame(object):
 
 class ChunkBuffer(object):
     def __init__(self,
-                 frame_duration_ms=80,
-                 shift_ms=40,
+                 window_n=7,    # frame
+                 shift_n=4,     # frame
+                 window_ms=20,  # ms
+                 shift_ms=10,   # ms
                  sample_rate=16000,
                  sample_width=2):
-        self.sample_rate = sample_rate
-        self.frame_duration_ms = frame_duration_ms
+        self.window_n = window_n
+        self.shift_n = shift_n
+        self.window_ms = window_ms
         self.shift_ms = shift_ms
-        self.remained_audio = b''
+        self.sample_rate = sample_rate
         self.sample_width = sample_width  # int16 = 2; float32 = 4
+        self.remained_audio = b''
+
+        self.window_sec = float((self.window_n - 1) * self.shift_ms + self.window_ms) / 1000.0 
+        self.shift_sec = float(self.shift_n * self.shift_ms / 1000.0)
+
+        self.window_bytes = int(self.window_sec * self.sample_rate * self.sample_width)
+        self.shift_bytes = int(self.shift_sec * self.sample_rate * self.sample_width)
 
     def frame_generator(self, audio):
         """Generates audio frames from PCM audio data.
@@ -43,17 +53,12 @@ class ChunkBuffer(object):
         audio = self.remained_audio + audio
         self.remained_audio = b''
 
-        n = int(self.sample_rate * (self.frame_duration_ms / 1000.0) *
-                self.sample_width)
-        shift_n = int(self.sample_rate * (self.shift_ms / 1000.0) *
-                      self.sample_width)
         offset = 0
         timestamp = 0.0
-        duration = (float(n) / self.sample_rate) / self.sample_width
-        shift_duration = (float(shift_n) / self.sample_rate) / self.sample_width
-        while offset + n <= len(audio):
-            yield Frame(audio[offset:offset + n], timestamp, duration)
-            timestamp += shift_duration
-            offset += shift_n
+
+        while offset + self.window_bytes <= len(audio):
+            yield Frame(audio[offset:offset + self.window_bytes], timestamp, self.window_sec)
+            timestamp += self.shift_sec
+            offset += self.shift_bytes
 
         self.remained_audio += audio[offset:]

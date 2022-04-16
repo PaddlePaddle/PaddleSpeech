@@ -34,7 +34,7 @@ def main(args):
             utt2spk = line_json['utt2spk']
 
             # input
-            assert(len(line_json['input']) == 1), "only support one input now"
+            assert (len(line_json['input']) == 1), "only support one input now"
             input_json = line_json['input'][0]
             feat = input_json['feat']
             feat_shape = input_json['shape']
@@ -49,7 +49,8 @@ def main(args):
             fdur.write(f"{utt} {dur}\n")
 
             # output
-            assert(len(line_json['output']) == 1), "only support one output now"
+            assert (
+                len(line_json['output']) == 1), "only support one output now"
             output_json = line_json['output'][0]
             text = output_json['text']
             if 'token' in output_json:

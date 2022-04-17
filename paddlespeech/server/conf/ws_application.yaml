@@ -71,15 +71,9 @@ asr_online:
         summary: True  # False -> do not show predictor config
 
     chunk_buffer_conf:
-        frame_duration_ms: 85
-        shift_ms: 40
+        window_n: 7     # frame
+        shift_n: 4      # frame
+        window_ms: 25   # ms
+        shift_ms: 10    # ms
         sample_rate: 16000
         sample_width: 2
-
-    # vad_conf:
-    #     aggressiveness: 2
-    #     sample_rate: 16000
-    #     frame_duration_ms: 20
-    #     sample_width: 2
-    #     padding_ms: 200
-    #     padding_ratio: 0.9

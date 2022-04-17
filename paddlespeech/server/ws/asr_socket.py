@@ -34,17 +34,17 @@ async def websocket_endpoint(websocket: WebSocket):
     engine_pool = get_engine_pool()
     asr_engine = engine_pool['asr']
     # init buffer
+    # each websocekt connection has its own chunk buffer
     chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
     chunk_buffer = ChunkBuffer(
-        window_n=7,
-        shift_n=4,
-        window_ms=20,
-        shift_ms=10,
-        sample_rate=chunk_buffer_conf['sample_rate'],
-        sample_width=chunk_buffer_conf['sample_width'])
+        window_n=chunk_buffer_conf.window_n,
+        shift_n=chunk_buffer_conf.shift_n,
+        window_ms=chunk_buffer_conf.window_ms,
+        shift_ms=chunk_buffer_conf.shift_ms,
+        sample_rate=chunk_buffer_conf.sample_rate,
+        sample_width=chunk_buffer_conf.sample_width)
+
     # init vad
-    # print(asr_engine.config)
-    # print(type(asr_engine.config))
     vad_conf = asr_engine.config.get('vad_conf', None)
     if vad_conf:
         vad = VADAudio(
@@ -72,7 +72,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     engine_pool = get_engine_pool()
                     asr_engine = engine_pool['asr']
                     # reset single  engine for an new connection
-                    # asr_engine.reset()
+                    asr_engine.reset()
                     resp = {"status": "ok", "signal": "finished"}
                     await websocket.send_json(resp)
                     break
@@ -85,21 +85,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']
                 asr_results = ""
-                # frames = chunk_buffer.frame_generator(message)
-                # for frame in frames:
-                #     # get the pcm data from the bytes
-                #     samples = np.frombuffer(frame.bytes, dtype=np.int16)
-                #     sample_rate = asr_engine.config.sample_rate
-                #     x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
-                #                                                   sample_rate)
-                #     asr_engine.run(x_chunk, x_chunk_lens)
-                #     asr_results = asr_engine.postprocess()
-                samples = np.frombuffer(message, dtype=np.int16)
-                sample_rate = asr_engine.config.sample_rate
-                x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
-                                                              sample_rate)
-                asr_engine.run(x_chunk, x_chunk_lens)
-                # asr_results = asr_engine.postprocess()
+                frames = chunk_buffer.frame_generator(message)
+                for frame in frames:
+                    # get the pcm data from the bytes
+                    samples = np.frombuffer(frame.bytes, dtype=np.int16)
+                    sample_rate = asr_engine.config.sample_rate
+                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
+                                                                  sample_rate)
+                    asr_engine.run(x_chunk, x_chunk_lens)
+                    asr_results = asr_engine.postprocess()
+
                 asr_results = asr_engine.postprocess()
                 resp = {'asr_results': asr_results}
 

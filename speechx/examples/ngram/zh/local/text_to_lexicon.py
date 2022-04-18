@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+from collections import Counter
 
 def main(args):
+    counter = Counter()
     with open(args.text, 'r') as fin, open(args.lexicon, 'w') as fout:
         for line in fin:
             line = line.strip()
@@ -11,10 +13,12 @@ def main(args):
             else:
                 words = line.split()
             
-            for word in words:
-                val = " ".join(list(word))
-                fout.write(f"{word}\t{val}\n")
-                fout.flush()
+            counter.update(words)
+
+        for word in counter:
+            val = " ".join(list(word))
+            fout.write(f"{word}\t{val}\n")
+            fout.flush()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

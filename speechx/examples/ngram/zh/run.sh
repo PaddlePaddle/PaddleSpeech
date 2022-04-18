@@ -3,11 +3,11 @@ set -eo pipefail
 
 . path.sh
 
-stage=0
+stage=-1
 stop_stage=100
 corpus=aishell
 
-unit=data/vocab.txt       # line: char/spm_pice, vocab file
+unit=data/vocab.txt       # vocab file, line: char/spm_pice
 lexicon=data/lexicon.txt  # line: word ph0 ... phn, aishell/resource_aishell/lexicon.txt
 text=data/text            # line: utt text, aishell/data_aishell/transcript/aishell_transcript_v0.8.txt
 
@@ -42,15 +42,17 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # line: char/spm_pices
     cp $unit data/local/dict/units.txt
 
-    if [ -f $lexicon ];then
-        # line: word ph0 ... phn -> line: word char0 ... charn
-        utils/fst/prepare_dict.py \
-            --unit_file $unit \
-            --in_lexicon ${lexicon} \
-            --out_lexicon data/local/dict/lexicon.txt
-    else
-        local/text_to_lexicon.py --has_key true --text $text --lexicon data/local/dict/lexicon.txt
+    if [ ! -f $lexicon ];then
+        local/text_to_lexicon.py --has_key true --text $text --lexicon $lexicon
+        echo "Generate $lexicon from $text"
     fi
+
+    # filter by vocab
+    # line: word ph0 ... phn -> line: word char0 ... charn
+    utils/fst/prepare_dict.py \
+        --unit_file $unit \
+        --in_lexicon ${lexicon} \
+        --out_lexicon data/local/dict/lexicon.txt
 fi
 
 lm=data/local/lm

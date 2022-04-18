@@ -9,7 +9,7 @@ stop_stage=100
 
 conf_path=conf/cnndecoder.yaml
 train_output_path=exp/cnndecoder
-ckpt_name=snapshot_iter_153000.pdz
+ckpt_name=snapshot_iter_153.pdz
 
 # with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`

@@ -2,8 +2,8 @@
 
 train_output_path=$1
 
-stage=2
-stop_stage=2
+stage=0
+stop_stage=0
 
 # pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then

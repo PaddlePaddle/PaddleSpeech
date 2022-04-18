@@ -96,7 +96,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 asr_results = connection_handler.get_result()
 
                 resp = {'asr_results': asr_results}
-                print("\n")
                 await websocket.send_json(resp)
     except WebSocketDisconnect:
         pass

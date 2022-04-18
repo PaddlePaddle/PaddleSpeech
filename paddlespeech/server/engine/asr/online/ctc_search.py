@@ -110,6 +110,11 @@ class CTCPrefixBeamSearch:
         return [self.hyps[0][0]]
 
     def get_hyps(self):
+        """Return the search hyps
+
+        Returns:
+            list: return the search hyps
+        """
         return self.hyps
 
     def reset(self):
@@ -117,3 +122,8 @@ class CTCPrefixBeamSearch:
         """
         self.cur_hyps = None
         self.hyps = None
+
+    def finalize_search(self):
+        """do nothing in ctc_prefix_beam_search
+        """
+        pass

@@ -26,14 +26,14 @@ from paddleaudio.compliance.librosa import mfcc
 class meta_info:
     """the audio meta info in the vector JSONDataset
     Args:
-        id (str): the segment name
+        utt_id (str): the segment name
         duration (float): segment time
         wav (str): wav file path
         start (int): start point in the original wav file
         stop (int): stop point in the original wav file
         lab_id (str): the record id
     """
-    id: str
+    utt_id: str
     duration: float
     wav: str
     start: int

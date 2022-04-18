@@ -36,6 +36,10 @@ async def websocket_endpoint(websocket: WebSocket):
     # init buffer
     chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
     chunk_buffer = ChunkBuffer(
+        window_n=7,
+        shift_n=4,
+        window_ms=20,
+        shift_ms=10,
         sample_rate=chunk_buffer_conf['sample_rate'],
         sample_width=chunk_buffer_conf['sample_width'])
     # init vad
@@ -74,11 +78,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json(resp)
             elif "bytes" in message:
                 message = message["bytes"]
-
-                # vad for input bytes audio
-                vad.add_audio(message)
-                message = b''.join(f for f in vad.vad_collector()
-                                   if f is not None)
 
                 engine_pool = get_engine_pool()
                 asr_engine = engine_pool['asr']

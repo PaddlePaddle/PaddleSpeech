@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
-
 from dataclasses import dataclass
 from dataclasses import fields
+
 from paddle.io import Dataset
 
 from paddleaudio import load as load_audio

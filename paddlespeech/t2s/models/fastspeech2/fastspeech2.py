@@ -590,15 +590,17 @@ class FastSpeech2(nn.Layer):
             h_masks = self._source_mask(olens_in)
         else:
             h_masks = None
-
         if return_after_enc:
             return hs, h_masks
-        # (B, Lmax, adim)
-        zs, _ = self.decoder(hs, h_masks)
-        # (B, Lmax, odim)
+
         if self.decoder_type == 'cnndecoder':
+            # remove output masks for dygraph to static graph
+            zs = self.decoder(hs, h_masks)
             before_outs = zs
         else:
+            # (B, Lmax, adim)
+            zs, _ = self.decoder(hs, h_masks)
+            # (B, Lmax, odim)
             before_outs = self.feat_out(zs).reshape(
                 (paddle.shape(zs)[0], -1, self.odim))
 
@@ -633,7 +635,8 @@ class FastSpeech2(nn.Layer):
             tone_id = tone_id.unsqueeze(0)
 
         # (1, L, odim)
-        hs, h_masks = self._forward(
+        # use *_ to avoid bug in dygraph to static graph    
+        hs, *_ = self._forward(
             xs,
             ilens,
             is_inference=True,
@@ -642,7 +645,7 @@ class FastSpeech2(nn.Layer):
             spk_emb=spk_emb,
             spk_id=spk_id,
             tone_id=tone_id)
-        return hs, h_masks
+        return hs
 
     def inference(
             self,

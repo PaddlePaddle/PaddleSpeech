@@ -42,6 +42,7 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
+    "onnxruntime",
     "pandas",
     "paddleaudio",
     "paddlenlp",

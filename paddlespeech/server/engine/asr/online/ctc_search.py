@@ -46,7 +46,7 @@ class CTCPrefixBeamSearch:
         logger.info("start to ctc prefix search")
 
         # device = xs.place
-        batch_size = xs.shape[0]
+        batch_size = 1
         beam_size = self.config.beam_size
         maxlen = ctc_probs.shape[0]
 

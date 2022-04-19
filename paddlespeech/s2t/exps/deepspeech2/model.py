@@ -278,7 +278,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             len_refs += len_ref
             num_ins += 1
             if fout:
-                fout.write({"utt": utt, "ref": target, "hyp": result})
+                fout.write({"utt": utt, "refs": [target], "hyps": [result]})
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")

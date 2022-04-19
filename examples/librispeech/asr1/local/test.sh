@@ -42,11 +42,6 @@ echo "chunk mode ${chunk_mode}"
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    # format the reference test file
-    python utils/format_rsl.py \
-        --origin_ref data/manifest.test.raw \
-        --trans_ref data/manifest.test.text
-
     for type in attention; do
         echo "decoding ${type}"
         if [ ${chunk_mode} == true ];then
@@ -68,98 +63,55 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
-         # format the hyp file
-        python utils/format_rsl.py \
-            --origin_hyp ${ckpt_prefix}.${type}.rsl \
-            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
-
-        python utils/compute-wer.py --char=1 --v=1 \
-            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
-
         echo "decoding ${type} done."
     done
 fi
 
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    for type in ctc_greedy_search; do
-        echo "decoding ${type}"
-        if [ ${chunk_mode} == true ];then
-            # stream decoding only support batchsize=1
-            batch_size=1
-        else
-            batch_size=64
-        fi
-        python3 -u ${BIN_DIR}/test.py \
-            --ngpu ${ngpu} \
-            --config ${config_path} \
-            --decode_cfg ${decode_config_path} \
-            --result_file ${ckpt_prefix}.${type}.rsl \
-            --checkpoint_path ${ckpt_prefix} \
-            --opts decode.decoding_method ${type} \
-            --opts decode.decode_batch_size ${batch_size}
-
-        if [ $? -ne 0 ]; then
-            echo "Failed in evaluation!"
-            exit 1
-        fi
-
-        # format the hyp file
-        python utils/format_rsl.py \
-            --origin_hyp ${ckpt_prefix}.${type}.rsl \
-            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
-
-        python utils/compute-wer.py --char=1 --v=1 \
-            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
-
-        echo "decoding ${type} done."
-    done
-fi
-
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    for type in ctc_prefix_beam_search attention_rescoring; do
-        echo "decoding ${type}"
+for type in ctc_greedy_search; do
+    echo "decoding ${type}"
+    if [ ${chunk_mode} == true ];then
+        # stream decoding only support batchsize=1
         batch_size=1
-        python3 -u ${BIN_DIR}/test.py \
-            --ngpu ${ngpu} \
-            --config ${config_path} \
-            --decode_cfg ${decode_config_path} \
-            --result_file ${ckpt_prefix}.${type}.rsl \
-            --checkpoint_path ${ckpt_prefix} \
-            --opts decode.decoding_method ${type} \
-            --opts decode.decode_batch_size ${batch_size}
+    else
+        batch_size=64
+    fi
+    python3 -u ${BIN_DIR}/test.py \
+        --ngpu ${ngpu} \
+        --config ${config_path} \
+        --decode_cfg ${decode_config_path} \
+        --result_file ${ckpt_prefix}.${type}.rsl \
+        --checkpoint_path ${ckpt_prefix} \
+        --opts decode.decoding_method ${type} \
+        --opts decode.decode_batch_size ${batch_size}
 
-        if [ $? -ne 0 ]; then
-            echo "Failed in evaluation!"
-            exit 1
-        fi
-        # format the hyp file
-        python utils/format_rsl.py \
-            --origin_hyp ${ckpt_prefix}.${type}.rsl \
-            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
+    if [ $? -ne 0 ]; then
+        echo "Failed in evaluation!"
+        exit 1
+    fi
+    echo "decoding ${type} done."
+done
 
-        python utils/compute-wer.py --char=1 --v=1 \
-            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
 
-        echo "decoding ${type} done."
-    done
-fi
+
+for type in ctc_prefix_beam_search attention_rescoring; do
+    echo "decoding ${type}"
+    batch_size=1
+    python3 -u ${BIN_DIR}/test.py \
+        --ngpu ${ngpu} \
+        --config ${config_path} \
+        --decode_cfg ${decode_config_path} \
+        --result_file ${ckpt_prefix}.${type}.rsl \
+        --checkpoint_path ${ckpt_prefix} \
+        --opts decode.decoding_method ${type} \
+        --opts decode.decode_batch_size ${batch_size}
+
+    if [ $? -ne 0 ]; then
+        echo "Failed in evaluation!"
+        exit 1
+    fi
+    echo "decoding ${type} done."
+done
+
 echo "Finished"
-
-
-if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
-    # format the reference test file for sclite
-    python utils/format_rsl.py \
-        --origin_ref data/manifest.test.raw \
-        --trans_ref_sclite data/manifest.test.raw.text.sclite
-    
-    for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
-        python utils/format_rsl.py \
-            --origin_hyp ${ckpt_prefix}.${type}.rsl
-            --trans_hyp_sclite ${ckpt_prefix}.${type}.rsl.text.sclite
-
-        mkdir -p ${ckpt_prefix}.${type}_sclite
-        sclite -i wsj -r data/manifest.test.raw.text.sclite -h  ${ckpt_prefix}.${type}.rsl.text.sclite  -e utf-8 -o all -O ${ckpt_prefix}.${type}_sclite
-    done
-fi
 
 exit 0

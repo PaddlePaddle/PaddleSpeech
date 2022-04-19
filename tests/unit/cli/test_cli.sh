@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+
 # Audio classification
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
 paddlespeech cls --input ./cat.wav --topk 10
@@ -28,25 +29,15 @@ paddlespeech tts --am tacotron2_csmsc --input "你好，欢迎使用百度飞桨
 paddlespeech tts --am tacotron2_csmsc --voc wavernn_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
 
-
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav
-
-
-# batch process
-echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
-
-# shell pipeline
-paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
-
-# stats
-paddlespeech stats --task asr
-paddlespeech stats --task tts
-paddlespeech stats --task cls
 
 # Speaker Verification 
 wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
 paddlespeech vector --task spk --input 85236145389.wav
+
+# batch process
+echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
 
 echo -e "demo1 85236145389.wav \n demo2 85236145389.wav" > vec.job
 paddlespeech vector --task spk --input vec.job
@@ -55,4 +46,13 @@ echo -e "demo3 85236145389.wav \n demo4 85236145389.wav" | paddlespeech vector -
 rm 85236145389.wav 
 rm vec.job
 
+# shell pipeline
+paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 
+# stats
+paddlespeech stats --task asr
+paddlespeech stats --task tts
+paddlespeech stats --task cls
+paddlespeech stats --task text
+paddlespeech stats --task vector
+paddlespeech stats --task st

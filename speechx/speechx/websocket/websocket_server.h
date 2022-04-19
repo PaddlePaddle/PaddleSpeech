@@ -23,8 +23,7 @@
 #include "boost/beast/websocket.hpp"
 
 #include "frontend/audio/feature_pipeline.h"
-
-namespace ppspeech {
+#include "decoder/recognizer.h"
 
 namespace beast = boost::beast;          // from <boost/beast.hpp>
 namespace http = beast::http;            // from <boost/beast/http.hpp>
@@ -32,10 +31,11 @@ namespace websocket = beast::websocket;  // from <boost/beast/websocket.hpp>
 namespace asio = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;        // from <boost/asio/ip/tcp.hpp>
 
+namespace ppspeech {
 class ConnectionHandler {
   public:
     ConnectionHandler(tcp::socket&& socket,
-                      std::shared_ptr<RecognizerResource> recognizer_resource_);
+                      const RecognizerResource& recognizer_resource_);
     void operator()();
 
   private:
@@ -53,26 +53,26 @@ class ConnectionHandler {
     bool continuous_decoding_ = false;
     int nbest_ = 1;
     websocket::stream<tcp::socket> ws_;
-    std::shared_ptr<RecognizerResource> recognizer_resource_;
+    RecognizerResource recognizer_resource_;
 
     bool got_start_tag_ = false;
     bool got_end_tag_ = false;
     // When endpoint is detected, stop recognition, and stop receiving data.
     bool stop_recognition_ = false;
-    std::shared_ptr<recognizer> recognizer_ = nullptr;
+    std::shared_ptr<ppspeech::Recognizer> recognizer_ = nullptr;
     std::shared_ptr<std::thread> decode_thread_ = nullptr;
 };
 
 class WebSocketServer {
   public:
-    WebSocketServer(int port, const RecognizerResource& recognizer_resouce)
+    WebSocketServer(int port, const RecognizerResource& recognizer_resource)
         : port_(port), recognizer_resource_(recognizer_resource) {}
 
     void Start();
 
   private:
     int port_;
-    std::shared_ptr<RecognizerResource> recognizer_resource_;
+    RecognizerResource recognizer_resource_;
     // The io_context is required for all I/O
     asio::io_context ioc_{1};
 };

@@ -16,14 +16,9 @@
 
 #include "boost/json/src.hpp"
 
-namespace ppspeech {
-
-namespace beast = boost::beast;          // from <boost/beast.hpp>
-namespace http = beast::http;            // from <boost/beast/http.hpp>
-namespace websocket = beast::websocket;  // from <boost/beast/websocket.hpp>
-namespace asio = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;        // from <boost/asio/ip/tcp.hpp>
 namespace json = boost::json;
+
+namespace ppspeech {
 
 WebSocketClient::WebSocketClient(const std::string& host, int port)
     : host_(host), port_(port) {
@@ -69,6 +64,9 @@ void WebSocketClient::ReadLoopFunc() {
             if (obj["status"] != "ok") {
                 break;
             }
+            if (obj["type"] == "final_result") {
+                result_ = obj["result"].as_string().c_str(); 
+            }
             if (obj["type"] == "speech_end") {
                 done_ = true;
                 break;
@@ -90,6 +88,12 @@ void WebSocketClient::SendStartSignal() {
     json::value start_tag = {{"signal", "start"}};
     std::string start_message = json::serialize(start_tag);
     this->SendTextData(start_message);
+}
+
+void WebSocketClient::SendDataEnd() {
+    json::value end_tag = {{"data", "end"}};
+    std::string end_message = json::serialize(end_tag);
+    this->SendTextData(end_message);
 }
 
 void WebSocketClient::SendEndSignal() {

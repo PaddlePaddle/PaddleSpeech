@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+#include "kaldi/feat/wave-reader.h"
 #include "decoder/recognizer.h"
 #include "decoder/param.h"
 #include "kaldi/util/table-types.h"
 
-DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
+DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
 
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
 
-    ppspeech::RecognizerResource resource = InitRecognizerResoure();
+    ppspeech::RecognizerResource resource = ppspeech::InitRecognizerResoure();
     ppspeech::Recognizer recognizer(resource);
 
-    kaldi::SequentialBaseFloatMatrixReader feature_reader(
-        FLAGS_feature_rspecifier);
+    kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
+        FLAGS_wav_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
     int sample_rate = 16000;
     float streaming_chunk = FLAGS_streaming_chunk;
@@ -61,17 +61,13 @@ int main(int argc, char* argv[]) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
 
-            kaldi::Vector<BaseFloat> features;
             recognizer.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
                 recognizer.SetFinished();
             }
             recognizer.Decode();
-            if (features.Dim() == 0) break;
 
-            feats.push_back(features);
             sample_offset += cur_chunk_size;
-            feature_rows += features.Dim() / feature_cache.Dim();
         }
         std::string result;
         result = recognizer.GetFinalResult();

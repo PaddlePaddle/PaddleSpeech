@@ -53,11 +53,11 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-    std::string model_graph = FLAGS_model_path;
+    std::string model_path = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
     std::string dict_file = FLAGS_dict_file;
     std::string lm_path = FLAGS_lm_path;
-    LOG(INFO) << "model path: " << model_graph;
+    LOG(INFO) << "model path: " << model_path;
     LOG(INFO) << "model param: " << model_params;
     LOG(INFO) << "dict path: " << dict_file;
     LOG(INFO) << "lm path: " << lm_path;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     ppspeech::CTCBeamSearch decoder(opts);
 
     ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_graph;
+    model_opts.model_path = model_path;
     model_opts.params_path = model_params;
     model_opts.cache_shape = FLAGS_model_cache_names;
     model_opts.output_names = FLAGS_model_output_names;

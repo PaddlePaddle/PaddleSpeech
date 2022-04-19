@@ -13,14 +13,17 @@
 // limitations under the License.
 
 #include "websocket/websocket_server.h"
+#include "decoder/param.h"
 
-DEFINE_int32(port, 10086, "websocket listening port");
+DEFINE_int32(port, 201314, "websocket listening port");
 
 int main(int argc, char *argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
 
-    WebSocketServer server(FLAGS_port, recognizer_resource);
+    ppspeech::RecognizerResource resource = ppspeech::InitRecognizerResoure();
+
+    ppspeech::WebSocketServer server(FLAGS_port, resource);
     LOG(INFO) << "Listening at port " << FLAGS_port;
     server.Start();
     return 0;

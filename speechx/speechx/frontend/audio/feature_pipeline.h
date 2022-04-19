@@ -29,6 +29,7 @@ struct FeaturePipelineOptions {
     std::string cmvn_file;
     LinearSpectrogramOptions linear_spectrogram_opts;
     FeatureCacheOptions feature_cache_opts;
+    FeaturePipelineOptions() : cmvn_file("cmvn.ark"), linear_spectrogram_opts(), feature_cache_opts() {}
 };
 
 class FeaturePipeline : public FrontendInterface {

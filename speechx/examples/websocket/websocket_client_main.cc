@@ -13,11 +13,12 @@
 // limitations under the License.
 
 #include "kaldi/feat/wave-reader.h"
-
+#include "kaldi/util/kaldi-io.h"
+#include "kaldi/util/table-types.h"
 #include "websocket/websocket_client.h"
 
 DEFINE_string(host, "127.0.0.1", "host of websocket server");
-DEFINE_int32(port, 10086, "port of websocket server");
+DEFINE_int32(port, 201314, "port of websocket server");
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 
 
@@ -25,7 +26,7 @@ using kaldi::int16;
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
-    wenet::WebSocketClient client(FLAGS_host, FLAGS_port);
+    ppspeech::WebSocketClient client(FLAGS_host, FLAGS_port);
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
@@ -39,32 +40,43 @@ int main(int argc, char* argv[]) {
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         CHECK_EQ(wave_data.SampFreq(), sample_rate);
-        const int tot_samples = wave_data.Dim();
+
+        int32 this_channel = 0;
+        kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
+                                                    this_channel);
+        const int tot_samples = waveform.Dim();
+        int sample_offset = 0;
 
         while (sample_offset < tot_samples) {
-            if (client.done()) {
-                break;
-            }
-
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
 
-            kaldi::Vector<int16> wav_chunk(cur_chunk_size);
+            std::vector<int16> wav_chunk(cur_chunk_size);
             for (int i = 0; i < cur_chunk_size; ++i) {
-                wav_chunk(i) = static_cast<int16>(waveform(sample_offset + i));
+                wav_chunk[i] = static_cast<int16>(waveform(sample_offset + i));
             }
             client.SendBinaryData(wav_chunk.data(),
-                                  wav_chunk.Dim() * sizeof(int16));
+                                  wav_chunk.size() * sizeof(int16));
 
-            if (cur_chunk_size < chunk_sample_size) {
-            }
+            
 
             sample_offset += cur_chunk_size;
-            VLOG(2) << "Send " << data.size() << " samples";
+            //VLOG(2) << "Send " << cur_chunk_size << " samples";
+            LOG(INFO) << "Send " << cur_chunk_size << " samples";
             std::this_thread::sleep_for(std::chrono::milliseconds(
-                static_cast<int>(streaming_chunk * 1000)));
+                static_cast<int>(1 * 1000)));
+
+            if (cur_chunk_size < chunk_sample_size) {
+                //client.SendDataEnd();
+                client.SendEndSignal();
+            }
         }
-        client.SendEndSignal();
+
+        while (!client.Done()) {}
+        std::string result = client.GetResult();
+        LOG(INFO) << "utt: " << utt << " " << result;
+
+
         client.Join();
         return 0;
     }

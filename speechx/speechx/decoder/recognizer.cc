@@ -16,14 +16,23 @@
 
 namespace ppspeech {
 
-Recognizer(const RecognizerResource& resource) : resource_(resource) {
+using kaldi::Vector;
+using kaldi::VectorBase;
+using kaldi::BaseFloat;
+using std::vector;
+using kaldi::SubVector;
+using std::unique_ptr;
+
+Recognizer::Recognizer(const RecognizerResource& resource) {
+    //resource_ = resource;
     const FeaturePipelineOptions& feature_opts =
-        recognizer_resource.feature_pipeline_opts;
+        resource.feature_pipeline_opts;
     feature_pipeline_.reset(new FeaturePipeline(feature_opts));
-    std::shared_ptr<PaddleNnet> nnet(new PaddleNnet());
+    std::shared_ptr<PaddleNnet> nnet(new PaddleNnet(resource.model_opts));
     BaseFloat ac_scale = resource.acoustic_scale;
     decodable_.reset(
-        new Decodeable(std::move(nnet), feature_pipeline_, ac_scale));
+        new Decodable(nnet, feature_pipeline_, ac_scale));
+    decoder_.reset(new TLGDecoder(resource.tlg_opts));
     input_finished_ = false;
 }
 
@@ -31,7 +40,7 @@ void Recognizer::Accept(const Vector<BaseFloat>& waves) {
     feature_pipeline_->Accept(waves);
 }
 
-void Recognizer::Decode() { decoder.AdvaceDecode(decodable); }
+void Recognizer::Decode() { decoder_->AdvanceDecode(decodable_); }
 
 std::string Recognizer::GetFinalResult() {
     return decoder_->GetFinalBestPath();
@@ -39,15 +48,15 @@ std::string Recognizer::GetFinalResult() {
 
 void Recognizer::SetFinished() {
     feature_pipeline_->SetFinished();
-    input_finished_ = false;
+    input_finished_ = true;
 }
 
 bool Recognizer::IsFinished() { return input_finished_; }
 
 void Recognizer::Reset() {
-    feature_pipeline->reset();
-    decodable->Reset();
-    decoder->Reset();
+    feature_pipeline_->Reset();
+    decodable_->Reset();
+    decoder_->Reset();
 }
 
 }  // namespace ppspeech

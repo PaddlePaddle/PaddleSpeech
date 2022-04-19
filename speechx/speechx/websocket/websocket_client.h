@@ -19,13 +19,13 @@
 #include "boost/beast/core.hpp"
 #include "boost/beast/websocket.hpp"
 
-namespace ppspeech {
-
 namespace beast = boost::beast;          // from <boost/beast.hpp>
 namespace http = beast::http;            // from <boost/beast/http.hpp>
 namespace websocket = beast::websocket;  // from <boost/beast/websocket.hpp>
 namespace asio = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;        // from <boost/asio/ip/tcp.hpp>
+
+namespace ppspeech {
 
 class WebSocketClient {
   public:
@@ -38,14 +38,18 @@ class WebSocketClient {
     void Join();
     void SendStartSignal();
     void SendEndSignal();
-    bool done() const { return done_; }
+    void SendDataEnd();
+    bool Done() const { return done_; }
+    std::string GetResult() { return result_; }
 
   private:
     void Connect();
     std::string host_;
+    std::string result_;
     int port_;
     bool done_ = false;
     asio::io_context ioc_;
     websocket::stream<tcp::socket> ws_{ioc_};
     std::unique_ptr<std::thread> t_{nullptr};
 };
+}

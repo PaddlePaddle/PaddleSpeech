@@ -30,12 +30,13 @@ struct RecognizerResource {
     TLGDecoderOptions tlg_opts;
     //    CTCBeamSearchOptions beam_search_opts;
     kaldi::BaseFloat acoustic_scale;
+    RecognizerResource() : acoustic_scale(1.0), feature_pipeline_opts(), model_opts(), tlg_opts() {}
 };
 
 class Recognizer {
   public:
     explicit Recognizer(const RecognizerResource& resouce);
-    void Accept(kaldi::Vector<int16> waves);
+    void Accept(const kaldi::Vector<kaldi::BaseFloat>& waves);
     void Decode();
     std::string GetFinalResult();
     void SetFinished();
@@ -43,9 +44,10 @@ class Recognizer {
     void Reset();
 
   private:
-    RecognizerResource resource_;
+    //std::shared_ptr<RecognizerResource> resource_;
+    //RecognizerResource resource_;
     std::shared_ptr<FeaturePipeline> feature_pipeline_;
-    std::unique_ptr<Decodable> decodable_;
+    std::shared_ptr<Decodable> decodable_;
     std::unique_ptr<TLGDecoder> decoder_;
     bool input_finished_;
 };

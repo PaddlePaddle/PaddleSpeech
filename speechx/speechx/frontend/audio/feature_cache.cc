@@ -47,10 +47,12 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
-        ready_read_condition_.wait(lock);
-        BaseFloat elapsed = timer.Elapsed() * 1000;
-        // todo replace 1.0 with timeout_
-        if (elapsed > 1.0) {
+        // todo refactor: wait
+        //ready_read_condition_.wait(lock);
+        BaseFloat elapsed = timer.Elapsed()*100;
+        // todo replace 0.1 with timeout_
+        if (elapsed > 0.1) {
+            LOG(INFO) << "break elapsed...";
             return false;
         }
         usleep(1000);  // sleep 1 ms
@@ -82,7 +84,7 @@ bool FeatureCache::Compute() {
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * frame_chunk_stride_ * dim_;
         Vector<BaseFloat> feature_chunk(frame_chunk_size_ * dim_);
-        SubVector<BaseFloat> tmp(joint_feature_.Data() + start,
+        SubVector<BaseFloat> tmp(joint_feature.Data() + start,
                                  frame_chunk_size_ * dim_);
         feature_chunk.CopyFromVec(tmp);
 
@@ -96,7 +98,7 @@ bool FeatureCache::Compute() {
         ready_read_condition_.notify_one();
     }
     int32 remained_feature_len =
-        joint_len - num_chunk * frame_chunk_size_ * dim_;
+        joint_len - num_chunk * frame_chunk_stride_ * dim_;
     remained_feature_.Resize(remained_feature_len);
     remained_feature_.CopyFromVec(joint_feature.Range(
         frame_chunk_stride_ * num_chunk, remained_feature_len));

@@ -18,20 +18,15 @@
 #include "base/common.h"
 #include "boost/json/src.hpp"
 
-namespace ppspeech {
-
-namespace beast = boost::beast;          // from <boost/beast.hpp>
-namespace http = beast::http;            // from <boost/beast/http.hpp>
-namespace websocket = beast::websocket;  // from <boost/beast/websocket.hpp>
-namespace asio = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;        // from <boost/asio/ip/tcp.hpp>
 namespace json = boost::json;
+
+namespace ppspeech {
 
 ConnectionHandler::ConnectionHandler(
     tcp::socket&& socket,
-    std::shared_ptr<RecognizerResource> recognizer_resource)
+    const RecognizerResource& recognizer_resource)
     : ws_(std::move(socket)),
-      recognizer_resource_(std::move(recognizer_resource)) {}
+      recognizer_resource_(recognizer_resource) {}
 
 void ConnectionHandler::OnSpeechStart() {
     LOG(INFO) << "Recieved speech start signal, start reading speech";
@@ -39,7 +34,7 @@ void ConnectionHandler::OnSpeechStart() {
     json::value rv = {{"status", "ok"}, {"type", "server_ready"}};
     ws_.text(true);
     ws_.write(asio::buffer(json::serialize(rv)));
-    recognizer_ = std::make_shared<Recognizer>(*recognizer_resource_);
+    recognizer_ = std::make_shared<Recognizer>(recognizer_resource_);
     // Start decoder thread
     decode_thread_ = std::make_shared<std::thread>(
         &ConnectionHandler::DecodeThreadFunc, this);
@@ -48,7 +43,7 @@ void ConnectionHandler::OnSpeechStart() {
 void ConnectionHandler::OnSpeechEnd() {
     LOG(INFO) << "Recieved speech end signal";
     CHECK(recognizer_ != nullptr);
-    recognizer_->SetInputFinished();
+    recognizer_->SetFinished();
     got_end_tag_ = true;
 }
 
@@ -70,22 +65,26 @@ void ConnectionHandler::OnFinish() {
 void ConnectionHandler::OnSpeechData(const beast::flat_buffer& buffer) {
     // Read binary PCM data
     int num_samples = buffer.size() / sizeof(int16_t);
-    std::vector<float> pcm_data(num_samples);
+    kaldi::Vector<kaldi::BaseFloat> pcm_data(num_samples);
     const int16_t* pdata = static_cast<const int16_t*>(buffer.data().data());
     for (int i = 0; i < num_samples; i++) {
-        pcm_data[i] = static_cast<float>(*pdata);
+        pcm_data(i) = static_cast<float>(*pdata);
         pdata++;
     }
     VLOG(2) << "Recieved " << num_samples << " samples";
+    LOG(INFO) << "Recieved " << num_samples << " samples";
     CHECK(recognizer_ != nullptr);
-    recognizer_->AcceptWaveform(pcm_data);
+    recognizer_->Accept(pcm_data);
 }
 
 void ConnectionHandler::DecodeThreadFunc() {
     try {
         while (true) {
-            DecodeState state = recognizer_->Decode();
-            if (state == DecodeState::kEndFeats) {
+            recognizer_->Decode();
+            if (recognizer_->IsFinished()) {
+                LOG(INFO) << "enter finish";
+                recognizer_->Decode();
+                LOG(INFO) << "finish";
                 std::string result = recognizer_->GetFinalResult();
                 OnFinalResult(result);
                 OnFinish();

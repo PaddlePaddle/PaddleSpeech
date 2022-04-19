@@ -7,8 +7,9 @@ set -x
 # openfst
 openfst=openfst-1.8.1
 shared=true
+WGET="wget -c --no-check-certificate"
 
-test -e ${openfst}.tar.gz || wget http://www.openfst.org/twiki/pub/FST/FstDownload/${openfst}.tar.gz
+test -e ${openfst}.tar.gz || $WGET http://www.openfst.org/twiki/pub/FST/FstDownload/${openfst}.tar.gz
 test -d ${openfst} || tar -xvf ${openfst}.tar.gz && chown -R root:root ${openfst}
 
 

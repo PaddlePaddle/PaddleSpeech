@@ -11,11 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from wekws(https://github.com/wenet-e2e/wekws)
+import argparse
 import os
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
+
+# yapf: disable
+parser = argparse.ArgumentParser(__doc__)
+parser.add_argument("--cfg_path", type=str, required=True)
+parser.add_argument("--keyword", type=str, required=True)
+args = parser.parse_args()
+# yapf: enable
 
 
 def load_stats_file(stats_file):
@@ -29,7 +38,7 @@ def load_stats_file(stats_file):
     return np.array(values)
 
 
-def plot_det_curve(keywords, stats_dir, figure_file, xlim, x_step, ylim,
+def plot_det_curve(keywords, stats_file, figure_file, xlim, x_step, ylim,
                    y_step):
     plt.figure(dpi=200)
     plt.rcParams['xtick.direction'] = 'in'
@@ -37,7 +46,6 @@ def plot_det_curve(keywords, stats_dir, figure_file, xlim, x_step, ylim,
     plt.rcParams['font.size'] = 12
 
     for index, keyword in enumerate(keywords):
-        stats_file = os.path.join(stats_dir, 'stats.' + str(index) + '.txt')
         values = load_stats_file(stats_file)
         plt.plot(values[:, 0], values[:, 1], label=keyword)
 
@@ -53,11 +61,14 @@ def plot_det_curve(keywords, stats_dir, figure_file, xlim, x_step, ylim,
 
 
 if __name__ == '__main__':
+    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
+    with open(args.cfg_path, 'r') as f:
+        config = yaml.safe_load(f)
 
-    keywords = ['Hey_Snips']
-    img_path = os.path.join(os.path.abspath(sys.argv[1]), 'det.png')
+    scoring_conf = config['scoring']
+    img_file = os.path.abspath(scoring_conf['img_file'])
+    stats_file = os.path.abspath(scoring_conf['stats_file'])
+    keywords = [args.keyword]
+    plot_det_curve(keywords, stats_file, img_file, 10, 2, 10, 2)
 
-    plot_det_curve(keywords,
-                   os.path.abspath(sys.argv[1]), img_path, 10, 2, 10, 2)
-
-    print('DET curve image saved to: {}'.format(img_path))
+    print('DET curve image saved to: {}'.format(img_file))

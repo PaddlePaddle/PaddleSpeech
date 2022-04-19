@@ -13,35 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-. ./path.sh
 set -e
+source path.sh
 
-stage=0
-stop_stage=50
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 
-# data directory
-# if we set the variable ${dir}, we will store the wav info to this directory
-# otherwise, we will store the wav info to vox1 and vox2 directory respectively
-# vox2 wav path, we must convert the m4a format to wav format    
-dir=data/                                 # data info directory   
+stage=1
+stop_stage=3
 
-exp_dir=exp/ecapa-tdnn-vox12-big/            # experiment directory
-conf_path=conf/mdtc.yaml          
-gpus=0,1,2,3
+cfg_path=$1
 
-source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
-
-mkdir -p ${exp_dir}
-
-if [ $stage -le 0 ] && [ ${stop_stage} -ge 0 ]; then 
-     # stage 0: data prepare for vox1 and vox2, vox2 must be converted from m4a to wav
-     bash ./local/data.sh ${dir} ${conf_path}|| exit -1;
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    ./local/train.sh ${ngpu} ${cfg_path} || exit -1
 fi
 
-if [ $stage -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-     CUDA_VISIBLE_DEVICES=${gpus} bash ./local/train.sh ${dir} ${exp_dir} ${conf_path} 
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    ./local/score.sh ${cfg_path} || exit -1
 fi
 
-if [ $stage -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-     CUDA_VISIBLE_DEVICES=0 bash ./local/test.sh ${dir} ${exp_dir} ${conf_path}
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    ./local/plot.sh ${cfg_path} || exit -1
 fi

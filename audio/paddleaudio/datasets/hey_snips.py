@@ -63,10 +63,12 @@ class HeySnips(AudioClassificationDataset):
         files = []
         labels = []
         self.keys = []
+        self.durations = []
         for sample in meta_info:
-            key, target, _, wav = sample
+            key, target, duration, wav = sample
             files.append(wav)
             labels.append(int(target))
             self.keys.append(key)
+            self.durations.append(float(duration))
 
         return files, labels

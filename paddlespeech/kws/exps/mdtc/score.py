@@ -11,80 +11,56 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from wekws(https://github.com/wenet-e2e/wekws)
+import argparse
 import os
-import sys
-import time
 
 import paddle
-from mdtc import KWSModel
-from mdtc import MDTC
+import yaml
 from tqdm import tqdm
 
-from paddleaudio.datasets import HeySnips
+from paddlespeech.kws.exps.mdtc.collate import collate_features
+from paddlespeech.kws.models.mdtc import KWSModel
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-
-def collate_features(batch):
-    # (key, feat, label) in one sample
-    collate_start = time.time()
-    keys = []
-    feats = []
-    labels = []
-    lengths = []
-    for sample in batch:
-        keys.append(sample[0])
-        feats.append(sample[1])
-        labels.append(sample[2])
-        lengths.append(sample[1].shape[0])
-
-    max_length = max(lengths)
-    for i in range(len(feats)):
-        feats[i] = paddle.nn.functional.pad(
-            feats[i], [0, max_length - feats[i].shape[0], 0, 0],
-            data_format='NLC')
-
-    return keys, paddle.stack(feats), paddle.to_tensor(
-        labels), paddle.to_tensor(lengths)
-
+# yapf: disable
+parser = argparse.ArgumentParser(__doc__)
+parser.add_argument("--cfg_path", type=str, required=True)
+args = parser.parse_args()
+# yapf: enable
 
 if __name__ == '__main__':
+    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
+    with open(args.cfg_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    model_conf = config['model']
+    data_conf = config['data']
+    feat_conf = config['feature']
+    scoring_conf = config['scoring']
+
     # Dataset
-    feat_conf = {
-        # 'n_mfcc': 80,
-        'n_mels': 80,
-        'frame_shift': 10,
-        'frame_length': 25,
-        # 'dither': 1.0,
-    }
-    test_ds = HeySnips(
-        mode='test', feat_type='kaldi_fbank', sample_rate=16000, **feat_conf)
+    ds_class = dynamic_import(data_conf['dataset'])
+    test_ds = ds_class(data_dir=data_conf['data_dir'], mode='test', **feat_conf)
     test_sampler = paddle.io.BatchSampler(
-        test_ds, batch_size=32, drop_last=False)
+        test_ds, batch_size=scoring_conf['batch_size'], drop_last=False)
     test_loader = paddle.io.DataLoader(
         test_ds,
         batch_sampler=test_sampler,
-        num_workers=16,
+        num_workers=scoring_conf['num_workers'],
         return_list=True,
         use_buffer_reader=True,
         collate_fn=collate_features, )
 
     # Model
-    backbone = MDTC(
-        stack_num=3,
-        stack_size=4,
-        in_channels=80,
-        res_channels=32,
-        kernel_size=5,
-        causal=True, )
-    model = KWSModel(backbone=backbone, num_keywords=1)
-    model = paddle.DataParallel(model)
-    # kws_checkpoint = '/ssd3/chenxiaojie06/PaddleSpeech/DeepSpeech/paddlespeech/kws/models/checkpoint/epoch_10_0.8903940343290826/model.pdparams'
-    kws_checkpoint = os.path.join(
-        os.path.abspath(sys.argv[1]), 'model.pdparams')
-    model.set_state_dict(paddle.load(kws_checkpoint))
+    backbone_class = dynamic_import(model_conf['backbone'])
+    backbone = backbone_class(**model_conf['config'])
+    model = KWSModel(backbone=backbone, num_keywords=model_conf['num_keywords'])
+    model.set_state_dict(paddle.load(scoring_conf['checkpoint']))
     model.eval()
 
-    score_abs_path = os.path.join(os.path.abspath(sys.argv[1]), 'score.txt')
-    with paddle.no_grad(), open(score_abs_path, 'w', encoding='utf8') as fout:
+    with paddle.no_grad(), open(
+            scoring_conf['score_file'], 'w', encoding='utf8') as fout:
         for batch_idx, batch in enumerate(
                 tqdm(test_loader, total=len(test_loader))):
             keys, feats, labels, lengths = batch
@@ -100,4 +76,4 @@ if __name__ == '__main__':
                     fout.write(
                         '{} {} {}\n'.format(key, keyword_i, score_frames))
 
-    print('Scores saved to: {}'.format(score_abs_path))
+    print('Result saved to: {}'.format(scoring_conf['score_file']))

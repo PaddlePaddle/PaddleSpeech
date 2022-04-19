@@ -11,15 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
+# Modified from wekws(https://github.com/wenet-e2e/wekws)
+import argparse
 import os
-import sys
 
+import yaml
 from tqdm import tqdm
 
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-def load_label_and_score(keyword, label_file, score_file):
-    # score_table: {uttid: [keywordlist]}
+# yapf: disable
+parser = argparse.ArgumentParser(__doc__)
+parser.add_argument("--cfg_path", type=str, required=True)
+parser.add_argument('--keyword', type=int, default=0, help='keyword label')
+parser.add_argument('--step', type=float, default=0.01, help='threshold step')
+parser.add_argument('--window_shift', type=int, default=50, help='window_shift is used to skip the frames after triggered')
+args = parser.parse_args()
+# yapf: enable
+
+
+def load_label_and_score(keyword, ds, score_file):
     score_table = {}
     with open(score_file, 'r', encoding='utf8') as fin:
         for line in fin:
@@ -34,59 +45,40 @@ def load_label_and_score(keyword, label_file, score_file):
     keyword_table = {}
     filler_table = {}
     filler_duration = 0.0
-    with open(label_file, 'r', encoding='utf8') as fin:
-        for line in fin:
-            obj = json.loads(line.strip())
-            assert 'key' in obj
-            assert 'txt' in obj
-            assert 'duration' in obj
-            key = obj['key']
-            index = obj['txt']
-            duration = obj['duration']
-            assert key in score_table
-            if index == keyword:
-                keyword_table[key] = score_table[key]
-            else:
-                filler_table[key] = score_table[key]
-                filler_duration += duration
+
+    for key, index, duration in zip(ds.keys, ds.labels, ds.durations):
+        assert key in score_table
+        if index == keyword:
+            keyword_table[key] = score_table[key]
+        else:
+            filler_table[key] = score_table[key]
+            filler_duration += duration
+
     return keyword_table, filler_table, filler_duration
 
 
-class Args:
-    def __init__(self):
-        self.test_data = '/ssd3/chenxiaojie06/PaddleSpeech/DeepSpeech/paddlespeech/kws/models/data/test/data.list'
-        self.keyword = 0
-        self.score_file = os.path.join(
-            os.path.abspath(sys.argv[1]), 'score.txt')
-        self.stats_file = os.path.join(
-            os.path.abspath(sys.argv[1]), 'stats.0.txt')
-        self.step = 0.01
-        self.window_shift = 50
-
-
-args = Args()
-
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description='compute det curve')
-    # parser.add_argument('--test_data', required=True, help='label file')
-    # parser.add_argument('--keyword', type=int, default=0, help='keyword label')
-    # parser.add_argument('--score_file', required=True, help='score file')
-    # parser.add_argument('--step', type=float, default=0.01,
-    #                     help='threshold step')
-    # parser.add_argument('--window_shift', type=int, default=50,
-    #                     help='window_shift is used to skip the frames after triggered')
-    # parser.add_argument('--stats_file',
-    #                     required=True,
-    #                     help='false reject/alarm stats file')
-    # args = parser.parse_args()
+    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
+    with open(args.cfg_path, 'r') as f:
+        config = yaml.safe_load(f)
 
-    window_shift = args.window_shift
+    data_conf = config['data']
+    feat_conf = config['feature']
+    scoring_conf = config['scoring']
+
+    # Dataset
+    ds_class = dynamic_import(data_conf['dataset'])
+    test_ds = ds_class(data_dir=data_conf['data_dir'], mode='test', **feat_conf)
+
+    score_file = os.path.abspath(scoring_conf['score_file'])
+    stats_file = os.path.abspath(scoring_conf['stats_file'])
+
     keyword_table, filler_table, filler_duration = load_label_and_score(
-        args.keyword, args.test_data, args.score_file)
+        args.keyword, test_ds, score_file)
     print('Filler total duration Hours: {}'.format(filler_duration / 3600.0))
     pbar = tqdm(total=int(1.0 / args.step))
-    with open(args.stats_file, 'w', encoding='utf8') as fout:
-        keyword_index = int(args.keyword)
+    with open(stats_file, 'w', encoding='utf8') as fout:
+        keyword_index = args.keyword
         threshold = 0.0
         while threshold <= 1.0:
             num_false_reject = 0
@@ -103,7 +95,7 @@ if __name__ == '__main__':
                 while i < len(score_list):
                     if score_list[i] >= threshold:
                         num_false_alarm += 1
-                        i += window_shift
+                        i += args.window_shift
                     else:
                         i += 1
             if len(keyword_table) != 0:
@@ -118,4 +110,4 @@ if __name__ == '__main__':
             pbar.update(1)
 
     pbar.close()
-    print('DET saved to: {}'.format(args.stats_file))
+    print('DET saved to: {}'.format(stats_file))

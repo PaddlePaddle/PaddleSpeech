@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from wekws(https://github.com/wenet-e2e/wekws)
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
@@ -163,7 +164,7 @@ class MDTC(nn.Layer):
             in_channels: int,
             res_channels: int,
             kernel_size: int,
-            causal: bool, ):
+            causal: bool=True, ):
         super(MDTC, self).__init__()
         assert kernel_size % 2 == 1
         self.kernel_size = kernel_size
@@ -230,17 +231,3 @@ class KWSModel(nn.Layer):
         outputs = self.backbone(x)
         outputs = self.linear(outputs)
         return self.activation(outputs)
-
-
-if __name__ == '__main__':
-    paddle.set_device('cpu')
-    from paddleaudio.features import LogMelSpectrogram
-    mdtc = MDTC(3, 4, 80, 32, 5, causal=True)
-
-    x = paddle.randn(shape=(32, 16000 * 5))
-    feature_extractor = LogMelSpectrogram(sr=16000, n_fft=512, n_mels=80)
-    feats = feature_extractor(x).transpose([0, 2, 1])
-    print(feats.shape)
-
-    res, _ = mdtc(feats)
-    print(res.shape)

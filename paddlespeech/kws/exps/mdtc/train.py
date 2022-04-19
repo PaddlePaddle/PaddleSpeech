@@ -11,77 +11,47 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
 import os
-import time
 
 import paddle
-from loss import max_pooling_loss
-from mdtc import KWSModel
-from mdtc import MDTC
+import yaml
 
-from paddleaudio.datasets import HeySnips
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
+from paddlespeech.kws.exps.mdtc.collate import collate_features
+from paddlespeech.kws.models.loss import max_pooling_loss
+from paddlespeech.kws.models.mdtc import KWSModel
+from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-
-def collate_features(batch):
-    # (key, feat, label)
-    collate_start = time.time()
-    keys = []
-    feats = []
-    labels = []
-    lengths = []
-    for sample in batch:
-        keys.append(sample[0])
-        feats.append(sample[1])
-        labels.append(sample[2])
-        lengths.append(sample[1].shape[0])
-
-    max_length = max(lengths)
-    for i in range(len(feats)):
-        feats[i] = paddle.nn.functional.pad(
-            feats[i], [0, max_length - feats[i].shape[0], 0, 0],
-            data_format='NLC')
-
-    return keys, paddle.stack(feats), paddle.to_tensor(
-        labels), paddle.to_tensor(lengths)
-
+# yapf: disable
+parser = argparse.ArgumentParser(__doc__)
+parser.add_argument("--cfg_path", type=str, required=True)
+args = parser.parse_args()
+# yapf: enable
 
 if __name__ == '__main__':
+    nranks = paddle.distributed.get_world_size()
+    if paddle.distributed.get_world_size() > 1:
+        paddle.distributed.init_parallel_env()
+    local_rank = paddle.distributed.get_rank()
+
+    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
+    with open(args.cfg_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    model_conf = config['model']
+    data_conf = config['data']
+    feat_conf = config['feature']
+    training_conf = config['training']
+
     # Dataset
-    feat_conf = {
-        # 'n_mfcc': 80,
-        'n_mels': 80,
-        'frame_shift': 10,
-        'frame_length': 25,
-        # 'dither': 1.0,
-    }
-    data_dir = '/ssd1/chenxiaojie06/datasets/hey_snips/hey_snips_research_6k_en_train_eval_clean_ter'
-    train_ds = HeySnips(
-        data_dir=data_dir,
-        mode='train',
-        feat_type='kaldi_fbank',
-        sample_rate=16000,
-        **feat_conf)
-    dev_ds = HeySnips(
-        data_dir=data_dir,
-        mode='dev',
-        feat_type='kaldi_fbank',
-        sample_rate=16000,
-        **feat_conf)
+    ds_class = dynamic_import(data_conf['dataset'])
+    train_ds = ds_class(
+        data_dir=data_conf['data_dir'], mode='train', **feat_conf)
+    dev_ds = ds_class(data_dir=data_conf['data_dir'], mode='dev', **feat_conf)
 
-    training_conf = {
-        'epochs': 100,
-        'learning_rate': 0.001,
-        'weight_decay': 0.00005,
-        'num_workers': 16,
-        'batch_size': 100,
-        'checkpoint_dir': './checkpoint',
-        'save_freq': 10,
-        'log_freq': 10,
-    }
-
-    train_sampler = paddle.io.BatchSampler(
+    train_sampler = paddle.io.DistributedBatchSampler(
         train_ds,
         batch_size=training_conf['batch_size'],
         shuffle=True,
@@ -95,16 +65,11 @@ if __name__ == '__main__':
         collate_fn=collate_features, )
 
     # Model
-    backbone = MDTC(
-        stack_num=3,
-        stack_size=4,
-        in_channels=80,
-        res_channels=32,
-        kernel_size=5,
-        causal=True, )
-    model = KWSModel(backbone=backbone, num_keywords=1)
+    backbone_class = dynamic_import(model_conf['backbone'])
+    backbone = backbone_class(**model_conf['config'])
+    model = KWSModel(backbone=backbone, num_keywords=model_conf['num_keywords'])
     model = paddle.DataParallel(model)
-    clip = paddle.nn.ClipGradByGlobalNorm(5.0)
+    clip = paddle.nn.ClipGradByGlobalNorm(training_conf['grad_clip'])
     optimizer = paddle.optimizer.Adam(
         learning_rate=training_conf['learning_rate'],
         weight_decay=training_conf['weight_decay'],
@@ -122,9 +87,7 @@ if __name__ == '__main__':
         avg_loss = 0
         num_corrects = 0
         num_samples = 0
-        batch_start = time.time()
         for batch_idx, batch in enumerate(train_loader):
-            # print('Fetch one batch: {:.4f}'.format(time.time()-batch_start))
             keys, feats, labels, lengths = batch
             logits = model(feats)
             loss, corrects, acc = criterion(logits, labels, lengths)
@@ -144,7 +107,8 @@ if __name__ == '__main__':
 
             timer.count()
 
-            if (batch_idx + 1) % training_conf['log_freq'] == 0:
+            if (batch_idx + 1
+                ) % training_conf['log_freq'] == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
                 avg_loss /= training_conf['log_freq']
                 avg_acc = num_corrects / num_samples
@@ -161,10 +125,9 @@ if __name__ == '__main__':
                 avg_loss = 0
                 num_corrects = 0
                 num_samples = 0
-            batch_start = time.time()
 
         if epoch % training_conf[
-                'save_freq'] == 0 and batch_idx + 1 == steps_per_epoch:
+                'save_freq'] == 0 and batch_idx + 1 == steps_per_epoch and local_rank == 0:
             dev_sampler = paddle.io.BatchSampler(
                 dev_ds,
                 batch_size=training_conf['batch_size'],
@@ -197,7 +160,7 @@ if __name__ == '__main__':
 
             # Save model
             save_dir = os.path.join(training_conf['checkpoint_dir'],
-                                    'epoch_{}_{:.4f}'.format(epoch, eval_acc))
+                                    'epoch_{}'.format(epoch))
             logger.info('Saving model checkpoint to {}'.format(save_dir))
             paddle.save(model.state_dict(),
                         os.path.join(save_dir, 'model.pdparams'))

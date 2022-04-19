@@ -50,6 +50,9 @@ int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
 
+    CHECK(FLAGS_result_wspecifier != "");
+    CHECK(FLAGS_feature_rspecifier != "");
+
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);

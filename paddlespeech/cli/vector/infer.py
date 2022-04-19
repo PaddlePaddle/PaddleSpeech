@@ -27,37 +27,14 @@ from yacs.config import CfgNode
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
-from ..utils import download_and_decompress
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from .pretrained_models import model_alias
+from .pretrained_models import pretrained_models
 from paddleaudio.backends import load as load_audio
 from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
-
-pretrained_models = {
-    # The tags for pretrained_models should be "{model_name}[-{dataset}][-{sr}][-...]".
-    # e.g. "ecapatdnn_voxceleb12-16k".
-    # Command line and python api use "{model_name}[-{dataset}]" as --model, usage:
-    # "paddlespeech vector --task spk --model ecapatdnn_voxceleb12-16k --sr 16000 --input ./input.wav"
-    "ecapatdnn_voxceleb12-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz',
-        'md5':
-        'cc33023c54ab346cd318408f43fcaf95',
-        'cfg_path':
-        'conf/model.yaml',  # the yaml config path
-        'ckpt_path':
-        'model/model',  # the format is ${dir}/{model_name}, 
-        # so the first 'model' is dir, the second 'model' is the name
-        # this means we have a model stored as model/model.pdparams
-    },
-}
-
-model_alias = {
-    "ecapatdnn": "paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn",
-}
 
 
 @cli_register(
@@ -65,7 +42,9 @@ model_alias = {
     description="Speech to vector embedding infer command.")
 class VectorExecutor(BaseExecutor):
     def __init__(self):
-        super(VectorExecutor, self).__init__()
+        super().__init__()
+        self.model_alias = model_alias
+        self.pretrained_models = pretrained_models
 
         self.parser = argparse.ArgumentParser(
             prog="paddlespeech.vector", add_help=True)
@@ -128,8 +107,8 @@ class VectorExecutor(BaseExecutor):
 
         Returns:
             bool: 
-                 False: some audio occurs error
-                 True: all audio process success
+                False: some audio occurs error
+                True: all audio process success
         """
         # stage 0: parse the args and get the required args
         parser_args = self.parser.parse_args(argv)
@@ -289,32 +268,6 @@ class VectorExecutor(BaseExecutor):
 
         return res
 
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """get the neural network path from the pretrained model list
-           we stored all the pretained mode in the variable `pretrained_models`
-
-        Args:
-            tag (str): model tag in the pretrained model list
-
-        Returns:
-            os.PathLike: the downloaded pretrained model path in the disk
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, \
-            'The model "{}" you want to use has not been supported,'\
-            'please choose other models.\n' \
-            'The support models includes\n\t\t{}'.format(tag, "\n\t\t".join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
-
     def _init_from_path(self,
                         model_type: str='ecapatdnn_voxceleb12',
                         sample_rate: int=16000,
@@ -350,10 +303,11 @@ class VectorExecutor(BaseExecutor):
             res_path = self._get_pretrained_path(tag)
             self.res_path = res_path
 
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.cfg_path = os.path.join(
+                res_path, self.pretrained_models[tag]['cfg_path'])
             self.ckpt_path = os.path.join(
-                res_path, pretrained_models[tag]['ckpt_path'] + '.pdparams')
+                res_path,
+                self.pretrained_models[tag]['ckpt_path'] + '.pdparams')
         else:
             # get the model from disk
             self.cfg_path = os.path.abspath(cfg_path)
@@ -373,7 +327,7 @@ class VectorExecutor(BaseExecutor):
         logger.info("start to dynamic import the model class")
         model_name = model_type[:model_type.rindex('_')]
         logger.info(f"model name {model_name}")
-        model_class = dynamic_import(model_name, model_alias)
+        model_class = dynamic_import(model_name, self.model_alias)
         model_conf = self.config.model
         backbone = model_class(**model_conf)
         model = SpeakerIdetification(

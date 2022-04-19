@@ -602,7 +602,7 @@ class CNNDecoder(nn.Layer):
         if masks is not None:
             outputs = outputs * masks
         outputs = outputs.transpose([0, 2, 1])
-        return outputs, masks
+        return outputs
 
 
 class CNNPostnet(nn.Layer):

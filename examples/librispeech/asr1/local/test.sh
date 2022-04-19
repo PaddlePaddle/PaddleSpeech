@@ -42,6 +42,11 @@ echo "chunk mode ${chunk_mode}"
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+    # format the reference test file
+    python utils/format_rsl.py \
+        --origin_ref data/manifest.test.raw \
+        --trans_ref data/manifest.test.text
+
     for type in attention; do
         echo "decoding ${type}"
         if [ ${chunk_mode} == true ];then
@@ -63,6 +68,14 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
+         # format the hyp file
+        python utils/format_rsl.py \
+            --origin_hyp ${ckpt_prefix}.${type}.rsl \
+            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
+
+        python utils/compute-wer.py --char=1 --v=1 \
+            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
+
         echo "decoding ${type} done."
     done
 fi
@@ -89,6 +102,15 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
+
+        # format the hyp file
+        python utils/format_rsl.py \
+            --origin_hyp ${ckpt_prefix}.${type}.rsl \
+            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
+
+        python utils/compute-wer.py --char=1 --v=1 \
+            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
+
         echo "decoding ${type} done."
     done
 fi
@@ -110,6 +132,14 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
+        # format the hyp file
+        python utils/format_rsl.py \
+            --origin_hyp ${ckpt_prefix}.${type}.rsl \
+            --trans_hyp ${ckpt_prefix}.${type}.rsl.text
+
+        python utils/compute-wer.py --char=1 --v=1 \
+            data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
+
         echo "decoding ${type} done."
     done
 fi
@@ -122,14 +152,13 @@ if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
         --origin_ref data/manifest.test.raw \
         --trans_ref_sclite data/manifest.test.raw.text.sclite
     
-    output_dir=${ckpt_prefix}
     for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
         python utils/format_rsl.py \
-            --origin_hyp ${output_dir}/${type}.rsl
-            --trans_hyp_sclite ${output_dir}/${type}.rsl.text.sclite
+            --origin_hyp ${ckpt_prefix}.${type}.rsl
+            --trans_hyp_sclite ${ckpt_prefix}.${type}.rsl.text.sclite
 
-        mkdir -p ${output_dir}/${type}_sclite
-        sclite -i wsj -r data/manifest.test.raw.text.sclite -h  ${output_dir}/${type}.rsl.text.sclite  -e utf-8 -o all -O ${output_dir}/${type}_sclite
+        mkdir -p ${ckpt_prefix}.${type}_sclite
+        sclite -i wsj -r data/manifest.test.raw.text.sclite -h  ${ckpt_prefix}.${type}.rsl.text.sclite  -e utf-8 -o all -O ${ckpt_prefix}.${type}_sclite
     done
 fi
 

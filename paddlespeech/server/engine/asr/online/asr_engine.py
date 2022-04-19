@@ -356,6 +356,7 @@ class PaddleASRConnectionHanddler:
         else:
             raise Exception("invalid model name")
 
+    @paddle.no_grad()
     def decode_one_chunk(self, x_chunk, x_chunk_lens):
         logger.info("start to decoce one chunk with deepspeech2 model")
         input_names = self.am_predictor.get_input_names()
@@ -397,6 +398,7 @@ class PaddleASRConnectionHanddler:
         logger.info(f"decode one best result: {trans_best[0]}")
         return trans_best[0]
 
+    @paddle.no_grad()
     def advance_decoding(self, is_finished=False):
         logger.info("start to decode with advanced_decoding method")
         cfg = self.ctc_decode_config
@@ -503,6 +505,7 @@ class PaddleASRConnectionHanddler:
         else:
             return ''
 
+    @paddle.no_grad()
     def rescoring(self):
         if "deepspeech2online" in self.model_type or "deepspeech2offline" in self.model_type:
             return

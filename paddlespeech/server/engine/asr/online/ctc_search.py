@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import defaultdict
-
+import paddle
 from paddlespeech.cli.log import logger
 from paddlespeech.s2t.utils.utility import log_add
 
@@ -29,6 +29,7 @@ class CTCPrefixBeamSearch:
         self.config = config
         self.reset()
 
+    @paddle.no_grad()
     def search(self, ctc_probs, device, blank_id=0):
         """ctc prefix beam search method decode a chunk feature
 

@@ -35,3 +35,17 @@
  ```bash
  paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
  ```
+
+## 流式ASR
+
+### 启动流式语音识别服务
+
+```
+paddlespeech_server start --config_file conf/ws_conformer_application.yaml
+```
+
+### 访问流式语音识别服务
+
+```
+paddlespeech_client asr_online  --server_ip 127.0.0.1 --port 8090 --input zh.wav
+```

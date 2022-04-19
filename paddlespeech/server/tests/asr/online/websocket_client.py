@@ -34,10 +34,9 @@ class ASRAudioHandler:
     def read_wave(self, wavfile_path: str):
         samples, sample_rate = soundfile.read(wavfile_path, dtype='int16')
         x_len = len(samples)
-        # chunk_stride = 40 * 16  #40ms, sample_rate = 16kHz
-        chunk_size = 80 * 16  #80ms, sample_rate = 16kHz
 
-        if x_len % chunk_size != 0:
+        chunk_size = 85 * 16  #80ms, sample_rate = 16kHz
+        if x_len % chunk_size!= 0:
             padding_len_x = chunk_size - x_len % chunk_size
         else:
             padding_len_x = 0
@@ -48,7 +47,6 @@ class ASRAudioHandler:
         assert (x_len + padding_len_x) % chunk_size == 0
         num_chunk = (x_len + padding_len_x) / chunk_size
         num_chunk = int(num_chunk)
-
         for i in range(0, num_chunk):
             start = i * chunk_size
             end = start + chunk_size
@@ -82,7 +80,6 @@ class ASRAudioHandler:
                 msg = json.loads(msg)
                 logging.info("receive msg={}".format(msg))
 
-            result = msg
             # finished 
             audio_info = json.dumps(
                 {
@@ -98,8 +95,8 @@ class ASRAudioHandler:
             
             # decode the bytes to str
             msg = json.loads(msg)
-            logging.info("receive msg={}".format(msg))
-
+            logging.info("final receive msg={}".format(msg))
+            result = msg
             return result
 
 

@@ -473,7 +473,7 @@ class PaddleASRConnectionHanddler:
         ctc_probs = self.model.ctc.log_softmax(ys)  # (1, maxlen, vocab_size)
         ctc_probs = ctc_probs.squeeze(0)
 
-        self.searcher.search(None, ctc_probs, self.cached_feat.place)
+        self.searcher.search(ctc_probs, self.cached_feat.place)
 
         self.hyps = self.searcher.get_one_best_hyps()
         assert self.cached_feat.shape[0] == 1
@@ -823,7 +823,7 @@ class ASRServerExecutor(ASRExecutor):
         ctc_probs = self.model.ctc.log_softmax(
             encoder_out)  # (1, maxlen, vocab_size)
         ctc_probs = ctc_probs.squeeze(0)
-        self.searcher.search(xs, ctc_probs, xs.place)
+        self.searcher.search(ctc_probs, xs.place)
         # update the one best result
         self.hyps = self.searcher.get_one_best_hyps()
 

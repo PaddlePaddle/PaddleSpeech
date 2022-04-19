@@ -24,19 +24,18 @@ class CTCPrefixBeamSearch:
         """Implement the ctc prefix beam search
 
         Args:
-            config (_type_): _description_
+            config (yacs.config.CfgNode): _description_
         """
         self.config = config
         self.reset()
 
-    def search(self, xs, ctc_probs, device, blank_id=0):
+    def search(self, ctc_probs, device, blank_id=0):
         """ctc prefix beam search method decode a chunk feature
 
         Args:
             xs (paddle.Tensor): feature data
             ctc_probs (paddle.Tensor): the ctc probability of all the tokens
-            encoder_out (paddle.Tensor): _description_
-            encoder_mask (_type_): _description_
+            device (paddle.fluid.core_avx.Place): the feature host device, such as CUDAPlace(0).
             blank_id (int, optional): the blank id in the vocab. Defaults to 0.
 
         Returns:
@@ -45,7 +44,6 @@ class CTCPrefixBeamSearch:
         # decode 
         logger.info("start to ctc prefix search")
 
-        # device = xs.place
         batch_size = 1
         beam_size = self.config.beam_size
         maxlen = ctc_probs.shape[0]

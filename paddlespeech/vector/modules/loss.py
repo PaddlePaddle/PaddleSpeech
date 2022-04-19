@@ -132,6 +132,9 @@ class NCELoss(nn.Layer):
 
     def forward(self, output, target):
         """Forward inference
+        
+        Args:
+            output (tensor): the model output, which is the input of loss function
         """
         output = paddle.reshape(output, [-1, self.N])
         B = output.shape[0]

@@ -35,3 +35,16 @@
  ```bash
  paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
  ```
+
+ ## Online ASR Server
+
+### Lanuch online asr server
+```
+paddlespeech_server start --config_file conf/ws_conformer_application.yaml
+```
+
+### Access online asr server
+
+```
+paddlespeech_client asr_online  --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```

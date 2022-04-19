@@ -63,12 +63,12 @@ class ChunkBuffer(object):
         the sample rate.
         Yields Frames of the requested duration.
         """
+
         audio = self.remained_audio + audio
         self.remained_audio = b''
 
         offset = 0
         timestamp = 0.0
-
         while offset + self.window_bytes <= len(audio):
             yield Frame(audio[offset:offset + self.window_bytes], timestamp,
                         self.window_sec)

@@ -59,7 +59,7 @@ pretrained_models = {
         'lm_md5':
         '29e02312deb2e59b3c8686c7966d4fe3'
     },
-    "conformer_online_multi-cn-zh-16k": {
+    "conformer_online_multicn-zh-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/multi_cn/asr1/asr1_chunk_conformer_multi_cn_ckpt_0.2.3.model.tar.gz',
         'md5':

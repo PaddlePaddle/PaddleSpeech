@@ -28,7 +28,6 @@ router = APIRouter()
 
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
-    print("websocket protocal receive the dataset")
     await websocket.accept()
 
     engine_pool = get_engine_pool()

@@ -181,7 +181,6 @@ class CTCDecoder(CTCDecoderBase):
         if self._ext_scorer is not None:
             return
         
-        from paddlespeech.s2t.decoders.ctcdecoder import Scorer  # noqa: F401
         if language_model_path != '':
             logger.info("begin to initialize the external scorer "
                         "for decoding")

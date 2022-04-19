@@ -21,7 +21,7 @@ engine_list: ['asr_online']
 ################################### ASR #########################################
 ################### speech task: asr; engine_type: online #######################
 asr_online:
-    model_type: 'conformer_online_multi-cn'
+    model_type: 'conformer_online_multicn'
     am_model: # the pdmodel file of am static model [optional]
     am_params:  # the pdiparams file of am static model [optional]
     lang: 'zh'

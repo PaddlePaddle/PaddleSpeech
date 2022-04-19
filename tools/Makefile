@@ -25,7 +25,7 @@ clean:
 
 apt.done:
 	apt update -y
-	apt install -y bc flac jq vim tig tree pkg-config libsndfile1 libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
+	apt install -y bc flac jq vim tig tree sox pkg-config libsndfile1 libflac-dev libogg-dev libvorbis-dev libboost-dev swig python3-dev 
 	echo "check_certificate = off" >> ~/.wgetrc
 	touch apt.done
 
@@ -50,13 +50,18 @@ openblas.done:
 	bash extras/install_openblas.sh
 	touch openblas.done
 
-kaldi.done: openblas.done
+kaldi.done: apt.done openblas.done
 	bash extras/install_kaldi.sh
 	touch kaldi.done
 
 sctk.done:
 	./extras/install_sclite.sh
 	touch sctk.done
+
+srilm.done:
+	./extras/install_liblbfgs.sh
+	extras/install_srilm.sh
+	touch srilm.done
 
 ######################
 dev: python conda_packages.done sctk.done

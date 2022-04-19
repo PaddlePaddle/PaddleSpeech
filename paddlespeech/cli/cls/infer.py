@@ -25,55 +25,23 @@ import yaml
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
-from ..utils import download_and_decompress
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from .pretrained_models import model_alias
+from .pretrained_models import pretrained_models
 from paddleaudio import load
 from paddleaudio.features import LogMelSpectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 __all__ = ['CLSExecutor']
 
-pretrained_models = {
-    # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
-    # e.g. "conformer_wenetspeech-zh-16k", "transformer_aishell-zh-16k" and "panns_cnn6-32k".
-    # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
-    # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
-    "panns_cnn6-32k": {
-        'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn6.tar.gz',
-        'md5': '4cf09194a95df024fd12f84712cf0f9c',
-        'cfg_path': 'panns.yaml',
-        'ckpt_path': 'cnn6.pdparams',
-        'label_file': 'audioset_labels.txt',
-    },
-    "panns_cnn10-32k": {
-        'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn10.tar.gz',
-        'md5': 'cb8427b22176cc2116367d14847f5413',
-        'cfg_path': 'panns.yaml',
-        'ckpt_path': 'cnn10.pdparams',
-        'label_file': 'audioset_labels.txt',
-    },
-    "panns_cnn14-32k": {
-        'url': 'https://paddlespeech.bj.bcebos.com/cls/panns_cnn14.tar.gz',
-        'md5': 'e3b9b5614a1595001161d0ab95edee97',
-        'cfg_path': 'panns.yaml',
-        'ckpt_path': 'cnn14.pdparams',
-        'label_file': 'audioset_labels.txt',
-    },
-}
-
-model_alias = {
-    "panns_cnn6": "paddlespeech.cls.models.panns:CNN6",
-    "panns_cnn10": "paddlespeech.cls.models.panns:CNN10",
-    "panns_cnn14": "paddlespeech.cls.models.panns:CNN14",
-}
-
 
 @cli_register(
     name='paddlespeech.cls', description='Audio classification infer command.')
 class CLSExecutor(BaseExecutor):
     def __init__(self):
-        super(CLSExecutor, self).__init__()
+        super().__init__()
+        self.model_alias = model_alias
+        self.pretrained_models = pretrained_models
 
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.cls', add_help=True)
@@ -83,7 +51,9 @@ class CLSExecutor(BaseExecutor):
             '--model',
             type=str,
             default='panns_cnn14',
-            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
+            choices=[
+                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+            ],
             help='Choose model type of cls task.')
         self.parser.add_argument(
             '--config',
@@ -121,23 +91,6 @@ class CLSExecutor(BaseExecutor):
             action='store_true',
             help='Increase logger verbosity of current task.')
 
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-            Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
-
     def _init_from_path(self,
                         model_type: str='panns_cnn14',
                         cfg_path: Optional[os.PathLike]=None,
@@ -153,12 +106,12 @@ class CLSExecutor(BaseExecutor):
         if label_file is None or ckpt_path is None:
             tag = model_type + '-' + '32k'  # panns_cnn14-32k
             self.res_path = self._get_pretrained_path(tag)
-            self.cfg_path = os.path.join(self.res_path,
-                                         pretrained_models[tag]['cfg_path'])
-            self.label_file = os.path.join(self.res_path,
-                                           pretrained_models[tag]['label_file'])
-            self.ckpt_path = os.path.join(self.res_path,
-                                          pretrained_models[tag]['ckpt_path'])
+            self.cfg_path = os.path.join(
+                self.res_path, self.pretrained_models[tag]['cfg_path'])
+            self.label_file = os.path.join(
+                self.res_path, self.pretrained_models[tag]['label_file'])
+            self.ckpt_path = os.path.join(
+                self.res_path, self.pretrained_models[tag]['ckpt_path'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.label_file = os.path.abspath(label_file)
@@ -175,7 +128,7 @@ class CLSExecutor(BaseExecutor):
                 self._label_list.append(line.strip())
 
         # model
-        model_class = dynamic_import(model_type, model_alias)
+        model_class = dynamic_import(model_type, self.model_alias)
         model_dict = paddle.load(self.ckpt_path)
         self.model = model_class(extract_embedding=False)
         self.model.set_state_dict(model_dict)

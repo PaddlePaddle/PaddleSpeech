@@ -25,58 +25,21 @@ from ...s2t.utils.dynamic_import import dynamic_import
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
-from ..utils import download_and_decompress
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from .pretrained_models import model_alias
+from .pretrained_models import pretrained_models
+from .pretrained_models import tokenizer_alias
 
 __all__ = ['TextExecutor']
-
-pretrained_models = {
-    # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
-    # e.g. "conformer_wenetspeech-zh-16k", "transformer_aishell-zh-16k" and "panns_cnn6-32k".
-    # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
-    # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
-    "ernie_linear_p7_wudao-punc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p7_wudao-punc-zh.tar.gz',
-        'md5':
-        '12283e2ddde1797c5d1e57036b512746',
-        'cfg_path':
-        'ckpt/model_config.json',
-        'ckpt_path':
-        'ckpt/model_state.pdparams',
-        'vocab_file':
-        'punc_vocab.txt',
-    },
-    "ernie_linear_p3_wudao-punc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_wudao-punc-zh.tar.gz',
-        'md5':
-        '448eb2fdf85b6a997e7e652e80c51dd2',
-        'cfg_path':
-        'ckpt/model_config.json',
-        'ckpt_path':
-        'ckpt/model_state.pdparams',
-        'vocab_file':
-        'punc_vocab.txt',
-    },
-}
-
-model_alias = {
-    "ernie_linear_p7": "paddlespeech.text.models:ErnieLinear",
-    "ernie_linear_p3": "paddlespeech.text.models:ErnieLinear",
-}
-
-tokenizer_alias = {
-    "ernie_linear_p7": "paddlenlp.transformers:ErnieTokenizer",
-    "ernie_linear_p3": "paddlenlp.transformers:ErnieTokenizer",
-}
 
 
 @cli_register(name='paddlespeech.text', description='Text infer command.')
 class TextExecutor(BaseExecutor):
     def __init__(self):
-        super(TextExecutor, self).__init__()
+        super().__init__()
+        self.model_alias = model_alias
+        self.pretrained_models = pretrained_models
+        self.tokenizer_alias = tokenizer_alias
 
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.text', add_help=True)
@@ -92,7 +55,9 @@ class TextExecutor(BaseExecutor):
             '--model',
             type=str,
             default='ernie_linear_p7_wudao',
-            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
+            choices=[
+                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+            ],
             help='Choose model type of text task.')
         self.parser.add_argument(
             '--lang',
@@ -131,23 +96,6 @@ class TextExecutor(BaseExecutor):
             action='store_true',
             help='Increase logger verbosity of current task.')
 
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-            Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
-
     def _init_from_path(self,
                         task: str='punc',
                         model_type: str='ernie_linear_p7_wudao',
@@ -167,12 +115,12 @@ class TextExecutor(BaseExecutor):
         if cfg_path is None or ckpt_path is None or vocab_file is None:
             tag = '-'.join([model_type, task, lang])
             self.res_path = self._get_pretrained_path(tag)
-            self.cfg_path = os.path.join(self.res_path,
-                                         pretrained_models[tag]['cfg_path'])
-            self.ckpt_path = os.path.join(self.res_path,
-                                          pretrained_models[tag]['ckpt_path'])
-            self.vocab_file = os.path.join(self.res_path,
-                                           pretrained_models[tag]['vocab_file'])
+            self.cfg_path = os.path.join(
+                self.res_path, self.pretrained_models[tag]['cfg_path'])
+            self.ckpt_path = os.path.join(
+                self.res_path, self.pretrained_models[tag]['ckpt_path'])
+            self.vocab_file = os.path.join(
+                self.res_path, self.pretrained_models[tag]['vocab_file'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path)
@@ -187,8 +135,8 @@ class TextExecutor(BaseExecutor):
                     self._punc_list.append(line.strip())
 
             # model
-            model_class = dynamic_import(model_name, model_alias)
-            tokenizer_class = dynamic_import(model_name, tokenizer_alias)
+            model_class = dynamic_import(model_name, self.model_alias)
+            tokenizer_class = dynamic_import(model_name, self.tokenizer_alias)
             self.model = model_class(
                 cfg_path=self.cfg_path, ckpt_path=self.ckpt_path)
             self.tokenizer = tokenizer_class.from_pretrained('ernie-1.0')

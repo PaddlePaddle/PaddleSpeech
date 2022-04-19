@@ -15,38 +15,13 @@ import argparse
 from pathlib import Path
 
 import numpy as np
-import onnxruntime as ort
 import soundfile as sf
 from timer import timer
 
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
+from paddlespeech.t2s.exps.syn_utils import get_sess
 from paddlespeech.t2s.utils import str2bool
-
-
-def get_sess(args, filed='am'):
-    full_name = ''
-    if filed == 'am':
-        full_name = args.am
-    elif filed == 'voc':
-        full_name = args.voc
-    model_dir = str(Path(args.inference_dir) / (full_name + ".onnx"))
-    sess_options = ort.SessionOptions()
-    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-    sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
-
-    if args.device == "gpu":
-        # fastspeech2/mb_melgan can't use trt now!
-        if args.use_trt:
-            providers = ['TensorrtExecutionProvider']
-        else:
-            providers = ['CUDAExecutionProvider']
-    elif args.device == "cpu":
-        providers = ['CPUExecutionProvider']
-    sess_options.intra_op_num_threads = args.cpu_threads
-    sess = ort.InferenceSession(
-        model_dir, providers=providers, sess_options=sess_options)
-    return sess
 
 
 def ort_predict(args):
@@ -156,7 +131,7 @@ def parse_args():
         '--voc',
         type=str,
         default='hifigan_csmsc',
-        choices=['hifigan_csmsc', 'mb_melgan_csmsc'],
+        choices=['hifigan_csmsc', 'mb_melgan_csmsc', 'pwgan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
     parser.add_argument(

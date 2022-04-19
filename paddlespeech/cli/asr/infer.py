@@ -29,9 +29,10 @@ from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
-from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from .pretrained_models import model_alias
+from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
@@ -39,110 +40,15 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 
-pretrained_models = {
-    # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
-    # e.g. "conformer_wenetspeech-zh-16k" and "panns_cnn6-32k".
-    # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
-    # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
-    "conformer_wenetspeech-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1_conformer_wenetspeech_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        '76cb19ed857e6623856b7cd7ebbfeda4',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/conformer/checkpoints/wenetspeech',
-    },
-    "transformer_librispeech-en-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_transformer_librispeech_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        '2c667da24922aad391eacafe37bc1660',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/transformer/checkpoints/avg_10',
-    },
-    "deepspeech2offline_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        '932c3593d62fe5c741b59b31318aa314',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2/checkpoints/avg_1',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-    "deepspeech2online_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
-        'md5':
-        '23e16c69730a1cb5d735c98c83c21e16',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2_online/checkpoints/avg_1',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-        "conformer2online_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_chunk_conformer_aishell_ckpt_0.1.2.model.tar.gz',
-        'md5':
-        '4814e52e0fc2fd48899373f95c84b0c9',
-        'cfg_path':
-        'config.yaml',
-        'ckpt_path':
-        'exp/deepspeech2_online/checkpoints/avg_30',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-    "deepspeech2offline_librispeech-en-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr0/asr0_deepspeech2_librispeech_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        'f5666c81ad015c8de03aac2bc92e5762',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2/checkpoints/avg_1',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm',
-        'lm_md5':
-        '099a601759d467cd0a8523ff939819c5'
-    },
-}
-
-model_alias = {
-    "deepspeech2offline":
-    "paddlespeech.s2t.models.ds2:DeepSpeech2Model",
-    "deepspeech2online":
-    "paddlespeech.s2t.models.ds2_online:DeepSpeech2ModelOnline",
-    "conformer":
-    "paddlespeech.s2t.models.u2:U2Model",
-    "conformer2online":
-    "paddlespeech.s2t.models.u2:U2Model",
-    "transformer":
-    "paddlespeech.s2t.models.u2:U2Model",
-    "wenetspeech":
-    "paddlespeech.s2t.models.u2:U2Model",
-}
 
 
 @cli_register(
     name='paddlespeech.asr', description='Speech to text infer command.')
 class ASRExecutor(BaseExecutor):
     def __init__(self):
-        super(ASRExecutor, self).__init__()
+        super().__init__()
+        self.model_alias = model_alias
+        self.pretrained_models = pretrained_models
 
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.asr', add_help=True)
@@ -152,7 +58,9 @@ class ASRExecutor(BaseExecutor):
             '--model',
             type=str,
             default='conformer_wenetspeech',
-            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
+            choices=[
+                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+            ],
             help='Choose model type of asr task.')
         self.parser.add_argument(
             '--lang',
@@ -208,23 +116,6 @@ class ASRExecutor(BaseExecutor):
             action='store_true',
             help='Increase logger verbosity of current task.')
 
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-        Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
-
     def _init_from_path(self,
                         model_type: str='wenetspeech',
                         lang: str='zh',
@@ -245,10 +136,11 @@ class ASRExecutor(BaseExecutor):
             tag = model_type + '-' + lang + '-' + sample_rate_str
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.cfg_path = os.path.join(
+                res_path, self.pretrained_models[tag]['cfg_path'])
             self.ckpt_path = os.path.join(
-                res_path, pretrained_models[tag]['ckpt_path'] + ".pdparams")
+                res_path,
+                self.pretrained_models[tag]['ckpt_path'] + ".pdparams")
             logger.info(res_path)
 
         else:
@@ -273,8 +165,8 @@ class ASRExecutor(BaseExecutor):
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
-                lm_url = pretrained_models[tag]['lm_url']
-                lm_md5 = pretrained_models[tag]['lm_md5']
+                lm_url = self.pretrained_models[tag]['lm_url']
+                lm_md5 = self.pretrained_models[tag]['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
@@ -291,7 +183,7 @@ class ASRExecutor(BaseExecutor):
                 raise Exception("wrong type")
         model_name = model_type[:model_type.rindex(
             '_')]  # model_type: {model_name}_{dataset}
-        model_class = dynamic_import(model_name, model_alias)
+        model_class = dynamic_import(model_name, self.model_alias)
         model_conf = self.config
         model = model_class.from_config(model_conf)
         self.model = model

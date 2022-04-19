@@ -42,6 +42,7 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
+    "onnxruntime",
     "pandas",
     "paddleaudio",
     "paddlenlp",
@@ -64,6 +65,7 @@ base = [
     "webrtcvad",
     "yacs~=0.1.8",
     "prettytable",
+    "zhon",
 ]
 
 server = [
@@ -90,7 +92,6 @@ requirements = {
         "unidecode",
         "yq",
         "pre-commit",
-        "zhon",
     ]
 }
 

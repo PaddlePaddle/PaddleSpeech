@@ -11,10 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import math
 import os
+from pathlib import Path
 
 import numpy as np
+import onnxruntime as ort
 import paddle
+from paddle import inference
 from paddle import jit
 from paddle.static import InputSpec
 
@@ -60,6 +64,21 @@ model_alias = {
     "wavernn_inference":
     "paddlespeech.t2s.models.wavernn:WaveRNNInference",
 }
+
+
+def denorm(data, mean, std):
+    return data * std + mean
+
+
+def get_chunks(data, chunk_size, pad_size):
+    data_len = data.shape[1]
+    chunks = []
+    n = math.ceil(data_len / chunk_size)
+    for i in range(n):
+        start = max(0, i * chunk_size - pad_size)
+        end = min((i + 1) * chunk_size + pad_size, data_len)
+        chunks.append(data[:, start:end, :])
+    return chunks
 
 
 # input
@@ -241,3 +260,221 @@ def voc_to_static(args, voc_inference):
     paddle.jit.save(voc_inference, os.path.join(args.inference_dir, args.voc))
     voc_inference = paddle.jit.load(os.path.join(args.inference_dir, args.voc))
     return voc_inference
+
+
+# inference
+def get_predictor(args, filed='am'):
+    full_name = ''
+    if filed == 'am':
+        full_name = args.am
+    elif filed == 'voc':
+        full_name = args.voc
+    config = inference.Config(
+        str(Path(args.inference_dir) / (full_name + ".pdmodel")),
+        str(Path(args.inference_dir) / (full_name + ".pdiparams")))
+    if args.device == "gpu":
+        config.enable_use_gpu(100, 0)
+    elif args.device == "cpu":
+        config.disable_gpu()
+    config.enable_memory_optim()
+    predictor = inference.create_predictor(config)
+    return predictor
+
+
+def get_am_output(args, am_predictor, frontend, merge_sentences, input):
+    am_name = args.am[:args.am.rindex('_')]
+    am_dataset = args.am[args.am.rindex('_') + 1:]
+    am_input_names = am_predictor.get_input_names()
+    get_tone_ids = False
+    get_spk_id = False
+    if am_name == 'speedyspeech':
+        get_tone_ids = True
+    if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:
+        get_spk_id = True
+        spk_id = np.array([args.spk_id])
+    if args.lang == 'zh':
+        input_ids = frontend.get_input_ids(
+            input, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
+        phone_ids = input_ids["phone_ids"]
+    elif args.lang == 'en':
+        input_ids = frontend.get_input_ids(
+            input, merge_sentences=merge_sentences)
+        phone_ids = input_ids["phone_ids"]
+    else:
+        print("lang should in {'zh', 'en'}!")
+
+    if get_tone_ids:
+        tone_ids = input_ids["tone_ids"]
+        tones = tone_ids[0].numpy()
+        tones_handle = am_predictor.get_input_handle(am_input_names[1])
+        tones_handle.reshape(tones.shape)
+        tones_handle.copy_from_cpu(tones)
+    if get_spk_id:
+        spk_id_handle = am_predictor.get_input_handle(am_input_names[1])
+        spk_id_handle.reshape(spk_id.shape)
+        spk_id_handle.copy_from_cpu(spk_id)
+    phones = phone_ids[0].numpy()
+    phones_handle = am_predictor.get_input_handle(am_input_names[0])
+    phones_handle.reshape(phones.shape)
+    phones_handle.copy_from_cpu(phones)
+
+    am_predictor.run()
+    am_output_names = am_predictor.get_output_names()
+    am_output_handle = am_predictor.get_output_handle(am_output_names[0])
+    am_output_data = am_output_handle.copy_to_cpu()
+    return am_output_data
+
+
+def get_voc_output(voc_predictor, input):
+    voc_input_names = voc_predictor.get_input_names()
+    mel_handle = voc_predictor.get_input_handle(voc_input_names[0])
+    mel_handle.reshape(input.shape)
+    mel_handle.copy_from_cpu(input)
+
+    voc_predictor.run()
+    voc_output_names = voc_predictor.get_output_names()
+    voc_output_handle = voc_predictor.get_output_handle(voc_output_names[0])
+    wav = voc_output_handle.copy_to_cpu()
+    return wav
+
+
+# streaming am
+def get_streaming_am_predictor(args):
+    full_name = args.am
+    am_encoder_infer_config = inference.Config(
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_encoder_infer" + ".pdmodel")),
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_encoder_infer" + ".pdiparams")))
+    am_decoder_config = inference.Config(
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_decoder" + ".pdmodel")),
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_decoder" + ".pdiparams")))
+    am_postnet_config = inference.Config(
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_postnet" + ".pdmodel")),
+        str(
+            Path(args.inference_dir) /
+            (full_name + "_am_postnet" + ".pdiparams")))
+    if args.device == "gpu":
+        am_encoder_infer_config.enable_use_gpu(100, 0)
+        am_decoder_config.enable_use_gpu(100, 0)
+        am_postnet_config.enable_use_gpu(100, 0)
+    elif args.device == "cpu":
+        am_encoder_infer_config.disable_gpu()
+        am_decoder_config.disable_gpu()
+        am_postnet_config.disable_gpu()
+
+    am_encoder_infer_config.enable_memory_optim()
+    am_decoder_config.enable_memory_optim()
+    am_postnet_config.enable_memory_optim()
+
+    am_encoder_infer_predictor = inference.create_predictor(
+        am_encoder_infer_config)
+    am_decoder_predictor = inference.create_predictor(am_decoder_config)
+    am_postnet_predictor = inference.create_predictor(am_postnet_config)
+    return am_encoder_infer_predictor, am_decoder_predictor, am_postnet_predictor
+
+
+def get_am_sublayer_output(am_sublayer_predictor, input):
+    am_sublayer_input_names = am_sublayer_predictor.get_input_names()
+    input_handle = am_sublayer_predictor.get_input_handle(
+        am_sublayer_input_names[0])
+    input_handle.reshape(input.shape)
+    input_handle.copy_from_cpu(input)
+
+    am_sublayer_predictor.run()
+    am_sublayer_names = am_sublayer_predictor.get_output_names()
+    am_sublayer_handle = am_sublayer_predictor.get_output_handle(
+        am_sublayer_names[0])
+    am_sublayer_output = am_sublayer_handle.copy_to_cpu()
+    return am_sublayer_output
+
+
+def get_streaming_am_output(args, am_encoder_infer_predictor,
+                            am_decoder_predictor, am_postnet_predictor,
+                            frontend, merge_sentences, input):
+    get_tone_ids = False
+    if args.lang == 'zh':
+        input_ids = frontend.get_input_ids(
+            input, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
+        phone_ids = input_ids["phone_ids"]
+    else:
+        print("lang should be 'zh' here!")
+
+    phones = phone_ids[0].numpy()
+    am_encoder_infer_output = get_am_sublayer_output(
+        am_encoder_infer_predictor, input=phones)
+
+    am_decoder_output = get_am_sublayer_output(
+        am_decoder_predictor, input=am_encoder_infer_output)
+
+    am_postnet_output = get_am_sublayer_output(
+        am_postnet_predictor, input=np.transpose(am_decoder_output, (0, 2, 1)))
+    am_output_data = am_decoder_output + np.transpose(am_postnet_output,
+                                                      (0, 2, 1))
+    normalized_mel = am_output_data[0]
+    return normalized_mel
+
+
+def get_sess(args, filed='am'):
+    full_name = ''
+    if filed == 'am':
+        full_name = args.am
+    elif filed == 'voc':
+        full_name = args.voc
+    model_dir = str(Path(args.inference_dir) / (full_name + ".onnx"))
+    sess_options = ort.SessionOptions()
+    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+    sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+
+    if args.device == "gpu":
+        # fastspeech2/mb_melgan can't use trt now!
+        if args.use_trt:
+            providers = ['TensorrtExecutionProvider']
+        else:
+            providers = ['CUDAExecutionProvider']
+    elif args.device == "cpu":
+        providers = ['CPUExecutionProvider']
+    sess_options.intra_op_num_threads = args.cpu_threads
+    sess = ort.InferenceSession(
+        model_dir, providers=providers, sess_options=sess_options)
+    return sess
+
+
+# streaming am
+def get_streaming_am_sess(args):
+    full_name = args.am
+    am_encoder_infer_model_dir = str(
+        Path(args.inference_dir) / (full_name + "_am_encoder_infer" + ".onnx"))
+    am_decoder_model_dir = str(
+        Path(args.inference_dir) / (full_name + "_am_decoder" + ".onnx"))
+    am_postnet_model_dir = str(
+        Path(args.inference_dir) / (full_name + "_am_postnet" + ".onnx"))
+    sess_options = ort.SessionOptions()
+    sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+    sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+    if args.device == "gpu":
+        # fastspeech2/mb_melgan can't use trt now!
+        if args.use_trt:
+            providers = ['TensorrtExecutionProvider']
+        else:
+            providers = ['CUDAExecutionProvider']
+    elif args.device == "cpu":
+        providers = ['CPUExecutionProvider']
+    sess_options.intra_op_num_threads = args.cpu_threads
+    am_encoder_infer_sess = ort.InferenceSession(
+        am_encoder_infer_model_dir,
+        providers=providers,
+        sess_options=sess_options)
+    am_decoder_sess = ort.InferenceSession(
+        am_decoder_model_dir, providers=providers, sess_options=sess_options)
+    am_postnet_sess = ort.InferenceSession(
+        am_postnet_model_dir, providers=providers, sess_options=sess_options)
+    return am_encoder_infer_sess, am_decoder_sess, am_postnet_sess

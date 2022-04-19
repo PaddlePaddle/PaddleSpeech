@@ -479,7 +479,6 @@ class TTSEngine(BaseEngine):
     def __init__(self, name=None):
         """Initialize TTS server engine
         """
-        #super(TTSEngine, self).__init__()
         super().__init__()
 
     def init(self, config: dict) -> bool:

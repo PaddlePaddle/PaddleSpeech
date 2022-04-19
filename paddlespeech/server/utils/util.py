@@ -52,6 +52,10 @@ def get_chunks(data, block_size, pad_size, step):
     Returns:
         list: chunks list
     """
+
+    if block_size == -1:
+        return [data]
+
     if step == "am":
         data_len = data.shape[1]
     elif step == "voc":

@@ -33,7 +33,6 @@ void TLGDecoder::InitDecoder() {
 void TLGDecoder::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
     while (!decodable->IsLastFrame(frame_decoded_size_)) {
-        LOG(INFO) << "num frame decode: " << frame_decoded_size_;
         AdvanceDecoding(decodable.get());
     }
 }

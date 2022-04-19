@@ -63,7 +63,8 @@ include(libsndfile)
 # include(boost) # not work
 set(boost_SOURCE_DIR ${fc_patch}/boost-src)
 set(BOOST_ROOT ${boost_SOURCE_DIR})
-# #find_package(boost REQUIRED PATHS ${BOOST_ROOT})
+include_directories(${boost_SOURCE_DIR})
+link_directories(${boost_SOURCE_DIR}/stage/lib)
 
 # Eigen
 include(eigen)

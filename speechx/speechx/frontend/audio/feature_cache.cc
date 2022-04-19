@@ -23,10 +23,13 @@ using std::vector;
 using kaldi::SubVector;
 using std::unique_ptr;
 
-FeatureCache::FeatureCache(int max_size,
+FeatureCache::FeatureCache(FeatureCacheOptions opts,
                            unique_ptr<FrontendInterface> base_extractor) {
-    max_size_ = max_size;
+    max_size_ = opts.max_size;
+    frame_chunk_stride_ = opts.frame_chunk_stride;
+    frame_chunk_size_ = opts.frame_chunk_size;
     base_extractor_ = std::move(base_extractor);
+    dim_ = base_extractor_->Dim();
 }
 
 void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
@@ -44,13 +47,14 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 
     std::unique_lock<std::mutex> lock(mutex_);
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
-        ready_read_condition_.wait(lock);
-        BaseFloat elapsed = timer.Elapsed() * 1000;
-        // todo replace 1.0 with timeout_
-        if (elapsed > 1.0) {
+        // todo refactor: wait
+        // ready_read_condition_.wait(lock);
+        int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);
+        // todo replace 1 with timeout_, 1 ms
+        if (elapsed > 1) {
             return false;
         }
-        usleep(1000);  // sleep 1 ms
+        usleep(100);  // sleep 0.1 ms
     }
     if (cache_.empty()) return false;
     feats->Resize(cache_.front().Dim());
@@ -63,25 +67,41 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 // read all data from base_feature_extractor_ into cache_
 bool FeatureCache::Compute() {
     // compute and feed
-    Vector<BaseFloat> feature_chunk;
-    bool result = base_extractor_->Read(&feature_chunk);
+    Vector<BaseFloat> feature;
+    bool result = base_extractor_->Read(&feature);
+    if (result == false || feature.Dim() == 0) return false;
+    int32 joint_len = feature.Dim() + remained_feature_.Dim();
+    int32 num_chunk =
+        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
 
-    std::unique_lock<std::mutex> lock(mutex_);
-    while (cache_.size() >= max_size_) {
-        ready_feed_condition_.wait(lock);
-    }
+    Vector<BaseFloat> joint_feature(joint_len);
+    joint_feature.Range(0, remained_feature_.Dim())
+        .CopyFromVec(remained_feature_);
+    joint_feature.Range(remained_feature_.Dim(), feature.Dim())
+        .CopyFromVec(feature);
 
-    // feed cache
-    if (feature_chunk.Dim() != 0) {
+    for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
+        int32 start = chunk_idx * frame_chunk_stride_ * dim_;
+        Vector<BaseFloat> feature_chunk(frame_chunk_size_ * dim_);
+        SubVector<BaseFloat> tmp(joint_feature.Data() + start,
+                                 frame_chunk_size_ * dim_);
+        feature_chunk.CopyFromVec(tmp);
+
+        std::unique_lock<std::mutex> lock(mutex_);
+        while (cache_.size() >= max_size_) {
+            ready_feed_condition_.wait(lock);
+        }
+
+        // feed cache
         cache_.push(feature_chunk);
+        ready_read_condition_.notify_one();
     }
-    ready_read_condition_.notify_one();
+    int32 remained_feature_len =
+        joint_len - num_chunk * frame_chunk_stride_ * dim_;
+    remained_feature_.Resize(remained_feature_len);
+    remained_feature_.CopyFromVec(joint_feature.Range(
+        frame_chunk_stride_ * num_chunk * dim_, remained_feature_len));
     return result;
-}
-
-void Reset() {
-    // std::lock_guard<std::mutex> lock(mutex_);
-    return;
 }
 
 }  // namespace ppspeech

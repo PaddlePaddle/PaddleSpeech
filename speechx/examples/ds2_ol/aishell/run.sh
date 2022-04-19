@@ -42,7 +42,7 @@ fi
 if [ ! -d $ckpt_dir ]; then
     mkdir -p $ckpt_dir
     wget -P $ckpt_dir -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
-    tar xzfv $model_dir/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz -C $ckpt_dir
+    tar xzfv $ckpt_dir/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz -C $ckpt_dir
 fi
 
 lm=$data/zh_giga.no_cna_cmn.prune01244.klm
@@ -79,7 +79,7 @@ utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
   ctc-prefix-beam-search-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \
-    --param_path=$model_dir/avg_1.jit.pdiparams \
+    --params_path=$model_dir/avg_1.jit.pdiparams \
     --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
     --dict_file=$vocb_dir/vocab.txt \
     --result_wspecifier=ark,t:$data/split${nj}/JOB/result
@@ -92,7 +92,7 @@ utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
   ctc-prefix-beam-search-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \
-    --param_path=$model_dir/avg_1.jit.pdiparams \
+    --params_path=$model_dir/avg_1.jit.pdiparams \
     --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
     --dict_file=$vocb_dir/vocab.txt \
     --lm_path=$lm \
@@ -104,9 +104,9 @@ utils/compute-wer.py --char=1 --v=1 ${label_file}_lm $text > ${wer}_lm
 
 
 graph_dir=./aishell_graph
-if [ ! -d $ ]; then
+if [ ! -d $graph_dir ]; then
     wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_graph.zip
-    unzip -d aishell_graph.zip
+    unzip  aishell_graph.zip
 fi
 
 
@@ -115,7 +115,7 @@ utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
   wfst-decoder-ol \
     --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
     --model_path=$model_dir/avg_1.jit.pdmodel \
-    --param_path=$model_dir/avg_1.jit.pdiparams \
+    --params_path=$model_dir/avg_1.jit.pdiparams \
     --word_symbol_table=$graph_dir/words.txt \
     --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
      --graph_path=$graph_dir/TLG.fst --max_active=7500 \

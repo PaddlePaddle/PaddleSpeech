@@ -6,6 +6,7 @@ add_library(frontend STATIC
   linear_spectrogram.cc
   audio_cache.cc
   feature_cache.cc
+  feature_pipeline.cc
 )
 
-target_link_libraries(frontend PUBLIC kaldi-matrix)
+target_link_libraries(frontend PUBLIC kaldi-matrix kaldi-feat-common)

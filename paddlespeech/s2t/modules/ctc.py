@@ -180,7 +180,7 @@ class CTCDecoder(CTCDecoderBase):
         # init once
         if self._ext_scorer is not None:
             return
-
+        
         if language_model_path != '':
             logger.info("begin to initialize the external scorer "
                         "for decoding")

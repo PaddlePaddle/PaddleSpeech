@@ -78,7 +78,6 @@ bool Decodable::AdvanceChunk() {
     }
     int32 nnet_dim = 0;
     Vector<BaseFloat> inferences;
-    Matrix<BaseFloat> nnet_cache_tmp;
     nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
     nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
     nnet_cache_.CopyRowsFromVec(inferences);

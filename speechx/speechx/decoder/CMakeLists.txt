@@ -7,5 +7,6 @@ add_library(decoder STATIC
   ctc_decoders/path_trie.cpp
   ctc_decoders/scorer.cpp
   ctc_tlg_decoder.cc
+  recognizer.cc
 )
-target_link_libraries(decoder PUBLIC kenlm utils fst)
+target_link_libraries(decoder PUBLIC kenlm utils fst frontend nnet kaldi-decoder)

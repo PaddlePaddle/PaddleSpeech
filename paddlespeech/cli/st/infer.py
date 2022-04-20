@@ -32,40 +32,24 @@ from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from .pretrained_models import kaldi_bins
+from .pretrained_models import model_alias
+from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["STExecutor"]
 
-pretrained_models = {
-    "fat_st_ted-en-zh": {
-        "url":
-        "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/st1_transformer_mtl_noam_ted-en-zh_ckpt_0.1.1.model.tar.gz",
-        "md5":
-        "d62063f35a16d91210a71081bd2dd557",
-        "cfg_path":
-        "model.yaml",
-        "ckpt_path":
-        "exp/transformer_mtl_noam/checkpoints/fat_st_ted-en-zh.pdparams",
-    }
-}
-
-model_alias = {"fat_st": "paddlespeech.s2t.models.u2_st:U2STModel"}
-
-kaldi_bins = {
-    "url":
-    "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
-    "md5":
-    "c0682303b3f3393dbf6ed4c4e35a53eb",
-}
-
 
 @cli_register(
     name="paddlespeech.st", description="Speech translation infer command.")
 class STExecutor(BaseExecutor):
     def __init__(self):
-        super(STExecutor, self).__init__()
+        super().__init__()
+        self.model_alias = model_alias
+        self.pretrained_models = pretrained_models
+        self.kaldi_bins = kaldi_bins
 
         self.parser = argparse.ArgumentParser(
             prog="paddlespeech.st", add_help=True)
@@ -75,7 +59,9 @@ class STExecutor(BaseExecutor):
             "--model",
             type=str,
             default="fat_st_ted",
-            choices=[tag[:tag.index('-')] for tag in pretrained_models.keys()],
+            choices=[
+                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+            ],
             help="Choose model type of st task.")
         self.parser.add_argument(
             "--src_lang",
@@ -119,28 +105,11 @@ class STExecutor(BaseExecutor):
             action='store_true',
             help='Increase logger verbosity of current task.')
 
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-            Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            "Use pretrained model stored in: {}".format(decompressed_path))
-
-        return decompressed_path
-
     def _set_kaldi_bins(self) -> os.PathLike:
         """
             Download and returns kaldi_bins resources path of current task.
         """
-        decompressed_path = download_and_decompress(kaldi_bins, MODEL_HOME)
+        decompressed_path = download_and_decompress(self.kaldi_bins, MODEL_HOME)
         decompressed_path = os.path.abspath(decompressed_path)
         logger.info("Kaldi_bins stored in: {}".format(decompressed_path))
         if "LD_LIBRARY_PATH" in os.environ:
@@ -197,7 +166,7 @@ class STExecutor(BaseExecutor):
         model_conf = self.config
         model_name = model_type[:model_type.rindex(
             '_')]  # model_type: {model_name}_{dataset}
-        model_class = dynamic_import(model_name, model_alias)
+        model_class = dynamic_import(model_name, self.model_alias)
         self.model = model_class.from_config(model_conf)
         self.model.eval()
 

@@ -19,10 +19,18 @@
 
 namespace ppspeech {
 
+struct FeatureCacheOptions {
+    int32 max_size;
+    int32 frame_chunk_size;
+    int32 frame_chunk_stride;
+    FeatureCacheOptions()
+        : max_size(kint16max), frame_chunk_size(1), frame_chunk_stride(1) {}
+};
+
 class FeatureCache : public FrontendInterface {
   public:
     explicit FeatureCache(
-        int32 max_size = kint16max,
+        FeatureCacheOptions opts,
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
@@ -32,12 +40,15 @@ class FeatureCache : public FrontendInterface {
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
 
     // feat dim
-    virtual size_t Dim() const { return base_extractor_->Dim(); }
+    virtual size_t Dim() const { return dim_; }
 
     virtual void SetFinished() {
+        // std::unique_lock<std::mutex> lock(mutex_);
         base_extractor_->SetFinished();
+        LOG(INFO) << "set finished";
         // read the last chunk data
         Compute();
+        // ready_feed_condition_.notify_one();
     }
 
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
@@ -52,9 +63,13 @@ class FeatureCache : public FrontendInterface {
   private:
     bool Compute();
 
+    int32 dim_;
     size_t max_size_;
-    std::unique_ptr<FrontendInterface> base_extractor_;
+    int32 frame_chunk_size_;
+    int32 frame_chunk_stride_;
 
+    kaldi::Vector<kaldi::BaseFloat> remained_feature_;
+    std::unique_ptr<FrontendInterface> base_extractor_;
     std::mutex mutex_;
     std::queue<kaldi::Vector<BaseFloat>> cache_;
     std::condition_variable ready_feed_condition_;

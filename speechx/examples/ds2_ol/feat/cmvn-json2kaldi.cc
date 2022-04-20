@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
         LOG(INFO) << "cmvn stats have write into: " << FLAGS_cmvn_write_path;
         LOG(INFO) << "Binary: " << FLAGS_binary;
     } catch (simdjson::simdjson_error& err) {
-        LOG(ERR) << err.what();
+        LOG(ERROR) << err.what();
     }
 
 

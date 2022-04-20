@@ -12,29 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "websocket/websocket_server.h"
+#include "decoder/param.h"
 
-#include <condition_variable>
-#include <deque>
-#include <fstream>
-#include <iostream>
-#include <istream>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <ostream>
-#include <queue>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <thread>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+DEFINE_int32(port, 201314, "websocket listening port");
 
-#include "base/basic_types.h"
-#include "base/flags.h"
-#include "base/log.h"
-#include "base/macros.h"
+int main(int argc, char *argv[]) {
+    gflags::ParseCommandLineFlags(&argc, &argv, false);
+    google::InitGoogleLogging(argv[0]);
+
+    ppspeech::RecognizerResource resource = ppspeech::InitRecognizerResoure();
+
+    ppspeech::WebSocketServer server(FLAGS_port, resource);
+    LOG(INFO) << "Listening at port " << FLAGS_port;
+    server.Start();
+    return 0;
+}

@@ -52,16 +52,16 @@ bool LinearSpectrogram::Read(Vector<BaseFloat>* feats) {
     if (flag == false || input_feats.Dim() == 0) return false;
 
     int32 feat_len = input_feats.Dim();
-    int32 left_len = reminded_wav_.Dim();
+    int32 left_len = remained_wav_.Dim();
     Vector<BaseFloat> waves(feat_len + left_len);
-    waves.Range(0, left_len).CopyFromVec(reminded_wav_);
+    waves.Range(0, left_len).CopyFromVec(remained_wav_);
     waves.Range(left_len, feat_len).CopyFromVec(input_feats);
     Compute(waves, feats);
     int32 frame_shift = opts_.frame_opts.WindowShift();
     int32 num_frames = kaldi::NumFrames(waves.Dim(), opts_.frame_opts);
     int32 left_samples = waves.Dim() - frame_shift * num_frames;
-    reminded_wav_.Resize(left_samples);
-    reminded_wav_.CopyFromVec(
+    remained_wav_.Resize(left_samples);
+    remained_wav_.CopyFromVec(
         waves.Range(frame_shift * num_frames, left_samples));
     return true;
 }

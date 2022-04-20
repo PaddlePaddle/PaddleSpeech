@@ -16,7 +16,6 @@ from typing import List
 
 from prettytable import PrettyTable
 
-from ..log import logger
 from ..utils import cli_register
 from ..utils import stats_wrapper
 
@@ -27,7 +26,8 @@ model_name_format = {
     'cls': 'Model-Sample Rate',
     'st': 'Model-Source language-Target language',
     'text': 'Model-Task-Language',
-    'tts': 'Model-Language'
+    'tts': 'Model-Language',
+    'vector': 'Model-Sample Rate'
 }
 
 
@@ -36,18 +36,18 @@ model_name_format = {
     description='Get speech tasks support models list.')
 class StatsExecutor():
     def __init__(self):
-        super(StatsExecutor, self).__init__()
+        super().__init__()
 
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.stats', add_help=True)
+        self.task_choices = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
         self.parser.add_argument(
             '--task',
             type=str,
             default='asr',
-            choices=['asr', 'cls', 'st', 'text', 'tts'],
+            choices=self.task_choices,
             help='Choose speech task.',
             required=True)
-        self.task_choices = ['asr', 'cls', 'st', 'text', 'tts']
 
     def show_support_models(self, pretrained_models: dict):
         fields = model_name_format[self.task].split("-")
@@ -61,73 +61,15 @@ class StatsExecutor():
             Command line entry.
         """
         parser_args = self.parser.parse_args(argv)
-        self.task = parser_args.task
-        if self.task not in self.task_choices:
-            logger.error(
-                "Please input correct speech task, choices = ['asr', 'cls', 'st', 'text', 'tts']"
-            )
+        has_exceptions = False
+        try:
+            self(parser_args.task)
+        except Exception as e:
+            has_exceptions = True
+        if has_exceptions:
             return False
-
-        elif self.task == 'asr':
-            try:
-                from ..asr.infer import pretrained_models
-                logger.info(
-                    "Here is the list of ASR pretrained models released by PaddleSpeech that can be used by command line and python API"
-                )
-                self.show_support_models(pretrained_models)
-                return True
-            except BaseException:
-                logger.error("Failed to get the list of ASR pretrained models.")
-                return False
-
-        elif self.task == 'cls':
-            try:
-                from ..cls.infer import pretrained_models
-                logger.info(
-                    "Here is the list of CLS pretrained models released by PaddleSpeech that can be used by command line and python API"
-                )
-                self.show_support_models(pretrained_models)
-                return True
-            except BaseException:
-                logger.error("Failed to get the list of CLS pretrained models.")
-                return False
-
-        elif self.task == 'st':
-            try:
-                from ..st.infer import pretrained_models
-                logger.info(
-                    "Here is the list of ST pretrained models released by PaddleSpeech that can be used by command line and python API"
-                )
-                self.show_support_models(pretrained_models)
-                return True
-            except BaseException:
-                logger.error("Failed to get the list of ST pretrained models.")
-                return False
-
-        elif self.task == 'text':
-            try:
-                from ..text.infer import pretrained_models
-                logger.info(
-                    "Here is the list of TEXT pretrained models released by PaddleSpeech that can be used by command line and python API"
-                )
-                self.show_support_models(pretrained_models)
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the list of TEXT pretrained models.")
-                return False
-
-        elif self.task == 'tts':
-            try:
-                from ..tts.infer import pretrained_models
-                logger.info(
-                    "Here is the list of TTS pretrained models released by PaddleSpeech that can be used by command line and python API"
-                )
-                self.show_support_models(pretrained_models)
-                return True
-            except BaseException:
-                logger.error("Failed to get the list of TTS pretrained models.")
-                return False
+        else:
+            return True
 
     @stats_wrapper
     def __call__(
@@ -138,13 +80,12 @@ class StatsExecutor():
         """
         self.task = task
         if self.task not in self.task_choices:
-            print(
-                "Please input correct speech task, choices = ['asr', 'cls', 'st', 'text', 'tts']"
-            )
+            print("Please input correct speech task, choices = " + str(
+                self.task_choices))
 
         elif self.task == 'asr':
             try:
-                from ..asr.infer import pretrained_models
+                from ..asr.pretrained_models import pretrained_models
                 print(
                     "Here is the list of ASR pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
@@ -154,7 +95,7 @@ class StatsExecutor():
 
         elif self.task == 'cls':
             try:
-                from ..cls.infer import pretrained_models
+                from ..cls.pretrained_models import pretrained_models
                 print(
                     "Here is the list of CLS pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
@@ -164,7 +105,7 @@ class StatsExecutor():
 
         elif self.task == 'st':
             try:
-                from ..st.infer import pretrained_models
+                from ..st.pretrained_models import pretrained_models
                 print(
                     "Here is the list of ST pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
@@ -174,7 +115,7 @@ class StatsExecutor():
 
         elif self.task == 'text':
             try:
-                from ..text.infer import pretrained_models
+                from ..text.pretrained_models import pretrained_models
                 print(
                     "Here is the list of TEXT pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
@@ -184,10 +125,22 @@ class StatsExecutor():
 
         elif self.task == 'tts':
             try:
-                from ..tts.infer import pretrained_models
+                from ..tts.pretrained_models import pretrained_models
                 print(
                     "Here is the list of TTS pretrained models released by PaddleSpeech that can be used by command line and python API"
                 )
                 self.show_support_models(pretrained_models)
             except BaseException:
                 print("Failed to get the list of TTS pretrained models.")
+
+        elif self.task == 'vector':
+            try:
+                from ..vector.pretrained_models import pretrained_models
+                print(
+                    "Here is the list of Speaker Recognition pretrained models released by PaddleSpeech that can be used by command line and python API"
+                )
+                self.show_support_models(pretrained_models)
+            except BaseException:
+                print(
+                    "Failed to get the list of Speaker Recognition pretrained models."
+                )

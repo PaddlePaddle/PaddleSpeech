@@ -30,3 +30,11 @@ def get_chunks(seg_dur, audio_id, audio_duration):
         for i in range(num_chunks)
     ]
     return chunk_lst
+
+
+def Q_from_tokens(token_num):
+    """Get prior model, data from uniform, would support others(guassian) in future
+    """
+    freq = [1] * token_num
+    Q = paddle.to_tensor(freq, dtype='float64')
+    return Q / Q.sum()

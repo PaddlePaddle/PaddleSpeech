@@ -1,0 +1,26 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+export replace_1 = (("一":"") | ("幺":""));
+export replace_2 = (("二":"") | ("两":""));
+export replace_dig = (
+  ("零":"")
+  | ("三":"")
+  | ("四":"")
+  | ("五":"")
+  | ("六":"")
+  | ("七":"")
+  | ("八":"")
+  | ("九":"")
+  | ("十":"")
+  | ("百":"")
+  | ("千":"")
+  | ("万":"")
+);
+
+replace_rule = ( replace_1 | replace_2 | replace_dig ) {3, 1000} u.Insert["$NUM"];
+
+#export REPLACE = CDRewrite[replace_rule , "", "", b.kBytes*];
+
+export replace_fst = Optimize[replace_rule];
+

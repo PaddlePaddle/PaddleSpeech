@@ -1,0 +1,19 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+# hotfix
+graph_whitelist = Optimize[(
+  ("372十一":"三七二十一")
+)];
+
+graph_blacklist = 
+  ("三七二十一":"三七二十一");
+
+rewrite = Optimize[(
+  ("a":"b")
+)];
+
+export WHITELIST = CDRewrite[graph_whitelist, "", "", b.kBytes*];
+#export BLACKLIST = CDRewrite[graph_blacklist, "", "", b.kBytes*];
+export blacklist = Optimize[graph_blacklist];
+export REWRITE = CDRewrite[rewrite, "", "", b.kBytes*];

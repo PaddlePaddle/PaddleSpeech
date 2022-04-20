@@ -1,0 +1,9 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+# i.e.  "三分之一" ==> "3分之1"  # this will be further tagged & structured by fraction_structured.grm
+graph_fraction = (u.optional_negative_graph int.graph_int ("分之") int.graph_int);
+
+export FRACTION = CDRewrite[graph_fraction, "", "", b.kBytes*];
+export fraction = Optimize[graph_fraction];

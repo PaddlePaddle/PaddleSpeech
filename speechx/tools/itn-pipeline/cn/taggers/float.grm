@@ -1,0 +1,21 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+graph_numbers_before_the_decimal_point = int.graph_int;
+graph_decimal_point = ("点":".");
+graph_numbers_after_the_decimal_point = (
+  int.graph_0_to_9
+  ((int.graph_0_to_9)*)
+);
+
+# i.e. "负三点一四一五九二六" ==> "-3.1415926"
+export graph_float = ((
+  (u.optional_negative_graph)
+  (graph_numbers_before_the_decimal_point)
+  (graph_decimal_point)
+  (graph_numbers_after_the_decimal_point)
+));
+
+export FLOAT = CDRewrite[graph_float, "", "", b.kBytes*];
+export float = Optimize[graph_float];

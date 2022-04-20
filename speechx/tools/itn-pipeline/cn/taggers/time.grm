@@ -1,0 +1,21 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+graph_hour = int.graph_0_to_9 | int.graph_10_to_12;
+graph_minute = int.graph_10_to_99 | (int.graph_0 int.graph_1_to_9);
+
+# i.e. "上午三点四十分" ==> "3:40am"
+#      "下午三点半"     ==> "3:30pm"
+#      "两点十五分"     ==> "2:15"
+graph_time = (
+  u.Delete["上午"] graph_hour ("点":":") graph_minute (("":"") | (u.Delete["分"])) u.Insert[" am"]
+  | u.Delete["下午"] graph_hour ("点":":") graph_minute (("":"") | (u.Delete["分"])) u.Insert[" pm"]
+  | u.Delete["上午"] graph_hour ("点半":":30") u.Insert[" am"]
+  | u.Delete["下午"] graph_hour ("点半":":30") u.Insert[" pm"]
+  | graph_hour ("点":":") graph_minute (("":"") | (u.Delete["分"]))
+  | graph_hour ("点半":":30")
+);
+
+export TIME = CDRewrite[graph_time, "", "", b.kBytes*];
+export time = Optimize[graph_time];

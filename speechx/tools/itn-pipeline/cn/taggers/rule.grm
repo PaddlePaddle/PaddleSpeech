@@ -1,0 +1,27 @@
+# Copyright (c) 2021 BAIDU. All Rights Reserved.
+# Author : zhouyang28@baidu.com (Yang Zhou)
+
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+import 'taggers/int.grm' as int;
+import 'taggers/float.grm' as float;
+import 'taggers/time.grm' as time;
+import 'taggers/measure.grm' as measure;
+import 'taggers/telephone.grm' as telephone;
+import 'taggers/electronic.grm' as electronic;
+import 'taggers/whitelist.grm' as whitelist;
+import 'taggers/fraction_structured.grm' as frac;
+import 'taggers/date.grm' as date;
+import 'taggers/percentage.grm' as percentage;
+
+export rule_fst = Optimize[int.int
+                 | float.float
+                 | time.time
+                 | measure.measure
+                 | telephone.telephone
+                 | electronic.electronic
+                 | whitelist.blacklist
+                 | frac.fraction
+                 | date.date
+                 | percentage.percentage];

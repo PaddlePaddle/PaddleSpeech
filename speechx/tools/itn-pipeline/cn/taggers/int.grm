@@ -1,0 +1,115 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+# The reason why I divided 0-99 into different parts is that
+# some parts can be easily imported by other *.grm, so as to
+# avoid duplication of definitions
+export graph_0 = ("零":"0");
+export graph_1 = (("一":"1") | ("幺":"1"));
+export graph_2 = (("二":"2") | ("两":"2"));
+export graph_3_to_8 = (
+  ("三":"3")
+  | ("四":"4")
+  | ("五":"5")
+  | ("六":"6")
+  | ("七":"7")
+  | ("八":"8")
+);
+export graph_9 = ("九":"9");
+
+export graph_1_to_9 = (
+  graph_1 | graph_2 | graph_3_to_8 | graph_9
+);
+
+export graph_10_to_12 = (
+  ("十":"10") | ("十一":"11") | ("十二":"12")
+);
+
+export graph_13_to_19 = (
+  ("十三":"13") | ("十四":"14")
+  | ("十五":"15") | ("十六":"16")
+  | ("十七":"17") | ("十八":"18")
+  | ("十九":"19")
+);
+
+export graph_10_to_19 = (graph_10_to_12 | graph_13_to_19);
+
+export graph_10_to_99 = (
+  (graph_10_to_19 )
+  | ((graph_1_to_9 u.Delete["十"]) ((graph_1_to_9 ) | (u.Insert["0"])))
+);
+
+graph_100_to_999 = (
+  (graph_1_to_9 u.Delete["百"])
+  (
+    (graph_10_to_99 <0.0>)
+    | ((graph_0 graph_1_to_9) <0.0>)
+    | ((graph_1_to_9 u.Insert["0"]) <0.0>)
+    | (u.Insert["00"] <0.1>)
+  )
+);
+
+graph_1000_to_9999 = (
+  (graph_1_to_9 u.Delete["千"])
+  (
+    (graph_100_to_999 <0.0>)
+    | ((graph_0 graph_10_to_99) <0.0>)
+    | ((("零":"00") graph_1_to_9) <0.0>)
+    | ((graph_1_to_9 u.Insert["00"]) <0.0>)
+    | (u.Insert["000"] <1>)
+  )
+);
+
+graph_10000_minus = (
+  (graph_1000_to_9999 <-2>)
+  | (graph_100_to_999 <-1>)
+  | (graph_10_to_99 <0>)
+  | (graph_1_to_9 <0>)
+  | (graph_0 <0>)
+);
+
+# # for numbers >= 10000, we only convert the number before
+# # "万/亿/兆" to keep the readability of normalized numbers,
+# # otherwise the results may contain too much zeros.
+# # i.e. 一兆零三百二十万五千人 ==> 1兆320万5000人
+ graph_10000_to_99999 = (
+   (graph_1_to_9 u.Delete["万"])
+   (
+     (graph_1000_to_9999 <-1>)              |
+     (graph_0 graph_100_to_999)             |
+     ((("零":"00") graph_10_to_99) <0.1>)   |
+     ((("零":"000") graph_1_to_9) <0.2>)    |
+     ((graph_1_to_9 u.Insert["000"]) <0.3>) |
+     ((u.Insert["0000"]) <0.4>)
+   )
+ );
+
+# see comments above
+graph_10000_plus = (
+  (
+    ("":"")
+    | ((graph_10000_minus "万") <-3>)
+    | ((graph_10000_minus "亿") <-4>)
+      ((("零":"")<-1>) | ("":""))
+      (((graph_10000_minus "万") <-1>) | ("":""))
+    | ((graph_10000_minus "兆") <-5>)
+      ((("零":"")<-1>) | ("":""))
+      (((graph_10000_minus "亿") <-1>) | ("":""))
+      ((("零":"")<-1>) | ("":""))
+      (((graph_10000_minus "万") <-1>) | ("":""))
+  )
+  ((("零":"")<-1>) | ("":""))
+  (graph_10000_minus)
+);
+
+# used in others.grm
+export graph_int = (u.optional_negative_graph graph_10000_plus);
+export graph_1_to_99 = (graph_1_to_9 | graph_10_to_99);
+export graph_0_to_9 = (graph_0 | graph_1_to_9);
+export INT_0_TO_9 = CDRewrite[graph_0_to_9, "", "", b.kBytes*];
+export INT = CDRewrite[graph_int, "", "", b.kBytes*];
+
+graph_export =( (u.optional_negative_graph (graph_10_to_99 | graph_100_to_999 | graph_1000_to_9999 | graph_10000_to_99999))
+              | ((("负":"-") | ("负的":"-")) graph_1_to_9)
+);
+export int = Optimize[graph_export];

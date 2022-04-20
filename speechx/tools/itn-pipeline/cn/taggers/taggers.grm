@@ -1,0 +1,49 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+import 'taggers/float.grm' as float;
+import 'taggers/time.grm' as time;
+import 'taggers/measure.grm' as measure;
+import 'taggers/telephone.grm' as telephone;
+import 'taggers/electronic.grm' as electronic;
+import 'taggers/whitelist.grm' as whitelist;
+import 'taggers/fraction.grm' as frac;
+import 'taggers/date.grm' as date;
+import 'taggers/percentage.grm' as percentage;
+import 'taggers/fraction_structured.grm' as frac_structured;
+import 'taggers/word_structured.grm' as word_structured;
+
+# stage-1.1: convert the high-confidence match
+#            i.e. 现场有十七分之七的观众投出了赞成票  ==>  现场有17分之7的观众投出了赞成票  (match frac.FRACTION)
+pre_processor = (
+  Optimize[
+    telephone.TELEPHONE
+    @ electronic.ELECTRONIC
+    @ time.TIME
+    @ date.DATE
+    @ percentage.PERCENTAGE
+    @ frac.FRACTION
+    @ float.FLOAT
+    @ measure.MEASURE
+    @ whitelist.WHITELIST
+    @ 
+  ]
+);
+
+# stage-1.2: building structured text based on output of stage-1.1
+#            i.e. 现场有17分之7的观众投出了赞成票  ==>  token { word { name: "现场有" } } token { fraction { denominator: "17" frac: "/" numerator: "7" } } token { word { name: "的观众投出了赞成票" } }
+#            Note that fraction part (fraction { denominator: "17" frac: "/" numerator: "7" }) will be reversed (fraction { numerator: "7" frac: "/" denominator: "17" }) in TextProcessor to get correct word order of written form.
+classifier = (
+  CDRewrite[
+    Optimize[
+      (frac_structured.FRACTION_STRUCTURED <-1000>)
+      | (word_structured.WORD_STRUCTURED <0>)
+    ],
+    "",
+    "",
+    b.kBytes*
+  ]
+);
+
+export PROCESSOR = Optimize[pre_processor];
+export TAGGER = Optimize[(pre_processor @ (classifier+))];

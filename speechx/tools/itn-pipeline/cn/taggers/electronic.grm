@@ -1,0 +1,17 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+# i.e. "二幺九点二二三点幺八四点二五二" ==> "219.223.184.252"
+graph_ipv4 = (
+  (int.graph_0_to_9 (int.graph_0_to_9){0, 2})
+  ("点":".")
+  (int.graph_0_to_9 (int.graph_0_to_9){0, 2})
+  ("点":".")
+  (int.graph_0_to_9 (int.graph_0_to_9){0, 2})
+  ("点":".")
+  (int.graph_0_to_9 (int.graph_0_to_9){0, 2})
+);
+
+export ELECTRONIC = CDRewrite[graph_ipv4, "", "", b.kBytes*];
+export electronic = Optimize[graph_ipv4];

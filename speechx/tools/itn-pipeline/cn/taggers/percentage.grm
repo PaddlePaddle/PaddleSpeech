@@ -1,0 +1,10 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+import 'taggers/float.grm' as float;
+
+# i.e. "负百分之三十" ==> "-30%"
+graph_percentage = (u.optional_negative_graph (u.Delete["百分之"]) ((float.graph_float) | int.graph_int) u.Insert["%"]);
+
+export PERCENTAGE = CDRewrite[graph_percentage, "", "", b.kBytes*];
+export percentage = Optimize[graph_percentage];

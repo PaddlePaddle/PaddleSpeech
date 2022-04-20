@@ -1,0 +1,27 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+# Detailed explanations of ABCX (on the right side of the page):
+# https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%A4%A7%E9%99%86%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81
+graph_A = (int.graph_1 | int.graph_2);
+graph_B = (int.graph_3_to_8 | int.graph_9);
+graph_C = (int.graph_2 | int.graph_3_to_8);
+graph_X = int.graph_0_to_9;
+
+# mobile_phone: 1BX-XXXX-XXXX
+graph_mobile_phone = (
+  ((("加八六":"+86-") | ("八六":"+86-")){0, 1})
+  (int.graph_1 graph_B graph_X u.Insert["-"] (graph_X){4, 4} u.Insert["-"] (graph_X){4, 4})
+);
+
+# fixed-line phone: 0AX-CXXX-XXXX or 0BXX-CXXX-XXXX or 0BXX-CXX-XXXX
+graph_fixedline_phone = (
+  (int.graph_0 graph_A graph_X u.Insert["-"] graph_C (graph_X){3, 3} u.Insert["-"] (graph_X){4, 4})
+  | (int.graph_0 graph_B (graph_X){2, 2} u.Insert["-"] graph_C (graph_X){2, 3} u.Insert["-"] (graph_X){4, 4})
+);
+
+graph_telephone = (graph_mobile_phone | graph_fixedline_phone);
+
+export TELEPHONE = CDRewrite[graph_telephone, "", "", b.kBytes*];
+export telephone = Optimize[graph_telephone];

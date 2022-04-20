@@ -1,0 +1,12 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+# Building structured output
+# i.e. hahaha ==> token { word { name: "hahaha" } }
+graph_word = (
+  (u.Insert["token { word { name: \""])
+  (b.kNotSpace+)
+  (u.Insert["\" } } "])
+);
+
+export WORD_STRUCTURED = Optimize[graph_word];

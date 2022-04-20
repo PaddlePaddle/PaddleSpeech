@@ -1,0 +1,38 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+import 'taggers/float.grm' as float;
+
+graph_int_unit = (
+  "匹" | "张" | "场" | "条" | "个"
+  | "棵" | "只" | "支" | "辆" | "颗" | "捆" | "件" | "位" | "页" | "层"
+  | "斤" | "寸" | "勺" | "盘" | "碗" | "碟" | "桶" | "盆" | "盒" | "杯"
+  | "盘" | "桶" | "罐" | "瓶" | "壶" | "盏" | "箱" | "袋" | "人" | "多人"
+);
+
+#graph_float_or_int_unit = (
+  #"兆" | "亿" | "万" | ("美元":"$") | ("元人民币":"¥") | ("英镑":"£") | ("欧元":"€")
+  #| ("克":"g") | ("米":"m") | ("千克":"kg") | ("毫克":"mg") | ("微克":"µg")
+  #| ("千米":"km") | ("厘米":"cm") | ("毫米":"mm")
+  #| ("微米":"µm") | ("纳米":"nm") | ("平方米":"m²")
+  #| ("平方千米":"km²") | ("赫兹":"hz") | ("千瓦时":"kwh")
+  #| ("升":"L")
+#);
+
+graph_float_or_int_unit = (
+  "兆" | "亿" | "万" | ("克":"g") | ("米":"m") | ("千克":"kg") | ("毫克":"mg") | ("微克":"µg")
+  | ("千米":"km") | ("厘米":"cm") | ("毫米":"mm")
+  | ("微米":"µm") | ("纳米":"nm") | ("平方米":"m²")
+  | ("平方千米":"km²") | ("赫兹":"hz") | ("千瓦时":"kwh")
+  | ("升":"L")
+);
+
+# i.e. "三点五千米" ==> "3.5km"  # 千米 is a float-or-int unit
+#      "一百人"     ==> "100人"  # 人   is a int-only unit
+graph_measure = (
+  (((float.graph_float) | int.graph_int) graph_float_or_int_unit)
+  | (int.graph_int graph_int_unit)
+);
+
+export MEASURE = CDRewrite[graph_measure, "", "", b.kBytes*];
+export measure = Optimize[graph_measure];

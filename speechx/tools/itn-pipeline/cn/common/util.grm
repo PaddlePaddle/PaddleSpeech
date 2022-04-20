@@ -1,0 +1,45 @@
+import 'common/byte.grm' as b;
+
+# Allows for arbitrary numbers of spaces on the verbalization side between
+# elements of the semiotic class.
+export insert_space = " "*;
+
+export delete_space = ((b.kSpace)* : "");
+export delete_extra_space = ((b.kSpace)+ : " ");
+
+export optional_negative_graph = (
+  ("":"")
+  | ((("负":"-") | ("负的":"-")) <-1>)
+);
+
+func Insert[expr] {
+  return ("" : expr);
+}
+
+func Delete[expr] {
+  return (expr : "");
+}
+
+func AddToken[fst, tokenname] {
+  graph = (
+    ("":" " + tokenname) +
+    ("":" { ")           +
+    (fst)                +
+    ("":" }")
+  );
+  return graph;
+}
+
+func DelToken[fst, tokenname] {
+  graph = (
+    (tokenname:"")          +
+    ((b.kSpace)* : "")      +
+    ("{":"")                +
+    ((b.kSpace)* : "")      +
+    (fst)                   +
+    ((b.kSpace)* : "")      +
+    ("}":"")
+  );
+  return (graph @ CDRewrite[("\u00A0":" "), "", "", b.kBytes*]);
+}
+

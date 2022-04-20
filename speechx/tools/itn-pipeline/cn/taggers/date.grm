@@ -1,0 +1,15 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+import 'taggers/int.grm' as int;
+
+# i.e.  "二零一九年三月二号" ==> "2019年3月2号"
+#       "八六年八月十八日"   ==> "86年8月18日"
+date_day = (int.graph_1_to_99 ("日"|"号"));
+date_month_day = (int.graph_1_to_99 "月" date_day);
+date_year = (((int.graph_0_to_9){2, 4} | int.graph_int) "年");
+date_year_month_day = (date_year date_month_day);
+
+graph_date = (date_year_month_day | date_month_day | date_day | date_year);
+
+export DATE = CDRewrite[graph_date, "", "", b.kBytes*];
+export date = Optimize[graph_date];

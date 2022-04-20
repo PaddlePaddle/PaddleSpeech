@@ -18,6 +18,7 @@ import math
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+from paddle.nn import initializer as I
 
 
 class AngularMargin(nn.Layer):
@@ -268,22 +269,128 @@ class FocalLoss(nn.Layer):
             return focal_loss.sum()
 
 
+class GE2ELoss(nn.Layer):
+    """Generalized end-to-end loss which defined in the paper "GENERALIZED END-TO-END LOSS FOR SPEAKER VERIFICATION"
+    """
+
+    def __init__(self, init_w=10.0, init_b=-5.0, loss_method="softmax"):
+        super(GE2ELoss, self).__init__()
+        self.loss_method = loss_method.lower()
+        self.w = self.create_parameter(
+            [1], default_initializer=I.Constant(init_w))
+        self.b = self.create_parameter(
+            [1], default_initializer=I.Constant(init_b))
+        assert self.loss_method in ["softmax", "contrast"]
+
+    def get_cossim(self, embeddings_list, centroids):
+        """Compute cosine similarity for each speaker
+        """
+        cossims = []
+        for s_idx, embeddings in enumerate(embeddings_list):
+            cossim = F.linear(embeddings, centroids.t())
+            e_num = len(embeddings)
+            if embeddings.ndim > 1 and e_num > 1:
+                expand_centroids = paddle.expand(
+                    centroids[s_idx], shape=[e_num, embeddings.shape[1]])
+                new_centroids = (expand_centroids * e_num - embeddings) / (
+                    e_num - 1)
+                sims = F.cosine_similarity(embeddings, new_centroids)
+                cossim[:, s_idx] = sims
+            cossims.append(self.w * cossim + self.b)
+
+        return cossims
+
+    def cal_softmax_loss(self, cossims):
+        """Calculate softmax loss
+        """
+        loss = 0.0
+        n = 0
+        for s_idx, cossim in enumerate(cossims):
+            loss += -F.log_softmax(cossim, axis=1)[:, s_idx].sum()
+            n += cossim.shape[0]
+
+        return loss / n
+
+    def cal_contrast_loss(self, cossims):
+        """Calculate contrast loss
+        """
+        loss = 0.0
+        n = 0
+        for s_idx, cossim in enumerate(cossims):
+            cossim = F.sigmoid(cossim)
+            col_loss = 1. - cossim[:, s_idx]
+            if len(cossims) > 1:
+                if s_idx == 0:
+                    excl_centroids_sigmoids = cossim[:, s_idx + 1:]
+                elif s_idx == (len(cossims) - 1):
+                    excl_centroids_sigmoids = cossim[:, :s_idx]
+                else:
+                    excl_centroids_sigmoids = paddle.concat(
+                        (cossim[:, :s_idx], cossim[:, s_idx + 1:]), axis=1)
+                col_loss += paddle.max(excl_centroids_sigmoids, axis=1)[0]
+            loss += col_loss.sum()
+            n += cossim.shape[0]
+
+        return loss / n
+
+    def forward(self, output, target):
+        """Forward inference
+
+            Args:
+                output: input tensor
+                target: target label tensor
+        """
+        spkers = paddle.unique(target)
+
+        embeddings_list = []
+        for spkid in spkers:
+            index = (target == spkid).nonzero().reshape([-1])
+            embeddings_list.append(output[index])
+        # cal centroid
+        centroids = []
+        for embeddings in embeddings_list:
+            if (embeddings.ndim > 1):
+                spker_centroid = paddle.mean(embeddings, axis=0)
+            else:
+                spker_centroid = embeddings
+            centroids.append(spker_centroid.clone() / paddle.norm(
+                spker_centroid, axis=0, keepdim=True))
+        centroids = paddle.stack(centroids)
+        # cal cosine similarity
+        cossims = self.get_cossim(embeddings_list, centroids)
+
+        # cal loss
+        if self.loss_method == "softmax":
+            loss = self.cal_softmax_loss(cossims)
+        else:
+            loss = self.cal_contrast_loss(cossims)
+
+        return loss
+
+
 if __name__ == "__main__":
     import numpy as np
     from paddlespeech.vector.utils.vector_utils import Q_from_tokens
     paddle.set_device("cpu")
 
-    input_data = paddle.uniform([5, 100], dtype="float64")
-    label_data = np.random.randint(0, 100, size=(5)).astype(np.int64)
-
+    input_data = paddle.uniform([32, 100], dtype="float64")
+    label_data = np.random.randint(0, 4, size=(32)).astype(np.int64)
     input = paddle.to_tensor(input_data)
     label = paddle.to_tensor(label_data)
 
-    loss1 = FocalLoss()
+    loss1 = GE2ELoss(loss_method="softmax")
     loss = loss1.forward(input, label)
-    print("loss: %.5f" % (loss))
+    print("GE2ELoss softmax-loss: %.5f" % (loss[0]))
+
+    loss2 = GE2ELoss(loss_method="contrast")
+    loss = loss2.forward(input, label)
+    print("GE2ELoss contrast-loss: %.5f" % (loss[0]))
+
+    loss3 = FocalLoss()
+    loss = loss3.forward(input, label)
+    print("FocalLoss loss: %.5f" % (loss))
 
     Q = Q_from_tokens(100)
-    loss2 = NCELoss(Q)
-    loss = loss2.forward(input, label)
-    print("loss: %.5f" % (loss))
+    loss4 = NCELoss(Q)
+    loss = loss4.forward(input, label)
+    print("NCELoss loss: %.5f" % (loss))

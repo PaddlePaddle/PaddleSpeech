@@ -16,6 +16,7 @@ from pathlib import Path
 
 import jsonlines
 import numpy as np
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -25,6 +26,7 @@ from paddlespeech.t2s.utils import str2bool
 
 
 def ort_predict(args):
+
     # construct dataset for evaluation
     with jsonlines.open(args.test_metadata, 'r') as reader:
         test_metadata = list(reader)
@@ -142,6 +144,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
 
     ort_predict(args)
 

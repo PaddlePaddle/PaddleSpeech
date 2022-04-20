@@ -30,7 +30,7 @@ def ort_predict(args):
         test_metadata = list(reader)
     am_name = args.am[:args.am.rindex('_')]
     am_dataset = args.am[args.am.rindex('_') + 1:]
-    test_dataset = get_test_dataset(args, test_metadata, am_name, am_dataset)
+    test_dataset = get_test_dataset(test_metadata=test_metadata, am=args.am)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -38,10 +38,18 @@ def ort_predict(args):
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
     # am
-    am_sess = get_sess(args, filed='am')
+    am_sess = get_sess(
+        model_dir=args.inference_dir,
+        model_file=args.am + ".onnx",
+        device=args.device,
+        cpu_threads=args.cpu_threads)
 
     # vocoder
-    voc_sess = get_sess(args, filed='voc')
+    voc_sess = get_sess(
+        model_dir=args.inference_dir,
+        model_file=args.voc + ".onnx",
+        device=args.device,
+        cpu_threads=args.cpu_threads)
 
     # am warmup
     for T in [27, 38, 54]:

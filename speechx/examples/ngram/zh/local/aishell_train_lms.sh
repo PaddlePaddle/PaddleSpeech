@@ -3,6 +3,7 @@
 # To be run from one directory above this script.
 . ./path.sh
 
+nj=40
 text=data/local/lm/text
 lexicon=data/local/dict/lexicon.txt
 
@@ -31,9 +32,15 @@ cleantext=$dir/text.no_oov
 # oov to <SPOKEN_NOISE>
 # lexicon line: word char0 ... charn
 # text line: utt word0 ... wordn -> line: <SPOKEN_NOISE> word0 ... wordn
-cat $text | awk -v lex=$lexicon 'BEGIN{while((getline<lex) >0){ seen[$1]=1; } }
-  {for(n=1; n<=NF;n++) {  if (seen[$n]) { printf("%s ", $n); } else {printf("<SPOKEN_NOISE> ");} } printf("\n");}' \
-  > $cleantext || exit 1;
+text_dir=$(dirname $text)
+split_name=$(basename $text)
+./local/split_data.sh $text_dir $text $split_name $nj
+
+utils/run.pl JOB=1:$nj $text_dir/split${nj}/JOB/${split_name}.no_oov.log \
+  cat ${text_dir}/split${nj}/JOB/${split_name} \| awk -v lex=$lexicon 'BEGIN{while((getline<lex) >0){ seen[$1]=1; } }
+    {for(n=1; n<=NF;n++) {  if (seen[$n]) { printf("%s ", $n); } else {printf("<SPOKEN_NOISE> ");} } printf("\n");}' \
+    \> ${text_dir}/split${nj}/JOB/${split_name}.no_oov || exit 1;
+cat ${text_dir}/split${nj}/*/${split_name}.no_oov  > $cleantext
 
 # compute word counts, sort in descending order
 # line: count word

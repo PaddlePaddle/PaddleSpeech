@@ -15,6 +15,7 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -100,6 +101,9 @@ def parse_args():
 # only inference for models trained with csmsc now
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
+
     # frontend
     frontend = get_frontend(
         lang=args.lang,

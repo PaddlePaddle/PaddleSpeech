@@ -15,6 +15,7 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -245,6 +246,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
 
     ort_predict(args)
 

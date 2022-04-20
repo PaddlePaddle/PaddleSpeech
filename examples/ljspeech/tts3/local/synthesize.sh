@@ -26,7 +26,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 fi
 
 # hifigan
-if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize.py \

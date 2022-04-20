@@ -41,7 +41,7 @@ void AudioCache::Accept(const VectorBase<BaseFloat>& waves) {
         ready_feed_condition_.wait(lock);
     }
     for (size_t idx = 0; idx < waves.Dim(); ++idx) {
-        int32 buffer_idx = (idx + offset_) % ring_buffer_.size();
+        int32 buffer_idx = (idx + offset_ + size_) % ring_buffer_.size();
         ring_buffer_[buffer_idx] = waves(idx);
         if (convert2PCM32_)
             ring_buffer_[buffer_idx] = Convert2PCM32(waves(idx));

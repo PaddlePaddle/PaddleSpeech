@@ -21,7 +21,7 @@ engine_list: ['asr_online']
 ################################### ASR #########################################
 ################### speech task: asr; engine_type: online #######################
 asr_online:
-    model_type: 'deepspeech2online_aishell'
+    model_type: 'conformer_online_multicn'
     am_model: # the pdmodel file of am static model [optional]
     am_params:  # the pdiparams file of am static model [optional]
     lang: 'zh'
@@ -37,11 +37,9 @@ asr_online:
         summary: True  # False -> do not show predictor config
 
     chunk_buffer_conf:
-        frame_duration_ms: 80
-        shift_ms: 40
-        sample_rate: 16000
-        sample_width: 2
         window_n: 7     # frame
         shift_n: 4      # frame
-        window_ms: 20   # ms
+        window_ms: 25   # ms
         shift_ms: 10    # ms
+        sample_rate: 16000
+        sample_width: 2

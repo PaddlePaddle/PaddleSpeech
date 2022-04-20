@@ -88,6 +88,8 @@ model_alias = {
     "paddlespeech.s2t.models.ds2_online:DeepSpeech2ModelOnline",
     "conformer":
     "paddlespeech.s2t.models.u2:U2Model",
+    "conformer_online":
+    "paddlespeech.s2t.models.u2:U2Model",
     "transformer":
     "paddlespeech.s2t.models.u2:U2Model",
     "wenetspeech":

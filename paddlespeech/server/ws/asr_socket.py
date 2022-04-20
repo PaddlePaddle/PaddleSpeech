@@ -13,12 +13,12 @@
 # limitations under the License.
 import json
 
-import numpy as np
 from fastapi import APIRouter
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
+from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.utils.buffer import ChunkBuffer
 from paddlespeech.server.utils.vad import VADAudio
@@ -28,26 +28,29 @@ router = APIRouter()
 
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
-
     await websocket.accept()
 
     engine_pool = get_engine_pool()
     asr_engine = engine_pool['asr']
+    connection_handler = None
     # init buffer
+    # each websocekt connection has its own chunk buffer
     chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
     chunk_buffer = ChunkBuffer(
-        window_n=7,
-        shift_n=4,
-        window_ms=20,
-        shift_ms=10,
-        sample_rate=chunk_buffer_conf['sample_rate'],
-        sample_width=chunk_buffer_conf['sample_width'])
+        window_n=chunk_buffer_conf.window_n,
+        shift_n=chunk_buffer_conf.shift_n,
+        window_ms=chunk_buffer_conf.window_ms,
+        shift_ms=chunk_buffer_conf.shift_ms,
+        sample_rate=chunk_buffer_conf.sample_rate,
+        sample_width=chunk_buffer_conf.sample_width)
+
     # init vad
-    vad_conf = asr_engine.config.vad_conf
-    vad = VADAudio(
-        aggressiveness=vad_conf['aggressiveness'],
-        rate=vad_conf['sample_rate'],
-        frame_duration_ms=vad_conf['frame_duration_ms'])
+    vad_conf = asr_engine.config.get('vad_conf', None)
+    if vad_conf:
+        vad = VADAudio(
+            aggressiveness=vad_conf['aggressiveness'],
+            rate=vad_conf['sample_rate'],
+            frame_duration_ms=vad_conf['frame_duration_ms'])
 
     try:
         while True:
@@ -64,13 +67,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 if message['signal'] == 'start':
                     resp = {"status": "ok", "signal": "server_ready"}
                     # do something at begining here
+                    # create the instance to process the audio
+                    connection_handler = PaddleASRConnectionHanddler(asr_engine)
                     await websocket.send_json(resp)
                 elif message['signal'] == 'end':
-                    engine_pool = get_engine_pool()
-                    asr_engine = engine_pool['asr']
                     # reset single  engine for an new connection
-                    asr_engine.reset()
-                    resp = {"status": "ok", "signal": "finished"}
+                    connection_handler.decode(is_finished=True)
+                    connection_handler.rescoring()
+                    asr_results = connection_handler.get_result()
+                    connection_handler.reset()
+
+                    resp = {
+                        "status": "ok",
+                        "signal": "finished",
+                        'asr_results': asr_results
+                    }
                     await websocket.send_json(resp)
                     break
                 else:
@@ -79,21 +90,11 @@ async def websocket_endpoint(websocket: WebSocket):
             elif "bytes" in message:
                 message = message["bytes"]
 
-                engine_pool = get_engine_pool()
-                asr_engine = engine_pool['asr']
-                asr_results = ""
-                frames = chunk_buffer.frame_generator(message)
-                for frame in frames:
-                    samples = np.frombuffer(frame.bytes, dtype=np.int16)
-                    sample_rate = asr_engine.config.sample_rate
-                    x_chunk, x_chunk_lens = asr_engine.preprocess(samples,
-                                                                  sample_rate)
-                    asr_engine.run(x_chunk, x_chunk_lens)
-                    asr_results = asr_engine.postprocess()
+                connection_handler.extract_feat(message)
+                connection_handler.decode(is_finished=False)
+                asr_results = connection_handler.get_result()
 
-                asr_results = asr_engine.postprocess()
                 resp = {'asr_results': asr_results}
-
                 await websocket.send_json(resp)
     except WebSocketDisconnect:
         pass

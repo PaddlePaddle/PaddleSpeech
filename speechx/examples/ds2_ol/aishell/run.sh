@@ -87,7 +87,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     ctc-prefix-beam-search-decoder-ol \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
-        --param_path=$model_dir/avg_1.jit.pdiparams \
+        --params_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --dict_file=$vocb_dir/vocab.txt \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result
@@ -102,7 +102,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     ctc-prefix-beam-search-decoder-ol \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
-        --param_path=$model_dir/avg_1.jit.pdiparams \
+        --params_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --dict_file=$vocb_dir/vocab.txt \
         --lm_path=$lm \
@@ -129,7 +129,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     wfst-decoder-ol \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
-        --param_path=$model_dir/avg_1.jit.pdiparams \
+        --params_path=$model_dir/avg_1.jit.pdiparams \
         --word_symbol_table=$graph_dir/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --graph_path=$graph_dir/TLG.fst --max_active=7500 \

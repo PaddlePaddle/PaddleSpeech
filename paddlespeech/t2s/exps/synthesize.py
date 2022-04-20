@@ -50,11 +50,29 @@ def evaluate(args):
     print(voc_config)
 
     # acoustic model
-    am_inference, am_name, am_dataset = get_am_inference(args, am_config)
-    test_dataset = get_test_dataset(args, test_metadata, am_name, am_dataset)
+    am_name = args.am[:args.am.rindex('_')]
+    am_dataset = args.am[args.am.rindex('_') + 1:]
+    
+    am_inference = get_am_inference(
+        am=args.am,
+        am_config=am_config,
+        am_ckpt=args.am_ckpt,
+        am_stat=args.am_stat,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict,
+        speaker_dict=args.speaker_dict)
+    test_dataset = get_test_dataset(
+        test_metadata=test_metadata,
+        am=args.am,
+        speaker_dict=args.speaker_dict,
+        voice_cloning=args.voice_cloning)
 
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

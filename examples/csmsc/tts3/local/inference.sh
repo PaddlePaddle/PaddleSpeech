@@ -28,7 +28,6 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --phones_dict=dump/phone_id_map.txt
 fi
 
-
 # hifigan
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     python3 ${BIN_DIR}/../inference.py \

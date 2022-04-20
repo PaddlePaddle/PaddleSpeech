@@ -277,11 +277,12 @@ class ASRClientExecutor(BaseExecutor):
                 lang=lang,
                 audio_format=audio_format)
             time_end = time.time()
-            logger.info(res.json())
+            logger.info(res)
             logger.info("Response time %f s." % (time_end - time_start))
             return True
         except Exception as e:
             logger.error("Failed to speech recognition.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -299,9 +300,10 @@ class ASRClientExecutor(BaseExecutor):
         logging.info("asr websocket client start")
         handler = ASRAudioHandler(server_ip, port)
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(handler.run(input))
+        res = loop.run_until_complete(handler.run(input))
         logging.info("asr websocket client finished")
 
+        return res['asr_results']
 
 @cli_client_register(
     name='paddlespeech_client.cls', description='visit cls service')

@@ -15,6 +15,7 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -25,7 +26,6 @@ from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_predictor
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_streaming_am_output
-from paddlespeech.t2s.exps.syn_utils import get_streaming_am_predictor
 from paddlespeech.t2s.exps.syn_utils import get_voc_output
 from paddlespeech.t2s.utils import str2bool
 
@@ -101,23 +101,47 @@ def parse_args():
 # only inference for models trained with csmsc now
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
+
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     # am_predictor
-    am_encoder_infer_predictor, am_decoder_predictor, am_postnet_predictor = get_streaming_am_predictor(
-        args)
+
+    am_encoder_infer_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.am + "_am_encoder_infer" + ".pdmodel",
+        params_file=args.am + "_am_encoder_infer" + ".pdiparams",
+        device=args.device)
+    am_decoder_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.am + "_am_decoder" + ".pdmodel",
+        params_file=args.am + "_am_decoder" + ".pdiparams",
+        device=args.device)
+    am_postnet_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.am + "_am_postnet" + ".pdmodel",
+        params_file=args.am + "_am_postnet" + ".pdiparams",
+        device=args.device)
     am_mu, am_std = np.load(args.am_stat)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_predictor(args, filed='voc')
+    voc_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.voc + ".pdmodel",
+        params_file=args.voc + ".pdiparams",
+        device=args.device)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     merge_sentences = True
 
@@ -126,13 +150,13 @@ def main():
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
             normalized_mel = get_streaming_am_output(
-                args,
+                input=sentence,
                 am_encoder_infer_predictor=am_encoder_infer_predictor,
                 am_decoder_predictor=am_decoder_predictor,
                 am_postnet_predictor=am_postnet_predictor,
                 frontend=frontend,
-                merge_sentences=merge_sentences,
-                input=sentence)
+                lang=args.lang,
+                merge_sentences=merge_sentences, )
             mel = denorm(normalized_mel, am_mu, am_std)
             wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
         speed = wav.size / t.elapse

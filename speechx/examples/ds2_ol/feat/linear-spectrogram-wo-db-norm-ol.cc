@@ -32,7 +32,6 @@ DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
 DEFINE_string(cmvn_file, "./cmvn.ark", "read cmvn");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 
-
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
@@ -66,7 +65,8 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> cmvn(
         new ppspeech::CMVN(FLAGS_cmvn_file, std::move(linear_spectrogram)));
 
-    ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
+    ppspeech::FeatureCacheOptions feat_cache_opts;
+    ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
     int sample_rate = 16000;

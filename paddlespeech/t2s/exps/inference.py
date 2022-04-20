@@ -14,6 +14,7 @@
 import argparse
 from pathlib import Path
 
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -101,21 +102,35 @@ def parse_args():
 # only inference for models trained with csmsc now
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
+
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     # am_predictor
-    am_predictor = get_predictor(args, filed='am')
+    am_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.am + ".pdmodel",
+        params_file=args.am + ".pdiparams",
+        device=args.device)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_predictor(args, filed='voc')
+    voc_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.voc + ".pdmodel",
+        params_file=args.voc + ".pdiparams",
+        device=args.device)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     merge_sentences = True
     fs = 24000 if am_dataset != 'ljspeech' else 22050
@@ -123,11 +138,13 @@ def main():
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
             am_output_data = get_am_output(
-                args,
+                input=sentence,
                 am_predictor=am_predictor,
+                am=args.am,
                 frontend=frontend,
+                lang=args.lang,
                 merge_sentences=merge_sentences,
-                input=sentence)
+                speaker_dict=args.speaker_dict, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
         speed = wav.size / t.elapse
@@ -143,11 +160,13 @@ def main():
     for utt_id, sentence in sentences:
         with timer() as t:
             am_output_data = get_am_output(
-                args,
+                input=sentence,
                 am_predictor=am_predictor,
+                am=args.am,
                 frontend=frontend,
+                lang=args.lang,
                 merge_sentences=merge_sentences,
-                input=sentence)
+                speaker_dict=args.speaker_dict, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
 

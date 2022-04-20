@@ -34,12 +34,10 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
-DEFINE_string(
-    model_input_names,
-    "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",
-    "model input names");
 DEFINE_string(model_output_names,
-              "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
+              "save_infer_model/scale_0.tmp_1,save_infer_model/"
+              "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"
+              "scale_3.tmp_1",
               "model output names");
 DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
 
@@ -58,12 +56,11 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-
-    std::string model_graph = FLAGS_model_path;
+    std::string model_path = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
     std::string dict_file = FLAGS_dict_file;
     std::string lm_path = FLAGS_lm_path;
-    LOG(INFO) << "model path: " << model_graph;
+    LOG(INFO) << "model path: " << model_path;
     LOG(INFO) << "model param: " << model_params;
     LOG(INFO) << "dict path: " << dict_file;
     LOG(INFO) << "lm path: " << lm_path;
@@ -76,10 +73,9 @@ int main(int argc, char* argv[]) {
     ppspeech::CTCBeamSearch decoder(opts);
 
     ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_graph;
+    model_opts.model_path = model_path;
     model_opts.params_path = model_params;
     model_opts.cache_shape = FLAGS_model_cache_names;
-    model_opts.input_names = FLAGS_model_input_names;
     model_opts.output_names = FLAGS_model_output_names;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
@@ -125,7 +121,6 @@ int main(int argc, char* argv[]) {
             if (feature_chunk_size < receptive_field_length) break;
 
             int32 start = chunk_idx * chunk_stride;
-            int32 end = start + chunk_size;
 
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);

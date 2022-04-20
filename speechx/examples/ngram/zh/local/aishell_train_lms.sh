@@ -44,15 +44,15 @@ cat ${text_dir}/split${nj}/*/${split_name}.no_oov  > $cleantext
 
 # compute word counts, sort in descending order
 # line: count word
-cat $cleantext | awk '{for(n=2;n<=NF;n++) print $n; }' | sort | uniq -c | \
-   sort -nr > $dir/word.counts || exit 1;
+cat $cleantext | awk '{for(n=2;n<=NF;n++) print $n; }' | sort --parallel=`nproc` | uniq -c | \
+   sort --parallel=`nproc` -nr > $dir/word.counts || exit 1;
 
 # Get counts from acoustic training transcripts, and add  one-count
 # for each word in the lexicon (but not silence, we don't want it
 # in the LM-- we'll add it optionally later).
 cat $cleantext | awk '{for(n=2;n<=NF;n++) print $n; }' | \
   cat - <(grep -w -v '!SIL' $lexicon | awk '{print $1}') | \
-   sort | uniq -c | sort -nr > $dir/unigram.counts || exit 1;
+   sort --parallel=`nproc` | uniq -c | sort --parallel=`nproc` -nr > $dir/unigram.counts || exit 1;
 
 # word with <s> </s>
 cat $dir/unigram.counts | awk '{print $2}' | cat - <(echo "<s>"; echo "</s>" ) > $dir/wordlist

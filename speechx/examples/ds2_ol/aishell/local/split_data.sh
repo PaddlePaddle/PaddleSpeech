@@ -6,7 +6,7 @@ split_feat_name=$3
 numsplit=$4
 
 
-if ! [ "$numsplit" -gt 0 ]; then
+if [[ ! $numsplit -gt 0 ]]; then
   echo "Invalid num-split argument";
   exit 1;
 fi

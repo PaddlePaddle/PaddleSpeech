@@ -109,6 +109,6 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --phones_dict=dump/phone_id_map.txt #\
+        # --inference_dir=${train_output_path}/inference
 fi

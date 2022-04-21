@@ -48,7 +48,6 @@ if [ ! -f $lm ]; then
     popd
 fi
 
-
 feat_wspecifier=$exp_dir/feats.ark
 cmvn=$exp_dir/cmvn.ark
 
@@ -57,7 +56,7 @@ export GLOG_logtostderr=1
 # dump json cmvn to kaldi
 cmvn-json2kaldi \
     --json_file  $ckpt_dir/data/mean_std.json \
-    --cmvn_write_path $exp_dir/cmvn.ark \
+    --cmvn_write_path $cmvn \
     --binary=false
 echo "convert json cmvn to kaldi ark."
 
@@ -66,7 +65,7 @@ echo "convert json cmvn to kaldi ark."
 linear-spectrogram-wo-db-norm-ol \
     --wav_rspecifier=scp:$data/wav.scp \
     --feature_wspecifier=ark,t:$feat_wspecifier \
-    --cmvn_file=$exp_dir/cmvn.ark
+    --cmvn_file=$cmvn
 echo "compute linear spectrogram feature."
 
 # run ctc beam search decoder as streaming

@@ -36,7 +36,7 @@ class ASRAudioHandler:
         x_len = len(samples)
 
         chunk_size = 85 * 16  #80ms, sample_rate = 16kHz
-        if x_len % chunk_size!= 0:
+        if x_len % chunk_size != 0:
             padding_len_x = chunk_size - x_len % chunk_size
         else:
             padding_len_x = 0
@@ -92,7 +92,7 @@ class ASRAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            
+
             # decode the bytes to str
             msg = json.loads(msg)
             logging.info("final receive msg={}".format(msg))

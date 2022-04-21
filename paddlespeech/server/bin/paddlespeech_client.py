@@ -305,6 +305,7 @@ class ASRClientExecutor(BaseExecutor):
 
         return res['asr_results']
 
+
 @cli_client_register(
     name='paddlespeech_client.cls', description='visit cls service')
 class CLSClientExecutor(BaseExecutor):

@@ -52,7 +52,7 @@ def evaluate(args):
     # acoustic model
     am_name = args.am[:args.am.rindex('_')]
     am_dataset = args.am[args.am.rindex('_') + 1:]
-    
+
     am_inference = get_am_inference(
         am=args.am,
         am_config=am_config,

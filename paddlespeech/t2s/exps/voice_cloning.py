@@ -66,10 +66,19 @@ def voice_cloning(args):
     print("frontend done!")
 
     # acoustic model
-    am_inference, *_ = get_am_inference(args, am_config)
+    am_inference = get_am_inference(
+        am=args.am,
+        am_config=am_config,
+        am_ckpt=args.am_ckpt,
+        am_stat=args.am_stat,
+        phones_dict=args.phones_dict)
 
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

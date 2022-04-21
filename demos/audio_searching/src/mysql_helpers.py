@@ -13,6 +13,7 @@
 # limitations under the License.
 import sys
 
+import numpy
 import pymysql
 from config import MYSQL_DB
 from config import MYSQL_HOST
@@ -69,7 +70,7 @@ class MySQLHelper():
             sys.exit(1)
 
     def load_data_to_mysql(self, table_name, data):
-        # Batch insert (Milvus_ids, img_path) to mysql
+        # Batch insert (Milvus_ids, audio_path) to mysql
         self.test_connection()
         sql = "insert into " + table_name + " (milvus_id,audio_path) values (%s,%s);"
         try:
@@ -82,7 +83,7 @@ class MySQLHelper():
             sys.exit(1)
 
     def search_by_milvus_ids(self, ids, table_name):
-        # Get the img_path according to the milvus ids
+        # Get the audio_path according to the milvus ids
         self.test_connection()
         str_ids = str(ids).replace('[', '').replace(']', '')
         sql = "select audio_path from " + table_name + " where milvus_id in (" + str_ids + ") order by field (milvus_id," + str_ids + ");"
@@ -120,14 +121,83 @@ class MySQLHelper():
             sys.exit(1)
 
     def count_table(self, table_name):
-        # Get the number of mysql table
+        # Get the number of spk in mysql table
         self.test_connection()
-        sql = "select count(milvus_id) from " + table_name + ";"
+        sql = "select count(spk_id) from " + table_name + ";"
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
-            LOGGER.debug(f"MYSQL count table:{table_name}")
+            LOGGER.debug(f"MYSQL count table:{results[0][0]}")
             return results[0][0]
+        except Exception as e:
+            LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
+            sys.exit(1)
+
+    def create_mysql_table_vpr(self, table_name):
+        # Create mysql table if not exists
+        self.test_connection()
+        sql = "create table if not exists " + table_name + "(spk_id TEXT, audio_path TEXT, embedding TEXT);"
+        try:
+            self.cursor.execute(sql)
+            LOGGER.debug(f"MYSQL create table: {table_name} with sql: {sql}")
+        except Exception as e:
+            LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
+            sys.exit(1)
+
+    def load_data_to_mysql_vpr(self, table_name, data):
+        # Insert (spk, audio, embedding) to mysql
+        self.test_connection()
+        sql = "insert into " + table_name + " (spk_id,audio_path,embedding) values (%s,%s,%s);"
+        try:
+            self.cursor.execute(sql, data)
+            LOGGER.debug(
+                f"MYSQL loads data to table: {table_name} successfully")
+        except Exception as e:
+            LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
+            sys.exit(1)
+
+    def list_vpr(self, table_name):
+        # Get all records in mysql
+        self.test_connection()
+        sql = "select * from " + table_name + " ;"
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            self.conn.commit()
+            spk_ids = [res[0] for res in results]
+            audio_paths = [res[1] for res in results]
+            embeddings = [
+                numpy.array(
+                    str(res[2]).replace('[', '').replace(']', '').split(","))
+                for res in results
+            ]
+            return spk_ids, audio_paths, embeddings
+        except Exception as e:
+            LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
+            sys.exit(1)
+
+    def search_audio_vpr(self, table_name, spk_id):
+        # Get the audio_path according to the spk_id
+        self.test_connection()
+        sql = "select audio_path from " + table_name + " where spk_id='" + spk_id + "' ;"
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            LOGGER.debug(
+                f"MYSQL search by spk id {spk_id} to get audio {results[0][0]}.")
+            return results[0][0]
+        except Exception as e:
+            LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
+            sys.exit(1)
+
+    def delete_data_vpr(self, table_name, spk_id):
+        # Delete a record by spk_id in mysql table
+        self.test_connection()
+        sql = "delete from " + table_name + " where spk_id='" + spk_id + "';"
+        try:
+            self.cursor.execute(sql)
+            LOGGER.debug(
+                f"MYSQL delete a record {spk_id} in table {table_name}")
         except Exception as e:
             LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")
             sys.exit(1)

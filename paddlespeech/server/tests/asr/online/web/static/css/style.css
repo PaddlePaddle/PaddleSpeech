@@ -1,0 +1,453 @@
+/*
+* @Author: baipengxia
+* @Date:   2021-03-12 11:44:28
+* @Last Modified by:   baipengxia
+* @Last Modified time: 2021-03-12 15:14:24
+*/
+
+/** COMMON RESET **/
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+p,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+fieldset,
+lengend,
+button,
+input,
+textarea,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  color: #000;
+}
+
+body {
+  font-size: 14px;
+}
+html, body {
+  min-width: 1200px;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 14px;
+}
+
+h3 {
+  font-size: 14px;
+}
+
+ul,
+ol,
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+fieldset,
+img {
+  border: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+i {
+  font-style: normal;
+}
+
+label {
+  position: inherit;
+}
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.clearfix {
+  zoom: 1;
+  display: block;
+}
+
+html,
+body {
+  font-family: Tahoma, Arial, 'microsoft yahei', 'Roboto', 'Droid Sans', 'Helvetica Neue', 'Droid Sans Fallback', 'Heiti SC', 'Hiragino Sans GB', 'Simsun', 'sans-self';
+}
+
+
+
+.audio-banner {
+  width: 100%;
+  overflow: auto;
+  padding: 0;
+  background: url('../image/voice-dictation.svg');
+  background-size: cover;
+}
+.weaper {
+  width: 1200px;
+  height: 155px;
+  margin: 72px auto;
+}
+.text-content {
+  width: 670px;
+  height: 100%;
+  float: left;
+}
+.text-content .title {
+  font-size: 34px;
+  font-family: 'PingFangSC-Medium';
+  font-weight: 500;
+  color: rgba(255, 255, 255, 1);
+  line-height: 48px;
+}
+.text-content .con {
+  font-size: 16px;
+  font-family: PingFangSC-Light;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 1);
+  line-height: 30px;
+}
+.img-con {
+  width: 416px;
+  height: 100%;
+  float: right;
+}
+.img-con img {
+  width: 100%;
+  height: 100%;
+}
+.con-container {
+  margin-top: 34px;
+}
+
+.audio-advantage {
+  background: #f8f9fa;
+}
+.asr-advantage {
+  width: 1200px;
+  margin: 0 auto;
+}
+.asr-advantage h2 {
+  text-align: center;
+  font-size: 22px;
+  padding: 30px 0 0 0;
+}
+.asr-advantage > ul > li {
+  box-sizing: border-box;
+  padding: 0 16px;
+  width: 33%;
+  text-align: center;
+  margin-bottom: 35px;
+}
+.asr-advantage > ul > li .icons{
+  margin-top: 10px;
+  margin-bottom: 20px;
+  width: 42px;
+  height: 42px;
+}
+.service-item-content {
+  margin-top: 35px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.service-item-content img {
+  width: 160px;
+  vertical-align: bottom;
+}
+.service-item-content > li {
+    box-sizing: border-box;
+    padding: 0 16px;
+    width: 33%;
+    text-align: center;
+    margin-bottom: 35px;
+}
+.service-item-content > li .service-item-content-title {
+  line-height: 1.5;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.service-item-content > li .service-item-content-desc {
+  margin-top: 5px;
+  line-height: 1.8;
+  color: #657384;
+}
+
+
+.audio-scene-con {
+  width: 100%;
+  padding-bottom: 84px;
+  background: #fff;
+}
+.audio-scene {
+  overflow: auto;
+  width: 1200px;
+  background: #fff;
+  text-align: center;
+  padding: 0;
+  margin: 0 auto;
+}
+.audio-scene h2 {
+  padding: 30px 0 0 0;
+  font-size: 22px;
+  text-align: center;
+}
+
+.audio-experience {
+  width: 100%;
+  height: 538px;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+  overflow: auto;
+}
+.asr-box {
+  width: 1200px;
+  height: 394px;
+  margin: 64px auto;
+}
+.asr-box h2 {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 64px;
+}
+.voice-container {
+  position: relative;
+  width: 1200px;
+  height: 308px;
+  background: rgba(255, 255, 255, 1);
+  border-radius: 8px;
+  border: 1px solid rgba(225, 225, 225, 1);
+}
+.voice-container .voice {
+  height: 236px;
+  width: 100%;
+  border-radius: 8px;
+}
+.voice-container .voice textarea {
+  height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  padding: 25px;
+  font-size: 14px;
+  box-sizing: border-box;
+  resize: none;
+}
+.voice-input {
+  width: 100%;
+  height: 72px;
+  box-sizing: border-box;
+  padding-left: 35px;
+  background: rgba(242, 244, 245, 1);
+  border-radius: 8px;
+  line-height: 72px;
+}
+.voice-input .el-select {
+  width: 492px;
+}
+.start-voice {
+  display: inline-block;
+  margin-left: 10px;
+}
+.start-voice .time {
+  margin-right: 25px;
+}
+.asr-advantage > ul > li {
+  margin-bottom: 77px;
+}
+#msg {
+  width: 100%;
+  line-height: 40px;
+  font-size: 14px;
+  margin-left: 330px;
+}
+#captcha {
+  margin-left: 350px !important;
+  display: inline-block;
+  position: relative;
+}
+.black {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+}
+.container {
+  position: fixed;
+  z-index: 6;
+  top: 25%;
+  left: 10%;
+}
+.audio-scene-con {
+  width: 100%;
+  padding-bottom: 84px;
+  background: #fff;
+}
+#sound {
+  color: #fff;
+  cursor: pointer;
+  background: #147ede;
+  padding: 10px;
+  margin-top: 30px;
+  margin-left: 135px;
+  width: 176px;
+  height: 30px !important;
+  text-align: center;
+  line-height: 30px !important;
+  border-radius: 10px;
+}
+.con-ten {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  background: #fff;
+  opacity: 0.5;
+  top: 0;
+  left: 0;
+}
+.websocket-url {
+  width: 320px;
+  height: 20px;
+  border: 1px solid #dcdfe6;
+  line-height: 20px;
+  padding: 10px;
+  border-radius: 4px;
+}
+.voice-btn {
+  color: #fff;
+  background-color: #409eff;
+  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 0;
+  cursor: pointer;
+}
+.voice-btn.end {
+  display: none;
+}
+.result-text {
+  background: #fff;
+  padding: 20px;
+}
+.voice-footer {
+  border-top: 1px solid #dddede;
+  background: #f7f9fa;
+  text-align: center;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 12px;
+  padding: 20px 0;
+}
+
+/** line animate **/
+.time-box {
+  display: none;
+  margin-left: 10px;
+  width: 300px;
+}
+.total-time {
+  font-size: 14px;
+  color: #545454;
+}
+.voice-btn.end.show,
+.time-box.show {
+  display: inline;
+}
+.start-taste-line {
+  margin-right: 20px;
+  display: inline-block;
+}
+.start-taste-line hr {
+  background-color: #187cff;
+  width: 3px;
+  height: 8px;
+  margin: 0 3px;
+  display: inline-block;
+  border: none;
+}
+.hr {
+  animation: note 0.2s ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.hr-one {
+  animation-delay: -0.9s;
+}
+.hr-two {
+  animation-delay: -0.8s;
+}
+.hr-three {
+  animation-delay: -0.7s;
+}
+.hr-four {
+  animation-delay: -0.6s;
+}
+.hr-five {
+  animation-delay: -0.5s;
+}
+.hr-six {
+  animation-delay: -0.4s;
+}
+.hr-seven {
+  animation-delay: -0.3s;
+}
+.hr-eight {
+  animation-delay: -0.2s;
+}
+.hr-nine {
+  animation-delay: -0.1s;
+}
+@keyframes note {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(4);
+  }
+}

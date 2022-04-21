@@ -279,14 +279,13 @@ class U2BaseModel(ASRInterface, nn.Layer):
             # TODO(Hui Zhang): if end_flag.sum() == running_size:
             if end_flag.cast(paddle.int64).sum() == running_size:
                 break
-
+            
             # 2.1 Forward decoder step
             hyps_mask = subsequent_mask(i).unsqueeze(0).repeat(
                 running_size, 1, 1).to(device)  # (B*N, i, i)
             # logp: (B*N, vocab)
             logp, cache = self.decoder.forward_one_step(
                 encoder_out, encoder_mask, hyps, hyps_mask, cache)
-
             # 2.2 First beam prune: select topk best prob at current time
             top_k_logp, top_k_index = logp.topk(beam_size)  # (B*N, N)
             top_k_logp = mask_finished_scores(top_k_logp, end_flag)
@@ -708,11 +707,11 @@ class U2BaseModel(ASRInterface, nn.Layer):
         batch_size = feats.shape[0]
         if decoding_method in ['ctc_prefix_beam_search',
                                'attention_rescoring'] and batch_size > 1:
-            logger.fatal(
+            logger.error(
                 f'decoding mode {decoding_method} must be running with batch_size == 1'
             )
+            logger.error(f"current batch_size is {batch_size}")
             sys.exit(1)
-
         if decoding_method == 'attention':
             hyps = self.recognize(
                 feats,

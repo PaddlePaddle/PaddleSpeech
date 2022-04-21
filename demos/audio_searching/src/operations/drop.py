@@ -32,3 +32,31 @@ def do_drop(table_name, milvus_cli, mysql_cli):
     except Exception as e:
         LOGGER.error(f"Error attempting to drop table: {e}")
         sys.exit(1)
+
+
+def do_drop_vpr(table_name, mysql_cli):
+    """
+    Delete the table of MySQL
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    try:
+        mysql_cli.delete_table(table_name)
+        return "OK"
+    except Exception as e:
+        LOGGER.error(f"Error attempting to drop table: {e}")
+        sys.exit(1)
+
+
+def do_delete(table_name, spk_id, mysql_cli):
+    """
+    Delete a record by spk_id in MySQL
+    """
+    if not table_name:
+        table_name = DEFAULT_TABLE
+    try:
+        mysql_cli.delete_data_vpr(table_name, spk_id)
+        return "OK"
+    except Exception as e:
+        LOGGER.error(f"Error attempting to drop table: {e}")
+        sys.exit(1)

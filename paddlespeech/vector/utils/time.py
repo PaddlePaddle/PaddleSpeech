@@ -23,6 +23,7 @@ class Timer(object):
         self.last_start_step = 0
         self.current_step = 0
         self._is_running = True
+        self.cur_ips = 0
 
     def start(self):
         self.last_time = time.time()
@@ -43,11 +44,16 @@ class Timer(object):
         self.last_start_step = self.current_step
         time_used = time.time() - self.last_time
         self.last_time = time.time()
+        self.cur_ips = run_steps / time_used
         return time_used / run_steps
 
     @property
     def is_running(self) -> bool:
         return self._is_running
+
+    @property
+    def ips(self) -> float:
+        return self.cur_ips
 
     @property
     def eta(self) -> str:

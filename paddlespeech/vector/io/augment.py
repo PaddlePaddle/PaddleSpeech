@@ -14,6 +14,7 @@
 # this is modified from SpeechBrain
 # https://github.com/speechbrain/speechbrain/blob/085be635c07f16d42cd1295045bc46c407f1e15b/speechbrain/lobes/augment.py
 import math
+import os
 from typing import List
 
 import numpy as np
@@ -21,8 +22,8 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddleaudio.datasets.rirs_noises import OpenRIRNoise
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.vector.io.dataset import CSVDataset
 from paddlespeech.vector.io.signal_processing import compute_amplitude
 from paddlespeech.vector.io.signal_processing import convolve1d
 from paddlespeech.vector.io.signal_processing import dB_to_amplitude
@@ -509,7 +510,7 @@ class AddNoise(nn.Layer):
                     assert w >= 0, f'Target length {target_length} is less than origin length {x.shape[0]}'
                     return np.pad(x, [0, w], mode=mode, **kwargs)
 
-                ids = [item['id'] for item in batch]
+                ids = [item['utt_id'] for item in batch]
                 lengths = np.asarray([item['feat'].shape[0] for item in batch])
                 waveforms = list(
                     map(lambda x: pad(x, max(max_length, lengths.max().item())),
@@ -589,7 +590,7 @@ class AddReverb(nn.Layer):
                 assert w >= 0, f'Target length {target_length} is less than origin length {x.shape[0]}'
                 return np.pad(x, [0, w], mode=mode, **kwargs)
 
-            ids = [item['id'] for item in batch]
+            ids = [item['utt_id'] for item in batch]
             lengths = np.asarray([item['feat'].shape[0] for item in batch])
             waveforms = list(
                 map(lambda x: pad(x, lengths.max().item()),
@@ -839,8 +840,10 @@ def build_augment_pipeline(target_dir=None) -> List[paddle.nn.Layer]:
         List[paddle.nn.Layer]: all augment process
     """
     logger.info("start to build the augment pipeline")
-    noise_dataset = OpenRIRNoise('noise', target_dir=target_dir)
-    rir_dataset = OpenRIRNoise('rir', target_dir=target_dir)
+    noise_dataset = CSVDataset(csv_path=os.path.join(target_dir,
+                                                     "rir_noise/csv/noise.csv"))
+    rir_dataset = CSVDataset(csv_path=os.path.join(target_dir,
+                                                   "rir_noise/csv/rir.csv"))
 
     wavedrop = TimeDomainSpecAugment(
         sample_rate=16000,

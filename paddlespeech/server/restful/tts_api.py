@@ -15,6 +15,7 @@ import traceback
 from typing import Union
 
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import get_engine_pool
@@ -125,3 +126,14 @@ def tts(request_body: TTSRequest):
         traceback.print_exc()
 
     return response
+
+
+@router.post("/paddlespeech/streaming/tts")
+async def stream_tts(request_body: TTSRequest):
+    text = request_body.text
+
+    engine_pool = get_engine_pool()
+    tts_engine = engine_pool['tts']
+    logger.info("Get tts engine successfully.")
+
+    return StreamingResponse(tts_engine.run(sentence=text))

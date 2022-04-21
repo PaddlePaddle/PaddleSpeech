@@ -1,4 +1,4 @@
-# Copyright (c) 2022 SpeechBrain Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle and SpeechBrain Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,18 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Modified from speechbrain(https://github.com/speechbrain/speechbrain)
 """
 This script contains basic functions used for speaker diarization.
 This script has an optional dependency on open source sklearn library.
 A few sklearn functions are modified in this script as per requirement.
 """
 import argparse
+import copy
 import warnings
+from distutils.util import strtobool
 
 import numpy as np
 import scipy
 import sklearn
-from distutils.util import strtobool
+from scipy import linalg
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
 from scipy.sparse.csgraph import laplacian as csgraph_laplacian
@@ -345,6 +348,8 @@ class EmbeddingMeta:
     ---------
     segset : list
         List of session IDs as an array of strings.
+    modelset : list
+        List of model IDs as an array of strings.
     stats : tensor
         An ndarray of float64. Each line contains embedding
         from the corresponding session.
@@ -353,14 +358,19 @@ class EmbeddingMeta:
     def __init__(
             self,
             segset=None,
+            modelset=None,
             stats=None, ):
 
         if segset is None:
-            self.segset = numpy.empty(0, dtype="|O")
-            self.stats = numpy.array([], dtype=np.float64)
+            self.segset = np.empty(0, dtype="|O")
+            self.modelset = np.empty(0, dtype="|O")
+            self.stats = np.array([], dtype=np.float64)
         else:
             self.segset = segset
+            self.modelset = modelset
             self.stats = stats
+
+        self.stat0 = np.array([[1.0]] * self.stats.shape[0])
 
     def norm_stats(self):
         """
@@ -369,6 +379,188 @@ class EmbeddingMeta:
 
         vect_norm = np.clip(np.linalg.norm(self.stats, axis=1), 1e-08, np.inf)
         self.stats = (self.stats.transpose() / vect_norm).transpose()
+
+    def get_mean_stats(self):
+        """
+        Return the mean of first order statistics.
+        """
+        mu = np.mean(self.stats, axis=0)
+        return mu
+
+    def get_total_covariance_stats(self):
+        """
+        Compute and return the total covariance matrix of the first-order statistics.
+        """
+        C = self.stats - self.stats.mean(axis=0)
+        return np.dot(C.transpose(), C) / self.stats.shape[0]
+
+    def get_model_stat0(self, mod_id):
+        """Return zero-order statistics of a given model
+
+        Arguments
+        ---------
+        mod_id : str
+            ID of the model which stat0 will be returned.
+        """
+        S = self.stat0[self.modelset == mod_id, :]
+        return S
+
+    def get_model_stats(self, mod_id):
+        """Return first-order statistics of a given model.
+
+        Arguments
+        ---------
+        mod_id : str
+            ID of the model which stat1 will be returned.
+        """
+        return self.stats[self.modelset == mod_id, :]
+
+    def sum_stat_per_model(self):
+        """
+        Sum the zero- and first-order statistics per model and store them
+        in a new EmbeddingMeta.
+        Returns a EmbeddingMeta object with the statistics summed per model
+        and a numpy array with session_per_model.
+        """
+
+        sts_per_model = EmbeddingMeta()
+        sts_per_model.modelset = np.unique(
+            self.modelset)  # nd: get uniq spkr ids
+        sts_per_model.segset = copy.deepcopy(sts_per_model.modelset)
+        sts_per_model.stat0 = np.zeros(
+            (sts_per_model.modelset.shape[0], self.stat0.shape[1]),
+            dtype=np.float64, )
+        sts_per_model.stats = np.zeros(
+            (sts_per_model.modelset.shape[0], self.stats.shape[1]),
+            dtype=np.float64, )
+
+        session_per_model = np.zeros(np.unique(self.modelset).shape[0])
+
+        # For each model sum the stats
+        for idx, model in enumerate(sts_per_model.modelset):
+            sts_per_model.stat0[idx, :] = self.get_model_stat0(model).sum(
+                axis=0)
+            sts_per_model.stats[idx, :] = self.get_model_stats(model).sum(
+                axis=0)
+            session_per_model[idx] += self.get_model_stats(model).shape[0]
+        return sts_per_model, session_per_model
+
+    def center_stats(self, mu):
+        """
+        Center first order statistics.
+
+        Arguments
+        ---------
+        mu : array
+            Array to center on.
+        """
+
+        dim = self.stats.shape[1] / self.stat0.shape[1]
+        index_map = np.repeat(np.arange(self.stat0.shape[1]), dim)
+        self.stats = self.stats - (self.stat0[:, index_map] *
+                                   mu.astype(np.float64))
+
+    def rotate_stats(self, R):
+        """
+        Rotate first-order statistics by a right-product.
+
+        Arguments
+        ---------
+        R : ndarray
+            Matrix to use for right product on the first order statistics.
+        """
+        self.stats = np.dot(self.stats, R)
+
+    def whiten_stats(self, mu, sigma, isSqrInvSigma=False):
+        """
+        Whiten first-order statistics
+        If sigma.ndim == 1, case of a diagonal covariance.
+        If sigma.ndim == 2, case of a single Gaussian with full covariance.
+        If sigma.ndim == 3, case of a full covariance UBM.
+
+        Arguments
+        ---------
+        mu : array
+            Mean vector to be subtracted from the statistics.
+        sigma : narray
+            Co-variance matrix or covariance super-vector.
+        isSqrInvSigma : bool
+            True if the input Sigma matrix is the inverse of the square root of a covariance matrix.
+        """
+
+        if sigma.ndim == 1:
+            self.center_stats(mu)
+            self.stats = self.stats / np.sqrt(sigma.astype(np.float64))
+
+        elif sigma.ndim == 2:
+            # Compute the inverse square root of the co-variance matrix Sigma
+            sqr_inv_sigma = sigma
+
+            if not isSqrInvSigma:
+                # eigen_values, eigen_vectors = scipy.linalg.eigh(sigma)
+                eigen_values, eigen_vectors = linalg.eigh(sigma)
+                ind = eigen_values.real.argsort()[::-1]
+                eigen_values = eigen_values.real[ind]
+                eigen_vectors = eigen_vectors.real[:, ind]
+
+                sqr_inv_eval_sigma = 1 / np.sqrt(eigen_values.real)
+                sqr_inv_sigma = np.dot(eigen_vectors,
+                                       np.diag(sqr_inv_eval_sigma))
+            else:
+                pass
+
+            # Whitening of the first-order statistics
+            self.center_stats(mu)  # CENTERING
+            self.rotate_stats(sqr_inv_sigma)
+
+        elif sigma.ndim == 3:
+            # we assume that sigma is a 3D ndarray of size D x n x n
+            # where D is the number of distributions and n is the dimension of a single distribution
+            n = self.stats.shape[1] // self.stat0.shape[1]
+            sess_nb = self.stat0.shape[0]
+            self.center_stats(mu)
+            self.stats = (np.einsum("ikj,ikl->ilj",
+                                    self.stats.T.reshape(-1, n, sess_nb), sigma)
+                          .reshape(-1, sess_nb).T)
+
+        else:
+            raise Exception("Wrong dimension of Sigma, must be 1 or 2")
+
+    def align_models(self, model_list):
+        """
+        Align models of the current EmbeddingMeta to match a list of models
+            provided as input parameter. The size of the StatServer might be
+            reduced to match the input list of models.
+
+        Arguments
+        ---------
+        model_list : ndarray of strings
+            List of models to match.
+        """
+        indx = np.array(
+            [np.argwhere(self.modelset == v)[0][0] for v in model_list])
+        self.segset = self.segset[indx]
+        self.modelset = self.modelset[indx]
+        self.stat0 = self.stat0[indx, :]
+        self.stats = self.stats[indx, :]
+
+    def align_segments(self, segment_list):
+        """
+        Align segments of the current EmbeddingMeta to match a list of segment
+            provided as input parameter. The size of the StatServer might be
+            reduced to match the input list of segments.
+
+        Arguments
+        ---------
+        segment_list: ndarray of strings
+            list of segments to match
+        """
+        indx = np.array(
+            [np.argwhere(self.segset == v)[0][0] for v in segment_list])
+        self.segset = self.segset[indx]
+        self.modelset = self.modelset[indx]
+        self.stat0 = self.stat0[indx, :]
+        self.stats = self.stats[indx, :]
 
 
 class SpecClustUnorm:
@@ -746,6 +938,77 @@ def merge_ssegs_same_speaker(lol):
     return new_lol
 
 
+def write_ders_file(ref_rttm, DER, out_der_file):
+    """Write the final DERs for individual recording.
+
+    Arguments
+    ---------
+    ref_rttm : str
+        Reference RTTM file.
+    DER : array
+        Array containing DER values of each recording.
+    out_der_file : str
+        File to write the DERs.
+    """
+
+    rttm = read_rttm(ref_rttm)
+    spkr_info = list(filter(lambda x: x.startswith("SPKR-INFO"), rttm))
+
+    rec_id_list = []
+    count = 0
+
+    with open(out_der_file, "w") as f:
+        for row in spkr_info:
+            a = row.split(" ")
+            rec_id = a[1]
+            if rec_id not in rec_id_list:
+                r = [rec_id, str(round(DER[count], 2))]
+                rec_id_list.append(rec_id)
+                line_str = " ".join(r)
+                f.write("%s\n" % line_str)
+                count += 1
+        r = ["OVERALL ", str(round(DER[count], 2))]
+        line_str = " ".join(r)
+        f.write("%s\n" % line_str)
+
+
+def get_oracle_num_spkrs(rec_id, spkr_info):
+    """
+    Returns actual number of speakers in a recording from the ground-truth.
+    This can be used when the condition is oracle number of speakers.
+
+    Arguments
+    ---------
+    rec_id : str
+        Recording ID for which the number of speakers have to be obtained.
+    spkr_info : list
+        Header of the RTTM file. Starting with `SPKR-INFO`.
+
+    Example
+    -------
+    >>> from speechbrain.processing import diarization as diar
+    >>> spkr_info = ['SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.A <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.B <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.C <NA> <NA>',
+    ... 'SPKR-INFO ES2011a 0 <NA> <NA> <NA> unknown ES2011a.D <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.A <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.B <NA> <NA>',
+    ... 'SPKR-INFO ES2011b 0 <NA> <NA> <NA> unknown ES2011b.C <NA> <NA>']
+    >>> diar.get_oracle_num_spkrs('ES2011a', spkr_info)
+    4
+    >>> diar.get_oracle_num_spkrs('ES2011b', spkr_info)
+    3
+    """
+
+    num_spkrs = 0
+    for line in spkr_info:
+        if rec_id in line:
+            # Since rec_id is prefix for each speaker
+            num_spkrs += 1
+
+    return num_spkrs
+
+
 def distribute_overlap(lol):
     """
     Distributes the overlapped speech equally among the adjacent segments
@@ -824,6 +1087,29 @@ def distribute_overlap(lol):
     new_lol.append(next_sseg)
 
     return new_lol
+
+
+def read_rttm(rttm_file_path):
+    """
+    Reads and returns RTTM in list format.
+
+    Arguments
+    ---------
+    rttm_file_path : str
+        Path to the RTTM file to be read.
+
+    Returns
+    -------
+    rttm : list
+        List containing rows of RTTM file.
+    """
+
+    rttm = []
+    with open(rttm_file_path, "r") as f:
+        for line in f:
+            entry = line[:-1]
+            rttm.append(entry)
+    return rttm
 
 
 def write_rttm(segs_list, out_rttm_file):

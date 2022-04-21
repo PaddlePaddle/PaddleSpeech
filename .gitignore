@@ -33,6 +33,12 @@ tools/Miniconda3-latest-Linux-x86_64.sh
 tools/activate_python.sh
 tools/miniconda.sh
 tools/CRF++-0.58/
+tools/liblbfgs-1.10/
+tools/srilm/
+tools/env.sh
+tools/openfst-1.8.1/
+tools/libsndfile/
+tools/python-soundfile/
 
 speechx/fc_patch/
 

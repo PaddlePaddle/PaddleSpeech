@@ -109,9 +109,11 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ## Pretrained Models
-The pretrained model can be downloaded here [wavernn_csmsc_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_ckpt_0.2.0.zip).
+The pretrained model can be downloaded here:
+- [wavernn_csmsc_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_ckpt_0.2.0.zip)
 
-The static model can be downloaded here [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip).
+The static model can be downloaded here:
+- [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip)
 
 Model | Step | eval/loss
 :-------------:|:------------:| :------------:

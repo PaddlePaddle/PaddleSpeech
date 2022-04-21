@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the 
 import base64
+import math
 
 
 def wav2base64(wav_file: str):
@@ -31,3 +32,46 @@ def self_check():
     """ self check resource
     """
     return True
+
+
+def denorm(data, mean, std):
+    """stream am model need to denorm
+    """
+    return data * std + mean
+
+
+def get_chunks(data, block_size, pad_size, step):
+    """Divide data into multiple chunks
+
+    Args:
+        data (tensor): data
+        block_size (int): [description]
+        pad_size (int): [description]
+        step (str): set "am" or "voc", generate chunk for step am or vocoder(voc)
+
+    Returns:
+        list: chunks list
+    """
+
+    if block_size == -1:
+        return [data]
+
+    if step == "am":
+        data_len = data.shape[1]
+    elif step == "voc":
+        data_len = data.shape[0]
+    else:
+        print("Please set correct type to get chunks, am or voc")
+
+    chunks = []
+    n = math.ceil(data_len / block_size)
+    for i in range(n):
+        start = max(0, i * block_size - pad_size)
+        end = min((i + 1) * block_size + pad_size, data_len)
+        if step == "am":
+            chunks.append(data[:, start:end, :])
+        elif step == "voc":
+            chunks.append(data[start:end, :])
+        else:
+            print("Please set correct type to get chunks, am or voc")
+    return chunks

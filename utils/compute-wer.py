@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# From wenet(https://github.com/wenet-e2e/wenet)
-# Apache 2.0
-
+# CopyRight WeNet Apache-2.0 License
 
 import re, sys, unicodedata
 import codecs
@@ -486,7 +484,7 @@ if __name__ == '__main__':
           else :
             wer = 0.0
           print('%s -> %4.2f %%' % (cluster_id, wer), end = ' ')
-          print('N=%d C=%d S=%d D=d I=%d' %
+          print('N=%d C=%d S=%d D=%d I=%d' %
                 (result['all'], result['cor'], result['sub'], result['del'], result['ins']))
           cluster_id = ''
           cluster = []

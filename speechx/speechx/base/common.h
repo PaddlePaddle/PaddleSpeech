@@ -28,8 +28,10 @@
 #include <sstream>
 #include <stack>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "base/basic_types.h"

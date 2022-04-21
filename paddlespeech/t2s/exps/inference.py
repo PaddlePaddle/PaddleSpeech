@@ -14,97 +14,21 @@
 import argparse
 from pathlib import Path
 
-import numpy
+import paddle
 import soundfile as sf
-from paddle import inference
 from timer import timer
 
+from paddlespeech.t2s.exps.syn_utils import get_am_output
 from paddlespeech.t2s.exps.syn_utils import get_frontend
+from paddlespeech.t2s.exps.syn_utils import get_predictor
 from paddlespeech.t2s.exps.syn_utils import get_sentences
+from paddlespeech.t2s.exps.syn_utils import get_voc_output
 from paddlespeech.t2s.utils import str2bool
-
-
-def get_predictor(args, filed='am'):
-    full_name = ''
-    if filed == 'am':
-        full_name = args.am
-    elif filed == 'voc':
-        full_name = args.voc
-    model_name = full_name[:full_name.rindex('_')]
-    config = inference.Config(
-        str(Path(args.inference_dir) / (full_name + ".pdmodel")),
-        str(Path(args.inference_dir) / (full_name + ".pdiparams")))
-    if args.device == "gpu":
-        config.enable_use_gpu(100, 0)
-    elif args.device == "cpu":
-        config.disable_gpu()
-    # This line must be commented for fastspeech2, if not, it will OOM
-    if model_name != 'fastspeech2':
-        config.enable_memory_optim()
-    predictor = inference.create_predictor(config)
-    return predictor
-
-
-def get_am_output(args, am_predictor, frontend, merge_sentences, input):
-    am_name = args.am[:args.am.rindex('_')]
-    am_dataset = args.am[args.am.rindex('_') + 1:]
-    am_input_names = am_predictor.get_input_names()
-    get_tone_ids = False
-    get_spk_id = False
-    if am_name == 'speedyspeech':
-        get_tone_ids = True
-    if am_dataset in {"aishell3", "vctk"} and args.speaker_dict:
-        get_spk_id = True
-        spk_id = numpy.array([args.spk_id])
-    if args.lang == 'zh':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
-        phone_ids = input_ids["phone_ids"]
-    elif args.lang == 'en':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences)
-        phone_ids = input_ids["phone_ids"]
-    else:
-        print("lang should in {'zh', 'en'}!")
-
-    if get_tone_ids:
-        tone_ids = input_ids["tone_ids"]
-        tones = tone_ids[0].numpy()
-        tones_handle = am_predictor.get_input_handle(am_input_names[1])
-        tones_handle.reshape(tones.shape)
-        tones_handle.copy_from_cpu(tones)
-    if get_spk_id:
-        spk_id_handle = am_predictor.get_input_handle(am_input_names[1])
-        spk_id_handle.reshape(spk_id.shape)
-        spk_id_handle.copy_from_cpu(spk_id)
-    phones = phone_ids[0].numpy()
-    phones_handle = am_predictor.get_input_handle(am_input_names[0])
-    phones_handle.reshape(phones.shape)
-    phones_handle.copy_from_cpu(phones)
-
-    am_predictor.run()
-    am_output_names = am_predictor.get_output_names()
-    am_output_handle = am_predictor.get_output_handle(am_output_names[0])
-    am_output_data = am_output_handle.copy_to_cpu()
-    return am_output_data
-
-
-def get_voc_output(args, voc_predictor, input):
-    voc_input_names = voc_predictor.get_input_names()
-    mel_handle = voc_predictor.get_input_handle(voc_input_names[0])
-    mel_handle.reshape(input.shape)
-    mel_handle.copy_from_cpu(input)
-
-    voc_predictor.run()
-    voc_output_names = voc_predictor.get_output_names()
-    voc_output_handle = voc_predictor.get_output_handle(voc_output_names[0])
-    wav = voc_output_handle.copy_to_cpu()
-    return wav
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Paddle Infernce with speedyspeech & parallel wavegan.")
+        description="Paddle Infernce with acoustic model & vocoder.")
     # acoustic model
     parser.add_argument(
         '--am',
@@ -178,21 +102,35 @@ def parse_args():
 # only inference for models trained with csmsc now
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
+
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     # am_predictor
-    am_predictor = get_predictor(args, filed='am')
+    am_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.am + ".pdmodel",
+        params_file=args.am + ".pdiparams",
+        device=args.device)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_predictor(args, filed='voc')
+    voc_predictor = get_predictor(
+        model_dir=args.inference_dir,
+        model_file=args.voc + ".pdmodel",
+        params_file=args.voc + ".pdiparams",
+        device=args.device)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     merge_sentences = True
     fs = 24000 if am_dataset != 'ljspeech' else 22050
@@ -200,13 +138,15 @@ def main():
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
             am_output_data = get_am_output(
-                args,
+                input=sentence,
                 am_predictor=am_predictor,
+                am=args.am,
                 frontend=frontend,
+                lang=args.lang,
                 merge_sentences=merge_sentences,
-                input=sentence)
+                speaker_dict=args.speaker_dict, )
             wav = get_voc_output(
-                args, voc_predictor=voc_predictor, input=am_output_data)
+                voc_predictor=voc_predictor, input=am_output_data)
         speed = wav.size / t.elapse
         rtf = fs / speed
         print(
@@ -220,13 +160,15 @@ def main():
     for utt_id, sentence in sentences:
         with timer() as t:
             am_output_data = get_am_output(
-                args,
+                input=sentence,
                 am_predictor=am_predictor,
+                am=args.am,
                 frontend=frontend,
+                lang=args.lang,
                 merge_sentences=merge_sentences,
-                input=sentence)
+                speaker_dict=args.speaker_dict, )
             wav = get_voc_output(
-                args, voc_predictor=voc_predictor, input=am_output_data)
+                voc_predictor=voc_predictor, input=am_output_data)
 
         N += wav.size
         T += t.elapse

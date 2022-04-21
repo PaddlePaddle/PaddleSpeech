@@ -14,4 +14,3 @@
 from .dtw import dtw_distance
 from .eer import compute_eer
 from .eer import compute_minDCF
-from .mcd import mcd_distance

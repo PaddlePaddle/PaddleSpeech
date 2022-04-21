@@ -25,12 +25,12 @@ struct LinearSpectrogramOptions {
     kaldi::FrameExtractionOptions frame_opts;
     kaldi::BaseFloat streaming_chunk;  // second
 
-    LinearSpectrogramOptions() : streaming_chunk(0.36), frame_opts() {}
+    LinearSpectrogramOptions() : streaming_chunk(0.1), frame_opts() {}
 
     void Register(kaldi::OptionsItf* opts) {
         opts->Register("streaming-chunk",
                        &streaming_chunk,
-                       "streaming chunk size, default: 0.36 sec");
+                       "streaming chunk size, default: 0.1 sec");
         frame_opts.Register(opts);
     }
 };
@@ -46,7 +46,10 @@ class LinearSpectrogram : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() { base_extractor_->Reset(); }
+    virtual void Reset() {
+        base_extractor_->Reset();
+        remained_wav_.Resize(0);
+    }
 
   private:
     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
@@ -57,7 +60,7 @@ class LinearSpectrogram : public FrontendInterface {
     kaldi::BaseFloat hanning_window_energy_;
     LinearSpectrogramOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
-    kaldi::Vector<kaldi::BaseFloat> reminded_wav_;
+    kaldi::Vector<kaldi::BaseFloat> remained_wav_;
     int chunk_sample_size_;
     DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 };

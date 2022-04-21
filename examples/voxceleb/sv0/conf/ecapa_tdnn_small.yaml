@@ -1,0 +1,60 @@
+###########################################
+#                Data                 #
+###########################################
+augment: True
+batch_size: 32
+num_workers: 2
+num_speakers: 1211 # 1211 vox1, 5994 vox2, 7205 vox1+2, test speakers: 41
+shuffle: True
+skip_prep: False
+split_ratio: 0.9
+chunk_duration: 3.0 # seconds
+random_chunk: True
+verification_file: data/vox1/veri_test2.txt
+
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+# currently, we only support fbank
+sr: 16000           # sample rate
+n_mels: 80
+window_size: 400     #25ms, sample rate 16000, 25 * 16000 / 1000 = 400 
+hop_size: 160        #10ms, sample rate 16000, 10 * 16000 / 1000 = 160
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+# currently, we only support ecapa-tdnn in the ecapa_tdnn.yaml
+# if we want use another model, please choose another configuration yaml file
+model:
+  input_size: 80
+  channels: [512, 512, 512, 512, 1536]
+  kernel_sizes: [5, 3, 3, 3, 1]
+  dilations: [1, 2, 3, 4, 1]
+  attention_channels: 128
+  lin_neurons: 192
+
+###########################################
+#                Training                 #
+###########################################
+seed: 1986 # according from speechbrain configuration
+epochs: 100
+save_interval: 10
+log_interval: 10
+learning_rate: 1e-8
+max_lr: 1e-3
+step_size: 140000
+
+###########################################
+#                loss                     #
+###########################################
+margin: 0.2
+scale: 30
+
+###########################################
+#                Testing                  #
+###########################################
+global_embedding_norm: True
+embedding_mean_norm: True
+embedding_std_norm: False
+

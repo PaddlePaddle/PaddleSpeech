@@ -79,6 +79,9 @@ def process_sentence(config: Dict[str, Any],
         logmel = mel_extractor.get_log_mel_fbank(wav)
         # change duration according to mel_length
         compare_duration_and_mel_length(sentences, utt_id, logmel)
+        # utt_id may be popped in compare_duration_and_mel_length
+        if utt_id not in sentences:
+            return None
         labels = sentences[utt_id][0]
         # extract phone and duration
         phones = []

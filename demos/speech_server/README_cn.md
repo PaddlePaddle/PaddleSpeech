@@ -85,6 +85,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - 命令行 (推荐使用)
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+
+   # 流式ASR
+   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8091 --input ./zh.wav
+
    ```
 
     使用帮助:
@@ -191,7 +195,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
-  ### 5. CLS 客户端使用方法
+  ### 6. CLS 客户端使用方法
   **注意：** 初次使用客户端时响应时间会略长
   - 命令行 (推荐使用)
    ```

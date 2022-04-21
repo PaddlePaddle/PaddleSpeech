@@ -151,44 +151,22 @@ avg.sh best exp/conformer/checkpoints 20
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
 ```
 ## Pretrained Model
-You can get the pretrained transformer or conformer using the scripts below:
-```bash
-# Conformer:
-wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
-# Transformer:
-wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/transformer.model.tar.gz
-```
+You can get the pretrained transformer or conformer from [this](../../../docs/source/released_model.md).
+
 using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
-tar xzvf transformer.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_conformer_librispeech_ckpt_0.1.1.model.tar.gz
+tar xzvf asr1_conformer_librispeech_ckpt_0.1.1.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
 CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
 ```
-The performance of the released models are shown below:
-## Conformer
-train: Epoch 70, 4 V100-32G, best avg: 20
+The performance of the released models are shown in [here](./RESULTS.md).
 
-| Model     | Params  | Config              | Augmentation | Test set   | Decode method          | Loss              | WER      |
-| --------- | ------- | ------------------- | ------------ | ---------- | ---------------------- | ----------------- | -------- |
-| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | attention              | 6.433612394332886 | 0.039771 |
-| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | ctc_greedy_search      | 6.433612394332886 | 0.040342 |
-| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | ctc_prefix_beam_search | 6.433612394332886 | 0.040342 |
-| conformer | 47.63 M | conf/conformer.yaml | spec_aug     | test-clean | attention_rescoring    | 6.433612394332886 | 0.033761 |
-## Transformer
-train: Epoch 120, 4 V100-32G, 27 Day, best avg: 10
-
-| Model       | Params  | Config                | Augmentation | Test set   | Decode method          | Loss              | WER      |
-| ----------- | ------- | --------------------- | ------------ | ---------- | ---------------------- | ----------------- | -------- |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | attention              | 6.382194232940674 | 0.049661 |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | ctc_greedy_search      | 6.382194232940674 | 0.049566 |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | ctc_prefix_beam_search | 6.382194232940674 | 0.049585 |
-| transformer | 32.52 M | conf/transformer.yaml | spec_aug     | test-clean | attention_rescoring    | 6.382194232940674 | 0.038135 |
 ## Stage 4: CTC Alignment 
 If you want to get the alignment between the audio and the text, you can use the ctc alignment. The code of this stage is shown below:
 ```bash
@@ -227,8 +205,8 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/conformer.model.tar.gz
-tar xzvf conformer.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_conformer_librispeech_ckpt_0.1.1.model.tar.gz
+tar xzvf asr1_conformer_librispeech_ckpt_0.1.1.model.tar.gz
 ```
 You can download the audio demo:
 ```bash

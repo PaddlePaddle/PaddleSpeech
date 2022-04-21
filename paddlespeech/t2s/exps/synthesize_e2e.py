@@ -42,24 +42,48 @@ def evaluate(args):
     print(am_config)
     print(voc_config)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     # acoustic model
-    am_inference, am_name, am_dataset = get_am_inference(args, am_config)
+    am_name = args.am[:args.am.rindex('_')]
+    am_dataset = args.am[args.am.rindex('_') + 1:]
+
+    am_inference = get_am_inference(
+        am=args.am,
+        am_config=am_config,
+        am_ckpt=args.am_ckpt,
+        am_stat=args.am_stat,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict,
+        speaker_dict=args.speaker_dict)
 
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
 
     # whether dygraph to static
     if args.inference_dir:
         # acoustic model
-        am_inference = am_to_static(args, am_inference, am_name, am_dataset)
+        am_inference = am_to_static(
+            am_inference=am_inference,
+            am=args.am,
+            inference_dir=args.inference_dir,
+            speaker_dict=args.speaker_dict)
 
         # vocoder
-        voc_inference = voc_to_static(args, voc_inference)
+        voc_inference = voc_to_static(
+            voc_inference=voc_inference,
+            voc=args.voc,
+            inference_dir=args.inference_dir)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -68,13 +92,15 @@ def evaluate(args):
     # but still not stopping in the end (NOTE by yuantian01 Feb 9 2022)
     if am_name == 'tacotron2':
         merge_sentences = True
+
+    get_tone_ids = False
+    if am_name == 'speedyspeech':
+        get_tone_ids = True
+
     N = 0
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            get_tone_ids = False
-            if am_name == 'speedyspeech':
-                get_tone_ids = True
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
                     sentence,

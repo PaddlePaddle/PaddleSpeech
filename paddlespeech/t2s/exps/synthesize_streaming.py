@@ -12,37 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import math
+import os
 from pathlib import Path
 
 import numpy as np
 import paddle
 import soundfile as sf
 import yaml
+from paddle import jit
+from paddle.static import InputSpec
 from timer import timer
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.t2s.exps.syn_utils import denorm
+from paddlespeech.t2s.exps.syn_utils import get_chunks
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import model_alias
+from paddlespeech.t2s.exps.syn_utils import voc_to_static
 from paddlespeech.t2s.utils import str2bool
-
-
-def denorm(data, mean, std):
-    return data * std + mean
-
-
-def get_chunks(data, chunk_size, pad_size):
-    data_len = data.shape[1]
-    chunks = []
-    n = math.ceil(data_len / chunk_size)
-    for i in range(n):
-        start = max(0, i * chunk_size - pad_size)
-        end = min((i + 1) * chunk_size + pad_size, data_len)
-        chunks.append(data[:, start:end, :])
-    return chunks
 
 
 def evaluate(args):
@@ -59,10 +49,13 @@ def evaluate(args):
     print(am_config)
     print(voc_config)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -70,7 +63,6 @@ def evaluate(args):
     print("vocab_size:", vocab_size)
 
     # acoustic model, only support fastspeech2 here now!
-    # am_inference, am_name, am_dataset = get_am_inference(args, am_config)
     # model: {model_name}_{dataset}
     am_name = args.am[:args.am.rindex('_')]
     am_dataset = args.am[args.am.rindex('_') + 1:]
@@ -84,12 +76,60 @@ def evaluate(args):
     am_mu = paddle.to_tensor(am_mu)
     am_std = paddle.to_tensor(am_std)
 
+    # am sub layers
+    am_encoder_infer = am.encoder_infer
+    am_decoder = am.decoder
+    am_postnet = am.postnet
+
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
+
+    # whether dygraph to static
+    if args.inference_dir:
+        # fastspeech2 cnndecoder to static
+        # am.encoder_infer
+        am_encoder_infer = jit.to_static(
+            am_encoder_infer, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+        paddle.jit.save(am_encoder_infer,
+                        os.path.join(args.inference_dir,
+                                     args.am + "_am_encoder_infer"))
+        am_encoder_infer = paddle.jit.load(
+            os.path.join(args.inference_dir, args.am + "_am_encoder_infer"))
+
+        # am.decoder
+        am_decoder = jit.to_static(
+            am_decoder,
+            input_spec=[InputSpec([1, -1, 384], dtype=paddle.float32)])
+        paddle.jit.save(am_decoder,
+                        os.path.join(args.inference_dir,
+                                     args.am + "_am_decoder"))
+        am_decoder = paddle.jit.load(
+            os.path.join(args.inference_dir, args.am + "_am_decoder"))
+
+        # am.postnet
+        am_postnet = jit.to_static(
+            am_postnet,
+            input_spec=[InputSpec([1, 80, -1], dtype=paddle.float32)])
+        paddle.jit.save(am_postnet,
+                        os.path.join(args.inference_dir,
+                                     args.am + "_am_postnet"))
+        am_postnet = paddle.jit.load(
+            os.path.join(args.inference_dir, args.am + "_am_postnet"))
+
+        # vocoder
+        voc_inference = voc_to_static(
+            voc_inference=voc_inference,
+            voc=args.voc,
+            inference_dir=args.inference_dir)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     merge_sentences = True
+    get_tone_ids = False
 
     N = 0
     T = 0
@@ -98,8 +138,6 @@ def evaluate(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            get_tone_ids = False
-
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
                     sentence,
@@ -108,20 +146,19 @@ def evaluate(args):
 
                 phone_ids = input_ids["phone_ids"]
             else:
-                print("lang should in be 'zh' here!")
+                print("lang should be 'zh' here!")
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0]
             with paddle.no_grad():
                 # acoustic model
-                orig_hs, h_masks = am.encoder_infer(phone_ids)
-
+                orig_hs = am_encoder_infer(phone_ids)
                 if args.am_streaming:
                     hss = get_chunks(orig_hs, chunk_size, pad_size)
                     chunk_num = len(hss)
                     mel_list = []
                     for i, hs in enumerate(hss):
-                        before_outs, _ = am.decoder(hs)
-                        after_outs = before_outs + am.postnet(
+                        before_outs = am_decoder(hs)
+                        after_outs = before_outs + am_postnet(
                             before_outs.transpose((0, 2, 1))).transpose(
                                 (0, 2, 1))
                         normalized_mel = after_outs[0]
@@ -140,8 +177,8 @@ def evaluate(args):
                     mel = paddle.concat(mel_list, axis=0)
 
                 else:
-                    before_outs, _ = am.decoder(orig_hs)
-                    after_outs = before_outs + am.postnet(
+                    before_outs = am_decoder(orig_hs)
+                    after_outs = before_outs + am_postnet(
                         before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
                     normalized_mel = after_outs[0]
                     mel = denorm(normalized_mel, am_mu, am_std)
@@ -202,16 +239,9 @@ def parse_args():
         default='pwgan_csmsc',
         choices=[
             'pwgan_csmsc',
-            'pwgan_ljspeech',
-            'pwgan_aishell3',
-            'pwgan_vctk',
             'mb_melgan_csmsc',
             'style_melgan_csmsc',
             'hifigan_csmsc',
-            'hifigan_ljspeech',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-            'wavernn_csmsc',
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(
@@ -235,12 +265,18 @@ def parse_args():
         help='Choose model language. zh or en')
 
     parser.add_argument(
+        "--inference_dir",
+        type=str,
+        default=None,
+        help="dir to save inference models")
+
+    parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
-
+    # streaming related
     parser.add_argument(
         "--am_streaming",
         type=str2bool,

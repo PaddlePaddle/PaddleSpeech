@@ -5,8 +5,8 @@ set -e
 . path.sh
 
 nj=40
-stage=5
-stop_stage=5
+stage=0
+stop_stage=100
 
 . utils/parse_options.sh
 

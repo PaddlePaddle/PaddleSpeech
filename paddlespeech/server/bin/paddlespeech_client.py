@@ -35,7 +35,7 @@ from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
-    'TTSClientExecutor', 'ASRClientExecutor', 'ASRClientExecutor',
+    'TTSClientExecutor', 'ASRClientExecutor', 'ASROnlineClientExecutor',
     'CLSClientExecutor'
 ]
 

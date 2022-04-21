@@ -1,0 +1,77 @@
+import 'common/byte.grm' as b;
+import 'common/util.grm' as u;
+
+export del_1 = (("一":"") | ("幺":""));
+export del_2 = (("二":"") | ("两":""));
+export del_units = (
+   ("三":"")
+  | ("四":"")
+  | ("五":"")
+  | ("六":"")
+  | ("七":"")
+  | ("八":"")
+  | ("九":"")
+);
+del_0 = ("零":"");
+
+del_ten = ("十":"");
+
+del_all_units = (del_1 | del_2 | del_units);
+del_11_19 = del_ten del_all_units;
+
+#month slot
+del_month = (del_ten | (del_ten (del_1|del_2)) | del_units | del_1 | del_2) ("月":""); 
+del_prefix = ("初" : "");
+prefix_date = del_prefix (del_1 | del_2 | del_units |  del_ten);
+del_date = (del_11_19 | (("二" : "") del_11_19) | ("三十一":"") | ("三十":"") | ("二十":"") | del_all_units | del_ten)  (("号":"") | ("日":""));
+del_date2 = del_11_19 | (("二" : "") del_11_19) | ("三十一":"") | ("三十":"") | ("二十":"");
+replace_month_date = (del_month (del_date | del_date2 | prefix_date | ("":""))) u.Insert["DATE_SLOT"];
+test_month_date = AssertEqual["三月十二号" @ replace_month_date, "DATE_SLOT"];
+test_month_date2 = AssertEqual["三月十五" @ replace_month_date, "DATE_SLOT"];
+test_month_date3 = AssertEqual["十月十号" @ replace_month_date, "DATE_SLOT"];
+test_month_date4 = AssertEqual["十一月二十" @ replace_month_date, "DATE_SLOT"];
+test_month_date5 = AssertEqual["十一月初一" @ replace_month_date, "DATE_SLOT"];
+test_month_date6 = AssertEqual["十一月初十" @ replace_month_date, "DATE_SLOT"];
+test_month_date7 = AssertEqual["十一月" @ replace_month_date, "DATE_SLOT"];
+
+#year slot
+replace_year =  ((del_0 | del_all_units) {2,4} | ("两千":"") | (("两千":"") del_0 del_all_units) ) ("年":"") u.Insert["YEAR_SLOT"]; 
+test_year1 = AssertEqual["二零一九年" @ replace_year, "YEAR_SLOT"];
+test_year2 = AssertEqual["一九年" @ replace_year, "YEAR_SLOT"];
+test_year3 = AssertEqual["零一年" @ replace_year, "YEAR_SLOT"];
+test_year4 = AssertEqual["两千年" @ replace_year, "YEAR_SLOT"];
+test_year5 = AssertEqual["两千零三年" @ replace_year, "YEAR_SLOT"];
+
+# time slot
+graph_20_59 = (("二":"") | ("三":"") | ("四":"") | ("五":"")) del_ten ( ("":"") | del_all_units); 
+graph_60_99 = (("七" : "") | ("八" : "") | ("九" : "") | ("六":"")) del_ten ( ("":"") | del_all_units);
+graph_hour = del_all_units | del_11_19 | del_ten | del_0 | (("二十":"") (("":"") | ("一":"") | ("二":"") | ("三":"")));
+graph_minute = ((("过":"") | ("差":"") | del_0) (del_all_units | del_ten)) | del_ten | ("一十" : "") | del_11_19 | graph_20_59;
+
+time_prefix = (("上午":"上午") 
+  | ("下午":"下午") 
+  | ("晚上":"晚上") 
+  | ("半夜":"半夜")
+  | ("":"")
+  | ("凌晨":"凌晨"));
+
+replace_time =  time_prefix
+  ( graph_hour ("点":"") graph_minute (("":"") | (u.Delete["分"]))
+  | graph_hour ("点":"") graph_minute (("":"") | (u.Delete["分"]))
+  | graph_hour ("点半":"") ) u.Insert["TIME_SLOT"];
+
+test_time = AssertEqual["两点二十" @ replace_time, "TIME_SLOT"];
+test_time1 = AssertEqual["下午两点二十" @ replace_time, "下午TIME_SLOT"];
+test_time2 = AssertEqual["下午两点半" @ replace_time, "下午TIME_SLOT"];
+test_time3 = AssertEqual["十二点二十" @ replace_time, "TIME_SLOT"];
+test_time4 = AssertEqual["十二点过五分" @ replace_time, "TIME_SLOT"];
+test_time5 = AssertEqual["十二点一十" @ replace_time, "TIME_SLOT"];
+test_time6 = AssertEqual["十二点差十分" @ replace_time, "TIME_SLOT"];
+test_time7 = AssertEqual["十四点差两分" @ replace_time, "TIME_SLOT"];
+
+#export REPLACE = CDRewrite[replace_rule , "", "", b.kBytes*];
+
+export replace_fst = Optimize[ replace_year
+  | replace_time 
+  | replace_month_date 
+];

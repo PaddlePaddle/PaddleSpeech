@@ -15,7 +15,7 @@
 #include "websocket/websocket_server.h"
 #include "decoder/param.h"
 
-DEFINE_int32(port, 201314, "websocket listening port");
+DEFINE_int32(port, 8082, "websocket listening port");
 
 int main(int argc, char *argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);

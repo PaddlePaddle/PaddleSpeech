@@ -30,11 +30,14 @@ from ..executor import BaseExecutor
 from ..util import cli_client_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
-from paddlespeech.server.tests.asr.online.websocket_client import ASRAudioHandler
+from paddlespeech.server.utils.audio_handler import ASRAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
-__all__ = ['TTSClientExecutor', 'ASRClientExecutor', 'CLSClientExecutor']
+__all__ = [
+    'TTSClientExecutor', 'ASRClientExecutor', 'ASRClientExecutor',
+    'CLSClientExecutor'
+]
 
 
 @cli_client_register(
@@ -236,11 +239,11 @@ class ASRClientExecutor(BaseExecutor):
 @cli_client_register(
     name='paddlespeech_client.asr_online',
     description='visit asr online service')
-class ASRClientExecutor(BaseExecutor):
+class ASROnlineClientExecutor(BaseExecutor):
     def __init__(self):
-        super(ASRClientExecutor, self).__init__()
+        super(ASROnlineClientExecutor, self).__init__()
         self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.asr', add_help=True)
+            prog='paddlespeech_client.asr_online', add_help=True)
         self.parser.add_argument(
             '--server_ip', type=str, default='127.0.0.1', help='server ip')
         self.parser.add_argument(
@@ -304,6 +307,7 @@ class ASRClientExecutor(BaseExecutor):
         logging.info("asr websocket client finished")
 
         return res['asr_results']
+
 
 @cli_client_register(
     name='paddlespeech_client.cls', description='visit cls service')

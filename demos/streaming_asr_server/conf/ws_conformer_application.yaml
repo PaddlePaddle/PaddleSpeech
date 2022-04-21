@@ -29,7 +29,7 @@ asr_online:
     cfg_path: 
     decode_method: 
     force_yes: True
-    device: 'cpu' # cpu or gpu:id
+    device: # cpu or gpu:id
     am_predictor_conf:
         device:  # set 'gpu:id' or 'cpu'
         switch_ir_optim: True

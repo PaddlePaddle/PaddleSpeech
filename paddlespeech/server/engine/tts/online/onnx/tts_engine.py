@@ -434,11 +434,7 @@ class TTSEngine(BaseEngine):
         super().__init__()
 
     def init(self, config: dict) -> bool:
-        
         self.config = config
-        print("aaaaaaaaaaaaaaaaaaaaaaaaa: ", self.config.am)
-        print("vvvvvvvvvvvvvvvvvvvvvvvvv: ", self.config.voc)
-
         assert (
             self.config.am == "fastspeech2_csmsc_onnx" or
             self.config.am == "fastspeech2_cnndecoder_csmsc_onnx"

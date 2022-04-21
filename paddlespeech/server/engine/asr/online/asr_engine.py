@@ -1028,6 +1028,17 @@ class ASREngine(BaseEngine):
         self.output = ""
         self.executor = ASRServerExecutor()
         self.config = config
+        try:
+            if self.config.get("device", None):
+                self.device = self.config.device
+            else:
+                self.device = paddle.get_device()
+            logger.info(f"paddlespeech_server set the device: {self.device}")
+            paddle.set_device(self.device)
+        except BaseException:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
 
         self.executor._init_from_path(
             model_type=self.config.model_type,

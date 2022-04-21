@@ -37,12 +37,15 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
+DEFINE_string(
+    model_input_names,
+    "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",
+    "model input names");
 DEFINE_string(model_output_names,
-              "save_infer_model/scale_0.tmp_1,save_infer_model/"
-              "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"
-              "scale_3.tmp_1",
+              "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
               "model output names");
 DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
+
 
 namespace ppspeech {
 // todo refactor later

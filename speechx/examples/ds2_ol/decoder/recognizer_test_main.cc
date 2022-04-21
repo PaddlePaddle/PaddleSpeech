@@ -60,6 +60,7 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
+            // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 
             recognizer.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
@@ -67,8 +68,10 @@ int main(int argc, char* argv[]) {
             }
             recognizer.Decode();
 
+            // no overlap
             sample_offset += cur_chunk_size;
         }
+
         std::string result;
         result = recognizer.GetFinalResult();
         recognizer.Reset();

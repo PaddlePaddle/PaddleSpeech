@@ -51,7 +51,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 tts_results = next(wav_generator)
                 resp = {"status": 1, "audio": tts_results}
                 await websocket.send_json(resp)
-                logger.info("streaming audio...")
             except StopIteration as e:
                 resp = {"status": 2, "audio": ''}
                 await websocket.send_json(resp)

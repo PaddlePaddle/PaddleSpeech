@@ -42,6 +42,7 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
+    "onnxruntime",
     "pandas",
     "paddleaudio",
     "paddlenlp",
@@ -64,12 +65,16 @@ base = [
     "webrtcvad",
     "yacs~=0.1.8",
     "prettytable",
+    "zhon",
 ]
 
 server = [
     "fastapi",
     "uvicorn",
     "pattern_singleton",
+    "websockets",
+    "websocket",
+    "websocket-client",
 ]
 
 requirements = {
@@ -90,7 +95,6 @@ requirements = {
         "unidecode",
         "yq",
         "pre-commit",
-        "zhon",
     ]
 }
 

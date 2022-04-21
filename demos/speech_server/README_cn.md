@@ -86,9 +86,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
 
-   # 流式ASR
-   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8091 --input ./zh.wav
-
    ```
 
     使用帮助:

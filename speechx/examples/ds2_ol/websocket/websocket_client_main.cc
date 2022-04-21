@@ -18,7 +18,7 @@
 #include "kaldi/util/table-types.h"
 
 DEFINE_string(host, "127.0.0.1", "host of websocket server");
-DEFINE_int32(port, 201314, "port of websocket server");
+DEFINE_int32(port, 8082, "port of websocket server");
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
 

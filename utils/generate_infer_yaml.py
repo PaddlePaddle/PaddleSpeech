@@ -4,6 +4,27 @@
     Merge training configs into a single inference config.
     The single inference config is for CLI, which only takes a single config to do inferencing.
     The trainig configs includes: model config, preprocess config, decode config, vocab file and cmvn file.
+
+    Process:
+    # step 1: prepare dir
+    mkdir -p release_dir
+    cp -r exp conf data release_dir
+    cd release_dir 
+ 
+    # step 2: get "model.yaml" which conatains all configuration info.
+    # if does not contain preprocess.yaml file. e.g ds2:
+    python generate_infer_yaml.py --cfg_pth conf/deepspeech2_online.yaml --dcd_pth conf/tuning/chunk_decode.yaml --vb_pth data/lang_char/vocab.txt --cmvn_pth data/mean_std.json --save_pth model.yaml --pre_pth null        
+    # if contains preprocess.yaml file. e.g  u2:
+    python generate_infer_yaml.py --cfg_pth conf/chunk_conformer.yaml --dcd_pth conf/tuning/chunk_decode.yaml --vb_pth data/lang_char/vocab.txt --cmvn_pth data/mean_std.json --save_pth model.yaml --pre_pth conf/preprocess.yaml
+ 
+    # step 3:  remove redundant things
+    rm xxx       
+
+    # step 4: tar file
+    # ds2
+    tar czvf asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz model.yaml conf data/ exp/
+    # u2
+    tar czvf asr1_chunk_conformer_aishell_ckpt_0.2.0.model.tar.gz model.yaml conf data/ exp/  
 '''
 import argparse
 import json

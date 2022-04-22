@@ -84,7 +84,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             exit 1
         fi
         python utils/format_rsl.py \
-            --origin_hyp ${output_dir}/${type}.rsl
+            --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp ${output_dir}/${type}.rsl.text
         python utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test.text ${output_dir}/${type}.rsl.text > ${output_dir}/${type}.error 
@@ -100,7 +100,7 @@ if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
     output_dir=${ckpt_prefix}
     for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
         python utils/format_rsl.py \
-            --origin_hyp ${output_dir}/${type}.rsl
+            --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp_sclite ${output_dir}/${type}.rsl.text.sclite
 
         mkdir -p ${output_dir}/${type}_sclite

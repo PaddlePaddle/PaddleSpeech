@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
                 flag = feature_cache.Read(&features);
                 feats.push_back(features);
                 feature_rows += features.Dim() / feature_cache.Dim();
-            } while(flag == true && features.Dim() != 0);
+            } while (flag == true && features.Dim() != 0);
             sample_offset += cur_chunk_size;
         }
 

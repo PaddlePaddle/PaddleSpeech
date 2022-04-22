@@ -27,12 +27,12 @@ namespace ppspeech {
 
 struct FeaturePipelineOptions {
     std::string cmvn_file;
-    bool convert2PCM32;
+    bool to_float32;
     LinearSpectrogramOptions linear_spectrogram_opts;
     FeatureCacheOptions feature_cache_opts;
     FeaturePipelineOptions()
         : cmvn_file(""),
-          convert2PCM32(false),
+          to_float32(false),
           linear_spectrogram_opts(),
           feature_cache_opts() {}
 };

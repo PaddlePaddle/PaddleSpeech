@@ -37,14 +37,17 @@ CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
 }
 
 void CMVN::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    // feed waves/feats to compute feature
     base_extractor_->Accept(inputs);
     return;
 }
 
 bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
+    // compute feature
     if (base_extractor_->Read(feats) == false || feats->Dim() == 0) {
         return false;
     }
+    // appply cmvn
     Compute(feats);
     return true;
 }

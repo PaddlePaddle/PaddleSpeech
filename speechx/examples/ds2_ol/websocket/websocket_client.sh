@@ -14,9 +14,7 @@ fi
 # input
 mkdir -p data
 data=$PWD/data
-ckpt_dir=$data/model
-model_dir=$ckpt_dir/exp/deepspeech2_online/checkpoints/
-vocb_dir=$ckpt_dir/data/lang_char
+
 # output
 aishell_wav_scp=aishell_test.scp
 if [ ! -d $data/test ]; then

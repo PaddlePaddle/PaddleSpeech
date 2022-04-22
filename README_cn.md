@@ -586,11 +586,11 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
 ```text
-@misc{ppspeech2021,
-title={PaddleSpeech, a toolkit for audio processing based on PaddlePaddle.},
-author={PaddlePaddle Authors},
-howpublished = {\url{https://github.com/PaddlePaddle/PaddleSpeech}},
-year={2021}
+@Conference{zhang2022paddlespeech,
+  title={PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
+  author={Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},
+  booktitle={North American Conference on Chinese Linguistics},
+  year={2022}
 }
 
 @inproceedings{zheng2021fused,

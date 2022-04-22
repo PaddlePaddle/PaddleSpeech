@@ -114,6 +114,7 @@ The pretrained model can be downloaded here:
 
 The static model can be downloaded here:
 - [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip)
+- [wavernn_csmsc_static_1.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_1.0.0.zip) (fix bug for paddle 2.3)
 
 Model | Step | eval/loss
 :-------------:|:------------:| :------------:

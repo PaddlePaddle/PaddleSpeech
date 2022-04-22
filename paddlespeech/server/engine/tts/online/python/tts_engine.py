@@ -202,6 +202,7 @@ class TTSServerExecutor(TTSExecutor):
         """
         Init model and other resources from a specific path.
         """
+        #import pdb;pdb.set_trace()
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
             logger.info('Models had been initialized.')
             return
@@ -301,23 +302,6 @@ class TTSServerExecutor(TTSExecutor):
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
         print("voc done!")
-
-    def get_phone(self, sentence, lang, merge_sentences, get_tone_ids):
-        tone_ids = None
-        if lang == 'zh':
-            input_ids = self.frontend.get_input_ids(
-                sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids)
-            phone_ids = input_ids["phone_ids"]
-            if get_tone_ids:
-                tone_ids = input_ids["tone_ids"]
-        elif lang == 'en':
-            input_ids = self.frontend.get_input_ids(
-                sentence, merge_sentences=merge_sentences)
-            phone_ids = input_ids["phone_ids"]
-        else:
-            print("lang should in {'zh', 'en'}!")
 
     def depadding(self, data, chunk_num, chunk_id, block, pad, upsample):
         """ 

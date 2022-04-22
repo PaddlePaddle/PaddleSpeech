@@ -30,7 +30,7 @@ tts_online:
     speaker_dict: 
     spk_id: 0
 
-    # voc (vocoder) choices=['mb_melgan_csmsc, hifigan_csmsc']
+    # voc (vocoder) choices=['mb_melgan_csmsc', 'hifigan_csmsc']
     voc: 'mb_melgan_csmsc'
     voc_config: 
     voc_ckpt: 
@@ -69,7 +69,7 @@ tts_online-onnx:
         use_trt: False
         cpu_threads: 1
 
-    # voc (vocoder) choices=['mb_melgan_csmsc_onnx, hifigan_csmsc_onnx']
+    # voc (vocoder) choices=['mb_melgan_csmsc_onnx', 'hifigan_csmsc_onnx']
     voc: 'mb_melgan_csmsc_onnx'
     voc_ckpt: 
     voc_sample_rate: 24000

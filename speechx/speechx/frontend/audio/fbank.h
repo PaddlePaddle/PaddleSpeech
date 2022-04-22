@@ -15,23 +15,56 @@
 // wrap the fbank feat of kaldi, todo (SmileGoat)
 
 #include "kaldi/feat/feature-mfcc.h"
-
 #incldue "kaldi/matrix/kaldi-vector.h"
 
 namespace ppspeech {
 
-class FbankExtractor : FrontendInterface {
+struct FbankOptions {
+    kaldi::FrameExtractionOptions frame_opts;
+    kaldi::BaseFloat streaming_chunk;  // second
+
+    LinearSpectrogramOptions() : streaming_chunk(0.1), frame_opts() {}
+
+    void Register(kaldi::OptionsItf* opts) {
+        opts->Register("streaming-chunk",
+                       &streaming_chunk,
+                       "streaming chunk size, default: 0.1 sec");
+        frame_opts.Register(opts);
+    }
+};
+
+
+class Fbank : FrontendInterface {
   public:
-    explicit FbankExtractor(const FbankOptions& opts,
-                            share_ptr<FrontendInterface> pre_extractor);
-    virtual void AcceptWaveform(
-        const kaldi::Vector<kaldi::BaseFloat>& input) = 0;
-    virtual void Read(kaldi::Vector<kaldi::BaseFloat>* feat) = 0;
-    virtual size_t Dim() const = 0;
+    explicit Fbank(const FbankOptions& opts,
+                   unique_ptr<FrontendInterface> base_extractor);
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+
+    // the dim_ is the dim of single frame feature
+    virtual size_t Dim() const { return dim_; }
+
+    virtual void SetFinished() { base_extractor_->SetFinished(); }
+
+    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+
+    virtual void Reset() {
+        base_extractor_->Reset();
+        remained_wav_.Resize(0);
+    }
 
   private:
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& wave,
-                 kaldi::Vector<kaldi::BaseFloat>* feat) const;
+    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
+                 kaldi::Vector<kaldi::BaseFloat>* feats);
+
+    // kaldi::FeatureWindowFunction feature_window_funtion_;
+    // kaldi::BaseFloat hanning_window_energy_;
+    size_t dim_;
+    FbankOptions opts_;
+    std::unique_ptr<FrontendInterface> base_extractor_;
+    kaldi::Vector<kaldi::BaseFloat> remained_wav_;
+    int chunk_sample_size_;
+    DISALLOW_COPY_AND_ASSIGN(Fbank);
 };
 
 }  // namespace ppspeech

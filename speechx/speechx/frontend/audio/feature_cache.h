@@ -23,8 +23,12 @@ struct FeatureCacheOptions {
     int32 max_size;
     int32 frame_chunk_size;
     int32 frame_chunk_stride;
+    int32 timeout;  // ms
     FeatureCacheOptions()
-        : max_size(kint16max), frame_chunk_size(1), frame_chunk_stride(1) {}
+        : max_size(kint16max),
+          frame_chunk_size(1),
+          frame_chunk_stride(1),
+          timeout(1) {}
 };
 
 class FeatureCache : public FrontendInterface {
@@ -64,14 +68,15 @@ class FeatureCache : public FrontendInterface {
     bool Compute();
 
     int32 dim_;
-    size_t max_size_;
-    int32 frame_chunk_size_;
-    int32 frame_chunk_stride_;
-
-    kaldi::Vector<kaldi::BaseFloat> remained_feature_;
+    size_t max_size_;           // cache capacity
+    int32 frame_chunk_size_;    // window
+    int32 frame_chunk_stride_;  // stride
     std::unique_ptr<FrontendInterface> base_extractor_;
+
+    kaldi::int32 timeout_;  // ms
+    kaldi::Vector<kaldi::BaseFloat> remained_feature_;
+    std::queue<kaldi::Vector<BaseFloat>> cache_;  // feature cache
     std::mutex mutex_;
-    std::queue<kaldi::Vector<BaseFloat>> cache_;
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
 

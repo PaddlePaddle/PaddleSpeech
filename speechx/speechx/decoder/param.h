@@ -21,7 +21,7 @@
 
 DEFINE_string(cmvn_file, "", "read cmvn");
 DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
-DEFINE_bool(convert2PCM32, true, "audio convert to pcm32");
+DEFINE_bool(to_float32, true, "audio convert to pcm32");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
@@ -52,7 +52,7 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     FeaturePipelineOptions opts;
     opts.cmvn_file = FLAGS_cmvn_file;
     opts.linear_spectrogram_opts.streaming_chunk = FLAGS_streaming_chunk;
-    opts.convert2PCM32 = FLAGS_convert2PCM32;
+    opts.to_float32 = FLAGS_to_float32;
     kaldi::FrameExtractionOptions frame_opts;
     frame_opts.frame_length_ms = 20;
     frame_opts.frame_shift_ms = 10;

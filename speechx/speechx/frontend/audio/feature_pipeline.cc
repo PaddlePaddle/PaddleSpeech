@@ -20,7 +20,7 @@ using std::unique_ptr;
 
 FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
     unique_ptr<FrontendInterface> data_source(
-        new ppspeech::AudioCache(1000 * kint16max, opts.convert2PCM32));
+        new ppspeech::AudioCache(1000 * kint16max, opts.to_float32));
 
     unique_ptr<FrontendInterface> linear_spectrogram(
         new ppspeech::LinearSpectrogram(opts.linear_spectrogram_opts,

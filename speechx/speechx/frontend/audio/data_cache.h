@@ -27,6 +27,7 @@ class DataCache : public FrontendInterface {
   public:
     explicit DataCache() { finished_ = false; }
 
+    // accept waves/feats
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
         data_ = inputs;
     }

@@ -1,7 +1,7 @@
 # Examples for SpeechX
 
-* ds2_ol - ds2 streaming test under `aishell-1` test dataset.
-   The entrypoint is `ds2_ol/aishell/run.sh`
+* ds2_ol - ds2 streaming test under `aishell-1` test dataset.  
+The entrypoint is `ds2_ol/aishell/run.sh`
 
 
 ## How to run  

@@ -24,7 +24,7 @@ namespace ppspeech {
 class AudioCache : public FrontendInterface {
   public:
     explicit AudioCache(int buffer_size = 1000 * kint16max,
-                        bool convert2PCM32 = true);
+                        bool to_float32 = true);
 
     virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
 
@@ -50,14 +50,15 @@ class AudioCache : public FrontendInterface {
     kaldi::BaseFloat Convert2PCM32(kaldi::BaseFloat val);
 
     std::vector<kaldi::BaseFloat> ring_buffer_;
-    size_t offset_;    // offset in ring_buffer_
-    size_t size_;      // samples in ring_buffer_ now
-    size_t capacity_;  // capacity of ring_buffer_
+    size_t offset_;    // offset in ring_buffer_, begin of data
+    size_t size_;      // samples in ring_buffer_, size of valid data
+    size_t capacity_;  // capacity of ring_buffer_, full size of data buffer,
+                       // unit: sample
     bool finished_;    // reach audio end
     std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;  // millisecond
-    bool convert2PCM32_;
+    bool to_float32_;
 
     DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };

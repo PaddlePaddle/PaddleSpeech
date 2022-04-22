@@ -74,9 +74,7 @@ int main(int argc, char* argv[]) {
         std::string result = client.GetResult();
         LOG(INFO) << "utt: " << utt << " " << result;
 
-
         client.Join();
-        return 0;
     }
     return 0;
 }

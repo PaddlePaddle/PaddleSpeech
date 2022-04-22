@@ -27,7 +27,7 @@ from setuptools.command.install import install
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-VERSION = '0.2.0'
+VERSION = '1.0.0a'
 
 base = [
     "editdistance",

@@ -3,47 +3,6 @@ import argparse
 import os
 
 import yaml
-"""
-def change_value1(yamlfile: str, target_key: str, target_value: str, engine: str="tts_online"):
-    tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
-
-    with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
-        y = yaml.safe_load(f)
-        y[engine][target_key] = target_value
-
-        print(yaml.dump(y, default_flow_style=False, sort_keys=False))
-        yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
-    print(f"Change key: {target_key} to value: {target_value} successfully.")
-
-def change_protocol(yamlfile: str, target_key: str, target_value: str):
-    tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
-
-    with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
-        y = yaml.safe_load(f)
-        y[target_key] = target_value
-
-        print(yaml.dump(y, default_flow_style=False, sort_keys=False))
-        yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
-    print(f"Change key: {target_key} to value: {target_value} successfully.")
-
-def change_engine_type(yamlfile: str, target_key: str, target_value: str):
-    tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
-
-    with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
-        y = yaml.safe_load(f)
-        y[target_key] = [target_value]
-
-        print(yaml.dump(y, default_flow_style=False, sort_keys=False))
-        yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
-    print(f"Change key: {target_key} to value: {target_value} successfully.")
-"""
-
 
 def change_value(args):
     yamlfile = args.config_file

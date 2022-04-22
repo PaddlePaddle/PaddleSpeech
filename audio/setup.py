@@ -19,7 +19,7 @@ from setuptools.command.install import install
 from setuptools.command.test import test
 
 # set the version here
-VERSION = '0.2.1'
+VERSION = '1.0.0a'
 
 
 # Inspired by the example at https://pytest.org/latest/goodpractises.html

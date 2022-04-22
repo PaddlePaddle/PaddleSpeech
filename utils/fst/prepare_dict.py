@@ -35,7 +35,7 @@ def main(args):
     # used to filter polyphone and invalid word
     lexicon_table = set()
     in_n = 0  # in lexicon word count
-    out_n = 0 # out lexicon word cout
+    out_n = 0  # out lexicon word cout
     with open(args.in_lexicon, 'r') as fin, \
             open(args.out_lexicon, 'w') as fout:
         for line in fin:
@@ -82,7 +82,10 @@ def main(args):
                 lexicon_table.add(word)
                 out_n += 1
 
-    print(f"Filter lexicon by unit table: filter out {in_n - out_n}, {out_n}/{in_n}")
+    print(
+        f"Filter lexicon by unit table: filter out {in_n - out_n}, {out_n}/{in_n}"
+    )
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

@@ -12,6 +12,8 @@ exclude =
     .git,
     # python cache
     __pycache__,
+    # third party
+    utils/compute-wer.py,
     third_party/,
 # Provide a comma-separate list of glob patterns to include for checks.
 filename =

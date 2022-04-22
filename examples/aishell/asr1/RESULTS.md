@@ -2,26 +2,26 @@
 
 ## Conformer
 paddle version: 2.2.2  
-paddlespeech version: 0.1.2
+paddlespeech version: 0.2.0
 | Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |
 | --- | --- | --- | --- | --- | --- | --- | --- | 
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention | - | 0.0548 |
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_greedy_search | - | 0.05127 |
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug| test | ctc_prefix_beam_search | - | 0.05131 | 
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.04829 | 
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention | - | 0.0530 |
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_greedy_search | - | 0.0495 |
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug| test | ctc_prefix_beam_search | - | 0.0494 | 
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.0464 | 
 
 
 ## Chunk Conformer
 paddle version: 2.2.2  
-paddlespeech version: 0.1.2  
+paddlespeech version: 0.2.0  
 Need set `decoding.decoding_chunk_size=16` when decoding.
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention | 16, -1 | - | 0.0573884 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_greedy_search | 16, -1 | - | 0.06599091 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_prefix_beam_search | 16, -1 | - | 0.065991 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention_rescoring | 16, -1 |  - | 0.056502 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention | 16, -1 | - | 0.0551 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_greedy_search | 16, -1 | - | 0.0629 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_prefix_beam_search | 16, -1 | - | 0.0629 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention_rescoring | 16, -1 |  - | 0.0544 |  
 
 
 ## Transformer 

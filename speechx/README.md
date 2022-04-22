@@ -3,7 +3,7 @@
 ## Environment
 
 We develop under:
-* docker - registry.baidubce.com/paddlepaddle/paddle:2.1.1-gpu-cuda10.2-cudnn7
+* docker - `registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7`
 * os - Ubuntu 16.04.7 LTS
 * gcc/g++/gfortran - 8.2.0
 * cmake - 3.16.0
@@ -19,7 +19,7 @@ We develop under:
 1. First to launch docker container.
 
 ```
-nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspace --name=dev registry.baidubce.com/paddlepaddle/paddle:2.1.1-gpu-cuda10.2-cudnn7 /bin/bash
+docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspace --name=dev registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7 /bin/bash
 ```
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).
@@ -60,4 +60,5 @@ popd
 
 ## TODO
 
+### Deepspeech2 with linear feature
 * DecibelNormalizer: there is a little bit difference between offline and online db norm. The computation of online db norm read feature chunk by chunk, which causes the feature size is different with offline db norm. In normalizer.cc:73, the samples.size() is different, which causes the difference of result.

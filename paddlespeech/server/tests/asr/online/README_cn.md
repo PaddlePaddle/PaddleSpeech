@@ -1,9 +1,9 @@
-([简体中文](./README_cn.md)|English)
+([English](./README.md)|中文)
 
 # 语音服务
 
 ## 介绍
-本文档介绍如何使用流式ASR的三种不同客户端:网页、麦克风、Python模拟流式服务。 
+本文档介绍如何使用流式ASR的一种不同客户端:麦克风。 
 
 
 ## 使用方法
@@ -20,7 +20,7 @@
 
 可以下载此 ASR client的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ```
 
 ### 2. 流式 ASR 客户端使用方法
@@ -38,12 +38,5 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
    ```
    # 直接调用麦克风设备
    python microphone_client.py
-
-   ```
-
-
-- 网页
-   ```
-   # 进入web目录后参考相关readme.md
 
    ```

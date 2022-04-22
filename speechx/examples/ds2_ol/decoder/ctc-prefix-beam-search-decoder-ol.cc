@@ -58,12 +58,11 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-
-    std::string model_graph = FLAGS_model_path;
+    std::string model_path = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
     std::string dict_file = FLAGS_dict_file;
     std::string lm_path = FLAGS_lm_path;
-    LOG(INFO) << "model path: " << model_graph;
+    LOG(INFO) << "model path: " << model_path;
     LOG(INFO) << "model param: " << model_params;
     LOG(INFO) << "dict path: " << dict_file;
     LOG(INFO) << "lm path: " << lm_path;
@@ -76,8 +75,8 @@ int main(int argc, char* argv[]) {
     ppspeech::CTCBeamSearch decoder(opts);
 
     ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_graph;
-    model_opts.params_path = model_params;
+    model_opts.model_path = model_path;
+    model_opts.param_path = model_params;
     model_opts.cache_shape = FLAGS_model_cache_names;
     model_opts.input_names = FLAGS_model_input_names;
     model_opts.output_names = FLAGS_model_output_names;
@@ -125,7 +124,6 @@ int main(int argc, char* argv[]) {
             if (feature_chunk_size < receptive_field_length) break;
 
             int32 start = chunk_idx * chunk_stride;
-            int32 end = start + chunk_size;
 
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);

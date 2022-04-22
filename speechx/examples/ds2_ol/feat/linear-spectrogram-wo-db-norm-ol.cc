@@ -32,7 +32,6 @@ DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
 DEFINE_string(cmvn_file, "./cmvn.ark", "read cmvn");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 
-
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
@@ -66,7 +65,13 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> cmvn(
         new ppspeech::CMVN(FLAGS_cmvn_file, std::move(linear_spectrogram)));
 
-    ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
+    ppspeech::FeatureCacheOptions feat_cache_opts;
+    // the feature cache output feature chunk by chunk.
+    // frame_chunk_size : num frame of a chunk.
+    // frame_chunk_stride: chunk sliding window stride.
+    feat_cache_opts.frame_chunk_stride = 1;
+    feat_cache_opts.frame_chunk_size = 1;
+    ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
     int sample_rate = 16000;
@@ -105,12 +110,13 @@ int main(int argc, char* argv[]) {
             if (cur_chunk_size < chunk_sample_size) {
                 feature_cache.SetFinished();
             }
-            feature_cache.Read(&features);
-            if (features.Dim() == 0) break;
-
-            feats.push_back(features);
+            bool flag = true;
+            do {
+                flag = feature_cache.Read(&features);
+                feats.push_back(features);
+                feature_rows += features.Dim() / feature_cache.Dim();
+            } while(flag == true && features.Dim() != 0);
             sample_offset += cur_chunk_size;
-            feature_rows += features.Dim() / feature_cache.Dim();
         }
 
         int cur_idx = 0;

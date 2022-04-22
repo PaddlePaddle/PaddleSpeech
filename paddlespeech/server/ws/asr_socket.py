@@ -20,50 +20,52 @@ from starlette.websockets import WebSocketState as WebSocketState
 
 from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
-from paddlespeech.server.utils.buffer import ChunkBuffer
-from paddlespeech.server.utils.vad import VADAudio
 
 router = APIRouter()
 
 
 @router.websocket('/ws/asr')
 async def websocket_endpoint(websocket: WebSocket):
+    """PaddleSpeech Online ASR Server api
+
+    Args:
+        websocket (WebSocket): the websocket instance
+    """
+
+    #1. the interface wait to accept the websocket protocal header
+    #   and only we receive the header, it establish the connection with specific thread
     await websocket.accept()
 
+    #2. if we accept the websocket headers, we will get the online asr engine instance
     engine_pool = get_engine_pool()
     asr_engine = engine_pool['asr']
-    connection_handler = None
-    # init buffer
-    # each websocekt connection has its own chunk buffer
-    chunk_buffer_conf = asr_engine.config.chunk_buffer_conf
-    chunk_buffer = ChunkBuffer(
-        window_n=chunk_buffer_conf.window_n,
-        shift_n=chunk_buffer_conf.shift_n,
-        window_ms=chunk_buffer_conf.window_ms,
-        shift_ms=chunk_buffer_conf.shift_ms,
-        sample_rate=chunk_buffer_conf.sample_rate,
-        sample_width=chunk_buffer_conf.sample_width)
 
-    # init vad
-    vad_conf = asr_engine.config.get('vad_conf', None)
-    if vad_conf:
-        vad = VADAudio(
-            aggressiveness=vad_conf['aggressiveness'],
-            rate=vad_conf['sample_rate'],
-            frame_duration_ms=vad_conf['frame_duration_ms'])
+    #3. each websocket connection, we will create an PaddleASRConnectionHanddler to process such audio
+    #   and each connection has its own connection instance to process the request
+    #   and only if client send the start signal, we create the PaddleASRConnectionHanddler instance
+    connection_handler = None
 
     try:
+        #4. we do a loop to process the audio package by package according the protocal
+        #   and only if the client send finished signal, we will break the loop
         while True:
             # careful here, changed the source code from starlette.websockets
+            # 4.1 we wait for the client signal for the specific action
             assert websocket.application_state == WebSocketState.CONNECTED
             message = await websocket.receive()
             websocket._raise_on_disconnect(message)
+
+            #4.2 text for the action command and bytes for pcm data
             if "text" in message:
+                # we first parse the specific command
                 message = json.loads(message["text"])
                 if 'signal' not in message:
                     resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
 
+                # start command, we create the PaddleASRConnectionHanddler instance to process the audio data
+                # end command, we process the all the last audio pcm and return the final result
+                #              and we break the loop
                 if message['signal'] == 'start':
                     resp = {"status": "ok", "signal": "server_ready"}
                     # do something at begining here
@@ -72,6 +74,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json(resp)
                 elif message['signal'] == 'end':
                     # reset single  engine for an new connection
+                    # and we will destroy the connection
                     connection_handler.decode(is_finished=True)
                     connection_handler.rescoring()
                     asr_results = connection_handler.get_result()
@@ -88,12 +91,17 @@ async def websocket_endpoint(websocket: WebSocket):
                     resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
             elif "bytes" in message:
+                # bytes for the pcm data
                 message = message["bytes"]
 
+                # we extract the remained audio pcm 
+                # and decode for the result in this package data
                 connection_handler.extract_feat(message)
                 connection_handler.decode(is_finished=False)
                 asr_results = connection_handler.get_result()
 
+                # return the current period result
+                # if the engine create the vad instance, this connection will have many period results 
                 resp = {'asr_results': asr_results}
                 await websocket.send_json(resp)
     except WebSocketDisconnect:

@@ -15,7 +15,6 @@
 #pragma once
 
 #include "base/common.h"
-
 #include "decoder/ctc_beam_search_decoder.h"
 #include "decoder/ctc_tlg_decoder.h"
 #include "frontend/audio/feature_pipeline.h"
@@ -24,7 +23,7 @@ DEFINE_string(cmvn_file, "", "read cmvn");
 DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
 DEFINE_bool(convert2PCM32, true, "audio convert to pcm32");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
-DEFINE_string(params_path, "avg_1.jit.pdiparams", "paddle nnet model param");
+DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
 DEFINE_string(graph_path, "TLG", "decoder graph");
 DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
@@ -37,12 +36,15 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
+DEFINE_string(
+    model_input_names,
+    "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",
+    "model input names");
 DEFINE_string(model_output_names,
-              "save_infer_model/scale_0.tmp_1,save_infer_model/"
-              "scale_1.tmp_1,save_infer_model/scale_2.tmp_1,save_infer_model/"
-              "scale_3.tmp_1",
+              "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
               "model output names");
 DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
+
 
 namespace ppspeech {
 // todo refactor later
@@ -67,7 +69,7 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
 ModelOptions InitModelOptions() {
     ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
-    model_opts.params_path = FLAGS_params_path;
+    model_opts.param_path = FLAGS_param_path;
     model_opts.cache_shape = FLAGS_model_cache_names;
     model_opts.output_names = FLAGS_model_output_names;
     return model_opts;

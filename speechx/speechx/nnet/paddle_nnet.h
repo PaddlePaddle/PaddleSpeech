@@ -11,25 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-
 #pragma once
-
-
+#include <numeric>
+#include "base/common.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
-
-#include "base/common.h"
 #include "nnet/nnet_itf.h"
 #include "paddle_inference_api.h"
-
-#include <numeric>
 
 namespace ppspeech {
 
 struct ModelOptions {
     std::string model_path;
-    std::string params_path;
+    std::string param_path;
     int thread_num;
     bool use_gpu;
     bool switch_ir_optim;
@@ -41,7 +35,7 @@ struct ModelOptions {
     bool enable_profile;
     ModelOptions()
         : model_path("avg_1.jit.pdmodel"),
-          params_path("avg_1.jit.pdiparams"),
+          param_path("avg_1.jit.pdiparams"),
           thread_num(2),
           use_gpu(false),
           input_names(
@@ -59,7 +53,7 @@ struct ModelOptions {
 
     void Register(kaldi::OptionsItf* opts) {
         opts->Register("model-path", &model_path, "model file path");
-        opts->Register("model-params", &params_path, "params model file path");
+        opts->Register("model-param", &param_path, "params model file path");
         opts->Register("thread-num", &thread_num, "thread num");
         opts->Register("use-gpu", &use_gpu, "if use gpu");
         opts->Register("input-names", &input_names, "paddle input names");

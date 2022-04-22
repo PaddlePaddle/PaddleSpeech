@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_graph;
-    model_opts.params_path = model_params;
+    model_opts.param_path = model_params;
     model_opts.cache_shape = FLAGS_model_cache_names;
     model_opts.input_names = FLAGS_model_input_names;
     model_opts.output_names = FLAGS_model_output_names;

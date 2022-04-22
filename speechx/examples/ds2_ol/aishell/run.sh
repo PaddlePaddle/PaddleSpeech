@@ -119,7 +119,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         pushd $wfst
         wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_graph.zip
         unzip aishell_graph.zip
-        mv aishell_graph/* 
+        mv aishell_graph/* $wfst
         popd
     fi
 

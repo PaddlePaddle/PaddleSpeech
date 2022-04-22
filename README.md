@@ -594,11 +594,11 @@ The Text-to-Speech module is originally called [Parakeet](https://github.com/Pad
 To cite PaddleSpeech for research, please use the following format.
 ```tex
 @inproceedings{zhang2022paddlespeech,
-    title = "PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit",
-    author = "Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang",
-    booktitle = "Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies: Demonstrations",
-    year = "2022",
-    publisher = "Association for Computational Linguistics",
+    title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
+    author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},
+    booktitle = {Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies: Demonstrations},
+    year = {2022},
+    publisher = {Association for Computational Linguistics},
 }
 
 @inproceedings{zheng2021fused,

@@ -66,6 +66,11 @@ int main(int argc, char* argv[]) {
         new ppspeech::CMVN(FLAGS_cmvn_file, std::move(linear_spectrogram)));
 
     ppspeech::FeatureCacheOptions feat_cache_opts;
+    // the feature cache output feature chunk by chunk.
+    // frame_chunk_size : num frame of a chunk.
+    // frame_chunk_stride: chunk sliding window stride.
+    feat_cache_opts.frame_chunk_stride = 1;
+    feat_cache_opts.frame_chunk_size = 1;
     ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
@@ -105,12 +110,13 @@ int main(int argc, char* argv[]) {
             if (cur_chunk_size < chunk_sample_size) {
                 feature_cache.SetFinished();
             }
-            feature_cache.Read(&features);
-            if (features.Dim() == 0) break;
-
-            feats.push_back(features);
+            bool flag = true;
+            do {
+                flag = feature_cache.Read(&features);
+                feats.push_back(features);
+                feature_rows += features.Dim() / feature_cache.Dim();
+            } while(flag == true && features.Dim() != 0);
             sample_offset += cur_chunk_size;
-            feature_rows += features.Dim() / feature_cache.Dim();
         }
 
         int cur_idx = 0;

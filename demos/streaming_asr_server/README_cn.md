@@ -40,8 +40,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   paddlespeech_server start --help
   ```
   参数:
-  - `config_file`: 服务的配置文件，默认： ./conf/ws_conformer_application.yaml
-  - `log_file`: log 文件. 默认：./log/paddlespeech.log
+  - `config_file`: 服务的配置文件，默认： `./conf/application.yaml`
+  - `log_file`: log 文件. 默认：`./log/paddlespeech.log`
 
   输出:
   ```bash

@@ -40,8 +40,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: ./conf/ws_conformer_application.yaml
-  - `log_file`: log file. Default: ./log/paddlespeech.log
+  - `config_file`: yaml file of the app, defalut: `./conf/application.yaml`
+  - `log_file`: log file. Default: `./log/paddlespeech.log`
 
   Output:
   ```bash

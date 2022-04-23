@@ -17,8 +17,8 @@ import uvicorn
 from config import UPLOAD_PATH
 from fastapi import FastAPI
 from fastapi import File
+from fastapi import Form
 from fastapi import UploadFile
-from logs import LOGGER
 from mysql_helpers import MySQLHelper
 from operations.count import do_count_vpr
 from operations.count import do_get
@@ -30,6 +30,8 @@ from operations.search import do_search_vpr
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse
+
+from logs import LOGGER
 
 app = FastAPI()
 app.add_middleware(
@@ -49,10 +51,12 @@ if not os.path.exists(UPLOAD_PATH):
 
 @app.post('/vpr/enroll')
 async def vpr_enroll(table_name: str=None,
-                     spk_id: str=None,
+                     spk_id: str=Form(...),
                      audio: UploadFile=File(...)):
     # Enroll the uploaded audio with spk-id into MySQL
     try:
+        if not spk_id:
+            return {'status': False, 'msg': "spk_id can not be None"}
         # Save the upload data to server.
         content = await audio.read()
         audio_path = os.path.join(UPLOAD_PATH, audio.filename)
@@ -63,7 +67,7 @@ async def vpr_enroll(table_name: str=None,
         return {'status': True, 'msg': "Successfully enroll data!"}
     except Exception as e:
         LOGGER.error(e)
-        return {'status': False, 'msg': e}, 400
+        return {'status': False, 'msg': e}
 
 
 @app.post('/vpr/enroll/local')
@@ -128,9 +132,12 @@ async def vpr_recog_local(request: Request,
 
 
 @app.post('/vpr/del')
-async def vpr_del(table_name: str=None, spk_id: str=None):
+async def vpr_del(table_name: str=None, spk_id: dict=None):
     # Delete a record by spk_id in MySQL
     try:
+        spk_id = spk_id['spk_id']
+        if not spk_id:
+            return {'status': False, 'msg': "spk_id can not be None"}
         do_delete(table_name, spk_id, MYSQL_CLI)
         LOGGER.info("Successfully delete a record by spk_id in MySQL")
         return {'status': True, 'msg': "Successfully delete data!"}
@@ -156,9 +163,12 @@ async def vpr_list(table_name: str=None):
 @app.get('/vpr/data')
 async def vpr_data(
     table_name: str=None,
-    spk_id: str=None, ):
+    spk_id: dict=None, ):
     # Get the audio file from path by spk_id in MySQL
     try:
+        spk_id = spk_id['spk_id']
+        if not spk_id:
+            return {'status': False, 'msg': "spk_id can not be None"}
         audio_path = do_get(table_name, spk_id, MYSQL_CLI)
         LOGGER.info(f"Successfully get audio path {audio_path}!")
         return FileResponse(audio_path)

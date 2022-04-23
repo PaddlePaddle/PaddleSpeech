@@ -73,7 +73,9 @@ def test_data(spk: str):
     """
     Get the audio file by spk_id in MySQL
     """
-    response = client.get("/vpr/data?spk_id=" + spk)
+    response = client.get(
+        "/vpr/data",
+        json={"spk_id": spk}, )
     assert response.status_code == 200
 
 
@@ -81,7 +83,9 @@ def test_del(spk: str):
     """
     Delete the record in MySQL by spk_id
     """
-    response = client.post("/vpr/del?spk_id=" + spk)
+    response = client.post(
+        "/vpr/del",
+        json={"spk_id": spk}, )
     assert response.status_code == 200
 
 

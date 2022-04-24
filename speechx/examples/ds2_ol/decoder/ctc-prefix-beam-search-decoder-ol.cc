@@ -41,7 +41,8 @@ DEFINE_string(
 DEFINE_string(model_output_names,
               "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
               "model output names");
-DEFINE_string(model_cache_names, "5-1-1024,5-1-1024", "model cache names");
+DEFINE_string(model_cache_names, "chunk_state_h_box,chunk_state_c_box", "model cache names");
+DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
@@ -77,7 +78,8 @@ int main(int argc, char* argv[]) {
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = model_path;
     model_opts.param_path = model_params;
-    model_opts.cache_shape = FLAGS_model_cache_names;
+    model_opts.cache_names = FLAGS_model_cache_names;
+    model_opts.cache_shape = FLAGS_model_cache_shapes;
     model_opts.input_names = FLAGS_model_input_names;
     model_opts.output_names = FLAGS_model_output_names;
     std::shared_ptr<ppspeech::PaddleNnet> nnet(

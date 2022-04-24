@@ -10,7 +10,7 @@ port: 8092
 # task choices = ['tts_online', 'tts_online-onnx']
 # protocol = ['websocket', 'http'] (only one can be selected).
 protocol: 'http'
-engine_list: ['tts_online']
+engine_list: ['tts_online-onnx']
 
 
 #################################################################################
@@ -67,16 +67,16 @@ tts_online-onnx:
     am_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # voc (vocoder) choices=['mb_melgan_csmsc_onnx, hifigan_csmsc_onnx']
-    voc: 'mb_melgan_csmsc_onnx'
+    voc: 'hifigan_csmsc_onnx'
     voc_ckpt: 
     voc_sample_rate: 24000
     voc_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # others
     lang: 'zh'

@@ -67,7 +67,7 @@ tts_online-onnx:
     am_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # voc (vocoder) choices=['mb_melgan_csmsc_onnx', 'hifigan_csmsc_onnx']
     voc: 'mb_melgan_csmsc_onnx'
@@ -76,7 +76,7 @@ tts_online-onnx:
     voc_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # others
     lang: 'zh'

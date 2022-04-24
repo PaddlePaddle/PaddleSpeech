@@ -385,11 +385,6 @@ class TextClientExecutor(BaseExecutor):
             default=None,
             help='sentence to be process by text server.',
             required=True)
-        self.parser.add_argument(
-            '--output',
-            type=str,
-            default=None,
-            help='Return punctuation sentence.')
 
     def execute(self, argv: List[str]) -> bool:
         """Execute the request from the argv.

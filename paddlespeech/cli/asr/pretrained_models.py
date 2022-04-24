@@ -31,12 +31,12 @@ pretrained_models = {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_conformer_aishell_ckpt_0.1.2.model.tar.gz',
         'md5':
-        'ca2c97242863ed4d8baa394be715d989',
+        '3f073eccfa7bb14e0c6867d65fc0dc3a',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
         'exp/conformer/checkpoints/avg_30',
-    }
+    },
     "transformer_librispeech-en-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_transformer_librispeech_ckpt_0.1.1.model.tar.gz',

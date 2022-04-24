@@ -13,8 +13,12 @@
 # limitations under the License.
 import glob
 import os
+import subprocess
 
+import pybind11
 import setuptools
+from setuptools import Extension
+from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 from setuptools.command.test import test
 
@@ -48,6 +52,50 @@ class InstallCommand(install):
         install.run(self)
 
 
+class ExtBuildCommand(build_ext):
+    def run(self):
+        try:
+            subprocess.check_output(["cmake", "--version"])
+        except OSError:
+            raise RuntimeError("CMake is not available.") from None
+        super().run()
+
+    def build_extension(self, ext):
+        extdir = os.path.abspath(
+            os.path.dirname(self.get_ext_fullpath(ext.name)))
+        cfg = "Debug" if self.debug else "Release"
+        cmake_args = [
+            f"-DCMAKE_BUILD_TYPE={cfg}",
+            f"-Dpybind11_DIR={pybind11.get_cmake_dir()}",
+            f"-DCMAKE_INSTALL_PREFIX={extdir}",
+            "-DCMAKE_VERBOSE_MAKEFILE=ON",
+            "-DBUILD_SOX:BOOL=ON",
+        ]
+        build_args = ["--target", "install"]
+
+        # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
+        # across all generators.
+        if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
+            if hasattr(self, "parallel") and self.parallel:
+                build_args += ["-j{}".format(self.parallel)]
+
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+
+        subprocess.check_call(
+            ["cmake", os.path.abspath(os.path.dirname(__file__))] + cmake_args,
+            cwd=self.build_temp)
+        subprocess.check_call(
+            ["cmake", "--build", "."] + build_args, cwd=self.build_temp)
+
+    def get_ext_filename(self, fullname):
+        ext_filename = super().get_ext_filename(fullname)
+        ext_filename_parts = ext_filename.split(".")
+        without_abi = ext_filename_parts[:-2] + ext_filename_parts[-1:]
+        ext_filename = ".".join(without_abi)
+        return ext_filename
+
+
 def write_version_py(filename='paddleaudio/__init__.py'):
     with open(filename, "a") as f:
         f.write(f"__version__ = '{VERSION}'")
@@ -60,6 +108,14 @@ def remove_version_py(filename='paddleaudio/__init__.py'):
         for line in lines:
             if "__version__" not in line:
                 f.write(line)
+
+
+def get_ext_modules():
+    modules = [
+        Extension(name="paddleaudio._paddleaudio", sources=[]),
+    ]
+
+    return modules
 
 
 remove_version_py()
@@ -91,8 +147,10 @@ setuptools.setup(
             'torchaudio==0.10.2', 'pytest-benchmark'
         ],
     },
+    ext_modules=get_ext_modules(),
     cmdclass={
         'install': InstallCommand,
+        "build_ext": ExtBuildCommand,
         'test': TestCommand,
     }, )
 

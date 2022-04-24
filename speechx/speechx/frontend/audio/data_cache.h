@@ -21,8 +21,10 @@
 
 
 namespace ppspeech {
-// A data source for testing different frontend module.
-// It accepts waves or feats.
+
+// Simulates audio/feature input, by returning data from a Vector.
+// This class is mostly meant to be used for online decoder testing using
+// pre-recorded audio/feature
 class DataCache : public FrontendInterface {
   public:
     explicit DataCache() { finished_ = false; }

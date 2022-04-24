@@ -12,29 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// wrap the fbank feat of kaldi, todo (SmileGoat)
+#pragma once
 
+#include "kaldi/feat/feature-fbank.h"
 #include "kaldi/feat/feature-mfcc.h"
-#incldue "kaldi/matrix/kaldi-vector.h"
+#include "kaldi/matrix/kaldi-vector.h"
 
 namespace ppspeech {
 
 struct FbankOptions {
-    kaldi::FrameExtractionOptions frame_opts;
+    kaldi::FbankOptions fbank_opts;
     kaldi::BaseFloat streaming_chunk;  // second
 
-    LinearSpectrogramOptions() : streaming_chunk(0.1), frame_opts() {}
+    FbankOptions() : streaming_chunk(0.1), fbank_opts() {}
 
     void Register(kaldi::OptionsItf* opts) {
         opts->Register("streaming-chunk",
                        &streaming_chunk,
                        "streaming chunk size, default: 0.1 sec");
-        frame_opts.Register(opts);
+        fbank_opts.Register(opts);
     }
 };
 
 
-class Fbank : FrontendInterface {
+class Fbank : public FrontendInterface {
   public:
     explicit Fbank(const FbankOptions& opts,
                    unique_ptr<FrontendInterface> base_extractor);
@@ -42,7 +43,7 @@ class Fbank : FrontendInterface {
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
 
     // the dim_ is the dim of single frame feature
-    virtual size_t Dim() const { return dim_; }
+    virtual size_t Dim() const { return computer_.Dim(); }
 
     virtual void SetFinished() { base_extractor_->SetFinished(); }
 
@@ -57,13 +58,17 @@ class Fbank : FrontendInterface {
     bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
                  kaldi::Vector<kaldi::BaseFloat>* feats);
 
-    // kaldi::FeatureWindowFunction feature_window_funtion_;
-    // kaldi::BaseFloat hanning_window_energy_;
-    size_t dim_;
     FbankOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
+
+
+    FeatureWindowFunction window_function_;
+    kaldi::FbankComputer computer_;
+    // features_ is the Mfcc or Plp or Fbank features that we have already
+    // computed.
+    kaldi::Vector<kaldi::BaseFloat> features_;
     kaldi::Vector<kaldi::BaseFloat> remained_wav_;
-    int chunk_sample_size_;
+
     DISALLOW_COPY_AND_ASSIGN(Fbank);
 };
 

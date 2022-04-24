@@ -24,7 +24,7 @@ namespace ppspeech {
 class AudioCache : public FrontendInterface {
   public:
     explicit AudioCache(int buffer_size = 1000 * kint16max,
-                        bool to_float32 = true);
+                        bool to_float32 = false);
 
     virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
 
@@ -58,7 +58,7 @@ class AudioCache : public FrontendInterface {
     std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;  // millisecond
-    bool to_float32_;
+    bool to_float32_;       // int16 -> float32. used in linear_spectrogram
 
     DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };

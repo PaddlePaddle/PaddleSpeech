@@ -58,6 +58,8 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
         usleep(100);  // sleep 0.1 ms
     }
     if (cache_.empty()) return false;
+
+    // read from cache
     feats->Resize(cache_.front().Dim());
     feats->CopyFromVec(cache_.front());
     cache_.pop();
@@ -74,15 +76,16 @@ bool FeatureCache::Compute() {
 
     // join with remained
     int32 joint_len = feature.Dim() + remained_feature_.Dim();
-    int32 num_chunk =
-        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
-
     Vector<BaseFloat> joint_feature(joint_len);
     joint_feature.Range(0, remained_feature_.Dim())
         .CopyFromVec(remained_feature_);
     joint_feature.Range(remained_feature_.Dim(), feature.Dim())
         .CopyFromVec(feature);
 
+    // one by one, or stride with window
+    // controlled by frame_chunk_stride_ and frame_chunk_size_
+    int32 num_chunk =
+        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * frame_chunk_stride_ * dim_;
 
@@ -101,6 +104,8 @@ bool FeatureCache::Compute() {
         cache_.push(feature_chunk);
         ready_read_condition_.notify_one();
     }
+
+    // cache remained feats
     int32 remained_feature_len =
         joint_len - num_chunk * frame_chunk_stride_ * dim_;
     remained_feature_.Resize(remained_feature_len);

@@ -346,7 +346,7 @@ class ASRExecutor(BaseExecutor):
             max_duration = 50.0
             if audio_duration >= max_duration:
                 logger.error("Please input audio file less then 50 seconds.\n")
-                return
+                exit(1)
         except Exception as e:
             logger.exception(e)
             logger.error(

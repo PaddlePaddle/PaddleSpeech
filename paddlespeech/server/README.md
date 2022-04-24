@@ -48,3 +48,16 @@ paddlespeech_server start --config_file conf/ws_conformer_application.yaml
 ```
 paddlespeech_client asr_online  --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
 ```
+
+## Online TTS Server
+
+### Lanuch online tts server
+```
+paddlespeech_server start --config_file conf/tts_online_application.yaml
+```
+
+### Access online tts server
+
+```
+paddlespeech_client tts_online  --server_ip 127.0.0.1 --port 8092 --input "您好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+```

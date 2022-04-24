@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+echo -e "\e[1;31monly if you see 'Test success !!!', the cli testing is successful\e[0m"
 
 # Audio classification
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
@@ -12,6 +13,13 @@ paddlespeech text --input 今天的天气真不错啊你下午有空吗我想约
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+
+# long audio restriction
+wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
+paddlespeech asr --input test_long_audio_01.wav
+if [ $? -ne 1 ]; then
+   exit 1
+fi
 
 # Text To Speech
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"
@@ -56,3 +64,6 @@ paddlespeech stats --task cls
 paddlespeech stats --task text
 paddlespeech stats --task vector
 paddlespeech stats --task st
+
+
+echo "Test success !!!"

@@ -15,6 +15,7 @@
 import argparse
 import os
 
+import paddle
 import yaml
 from tqdm import tqdm
 
@@ -23,32 +24,34 @@ from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("--cfg_path", type=str, required=True)
-parser.add_argument('--keyword', type=int, default=0, help='keyword label')
-parser.add_argument('--step', type=float, default=0.01, help='threshold step')
+parser.add_argument('--keyword_index', type=int, default=0, help='keyword index')
+parser.add_argument('--step', type=float, default=0.01, help='threshold step of trigger score')
 parser.add_argument('--window_shift', type=int, default=50, help='window_shift is used to skip the frames after triggered')
 args = parser.parse_args()
 # yapf: enable
 
 
-def load_label_and_score(keyword, ds, score_file):
-    score_table = {}
+def load_label_and_score(keyword_index: int,
+                         ds: paddle.io.Dataset,
+                         score_file: os.PathLike):
+    score_table = {}  # {utt_id: scores_over_frames}
     with open(score_file, 'r', encoding='utf8') as fin:
         for line in fin:
             arr = line.strip().split()
             key = arr[0]
             current_keyword = arr[1]
             str_list = arr[2:]
-            if int(current_keyword) == keyword:
+            if int(current_keyword) == keyword_index:
                 scores = list(map(float, str_list))
                 if key not in score_table:
                     score_table.update({key: scores})
-    keyword_table = {}
-    filler_table = {}
+    keyword_table = {}  # scores of keyword utt_id
+    filler_table = {}  # scores of non-keyword utt_id
     filler_duration = 0.0
 
     for key, index, duration in zip(ds.keys, ds.labels, ds.durations):
         assert key in score_table
-        if index == keyword:
+        if index == keyword_index:
             keyword_table[key] = score_table[key]
         else:
             filler_table[key] = score_table[key]
@@ -78,7 +81,7 @@ if __name__ == '__main__':
     print('Filler total duration Hours: {}'.format(filler_duration / 3600.0))
     pbar = tqdm(total=int(1.0 / args.step))
     with open(stats_file, 'w', encoding='utf8') as fout:
-        keyword_index = args.keyword
+        keyword_index = args.keyword_index
         threshold = 0.0
         while threshold <= 1.0:
             num_false_reject = 0

@@ -15,7 +15,16 @@
 import paddle
 
 
-def fill_mask_elements(condition, value, x):
+def padding_mask(lengths: paddle.Tensor) -> paddle.Tensor:
+    batch_size = lengths.shape[0]
+    max_len = int(lengths.max().item())
+    seq = paddle.arange(max_len, dtype=paddle.int64)
+    seq = seq.expand((batch_size, max_len))
+    return seq >= lengths.unsqueeze(1)
+
+
+def fill_mask_elements(condition: paddle.Tensor, value: float,
+                       x: paddle.Tensor) -> paddle.Tensor:
     assert condition.shape == x.shape
     values = paddle.ones_like(x, dtype=x.dtype) * value
     return paddle.where(condition, values, x)
@@ -70,11 +79,3 @@ def max_pooling_loss(logits: paddle.Tensor,
     acc = num_correct / num_utts
     # acc = 0.0
     return loss, num_correct, acc
-
-
-def padding_mask(lengths: paddle.Tensor) -> paddle.Tensor:
-    batch_size = lengths.shape[0]
-    max_len = int(lengths.max().item())
-    seq = paddle.arange(max_len, dtype=paddle.int64)
-    seq = seq.expand((batch_size, max_len))
-    return seq >= lengths.unsqueeze(1)

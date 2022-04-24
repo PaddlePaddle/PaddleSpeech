@@ -18,6 +18,11 @@ source path.sh
 
 ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 
+if [ $# != 1 ];then
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path"
+    exit -1
+fi
+
 stage=1
 stop_stage=3
 

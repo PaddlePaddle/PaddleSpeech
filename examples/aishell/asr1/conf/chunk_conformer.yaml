@@ -78,7 +78,7 @@ num_encs: 1
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 180 
+n_epoch: 240 
 accum_grad: 1
 global_grad_clip: 5.0
 dist_sampler: True

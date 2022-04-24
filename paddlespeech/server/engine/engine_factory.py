@@ -46,5 +46,8 @@ class EngineFactory(object):
         elif engine_name == 'cls' and engine_type == 'python':
             from paddlespeech.server.engine.cls.python.cls_engine import CLSEngine
             return CLSEngine()
+        elif engine_name.lower() == 'text' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.text.python.text_engine import TextEngine
+            return TextEngine()
         else:
             return None

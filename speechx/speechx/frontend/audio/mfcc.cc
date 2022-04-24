@@ -30,7 +30,7 @@ using kaldi::Matrix;
 using std::vector;
 
 Mfcc::Mfcc(const MfccOptions& opts,
-             std::unique_ptr<FrontendInterface> base_extractor)
+           std::unique_ptr<FrontendInterface> base_extractor)
     : opts_(opts),
       computer_(opts.mfcc_opts),
       window_function_(computer_.GetFrameOptions()) {

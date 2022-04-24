@@ -206,7 +206,7 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     inferences->Resize(row * col);
     *inference_dim = col;
     output_tensor->CopyToCpu(inferences->Data());
-    
+
     ReleasePredictor(predictor);
 }
 

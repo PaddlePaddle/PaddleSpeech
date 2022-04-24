@@ -24,7 +24,7 @@ namespace ppspeech {
 struct ModelOptions {
     std::string model_path;
     std::string param_path;
-    int thread_num; // predictor thread pool size
+    int thread_num;  // predictor thread pool size
     bool use_gpu;
     bool switch_ir_optim;
     std::string input_names;

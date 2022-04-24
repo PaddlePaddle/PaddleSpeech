@@ -58,7 +58,7 @@ class AudioCache : public FrontendInterface {
     std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
     kaldi::int32 timeout_;  // millisecond
-    bool to_float32_; // int16 -> float32. used in linear_spectrogram
+    bool to_float32_;       // int16 -> float32. used in linear_spectrogram
 
     DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };

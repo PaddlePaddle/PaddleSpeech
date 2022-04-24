@@ -66,9 +66,9 @@ wer=./aishell_wer
 export GLOG_logtostderr=1
 
 
+cmvn=$data/cmvn.ark
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # 3. gen linear feat
-    cmvn=$data/cmvn.ark
     cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj

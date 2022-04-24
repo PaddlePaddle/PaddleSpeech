@@ -15,10 +15,10 @@ import unittest
 
 import numpy as np
 import paddle
+import paddleaudio
 import torch
 import torchaudio
 
-import paddleaudio
 from .base import FeatTest
 
 

@@ -4,6 +4,7 @@ import os
 
 import yaml
 
+
 def change_value(args):
     yamlfile = args.config_file
     change_type = args.change_type

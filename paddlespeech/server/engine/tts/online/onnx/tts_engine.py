@@ -124,7 +124,6 @@ class TTSServerExecutor(TTSExecutor):
         self.pretrained_models = pretrained_models
         self.model_alias = model_alias
 
-    
     def _get_pretrained_path(self, tag: str) -> os.PathLike:
         """
         #Download and returns pretrained resources path of current task.
@@ -140,7 +139,6 @@ class TTSServerExecutor(TTSExecutor):
         logger.info(
             'Use pretrained model stored in: {}'.format(decompressed_path))
         return decompressed_path
-    
 
     def _init_from_path(
             self,

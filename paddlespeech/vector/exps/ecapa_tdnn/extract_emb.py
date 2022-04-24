@@ -16,10 +16,10 @@ import os
 import time
 
 import paddle
-from yacs.config import CfgNode
-
 from paddleaudio.backends import load as load_audio
 from paddleaudio.compliance.librosa import melspectrogram
+from yacs.config import CfgNode
+
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.models.ecapa_tdnn import EcapaTdnn

@@ -15,8 +15,8 @@ import unittest
 
 import numpy as np
 import paddle
-
 import paddleaudio
+
 from .base import FeatTest
 from paddlespeech.s2t.transform.spectrogram import LogMelSpectrogram
 

@@ -16,9 +16,9 @@ import os
 import unittest
 
 import numpy as np
+import paddleaudio
 import soundfile as sf
 
-import paddleaudio
 from ..base import BackendTest
 
 

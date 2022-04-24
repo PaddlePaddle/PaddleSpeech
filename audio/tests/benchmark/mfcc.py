@@ -17,10 +17,9 @@ import urllib.request
 import librosa
 import numpy as np
 import paddle
+import paddleaudio
 import torch
 import torchaudio
-
-import paddleaudio
 
 wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 if not os.path.isfile(os.path.basename(wav_url)):

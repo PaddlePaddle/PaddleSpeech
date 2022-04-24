@@ -20,9 +20,9 @@ import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
+from paddleaudio.compliance.librosa import melspectrogram
 from yacs.config import CfgNode
 
-from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.io.augment import waveform_augment

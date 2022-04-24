@@ -16,10 +16,10 @@ import unittest
 import librosa
 import numpy as np
 import paddle
-
 import paddleaudio
-from .base import FeatTest
 from paddleaudio.functional.window import get_window
+
+from .base import FeatTest
 
 
 class TestLibrosa(FeatTest):

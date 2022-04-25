@@ -12,55 +12,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from wekws(https://github.com/wenet-e2e/wekws)
-import argparse
-import os
-
 import paddle
-import yaml
 from tqdm import tqdm
+from yacs.config import CfgNode
 
 from paddlespeech.kws.exps.mdtc.collate import collate_features
 from paddlespeech.kws.models.mdtc import KWSModel
+from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-# yapf: disable
-parser = argparse.ArgumentParser(__doc__)
-parser.add_argument("--cfg_path", type=str, required=True)
-args = parser.parse_args()
-# yapf: enable
-
 if __name__ == '__main__':
-    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
-    with open(args.cfg_path, 'r') as f:
-        config = yaml.safe_load(f)
+    parser = default_argument_parser()
+    parser.add_argument(
+        "--ckpt",
+        type=str,
+        required=True,
+        help='model checkpoint for evaluation.')
+    parser.add_argument(
+        "--score_file",
+        type=str,
+        default='./scores.txt',
+        help='output file of trigger scores')
+    args = parser.parse_args()
 
-    model_conf = config['model']
-    data_conf = config['data']
-    feat_conf = config['feature']
-    scoring_conf = config['scoring']
+    # https://yaml.org/type/float.html
+    config = CfgNode(new_allowed=True)
+    if args.config:
+        config.merge_from_file(args.config)
 
     # Dataset
-    ds_class = dynamic_import(data_conf['dataset'])
-    test_ds = ds_class(data_dir=data_conf['data_dir'], mode='test', **feat_conf)
+    ds_class = dynamic_import(config['dataset'])
+    test_ds = ds_class(
+        data_dir=config['data_dir'],
+        mode='test',
+        feat_type=config['feat_type'],
+        sample_rate=config['sample_rate'],
+        frame_shift=config['frame_shift'],
+        frame_length=config['frame_length'],
+        n_mels=config['n_mels'], )
     test_sampler = paddle.io.BatchSampler(
-        test_ds, batch_size=scoring_conf['batch_size'], drop_last=False)
+        test_ds, batch_size=config['batch_size'], drop_last=False)
     test_loader = paddle.io.DataLoader(
         test_ds,
         batch_sampler=test_sampler,
-        num_workers=scoring_conf['num_workers'],
+        num_workers=config['num_workers'],
         return_list=True,
         use_buffer_reader=True,
         collate_fn=collate_features, )
 
     # Model
-    backbone_class = dynamic_import(model_conf['backbone'])
-    backbone = backbone_class(**model_conf['config'])
-    model = KWSModel(backbone=backbone, num_keywords=model_conf['num_keywords'])
-    model.set_state_dict(paddle.load(scoring_conf['checkpoint']))
+    backbone_class = dynamic_import(config['backbone'])
+    backbone = backbone_class(
+        stack_num=config['stack_num'],
+        stack_size=config['stack_size'],
+        in_channels=config['in_channels'],
+        res_channels=config['res_channels'],
+        kernel_size=config['kernel_size'], )
+    model = KWSModel(backbone=backbone, num_keywords=config['num_keywords'])
+    model.set_state_dict(paddle.load(args.ckpt))
     model.eval()
 
-    with paddle.no_grad(), open(
-            scoring_conf['score_file'], 'w', encoding='utf8') as fout:
+    with paddle.no_grad(), open(args.score_file, 'w', encoding='utf8') as f:
         for batch_idx, batch in enumerate(
                 tqdm(test_loader, total=len(test_loader))):
             keys, feats, labels, lengths = batch
@@ -73,7 +85,6 @@ if __name__ == '__main__':
                     keyword_scores = score[:, keyword_i]
                     score_frames = ' '.join(
                         ['{:.6f}'.format(x) for x in keyword_scores.tolist()])
-                    fout.write(
-                        '{} {} {}\n'.format(key, keyword_i, score_frames))
+                    f.write('{} {} {}\n'.format(key, keyword_i, score_frames))
 
-    print('Result saved to: {}'.format(scoring_conf['score_file']))
+    print('Result saved to: {}'.format(args.score_file))

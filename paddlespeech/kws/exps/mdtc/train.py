@@ -11,77 +11,88 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse
 import os
 
 import paddle
-import yaml
+from yacs.config import CfgNode
 
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
 from paddlespeech.kws.exps.mdtc.collate import collate_features
 from paddlespeech.kws.models.loss import max_pooling_loss
 from paddlespeech.kws.models.mdtc import KWSModel
+from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
-# yapf: disable
-parser = argparse.ArgumentParser(__doc__)
-parser.add_argument("--cfg_path", type=str, required=True)
-args = parser.parse_args()
-# yapf: enable
-
 if __name__ == '__main__':
+    parser = default_argument_parser()
+    args = parser.parse_args()
+
+    # https://yaml.org/type/float.html
+    config = CfgNode(new_allowed=True)
+    if args.config:
+        config.merge_from_file(args.config)
+
     nranks = paddle.distributed.get_world_size()
     if paddle.distributed.get_world_size() > 1:
         paddle.distributed.init_parallel_env()
     local_rank = paddle.distributed.get_rank()
 
-    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
-    with open(args.cfg_path, 'r') as f:
-        config = yaml.safe_load(f)
-
-    model_conf = config['model']
-    data_conf = config['data']
-    feat_conf = config['feature']
-    training_conf = config['training']
-
     # Dataset
-    ds_class = dynamic_import(data_conf['dataset'])
+    ds_class = dynamic_import(config['dataset'])
     train_ds = ds_class(
-        data_dir=data_conf['data_dir'], mode='train', **feat_conf)
-    dev_ds = ds_class(data_dir=data_conf['data_dir'], mode='dev', **feat_conf)
+        data_dir=config['data_dir'],
+        mode='train',
+        feat_type=config['feat_type'],
+        sample_rate=config['sample_rate'],
+        frame_shift=config['frame_shift'],
+        frame_length=config['frame_length'],
+        n_mels=config['n_mels'], )
+    dev_ds = ds_class(
+        data_dir=config['data_dir'],
+        mode='dev',
+        feat_type=config['feat_type'],
+        sample_rate=config['sample_rate'],
+        frame_shift=config['frame_shift'],
+        frame_length=config['frame_length'],
+        n_mels=config['n_mels'], )
 
     train_sampler = paddle.io.DistributedBatchSampler(
         train_ds,
-        batch_size=training_conf['batch_size'],
+        batch_size=config['batch_size'],
         shuffle=True,
         drop_last=False)
     train_loader = paddle.io.DataLoader(
         train_ds,
         batch_sampler=train_sampler,
-        num_workers=training_conf['num_workers'],
+        num_workers=config['num_workers'],
         return_list=True,
         use_buffer_reader=True,
         collate_fn=collate_features, )
 
     # Model
-    backbone_class = dynamic_import(model_conf['backbone'])
-    backbone = backbone_class(**model_conf['config'])
-    model = KWSModel(backbone=backbone, num_keywords=model_conf['num_keywords'])
+    backbone_class = dynamic_import(config['backbone'])
+    backbone = backbone_class(
+        stack_num=config['stack_num'],
+        stack_size=config['stack_size'],
+        in_channels=config['in_channels'],
+        res_channels=config['res_channels'],
+        kernel_size=config['kernel_size'], )
+    model = KWSModel(backbone=backbone, num_keywords=config['num_keywords'])
     model = paddle.DataParallel(model)
-    clip = paddle.nn.ClipGradByGlobalNorm(training_conf['grad_clip'])
+    clip = paddle.nn.ClipGradByGlobalNorm(config['grad_clip'])
     optimizer = paddle.optimizer.Adam(
-        learning_rate=training_conf['learning_rate'],
-        weight_decay=training_conf['weight_decay'],
+        learning_rate=config['learning_rate'],
+        weight_decay=config['weight_decay'],
         parameters=model.parameters(),
         grad_clip=clip)
     criterion = max_pooling_loss
 
     steps_per_epoch = len(train_sampler)
-    timer = Timer(steps_per_epoch * training_conf['epochs'])
+    timer = Timer(steps_per_epoch * config['epochs'])
     timer.start()
 
-    for epoch in range(1, training_conf['epochs'] + 1):
+    for epoch in range(1, config['epochs'] + 1):
         model.train()
 
         avg_loss = 0
@@ -107,15 +118,13 @@ if __name__ == '__main__':
 
             timer.count()
 
-            if (batch_idx + 1
-                ) % training_conf['log_freq'] == 0 and local_rank == 0:
+            if (batch_idx + 1) % config['log_freq'] == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
-                avg_loss /= training_conf['log_freq']
+                avg_loss /= config['log_freq']
                 avg_acc = num_corrects / num_samples
 
                 print_msg = 'Epoch={}/{}, Step={}/{}'.format(
-                    epoch, training_conf['epochs'], batch_idx + 1,
-                    steps_per_epoch)
+                    epoch, config['epochs'], batch_idx + 1, steps_per_epoch)
                 print_msg += ' loss={:.4f}'.format(avg_loss)
                 print_msg += ' acc={:.4f}'.format(avg_acc)
                 print_msg += ' lr={:.6f} step/sec={:.2f} | ETA {}'.format(
@@ -126,17 +135,17 @@ if __name__ == '__main__':
                 num_corrects = 0
                 num_samples = 0
 
-        if epoch % training_conf[
+        if epoch % config[
                 'save_freq'] == 0 and batch_idx + 1 == steps_per_epoch and local_rank == 0:
             dev_sampler = paddle.io.BatchSampler(
                 dev_ds,
-                batch_size=training_conf['batch_size'],
+                batch_size=config['batch_size'],
                 shuffle=False,
                 drop_last=False)
             dev_loader = paddle.io.DataLoader(
                 dev_ds,
                 batch_sampler=dev_sampler,
-                num_workers=training_conf['num_workers'],
+                num_workers=config['num_workers'],
                 return_list=True,
                 use_buffer_reader=True,
                 collate_fn=collate_features, )
@@ -159,7 +168,7 @@ if __name__ == '__main__':
             logger.eval(print_msg)
 
             # Save model
-            save_dir = os.path.join(training_conf['checkpoint_dir'],
+            save_dir = os.path.join(config['checkpoint_dir'],
                                     'epoch_{}'.format(epoch))
             logger.info('Saving model checkpoint to {}'.format(save_dir))
             paddle.save(model.state_dict(),

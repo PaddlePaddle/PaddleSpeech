@@ -20,11 +20,17 @@ paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
 
 # long audio restriction
+{
 wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
-if [ $? -ne -1 ]; then
+if [ $? -ne 255 ]; then
+   echo "Time restriction not passed"
    exit 1
 fi
+} &&
+{
+ echo "Time restriction passed"
+}
 
 # Text To Speech
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！"

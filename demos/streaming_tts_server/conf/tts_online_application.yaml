@@ -1,4 +1,4 @@
-# This is the parameter configuration file for PaddleSpeech Serving.
+# This is the parameter configuration file for streaming tts server.
 
 #################################################################################
 #                             SERVER SETTING                                    #
@@ -7,8 +7,8 @@ host: 127.0.0.1
 port: 8092
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# engine_list choices = ['tts_online', 'tts_online-onnx']
-# protocol = ['websocket', 'http'] (only one can be selected).
+# engine_list choices = ['tts_online', 'tts_online-onnx'], the inference speed of tts_online-onnx is faster than tts_online.
+# protocol choices = ['websocket', 'http'] 
 protocol: 'http'
 engine_list: ['tts_online-onnx']
 
@@ -20,7 +20,8 @@ engine_list: ['tts_online-onnx']
 ################################### TTS #########################################
 ################### speech task: tts; engine_type: online #######################
 tts_online: 
-    # am (acoustic model) choices=['fastspeech2_csmsc', 'fastspeech2_cnndecoder_csmsc']        
+    # am (acoustic model) choices=['fastspeech2_csmsc', 'fastspeech2_cnndecoder_csmsc']   
+    # fastspeech2_cnndecoder_csmsc support streaming am infer.     
     am: 'fastspeech2_csmsc'   
     am_config: 
     am_ckpt: 
@@ -31,6 +32,7 @@ tts_online:
     spk_id: 0
 
     # voc (vocoder) choices=['mb_melgan_csmsc, hifigan_csmsc']
+    # Both mb_melgan_csmsc and hifigan_csmsc support streaming voc inference
     voc: 'mb_melgan_csmsc'
     voc_config: 
     voc_ckpt: 
@@ -39,8 +41,13 @@ tts_online:
     # others
     lang: 'zh'
     device: 'cpu' # set 'gpu:id' or 'cpu'
+    # am_block and am_pad only for fastspeech2_cnndecoder_onnx model to streaming am infer,
+    # when am_pad set 12, streaming synthetic audio is the same as non-streaming synthetic audio
     am_block: 42
     am_pad: 12
+    # voc_pad and voc_block voc model to streaming voc infer,
+    # when voc model is mb_melgan_csmsc, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
+    # when voc model is hifigan_csmsc, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
     voc_block: 14
     voc_pad: 14
     
@@ -53,7 +60,8 @@ tts_online:
 ################################### TTS #########################################
 ################### speech task: tts; engine_type: online-onnx #######################
 tts_online-onnx: 
-    # am (acoustic model) choices=['fastspeech2_csmsc_onnx', 'fastspeech2_cnndecoder_csmsc_onnx']        
+    # am (acoustic model) choices=['fastspeech2_csmsc_onnx', 'fastspeech2_cnndecoder_csmsc_onnx']
+    # fastspeech2_cnndecoder_csmsc_onnx support streaming am infer.        
     am: 'fastspeech2_cnndecoder_csmsc_onnx' 
     # am_ckpt is a list, if am is fastspeech2_cnndecoder_csmsc_onnx, am_ckpt = [encoder model, decoder model, postnet model];
     # if am is fastspeech2_csmsc_onnx, am_ckpt = [ckpt model];
@@ -70,6 +78,7 @@ tts_online-onnx:
         cpu_threads: 4
 
     # voc (vocoder) choices=['mb_melgan_csmsc_onnx, hifigan_csmsc_onnx']
+    # Both mb_melgan_csmsc_onnx and hifigan_csmsc_onnx support streaming voc inference
     voc: 'hifigan_csmsc_onnx'
     voc_ckpt: 
     voc_sample_rate: 24000
@@ -80,9 +89,15 @@ tts_online-onnx:
 
     # others
     lang: 'zh'
+    # am_block and am_pad only for fastspeech2_cnndecoder_onnx model to streaming am infer,
+    # when am_pad set 12, streaming synthetic audio is the same as non-streaming synthetic audio
     am_block: 42
     am_pad: 12
+    # voc_pad and voc_block voc model to streaming voc infer,
+    # when voc model is mb_melgan_csmsc_onnx, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
+    # when voc model is hifigan_csmsc_onnx, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
     voc_block: 14
     voc_pad: 14
+    # voc_upsample should be same as n_shift on voc config.
     voc_upsample: 300
     

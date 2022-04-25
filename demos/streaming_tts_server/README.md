@@ -15,12 +15,21 @@ You can choose one way from meduim and hard to install paddlespeech.
 
 
 ### 2. Prepare config File
-The configuration file can be found in `conf/tts_online_application.yaml` 。
-Among them, `protocol` indicates the network protocol used by the streaming TTS service. Currently, both http and websocket are supported.
-`engine_list` indicates the speech engine that will be included in the service to be started, in the format of `<speech task>_<engine type>`.
-This demo mainly introduces the streaming speech synthesis service, so the speech task should be set to `tts`.
-Currently, the engine type supports two forms: **online**  and **online-onnx**. `online` indicates an engine that uses python for dynamic graph inference; `online-onnx` indicates an engine that uses onnxruntime for inference. The inference speed of online-onnx is faster.
-Streaming TTS AM model support: **fastspeech2 and fastspeech2_cnndecoder**; Voc model support: **hifigan and mb_melgan**
+The configuration file can be found in `conf/tts_online_application.yaml`.
+- `protocol` indicates the network protocol used by the streaming TTS service. Currently, both http and websocket are supported.
+- `engine_list` indicates the speech engine that will be included in the service to be started, in the format of `<speech task>_<engine type>`.
+    - This demo mainly introduces the streaming speech synthesis service, so the speech task should be set to `tts`.
+    - the engine type supports two forms: **online**  and **online-onnx**. `online` indicates an engine that uses python for dynamic graph inference; `online-onnx` indicates an engine that uses onnxruntime for inference. The inference speed of online-onnx is faster.
+- Streaming TTS engine AM model support: **fastspeech2 and fastspeech2_cnndecoder**; Voc model support: **hifigan and mb_melgan**
+- In streaming am inference, one chunk of data is inferred at a time to achieve a streaming effect. Among them, `am_block` indicates the number of valid frames in the chunk, and `am_pad` indicates the number of frames added before and after am_block in a chunk. The existence of am_pad is used to eliminate errors caused by streaming inference and avoid the influence of streaming inference on the quality of synthesized audio.
+    - fastspeech2 does not support streaming am inference, so am_pad and am_block have no effect on it.
+    - fastspeech2_cnndecoder supports streaming inference. When am_pad=12, streaming inference synthesized audio is consistent with non-streaming synthesized audio.
+- In streaming voc inference, one chunk of data is inferred at a time to achieve a streaming effect. Where `voc_block` indicates the number of valid frames in the chunk, and `voc_pad` indicates the number of frames added before and after the voc_block in a chunk. The existence of voc_pad is used to eliminate errors caused by streaming inference and avoid the influence of streaming inference on the quality of synthesized audio.
+    - Both hifigan and mb_melgan support streaming voc inference.
+    - When the voc model is mb_melgan, when voc_pad=14, the synthetic audio for streaming inference is consistent with the non-streaming synthetic audio; the minimum voc_pad can be set to 7, and the synthetic audio has no abnormal hearing. If the voc_pad is less than 7, the synthetic audio sounds abnormal.
+    - When the voc model is hifigan, when voc_pad=20, the streaming inference synthetic audio is consistent with the non-streaming synthetic audio; when voc_pad=14, the synthetic audio has no abnormal hearing.
+- Inference speed: mb_melgan > hifigan; Audio quality: mb_melgan < hifigan
+
 
 
 ### 3. Server Usage

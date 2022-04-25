@@ -476,3 +476,72 @@ class CLSClientExecutor(BaseExecutor):
 
         res = requests.post(url=url, data=json.dumps(data))
         return res
+
+
+@cli_client_register(
+    name='paddlespeech_client.text', description='visit the text service')
+class TextClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(TextClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.text', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8090, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='sentence to be process by text server.',
+            required=True)
+
+    def execute(self, argv: List[str]) -> bool:
+        """Execute the request from the argv.
+
+        Args:
+            argv (List): the request arguments
+
+        Returns:
+            str: the request flag
+        """
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        output = args.output
+
+        try:
+            time_start = time.time()
+            res = self(input=input_, server_ip=server_ip, port=port)
+            time_end = time.time()
+            logger.info(f"The punc text: {res}")
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to Text punctuation.")
+            return False
+
+    @stats_wrapper
+    def __call__(self, input: str, server_ip: str="127.0.0.1", port: int=8090):
+        """
+        Python API to call text executor.
+
+        Args:
+            input (str): the request sentence text
+            server_ip (str, optional): the server ip. Defaults to "127.0.0.1".
+            port (int, optional): the server port. Defaults to 8090.
+
+        Returns:
+            str: the punctuation text
+        """
+
+        url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/text'
+        request = {
+            "text": input,
+        }
+
+        res = requests.post(url=url, data=json.dumps(request))
+        response_dict = res.json()
+        punc_text = response_dict["result"]["punc_text"]
+        return punc_text

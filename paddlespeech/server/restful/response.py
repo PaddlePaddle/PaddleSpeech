@@ -129,6 +129,30 @@ class CLSResponse(BaseModel):
     result: CLSResult
 
 
+class TextResult(BaseModel):
+    punc_text: str
+
+
+class TextResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "punc_text": "你好，飞桨"
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: TextResult
+
+
 #****************************************************************************************/
 #********************************** Error response **************************************/
 #****************************************************************************************/

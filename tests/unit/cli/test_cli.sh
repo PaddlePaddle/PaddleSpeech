@@ -22,7 +22,7 @@ paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.w
 # long audio restriction
 wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
-if [ $? -ne 1 ]; then
+if [ $? -ne -1 ]; then
    exit 1
 fi
 

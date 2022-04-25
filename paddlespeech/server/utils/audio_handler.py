@@ -94,6 +94,7 @@ class ASRWsAudioHandler:
             self.url = "ws://" + self.url + ":" + str(
                 self.port) + endpoint
         self.punc_server = TextHttpHandler(punc_server_ip, punc_server_port)
+        logger.info(f"endpoint: {self.url}")
 
     def read_wave(self, wavfile_path: str):
         """read the audio file from specific wavfile path
@@ -157,17 +158,18 @@ class ASRWsAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            logger.info("receive msg={}".format(msg))
+            logger.info("client receive msg={}".format(msg))
 
             # 3. send chunk audio data to engine
             for chunk_data in self.read_wave(wavfile_path):
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
+
                 if self.punc_server and len(msg["result"]) > 0:
                     msg["result"] = self.punc_server.run(
                         msg["result"])
-                logger.info("receive msg={}".format(msg))
+                logger.info("client receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
@@ -184,9 +186,11 @@ class ASRWsAudioHandler:
 
             # 5. decode the bytes to str
             msg = json.loads(msg)
+
             if self.punc_server:
                 msg["result"] = self.punc_server.run(msg["result"])
-            logger.info("final receive msg={}".format(msg))
+      
+            logger.info("client final receive msg={}".format(msg))
             result = msg
 
             return result

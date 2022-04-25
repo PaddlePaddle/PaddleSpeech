@@ -17,12 +17,12 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument("--cfg_path", type=str, required=True)
-parser.add_argument("--keyword", type=str, required=True)
+parser.add_argument('--keyword_label', type=str, required=True, help='keyword string shown on image')
+parser.add_argument('--stats_file', type=str, required=True, help='output file of detection error tradeoff')
+parser.add_argument('--img_file', type=str, default='./det.png', help='output det image')
 args = parser.parse_args()
 # yapf: enable
 
@@ -61,14 +61,8 @@ def plot_det_curve(keywords, stats_file, figure_file, xlim, x_step, ylim,
 
 
 if __name__ == '__main__':
-    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
-    with open(args.cfg_path, 'r') as f:
-        config = yaml.safe_load(f)
-
-    scoring_conf = config['scoring']
-    img_file = os.path.abspath(scoring_conf['img_file'])
-    stats_file = os.path.abspath(scoring_conf['stats_file'])
-    keywords = [args.keyword]
-    plot_det_curve(keywords, stats_file, img_file, 10, 2, 10, 2)
+    img_file = os.path.abspath(args.img_file)
+    stats_file = os.path.abspath(args.stats_file)
+    plot_det_curve([args.keyword_label], stats_file, img_file, 10, 2, 10, 2)
 
     print('DET curve image saved to: {}'.format(img_file))

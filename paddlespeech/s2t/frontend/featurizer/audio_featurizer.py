@@ -16,7 +16,6 @@ import numpy as np
 import paddle
 import paddleaudio.compliance.kaldi as kaldi
 from python_speech_features import delta
-from python_speech_features import logfbank
 from python_speech_features import mfcc
 
 

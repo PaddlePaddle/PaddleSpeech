@@ -24,12 +24,12 @@ paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.w
 wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
 if [ $? -ne 255 ]; then
-   echo "Time restriction not passed"
+   echo -e "\e[1;31mTime restriction not passed\e[0m"
    exit 1
 fi
 } &&
 {
- echo "Time restriction passed"
+ echo -e "\033[32mTime restriction passed\033[0m"
 }
 
 # Text To Speech
@@ -77,4 +77,4 @@ paddlespeech stats --task vector
 paddlespeech stats --task st
 
 
-echo "Test success !!!"
+echo -e "\033[32mTest success !!!\033[0m"

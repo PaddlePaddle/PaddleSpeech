@@ -49,7 +49,9 @@ class LengthRegulator(nn.Layer):
         encodings: (B, T, C)
         durations: (B, T)
         """
-        batch_size, t_enc = durations.shape
+        #batch_size, t_enc = durations.shape  # linux
+        batch_size = paddle.shape(durations)[0]  # windows and mac
+        t_enc = paddle.shape(durations)[1]  # windows and mac
         durations = durations.numpy()
         slens = np.sum(durations, -1)
         t_dec = np.max(slens)

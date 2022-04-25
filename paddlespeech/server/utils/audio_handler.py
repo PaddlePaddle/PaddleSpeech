@@ -27,7 +27,10 @@ from paddlespeech.server.utils.audio_process import save_audio
 
 
 class ASRAudioHandler:
-    def __init__(self, url="127.0.0.1", port=8090):
+    def __init__(self,
+                 url="127.0.0.1",
+                 port=8090,
+                 endopoint='/paddlespeech/asr/streaming'):
         """PaddleSpeech Online ASR Server Client  audio handler
            Online asr server use the websocket protocal
         Args:
@@ -36,7 +39,8 @@ class ASRAudioHandler:
         """
         self.url = url
         self.port = port
-        self.url = "ws://" + self.url + ":" + str(self.port) + "/ws/asr"
+        self.url = "ws://" + self.url + ":" + str(self.port) + endopoint
+        logger.info(f"endpoint: {self.url}")
 
     def read_wave(self, wavfile_path: str):
         """read the audio file from specific wavfile path
@@ -95,14 +99,14 @@ class ASRAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            logger.info("receive msg={}".format(msg))
+            logger.info("client receive msg={}".format(msg))
 
             # 3. send chunk audio data to engine
             for chunk_data in self.read_wave(wavfile_path):
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-                logger.info("receive msg={}".format(msg))
+                logger.info("client receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
@@ -119,7 +123,7 @@ class ASRAudioHandler:
 
             # 5. decode the bytes to str
             msg = json.loads(msg)
-            logger.info("final receive msg={}".format(msg))
+            logger.info("client final receive msg={}".format(msg))
             result = msg
             return result
 

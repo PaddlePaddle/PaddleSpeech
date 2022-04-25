@@ -27,7 +27,7 @@ ConnectionHandler::ConnectionHandler(
     : ws_(std::move(socket)), recognizer_resource_(recognizer_resource) {}
 
 void ConnectionHandler::OnSpeechStart() {
-    LOG(INFO) << "Recieved speech start signal, start reading speech";
+    LOG(INFO) << "Server: Recieved speech start signal, start reading speech";
     got_start_tag_ = true;
     json::value rv = {{"status", "ok"}, {"type", "server_ready"}};
     ws_.text(true);
@@ -39,14 +39,14 @@ void ConnectionHandler::OnSpeechStart() {
 }
 
 void ConnectionHandler::OnSpeechEnd() {
-    LOG(INFO) << "Recieved speech end signal";
+    LOG(INFO) << "Server: Recieved speech end signal";
     CHECK(recognizer_ != nullptr);
     recognizer_->SetFinished();
     got_end_tag_ = true;
 }
 
 void ConnectionHandler::OnFinalResult(const std::string& result) {
-    LOG(INFO) << "Final result: " << result;
+    LOG(INFO) << "Server: Final result: " << result;
     json::value rv = {
         {"status", "ok"}, {"type", "final_result"}, {"result", result}};
     ws_.text(true);
@@ -69,10 +69,16 @@ void ConnectionHandler::OnSpeechData(const beast::flat_buffer& buffer) {
         pcm_data(i) = static_cast<float>(*pdata);
         pdata++;
     }
-    VLOG(2) << "Recieved " << num_samples << " samples";
-    LOG(INFO) << "Recieved " << num_samples << " samples";
+    VLOG(2) << "Server: Recieved " << num_samples << " samples";
+    LOG(INFO) << "Server: Recieved " << num_samples << " samples";
     CHECK(recognizer_ != nullptr);
     recognizer_->Accept(pcm_data);
+
+    // TODO: return lpartial result
+    json::value rv = {
+        {"status", "ok"}, {"type", "partial_result"}, {"result", "TODO"}};
+    ws_.text(true);
+    ws_.write(asio::buffer(json::serialize(rv)));
 }
 
 void ConnectionHandler::DecodeThreadFunc() {
@@ -80,9 +86,9 @@ void ConnectionHandler::DecodeThreadFunc() {
         while (true) {
             recognizer_->Decode();
             if (recognizer_->IsFinished()) {
-                LOG(INFO) << "enter finish";
+                LOG(INFO) << "Server: enter finish";
                 recognizer_->Decode();
-                LOG(INFO) << "finish";
+                LOG(INFO) << "Server: finish";
                 std::string result = recognizer_->GetFinalResult();
                 OnFinalResult(result);
                 OnFinish();
@@ -135,7 +141,7 @@ void ConnectionHandler::operator()() {
             ws_.read(buffer);
             if (ws_.got_text()) {
                 std::string message = beast::buffers_to_string(buffer.data());
-                LOG(INFO) << message;
+                LOG(INFO) << "Server: Text: " << message;
                 OnText(message);
                 if (got_end_tag_) {
                     break;
@@ -152,7 +158,7 @@ void ConnectionHandler::operator()() {
             }
         }
 
-        LOG(INFO) << "Read all pcm data, wait for decoding thread";
+        LOG(INFO) << "Server: Read all pcm data, wait for decoding thread";
         if (decode_thread_ != nullptr) {
             decode_thread_->join();
         }

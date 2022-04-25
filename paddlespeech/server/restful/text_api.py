@@ -33,7 +33,7 @@ def help():
     """help
 
     Returns:
-        json: [description]
+        json: The /paddlespeech/text api response content
     """
     response = {
         "success": "True",
@@ -42,9 +42,7 @@ def help():
             "global": "success"
         },
         "result": {
-            "description": "text server",
-            "input": "text string",
-            "output": "punctuation text"
+            "punc_text": "The punctuation text content"
         }
     }
     return response

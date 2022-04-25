@@ -1,0 +1,39 @@
+data:
+  data_dir: '/PATH/TO/DATA/hey_snips_research_6k_en_train_eval_clean_ter'
+  dataset: 'paddleaudio.datasets:HeySnips'
+
+model:
+  num_keywords: 1
+  backbone: 'paddlespeech.kws.models:MDTC'
+  config:
+    stack_num: 3
+    stack_size: 4
+    in_channels: 80
+    res_channels: 32
+    kernel_size: 5
+
+feature:
+  feat_type: 'kaldi_fbank'
+  sample_rate: 16000
+  frame_shift: 10
+  frame_length: 25
+  n_mels: 80
+
+training:
+  epochs: 100
+  num_workers: 16
+  batch_size: 100
+  checkpoint_dir: './checkpoint'
+  save_freq: 10
+  log_freq: 10
+  learning_rate: 0.001
+  weight_decay: 0.00005
+  grad_clip: 5.0
+
+scoring:
+  batch_size: 100
+  num_workers: 16
+  checkpoint: './checkpoint/epoch_100/model.pdparams'
+  score_file: './scores.txt'
+  stats_file: './stats.0.txt'
+  img_file: './det.png'

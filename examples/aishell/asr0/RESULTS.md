@@ -4,6 +4,7 @@
 
 | Model | Number of Params | Release | Config | Test set | Valid Loss | CER | 
 | --- | --- | --- | --- | --- | --- | --- | 
+| DeepSpeech2 | 45.18M | r0.2.0 | conf/deepspeech2_online.yaml + spec aug + fbank161 | test | 7.679287910461426 | 0.0718 |
 | DeepSpeech2 | 45.18M | r0.2.0 | conf/deepspeech2_online.yaml + spec aug | test | 7.708217620849609| 0.078 |
 | DeepSpeech2 | 45.18M | v2.2.0 | conf/deepspeech2_online.yaml + spec aug | test | 7.994938373565674 | 0.080 |  
 

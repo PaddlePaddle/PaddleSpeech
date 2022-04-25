@@ -16,11 +16,11 @@
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。
-其中，`protocol`表示该流式TTS服务使用的网络协议，目前支持 http 和 websocket 两种。
-其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
+- `protocol`表示该流式TTS服务使用的网络协议，目前支持 http 和 websocket 两种。
+- `engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
 该demo主要介绍流式语音合成服务，因此语音任务应设置为tts。
 目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用onnxruntime进行推理的引擎。其中，online-onnx的推理速度更快。
-流式TTS的AM 模型支持：fastspeech2 以及fastspeech2_cnndecoder; Voc 模型支持：hifigan, mb_melgan
+- 流式TTS的AM 模型支持：fastspeech2 以及fastspeech2_cnndecoder; Voc 模型支持：hifigan, mb_melgan
 
 ### 3. 服务端使用方法
 - 命令行 (推荐使用)

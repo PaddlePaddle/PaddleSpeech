@@ -12,12 +12,17 @@ paddlespeech text --input 今天的天气真不错啊你下午有空吗我想约
 # Speech_recognition
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 paddlespeech asr --input ./zh.wav
+paddlespeech asr --model conformer_aishell --input ./zh.wav
+paddlespeech asr --model conformer_online_aishell --input ./zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
+paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
+paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
 
 # long audio restriction
 wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
-if [ $? -ne 1 ]; then
+if [ $? -ne -1 ]; then
    exit 1
 fi
 

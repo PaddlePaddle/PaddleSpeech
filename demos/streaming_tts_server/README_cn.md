@@ -16,11 +16,19 @@
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。
-其中，`protocol`表示该流式TTS服务使用的网络协议，目前支持 http 和 websocket 两种。
-其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-该demo主要介绍流式语音合成服务，因此语音任务应设置为tts。
-目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用onnxruntime进行推理的引擎。其中，online-onnx的推理速度更快。
-流式TTS的AM 模型支持：fastspeech2 以及fastspeech2_cnndecoder; Voc 模型支持：hifigan, mb_melgan
+- `protocol`表示该流式TTS服务使用的网络协议，目前支持 http 和 websocket 两种。
+- `engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
+    - 该demo主要介绍流式语音合成服务，因此语音任务应设置为tts。
+    - 目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用onnxruntime进行推理的引擎。其中，online-onnx的推理速度更快。
+- 流式TTS引擎的AM模型支持：fastspeech2 以及fastspeech2_cnndecoder; Voc 模型支持：hifigan, mb_melgan
+- 流式am推理中，每次会对一个chunk的数据进行推理以达到流式的效果。其中`am_block`表示chunk中的有效帧数，`am_pad` 表示一个chunk中am_block前后各加的帧数。am_pad的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
+    - fastspeech2不支持流式am推理，因此am_pad与am_block对它无效
+    - fastspeech2_cnndecoder 支持流式推理，当am_pad=12时，流式推理合成音频与非流式合成音频一致
+- 流式voc推理中，每次会对一个chunk的数据进行推理以达到流式的效果。其中`voc_block`表示chunk中的有效帧数，`voc_pad` 表示一个chunk中voc_block前后各加的帧数。voc_pad的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
+    - hifigan, mb_melgan 均支持流式voc 推理
+    - 当voc模型为mb_melgan，当voc_pad=14时，流式推理合成音频与非流式合成音频一致；voc_pad最小可以设置为7，合成音频听感上没有异常，若voc_pad小于7，合成音频听感上存在异常。
+    - 当voc模型为hifigan，当voc_pad=20时，流式推理合成音频与非流式合成音频一致；当voc_pad=14时，合成音频听感上没有异常。
+- 推理速度：mb_melgan > hifigan; 音频质量：mb_melgan < hifigan
 
 ### 3. 服务端使用方法
 - 命令行 (推荐使用)

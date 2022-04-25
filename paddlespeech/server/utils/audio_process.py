@@ -157,7 +157,7 @@ def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
 
     if audio_path.endswith("pcm"):
         with open(audio_path, "wb") as f:
-            f.write(bubytes_dataffer)
+            f.write(bytes_data)
     elif audio_path.endswith("wav"):
         with open("./tmp.pcm", "wb") as f:
             f.write(bytes_data)

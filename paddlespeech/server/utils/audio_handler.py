@@ -29,13 +29,30 @@ from paddlespeech.server.utils.util import wav2base64
 
 class TextHttpHandler:
     def __init__(self, server_ip="127.0.0.1", port=8090):
+        """Text http client request 
+
+        Args:
+            server_ip (str, optional): the text server ip. Defaults to "127.0.0.1".
+            port (int, optional): the text server port. Defaults to 8090.
+        """
         super().__init__()
         self.server_ip = server_ip
         self.port = port
-        self.url = 'http://' + self.server_ip + ":" + str(
-            self.port) + '/paddlespeech/text'
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/text'
 
     def run(self, text):
+        """Call the text server to process the specific text
+
+        Args:
+            text (str): the text to be processed
+
+        Returns:
+            str: punctuation text
+        """
         if self.server_ip is None or self.port is None:
             logger.warning(
                 "No punctuation server, please input valid ip and port")
@@ -55,24 +72,29 @@ class TextHttpHandler:
         return punc_text
 
 
-class ASRAudioHandler:
+class ASRWsAudioHandler:
     def __init__(self,
-                 url="127.0.0.1",
-                 port=8090,
-                 punc_server_ip="127.0.0.1",
-                 punc_server_port="8091"):
+                 url=None,
+                 port=None,
+                 endpoint="/paddlespeech/asr/streaming",
+                 punc_server_ip=None,
+                 punc_server_port=None):
         """PaddleSpeech Online ASR Server Client  audio handler
            Online asr server use the websocket protocal
         Args:
-            url (str, optional): the server ip. Defaults to "127.0.0.1".
-            port (int, optional): the server port. Defaults to 8090.
+            url (str, optional): the server ip. Defaults to None.
+            port (int, optional): the server port. Defaults to None.
+            endpoint(str, optional): to compatiable with python server and c++ server.
             punc_server_ip(str, optional): the punctuation server ip. Defaults to None. 
             punc_server_port(int, optional): the punctuation port. Defaults to None
         """
         self.url = url
         self.port = port
-        self.url = "ws://" + self.url + ":" + str(self.port) + "/ws/asr"
-
+        if url is None or port is None or endpoint is None:
+            self.url = None
+        else:
+            self.url = "ws://" + self.url + ":" + str(
+                self.port) + endpoint
         self.punc_server = TextHttpHandler(punc_server_ip, punc_server_port)
 
     def read_wave(self, wavfile_path: str):
@@ -117,6 +139,11 @@ class ASRAudioHandler:
         """
         logging.info("send a message to the server")
 
+        if self.url is None:
+            logger.error(
+                "No punctuation server, please input valid ip and port")
+            return ""
+
         # 1. send websocket handshake protocal
         async with websockets.connect(self.url) as ws:
             # 2. server has already received handshake protocal
@@ -125,7 +152,7 @@ class ASRAudioHandler:
                 {
                     "name": "test.wav",
                     "signal": "start",
-                    "nbest": 5
+                    "nbest": 1
                 },
                 sort_keys=True,
                 indent=4,
@@ -139,7 +166,9 @@ class ASRAudioHandler:
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-                msg["asr_results"] = self.punc_server.run(msg["asr_results"])
+                if self.punc_server and len(msg["partial_result"]) > 0:
+                    msg["partial_result"] = self.punc_server.run(
+                        msg["partial_result"])
                 logger.info("receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
@@ -157,7 +186,8 @@ class ASRAudioHandler:
 
             # 5. decode the bytes to str
             msg = json.loads(msg)
-            msg["asr_results"] = self.punc_server.run(msg["asr_results"])
+            if self.punc_server:
+                msg["final_result"] = self.punc_server.run(msg["final_result"])
             logger.info("final receive msg={}".format(msg))
             result = msg
 
@@ -165,14 +195,39 @@ class ASRAudioHandler:
 
 
 class ASRHttpHandler:
-    def __init__(self, server_ip="127.0.0.1", port=8090):
+    def __init__(self, server_ip=None, port=None):
+        """The ASR client http request
+
+        Args:
+            server_ip (str, optional): the http asr server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http asr server port. Defaults to 8090.
+        """
         super().__init__()
         self.server_ip = server_ip
         self.port = port
-        self.url = 'http://' + self.server_ip + ":" + str(
-            self.port) + '/paddlespeech/asr'
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/asr'
 
     def run(self, input, audio_format, sample_rate, lang):
+        """Call the http asr to process the audio
+
+        Args:
+            input (str): the audio file path
+            audio_format (str): the audio format
+            sample_rate (str): the audio sample rate
+            lang (str): the audio language type
+
+        Returns:
+            str: the final asr result
+        """
+        if self.url is None:
+            logger.error(
+                "No punctuation server, please input valid ip and port")
+            return ""
+
         audio = wav2base64(input)
         data = {
             "audio": audio,

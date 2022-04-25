@@ -29,7 +29,7 @@ from ..executor import BaseExecutor
 from ..util import cli_client_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
-from paddlespeech.server.utils.audio_handler import ASRAudioHandler
+from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
@@ -369,7 +369,7 @@ class ASRClientExecutor(BaseExecutor):
         Returns:
             str: The ASR results
         """
-        # 1. Firstly, we use the asr server to recognize the audio text content
+        # we use the asr server to recognize the audio text content
         if protocol.lower() == "http":
             from paddlespeech.server.utils.audio_handler import ASRHttpHandler
             logger.info("asr http client start")
@@ -380,21 +380,19 @@ class ASRClientExecutor(BaseExecutor):
 
         elif protocol.lower() == "websocket":
             logger.info("asr websocket client start")
-            handler = ASRAudioHandler(
+            handler = ASRWsAudioHandler(
                 server_ip,
                 port,
                 punc_server_ip=punc_server_ip,
                 punc_server_port=punc_server_port)
             loop = asyncio.get_event_loop()
             res = loop.run_until_complete(handler.run(input))
-            res = res['asr_results']
+            res = res['final_result']
             logger.info("asr websocket client finished")
         else:
             logger.error(f"Sorry, we have not support protocol: {protocol},"
                          "please use http or websocket protocol")
             sys.exit(-1)
-
-        # 2. Secondly, we use the punctuation server to do post process for text
 
         return res
 

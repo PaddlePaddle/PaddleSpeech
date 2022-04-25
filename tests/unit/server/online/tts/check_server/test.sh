@@ -28,7 +28,7 @@ StartService(){
 ClientTest_http(){
     for ((i=1; i<=3;i++))
     do
-    python http_client.py --save_path ./out_http.wav 
+    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" 
     ((http_test_times+=1))
     done
 }
@@ -36,7 +36,7 @@ ClientTest_http(){
 ClientTest_ws(){
     for ((i=1; i<=3;i++))
     do
-    python ws_client.py
+    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" --protocol websocket
     ((ws_test_times+=1))
     done
 }
@@ -70,6 +70,7 @@ mkdir -p $log
 rm -rf $log/server.log.wf 
 rm -rf $log/server.log
 rm -rf $log/test_result.log
+
 
 config_file=./conf/application.yaml
 server_ip=$(cat $config_file | grep "host" | awk -F " " '{print $2}')

@@ -202,7 +202,6 @@ class TTSServerExecutor(TTSExecutor):
         """
         Init model and other resources from a specific path.
         """
-        #import pdb;pdb.set_trace()
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
             logger.info('Models had been initialized.')
             return
@@ -391,8 +390,7 @@ class TTSServerExecutor(TTSExecutor):
             # fastspeech2_cnndecoder_csmsc 
             elif am == "fastspeech2_cnndecoder_csmsc":
                 # am 
-                orig_hs, h_masks = self.am_inference.encoder_infer(
-                    part_phone_ids)
+                orig_hs = self.am_inference.encoder_infer(part_phone_ids)
 
                 # streaming voc chunk info
                 mel_len = orig_hs.shape[1]
@@ -404,7 +402,7 @@ class TTSServerExecutor(TTSExecutor):
                 hss = get_chunks(orig_hs, self.am_block, self.am_pad, "am")
                 am_chunk_num = len(hss)
                 for i, hs in enumerate(hss):
-                    before_outs, _ = self.am_inference.decoder(hs)
+                    before_outs = self.am_inference.decoder(hs)
                     after_outs = before_outs + self.am_inference.postnet(
                         before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
                     normalized_mel = after_outs[0]

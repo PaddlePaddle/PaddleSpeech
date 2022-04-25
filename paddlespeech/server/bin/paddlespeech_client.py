@@ -35,8 +35,8 @@ from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
-    'TTSClientExecutor', 'ASRClientExecutor', 'ASROnlineClientExecutor',
-    'CLSClientExecutor'
+    'TTSClientExecutor', 'TTSOnlineClientExecutor', 'ASRClientExecutor',
+    'ASROnlineClientExecutor', 'CLSClientExecutor'
 ]
 
 
@@ -159,6 +159,116 @@ class TTSClientExecutor(BaseExecutor):
         if output is not None:
             self.postprocess(response_dict["result"]["audio"], output)
         return res
+
+
+@cli_client_register(
+    name='paddlespeech_client.tts_online',
+    description='visit tts online service')
+class TTSOnlineClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(TTSOnlineClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.tts_online', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8092, help='server port')
+        self.parser.add_argument(
+            '--protocol',
+            type=str,
+            default="http",
+            choices=["http", "websocket"],
+            help='server protocol')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Text to be synthesized.',
+            required=True)
+        self.parser.add_argument(
+            '--spk_id', type=int, default=0, help='Speaker id')
+        self.parser.add_argument(
+            '--speed',
+            type=float,
+            default=1.0,
+            help='Audio speed, the value should be set between 0 and 3')
+        self.parser.add_argument(
+            '--volume',
+            type=float,
+            default=1.0,
+            help='Audio volume, the value should be set between 0 and 3')
+        self.parser.add_argument(
+            '--sample_rate',
+            type=int,
+            default=0,
+            choices=[0, 8000, 16000],
+            help='Sampling rate, the default is the same as the model')
+        self.parser.add_argument(
+            '--output', type=str, default=None, help='Synthesized audio file')
+        self.parser.add_argument(
+            "--play", type=bool, help="whether to play audio", default=False)
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        protocol = args.protocol
+        spk_id = args.spk_id
+        speed = args.speed
+        volume = args.volume
+        sample_rate = args.sample_rate
+        output = args.output
+        play = args.play
+
+        try:
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                protocol=protocol,
+                spk_id=spk_id,
+                speed=speed,
+                volume=volume,
+                sample_rate=sample_rate,
+                output=output,
+                play=play)
+            return True
+        except Exception as e:
+            logger.error("Failed to synthesized audio.")
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8092,
+                 protocol: str="http",
+                 spk_id: int=0,
+                 speed: float=1.0,
+                 volume: float=1.0,
+                 sample_rate: int=0,
+                 output: str=None,
+                 play: bool=False):
+        """
+        Python API to call an executor.
+        """
+
+        if protocol == "http":
+            logger.info("tts http client start")
+            from paddlespeech.server.utils.audio_handler import TTSHttpHandler
+            handler = TTSHttpHandler(server_ip, port, play)
+            handler.run(input, spk_id, speed, volume, sample_rate, output)
+
+        elif protocol == "websocket":
+            from paddlespeech.server.utils.audio_handler import TTSWsHandler
+            logger.info("tts websocket client start")
+            handler = TTSWsHandler(server_ip, port, play)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(handler.run(input, output))
+
+        else:
+            logger.error("Please set correct protocol, http or websocket")
 
 
 @cli_client_register(

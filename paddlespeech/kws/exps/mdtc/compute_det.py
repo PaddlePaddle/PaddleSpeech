@@ -12,23 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from wekws(https://github.com/wenet-e2e/wekws)
-import argparse
 import os
 
 import paddle
-import yaml
 from tqdm import tqdm
+from yacs.config import CfgNode
 
+from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-
-# yapf: disable
-parser = argparse.ArgumentParser(__doc__)
-parser.add_argument("--cfg_path", type=str, required=True)
-parser.add_argument('--keyword_index', type=int, default=0, help='keyword index')
-parser.add_argument('--step', type=float, default=0.01, help='threshold step of trigger score')
-parser.add_argument('--window_shift', type=int, default=50, help='window_shift is used to skip the frames after triggered')
-args = parser.parse_args()
-# yapf: enable
 
 
 def load_label_and_score(keyword_index: int,
@@ -61,26 +52,52 @@ def load_label_and_score(keyword_index: int,
 
 
 if __name__ == '__main__':
-    args.cfg_path = os.path.abspath(os.path.expanduser(args.cfg_path))
-    with open(args.cfg_path, 'r') as f:
-        config = yaml.safe_load(f)
+    parser = default_argument_parser()
+    parser.add_argument(
+        '--keyword_index', type=int, default=0, help='keyword index')
+    parser.add_argument(
+        '--step',
+        type=float,
+        default=0.01,
+        help='threshold step of trigger score')
+    parser.add_argument(
+        '--window_shift',
+        type=int,
+        default=50,
+        help='window_shift is used to skip the frames after triggered')
+    parser.add_argument(
+        "--score_file",
+        type=str,
+        required=True,
+        help='output file of trigger scores')
+    parser.add_argument(
+        '--stats_file',
+        type=str,
+        default='./stats.0.txt',
+        help='output file of detection error tradeoff')
+    args = parser.parse_args()
 
-    data_conf = config['data']
-    feat_conf = config['feature']
-    scoring_conf = config['scoring']
+    # https://yaml.org/type/float.html
+    config = CfgNode(new_allowed=True)
+    if args.config:
+        config.merge_from_file(args.config)
 
     # Dataset
-    ds_class = dynamic_import(data_conf['dataset'])
-    test_ds = ds_class(data_dir=data_conf['data_dir'], mode='test', **feat_conf)
-
-    score_file = os.path.abspath(scoring_conf['score_file'])
-    stats_file = os.path.abspath(scoring_conf['stats_file'])
+    ds_class = dynamic_import(config['dataset'])
+    test_ds = ds_class(
+        data_dir=config['data_dir'],
+        mode='test',
+        feat_type=config['feat_type'],
+        sample_rate=config['sample_rate'],
+        frame_shift=config['frame_shift'],
+        frame_length=config['frame_length'],
+        n_mels=config['n_mels'], )
 
     keyword_table, filler_table, filler_duration = load_label_and_score(
-        args.keyword, test_ds, score_file)
+        args.keyword_index, test_ds, args.score_file)
     print('Filler total duration Hours: {}'.format(filler_duration / 3600.0))
     pbar = tqdm(total=int(1.0 / args.step))
-    with open(stats_file, 'w', encoding='utf8') as fout:
+    with open(args.stats_file, 'w', encoding='utf8') as fout:
         keyword_index = args.keyword_index
         threshold = 0.0
         while threshold <= 1.0:
@@ -113,4 +130,4 @@ if __name__ == '__main__':
             pbar.update(1)
 
     pbar.close()
-    print('DET saved to: {}'.format(stats_file))
+    print('DET saved to: {}'.format(args.stats_file))

@@ -27,6 +27,26 @@ pretrained_models = {
         'ckpt_path':
         'exp/conformer/checkpoints/wenetspeech',
     },
+    "conformer_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_conformer_aishell_ckpt_0.1.2.model.tar.gz',
+        'md5':
+        '3f073eccfa7bb14e0c6867d65fc0dc3a',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/conformer/checkpoints/avg_30',
+    },
+    "conformer_online_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_chunk_conformer_aishell_ckpt_0.2.0.model.tar.gz',
+        'md5':
+        'b374cfb93537761270b6224fb0bfc26a',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/chunk_conformer/checkpoints/avg_30',
+    },
     "transformer_librispeech-en-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr1/asr1_transformer_librispeech_ckpt_0.1.1.model.tar.gz',
@@ -53,7 +73,7 @@ pretrained_models = {
     },
     "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_0.2.0.model.tar.gz',
         'md5':
         'd314960e83cc10dcfa6b04269f3054d4',
         'cfg_path':

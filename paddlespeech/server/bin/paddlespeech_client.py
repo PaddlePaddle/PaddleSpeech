@@ -387,7 +387,7 @@ class ASRClientExecutor(BaseExecutor):
                 punc_server_port=punc_server_port)
             loop = asyncio.get_event_loop()
             res = loop.run_until_complete(handler.run(input))
-            res = res['final_result']
+            res = res['result']
             logger.info("asr websocket client finished")
         else:
             logger.error(f"Sorry, we have not support protocol: {protocol},"

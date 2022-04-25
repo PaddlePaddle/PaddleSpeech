@@ -83,7 +83,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     resp = {
                         "status": "ok",
                         "signal": "finished",
-                        'final_result': asr_results
+                        'result': asr_results
                     }
                     await websocket.send_json(resp)
                     break
@@ -102,7 +102,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 # return the current period result
                 # if the engine create the vad instance, this connection will have many period results 
-                resp = {'partial_result': asr_results}
+                resp = {'result': asr_results}
                 await websocket.send_json(resp)
     except WebSocketDisconnect:
         pass

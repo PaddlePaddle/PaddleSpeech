@@ -54,8 +54,6 @@ class TextHttpHandler:
             str: punctuation text
         """
         if self.server_ip is None or self.port is None:
-            logger.warning(
-                "No punctuation server, please input valid ip and port")
             return text
         request = {
             "text": text,
@@ -141,7 +139,7 @@ class ASRWsAudioHandler:
 
         if self.url is None:
             logger.error(
-                "No punctuation server, please input valid ip and port")
+                "No asr server, please input valid ip and port")
             return ""
 
         # 1. send websocket handshake protocal
@@ -166,9 +164,9 @@ class ASRWsAudioHandler:
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-                if self.punc_server and len(msg["partial_result"]) > 0:
-                    msg["partial_result"] = self.punc_server.run(
-                        msg["partial_result"])
+                if self.punc_server and len(msg["result"]) > 0:
+                    msg["result"] = self.punc_server.run(
+                        msg["result"])
                 logger.info("receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
@@ -187,7 +185,7 @@ class ASRWsAudioHandler:
             # 5. decode the bytes to str
             msg = json.loads(msg)
             if self.punc_server:
-                msg["final_result"] = self.punc_server.run(msg["final_result"])
+                msg["result"] = self.punc_server.run(msg["result"])
             logger.info("final receive msg={}".format(msg))
             result = msg
 

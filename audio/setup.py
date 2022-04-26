@@ -19,7 +19,6 @@ import pybind11
 import setuptools
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
-from setuptools.command.install import install
 from setuptools.command.test import test
 
 # set the version here
@@ -45,11 +44,6 @@ class TestCommand(test):
     def run_benchmark(self):
         for benchmark_item in glob.glob('tests/benchmark/*py'):
             os.system(f'pytest {benchmark_item}')
-
-
-class InstallCommand(install):
-    def run(self):
-        install.run(self)
 
 
 class ExtBuildCommand(build_ext):
@@ -149,7 +143,6 @@ setuptools.setup(
     },
     ext_modules=get_ext_modules(),
     cmdclass={
-        'install': InstallCommand,
         "build_ext": ExtBuildCommand,
         'test': TestCommand,
     }, )

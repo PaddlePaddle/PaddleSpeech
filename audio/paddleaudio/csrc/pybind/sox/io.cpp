@@ -25,7 +25,8 @@ auto get_info_file(const std::string &path, const std::string &format)
   SoxFormat sf(sox_open_read(path.data(),
                              /*signal=*/nullptr,
                              /*encoding=*/nullptr,
-                             /*filetype=*/format.data()));
+                             /*filetype=*/format.empty() ? nullptr : format.data()));
+  
 
   validate_input_file(sf, path);
 
@@ -54,7 +55,7 @@ auto get_info_fileobj(py::object fileobj, const std::string &format)
   SoxFormat sf(sox_open_mem_read(buf, buf_size,
                                  /*signal=*/nullptr,
                                  /*encoding=*/nullptr,
-                                 /*filetype=*/format.data()));
+                                 /*filetype=*/format.empty() ? nullptr : format.data()));
 
   // In case of streamed data, length can be 0
   validate_input_memfile(sf);

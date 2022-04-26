@@ -21,7 +21,7 @@ paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.w
 
 # long audio restriction
 {
-wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
+wget -c https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
 if [ $? -ne 255 ]; then
    echo -e "\e[1;31mTime restriction not passed\e[0m"

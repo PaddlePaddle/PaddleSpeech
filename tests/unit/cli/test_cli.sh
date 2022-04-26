@@ -14,8 +14,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
+paddlespeech asr --model conformer_online_multicn --input ./zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
 paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
+paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
 paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
 

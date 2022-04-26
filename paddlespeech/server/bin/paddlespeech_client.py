@@ -353,8 +353,8 @@ class ASRClientExecutor(BaseExecutor):
                  lang: str="zh_cn",
                  audio_format: str="wav",
                  protocol: str="http",
-                 punc_server_ip: str="127.0.0.1",
-                 punc_server_port: int=8091):
+                 punc_server_ip: str=None,
+                 punc_server_port: int=None):
         """Python API to call an executor.
 
         Args:
@@ -487,7 +487,6 @@ class TextClientExecutor(BaseExecutor):
         input_ = args.input
         server_ip = args.server_ip
         port = args.port
-        output = args.output
 
         try:
             time_start = time.time()

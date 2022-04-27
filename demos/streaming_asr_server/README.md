@@ -186,16 +186,19 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 
 ### 4. ASR Client Usage
+
+#### 4.2 使用 `paddlespeech_client asr_online`
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
    ```
+   # if we use paddlespeech_client asr, we must specify the protocol to websocket
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav --protocol websocket
    ```
 
   Usage:
   
   ```bash
-  paddlespeech_client asr_online --help
+  paddlespeech_client asr help
   ```
   Arguments:
   - `server_ip`: server ip. Default: 127.0.0.1
@@ -204,6 +207,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   - `sample_rate`: Audio ampling rate, default: 16000.
   - `lang`: Language. Default: "zh_cn".
   - `audio_format`: Audio format. Default: "wav".
+  - `protocol`: protocol between client and server. Streaming asr must be websocket.
+  - `punc.server_ip`: punctuation server ip. Default: None.
+  - `punc.server_port`: punctuation server port. Default: None.
 
   Output:
   ```bash

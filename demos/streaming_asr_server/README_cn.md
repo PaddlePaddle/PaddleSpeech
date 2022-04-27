@@ -197,7 +197,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
-   # 使用 paddlespecch_asr 需要指定传入协议为 websocket
    paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
 

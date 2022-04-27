@@ -5,18 +5,27 @@
 ## 介绍
 这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
 
-流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。
+**流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。**
 
 ## 使用方法
 ### 1. 安装
-请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
+安装 PaddleSpeech 的详细过程请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md)。
 
 推荐使用 **paddlepaddle 2.2.1** 或以上版本。
-你可以从medium，hard 二中方式中选择一种方式安装 PaddleSpeech。
+你可以从medium，hard 两中方式中选择一种方式安装 PaddleSpeech。
 
 
 ### 2. 准备配置文件
-配置文件可参见 `conf/ws_application.yaml` 和 `conf/ws_conformer_application.yaml` 。
+
+流式ASR的服务启动脚本和服务测试脚本存放在 `PaddleSpeech/demos/streaming_asr_server` 目录。
+下载好 `PaddleSpeech` 之后，进入到 `PaddleSpeech/demos/streaming_asr_server` 目录。
+配置文件可参见该目录下 `conf/ws_application.yaml` 和 `conf/ws_conformer_application.yaml` 。
+
+目前服务集成的模型有： DeepSpeech2和 conformer模型，对应的配置文件如下：
+* DeepSpeech: `conf/ws_application.yaml`
+* conformer: `conf/ws_conformer_application.yaml`
+
+
 目前服务集成的模型有： DeepSpeech2和conformer模型。
 
 
@@ -185,17 +194,19 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 ### 4. ASR 客户端使用方法
+
+#### 4.1 使用`paddlespeech_client asr `
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
+   # 使用 paddlespecch_asr 需要指定传入协议为 websocket
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav --protocol websocket
-
    ```
 
     使用帮助:
   
     ```bash
-    paddlespeech_client asr_online --help
+    paddlespeech_client asr help
     ```
 
     参数:
@@ -205,6 +216,187 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
     - `sample_rate`: 音频采样率，默认值：16000。
     - `lang`: 模型语言，默认值：zh_cn。
     - `audio_format`: 音频格式，默认值：wav。
+    - `protocol`  指定客户端和服务端之间服务的协议。在流式识别中必须指定 websocket。
+    - `punc.server_ip` 标点预测服务的ip。默认是None。
+    - `punc.server_port` 标点预测服务的端口port。默认是None。
+
+    输出:
+
+    ```bash
+        [2022-04-21 15:59:03,904] [    INFO] - receive msg={"status": "ok", "signal": "server_ready"}
+        [2022-04-21 15:59:03,960] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:03,973] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:03,987] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,000] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,012] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,024] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,036] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,047] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,607] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,620] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,633] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,645] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,657] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,669] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,680] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:05,176] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,185] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,192] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,200] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,208] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,216] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,224] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,232] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,724] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,732] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,740] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,747] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,755] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,763] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,770] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:06,271] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,279] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,287] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,294] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,302] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,310] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,318] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,326] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,833] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,842] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,850] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,858] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,866] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,874] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,882] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:07,400] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,408] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,416] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,424] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,432] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,440] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,447] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,455] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,984] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:07,992] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,001] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,008] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,016] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,024] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:12,883] [    INFO] - final receive msg={'status': 'ok', 'signal': 'finished', 'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:12,884] [    INFO] - 我认为跑步最重要的就是给我带来了身体健康
+        [2022-04-21 15:59:12,884] [    INFO] - Response time 9.051567 s.
+    ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import ASRClientExecutor
+  import json
+
+  asrclient_executor = ASRClientExecutor()
+  res = asrclient_executor(
+      input="./zh.wav",
+      server_ip="127.0.0.1",
+      port=8090,
+      sample_rate=16000,
+      lang="zh_cn",
+      audio_format="wav",
+      protocol="websocket")
+  print(res)
+  ```
+
+  输出:
+  ```bash
+        [2022-04-21 15:59:03,904] [    INFO] - receive msg={"status": "ok", "signal": "server_ready"}
+        [2022-04-21 15:59:03,960] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:03,973] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:03,987] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,000] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,012] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,024] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,036] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,047] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,607] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,620] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,633] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,645] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,657] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,669] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:04,680] [    INFO] - receive msg={'asr_results': ''}
+        [2022-04-21 15:59:05,176] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,185] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,192] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,200] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,208] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,216] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,224] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,232] [    INFO] - receive msg={'asr_results': '我认为跑'}
+        [2022-04-21 15:59:05,724] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,732] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,740] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,747] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,755] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,763] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:05,770] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的'}
+        [2022-04-21 15:59:06,271] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,279] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,287] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,294] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,302] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,310] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,318] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,326] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是'}
+        [2022-04-21 15:59:06,833] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,842] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,850] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,858] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,866] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,874] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:06,882] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给'}
+        [2022-04-21 15:59:07,400] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,408] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,416] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,424] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,432] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,440] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,447] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,455] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了'}
+        [2022-04-21 15:59:07,984] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:07,992] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,001] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,008] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,016] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:08,024] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:12,883] [    INFO] - final receive msg={'status': 'ok', 'signal': 'finished', 'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
+        [2022-04-21 15:59:12,884] [    INFO] - 我认为跑步最重要的就是给我带来了身体健康
+  ```
+
+
+#### 4.2 使用 `paddlespeech_client asr_online`
+
+**注意：** 初次使用客户端时响应时间会略长
+- 命令行 (推荐使用)
+   ```
+   # 使用 paddlespecch_asr 需要指定传入协议为 websocket
+   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   ```
+
+    使用帮助:
+  
+    ```bash
+    paddlespeech_client asr help
+    ```
+
+    参数:
+    - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+    - `port`: 服务端口，默认: 8090。
+    - `input`(必须输入): 用于识别的音频文件。
+    - `sample_rate`: 音频采样率，默认值：16000。
+    - `lang`: 模型语言，默认值：zh_cn。
+    - `audio_format`: 音频格式，默认值：wav。
+    - `protocol`  指定客户端和服务端之间服务的协议。在流式识别中必须指定 websocket。
+    - `punc.server_ip` 标点预测服务的ip。默认是None。
+    - `punc.server_port` 标点预测服务的端口port。默认是None。
 
     输出:
 

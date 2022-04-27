@@ -16,7 +16,7 @@ You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/tts_online_application.yaml`.
-- `protocol` indicates the network protocol used by the streaming TTS service. Currently, both http and websocket are supported.
+- `protocol` indicates the network protocol used by the streaming TTS service. Currently, both **http and websocket** are supported.
 - `engine_list` indicates the speech engine that will be included in the service to be started, in the format of `<speech task>_<engine type>`.
     - This demo mainly introduces the streaming speech synthesis service, so the speech task should be set to `tts`.
     - the engine type supports two forms: **online**  and **online-onnx**. `online` indicates an engine that uses python for dynamic graph inference; `online-onnx` indicates an engine that uses onnxruntime for inference. The inference speed of online-onnx is faster.
@@ -31,12 +31,12 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 - Inference speed: mb_melgan > hifigan; Audio quality: mb_melgan < hifigan
 
 
-
-### 3. Server Usage
+### 3. Streaming speech synthesis server and client using http protocol
+#### 3.1 Server Usage
 - Command Line (Recommended)
 
+  Start the service (the configuration file uses http by default):
   ```bash
-  # start the service
   paddlespeech_server start --config_file ./conf/tts_online_application.yaml
   ```
 
@@ -76,7 +76,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
       log_file="./log/paddlespeech.log")
   ```
 
-  Output:
+ Output:
   ```bash
   [2022-04-24 21:00:16,934] [    INFO] - The first response time of the 0 warm up: 1.268730878829956 s
   [2022-04-24 21:00:17,046] [    INFO] - The first response time of the 1 warm up: 0.11168622970581055 s
@@ -94,17 +94,15 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 
   ```
 
- 
-### 4. Streaming TTS client Usage
+#### 3.2 Streaming TTS client Usage
 - Command Line (Recommended)
 
-    ```bash
-    # Access http streaming TTS service
-    paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    Access http streaming TTS service:
 
-    # Access websocket streaming TTS service
-    paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol websocket --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```bash
+    paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
     ```
+
     Usage:
   
     ```bash
@@ -122,7 +120,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
     - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
     - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
-
     
     Output:
     ```bash
@@ -165,8 +162,144 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 21:11:16,802] [    INFO] - 音频时长：3.825 s
   [2022-04-24 21:11:16,802] [    INFO] - RTF: 0.7846773683635238
   [2022-04-24 21:11:16,837] [    INFO] - 音频保存至：./output.wav
+  ```
+
+ 
+### 4. Streaming speech synthesis server and client using websocket protocol
+#### 4.1 Server Usage
+- Command Line (Recommended)
+  First modify the configuration file `conf/tts_online_application.yaml`, **set `protocol` to `websocket`**.
+  Start the service:
+  ```bash
+  paddlespeech_server start --config_file ./conf/tts_online_application.yaml
+  ```
+
+  Usage:
+  
+  ```bash
+  paddlespeech_server start --help
+  ```
+  Arguments:
+  - `config_file`: yaml file of the app, defalut: ./conf/tts_online_application.yaml
+  - `log_file`: log file. Default: ./log/paddlespeech.log
+
+  Output:
+  ```bash
+    [2022-04-27 10:18:09,107] [    INFO] - The first response time of the 0 warm up: 1.1551103591918945 s
+    [2022-04-27 10:18:09,219] [    INFO] - The first response time of the 1 warm up: 0.11204338073730469 s
+    [2022-04-27 10:18:09,324] [    INFO] - The first response time of the 2 warm up: 0.1051797866821289 s
+    [2022-04-27 10:18:09,325] [    INFO] - **********************************************************************
+    INFO:     Started server process [17600]
+    [2022-04-27 10:18:09] [INFO] [server.py:75] Started server process [17600]
+    INFO:     Waiting for application startup.
+    [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
+    INFO:     Application startup complete.
+    [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
+    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
 
 
   ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
+
+  server_executor = ServerExecutor()
+  server_executor(
+      config_file="./conf/tts_online_application.yaml", 
+      log_file="./log/paddlespeech.log")
+  ```
+
+  Output:
+  ```bash
+    [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
+    [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
+    [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
+    [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
+    INFO:     Started server process [23466]
+    [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
+    INFO:     Waiting for application startup.
+    [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
+    INFO:     Application startup complete.
+    [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
+    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+
+  ```
+
+#### 4.2 Streaming TTS client Usage
+- Command Line (Recommended)
+
+    Access websocket streaming TTS service:
+
+    ```bash
+    paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol websocket --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```
+
+    Usage:
+  
+    ```bash
+    paddlespeech_client tts_online --help
+    ```
+
+    Arguments:
+    - `server_ip`: erver ip. Default: 127.0.0.1
+    - `port`: server port. Default: 8092
+    - `protocol`: Service protocol, choices: [http, websocket], default: http.
+    - `input`: (required): Input text to generate.
+    - `spk_id`: Speaker id for multi-speaker text to speech. Default: 0
+    - `speed`: Audio speed, the value should be set between 0 and 3. Default: 1.0
+    - `volume`: Audio volume, the value should be set between 0 and 3. Default: 1.0
+    - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
+    - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
+    - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
+
+    
+    Output:
+    ```bash
+    [2022-04-27 10:21:04,262] [    INFO] - tts websocket client start
+    [2022-04-27 10:21:04,496] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
+    [2022-04-27 10:21:04,496] [    INFO] - 首包响应：0.2124948501586914 s
+    [2022-04-27 10:21:07,483] [    INFO] - 尾包响应：3.199106454849243 s
+    [2022-04-27 10:21:07,484] [    INFO] - 音频时长：3.825 s
+    [2022-04-27 10:21:07,484] [    INFO] - RTF: 0.8363677006141812
+    [2022-04-27 10:21:07,516] [    INFO] - 音频保存至：output.wav
+
+    ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import TTSOnlineClientExecutor
+  import json
+
+  executor = TTSOnlineClientExecutor()
+  executor(
+      input="您好，欢迎使用百度飞桨语音合成服务。",
+      server_ip="127.0.0.1",
+      port=8092,
+      protocol="websocket",
+      spk_id=0,
+      speed=1.0,
+      volume=1.0,
+      sample_rate=0,
+      output="./output.wav",
+      play=False)
+
+  ```
+
+  Output:
+  ```bash
+    [2022-04-27 10:22:48,852] [    INFO] - tts websocket client start
+    [2022-04-27 10:22:49,080] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
+    [2022-04-27 10:22:49,080] [    INFO] - 首包响应：0.21017956733703613 s
+    [2022-04-27 10:22:52,100] [    INFO] - 尾包响应：3.2304444313049316 s
+    [2022-04-27 10:22:52,101] [    INFO] - 音频时长：3.825 s
+    [2022-04-27 10:22:52,101] [    INFO] - RTF: 0.8445606356352762
+    [2022-04-27 10:22:52,134] [    INFO] - 音频保存至：./output.wav
+
+  ```
+
+
 
   

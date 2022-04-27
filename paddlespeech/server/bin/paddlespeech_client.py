@@ -35,7 +35,7 @@ from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
     'TTSClientExecutor', 'TTSOnlineClientExecutor', 'ASRClientExecutor',
-    'CLSClientExecutor'
+    'ASROnlineClientExecutor', 'CLSClientExecutor'
 ]
 
 
@@ -370,6 +370,8 @@ class ASRClientExecutor(BaseExecutor):
             str: The ASR results
         """
         # we use the asr server to recognize the audio text content
+        # and paddlespeech_client asr only support http protocol
+        protocol = "http"
         if protocol.lower() == "http":
             from paddlespeech.server.utils.audio_handler import ASRHttpHandler
             logger.info("asr http client start")
@@ -377,24 +379,83 @@ class ASRClientExecutor(BaseExecutor):
             res = handler.run(input, audio_format, sample_rate, lang)
             res = res['result']['transcription']
             logger.info("asr http client finished")
-
-        elif protocol.lower() == "websocket":
-            logger.info("asr websocket client start")
-            handler = ASRWsAudioHandler(
-                server_ip,
-                port,
-                punc_server_ip=punc_server_ip,
-                punc_server_port=punc_server_port)
-            loop = asyncio.get_event_loop()
-            res = loop.run_until_complete(handler.run(input))
-            res = res['result']
-            logger.info("asr websocket client finished")
         else:
             logger.error(f"Sorry, we have not support protocol: {protocol},"
                          "please use http or websocket protocol")
             sys.exit(-1)
 
         return res
+
+
+@cli_client_register(
+    name='paddlespeech_client.asr_online',
+    description='visit asr online service')
+class ASROnlineClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(ASROnlineClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.asr_online', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8091, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Audio file to be recognized',
+            required=True)
+        self.parser.add_argument(
+            '--sample_rate', type=int, default=16000, help='audio sample rate')
+        self.parser.add_argument(
+            '--lang', type=str, default="zh_cn", help='language')
+        self.parser.add_argument(
+            '--audio_format', type=str, default="wav", help='audio format')
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        sample_rate = args.sample_rate
+        lang = args.lang
+        audio_format = args.audio_format
+        try:
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                sample_rate=sample_rate,
+                lang=lang,
+                audio_format=audio_format)
+            time_end = time.time()
+            logger.info(res)
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to speech recognition.")
+            logger.error(e)
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8091,
+                 sample_rate: int=16000,
+                 lang: str="zh_cn",
+                 audio_format: str="wav"):
+        """
+        Python API to call an executor.
+        """
+        logger.info("asr websocket client start")
+        handler = ASRWsAudioHandler(server_ip, port)
+        loop = asyncio.get_event_loop()
+        res = loop.run_until_complete(handler.run(input))
+        logger.info("asr websocket client finished")
+
+        return res['result']
 
 
 @cli_client_register(

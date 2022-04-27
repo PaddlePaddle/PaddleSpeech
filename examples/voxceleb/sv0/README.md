@@ -146,6 +146,6 @@ tar -xvf sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz
 source path.sh
 # If you have processed the data and get the manifest file， you can skip the following 2 steps
 
-CUDA_VISIBLE_DEVICES= ./local/test.sh ./data sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_2 conf/ecapa_tdnn.yaml
+CUDA_VISIBLE_DEVICES= bash ./local/test.sh ./data sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_2/model/ conf/ecapa_tdnn.yaml
 ```
 The performance of the released models are shown in [this](./RESULTS.md)

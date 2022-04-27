@@ -14,14 +14,16 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
+paddlespeech asr --model conformer_online_multicn --input ./zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
 paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
+paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
 paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
 
 # long audio restriction
 {
-wget -c wget https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
+wget -c https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --input test_long_audio_01.wav
 if [ $? -ne 255 ]; then
    echo -e "\e[1;31mTime restriction not passed\e[0m"

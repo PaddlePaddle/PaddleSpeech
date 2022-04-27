@@ -33,10 +33,26 @@ dir=$1
 exp_dir=$2
 conf_path=$3
 
+# get the gpu nums for training
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
+echo "using $ngpu gpus..."
+
+# setting training device
+device="cpu"
+if ${use_gpu}; then
+    device="gpu"
+fi
+if [ $ngpu -le 0 ]; then 
+    echo "no gpu, training in cpu mode"
+    device='cpu'
+    use_gpu=false
+fi
+
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
    # test the model and compute the eer metrics
    python3 ${BIN_DIR}/test.py \
          --data-dir ${dir} \
          --load-checkpoint ${exp_dir} \
-         --config ${conf_path}
+         --config ${conf_path} \
+         --device ${device}
 fi

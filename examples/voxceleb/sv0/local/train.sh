@@ -42,15 +42,25 @@ device="cpu"
 if ${use_gpu}; then
     device="gpu"
 fi
+if [ $ngpu -le 0 ]; then 
+    echo "no gpu, training in cpu mode"
+    device='cpu'
+    use_gpu=false
+fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train the speaker identification task with voxceleb data
     # and we will create the trained model parameters in ${exp_dir}/model.pdparams as the soft link
     # Note: we will store the log file in exp/log directory
-    python3 -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES \
-        ${BIN_DIR}/train.py --device ${device} --checkpoint-dir ${exp_dir} \
-        --data-dir ${dir} --config ${conf_path}
-
+    if $use_gpu; then
+        python3 -m paddle.distributed.launch --gpus=$CUDA_VISIBLE_DEVICES \
+            ${BIN_DIR}/train.py --device ${device} --checkpoint-dir ${exp_dir} \
+            --data-dir ${dir} --config ${conf_path}
+    else
+        python3 \
+            ${BIN_DIR}/train.py --device ${device} --checkpoint-dir ${exp_dir} \
+            --data-dir ${dir} --config ${conf_path}
+    fi
 fi 
 
 if [ $? -ne 0 ]; then

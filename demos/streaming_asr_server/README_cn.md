@@ -12,7 +12,7 @@
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 推荐使用 **paddlepaddle 2.2.1** 或以上版本。
-你可以从medium，hard 二中方式中选择一种方式安装 PaddleSpeech。
+你可以从 medium，hard 三种方式中选择一种方式安装 PaddleSpeech。
 
 
 ### 2. 准备配置文件

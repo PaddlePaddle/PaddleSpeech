@@ -370,6 +370,8 @@ class ASRClientExecutor(BaseExecutor):
             str: The ASR results
         """
         # we use the asr server to recognize the audio text content
+        # and paddlespeech_client asr only support http protocol
+        protocol = "http"
         if protocol.lower() == "http":
             from paddlespeech.server.utils.audio_handler import ASRHttpHandler
             logger.info("asr http client start")

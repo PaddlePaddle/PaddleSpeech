@@ -5,6 +5,7 @@
 ## Introduction
 This demo is an implementation of starting the streaming speech service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.
 
+Streaming ASR server only support `websocket` protocol, and doesn't support `http` protocol.
 
 ## Usage
 ### 1. Installation
@@ -114,7 +115,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
   server_executor = ServerExecutor()
   server_executor(
-      config_file="./conf/ws_conformer_application.yaml", 
+      config_file="./conf/ws_conformer_application.yaml",
       log_file="./log/paddlespeech.log")
   ```
 
@@ -188,7 +189,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
    ```
-   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav --protocol websocket
    ```
 
   Usage:
@@ -284,8 +285,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
       port=8090,
       sample_rate=16000,
       lang="zh_cn",
-      audio_format="wav")
-  print(res.json())
+      audio_format="wav",
+      protocol="websocket")
+  print(res)
   ```
 
   Output:

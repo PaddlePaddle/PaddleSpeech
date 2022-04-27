@@ -91,8 +91,7 @@ class ASRWsAudioHandler:
         if url is None or port is None or endpoint is None:
             self.url = None
         else:
-            self.url = "ws://" + self.url + ":" + str(
-                self.port) + endpoint
+            self.url = "ws://" + self.url + ":" + str(self.port) + endpoint
         self.punc_server = TextHttpHandler(punc_server_ip, punc_server_port)
         logger.info(f"endpoint: {self.url}")
 
@@ -139,8 +138,7 @@ class ASRWsAudioHandler:
         logging.info("send a message to the server")
 
         if self.url is None:
-            logger.error(
-                "No asr server, please input valid ip and port")
+            logger.error("No asr server, please input valid ip and port")
             return ""
 
         # 1. send websocket handshake protocal
@@ -167,8 +165,7 @@ class ASRWsAudioHandler:
                 msg = json.loads(msg)
 
                 if self.punc_server and len(msg["result"]) > 0:
-                    msg["result"] = self.punc_server.run(
-                        msg["result"])
+                    msg["result"] = self.punc_server.run(msg["result"])
                 logger.info("client receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
@@ -189,7 +186,7 @@ class ASRWsAudioHandler:
 
             if self.punc_server:
                 msg["result"] = self.punc_server.run(msg["result"])
-      
+
             logger.info("client final receive msg={}".format(msg))
             result = msg
 

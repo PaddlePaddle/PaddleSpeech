@@ -325,7 +325,6 @@ if not hasattr(paddle.Tensor, 'type_as'):
     setattr(paddle.static.Variable, 'type_as', type_as)
 
 
-
 def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
     assert len(args) == 1
     if isinstance(args[0], str):  # dtype
@@ -372,7 +371,6 @@ if not hasattr(paddle.Tensor, 'tolist'):
         "register user tolist to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'tolist', tolist)
     setattr(paddle.static.Variable, 'tolist', tolist)
-    
 
 ########### hack paddle.nn #############
 from paddle.nn import Layer

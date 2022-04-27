@@ -197,7 +197,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   Usage:
   
   ```bash
-  paddlespeech_client asr_online help
+  paddlespeech_client asr_online --help
   ```
   Arguments:
   - `server_ip`: server ip. Default: 127.0.0.1

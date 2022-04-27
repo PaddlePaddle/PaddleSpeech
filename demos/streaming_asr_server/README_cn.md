@@ -204,7 +204,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
     使用帮助:
   
     ```bash
-    paddlespeech_client asr help
+    paddlespeech_client asr_online --help
     ```
 
     参数:

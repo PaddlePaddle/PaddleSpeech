@@ -377,18 +377,6 @@ class ASRClientExecutor(BaseExecutor):
             res = handler.run(input, audio_format, sample_rate, lang)
             res = res['result']['transcription']
             logger.info("asr http client finished")
-
-        elif protocol.lower() == "websocket":
-            logger.info("asr websocket client start")
-            handler = ASRWsAudioHandler(
-                server_ip,
-                port,
-                punc_server_ip=punc_server_ip,
-                punc_server_port=punc_server_port)
-            loop = asyncio.get_event_loop()
-            res = loop.run_until_complete(handler.run(input))
-            res = res['result']
-            logger.info("asr websocket client finished")
         else:
             logger.error(f"Sorry, we have not support protocol: {protocol},"
                          "please use http or websocket protocol")

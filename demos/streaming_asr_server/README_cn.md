@@ -5,6 +5,7 @@
 ## 介绍
 这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
 
+流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。
 
 ## 使用方法
 ### 1. 安装
@@ -187,7 +188,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
-   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav --protocol websocket
 
    ```
 
@@ -275,18 +276,19 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 - Python API
   ```python
-  from paddlespeech.server.bin.paddlespeech_client import ASROnlineClientExecutor
+  from paddlespeech.server.bin.paddlespeech_client import ASRClientExecutor
   import json
 
-  asrclient_executor = ASROnlineClientExecutor()
+  asrclient_executor = ASRClientExecutor()
   res = asrclient_executor(
       input="./zh.wav",
       server_ip="127.0.0.1",
       port=8090,
       sample_rate=16000,
       lang="zh_cn",
-      audio_format="wav")
-  print(res.json())
+      audio_format="wav",
+      protocol="websocket")
+  print(res)
   ```
 
   输出:

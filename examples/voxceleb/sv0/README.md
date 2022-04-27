@@ -142,7 +142,7 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 For example:
 ```
 wget https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz
-tar xzvf sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz
+tar -xvf sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz
 source path.sh
 # If you have processed the data and get the manifest file， you can skip the following 2 steps
 

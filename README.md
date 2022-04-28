@@ -21,12 +21,14 @@
 </p>
 <div align="center">  
 <h3>
-  <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start"> Quick Start </a>
   | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
+  |
   </br>
-  <a href="#documents"> Documents </a>
+  | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
+  |
 </h3>
 </div>
 

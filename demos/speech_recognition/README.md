@@ -24,13 +24,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Command Line(Recommended)
   ```bash
   # Chinese
-  paddlespeech asr --input ./zh.wav
+  paddlespeech asr --input ./zh.wav -v
   # English
-  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav -v
   # Chinese ASR + Punctuation Restoration
-  paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+  paddlespeech asr --input ./zh.wav -v | paddlespeech text --task punc -v
   ```
-  (It doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
+  (If you don't want to see the log information, you can remove "-v". Besides, it doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
   
   Usage:
   ```bash
@@ -45,6 +45,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
   - `yes`: No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate. Default: `False`.
   - `device`: Choose device to execute model inference. Default: default device of paddlepaddle in current environment.
+  - `verbose`: Show the log information.
 
   Output:
   ```bash
@@ -84,8 +85,10 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
 
 | Model | Language | Sample Rate
 | :--- | :---: | :---: |
-| conformer_wenetspeech| zh| 16k
-| transformer_librispeech| en| 16k
+| conformer_wenetspeech | zh | 16k
+| conformer_aishell | zh | 16k
+| conformer_online_aishell | zh | 16k
+| transformer_librispeech | en | 16k
 | deepspeech2offline_aishell| zh| 16k
 | deepspeech2online_aishell | zh | 16k
-|deepspeech2offline_librispeech|en| 16k
+| deepspeech2offline_librispeech | en | 16k

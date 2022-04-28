@@ -30,7 +30,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   # Chinese ASR + Punctuation Restoration
   paddlespeech asr --input ./zh.wav -v | paddlespeech text --task punc -v
   ```
-  (If you don't want to see the log information, you can remoe "-v". Besides, it doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
+  (If you don't want to see the log information, you can remove "-v". Besides, it doesn't matter if package `paddlespeech-ctcdecoders` is not found, this package is optional.)
   
   Usage:
   ```bash

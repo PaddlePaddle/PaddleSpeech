@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "base/common.h"
+#include "frontend/audio/frontend_itf.h"
 #include "kaldi/feat/feature-fbank.h"
 #include "kaldi/feat/feature-mfcc.h"
 #include "kaldi/matrix/kaldi-vector.h"
@@ -38,7 +40,7 @@ struct FbankOptions {
 class Fbank : public FrontendInterface {
   public:
     explicit Fbank(const FbankOptions& opts,
-                   unique_ptr<FrontendInterface> base_extractor);
+                   std::unique_ptr<FrontendInterface> base_extractor);
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
 
@@ -61,13 +63,13 @@ class Fbank : public FrontendInterface {
     FbankOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
 
-
-    FeatureWindowFunction window_function_;
+    kaldi::FeatureWindowFunction window_function_;
     kaldi::FbankComputer computer_;
     // features_ is the Mfcc or Plp or Fbank features that we have already
     // computed.
     kaldi::Vector<kaldi::BaseFloat> features_;
     kaldi::Vector<kaldi::BaseFloat> remained_wav_;
+    kaldi::int32 chunk_sample_size_;
 
     DISALLOW_COPY_AND_ASSIGN(Fbank);
 };

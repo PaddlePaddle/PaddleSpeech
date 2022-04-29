@@ -79,6 +79,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
         --cmvn_file=$cmvn \
         --streaming_chunk=0.36
+    echo "feature make have finished!!!"
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
@@ -94,6 +95,8 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
     cat $data/split${nj}/*/result > $exp/${label_file}
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file} > $exp/${wer}
+    echo "ctc-prefix-beam-search-decoder-ol without lm has finished!!!"
+    echo "please checkout in ${exp}/${wer}"
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
@@ -110,6 +113,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
  
     cat $data/split${nj}/*/result_lm > $exp/${label_file}_lm
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_lm > $exp/${wer}.lm
+    echo "ctc-prefix-beam-search-decoder-ol with lm test has finished!!!"
+    echo "please checkout in ${exp}/${wer}.lm"
 fi
 
 wfst=$data/wfst/
@@ -139,6 +144,8 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 
     cat $data/split${nj}/*/result_tlg > $exp/${label_file}_tlg
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_tlg > $exp/${wer}.tlg
+    echo "wfst-decoder-ol have finished!!!"
+    echo "please checkout in ${exp}/${wer}.tlg"
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
@@ -159,4 +166,6 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
 
     cat $data/split${nj}/*/result_recognizer > $exp/${label_file}_recognizer
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_recognizer > $exp/${wer}.recognizer
+    echo "recognizer test have finished!!!"
+    echo "please checkout in ${exp}/${wer}.recognizer"
 fi

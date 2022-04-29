@@ -20,19 +20,23 @@ import logging
 import os
 
 from paddlespeech.cli.log import logger
-from paddlespeech.server.utils.audio_handler import ASRAudioHandler
+from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 
 
 def main(args):
     logger.info("asr websocket client start")
-    handler = ASRAudioHandler("127.0.0.1", 8090)
+    handler = ASRWsAudioHandler(
+        args.server_ip,
+        args.port,
+        punc_server_ip=args.punc_server_ip,
+        punc_server_port=args.punc_server_port)
     loop = asyncio.get_event_loop()
 
     # support to process single audio file
     if args.wavfile and os.path.exists(args.wavfile):
         logger.info(f"start to process the wavscp: {args.wavfile}")
         result = loop.run_until_complete(handler.run(args.wavfile))
-        result = result["asr_results"]
+        result = result["result"]
         logger.info(f"asr websocket client finished : {result}")
 
     # support to process batch audios from wav.scp 
@@ -43,13 +47,29 @@ def main(args):
             for line in f:
                 utt_name, utt_path = line.strip().split()
                 result = loop.run_until_complete(handler.run(utt_path))
-                result = result["asr_results"]
+                result = result["result"]
                 w.write(f"{utt_name} {result}\n")
 
 
 if __name__ == "__main__":
     logger.info("Start to do streaming asr client")
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--server_ip', type=str, default='127.0.0.1', help='server ip')
+    parser.add_argument('--port', type=int, default=8090, help='server port')
+    parser.add_argument(
+        '--punc.server_ip',
+        type=str,
+        default=None,
+        dest="punc_server_ip",
+        help='Punctuation server ip')
+    parser.add_argument(
+        '--punc.port',
+        type=int,
+        default=8091,
+        dest="punc_server_port",
+        help='Punctuation server port')
+
     parser.add_argument(
         "--wavfile",
         action="store",

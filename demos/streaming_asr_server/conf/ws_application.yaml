@@ -7,8 +7,8 @@ host: 0.0.0.0
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# task choices = ['asr_online', 'tts_online']
-# protocol = ['websocket', 'http'] (only one can be selected).
+# task choices = ['asr_online']
+# protocol = ['websocket'] (only one can be selected).
 # websocket only support online engine type.
 protocol: 'websocket'
 engine_list: ['asr_online']

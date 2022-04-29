@@ -5,18 +5,26 @@
 ## 介绍
 这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
 
+**流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。**
 
 ## 使用方法
 ### 1. 安装
-请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
+安装 PaddleSpeech 的详细过程请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md)。
 
 推荐使用 **paddlepaddle 2.2.1** 或以上版本。
-你可以从 medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+你可以从medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
 
 
 ### 2. 准备配置文件
-配置文件可参见 `conf/ws_application.yaml` 和 `conf/ws_conformer_application.yaml` 。
-目前服务集成的模型有： DeepSpeech2和conformer模型。
+
+流式ASR的服务启动脚本和服务测试脚本存放在 `PaddleSpeech/demos/streaming_asr_server` 目录。
+下载好 `PaddleSpeech` 之后，进入到 `PaddleSpeech/demos/streaming_asr_server` 目录。
+配置文件可参见该目录下 `conf/ws_application.yaml` 和 `conf/ws_conformer_application.yaml` 。
+
+目前服务集成的模型有： DeepSpeech2和 conformer模型，对应的配置文件如下：
+* DeepSpeech: `conf/ws_application.yaml`
+* conformer: `conf/ws_conformer_application.yaml`
+
 
 
 这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
@@ -30,7 +38,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 - 命令行 (推荐使用)
 
   ```bash
-  # 启动服务
+  # 在 PaddleSpeech/demos/streaming_asr_server 目录启动服务
   paddlespeech_server start --config_file ./conf/ws_conformer_application.yaml
   ```
 
@@ -110,6 +118,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 - Python API
   ```python
+  # 在 PaddleSpeech/demos/streaming_asr_server 目录
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
 
   server_executor = ServerExecutor()
@@ -184,11 +193,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 ### 4. ASR 客户端使用方法
+
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
    ```
    paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
-
    ```
 
     使用帮助:
@@ -204,6 +213,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
     - `sample_rate`: 音频采样率，默认值：16000。
     - `lang`: 模型语言，默认值：zh_cn。
     - `audio_format`: 音频格式，默认值：wav。
+    - `punc.server_ip` 标点预测服务的ip。默认是None。
+    - `punc.server_port` 标点预测服务的端口port。默认是None。
 
     输出:
 
@@ -276,7 +287,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 - Python API
   ```python
   from paddlespeech.server.bin.paddlespeech_client import ASROnlineClientExecutor
-  import json
 
   asrclient_executor = ASROnlineClientExecutor()
   res = asrclient_executor(
@@ -286,7 +296,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
       sample_rate=16000,
       lang="zh_cn",
       audio_format="wav")
-  print(res.json())
+  print(res)
   ```
 
   输出:
@@ -352,5 +362,4 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
         [2022-04-21 15:59:08,016] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
         [2022-04-21 15:59:08,024] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
         [2022-04-21 15:59:12,883] [    INFO] - final receive msg={'status': 'ok', 'signal': 'finished', 'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
-        [2022-04-21 15:59:12,884] [    INFO] - 我认为跑步最重要的就是给我带来了身体健康
   ```

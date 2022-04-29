@@ -24,7 +24,7 @@ from paddlespeech.server.engine.engine_pool import get_engine_pool
 router = APIRouter()
 
 
-@router.websocket('/ws/asr')
+@router.websocket('/paddlespeech/asr/streaming')
 async def websocket_endpoint(websocket: WebSocket):
     """PaddleSpeech Online ASR Server api
 
@@ -83,7 +83,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     resp = {
                         "status": "ok",
                         "signal": "finished",
-                        'asr_results': asr_results
+                        'result': asr_results
                     }
                     await websocket.send_json(resp)
                     break
@@ -102,7 +102,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 # return the current period result
                 # if the engine create the vad instance, this connection will have many period results 
-                resp = {'asr_results': asr_results}
+                resp = {'result': asr_results}
                 await websocket.send_json(resp)
     except WebSocketDisconnect:
         pass

@@ -26,7 +26,7 @@ import pyaudio
 import websockets
 
 
-class ASRAudioHandler(threading.Thread):
+class ASRWsAudioHandler(threading.Thread):
     def __init__(self, url="127.0.0.1", port=8091):
         threading.Thread.__init__(self)
         self.url = url
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logging.info("asr websocket client start")
 
-    handler = ASRAudioHandler("127.0.0.1", 8091)
+    handler = ASRWsAudioHandler("127.0.0.1", 8091)
     loop = asyncio.get_event_loop()
     main_task = asyncio.ensure_future(handler.run())
     for signal in [SIGINT, SIGTERM]:

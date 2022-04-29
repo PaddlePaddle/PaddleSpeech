@@ -32,10 +32,16 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     ./local/train.sh ${ngpu} ${cfg_path} || exit -1
 fi
 
+ckpt=./checkpoint/epoch_100/model.pdparams
+score_file=./scores.txt
+stats_file=./stats.0.txt
+img_file=./det.png
+
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    ./local/score.sh ${cfg_path} || exit -1
+    ./local/score.sh ${cfg_path} ${ckpt} ${score_file} ${stats_file} || exit -1
 fi
 
+keyword=HeySnips
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    ./local/plot.sh ${cfg_path} || exit -1
+    ./local/plot.sh ${keyword} ${stats_file} ${img_file} || exit -1
 fi

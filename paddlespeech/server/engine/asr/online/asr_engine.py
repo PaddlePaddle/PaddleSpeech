@@ -43,9 +43,9 @@ __all__ = ['ASREngine']
 pretrained_models = {
     "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_0.2.1.model.tar.gz',
         'md5':
-        '23e16c69730a1cb5d735c98c83c21e16',
+        '98b87b171b7240b7cae6e07d8d0bc9be',
         'cfg_path':
         'model.yaml',
         'ckpt_path':

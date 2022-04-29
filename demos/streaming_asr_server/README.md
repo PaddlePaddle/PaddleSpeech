@@ -5,6 +5,7 @@
 ## Introduction
 This demo is an implementation of starting the streaming speech service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.
 
+Streaming ASR server only support `websocket` protocol, and doesn't support `http` protocol.
 
 ## Usage
 ### 1. Installation
@@ -30,7 +31,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 - Command Line (Recommended)
 
   ```bash
-  # start the service
+  # in PaddleSpeech/demos/streaming_asr_server start the service
    paddlespeech_server start --config_file ./conf/ws_conformer_application.yaml
   ```
 
@@ -110,11 +111,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 - Python API
   ```python
+  # in PaddleSpeech/demos/streaming_asr_server directory
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
 
   server_executor = ServerExecutor()
   server_executor(
-      config_file="./conf/ws_conformer_application.yaml", 
+      config_file="./conf/ws_conformer_application.yaml",
       log_file="./log/paddlespeech.log")
   ```
 
@@ -185,6 +187,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 
 ### 4. ASR Client Usage
+
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
    ```
@@ -203,6 +206,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   - `sample_rate`: Audio ampling rate, default: 16000.
   - `lang`: Language. Default: "zh_cn".
   - `audio_format`: Audio format. Default: "wav".
+  - `punc.server_ip`: punctuation server ip. Default: None.
+  - `punc.server_port`: punctuation server port. Default: None.
 
   Output:
   ```bash
@@ -274,10 +279,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 - Python API
   ```python
-  from paddlespeech.server.bin.paddlespeech_client import ASRClientExecutor
-  import json
+  from paddlespeech.server.bin.paddlespeech_client import ASROnlineClientExecutor
 
-  asrclient_executor = ASRClientExecutor()
+  asrclient_executor = ASROnlineClientExecutor()
   res = asrclient_executor(
       input="./zh.wav",
       server_ip="127.0.0.1",
@@ -285,7 +289,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
       sample_rate=16000,
       lang="zh_cn",
       audio_format="wav")
-  print(res.json())
+  print(res)
   ```
 
   Output:
@@ -351,5 +355,4 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
         [2022-04-21 15:59:08,016] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
         [2022-04-21 15:59:08,024] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
         [2022-04-21 15:59:12,883] [    INFO] - final receive msg={'status': 'ok', 'signal': 'finished', 'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
-        [2022-04-21 15:59:12,884] [    INFO] - 我认为跑步最重要的就是给我带来了身体健康
   ```

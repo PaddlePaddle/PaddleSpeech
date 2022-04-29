@@ -27,21 +27,22 @@ ConnectionHandler::ConnectionHandler(
     : ws_(std::move(socket)), recognizer_resource_(recognizer_resource) {}
 
 void ConnectionHandler::OnSpeechStart() {
-    LOG(INFO) << "Server: Recieved speech start signal, start reading speech";
-    got_start_tag_ = true;
-    json::value rv = {{"status", "ok"}, {"type", "server_ready"}};
-    ws_.text(true);
-    ws_.write(asio::buffer(json::serialize(rv)));
     recognizer_ = std::make_shared<Recognizer>(recognizer_resource_);
     // Start decoder thread
     decode_thread_ = std::make_shared<std::thread>(
         &ConnectionHandler::DecodeThreadFunc, this);
+    got_start_tag_ = true;
+    LOG(INFO) << "Server: Recieved speech start signal, start reading speech";
+    json::value rv = {{"status", "ok"}, {"type", "server_ready"}};
+    ws_.text(true);
+    ws_.write(asio::buffer(json::serialize(rv)));
 }
 
 void ConnectionHandler::OnSpeechEnd() {
     LOG(INFO) << "Server: Recieved speech end signal";
-    CHECK(recognizer_ != nullptr);
-    recognizer_->SetFinished();
+    if (recognizer_ != nullptr) {
+        recognizer_->SetFinished();
+    }
     got_end_tag_ = true;
 }
 
@@ -158,7 +159,7 @@ void ConnectionHandler::operator()() {
             }
         }
 
-        LOG(INFO) << "Server: Read all pcm data, wait for decoding thread";
+        LOG(INFO) << "Server: finished to wait for decoding thread join.";
         if (decode_thread_ != nullptr) {
             decode_thread_->join();
         }

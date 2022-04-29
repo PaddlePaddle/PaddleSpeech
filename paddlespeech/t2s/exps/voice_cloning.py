@@ -110,10 +110,10 @@ def voice_cloning(args):
         print(f"{utt_id} done!")
     # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
     random_spk_emb = np.random.rand(256) * 0.2
-    random_spk_emb = paddle.to_tensor(random_spk_emb)
+    random_spk_emb = paddle.to_tensor(random_spk_emb, dtype='float32')
     utt_id = "random_spk_emb"
     with paddle.no_grad():
-        wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
+        wav = voc_inference(am_inference(phone_ids, spk_emb=random_spk_emb))
     sf.write(
         str(output_dir / (utt_id + ".wav")),
         wav.numpy(),

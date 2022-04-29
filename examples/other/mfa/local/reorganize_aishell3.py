@@ -46,22 +46,22 @@ def write_lab(root_dir: Union[str, Path],
         text_path = root_dir / sub_set / 'content.txt'
         new_dir = output_dir / sub_set
 
-    with open(text_path, 'r') as rf:
-        for line in rf:
-            wav_id, context = line.strip().split('\t')
-            spk_id = wav_id[:7]
-            transcript_name = wav_id.split('.')[0] + '.lab'
-            transcript_path = new_dir / spk_id / transcript_name
-            context_list = context.split()
-            word_list = context_list[0:-1:2]
-            pinyin_list = context_list[1::2]
-            wf = open(transcript_path, 'w')
-            if script_type == 'word':
-                # add space between chinese char
-                new_context = ' '.join(word_list)
-            elif script_type == 'pinyin':
-                new_context = ' '.join(pinyin_list)
-            wf.write(new_context + '\n')
+        with open(text_path, 'r') as rf:
+            for line in rf:
+                wav_id, context = line.strip().split('\t')
+                spk_id = wav_id[:7]
+                transcript_name = wav_id.split('.')[0] + '.lab'
+                transcript_path = new_dir / spk_id / transcript_name
+                context_list = context.split()
+                word_list = context_list[0:-1:2]
+                pinyin_list = context_list[1::2]
+                wf = open(transcript_path, 'w')
+                if script_type == 'word':
+                    # add space between chinese char
+                    new_context = ' '.join(word_list)
+                elif script_type == 'pinyin':
+                    new_context = ' '.join(pinyin_list)
+                wf.write(new_context + '\n')
 
 
 def reorganize_aishell3(root_dir: Union[str, Path],

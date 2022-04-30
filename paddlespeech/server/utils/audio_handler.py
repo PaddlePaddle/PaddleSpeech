@@ -63,7 +63,7 @@ class TextHttpHandler:
             response_dict = res.json()
             punc_text = response_dict["result"]["punc_text"]
         except Exception as e:
-            logger.error(f"Call punctuation {self.url} occurs")
+            logger.error(f"Call punctuation {self.url} occurs error")
             logger.error(e)
             punc_text = text
 
@@ -173,7 +173,7 @@ class ASRWsAudioHandler:
                 {
                     "name": "test.wav",
                     "signal": "end",
-                    "nbest": 5
+                    "nbest": 1
                 },
                 sort_keys=True,
                 indent=4,

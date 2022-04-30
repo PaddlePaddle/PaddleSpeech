@@ -4,16 +4,16 @@
 ## 介绍
 声纹识别是一项用计算机程序自动提取说话人特征的技术。
 
-这个 demo 是一个从给定音频文件提取说话人特征，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
+这个 demo 是从一个给定音频文件中提取说话人特征，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 
 ## 使用方法
 ### 1. 安装
 请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
 
-你可以从 easy，medium，hard 三中方式中选择一种方式安装。
+你可以从easy medium，hard 三种方式中选择一种方式安装。
 
 ### 2. 准备输入
-这个 demo 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
+声纹cli demo 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 
 可以下载此 demo 的示例音频：
 ```bash

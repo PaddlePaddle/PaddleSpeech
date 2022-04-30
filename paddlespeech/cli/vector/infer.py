@@ -272,7 +272,8 @@ class VectorExecutor(BaseExecutor):
                         model_type: str='ecapatdnn_voxceleb12',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        ckpt_path: Optional[os.PathLike]=None,
+                        task=None):
         """Init the neural network from the model path
 
         Args:

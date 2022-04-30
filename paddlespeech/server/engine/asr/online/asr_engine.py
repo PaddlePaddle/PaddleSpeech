@@ -13,6 +13,7 @@
 # limitations under the License.
 import copy
 import os
+import time
 from typing import Optional
 
 import numpy as np
@@ -153,6 +154,12 @@ class PaddleASRConnectionHanddler:
             self.n_shift = self.preprocess_conf.process[0]['n_shift']
 
     def extract_feat(self, samples):
+
+        # we compute the elapsed time of first char occuring 
+        # and we record the start time at the first pcm sample arraving
+        # if self.first_char_occur_elapsed is not None:
+        #     self.first_char_occur_elapsed = time.time()
+
         if "deepspeech2online" in self.model_type:
             # self.reamined_wav stores all the samples, 
             # include the original remained_wav and this package samples
@@ -290,6 +297,7 @@ class PaddleASRConnectionHanddler:
         self.chunk_num = 0
         self.global_frame_offset = 0
         self.result_transcripts = ['']
+        self.first_char_occur_elapsed = None
 
     def decode(self, is_finished=False):
         if "deepspeech2online" in self.model_type:

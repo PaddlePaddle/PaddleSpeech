@@ -29,6 +29,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - When the voc model is mb_melgan, when voc_pad=14, the synthetic audio for streaming inference is consistent with the non-streaming synthetic audio; the minimum voc_pad can be set to 7, and the synthetic audio has no abnormal hearing. If the voc_pad is less than 7, the synthetic audio sounds abnormal.
     - When the voc model is hifigan, when voc_pad=20, the streaming inference synthetic audio is consistent with the non-streaming synthetic audio; when voc_pad=14, the synthetic audio has no abnormal hearing.
 - Inference speed: mb_melgan > hifigan; Audio quality: mb_melgan < hifigan
+- **Note:** If the access service is started abnormally in the container, you can try to replace the `host` address in the configuration file with the local ip address.
 
 
 ### 3. Streaming speech synthesis server and client using http protocol

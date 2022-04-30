@@ -28,6 +28,7 @@ def main(args):
     handler = ASRWsAudioHandler(
         args.server_ip,
         args.port,
+        endpoint=args.endpoint,
         punc_server_ip=args.punc_server_ip,
         punc_server_port=args.punc_server_port)
     loop = asyncio.get_event_loop()
@@ -36,7 +37,7 @@ def main(args):
     if args.wavfile and os.path.exists(args.wavfile):
         logger.info(f"start to process the wavscp: {args.wavfile}")
         result = loop.run_until_complete(handler.run(args.wavfile))
-        result = result["result"]
+        # result = result["result"]
         logger.info(f"asr websocket client finished : {result}")
 
     # support to process batch audios from wav.scp 
@@ -69,7 +70,11 @@ if __name__ == "__main__":
         default=8091,
         dest="punc_server_port",
         help='Punctuation server port')
-
+    parser.add_argument(
+        "--endpoint",
+        type=str,
+        default="/paddlespeech/asr/streaming",
+        help="ASR websocket endpoint")
     parser.add_argument(
         "--wavfile",
         action="store",

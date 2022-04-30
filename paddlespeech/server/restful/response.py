@@ -129,6 +129,11 @@ class CLSResponse(BaseModel):
     result: CLSResult
 
 
+#****************************************************************************************/
+#************************************ Text response **************************************/
+#****************************************************************************************/
+
+
 class TextResult(BaseModel):
     punc_text: str
 
@@ -152,6 +157,57 @@ class TextResponse(BaseModel):
     message: Message
     result: TextResult
 
+
+#****************************************************************************************/
+#************************************ Vector response **************************************/
+#****************************************************************************************/
+
+
+class VectorResult(BaseModel):
+    vec: list
+
+
+class VectorResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "vec": [1.0, 1.0]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorResult
+
+
+class VectorScoreResult(BaseModel):
+    score: float
+
+class VectorScoreResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "score": 1.0
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorScoreResult
 
 #****************************************************************************************/
 #********************************** Error response **************************************/

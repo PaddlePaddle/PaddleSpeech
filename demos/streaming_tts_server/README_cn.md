@@ -29,6 +29,7 @@
     - 当voc模型为mb_melgan，当voc_pad=14时，流式推理合成音频与非流式合成音频一致；voc_pad最小可以设置为7，合成音频听感上没有异常，若voc_pad小于7，合成音频听感上存在异常。
     - 当voc模型为hifigan，当voc_pad=20时，流式推理合成音频与非流式合成音频一致；当voc_pad=14时，合成音频听感上没有异常。
 - 推理速度：mb_melgan > hifigan; 音频质量：mb_melgan < hifigan
+- **注意：** 在容器里启动访问服务异常，可尝试将配置文件中`host`地址换成本地ip地址。
 
 ### 3. 使用http协议的流式语音合成服务端及客户端使用方法
 #### 3.1 服务端使用方法
@@ -198,6 +199,93 @@
     INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
     [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
 
+
+  ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
+
+  server_executor = ServerExecutor()
+  server_executor(
+      config_file="./conf/tts_online_application.yaml", 
+      log_file="./log/paddlespeech.log")
+  ```
+
+  输出：
+  ```bash
+    [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
+    [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
+    [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
+    [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
+    INFO:     Started server process [23466]
+    [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
+    INFO:     Waiting for application startup.
+    [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
+    INFO:     Application startup complete.
+    [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
+    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+
+  ```
+
+#### 4.2 客户端使用方法
+- 命令行 (推荐使用)
+
+    访问 websocket 流式TTS服务：
+
+    ```bash
+    paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol websocket --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+    ```
+
+    使用帮助:
+  
+    ```bash
+    paddlespeech_client tts_online --help
+    ```
+
+    参数:
+    - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+    - `port`: 服务端口，默认: 8092。
+    - `protocol`: 服务协议，可选 [http, websocket], 默认: http。
+    - `input`: (必须输入): 待合成的文本。
+    - `spk_id`: 说话人 id，用于多说话人语音合成，默认值： 0。
+    - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
+    - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
+    - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认值：0，表示与模型采样率相同
+    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
+    - `play`: 是否播放音频，边合成边播放， 默认值：False，表示不播放。**播放音频需要依赖pyaudio库**。
+
+    
+    输出:
+    ```bash
+    [2022-04-27 10:21:04,262] [    INFO] - tts websocket client start
+    [2022-04-27 10:21:04,496] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
+    [2022-04-27 10:21:04,496] [    INFO] - 首包响应：0.2124948501586914 s
+    [2022-04-27 10:21:07,483] [    INFO] - 尾包响应：3.199106454849243 s
+    [2022-04-27 10:21:07,484] [    INFO] - 音频时长：3.825 s
+    [2022-04-27 10:21:07,484] [    INFO] - RTF: 0.8363677006141812
+    [2022-04-27 10:21:07,516] [    INFO] - 音频保存至：output.wav
+
+    ```
+
+- Python API
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import TTSOnlineClientExecutor
+  import json
+
+  executor = TTSOnlineClientExecutor()
+  executor(
+      input="您好，欢迎使用百度飞桨语音合成服务。",
+      server_ip="127.0.0.1",
+      port=8092,
+      protocol="websocket",
+      spk_id=0,
+      speed=1.0,
+      volume=1.0,
+      sample_rate=0,
+      output="./output.wav",
+      play=False)
 
   ```
 

@@ -1,17 +1,17 @@
-([简体中文](./README_cn.md)|English)
+(简体中文|[English](./README.md))
 
 # 语音服务
 
 ## 介绍
-这个demo是一个启动语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个demo是一个启动离线语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
 
 
 ## 使用方法
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-推荐使用 **paddlepaddle 2.2.1** 或以上版本。
-你可以从 medium，hard 三中方式中选择一种方式安装 PaddleSpeech。
+推荐使用 **paddlepaddle 2.2.2** 或以上版本。
+你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
 
 
 ### 2. 准备配置文件
@@ -19,9 +19,10 @@
 其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
 目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)以及cls(音频分类)。
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
+**注意：** 在容器里启动访问服务异常，可尝试将配置文件中`host`地址换成本地ip地址。
 
 
-这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
+ASR client 的输入为是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
 
 可以下载此 ASR client的示例音频：
 ```bash
@@ -52,8 +53,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 11:17:32] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 11:17:32] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
 
   ```
 
@@ -75,8 +76,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 14:57:56] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 14:57:56] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
 
   ```
 

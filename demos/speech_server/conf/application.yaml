@@ -1,4 +1,4 @@
-# This is the parameter configuration file for PaddleSpeech Serving.
+# This is the parameter configuration file for PaddleSpeech Offline Serving.
 
 #################################################################################
 #                             SERVER SETTING                                    #
@@ -7,8 +7,8 @@ host: 127.0.0.1
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference']
-
+# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference']
+protocol: 'http'
 engine_list: ['asr_python', 'tts_python', 'cls_python']
 
 
@@ -46,7 +46,6 @@ asr_inference:
         switch_ir_optim: True
         glog_info: False  # True -> print glog
         summary: True  # False -> do not show predictor config
-
 
 ################################### TTS #########################################
 ################### speech task: tts; engine_type: python #######################
@@ -135,3 +134,15 @@ cls_inference:
         glog_info: False  # True -> print glog
         summary: True  # False -> do not show predictor config
 
+
+################################### Text #########################################
+################### text task: punc; engine_type: python #######################
+text_python:
+    task: punc
+    model_type: 'ernie_linear_p3_wudao'
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    vocab_file: # [optional]
+    device:  # set 'gpu:id' or 'cpu'

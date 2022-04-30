@@ -63,7 +63,7 @@ class TextHttpHandler:
             response_dict = res.json()
             punc_text = response_dict["result"]["punc_text"]
         except Exception as e:
-            logger.error(f"Call punctuation {self.url} occurs error")
+            logger.error(f"Call punctuation {self.url} occurs")
             logger.error(e)
             punc_text = text
 
@@ -173,7 +173,7 @@ class ASRWsAudioHandler:
                 {
                     "name": "test.wav",
                     "signal": "end",
-                    "nbest": 1
+                    "nbest": 5
                 },
                 sort_keys=True,
                 indent=4,
@@ -251,7 +251,8 @@ class TTSWsHandler:
         """
         self.server = server
         self.port = port
-        self.url = "ws://" + self.server + ":" + str(self.port) + "/ws/tts"
+        self.url = "ws://" + self.server + ":" + str(
+            self.port) + "/paddlespeech/tts/streaming"
         self.play = play
         if self.play:
             import pyaudio
@@ -287,6 +288,8 @@ class TTSWsHandler:
             output (str): save audio path
         """
         all_bytes = b''
+        receive_time_list = []
+        chunk_duration_list = []
 
         # 1. Send websocket handshake protocal
         async with websockets.connect(self.url) as ws:
@@ -301,14 +304,15 @@ class TTSWsHandler:
 
             # 3. Process the received response 
             message = await ws.recv()
-            logger.info(f"句子：{text}")
-            logger.info(f"首包响应：{time.time() - st} s")
+            first_response = time.time() - st
             message = json.loads(message)
             status = message["status"]
 
             while (status == 1):
+                receive_time_list.append(time.time())
                 audio = message["audio"]
                 audio = base64.b64decode(audio)  # bytes
+                chunk_duration_list.append(len(audio) / 2.0 / 24000)
                 all_bytes += audio
                 if self.play:
                     self.mutex.acquire()
@@ -326,15 +330,11 @@ class TTSWsHandler:
             if status == 2:
                 final_response = time.time() - st
                 duration = len(all_bytes) / 2.0 / 24000
-                logger.info(f"尾包响应：{final_response} s")
-                logger.info(f"音频时长：{duration} s")
-                logger.info(f"RTF: {final_response / duration}")
 
                 if output is not None:
-                    if save_audio(all_bytes, output):
-                        logger.info(f"音频保存至：{output}")
-                    else:
-                        logger.error("save audio error")
+                    save_audio_success = save_audio(all_bytes, output)
+                else:
+                    save_audio_success = False
             else:
                 logger.error("infer error")
 
@@ -343,6 +343,8 @@ class TTSWsHandler:
                 self.stream.stop_stream()
                 self.stream.close()
                 self.p.terminate()
+
+        return first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list
 
 
 class TTSHttpHandler:
@@ -357,7 +359,7 @@ class TTSHttpHandler:
         self.server = server
         self.port = port
         self.url = "http://" + str(self.server) + ":" + str(
-            self.port) + "/paddlespeech/streaming/tts"
+            self.port) + "/paddlespeech/tts/streaming"
         self.play = play
 
         if self.play:
@@ -415,13 +417,16 @@ class TTSHttpHandler:
 
         all_bytes = b''
         first_flag = 1
+        receive_time_list = []
+        chunk_duration_list = []
 
         # 2. Send request
         st = time.time()
         html = requests.post(self.url, json.dumps(params), stream=True)
 
         # 3. Process the received response 
-        for chunk in html.iter_content(chunk_size=1024):
+        for chunk in html.iter_content(chunk_size=None):
+            receive_time_list.append(time.time())
             audio = base64.b64decode(chunk)  # bytes
             if first_flag:
                 first_response = time.time() - st
@@ -435,24 +440,20 @@ class TTSHttpHandler:
                     self.t.start()
                     self.start_play = False
             all_bytes += audio
+            chunk_duration_list.append(len(audio) / 2.0 / 24000)
 
         final_response = time.time() - st
         duration = len(all_bytes) / 2.0 / 24000
 
-        logger.info(f"句子：{text}")
-        logger.info(f"首包响应：{first_response} s")
-        logger.info(f"尾包响应：{final_response} s")
-        logger.info(f"音频时长：{duration} s")
-        logger.info(f"RTF: {final_response / duration}")
-
         if output is not None:
-            if save_audio(all_bytes, output):
-                logger.info(f"音频保存至：{output}")
-            else:
-                logger.error("save audio error")
+            save_audio_success = save_audio(all_bytes, output)
+        else:
+            save_audio_success = False
 
         if self.play:
             self.t.join()
             self.stream.stop_stream()
             self.stream.close()
             self.p.terminate()
+
+        return first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list

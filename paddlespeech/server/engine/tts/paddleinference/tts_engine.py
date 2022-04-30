@@ -23,10 +23,9 @@ import paddle
 import soundfile as sf
 from scipy.io import wavfile
 
+from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
-from paddlespeech.cli.utils import download_and_decompress
-from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
 from paddlespeech.server.utils.errors import ErrorCode
@@ -38,101 +37,11 @@ from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
 __all__ = ['TTSEngine']
 
-# Static model applied on paddle inference
-pretrained_models = {
-    # speedyspeech
-    "speedyspeech_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip',
-        'md5':
-        'f10cbdedf47dc7a9668d2264494e1823',
-        'model':
-        'speedyspeech_csmsc.pdmodel',
-        'params':
-        'speedyspeech_csmsc.pdiparams',
-        'phones_dict':
-        'phone_id_map.txt',
-        'tones_dict':
-        'tone_id_map.txt',
-        'sample_rate':
-        24000,
-    },
-    # fastspeech2
-    "fastspeech2_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip',
-        'md5':
-        '9788cd9745e14c7a5d12d32670b2a5a7',
-        'model':
-        'fastspeech2_csmsc.pdmodel',
-        'params':
-        'fastspeech2_csmsc.pdiparams',
-        'phones_dict':
-        'phone_id_map.txt',
-        'sample_rate':
-        24000,
-    },
-    # pwgan
-    "pwgan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip',
-        'md5':
-        'e3504aed9c5a290be12d1347836d2742',
-        'model':
-        'pwgan_csmsc.pdmodel',
-        'params':
-        'pwgan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-    # mb_melgan
-    "mb_melgan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_0.1.1.zip',
-        'md5':
-        'ac6eee94ba483421d750433f4c3b8d36',
-        'model':
-        'mb_melgan_csmsc.pdmodel',
-        'params':
-        'mb_melgan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-    # hifigan
-    "hifigan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_0.1.1.zip',
-        'md5':
-        '7edd8c436b3a5546b3a7cb8cff9d5a0c',
-        'model':
-        'hifigan_csmsc.pdmodel',
-        'params':
-        'hifigan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-}
-
 
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        pass
-
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-        Download and returns pretrained resources path of current task.
-        """
-        assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
-            tag)
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-        return decompressed_path
+        self.pretrained_models = pretrained_models
 
     def _init_from_path(
             self,
@@ -161,14 +70,14 @@ class TTSServerExecutor(TTSExecutor):
         if am_model is None or am_params is None or phones_dict is None:
             am_res_path = self._get_pretrained_path(am_tag)
             self.am_res_path = am_res_path
-            self.am_model = os.path.join(am_res_path,
-                                         pretrained_models[am_tag]['model'])
-            self.am_params = os.path.join(am_res_path,
-                                          pretrained_models[am_tag]['params'])
+            self.am_model = os.path.join(
+                am_res_path, self.pretrained_models[am_tag]['model'])
+            self.am_params = os.path.join(
+                am_res_path, self.pretrained_models[am_tag]['params'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['phones_dict'])
-            self.am_sample_rate = pretrained_models[am_tag]['sample_rate']
+                am_res_path, self.pretrained_models[am_tag]['phones_dict'])
+            self.am_sample_rate = self.pretrained_models[am_tag]['sample_rate']
 
             logger.info(am_res_path)
             logger.info(self.am_model)
@@ -183,17 +92,17 @@ class TTSServerExecutor(TTSExecutor):
 
         # for speedyspeech
         self.tones_dict = None
-        if 'tones_dict' in pretrained_models[am_tag]:
+        if 'tones_dict' in self.pretrained_models[am_tag]:
             self.tones_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['tones_dict'])
+                am_res_path, self.pretrained_models[am_tag]['tones_dict'])
             if tones_dict:
                 self.tones_dict = tones_dict
 
         # for multi speaker fastspeech2
         self.speaker_dict = None
-        if 'speaker_dict' in pretrained_models[am_tag]:
+        if 'speaker_dict' in self.pretrained_models[am_tag]:
             self.speaker_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['speaker_dict'])
+                am_res_path, self.pretrained_models[am_tag]['speaker_dict'])
             if speaker_dict:
                 self.speaker_dict = speaker_dict
 
@@ -202,11 +111,12 @@ class TTSServerExecutor(TTSExecutor):
         if voc_model is None or voc_params is None:
             voc_res_path = self._get_pretrained_path(voc_tag)
             self.voc_res_path = voc_res_path
-            self.voc_model = os.path.join(voc_res_path,
-                                          pretrained_models[voc_tag]['model'])
-            self.voc_params = os.path.join(voc_res_path,
-                                           pretrained_models[voc_tag]['params'])
-            self.voc_sample_rate = pretrained_models[voc_tag]['sample_rate']
+            self.voc_model = os.path.join(
+                voc_res_path, self.pretrained_models[voc_tag]['model'])
+            self.voc_params = os.path.join(
+                voc_res_path, self.pretrained_models[voc_tag]['params'])
+            self.voc_sample_rate = self.pretrained_models[voc_tag][
+                'sample_rate']
             logger.info(voc_res_path)
             logger.info(self.voc_model)
             logger.info(self.voc_params)
@@ -352,8 +262,24 @@ class TTSEngine(BaseEngine):
 
     def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
-
         self.config = config
+
+        try:
+            if self.config.am_predictor_conf.device is not None:
+                self.device = self.config.am_predictor_conf.device
+            elif self.config.voc_predictor_conf.device is not None:
+                self.device = self.config.voc_predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except BaseException as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            return False
+
         self.executor._init_from_path(
             am=self.config.am,
             am_model=self.config.am_model,
@@ -370,8 +296,34 @@ class TTSEngine(BaseEngine):
             am_predictor_conf=self.config.am_predictor_conf,
             voc_predictor_conf=self.config.voc_predictor_conf, )
 
+        # warm up
+        try:
+            self.warm_up()
+            logger.info("Warm up successfully.")
+        except Exception as e:
+            logger.error("Failed to warm up on tts engine.")
+            return False
+
         logger.info("Initialize TTS server engine successfully.")
         return True
+
+    def warm_up(self):
+        """warm up
+        """
+        if self.config.lang == 'zh':
+            sentence = "您好，欢迎使用语音合成服务。"
+        if self.config.lang == 'en':
+            sentence = "Hello and welcome to the speech synthesis service."
+        logger.info("Start to warm up.")
+        for i in range(3):
+            st = time.time()
+            self.executor.infer(
+                text=sentence,
+                lang=self.config.lang,
+                am=self.config.am,
+                spk_id=0, )
+            logger.info(
+                f"The response time of the {i} warm up: {time.time() - st} s")
 
     def postprocess(self,
                     wav,

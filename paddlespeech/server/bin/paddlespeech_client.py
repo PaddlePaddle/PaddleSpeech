@@ -655,12 +655,16 @@ class VectorClientExecutor(BaseExecutor):
         Python API to call text executor.
 
         Args:
-            input (str): the request sentence text
+            input (str): the request audio data
             server_ip (str, optional): the server ip. Defaults to "127.0.0.1".
             port (int, optional): the server port. Defaults to 8090.
-
+            audio_format (str, optional): audio format. Defaults to "wav".
+            sample_rate (str, optional): audio sample rate. Defaults to 16000.
+            enroll_audio (str, optional): enroll audio data. Defaults to None.
+            test_audio (str, optional): test audio data. Defaults to None.
+            task (str, optional): the task type, "spk" or "socre". Defaults to "spk"
         Returns:
-            str: the punctuation text
+            str: the audio embedding or score between enroll and test audio
         """
         if task == "spk":
             from paddlespeech.server.utils.audio_handler import VectorHttpHandler

@@ -15,7 +15,10 @@ from typing import List
 
 from pydantic import BaseModel
 
-__all__ = ['ASRResponse', 'TTSResponse', 'CLSResponse']
+__all__ = [
+    'ASRResponse', 'TTSResponse', 'CLSResponse', 'TextResponse',
+    'VectorResponse', 'VectorScoreResponse'
+]
 
 
 class Message(BaseModel):
@@ -190,6 +193,7 @@ class VectorResponse(BaseModel):
 class VectorScoreResult(BaseModel):
     score: float
 
+
 class VectorScoreResponse(BaseModel):
     """
     response example
@@ -208,6 +212,7 @@ class VectorScoreResponse(BaseModel):
     code: int
     message: Message
     result: VectorScoreResult
+
 
 #****************************************************************************************/
 #********************************** Error response **************************************/

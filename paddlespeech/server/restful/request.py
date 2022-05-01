@@ -15,7 +15,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-__all__ = ['ASRRequest', 'TTSRequest', 'CLSRequest', 'VectorRequest']
+__all__ = [
+    'ASRRequest', 'TTSRequest', 'CLSRequest', 'VectorRequest',
+    'VectorScoreRequest'
+]
 
 
 #****************************************************************************************/

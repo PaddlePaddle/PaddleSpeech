@@ -411,6 +411,18 @@ class ASROnlineClientExecutor(BaseExecutor):
             '--lang', type=str, default="zh_cn", help='language')
         self.parser.add_argument(
             '--audio_format', type=str, default="wav", help='audio format')
+        self.parser.add_argument(
+            '--punc.server_ip',
+            type=str,
+            default=None,
+            dest="punc_server_ip",
+            help='Punctuation server ip')
+        self.parser.add_argument(
+            '--punc.port',
+            type=int,
+            default=8190,
+            dest="punc_server_port",
+            help='Punctuation server port')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -428,7 +440,9 @@ class ASROnlineClientExecutor(BaseExecutor):
                 port=port,
                 sample_rate=sample_rate,
                 lang=lang,
-                audio_format=audio_format)
+                audio_format=audio_format,
+                punc_server_ip=args.punc_server_ip,
+                punc_server_port=args.punc_server_port)
             time_end = time.time()
             logger.info(res)
             logger.info("Response time %f s." % (time_end - time_start))
@@ -445,12 +459,30 @@ class ASROnlineClientExecutor(BaseExecutor):
                  port: int=8091,
                  sample_rate: int=16000,
                  lang: str="zh_cn",
-                 audio_format: str="wav"):
-        """
-        Python API to call an executor.
+                 audio_format: str="wav",
+                 punc_server_ip: str=None,
+                 punc_server_port: str=None):
+        """Python API to call asr online executor.
+
+        Args:
+            input (str): the audio file to be send to streaming asr service.
+            server_ip (str, optional): streaming asr server ip. Defaults to "127.0.0.1".
+            port (int, optional): streaming asr server port. Defaults to 8091.
+            sample_rate (int, optional): audio sample rate. Defaults to 16000.
+            lang (str, optional): audio language type. Defaults to "zh_cn".
+            audio_format (str, optional): audio format. Defaults to "wav".
+            punc_server_ip (str, optional): punctuation server ip. Defaults to None.
+            punc_server_port (str, optional): punctuation server port. Defaults to None.
+
+        Returns:
+            str: the audio text
         """
         logger.info("asr websocket client start")
-        handler = ASRWsAudioHandler(server_ip, port)
+        handler = ASRWsAudioHandler(
+            server_ip,
+            port,
+            punc_server_ip=punc_server_ip,
+            punc_server_port=punc_server_port)
         loop = asyncio.get_event_loop()
         res = loop.run_until_complete(handler.run(input))
         logger.info("asr websocket client finished")

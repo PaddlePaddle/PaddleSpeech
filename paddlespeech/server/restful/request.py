@@ -115,7 +115,7 @@ class VectorScoreRequest(BaseModel):
     {
         "enroll_audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
         "test_audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
-        "task": "spk",
+        "task": "score",
         "audio_format": "wav",
         "sample_rate": 16000,
     }

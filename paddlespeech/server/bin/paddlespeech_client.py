@@ -602,7 +602,11 @@ class VectorClientExecutor(BaseExecutor):
             default=None,
             help='sentence to be process by text server.')
         self.parser.add_argument(
-            '--task', type=str, default="spk", help="The vector service task")
+            '--task',
+            type=str,
+            default="spk",
+            choices=["spk", "score"],
+            help="The vector service task")
         self.parser.add_argument(
             "--enroll", type=str, default=None, help="The enroll audio")
         self.parser.add_argument(

@@ -99,8 +99,8 @@ class PaddleVectorConnectionHandler:
         """extract the audio embedding
 
         Args:
-            audio (_type_): _description_
-            sample_rate (int, optional): _description_. Defaults to 16000.
+            audio (str): the audio data
+            sample_rate (int, optional): the audio sample rate. Defaults to 16000.
         """
         # we can not reuse the cache io.BytesIO(audio) data, 
         # because the soundfile will change the io.BytesIO(audio) to the end

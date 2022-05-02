@@ -37,7 +37,7 @@ def main(args):
     if args.wavfile and os.path.exists(args.wavfile):
         logger.info(f"start to process the wavscp: {args.wavfile}")
         result = loop.run_until_complete(handler.run(args.wavfile))
-        # result = result["result"]
+        result = result["result"]
         logger.info(f"asr websocket client finished : {result}")
 
     # support to process batch audios from wav.scp 

@@ -363,3 +363,275 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
         [2022-04-21 15:59:08,024] [    INFO] - receive msg={'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
         [2022-04-21 15:59:12,883] [    INFO] - final receive msg={'status': 'ok', 'signal': 'finished', 'asr_results': '我认为跑步最重要的就是给我带来了身体健康'}
   ```
+
+
+
+## 标点预测
+
+### 1. 服务端使用方法
+
+- 命令行
+  ``` bash
+  在 PaddleSpeech/demos/streaming_asr_server 目录下启动标点预测服务
+  paddlespeech_server start --config_file conf/punc_application.yaml
+  ```
+
+
+   使用方法：
+  
+  ```bash
+  paddlespeech_server start --help
+  ```
+  
+  参数：
+  - `config_file`: 服务的配置文件。
+  - `log_file`: log 文件。
+
+
+  输出：
+  ``` bash
+  [2022-05-02 17:59:26,285] [    INFO] - Create the TextEngine Instance
+  [2022-05-02 17:59:26,285] [    INFO] - Init the text engine
+  [2022-05-02 17:59:26,285] [    INFO] - Text Engine set the device: gpu:0
+  [2022-05-02 17:59:26,286] [    INFO] - File /home/users/xiongxinlei/.paddlespeech/models/ernie_linear_p3_wudao-punc-zh/ernie_linear_p3_wudao-punc-zh.tar.gz md5 checking...
+  [2022-05-02 17:59:30,810] [    INFO] - Use pretrained model stored in: /home/users/xiongxinlei/.paddlespeech/models/ernie_linear_p3_wudao-punc-zh/ernie_linear_p3_wudao-punc-zh.tar
+  W0502 17:59:31.486552  9595 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 6.1, Driver API Version: 10.2, Runtime API Version: 10.2
+  W0502 17:59:31.491360  9595 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+  [2022-05-02 17:59:34,688] [    INFO] - Already cached /home/users/xiongxinlei/.paddlenlp/models/ernie-1.0/vocab.txt
+  [2022-05-02 17:59:34,701] [    INFO] - Init the text engine successfully
+  INFO:     Started server process [9595]
+  [2022-05-02 17:59:34] [INFO] [server.py:75] Started server process [9595]
+  INFO:     Waiting for application startup.
+  [2022-05-02 17:59:34] [INFO] [on.py:45] Waiting for application startup.
+  INFO:     Application startup complete.
+  [2022-05-02 17:59:34] [INFO] [on.py:59] Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8190 (Press CTRL+C to quit)
+  [2022-05-02 17:59:34] [INFO] [server.py:206] Uvicorn running on http://0.0.0.0:8190 (Press CTRL+C to quit)
+  ```
+
+- Python API
+
+  ```python
+  # 在 PaddleSpeech/demos/streaming_asr_server 目录
+  from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
+
+  server_executor = ServerExecutor()
+  server_executor(
+      config_file="./conf/punc_application.yaml", 
+      log_file="./log/paddlespeech.log")
+  ```
+
+   输出
+   ```
+    [2022-05-02 18:09:02,542] [    INFO] - Create the TextEngine Instance
+    [2022-05-02 18:09:02,543] [    INFO] - Init the text engine
+    [2022-05-02 18:09:02,543] [    INFO] - Text Engine set the device: gpu:0
+    [2022-05-02 18:09:02,545] [    INFO] - File /home/users/xiongxinlei/.paddlespeech/models/ernie_linear_p3_wudao-punc-zh/ernie_linear_p3_wudao-punc-zh.tar.gz md5 checking...
+    [2022-05-02 18:09:06,919] [    INFO] - Use pretrained model stored in: /home/users/xiongxinlei/.paddlespeech/models/ernie_linear_p3_wudao-punc-zh/ernie_linear_p3_wudao-punc-zh.tar
+    W0502 18:09:07.523002 22615 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 6.1, Driver API Version: 10.2, Runtime API Version: 10.2
+    W0502 18:09:07.527882 22615 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+    [2022-05-02 18:09:10,900] [    INFO] - Already cached /home/users/xiongxinlei/.paddlenlp/models/ernie-1.0/vocab.txt
+    [2022-05-02 18:09:10,913] [    INFO] - Init the text engine successfully
+    INFO:     Started server process [22615]
+    [2022-05-02 18:09:10] [INFO] [server.py:75] Started server process [22615]
+    INFO:     Waiting for application startup.
+    [2022-05-02 18:09:10] [INFO] [on.py:45] Waiting for application startup.
+    INFO:     Application startup complete.
+    [2022-05-02 18:09:10] [INFO] [on.py:59] Application startup complete.
+    INFO:     Uvicorn running on http://0.0.0.0:8190 (Press CTRL+C to quit)
+    [2022-05-02 18:09:10] [INFO] [server.py:206] Uvicorn running on http://0.0.0.0:8190 (Press CTRL+C to quit)
+   ```
+
+### 2. 标点预测客户端使用方法
+**注意：** 初次使用客户端时响应时间会略长
+
+- 命令行 (推荐使用)
+   ```
+   paddlespeech_client text --server_ip 127.0.0.1 --port 8190 --input "我认为跑步最重要的就是给我带来了身体健康"
+   ```
+  
+  输出
+  ```
+  [2022-05-02 18:12:29,767] [    INFO] - The punc text: 我认为跑步最重要的就是给我带来了身体健康。
+  [2022-05-02 18:12:29,767] [    INFO] - Response time 0.096548 s.
+  ```
+
+- Python3 API
+
+  ```python
+  from paddlespeech.server.bin.paddlespeech_client import TextClientExecutor
+
+  textclient_executor = TextClientExecutor()
+  res = textclient_executor(
+      input="我认为跑步最重要的就是给我带来了身体健康",
+      server_ip="127.0.0.1",
+      port=8190,)
+  print(res)
+  ```
+
+  输出：
+  ``` bash
+  我认为跑步最重要的就是给我带来了身体健康。
+  ```
+
+
+## 联合流式语音识别和标点预测
+使用 `streaming_asr_server.py` 和 `punc_server.py` 两个服务，分别启动流式语音识别和标点预测服务。调用 `websocket_client.py` 脚本可以同时调用流式语音识别和标点预测服务。
+
+### 1. 启动服务
+
+``` bash
+注意：流式语音识别和标点预测通过配置文件配置到不同的显卡上
+bash server.sh
+```
+
+### 2. 调用服务
+- 使用命令行：
+  ```
+  paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --input ./zh.wav
+  ```
+  输出：
+  ```
+  [2022-05-02 18:57:46,961] [    INFO] - asr websocket client start
+  [2022-05-02 18:57:46,961] [    INFO] - endpoint: ws://127.0.0.1:8290/paddlespeech/asr/streaming
+  [2022-05-02 18:57:46,982] [    INFO] - client receive msg={"status": "ok", "signal": "server_ready"}
+  [2022-05-02 18:57:46,999] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,011] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,023] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,035] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,046] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,057] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,068] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,079] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,222] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,230] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,239] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,247] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,255] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,263] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,271] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:57:47,462] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,525] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,589] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,649] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,708] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,766] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,824] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:47,881] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:57:48,130] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,200] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,265] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,327] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,389] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,448] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,505] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:57:48,754] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:48,821] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:48,881] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:48,939] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:49,011] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:49,080] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:49,146] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:49,210] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:57:49,452] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,516] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,581] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,645] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,706] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,763] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:49,818] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:57:50,064] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,125] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,186] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,245] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,301] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,358] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,414] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,469] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:57:50,712] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:50,776] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:50,837] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:50,897] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:50,956] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:51,012] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:51,276] [    INFO] - client final receive msg={'status': 'ok', 'signal': 'finished', 'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:57:51,277] [    INFO] - asr websocket client finished
+  [2022-05-02 18:57:51,277] [    INFO] - 我认为跑步最重要的就是给我带来了身体健康。
+  [2022-05-02 18:57:51,277] [    INFO] - Response time 4.316903 s.
+  ```
+
+- 使用脚本调用
+  ```
+  python3 websocket_client.py --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --wavfile ./zh.wav
+  ```
+  输出：
+  ```
+  [2022-05-02 18:29:22,039] [    INFO] - Start to do streaming asr client
+  [2022-05-02 18:29:22,040] [    INFO] - asr websocket client start
+  [2022-05-02 18:29:22,040] [    INFO] - endpoint: ws://127.0.0.1:8290/paddlespeech/asr/streaming
+  [2022-05-02 18:29:22,041] [    INFO] - start to process the wavscp: ./zh.wav
+  [2022-05-02 18:29:22,122] [    INFO] - client receive msg={"status": "ok", "signal": "server_ready"}
+  [2022-05-02 18:29:22,351] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,360] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,368] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,376] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,384] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,392] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,400] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,408] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,549] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,558] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,567] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,575] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,583] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,591] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,599] [    INFO] - client receive msg={'result': ''}
+  [2022-05-02 18:29:22,822] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:22,879] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:22,937] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:22,995] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:23,052] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:23,107] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:23,161] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:23,213] [    INFO] - client receive msg={'result': '我认为，跑'}
+  [2022-05-02 18:29:23,454] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,515] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,575] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,630] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,684] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,736] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:23,789] [    INFO] - client receive msg={'result': '我认为，跑步最重要的。'}
+  [2022-05-02 18:29:24,030] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,095] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,156] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,213] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,268] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,323] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,377] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,429] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是。'}
+  [2022-05-02 18:29:24,671] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:24,736] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:24,797] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:24,857] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:24,918] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:24,975] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:25,029] [    INFO] - client receive msg={'result': '我认为，跑步最重要的就是给。'}
+  [2022-05-02 18:29:25,271] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,336] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,398] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,458] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,521] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,579] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,652] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,722] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了。'}
+  [2022-05-02 18:29:25,969] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,034] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,095] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,163] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,229] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,294] [    INFO] - client receive msg={'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,565] [    INFO] - client final receive msg={'status': 'ok', 'signal': 'finished', 'result': '我认为跑步最重要的就是给我带来了身体健康。'}
+  [2022-05-02 18:29:26,566] [    INFO] - asr websocket client finished : 我认为跑步最重要的就是给我带来了身体健康。
+  ```
+
+  

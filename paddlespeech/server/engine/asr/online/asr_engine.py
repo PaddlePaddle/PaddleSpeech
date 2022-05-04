@@ -13,7 +13,6 @@
 # limitations under the License.
 import copy
 import os
-import time
 from typing import Optional
 
 import numpy as np
@@ -298,6 +297,7 @@ class PaddleASRConnectionHanddler:
         self.global_frame_offset = 0
         self.result_transcripts = ['']
         self.first_char_occur_elapsed = None
+        self.word_time_stamp = None
 
     def decode(self, is_finished=False):
         if "deepspeech2online" in self.model_type:
@@ -513,6 +513,12 @@ class PaddleASRConnectionHanddler:
         else:
             return ''
 
+    def get_word_time_stamp(self):
+        if self.word_time_stamp is None:
+            return []
+        else:
+            return self.word_time_stamp
+
     @paddle.no_grad()
     def rescoring(self):
         if "deepspeech2online" in self.model_type or "deepspeech2offline" in self.model_type:
@@ -577,7 +583,34 @@ class PaddleASRConnectionHanddler:
         # update the one best result
         logger.info(f"best index: {best_index}")
         self.hyps = [hyps[best_index][0]]
+
+        # update the hyps time stamp
+        self.time_stamp = hyps[best_index][5] if hyps[best_index][2] > hyps[
+            best_index][3] else hyps[best_index][6]
+        logger.info(f"time stamp: {self.time_stamp}")
+
         self.update_result()
+
+        # update each word start and end time stamp
+        frame_shift_in_ms = self.model.encoder.embed.subsampling_rate * self.n_shift / self.sample_rate
+        logger.info(f"frame shift ms: {frame_shift_in_ms}")
+        word_time_stamp = []
+        for idx, _ in enumerate(self.time_stamp):
+            start = (self.time_stamp[idx - 1] + self.time_stamp[idx]
+                     ) / 2.0 if idx > 0 else 0
+            start = start * frame_shift_in_ms
+
+            end = (self.time_stamp[idx] + self.time_stamp[idx + 1]
+                   ) / 2.0 if idx < len(self.time_stamp) - 1 else self.offset
+            end = end * frame_shift_in_ms
+            word_time_stamp.append({
+                "w": self.result_transcripts[0][idx],
+                "bg": start,
+                "ed": end
+            })
+            # logger.info(f"{self.result_transcripts[0][idx]}, start: {start}, end: {end}")
+        self.word_time_stamp = word_time_stamp
+        logger.info(f"word time stamp: {self.word_time_stamp}")
 
 
 class ASRServerExecutor(ASRExecutor):

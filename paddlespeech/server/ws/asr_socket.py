@@ -78,12 +78,14 @@ async def websocket_endpoint(websocket: WebSocket):
                     connection_handler.decode(is_finished=True)
                     connection_handler.rescoring()
                     asr_results = connection_handler.get_result()
+                    word_time_stamp = connection_handler.get_word_time_stamp()
                     connection_handler.reset()
 
                     resp = {
                         "status": "ok",
                         "signal": "finished",
-                        'result': asr_results
+                        'result': asr_results,
+                        'times': word_time_stamp
                     }
                     await websocket.send_json(resp)
                     break

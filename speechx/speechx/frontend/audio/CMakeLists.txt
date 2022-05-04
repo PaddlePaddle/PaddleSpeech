@@ -10,4 +10,4 @@ add_library(frontend STATIC
   fbank.cc
 )
 
-target_link_libraries(frontend PUBLIC kaldi-matrix kaldi-feat-common)
+target_link_libraries(frontend PUBLIC kaldi-matrix kaldi-feat-common kaldi-fbank)

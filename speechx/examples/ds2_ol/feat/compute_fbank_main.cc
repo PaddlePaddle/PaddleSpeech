@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    // feature pipeline: wave cache --> hanning window
+    // feature pipeline: wave cache --> povey window
     // -->fbank --> global cmvn -> feat cache
 
     std::unique_ptr<ppspeech::FrontendInterface> data_source(
@@ -77,7 +77,6 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "sr: " << sample_rate;
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
-
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();

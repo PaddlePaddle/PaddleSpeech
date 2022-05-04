@@ -21,6 +21,7 @@
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/linear_spectrogram.h"
+#include "frontend/audio/fbank.h"
 #include "frontend/audio/normalizer.h"
 
 namespace ppspeech {
@@ -28,12 +29,16 @@ namespace ppspeech {
 struct FeaturePipelineOptions {
     std::string cmvn_file;
     bool to_float32;
+    bool use_fbank;
     LinearSpectrogramOptions linear_spectrogram_opts;
+    FbankOptions fbank_opts;
     FeatureCacheOptions feature_cache_opts;
     FeaturePipelineOptions()
         : cmvn_file(""),
           to_float32(false),
+          use_fbank(false),
           linear_spectrogram_opts(),
+          fbank_opts(),
           feature_cache_opts() {}
 };
 

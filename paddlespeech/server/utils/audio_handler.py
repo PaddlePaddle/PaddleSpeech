@@ -144,6 +144,7 @@ class ASRWsAudioHandler:
             return ""
 
         # 1. send websocket handshake protocal
+        start_time = time.time()
         async with websockets.connect(self.url) as ws:
             # 2. server has already received handshake protocal
             # client start to send the command
@@ -189,8 +190,15 @@ class ASRWsAudioHandler:
 
             if self.punc_server:
                 msg["result"] = self.punc_server.run(msg["result"])
-      
+
+            # 6. logging the final result and comptute the statstics
+            elapsed_time = time.time() - start_time
+            audio_info = soundfile.info(wavfile_path)
             logger.info("client final receive msg={}".format(msg))
+            logger.info(
+                f"audio duration: {audio_info.duration}, elapsed time: {elapsed_time}, RTF={elapsed_time/audio_info.duration}"
+            )
+
             result = msg
 
             return result
@@ -459,3 +467,96 @@ class TTSHttpHandler:
             self.stream.stop_stream()
             self.stream.close()
             self.p.terminate()
+
+
+class VectorHttpHandler:
+    def __init__(self, server_ip=None, port=None):
+        """The Vector client http request
+
+        Args:
+            server_ip (str, optional): the http vector server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http vector server port. Defaults to 8090.
+        """
+        super().__init__()
+        self.server_ip = server_ip
+        self.port = port
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/vector'
+
+    def run(self, input, audio_format, sample_rate, task="spk"):
+        """Call the http asr to process the audio
+
+        Args:
+            input (str): the audio file path
+            audio_format (str): the audio format
+            sample_rate (str): the audio sample rate
+
+        Returns:
+            list: the audio vector
+        """
+        if self.url is None:
+            logger.error("No vector server, please input valid ip and port")
+            return ""
+
+        audio = wav2base64(input)
+        data = {
+            "audio": audio,
+            "task": task,
+            "audio_format": audio_format,
+            "sample_rate": sample_rate,
+        }
+
+        logger.info(self.url)
+        res = requests.post(url=self.url, data=json.dumps(data))
+
+        return res.json()
+
+
+class VectorScoreHttpHandler:
+    def __init__(self, server_ip=None, port=None):
+        """The Vector score client http request
+
+        Args:
+            server_ip (str, optional): the http vector server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http vector server port. Defaults to 8090.
+        """
+        super().__init__()
+        self.server_ip = server_ip
+        self.port = port
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/vector/score'
+
+    def run(self, enroll_audio, test_audio, audio_format, sample_rate):
+        """Call the http asr to process the audio
+
+        Args:
+            input (str): the audio file path
+            audio_format (str): the audio format
+            sample_rate (str): the audio sample rate
+
+        Returns:
+            list: the audio vector
+        """
+        if self.url is None:
+            logger.error("No vector server, please input valid ip and port")
+            return ""
+
+        enroll_audio = wav2base64(enroll_audio)
+        test_audio = wav2base64(test_audio)
+        data = {
+            "enroll_audio": enroll_audio,
+            "test_audio": test_audio,
+            "task": "score",
+            "audio_format": audio_format,
+            "sample_rate": sample_rate,
+        }
+
+        res = requests.post(url=self.url, data=json.dumps(data))
+
+        return res.json()

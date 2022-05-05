@@ -5,7 +5,7 @@ set -e
 . path.sh
 
 nj=40
-stage=0
+stage=4
 stop_stage=5
 
 . utils/parse_options.sh
@@ -117,7 +117,7 @@ fi
 wfst=$data/wfst_fbank/
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     mkdir -p $wfst
-    if [ ! -f $wfst/aishell_graph.zip ]; then
+    if [ ! -f $wfst/aishell_graph2.zip ]; then
         pushd $wfst
         wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_graph2.zip
         unzip aishell_graph2.zip
@@ -135,7 +135,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --param_path=$model_dir/avg_5.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
-        --lm_path=$lm \
+	--model_cache_shapes="5-1-2048,5-1-2048" \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_tlg

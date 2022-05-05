@@ -36,7 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 ### 3. 服务端使用方法
 - 命令行 (推荐使用)
-
+  **注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数部署在 `gpu` 上。
   ```bash
   # 在 PaddleSpeech/demos/streaming_asr_server 目录启动服务
   paddlespeech_server start --config_file ./conf/ws_conformer_application.yaml
@@ -117,6 +117,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 - Python API
+  **注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数部署在 `gpu` 上。
   ```python
   # 在 PaddleSpeech/demos/streaming_asr_server 目录
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
@@ -371,6 +372,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ### 1. 服务端使用方法
 
 - 命令行
+  **注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数部署在 `gpu` 上。
   ``` bash
   在 PaddleSpeech/demos/streaming_asr_server 目录下启动标点预测服务
   paddlespeech_server start --config_file conf/punc_application.yaml
@@ -410,7 +412,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 - Python API
-
+  **注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数部署在 `gpu` 上。
   ```python
   # 在 PaddleSpeech/demos/streaming_asr_server 目录
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
@@ -476,6 +478,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 
 ## 联合流式语音识别和标点预测
+**注意:** By default, each server is deployed on the 'CPU' device. Voice recognition and punctuation prediction can be deployed on different 'GPUs' by modifying the' device 'parameter in the service configuration file.
+
 使用 `streaming_asr_server.py` 和 `punc_server.py` 两个服务，分别启动流式语音识别和标点预测服务。调用 `websocket_client.py` 脚本可以同时调用流式语音识别和标点预测服务。
 
 ### 1. 启动服务

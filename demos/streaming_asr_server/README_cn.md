@@ -478,7 +478,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 
 ## 联合流式语音识别和标点预测
-**注意:** By default, each server is deployed on the 'CPU' device. Voice recognition and punctuation prediction can be deployed on different 'GPUs' by modifying the' device 'parameter in the service configuration file.
+**注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数将语音识别和标点预测部署在不同的 `gpu` 上。
 
 使用 `streaming_asr_server.py` 和 `punc_server.py` 两个服务，分别启动流式语音识别和标点预测服务。调用 `websocket_client.py` 脚本可以同时调用流式语音识别和标点预测服务。
 

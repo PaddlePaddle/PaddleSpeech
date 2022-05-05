@@ -29,7 +29,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 ### 3. Server Usage
 - Command Line (Recommended)
-
+  **Note:** The default deployment of the server is on the 'CPU' device, which can be deployed on the 'GPU' by modifying the 'device' parameter in the service configuration file.
   ```bash
   # in PaddleSpeech/demos/streaming_asr_server start the service
    paddlespeech_server start --config_file ./conf/ws_conformer_application.yaml
@@ -110,6 +110,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 - Python API
+  **Note:** The default deployment of the server is on the 'CPU' device, which can be deployed on the 'GPU' by modifying the 'device' parameter in the service configuration file.
   ```python
   # in PaddleSpeech/demos/streaming_asr_server directory
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
@@ -361,8 +362,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ## Punctuation service
 
 ### 1. Server usage
-
+ 
 - Command Line
+  **Note:** The default deployment of the server is on the 'CPU' device, which can be deployed on the 'GPU' by modifying the 'device' parameter in the service configuration file.
   ``` bash
   In PaddleSpeech/demos/streaming_asr_server directory to lanuch punctuation service
   paddlespeech_server start --config_file conf/punc_application.yaml
@@ -401,7 +403,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```
 
 - Python API
-
+  **Note:** The default deployment of the server is on the 'CPU' device, which can be deployed on the 'GPU' by modifying the 'device' parameter in the service configuration file.
   ```python
   # 在 PaddleSpeech/demos/streaming_asr_server 目录
   from paddlespeech.server.bin.paddlespeech_server import ServerExecutor
@@ -467,6 +469,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 
 ## Join streaming asr and punctuation server
+
+By default, each server is deployed on the 'CPU' device and speech recognition and punctuation prediction can be deployed on different 'GPU' by modifying the' device 'parameter in the service configuration file respectively.
+
 We use `streaming_ asr_server.py` and `punc_server.py` two services to lanuch streaming speech recognition and punctuation prediction services respectively. And the `websocket_client.py` script can be used to call streaming speech recognition and punctuation prediction services at the same time.
 
 ### 1. Start two server

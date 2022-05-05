@@ -128,8 +128,8 @@ class FbankComputer {
 
   ~FbankComputer();
 
- private:
   const MelBanks *GetMelBanks(BaseFloat vtln_warp);
+ private:
 
 
   FbankOptions opts_;

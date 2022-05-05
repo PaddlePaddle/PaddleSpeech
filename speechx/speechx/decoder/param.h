@@ -47,7 +47,8 @@ DEFINE_string(model_cache_names,
               "chunk_state_h_box,chunk_state_c_box",
               "model cache names");
 DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
-
+DEFINE_bool(use_fbank, false, "use fbank or linear feature");
+DEFINE_int32(num_bins, 161, "num bins of mel");
 
 namespace ppspeech {
 // todo refactor later
@@ -57,13 +58,21 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     opts.linear_spectrogram_opts.streaming_chunk = FLAGS_streaming_chunk;
     opts.to_float32 = FLAGS_to_float32;
     kaldi::FrameExtractionOptions frame_opts;
-    frame_opts.frame_length_ms = 20;
-    frame_opts.frame_shift_ms = 10;
-    frame_opts.remove_dc_offset = false;
-    frame_opts.window_type = "hanning";
-    frame_opts.preemph_coeff = 0.0;
     frame_opts.dither = 0.0;
-    opts.linear_spectrogram_opts.frame_opts = frame_opts;
+    frame_opts.frame_shift_ms = 10;
+    opts.use_fbank = FLAGS_use_fbank;
+    if (opts.use_fbank) {
+      frame_opts.window_type = "povey";
+      frame_opts.frame_length_ms = 25;
+      opts.fbank_opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
+      opts.fbank_opts.fbank_opts.frame_opts = frame_opts;
+    } else {
+      frame_opts.remove_dc_offset = false;
+      frame_opts.frame_length_ms = 20;
+      frame_opts.window_type = "hanning";
+      frame_opts.preemph_coeff = 0.0;
+      opts.linear_spectrogram_opts.frame_opts = frame_opts;
+    }
     opts.feature_cache_opts.frame_chunk_size = FLAGS_receptive_field_length;
     opts.feature_cache_opts.frame_chunk_stride = FLAGS_downsampling_rate;
     return opts;

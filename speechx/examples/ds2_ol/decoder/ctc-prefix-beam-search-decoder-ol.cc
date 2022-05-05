@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "receptive field (frame): " << receptive_field_length;
     decoder.InitDecoder();
 
+    kaldi::Timer timer;
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
         kaldi::Matrix<BaseFloat> feature = feature_reader.Value();
@@ -160,5 +161,7 @@ int main(int argc, char* argv[]) {
 
     KALDI_LOG << "Done " << num_done << " utterances, " << num_err
               << " with errors.";
+    double elapsed = timer.Elapsed();
+    KALDI_LOG << " cost:" << elapsed << " s";
     return (num_done != 0 ? 0 : 1);
 }

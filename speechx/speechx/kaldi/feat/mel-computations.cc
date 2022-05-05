@@ -120,8 +120,8 @@ MelBanks::MelBanks(const MelBanksOptions &opts,
         last_index = i;
       }
     }
-    KALDI_ASSERT(first_index != -1 && last_index >= first_index
-                 && "You may have set --num-mel-bins too large.");
+    //KALDI_ASSERT(first_index != -1 && last_index >= first_index
+    //             && "You may have set --num-mel-bins too large.");
 
     bins_[bin].first = first_index;
     int32 size = last_index + 1 - first_index;

@@ -4,7 +4,7 @@
 #                             SERVER SETTING                                    #
 #################################################################################
 host: 0.0.0.0
-port: 8090
+port: 8290
 
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_online']
@@ -29,7 +29,7 @@ asr_online:
     cfg_path: 
     decode_method: 
     force_yes: True
-    device: # cpu or gpu:id
+    device: 'cpu' # cpu or gpu:id
     am_predictor_conf:
         device:  # set 'gpu:id' or 'cpu'
         switch_ir_optim: True

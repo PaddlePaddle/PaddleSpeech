@@ -49,3 +49,17 @@ paddlespeech_server start --config_file conf/ws_conformer_application.yaml
 ```
 paddlespeech_client asr_online  --server_ip 127.0.0.1 --port 8090 --input zh.wav
 ```
+
+## 流式TTS
+
+### 启动流式语音合成服务
+
+```
+paddlespeech_server start --config_file conf/tts_online_application.yaml
+```
+
+### 访问流式语音合成服务
+
+```
+paddlespeech_client tts_online  --server_ip 127.0.0.1 --port 8092 --input "您好，欢迎使用百度飞桨深度学习框架！" --output output.wav
+```

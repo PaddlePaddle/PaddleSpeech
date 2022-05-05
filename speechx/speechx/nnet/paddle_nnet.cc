@@ -49,7 +49,7 @@ void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
 
 PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
     paddle_infer::Config config;
-    config.SetModel(opts.model_path, opts.params_path);
+    config.SetModel(opts.model_path, opts.param_path);
     if (opts.use_gpu) {
         config.EnableUseGpu(500, 0);
     }
@@ -74,6 +74,7 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
     LOG(INFO) << "output names: " << opts.output_names;
     vector<string> input_names_vec = absl::StrSplit(opts.input_names, ",");
     vector<string> output_names_vec = absl::StrSplit(opts.output_names, ",");
+
     paddle_infer::Predictor* predictor = GetPredictor();
 
     std::vector<std::string> model_input_names = predictor->GetInputNames();
@@ -87,6 +88,7 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
     for (size_t i = 0; i < output_names_vec.size(); i++) {
         assert(output_names_vec[i] == model_output_names[i]);
     }
+
     ReleasePredictor(predictor);
     InitCacheEncouts(opts);
 }
@@ -95,6 +97,7 @@ void PaddleNnet::Reset() { InitCacheEncouts(opts_); }
 
 paddle_infer::Predictor* PaddleNnet::GetPredictor() {
     paddle_infer::Predictor* predictor = nullptr;
+
     std::lock_guard<std::mutex> guard(pool_mutex);
     int pred_id = 0;
 
@@ -144,15 +147,19 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
                              Vector<BaseFloat>* inferences,
                              int32* inference_dim) {
     paddle_infer::Predictor* predictor = GetPredictor();
+
     int feat_row = features.Dim() / feature_dim;
+
     std::vector<std::string> input_names = predictor->GetInputNames();
     std::vector<std::string> output_names = predictor->GetOutputNames();
 
+    // feed inputs
     std::unique_ptr<paddle_infer::Tensor> input_tensor =
         predictor->GetInputHandle(input_names[0]);
     std::vector<int> INPUT_SHAPE = {1, feat_row, feature_dim};
     input_tensor->Reshape(INPUT_SHAPE);
     input_tensor->CopyFromCpu(features.Data());
+
     std::unique_ptr<paddle_infer::Tensor> input_len =
         predictor->GetInputHandle(input_names[1]);
     std::vector<int> input_len_size = {1};
@@ -161,32 +168,36 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     audio_len.push_back(feat_row);
     input_len->CopyFromCpu(audio_len.data());
 
-    std::unique_ptr<paddle_infer::Tensor> h_box =
+    std::unique_ptr<paddle_infer::Tensor> state_h =
         predictor->GetInputHandle(input_names[2]);
     shared_ptr<Tensor<BaseFloat>> h_cache = GetCacheEncoder(input_names[2]);
-    h_box->Reshape(h_cache->get_shape());
-    h_box->CopyFromCpu(h_cache->get_data().data());
-    std::unique_ptr<paddle_infer::Tensor> c_box =
+    state_h->Reshape(h_cache->get_shape());
+    state_h->CopyFromCpu(h_cache->get_data().data());
+
+    std::unique_ptr<paddle_infer::Tensor> state_c =
         predictor->GetInputHandle(input_names[3]);
     shared_ptr<Tensor<float>> c_cache = GetCacheEncoder(input_names[3]);
-    c_box->Reshape(c_cache->get_shape());
-    c_box->CopyFromCpu(c_cache->get_data().data());
+    state_c->Reshape(c_cache->get_shape());
+    state_c->CopyFromCpu(c_cache->get_data().data());
+
+    // forward
     bool success = predictor->Run();
 
     if (success == false) {
         LOG(INFO) << "predictor run occurs error";
     }
 
+    // fetch outpus
     std::unique_ptr<paddle_infer::Tensor> h_out =
         predictor->GetOutputHandle(output_names[2]);
     assert(h_cache->get_shape() == h_out->shape());
     h_out->CopyToCpu(h_cache->get_data().data());
+
     std::unique_ptr<paddle_infer::Tensor> c_out =
         predictor->GetOutputHandle(output_names[3]);
     assert(c_cache->get_shape() == c_out->shape());
     c_out->CopyToCpu(c_cache->get_data().data());
 
-    // get result
     std::unique_ptr<paddle_infer::Tensor> output_tensor =
         predictor->GetOutputHandle(output_names[0]);
     std::vector<int> output_shape = output_tensor->shape();
@@ -195,6 +206,7 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     inferences->Resize(row * col);
     *inference_dim = col;
     output_tensor->CopyToCpu(inferences->Data());
+
     ReleasePredictor(predictor);
 }
 

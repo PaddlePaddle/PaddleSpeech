@@ -22,9 +22,9 @@ import os
 import random
 
 import tqdm
+from paddleaudio import load as load_audio
 from yacs.config import CfgNode
 
-from paddleaudio import load as load_audio
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.utils.vector_utils import get_chunks
 

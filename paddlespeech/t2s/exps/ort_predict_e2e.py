@@ -15,6 +15,7 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import paddle
 import soundfile as sf
 from timer import timer
 
@@ -27,21 +28,31 @@ from paddlespeech.t2s.utils import str2bool
 def ort_predict(args):
 
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     am_name = args.am[:args.am.rindex('_')]
     am_dataset = args.am[args.am.rindex('_') + 1:]
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
-    # am
-    am_sess = get_sess(args, filed='am')
+    am_sess = get_sess(
+        model_dir=args.inference_dir,
+        model_file=args.am + ".onnx",
+        device=args.device,
+        cpu_threads=args.cpu_threads)
 
     # vocoder
-    voc_sess = get_sess(args, filed='voc')
+    voc_sess = get_sess(
+        model_dir=args.inference_dir,
+        model_file=args.voc + ".onnx",
+        device=args.device,
+        cpu_threads=args.cpu_threads)
 
     # frontend warmup
     # Loading model cost 0.5+ seconds
@@ -167,6 +178,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    paddle.set_device(args.device)
 
     ort_predict(args)
 

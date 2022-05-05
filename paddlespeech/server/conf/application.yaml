@@ -11,7 +11,7 @@ port: 8090
 # protocol = ['websocket', 'http'] (only one can be selected). 
 # http only support offline engine type.
 protocol: 'http'
-engine_list: ['asr_python', 'tts_python', 'cls_python']
+engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python']
 
 
 #################################################################################
@@ -155,3 +155,15 @@ cls_inference:
         glog_info: False  # True -> print glog
         summary: True  # False -> do not show predictor config
 
+
+################################### Text #########################################
+################### text task: punc; engine_type: python #######################
+text_python:
+    task: punc
+    model_type: 'ernie_linear_p3_wudao'
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    vocab_file: # [optional]
+    device:  # set 'gpu:id' or 'cpu'

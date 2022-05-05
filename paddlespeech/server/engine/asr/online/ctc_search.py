@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import defaultdict
+
 import paddle
+
 from paddlespeech.cli.log import logger
 from paddlespeech.s2t.utils.utility import log_add
 

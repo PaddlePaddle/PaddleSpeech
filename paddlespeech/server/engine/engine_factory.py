@@ -35,7 +35,10 @@ class EngineFactory(object):
             from paddlespeech.server.engine.tts.python.tts_engine import TTSEngine
             return TTSEngine()
         elif engine_name == 'tts' and engine_type == 'online':
-            from paddlespeech.server.engine.tts.online.tts_engine import TTSEngine
+            from paddlespeech.server.engine.tts.online.python.tts_engine import TTSEngine
+            return TTSEngine()
+        elif engine_name == 'tts' and engine_type == 'online-onnx':
+            from paddlespeech.server.engine.tts.online.onnx.tts_engine import TTSEngine
             return TTSEngine()
         elif engine_name == 'cls' and engine_type == 'inference':
             from paddlespeech.server.engine.cls.paddleinference.cls_engine import CLSEngine
@@ -43,5 +46,8 @@ class EngineFactory(object):
         elif engine_name == 'cls' and engine_type == 'python':
             from paddlespeech.server.engine.cls.python.cls_engine import CLSEngine
             return CLSEngine()
+        elif engine_name.lower() == 'text' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.text.python.text_engine import TextEngine
+            return TextEngine()
         else:
             return None

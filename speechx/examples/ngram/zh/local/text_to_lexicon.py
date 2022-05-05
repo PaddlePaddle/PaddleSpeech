@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 
+
 def main(args):
     counter = Counter()
     with open(args.text, 'r') as fin, open(args.lexicon, 'w') as fout:
@@ -12,7 +13,7 @@ def main(args):
                 words = text.split()
             else:
                 words = line.split()
-            
+
             counter.update(words)
 
         for word in counter:
@@ -20,21 +21,16 @@ def main(args):
             fout.write(f"{word}\t{val}\n")
             fout.flush()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='text(line:utt1 中国 人) to lexicon（line:中国 中 国).')
     parser.add_argument(
-        '--has_key',
-        default=True,
-        help='text path, with utt or not')
+        '--has_key', default=True, help='text path, with utt or not')
     parser.add_argument(
-        '--text',
-        required=True,
-        help='text path. line: utt1 中国 人 or 中国 人')
+        '--text', required=True, help='text path. line: utt1 中国 人 or 中国 人')
     parser.add_argument(
-        '--lexicon',
-        required=True,
-        help='lexicon path. line:中国 中 国')
+        '--lexicon', required=True, help='lexicon path. line:中国 中 国')
     args = parser.parse_args()
     print(args)
 

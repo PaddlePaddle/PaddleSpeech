@@ -22,6 +22,8 @@ from typing import Union
 
 import paddle
 import soundfile
+from paddleaudio.backends import load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
@@ -30,8 +32,6 @@ from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
-from paddleaudio.backends import load as load_audio
-from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification

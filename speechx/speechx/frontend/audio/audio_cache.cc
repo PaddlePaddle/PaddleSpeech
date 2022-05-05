@@ -21,17 +21,18 @@ using kaldi::BaseFloat;
 using kaldi::VectorBase;
 using kaldi::Vector;
 
-AudioCache::AudioCache(int buffer_size, bool convert2PCM32)
+AudioCache::AudioCache(int buffer_size, bool to_float32)
     : finished_(false),
-      capacity_(buffer_size),
+      capacity_(buffer_size),  // unit: sample
       size_(0),
       offset_(0),
-      timeout_(1),
-      convert2PCM32_(convert2PCM32) {
+      timeout_(1),  // ms
+      to_float32_(to_float32) {
     ring_buffer_.resize(capacity_);
 }
 
 BaseFloat AudioCache::Convert2PCM32(BaseFloat val) {
+    // sample type int16, int16->float32
     return val * (1. / std::pow(2.0, 15));
 }
 
@@ -43,8 +44,7 @@ void AudioCache::Accept(const VectorBase<BaseFloat>& waves) {
     for (size_t idx = 0; idx < waves.Dim(); ++idx) {
         int32 buffer_idx = (idx + offset_ + size_) % ring_buffer_.size();
         ring_buffer_[buffer_idx] = waves(idx);
-        if (convert2PCM32_)
-            ring_buffer_[buffer_idx] = Convert2PCM32(waves(idx));
+        if (to_float32_) ring_buffer_[buffer_idx] = Convert2PCM32(waves(idx));
     }
     size_ += waves.Dim();
 }

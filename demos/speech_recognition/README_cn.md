@@ -22,13 +22,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - 命令行 (推荐使用)
   ```bash
   # 中文
-  paddlespeech asr --input ./zh.wav
+  paddlespeech asr --input ./zh.wav -v
   # 英文
-  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
+  paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav -v
   # 中文 + 标点恢复
-  paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+  paddlespeech asr --input ./zh.wav -v | paddlespeech text --task punc -v
   ```
-  (如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
+  (如果不想显示 log 信息，可以不使用"-v", 另外如果显示 `paddlespeech-ctcdecoders` 这个 python 包没有找到的 Error，没有关系，这个包是非必须的。)
   
   使用方法：
   ```bash
@@ -43,6 +43,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `ckpt_path`：模型参数文件，若不设置则下载预训练模型使用，默认值：`None`。
   - `yes`；不需要设置额外的参数，一旦设置了该参数，说明你默认同意程序的所有请求，其中包括自动转换输入音频的采样率。默认值：`False`。
   - `device`：执行预测的设备，默认值：当前系统下 paddlepaddle 的默认 device。
+  - `verbose`: 如果使用，显示 logger 信息。
 
   输出：
   ```bash
@@ -82,7 +83,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 | 模型 | 语言 | 采样率
 | :--- | :---: | :---: |
 | conformer_wenetspeech | zh | 16k
+| conformer_online_multicn | zh | 16k
+| conformer_aishell | zh | 16k
+| conformer_online_aishell | zh | 16k
 | transformer_librispeech | en | 16k
+| deepspeech2online_wenetspeech | zh | 16k
 | deepspeech2offline_aishell| zh| 16k
 | deepspeech2online_aishell | zh | 16k
 | deepspeech2offline_librispeech | en | 16k

@@ -66,10 +66,19 @@ def voice_cloning(args):
     print("frontend done!")
 
     # acoustic model
-    am_inference, *_ = get_am_inference(args, am_config)
+    am_inference = get_am_inference(
+        am=args.am,
+        am_config=am_config,
+        am_ckpt=args.am_ckpt,
+        am_stat=args.am_stat,
+        phones_dict=args.phones_dict)
 
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -101,10 +110,10 @@ def voice_cloning(args):
         print(f"{utt_id} done!")
     # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
     random_spk_emb = np.random.rand(256) * 0.2
-    random_spk_emb = paddle.to_tensor(random_spk_emb)
+    random_spk_emb = paddle.to_tensor(random_spk_emb, dtype='float32')
     utt_id = "random_spk_emb"
     with paddle.no_grad():
-        wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
+        wav = voc_inference(am_inference(phone_ids, spk_emb=random_spk_emb))
     sf.write(
         str(output_dir / (utt_id + ".wav")),
         wav.numpy(),

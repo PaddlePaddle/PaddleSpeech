@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import wave
 
 import numpy as np
@@ -140,3 +141,35 @@ def pcm2float(data):
         bits = np.iinfo(np.int16).bits
         data = data / (2**(bits - 1))
     return data
+
+
+def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
+    """save byte to audio file.
+
+    Args:
+        bytes_data (bytes): audio samples, bytes format
+        audio_path (str): save audio path
+        sample_rate (int, optional): audio sample rate. Defaults to 24000.
+
+    Returns:
+        bool: Whether the audio was saved successfully
+    """
+
+    if audio_path.endswith("pcm"):
+        with open(audio_path, "wb") as f:
+            f.write(bytes_data)
+    elif audio_path.endswith("wav"):
+        with open("./tmp.pcm", "wb") as f:
+            f.write(bytes_data)
+        pcm2wav(
+            "./tmp.pcm",
+            audio_path,
+            channels=1,
+            bits=16,
+            sample_rate=sample_rate)
+        os.system("rm ./tmp.pcm")
+    else:
+        print("Only supports saved audio format is pcm or wav")
+        return False
+
+    return True

@@ -40,6 +40,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 
+
 @cli_register(
     name='paddlespeech.asr', description='Speech to text infer command.')
 class ASRExecutor(BaseExecutor):
@@ -148,7 +149,7 @@ class ASRExecutor(BaseExecutor):
                 os.path.dirname(os.path.abspath(self.cfg_path)))
         logger.info(self.cfg_path)
         logger.info(self.ckpt_path)
-        
+
         #Init body.
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
@@ -278,7 +279,8 @@ class ASRExecutor(BaseExecutor):
             self._outputs["result"] = result_transcripts[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
-            logger.info(f"we will use the transformer like model : {model_type}")
+            logger.info(
+                f"we will use the transformer like model : {model_type}")
             try:
                 result_transcripts = self.model.decode(
                     audio,
@@ -344,7 +346,7 @@ class ASRExecutor(BaseExecutor):
             max_duration = 50.0
             if audio_duration >= max_duration:
                 logger.error("Please input audio file less then 50 seconds.\n")
-                return
+                return False
         except Exception as e:
             logger.exception(e)
             logger.error(
@@ -381,7 +383,7 @@ class ASRExecutor(BaseExecutor):
                     ) == "n" or content.strip() == "no" or content.strip(
                     ) == "No":
                         logger.info("Exit the program")
-                        exit(1)
+                        return False
                     else:
                         logger.warning("Not regular input, please input again")
 

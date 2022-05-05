@@ -1,0 +1,45 @@
+# This is the parameter configuration file for PaddleSpeech Serving.
+
+#################################################################################
+#                             SERVER SETTING                                    #
+#################################################################################
+host: 0.0.0.0
+port: 8090
+
+# The task format in the engin_list is: <speech task>_<engine type>
+# task choices = ['asr_online']
+# protocol = ['websocket'] (only one can be selected).
+# websocket only support online engine type.
+protocol: 'websocket'
+engine_list: ['asr_online']
+
+
+#################################################################################
+#                                ENGINE CONFIG                                  #
+#################################################################################
+
+################################### ASR #########################################
+################### speech task: asr; engine_type: online #######################
+asr_online:
+    model_type: 'conformer_online_multicn'
+    am_model: # the pdmodel file of am static model [optional]
+    am_params:  # the pdiparams file of am static model [optional]
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: 
+    decode_method: 
+    force_yes: True
+    device: # cpu or gpu:id
+    am_predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False  # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+    chunk_buffer_conf:
+        window_n: 7     # frame
+        shift_n: 4      # frame
+        window_ms: 25   # ms
+        shift_ms: 10    # ms
+        sample_rate: 16000
+        sample_width: 2

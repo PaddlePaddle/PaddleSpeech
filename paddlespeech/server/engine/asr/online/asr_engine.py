@@ -43,9 +43,9 @@ __all__ = ['ASREngine']
 pretrained_models = {
     "deepspeech2online_aishell-zh-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_0.2.1.model.tar.gz',
         'md5':
-        '23e16c69730a1cb5d735c98c83c21e16',
+        '98b87b171b7240b7cae6e07d8d0bc9be',
         'cfg_path':
         'model.yaml',
         'ckpt_path':
@@ -1028,6 +1028,17 @@ class ASREngine(BaseEngine):
         self.output = ""
         self.executor = ASRServerExecutor()
         self.config = config
+        try:
+            if self.config.get("device", None):
+                self.device = self.config.device
+            else:
+                self.device = paddle.get_device()
+            logger.info(f"paddlespeech_server set the device: {self.device}")
+            paddle.set_device(self.device)
+        except BaseException:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
 
         self.executor._init_from_path(
             model_type=self.config.model_type,

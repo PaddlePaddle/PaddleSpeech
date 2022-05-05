@@ -7,7 +7,7 @@ stage=0
 stop_stage=50
 conf_path=conf/conformer.yaml
 decode_conf_path=conf/tuning/decode.yaml
-avg_num=20
+avg_num=30
 audio_file=data/demo_01_03.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;

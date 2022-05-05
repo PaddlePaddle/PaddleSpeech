@@ -18,10 +18,10 @@ import numpy as np
 import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
+from paddleaudio.metric import compute_eer
 from tqdm import tqdm
 from yacs.config import CfgNode
 
-from paddleaudio.metric import compute_eer
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import batch_feature_normalize
 from paddlespeech.vector.io.dataset import CSVDataset

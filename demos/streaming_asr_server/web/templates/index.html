@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>PaddleSpeech Serving-语音实时转写</title>
+  <link rel="shortcut icon" href="./static/paddle.ico">
+  <script src="../static/js/jquery-3.2.1.min.js"></script>
+  <script src="../static/js/recorder/recorder-core.js"></script>
+  <script src="../static/js/recorder/extensions/lib.fft.js"></script>
+  <script src="../static/js/recorder/extensions/frequency.histogram.view.js"></script>
+  <script src="../static/js/recorder/engine/pcm.js"></script>
+  <script src="../static/js/SoundRecognizer.js"></script>
+  <link rel="stylesheet" href="../static/css/style.css">
+  <link rel="stylesheet" href="../static/css/font-awesome.min.css">
+</head>
+
+<body>
+  <div class="asr-content">
+    <div class="audio-banner">
+      <div class="weaper">
+        <div class="text-content">
+          <p><span class="title">PaddleSpeech Serving简介</span></p>
+          <p class="con-container">
+            <span class="con">PaddleSpeech 是基于飞桨 PaddlePaddle 的语音方向的开源模型库，用于语音和音频中的各种关键任务的开发。PaddleSpeech Serving是基于python + fastapi 的语音算法模型的C/S类型后端服务，旨在统一paddle speech下的各语音算子来对外提供后端服务。</span>
+          </p>
+        </div>
+        <div class="img-con">
+          <img src="../static/image/PaddleSpeech_logo.png" alt="" />
+        </div>
+      </div>
+    </div>
+    <div class="audio-experience">
+      <div class="asr-box">
+        <h2>产品体验</h2>
+        <div id="client-word-recorder" style="position: relative;">
+          <div class="pd">
+            <div style="text-align:center;height:20px;width:100%;
+                        border:0px solid #bcbcbc;color:#000;box-sizing: border-box;display:inline-block"
+              class="recwave">
+            </div>
+          </div>
+        </div>
+        <div class="voice-container">
+          <div class="voice-input">
+            <span>WebSocket URL：</span>
+            <input type="text" id="socketUrl" class="websocket-url" value="ws://127.0.0.1:8091/ws/asr"
+              placeholder="请输入服务器地址，如：ws://127.0.0.1:8091/ws/asr">
+            <div class="start-voice">
+              <button type="primary" id="beginBtn" class="voice-btn">
+                <span class="fa fa-microphone"> 开始识别</span>
+              </button>
+              <button type="primary" id="endBtn" class="voice-btn end">
+                <span class="fa fa-microphone-slash"> 结束识别</span>
+              </button>
+              <div id="timeBox" class="time-box flex-display-1">
+                <span class="total-time">识别中，<i id="timeCount"></i> 秒后自动停止识别</span>
+              </div>
+            </div>
+          </div>
+          <div class="voice">
+            <div class="result-text" id="resultPanel">此处显示识别结果</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var wenetWs = null
+    var timeLoop = null
+    var result = ""
+    $(document).ready(function () {
+      $('#beginBtn').on('click', startRecording)
+      $('#endBtn').on('click', stopRecording)
+    })
+
+    function openWebSocket(url) {
+      if ("WebSocket" in window) {
+        wenetWs = new WebSocket(url)
+        wenetWs.onopen = function () {
+          console.log("Websocket 连接成功，开始识别")
+          wenetWs.send(JSON.stringify({
+            "signal": "start"
+          }))
+        }
+        wenetWs.onmessage = function (_msg) { parseResult(_msg.data) }
+        wenetWs.onclose = function () {
+          console.log("WebSocket 连接断开")
+        }
+        wenetWs.onerror = function () { console.log("WebSocket 连接失败") }
+      }
+    }
+
+    function parseResult(data) {
+      var data = JSON.parse(data)
+      var result = data.result
+      console.log(result)
+      $("#resultPanel").html(result)
+    }
+
+    function TransferUpload(number, blobOrNull, duration, blobRec, isClose) {
+      if (blobOrNull) {
+        var blob = blobOrNull
+        var encTime = blob.encTime
+        var reader = new FileReader()
+        reader.onloadend = function () { wenetWs.send(reader.result) }
+        reader.readAsArrayBuffer(blob)
+      }
+    }
+
+    function startRecording() {
+      // Check socket url
+      var socketUrl = $('#socketUrl').val()
+      if (!socketUrl.trim()) {
+        alert('请输入 WebSocket 服务器地址，如：ws://127.0.0.1:8091/ws/asr')
+        $('#socketUrl').focus()
+        return
+      }
+      // init recorder
+      SoundRecognizer.init({
+        soundType: 'pcm',
+        sampleRate: 16000,
+        recwaveElm: '.recwave',
+        translerCallBack: TransferUpload
+      })
+      openWebSocket(socketUrl)
+
+      // Change button state
+      $('#beginBtn').hide()
+      $('#endBtn, #timeBox').addClass('show')
+      // Start countdown
+      var seconds = 180
+      $('#timeCount').text(seconds)
+      timeLoop = setInterval(function () {
+        seconds--
+        $('#timeCount').text(seconds)
+        if (seconds === 0) {
+          stopRecording()
+        }
+      }, 1000)
+    }
+
+    function stopRecording() {
+      wenetWs.send(JSON.stringify({ "signal": "end" }))
+      SoundRecognizer.recordClose()
+
+      $('#endBtn').add($('#timeBox')).removeClass('show')
+      $('#beginBtn').show()
+      $('#timeCount').text('')
+      clearInterval(timeLoop)
+    }
+  </script>
+</body>
+
+</html>

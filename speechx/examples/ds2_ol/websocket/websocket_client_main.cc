@@ -18,7 +18,7 @@
 #include "kaldi/util/table-types.h"
 
 DEFINE_string(host, "127.0.0.1", "host of websocket server");
-DEFINE_int32(port, 201314, "port of websocket server");
+DEFINE_int32(port, 8082, "port of websocket server");
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
 
@@ -26,7 +26,6 @@ using kaldi::int16;
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
-    ppspeech::WebSocketClient client(FLAGS_host, FLAGS_port);
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
@@ -36,6 +35,8 @@ int main(int argc, char* argv[]) {
     const int chunk_sample_size = streaming_chunk * sample_rate;
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
+        ppspeech::WebSocketClient client(FLAGS_host, FLAGS_port);
+
         client.SendStartSignal();
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
@@ -74,9 +75,8 @@ int main(int argc, char* argv[]) {
         std::string result = client.GetResult();
         LOG(INFO) << "utt: " << utt << " " << result;
 
-
         client.Join();
-        return 0;
     }
+
     return 0;
 }

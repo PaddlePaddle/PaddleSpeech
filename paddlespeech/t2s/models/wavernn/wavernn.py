@@ -360,7 +360,9 @@ class WaveRNN(nn.Layer):
                 x = sample.transpose([1, 0, 2])
 
             elif self.mode == 'RAW':
-                posterior = F.softmax(logits, axis=1)
+                # fix bug for paddle 2.3, see https://github.com/PaddlePaddle/Paddle/commit/01f606b4f1ca3e184a59111084ed460ee0798a5a
+                # posterior = F.softmax(logits, axis=1)
+                posterior = logits
                 distrib = paddle.distribution.Categorical(posterior)
                 # corresponding operate [np.floor((fx + 1) / 2 * mu + 0.5)] in enocde_mu_law
                 # distrib.sample([1])[0].cast('float32'): [0, 2**bits-1]

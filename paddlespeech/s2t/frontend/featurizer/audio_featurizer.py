@@ -13,8 +13,9 @@
 # limitations under the License.
 """Contains the audio featurizer class."""
 import numpy as np
+import paddle
+import paddleaudio.compliance.kaldi as kaldi
 from python_speech_features import delta
-from python_speech_features import logfbank
 from python_speech_features import mfcc
 
 
@@ -345,19 +346,17 @@ class AudioFeaturizer():
             raise ValueError("Stride size must not be greater than "
                              "window size.")
         # (T, D)
-        fbank_feat = logfbank(
-            signal=samples,
-            samplerate=sample_rate,
-            winlen=0.001 * window_ms,
-            winstep=0.001 * stride_ms,
-            nfilt=feat_dim,
-            nfft=512,
-            lowfreq=20,
-            highfreq=max_freq,
+        waveform = paddle.to_tensor(
+            np.expand_dims(samples, 0), dtype=paddle.float32)
+        mat = kaldi.fbank(
+            waveform,
+            n_mels=feat_dim,
+            frame_length=window_ms,  # default : 25
+            frame_shift=stride_ms,  # default : 10
             dither=dither,
-            remove_dc_offset=True,
-            preemph=0.97,
-            wintype='povey')
+            energy_floor=0.0,
+            sr=sample_rate)
+        fbank_feat = np.squeeze(mat.numpy())
         if delta_delta:
             fbank_feat = self._concat_delta_delta(fbank_feat)
         return fbank_feat

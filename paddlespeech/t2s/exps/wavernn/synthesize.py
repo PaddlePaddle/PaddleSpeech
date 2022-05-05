@@ -58,8 +58,7 @@ def main():
     else:
         print("ngpu should >= 0 !")
 
-    model = WaveRNN(
-        hop_length=config.n_shift, sample_rate=config.fs, **config["model"])
+    model = WaveRNN(**config["model"])
     state_dict = paddle.load(args.checkpoint)
     model.set_state_dict(state_dict["main_params"])
 

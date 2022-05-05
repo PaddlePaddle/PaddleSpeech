@@ -279,7 +279,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             # TODO(Hui Zhang): if end_flag.sum() == running_size:
             if end_flag.cast(paddle.int64).sum() == running_size:
                 break
-            
+
             # 2.1 Forward decoder step
             hyps_mask = subsequent_mask(i).unsqueeze(0).repeat(
                 running_size, 1, 1).to(device)  # (B*N, i, i)

@@ -1,6 +1,35 @@
 # Text PreProcess for building ngram LM
 
-Output `text` file like this:
+## Input
+
+```
+data/
+|-- text
+```
+
+Input file is kaldi-style, which has `utt` at first column: 
+```
+Y0000000000_--5llN02F84_S00000  怎么样这些日子住得还习惯吧
+Y0000000000_--5llN02F84_S00002  挺好的
+Y0000000000_--5llN02F84_S00003  对了美静这段日子经常不和我们一起用餐
+Y0000000000_--5llN02F84_S00004  是不是对我回来有什么想法啊
+Y0000000000_--5llN02F84_S00005  哪有的事啊
+Y0000000000_--5llN02F84_S00006  她这两天挺累的身体也不太舒服
+Y0000000000_--5llN02F84_S00007  我让她多睡一会那就好如果要是觉得不方便
+Y0000000000_--5llN02F84_S00009  我就搬出去住
+Y0000000000_--5llN02F84_S00010  你看你这个人你就是疑心太重
+Y0000000000_--5llN02F84_S00011  你现在多好一切都井然有序的
+```
+
+
+## Output
+
+```
+data/
+`-- text.tn
+```
+
+Output file like this:
 
 ```
 BAC009S0002W0122 而 对 楼市 成交 抑制 作用 最 大 的 限 购

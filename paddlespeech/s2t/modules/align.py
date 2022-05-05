@@ -105,7 +105,6 @@ class Conv1D(nn.Conv1D):
                  data_format='NCL'):
         if weight_attr is None:
             if global_init_type == "kaiming_uniform":
-                print("set kaiming_uniform")
                 weight_attr = paddle.ParamAttr(initializer=KaimingUniform())
         if bias_attr is None:
             if global_init_type == "kaiming_uniform":

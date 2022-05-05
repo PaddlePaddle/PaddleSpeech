@@ -38,6 +38,9 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
     int32 num_done = 0, num_err = 0;
+    double tot_wav_duration = 0.0;
+
+    kaldi::Timer timer;
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();
@@ -47,6 +50,7 @@ int main(int argc, char* argv[]) {
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
                                                     this_channel);
         int tot_samples = waveform.Dim();
+        tot_wav_duration += tot_samples * 1.0 / sample_rate;
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
@@ -60,6 +64,7 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk(i) = waveform(sample_offset + i);
             }
+            // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 
             recognizer.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
@@ -67,8 +72,10 @@ int main(int argc, char* argv[]) {
             }
             recognizer.Decode();
 
+            // no overlap
             sample_offset += cur_chunk_size;
         }
+
         std::string result;
         result = recognizer.GetFinalResult();
         recognizer.Reset();
@@ -82,4 +89,9 @@ int main(int argc, char* argv[]) {
         result_writer.Write(utt, result);
         ++num_done;
     }
+    double elapsed = timer.Elapsed();
+    KALDI_LOG << "Done " << num_done << " out of " << (num_err + num_done);
+    KALDI_LOG << " cost:" << elapsed << " s";
+    KALDI_LOG << "total wav duration is: " << tot_wav_duration << " s";
+    KALDI_LOG << "the RTF is: " << elapsed / tot_wav_duration;
 }

@@ -49,10 +49,13 @@ def evaluate(args):
     print(am_config)
     print(voc_config)
 
-    sentences = get_sentences(args)
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     # frontend
-    frontend = get_frontend(args)
+    frontend = get_frontend(
+        lang=args.lang,
+        phones_dict=args.phones_dict,
+        tones_dict=args.tones_dict)
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -60,7 +63,6 @@ def evaluate(args):
     print("vocab_size:", vocab_size)
 
     # acoustic model, only support fastspeech2 here now!
-    # am_inference, am_name, am_dataset = get_am_inference(args, am_config)
     # model: {model_name}_{dataset}
     am_name = args.am[:args.am.rindex('_')]
     am_dataset = args.am[args.am.rindex('_') + 1:]
@@ -80,7 +82,11 @@ def evaluate(args):
     am_postnet = am.postnet
 
     # vocoder
-    voc_inference = get_voc_inference(args, voc_config)
+    voc_inference = get_voc_inference(
+        voc=args.voc,
+        voc_config=voc_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
 
     # whether dygraph to static
     if args.inference_dir:
@@ -115,7 +121,10 @@ def evaluate(args):
             os.path.join(args.inference_dir, args.am + "_am_postnet"))
 
         # vocoder
-        voc_inference = voc_to_static(args, voc_inference)
+        voc_inference = voc_to_static(
+            voc_inference=voc_inference,
+            voc=args.voc,
+            inference_dir=args.inference_dir)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

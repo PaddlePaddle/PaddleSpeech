@@ -3,10 +3,10 @@ add_library(kaldi-mfcc
 )
 target_link_libraries(kaldi-mfcc PUBLIC kaldi-feat-common)
 
-add_library(fbank
+add_library(kaldi-fbank
   feature-fbank.cc
 )
-target_link_libraries(fbank PUBLIC kaldi-feat-common)
+target_link_libraries(kaldi-fbank PUBLIC kaldi-feat-common)
 
 add_library(kaldi-feat-common
   wave-reader.cc

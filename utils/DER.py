@@ -26,9 +26,9 @@ import argparse
 import os
 import re
 import subprocess
-from distutils.util import strtobool
 
 import numpy as np
+from distutils.util import strtobool
 
 FILE_IDS = re.compile(r"(?<=Speaker Diarization for).+(?=\*\*\*)")
 SCORED_SPEAKER_TIME = re.compile(r"(?<=SCORED SPEAKER TIME =)[\d.]+")

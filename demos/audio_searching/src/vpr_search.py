@@ -19,6 +19,7 @@ from fastapi import FastAPI
 from fastapi import File
 from fastapi import Form
 from fastapi import UploadFile
+from logs import LOGGER
 from mysql_helpers import MySQLHelper
 from operations.count import do_count_vpr
 from operations.count import do_get
@@ -30,8 +31,6 @@ from operations.search import do_search_vpr
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import FileResponse
-
-from logs import LOGGER
 
 app = FastAPI()
 app.add_middleware(

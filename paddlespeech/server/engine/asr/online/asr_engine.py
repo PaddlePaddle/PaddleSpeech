@@ -296,6 +296,8 @@ class PaddleASRConnectionHanddler:
         self.chunk_num = 0
         self.global_frame_offset = 0
         self.result_transcripts = ['']
+        self.word_time_stamp = []
+        self.time_stamp = []
         self.first_char_occur_elapsed = None
         self.word_time_stamp = None
 
@@ -514,10 +516,7 @@ class PaddleASRConnectionHanddler:
             return ''
 
     def get_word_time_stamp(self):
-        if self.word_time_stamp is None:
-            return []
-        else:
-            return self.word_time_stamp
+        return self.word_time_stamp
 
     @paddle.no_grad()
     def rescoring(self):
@@ -581,7 +580,18 @@ class PaddleASRConnectionHanddler:
                 best_index = i
 
         # update the one best result
+        # hyps stored the beam results and each fields is:
+
         logger.info(f"best index: {best_index}")
+        # logger.info(f'best result: {hyps[best_index]}')
+        # the field of the hyps is:
+        # hyps[0][0]: the sentence word-id in the vocab with a tuple
+        # hyps[0][1]: the sentence decoding probability with all paths
+        # hyps[0][2]: viterbi_blank ending probability
+        # hyps[0][3]: viterbi_non_blank probability
+        # hyps[0][4]: current_token_prob,
+        # hyps[0][5]: times_viterbi_blank, 
+        # hyps[0][6]: times_titerbi_non_blank 
         self.hyps = [hyps[best_index][0]]
 
         # update the hyps time stamp

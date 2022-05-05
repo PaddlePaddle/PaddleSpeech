@@ -272,7 +272,8 @@ class VectorExecutor(BaseExecutor):
                         model_type: str='ecapatdnn_voxceleb12',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        ckpt_path: Optional[os.PathLike]=None,
+                        task=None):
         """Init the neural network from the model path
 
         Args:
@@ -284,8 +285,10 @@ class VectorExecutor(BaseExecutor):
                                                         Defaults to None.
             ckpt_path (Optional[os.PathLike], optional): the pretrained model path, which is stored in the disk. 
                                                          Defaults to None.
+            task (str, optional): the model task type
         """
         # stage 0: avoid to init the mode again
+        self.task = task
         if hasattr(self, "model"):
             logger.info("Model has been initialized")
             return
@@ -434,6 +437,7 @@ class VectorExecutor(BaseExecutor):
         if self.sample_rate != 16000 and self.sample_rate != 8000:
             logger.error(
                 "invalid sample rate, please input --sr 8000 or --sr 16000")
+            logger.error(f"The model sample rate: {self.sample_rate}, the external sample rate is: {sample_rate}")
             return False
 
         if isinstance(audio_file, (str, os.PathLike)):

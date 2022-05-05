@@ -11,7 +11,7 @@ port: 8090
 # protocol = ['websocket', 'http'] (only one can be selected). 
 # http only support offline engine type.
 protocol: 'http'
-engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python']
+engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python', 'vector_python']
 
 
 #################################################################################
@@ -166,4 +166,15 @@ text_python:
     cfg_path: # [optional]
     ckpt_path: # [optional]
     vocab_file: # [optional]
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################################### Vector ######################################
+################### Vector task: spk; engine_type: python #######################
+vector_python:
+    task: spk
+    model_type: 'ecapatdnn_voxceleb12'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
     device:  # set 'gpu:id' or 'cpu'

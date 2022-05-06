@@ -23,13 +23,13 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
         new ppspeech::AudioCache(1000 * kint16max, opts.to_float32));
 
     unique_ptr<FrontendInterface> base_feature;
-    
+
     if (opts.use_fbank) {
-        base_feature.reset(new ppspeech::Fbank(opts.fbank_opts,
-                              std::move(data_source)));
+        base_feature.reset(
+            new ppspeech::Fbank(opts.fbank_opts, std::move(data_source)));
     } else {
-        base_feature.reset(new ppspeech::LinearSpectrogram(opts.linear_spectrogram_opts,
-                              std::move(data_source)));
+        base_feature.reset(new ppspeech::LinearSpectrogram(
+            opts.linear_spectrogram_opts, std::move(data_source)));
     }
 
     unique_ptr<FrontendInterface> cmvn(

@@ -19,7 +19,7 @@ def change_device(yamlfile: str, engine: str, device: str):
     if device == 'cpu':
         set_device = 'cpu'
     elif device == 'gpu':
-        set_device = 'gpu:0'
+        set_device = 'gpu:3'
     else:
         print("Please set correct device: cpu or gpu.")
 

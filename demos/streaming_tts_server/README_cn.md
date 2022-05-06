@@ -10,7 +10,7 @@
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-推荐使用 **paddlepaddle 2.2.1** 或以上版本。
+推荐使用 **paddlepaddle 2.2.2** 或以上版本。
 你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
 
 
@@ -121,7 +121,7 @@
     - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认值：0，表示与模型采样率相同
     - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
     - `play`: 是否播放音频，边合成边播放， 默认值：False，表示不播放。**播放音频需要依赖pyaudio库**。
-    `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
+    - `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
 
     
     输出:
@@ -257,7 +257,7 @@
     - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认值：0，表示与模型采样率相同
     - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
     - `play`: 是否播放音频，边合成边播放， 默认值：False，表示不播放。**播放音频需要依赖pyaudio库**。
-    `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
+    - `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
 
     
     输出:

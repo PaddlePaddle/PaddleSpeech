@@ -14,7 +14,7 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 You can choose one way from easy, meduim and hard to install paddlespeech.
 
 ### 2. Prepare Input File
-The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
+The input of this cli demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
 Here are sample files for this demo that can be downloaded:
 ```bash

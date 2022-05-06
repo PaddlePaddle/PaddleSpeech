@@ -15,7 +15,10 @@ from typing import List
 
 from pydantic import BaseModel
 
-__all__ = ['ASRResponse', 'TTSResponse', 'CLSResponse']
+__all__ = [
+    'ASRResponse', 'TTSResponse', 'CLSResponse', 'TextResponse',
+    'VectorResponse', 'VectorScoreResponse'
+]
 
 
 class Message(BaseModel):
@@ -129,6 +132,11 @@ class CLSResponse(BaseModel):
     result: CLSResult
 
 
+#****************************************************************************************/
+#************************************ Text response **************************************/
+#****************************************************************************************/
+
+
 class TextResult(BaseModel):
     punc_text: str
 
@@ -151,6 +159,59 @@ class TextResponse(BaseModel):
     code: int
     message: Message
     result: TextResult
+
+
+#****************************************************************************************/
+#************************************ Vector response **************************************/
+#****************************************************************************************/
+
+
+class VectorResult(BaseModel):
+    vec: list
+
+
+class VectorResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "vec": [1.0, 1.0]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorResult
+
+
+class VectorScoreResult(BaseModel):
+    score: float
+
+
+class VectorScoreResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "score": 1.0
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorScoreResult
 
 
 #****************************************************************************************/

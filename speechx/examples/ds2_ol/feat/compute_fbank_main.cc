@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
     feat_cache_opts.frame_chunk_stride = 1;
     feat_cache_opts.frame_chunk_size = 1;
     ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
+    LOG(INFO) << "fbank: " << true;
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 
     int sample_rate = 16000;

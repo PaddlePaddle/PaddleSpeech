@@ -35,7 +35,7 @@ from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
     'TTSClientExecutor', 'TTSOnlineClientExecutor', 'ASRClientExecutor',
-    'ASROnlineClientExecutor', 'CLSClientExecutor'
+    'ASROnlineClientExecutor', 'CLSClientExecutor', 'VectorClientExecutor'
 ]
 
 
@@ -411,6 +411,18 @@ class ASROnlineClientExecutor(BaseExecutor):
             '--lang', type=str, default="zh_cn", help='language')
         self.parser.add_argument(
             '--audio_format', type=str, default="wav", help='audio format')
+        self.parser.add_argument(
+            '--punc.server_ip',
+            type=str,
+            default=None,
+            dest="punc_server_ip",
+            help='Punctuation server ip')
+        self.parser.add_argument(
+            '--punc.port',
+            type=int,
+            default=8190,
+            dest="punc_server_port",
+            help='Punctuation server port')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -428,7 +440,9 @@ class ASROnlineClientExecutor(BaseExecutor):
                 port=port,
                 sample_rate=sample_rate,
                 lang=lang,
-                audio_format=audio_format)
+                audio_format=audio_format,
+                punc_server_ip=args.punc_server_ip,
+                punc_server_port=args.punc_server_port)
             time_end = time.time()
             logger.info(res)
             logger.info("Response time %f s." % (time_end - time_start))
@@ -445,12 +459,30 @@ class ASROnlineClientExecutor(BaseExecutor):
                  port: int=8091,
                  sample_rate: int=16000,
                  lang: str="zh_cn",
-                 audio_format: str="wav"):
-        """
-        Python API to call an executor.
+                 audio_format: str="wav",
+                 punc_server_ip: str=None,
+                 punc_server_port: str=None):
+        """Python API to call asr online executor.
+
+        Args:
+            input (str): the audio file to be send to streaming asr service.
+            server_ip (str, optional): streaming asr server ip. Defaults to "127.0.0.1".
+            port (int, optional): streaming asr server port. Defaults to 8091.
+            sample_rate (int, optional): audio sample rate. Defaults to 16000.
+            lang (str, optional): audio language type. Defaults to "zh_cn".
+            audio_format (str, optional): audio format. Defaults to "wav".
+            punc_server_ip (str, optional): punctuation server ip. Defaults to None.
+            punc_server_port (str, optional): punctuation server port. Defaults to None.
+
+        Returns:
+            str: the audio text
         """
         logger.info("asr websocket client start")
-        handler = ASRWsAudioHandler(server_ip, port)
+        handler = ASRWsAudioHandler(
+            server_ip,
+            port,
+            punc_server_ip=punc_server_ip,
+            punc_server_port=punc_server_port)
         loop = asyncio.get_event_loop()
         res = loop.run_until_complete(handler.run(input))
         logger.info("asr websocket client finished")
@@ -583,3 +615,108 @@ class TextClientExecutor(BaseExecutor):
         response_dict = res.json()
         punc_text = response_dict["result"]["punc_text"]
         return punc_text
+
+
+@cli_client_register(
+    name='paddlespeech_client.vector', description='visit the vector service')
+class VectorClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(VectorClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.vector', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8090, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='sentence to be process by text server.')
+        self.parser.add_argument(
+            '--task',
+            type=str,
+            default="spk",
+            choices=["spk", "score"],
+            help="The vector service task")
+        self.parser.add_argument(
+            "--enroll", type=str, default=None, help="The enroll audio")
+        self.parser.add_argument(
+            "--test", type=str, default=None, help="The test audio")
+
+    def execute(self, argv: List[str]) -> bool:
+        """Execute the request from the argv.
+
+        Args:
+            argv (List): the request arguments
+
+        Returns:
+            str: the request flag
+        """
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        task = args.task
+
+        try:
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                enroll_audio=args.enroll,
+                test_audio=args.test,
+                task=task)
+            time_end = time.time()
+            logger.info(f"The vector: {res}")
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to extract vector.")
+            logger.error(e)
+            return False
+
+    @stats_wrapper
+    def __call__(self,
+                 input: str,
+                 server_ip: str="127.0.0.1",
+                 port: int=8090,
+                 audio_format: str="wav",
+                 sample_rate: int=16000,
+                 enroll_audio: str=None,
+                 test_audio: str=None,
+                 task="spk"):
+        """
+        Python API to call text executor.
+
+        Args:
+            input (str): the request audio data
+            server_ip (str, optional): the server ip. Defaults to "127.0.0.1".
+            port (int, optional): the server port. Defaults to 8090.
+            audio_format (str, optional): audio format. Defaults to "wav".
+            sample_rate (str, optional): audio sample rate. Defaults to 16000.
+            enroll_audio (str, optional): enroll audio data. Defaults to None.
+            test_audio (str, optional): test audio data. Defaults to None.
+            task (str, optional): the task type, "spk" or "socre". Defaults to "spk"
+        Returns:
+            str: the audio embedding or score between enroll and test audio
+        """
+        if task == "spk":
+            from paddlespeech.server.utils.audio_handler import VectorHttpHandler
+            logger.info("vector http client start")
+            logger.info(f"the input audio: {input}")
+            handler = VectorHttpHandler(server_ip=server_ip, port=port)
+            res = handler.run(input, audio_format, sample_rate)
+            return res
+        elif task == "score":
+            from paddlespeech.server.utils.audio_handler import VectorScoreHttpHandler
+            logger.info("vector score http client start")
+            logger.info(
+                f"enroll audio: {enroll_audio}, test audio: {test_audio}")
+            handler = VectorScoreHttpHandler(server_ip=server_ip, port=port)
+            res = handler.run(enroll_audio, test_audio, audio_format,
+                              sample_rate)
+            logger.info(f"The vector score is: {res}")
+        else:
+            logger.error(f"Sorry, we have not support such task {task}")

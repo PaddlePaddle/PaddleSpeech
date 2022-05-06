@@ -5,7 +5,7 @@ set -e
 . path.sh
 
 nj=40
-stage=4
+stage=0
 stop_stage=5
 
 . utils/parse_options.sh
@@ -156,10 +156,10 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --use_fbank=true \
         --to_float32=false \
         --param_path=$model_dir/avg_5.jit.pdiparams \
-        --word_symbol_table=$graph_dir/words.txt \
+        --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --model_cache_shapes="5-1-2048,5-1-2048" \
-        --graph_path=$graph_dir/TLG.fst --max_active=7500 \
+        --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \
         --result_wspecifier=ark,t:./result_fbank_recognizer
 

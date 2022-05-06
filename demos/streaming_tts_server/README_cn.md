@@ -16,18 +16,18 @@
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。
-- `protocol`表示该流式TTS服务使用的网络协议，目前支持 **http 和 websocket** 两种。
-- `engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-    - 该demo主要介绍流式语音合成服务，因此语音任务应设置为tts。
-    - 目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用onnxruntime进行推理的引擎。其中，online-onnx的推理速度更快。
-- 流式TTS引擎的AM模型支持：**fastspeech2 以及fastspeech2_cnndecoder**; Voc 模型支持：**hifigan, mb_melgan**
-- 流式am推理中，每次会对一个chunk的数据进行推理以达到流式的效果。其中`am_block`表示chunk中的有效帧数，`am_pad` 表示一个chunk中am_block前后各加的帧数。am_pad的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
-    - fastspeech2不支持流式am推理，因此am_pad与am_block对它无效
-    - fastspeech2_cnndecoder 支持流式推理，当am_pad=12时，流式推理合成音频与非流式合成音频一致
-- 流式voc推理中，每次会对一个chunk的数据进行推理以达到流式的效果。其中`voc_block`表示chunk中的有效帧数，`voc_pad` 表示一个chunk中voc_block前后各加的帧数。voc_pad的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
-    - hifigan, mb_melgan 均支持流式voc 推理
-    - 当voc模型为mb_melgan，当voc_pad=14时，流式推理合成音频与非流式合成音频一致；voc_pad最小可以设置为7，合成音频听感上没有异常，若voc_pad小于7，合成音频听感上存在异常。
-    - 当voc模型为hifigan，当voc_pad=20时，流式推理合成音频与非流式合成音频一致；当voc_pad=14时，合成音频听感上没有异常。
+- `protocol` 表示该流式 TTS 服务使用的网络协议，目前支持 **http 和 websocket** 两种。
+- `engine_list` 表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
+    - 该 demo 主要介绍流式语音合成服务，因此语音任务应设置为 tts。
+    - 目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用 onnxruntime 进行推理的引擎。其中，online-onnx 的推理速度更快。
+- 流式 TTS 引擎的 AM 模型支持：**fastspeech2 以及fastspeech2_cnndecoder**; Voc 模型支持：**hifigan, mb_melgan**
+- 流式 am 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `am_block` 表示 chunk 中的有效帧数，`am_pad` 表示一个 chunk 中 am_block 前后各加的帧数。am_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
+    - fastspeech2 不支持流式 am 推理，因此 am_pad 与 m_block 对它无效
+    - fastspeech2_cnndecoder 支持流式推理，当 am_pad=12 时，流式推理合成音频与非流式合成音频一致
+- 流式 voc 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `voc_block` 表示chunk中的有效帧数，`voc_pad` 表示一个 chunk 中 voc_block 前后各加的帧数。voc_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
+    - hifigan, mb_melgan 均支持流式 voc 推理
+    - 当 voc 模型为 mb_melgan，当 voc_pad=14 时，流式推理合成音频与非流式合成音频一致；voc_pad 最小可以设置为7，合成音频听感上没有异常，若 voc_pad 小于7，合成音频听感上存在异常。
+    - 当 voc 模型为 hifigan，当 voc_pad=20 时，流式推理合成音频与非流式合成音频一致；当 voc_pad=14 时，合成音频听感上没有异常。
 - 推理速度：mb_melgan > hifigan; 音频质量：mb_melgan < hifigan
 - **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 

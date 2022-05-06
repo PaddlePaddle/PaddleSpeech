@@ -10,7 +10,9 @@
  paddlespeech_server help
  ```
  ### Start the server
- First set the service-related configuration parameters, similar to `./conf/application.yaml`. Set `engine_list`, which represents the speech tasks included in the service to be started
+ First set the service-related configuration parameters, similar to `./conf/application.yaml`. Set `engine_list`, which represents the speech tasks included in the service to be started.
+ **Note:** If the service can be started normally in the container, but the client access IP is unreachable, you can try to replace the `host` address in the configuration file with the local IP address.
+
  Then start the service:
  ```bash
  paddlespeech_server start --config_file ./conf/application.yaml

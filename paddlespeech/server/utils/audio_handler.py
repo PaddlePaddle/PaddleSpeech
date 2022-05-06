@@ -43,6 +43,7 @@ class TextHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/text'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, text):
         """Call the text server to process the specific text
@@ -107,8 +108,10 @@ class ASRWsAudioHandler:
         """
         samples, sample_rate = soundfile.read(wavfile_path, dtype='int16')
         x_len = len(samples)
+        assert sample_rate == 16000
 
-        chunk_size = 85 * 16  #80ms, sample_rate = 16kHz
+        chunk_size = int(85 * sample_rate / 1000)  # 85ms, sample_rate = 16kHz
+
         if x_len % chunk_size != 0:
             padding_len_x = chunk_size - x_len % chunk_size
         else:
@@ -217,6 +220,7 @@ class ASRHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/asr'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, input, audio_format, sample_rate, lang):
         """Call the http asr to process the audio
@@ -274,6 +278,7 @@ class TTSWsHandler:
             self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
             self.max_fail = 50
+        logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
         while True:
@@ -381,6 +386,7 @@ class TTSHttpHandler:
             self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
             self.max_fail = 50
+        logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
         while True:
@@ -482,6 +488,7 @@ class VectorHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/vector'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, input, audio_format, sample_rate, task="spk"):
         """Call the http asr to process the audio
@@ -528,6 +535,7 @@ class VectorScoreHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/vector/score'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, enroll_audio, test_audio, audio_format, sample_rate):
         """Call the http asr to process the audio

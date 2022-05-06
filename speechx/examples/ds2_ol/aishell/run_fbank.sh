@@ -161,9 +161,9 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --model_cache_shapes="5-1-2048,5-1-2048" \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \
-        --result_wspecifier=ark,t:./result_fbank_recognizer
+        --result_wspecifier=ark,t:$data/split${nj}/JOB/result_fbank_recognizer
 
-    cat $data/split${nj}/*/result_recognizer > $exp/${label_file}_recognizer
+    cat $data/split${nj}/*/result_fbank_recognizer > $exp/${label_file}_recognizer
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_recognizer > $exp/${wer}.recognizer
     echo "recognizer test have finished!!!"
     echo "please checkout in ${exp}/${wer}.recognizer"

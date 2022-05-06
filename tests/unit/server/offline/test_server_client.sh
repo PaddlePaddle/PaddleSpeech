@@ -21,8 +21,6 @@ StartService(){
 }
 
 ClientTest(){
-    echo "aaaaaaaaaaaaaaaaaaaaaaaaaa $server_ip"
-    echo "aaaaaaaaaaaaaaaaaaaaaaaaaa $port"
     # Client test
     # test asr client
     paddlespeech_client asr --server_ip $server_ip --port $port --input ./zh.wav 

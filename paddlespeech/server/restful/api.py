@@ -29,19 +29,19 @@ def setup_router(api_list: List):
     """setup router for fastapi
 
     Args:
-        api_list (List): [asr, tts, cls]
+        api_list (List): [asr, tts, cls, text, vecotr]
 
     Returns:
         APIRouter
     """
     for api_name in api_list:
-        if api_name == 'asr':
+        if api_name.lower() == 'asr':
             _router.include_router(asr_router)
-        elif api_name == 'tts':
+        elif api_name.lower() == 'tts':
             _router.include_router(tts_router)
-        elif api_name == 'cls':
+        elif api_name.lower() == 'cls':
             _router.include_router(cls_router)
-        elif api_name == 'text':
+        elif api_name.lower() == 'text':
             _router.include_router(text_router)
         elif api_name.lower() == 'vector':
             _router.include_router(vec_router)

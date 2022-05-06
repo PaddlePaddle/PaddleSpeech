@@ -15,8 +15,8 @@ from typing import List
 
 from fastapi import APIRouter
 
-from paddlespeech.server.ws.asr_socket import router as asr_router
-from paddlespeech.server.ws.tts_socket import router as tts_router
+from paddlespeech.server.ws.asr_api import router as asr_router
+from paddlespeech.server.ws.tts_api import router as tts_router
 
 _router = APIRouter()
 

@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-    
+
     int sample_rate = FLAGS_sample_rate;
     float streaming_chunk = FLAGS_streaming_chunk;
     int chunk_sample_size = streaming_chunk * sample_rate;

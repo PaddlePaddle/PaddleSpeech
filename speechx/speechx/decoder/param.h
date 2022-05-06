@@ -21,7 +21,8 @@
 
 // feature
 DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");
-// DEFINE_bool(to_float32, true, "audio convert to pcm32. True for linear feature, or fbank");
+// DEFINE_bool(to_float32, true, "audio convert to pcm32. True for linear
+// feature, or fbank");
 DEFINE_int32(num_bins, 161, "num bins of mel");
 DEFINE_string(cmvn_file, "", "read cmvn");
 DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
@@ -67,18 +68,18 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     frame_opts.frame_shift_ms = 10;
     opts.use_fbank = FLAGS_use_fbank;
     if (opts.use_fbank) {
-      opts.to_float32 = false;
-      frame_opts.window_type = "povey";
-      frame_opts.frame_length_ms = 25;
-      opts.fbank_opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
-      opts.fbank_opts.fbank_opts.frame_opts = frame_opts;
+        opts.to_float32 = false;
+        frame_opts.window_type = "povey";
+        frame_opts.frame_length_ms = 25;
+        opts.fbank_opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
+        opts.fbank_opts.fbank_opts.frame_opts = frame_opts;
     } else {
-      opts.to_float32 = true;
-      frame_opts.remove_dc_offset = false;
-      frame_opts.frame_length_ms = 20;
-      frame_opts.window_type = "hanning";
-      frame_opts.preemph_coeff = 0.0;
-      opts.linear_spectrogram_opts.frame_opts = frame_opts;
+        opts.to_float32 = true;
+        frame_opts.remove_dc_offset = false;
+        frame_opts.frame_length_ms = 20;
+        frame_opts.window_type = "hanning";
+        frame_opts.preemph_coeff = 0.0;
+        opts.linear_spectrogram_opts.frame_opts = frame_opts;
     }
     opts.feature_cache_opts.frame_chunk_size = FLAGS_receptive_field_length;
     opts.feature_cache_opts.frame_chunk_stride = FLAGS_downsampling_rate;

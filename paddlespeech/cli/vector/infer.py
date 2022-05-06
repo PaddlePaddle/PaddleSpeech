@@ -437,7 +437,9 @@ class VectorExecutor(BaseExecutor):
         if self.sample_rate != 16000 and self.sample_rate != 8000:
             logger.error(
                 "invalid sample rate, please input --sr 8000 or --sr 16000")
-            logger.error(f"The model sample rate: {self.sample_rate}, the external sample rate is: {sample_rate}")
+            logger.error(
+                f"The model sample rate: {self.sample_rate}, the external sample rate is: {sample_rate}"
+            )
             return False
 
         if isinstance(audio_file, (str, os.PathLike)):

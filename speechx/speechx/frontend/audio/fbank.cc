@@ -102,13 +102,16 @@ bool Fbank::Compute(const Vector<BaseFloat>& waves, Vector<BaseFloat>* feats) {
         // note: this online feature-extraction code does not support VTLN.
         RealFft(&window, true);
         kaldi::ComputePowerSpectrum(&window);
-        const kaldi::MelBanks &mel_bank = *(computer_.GetMelBanks(1.0));
-        SubVector<BaseFloat> power_spectrum(window, 0, window.Dim() / 2 + 1); 
+        const kaldi::MelBanks& mel_bank = *(computer_.GetMelBanks(1.0));
+        SubVector<BaseFloat> power_spectrum(window, 0, window.Dim() / 2 + 1);
         if (!opts_.fbank_opts.use_power) {
             power_spectrum.ApplyPow(0.5);
         }
-        int32 mel_offset = ((opts_.fbank_opts.use_energy && !opts_.fbank_opts.htk_compat) ? 1 : 0);
-        SubVector<BaseFloat> mel_energies(this_feature, mel_offset, opts_.fbank_opts.mel_opts.num_bins);
+        int32 mel_offset =
+            ((opts_.fbank_opts.use_energy && !opts_.fbank_opts.htk_compat) ? 1
+                                                                           : 0);
+        SubVector<BaseFloat> mel_energies(
+            this_feature, mel_offset, opts_.fbank_opts.mel_opts.num_bins);
         mel_bank.Compute(power_spectrum, &mel_energies);
         mel_energies.ApplyFloor(1e-07);
         mel_energies.ApplyLog();

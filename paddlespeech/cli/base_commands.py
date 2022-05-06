@@ -47,3 +47,29 @@ class HelpCommand:
 
         print(msg)
         return True
+
+
+@cli_register(
+    name='paddlespeech.version',
+    description='Show version and commit id of current package.')
+class VersionCommand:
+    def execute(self, argv: List[str]) -> bool:
+        try:
+            from .. import __version__
+            version = __version__
+        except ImportError:
+            version = 'Not an official release'
+
+        try:
+            from .. import __commit__
+            commit_id = __commit__
+        except ImportError:
+            commit_id = 'Not found'
+
+        msg = 'Package Version:\n'
+        msg += '    {}\n\n'.format(version)
+        msg += 'Commit ID:\n'
+        msg += '    {}\n\n'.format(commit_id)
+
+        print(msg)
+        return True

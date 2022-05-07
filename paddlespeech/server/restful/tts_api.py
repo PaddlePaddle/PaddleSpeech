@@ -128,7 +128,7 @@ def tts(request_body: TTSRequest):
     return response
 
 
-@router.post("/paddlespeech/tts/streaming")
+@router.post("/paddlespeech/streaming/tts")
 async def stream_tts(request_body: TTSRequest):
     text = request_body.text
 

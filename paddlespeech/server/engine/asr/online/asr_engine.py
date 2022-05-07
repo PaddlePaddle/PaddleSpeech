@@ -20,9 +20,10 @@ import paddle
 from numpy import float32
 from yacs.config import CfgNode
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.asr.infer import ASRExecutor
+from paddlespeech.cli.asr.infer import model_alias
 from paddlespeech.cli.log import logger
+from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.speech import SpeechSegment
@@ -38,6 +39,45 @@ from paddlespeech.server.utils.audio_process import pcm2float
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 
 __all__ = ['ASREngine']
+
+pretrained_models = {
+    "deepspeech2online_aishell-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_0.2.1.model.tar.gz',
+        'md5':
+        '98b87b171b7240b7cae6e07d8d0bc9be',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/deepspeech2_online/checkpoints/avg_1',
+        'model':
+        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
+        'params':
+        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
+    },
+    "conformer_online_multicn-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/multi_cn/asr1/asr1_chunk_conformer_multi_cn_ckpt_0.2.3.model.tar.gz',
+        'md5':
+        '0ac93d390552336f2a906aec9e33c5fa',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/chunk_conformer/checkpoints/multi_cn',
+        'model':
+        'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
+        'params':
+        'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
+        'lm_url':
+        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+        'lm_md5':
+        '29e02312deb2e59b3c8686c7966d4fe3'
+    },
+}
 
 
 # ASR server connection process class
@@ -586,7 +626,24 @@ class PaddleASRConnectionHanddler:
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        pass
+
+    def _get_pretrained_path(self, tag: str) -> os.PathLike:
+        """
+        Download and returns pretrained resources path of current task.
+        """
+        support_models = list(pretrained_models.keys())
+        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
+            tag, '\n\t\t'.join(support_models))
+
+        res_path = os.path.join(MODEL_HOME, tag)
+        decompressed_path = download_and_decompress(pretrained_models[tag],
+                                                    res_path)
+        decompressed_path = os.path.abspath(decompressed_path)
+        logger.info(
+            'Use pretrained model stored in: {}'.format(decompressed_path))
+
+        return decompressed_path
 
     def _init_from_path(self,
                         model_type: str='deepspeech2online_aishell',
@@ -602,20 +659,20 @@ class ASRServerExecutor(ASRExecutor):
         """
         self.model_type = model_type
         self.sample_rate = sample_rate
-        sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-        tag = model_type + '-' + lang + '-' + sample_rate_str
         if cfg_path is None or am_model is None or am_params is None:
+            sample_rate_str = '16k' if sample_rate == 16000 else '8k'
+            tag = model_type + '-' + lang + '-' + sample_rate_str
             logger.info(f"Load the pretrained model, tag = {tag}")
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
 
-            self.cfg_path = os.path.join(
-                res_path, self.pretrained_models[tag]['cfg_path'])
+            self.cfg_path = os.path.join(res_path,
+                                         pretrained_models[tag]['cfg_path'])
 
             self.am_model = os.path.join(res_path,
-                                         self.pretrained_models[tag]['model'])
+                                         pretrained_models[tag]['model'])
             self.am_params = os.path.join(res_path,
-                                          self.pretrained_models[tag]['params'])
+                                          pretrained_models[tag]['params'])
             logger.info(res_path)
         else:
             self.cfg_path = os.path.abspath(cfg_path)
@@ -643,8 +700,8 @@ class ASRServerExecutor(ASRExecutor):
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = self.pretrained_models[tag]['lm_url']
-                lm_md5 = self.pretrained_models[tag]['lm_md5']
+                lm_url = pretrained_models[tag]['lm_url']
+                lm_md5 = pretrained_models[tag]['lm_md5']
                 logger.info(f"Start to load language model {lm_url}")
                 self.download_lm(
                     lm_url,
@@ -717,7 +774,7 @@ class ASRServerExecutor(ASRExecutor):
             model_name = model_type[:model_type.rindex(
                 '_')]  # model_type: {model_name}_{dataset}
             logger.info(f"model name: {model_name}")
-            model_class = dynamic_import(model_name, self.model_alias)
+            model_class = dynamic_import(model_name, model_alias)
             model_conf = self.config
             model = model_class.from_config(model_conf)
             self.model = model

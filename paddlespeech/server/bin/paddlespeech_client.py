@@ -31,7 +31,6 @@ from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
-from paddlespeech.server.utils.util import compute_delay
 from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
@@ -222,7 +221,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
         play = args.play
 
         try:
-            self(
+            res = self(
                 input=input_,
                 server_ip=server_ip,
                 port=port,
@@ -258,42 +257,17 @@ class TTSOnlineClientExecutor(BaseExecutor):
             logger.info("tts http client start")
             from paddlespeech.server.utils.audio_handler import TTSHttpHandler
             handler = TTSHttpHandler(server_ip, port, play)
-            first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = handler.run(
-                input, spk_id, speed, volume, sample_rate, output)
-            delay_time_list = compute_delay(receive_time_list,
-                                            chunk_duration_list)
+            handler.run(input, spk_id, speed, volume, sample_rate, output)
 
         elif protocol == "websocket":
             from paddlespeech.server.utils.audio_handler import TTSWsHandler
             logger.info("tts websocket client start")
             handler = TTSWsHandler(server_ip, port, play)
             loop = asyncio.get_event_loop()
-            first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = loop.run_until_complete(
-                handler.run(input, output))
-            delay_time_list = compute_delay(receive_time_list,
-                                            chunk_duration_list)
+            loop.run_until_complete(handler.run(input, output))
 
         else:
             logger.error("Please set correct protocol, http or websocket")
-            return False
-
-        logger.info(f"sentence: {input}")
-        logger.info(f"duration: {duration} s")
-        logger.info(f"first response: {first_response} s")
-        logger.info(f"final response: {final_response} s")
-        logger.info(f"RTF: {final_response/duration}")
-        if output is not None:
-            if save_audio_success:
-                logger.info(f"Audio successfully saved in {output}")
-            else:
-                logger.error("Audio save failed.")
-
-        if delay_time_list != []:
-            logger.info(
-                f"Delay situation: total number of packages: {len(receive_time_list)}, the number of delayed packets: {len(delay_time_list)}, minimum delay time: {min(delay_time_list)} s, maximum delay time: {max(delay_time_list)} s, average delay time: {sum(delay_time_list)/len(delay_time_list)} s, delay rate:{len(delay_time_list)/len(receive_time_list)}"
-            )
-        else:
-            logger.info("The sentence has no delay in streaming synthesis.")
 
 
 @cli_client_register(

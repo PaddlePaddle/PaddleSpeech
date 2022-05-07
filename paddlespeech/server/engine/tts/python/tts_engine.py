@@ -51,15 +51,15 @@ class TTSEngine(BaseEngine):
 
     def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
-        self.config = config
 
         try:
-            if self.config.device is not None:
+            self.config = config
+            if self.config.device:
                 self.device = self.config.device
             else:
                 self.device = paddle.get_device()
             paddle.set_device(self.device)
-        except BaseException as e:
+        except BaseException:
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
             )
@@ -87,35 +87,9 @@ class TTSEngine(BaseEngine):
                          (self.device))
             return False
 
-        # warm up
-        try:
-            self.warm_up()
-            logger.info("Warm up successfully.")
-        except Exception as e:
-            logger.error("Failed to warm up on tts engine.")
-            return False
-
         logger.info("Initialize TTS server engine successfully on device: %s." %
                     (self.device))
         return True
-
-    def warm_up(self):
-        """warm up
-        """
-        if self.config.lang == 'zh':
-            sentence = "您好，欢迎使用语音合成服务。"
-        if self.config.lang == 'en':
-            sentence = "Hello and welcome to the speech synthesis service."
-        logger.info("Start to warm up.")
-        for i in range(3):
-            st = time.time()
-            self.executor.infer(
-                text=sentence,
-                lang=self.config.lang,
-                am=self.config.am,
-                spk_id=0, )
-            logger.info(
-                f"The response time of the {i} warm up: {time.time() - st} s")
 
     def postprocess(self,
                     wav,

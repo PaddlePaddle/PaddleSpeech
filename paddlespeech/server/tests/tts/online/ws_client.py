@@ -15,7 +15,6 @@ import argparse
 import asyncio
 
 from paddlespeech.server.utils.audio_handler import TTSWsHandler
-from paddlespeech.server.utils.util import compute_delay
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -36,24 +35,4 @@ if __name__ == "__main__":
     print("tts websocket client start")
     handler = TTSWsHandler(args.server, args.port, args.play)
     loop = asyncio.get_event_loop()
-    first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = loop.run_until_complete(
-        handler.run(args.text, args.output))
-    delay_time_list = compute_delay(receive_time_list, chunk_duration_list)
-
-    print(f"sentence: {args.text}")
-    print(f"duration: {duration} s")
-    print(f"first response: {first_response} s")
-    print(f"final response: {final_response} s")
-    print(f"RTF: {final_response/duration}")
-    if args.output is not None:
-        if save_audio_success:
-            print(f"Audio successfully saved in {args.output}")
-        else:
-            print("Audio save failed.")
-
-    if delay_time_list != []:
-        print(
-            f"Delay situation: total number of packages: {len(receive_time_list)}, the number of delayed packets: {len(delay_time_list)}, minimum delay time: {min(delay_time_list)} s, maximum delay time: {max(delay_time_list)} s, average delay time: {sum(delay_time_list)/len(delay_time_list)} s, delay rate:{len(delay_time_list)/len(receive_time_list)}"
-        )
-    else:
-        print("The sentence has no delay in streaming synthesis.")
+    loop.run_until_complete(handler.run(args.text, args.output))

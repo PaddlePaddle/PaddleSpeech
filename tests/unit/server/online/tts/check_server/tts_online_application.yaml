@@ -39,9 +39,9 @@ tts_online:
     # others
     lang: 'zh'
     device: 'cpu' # set 'gpu:id' or 'cpu'
-    am_block: 72
+    am_block: 42
     am_pad: 12
-    voc_block: 36
+    voc_block: 14
     voc_pad: 14
     
 
@@ -80,9 +80,9 @@ tts_online-onnx:
 
     # others
     lang: 'zh'
-    am_block: 72
+    am_block: 42
     am_pad: 12
-    voc_block: 36
+    voc_block: 14
     voc_pad: 14
     voc_upsample: 300
     

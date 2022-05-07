@@ -467,19 +467,18 @@ class ASRExecutor(BaseExecutor):
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
                              ckpt_path)
-        self.preprocess(model, audio_file)
-
         if rtf:
             k = self.__class__.__name__
             CLI_TIMER[k]['start'].append(time.time())
-            self.infer(model)
+
+        self.preprocess(model, audio_file)
+        self.infer(model)
+        res = self.postprocess()  # Retrieve result of asr.
+
+        if rtf:
             CLI_TIMER[k]['end'].append(time.time())
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
             CLI_TIMER[k]['extra'].append(audio.shape[0] / audio_sample_rate)
-        else:
-            self.infer(model)
-
-        res = self.postprocess()  # Retrieve result of asr.
 
         return res

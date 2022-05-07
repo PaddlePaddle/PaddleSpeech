@@ -24,7 +24,7 @@ from paddlespeech.server.engine.engine_pool import get_engine_pool
 router = APIRouter()
 
 
-@router.websocket('/ws/tts')
+@router.websocket('/paddlespeech/tts/streaming')
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
 

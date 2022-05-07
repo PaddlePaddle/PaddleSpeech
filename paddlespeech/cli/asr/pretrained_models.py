@@ -27,7 +27,7 @@ pretrained_models = {
         'ckpt_path':
         'exp/conformer/checkpoints/wenetspeech',
     },
-   "conformer_online_wenetspeech-zh-16k": {
+    "conformer_online_wenetspeech-zh-16k": {
         'url':
         'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz',
         'md5':

@@ -151,13 +151,23 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 ### Features
 
 Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
-- 📦  **Ease of Use**: low barriers to install, and [CLI](#quick-start) is available to quick-start your journey.
+- 📦  **Ease of Use**: low barriers to install, [CLI](#quick-start), [Server](#quick-start-server), and [Streaming Server](#quick-start-streaming-server) is available to quick-start your journey.
 - 🏆  **Align to the State-of-the-Art**: we provide high-speed and ultra-lightweight models, and also cutting-edge technology. 
+- 🏆  **Streaming ASR and TTS System**: we provide production ready streaming asr and streaming tts system.
 - 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
-- **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Audio Classification, Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, etc.
+- 📦  **Varieties of Functions that Vitalize both Industrial and Academia**:
+  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verfication, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
   - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
+
+### Recent Update
+- 👏🏻  2022.05.06: `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp`.
+- 👏🏻  2022.05.06: `Server` is available for `Speaker Verification`, and `Punctuation Restoration`.
+- 👏🏻  2022.04.28: `Streaming Server` is available for `Automatic Speech Recognition` and `Text-to-Speech`.
+- 👏🏻  2022.03.28: `Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`.
+- 👏🏻  2022.03.28: `CLI` is available for `Speaker Verification`.
+- 🤗  2021.12.14: [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
+- 👏🏻  2021.12.10: `CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
 ### 🔥 Hot Activities
 
@@ -170,15 +180,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   4 Days Live Courses: Depth interpretation of PaddleSpeech!
 
   **Courses videos and related materials: https://aistudio.baidu.com/aistudio/education/group/info/25130**
-
-
-### Recent Update
-
-- 👏🏻  2022.04.28: PaddleSpeech Streaming Server is available for Automatic Speech Recognition and Text-to-Speech.
-- 👏🏻  2022.03.28: PaddleSpeech Server is available for Audio Classification, Automatic Speech Recognition and Text-to-Speech.
-- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verification.
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
-- 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
 ### Community
 - Scan the QR code below with your Wechat (reply【语音】after your friend's application is approved), you can access to official technical exchange group. Look forward to your participation.
@@ -327,7 +328,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th>Speech-to-Text Module Type</th>
       <th>Dataset</th>
       <th>Model Type</th>
-      <th>Link</th>
+      <th>Example</th>
     </tr>
   </thead>
   <tbody>
@@ -402,7 +403,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Text-to-Speech Module Type </th>
       <th> Model Type </th>
       <th> Dataset </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -520,7 +521,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -545,7 +546,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -570,7 +571,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>

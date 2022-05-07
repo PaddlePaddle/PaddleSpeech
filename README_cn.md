@@ -164,13 +164,17 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 </div>
 
 
-### 🔥 热门活动
+### 特性
 
-- 2021.12.21~12.24
-
-  4 日直播课: 深度解读 PaddleSpeech 语音技术!
-
-  **直播回放与课件资料: https://aistudio.baidu.com/aistudio/education/group/info/25130**
+本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
+- 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
+- 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
+- 🏆 **流式ASR和TTS系统**：工业级的端到端流式识别、流式合成系统。
+- 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
+- **多种工业界以及学术界主流功能支持**:
+  - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成、声纹识别、KWS等任务的实现。
+  - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
+  - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
 ### 近期更新
@@ -178,23 +182,18 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 👏🏻 2022.04.28: PaddleSpeech Streaming Server 上线! 覆盖了语音识别和语音合成。
-- 👏🏻 2022.03.28: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、以及语音合成。
-- 👏🏻 2022.03.28: PaddleSpeech CLI 上线声纹验证。
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
-- 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
+- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
+- 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
+- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
+- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 
+### 🔥 热门活动
 
-### 特性
+- 2021.12.21~12.24
 
-本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
-- 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
-- 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
-- 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
-- **多种工业界以及学术界主流功能支持**:
-  - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成等任务的实现。
-  - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
-  - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
+  4 日直播课: 深度解读 PaddleSpeech 语音技术!
+
+  **直播回放与课件资料: https://aistudio.baidu.com/aistudio/education/group/info/25130**
 
 
 ### 技术交流群
@@ -328,8 +327,8 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
     <tr>
       <th>语音转文本模块类型</th>
       <th>数据集</th>
-      <th>模型种类</th>
-      <th>链接</th>
+      <th>模型类型</th>
+      <th>脚本</th>
     </tr>
   </thead>
   <tbody>
@@ -402,9 +401,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   <thead>
     <tr>
       <th> 语音合成模块类型 </th>
-      <th> 模型种类 </th>
+      <th> 模型类型 </th>
       <th> 数据集  </th>
-      <th> 链接  </th>
+      <th> 脚本  </th>
     </tr>
   </thead>
   <tbody>
@@ -520,8 +519,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <tr>
       <th> 任务 </th>
       <th> 数据集 </th>
-      <th> 模型种类 </th>
-      <th> 链接</th>
+      <th> 模型类型 </th>
+      <th> 脚本</th>
     </tr>
   </thead>
   <tbody>
@@ -544,10 +543,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Task </th>
-      <th> Dataset </th>
-      <th> Model Type </th>
-      <th> Link </th>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
     </tr>
   </thead>
   <tbody>
@@ -571,8 +570,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <tr>
       <th> 任务 </th>
       <th> 数据集 </th>
-      <th> 模型种类 </th>
-      <th> 链接 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
     </tr>
   </thead>
   <tbody>

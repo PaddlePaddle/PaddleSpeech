@@ -2,7 +2,7 @@
 
 ## Conformer online
 
-| Model | Params | Config | Augmentation| Test set | Decode method | Loss | CER |  
+| Model | Params | Config | Augmentation| Test set | Decode method | Valid Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | conformer_online | 123.47 M | conf/chunk_conformer.yaml | spec_aug  | test net | attention | 9.329 | 0.1102 |  
 | conformer_online | 123.47 M | conf/chunk_conformer.yaml | spec_aug  | test net | ctc_greedy_search | 9.329 | 0.1207 |  

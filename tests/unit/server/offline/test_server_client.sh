@@ -39,6 +39,7 @@ ClientTest(){
     ((test_times+=1))
     paddlespeech_client cls --server_ip $server_ip --port $port --input ./zh.wav 
     ((test_times+=1)) 
+
 }
 
 GetTestResult() {
@@ -58,6 +59,7 @@ rm -rf log/server.log.wf
 rm -rf log/server.log
 rm -rf log/test_result.log
 
+cp ../../../../demos/speech_server/conf/application.yaml ./conf/
 config_file=./conf/application.yaml
 server_ip=$(cat $config_file | grep "host" | awk -F " " '{print $2}')
 port=$(cat $config_file | grep "port" | awk '/port:/ {print $2}')
@@ -191,5 +193,4 @@ echo "***************** Here are all the test results ********************"
 cat ./log/test_result.log
 
 # Restoring conf is the same as demos/speech_server
-rm -rf ./conf
-cp ../../../demos/speech_server/conf/ ./ -rf
+cp ../../../../demos/speech_server/conf/application.yaml ./conf/

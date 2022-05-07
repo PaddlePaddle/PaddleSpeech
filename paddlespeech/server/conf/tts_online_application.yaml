@@ -43,12 +43,12 @@ tts_online:
     device: 'cpu' # set 'gpu:id' or 'cpu'
     # am_block and am_pad only for fastspeech2_cnndecoder_onnx model to streaming am infer,
     # when am_pad set 12, streaming synthetic audio is the same as non-streaming synthetic audio
-    am_block: 42
+    am_block: 72
     am_pad: 12
     # voc_pad and voc_block voc model to streaming voc infer,
     # when voc model is mb_melgan_csmsc, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
     # when voc model is hifigan_csmsc, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
-    voc_block: 14
+    voc_block: 36
     voc_pad: 14
     
 
@@ -91,12 +91,12 @@ tts_online-onnx:
     lang: 'zh'
     # am_block and am_pad only for fastspeech2_cnndecoder_onnx model to streaming am infer,
     # when am_pad set 12, streaming synthetic audio is the same as non-streaming synthetic audio
-    am_block: 42
+    am_block: 72
     am_pad: 12
     # voc_pad and voc_block voc model to streaming voc infer,
     # when voc model is mb_melgan_csmsc_onnx, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
     # when voc model is hifigan_csmsc_onnx, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
-    voc_block: 14
+    voc_block: 36
     voc_pad: 14
     # voc_upsample should be same as n_shift on voc config.
     voc_upsample: 300

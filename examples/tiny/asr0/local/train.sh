@@ -26,6 +26,7 @@ model_type=$3
 
 mkdir -p exp
 
+if [ ${ngpu} == 0 ]; then
 python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
@@ -33,6 +34,15 @@ python3 -u ${BIN_DIR}/train.py \
 --model_type ${model_type} \
 --profiler-options "${profiler_options}" \
 --seed ${seed}
+else
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
+--config ${config_path} \
+--output exp/${ckpt_name} \
+--model_type ${model_type} \
+--profiler-options "${profiler_options}" \
+--seed ${seed}
+fi
 
 if [ ${seed} != 0  ]; then
     unset FLAGS_cudnn_deterministic

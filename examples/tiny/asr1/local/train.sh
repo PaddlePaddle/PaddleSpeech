@@ -38,6 +38,7 @@ python3 -u ${BIN_DIR}/train.py \
 --benchmark-max-step ${benchmark_max_step}
 else
 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
 --seed ${seed} \
 --config ${config_path} \
 --output exp/${ckpt_name} \

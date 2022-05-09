@@ -28,6 +28,7 @@ python3 -u ${BIN_DIR}/train.py \
 --seed ${seed}
 else
 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
 --model-name u2_kaldi \
 --config ${config_path} \
 --output exp/${ckpt_name} \

@@ -21,10 +21,18 @@ if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 
+if [ ${ngpu} == 0 ]; then
+python3 -u ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
+--config ${config_path} \
+--output exp/${ckpt_name} \
+--seed ${seed}
+else
 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --seed ${seed}
+fi
 
 if [ ${seed} != 0 ]; then
     unset FLAGS_cudnn_deterministic

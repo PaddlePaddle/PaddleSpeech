@@ -15,7 +15,6 @@
 import cProfile
 import os
 
-from paddle import distributed as dist
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.u2.model import U2Trainer as Trainer

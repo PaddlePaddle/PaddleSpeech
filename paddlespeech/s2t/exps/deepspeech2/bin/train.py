@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
-from paddle import distributed as dist
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.deepspeech2.model import DeepSpeech2Trainer as Trainer

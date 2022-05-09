@@ -15,7 +15,6 @@
 import cProfile
 import os
 
-from paddle import distributed as dist
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.training.cli import default_argument_parser

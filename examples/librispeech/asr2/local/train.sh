@@ -19,9 +19,8 @@ if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 
-python3 -u ${BIN_DIR}/train.py \
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
 --model-name u2_kaldi \
---ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --seed ${seed}

@@ -22,8 +22,7 @@ fi
 # export FLAGS_cudnn_exhaustive_search=true
 # export FLAGS_conv_workspace_size_limit=4000
 
-python3 -u ${BIN_DIR}/train.py \
---ngpu ${ngpu} \
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --seed ${seed}

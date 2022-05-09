@@ -27,9 +27,8 @@ ckpt_name=$2
 
 mkdir -p exp
 
-python3 -u ${BIN_DIR}/train.py \
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
 --seed ${seed} \
---ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --profiler-options "${profiler_options}" \

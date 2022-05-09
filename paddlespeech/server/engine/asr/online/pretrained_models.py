@@ -49,4 +49,22 @@ pretrained_models = {
         'lm_md5':
         '29e02312deb2e59b3c8686c7966d4fe3'
     },
+    "conformer_online_wenetspeech-zh-16k": {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz',
+        'md5':
+        'b8c02632b04da34aca88459835be54a6',
+        'cfg_path':
+        'model.yaml',
+        'ckpt_path':
+        'exp/chunk_conformer/checkpoints/avg_10',
+        'model':
+        'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+        'params':
+        'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+        'lm_url':
+        '',
+        'lm_md5':
+        '',
+    },
 }

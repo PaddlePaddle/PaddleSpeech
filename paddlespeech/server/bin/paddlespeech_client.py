@@ -18,6 +18,7 @@ import io
 import json
 import os
 import random
+import sys
 import time
 from typing import List
 
@@ -32,6 +33,7 @@ from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import compute_delay
+from paddlespeech.server.utils.util import network_reachable
 from paddlespeech.server.utils.util import wav2base64
 
 __all__ = [
@@ -128,6 +130,7 @@ class TTSClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to synthesized audio.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -153,6 +156,12 @@ class TTSClientExecutor(BaseExecutor):
             "sample_rate": sample_rate,
             "save_path": output
         }
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
 
         res = requests.post(url, json.dumps(request))
         response_dict = res.json()
@@ -236,6 +245,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to synthesized audio.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -253,6 +263,12 @@ class TTSOnlineClientExecutor(BaseExecutor):
         """
         Python API to call an executor.
         """
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
 
         if protocol == "http":
             logger.info("tts http client start")
@@ -275,7 +291,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
 
         else:
             logger.error("Please set correct protocol, http or websocket")
-            return False
+            sys.exit(-1)
 
         logger.info(f"sentence: {input}")
         logger.info(f"duration: {duration} s")
@@ -399,6 +415,13 @@ class ASRClientExecutor(BaseExecutor):
         # and paddlespeech_client asr only support http protocol
         protocol = "http"
         if protocol.lower() == "http":
+            # Check if the network is reachable
+            network = 'http://' + server_ip + ":" + str(port)
+            if network_reachable(network) is not True:
+                logger.error(
+                    f"{network} unreachable, please check the ip address.")
+                sys.exit(-1)
+
             from paddlespeech.server.utils.audio_handler import ASRHttpHandler
             logger.info("asr http client start")
             handler = ASRHttpHandler(server_ip=server_ip, port=port)
@@ -503,6 +526,13 @@ class ASROnlineClientExecutor(BaseExecutor):
         Returns:
             str: the audio text
         """
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
+
         logger.info("asr websocket client start")
         handler = ASRWsAudioHandler(
             server_ip,
@@ -555,6 +585,7 @@ class CLSClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to speech classification.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -566,6 +597,12 @@ class CLSClientExecutor(BaseExecutor):
         """
         Python API to call an executor.
         """
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
 
         url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/cls'
         audio = wav2base64(input)
@@ -631,6 +668,12 @@ class TextClientExecutor(BaseExecutor):
         Returns:
             str: the punctuation text
         """
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
 
         url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/text'
         request = {
@@ -728,6 +771,13 @@ class VectorClientExecutor(BaseExecutor):
         Returns:
             str: the audio embedding or score between enroll and test audio
         """
+
+        # Check if the network is reachable
+        network = 'http://' + server_ip + ":" + str(port)
+        if network_reachable(network) is not True:
+            logger.error(f"{network} unreachable, please check the ip address.")
+            sys.exit(-1)
+
         if task == "spk":
             from paddlespeech.server.utils.audio_handler import VectorHttpHandler
             logger.info("vector http client start")

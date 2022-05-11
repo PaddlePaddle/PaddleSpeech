@@ -68,6 +68,10 @@ async def websocket_endpoint(websocket: WebSocket):
                         "session": session
                     }
                     await websocket.send_json(resp)
+                    break
+                else:
+                    resp = {"status": 0, "signal": "no valid json data"}
+                    await websocket.send_json(resp)
 
             # speech synthesis request 
             elif 'text' in message:
@@ -83,10 +87,12 @@ async def websocket_endpoint(websocket: WebSocket):
                         resp = {"status": 1, "audio": tts_results}
                         await websocket.send_json(resp)
                     except StopIteration as e:
+                        import pdb
+                        pdb.set_trace()
                         resp = {"status": 2, "audio": ''}
                         await websocket.send_json(resp)
                         logger.info(
-                            "Complete the transmission of audio streams")
+                            "Complete the synthesis of the audio streams")
                         break
 
             else:

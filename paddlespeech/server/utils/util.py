@@ -13,8 +13,6 @@
 import base64
 import math
 
-import requests
-
 
 def wav2base64(wav_file: str):
     """
@@ -148,21 +146,3 @@ def count_engine(logfile: str="./nohup.out"):
     print(
         f"max final response: {max(final_response_list)} s, min final response: {min(final_response_list)} s"
     )
-
-
-def network_reachable(url: str, timeout: int=5) -> bool:
-    """Check if the network is reachable
-
-    Args:
-        url (str): http://server_ip:port or ws://server_ip:port
-        timeout (int, optional): timeout. Defaults to 5.
-
-    Returns:
-        bool: Whether the network is reachable.
-    """
-    try:
-        request = requests.get(url, timeout=timeout)
-        return True
-    except (requests.ConnectionError, requests.Timeout) as exception:
-        print(exception)
-        return False

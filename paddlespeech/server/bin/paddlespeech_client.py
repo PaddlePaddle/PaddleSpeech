@@ -92,7 +92,7 @@ class TTSClientExecutor(BaseExecutor):
             temp_wav = str(random.getrandbits(128)) + ".wav"
             soundfile.write(temp_wav, samples, sample_rate)
             wav2pcm(temp_wav, outfile, data_type=np.int16)
-            os.system("rm %s" % (temp_wav))
+            os.remove(temp_wav)
         else:
             logger.error("The format for saving audio only supports wav or pcm")
 

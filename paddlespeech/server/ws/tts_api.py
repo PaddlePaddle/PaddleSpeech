@@ -16,7 +16,6 @@ import uuid
 
 from fastapi import APIRouter
 from fastapi import WebSocket
-from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
 from paddlespeech.cli.log import logger
@@ -87,17 +86,19 @@ async def websocket_endpoint(websocket: WebSocket):
                         resp = {"status": 1, "audio": tts_results}
                         await websocket.send_json(resp)
                     except StopIteration as e:
-                        import pdb
-                        pdb.set_trace()
                         resp = {"status": 2, "audio": ''}
                         await websocket.send_json(resp)
                         logger.info(
                             "Complete the synthesis of the audio streams")
+                        break
+                    except Exception as e:
+                        resp = {"status": -1, "audio": ''}
+                        await websocket.send_json(resp)
                         break
 
             else:
                 logger.error(
                     "Invalid request, please check if the request is correct.")
 
-    except WebSocketDisconnect:
-        pass
+    except Exception as e:
+        logger.error(e)

@@ -167,7 +167,7 @@ def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
             channels=1,
             bits=16,
             sample_rate=sample_rate)
-        os.system("rm ./tmp.pcm")
+        os.remove("./tmp.pcm")
     else:
         print("Only supports saved audio format is pcm or wav")
         return False

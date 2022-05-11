@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import argparse
 import os
+import shutil
 
 import yaml
 
@@ -14,7 +15,7 @@ def change_device(yamlfile: str, engine: str, device: str):
         model_type (dict): change model type
     """
     tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
+    shutil.copyfile(yamlfile, tmp_yamlfile)
 
     if device == 'cpu':
         set_device = 'cpu'
@@ -41,7 +42,7 @@ def change_device(yamlfile: str, engine: str, device: str):
 
         print(yaml.dump(y, default_flow_style=False, sort_keys=False))
         yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
+    os.remove(tmp_yamlfile)
     print("Change %s successfully." % (yamlfile))
 
 
@@ -52,7 +53,7 @@ def change_engine_type(yamlfile: str, engine_type):
         task (str):  asr or tts
     """
     tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
+    shutil.copyfile(yamlfile, tmp_yamlfile)
     speech_task = engine_type.split("_")[0]
 
     with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
@@ -65,7 +66,7 @@ def change_engine_type(yamlfile: str, engine_type):
         y['engine_list'] = engine_list
         print(yaml.dump(y, default_flow_style=False, sort_keys=False))
         yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
+    os.remove(tmp_yamlfile)
     print("Change %s successfully." % (yamlfile))
 
 

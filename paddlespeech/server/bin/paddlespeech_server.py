@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import sys
 from typing import List
 
 import uvicorn
@@ -79,10 +80,12 @@ class ServerExecutor(BaseExecutor):
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
-        config = get_config(args.config_file)
-
-        if self.init(config):
-            uvicorn.run(app, host=config.host, port=config.port, debug=True)
+        try:
+            self(args.config_file, args.log_file)
+        except Exception as e:
+            logger.error("Failed to start server.")
+            logger.error(e)
+            sys.exit(-1)
 
     @stats_wrapper
     def __call__(self,

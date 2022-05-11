@@ -304,52 +304,80 @@ class TTSWsHandler:
         receive_time_list = []
         chunk_duration_list = []
 
-        # 1. Send websocket handshake protocal
+        # 1. Send websocket handshake request
         async with websockets.connect(self.url) as ws:
-            # 2. Server has already received handshake protocal
-            # send text to engine
+            # 2. Server has already received handshake response, send start request
+            start_request = json.dumps({"task": "tts", "signal": "start"})
+            await ws.send(start_request)
+            msg = await ws.recv()
+            logger.info(f"client receive msg={msg}")
+            msg = json.loads(msg)
+            session = msg["session"]
+
+            # 3. send speech synthesis request 
             text_base64 = str(base64.b64encode((text).encode('utf-8')), "UTF8")
-            d = {"text": text_base64}
-            d = json.dumps(d)
+            request = json.dumps({"text": text_base64})
             st = time.time()
-            await ws.send(d)
+            await ws.send(request)
             logging.info("send a message to the server")
 
-            # 3. Process the received response 
+            # 4. Process the received response
             message = await ws.recv()
             first_response = time.time() - st
             message = json.loads(message)
             status = message["status"]
+            while True:
+                # When throw an exception
+                if status == -1:
+                    # send end request
+                    end_request = json.dumps({
+                        "task": "tts",
+                        "signal": "end",
+                        "session": session
+                    })
+                    await ws.send(end_request)
+                    break
 
-            while (status == 1):
-                receive_time_list.append(time.time())
-                audio = message["audio"]
-                audio = base64.b64decode(audio)  # bytes
-                chunk_duration_list.append(len(audio) / 2.0 / 24000)
-                all_bytes += audio
-                if self.play:
-                    self.mutex.acquire()
-                    self.buffer += audio
-                    self.mutex.release()
-                    if self.start_play:
-                        self.t.start()
-                        self.start_play = False
+                # Rerutn last packet normally, no audio information
+                elif status == 2:
+                    final_response = time.time() - st
+                    duration = len(all_bytes) / 2.0 / 24000
 
-                message = await ws.recv()
-                message = json.loads(message)
-                status = message["status"]
+                    if output is not None:
+                        save_audio_success = save_audio(all_bytes, output)
+                    else:
+                        save_audio_success = False
 
-            # 4. Last packet, no audio information
-            if status == 2:
-                final_response = time.time() - st
-                duration = len(all_bytes) / 2.0 / 24000
+                    # send end request
+                    end_request = json.dumps({
+                        "task": "tts",
+                        "signal": "end",
+                        "session": session
+                    })
+                    await ws.send(end_request)
+                    break
 
-                if output is not None:
-                    save_audio_success = save_audio(all_bytes, output)
+                # Return the audio stream normally
+                elif status == 1:
+                    receive_time_list.append(time.time())
+                    audio = message["audio"]
+                    audio = base64.b64decode(audio)  # bytes
+                    chunk_duration_list.append(len(audio) / 2.0 / 24000)
+                    all_bytes += audio
+                    if self.play:
+                        self.mutex.acquire()
+                        self.buffer += audio
+                        self.mutex.release()
+                        if self.start_play:
+                            self.t.start()
+                            self.start_play = False
+
+                    message = await ws.recv()
+                    message = json.loads(message)
+                    status = message["status"]
+
                 else:
-                    save_audio_success = False
-            else:
-                logger.error("infer error")
+                    logger.error("infer error, return status is invalid.")
 
             if self.play:
                 self.t.join()
@@ -458,6 +486,7 @@ class TTSHttpHandler:
 
         final_response = time.time() - st
         duration = len(all_bytes) / 2.0 / 24000
+        html.close()  # when stream=True
 
         if output is not None:
             save_audio_success = save_audio(all_bytes, output)

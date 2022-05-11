@@ -75,8 +75,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    os.system("rm -rf %s" % (args.output_dir))
-    os.mkdir(args.output_dir)
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
 
     first_response_list = []
     final_response_list = []

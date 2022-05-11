@@ -18,6 +18,7 @@ import io
 import json
 import os
 import random
+import sys
 import time
 from typing import List
 
@@ -91,7 +92,7 @@ class TTSClientExecutor(BaseExecutor):
             temp_wav = str(random.getrandbits(128)) + ".wav"
             soundfile.write(temp_wav, samples, sample_rate)
             wav2pcm(temp_wav, outfile, data_type=np.int16)
-            os.system("rm %s" % (temp_wav))
+            os.remove(temp_wav)
         else:
             logger.error("The format for saving audio only supports wav or pcm")
 
@@ -128,6 +129,7 @@ class TTSClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to synthesized audio.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -236,6 +238,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to synthesized audio.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -275,7 +278,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
 
         else:
             logger.error("Please set correct protocol, http or websocket")
-            return False
+            sys.exit(-1)
 
         logger.info(f"sentence: {input}")
         logger.info(f"duration: {duration} s")
@@ -503,6 +506,7 @@ class ASROnlineClientExecutor(BaseExecutor):
         Returns:
             str: the audio text
         """
+
         logger.info("asr websocket client start")
         handler = ASRWsAudioHandler(
             server_ip,
@@ -555,6 +559,7 @@ class CLSClientExecutor(BaseExecutor):
             return True
         except Exception as e:
             logger.error("Failed to speech classification.")
+            logger.error(e)
             return False
 
     @stats_wrapper
@@ -728,6 +733,7 @@ class VectorClientExecutor(BaseExecutor):
         Returns:
             str: the audio embedding or score between enroll and test audio
         """
+
         if task == "spk":
             from paddlespeech.server.utils.audio_handler import VectorHttpHandler
             logger.info("vector http client start")

@@ -669,7 +669,7 @@ class ASRServerExecutor(ASRExecutor):
                 ]:
                     logger.info(
                         "we set the decoding_method to attention_rescoring")
-                    self.config.decode.decoding = "attention_rescoring"
+                    self.config.decode.decoding_method = "attention_rescoring"
                 assert self.config.decode.decoding_method in [
                     "ctc_prefix_beam_search", "attention_rescoring"
                 ], f"we only support ctc_prefix_beam_search and attention_rescoring dedoding method, current decoding method is {self.config.decode.decoding_method}"

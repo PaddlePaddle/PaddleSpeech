@@ -64,42 +64,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
     [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
     [2022-04-21 15:52:19,446] [    INFO] - start to create the stream conformer asr engine
     [2022-04-21 15:52:19,473] [    INFO] - model name: conformer_online
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
     [2022-04-21 15:52:21,731] [    INFO] - create the transformer like model success
     [2022-04-21 15:52:21,733] [    INFO] - Initialize ASR server engine successfully.
     INFO:     Started server process [11173]
@@ -141,42 +105,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
     [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
     [2022-04-21 15:52:19,446] [    INFO] - start to create the stream conformer asr engine
     [2022-04-21 15:52:19,473] [    INFO] - model name: conformer_online
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
-    set kaiming_uniform
     [2022-04-21 15:52:21,731] [    INFO] - create the transformer like model success
     [2022-04-21 15:52:21,733] [    INFO] - Initialize ASR server engine successfully.
     INFO:     Started server process [11173]

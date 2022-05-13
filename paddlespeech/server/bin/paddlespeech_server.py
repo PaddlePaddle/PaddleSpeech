@@ -17,6 +17,7 @@ from typing import List
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from prettytable import PrettyTable
 
 from ..executor import BaseExecutor
@@ -33,6 +34,12 @@ __all__ = ['ServerExecutor', 'ServerStatsExecutor']
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
 
 @cli_server_register(
     name='paddlespeech_server.start', description='Start the service')

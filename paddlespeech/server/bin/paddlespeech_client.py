@@ -20,6 +20,7 @@ import os
 import random
 import sys
 import time
+import warnings
 from typing import List
 
 import numpy as np
@@ -34,6 +35,7 @@ from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import compute_delay
 from paddlespeech.server.utils.util import wav2base64
+warnings.filterwarnings("ignore")
 
 __all__ = [
     'TTSClientExecutor', 'TTSOnlineClientExecutor', 'ASRClientExecutor',

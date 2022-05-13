@@ -52,8 +52,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 11:17:32] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 11:17:32] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
-  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
 
   ```
 
@@ -75,8 +75,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 14:57:56] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 14:57:56] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
-  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
 
   ```
 
@@ -84,6 +84,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 4. ASR Client Usage
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
+
+   If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
    ```
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
@@ -132,6 +135,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 5. TTS Client Usage
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
+
+   If `127.0.0.1` is not accessible, you need to use the actual service IP address
+
    ```bash
    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
    ```
@@ -192,6 +198,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 6. CLS Client Usage
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
+
+   If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
    ```
    paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
@@ -242,9 +251,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
 
-``` bash
-paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
-```
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
+  ``` bash
+  paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
+  ```
 
   * Usage:
 
@@ -296,6 +307,8 @@ print(res)
 **Note:** The response time will be slightly longer when using the client for the first time
 
 - Command Line (Recommended)
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
   ``` bash
   paddlespeech_client vector --task score  --server_ip 127.0.0.1 --port 8090 --enroll 85236145389.wav --test 123456789.wav
@@ -357,6 +370,9 @@ print(res)
 **Note:** The response time will be slightly longer when using the client for the first time
 
 - Command Line (Recommended)
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
    ``` bash
    paddlespeech_client text --server_ip 127.0.0.1 --port 8090 --input "我认为跑步最重要的就是给我带来了身体健康"
    ```

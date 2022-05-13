@@ -125,6 +125,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
+
+   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
    ```
    paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
@@ -384,6 +387,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 **注意：** 初次使用客户端时响应时间会略长
 
 - 命令行 (推荐使用)
+
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
    ```
    paddlespeech_client text --server_ip 127.0.0.1 --port 8190 --input "我认为跑步最重要的就是给我带来了身体健康"
    ```
@@ -427,6 +433,9 @@ bash server.sh
 
 ### 2. 调用服务
 - 使用命令行：
+
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
   ```
   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --input ./zh.wav
   ```
@@ -502,6 +511,9 @@ bash server.sh
   ```
 
 - 使用脚本调用
+  
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
   ```
   python3 websocket_client.py --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --wavfile ./zh.wav
   ```

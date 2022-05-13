@@ -53,8 +53,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 11:17:32] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 11:17:32] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
-  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
 
   ```
 
@@ -76,39 +76,42 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 14:57:56] [INFO] [on.py:26] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-02-23 14:57:56] [INFO] [on.py:38] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
-  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+  [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
 
   ```
 
 ### 4. ASR 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
-   ```
-   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
 
-   ```
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
-    使用帮助:
-  
-    ```bash
-    paddlespeech_client asr --help
-    ```
+  ```
+  paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
 
-    参数:
-    - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
-    - `port`: 服务端口，默认: 8090。
-    - `input`(必须输入): 用于识别的音频文件。
-    - `sample_rate`: 音频采样率，默认值：16000。
-    - `lang`: 模型语言，默认值：zh_cn。
-    - `audio_format`: 音频格式，默认值：wav。
+  ```
 
-    输出:
+  使用帮助:
 
-    ```bash
-    [2022-02-23 18:11:22,819] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
-    [2022-02-23 18:11:22,820] [    INFO] - time cost 0.689145 s.
-    ```
+  ```bash
+  paddlespeech_client asr --help
+  ```
+
+  参数:
+  - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+  - `port`: 服务端口，默认: 8090。
+  - `input`(必须输入): 用于识别的音频文件。
+  - `sample_rate`: 音频采样率，默认值：16000。
+  - `lang`: 模型语言，默认值：zh_cn。
+  - `audio_format`: 音频格式，默认值：wav。
+
+  输出:
+
+  ```bash
+  [2022-02-23 18:11:22,819] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'transcription': '我认为跑步最重要的就是给我带来了身体健康'}}
+  [2022-02-23 18:11:22,820] [    INFO] - time cost 0.689145 s.
+  ```
 
 - Python API
   ```python
@@ -135,33 +138,35 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 5. TTS 客户端使用方法
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
-
-    ```bash
-    paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
-    ```
-    使用帮助:
   
-    ```bash
-    paddlespeech_client tts --help
-    ```
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
-    参数:
-    - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
-    - `port`: 服务端口，默认: 8090。
-    - `input`(必须输入): 待合成的文本。
-    - `spk_id`: 说话人 id，用于多说话人语音合成，默认值： 0。
-    - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
-    - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
-    - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认与模型相同。 默认值：0
-    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
+  ```bash
+  paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+  ```
+  使用帮助:
 
-    输出:
-    ```bash
-    [2022-02-23 15:20:37,875] [    INFO] - {'description': 'success.'}
-    [2022-02-23 15:20:37,875] [    INFO] - Save synthesized audio successfully on output.wav.
-    [2022-02-23 15:20:37,875] [    INFO] - Audio duration: 3.612500 s.
-    [2022-02-23 15:20:37,875] [    INFO] - Response time: 0.348050 s.
-    ```
+  ```bash
+  paddlespeech_client tts --help
+  ```
+
+  参数:
+  - `server_ip`: 服务端ip地址，默认: 127.0.0.1。
+  - `port`: 服务端口，默认: 8090。
+  - `input`(必须输入): 待合成的文本。
+  - `spk_id`: 说话人 id，用于多说话人语音合成，默认值： 0。
+  - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
+  - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
+  - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认与模型相同。 默认值：0
+  - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
+
+  输出:
+  ```bash
+  [2022-02-23 15:20:37,875] [    INFO] - {'description': 'success.'}
+  [2022-02-23 15:20:37,875] [    INFO] - Save synthesized audio successfully on output.wav.
+  [2022-02-23 15:20:37,875] [    INFO] - Audio duration: 3.612500 s.
+  [2022-02-23 15:20:37,875] [    INFO] - Response time: 0.348050 s.
+  ```
 
 - Python API
   ```python
@@ -197,9 +202,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   **注意：** 初次使用客户端时响应时间会略长
   - 命令行 (推荐使用)
-   ```
-   paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
-   ```
+
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
+  ```
+  paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+  ```
 
   使用帮助:
   
@@ -247,15 +255,17 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 注意： 初次使用客户端时响应时间会略长
 * 命令行 (推荐使用)
 
-``` bash
-paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
-```
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
+  ``` bash
+  paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
+  ```
 
 * 使用帮助:
 
-``` bash
-paddlespeech_client vector --help
-```
+  ``` bash
+  paddlespeech_client vector --help
+  ```
 * 参数:
   * server_ip: 服务端ip地址，默认: 127.0.0.1。
   * port: 服务端口，默认: 8090。
@@ -299,15 +309,17 @@ print(res)
 注意： 初次使用客户端时响应时间会略长
 * 命令行 (推荐使用)
 
-``` bash
-paddlespeech_client vector --task score  --server_ip 127.0.0.1 --port 8090 --enroll 85236145389.wav --test 123456789.wav
-```
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
+  ``` bash
+  paddlespeech_client vector --task score  --server_ip 127.0.0.1 --port 8090 --enroll 85236145389.wav --test 123456789.wav
+  ```
 
 * 使用帮助:
 
-``` bash
-paddlespeech_client vector --help
-```
+  ``` bash
+  paddlespeech_client vector --help
+  ```
 
 * 参数:
   * server_ip: 服务端ip地址，默认: 127.0.0.1。
@@ -357,9 +369,12 @@ print(res)
   
   **注意：** 初次使用客户端时响应时间会略长
   - 命令行 (推荐使用)
-   ``` bash
-   paddlespeech_client text --server_ip 127.0.0.1 --port 8090 --input "我认为跑步最重要的就是给我带来了身体健康"
-   ```
+
+  若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
+
+  ``` bash
+  paddlespeech_client text --server_ip 127.0.0.1 --port 8090 --input "我认为跑步最重要的就是给我带来了身体健康"
+  ```
 
   使用帮助:
   

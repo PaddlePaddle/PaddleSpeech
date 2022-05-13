@@ -63,8 +63,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 20:05:28] [INFO] [on.py:45] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-04-24 20:05:28] [INFO] [on.py:59] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-  [2022-04-24 20:05:28] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-24 20:05:28] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
   ```
 
@@ -90,8 +90,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 21:00:17] [INFO] [on.py:45] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-04-24 21:00:17] [INFO] [on.py:59] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-  [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
 
   ```
@@ -100,6 +100,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 - Command Line (Recommended)
 
     Access http streaming TTS service:
+
+    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
     ```bash
     paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
@@ -198,8 +200,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
     INFO:     Application startup complete.
     [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
 
   ```
@@ -226,8 +228,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
     INFO:     Application startup complete.
     [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
   ```
 
@@ -235,6 +237,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 - Command Line (Recommended)
 
     Access websocket streaming TTS service:
+
+    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
     ```bash
     paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol websocket --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav

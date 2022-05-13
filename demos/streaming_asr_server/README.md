@@ -119,9 +119,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
-   ```
-   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
-   ```
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
+  ```
+  paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+  ```
 
   Usage:
   
@@ -374,10 +377,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ### 2. Client usage
 **Note** The response time will be slightly longer when using the client for the first time
 
-- Command line
-   ```
-   paddlespeech_client text --server_ip 127.0.0.1 --port 8190 --input "我认为跑步最重要的就是给我带来了身体健康"
-   ```
+- Command line:
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
+  ```
+  paddlespeech_client text --server_ip 127.0.0.1 --port 8190 --input "我认为跑步最重要的就是给我带来了身体健康"
+  ```
   
   Output
   ```
@@ -419,6 +425,9 @@ bash server.sh
 
 ### 2. Call client
 - Command line
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
   ```
   paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --input ./zh.wav
   ```
@@ -494,6 +503,9 @@ bash server.sh
   ```
 
 - Use script
+
+  If `127.0.0.1` is not accessible, you need to use the actual service IP address.
+
   ```
   python3 websocket_client.py --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --wavfile ./zh.wav
   ```

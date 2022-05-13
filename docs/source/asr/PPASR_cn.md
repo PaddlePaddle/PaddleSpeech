@@ -16,6 +16,10 @@ PPASR 是一个 提供 ASR 功能的工具。其提供了多种中文和英文�
 
 <a name="2"></a>
 ## 2. 特点
+语音识别的基本流程如下图所示：  
+<center><img src=https://user-images.githubusercontent.com/87408988/168259962-cbe2008b-47b6-443d-9566-d77a5ca2eb25.png width="800" ></center>
+
+
 PPASR 的主要特点如下：
 -  提供在中英文开源数据集 aishell （中文），wenetspeech（中文），librispeech （英文）上的预训练模型。模型包含 deepspeech2 模型以及 conformer/transformer 模型。
 -  支持中英文的模型训练功能。
@@ -23,6 +27,7 @@ PPASR 的主要特点如下：
 -  支持流式 ASR 的服务部署，也支持输出时间戳。
 -  支持个性化场景的部署。
 
+<a name="3"></a>
 ## 3. 使用教程
 
 <a name="31"></a>

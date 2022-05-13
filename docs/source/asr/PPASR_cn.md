@@ -69,6 +69,6 @@ server 的 demo [链接](https://github.com/PaddlePaddle/PaddleSpeech/tree/devel
 <a name="4"></a>
 ## 4. 快速开始
 
-关于如果使用 PPASR，可以看这里的[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)，其中提供了 **简单**、**中等**、**困难 ** 三种安装方式。如果想体验paddlespeech 的推理功能，可以用 **简单** 安装方式。
+关于如果使用 PPASR，可以看这里的[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)，其中提供了 **简单**、**中等**、**困难** 三种安装方式。如果想体验paddlespeech 的推理功能，可以用 **简单** 安装方式。
 
 

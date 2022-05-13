@@ -20,6 +20,8 @@ this demo is customized for expense account, which need to recognize rare addres
 ### 1. Installation
 install paddle:2.2.2 docker.
 ```
+sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
+
 sudo nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
 ```
 

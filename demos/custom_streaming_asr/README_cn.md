@@ -2,17 +2,25 @@
 
 # 定制化语音识别演示
 ## 介绍
-定制化的语音识别是满足一些特定场景的语句识别的技术。
+在一些场景中，识别系统需要高精度的识别一些稀有词，例如导航软件中地名识别。而通过定制化识别可以满足这一需求。  
 
-可以参见简单的原理教程：
-https://aistudio.baidu.com/aistudio/projectdetail/3986429
+这个 demo 是打车报销单的场景识别，需要识别一些稀有的地名，可以通过如下操作实现。
 
-这个 demo 是打车报销单的场景识别，定制化了地点。
+* G with slot: 打车到 "address_slot"。
+![](https://ai-studio-static-online.cdn.bcebos.com/28d9ef132a7f47a895a65ae9e5c4f55b8f472c9f3dd24be8a2e66e0b88b173a4)
+
+* 这是address slot wfst, 可以添加一些需要识别的地名.
+![](https://ai-studio-static-online.cdn.bcebos.com/47c89100ef8c465bac733605ffc53d76abefba33d62f4d818d351f8cea3c8fe2)
+
+* 通过replace 操作, G = fstreplace(G_with_slot, address_slot), 最终可以得到定制化的解码图。
+![](https://ai-studio-static-online.cdn.bcebos.com/60a3095293044f10b73039ab10c7950d139a6717580a44a3ba878c6e74de402b)  
 
 ## 使用方法
 ### 1. 配置环境
 安装paddle:2.2.2 docker镜像。
 ```
+sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
+
 sudo nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
 ```
 

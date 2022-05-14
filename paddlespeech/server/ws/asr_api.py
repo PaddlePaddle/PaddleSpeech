@@ -12,15 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
-
+import base64
+from typing import Union
 from fastapi import APIRouter
 from fastapi import WebSocket
+import soundfile
+import io
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
+from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
-
+from paddlespeech.server.restful.response import ASRResponse
+from paddlespeech.server.restful.response import ErrorResponse
+from paddlespeech.server.restful.request import ASRRequest
+from paddlespeech.server.utils.exception import ServerBaseException
+from paddlespeech.server.utils.errors import failed_response
+from paddlespeech.server.utils.errors import ErrorCode
 router = APIRouter()
 
 
@@ -106,5 +115,56 @@ async def websocket_endpoint(websocket: WebSocket):
                 # if the engine create the vad instance, this connection will have many period results 
                 resp = {'result': asr_results}
                 await websocket.send_json(resp)
-    except WebSocketDisconnect:
-        pass
+    except WebSocketDisconnect as e:
+        logger.error(e)
+
+
+# @router.post(
+#     "/paddlespeech/asr/search/", response_model=Union[ASRResponse, ErrorResponse])
+# def asr(request_body: ASRRequest):
+#     """asr api 
+
+#     Args:
+#         request_body (ASRRequest): [description]
+
+#     Returns:
+#         json: [description]
+#     """
+#     try:
+#         audio_data = base64.b64decode(request_body.audio)
+
+#         # get single engine from engine pool
+#         engine_pool = get_engine_pool()
+#         asr_engine = engine_pool['asr']
+
+#         samples, sample_rate = soundfile.read(io.BytesIO(audio_data), dtype='int16')
+#         # print(samples.shape)
+#         # print(sample_rate)
+#         connection_handler = PaddleASRConnectionHanddler(asr_engine)
+#         connection_handler.extract_feat(samples)
+        
+#         connection_handler.decode(is_finished=True)
+#         asr_results = connection_handler.rescoring()
+#         asr_results = connection_handler.get_result()
+#         word_time_stamp = connection_handler.get_word_time_stamp()
+
+#         response = {
+#             "success": True,
+#             "code": 200,
+#             "message": {
+#                 "description": "success"
+#             },
+#             "result": {
+#                 "transcription": asr_results,
+#                 "times": word_time_stamp
+#             }
+#         }
+
+        
+#     except ServerBaseException as e:
+#         response = failed_response(e.error_code, e.msg)
+#     except BaseException as e:
+#         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
+#         print(e)
+
+#     return response

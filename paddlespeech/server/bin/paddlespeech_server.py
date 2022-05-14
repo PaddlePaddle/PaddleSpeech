@@ -72,7 +72,7 @@ class ServerExecutor(BaseExecutor):
         else:
             raise Exception("unsupported protocol")
         app.include_router(api_router)
-
+        logger.info("start to init the engine")
         if not init_engine_pool(config):
             return False
 

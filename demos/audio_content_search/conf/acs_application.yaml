@@ -1,0 +1,36 @@
+# This is the parameter configuration file for PaddleSpeech Serving.
+
+#################################################################################
+#                             SERVER SETTING                                    #
+#################################################################################
+host: 0.0.0.0
+port: 8490
+
+# The task format in the engin_list is: <speech task>_<engine type>
+# task choices = ['acs_python']
+# protocol = ['http'] (only one can be selected). 
+# http only support offline engine type.
+protocol: 'http'
+engine_list: ['acs_python']
+
+
+#################################################################################
+#                                ENGINE CONFIG                                  #
+#################################################################################
+
+################################### Text #########################################
+################### acs task: engine_type: python #######################
+acs_python:
+    task: acs
+    asr_protocol: 'websocket' # 'websocket'
+    offset: 1.0 # second
+    asr_server_ip: 127.0.0.1
+    asr_server_port: 8390
+    lang: 'zh'
+    word_list: "words.txt"
+    sample_rate: 16000
+    device: 'cpu' # set 'gpu:id' or 'cpu'
+
+
+
+

@@ -1,0 +1,150 @@
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import io
+import json
+import os
+import re
+
+import paddle
+import soundfile
+import websocket
+
+from paddlespeech.cli.log import logger
+from paddlespeech.server.engine.base_engine import BaseEngine
+
+
+class ACSEngine(BaseEngine):
+    def __init__(self):
+        """The ACSEngine Engine
+        """
+        super(ACSEngine, self).__init__()
+        logger.info("Create the ACSEngine Instance")
+        self.word_list = []
+
+    def init(self, config: dict):
+        """Init the ACSEngine Engine
+
+        Args:
+            config (dict): The server configuation
+
+        Returns:
+            bool: The engine instance flag
+        """
+        logger.info("Init the acs engine")
+        try:
+            self.config = config
+            if self.config.device:
+                self.device = self.config.device
+            else:
+                self.device = paddle.get_device()
+
+            paddle.set_device(self.device)
+            logger.info(f"ACS Engine set the device: {self.device}")
+
+        except BaseException as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize Text server engine Failed on device: %s." %
+                         (self.device))
+            return False
+
+        self.read_search_words()
+
+        self.url = "ws://" + self.config.asr_server_ip + ":" + str(
+            self.config.asr_server_port) + "/paddlespeech/asr/streaming"
+
+        logger.info("Init the acs engine successfully")
+        return True
+
+    def read_search_words(self):
+        word_list = self.config.word_list
+        if word_list is None:
+            logger.error(
+                "No word list file in config, please set the word list parameter"
+            )
+            return
+
+        if not os.path.exists(word_list):
+            logger.error("Please input correct word list file")
+            return
+
+        with open(word_list, 'r') as fp:
+            self.word_list = fp.readlines()
+
+        logger.info(f"word list: {self.word_list}")
+
+    def get_asr_content(self, audio_data):
+        logger.info("send a message to the server")
+        if self.url is None:
+            logger.error("No asr server, please input valid ip and port")
+            return ""
+        ws = websocket.WebSocket()
+        ws.connect(self.url)
+        # with websocket.WebSocket.connect(self.url) as ws:
+        audio_info = json.dumps(
+            {
+                "name": "test.wav",
+                "signal": "start",
+                "nbest": 1
+            },
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': '))
+        ws.send(audio_info)
+        msg = ws.recv()
+        logger.info("client receive msg={}".format(msg))
+
+        # send the total audio data
+        samples, sample_rate = soundfile.read(audio_data, dtype='int16')
+        ws.send_binary(samples.tobytes())
+        msg = ws.recv()
+        msg = json.loads(msg)
+        logger.info(f"audio result: {msg}")
+
+        # 3. send chunk audio data to engine
+        logger.info("send the end signal")
+        audio_info = json.dumps(
+            {
+                "name": "test.wav",
+                "signal": "end",
+                "nbest": 1
+            },
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': '))
+        ws.send(audio_info)
+        msg = ws.recv()
+        msg = json.loads(msg)
+
+        logger.info(f"the final result: {msg}")
+        ws.close()
+
+        return msg
+
+    def get_macthed_word(self, msg):
+        asr_result = msg['result']
+        time_stamp = msg['times']
+
+        for w in self.word_list:
+            for m in re.finditer(w, asr_result):
+                start = time_stamp[m.start(0)]['bg']
+                end = time_stamp[m.end(0) - 1]['ed']
+                logger.info(f'start: {start}, end: {end}')
+
+    def run(self, audio_data):
+        logger.info("start to process the audio content search")
+        msg = self.get_asr_content(io.BytesIO(audio_data))
+
+        self.get_macthed_word(msg)

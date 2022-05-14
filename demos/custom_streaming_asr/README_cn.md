@@ -32,11 +32,11 @@ bash websocket_server.sh
 ```
 上面脚本完成了如下两个功能：
 1. 完成resource.tar.gz下载，解压后,会在resource中发现如下目录：  
-model: 声学模型
-graph: 解码构图
-lib: 相关库
-bin: 运行程序
-data: 语音数据
+model: 声学模型  
+graph: 解码构图  
+lib: 相关库  
+bin: 运行程序  
+data: 语音数据  
 
 2. 通过websocket_server_main来启动服务。
 这里简单的介绍几个参数:

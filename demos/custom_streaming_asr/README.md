@@ -33,11 +33,11 @@ bash websocket_server.sh
 ```
 this script run in two steps:  
 1. download the resources.tar.gz, those direcotries will be found in resource directory.  
-model: acustic model
+model: acustic model  
 graph: the decoder graph (TLG.fst)  
 lib: some libs  
 bin: binary  
-data: audio and wav.scp
+data: audio and wav.scp  
 
 2. websocket_server_main launch the service.  
 some params:  

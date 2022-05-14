@@ -737,6 +737,8 @@ class ASRServerExecutor(ASRExecutor):
             # update the ctc decoding
             self.searcher = CTCPrefixBeamSearch(self.config.decode)
             self.transformer_decode_reset()
+            
+        return True
 
     def reset_decoder_and_chunk(self):
         """reset decoder and chunk state for an new audio

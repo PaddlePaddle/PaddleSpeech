@@ -40,11 +40,8 @@ data: 语音数据
 
 2. 通过websocket_server_main来启动服务。
 这里简单的介绍几个参数:  
-
 port是服务端口，  
-
 graph_path用来指定解码图文件， 
-
 model相关参数用来指定声学模型文件。  
 
 其他参数说明可参见代码：  

@@ -19,11 +19,11 @@
 
 流式ASR的服务启动脚本和服务测试脚本存放在 `PaddleSpeech/demos/streaming_asr_server` 目录。
 下载好 `PaddleSpeech` 之后，进入到 `PaddleSpeech/demos/streaming_asr_server` 目录。
-配置文件可参见该目录下 `conf/ws_application.yaml` 和 `conf/ws_conformer_application.yaml` 。
+配置文件可参见该目录下 `conf/ws_application.yaml` 和 `conf/ws_conformer_wenetspeech_application.yaml` 。
 
 目前服务集成的模型有： DeepSpeech2和 conformer模型，对应的配置文件如下：
 * DeepSpeech: `conf/ws_application.yaml`
-* conformer: `conf/ws_conformer_application.yaml`
+* conformer: `conf/ws_conformer_wenetspeech_application.yaml`
 
 
 
@@ -39,7 +39,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   **注意:** 默认部署在 `cpu` 设备上，可以通过修改服务配置文件中 `device` 参数部署在 `gpu` 上。
   ```bash
   # 在 PaddleSpeech/demos/streaming_asr_server 目录启动服务
-  paddlespeech_server start --config_file ./conf/ws_conformer_application.yaml
+  paddlespeech_server start --config_file ./conf/ws_conformer_wenetspeech_application.yaml
   ```
 
   使用方法：
@@ -53,31 +53,27 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
   输出:
   ```bash
-    [2022-04-21 15:52:18,126] [    INFO] - create the online asr engine instance
-    [2022-04-21 15:52:18,127] [    INFO] - paddlespeech_server set the device: cpu
-    [2022-04-21 15:52:18,128] [    INFO] - Load the pretrained model, tag = conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,128] [    INFO] - File /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/asr1_chunk_conformer_multi_cn_ckpt_0.2.3.model.tar.gz md5 checking...
-    [2022-04-21 15:52:18,727] [    INFO] - Use pretrained model stored in: /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/model.yaml
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
-    [2022-04-21 15:52:19,446] [    INFO] - start to create the stream conformer asr engine
-    [2022-04-21 15:52:19,473] [    INFO] - model name: conformer_online
-    [2022-04-21 15:52:21,731] [    INFO] - create the transformer like model success
-    [2022-04-21 15:52:21,733] [    INFO] - Initialize ASR server engine successfully.
-    INFO:     Started server process [11173]
-    [2022-04-21 15:52:21] [INFO] [server.py:75] Started server process [11173]
-    INFO:     Waiting for application startup.
-    [2022-04-21 15:52:21] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-21 15:52:21] [INFO] [on.py:59] Application startup complete.
-    /home/users/xiongxinlei/.conda/envs/paddlespeech/lib/python3.9/asyncio/base_events.py:1460: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
-    infos = await tasks.gather(*fs, loop=self)
-    /home/users/xiongxinlei/.conda/envs/paddlespeech/lib/python3.9/asyncio/base_events.py:1518: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
-    await tasks.sleep(0, loop=self)
-    INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-    [2022-04-21 15:52:21] [INFO] [server.py:206] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+     [2022-05-14 04:56:13,086] [    INFO] - create the online asr engine instance
+     [2022-05-14 04:56:13,086] [    INFO] - paddlespeech_server set the device: cpu
+     [2022-05-14 04:56:13,087] [    INFO] - Load the pretrained model, tag = conformer_online_wenetspeech-zh-16k
+     [2022-05-14 04:56:13,087] [    INFO] - File /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz md5        checking...
+     [2022-05-14 04:56:17,542] [    INFO] - Use pretrained model stored in: /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.  0.0a.model.tar
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/model.yaml
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/exp/               chunk_conformer/checkpoints/avg_10.pdparams
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/exp/               chunk_conformer/checkpoints/avg_10.pdparams
+     [2022-05-14 04:56:17,852] [    INFO] - start to create the stream conformer asr engine
+     [2022-05-14 04:56:17,863] [    INFO] - model name: conformer_online
+     [2022-05-14 04:56:22,756] [    INFO] - create the transformer like model success
+     [2022-05-14 04:56:22,758] [    INFO] - Initialize ASR server engine successfully.
+     INFO:     Started server process [4242]
+     [2022-05-14 04:56:22] [INFO] [server.py:75] Started server process [4242]
+     INFO:     Waiting for application startup.
+     [2022-05-14 04:56:22] [INFO] [on.py:45] Waiting for application startup.
+     INFO:     Application startup complete.
+     [2022-05-14 04:56:22] [INFO] [on.py:59] Application startup complete.
+     INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   ```
 
 - Python API
@@ -88,37 +84,33 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
   server_executor = ServerExecutor()
   server_executor(
-      config_file="./conf/ws_conformer_application.yaml", 
+      config_file="./conf/ws_conformer_wenetspeech_application", 
       log_file="./log/paddlespeech.log")
   ```
 
   输出：
   ```bash
-    [2022-04-21 15:52:18,126] [    INFO] - create the online asr engine instance
-    [2022-04-21 15:52:18,127] [    INFO] - paddlespeech_server set the device: cpu
-    [2022-04-21 15:52:18,128] [    INFO] - Load the pretrained model, tag = conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,128] [    INFO] - File /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/asr1_chunk_conformer_multi_cn_ckpt_0.2.3.model.tar.gz md5 checking...
-    [2022-04-21 15:52:18,727] [    INFO] - Use pretrained model stored in: /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/model.yaml
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
-    [2022-04-21 15:52:18,727] [    INFO] - /home/users/xiongxinlei/.paddlespeech/models/conformer_online_multicn-zh-16k/exp/chunk_conformer/checkpoints/multi_cn.pdparams
-    [2022-04-21 15:52:19,446] [    INFO] - start to create the stream conformer asr engine
-    [2022-04-21 15:52:19,473] [    INFO] - model name: conformer_online
-    [2022-04-21 15:52:21,731] [    INFO] - create the transformer like model success
-    [2022-04-21 15:52:21,733] [    INFO] - Initialize ASR server engine successfully.
-    INFO:     Started server process [11173]
-    [2022-04-21 15:52:21] [INFO] [server.py:75] Started server process [11173]
-    INFO:     Waiting for application startup.
-    [2022-04-21 15:52:21] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-21 15:52:21] [INFO] [on.py:59] Application startup complete.
-    /home/users/xiongxinlei/.conda/envs/paddlespeech/lib/python3.9/asyncio/base_events.py:1460: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
-    infos = await tasks.gather(*fs, loop=self)
-    /home/users/xiongxinlei/.conda/envs/paddlespeech/lib/python3.9/asyncio/base_events.py:1518: DeprecationWarning: The loop argument is deprecated since Python 3.8, and scheduled for removal in Python 3.10.
-    await tasks.sleep(0, loop=self)
-    INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-    [2022-04-21 15:52:21] [INFO] [server.py:206] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+     [2022-05-14 04:56:13,086] [    INFO] - create the online asr engine instance
+     [2022-05-14 04:56:13,086] [    INFO] - paddlespeech_server set the device: cpu
+     [2022-05-14 04:56:13,087] [    INFO] - Load the pretrained model, tag = conformer_online_wenetspeech-zh-16k
+     [2022-05-14 04:56:13,087] [    INFO] - File /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz md5        checking...
+     [2022-05-14 04:56:17,542] [    INFO] - Use pretrained model stored in: /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.  0.0a.model.tar
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/model.yaml
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/exp/               chunk_conformer/checkpoints/avg_10.pdparams
+     [2022-05-14 04:56:17,543] [    INFO] - /root/.paddlespeech/models/conformer_online_wenetspeech-zh-16k/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar/exp/               chunk_conformer/checkpoints/avg_10.pdparams
+     [2022-05-14 04:56:17,852] [    INFO] - start to create the stream conformer asr engine
+     [2022-05-14 04:56:17,863] [    INFO] - model name: conformer_online
+     [2022-05-14 04:56:22,756] [    INFO] - create the transformer like model success
+     [2022-05-14 04:56:22,758] [    INFO] - Initialize ASR server engine successfully.
+     INFO:     Started server process [4242]
+     [2022-05-14 04:56:22] [INFO] [server.py:75] Started server process [4242]
+     INFO:     Waiting for application startup.
+     [2022-05-14 04:56:22] [INFO] [on.py:45] Waiting for application startup.
+     INFO:     Application startup complete.
+     [2022-05-14 04:56:22] [INFO] [on.py:59] Application startup complete.
+     INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
+     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   ```
 
 ### 4. ASR 客户端使用方法

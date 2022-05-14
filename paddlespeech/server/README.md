@@ -63,3 +63,24 @@ paddlespeech_server start --config_file conf/tts_online_application.yaml
 ```
 paddlespeech_client tts_online  --server_ip 127.0.0.1 --port 8092 --input "您好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
+
+
+## Speaker Verification
+
+### Lanuch speaker verification server
+
+```
+paddlespeech_server start --config_file conf/vector_application.yaml
+```
+
+### Extract speaker embedding from aduio
+
+```
+paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
+```
+
+### Get score with speaker audio embedding
+
+```
+paddlespeech_client vector --task score  --server_ip 127.0.0.1 --port 8090 --enroll 123456789.wav --test 85236145389.wav
+```

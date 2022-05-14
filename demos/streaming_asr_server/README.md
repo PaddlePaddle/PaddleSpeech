@@ -66,7 +66,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
      INFO:     Application startup complete.
      [2022-05-14 04:56:22] [INFO] [on.py:59] Application startup complete.
      INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8091 (Press CTRL+C to quit)
+     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   ```
 
 - Python API
@@ -103,7 +103,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
      INFO:     Application startup complete.
      [2022-05-14 04:56:22] [INFO] [on.py:59] Application startup complete.
      INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8091 (Press CTRL+C to quit)
+     [2022-05-14 04:56:22] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   ```
 
 

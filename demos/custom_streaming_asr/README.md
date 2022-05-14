@@ -7,39 +7,40 @@ In some cases, we need to recognize the specific rare words with high accuracy. 
 
 this demo is customized for expense account, which need to recognize rare address.
 
-* G with slot: 打车到 "address_slot"。
+* G with slot: 打车到 "address_slot"。  
 ![](https://ai-studio-static-online.cdn.bcebos.com/28d9ef132a7f47a895a65ae9e5c4f55b8f472c9f3dd24be8a2e66e0b88b173a4)
 
-* this is address slot wfst, you can add the address which want to recognize.
+* this is address slot wfst, you can add the address which want to recognize.  
 ![](https://ai-studio-static-online.cdn.bcebos.com/47c89100ef8c465bac733605ffc53d76abefba33d62f4d818d351f8cea3c8fe2)
 
-* after replace operation, G = fstreplace(G_with_slot, address_slot), we will get the customized graph.
+* after replace operation, G = fstreplace(G_with_slot, address_slot), we will get the customized graph.  
 ![](https://ai-studio-static-online.cdn.bcebos.com/60a3095293044f10b73039ab10c7950d139a6717580a44a3ba878c6e74de402b)  
 
 ## Usage
 ### 1. Installation
 install paddle:2.2.2 docker.
 ```
-sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
+sudo docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
 
-sudo nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
+sudo docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
 ```
 
 ### 2. demo
 * run websocket_server.sh.  This script will download resources and libs, and launch the service.
 ```
+cd /paddle
 bash websocket_server.sh
 ```
-this script run in two steps:
-1. download the resources.tar.gz, those direcotries will be found in resource directory.
-model: acustic model
+this script run in two steps:  
+1. download the resources.tar.gz, those direcotries will be found in resource directory.  
+model: acustic model  
 graph: the decoder graph (TLG.fst)  
 lib: some libs  
 bin: binary  
-data: audio and wav.scp
+data: audio and wav.scp  
 
-2. websocket_server_main launch the service.
-some params:
+2. websocket_server_main launch the service.  
+some params:  
 port: the service port  
 graph_path: the decoder graph path  
 model_path: acustic model path  

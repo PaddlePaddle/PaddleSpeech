@@ -20,9 +20,9 @@ this demo is customized for expense account, which need to recognize rare addres
 ### 1. Installation
 install paddle:2.2.2 docker.
 ```
-sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
+sudo docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.2
 
-sudo nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
+sudo docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/paddle --name=paddle_demo_docker registry.baidubce.com/paddlepaddle/paddle:2.2.2 /bin/bash 
 ```
 
 ### 2. demo
@@ -30,16 +30,16 @@ sudo nvidia-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/pad
 ```
 bash websocket_server.sh
 ```
-this script run in two steps:
-1. download the resources.tar.gz, those direcotries will be found in resource directory.
+this script run in two steps:  
+1. download the resources.tar.gz, those direcotries will be found in resource directory.  
 model: acustic model
 graph: the decoder graph (TLG.fst)  
 lib: some libs  
 bin: binary  
 data: audio and wav.scp
 
-2. websocket_server_main launch the service.
-some params:
+2. websocket_server_main launch the service.  
+some params:  
 port: the service port  
 graph_path: the decoder graph path  
 model_path: acustic model path  

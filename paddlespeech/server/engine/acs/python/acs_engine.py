@@ -62,6 +62,7 @@ class ACSEngine(BaseEngine):
 
         self.read_search_words()
 
+        # init the asr url
         self.url = "ws://" + self.config.asr_server_ip + ":" + str(
             self.config.asr_server_port) + "/paddlespeech/asr/streaming"
 
@@ -81,11 +82,19 @@ class ACSEngine(BaseEngine):
             return
 
         with open(word_list, 'r') as fp:
-            self.word_list = fp.readlines()
+            self.word_list = [line.strip() for line in fp.readlines()]
 
         logger.info(f"word list: {self.word_list}")
 
     def get_asr_content(self, audio_data):
+        """Get the streaming asr result
+
+        Args:
+            audio_data (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         logger.info("send a message to the server")
         if self.url is None:
             logger.error("No asr server, please input valid ip and port")
@@ -134,17 +143,46 @@ class ACSEngine(BaseEngine):
         return msg
 
     def get_macthed_word(self, msg):
+        """Get the matched info in msg
+
+        Args:
+            msg (dict): the asr info, including the asr result and time stamp
+
+        Returns:
+            acs_result, asr_result: the acs result and the asr result
+        """
         asr_result = msg['result']
         time_stamp = msg['times']
+        acs_result = []
 
+        # search for each word in self.word_list
+        offset = self.config.offset
+        max_ed = time_stamp[-1]['ed']
         for w in self.word_list:
+            # search the w in asr_result and the index in asr_result
             for m in re.finditer(w, asr_result):
-                start = time_stamp[m.start(0)]['bg']
-                end = time_stamp[m.end(0) - 1]['ed']
+                start = max(time_stamp[m.start(0)]['bg'] - offset, 0)
+
+                end = min(time_stamp[m.end(0) - 1]['ed'] + offset, max_ed)
                 logger.info(f'start: {start}, end: {end}')
+                acs_result.append({'w': w, 'bg': start, 'ed': end})
+
+        return acs_result, asr_result
 
     def run(self, audio_data):
+        """process the audio data in acs engine
+           the engine does not store any data, so all the request use the self.run api
+
+        Args:
+            audio_data (str): the audio data
+
+        Returns:
+            acs_result, asr_result: the acs result and the asr result
+        """
         logger.info("start to process the audio content search")
         msg = self.get_asr_content(io.BytesIO(audio_data))
 
-        self.get_macthed_word(msg)
+        acs_result, asr_result = self.get_macthed_word(msg)
+        logger.info(f'the asr result {asr_result}')
+        logger.info(f'the acs result: {acs_result}')
+        return acs_result, asr_result

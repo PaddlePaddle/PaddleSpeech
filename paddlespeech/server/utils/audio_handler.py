@@ -96,7 +96,7 @@ class ASRWsAudioHandler:
         self.punc_server = TextHttpHandler(punc_server_ip, punc_server_port)
         logger.info(f"endpoint: {self.url}")
 
-    def read_wave(self, wavfile_path):
+    def read_wave(self, wavfile_path: str):
         """read the audio file from specific wavfile path
 
         Args:
@@ -129,7 +129,7 @@ class ASRWsAudioHandler:
             x_chunk = padded_x[start:end]
             yield x_chunk
 
-    async def run(self, wavfile_path):
+    async def run(self, wavfile_path: str):
         """Send a audio file to online server
 
         Args:

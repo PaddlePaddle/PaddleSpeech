@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 __all__ = [
     'ASRResponse', 'TTSResponse', 'CLSResponse', 'TextResponse',
-    'VectorResponse', 'VectorScoreResponse'
+    'VectorResponse', 'VectorScoreResponse', 'ACSResponse'
 ]
 
 
@@ -231,3 +231,32 @@ class ErrorResponse(BaseModel):
     success: bool
     code: int
     message: Message
+
+
+#****************************************************************************************/
+#************************************ ACS response **************************************/
+#****************************************************************************************/
+class AcsResult(BaseModel):
+    transcription: str
+    acs: list
+
+
+class ACSResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "transcription": "你好，飞桨"
+            "acs": [(你好, 0.0, 0.45)]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: AcsResult

@@ -187,6 +187,13 @@ class ASRExecutor(BaseExecutor):
                     vocab=self.config.vocab_filepath,
                     spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.decoding_method = decode_method
+                self.max_len = 5000
+                if self.config.encoder_conf.get("max_len", None):
+                    self.max_len = self.config.encoder_conf.max_len
+
+                logger.info(f"max len: {self.max_len}")
+                # we assumen that the subsample rate is 4 and every frame step is 40ms
+                self.max_len = 40 * self.max_len / 1000
             else:
                 raise Exception("wrong type")
         model_name = model_type[:model_type.rindex(
@@ -352,9 +359,10 @@ class ASRExecutor(BaseExecutor):
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
             audio_duration = audio.shape[0] / audio_sample_rate
-            max_duration = 50.0
-            if audio_duration >= max_duration:
-                logger.error("Please input audio file less then 50 seconds.\n")
+            if audio_duration > self.max_len:
+                logger.error(
+                    f"Please input audio file less then {self.max_len} seconds.\n"
+                )
                 return False
         except Exception as e:
             logger.exception(e)

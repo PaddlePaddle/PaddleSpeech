@@ -103,7 +103,7 @@ def replace_default_num(match):
         str
     """
     number = match.group(0)
-    return verbalize_digit(number)
+    return verbalize_digit(number, alt_one=True)
 
 
 # 数字表达式

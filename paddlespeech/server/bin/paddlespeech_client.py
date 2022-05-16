@@ -828,12 +828,12 @@ class ACSClientExecutor(BaseExecutor):
             str: The ACS results
         """
         # we use the acs server to get the key word time stamp in audio text content
-        logger.info("asr http client start")
+        logger.info("acs http client start")
         from paddlespeech.server.utils.audio_handler import ASRHttpHandler
         handler = ASRHttpHandler(
             server_ip=server_ip, port=port, endpoint="/paddlespeech/asr/search")
         res = handler.run(input, audio_format, sample_rate, lang)
         res = res['result']
-        logger.info("asr http client finished")
+        logger.info("acs http client finished")
 
         return res

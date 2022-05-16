@@ -1,4 +1,4 @@
-([简体中文](./PPASR.md)|English)
+([简体中文](./PPASR_cn.md)|English)
 # PP-ASR
 
 ## Catalogue
@@ -24,9 +24,9 @@ The basic process of ASR is shown in the figure below:
 
 
 The main characteristics of PP-ASR are shown below:
--  Provides pre-trained models on Chinese/English open source datasets: aishell(Chinese), wenetspeech(Chinese) and librispeech(English). The models includes deepspeech2 and conformer/transformer.
+-  Provides pre-trained models on Chinese/English open source datasets: aishell(Chinese), wenetspeech(Chinese) and librispeech(English). The models include deepspeech2 and conformer/transformer.
 -  Support model training on Chinese/English datasets.
--  Support model inference using the command line. You can use to use `paddlespeech asr --model xxx --input xxx.wav` to use pre-trained model to do model inference. 
+-  Support model inference using the command line. You can use to use `paddlespeech asr --model xxx --input xxx.wav` to use the pre-trained model to do model inference. 
 -  Support deployment of streaming ASR server. Besides ASR function, the server supports timestamp function.
 -  Support customized auto speech recognition and deployment.
 
@@ -43,21 +43,21 @@ For more information about model design, you can refer to the aistudio tutorial:
 
 <a name="32"></a>
 ## 3.2 Training
-The reference script for model training is stored in [examples](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples) and stored according to "examples/dataset/model". The dataset mainly supports aishell and librispeech. The model supports deepspeech2 and u2(conformer/transformer).
+The referenced script for model training is stored in [examples](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples) and stored according to "examples/dataset/model". The dataset mainly supports aishell and librispeech. The model supports deepspeech2 and u2(conformer/transformer).
 The specific steps of executing the script are recorded in `run.sh`.
 
-For more information, you can refer to: [asr1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1)
+For more information, you can refer to [asr1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1)
 
 
 <a name="33"></a>
 ## 3.3 Inference
 
-PP-ASR supports use `paddlespeech asr --model xxx --input xxx.wav` to use pre-trained model to do model inference after install `paddlespeech` by `pip install paddlespeech`.
+PP-ASR supports use `paddlespeech asr --model xxx --input xxx.wav` to use the pre-trained model to do model inference after install `paddlespeech` by `pip install paddlespeech`.
 
 Specific supported functions include:
 
 - Prediction of single audio
-- Use pipe to predict multiple audio
+- Use the pipe to predict multiple audio
 - Support RTF calculation
 
 For specific usage, please refer to: [speech_recognition](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_recognition/README_cn.md) 
@@ -83,7 +83,7 @@ For more information about service deployment, you can refer to the aistudio tut
 ## 3.5 Customized Auto Speech Recognition and Deployment
 
 For customized auto speech recognition and deployment, PP-ASR provides feature extraction(fbank) => Inference model（Scoring Library）=> C++ program of TLG（WFST, token, lexion, grammer). For specific usage, please refer to: [speechx](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/speechx)   
-If you want to quickly use it, you can refer to: [custom_streaming_asr](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/custom_streaming_asr/README_cn.md)
+If you want to quickly use it, you can refer to [custom_streaming_asr](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/custom_streaming_asr/README_cn.md)
 
 For more information about customized auto speech recognition and deployment, you can refer to the aistudio tutorial:
 - [Customized Auto Speech Recognition](https://aistudio.baidu.com/aistudio/projectdetail/4021561)

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source path.sh
 stage=-1
 stop_stage=100
 MAIN_ROOT=../../..

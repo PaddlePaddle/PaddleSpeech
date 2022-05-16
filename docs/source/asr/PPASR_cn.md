@@ -26,7 +26,7 @@ PP-ASR 是一个 提供 ASR 功能的工具。其提供了多种中文和英文�
 PP-ASR 的主要特点如下：
 -  提供在中/英文开源数据集 aishell （中文），wenetspeech（中文），librispeech （英文）上的预训练模型。模型包含 deepspeech2 模型以及 conformer/transformer 模型。
 -  支持中/英文的模型训练功能。
--  支持命令行方式的模型推理， `paddlespeech asr --input xxx.wav` 方式调用各个预训练模型进行推理。
+-  支持命令行方式的模型推理，可使用 `paddlespeech asr --model xxx --input xxx.wav` 方式调用各个预训练模型进行推理。
 -  支持流式 ASR 的服务部署，也支持输出时间戳。
 -  支持个性化场景的部署。
 
@@ -37,15 +37,15 @@ PP-ASR 的主要特点如下：
 ## 3.1 预训练模型
 支持的预训练模型列表：[released_model](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/released_model.md)。
 其中效果较好的模型为 Ds2 Online Wenetspeech ASR0 Model 以及 Conformer Online Wenetspeech ASR1 Model。 两个模型都支持流式 ASR。
-关于模型设计的部分，可以参考 AIStudio 教程：
+更多关于模型设计的部分，可以参考 AIStudio 教程：
 - [Deepspeech2](https://aistudio.baidu.com/aistudio/projectdetail/3866807)
 - [Transformer](https://aistudio.baidu.com/aistudio/projectdetail/3470110)
 
 <a name="32"></a>
 ## 3.2 模型训练
 
-模型的训练的参考脚本存放在 examples 中，并按照 `examples/数据集/模型` 存放，数据集主要支持 aishell 和 librispeech，模型支持 deepspeech2 模型和 u2 (conformer/transformer) 模型。
-具体的执行脚本的步骤记录在 run.sh 当中。具体可参考： [asr1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1)
+模型的训练的参考脚本存放在 [examples](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples) 中，并按照 `examples/数据集/模型` 存放，数据集主要支持 aishell 和 librispeech，模型支持 deepspeech2 模型和 u2 (conformer/transformer) 模型。
+具体的执行脚本的步骤记录在 `run.sh` 当中。具体可参考： [asr1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1)
 
 
 <a name="33"></a>
@@ -80,7 +80,8 @@ server 的 demo： [streaming_asr_server](https://github.com/PaddlePaddle/Paddle
 <a name="35"></a>
 ## 3.5 支持个性化场景部署
 
-针对个性化场景部署，提供了特征提取（fbank） => 推理模型（打分库）=> TLG（WFST， token, lexion, grammer）的 C++ 程序。具体参考 [speechx](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/speechx)。 如果想快速了解和使用，可以参考： [custom_streaming_asr](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/custom_streaming_asr/README_cn.md)
+针对个性化场景部署，提供了特征提取（fbank） => 推理模型（打分库）=> TLG（WFST， token, lexion, grammer）的 C++ 程序。具体参考 [speechx](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/speechx)。  
+如果想快速了解和使用，可以参考： [custom_streaming_asr](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/custom_streaming_asr/README_cn.md)
 
 关于支持个性化场景部署的更多资料，可以参考 AIStudio 教程：
 - [定制化识别](https://aistudio.baidu.com/aistudio/projectdetail/4021561)

@@ -2,9 +2,9 @@
 # ACS (Audio Content Search)
 
 ## Introduction
-ACS, or Audio Content Search, refers to the problem of getting the key word time stamp to from automatically transcribe spoken language (speech-to-text). 
+ACS, or Audio Content Search, refers to the problem of getting the key word time stamp from automatically transcribe spoken language (speech-to-text). 
 
-This demo is an implementation to get the key word stamp from the text from a specific audio file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
+This demo is an implementation of obtaining the keyword timestamp in the text from a given audio file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
 
 ## Usage
 ### 1. Installation
@@ -12,6 +12,7 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 
 You can choose one way from meduim and hard to install paddlespeech.
 
+The dependency refers to the requirements.txt
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 

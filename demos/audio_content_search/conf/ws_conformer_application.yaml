@@ -1,10 +1,8 @@
-# This is the parameter configuration file for PaddleSpeech Serving.
-
 #################################################################################
 #                             SERVER SETTING                                    #
 #################################################################################
 host: 0.0.0.0
-port: 8090
+port: 8390
 
 # The task format in the engin_list is: <speech task>_<engine type>
 # task choices = ['asr_online']
@@ -27,7 +25,7 @@ asr_online:
     lang: 'zh'
     sample_rate: 16000
     cfg_path: 
-    decode_method: 
+    decode_method: 'attention_rescoring' 
     force_yes: True
     device: 'cpu' # cpu or gpu:id
     am_predictor_conf:

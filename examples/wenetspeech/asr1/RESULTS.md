@@ -1,6 +1,6 @@
 # WenetSpeech
 
-## Conformer online
+## Streaming Conformer
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Valid Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |

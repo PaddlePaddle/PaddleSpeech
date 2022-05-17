@@ -139,7 +139,7 @@ pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 To avoid the trouble of environment setup, running in a Docker container is highly recommended. Otherwise, if you work on `Ubuntu` with `root` privilege, you can still complete the installation.
 
 ### Choice 1: Running in Docker Container (Recommend)
-Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with all the dependencies installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with dependencies of cuda and cudnn installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
 
 Take several steps to launch the Docker image:
 - Download the Docker image

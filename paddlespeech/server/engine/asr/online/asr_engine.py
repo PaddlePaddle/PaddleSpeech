@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import copy
 import os
 import sys
 from typing import Optional
@@ -21,15 +20,14 @@ import paddle
 from numpy import float32
 from yacs.config import CfgNode
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.speech import SpeechSegment
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.transform.transformation import Transformation
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
 from paddlespeech.s2t.utils.tensor_utils import pad_sequence
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -53,7 +51,7 @@ class PaddleASRConnectionHanddler:
         logger.info(
             "create an paddle asr connection handler to process the websocket connection"
         )
-        self.config = asr_engine.config # server config
+        self.config = asr_engine.config  # server config
         self.model_config = asr_engine.executor.config
         self.asr_engine = asr_engine
 
@@ -251,10 +249,12 @@ class PaddleASRConnectionHanddler:
             # for deepspeech2 
             # init state
             self.chunk_state_h_box = np.zeros(
-                (self.model_config .num_rnn_layers, 1, self.model_config.rnn_layer_size),
+                (self.model_config.num_rnn_layers, 1,
+                 self.model_config.rnn_layer_size),
                 dtype=float32)
             self.chunk_state_c_box = np.zeros(
-                (self.model_config.num_rnn_layers, 1, self.model_config.rnn_layer_size),
+                (self.model_config.num_rnn_layers, 1,
+                 self.model_config.rnn_layer_size),
                 dtype=float32)
             self.decoder.reset_decoder(batch_size=1)
 
@@ -699,7 +699,8 @@ class PaddleASRConnectionHanddler:
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='asr', model_format='dynamic', inference_mode='online')
 
     def _init_from_path(self,
                         model_type: str=None,
@@ -723,20 +724,19 @@ class ASRServerExecutor(ASRExecutor):
         self.sample_rate = sample_rate
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
         tag = model_type + '-' + lang + '-' + sample_rate_str
-
+        self.task_resource.set_task_model(model_tag=tag)
         if cfg_path is None or am_model is None or am_params is None:
             logger.info(f"Load the pretrained model, tag = {tag}")
-            res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
-            self.res_path = res_path
+            self.res_path = self.task_resource.res_dir
 
             self.cfg_path = os.path.join(
-                res_path, self.pretrained_models[tag]['cfg_path'])
+                self.res_path, self.task_resource.res_dict['cfg_path'])
 
-            self.am_model = os.path.join(res_path,
-                                         self.pretrained_models[tag]['model'])
-            self.am_params = os.path.join(res_path,
-                                          self.pretrained_models[tag]['params'])
-            logger.info(res_path)
+            self.am_model = os.path.join(self.res_path,
+                                         self.task_resource.res_dict['model'])
+            self.am_params = os.path.join(self.res_path,
+                                          self.task_resource.res_dict['params'])
+            logger.info(self.res_path)
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.am_model = os.path.abspath(am_model)
@@ -763,8 +763,8 @@ class ASRServerExecutor(ASRExecutor):
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = self.pretrained_models[tag]['lm_url']
-                lm_md5 = self.pretrained_models[tag]['lm_md5']
+                lm_url = self.task_resource.res_dict['lm_url']
+                lm_md5 = self.task_resource.res_dict['lm_md5']
                 logger.info(f"Start to load language model {lm_url}")
                 self.download_lm(
                     lm_url,
@@ -810,7 +810,7 @@ class ASRServerExecutor(ASRExecutor):
             model_name = model_type[:model_type.rindex(
                 '_')]  # model_type: {model_name}_{dataset}
             logger.info(f"model name: {model_name}")
-            model_class = dynamic_import(model_name, self.model_alias)
+            model_class = self.task_resource.get_model_class(model_name)
             model_conf = self.config
             model = model_class.from_config(model_conf)
             self.model = model
@@ -824,7 +824,7 @@ class ASRServerExecutor(ASRExecutor):
             raise ValueError(f"Not support: {model_type}")
 
         return True
-        
+
 
 class ASREngine(BaseEngine):
     """ASR server resource

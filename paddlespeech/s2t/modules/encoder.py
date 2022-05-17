@@ -332,7 +332,7 @@ class BaseEncoder(nn.Layer):
         # fake mask, just for jit script and compatibility with `forward` api
         masks = paddle.ones([1, ys.shape[1]], dtype=paddle.bool)
         masks = masks.unsqueeze(1)
-        return ys, masks, offset
+        return ys, masks
 
 
 class TransformerEncoder(BaseEncoder):

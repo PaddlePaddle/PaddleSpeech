@@ -19,6 +19,7 @@ from typing import Optional
 import paddle
 from yacs.config import CfgNode
 
+from .pretrained_models import pretrained_models
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
@@ -31,32 +32,11 @@ from paddlespeech.server.utils.paddle_predictor import run_model
 
 __all__ = ['ASREngine']
 
-pretrained_models = {
-    "deepspeech2offline_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        '932c3593d62fe5c741b59b31318aa314',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2/checkpoints/avg_1',
-        'model':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdmodel',
-        'params':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdiparams',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-}
-
 
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        pass
+        self.pretrained_models = pretrained_models
 
     def _init_from_path(self,
                         model_type: str='wenetspeech',
@@ -71,18 +51,18 @@ class ASRServerExecutor(ASRExecutor):
         Init model and other resources from a specific path.
         """
 
+        sample_rate_str = '16k' if sample_rate == 16000 else '8k'
+        tag = model_type + '-' + lang + '-' + sample_rate_str
         if cfg_path is None or am_model is None or am_params is None:
-            sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            tag = model_type + '-' + lang + '-' + sample_rate_str
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.cfg_path = os.path.join(
+                res_path, self.pretrained_models[tag]['cfg_path'])
 
             self.am_model = os.path.join(res_path,
-                                         pretrained_models[tag]['model'])
+                                         self.pretrained_models[tag]['model'])
             self.am_params = os.path.join(res_path,
-                                          pretrained_models[tag]['params'])
+                                          self.pretrained_models[tag]['params'])
             logger.info(res_path)
             logger.info(self.cfg_path)
             logger.info(self.am_model)
@@ -109,8 +89,8 @@ class ASRServerExecutor(ASRExecutor):
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = pretrained_models[tag]['lm_url']
-                lm_md5 = pretrained_models[tag]['lm_md5']
+                lm_url = self.pretrained_models[tag]['lm_url']
+                lm_md5 = self.pretrained_models[tag]['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)

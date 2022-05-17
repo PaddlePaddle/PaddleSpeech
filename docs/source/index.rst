@@ -54,7 +54,9 @@ Contents
    :caption: Demos
 
    demo_video
+   streaming_asr_demo_video
    tts_demo_video
+   streaming_tts_demo_video
 
 
 .. toctree::

@@ -107,7 +107,7 @@ def change_speed(sample_raw, speed_rate, sample_rate):
 
 
 def float2pcm(sig, dtype='int16'):
-    """Convert floating point signal with a range from -1 to 1 to PCM.
+    """Convert floating point signal with a range from -1 to 1 to PCM16.
 
     Args:
         sig (array): Input array, must have floating point type.
@@ -167,7 +167,7 @@ def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
             channels=1,
             bits=16,
             sample_rate=sample_rate)
-        os.system("rm ./tmp.pcm")
+        os.remove("./tmp.pcm")
     else:
         print("Only supports saved audio format is pcm or wav")
         return False

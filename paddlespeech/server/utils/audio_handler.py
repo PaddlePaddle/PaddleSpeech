@@ -43,6 +43,7 @@ class TextHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/text'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, text):
         """Call the text server to process the specific text
@@ -107,8 +108,10 @@ class ASRWsAudioHandler:
         """
         samples, sample_rate = soundfile.read(wavfile_path, dtype='int16')
         x_len = len(samples)
+        assert sample_rate == 16000
 
-        chunk_size = 85 * 16  #80ms, sample_rate = 16kHz
+        chunk_size = int(85 * sample_rate / 1000)  # 85ms, sample_rate = 16kHz
+
         if x_len % chunk_size != 0:
             padding_len_x = chunk_size - x_len % chunk_size
         else:
@@ -142,6 +145,7 @@ class ASRWsAudioHandler:
             return ""
 
         # 1. send websocket handshake protocal
+        start_time = time.time()
         async with websockets.connect(self.url) as ws:
             # 2. server has already received handshake protocal
             # client start to send the command
@@ -187,7 +191,14 @@ class ASRWsAudioHandler:
             if self.punc_server:
                 msg["result"] = self.punc_server.run(msg["result"])
 
+            # 6. logging the final result and comptute the statstics
+            elapsed_time = time.time() - start_time
+            audio_info = soundfile.info(wavfile_path)
             logger.info("client final receive msg={}".format(msg))
+            logger.info(
+                f"audio duration: {audio_info.duration}, elapsed time: {elapsed_time}, RTF={elapsed_time/audio_info.duration}"
+            )
+
             result = msg
 
             return result
@@ -209,6 +220,7 @@ class ASRHttpHandler:
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
                 self.port) + '/paddlespeech/asr'
+        logger.info(f"endpoint: {self.url}")
 
     def run(self, input, audio_format, sample_rate, lang):
         """Call the http asr to process the audio
@@ -251,7 +263,8 @@ class TTSWsHandler:
         """
         self.server = server
         self.port = port
-        self.url = "ws://" + self.server + ":" + str(self.port) + "/ws/tts"
+        self.url = "ws://" + self.server + ":" + str(
+            self.port) + "/paddlespeech/tts/streaming"
         self.play = play
         if self.play:
             import pyaudio
@@ -266,6 +279,7 @@ class TTSWsHandler:
             self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
             self.max_fail = 50
+        logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
         while True:
@@ -287,62 +301,91 @@ class TTSWsHandler:
             output (str): save audio path
         """
         all_bytes = b''
+        receive_time_list = []
+        chunk_duration_list = []
 
-        # 1. Send websocket handshake protocal
+        # 1. Send websocket handshake request
         async with websockets.connect(self.url) as ws:
-            # 2. Server has already received handshake protocal
-            # send text to engine
+            # 2. Server has already received handshake response, send start request
+            start_request = json.dumps({"task": "tts", "signal": "start"})
+            await ws.send(start_request)
+            msg = await ws.recv()
+            logger.info(f"client receive msg={msg}")
+            msg = json.loads(msg)
+            session = msg["session"]
+
+            # 3. send speech synthesis request 
             text_base64 = str(base64.b64encode((text).encode('utf-8')), "UTF8")
-            d = {"text": text_base64}
-            d = json.dumps(d)
+            request = json.dumps({"text": text_base64})
             st = time.time()
-            await ws.send(d)
+            await ws.send(request)
             logging.info("send a message to the server")
 
-            # 3. Process the received response 
+            # 4. Process the received response
             message = await ws.recv()
-            logger.info(f"句子：{text}")
-            logger.info(f"首包响应：{time.time() - st} s")
+            first_response = time.time() - st
             message = json.loads(message)
             status = message["status"]
+            while True:
+                # When throw an exception
+                if status == -1:
+                    # send end request
+                    end_request = json.dumps({
+                        "task": "tts",
+                        "signal": "end",
+                        "session": session
+                    })
+                    await ws.send(end_request)
+                    break
 
-            while (status == 1):
-                audio = message["audio"]
-                audio = base64.b64decode(audio)  # bytes
-                all_bytes += audio
-                if self.play:
-                    self.mutex.acquire()
-                    self.buffer += audio
-                    self.mutex.release()
-                    if self.start_play:
-                        self.t.start()
-                        self.start_play = False
+                # Rerutn last packet normally, no audio information
+                elif status == 2:
+                    final_response = time.time() - st
+                    duration = len(all_bytes) / 2.0 / 24000
 
-                message = await ws.recv()
-                message = json.loads(message)
-                status = message["status"]
-
-            # 4. Last packet, no audio information
-            if status == 2:
-                final_response = time.time() - st
-                duration = len(all_bytes) / 2.0 / 24000
-                logger.info(f"尾包响应：{final_response} s")
-                logger.info(f"音频时长：{duration} s")
-                logger.info(f"RTF: {final_response / duration}")
-
-                if output is not None:
-                    if save_audio(all_bytes, output):
-                        logger.info(f"音频保存至：{output}")
+                    if output is not None:
+                        save_audio_success = save_audio(all_bytes, output)
                     else:
-                        logger.error("save audio error")
-            else:
-                logger.error("infer error")
+                        save_audio_success = False
+
+                    # send end request
+                    end_request = json.dumps({
+                        "task": "tts",
+                        "signal": "end",
+                        "session": session
+                    })
+                    await ws.send(end_request)
+                    break
+
+                # Return the audio stream normally
+                elif status == 1:
+                    receive_time_list.append(time.time())
+                    audio = message["audio"]
+                    audio = base64.b64decode(audio)  # bytes
+                    chunk_duration_list.append(len(audio) / 2.0 / 24000)
+                    all_bytes += audio
+                    if self.play:
+                        self.mutex.acquire()
+                        self.buffer += audio
+                        self.mutex.release()
+                        if self.start_play:
+                            self.t.start()
+                            self.start_play = False
+
+                    message = await ws.recv()
+                    message = json.loads(message)
+                    status = message["status"]
+
+                else:
+                    logger.error("infer error, return status is invalid.")
 
             if self.play:
                 self.t.join()
                 self.stream.stop_stream()
                 self.stream.close()
                 self.p.terminate()
+
+        return first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list
 
 
 class TTSHttpHandler:
@@ -357,7 +400,7 @@ class TTSHttpHandler:
         self.server = server
         self.port = port
         self.url = "http://" + str(self.server) + ":" + str(
-            self.port) + "/paddlespeech/streaming/tts"
+            self.port) + "/paddlespeech/tts/streaming"
         self.play = play
 
         if self.play:
@@ -373,6 +416,7 @@ class TTSHttpHandler:
             self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
             self.max_fail = 50
+        logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
         while True:
@@ -415,13 +459,16 @@ class TTSHttpHandler:
 
         all_bytes = b''
         first_flag = 1
+        receive_time_list = []
+        chunk_duration_list = []
 
         # 2. Send request
         st = time.time()
         html = requests.post(self.url, json.dumps(params), stream=True)
 
         # 3. Process the received response 
-        for chunk in html.iter_content(chunk_size=1024):
+        for chunk in html.iter_content(chunk_size=None):
+            receive_time_list.append(time.time())
             audio = base64.b64decode(chunk)  # bytes
             if first_flag:
                 first_response = time.time() - st
@@ -435,24 +482,116 @@ class TTSHttpHandler:
                     self.t.start()
                     self.start_play = False
             all_bytes += audio
+            chunk_duration_list.append(len(audio) / 2.0 / 24000)
 
         final_response = time.time() - st
         duration = len(all_bytes) / 2.0 / 24000
-
-        logger.info(f"句子：{text}")
-        logger.info(f"首包响应：{first_response} s")
-        logger.info(f"尾包响应：{final_response} s")
-        logger.info(f"音频时长：{duration} s")
-        logger.info(f"RTF: {final_response / duration}")
+        html.close()  # when stream=True
 
         if output is not None:
-            if save_audio(all_bytes, output):
-                logger.info(f"音频保存至：{output}")
-            else:
-                logger.error("save audio error")
+            save_audio_success = save_audio(all_bytes, output)
+        else:
+            save_audio_success = False
 
         if self.play:
             self.t.join()
             self.stream.stop_stream()
             self.stream.close()
             self.p.terminate()
+
+        return first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list
+
+
+class VectorHttpHandler:
+    def __init__(self, server_ip=None, port=None):
+        """The Vector client http request
+
+        Args:
+            server_ip (str, optional): the http vector server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http vector server port. Defaults to 8090.
+        """
+        super().__init__()
+        self.server_ip = server_ip
+        self.port = port
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/vector'
+        logger.info(f"endpoint: {self.url}")
+
+    def run(self, input, audio_format, sample_rate, task="spk"):
+        """Call the http asr to process the audio
+
+        Args:
+            input (str): the audio file path
+            audio_format (str): the audio format
+            sample_rate (str): the audio sample rate
+
+        Returns:
+            list: the audio vector
+        """
+        if self.url is None:
+            logger.error("No vector server, please input valid ip and port")
+            return ""
+
+        audio = wav2base64(input)
+        data = {
+            "audio": audio,
+            "task": task,
+            "audio_format": audio_format,
+            "sample_rate": sample_rate,
+        }
+
+        logger.info(self.url)
+        res = requests.post(url=self.url, data=json.dumps(data))
+
+        return res.json()
+
+
+class VectorScoreHttpHandler:
+    def __init__(self, server_ip=None, port=None):
+        """The Vector score client http request
+
+        Args:
+            server_ip (str, optional): the http vector server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http vector server port. Defaults to 8090.
+        """
+        super().__init__()
+        self.server_ip = server_ip
+        self.port = port
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + '/paddlespeech/vector/score'
+        logger.info(f"endpoint: {self.url}")
+
+    def run(self, enroll_audio, test_audio, audio_format, sample_rate):
+        """Call the http asr to process the audio
+
+        Args:
+            input (str): the audio file path
+            audio_format (str): the audio format
+            sample_rate (str): the audio sample rate
+
+        Returns:
+            list: the audio vector
+        """
+        if self.url is None:
+            logger.error("No vector server, please input valid ip and port")
+            return ""
+
+        enroll_audio = wav2base64(enroll_audio)
+        test_audio = wav2base64(test_audio)
+        data = {
+            "enroll_audio": enroll_audio,
+            "test_audio": test_audio,
+            "task": "score",
+            "audio_format": audio_format,
+            "sample_rate": sample_rate,
+        }
+
+        res = requests.post(url=self.url, data=json.dumps(data))
+
+        return res.json()

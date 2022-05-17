@@ -235,3 +235,19 @@ class BaseExecutor(ABC):
             'Use pretrained model stored in: {}'.format(decompressed_path))
 
         return decompressed_path
+
+    def show_rtf(self, info: Dict[str, List[float]]):
+        """
+        Calculate rft of current task and show results.
+        """
+        num_samples = 0
+        task_duration = 0.0
+        wav_duration = 0.0
+
+        for start, end, dur in zip(info['start'], info['end'], info['extra']):
+            num_samples += 1
+            task_duration += end - start
+            wav_duration += dur
+
+        logger.info('Sample Count: {}'.format(num_samples))
+        logger.info('Avg RTF: {}'.format(task_duration / wav_duration))

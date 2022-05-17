@@ -24,11 +24,11 @@ from typing import Any
 from typing import Dict
 
 import paddle
-import paddleaudio
 import requests
 import yaml
 from paddle.framework import load
 
+import paddleaudio
 from . import download
 from .entry import commands
 try:
@@ -39,12 +39,20 @@ except ImportError:
 requests.adapters.DEFAULT_RETRIES = 3
 
 __all__ = [
+    'timer_register',
     'cli_register',
     'get_command',
     'download_and_decompress',
     'load_state_dict_from_url',
     'stats_wrapper',
 ]
+
+CLI_TIMER = {}
+
+
+def timer_register(command):
+    CLI_TIMER[command.__name__] = {'start': [], 'end': [], 'extra': []}
+    return command
 
 
 def cli_register(name: str, description: str='') -> Any:

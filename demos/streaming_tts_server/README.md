@@ -10,7 +10,7 @@ This demo is an implementation of starting the streaming speech synthesis servic
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.2.1** or above.
+It is recommended to use **paddlepaddle 2.2.2** or above.
 You can choose one way from meduim and hard to install paddlespeech.
 
 
@@ -29,6 +29,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - When the voc model is mb_melgan, when voc_pad=14, the synthetic audio for streaming inference is consistent with the non-streaming synthetic audio; the minimum voc_pad can be set to 7, and the synthetic audio has no abnormal hearing. If the voc_pad is less than 7, the synthetic audio sounds abnormal.
     - When the voc model is hifigan, when voc_pad=20, the streaming inference synthetic audio is consistent with the non-streaming synthetic audio; when voc_pad=14, the synthetic audio has no abnormal hearing.
 - Inference speed: mb_melgan > hifigan; Audio quality: mb_melgan < hifigan
+- **Note:** If the service can be started normally in the container, but the client access IP is unreachable, you can try to replace the `host` address in the configuration file with the local IP address.
+
 
 
 ### 3. Streaming speech synthesis server and client using http protocol
@@ -61,8 +63,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 20:05:28] [INFO] [on.py:45] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-04-24 20:05:28] [INFO] [on.py:59] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-  [2022-04-24 20:05:28] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-24 20:05:28] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
   ```
 
@@ -88,8 +90,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 21:00:17] [INFO] [on.py:45] Waiting for application startup.
   INFO:     Application startup complete.
   [2022-04-24 21:00:17] [INFO] [on.py:59] Application startup complete.
-  INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-  [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
 
   ```
@@ -98,6 +100,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 - Command Line (Recommended)
 
     Access http streaming TTS service:
+
+    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
     ```bash
     paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
@@ -120,6 +124,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
     - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
     - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
+    - `spk_id, speed, volume, sample_rate` do not take effect in streaming speech synthesis service temporarily.
     
     Output:
     ```bash
@@ -195,8 +200,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
     INFO:     Application startup complete.
     [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
 
   ```
@@ -223,8 +228,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
     INFO:     Application startup complete.
     [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://127.0.0.1:8092 (Press CTRL+C to quit)
+    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
 
   ```
 
@@ -232,6 +237,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 - Command Line (Recommended)
 
     Access websocket streaming TTS service:
+
+    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
     ```bash
     paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol websocket --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
@@ -254,6 +261,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
     - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
     - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
+    - `spk_id, speed, volume, sample_rate` do not take effect in streaming speech synthesis service temporarily.
 
     
     Output:

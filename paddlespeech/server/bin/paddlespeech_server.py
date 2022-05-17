@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import sys
+import warnings
 from typing import List
 
 import uvicorn
 from fastapi import FastAPI
 from prettytable import PrettyTable
+from starlette.middleware.cors import CORSMiddleware
 
 from ..executor import BaseExecutor
 from ..util import cli_server_register
@@ -26,11 +29,19 @@ from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router as setup_http_router
 from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.ws.api import setup_router as setup_ws_router
+warnings.filterwarnings("ignore")
 
 __all__ = ['ServerExecutor', 'ServerStatsExecutor']
 
 app = FastAPI(
     title="PaddleSpeech Serving API", description="Api", version="0.0.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
 
 
 @cli_server_register(
@@ -79,10 +90,12 @@ class ServerExecutor(BaseExecutor):
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
-        config = get_config(args.config_file)
-
-        if self.init(config):
-            uvicorn.run(app, host=config.host, port=config.port, debug=True)
+        try:
+            self(args.config_file, args.log_file)
+        except Exception as e:
+            logger.error("Failed to start server.")
+            logger.error(e)
+            sys.exit(-1)
 
     @stats_wrapper
     def __call__(self,
@@ -109,14 +122,16 @@ class ServerStatsExecutor():
             '--task',
             type=str,
             default=None,
-            choices=['asr', 'tts', 'cls'],
+            choices=['asr', 'tts', 'cls', 'text', 'vector'],
             help='Choose speech task.',
             required=True)
-        self.task_choices = ['asr', 'tts', 'cls']
+        self.task_choices = ['asr', 'tts', 'cls', 'text', 'vector']
         self.model_name_format = {
             'asr': 'Model-Language-Sample Rate',
             'tts': 'Model-Language',
-            'cls': 'Model-Sample Rate'
+            'cls': 'Model-Sample Rate',
+            'text': 'Model-Task-Language',
+            'vector': 'Model-Sample Rate'
         }
 
     def show_support_models(self, pretrained_models: dict):
@@ -137,7 +152,7 @@ class ServerStatsExecutor():
                 "Please input correct speech task, choices = ['asr', 'tts']")
             return False
 
-        elif self.task == 'asr':
+        elif self.task.lower() == 'asr':
             try:
                 from paddlespeech.cli.asr.infer import pretrained_models
                 logger.info(
@@ -159,7 +174,7 @@ class ServerStatsExecutor():
                 )
                 return False
 
-        elif self.task == 'tts':
+        elif self.task.lower() == 'tts':
             try:
                 from paddlespeech.cli.tts.infer import pretrained_models
                 logger.info(
@@ -181,7 +196,7 @@ class ServerStatsExecutor():
                 )
                 return False
 
-        elif self.task == 'cls':
+        elif self.task.lower() == 'cls':
             try:
                 from paddlespeech.cli.cls.infer import pretrained_models
                 logger.info(
@@ -202,3 +217,36 @@ class ServerStatsExecutor():
                     "Failed to get the table of CLS pretrained models supported in the service."
                 )
                 return False
+        elif self.task.lower() == 'text':
+            try:
+                from paddlespeech.cli.text.infer import pretrained_models
+                logger.info(
+                    "Here is the table of Text pretrained models supported in the service."
+                )
+                self.show_support_models(pretrained_models)
+
+                return True
+            except BaseException:
+                logger.error(
+                    "Failed to get the table of Text pretrained models supported in the service."
+                )
+                return False
+        elif self.task.lower() == 'vector':
+            try:
+                from paddlespeech.cli.vector.infer import pretrained_models
+                logger.info(
+                    "Here is the table of Vector pretrained models supported in the service."
+                )
+                self.show_support_models(pretrained_models)
+
+                return True
+            except BaseException:
+                logger.error(
+                    "Failed to get the table of Vector pretrained models supported in the service."
+                )
+                return False
+        else:
+            logger.error(
+                f"Failed to get the table of {self.task} pretrained models supported in the service."
+            )
+            return False

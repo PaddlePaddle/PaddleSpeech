@@ -37,7 +37,7 @@ model_conf:
     ctc_weight: 0.3
     lsm_weight: 0.1     # label smoothing option
     length_normalized_loss: false
-    init_type: 'kaiming_uniform' 
+    init_type: 'kaiming_uniform' # !Warning: need to convergence
 
 ###########################################
 #                   Data                  #

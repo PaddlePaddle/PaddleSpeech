@@ -28,6 +28,7 @@ def main(args):
     handler = ASRWsAudioHandler(
         args.server_ip,
         args.port,
+        endpoint=args.endpoint,
         punc_server_ip=args.punc_server_ip,
         punc_server_port=args.punc_server_port)
     loop = asyncio.get_event_loop()
@@ -69,7 +70,11 @@ if __name__ == "__main__":
         default=8091,
         dest="punc_server_port",
         help='Punctuation server port')
-
+    parser.add_argument(
+        "--endpoint",
+        type=str,
+        default="/paddlespeech/asr/streaming",
+        help="ASR websocket endpoint")
     parser.add_argument(
         "--wavfile",
         action="store",

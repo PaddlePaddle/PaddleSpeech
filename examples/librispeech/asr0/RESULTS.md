@@ -1,6 +1,6 @@
 # LibriSpeech
 
-## Deepspeech2
+## Deepspeech2 Non-Streaming
 | Model | Params | release |  Config | Test set | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- |  
 | DeepSpeech2 | 42.96M | 2.2.0 | conf/deepspeech2.yaml + spec_aug | test-clean | 14.49190807 | 0.067283 |  

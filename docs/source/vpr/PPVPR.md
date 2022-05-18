@@ -24,7 +24,6 @@ The basic process of VPR is shown in the figure below:
 
 The main characteristics of PP-ASR are shown below:
 -  Provides pre-trained models on Chinese open source datasets: VoxCeleb(English). The models include ecapa-tdnn.
--  Complete quasi-industrial solutions, including labelless training, cross-domain adaptive, super-large scale speaker training, data long tail problem solving, etc.
 -  Support model training/evaluation.
 -  Support model inference using the command line. You can use to use `paddlespeech vector --task spk --input xxx.wav` to use the pre-trained model to do model inference. 
 -  Support interface operations and container deployment.

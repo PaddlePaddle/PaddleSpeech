@@ -18,9 +18,9 @@ from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
+from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
-
 router = APIRouter()
 
 
@@ -106,5 +106,5 @@ async def websocket_endpoint(websocket: WebSocket):
                 # if the engine create the vad instance, this connection will have many period results 
                 resp = {'result': asr_results}
                 await websocket.send_json(resp)
-    except WebSocketDisconnect:
-        pass
+    except WebSocketDisconnect as e:
+        logger.error(e)

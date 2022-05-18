@@ -6,6 +6,11 @@
 
 这个 demo 是一个从给定音频文件获取其文本中关键词时间戳的实现，它可以通过使用 `PaddleSpeech` 的单个命令或 python 中的几行代码来实现。
 
+当前示例中检索词是
+```
+我
+康
+```
 ## 使用方法
 ### 1. 安装
 请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。

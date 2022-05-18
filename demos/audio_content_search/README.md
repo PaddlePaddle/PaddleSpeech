@@ -5,7 +5,11 @@
 ACS, or Audio Content Search, refers to the problem of getting the key word time stamp from automatically transcribe spoken language (speech-to-text). 
 
 This demo is an implementation of obtaining the keyword timestamp in the text from a given audio file. It can be done by a single command or a few lines in python using `PaddleSpeech`. 
-
+Now, the search word in demo is:
+```
+我
+康
+```
 ## Usage
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).

@@ -1,6 +1,6 @@
 ([English](./README.md)|中文)
 
-# 语音服务
+# 流式语音识别服务
 
 ## 介绍
 这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。

@@ -13,6 +13,9 @@
 # limitations under the License.
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+# script for calc RTF: grep -rn RTF log.txt | awk '{print $NF}' | awk -F "=" '{sum += $NF} END {print "all time",sum, "audio num", NR,  "RTF", sum/NR}'
+
 import argparse
 import asyncio
 import codecs
@@ -40,7 +43,7 @@ def main(args):
         result = result["result"]
         logger.info(f"asr websocket client finished : {result}")
 
-    # support to process batch audios from wav.scp 
+    # support to process batch audios from wav.scp
     if args.wavscp and os.path.exists(args.wavscp):
         logging.info(f"start to process the wavscp: {args.wavscp}")
         with codecs.open(args.wavscp, 'r', encoding='utf-8') as f,\

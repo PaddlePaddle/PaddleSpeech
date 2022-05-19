@@ -1,6 +1,6 @@
 ([简体中文](./README_cn.md)|English)
 
-# Speech Server
+# Streaming ASR Server
 
 ## Introduction
 This demo is an implementation of starting the streaming speech service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.

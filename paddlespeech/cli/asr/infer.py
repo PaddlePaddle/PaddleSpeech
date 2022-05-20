@@ -203,6 +203,8 @@ class ASRExecutor(BaseExecutor):
         self.model.set_state_dict(model_dict)
 
         # compute the max len limit
+        # default max_len: unit:second
+        self.max_len = 50
         if "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
             # in transformer like model, we may use the subsample rate cnn network
             subsample_rate = self.model.subsampling_rate()
@@ -479,11 +481,11 @@ class ASRExecutor(BaseExecutor):
         Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
-        if not self._check(audio_file, sample_rate, force_yes):
-            sys.exit(-1)
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
                              ckpt_path)
+        if not self._check(audio_file, sample_rate, force_yes):
+            sys.exit(-1)
         if rtf:
             k = self.__class__.__name__
             CLI_TIMER[k]['start'].append(time.time())

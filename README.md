@@ -161,6 +161,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 👑 2022.05.13: Release [PP-ASR](./docs/source/asr/PPASR.md)、[PP-TTS](./docs/source/tts/PPTTS.md)、[PP-VPR](docs/source/vpr/PPVPR.md)
 - 👏🏻  2022.05.06: `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp`.
 - 👏🏻  2022.05.06: `Server` is available for `Speaker Verification`, and `Punctuation Restoration`.
 - 👏🏻  2022.04.28: `Streaming Server` is available for `Automatic Speech Recognition` and `Text-to-Speech`.

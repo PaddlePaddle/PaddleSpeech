@@ -24,30 +24,33 @@ trainer_list=$(func_parser_value "${lines[14]}")
 
 if [ ${MODE} = "benchmark_train" ];then
     curPath=$(readlink -f "$(dirname "$0")")
-        echo "curPath:"${curPath}    # /PaddleSpeech/tests/test_tipc/
+    echo "curPath:"${curPath}    # /PaddleSpeech/tests/test_tipc
     cd ${curPath}/../..
+    echo "------------- install for speech  "
     apt-get install libsndfile1 -y 
+    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
     pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
     pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple 
+    pip install jsonlines
+    pip list
     cd -
     if [ ${model_name} == "conformer" ]; then
         # set the URL for aishell_tiny dataset
-        URL=${conformer_data_URL:-"None"}
-        echo "URL:"${URL}
-        if [ ${URL} == 'None' ];then
+        conformer_aishell_URL=${conformer_aishell_URL:-"None"}
+        if [ ${conformer_aishell_URL} == 'None' ];then
             echo "please contact author to get the URL.\n"
             exit
-	else
-	    wget -P ${curPath}/../../dataset/aishell/ ${URL}
-            mv ${curPath}/../../dataset/aishell/aishell.py ${curPath}/../../dataset/aishell/aishell_tiny.py  
+	    else
+            rm -rf ${curPath}/../../dataset/aishell/aishell.py
+            rm -rf ${curPath}/../../dataset/aishell/data_aishell_tiny*
+	        wget -P ${curPath}/../../dataset/aishell/ ${conformer_aishell_URL}
         fi
         cd ${curPath}/../../examples/aishell/asr1
 
         #Prepare the data
-        sed -i "s#aishell.py#aishell_tiny.py#g" ./local/data.sh
-	sed -i "s#python3#python#g" ./local/data.sh
+	    sed -i "s#python3#python#g" ./local/data.sh
         bash run.sh --stage 0 --stop_stage 0   # 执行第一遍的时候会偶现报错
         bash run.sh --stage 0 --stop_stage 0
 

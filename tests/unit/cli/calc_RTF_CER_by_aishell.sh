@@ -3,6 +3,10 @@
 source path.sh
 stage=-1
 stop_stage=100
+model_name=conformer_online_aishell
+gpus=5
+log_file=res.log
+res_file=res.rsl
 MAIN_ROOT=../../..
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
@@ -20,9 +24,16 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
         echo "Prepare Aishell failed. Terminated."
         exit 1
     fi
-
 fi
 
+
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-   cat data/manifest.test | paddlespeech asr --model conformer_online_aishell --device gpu --decode_method ctc_prefix_beam_search --rtf -v
+    export CUDA_VISIBLE_DEVICES=${gpus}
+    cat data/manifest.test | paddlespeech asr --model ${model_name} --device gpu --decode_method attention_rescoring --rtf -v &> ${log_file}
+fi
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    cat ${log_file} | grep "^[0-9]" > ${res_file}
+    python utils/compute-wer.py --char=1 --v=1 \
+        data/manifest.test.text ${res_file} > ${res_file}.error
 fi

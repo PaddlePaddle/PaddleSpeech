@@ -135,6 +135,8 @@ class ASRExecutor(BaseExecutor):
         Init model and other resources from a specific path.
         """
         logger.info("start to init the model")
+        # default max_len: unit:second
+        self.max_len = 50
         if hasattr(self, 'model'):
             logger.info('Model had been initialized.')
             return
@@ -203,8 +205,6 @@ class ASRExecutor(BaseExecutor):
         self.model.set_state_dict(model_dict)
 
         # compute the max len limit
-        # default max_len: unit:second
-        self.max_len = 50
         if "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
             # in transformer like model, we may use the subsample rate cnn network
             subsample_rate = self.model.subsampling_rate()

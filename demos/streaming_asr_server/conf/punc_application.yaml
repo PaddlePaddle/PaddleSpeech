@@ -1,0 +1,35 @@
+# This is the parameter configuration file for PaddleSpeech Serving.
+
+#################################################################################
+#                             SERVER SETTING                                    #
+#################################################################################
+host: 0.0.0.0
+port: 8190
+
+# The task format in the engin_list is: <speech task>_<engine type>
+# task choices = ['asr_python']
+# protocol = ['http'] (only one can be selected). 
+# http only support offline engine type.
+protocol: 'http'
+engine_list: ['text_python']
+
+
+#################################################################################
+#                                ENGINE CONFIG                                  #
+#################################################################################
+
+################################### Text #########################################
+################### text task: punc; engine_type: python #######################
+text_python:
+    task: punc
+    model_type: 'ernie_linear_p3_wudao'
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    vocab_file: # [optional]
+    device: 'cpu' # set 'gpu:id' or 'cpu'
+
+
+
+

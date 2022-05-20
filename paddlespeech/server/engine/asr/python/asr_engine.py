@@ -78,21 +78,26 @@ class ASREngine(BaseEngine):
         Args:
             audio_data (bytes): base64.b64decode
         """
-        if self.executor._check(
-                io.BytesIO(audio_data), self.config.sample_rate,
-                self.config.force_yes):
-            logger.info("start run asr engine")
-            self.executor.preprocess(self.config.model, io.BytesIO(audio_data))
-            st = time.time()
-            self.executor.infer(self.config.model)
-            infer_time = time.time() - st
-            self.output = self.executor.postprocess()  # Retrieve result of asr.
-        else:
-            logger.info("file check failed!")
-            self.output = None
+        try:
+            if self.executor._check(
+                    io.BytesIO(audio_data), self.config.sample_rate,
+                    self.config.force_yes):
+                logger.info("start run asr engine")
+                self.executor.preprocess(self.config.model,
+                                         io.BytesIO(audio_data))
+                st = time.time()
+                self.executor.infer(self.config.model)
+                infer_time = time.time() - st
+                self.output = self.executor.postprocess(
+                )  # Retrieve result of asr.
+            else:
+                logger.info("file check failed!")
+                self.output = None
 
-        logger.info("inference time: {}".format(infer_time))
-        logger.info("asr engine type: python")
+            logger.info("inference time: {}".format(infer_time))
+            logger.info("asr engine type: python")
+        except Exception as e:
+            logger.info(e)
 
     def postprocess(self):
         """postprocess

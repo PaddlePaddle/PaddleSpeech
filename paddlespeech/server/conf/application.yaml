@@ -1,17 +1,15 @@
-# This is the parameter configuration file for PaddleSpeech Serving.
+# This is the parameter configuration file for PaddleSpeech Offline Serving..
 
 #################################################################################
 #                             SERVER SETTING                                    #
 #################################################################################
-host: 127.0.0.1
+host: 0.0.0.0
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference']
-# protocol = ['websocket', 'http'] (only one can be selected). 
-# http only support offline engine type.
+# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference']
 protocol: 'http'
-engine_list: ['asr_python', 'tts_python', 'cls_python']
+engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python', 'vector_python']
 
 
 #################################################################################
@@ -35,24 +33,6 @@ asr_python:
 asr_inference:
     # model_type choices=['deepspeech2offline_aishell']
     model_type: 'deepspeech2offline_aishell'
-    am_model: # the pdmodel file of am static model [optional]
-    am_params:  # the pdiparams file of am static model [optional]
-    lang: 'zh'
-    sample_rate: 16000
-    cfg_path: 
-    decode_method: 
-    force_yes: True
-
-    am_predictor_conf:
-        device:  # set 'gpu:id' or 'cpu'
-        switch_ir_optim: True
-        glog_info: False  # True -> print glog
-        summary: True  # False -> do not show predictor config
-
-
-################### speech task: asr; engine_type: online #######################
-asr_online:
-    model_type: 'deepspeech2online_aishell'
     am_model: # the pdmodel file of am static model [optional]
     am_params:  # the pdiparams file of am static model [optional]
     lang: 'zh'
@@ -155,3 +135,26 @@ cls_inference:
         glog_info: False  # True -> print glog
         summary: True  # False -> do not show predictor config
 
+
+################################### Text #########################################
+################### text task: punc; engine_type: python #######################
+text_python:
+    task: punc
+    model_type: 'ernie_linear_p3_wudao'
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    vocab_file: # [optional]
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################################### Vector ######################################
+################### Vector task: spk; engine_type: python #######################
+vector_python:
+    task: spk
+    model_type: 'ecapatdnn_voxceleb12'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    device:  # set 'gpu:id' or 'cpu'

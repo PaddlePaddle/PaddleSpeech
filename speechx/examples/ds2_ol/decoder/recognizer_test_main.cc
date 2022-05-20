@@ -19,6 +19,7 @@
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
+DEFINE_int32(sample_rate, 16000, "sample rate");
 
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -30,7 +31,8 @@ int main(int argc, char* argv[]) {
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-    int sample_rate = 16000;
+
+    int sample_rate = FLAGS_sample_rate;
     float streaming_chunk = FLAGS_streaming_chunk;
     int chunk_sample_size = streaming_chunk * sample_rate;
     LOG(INFO) << "sr: " << sample_rate;
@@ -38,6 +40,9 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
     int32 num_done = 0, num_err = 0;
+    double tot_wav_duration = 0.0;
+
+    kaldi::Timer timer;
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();
@@ -47,6 +52,7 @@ int main(int argc, char* argv[]) {
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
                                                     this_channel);
         int tot_samples = waveform.Dim();
+        tot_wav_duration += tot_samples * 1.0 / sample_rate;
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
@@ -85,4 +91,9 @@ int main(int argc, char* argv[]) {
         result_writer.Write(utt, result);
         ++num_done;
     }
+    double elapsed = timer.Elapsed();
+    KALDI_LOG << "Done " << num_done << " out of " << (num_err + num_done);
+    KALDI_LOG << " cost:" << elapsed << " s";
+    KALDI_LOG << "total wav duration is: " << tot_wav_duration << " s";
+    KALDI_LOG << "the RTF is: " << elapsed / tot_wav_duration;
 }

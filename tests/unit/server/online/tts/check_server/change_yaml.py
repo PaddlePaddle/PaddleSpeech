@@ -1,8 +1,10 @@
 #!/usr/bin/python
 import argparse
 import os
+import shutil
 
 import yaml
+
 
 def change_value(args):
     yamlfile = args.config_file
@@ -12,7 +14,7 @@ def change_value(args):
     target_value = args.target_value
 
     tmp_yamlfile = yamlfile.split(".yaml")[0] + "_tmp.yaml"
-    os.system("cp %s %s" % (yamlfile, tmp_yamlfile))
+    shutil.copyfile(yamlfile, tmp_yamlfile)
 
     with open(tmp_yamlfile) as f, open(yamlfile, "w+", encoding="utf-8") as fw:
         y = yaml.safe_load(f)
@@ -50,7 +52,7 @@ def change_value(args):
 
         print(yaml.dump(y, default_flow_style=False, sort_keys=False))
         yaml.dump(y, fw, allow_unicode=True)
-    os.system("rm %s" % (tmp_yamlfile))
+    os.remove(tmp_yamlfile)
     print(f"Change key: {target_key} to value: {target_value} successfully.")
 
 

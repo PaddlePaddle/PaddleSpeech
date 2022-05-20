@@ -13,6 +13,7 @@
 # limitations under the License.
 import copy
 import os
+import sys
 from typing import Optional
 
 import numpy as np
@@ -20,10 +21,9 @@ import paddle
 from numpy import float32
 from yacs.config import CfgNode
 
+from .pretrained_models import pretrained_models
 from paddlespeech.cli.asr.infer import ASRExecutor
-from paddlespeech.cli.asr.infer import model_alias
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.speech import SpeechSegment
@@ -39,45 +39,6 @@ from paddlespeech.server.utils.audio_process import pcm2float
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 
 __all__ = ['ASREngine']
-
-pretrained_models = {
-    "deepspeech2online_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz',
-        'md5':
-        '23e16c69730a1cb5d735c98c83c21e16',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2_online/checkpoints/avg_1',
-        'model':
-        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
-        'params':
-        'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-    "conformer_online_multicn-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/multi_cn/asr1/asr1_chunk_conformer_multi_cn_ckpt_0.2.3.model.tar.gz',
-        'md5':
-        '0ac93d390552336f2a906aec9e33c5fa',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/chunk_conformer/checkpoints/multi_cn',
-        'model':
-        'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
-        'params':
-        'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-}
 
 
 # ASR server connection process class
@@ -153,6 +114,12 @@ class PaddleASRConnectionHanddler:
             self.n_shift = self.preprocess_conf.process[0]['n_shift']
 
     def extract_feat(self, samples):
+
+        # we compute the elapsed time of first char occuring 
+        # and we record the start time at the first pcm sample arraving
+        # if self.first_char_occur_elapsed is not None:
+        #     self.first_char_occur_elapsed = time.time()
+
         if "deepspeech2online" in self.model_type:
             # self.reamined_wav stores all the samples, 
             # include the original remained_wav and this package samples
@@ -290,6 +257,9 @@ class PaddleASRConnectionHanddler:
         self.chunk_num = 0
         self.global_frame_offset = 0
         self.result_transcripts = ['']
+        self.word_time_stamp = []
+        self.time_stamp = []
+        self.first_char_occur_elapsed = None
 
     def decode(self, is_finished=False):
         if "deepspeech2online" in self.model_type:
@@ -505,6 +475,9 @@ class PaddleASRConnectionHanddler:
         else:
             return ''
 
+    def get_word_time_stamp(self):
+        return self.word_time_stamp
+
     @paddle.no_grad()
     def rescoring(self):
         if "deepspeech2online" in self.model_type or "deepspeech2offline" in self.model_type:
@@ -567,35 +540,56 @@ class PaddleASRConnectionHanddler:
                 best_index = i
 
         # update the one best result
+        # hyps stored the beam results and each fields is:
+
         logger.info(f"best index: {best_index}")
+        # logger.info(f'best result: {hyps[best_index]}')
+        # the field of the hyps is:
+        # hyps[0][0]: the sentence word-id in the vocab with a tuple
+        # hyps[0][1]: the sentence decoding probability with all paths
+        # hyps[0][2]: viterbi_blank ending probability
+        # hyps[0][3]: viterbi_non_blank probability
+        # hyps[0][4]: current_token_prob,
+        # hyps[0][5]: times_viterbi_blank, 
+        # hyps[0][6]: times_titerbi_non_blank 
         self.hyps = [hyps[best_index][0]]
+
+        # update the hyps time stamp
+        self.time_stamp = hyps[best_index][5] if hyps[best_index][2] > hyps[
+            best_index][3] else hyps[best_index][6]
+        logger.info(f"time stamp: {self.time_stamp}")
+
         self.update_result()
+
+        # update each word start and end time stamp
+        frame_shift_in_ms = self.model.encoder.embed.subsampling_rate * self.n_shift / self.sample_rate
+        logger.info(f"frame shift ms: {frame_shift_in_ms}")
+        word_time_stamp = []
+        for idx, _ in enumerate(self.time_stamp):
+            start = (self.time_stamp[idx - 1] + self.time_stamp[idx]
+                     ) / 2.0 if idx > 0 else 0
+            start = start * frame_shift_in_ms
+
+            end = (self.time_stamp[idx] + self.time_stamp[idx + 1]
+                   ) / 2.0 if idx < len(self.time_stamp) - 1 else self.offset
+            end = end * frame_shift_in_ms
+            word_time_stamp.append({
+                "w": self.result_transcripts[0][idx],
+                "bg": start,
+                "ed": end
+            })
+            # logger.info(f"{self.result_transcripts[0][idx]}, start: {start}, end: {end}")
+        self.word_time_stamp = word_time_stamp
+        logger.info(f"word time stamp: {self.word_time_stamp}")
 
 
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        pass
-
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-        Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
+        self.pretrained_models = pretrained_models
 
     def _init_from_path(self,
-                        model_type: str='deepspeech2online_aishell',
+                        model_type: str=None,
                         am_model: Optional[os.PathLike]=None,
                         am_params: Optional[os.PathLike]=None,
                         lang: str='zh',
@@ -606,22 +600,28 @@ class ASRServerExecutor(ASRExecutor):
         """
         Init model and other resources from a specific path.
         """
+        if not model_type or not lang or not sample_rate:
+            logger.error(
+                "The model type or lang or sample rate is None, please input an valid server parameter yaml"
+            )
+            return False
+
         self.model_type = model_type
         self.sample_rate = sample_rate
+        sample_rate_str = '16k' if sample_rate == 16000 else '8k'
+        tag = model_type + '-' + lang + '-' + sample_rate_str
         if cfg_path is None or am_model is None or am_params is None:
-            sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            tag = model_type + '-' + lang + '-' + sample_rate_str
             logger.info(f"Load the pretrained model, tag = {tag}")
             res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
             self.res_path = res_path
 
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.cfg_path = os.path.join(
+                res_path, self.pretrained_models[tag]['cfg_path'])
 
             self.am_model = os.path.join(res_path,
-                                         pretrained_models[tag]['model'])
+                                         self.pretrained_models[tag]['model'])
             self.am_params = os.path.join(res_path,
-                                          pretrained_models[tag]['params'])
+                                          self.pretrained_models[tag]['params'])
             logger.info(res_path)
         else:
             self.cfg_path = os.path.abspath(cfg_path)
@@ -649,8 +649,8 @@ class ASRServerExecutor(ASRExecutor):
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = pretrained_models[tag]['lm_url']
-                lm_md5 = pretrained_models[tag]['lm_md5']
+                lm_url = self.pretrained_models[tag]['lm_url']
+                lm_md5 = self.pretrained_models[tag]['lm_md5']
                 logger.info(f"Start to load language model {lm_url}")
                 self.download_lm(
                     lm_url,
@@ -676,7 +676,7 @@ class ASRServerExecutor(ASRExecutor):
                 ]:
                     logger.info(
                         "we set the decoding_method to attention_rescoring")
-                    self.config.decode.decoding = "attention_rescoring"
+                    self.config.decode.decoding_method = "attention_rescoring"
                 assert self.config.decode.decoding_method in [
                     "ctc_prefix_beam_search", "attention_rescoring"
                 ], f"we only support ctc_prefix_beam_search and attention_rescoring dedoding method, current decoding method is {self.config.decode.decoding_method}"
@@ -723,7 +723,7 @@ class ASRServerExecutor(ASRExecutor):
             model_name = model_type[:model_type.rindex(
                 '_')]  # model_type: {model_name}_{dataset}
             logger.info(f"model name: {model_name}")
-            model_class = dynamic_import(model_name, model_alias)
+            model_class = dynamic_import(model_name, self.model_alias)
             model_conf = self.config
             model = model_class.from_config(model_conf)
             self.model = model
@@ -737,6 +737,8 @@ class ASRServerExecutor(ASRExecutor):
             # update the ctc decoding
             self.searcher = CTCPrefixBeamSearch(self.config.decode)
             self.transformer_decode_reset()
+            
+        return True
 
     def reset_decoder_and_chunk(self):
         """reset decoder and chunk state for an new audio
@@ -1035,20 +1037,27 @@ class ASREngine(BaseEngine):
                 self.device = paddle.get_device()
             logger.info(f"paddlespeech_server set the device: {self.device}")
             paddle.set_device(self.device)
-        except BaseException:
+        except BaseException as e:
             logger.error(
-                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+                f"Set device failed, please check if device '{self.device}' is already used and the parameter 'device' in the yaml file"
             )
+            logger.error(
+                "If all GPU or XPU is used, you can set the server to 'cpu'")
+            sys.exit(-1)
 
-        self.executor._init_from_path(
-            model_type=self.config.model_type,
-            am_model=self.config.am_model,
-            am_params=self.config.am_params,
-            lang=self.config.lang,
-            sample_rate=self.config.sample_rate,
-            cfg_path=self.config.cfg_path,
-            decode_method=self.config.decode_method,
-            am_predictor_conf=self.config.am_predictor_conf)
+        if not self.executor._init_from_path(
+                model_type=self.config.model_type,
+                am_model=self.config.am_model,
+                am_params=self.config.am_params,
+                lang=self.config.lang,
+                sample_rate=self.config.sample_rate,
+                cfg_path=self.config.cfg_path,
+                decode_method=self.config.decode_method,
+                am_predictor_conf=self.config.am_predictor_conf):
+            logger.error(
+                "Init the ASR server occurs error, please check the server configuration yaml"
+            )
+            return False
 
         logger.info("Initialize ASR server engine successfully.")
         return True

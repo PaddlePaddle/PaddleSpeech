@@ -15,7 +15,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-__all__ = ['ASRRequest', 'TTSRequest', 'CLSRequest']
+__all__ = [
+    'ASRRequest', 'TTSRequest', 'CLSRequest', 'VectorRequest',
+    'VectorScoreRequest'
+]
 
 
 #****************************************************************************************/
@@ -78,3 +81,47 @@ class CLSRequest(BaseModel):
     """
     audio: str
     topk: int = 1
+
+
+#****************************************************************************************/
+#************************************ Text request **************************************/
+#****************************************************************************************/
+class TextRequest(BaseModel):
+    text: str
+
+
+#****************************************************************************************/
+#************************************ Vecotr request ************************************/
+#****************************************************************************************/
+class VectorRequest(BaseModel):
+    """
+    request body example
+    {
+        "audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
+        "task": "spk",
+        "audio_format": "wav",
+        "sample_rate": 16000,
+    }
+    """
+    audio: str
+    task: str
+    audio_format: str
+    sample_rate: int
+
+
+class VectorScoreRequest(BaseModel):
+    """
+    request body example
+    {
+        "enroll_audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
+        "test_audio": "exSI6ICJlbiIsCgkgICAgInBvc2l0aW9uIjogImZhbHNlIgoJf...",
+        "task": "score",
+        "audio_format": "wav",
+        "sample_rate": 16000,
+    }
+    """
+    enroll_audio: str
+    test_audio: str
+    task: str
+    audio_format: str
+    sample_rate: int

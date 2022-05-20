@@ -27,14 +27,25 @@ ckpt_name=$2
 
 mkdir -p exp
 
+if [ ${ngpu} == 0 ]; then
 python3 -u ${BIN_DIR}/train.py \
---seed ${seed} \
 --ngpu ${ngpu} \
+--seed ${seed} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --profiler-options "${profiler_options}" \
 --benchmark-batch-size ${benchmark_batch_size} \
 --benchmark-max-step ${benchmark_max_step}
+else
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
+--seed ${seed} \
+--config ${config_path} \
+--output exp/${ckpt_name} \
+--profiler-options "${profiler_options}" \
+--benchmark-batch-size ${benchmark_batch_size} \
+--benchmark-max-step ${benchmark_max_step}
+fi
 
 
 if [ ${seed} != 0  ]; then

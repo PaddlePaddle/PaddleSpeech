@@ -28,11 +28,13 @@ FeatureCache::FeatureCache(FeatureCacheOptions opts,
     max_size_ = opts.max_size;
     frame_chunk_stride_ = opts.frame_chunk_stride;
     frame_chunk_size_ = opts.frame_chunk_size;
+    timeout_ = opts.timeout;  // ms
     base_extractor_ = std::move(base_extractor);
     dim_ = base_extractor_->Dim();
 }
 
 void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    // read inputs
     base_extractor_->Accept(inputs);
     // feed current data
     bool result = false;
@@ -49,14 +51,15 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     while (cache_.empty() && base_extractor_->IsFinished() == false) {
         // todo refactor: wait
         // ready_read_condition_.wait(lock);
-        int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);
-        // todo replace 1 with timeout_, 1 ms
-        if (elapsed > 1) {
+        int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);  // ms
+        if (elapsed > timeout_) {
             return false;
         }
         usleep(100);  // sleep 0.1 ms
     }
     if (cache_.empty()) return false;
+
+    // read from cache
     feats->Resize(cache_.front().Dim());
     feats->CopyFromVec(cache_.front());
     cache_.pop();
@@ -70,18 +73,22 @@ bool FeatureCache::Compute() {
     Vector<BaseFloat> feature;
     bool result = base_extractor_->Read(&feature);
     if (result == false || feature.Dim() == 0) return false;
-    int32 joint_len = feature.Dim() + remained_feature_.Dim();
-    int32 num_chunk =
-        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
 
+    // join with remained
+    int32 joint_len = feature.Dim() + remained_feature_.Dim();
     Vector<BaseFloat> joint_feature(joint_len);
     joint_feature.Range(0, remained_feature_.Dim())
         .CopyFromVec(remained_feature_);
     joint_feature.Range(remained_feature_.Dim(), feature.Dim())
         .CopyFromVec(feature);
 
+    // one by one, or stride with window
+    // controlled by frame_chunk_stride_ and frame_chunk_size_
+    int32 num_chunk =
+        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * frame_chunk_stride_ * dim_;
+
         Vector<BaseFloat> feature_chunk(frame_chunk_size_ * dim_);
         SubVector<BaseFloat> tmp(joint_feature.Data() + start,
                                  frame_chunk_size_ * dim_);
@@ -89,6 +96,7 @@ bool FeatureCache::Compute() {
 
         std::unique_lock<std::mutex> lock(mutex_);
         while (cache_.size() >= max_size_) {
+            // cache full, wait
             ready_feed_condition_.wait(lock);
         }
 
@@ -96,6 +104,8 @@ bool FeatureCache::Compute() {
         cache_.push(feature_chunk);
         ready_read_condition_.notify_one();
     }
+
+    // cache remained feats
     int32 remained_feature_len =
         joint_len - num_chunk * frame_chunk_stride_ * dim_;
     remained_feature_.Resize(remained_feature_len);

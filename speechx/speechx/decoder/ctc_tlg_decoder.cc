@@ -48,6 +48,12 @@ void TLGDecoder::Reset() {
 }
 
 std::string TLGDecoder::GetFinalBestPath() {
+    if (frame_decoded_size_ == 0) {
+        // Assertion failed: (this->NumFramesDecoded() > 0 && "You cannot call
+        // BestPathEnd if no frames were decoded.")
+        return std::string("");
+    }
+
     decoder_->FinalizeDecoding();
     kaldi::Lattice lat;
     kaldi::LatticeWeight weight;

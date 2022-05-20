@@ -2,26 +2,45 @@
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
-<div align="center">  
 
-  <h3>
-  <a href="#quick-start"> 快速开始 </a>
-  | <a href="#quick-start-server"> 快速使用服务 </a>
-  | <a href="#documents"> 教程文档 </a>
-  | <a href="#model-list"> 模型列表 </a>
-</div>
 
-------------------------------------------------------------------------------------
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
-    <a href="support os"><img src="https://img.shields.io/badge/os-linux-yellow.svg"></a>
+    <a href="https://github.com/PaddlePaddle/PaddleSpeech/releases"><img src="https://img.shields.io/github/v/release/PaddlePaddle/PaddleSpeech?color=ffa"></a>
+    <a href="support os"><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
     <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/graphs/contributors"><img src="https://img.shields.io/github/contributors/PaddlePaddle/PaddleSpeech?color=9ea"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/commits"><img src="https://img.shields.io/github/commit-activity/m/PaddlePaddle/PaddleSpeech?color=3af"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/issues"><img src="https://img.shields.io/github/issues/PaddlePaddle/PaddleSpeech?color=9cc"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/stargazers"><img src="https://img.shields.io/github/stars/PaddlePaddle/PaddleSpeech?color=ccf"></a>
+    <a href="=https://pypi.org/project/paddlespeech/"><img src="https://img.shields.io/pypi/dm/PaddleSpeech"></a>
+    <a href="=https://pypi.org/project/paddlespeech/"><img src="https://static.pepy.tech/badge/paddlespeech"></a>
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
+<div align="center">  
+<h3>
+  <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start-server"> Quick Start Server </a>
+  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
+  </br>
+  <a href="#documents"> Documents </a>
+  | <a href="#model-list"> Models List </a>
+</h3>
+</div>
+
+
+------------------------------------------------------------------------------------
+
+<div align="center">  
+  <h3>
+  <a href="#quick-start"> 快速开始 </a>
+  | <a href="#quick-start-server"> 快速使用服务 </a>
+  | <a href="#quick-start-streaming-server"> 快速使用流式服务 </a>
+  | <a href="#documents"> 教程文档 </a>
+  | <a href="#model-list"> 模型列表 </a>
+</div>
+
+
 
 <!---
 from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
@@ -30,6 +49,8 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 3.Who will use this repo or project?
 4.What is the goal of this project?
 -->
+
+
 
 **PaddleSpeech** 是基于飞桨 [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) 的语音方向的开源模型库，用于语音和音频中的各种关键任务的开发，包含大量基于深度学习前沿和有影响力的模型，一些典型的应用示例如下：
 ##### 语音识别
@@ -57,7 +78,6 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
     </tr>
-    
   </tbody>
 </table>
 
@@ -143,19 +163,30 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 
 </div>
 
-### ⭐ 应用案例
-- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成模块生成虚拟人的声音。**
-  
-<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
 
-- [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+### 特性
+
+本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
+- 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
+- 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
+- 🏆 **流式ASR和TTS系统**：工业级的端到端流式识别、流式合成系统。
+- 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
+- **多种工业界以及学术界主流功能支持**:
+  - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成、声纹识别、KWS等任务的实现。
+  - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
+  - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
-- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
+### 近期更新
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
-</div>
+<!---
+2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
+--->
+- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md)、[PP-TTS](./docs/source/tts/PPTTS_cn.md)、[PP-VPR](docs/source/vpr/PPVPR_cn.md)
+- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
+- 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
+- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
+- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 
 ### 🔥 热门活动
 
@@ -164,26 +195,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
   4 日直播课: 深度解读 PaddleSpeech 语音技术!
 
   **直播回放与课件资料: https://aistudio.baidu.com/aistudio/education/group/info/25130**
-### 特性
 
-本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
-- 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
-- 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
-- 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
-- **多种工业界以及学术界主流功能支持**:
-  - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成等任务的实现。
-  - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
-  - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
-
-### 近期更新
-
-<!---
-2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
---->
-- 👏🏻 2022.03.28: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、以及语音合成。
-- 👏🏻 2022.03.28: PaddleSpeech CLI 上线声纹验证。
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
-- 👏🏻 2021.12.10: PaddleSpeech CLI 上线！覆盖了声音分类、语音识别、语音翻译（英译中）以及语音合成。
 
 ### 技术交流群
 微信扫描二维码（好友申请通过后回复【语音】）加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
@@ -192,10 +204,12 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />
 </div>
 
+
 ## 安装
 
 我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。
 目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解具体安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
+
 
 ## 快速开始
 
@@ -232,7 +246,7 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
 **批处理**
 ```
 echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
-```  
+```
 
 **Shell管道**
 ASR + Punc:
@@ -269,6 +283,38 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 
 更多服务相关的命令行使用信息，请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
 
+<a name="quickstartstreamingserver"></a>
+## 快速使用流式服务
+
+开发者可以尝试[流式ASR](./demos/streaming_asr_server/README.md)和 [流式TTS](./demos/streaming_tts_server/README.md)服务.
+
+**启动流式ASR服务**
+
+```
+paddlespeech_server start --config_file ./demos/streaming_asr_server/conf/application.yaml
+```
+
+**访问流式ASR服务**     
+
+```
+paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```
+
+**启动流式TTS服务**
+
+```
+paddlespeech_server start --config_file ./demos/streaming_tts_server/conf/tts_online_application.yaml
+```
+
+**访问流式TTS服务**     
+
+```
+paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+```
+
+更多信息参看： [流式 ASR](./demos/streaming_asr_server/README.md) 和 [流式 TTS](./demos/streaming_tts_server/README.md) 
+
+<a name="modulelist"></a>
 
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
@@ -282,8 +328,8 @@ PaddleSpeech 的 **语音转文本** 包含语音识别声学模型、语音识�
     <tr>
       <th>语音转文本模块类型</th>
       <th>数据集</th>
-      <th>模型种类</th>
-      <th>链接</th>
+      <th>模型类型</th>
+      <th>脚本</th>
     </tr>
   </thead>
   <tbody>
@@ -356,9 +402,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   <thead>
     <tr>
       <th> 语音合成模块类型 </th>
-      <th> 模型种类 </th>
+      <th> 模型类型 </th>
       <th> 数据集  </th>
-      <th> 链接  </th>
+      <th> 脚本  </th>
     </tr>
   </thead>
   <tbody>
@@ -474,8 +520,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <tr>
       <th> 任务 </th>
       <th> 数据集 </th>
-      <th> 模型种类 </th>
-      <th> 链接</th>
+      <th> 模型类型 </th>
+      <th> 脚本</th>
     </tr>
   </thead>
   <tbody>
@@ -498,10 +544,10 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 <table style="width:100%">
   <thead>
     <tr>
-      <th> Task </th>
-      <th> Dataset </th>
-      <th> Model Type </th>
-      <th> Link </th>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
     </tr>
   </thead>
   <tbody>
@@ -525,8 +571,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <tr>
       <th> 任务 </th>
       <th> 数据集 </th>
-      <th> 模型种类 </th>
-      <th> 链接 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
     </tr>
   </thead>
   <tbody>
@@ -581,6 +627,21 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 
 语音合成模块最初被称为 [Parakeet](https://github.com/PaddlePaddle/Parakeet)，现在与此仓库合并。如果您对该任务的学术研究感兴趣，请参阅 [TTS 研究概述](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview)。此外，[模型介绍](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) 是了解语音合成流程的一个很好的指南。
+
+## ⭐ 应用案例
+- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成模块生成虚拟人的声音。**
+  
+<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
+
+- [PaddleSpeech 示例视频](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+
+
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): 使用 PaddleSpeech 的语音合成和语音识别从视频中克隆人声。**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 
 ## 引用
 
@@ -658,6 +719,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 - 非常感谢 [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) 基于 PaddleSpeech 的 TTS GUI 界面和基于 ASR 制作数据集的相关代码。
 
   
+
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 
 ## License

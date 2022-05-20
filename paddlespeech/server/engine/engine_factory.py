@@ -46,5 +46,14 @@ class EngineFactory(object):
         elif engine_name == 'cls' and engine_type == 'python':
             from paddlespeech.server.engine.cls.python.cls_engine import CLSEngine
             return CLSEngine()
+        elif engine_name.lower() == 'text' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.text.python.text_engine import TextEngine
+            return TextEngine()
+        elif engine_name.lower() == 'vector' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.vector.python.vector_engine import VectorEngine
+            return VectorEngine()
+        elif engine_name.lower() == 'acs' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.acs.python.acs_engine import ACSEngine
+            return ACSEngine()
         else:
             return None

@@ -51,8 +51,11 @@ def process_sentence(config: Dict[str, Any],
     if utt_id in sentences:
         # reading, resampling may occur
         wav, _ = librosa.load(str(fp), sr=config.fs)
-        if len(wav.shape) != 1 or np.abs(wav).max() > 1.0:
+        if len(wav.shape) != 1:
             return record
+        max_value = np.abs(wav).max()
+        if max_value > 1.0:
+            wav = wav / max_value
         assert len(wav.shape) == 1, f"{utt_id} is not a mono-channel audio."
         assert np.abs(wav).max(
         ) <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."

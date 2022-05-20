@@ -1,13 +1,14 @@
-# Deepspeech2 Streaming
+# Deepspeech2 Streaming ASR
 
-Please go to `aishell` to test it.
+## Examples
 
-* aishell
-Deepspeech2 Streaming Decoding under aishell dataset.
-* websocket
-Streaming ASR with websocket.
+* `websocket` - Streaming ASR with websocket.
 
-The below is for developing and offline testing:
+* `aishell` - Streaming Decoding under aishell dataset, for local WER test.
+
+## More
+
+> The below is for developing and offline testing. Do not run it only if you know what it is.
 * nnet
 * feat
 * decoder

@@ -17,18 +17,6 @@ device=gpu
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
-if [ $stage -le 0 ]; then
-    # Prepare data
-    # Download AMI corpus, You need around 10GB of free space to get whole data
-    # The signals are too large to package in this way,
-    # so you need to use the chooser to indicate which ones you wish to download
-    echo "Please follow https://groups.inf.ed.ac.uk/ami/download/ to download the data."
-    echo "Annotations: AMI manual annotations v1.6.2 "
-    echo "Signals: "
-    echo "1) Select one or more AMI meetings: the IDs please follow ./ami_split.py"
-    echo "2) Select media streams: Just select Headset mix"
-fi
-
 if [ $stage -le 1 ]; then
     # Download the pretrained model
     wget https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_1.tar.gz

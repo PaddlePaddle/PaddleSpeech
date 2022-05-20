@@ -169,8 +169,8 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
     [2022-03-26 22:54:08,633] [    INFO] - embedding size: (192,)
     Extracting feature from audio No. 2 , 20 audios in total
     ...
-    2022-03-26 22:54:15,892 ｜ INFO ｜ main.py ｜ load_audios ｜ 85 ｜ Successfully loaded data, total count: 20
-    2022-03-26 22:54:15,908 ｜ INFO ｜ main.py ｜ count_audio ｜ 148 ｜ Successfully count the number of data!
+    2022-03-26 22:54:15,892 ｜ INFO ｜ audio_search.py ｜ load_audios ｜ 85 ｜ Successfully loaded data, total count: 20
+    2022-03-26 22:54:15,908 ｜ INFO ｜ audio_search.py ｜ count_audio ｜ 148 ｜ Successfully count the number of data!
     [2022-03-26 22:54:15,916] [    INFO] - checking the aduio file format......
     [2022-03-26 22:54:15,916] [    INFO] - The sample rate is 16000
     [2022-03-26 22:54:15,916] [    INFO] - The audio file format is right
@@ -185,12 +185,12 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
     [2022-03-26 22:54:15,924] [    INFO] - feats shape:[1, 80, 53], lengths shape: [1]
     [2022-03-26 22:54:16,051] [    INFO] - embedding size: (192,)
     ...
-    2022-03-26 22:54:16,086 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/test.wav, score 100.0
-    2022-03-26 22:54:16,087 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/knife_chopping.wav, score 29.182177782058716
-    2022-03-26 22:54:16,087 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/knife_cut_into_body.wav, score 22.73637056350708
+    2022-03-26 22:54:16,086 ｜ INFO ｜ audio_search.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/test.wav, score 100.0
+    2022-03-26 22:54:16,087 ｜ INFO ｜ audio_search.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/knife_chopping.wav, score 29.182177782058716
+    2022-03-26 22:54:16,087 ｜ INFO ｜ audio_search.py ｜ search_local_audio ｜ 132 ｜ search result http://testserver/data?audio_path=./example_audio/knife_cut_into_body.wav, score 22.73637056350708
     ...
-    2022-03-26 22:54:16,088 ｜ INFO ｜ main.py ｜ search_local_audio ｜ 136 ｜ Successfully searched similar audio!
-    2022-03-26 22:54:17,164 ｜ INFO ｜ main.py ｜ drop_tables ｜ 160 ｜ Successfully drop tables in Milvus and MySQL!
+    2022-03-26 22:54:16,088 ｜ INFO ｜ audio_search.py ｜ search_local_audio ｜ 136 ｜ Successfully searched similar audio!
+    2022-03-26 22:54:17,164 ｜ INFO ｜ audio_search.py ｜ drop_tables ｜ 160 ｜ Successfully drop tables in Milvus and MySQL!
     ```
 
   - 前端测试（可选）

@@ -21,6 +21,9 @@ from typing import Union
 import numpy as np
 import paddle
 import yaml
+from paddleaudio import load
+from paddleaudio.features import LogMelSpectrogram
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 from ..executor import BaseExecutor
 from ..log import logger
@@ -28,9 +31,7 @@ from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
-from paddleaudio import load
-from paddleaudio.features import LogMelSpectrogram
-from paddlespeech.utils.dynamic_import import dynamic_import
+
 
 __all__ = ['CLSExecutor']
 

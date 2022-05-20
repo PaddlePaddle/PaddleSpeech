@@ -3,7 +3,7 @@
 #################################################################################
 #                             SERVER SETTING                                    #
 #################################################################################
-host: 127.0.0.1
+host: 0.0.0.0
 port: 8092
 
 # The task format in the engin_list is: <speech task>_<engine type>
@@ -39,9 +39,9 @@ tts_online:
     # others
     lang: 'zh'
     device: 'cpu' # set 'gpu:id' or 'cpu'
-    am_block: 42
+    am_block: 72
     am_pad: 12
-    voc_block: 14
+    voc_block: 36
     voc_pad: 14
     
 
@@ -67,7 +67,7 @@ tts_online-onnx:
     am_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # voc (vocoder) choices=['mb_melgan_csmsc_onnx', 'hifigan_csmsc_onnx']
     voc: 'mb_melgan_csmsc_onnx'
@@ -76,13 +76,13 @@ tts_online-onnx:
     voc_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'
         use_trt: False
-        cpu_threads: 1
+        cpu_threads: 4
 
     # others
     lang: 'zh'
-    am_block: 42
+    am_block: 72
     am_pad: 12
-    voc_block: 14
+    voc_block: 36
     voc_pad: 14
     voc_upsample: 300
     

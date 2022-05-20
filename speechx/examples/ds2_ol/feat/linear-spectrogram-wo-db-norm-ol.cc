@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    // feature pipeline: wave cache --> hanning
-    // window -->linear_spectrogram --> global cmvn -> feat cache
+    // feature pipeline: wave cache --> hanning window
+    // -->linear_spectrogram --> global cmvn -> feat cache
 
     std::unique_ptr<ppspeech::FrontendInterface> data_source(
         new ppspeech::AudioCache(3600 * 1600, true));
@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
     opt.frame_opts.remove_dc_offset = false;
     opt.frame_opts.window_type = "hanning";
     opt.frame_opts.preemph_coeff = 0.0;
+    LOG(INFO) << "linear feature: " << true;
     LOG(INFO) << "frame length (ms): " << opt.frame_opts.frame_length_ms;
     LOG(INFO) << "frame shift (ms): " << opt.frame_opts.frame_shift_ms;
 
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]) {
     int sample_rate = 16000;
     float streaming_chunk = FLAGS_streaming_chunk;
     int chunk_sample_size = streaming_chunk * sample_rate;
-    LOG(INFO) << "sr: " << sample_rate;
+    LOG(INFO) << "sample rate: " << sample_rate;
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
@@ -115,7 +116,7 @@ int main(int argc, char* argv[]) {
                 flag = feature_cache.Read(&features);
                 feats.push_back(features);
                 feature_rows += features.Dim() / feature_cache.Dim();
-            } while(flag == true && features.Dim() != 0);
+            } while (flag == true && features.Dim() != 0);
             sample_offset += cur_chunk_size;
         }
 

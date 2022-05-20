@@ -14,6 +14,7 @@
 import argparse
 import os
 import sys
+import time
 from collections import OrderedDict
 from typing import List
 from typing import Optional
@@ -29,8 +30,10 @@ from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
+from ..utils import CLI_TIMER
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
+from ..utils import timer_register
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
@@ -41,6 +44,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 __all__ = ['ASRExecutor']
 
 
+@timer_register
 @cli_register(
     name='paddlespeech.asr', description='Speech to text infer command.')
 class ASRExecutor(BaseExecutor):
@@ -99,6 +103,11 @@ class ASRExecutor(BaseExecutor):
             default=False,
             help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate'
         )
+        self.parser.add_argument(
+            '--rtf',
+            action="store_true",
+            default=False,
+            help='Show Real-time Factor(RTF).')
         self.parser.add_argument(
             '--device',
             type=str,
@@ -178,6 +187,7 @@ class ASRExecutor(BaseExecutor):
                     vocab=self.config.vocab_filepath,
                     spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.decoding_method = decode_method
+
             else:
                 raise Exception("wrong type")
         model_name = model_type[:model_type.rindex(
@@ -191,6 +201,21 @@ class ASRExecutor(BaseExecutor):
         # load model
         model_dict = paddle.load(self.ckpt_path)
         self.model.set_state_dict(model_dict)
+
+        # compute the max len limit
+        if "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+            # in transformer like model, we may use the subsample rate cnn network
+            subsample_rate = self.model.subsampling_rate()
+            frame_shift_ms = self.config.preprocess_config.process[0][
+                'n_shift'] / self.config.preprocess_config.process[0]['fs']
+            max_len = self.model.encoder.embed.pos_enc.max_len
+
+            if self.config.encoder_conf.get("max_len", None):
+                max_len = self.config.encoder_conf.max_len
+
+            self.max_len = frame_shift_ms * max_len * subsample_rate
+            logger.info(
+                f"The asr server limit max duration len: {self.max_len}")
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
@@ -343,10 +368,11 @@ class ASRExecutor(BaseExecutor):
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
             audio_duration = audio.shape[0] / audio_sample_rate
-            max_duration = 50.0
-            if audio_duration >= max_duration:
-                logger.error("Please input audio file less then 50 seconds.\n")
-                return
+            if audio_duration > self.max_len:
+                logger.error(
+                    f"Please input audio file less then {self.max_len} seconds.\n"
+                )
+                return False
         except Exception as e:
             logger.exception(e)
             logger.error(
@@ -383,7 +409,7 @@ class ASRExecutor(BaseExecutor):
                     ) == "n" or content.strip() == "no" or content.strip(
                     ) == "No":
                         logger.info("Exit the program")
-                        exit(1)
+                        return False
                     else:
                         logger.warning("Not regular input, please input again")
 
@@ -407,6 +433,7 @@ class ASRExecutor(BaseExecutor):
         ckpt_path = parser_args.ckpt_path
         decode_method = parser_args.decode_method
         force_yes = parser_args.yes
+        rtf = parser_args.rtf
         device = parser_args.device
 
         if not parser_args.verbose:
@@ -419,11 +446,14 @@ class ASRExecutor(BaseExecutor):
         for id_, input_ in task_source.items():
             try:
                 res = self(input_, model, lang, sample_rate, config, ckpt_path,
-                           decode_method, force_yes, device)
+                           decode_method, force_yes, rtf, device)
                 task_results[id_] = res
             except Exception as e:
                 has_exceptions = True
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
+
+        if rtf:
+            self.show_rtf(CLI_TIMER[self.__class__.__name__])
 
         self.process_task_results(parser_args.input, task_results,
                                   parser_args.job_dump_result)
@@ -443,6 +473,7 @@ class ASRExecutor(BaseExecutor):
                  ckpt_path: os.PathLike=None,
                  decode_method: str='attention_rescoring',
                  force_yes: bool=False,
+                 rtf: bool=False,
                  device=paddle.get_device()):
         """
         Python API to call an executor.
@@ -453,8 +484,18 @@ class ASRExecutor(BaseExecutor):
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
                              ckpt_path)
+        if rtf:
+            k = self.__class__.__name__
+            CLI_TIMER[k]['start'].append(time.time())
+
         self.preprocess(model, audio_file)
         self.infer(model)
         res = self.postprocess()  # Retrieve result of asr.
+
+        if rtf:
+            CLI_TIMER[k]['end'].append(time.time())
+            audio, audio_sample_rate = soundfile.read(
+                audio_file, dtype="int16", always_2d=True)
+            CLI_TIMER[k]['extra'].append(audio.shape[0] / audio_sample_rate)
 
         return res

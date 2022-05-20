@@ -11,92 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import _thread as thread
 import argparse
-import base64
-import json
-import ssl
-import time
+import asyncio
 
-import websocket
-
-flag = 1
-st = 0.0
-all_bytes = b''
-
-
-class WsParam(object):
-    # 初始化
-    def __init__(self, text, server="127.0.0.1", port=8090):
-        self.server = server
-        self.port = port
-        self.url = "ws://" + self.server + ":" + str(self.port) + "/ws/tts"
-        self.text = text
-
-    # 生成url
-    def create_url(self):
-        return self.url
-
-
-def on_message(ws, message):
-    global flag
-    global st
-    global all_bytes
-
-    try:
-        message = json.loads(message)
-        audio = message["audio"]
-        audio = base64.b64decode(audio)  # bytes
-        status = message["status"]
-        all_bytes += audio
-
-        if status == 0:
-            print("create successfully.")
-        elif status == 1:
-            if flag:
-                print(f"首包响应：{time.time() - st} s")
-                flag = 0
-        elif status == 2:
-            final_response = time.time() - st
-            duration = len(all_bytes) / 2.0 / 24000
-            print(f"尾包响应：{final_response} s")
-            print(f"音频时长：{duration} s")
-            print(f"RTF: {final_response / duration}")
-            with open("./out.pcm", "wb") as f:
-                f.write(all_bytes)
-            print("ws is closed")
-            ws.close()
-        else:
-            print("infer error")
-
-    except Exception as e:
-        print("receive msg,but parse exception:", e)
-
-
-# 收到websocket错误的处理
-def on_error(ws, error):
-    print("### error:", error)
-
-
-# 收到websocket关闭的处理
-def on_close(ws):
-    print("### closed ###")
-
-
-# 收到websocket连接建立的处理
-def on_open(ws):
-    def run(*args):
-        global st
-        text_base64 = str(
-            base64.b64encode((wsParam.text).encode('utf-8')), "UTF8")
-        d = {"text": text_base64}
-        d = json.dumps(d)
-        print("Start sending text data")
-        st = time.time()
-        ws.send(d)
-
-    thread.start_new_thread(run, ())
-
+from paddlespeech.server.utils.audio_handler import TTSWsHandler
+from paddlespeech.server.utils.util import compute_delay
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -108,19 +27,33 @@ if __name__ == "__main__":
     parser.add_argument(
         "--server", type=str, help="server ip", default="127.0.0.1")
     parser.add_argument("--port", type=int, help="server port", default=8092)
+    parser.add_argument(
+        "--output", type=str, help="save audio path", default=None)
+    parser.add_argument(
+        "--play", type=bool, help="whether to play audio", default=False)
     args = parser.parse_args()
 
-    print("***************************************")
-    print("Server ip: ", args.server)
-    print("Server port: ", args.port)
-    print("Sentence to be synthesized: ", args.text)
-    print("***************************************")
+    print("tts websocket client start")
+    handler = TTSWsHandler(args.server, args.port, args.play)
+    loop = asyncio.get_event_loop()
+    first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = loop.run_until_complete(
+        handler.run(args.text, args.output))
+    delay_time_list = compute_delay(receive_time_list, chunk_duration_list)
 
-    wsParam = WsParam(text=args.text, server=args.server, port=args.port)
+    print(f"sentence: {args.text}")
+    print(f"duration: {duration} s")
+    print(f"first response: {first_response} s")
+    print(f"final response: {final_response} s")
+    print(f"RTF: {final_response/duration}")
+    if args.output is not None:
+        if save_audio_success:
+            print(f"Audio successfully saved in {args.output}")
+        else:
+            print("Audio save failed.")
 
-    websocket.enableTrace(False)
-    wsUrl = wsParam.create_url()
-    ws = websocket.WebSocketApp(
-        wsUrl, on_message=on_message, on_error=on_error, on_close=on_close)
-    ws.on_open = on_open
-    ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+    if delay_time_list != []:
+        print(
+            f"Delay situation: total number of packages: {len(receive_time_list)}, the number of delayed packets: {len(delay_time_list)}, minimum delay time: {min(delay_time_list)} s, maximum delay time: {max(delay_time_list)} s, average delay time: {sum(delay_time_list)/len(delay_time_list)} s, delay rate:{len(delay_time_list)/len(receive_time_list)}"
+        )
+    else:
+        print("The sentence has no delay in streaming synthesis.")

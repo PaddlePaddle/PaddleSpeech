@@ -10,7 +10,7 @@ encoder_conf:
     attention_heads: 4
     linear_units: 2048  # the number of units of position-wise feed forward
     num_blocks: 12      # the number of encoder blocks
-    dropout_rate: 0.1
+    dropout_rate: 0.1   # sublayer output dropout
     positional_dropout_rate: 0.1
     attention_dropout_rate: 0.0
     input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
@@ -30,7 +30,7 @@ decoder_conf:
     attention_heads: 4
     linear_units: 2048
     num_blocks: 6
-    dropout_rate: 0.1
+    dropout_rate: 0.1  # sublayer output dropout
     positional_dropout_rate: 0.1
     self_attention_dropout_rate: 0.0
     src_attention_dropout_rate: 0.0
@@ -39,7 +39,7 @@ model_conf:
     ctc_weight: 0.3
     lsm_weight: 0.1     # label smoothing option
     length_normalized_loss: false
-    init_type: 'kaiming_uniform' 
+    init_type: 'kaiming_uniform' # !Warning: need to convergence
 
 ###########################################
 #                   Data                  #
@@ -78,7 +78,7 @@ num_encs: 1
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 180 
+n_epoch: 240 
 accum_grad: 1
 global_grad_clip: 5.0
 dist_sampler: True

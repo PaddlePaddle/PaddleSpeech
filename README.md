@@ -1,19 +1,10 @@
 ([简体中文](./README_cn.md)|English)
 
+
+
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
-<div align="center">  
-
-  <h3>
-  <a href="#quick-start"> Quick Start </a>
-  | <a href="#quick-start-server"> Quick Start Server </a>
-  | <a href="#documents"> Documents </a>
-  | <a href="#model-list"> Models List </a>
-</div>
-
-------------------------------------------------------------------------------------
-
 
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
@@ -28,6 +19,20 @@
     <a href="=https://pypi.org/project/paddlespeech/"><img src="https://static.pepy.tech/badge/paddlespeech"></a>
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
+<div align="center">  
+<h3>
+  | <a href="#quick-start"> Quick Start </a>
+  | <a href="#quick-start-server"> Quick Start Server </a>
+  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
+  |
+  </br>
+  | <a href="#documents"> Documents </a>
+  | <a href="#model-list"> Models List </a>
+  |
+</h3>
+</div>
+
+
 
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
@@ -142,47 +147,40 @@ For more synthesized audios, please refer to [PaddleSpeech Text-to-Speech sample
 
 </div>
 
-### ⭐ Examples
-- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): Use PaddleSpeech TTS to generate virtual human voice.**
-  
-<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
 
-- [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+### Features
 
-- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
+Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
+- 📦  **Ease of Use**: low barriers to install, [CLI](#quick-start), [Server](#quick-start-server), and [Streaming Server](#quick-start-streaming-server) is available to quick-start your journey.
+- 🏆  **Align to the State-of-the-Art**: we provide high-speed and ultra-lightweight models, and also cutting-edge technology. 
+- 🏆  **Streaming ASR and TTS System**: we provide production ready streaming asr and streaming tts system.
+- 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
+- 📦  **Varieties of Functions that Vitalize both Industrial and Academia**:
+  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verfication, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
+  - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
+  - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
-</div>
+### Recent Update
+- 👑 2022.05.13: Release [PP-ASR](./docs/source/asr/PPASR.md)、[PP-TTS](./docs/source/tts/PPTTS.md)、[PP-VPR](docs/source/vpr/PPVPR.md)
+- 👏🏻  2022.05.06: `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp`.
+- 👏🏻  2022.05.06: `Server` is available for `Speaker Verification`, and `Punctuation Restoration`.
+- 👏🏻  2022.04.28: `Streaming Server` is available for `Automatic Speech Recognition` and `Text-to-Speech`.
+- 👏🏻  2022.03.28: `Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`.
+- 👏🏻  2022.03.28: `CLI` is available for `Speaker Verification`.
+- 🤗  2021.12.14: [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
+- 👏🏻  2021.12.10: `CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
 ### 🔥 Hot Activities
+
+<!---
+2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
+--->
 
 - 2021.12.21~12.24
 
   4 Days Live Courses: Depth interpretation of PaddleSpeech!
 
   **Courses videos and related materials: https://aistudio.baidu.com/aistudio/education/group/info/25130**
-
-### Features
-
-Via the easy-to-use, efficient, flexible and scalable implementation, our vision is to empower both industrial application and academic research, including training, inference & testing modules, and deployment process. To be more specific, this toolkit features at:
-- 📦  **Ease of Use**: low barriers to install, and [CLI](#quick-start) is available to quick-start your journey.
-- 🏆  **Align to the State-of-the-Art**: we provide high-speed and ultra-lightweight models, and also cutting-edge technology. 
-- 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
-- **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Audio Classification, Speech Translation, Automatic Speech Recognition, Text-to-Speech Synthesis, etc.
-  - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
-  - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
-
-### Recent Update
-
-<!---
-2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
---->
-- 👏🏻  2022.03.28: PaddleSpeech Server is available for Audio Classification, Automatic Speech Recognition and Text-to-Speech.
-- 👏🏻  2022.03.28: PaddleSpeech CLI is available for Speaker Verification.
-- 🤗  2021.12.14: Our PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
-- 👏🏻  2021.12.10: PaddleSpeech CLI is available for Audio Classification, Automatic Speech Recognition, Speech Translation (English to Chinese) and Text-to-Speech.
 
 ### Community
 - Scan the QR code below with your Wechat (reply【语音】after your friend's application is approved), you can access to official technical exchange group. Look forward to your participation.
@@ -195,6 +193,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*.
 Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. To install `PaddleSpeech`, please see [installation](./docs/source/install.md).
+
 
 <a name="quickstart"></a>
 ## Quick Start
@@ -238,7 +237,7 @@ paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --ou
 **Batch Process**
 ```
 echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
-```  
+```
 
 **Shell Pipeline**   
 - ASR + Punctuation Restoration
@@ -257,16 +256,19 @@ If you want to try more functions like training and tuning, please have a look a
 Developers can have a try of our speech server with [PaddleSpeech Server Command Line](./paddlespeech/server/README.md).
 
 **Start server**     
+
 ```shell
 paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
 ```
 
 **Access Speech Recognition Services**     
+
 ```shell
 paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
 ```
 
 **Access Text to Speech Services**     
+
 ```shell
 paddlespeech_client tts --server_ip 127.0.0.1 --port 8090 --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
 ```
@@ -279,6 +281,37 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 
 For more information about server command lines, please see: [speech server demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
 
+
+<a name="quickstartstreamingserver"></a>
+## Quick Start Streaming Server
+
+Developers can have a try of  [streaming asr](./demos/streaming_asr_server/README.md) and [streaming tts](./demos/streaming_tts_server/README.md) server.
+
+**Start Streaming Speech Recognition Server**
+
+```
+paddlespeech_server start --config_file ./demos/streaming_asr_server/conf/application.yaml
+```
+
+**Access Streaming Speech Recognition Services**     
+
+```
+paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
+```
+
+**Start Streaming Text to Speech  Server**
+
+```
+paddlespeech_server start --config_file ./demos/streaming_tts_server/conf/tts_online_application.yaml
+```
+
+**Access Streaming Text to Speech Services**     
+
+```
+paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
+```
+
+For more information please see:  [streaming asr](./demos/streaming_asr_server/README.md) and [streaming tts](./demos/streaming_tts_server/README.md) 
 
 <a name="ModelList"></a>
 
@@ -296,7 +329,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th>Speech-to-Text Module Type</th>
       <th>Dataset</th>
       <th>Model Type</th>
-      <th>Link</th>
+      <th>Example</th>
     </tr>
   </thead>
   <tbody>
@@ -371,7 +404,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Text-to-Speech Module Type </th>
       <th> Model Type </th>
       <th> Dataset </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -489,7 +522,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -514,7 +547,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -539,7 +572,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <th> Task </th>
       <th> Dataset </th>
       <th> Model Type </th>
-      <th> Link </th>
+      <th> Example </th>
     </tr>
   </thead>
   <tbody>
@@ -588,6 +621,21 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
 - [License](#License)
 
 The Text-to-Speech module is originally called [Parakeet](https://github.com/PaddlePaddle/Parakeet), and now merged with this repository. If you are interested in academic research about this task, please see [TTS research overview](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview). Also, [this document](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) is a good guideline for the pipeline components.
+
+
+## ⭐ Examples
+- **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): Use PaddleSpeech TTS to generate virtual human voice.**
+  
+<div align="center"><a href="https://www.bilibili.com/video/BV1cL411V71o?share_source=copy_web"><img src="https://ai-studio-static-online.cdn.bcebos.com/06fd746ab32042f398fb6f33f873e6869e846fe63c214596ae37860fe8103720" / width="500px"></a></div>
+
+- [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
+
+- **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
+</div>
+
 
 ## Citation
 
@@ -654,7 +702,6 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 </p>
 
 ## Acknowledgement
-
 
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) for years of attention, constructive advice and great help.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.

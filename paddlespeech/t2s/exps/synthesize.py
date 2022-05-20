@@ -107,8 +107,8 @@ def evaluate(args):
                     if args.voice_cloning and "spk_emb" in datum:
                         spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
                     mel = am_inference(phone_ids, spk_emb=spk_emb)
-            # vocoder
-            wav = voc_inference(mel)
+                # vocoder
+                wav = voc_inference(mel)
 
             wav = wav.numpy()
             N += wav.size
@@ -125,7 +125,7 @@ def evaluate(args):
 
 
 def parse_args():
-    # parse args and config and redirect to train_sp
+    # parse args and config
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
@@ -143,7 +143,7 @@ def parse_args():
         '--am_config',
         type=str,
         default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -182,7 +182,7 @@ def parse_args():
         '--voc_config',
         type=str,
         default=None,
-        help='Config of voc. Use deault config when it is None.')
+        help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(

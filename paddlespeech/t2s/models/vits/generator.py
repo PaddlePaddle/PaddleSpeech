@@ -318,7 +318,6 @@ class VITSGenerator(nn.Layer):
                 g = g + g_
 
         # forward posterior encoder
-
         z, m_q, logs_q, y_mask = self.posterior_encoder(
             feats, feats_lengths, g=g)
 

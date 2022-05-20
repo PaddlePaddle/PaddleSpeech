@@ -9,10 +9,10 @@ stop_stage=0
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
-    python3 ${BIN_DIR}/synthesize.py \
+    python3 ${BIN_DIR}/synthesize_e2e.py \
         --config=${config_path} \
         --ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --phones_dict=dump/phone_id_map.txt \
-        --test_metadata=dump/test/norm/metadata.jsonl \
-        --output_dir=${train_output_path}/test
+        --output_dir=${train_output_path}/test_e2e \
+        --text=${BIN_DIR}/../sentences.txt
 fi

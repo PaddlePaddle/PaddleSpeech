@@ -68,8 +68,8 @@ class PWGUpdater(StandardUpdater):
         self.discriminator_train_start_steps = discriminator_train_start_steps
         self.lambda_adv = lambda_adv
         self.lambda_aux = lambda_aux
-        self.state = UpdaterState(iteration=0, epoch=0)
 
+        self.state = UpdaterState(iteration=0, epoch=0)
         self.train_iterator = iter(self.dataloader)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())

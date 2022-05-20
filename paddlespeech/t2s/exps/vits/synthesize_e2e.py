@@ -14,22 +14,19 @@
 import argparse
 from pathlib import Path
 
-import jsonlines
 import paddle
 import soundfile as sf
 import yaml
 from timer import timer
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.exps.syn_utils import get_frontend
+from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.models.vits import VITS
 
 
 def evaluate(args):
 
-    # construct dataset for evaluation
-    with jsonlines.open(args.test_metadata, 'r') as reader:
-        test_metadata = list(reader)
     # Init body.
     with open(args.config) as f:
         config = CfgNode(yaml.safe_load(f))
@@ -39,9 +36,10 @@ def evaluate(args):
     print("========Config========")
     print(config)
 
-    fields = ["utt_id", "text"]
+    sentences = get_sentences(text_file=args.text, lang=args.lang)
 
-    test_dataset = DataTable(data=test_metadata, fields=fields)
+    # frontend
+    frontend = get_frontend(lang=args.lang, phones_dict=args.phones_dict)
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -56,24 +54,40 @@ def evaluate(args):
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    merge_sentences = False
 
     N = 0
     T = 0
-
-    for datum in test_dataset:
-        utt_id = datum["utt_id"]
-        phone_ids = paddle.to_tensor(datum["text"])
+    for utt_id, sentence in sentences:
         with timer() as t:
+            if args.lang == 'zh':
+                input_ids = frontend.get_input_ids(
+                    sentence, merge_sentences=merge_sentences)
+                phone_ids = input_ids["phone_ids"]
+            elif args.lang == 'en':
+                input_ids = frontend.get_input_ids(
+                    sentence, merge_sentences=merge_sentences)
+                phone_ids = input_ids["phone_ids"]
+            else:
+                print("lang should in {'zh', 'en'}!")
             with paddle.no_grad():
-                out = vits.inference(text=phone_ids)
-            wav = out["wav"]
-            wav = wav.numpy()
-            N += wav.size
-            T += t.elapse
-            speed = wav.size / t.elapse
-            rtf = config.fs / speed
+                flags = 0
+                for i in range(len(phone_ids)):
+                    part_phone_ids = phone_ids[i]
+                    out = vits.inference(text=part_phone_ids)
+                    wav = out["wav"]
+                    if flags == 0:
+                        wav_all = wav
+                        flags = 1
+                    else:
+                        wav_all = paddle.concat([wav_all, wav])
+        wav = wav_all.numpy()
+        N += wav.size
+        T += t.elapse
+        speed = wav.size / t.elapse
+        rtf = config.fs / speed
         print(
-            f"{utt_id}, wave: {wav.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+            f"{utt_id}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
         sf.write(str(output_dir / (utt_id + ".wav")), wav, samplerate=config.fs)
         print(f"{utt_id} done!")
@@ -81,8 +95,9 @@ def evaluate(args):
 
 
 def parse_args():
-    # parse args and config
+    # parse args and config 
     parser = argparse.ArgumentParser(description="Synthesize with VITS")
+
     # model
     parser.add_argument(
         '--config', type=str, default=None, help='Config of VITS.')
@@ -92,8 +107,22 @@ def parse_args():
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")
     # other
     parser.add_argument(
+        '--lang',
+        type=str,
+        default='zh',
+        help='Choose model language. zh or en')
+
+    parser.add_argument(
+        "--inference_dir",
+        type=str,
+        default=None,
+        help="dir to save inference models")
+    parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument("--test_metadata", type=str, help="test metadata.")
+    parser.add_argument(
+        "--text",
+        type=str,
+        help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
 
     args = parser.parse_args()

@@ -85,15 +85,17 @@ def process_sentence(config: Dict[str, Any],
                 y, (0, num_frames * config.n_shift - y.size), mode="reflect")
         else:
             y = y[:num_frames * config.n_shift]
-        num_sample = y.shape[0]
+        num_samples = y.shape[0]
 
         mel_path = output_dir / (utt_id + "_feats.npy")
         wav_path = output_dir / (utt_id + "_wave.npy")
-        np.save(wav_path, y)  # (num_samples, )
-        np.save(mel_path, logmel)  # (num_frames, n_mels)
+        # (num_samples, )
+        np.save(wav_path, y)
+        # (num_frames, n_mels)
+        np.save(mel_path, logmel)
         record = {
             "utt_id": utt_id,
-            "num_samples": num_sample,
+            "num_samples": num_samples,
             "num_frames": num_frames,
             "feats": str(mel_path),
             "wave": str(wav_path),
@@ -108,11 +110,17 @@ def process_sentences(config,
                       mel_extractor=None,
                       nprocs: int=1,
                       cut_sil: bool=True):
+
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(config, fp, sentences, output_dir,
-                                      mel_extractor, cut_sil)
+            record = process_sentence(
+                config=config,
+                fp=fp,
+                sentences=sentences,
+                output_dir=output_dir,
+                mel_extractor=mel_extractor,
+                cut_sil=cut_sil)
             if record:
                 results.append(record)
     else:
@@ -147,7 +155,7 @@ def main():
         "--dataset",
         default="baker",
         type=str,
-        help="name of dataset, should in {baker, ljspeech, vctk} now")
+        help="name of dataset, should in {baker, aishell3, ljspeech, vctk} now")
     parser.add_argument(
         "--rootdir", default=None, type=str, help="directory to dataset.")
     parser.add_argument(
@@ -261,28 +269,28 @@ def main():
     # process for the 3 sections
     if train_wav_files:
         process_sentences(
-            config,
-            train_wav_files,
-            sentences,
-            train_dump_dir,
+            config=config,
+            fps=train_wav_files,
+            sentences=sentences,
+            output_dir=train_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil)
     if dev_wav_files:
         process_sentences(
-            config,
-            dev_wav_files,
-            sentences,
-            dev_dump_dir,
+            config=config,
+            fps=dev_wav_files,
+            sentences=sentences,
+            output_dir=dev_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil)
     if test_wav_files:
         process_sentences(
-            config,
-            test_wav_files,
-            sentences,
-            test_dump_dir,
+            config=config,
+            fps=test_wav_files,
+            sentences=sentences,
+            output_dir=test_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil)

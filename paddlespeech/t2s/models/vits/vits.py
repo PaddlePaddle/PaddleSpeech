@@ -27,12 +27,7 @@ from paddlespeech.t2s.models.hifigan import HiFiGANMultiScaleMultiPeriodDiscrimi
 from paddlespeech.t2s.models.hifigan import HiFiGANPeriodDiscriminator
 from paddlespeech.t2s.models.hifigan import HiFiGANScaleDiscriminator
 from paddlespeech.t2s.models.vits.generator import VITSGenerator
-from paddlespeech.t2s.modules.losses import DiscriminatorAdversarialLoss
-from paddlespeech.t2s.modules.losses import FeatureMatchLoss
-from paddlespeech.t2s.modules.losses import GeneratorAdversarialLoss
-from paddlespeech.t2s.modules.losses import KLDivergenceLoss
-from paddlespeech.t2s.modules.losses import MelSpectrogramLoss
-from paddlespeech.t2s.modules.nets_utils import get_segments
+from paddlespeech.t2s.modules.nets_utils import initialize
 
 AVAILABLE_GENERATERS = {
     "vits_generator": VITSGenerator,
@@ -157,37 +152,8 @@ class VITS(nn.Layer):
                     "use_spectral_norm": False,
                 },
             },
-            # loss related
-            generator_adv_loss_params: Dict[str, Any]={
-                "average_by_discriminators": False,
-                "loss_type": "mse",
-            },
-            discriminator_adv_loss_params: Dict[str, Any]={
-                "average_by_discriminators": False,
-                "loss_type": "mse",
-            },
-            feat_match_loss_params: Dict[str, Any]={
-                "average_by_discriminators": False,
-                "average_by_layers": False,
-                "include_final_outputs": True,
-            },
-            mel_loss_params: Dict[str, Any]={
-                "fs": 22050,
-                "fft_size": 1024,
-                "hop_size": 256,
-                "win_length": None,
-                "window": "hann",
-                "num_mels": 80,
-                "fmin": 0,
-                "fmax": None,
-                "log_base": None,
-            },
-            lambda_adv: float=1.0,
-            lambda_mel: float=45.0,
-            lambda_feat_match: float=2.0,
-            lambda_dur: float=1.0,
-            lambda_kl: float=1.0,
-            cache_generator_outputs: bool=True, ):
+            cache_generator_outputs: bool=True,
+            init_type: str="xavier_uniform", ):
         """Initialize VITS module.
         Args:
             idim (int): Input vocabrary size.
@@ -200,21 +166,13 @@ class VITS(nn.Layer):
             generator_params (Dict[str, Any]): Parameter dict for generator.
             discriminator_type (str): Discriminator type.
             discriminator_params (Dict[str, Any]): Parameter dict for discriminator.
-            generator_adv_loss_params (Dict[str, Any]): Parameter dict for generator
-                adversarial loss.
-            discriminator_adv_loss_params (Dict[str, Any]): Parameter dict for
-                discriminator adversarial loss.
-            feat_match_loss_params (Dict[str, Any]): Parameter dict for feat match loss.
-            mel_loss_params (Dict[str, Any]): Parameter dict for mel loss.
-            lambda_adv (float): Loss scaling coefficient for adversarial loss.
-            lambda_mel (float): Loss scaling coefficient for mel spectrogram loss.
-            lambda_feat_match (float): Loss scaling coefficient for feat match loss.
-            lambda_dur (float): Loss scaling coefficient for duration loss.
-            lambda_kl (float): Loss scaling coefficient for KL divergence loss.
             cache_generator_outputs (bool): Whether to cache generator outputs.
         """
         assert check_argument_types()
         super().__init__()
+
+        # initialize parameters
+        initialize(self, init_type)
 
         # define modules
         generator_class = AVAILABLE_GENERATERS[generator_type]
@@ -229,22 +187,8 @@ class VITS(nn.Layer):
         discriminator_class = AVAILABLE_DISCRIMINATORS[discriminator_type]
         self.discriminator = discriminator_class(
             **discriminator_params, )
-        self.generator_adv_loss = GeneratorAdversarialLoss(
-            **generator_adv_loss_params, )
-        self.discriminator_adv_loss = DiscriminatorAdversarialLoss(
-            **discriminator_adv_loss_params, )
-        self.feat_match_loss = FeatureMatchLoss(
-            **feat_match_loss_params, )
-        self.mel_loss = MelSpectrogramLoss(
-            **mel_loss_params, )
-        self.kl_loss = KLDivergenceLoss()
 
-        # coefficients
-        self.lambda_adv = lambda_adv
-        self.lambda_mel = lambda_mel
-        self.lambda_kl = lambda_kl
-        self.lambda_feat_match = lambda_feat_match
-        self.lambda_dur = lambda_dur
+        nn.initializer.set_global_initializer(None)
 
         # cache
         self.cache_generator_outputs = cache_generator_outputs
@@ -259,15 +203,8 @@ class VITS(nn.Layer):
         self.langs = self.generator.langs
         self.spk_embed_dim = self.generator.spk_embed_dim
 
-    @property
-    def require_raw_speech(self):
-        """Return whether or not speech is required."""
-        return True
-
-    @property
-    def require_vocoder(self):
-        """Return whether or not vocoder is required."""
-        return False
+        self.reuse_cache_gen = True
+        self.reuse_cache_dis = True
 
     def forward(
             self,
@@ -334,21 +271,15 @@ class VITS(nn.Layer):
             spembs (Optional[Tensor]): Speaker embedding tensor (B, spk_embed_dim).
             lids (Optional[Tensor]): Language index tensor (B,) or (B, 1).
         Returns:
-            Dict[str, Any]:
-                * loss (Tensor): Loss scalar tensor.
-                * stats (Dict[str, float]): Statistics to be monitored.
-                * weight (Tensor): Weight tensor to summarize losses.
-                * optim_idx (int): Optimizer index (0 for G and 1 for D).
+            
         """
         # setup
-        batch_size = paddle.shape(text)[0]
         feats = feats.transpose([0, 2, 1])
-        # speech = speech.unsqueeze(1)
 
         # calculate generator outputs
-        reuse_cache = True
+        self.reuse_cache_gen = True
         if not self.cache_generator_outputs or self._cache is None:
-            reuse_cache = False
+            self.reuse_cache_gen = False
             outs = self.generator(
                 text=text,
                 text_lengths=text_lengths,
@@ -361,59 +292,10 @@ class VITS(nn.Layer):
             outs = self._cache
 
         # store cache
-        if self.training and self.cache_generator_outputs and not reuse_cache:
+        if self.training and self.cache_generator_outputs and not self.reuse_cache_gen:
             self._cache = outs
 
         return outs
-        """
-        # parse outputs
-        speech_hat_, dur_nll, _, start_idxs, _, z_mask, outs_ = outs
-        _, z_p, m_p, logs_p, _, logs_q = outs_
-        speech_ = get_segments(
-            x=speech,
-            start_idxs=start_idxs * self.generator.upsample_factor,
-            segment_size=self.generator.segment_size *
-            self.generator.upsample_factor, )
-
-        # calculate discriminator outputs
-        p_hat = self.discriminator(speech_hat_)
-        with paddle.no_grad():
-            # do not store discriminator gradient in generator turn
-            p = self.discriminator(speech_)
-
-        # calculate losses
-        mel_loss = self.mel_loss(speech_hat_, speech_)
-        kl_loss = self.kl_loss(z_p, logs_q, m_p, logs_p, z_mask)
-        dur_loss = paddle.sum(dur_nll.float())
-        adv_loss = self.generator_adv_loss(p_hat)
-        feat_match_loss = self.feat_match_loss(p_hat, p)
-
-        mel_loss = mel_loss * self.lambda_mel
-        kl_loss = kl_loss * self.lambda_kl
-        dur_loss = dur_loss * self.lambda_dur
-        adv_loss = adv_loss * self.lambda_adv
-        feat_match_loss = feat_match_loss * self.lambda_feat_match
-        loss = mel_loss + kl_loss + dur_loss + adv_loss + feat_match_loss
-
-        stats = dict(
-            generator_loss=loss.item(),
-            generator_mel_loss=mel_loss.item(),
-            generator_kl_loss=kl_loss.item(),
-            generator_dur_loss=dur_loss.item(),
-            generator_adv_loss=adv_loss.item(),
-            generator_feat_match_loss=feat_match_loss.item(), )
-
-        # reset cache
-        if reuse_cache or not self.training:
-            self._cache = None
-
-        return {
-            "loss": loss,
-            "stats": stats,
-            # "weight": weight,
-            "optim_idx": 0,  # needed for trainer
-        }
-        """
 
     def _forward_discrminator(
             self,
@@ -434,21 +316,15 @@ class VITS(nn.Layer):
             spembs (Optional[Tensor]): Speaker embedding tensor (B, spk_embed_dim).
             lids (Optional[Tensor]): Language index tensor (B,) or (B, 1).
         Returns:
-            Dict[str, Any]:
-                * loss (Tensor): Loss scalar tensor.
-                * stats (Dict[str, float]): Statistics to be monitored.
-                * weight (Tensor): Weight tensor to summarize losses.
-                * optim_idx (int): Optimizer index (0 for G and 1 for D).
+
         """
         # setup
-        batch_size = paddle.shape(text)[0]
         feats = feats.transpose([0, 2, 1])
-        # speech = speech.unsqueeze(1)
 
         # calculate generator outputs
-        reuse_cache = True
+        self.reuse_cache_dis = True
         if not self.cache_generator_outputs or self._cache is None:
-            reuse_cache = False
+            self.reuse_cache_dis = False
             outs = self.generator(
                 text=text,
                 text_lengths=text_lengths,
@@ -461,44 +337,10 @@ class VITS(nn.Layer):
             outs = self._cache
 
         # store cache
-        if self.cache_generator_outputs and not reuse_cache:
+        if self.cache_generator_outputs and not self.reuse_cache_dis:
             self._cache = outs
 
         return outs
-        """
-
-        # parse outputs
-        speech_hat_, _, _, start_idxs, *_ = outs
-        speech_ = get_segments(
-            x=speech,
-            start_idxs=start_idxs * self.generator.upsample_factor,
-            segment_size=self.generator.segment_size *
-            self.generator.upsample_factor, )
-
-        # calculate discriminator outputs
-        p_hat = self.discriminator(speech_hat_.detach())
-        p = self.discriminator(speech_)
-
-        # calculate losses
-        real_loss, fake_loss = self.discriminator_adv_loss(p_hat, p)
-        loss = real_loss + fake_loss
-
-        stats = dict(
-            discriminator_loss=loss.item(),
-            discriminator_real_loss=real_loss.item(),
-            discriminator_fake_loss=fake_loss.item(), )
-
-        # reset cache
-        if reuse_cache or not self.training:
-            self._cache = None
-
-        return {
-            "loss": loss,
-            "stats": stats,
-            # "weight": weight,
-            "optim_idx": 1,  # needed for trainer
-        }
-        """
 
     def inference(
             self,
@@ -535,10 +377,7 @@ class VITS(nn.Layer):
         # setup
         text = text[None]
         text_lengths = paddle.to_tensor(paddle.shape(text)[1])
-        # if sids is not None:
-        #     sids = sids.view(1)
-        # if lids is not None:
-        #     lids = lids.view(1)
+
         if durations is not None:
             durations = paddle.reshape(durations, [1, 1, -1])
 

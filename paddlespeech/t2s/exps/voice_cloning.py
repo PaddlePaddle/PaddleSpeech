@@ -122,7 +122,7 @@ def voice_cloning(args):
 
 
 def parse_args():
-    # parse args and config and redirect to train_sp
+    # parse args and config
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         '--am',
@@ -134,7 +134,7 @@ def parse_args():
         '--am_config',
         type=str,
         default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -163,7 +163,7 @@ def parse_args():
         '--voc_config',
         type=str,
         default=None,
-        help='Config of voc. Use deault config when it is None.')
+        help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(

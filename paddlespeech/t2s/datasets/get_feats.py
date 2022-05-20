@@ -171,7 +171,6 @@ class Pitch():
 
 class Energy():
     def __init__(self,
-                 sr: int=24000,
                  n_fft: int=2048,
                  hop_length: int=300,
                  win_length: int=None,
@@ -179,7 +178,6 @@ class Energy():
                  center: bool=True,
                  pad_mode: str="reflect"):
 
-        self.sr = sr
         self.n_fft = n_fft
         self.win_length = win_length
         self.hop_length = hop_length

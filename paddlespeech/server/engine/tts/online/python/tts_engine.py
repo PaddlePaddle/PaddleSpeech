@@ -26,7 +26,6 @@ from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
 from paddlespeech.cli.utils import download_and_decompress
 from paddlespeech.cli.utils import MODEL_HOME
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.util import denorm
@@ -34,6 +33,7 @@ from paddlespeech.server.utils.util import get_chunks
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['TTSEngine']
 

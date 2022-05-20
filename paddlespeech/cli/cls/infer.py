@@ -30,7 +30,7 @@ from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
 from paddleaudio import load
 from paddleaudio.features import LogMelSpectrogram
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['CLSExecutor']
 

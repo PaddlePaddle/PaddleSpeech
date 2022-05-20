@@ -21,7 +21,6 @@ from typing import Union
 
 import paddle
 
-from ...s2t.utils.dynamic_import import dynamic_import
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import cli_register
@@ -29,6 +28,7 @@ from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
 from .pretrained_models import tokenizer_alias
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['TextExecutor']
 

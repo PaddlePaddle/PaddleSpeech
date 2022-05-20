@@ -11,7 +11,7 @@ train: Epoch 70, 4 V100-32G, best avg: 20
 | conformer | 47.63 M | conf/conformer.yaml | spec_aug | test-clean | attention_rescoring | 6.433612394332886 | 0.033761 |  
 
 
-## Chunk Conformer
+## Conformer Streaming
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | WER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  

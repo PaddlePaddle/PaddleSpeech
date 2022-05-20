@@ -20,6 +20,7 @@ import os
 import random
 import sys
 import time
+import warnings
 from typing import List
 
 import numpy as np
@@ -34,6 +35,7 @@ from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import compute_delay
 from paddlespeech.server.utils.util import wav2base64
+warnings.filterwarnings("ignore")
 
 __all__ = [
     'TTSClientExecutor', 'TTSOnlineClientExecutor', 'ASRClientExecutor',
@@ -752,3 +754,88 @@ class VectorClientExecutor(BaseExecutor):
             logger.info(f"The vector score is: {res}")
         else:
             logger.error(f"Sorry, we have not support such task {task}")
+
+
+@cli_client_register(
+    name='paddlespeech_client.acs', description='visit acs service')
+class ACSClientExecutor(BaseExecutor):
+    def __init__(self):
+        super(ACSClientExecutor, self).__init__()
+        self.parser = argparse.ArgumentParser(
+            prog='paddlespeech_client.acs', add_help=True)
+        self.parser.add_argument(
+            '--server_ip', type=str, default='127.0.0.1', help='server ip')
+        self.parser.add_argument(
+            '--port', type=int, default=8090, help='server port')
+        self.parser.add_argument(
+            '--input',
+            type=str,
+            default=None,
+            help='Audio file to be recognized',
+            required=True)
+        self.parser.add_argument(
+            '--sample_rate', type=int, default=16000, help='audio sample rate')
+        self.parser.add_argument(
+            '--lang', type=str, default="zh_cn", help='language')
+        self.parser.add_argument(
+            '--audio_format', type=str, default="wav", help='audio format')
+
+    def execute(self, argv: List[str]) -> bool:
+        args = self.parser.parse_args(argv)
+        input_ = args.input
+        server_ip = args.server_ip
+        port = args.port
+        sample_rate = args.sample_rate
+        lang = args.lang
+        audio_format = args.audio_format
+
+        try:
+            time_start = time.time()
+            res = self(
+                input=input_,
+                server_ip=server_ip,
+                port=port,
+                sample_rate=sample_rate,
+                lang=lang,
+                audio_format=audio_format, )
+            time_end = time.time()
+            logger.info(f"ACS result: {res}")
+            logger.info("Response time %f s." % (time_end - time_start))
+            return True
+        except Exception as e:
+            logger.error("Failed to speech recognition.")
+            logger.error(e)
+            return False
+
+    @stats_wrapper
+    def __call__(
+            self,
+            input: str,
+            server_ip: str="127.0.0.1",
+            port: int=8090,
+            sample_rate: int=16000,
+            lang: str="zh_cn",
+            audio_format: str="wav", ):
+        """Python API to call an executor.
+
+        Args:
+            input (str): The input audio file path
+            server_ip (str, optional): The ASR server ip. Defaults to "127.0.0.1".
+            port (int, optional): The ASR server port. Defaults to 8090.
+            sample_rate (int, optional): The audio sample rate. Defaults to 16000.
+            lang (str, optional): The audio language type. Defaults to "zh_cn".
+            audio_format (str, optional): The audio format information. Defaults to "wav".
+
+        Returns:
+            str: The ACS results
+        """
+        # we use the acs server to get the key word time stamp in audio text content
+        logger.info("acs http client start")
+        from paddlespeech.server.utils.audio_handler import ASRHttpHandler
+        handler = ASRHttpHandler(
+            server_ip=server_ip, port=port, endpoint="/paddlespeech/asr/search")
+        res = handler.run(input, audio_format, sample_rate, lang)
+        res = res['result']
+        logger.info("acs http client finished")
+
+        return res

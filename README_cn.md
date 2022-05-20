@@ -182,6 +182,7 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
+- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md)、[PP-TTS](./docs/source/tts/PPTTS_cn.md)、[PP-VPR](docs/source/vpr/PPVPR_cn.md)
 - 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
 - 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
 - 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。

@@ -13,12 +13,14 @@
 # limitations under the License.
 import argparse
 import sys
+import warnings
 from typing import List
 
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from prettytable import PrettyTable
+from starlette.middleware.cors import CORSMiddleware
 
 from ..executor import BaseExecutor
 from ..util import cli_server_register
@@ -28,6 +30,7 @@ from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router as setup_http_router
 from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.ws.api import setup_router as setup_ws_router
+warnings.filterwarnings("ignore")
 
 __all__ = ['ServerExecutor', 'ServerStatsExecutor']
 
@@ -40,6 +43,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"])
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 
 @cli_server_register(
     name='paddlespeech_server.start', description='Start the service')
@@ -79,7 +86,7 @@ class ServerExecutor(BaseExecutor):
         else:
             raise Exception("unsupported protocol")
         app.include_router(api_router)
-
+        logger.info("start to init the engine")
         if not init_engine_pool(config):
             return False
 

@@ -205,7 +205,7 @@ class ASRWsAudioHandler:
 
 
 class ASRHttpHandler:
-    def __init__(self, server_ip=None, port=None):
+    def __init__(self, server_ip=None, port=None, endpoint="/paddlespeech/asr"):
         """The ASR client http request
 
         Args:
@@ -219,7 +219,7 @@ class ASRHttpHandler:
             self.url = None
         else:
             self.url = 'http://' + self.server_ip + ":" + str(
-                self.port) + '/paddlespeech/asr'
+                self.port) + endpoint
         logger.info(f"endpoint: {self.url}")
 
     def run(self, input, audio_format, sample_rate, lang):
@@ -248,7 +248,7 @@ class ASRHttpHandler:
         }
 
         res = requests.post(url=self.url, data=json.dumps(data))
-
+        
         return res.json()
 
 

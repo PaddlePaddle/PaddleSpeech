@@ -22,6 +22,7 @@ from paddlespeech.server.restful.cls_api import router as cls_router
 from paddlespeech.server.restful.text_api import router as text_router
 from paddlespeech.server.restful.tts_api import router as tts_router
 from paddlespeech.server.restful.vector_api import router as vec_router
+from paddlespeech.server.restful.acs_api import router as acs_router
 _router = APIRouter()
 
 
@@ -45,6 +46,8 @@ def setup_router(api_list: List):
             _router.include_router(text_router)
         elif api_name.lower() == 'vector':
             _router.include_router(vec_router)
+        elif api_name.lower() == 'acs':
+            _router.include_router(acs_router)
         else:
             logger.error(
                 f"PaddleSpeech has not support such service: {api_name}")

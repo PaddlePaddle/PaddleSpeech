@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source path.sh
 stage=-1
 stop_stage=100
 MAIN_ROOT=../../..
@@ -23,5 +24,5 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-   cat data/manifest.test | paddlespeech asr --model conformer_online_aishell --rtf -v
+   cat data/manifest.test | paddlespeech asr --model conformer_online_aishell --device gpu --decode_method ctc_prefix_beam_search --rtf -v
 fi

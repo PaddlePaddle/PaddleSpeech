@@ -198,10 +198,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
 
-  ### 6. CLS 客户端使用方法
+### 6. CLS 客户端使用方法
 
-  **注意：** 初次使用客户端时响应时间会略长
-  - 命令行 (推荐使用)
+**注意：** 初次使用客户端时响应时间会略长
+
+- 命令行 (推荐使用)
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
@@ -356,20 +357,20 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   print(res)
   ```
 
-输出:
+  输出:
 
-``` bash
-[2022-05-09 10:34:54,769] [    INFO] - vector score http client start
-[2022-05-09 10:34:54,771] [    INFO] - enroll audio: 85236145389.wav, test audio: 123456789.wav
-[2022-05-09 10:34:54,771] [    INFO] - endpoint: http://127.0.0.1:8590/paddlespeech/vector/score
-[2022-05-09 10:34:55,026] [    INFO] - The vector score is: {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'score': 0.4292638897895813}}
-```
+  ``` bash
+  [2022-05-09 10:34:54,769] [    INFO] - vector score http client start
+  [2022-05-09 10:34:54,771] [    INFO] - enroll audio: 85236145389.wav, test audio: 123456789.wav
+  [2022-05-09 10:34:54,771] [    INFO] - endpoint: http://127.0.0.1:8590/paddlespeech/vector/score
+  [2022-05-09 10:34:55,026] [    INFO] - The vector score is: {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'score': 0.4292638897895813}}
+  ```
 
 
 ### 8. 标点预测
   
   **注意：** 初次使用客户端时响应时间会略长
-  - 命令行 (推荐使用)
+- 命令行 (推荐使用)
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 

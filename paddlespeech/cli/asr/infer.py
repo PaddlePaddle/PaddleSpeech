@@ -135,6 +135,8 @@ class ASRExecutor(BaseExecutor):
         Init model and other resources from a specific path.
         """
         logger.info("start to init the model")
+        # default max_len: unit:second
+        self.max_len = 50
         if hasattr(self, 'model'):
             logger.info('Model had been initialized.')
             return
@@ -479,11 +481,11 @@ class ASRExecutor(BaseExecutor):
         Python API to call an executor.
         """
         audio_file = os.path.abspath(audio_file)
-        if not self._check(audio_file, sample_rate, force_yes):
-            sys.exit(-1)
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
                              ckpt_path)
+        if not self._check(audio_file, sample_rate, force_yes):
+            sys.exit(-1)
         if rtf:
             k = self.__class__.__name__
             CLI_TIMER[k]['start'].append(time.time())

@@ -181,7 +181,7 @@ class ASRExecutor(BaseExecutor):
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
 
-            elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+            elif "conformer" in model_type or "transformer" in model_type:
                 self.config.spm_model_prefix = os.path.join(
                     self.res_path, self.config.spm_model_prefix)
                 self.text_feature = TextFeaturizer(
@@ -205,7 +205,7 @@ class ASRExecutor(BaseExecutor):
         self.model.set_state_dict(model_dict)
 
         # compute the max len limit
-        if "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+        if "conformer" in model_type or "transformer" in model_type:
             # in transformer like model, we may use the subsample rate cnn network
             subsample_rate = self.model.subsampling_rate()
             frame_shift_ms = self.config.preprocess_config.process[0][
@@ -242,7 +242,7 @@ class ASRExecutor(BaseExecutor):
             self._inputs["audio_len"] = audio_len
             logger.info(f"audio feat shape: {audio.shape}")
 
-        elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+        elif "conformer" in model_type or "transformer" in model_type:
             logger.info("get the preprocess conf")
             preprocess_conf = self.config.preprocess_config
             preprocess_args = {"train": False}

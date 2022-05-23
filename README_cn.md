@@ -19,11 +19,11 @@
 </p>
 <div align="center">  
   <h3>
-  <a href="#quick-start"> 快速开始 </a>
-  | <a href="#quick-start-server"> 快速使用服务 </a>
-  | <a href="#quick-start-streaming-server"> 快速使用流式服务 </a>
-  | <a href="#documents"> 教程文档 </a>
-  | <a href="#model-list"> 模型列表 </a>
+  <a href="#快速开始"> 快速开始 </a>
+  | <a href="#快速使用服务"> 快速使用服务 </a>
+  | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
+  | <a href="#教程文档"> 教程文档 </a>
+  | <a href="#模型列表"> 模型列表 </a>
 </div>
 
 

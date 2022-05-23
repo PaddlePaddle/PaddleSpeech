@@ -16,7 +16,6 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
-from paddle.fluid.layers import huber_loss
 from paddle.io import DataLoader
 from paddle.nn import functional as F
 from paddle.nn import Layer
@@ -78,8 +77,11 @@ class SpeedySpeechUpdater(StandardUpdater):
             target_durations.astype(predicted_durations.dtype),
             paddle.to_tensor([1.0]))
         duration_loss = weighted_mean(
-            huber_loss(
-                predicted_durations, paddle.log(target_durations), delta=1.0),
+            F.smooth_l1_loss(
+                predicted_durations,
+                paddle.log(target_durations),
+                delta=1.0,
+                reduction='none', ),
             text_mask, )
 
         # ssim loss
@@ -146,8 +148,11 @@ class SpeedySpeechEvaluator(StandardEvaluator):
             target_durations.astype(predicted_durations.dtype),
             paddle.to_tensor([1.0]))
         duration_loss = weighted_mean(
-            huber_loss(
-                predicted_durations, paddle.log(target_durations), delta=1.0),
+            F.smooth_l1_loss(
+                predicted_durations,
+                paddle.log(target_durations),
+                delta=1.0,
+                reduction='none', ),
             text_mask, )
 
         # ssim loss

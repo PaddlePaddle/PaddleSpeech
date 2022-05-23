@@ -29,9 +29,9 @@ import requests
 import yaml
 from paddle.framework import load
 
-from . import download
 from .entry import client_commands
 from .entry import server_commands
+from paddlespeech.cli import download
 try:
     from .. import __version__
 except ImportError:

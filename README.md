@@ -26,12 +26,11 @@
   | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
-  |
+  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
 </h4>
 </div>
 
-
-
+------------------------------------------------------------------------------------
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
 

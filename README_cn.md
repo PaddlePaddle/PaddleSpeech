@@ -24,24 +24,11 @@
   | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
+  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
 </div>
 
 
 ------------------------------------------------------------------------------------
-
-
-
-
-
-<!---
-from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md
-1.What is this repo or project? (You can reuse the repo description you used earlier because this section doesn’t have to be long.)
-2.How does it work?
-3.Who will use this repo or project?
-4.What is the goal of this project?
--->
-
-
 
 **PaddleSpeech** 是基于飞桨 [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) 的语音方向的开源模型库，用于语音和音频中的各种关键任务的开发，包含大量基于深度学习前沿和有影响力的模型，一些典型的应用示例如下：
 ##### 语音识别

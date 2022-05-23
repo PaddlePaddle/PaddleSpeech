@@ -1,7 +1,4 @@
 ([简体中文](./README_cn.md)|English)
-
-
-
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
@@ -21,7 +18,7 @@
 </p>
 <div align="center">  
 <h4>
-  | <a href="#quick-start"> Quick Start </a>
+    <a href="#quick-start"> Quick Start </a>
   | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
   | <a href="#documents"> Documents </a>

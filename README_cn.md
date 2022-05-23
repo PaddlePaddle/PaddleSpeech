@@ -18,13 +18,14 @@
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
 <div align="center">  
-  <h3>
-  <a href="#快速开始"> 快速开始 </a>
+<h4>
+    <a href="#快速开始"> 快速开始 </a>
   | <a href="#快速使用服务"> 快速使用服务 </a>
   | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
+</h4>
 </div>
 
 
@@ -156,11 +157,7 @@
 
 
 ### 近期更新
-
-<!---
-2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
---->
-- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md)流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md)流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md)全链路声纹识别系统
+- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md) 流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md) 流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md) 全链路声纹识别系统
 - 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
 - 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
 - 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
@@ -169,7 +166,7 @@
 
  ### 🔥 加入技术交流群获取入群福利
 
- - 3 日直播课链接: 深度解读 PP-TTS、PP-ASR、PP-VPR三项核心语音系统关键技术
+ - 3 日直播课链接: 深度解读 PP-TTS、PP-ASR、PP-VPR 三项核心语音系统关键技术
  - 20G 学习大礼包：视频课程、前沿论文与学习资料
   
 微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
@@ -177,9 +174,6 @@
 <div align="center">
 <img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
 </div>
-
-
-  
 
 ## 安装
 
@@ -262,27 +256,27 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 <a name="快速使用流式服务"></a>
 ## 快速使用流式服务
 
-开发者可以尝试[流式ASR](./demos/streaming_asr_server/README.md)和 [流式TTS](./demos/streaming_tts_server/README.md)服务.
+开发者可以尝试 [流式 ASR](./demos/streaming_asr_server/README.md) 和 [流式 TTS](./demos/streaming_tts_server/README.md) 服务.
 
-**启动流式ASR服务**
+**启动流式 ASR 服务**
 
 ```
 paddlespeech_server start --config_file ./demos/streaming_asr_server/conf/application.yaml
 ```
 
-**访问流式ASR服务**     
+**访问流式 ASR 服务**     
 
 ```
 paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --input input_16k.wav
 ```
 
-**启动流式TTS服务**
+**启动流式 TTS 服务**
 
 ```
 paddlespeech_server start --config_file ./demos/streaming_tts_server/conf/tts_online_application.yaml
 ```
 
-**访问流式TTS服务**     
+**访问流式 TTS 服务**     
 
 ```
 paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http --input "您好，欢迎使用百度飞桨语音合成服务。" --output output.wav
@@ -644,7 +638,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 <a name="欢迎贡献"></a>
 ## 参与 PaddleSpeech 的开发
 
-热烈欢迎您在[Discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) 中提交问题，并在[Issues](https://github.com/PaddlePaddle/PaddleSpeech/issues) 中指出发现的 bug。此外，我们非常希望您参与到 PaddleSpeech 的开发中！
+热烈欢迎您在 [Discussions](https://github.com/PaddlePaddle/PaddleSpeech/discussions) 中提交问题，并在 [Issues](https://github.com/PaddlePaddle/PaddleSpeech/issues) 中指出发现的 bug。此外，我们非常希望您参与到 PaddleSpeech 的开发中！
 
 ### 贡献者
 <p align="center">

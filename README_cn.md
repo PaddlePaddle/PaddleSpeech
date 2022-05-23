@@ -18,20 +18,6 @@
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
 <div align="center">  
-<h3>
-  <a href="#quick-start"> Quick Start </a>
-  | <a href="#quick-start-server"> Quick Start Server </a>
-  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
-  </br>
-  <a href="#documents"> Documents </a>
-  | <a href="#model-list"> Models List </a>
-</h3>
-</div>
-
-
-------------------------------------------------------------------------------------
-
-<div align="center">  
   <h3>
   <a href="#quick-start"> 快速开始 </a>
   | <a href="#quick-start-server"> 快速使用服务 </a>
@@ -39,6 +25,11 @@
   | <a href="#documents"> 教程文档 </a>
   | <a href="#model-list"> 模型列表 </a>
 </div>
+
+
+------------------------------------------------------------------------------------
+
+
 
 
 
@@ -182,35 +173,33 @@ from https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readme
 <!---
 2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
 --->
-- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md)、[PP-TTS](./docs/source/tts/PPTTS_cn.md)、[PP-VPR](docs/source/vpr/PPVPR_cn.md)
+- 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md)流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md)流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md)全链路声纹识别系统
 - 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
 - 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
 - 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
 - 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 
-### 🔥 热门活动
 
-- 2021.12.21~12.24
+ ### 🔥 加入技术交流群获取入群福利
 
-  4 日直播课: 深度解读 PaddleSpeech 语音技术!
-
-  **直播回放与课件资料: https://aistudio.baidu.com/aistudio/education/group/info/25130**
-
-
-### 技术交流群
-微信扫描二维码（好友申请通过后回复【语音】）加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
+ - 3 日直播课链接: 深度解读 PP-TTS、PP-ASR、PP-VPR三项核心语音系统关键技术
+ - 20G 学习大礼包：视频课程、前沿论文与学习资料
+  
+微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />
+<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
 </div>
 
+
+  
 
 ## 安装
 
 我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。
 目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解具体安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
 
-
+<a name="快速开始"></a>
 ## 快速开始
 
 安装完成后，开发者可以通过命令行快速开始，改变 `--input` 可以尝试用自己的音频或文本测试。
@@ -257,7 +246,7 @@ paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
 
-
+<a name="快速使用服务"></a>
 ## 快速使用服务
 安装完成后，开发者可以通过命令行快速使用服务。
 
@@ -283,7 +272,7 @@ paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input input.wav
 
 更多服务相关的命令行使用信息，请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_server)
 
-<a name="quickstartstreamingserver"></a>
+<a name="快速使用流式服务"></a>
 ## 快速使用流式服务
 
 开发者可以尝试[流式ASR](./demos/streaming_asr_server/README.md)和 [流式TTS](./demos/streaming_tts_server/README.md)服务.
@@ -314,8 +303,7 @@ paddlespeech_client tts_online --server_ip 127.0.0.1 --port 8092 --protocol http
 
 更多信息参看： [流式 ASR](./demos/streaming_asr_server/README.md) 和 [流式 TTS](./demos/streaming_tts_server/README.md) 
 
-<a name="modulelist"></a>
-
+<a name="模型列表"></a>
 ## 模型列表
 PaddleSpeech 支持很多主流的模型，并提供了预训练模型，详情请见[模型列表](./docs/source/released_model.md)。
 
@@ -587,6 +575,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </tbody>
 </table>
 
+<a name="教程文档"></a>
 ## 教程文档
 
 对于 PaddleSpeech 的所关注的任务，以下指南有助于帮助开发者快速入门，了解语音相关核心思想。

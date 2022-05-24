@@ -186,8 +186,6 @@ class ResidualAffineCouplingLayer(nn.Layer):
                 hidden_channels,
                 self.half_channels * 2,
                 1, )
-        # self.proj.weight.data.zero_()
-        # self.proj.bias.data.zero_()
 
         weight = paddle.zeros(paddle.shape(self.proj.weight))
 

@@ -252,9 +252,6 @@ class ConvFlow(nn.Layer):
             self.half_channels * (bins * 3 - 1),
             1, )
 
-        # self.proj.weight.data.zero_()
-        # self.proj.bias.data.zero_()
-
         weight = paddle.zeros(paddle.shape(self.proj.weight))
 
         self.proj.weight = paddle.create_parameter(

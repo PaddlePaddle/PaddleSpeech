@@ -41,6 +41,7 @@ if __name__ == "__main__":
         '--nxpu',
         type=int,
         default=0,
+        choices=[0, 1],
         help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
     print_arguments(args, globals())

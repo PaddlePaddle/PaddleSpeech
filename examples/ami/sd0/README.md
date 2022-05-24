@@ -26,4 +26,7 @@ Use the following command to run diarization on AMI corpus.
 ./run.sh  --data_folder ./amicorpus  --manual_annot_folder ./ami_public_manual_1.6.2
 ```
 
-## Results (DER) coming soon! :)
+## Best performance in terms of Diarization Error Rate (DER).
+  | System | Mic. |Orcl. (Dev)|Orcl. (Eval)| Est. (Dev) |Est. (Eval)|
+  | --------|-------- | ---------|----------- | --------|-----------|
+  | ECAPA-TDNN + SC  | HeadsetMix| 1.54 % | 3.07 %| 1.56 %| 3.28 %  |

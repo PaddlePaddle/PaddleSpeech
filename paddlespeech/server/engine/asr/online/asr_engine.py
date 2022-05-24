@@ -153,8 +153,7 @@ class PaddleASRConnectionHanddler:
                 spectrum = self.collate_fn_test._normalizer.apply(spectrum)
 
             # spectrum augment
-            feat = self.collate_fn_test.augmentation.transform_feature(
-                spectrum)
+            feat = self.collate_fn_test.augmentation.transform_feature(spectrum)
 
             # audio_len is frame num
             frame_num = feat.shape[0]
@@ -189,14 +188,16 @@ class PaddleASRConnectionHanddler:
             assert samples.ndim == 1
 
             self.num_samples += samples.shape[0]
-             logger.info(f"This package receive {samples.shape[0]} pcm data. Global samples:{self.num_samples}")
+            logger.info(
+                f"This package receive {samples.shape[0]} pcm data. Global samples:{self.num_samples}"
+            )
 
             # self.reamined_wav stores all the samples, 
             # include the original remained_wav and this package samples
             if self.remained_wav is None:
                 self.remained_wav = samples
             else:
-                assert self.remained_wav.ndim == 1 # (T,)
+                assert self.remained_wav.ndim == 1  # (T,)
                 self.remained_wav = np.concatenate([self.remained_wav, samples])
             logger.info(
                 f"The concatenation of remain and now audio samples length is: {self.remained_wav.shape}"
@@ -216,8 +217,8 @@ class PaddleASRConnectionHanddler:
             if self.cached_feat is None:
                 self.cached_feat = x_chunk
             else:
-                assert (len(x_chunk.shape) == 3) # (B,T,D)
-                assert (len(self.cached_feat.shape) == 3) # (B,T,D)
+                assert (len(x_chunk.shape) == 3)  # (B,T,D)
+                assert (len(self.cached_feat.shape) == 3)  # (B,T,D)
                 self.cached_feat = paddle.concat(
                     [self.cached_feat, x_chunk], axis=1)
 
@@ -234,18 +235,16 @@ class PaddleASRConnectionHanddler:
             # update remained wav
             self.remained_wav = self.remained_wav[self.n_shift * num_frames:]
 
-
             logger.info(
                 f"process the audio feature success, the cached feat shape: {self.cached_feat.shape}"
             )
             logger.info(
                 f"After extract feat, the cached remain the audio samples: {self.remained_wav.shape}"
             )
-            logger.info(f"global samples: {self.num_samples}")       
+            logger.info(f"global samples: {self.num_samples}")
             logger.info(f"global frames: {self.num_frames}")
         else:
-            raise ValueError(f"not supported: {self.model_type}") 
-
+            raise ValueError(f"not supported: {self.model_type}")
 
     def reset(self):
         if "deepspeech2" in self.model_type:
@@ -263,11 +262,10 @@ class PaddleASRConnectionHanddler:
         # global sample and frame step
         self.num_samples = 0
         self.num_frames = 0
-       
+
         # cache for audio and feat
         self.remained_wav = None
         self.cached_feat = None
-
 
         # partial/ending decoding results
         self.result_transcripts = ['']
@@ -280,17 +278,16 @@ class PaddleASRConnectionHanddler:
         self.conformer_cnn_cache = None
         self.encoder_out = None
         # conformer decoding state
-        self.chunk_num = 0 # globa decoding chunk num
-        self.offset = 0 # global offset in decoding frame unit
+        self.chunk_num = 0  # globa decoding chunk num
+        self.offset = 0  # global offset in decoding frame unit
         self.hyps = []
-       
+
         # token timestamp result
         self.word_time_stamp = []
 
         # one best timestamp viterbi prob is large.
         self.time_stamp = []
 
-       
     def decode(self, is_finished=False):
         """advance decoding
 
@@ -307,7 +304,7 @@ class PaddleASRConnectionHanddler:
             decoding_chunk_size = 1  # decoding chunk size = 1. int decoding frame unit
             context = 7  # context=7, in audio frame unit
             subsampling = 4  # subsampling=4, in audio frame unit
-           
+
             cached_feature_num = context - subsampling
             # decoding window for model, in audio frame unit
             decoding_window = (decoding_chunk_size - 1) * subsampling + context
@@ -373,7 +370,6 @@ class PaddleASRConnectionHanddler:
         else:
             raise Exception("invalid model name")
 
-
     @paddle.no_grad()
     def decode_one_chunk(self, x_chunk, x_chunk_lens):
         """forward one chunk frames
@@ -425,10 +421,11 @@ class PaddleASRConnectionHanddler:
         logger.info(f"decode one best result for deepspeech2: {trans_best[0]}")
         return trans_best[0]
 
-
     @paddle.no_grad()
     def advance_decoding(self, is_finished=False):
-        logger.info("Conformer/Transformer: start to decode with advanced_decoding method")
+        logger.info(
+            "Conformer/Transformer: start to decode with advanced_decoding method"
+        )
         cfg = self.ctc_decode_config
 
         # cur chunk size, in decoding frame unit
@@ -563,7 +560,6 @@ class PaddleASRConnectionHanddler:
         """
         return self.word_time_stamp
 
-
     @paddle.no_grad()
     def rescoring(self):
         """Second-Pass Decoding, 
@@ -572,9 +568,11 @@ class PaddleASRConnectionHanddler:
         if "deepspeech2" in self.model_type:
             logger.info("deepspeech2 not support rescoring decoding.")
             return
-        
+
         if "attention_rescoring" != self.ctc_decode_config.decoding_method:
-            logger.info(f"decoding method not match: {self.ctc_decode_config.decoding_method}, need attention_rescoring")
+            logger.info(
+                f"decoding method not match: {self.ctc_decode_config.decoding_method}, need attention_rescoring"
+            )
             return
 
         logger.info("rescoring the final result")
@@ -605,7 +603,8 @@ class PaddleASRConnectionHanddler:
                 hyp_content, place=self.device, dtype=paddle.long)
             hyp_list.append(hyp_content)
 
-        hyps_pad = pad_sequence(hyp_list, batch_first=True, padding_value=self.model.ignore_id)
+        hyps_pad = pad_sequence(
+            hyp_list, batch_first=True, padding_value=self.model.ignore_id)
         hyps_lens = paddle.to_tensor(
             [len(hyp[0]) for hyp in hyps], place=self.device,
             dtype=paddle.long)  # (beam_size,)
@@ -689,10 +688,9 @@ class PaddleASRConnectionHanddler:
                 "ed": end
             })
             # logger.info(f"{word_time_stamp[-1]}")
-        
+
         self.word_time_stamp = word_time_stamp
         logger.info(f"word time stamp: {self.word_time_stamp}")
-
 
 
 class ASRServerExecutor(ASRExecutor):
@@ -741,7 +739,7 @@ class ASRServerExecutor(ASRExecutor):
             self.am_model = os.path.abspath(am_model)
             self.am_params = os.path.abspath(am_params)
             self.res_path = os.path.dirname(
-                os.path.dirname(os.path.abspath(self.cfg_path)))         
+                os.path.dirname(os.path.abspath(self.cfg_path)))
 
         logger.info(self.cfg_path)
         logger.info(self.am_model)
@@ -855,7 +853,7 @@ class ASRServerExecutor(ASRExecutor):
             self.transformer_decode_reset()
         else:
             raise ValueError(f"Not support: {model_type}")
-        
+
         return True
 
 

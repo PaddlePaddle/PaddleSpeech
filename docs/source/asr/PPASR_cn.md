@@ -92,5 +92,3 @@ server 的 demo： [streaming_asr_server](https://github.com/PaddlePaddle/Paddle
 ## 4. 快速开始
 
 关于如果使用 PP-ASR，可以看这里的 [install](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)，其中提供了 **简单**、**中等**、**困难** 三种安装方式。如果想体验 paddlespeech 的推理功能，可以用 **简单** 安装方式。
-
-

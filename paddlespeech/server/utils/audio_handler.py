@@ -248,7 +248,7 @@ class ASRHttpHandler:
         }
 
         res = requests.post(url=self.url, data=json.dumps(data))
-        
+
         return res.json()
 
 

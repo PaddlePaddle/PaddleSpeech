@@ -90,7 +90,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
 
     def _target_mask(self, ys_in_pad):
         ys_mask = ys_in_pad != 0
-        m = subsequent_mask(ys_mask.size(-1)).unsqueeze(0)
+        m = subsequent_mask(ys_mask.shape[-1])).unsqueeze(0)
         return ys_mask.unsqueeze(-2) & m
 
     def forward(self, x: paddle.Tensor, t: paddle.Tensor
@@ -112,7 +112,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             in perplexity: p(t)^{-n} = exp(-log p(t) / n)
 
         """
-        batch_size = x.size(0)
+        batch_size = x.shape[0]
         xm = x != 0
         xlen = xm.sum(axis=1)
         if self.embed_drop is not None:

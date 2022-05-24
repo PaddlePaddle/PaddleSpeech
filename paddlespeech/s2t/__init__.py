@@ -200,7 +200,7 @@ if not hasattr(paddle.Tensor, 'view'):
 
 
 def view_as(xs: paddle.Tensor, ys: paddle.Tensor) -> paddle.Tensor:
-    return xs.reshape(ys.size())
+    return xs.reshape(ys.shape)
 
 
 if not hasattr(paddle.Tensor, 'view_as'):

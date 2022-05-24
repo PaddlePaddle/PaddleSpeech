@@ -33,6 +33,11 @@ if __name__ == "__main__":
     parser = default_argument_parser()
     parser.add_argument(
         "--model_type", type=str, default='offline', help='offline/online')
+    parser.add_argument(
+        '--nxpu',
+        type=int,
+        default=1,
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
     print("model_type:{}".format(args.model_type))
     print_arguments(args, globals())

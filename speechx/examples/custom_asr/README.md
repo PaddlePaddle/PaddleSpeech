@@ -1,7 +1,7 @@
 # customized Auto Speech Recognition
 
 ## introduction
-those scripts are tutorials to show you how make your own decoding graph.
+These scripts are tutorials to show you how build your own decoding graph.
 
 eg:
 * G with slot: 打车到 "address_slot"。
@@ -13,7 +13,7 @@ eg:
 * after replace operation, G = fstreplace(G_with_slot, address_slot), we will get the customized graph.
 ![](https://ai-studio-static-online.cdn.bcebos.com/60a3095293044f10b73039ab10c7950d139a6717580a44a3ba878c6e74de402b)
 
-those operations are in the scripts, please check out. we will lanuch more detail scripts.
+These operations are in the scripts, please check out. we will lanuch more detail scripts.
 
 ## How to run
 

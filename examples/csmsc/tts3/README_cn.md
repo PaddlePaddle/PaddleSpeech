@@ -5,7 +5,7 @@
 
 ## 数据集
 ### 下载并解压
-从 [官方网站](https://test.data-baker.com/data/index/source) 下载数据集
+从 [官方网站](https://test.data-baker.com/data/index/TNtts/) 下载数据集
 
 ### 获取MFA结果并解压
 我们使用 [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 去获得 fastspeech2 的音素持续时间。

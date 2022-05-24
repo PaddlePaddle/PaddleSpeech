@@ -6,6 +6,8 @@
 
 这个 demo 是打车报销单的场景识别，需要识别一些稀有的地名，可以通过如下操作实现。
 
+相关脚本:PaddleSpeech/speechx/examples/custom_asr
+
 * G with slot: 打车到 "address_slot"。  
 ![](https://ai-studio-static-online.cdn.bcebos.com/28d9ef132a7f47a895a65ae9e5c4f55b8f472c9f3dd24be8a2e66e0b88b173a4)
 

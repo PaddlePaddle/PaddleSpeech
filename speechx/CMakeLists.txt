@@ -57,7 +57,7 @@ include(gtest)
 include(absl)
 
 # libsndfile
-include(libsndfile)
+#include(libsndfile)
 
 # boost
 # include(boost) # not work
@@ -73,9 +73,17 @@ find_package(Eigen3 REQUIRED)
 # Kenlm
 include(kenlm)
 add_dependencies(kenlm eigen boost)
+#set(kenlm_install_dir $(fc_patch)/kenlm-build)
+#link_directories(${Kenlm_install_dir}/lib)
+#include_directories(${fc_patch}/kenlm-src)
 
 #openblas
-include(openblas)
+#include(openblas)
+set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
+link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
+include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
+
+
 
 # openfst
 include(openfst)

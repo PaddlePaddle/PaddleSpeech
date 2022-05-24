@@ -112,7 +112,13 @@ class Trainer():
         logger.info(f"Rank: {self.rank}/{self.world_size}")
 
         # set device
-        paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
+        if self.args.ngpu == 0:
+            if self.args.nxpu == 0:
+                paddle.set_device('cpu')
+            else:
+                paddle.set_device('xpu')
+        elif self.args.ngpu > 0:
+            paddle.set_device("gpu")
         if self.parallel:
             self.init_parallel()
 

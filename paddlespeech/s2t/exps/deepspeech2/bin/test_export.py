@@ -41,6 +41,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_type", type=str, default='offline', help='offline/online')
     parser.add_argument(
+        '--nxpu',
+        type=int,
+        default=1,
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
+    parser.add_argument(
         "--enable-auto-log", action="store_true", help="use auto log")
     args = parser.parse_args()
     print_arguments(args, globals())

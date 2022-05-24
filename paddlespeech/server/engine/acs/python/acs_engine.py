@@ -16,6 +16,7 @@ import json
 import os
 import re
 
+import numpy as np
 import paddle
 import soundfile
 import websocket
@@ -44,11 +45,7 @@ class ACSEngine(BaseEngine):
         logger.info("Init the acs engine")
         try:
             self.config = config
-            if self.config.device:
-                self.device = self.config.device
-            else:
-                self.device = paddle.get_device()
-
+            self.device = self.config.get("device", paddle.get_device())
             paddle.set_device(self.device)
             logger.info(f"ACS Engine set the device: {self.device}")
 
@@ -116,11 +113,17 @@ class ACSEngine(BaseEngine):
         logger.info("client receive msg={}".format(msg))
 
         # send the total audio data
-        samples, sample_rate = soundfile.read(audio_data, dtype='int16')
-        ws.send_binary(samples.tobytes())
-        msg = ws.recv()
-        msg = json.loads(msg)
-        logger.info(f"audio result: {msg}")
+        for chunk_data in self.read_wave(audio_data):
+            ws.send_binary(chunk_data.tobytes())
+            msg = ws.recv()
+            msg = json.loads(msg)
+            logger.info(f"audio result: {msg}")
+        # samples, sample_rate = soundfile.read(audio_data, dtype='int16')
+
+        # ws.send_binary(samples.tobytes())
+        # msg = ws.recv()
+        # msg = json.loads(msg)
+        # logger.info(f"audio result: {msg}")
 
         # 3. send chunk audio data to engine
         logger.info("send the end signal")
@@ -141,6 +144,39 @@ class ACSEngine(BaseEngine):
         ws.close()
 
         return msg
+
+    def read_wave(self, audio_data: str):
+        """read the audio file from specific wavfile path
+
+        Args:
+            audio_data (str): the audio data, 
+                                 we assume that audio sample rate matches the model
+
+        Yields:
+            numpy.array: the samall package audio pcm data
+        """
+        samples, sample_rate = soundfile.read(audio_data, dtype='int16')
+        x_len = len(samples)
+        assert sample_rate == 16000
+
+        chunk_size = int(85 * sample_rate / 1000)  # 85ms, sample_rate = 16kHz
+
+        if x_len % chunk_size != 0:
+            padding_len_x = chunk_size - x_len % chunk_size
+        else:
+            padding_len_x = 0
+
+        padding = np.zeros((padding_len_x), dtype=samples.dtype)
+        padded_x = np.concatenate([samples, padding], axis=0)
+
+        assert (x_len + padding_len_x) % chunk_size == 0
+        num_chunk = (x_len + padding_len_x) / chunk_size
+        num_chunk = int(num_chunk)
+        for i in range(0, num_chunk):
+            start = i * chunk_size
+            end = start + chunk_size
+            x_chunk = padded_x[start:end]
+            yield x_chunk
 
     def get_macthed_word(self, msg):
         """Get the matched info in msg

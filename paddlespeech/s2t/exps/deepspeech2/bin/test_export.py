@@ -43,7 +43,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--nxpu',
         type=int,
-        default=1,
+        default=0,
         help="if nxpu == 0 and ngpu == 0, use cpu.")
     parser.add_argument(
         "--enable-auto-log", action="store_true", help="use auto log")

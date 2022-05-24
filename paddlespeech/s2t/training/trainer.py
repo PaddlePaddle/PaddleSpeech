@@ -119,6 +119,9 @@ class Trainer():
                 paddle.set_device('xpu')
         elif self.args.ngpu > 0:
             paddle.set_device("gpu")
+        else:
+            raise Exception("invalid device")
+
         if self.parallel:
             self.init_parallel()
 

@@ -16,6 +16,7 @@ import copy
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 
 import paddle
 import paddle.nn.functional as F
@@ -34,6 +35,7 @@ class HiFiGANGenerator(nn.Layer):
             in_channels: int=80,
             out_channels: int=1,
             channels: int=512,
+            global_channels: int=-1,
             kernel_size: int=7,
             upsample_scales: List[int]=(8, 8, 2, 2),
             upsample_kernel_sizes: List[int]=(16, 16, 4, 4),
@@ -51,6 +53,7 @@ class HiFiGANGenerator(nn.Layer):
             in_channels (int): Number of input channels.
             out_channels (int): Number of output channels.
             channels (int): Number of hidden representation channels.
+            global_channels (int): Number of global conditioning channels.
             kernel_size (int): Kernel size of initial and final conv layer.
             upsample_scales (list): List of upsampling scales.
             upsample_kernel_sizes (list): List of kernel sizes for upsampling layers.
@@ -119,6 +122,9 @@ class HiFiGANGenerator(nn.Layer):
                 padding=(kernel_size - 1) // 2, ),
             nn.Tanh(), )
 
+        if global_channels > 0:
+            self.global_conv = nn.Conv1D(global_channels, channels, 1)
+
         nn.initializer.set_global_initializer(None)
 
         # apply weight norm
@@ -128,15 +134,18 @@ class HiFiGANGenerator(nn.Layer):
         # reset parameters
         self.reset_parameters()
 
-    def forward(self, c):
+    def forward(self, c, g: Optional[paddle.Tensor]=None):
         """Calculate forward propagation.
         
         Args:
             c (Tensor): Input tensor (B, in_channels, T).
+            g (Optional[Tensor]): Global conditioning tensor (B, global_channels, 1).
         Returns:
             Tensor: Output tensor (B, out_channels, T).
         """
         c = self.input_conv(c)
+        if g is not None:
+            c = c + self.global_conv(g)
         for i in range(self.num_upsamples):
             c = self.upsamples[i](c)
             # initialize
@@ -187,16 +196,19 @@ class HiFiGANGenerator(nn.Layer):
 
         self.apply(_remove_weight_norm)
 
-    def inference(self, c):
+    def inference(self, c, g: Optional[paddle.Tensor]=None):
         """Perform inference.
         Args:
             c (Tensor): Input tensor (T, in_channels).
                 normalize_before (bool): Whether to perform normalization.
+            g (Optional[Tensor]): Global conditioning tensor (global_channels, 1).
         Returns:
             Tensor:
                 Output tensor (T ** prod(upsample_scales), out_channels).
         """
-        c = self.forward(c.transpose([1, 0]).unsqueeze(0))
+        if g is not None:
+            g = g.unsqueeze(0)
+        c = self.forward(c.transpose([1, 0]).unsqueeze(0), g=g)
         return c.squeeze(0).transpose([1, 0])
 
 

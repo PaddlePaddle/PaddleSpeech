@@ -22,7 +22,7 @@ from paddleaudio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 
 from paddlespeech.cls.models import SoundClassifier
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

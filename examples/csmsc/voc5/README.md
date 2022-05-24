@@ -130,7 +130,7 @@ HiFiGAN checkpoint contains files listed below.
 ```text
 hifigan_csmsc_ckpt_0.1.1
 ├── default.yaml                  # default config used to train hifigan
-├── feats_stats.npy                  # statistics used to normalize spectrogram when training hifigan
+├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
 └── snapshot_iter_2500000.pdz     # generator parameters of hifigan
 ```
 

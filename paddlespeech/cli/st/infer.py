@@ -36,8 +36,8 @@ from .pretrained_models import kaldi_bins
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ["STExecutor"]
 

@@ -58,8 +58,8 @@ def pad_sequence(sequences: List[paddle.Tensor],
         >>> a = paddle.ones(25, 300)
         >>> b = paddle.ones(22, 300)
         >>> c = paddle.ones(15, 300)
-        >>> pad_sequence([a, b, c]).size()
-        paddle.Tensor([25, 3, 300])
+        >>> pad_sequence([a, b, c]).shape
+        [25, 3, 300]
 
     Note:
         This function returns a Tensor of size ``T x B x *`` or ``B x T x *``
@@ -79,7 +79,7 @@ def pad_sequence(sequences: List[paddle.Tensor],
 
     # assuming trailing dimensions and type of all the Tensors
     # in sequences are same and fetching those from sequences[0]
-    max_size = sequences[0].size()
+    max_size = sequences[0].shape
     # (TODO Hui Zhang): slice not supprot `end==start`
     # trailing_dims = max_size[1:]
     trailing_dims = tuple(max_size[1:].numpy().tolist()) if sequences[0].ndim >= 2 else ()

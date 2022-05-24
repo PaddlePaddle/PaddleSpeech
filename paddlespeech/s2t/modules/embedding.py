@@ -115,7 +115,7 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
         assert offset + x.shape[
             1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
                 offset, x.shape[1], self.max_len)
-        #TODO(Hui Zhang): using T = x.size(1), __getitem__ not support Tensor
+        #TODO(Hui Zhang): using T = x.shape[1], __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + T]
         x = x * self.xscale + pos_emb
         return self.dropout(x), self.dropout(pos_emb)
@@ -165,6 +165,6 @@ class RelPositionalEncoding(PositionalEncoding):
             1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
                 offset, x.shape[1], self.max_len)
         x = x * self.xscale
-        #TODO(Hui Zhang): using x.size(1), __getitem__ not support Tensor
+        #TODO(Hui Zhang): using x.shape[1], __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + x.shape[1]]
         return self.dropout(x), self.dropout(pos_emb)

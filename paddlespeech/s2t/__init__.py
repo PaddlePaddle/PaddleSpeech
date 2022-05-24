@@ -189,25 +189,6 @@ if not hasattr(paddle.Tensor, 'contiguous'):
     paddle.static.Variable.contiguous = contiguous
 
 
-def size(xs: paddle.Tensor, *args: int) -> paddle.Tensor:
-    nargs = len(args)
-    assert (nargs <= 1)
-    s = paddle.shape(xs)
-    if nargs == 1:
-        return s[args[0]]
-    else:
-        return s
-
-
-#`to_static` do not process `size` property, maybe some `paddle` api dependent on it.
-logger.debug(
-    "override size of paddle.Tensor "
-    "(`to_static` do not process `size` property, maybe some `paddle` api dependent on it), remove this when fixed!"
-)
-paddle.Tensor.size = size
-paddle.static.Variable.size = size
-
-
 def view(xs: paddle.Tensor, *args: int) -> paddle.Tensor:
     return xs.reshape(args)
 

@@ -775,7 +775,7 @@ class U2DecodeModel(U2BaseModel):
         """
         self.eval()
         x = paddle.to_tensor(x).unsqueeze(0)
-        ilen = x.size(1)
+        ilen = x.shape[1]
         enc_output, _ = self._forward_encoder(x, ilen)
         return enc_output.squeeze(0)
 

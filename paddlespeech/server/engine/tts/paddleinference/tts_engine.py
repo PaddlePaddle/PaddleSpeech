@@ -23,9 +23,11 @@ import paddle
 import soundfile as sf
 from scipy.io import wavfile
 
+from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.tts.infer import TTSExecutor
+from paddlespeech.cli.utils import download_and_decompress
+from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
 from paddlespeech.server.utils.errors import ErrorCode
@@ -35,13 +37,72 @@ from paddlespeech.server.utils.paddle_predictor import run_model
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
-__all__ = ['TTSEngine']
+__all__ = ['TTSEngine', 'TTSHandler']
 
 
-class TTSServerExecutor(TTSExecutor):
+class TTSEngine(BaseEngine):
+    """TTS server engine
+
+    Args:
+        metaclass: Defaults to Singleton.
+    """
+
     def __init__(self):
-        super().__init__()
+        """Initialize TTS server engine
+        """
+        super(TTSEngine, self).__init__()
+        self.model_alias = model_alias
         self.pretrained_models = pretrained_models
+        self.engine_type = "inference"
+
+    def init(self, config: dict) -> bool:
+        self.config = config
+        self.lang = self.config.lang
+
+        try:
+            if self.config.am_predictor_conf.device is not None:
+                self.device = self.config.am_predictor_conf.device
+            elif self.config.voc_predictor_conf.device is not None:
+                self.device = self.config.voc_predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
+
+        try:
+            self._init_from_path(
+                am=self.config.am,
+                am_model=self.config.am_model,
+                am_params=self.config.am_params,
+                am_sample_rate=self.config.am_sample_rate,
+                phones_dict=self.config.phones_dict,
+                tones_dict=self.config.tones_dict,
+                speaker_dict=self.config.speaker_dict,
+                voc=self.config.voc,
+                voc_model=self.config.voc_model,
+                voc_params=self.config.voc_params,
+                voc_sample_rate=self.config.voc_sample_rate,
+                lang=self.config.lang,
+                am_predictor_conf=self.config.am_predictor_conf,
+                voc_predictor_conf=self.config.voc_predictor_conf, )
+            logger.info(
+                "Initialize TTS server engine successfully on device: %s." %
+                (self.device))
+        except Exception as e:
+            logger.error("Failed to get model related files.")
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
+
+        return True
 
     def _init_from_path(
             self,
@@ -176,6 +237,31 @@ class TTSServerExecutor(TTSExecutor):
             predictor_conf=self.voc_predictor_conf)
         logger.info("Create Vocoder predictor successfully.")
 
+    def _get_pretrained_path(self, tag: str) -> os.PathLike:
+        """
+        Download and returns pretrained resources path of current task.
+        """
+        support_models = list(self.pretrained_models.keys())
+        assert tag in self.pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
+            tag, '\n\t\t'.join(support_models))
+
+        res_path = os.path.join(MODEL_HOME, tag)
+        decompressed_path = download_and_decompress(self.pretrained_models[tag],
+                                                    res_path)
+        decompressed_path = os.path.abspath(decompressed_path)
+        logger.info(
+            'Use pretrained model stored in: {}'.format(decompressed_path))
+
+        return decompressed_path
+
+
+class TTSHandler():
+    def __init__(self, tts_engine):
+        """Initialize TTS server engine
+        """
+        super(TTSHandler, self).__init__()
+        self.tts_engine = tts_engine
+
     @paddle.no_grad()
     def infer(self,
               text: str,
@@ -189,11 +275,12 @@ class TTSServerExecutor(TTSExecutor):
         am_dataset = am[am.rindex('_') + 1:]
         get_tone_ids = False
         merge_sentences = False
+
         frontend_st = time.time()
         if am_name == 'speedyspeech':
             get_tone_ids = True
         if lang == 'zh':
-            input_ids = self.frontend.get_input_ids(
+            input_ids = self.tts_engine.frontend.get_input_ids(
                 text,
                 merge_sentences=merge_sentences,
                 get_tone_ids=get_tone_ids)
@@ -201,7 +288,7 @@ class TTSServerExecutor(TTSExecutor):
             if get_tone_ids:
                 tone_ids = input_ids["tone_ids"]
         elif lang == 'en':
-            input_ids = self.frontend.get_input_ids(
+            input_ids = self.tts_engine.frontend.get_input_ids(
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
@@ -218,7 +305,7 @@ class TTSServerExecutor(TTSExecutor):
             if am_name == 'speedyspeech':
                 part_tone_ids = tone_ids[i]
                 am_result = run_model(
-                    self.am_predictor,
+                    self.tts_engine.am_predictor,
                     [part_phone_ids.numpy(), part_tone_ids.numpy()])
                 mel = am_result[0]
 
@@ -228,14 +315,14 @@ class TTSServerExecutor(TTSExecutor):
                 if am_dataset in {"aishell3", "vctk"}:
                     pass
                 else:
-                    am_result = run_model(self.am_predictor,
+                    am_result = run_model(self.tts_engine.am_predictor,
                                           [part_phone_ids.numpy()])
                     mel = am_result[0]
             self.am_time += (time.time() - am_st)
 
             # voc
             voc_st = time.time()
-            voc_result = run_model(self.voc_predictor, [mel])
+            voc_result = run_model(self.tts_engine.voc_predictor, [mel])
             wav = voc_result[0]
             wav = paddle.to_tensor(wav)
 
@@ -245,85 +332,7 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 wav_all = paddle.concat([wav_all, wav])
             self.voc_time += (time.time() - voc_st)
-        self._outputs['wav'] = wav_all
-
-
-class TTSEngine(BaseEngine):
-    """TTS server engine
-
-    Args:
-        metaclass: Defaults to Singleton.
-    """
-
-    def __init__(self):
-        """Initialize TTS server engine
-        """
-        super(TTSEngine, self).__init__()
-
-    def init(self, config: dict) -> bool:
-        self.executor = TTSServerExecutor()
-        self.config = config
-
-        try:
-            if self.config.am_predictor_conf.device is not None:
-                self.device = self.config.am_predictor_conf.device
-            elif self.config.voc_predictor_conf.device is not None:
-                self.device = self.config.voc_predictor_conf.device
-            else:
-                self.device = paddle.get_device()
-            paddle.set_device(self.device)
-        except BaseException as e:
-            logger.error(
-                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
-            )
-            logger.error("Initialize TTS server engine Failed on device: %s." %
-                         (self.device))
-            return False
-
-        self.executor._init_from_path(
-            am=self.config.am,
-            am_model=self.config.am_model,
-            am_params=self.config.am_params,
-            am_sample_rate=self.config.am_sample_rate,
-            phones_dict=self.config.phones_dict,
-            tones_dict=self.config.tones_dict,
-            speaker_dict=self.config.speaker_dict,
-            voc=self.config.voc,
-            voc_model=self.config.voc_model,
-            voc_params=self.config.voc_params,
-            voc_sample_rate=self.config.voc_sample_rate,
-            lang=self.config.lang,
-            am_predictor_conf=self.config.am_predictor_conf,
-            voc_predictor_conf=self.config.voc_predictor_conf, )
-
-        # warm up
-        try:
-            self.warm_up()
-            logger.info("Warm up successfully.")
-        except Exception as e:
-            logger.error("Failed to warm up on tts engine.")
-            return False
-
-        logger.info("Initialize TTS server engine successfully.")
-        return True
-
-    def warm_up(self):
-        """warm up
-        """
-        if self.config.lang == 'zh':
-            sentence = "您好，欢迎使用语音合成服务。"
-        if self.config.lang == 'en':
-            sentence = "Hello and welcome to the speech synthesis service."
-        logger.info("Start to warm up.")
-        for i in range(3):
-            st = time.time()
-            self.executor.infer(
-                text=sentence,
-                lang=self.config.lang,
-                am=self.config.am,
-                spk_id=0, )
-            logger.info(
-                f"The response time of the {i} warm up: {time.time() - st} s")
+        self.output = wav_all
 
     def postprocess(self,
                     wav,
@@ -375,8 +384,9 @@ class TTSEngine(BaseEngine):
                 ErrorCode.SERVER_INTERNAL_ERR,
                 "Failed to transform speed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
-        except BaseException:
+        except Exception as e:
             logger.error("Failed to transform speed.")
+            logger.error(e)
 
         # wav to base64
         buf = io.BytesIO()
@@ -429,52 +439,59 @@ class TTSEngine(BaseEngine):
             wav_base64: The base64 format of the synthesized audio.
         """
 
-        lang = self.config.lang
+        lang = self.tts_engine.lang
 
         try:
             infer_st = time.time()
-            self.executor.infer(
-                text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
+            self.infer(
+                text=sentence,
+                lang=lang,
+                am=self.tts_engine.config.am,
+                spk_id=spk_id)
             infer_et = time.time()
             infer_time = infer_et - infer_st
 
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts infer failed.")
+            logger.error(e)
+            sys.exit(-1)
 
         try:
             postprocess_st = time.time()
             target_sample_rate, wav_base64 = self.postprocess(
-                wav=self.executor._outputs['wav'].numpy(),
-                original_fs=self.executor.am_sample_rate,
+                wav=self.output.numpy(),
+                original_fs=self.tts_engine.am_sample_rate,
                 target_fs=sample_rate,
                 volume=volume,
                 speed=speed,
                 audio_path=save_path)
             postprocess_et = time.time()
             postprocess_time = postprocess_et - postprocess_st
-            duration = len(self.executor._outputs['wav']
-                           .numpy()) / self.executor.am_sample_rate
+            duration = len(self.output.numpy()) / self.tts_engine.am_sample_rate
             rtf = infer_time / duration
 
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts postprocess failed.")
+            logger.error(e)
+            sys.exit(-1)
 
-        logger.info("AM model: {}".format(self.config.am))
-        logger.info("Vocoder model: {}".format(self.config.voc))
+        logger.info("AM model: {}".format(self.tts_engine.config.am))
+        logger.info("Vocoder model: {}".format(self.tts_engine.config.voc))
         logger.info("Language: {}".format(lang))
         logger.info("tts engine type: paddle inference")
 
         logger.info("audio duration: {}".format(duration))
-        logger.info(
-            "frontend inference time: {}".format(self.executor.frontend_time))
-        logger.info("AM inference time: {}".format(self.executor.am_time))
-        logger.info("Vocoder inference time: {}".format(self.executor.voc_time))
+        logger.info("frontend inference time: {}".format(self.frontend_time))
+        logger.info("AM inference time: {}".format(self.am_time))
+        logger.info("Vocoder inference time: {}".format(self.voc_time))
         logger.info("total inference time: {}".format(infer_time))
         logger.info(
             "postprocess (change speed, volume, target sample rate) time: {}".

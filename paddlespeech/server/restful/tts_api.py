@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 import traceback
 from typing import Union
 
@@ -99,7 +100,16 @@ def tts(request_body: TTSRequest):
         tts_engine = engine_pool['tts']
         logger.info("Get tts engine successfully.")
 
-        lang, target_sample_rate, duration, wav_base64 = tts_engine.run(
+        if tts_engine.engine_type == "python":
+            from paddlespeech.server.engine.tts.python.tts_engine import TTSHandler
+        elif tts_engine.engine_type == "inference":
+            from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSHandler
+        else:
+            logger.error("Offline tts engine only support python or inference.")
+            sys.exit(-1)
+        tts_handler = TTSHandler(tts_engine)
+
+        lang, target_sample_rate, duration, wav_base64 = tts_handler.run(
             text, spk_id, speed, volume, sample_rate, save_path)
 
         response = {

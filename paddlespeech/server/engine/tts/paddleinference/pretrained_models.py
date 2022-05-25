@@ -85,3 +85,40 @@ pretrained_models = {
         24000,
     },
 }
+
+model_alias = {
+    # acoustic model
+    "speedyspeech":
+    "paddlespeech.t2s.models.speedyspeech:SpeedySpeech",
+    "speedyspeech_inference":
+    "paddlespeech.t2s.models.speedyspeech:SpeedySpeechInference",
+    "fastspeech2":
+    "paddlespeech.t2s.models.fastspeech2:FastSpeech2",
+    "fastspeech2_inference":
+    "paddlespeech.t2s.models.fastspeech2:FastSpeech2Inference",
+    "tacotron2":
+    "paddlespeech.t2s.models.tacotron2:Tacotron2",
+    "tacotron2_inference":
+    "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
+    # voc
+    "pwgan":
+    "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
+    "pwgan_inference":
+    "paddlespeech.t2s.models.parallel_wavegan:PWGInference",
+    "mb_melgan":
+    "paddlespeech.t2s.models.melgan:MelGANGenerator",
+    "mb_melgan_inference":
+    "paddlespeech.t2s.models.melgan:MelGANInference",
+    "style_melgan":
+    "paddlespeech.t2s.models.melgan:StyleMelGANGenerator",
+    "style_melgan_inference":
+    "paddlespeech.t2s.models.melgan:StyleMelGANInference",
+    "hifigan":
+    "paddlespeech.t2s.models.hifigan:HiFiGANGenerator",
+    "hifigan_inference":
+    "paddlespeech.t2s.models.hifigan:HiFiGANInference",
+    "wavernn":
+    "paddlespeech.t2s.models.wavernn:WaveRNN",
+    "wavernn_inference":
+    "paddlespeech.t2s.models.wavernn:WaveRNNInference",
+}

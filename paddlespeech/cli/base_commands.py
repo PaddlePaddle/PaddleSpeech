@@ -15,6 +15,7 @@ from typing import List
 
 from .entry import commands
 from .utils import cli_register
+from .utils import explicit_command_register
 from .utils import get_command
 
 __all__ = [
@@ -73,3 +74,20 @@ class VersionCommand:
 
         print(msg)
         return True
+
+
+# Dynamic import when running specific command
+_commands = {
+    'asr': ['Speech to text infer command.', 'ASRExecutor'],
+    'cls': ['Audio classification infer command.', 'CLSExecutor'],
+    'st': ['Speech translation infer command.', 'STExecutor'],
+    'text': ['Text command.', 'TextExecutor'],
+    'tts': ['Text to Speech infer command.', 'TTSExecutor'],
+    'vector': ['Speech to vector embedding infer command.', 'VectorExecutor'],
+}
+
+for com, info in _commands.items():
+    explicit_command_register(
+        name='paddlespeech.{}'.format(com),
+        description=info[0],
+        cls='paddlespeech.cli.{}.{}'.format(com, info[1]))

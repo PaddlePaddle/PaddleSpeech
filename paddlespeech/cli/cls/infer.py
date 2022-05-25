@@ -27,7 +27,6 @@ from paddlespeech.utils.dynamic_import import dynamic_import
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
@@ -36,8 +35,6 @@ from .pretrained_models import pretrained_models
 __all__ = ['CLSExecutor']
 
 
-@cli_register(
-    name='paddlespeech.cls', description='Audio classification infer command.')
 class CLSExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

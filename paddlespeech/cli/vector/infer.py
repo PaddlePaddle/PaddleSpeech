@@ -28,7 +28,6 @@ from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
@@ -37,9 +36,6 @@ from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 
 
-@cli_register(
-    name="paddlespeech.vector",
-    description="Speech to vector embedding infer command.")
 class VectorExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

@@ -28,7 +28,6 @@ from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
@@ -42,8 +41,6 @@ from paddlespeech.utils.dynamic_import import dynamic_import
 __all__ = ["STExecutor"]
 
 
-@cli_register(
-    name="paddlespeech.st", description="Speech translation infer command.")
 class STExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

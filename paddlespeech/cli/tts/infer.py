@@ -28,7 +28,6 @@ from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
@@ -40,8 +39,6 @@ from paddlespeech.utils.dynamic_import import dynamic_import
 __all__ = ['TTSExecutor']
 
 
-@cli_register(
-    name='paddlespeech.tts', description='Text to Speech infer command.')
 class TTSExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

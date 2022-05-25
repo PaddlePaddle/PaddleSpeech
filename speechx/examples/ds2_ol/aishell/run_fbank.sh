@@ -154,7 +154,6 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --streaming_chunk=30 \
         --use_fbank=true \
-        --to_float32=false \
         --param_path=$model_dir/avg_5.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \

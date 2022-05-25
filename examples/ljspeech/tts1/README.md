@@ -61,7 +61,7 @@ Train a TransformerTTS model with LJSpeech TTS dataset.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       config file to overwrite default config.
+  --config CONFIG       TransformerTTS config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA

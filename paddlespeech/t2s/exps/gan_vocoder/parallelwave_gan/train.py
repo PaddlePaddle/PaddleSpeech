@@ -208,7 +208,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Train a ParallelWaveGAN model.")
     parser.add_argument(
-        "--config", type=str, help="config file to overwrite default config.")
+        "--config", type=str, help="ParallelWaveGAN config file.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")

@@ -118,12 +118,6 @@ class ACSEngine(BaseEngine):
             msg = ws.recv()
             msg = json.loads(msg)
             logger.info(f"audio result: {msg}")
-        # samples, sample_rate = soundfile.read(audio_data, dtype='int16')
-
-        # ws.send_binary(samples.tobytes())
-        # msg = ws.recv()
-        # msg = json.loads(msg)
-        # logger.info(f"audio result: {msg}")
 
         # 3. send chunk audio data to engine
         logger.info("send the end signal")

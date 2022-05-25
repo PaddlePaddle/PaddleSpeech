@@ -46,6 +46,9 @@ class ACSEngine(BaseEngine):
         try:
             self.config = config
             self.device = self.config.get("device", paddle.get_device())
+
+            # websocket default ping timeout is 20 seconds
+            self.ping_timeout = self.config.get("ping_timeout", 20)
             paddle.set_device(self.device)
             logger.info(f"ACS Engine set the device: {self.device}")
 
@@ -97,8 +100,8 @@ class ACSEngine(BaseEngine):
             logger.error("No asr server, please input valid ip and port")
             return ""
         ws = websocket.WebSocket()
-        ws.connect(self.url)
-        # with websocket.WebSocket.connect(self.url) as ws:
+        logger.info(f"set the ping timeout: {self.ping_timeout} seconds")
+        ws.connect(self.url, ping_timeout=self.ping_timeout)
         audio_info = json.dumps(
             {
                 "name": "test.wav",

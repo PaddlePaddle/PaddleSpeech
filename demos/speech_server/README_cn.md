@@ -352,7 +352,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       enroll_audio="85236145389.wav",
       test_audio="123456789.wav",
       server_ip="127.0.0.1",
-      port=8790,
+      port=8090,
       task="score")
   print(res)
   ```

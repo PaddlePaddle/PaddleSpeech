@@ -16,7 +16,12 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 
 You can choose one way from meduim and hard to install paddlespeech.
 
-The dependency refers to the requirements.txt
+The dependency refers to the requirements.txt, and install the dependency as follows:
+
+```
+pip install -r requriement.txt 
+```
+
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 

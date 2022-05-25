@@ -98,7 +98,6 @@ requirements = {
 }
 
 
-
 def check_call(cmd: str, shell=False, executable=None):
     try:
         sp.check_call(
@@ -112,12 +111,13 @@ def check_call(cmd: str, shell=False, executable=None):
             file=sys.stderr)
         raise e
 
+
 def check_output(cmd: str, shell=False):
     try:
         out_bytes = sp.check_output(cmd.split())
     except sp.CalledProcessError as e:
-        out_bytes = e.output       # Output generated before error
-        code      = e.returncode   # Return code
+        out_bytes = e.output  # Output generated before error
+        code = e.returncode  # Return code
         print(
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
             out_bytes,
@@ -145,6 +145,7 @@ def read(*names, **kwargs):
 def _remove(files: str):
     for f in files:
         f.unlink()
+
 
 ################################# Install ##################################
 
@@ -307,7 +308,6 @@ setup_info = dict(
             'paddlespeech_client=paddlespeech.server.entry:client_execute'
         ]
     })
-
 
 with version_info():
     setup(**setup_info)

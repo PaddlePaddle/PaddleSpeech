@@ -32,10 +32,10 @@ from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['TTSExecutor']
 

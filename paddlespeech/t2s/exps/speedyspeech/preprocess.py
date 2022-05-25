@@ -126,11 +126,17 @@ def process_sentences(config,
                       nprocs: int=1,
                       cut_sil: bool=True,
                       use_relative_path: bool=False):
+
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(config, fp, sentences, output_dir,
-                                      mel_extractor, cut_sil)
+            record = process_sentence(
+                config=config,
+                fp=fp,
+                sentences=sentences,
+                output_dir=output_dir,
+                mel_extractor=mel_extractor,
+                cut_sil=cut_sil)
             if record:
                 results.append(record)
     else:
@@ -268,30 +274,30 @@ def main():
     # process for the 3 sections
     if train_wav_files:
         process_sentences(
-            config,
-            train_wav_files,
-            sentences,
-            train_dump_dir,
-            mel_extractor,
+            config=config,
+            fps=train_wav_files,
+            sentences=sentences,
+            output_dir=train_dump_dir,
+            mel_extractor=mel_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             use_relative_path=args.use_relative_path)
     if dev_wav_files:
         process_sentences(
-            config,
-            dev_wav_files,
-            sentences,
-            dev_dump_dir,
-            mel_extractor,
+            config=config,
+            fps=dev_wav_files,
+            sentences=sentences,
+            output_dir=dev_dump_dir,
+            mel_extractor=mel_extractor,
             cut_sil=args.cut_sil,
             use_relative_path=args.use_relative_path)
     if test_wav_files:
         process_sentences(
-            config,
-            test_wav_files,
-            sentences,
-            test_dump_dir,
-            mel_extractor,
+            config=config,
+            fps=test_wav_files,
+            sentences=sentences,
+            output_dir=test_dump_dir,
+            mel_extractor=mel_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             use_relative_path=args.use_relative_path)

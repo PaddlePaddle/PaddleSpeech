@@ -3,7 +3,7 @@
 `PaddleSpeech` 有三种安装方法。根据安装的难易程度，这三种方法可以分为 **简单**, **中等** 和 **困难**.
 | 方式 | 功能                                                         | 支持系统            |
 | :--- | :----------------------------------------------------------- | :------------------ |
-| 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac(不支持M1芯片)，Windows |
+| 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac(不支持M1芯片)，Windows (安装详情查看[#1195](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1195)) |
 | 中等 | 支持 PaddleSpeech 主要功能，比如使用已有 examples 中的模型和使用 PaddleSpeech 来训练自己的模型. | Linux               |
 | 困难 | 支持 PaddleSpeech 的各项功能，包含结合kaldi使用 join ctc decoder 方式解码，训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
 ## 先决条件

@@ -1,11 +1,7 @@
 # WaveFlow with LJSpeech
 ## Dataset
-We experiment with the LJSpeech dataset. Download and unzip [LJSpeech](https://keithito.com/LJ-Speech-Dataset/).
-
-```bash
-wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-tar xjvf LJSpeech-1.1.tar.bz2
-```
+### Download and Extract
+Download LJSpeech-1.1 from it's [Official Website](https://keithito.com/LJ-Speech-Dataset/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/LJSpeech-1.1`.
 ## Get Started
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
 Assume the path to the Tacotron2 generated mels is `../tts0/output/test`.

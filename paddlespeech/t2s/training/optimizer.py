@@ -14,6 +14,14 @@
 import paddle
 from paddle import nn
 
+scheduler_classes = dict(
+    ReduceOnPlateau=paddle.optimizer.lr.ReduceOnPlateau,
+    lambda_decay=paddle.optimizer.lr.LambdaDecay,
+    step_decay=paddle.optimizer.lr.StepDecay,
+    multistep_decay=paddle.optimizer.lr.MultiStepDecay,
+    exponential_decay=paddle.optimizer.lr.ExponentialDecay,
+    CosineAnnealingDecay=paddle.optimizer.lr.CosineAnnealingDecay, )
+
 optim_classes = dict(
     adadelta=paddle.optimizer.Adadelta,
     adagrad=paddle.optimizer.Adagrad,

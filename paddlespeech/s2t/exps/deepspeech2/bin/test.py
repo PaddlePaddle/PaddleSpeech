@@ -37,6 +37,12 @@ if __name__ == "__main__":
     # save asr result to 
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
+    parser.add_argument(
+        '--nxpu',
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
     print_arguments(args, globals())
     print("model_type:{}".format(args.model_type))

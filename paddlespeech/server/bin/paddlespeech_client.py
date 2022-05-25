@@ -752,6 +752,7 @@ class VectorClientExecutor(BaseExecutor):
             res = handler.run(enroll_audio, test_audio, audio_format,
                               sample_rate)
             logger.info(f"The vector score is: {res}")
+            return res
         else:
             logger.error(f"Sorry, we have not support such task {task}")
 

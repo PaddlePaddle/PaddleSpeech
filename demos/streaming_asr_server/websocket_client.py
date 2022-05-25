@@ -13,9 +13,7 @@
 # limitations under the License.
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
 # script for calc RTF: grep -rn RTF log.txt | awk '{print $NF}' | awk -F "=" '{sum += $NF} END {print "all time",sum, "audio num", NR,  "RTF", sum/NR}'
-
 import argparse
 import asyncio
 import codecs

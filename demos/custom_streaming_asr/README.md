@@ -3,9 +3,12 @@
 # Customized Auto Speech Recognition
 
 ## introduction
+
 In some cases, we need to recognize the specific rare words with high accuracy. eg: address recognition in navigation apps. customized ASR can slove those issues.
 
 this demo is customized for expense account, which need to recognize rare address.
+
+the scripts are in https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/speechx/examples/custom_asr
 
 * G with slot: 打车到 "address_slot"。  
 ![](https://ai-studio-static-online.cdn.bcebos.com/28d9ef132a7f47a895a65ae9e5c4f55b8f472c9f3dd24be8a2e66e0b88b173a4)

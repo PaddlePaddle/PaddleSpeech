@@ -55,7 +55,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     cp $unit data/local/dict/units.txt
 
     if [ ! -f $lexicon ];then
-       local/text_to_lexicon.py --has_key true --text $text --lexicon $lexicon
+       utils/text_to_lexicon.py --has_key true --text $text --lexicon $lexicon
         echo "Generate $lexicon from $text"
     fi
 

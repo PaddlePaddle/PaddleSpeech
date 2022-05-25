@@ -28,6 +28,7 @@ acs_python:
     word_list: "./conf/words.txt"
     sample_rate: 16000
     device: 'cpu' # set 'gpu:id' or 'cpu'
+    ping_timeout: 100 # seconds
 
 
 

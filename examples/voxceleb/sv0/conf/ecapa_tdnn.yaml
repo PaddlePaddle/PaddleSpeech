@@ -59,3 +59,11 @@ global_embedding_norm: True
 embedding_mean_norm: True
 embedding_std_norm: False
 
+###########################################
+#                score-norm               #
+###########################################
+score_norm: s-norm
+cohort_size: 20000 # amount of imposter utterances in normalization cohort
+n_train_snts: 400000 # used for normalization stats
+
+

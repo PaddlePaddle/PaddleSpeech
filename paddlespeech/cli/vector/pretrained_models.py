@@ -19,9 +19,9 @@ pretrained_models = {
     # "paddlespeech vector --task spk --model ecapatdnn_voxceleb12-16k --sr 16000 --input ./input.wav"
     "ecapatdnn_voxceleb12-16k": {
         'url':
-        'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_0.tar.gz',
+        'https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_1.tar.gz',
         'md5':
-        'cc33023c54ab346cd318408f43fcaf95',
+        '67c7ff8885d5246bd16e0f5ac1cba99f',
         'cfg_path':
         'conf/model.yaml',  # the yaml config path
         'ckpt_path':

@@ -33,9 +33,9 @@ class CTCPrefixScorePD():
         self.logzero = -10000000000.0
         self.blank = blank
         self.eos = eos
-        self.batch = x.shape[0]
-        self.input_length = x.shape[1]
-        self.odim = x.shape[2]
+        self.batch = paddle.shape(x)[0]
+        self.input_length = paddle.shape(x)[1]
+        self.odim = paddle.shape(x)[2]
         self.dtype = x.dtype
 
         # Pad the rest of posteriors in the batch
@@ -76,7 +76,7 @@ class CTCPrefixScorePD():
         last_ids = [yi[-1] for yi in y]  # last output label ids
         n_bh = len(last_ids)  # batch * hyps
         n_hyps = n_bh // self.batch  # assuming each utterance has the same # of hyps
-        self.scoring_num = scoring_ids.shape[-1] if scoring_ids is not None else 0
+        self.scoring_num = paddle.shape(scoring_ids)[-1] if scoring_ids is not None else 0
         # prepare state info
         if state is None:
             r_prev = paddle.full(
@@ -226,7 +226,7 @@ class CTCPrefixScorePD():
         if self.x.shape[1] < x.shape[1]:  # self.x (2,T,B,O); x (B,T,O)
             # Pad the rest of posteriors in the batch
             # TODO(takaaki-hori): need a better way without for-loops
-            xlens = [x.shape[1]]
+            xlens = [paddle.shape(x)[1]]
             for i, l in enumerate(xlens):
                 if l < self.input_length:
                     x[i, l:, :] = self.logzero
@@ -236,7 +236,7 @@ class CTCPrefixScorePD():
             xb = xn[:, :, self.blank].unsqueeze(2).expand(-1, -1, self.odim)
             self.x = paddle.stack([xn, xb])  # (2, T, B, O)
             self.x[:, :tmp_x.shape[1], :, :] = tmp_x
-            self.input_length = x.shape[1]
+            self.input_length = paddle.shape(x)[1]
             self.end_frames = paddle.to_tensor(xlens) - 1
 
     def extend_state(self, state):

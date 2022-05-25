@@ -231,7 +231,7 @@ class BeamSearch(paddle.nn.Layer):
 
         """
         # no pre beam performed, `ids` equal to `weighted_scores`
-        if weighted_scores.shape[0] == ids.shape[0]:
+        if paddle.shape(weighted_scores)[0] == paddle.shape(ids)[0]:
             top_ids = weighted_scores.topk(
                 self.beam_size)[1]  # index in n_vocab
             return top_ids, top_ids
@@ -370,13 +370,13 @@ class BeamSearch(paddle.nn.Layer):
         """
         # set length bounds
         if maxlenratio == 0:
-            maxlen = x.shape[0]
+            maxlen = paddle.shape(x)[0]
         elif maxlenratio < 0:
             maxlen = -1 * int(maxlenratio)
         else:
-            maxlen = max(1, int(maxlenratio * x.shape[0]))
-        minlen = int(minlenratio * x.shape[0])
-        logger.info("decoder input length: " + str(x.shape[0]))
+            maxlen = max(1, int(maxlenratio * paddle.shape(x)[0]))
+        minlen = int(minlenratio * paddle.shape(x)[0])
+        logger.info("decoder input length: " + str(paddle.shape(x)[0]))
         logger.info("max output length: " + str(maxlen))
         logger.info("min output length: " + str(minlen))
 

@@ -28,7 +28,8 @@ ffmpeg -i subtitle_demo1.mp4 -ac 1 -ar 16000 -vn input.wav
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import ASRExecutor, TextExecutor
+  from paddlespeech.cli.asr import ASRExecutor
+  from paddlespeech.cli.text import TextExecutor
 
   asr_executor = ASRExecutor()
   text_executor = TextExecutor()

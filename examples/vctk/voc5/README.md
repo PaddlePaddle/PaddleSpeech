@@ -62,15 +62,13 @@ Here's the complete help message.
 ```text
 usage: train.py [-h] [--config CONFIG] [--train-metadata TRAIN_METADATA]
                 [--dev-metadata DEV_METADATA] [--output-dir OUTPUT_DIR]
-                [--ngpu NGPU] [--batch-size BATCH_SIZE] [--max-iter MAX_ITER]
-                [--run-benchmark RUN_BENCHMARK]
-                [--profiler_options PROFILER_OPTIONS]
+                [--ngpu NGPU]
 
-Train a ParallelWaveGAN model.
+Train a HiFiGAN model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       config file to overwrite default config.
+  --config CONFIG       HiFiGAN config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA
@@ -78,19 +76,6 @@ optional arguments:
   --output-dir OUTPUT_DIR
                         output dir.
   --ngpu NGPU           if ngpu == 0, use cpu.
-
-benchmark:
-  arguments related to benchmark.
-
-  --batch-size BATCH_SIZE
-                        batch size.
-  --max-iter MAX_ITER   train max steps.
-  --run-benchmark RUN_BENCHMARK
-                        runing benchmark or not, if True, use the --batch-size
-                        and --max-iter.
-  --profiler_options PROFILER_OPTIONS
-                        The option of profiler, which should be in format
-                        "key1=value1;key2=value2;key3=value3".
 ```
 
 1. `--config` is a config file in yaml format to overwrite the default config, which can be found at `conf/default.yaml`.

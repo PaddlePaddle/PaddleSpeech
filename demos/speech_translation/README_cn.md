@@ -47,7 +47,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import STExecutor
+  from paddlespeech.cli.st import STExecutor
   
   st_executor = STExecutor()
   text = st_executor(

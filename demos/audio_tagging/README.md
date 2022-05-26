@@ -57,7 +57,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespe
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import CLSExecutor
+  from paddlespeech.cli.cls import CLSExecutor
 
   cls_executor = CLSExecutor()
   result = cls_executor(

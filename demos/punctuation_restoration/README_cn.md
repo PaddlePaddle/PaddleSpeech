@@ -44,7 +44,7 @@
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import TextExecutor
+  from paddlespeech.cli.text import TextExecutor
 
   text_executor = TextExecutor()
   result = text_executor(

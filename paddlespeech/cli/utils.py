@@ -41,6 +41,7 @@ requests.adapters.DEFAULT_RETRIES = 3
 __all__ = [
     'timer_register',
     'cli_register',
+    'explicit_command_register',
     'get_command',
     'download_and_decompress',
     'load_state_dict_from_url',
@@ -68,6 +69,16 @@ def cli_register(name: str, description: str='') -> Any:
         return command
 
     return _warpper
+
+
+def explicit_command_register(name: str, description: str='', cls: str=''):
+    items = name.split('.')
+    com = commands
+    for item in items:
+        com = com[item]
+    com['_entry'] = cls
+    if description:
+        com['_description'] = description
 
 
 def get_command(name: str) -> Any:

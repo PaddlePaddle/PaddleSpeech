@@ -29,7 +29,6 @@ from yacs.config import CfgNode
 from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import CLI_TIMER
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
@@ -45,8 +44,6 @@ __all__ = ['ASRExecutor']
 
 
 @timer_register
-@cli_register(
-    name='paddlespeech.asr', description='Speech to text infer command.')
 class ASRExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

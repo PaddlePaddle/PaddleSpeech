@@ -23,7 +23,6 @@ import paddle
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
 from .pretrained_models import model_alias
 from .pretrained_models import pretrained_models
@@ -33,7 +32,6 @@ from paddlespeech.utils.dynamic_import import dynamic_import
 __all__ = ['TextExecutor']
 
 
-@cli_register(name='paddlespeech.text', description='Text infer command.')
 class TextExecutor(BaseExecutor):
     def __init__(self):
         super().__init__()

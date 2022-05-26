@@ -69,12 +69,12 @@ export GLOG_logtostderr=1
 cmvn=$data/cmvn.ark
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # 3. gen linear feat
-    cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
+    cmvn_json2kaldi_main --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/feat.log \
-    linear-spectrogram-wo-db-norm-ol \
+    compute_linear_spectrogram_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
         --cmvn_file=$cmvn \
@@ -85,7 +85,7 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     #  recognizer
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
@@ -102,7 +102,7 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     #  decode with lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
@@ -132,7 +132,7 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
-    wfst-decoder-ol \
+    tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
@@ -151,7 +151,7 @@ fi
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.log \
-    recognizer_test_main \
+    recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_1.jit.pdmodel \

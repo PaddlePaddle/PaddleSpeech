@@ -7,7 +7,7 @@ export GLOG_logtostderr=1
 . ./path.sh || exit 1;
 
 # ds2 means deepspeech2 (acoutic model type)
-dir=$PWD/ds2_graph_with_slot
+dir=$PWD/exp/ds2_graph_with_slot
 data=$PWD/data
 stage=0
 stop_stage=10
@@ -80,9 +80,9 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     --word_symbol_table=$graph/words.txt \
     --graph_path=$graph/TLG.fst --max_active=7500 \
     --acoustic_scale=12 \
-    --result_wspecifier=ark,t:./result_run.txt
+    --result_wspecifier=ark,t:./exp/result_run.txt
 
     # the data/wav.trans is the label.
-    utils/compute-wer.py --char=1 --v=1 data/wav.trans result_run.txt > wer_run
-    tail -n 7 wer_run
+    utils/compute-wer.py --char=1 --v=1 data/wav.trans exp/result_run.txt > exp/wer_run
+    tail -n 7 exp/wer_run
 fi

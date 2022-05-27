@@ -1,3 +1,5 @@
+# Copyright (c) 2021 Binbin Zhang(binbzha@qq.com)
+#               2022 Shaoqing Yu(954793264@qq.com)
 # Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

@@ -148,7 +148,7 @@ fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/fbank_recognizer.log \
-    recognizer_test_main \
+    recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_5.jit.pdmodel \

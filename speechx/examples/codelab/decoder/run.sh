@@ -54,7 +54,7 @@ cmvn=$exp_dir/cmvn.ark
 export GLOG_logtostderr=1
 
 # dump json cmvn to kaldi
-cmvn-json2kaldi \
+cmvn_json2kaldi_main \
     --json_file  $ckpt_dir/data/mean_std.json \
     --cmvn_write_path $cmvn \
     --binary=false
@@ -62,14 +62,14 @@ echo "convert json cmvn to kaldi ark."
 
 
 # generate linear feature as streaming
-linear-spectrogram-wo-db-norm-ol \
+compute_linear_spectrogram_main \
     --wav_rspecifier=scp:$data/wav.scp \
     --feature_wspecifier=ark,t:$feat_wspecifier \
     --cmvn_file=$cmvn
 echo "compute linear spectrogram feature."
 
 # run ctc beam search decoder as streaming
-ctc-prefix-beam-search-decoder-ol \
+ctc_prefix_beam_search_decoder_main \
     --result_wspecifier=ark,t:$exp_dir/result.txt \
     --feature_rspecifier=ark:$feat_wspecifier \
     --model_path=$model_dir/avg_1.jit.pdmodel \

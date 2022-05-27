@@ -118,7 +118,7 @@ export GLOG_logtostderr=1
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/check_tlg.log \
-    recognizer_test_main \
+    recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_5.jit.pdmodel \

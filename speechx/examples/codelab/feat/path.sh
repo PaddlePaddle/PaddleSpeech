@@ -10,5 +10,5 @@ TOOLS_BIN=$SPEECHX_TOOLS/valgrind/install/bin
 
 export LC_AL=C
 
-SPEECHX_BIN=$SPEECHX_EXAMPLES/ds2_ol/nnet
+SPEECHX_BIN=$SPEECHX_ROOT/build/speechx/decoder:$SPEECHX_ROOT/build/speechx/frontend/audio
 export PATH=$PATH:$SPEECHX_BIN:$TOOLS_BIN

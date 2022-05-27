@@ -12,9 +12,10 @@ if [ ! -d ${SPEECHX_TOOLS}/valgrind/install ]; then
   exit 1
 fi
 
-model_dir=../paddle_asr_model
+ckpt_dir=./data/model
+model_dir=$ckpt_dir/exp/deepspeech2_online/checkpoints/
 
 valgrind --tool=memcheck --track-origins=yes --leak-check=full --show-leak-kinds=all \
-  pp-model-test \
+  ds2_model_test_main \
   --model_path=$model_dir/avg_1.jit.pdmodel \
   --param_path=$model_dir/avg_1.jit.pdparams

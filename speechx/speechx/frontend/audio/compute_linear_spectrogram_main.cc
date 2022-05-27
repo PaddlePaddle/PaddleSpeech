@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// todo refactor, repalce with gtest
-
 #include "base/flags.h"
 #include "base/log.h"
 #include "kaldi/feat/wave-reader.h"

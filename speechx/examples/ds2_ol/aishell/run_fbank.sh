@@ -69,7 +69,7 @@ export GLOG_logtostderr=1
 cmvn=$data/cmvn_fbank.ark
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # 3. gen linear feat
-    cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn --binary=false
+    cmvn_json2kaldi_main --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn --binary=false
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
@@ -84,7 +84,7 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     #  recognizer
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.wolm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \
@@ -100,12 +100,12 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     #  decode with lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.lm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
-	--model_cache_shapes="5-1-2048,5-1-2048" \
+	    --model_cache_shapes="5-1-2048,5-1-2048" \
         --dict_file=$vocb_dir/vocab.txt \
         --lm_path=$lm \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/fbank_result_lm
@@ -129,13 +129,13 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.wfst.log \
-    wfst-decoder-ol \
+    tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
-	--model_cache_shapes="5-1-2048,5-1-2048" \
+	    --model_cache_shapes="5-1-2048,5-1-2048" \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_tlg
@@ -148,7 +148,7 @@ fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/fbank_recognizer.log \
-    recognizer_test_main \
+    recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_5.jit.pdmodel \

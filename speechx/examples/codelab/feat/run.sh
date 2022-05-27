@@ -2,7 +2,7 @@
 set +x
 set -e
 
-. path.sh
+. ./path.sh
 
 # 1. compile
 if [ ! -d ${SPEECHX_EXAMPLES} ]; then
@@ -12,7 +12,7 @@ if [ ! -d ${SPEECHX_EXAMPLES} ]; then
 fi
 
 # 2. download model
-if [ ! -f data/model/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz ]; then
+if [ ! -e data/model/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz ]; then
     mkdir -p data/model
     pushd data/model
     wget -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
@@ -29,10 +29,29 @@ if [ ! -f data/wav.scp ]; then
     popd 
 fi
 
-ckpt_dir=./data/model
-model_dir=$ckpt_dir/exp/deepspeech2_online/checkpoints/
 
-ds2-model-ol-test \
-    --model_path=$model_dir/avg_1.jit.pdmodel \
-    --param_path=$model_dir/avg_1.jit.pdiparams
+# input
+data_dir=./data
+exp_dir=./exp
+model_dir=$data_dir/model/
+
+mkdir -p $exp_dir
+
+
+# 3. run feat
+export GLOG_logtostderr=1
+
+cmvn_json2kaldi_main \
+    --json_file  $model_dir/data/mean_std.json \
+    --cmvn_write_path $exp_dir/cmvn.ark \
+    --binary=false
+echo "convert json cmvn to kaldi ark."
+
+
+compute_linear_spectrogram_main \
+    --wav_rspecifier=scp:$data_dir/wav.scp \
+    --feature_wspecifier=ark,t:$exp_dir/feats.ark \
+    --cmvn_file=$exp_dir/cmvn.ark
+echo "compute linear spectrogram feature."
+
 

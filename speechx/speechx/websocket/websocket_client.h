@@ -41,11 +41,13 @@ class WebSocketClient {
     void SendDataEnd();
     bool Done() const { return done_; }
     std::string GetResult() { return result_; }
+    std::string GetPartialResult() { return partial_result_; }
 
   private:
     void Connect();
     std::string host_;
     std::string result_;
+    std::string partial_result_;
     int port_;
     bool done_ = false;
     asio::io_context ioc_;

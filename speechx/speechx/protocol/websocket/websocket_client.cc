@@ -68,7 +68,7 @@ void WebSocketClient::ReadLoopFunc() {
                 result_ = obj["result"].as_string().c_str();
             }
             if (obj["type"] == "partial_result") {
-                partial_result_ = obj["partial_result"].as_string().c_str();
+                partial_result_ = obj["result"].as_string().c_str();
             }
             if (obj["type"] == "speech_end") {
                 done_ = true;

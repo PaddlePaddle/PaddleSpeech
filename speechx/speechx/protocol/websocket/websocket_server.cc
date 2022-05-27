@@ -78,7 +78,7 @@ void ConnectionHandler::OnSpeechData(const beast::flat_buffer& buffer) {
     std::string partial_result = recognizer_->GetPartialResult();
     
     json::value rv = {
-        {"status", "ok"}, {"type", "partial_result"}, {"partial_result", partial_result}};
+        {"status", "ok"}, {"type", "partial_result"}, {"result", partial_result}};
     ws_.text(true);
     ws_.write(asio::buffer(json::serialize(rv)));
 }

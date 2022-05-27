@@ -40,8 +40,8 @@ class WebSocketClient {
     void SendEndSignal();
     void SendDataEnd();
     bool Done() const { return done_; }
-    std::string GetResult() { return result_; }
-    std::string GetPartialResult() { return partial_result_; }
+    std::string GetResult() const { return result_; } 
+    std::string GetPartialResult() const { return partial_result_;}
 
   private:
     void Connect();

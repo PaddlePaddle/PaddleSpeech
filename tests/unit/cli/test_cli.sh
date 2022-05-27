@@ -25,7 +25,7 @@ paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.w
 # long audio restriction
 {
 wget -c https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
-paddlespeech asr --input test_long_audio_01.wav
+paddlespeech asr --model deepspeech2online_wenetspeech --input test_long_audio_01.wav -y
 if [ $? -ne 255 ]; then
    echo -e "\e[1;31mTime restriction not passed\e[0m"
    exit 1
@@ -54,7 +54,7 @@ paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input 
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav
 
-# Speaker Verification 
+# Speaker Verification
 wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
 paddlespeech vector --task spk --input 85236145389.wav
 
@@ -65,7 +65,7 @@ echo -e "demo1 85236145389.wav \n demo2 85236145389.wav" > vec.job
 paddlespeech vector --task spk --input vec.job
 
 echo -e "demo3 85236145389.wav \n demo4 85236145389.wav" | paddlespeech vector --task spk
-rm 85236145389.wav 
+rm 85236145389.wav
 rm vec.job
 
 # shell pipeline

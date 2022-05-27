@@ -34,6 +34,11 @@ def _execute():
     # The method 'execute' of a command instance returns 'True' for a success
     # while 'False' for a failure. Here converts this result into a exit status
     # in bash: 0 for a success and 1 for a failure.
+    if not callable(com['_entry']):
+        i = com['_entry'].rindex('.')
+        module, cls = com['_entry'][:i], com['_entry'][i + 1:]
+        exec("from {} import {}".format(module, cls))
+        com['_entry'] = locals()[cls]
     status = 0 if com['_entry']().execute(sys.argv[idx:]) else 1
     return status
 

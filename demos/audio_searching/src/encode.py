@@ -14,7 +14,7 @@
 import numpy as np
 from logs import LOGGER
 
-from paddlespeech.cli import VectorExecutor
+from paddlespeech.cli.vector import VectorExecutor
 
 vector_executor = VectorExecutor()
 

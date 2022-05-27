@@ -44,13 +44,13 @@ More details please see `README.md` under `examples`.
 > If using docker please check `--privileged` is set when `docker run`.
 
 * Fatal error at startup: `a function redirection which is mandatory for this platform-tool combination cannot be set up`
-```
+```bash
 apt-get install libc6-dbg
 ```
 
 * Install
 
-```
+```bash
 pushd tools
 ./setup_valgrind.sh
 popd
@@ -59,4 +59,4 @@ popd
 ## TODO
 
 ### Deepspeech2 with linear feature
-* DecibelNormalizer: there is a little bit difference between offline and online db norm. The computation of online db norm read feature chunk by chunk, which causes the feature size is different with offline db norm. In normalizer.cc:73, the samples.size() is different, which causes the difference of result.
+* DecibelNormalizer: there is a small difference between the offline and online db norm. The computation of online db norm reads features chunk by chunk, which causes the feature size to be different different with offline db norm. In `normalizer.cc:73`, the `samples.size()` is different, which causes the different result.

@@ -96,7 +96,7 @@ wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
 
 - Python API
   ```python
-  from paddlespeech.cli import VectorExecutor
+  from paddlespeech.cli.vector import VectorExecutor
 
   vector_executor = VectorExecutor()
   audio_emb = vector_executor(

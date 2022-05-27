@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# CopyRight WeNet Apache-2.0 License
+# Copyright 2021 Mobvoi Inc. All Rights Reserved.
 import codecs
 import re
 import sys

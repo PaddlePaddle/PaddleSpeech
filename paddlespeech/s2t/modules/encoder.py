@@ -218,7 +218,7 @@ class BaseEncoder(nn.Layer):
         assert xs.shape[0] == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
         # TODO(Hui Zhang): stride_slice not support bool tensor
-        # tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        # tmp_masks = paddle.ones([1, paddle.shape(xs)[1]], dtype=paddle.bool)
         tmp_masks = paddle.ones([1, xs.shape[1]], dtype=paddle.int32)
         tmp_masks = tmp_masks.unsqueeze(1)  #[B=1, C=1, T]
 

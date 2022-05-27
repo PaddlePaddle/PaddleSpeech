@@ -33,9 +33,9 @@ class CTCPrefixScorePD():
         self.logzero = -10000000000.0
         self.blank = blank
         self.eos = eos
-        self.batch = x.size(0)
-        self.input_length = x.size(1)
-        self.odim = x.size(2)
+        self.batch = paddle.shape(x)[0]
+        self.input_length = paddle.shape(x)[1]
+        self.odim = paddle.shape(x)[2]
         self.dtype = x.dtype
 
         # Pad the rest of posteriors in the batch
@@ -76,8 +76,7 @@ class CTCPrefixScorePD():
         last_ids = [yi[-1] for yi in y]  # last output label ids
         n_bh = len(last_ids)  # batch * hyps
         n_hyps = n_bh // self.batch  # assuming each utterance has the same # of hyps
-        self.scoring_num = scoring_ids.size(
-            -1) if scoring_ids is not None else 0
+        self.scoring_num = paddle.shape(scoring_ids)[-1] if scoring_ids is not None else 0
         # prepare state info
         if state is None:
             r_prev = paddle.full(
@@ -153,7 +152,7 @@ class CTCPrefixScorePD():
 
         # compute forward probabilities log(r_t^n(h)) and log(r_t^b(h))
         for t in range(start, end):
-            rp = r[t - 1]  # (2 x BW x O') 
+            rp = r[t - 1]  # (2 x BW x O')
             rr = paddle.stack([rp[0], log_phi[t - 1], rp[0], rp[1]]).view(
                 2, 2, n_bh, snum)  # (2,2,BW,O')
             r[t] = paddle.logsumexp(rr, 1) + x_[:, t]
@@ -227,7 +226,7 @@ class CTCPrefixScorePD():
         if self.x.shape[1] < x.shape[1]:  # self.x (2,T,B,O); x (B,T,O)
             # Pad the rest of posteriors in the batch
             # TODO(takaaki-hori): need a better way without for-loops
-            xlens = [x.size(1)]
+            xlens = [paddle.shape(x)[1]]
             for i, l in enumerate(xlens):
                 if l < self.input_length:
                     x[i, l:, :] = self.logzero
@@ -237,7 +236,7 @@ class CTCPrefixScorePD():
             xb = xn[:, :, self.blank].unsqueeze(2).expand(-1, -1, self.odim)
             self.x = paddle.stack([xn, xb])  # (2, T, B, O)
             self.x[:, :tmp_x.shape[1], :, :] = tmp_x
-            self.input_length = x.size(1)
+            self.input_length = paddle.shape(x)[1]
             self.end_frames = paddle.to_tensor(xlens) - 1
 
     def extend_state(self, state):
@@ -318,16 +317,16 @@ class CTCPrefixScore():
             r[0, 0] = xs[0]
             r[0, 1] = self.logzero
         else:
-            # Although the code does not exactly follow Algorithm 2, 
-            # we don't have to change it because we can assume 
-            # r_t(h)=0 for t < |h| in CTC forward computation 
+            # Although the code does not exactly follow Algorithm 2,
+            # we don't have to change it because we can assume
+            # r_t(h)=0 for t < |h| in CTC forward computation
             # (Note: we assume here that index t starts with 0).
             # The purpose of this difference is to reduce the number of for-loops.
             # https://github.com/espnet/espnet/pull/3655
-            # where we start to accumulate r_t(h) from t=|h| 
-            # and iterate r_t(h) = (r_{t-1}(h) + ...) to T-1, 
+            # where we start to accumulate r_t(h) from t=|h|
+            # and iterate r_t(h) = (r_{t-1}(h) + ...) to T-1,
             # avoiding accumulating zeros for t=1~|h|-1.
-            # Thus, we need to set r_{|h|-1}(h) = 0, 
+            # Thus, we need to set r_{|h|-1}(h) = 0,
             # i.e., r[output_length-1] = logzero, for initialization.
             # This is just for reducing the computation.
             r[output_length - 1] = self.logzero

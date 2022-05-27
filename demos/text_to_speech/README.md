@@ -77,7 +77,7 @@ The input of this demo should be a text of the specific language that can be pas
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import TTSExecutor
+  from paddlespeech.cli.tts import TTSExecutor
 
   tts_executor = TTSExecutor()
   wav_file = tts_executor(

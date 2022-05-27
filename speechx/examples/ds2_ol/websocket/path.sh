@@ -10,5 +10,5 @@ TOOLS_BIN=$SPEECHX_TOOLS/valgrind/install/bin
 
 export LC_AL=C
 
-SPEECHX_BIN=$SPEECHX_BUILD/websocket
+SPEECHX_BIN=$SPEECHX_BUILD/protocol/websocket
 export PATH=$PATH:$SPEECHX_BIN:$TOOLS_BIN

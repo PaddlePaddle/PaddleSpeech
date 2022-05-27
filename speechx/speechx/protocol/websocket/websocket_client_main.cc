@@ -59,7 +59,6 @@ int main(int argc, char* argv[]) {
             client.SendBinaryData(wav_chunk.data(),
                                   wav_chunk.size() * sizeof(int16));
 
-
             sample_offset += cur_chunk_size;
             LOG(INFO) << "Send " << cur_chunk_size << " samples";
             std::this_thread::sleep_for(

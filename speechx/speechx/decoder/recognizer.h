@@ -43,6 +43,7 @@ class Recognizer {
     void Accept(const kaldi::Vector<kaldi::BaseFloat>& waves);
     void Decode();
     std::string GetFinalResult();
+    std::string GetPartialResult();
     void SetFinished();
     bool IsFinished();
     void Reset();

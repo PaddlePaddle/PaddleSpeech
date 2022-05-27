@@ -44,7 +44,6 @@ class ConnectionHandler {
     void OnFinish();
     void OnSpeechData(const beast::flat_buffer& buffer);
     void OnError(const std::string& message);
-    void OnPartialResult(const std::string& result);
     void OnFinalResult(const std::string& result);
     void DecodeThreadFunc();
     std::string SerializeResult(bool finish);

@@ -88,11 +88,3 @@ ECAPA-TDNN | VoxCeleb| [voxceleb_ecapatdnn](https://github.com/PaddlePaddle/Padd
 Model Type | Dataset| Example Link | Pretrained Models
 :-------------:| :------------:| :-----: | :-----:
 Ernie Linear | IWLST2012_zh |[iwslt2012_punc0](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/iwslt2012/punc0)|[ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip)
-
-## Speech Recognition Model  from paddle 1.8
-
-| Acoustic Model |Training Data| Token-based | Size | Descriptions | CER | WER | Hours of speech |
-| :-----:| :-----:  |  :-----:  |  :-----:  | :-----:  |  :-----: | :-----:  | :-----: |
-| [Ds2 Offline Aishell model](https://deepspeech.bj.bcebos.com/mandarin_models/aishell_model_v1.8_to_v2.x.tar.gz) |        Aishell Dataset  | Char-based  | 234 MB | 2 Conv + 3 bidirectional GRU layers  | 0.0804 | —  | 151 h  |
-| [Ds2 Offline Librispeech model](https://deepspeech.bj.bcebos.com/eng_models/librispeech_v1.8_to_v2.x.tar.gz) |      Librispeech Dataset | Word-based  | 307 MB | 2 Conv + 3 bidirectional sharing weight RNN layers | —  | 0.0685 | 960 h |
-| [Ds2 Offline Baidu en8k model](https://deepspeech.bj.bcebos.com/eng_models/baidu_en8k_v1.8_to_v2.x.tar.gz) | Baidu Internal English Dataset | Word-based  | 273 MB | 2 Conv + 3 bidirectional GRU layers   |—  | 0.0541 | 8628 h|

@@ -4,7 +4,7 @@ mkdir -p $EXP_DIR
 LEXICON_NAME='simple'
 if [ ! -f "$EXP_DIR/$LEXICON_NAME.lexicon" ]; then
     echo "generating lexicon..."
-    python local/generate_lexicon.py "$EXP_DIR/$LEXICON_NAME" --with-r
+    python local/generate_lexicon.py "$EXP_DIR/$LEXICON_NAME" --with-r --with-tone
     echo "lexicon done"
 fi
 
@@ -15,6 +15,7 @@ if [ ! -d $EXP_DIR/baker_corpus ]; then
     echo "audio files are resampled to 16kHz"
     echo "transcription for each audio file is saved with the same namd in $EXP_DIR/baker_corpus "
 fi
+
 
 echo "detecting oov..."
 python local/detect_oov.py $EXP_DIR/baker_corpus $EXP_DIR/"$LEXICON_NAME.lexicon"
@@ -43,7 +44,4 @@ if [ ! -d "$EXP_DIR/baker_alignment" ]; then
     echo "results: $EXP_DIR/baker_alignment"
     echo "model: $EXP_DIR/baker_model"
 fi
-
-
-
 

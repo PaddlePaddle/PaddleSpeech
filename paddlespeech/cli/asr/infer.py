@@ -167,8 +167,8 @@ class ASRExecutor(BaseExecutor):
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
-                lm_url = self.resource.res_dict['lm_url']
-                lm_md5 = self.resource.res_dict['lm_md5']
+                lm_url = self.task_resource.res_dict['lm_url']
+                lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)

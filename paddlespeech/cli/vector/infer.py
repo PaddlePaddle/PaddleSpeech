@@ -297,8 +297,7 @@ class VectorExecutor(BaseExecutor):
             logger.info(f"load the pretrained model: {tag}")
             # get the model from the pretrained list
             # we download the pretrained model and store it in the res_path
-            res_path = self._get_pretrained_path(tag)
-            self.res_path = res_path
+            self.res_path = self.task_resource.res_dir
 
             self.cfg_path = os.path.join(
                 self.task_resource.res_dir,

@@ -19,18 +19,19 @@
 
 namespace ppspeech {
 
-struct FeatureCacheOptions {
-    int32 max_size;
-    int32 timeout;  // ms
-    FeatureCacheOptions()
-        : max_size(kint16max),
-          timeout(1) {}
+struct DispenserOptions {
+    int32 frame_chunk_size;
+    int32 frame_chunk_stride;
+    
+    DispenserOptions()
+        : frame_chunk_size(1),
+          frame_chunk_stride(1) {}
 };
 
-class FeatureCache : public FrontendInterface {
+class Dispenser : public FrontendInterface {
   public:
-    explicit FeatureCache(
-        FeatureCacheOptions opts,
+    explicit Dispenser(
+        DispenserOptions opts,
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
@@ -43,40 +44,24 @@ class FeatureCache : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
 
     virtual void SetFinished() {
-        // std::unique_lock<std::mutex> lock(mutex_);
         base_extractor_->SetFinished();
-        LOG(INFO) << "set finished";
-        // read the last chunk data
-        Compute();
-        // ready_feed_condition_.notify_one();
     }
 
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
     virtual void Reset() {
         base_extractor_->Reset();
-        while (!cache_.empty()) {
-            cache_.pop();
-        }
     }
 
   private:
-    bool Compute();
+    bool Compute(kaldi::Vector<kaldi::BaseFloat>* feats);
 
     int32 dim_;
-    size_t max_size_;           // cache capacity
     int32 frame_chunk_size_;    // window
     int32 frame_chunk_stride_;  // stride
+    std::queue<kaldi::Vector<kaldi::BaseFloat>> feature_cache_;
     std::unique_ptr<FrontendInterface> base_extractor_;
-
-    kaldi::int32 timeout_;  // ms
-    kaldi::Vector<kaldi::BaseFloat> remained_feature_;
-    std::queue<kaldi::Vector<BaseFloat>> cache_;  // feature cache
-    std::mutex mutex_;
-    std::condition_variable ready_feed_condition_;
-    std::condition_variable ready_read_condition_;
-
-    DISALLOW_COPY_AND_ASSIGN(FeatureCache);
+    DISALLOW_COPY_AND_ASSIGN(Dispenser);
 };
 
 }  // namespace ppspeech

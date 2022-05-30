@@ -81,8 +81,8 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
         frame_opts.preemph_coeff = 0.0;
         opts.linear_spectrogram_opts.frame_opts = frame_opts;
     }
-    opts.feature_cache_opts.frame_chunk_size = FLAGS_receptive_field_length;
-    opts.feature_cache_opts.frame_chunk_stride = FLAGS_downsampling_rate;
+    opts.dispenser_opts.frame_chunk_size = FLAGS_receptive_field_length;
+    opts.dispenser_opts.frame_chunk_stride = FLAGS_downsampling_rate;
     return opts;
 }
 

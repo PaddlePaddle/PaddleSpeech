@@ -22,6 +22,7 @@ from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.loss import CTCLoss
 from paddlespeech.s2t.utils import ctc_utils
 from paddlespeech.s2t.utils.log import Log
+import sys
 
 logger = Log(__name__).getlog()
 
@@ -34,7 +35,8 @@ except ImportError:
     try:
         from paddlespeech.s2t.utils import dynamic_pip_install
         package_name = 'paddlespeech_ctcdecoders'
-        dynamic_pip_install.install(package_name)
+        if sys.platform != "win32":
+            dynamic_pip_install.install(package_name)
         from paddlespeech.s2t.decoders.ctcdecoder import ctc_beam_search_decoding_batch  # noqa: F401
         from paddlespeech.s2t.decoders.ctcdecoder import ctc_greedy_decoding  # noqa: F401
         from paddlespeech.s2t.decoders.ctcdecoder import Scorer  # noqa: F401

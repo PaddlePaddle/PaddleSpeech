@@ -40,6 +40,16 @@ async def websocket_endpoint(websocket: WebSocket):
     engine_pool = get_engine_pool()
     tts_engine = engine_pool['tts']
 
+    connection_handler = None
+
+    if tts_engine.engine_type == "online":
+        from paddlespeech.server.engine.tts.online.python.tts_engine import PaddleTTSConnectionHandler
+    elif tts_engine.engine_type == "online-onnx":
+        from paddlespeech.server.engine.tts.online.onnx.tts_engine import PaddleTTSConnectionHandler
+    else:
+        logger.error("Online tts engine only support online or online-onnx.")
+        sys.exit(-1)
+
     try:
         while True:
             # careful here, changed the source code from starlette.websockets
@@ -57,10 +67,13 @@ async def websocket_endpoint(websocket: WebSocket):
                         "signal": "server ready",
                         "session": session
                     }
+
+                    connection_handler = PaddleTTSConnectionHandler(tts_engine)
                     await websocket.send_json(resp)
 
                 # end request
                 elif message['signal'] == 'end':
+                    connection_handler = None
                     resp = {
                         "status": 0,
                         "signal": "connection will be closed",
@@ -75,10 +88,11 @@ async def websocket_endpoint(websocket: WebSocket):
             # speech synthesis request 
             elif 'text' in message:
                 text_bese64 = message["text"]
-                sentence = tts_engine.preprocess(text_bese64=text_bese64)
+                sentence = connection_handler.preprocess(
+                    text_bese64=text_bese64)
 
                 # run
-                wav_generator = tts_engine.run(sentence)
+                wav_generator = connection_handler.run(sentence)
 
                 while True:
                     try:

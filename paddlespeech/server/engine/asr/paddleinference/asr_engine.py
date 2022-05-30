@@ -30,7 +30,7 @@ from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
 
-__all__ = ['ASREngine']
+__all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 
 
 class ASRServerExecutor(ASRExecutor):
@@ -50,7 +50,7 @@ class ASRServerExecutor(ASRExecutor):
         """
         Init model and other resources from a specific path.
         """
-
+        self.max_len = 50
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
         tag = model_type + '-' + lang + '-' + sample_rate_str
         if cfg_path is None or am_model is None or am_params is None:
@@ -172,10 +172,23 @@ class ASREngine(BaseEngine):
         Returns:
             bool: init failed or success
         """
-        self.input = None
-        self.output = None
         self.executor = ASRServerExecutor()
         self.config = config
+        self.engine_type = "inference"
+
+        try:
+            if self.config.am_predictor_conf.device is not None:
+                self.device = self.config.am_predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error(e)
+            return False
 
         self.executor._init_from_path(
             model_type=self.config.model_type,
@@ -190,22 +203,42 @@ class ASREngine(BaseEngine):
         logger.info("Initialize ASR server engine successfully.")
         return True
 
+
+class PaddleASRConnectionHandler(ASRServerExecutor):
+    def __init__(self, asr_engine):
+        """The PaddleSpeech ASR Server Connection Handler
+           This connection process every asr server request
+        Args:
+            asr_engine (ASREngine): The ASR engine
+        """
+        super().__init__()
+        self.input = None
+        self.output = None
+        self.asr_engine = asr_engine
+        self.executor = self.asr_engine.executor
+        self.config = self.executor.config
+        self.max_len = self.executor.max_len
+        self.decoder = self.executor.decoder
+        self.am_predictor = self.executor.am_predictor
+        self.text_feature = self.executor.text_feature
+        self.collate_fn_test = self.executor.collate_fn_test
+
     def run(self, audio_data):
         """engine run 
 
         Args:
             audio_data (bytes): base64.b64decode
         """
-        if self.executor._check(
-                io.BytesIO(audio_data), self.config.sample_rate,
-                self.config.force_yes):
+        if self._check(
+                io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
+                self.asr_engine.config.force_yes):
             logger.info("start running asr engine")
-            self.executor.preprocess(self.config.model_type,
-                                     io.BytesIO(audio_data))
+            self.preprocess(self.asr_engine.config.model_type,
+                            io.BytesIO(audio_data))
             st = time.time()
-            self.executor.infer(self.config.model_type)
+            self.infer(self.asr_engine.config.model_type)
             infer_time = time.time() - st
-            self.output = self.executor.postprocess()  # Retrieve result of asr.
+            self.output = self.postprocess()  # Retrieve result of asr.
             logger.info("end inferring asr engine")
         else:
             logger.info("file check failed!")
@@ -213,8 +246,3 @@ class ASREngine(BaseEngine):
 
         logger.info("inference time: {}".format(infer_time))
         logger.info("asr engine type: paddle inference")
-
-    def postprocess(self):
-        """postprocess
-        """
-        return self.output

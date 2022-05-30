@@ -209,7 +209,7 @@ class TTSExecutor(BaseExecutor):
         self.tones_dict = None
         if 'tones_dict' in self.pretrained_models[am_tag]:
             self.tones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['tones_dict'])
+                self.am_res_path, self.pretrained_models[am_tag]['tones_dict'])
             if tones_dict:
                 self.tones_dict = tones_dict
 
@@ -217,7 +217,8 @@ class TTSExecutor(BaseExecutor):
         self.speaker_dict = None
         if 'speaker_dict' in self.pretrained_models[am_tag]:
             self.speaker_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['speaker_dict'])
+                self.am_res_path,
+                self.pretrained_models[am_tag]['speaker_dict'])
             if speaker_dict:
                 self.speaker_dict = speaker_dict
 

@@ -154,7 +154,8 @@ class SpeedPerturbationSox():
                 package = "sox"
                 dynamic_pip_install.install(package)
                 package = "soxbindings"
-                dynamic_pip_install.install(package)
+                if sys.platform != "win32":
+                    dynamic_pip_install.install(package)
                 import soxbindings as sox
             except Exception:
                 raise RuntimeError(

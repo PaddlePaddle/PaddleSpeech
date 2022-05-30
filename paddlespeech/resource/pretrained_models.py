@@ -57,6 +57,14 @@ asr_dynamic_pretrained_models = {
             'model.yaml',
             'ckpt_path':
             'exp/chunk_conformer/checkpoints/avg_10',
+            'model':
+            'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+            'params':
+            'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+            'lm_url':
+            '',
+            'lm_md5':
+            '',
         },
     },
     "conformer_online_multicn-zh-16k": {
@@ -79,10 +87,14 @@ asr_dynamic_pretrained_models = {
             'model.yaml',
             'ckpt_path':
             'exp/chunk_conformer/checkpoints/multi_cn',
+            'model':
+            'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
+            'params':
+            'exp/chunk_conformer/checkpoints/multi_cn.pdparams',
             'lm_url':
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':
-            '29e02312deb2e59b3c8686c7966d4fe3'
+            '29e02312deb2e59b3c8686c7966d4fe3',
         },
     },
     "conformer_aishell-zh-16k": {
@@ -163,6 +175,10 @@ asr_dynamic_pretrained_models = {
             'model.yaml',
             'ckpt_path':
             'exp/deepspeech2_online/checkpoints/avg_1',
+            'model':
+            'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
+            'params':
+            'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
             'lm_url':
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':

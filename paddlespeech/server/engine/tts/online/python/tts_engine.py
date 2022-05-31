@@ -22,9 +22,9 @@ import paddle
 import yaml
 from yacs.config import CfgNode
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.util import denorm
@@ -32,7 +32,6 @@ from paddlespeech.server.utils.util import get_chunks
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
-from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['TTSEngine']
 
@@ -44,7 +43,8 @@ class TTSServerExecutor(TTSExecutor):
         self.am_pad = am_pad
         self.voc_block = voc_block
         self.voc_pad = voc_pad
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='tts', model_format='static', inference_mode='online')
 
     def get_model_info(self,
                        field: str,
@@ -65,7 +65,7 @@ class TTSServerExecutor(TTSExecutor):
             [Tensor]: standard deviation
         """
 
-        model_class = dynamic_import(model_name, self.model_alias)
+        model_class = self.task_resource.get_model_class(model_name)
 
         if field == "am":
             odim = self.am_config.n_mels
@@ -110,20 +110,24 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am model info
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
         if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
-            am_res_path = self._get_pretrained_path(am_tag)
-            self.am_res_path = am_res_path
-            self.am_config = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['config'])
-            self.am_ckpt = os.path.join(am_res_path,
-                                        self.pretrained_models[am_tag]['ckpt'])
+            self.am_res_path = self.task_resource.res_dir
+            self.am_config = os.path.join(self.am_res_path,
+                                          self.task_resource.res_dict['config'])
+            self.am_ckpt = os.path.join(self.am_res_path,
+                                        self.task_resource.res_dict['ckpt'])
             self.am_stat = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['speech_stats'])
+                self.am_res_path, self.task_resource.res_dict['speech_stats'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['phones_dict'])
+                self.am_res_path, self.task_resource.res_dict['phones_dict'])
             print("self.phones_dict:", self.phones_dict)
-            logger.info(am_res_path)
+            logger.info(self.am_res_path)
             logger.info(self.am_config)
             logger.info(self.am_ckpt)
         else:
@@ -139,16 +143,21 @@ class TTSServerExecutor(TTSExecutor):
 
         # voc model info
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_ckpt is None or voc_config is None or voc_stat is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
+            self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['config'])
+                self.voc_res_path, self.task_resource.voc_res_dict['config'])
             self.voc_ckpt = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['ckpt'])
+                self.voc_res_path, self.task_resource.voc_res_dict['ckpt'])
             self.voc_stat = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['speech_stats'])
-            logger.info(voc_res_path)
+                self.voc_res_path,
+                self.task_resource.voc_res_dict['speech_stats'])
+            logger.info(self.voc_res_path)
             logger.info(self.voc_config)
             logger.info(self.voc_ckpt)
         else:
@@ -188,8 +197,8 @@ class TTSServerExecutor(TTSExecutor):
             am, am_mu, am_std = self.get_model_info("am", self.am_name,
                                                     self.am_ckpt, self.am_stat)
             am_normalizer = ZScore(am_mu, am_std)
-            am_inference_class = dynamic_import(self.am_name + '_inference',
-                                                self.model_alias)
+            am_inference_class = self.task_resource.get_model_class(
+                self.am_name + '_inference')
             self.am_inference = am_inference_class(am_normalizer, am)
             self.am_inference.eval()
         print("acoustic model done!")
@@ -199,8 +208,8 @@ class TTSServerExecutor(TTSExecutor):
         voc, voc_mu, voc_std = self.get_model_info("voc", self.voc_name,
                                                    self.voc_ckpt, self.voc_stat)
         voc_normalizer = ZScore(voc_mu, voc_std)
-        voc_inference_class = dynamic_import(self.voc_name + '_inference',
-                                             self.model_alias)
+        voc_inference_class = self.task_resource.get_model_class(self.voc_name +
+                                                                 '_inference')
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
         print("voc done!")

@@ -23,9 +23,9 @@ import paddle
 import soundfile as sf
 from scipy.io import wavfile
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
 from paddlespeech.server.utils.errors import ErrorCode
@@ -41,7 +41,8 @@ __all__ = ['TTSEngine']
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='tts', model_format='static')
 
     def _init_from_path(
             self,
@@ -67,19 +68,23 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
         if am_model is None or am_params is None or phones_dict is None:
-            am_res_path = self._get_pretrained_path(am_tag)
-            self.am_res_path = am_res_path
-            self.am_model = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['model'])
-            self.am_params = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['params'])
+            self.am_res_path = self.task_resource.res_dir
+            self.am_model = os.path.join(self.am_res_path,
+                                         self.task_resource.res_dict['model'])
+            self.am_params = os.path.join(self.am_res_path,
+                                          self.task_resource.res_dict['params'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['phones_dict'])
-            self.am_sample_rate = self.pretrained_models[am_tag]['sample_rate']
+                self.am_res_path, self.task_resource.res_dict['phones_dict'])
+            self.am_sample_rate = self.task_resource.res_dict['sample_rate']
 
-            logger.info(am_res_path)
+            logger.info(self.am_res_path)
             logger.info(self.am_model)
             logger.info(self.am_params)
         else:
@@ -92,32 +97,36 @@ class TTSServerExecutor(TTSExecutor):
 
         # for speedyspeech
         self.tones_dict = None
-        if 'tones_dict' in self.pretrained_models[am_tag]:
+        if 'tones_dict' in self.task_resource.res_dict:
             self.tones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['tones_dict'])
+                self.am_res_path, self.task_resource.res_dict['tones_dict'])
             if tones_dict:
                 self.tones_dict = tones_dict
 
         # for multi speaker fastspeech2
         self.speaker_dict = None
-        if 'speaker_dict' in self.pretrained_models[am_tag]:
+        if 'speaker_dict' in self.task_resource.res_dict:
             self.speaker_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['speaker_dict'])
+                self.am_res_path, self.task_resource.res_dict['speaker_dict'])
             if speaker_dict:
                 self.speaker_dict = speaker_dict
 
         # voc
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_model is None or voc_params is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
+            self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_model = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['model'])
+                self.voc_res_path, self.task_resource.voc_res_dict['model'])
             self.voc_params = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['params'])
-            self.voc_sample_rate = self.pretrained_models[voc_tag][
+                self.voc_res_path, self.task_resource.voc_res_dict['params'])
+            self.voc_sample_rate = self.task_resource.voc_res_dict[
                 'sample_rate']
-            logger.info(voc_res_path)
+            logger.info(self.voc_res_path)
             logger.info(self.voc_model)
             logger.info(self.voc_params)
         else:

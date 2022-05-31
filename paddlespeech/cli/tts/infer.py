@@ -29,22 +29,16 @@ from yacs.config import CfgNode
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
-from paddlespeech.utils.dynamic_import import dynamic_import
 
 __all__ = ['TTSExecutor']
 
 
 class TTSExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
-
+        super().__init__('tts')
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.tts', add_help=True)
         self.parser.add_argument(
@@ -183,19 +177,23 @@ class TTSExecutor(BaseExecutor):
             return
         # am
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
         if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
-            am_res_path = self._get_pretrained_path(am_tag)
-            self.am_res_path = am_res_path
-            self.am_config = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['config'])
-            self.am_ckpt = os.path.join(am_res_path,
-                                        self.pretrained_models[am_tag]['ckpt'])
+            self.am_res_path = self.task_resource.res_dir
+            self.am_config = os.path.join(self.am_res_path,
+                                          self.task_resource.res_dict['config'])
+            self.am_ckpt = os.path.join(self.am_res_path,
+                                        self.task_resource.res_dict['ckpt'])
             self.am_stat = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['speech_stats'])
+                self.am_res_path, self.task_resource.res_dict['speech_stats'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['phones_dict'])
-            logger.info(am_res_path)
+                self.am_res_path, self.task_resource.res_dict['phones_dict'])
+            logger.info(self.am_res_path)
             logger.info(self.am_config)
             logger.info(self.am_ckpt)
         else:
@@ -207,33 +205,37 @@ class TTSExecutor(BaseExecutor):
 
         # for speedyspeech
         self.tones_dict = None
-        if 'tones_dict' in self.pretrained_models[am_tag]:
+        if 'tones_dict' in self.task_resource.res_dict:
             self.tones_dict = os.path.join(
-                self.am_res_path, self.pretrained_models[am_tag]['tones_dict'])
+                self.am_res_path, self.task_resource.res_dict['tones_dict'])
             if tones_dict:
                 self.tones_dict = tones_dict
 
         # for multi speaker fastspeech2
         self.speaker_dict = None
-        if 'speaker_dict' in self.pretrained_models[am_tag]:
+        if 'speaker_dict' in self.task_resource.res_dict:
             self.speaker_dict = os.path.join(
-                self.am_res_path,
-                self.pretrained_models[am_tag]['speaker_dict'])
+                self.am_res_path, self.task_resource.res_dict['speaker_dict'])
             if speaker_dict:
                 self.speaker_dict = speaker_dict
 
         # voc
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_ckpt is None or voc_config is None or voc_stat is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
+            self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['config'])
+                self.voc_res_path, self.task_resource.voc_res_dict['config'])
             self.voc_ckpt = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['ckpt'])
+                self.voc_res_path, self.task_resource.voc_res_dict['ckpt'])
             self.voc_stat = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['speech_stats'])
-            logger.info(voc_res_path)
+                self.voc_res_path,
+                self.task_resource.voc_res_dict['speech_stats'])
+            logger.info(self.voc_res_path)
             logger.info(self.voc_config)
             logger.info(self.voc_ckpt)
         else:
@@ -283,9 +285,9 @@ class TTSExecutor(BaseExecutor):
         # model: {model_name}_{dataset}
         am_name = am[:am.rindex('_')]
 
-        am_class = dynamic_import(am_name, self.model_alias)
-        am_inference_class = dynamic_import(am_name + '_inference',
-                                            self.model_alias)
+        am_class = self.task_resource.get_model_class(am_name)
+        am_inference_class = self.task_resource.get_model_class(am_name +
+                                                                '_inference')
 
         if am_name == 'fastspeech2':
             am = am_class(
@@ -314,9 +316,9 @@ class TTSExecutor(BaseExecutor):
         # vocoder
         # model: {model_name}_{dataset}
         voc_name = voc[:voc.rindex('_')]
-        voc_class = dynamic_import(voc_name, self.model_alias)
-        voc_inference_class = dynamic_import(voc_name + '_inference',
-                                             self.model_alias)
+        voc_class = self.task_resource.get_model_class(voc_name)
+        voc_inference_class = self.task_resource.get_model_class(voc_name +
+                                                                 '_inference')
         if voc_name != 'wavernn':
             voc = voc_class(**self.voc_config["generator_params"])
             voc.set_state_dict(paddle.load(self.voc_ckpt)["generator_params"])
@@ -444,7 +446,7 @@ class TTSExecutor(BaseExecutor):
         if not args.verbose:
             self.disable_task_loggers()
 
-        task_source = self.get_task_source(args.input)
+        task_source = self.get_input_source(args.input)
         task_results = OrderedDict()
         has_exceptions = False
 

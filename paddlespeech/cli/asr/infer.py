@@ -33,11 +33,8 @@ from ..utils import CLI_TIMER
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
 from ..utils import timer_register
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.transform.transformation import Transformation
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
@@ -46,10 +43,7 @@ __all__ = ['ASRExecutor']
 @timer_register
 class ASRExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
-
+        super().__init__(task='asr', inference_type='offline')
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.asr', add_help=True)
         self.parser.add_argument(
@@ -59,7 +53,8 @@ class ASRExecutor(BaseExecutor):
             type=str,
             default='conformer_wenetspeech',
             choices=[
-                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
             ],
             help='Choose model type of asr task.')
         self.parser.add_argument(
@@ -141,14 +136,14 @@ class ASRExecutor(BaseExecutor):
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             tag = model_type + '-' + lang + '-' + sample_rate_str
-            res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
-            self.res_path = res_path
+            self.task_resource.set_task_model(tag, version=None)
+            self.res_path = self.task_resource.res_dir
             self.cfg_path = os.path.join(
-                res_path, self.pretrained_models[tag]['cfg_path'])
+                self.res_path, self.task_resource.res_dict['cfg_path'])
             self.ckpt_path = os.path.join(
-                res_path,
-                self.pretrained_models[tag]['ckpt_path'] + ".pdparams")
-            logger.info(res_path)
+                self.res_path,
+                self.task_resource.res_dict['ckpt_path'] + ".pdparams")
+            logger.info(self.res_path)
 
         else:
             self.cfg_path = os.path.abspath(cfg_path)
@@ -172,8 +167,8 @@ class ASRExecutor(BaseExecutor):
                 self.collate_fn_test = SpeechCollator.from_config(self.config)
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
-                lm_url = self.pretrained_models[tag]['lm_url']
-                lm_md5 = self.pretrained_models[tag]['lm_md5']
+                lm_url = self.task_resource.res_dict['lm_url']
+                lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
@@ -191,7 +186,7 @@ class ASRExecutor(BaseExecutor):
                 raise Exception("wrong type")
         model_name = model_type[:model_type.rindex(
             '_')]  # model_type: {model_name}_{dataset}
-        model_class = dynamic_import(model_name, self.model_alias)
+        model_class = self.task_resource.get_model_class(model_name)
         model_conf = self.config
         model = model_class.from_config(model_conf)
         self.model = model
@@ -438,7 +433,7 @@ class ASRExecutor(BaseExecutor):
         if not parser_args.verbose:
             self.disable_task_loggers()
 
-        task_source = self.get_task_source(parser_args.input)
+        task_source = self.get_input_source(parser_args.input)
         task_results = OrderedDict()
         has_exceptions = False
 

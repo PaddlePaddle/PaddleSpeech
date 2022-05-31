@@ -2,13 +2,12 @@
 set -e
 source path.sh
 
-gpus=0,1,2,3,4,5,6,7
+gpus=0,1,2,3
 stage=0
 stop_stage=100
 conf_path=conf/deepspeech2.yaml
 decode_conf_path=conf/tuning/decode.yaml
-avg_num=30
-model_type=offline
+avg_num=5
 audio_file=data/demo_002_en.wav
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
@@ -43,6 +42,11 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
+    # test export ckpt avg_n
+    CUDA_VISIBLE_DEVICES=0 ./local/test_export.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt}.jit ${model_type}|| exit -1
+fi
+
+if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     # test a single .wav file
     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type} ${audio_file} || exit -1
 fi

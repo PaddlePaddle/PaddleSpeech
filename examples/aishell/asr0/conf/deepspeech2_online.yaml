@@ -15,28 +15,26 @@ max_output_input_ratio: .inf
 ###########################################
 #              Dataloader                 #
 ###########################################
-batch_size: 64 # one gpu
-mean_std_filepath: data/mean_std.json
-unit_type: char
 vocab_filepath: data/lang_char/vocab.txt 
-augmentation_config: conf/augmentation.json
-random_seed: 0
-spm_model_prefix: 
-spectrum_type: linear #linear, mfcc, fbank
+spm_model_prefix: ''
+unit_type: 'char'
+preprocess_config: conf/preprocess.yaml
 feat_dim: 161
-delta_delta: False
 stride_ms: 10.0
-window_ms: 20.0
-n_fft: None
-max_freq: None
-target_sample_rate: 16000
-use_dB_normalization: True
-target_dB: -20
-dither: 1.0
-keep_transcription_text: False
-sortagrad: True
-shuffle_method: batch_shuffle
-num_workers: 0
+window_ms: 25.0
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
+batch_size: 64
+maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+num_workers: 8
+subsampling_factor: 1
+num_encs: 1
 
 ############################################
 #           Network Architecture           #
@@ -54,12 +52,13 @@ blank_id: 0
 ###########################################
 #                Training                 #
 ###########################################
-n_epoch: 65
+n_epoch: 30
 accum_grad: 1
 lr: 5.0e-4
 lr_decay: 0.93
 weight_decay: 1.0e-6
 global_grad_clip: 3.0
+dist_sampler: False
 log_interval: 100
 checkpoint:
   kbest_n: 50

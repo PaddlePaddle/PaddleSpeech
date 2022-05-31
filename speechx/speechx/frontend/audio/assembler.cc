@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "frontend/audio/dispenser.h"
+#include "frontend/audio/assembler.h"
 
 namespace ppspeech {
 
@@ -21,7 +21,7 @@ using kaldi::VectorBase;
 using kaldi::BaseFloat;
 using std::unique_ptr;
 
-Dispenser::Dispenser(DispenserOptions opts,
+Assembler::Assembler(AssemblerOptions opts,
                      unique_ptr<FrontendInterface> base_extractor) {
     frame_chunk_stride_ = opts.frame_chunk_stride;
     frame_chunk_size_ = opts.frame_chunk_size;
@@ -29,20 +29,20 @@ Dispenser::Dispenser(DispenserOptions opts,
     dim_ = base_extractor_->Dim();
 }
 
-void Dispenser::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+void Assembler::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
     // read inputs
     base_extractor_->Accept(inputs);
 }
 
 // pop feature chunk
-bool Dispenser::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+bool Assembler::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     feats->Resize(dim_ * frame_chunk_size_);
     bool result = Compute(feats);
     return result;
 }
 
 // read all data from base_feature_extractor_ into cache_
-bool Dispenser::Compute(Vector<BaseFloat>* feats) {
+bool Assembler::Compute(Vector<BaseFloat>* feats) {
     // compute and feed
     bool result = false;
     while (feature_cache_.size() < frame_chunk_size_) {

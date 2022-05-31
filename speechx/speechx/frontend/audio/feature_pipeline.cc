@@ -39,7 +39,7 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
         new ppspeech::FeatureCache(opts.feature_cache_opts, std::move(cmvn)));
 
     base_extractor_.reset(
-        new ppspeech::Dispenser(opts.dispenser_opts, std::move(cache)));
+        new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));
 }
 
 }  // ppspeech

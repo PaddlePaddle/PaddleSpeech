@@ -19,19 +19,19 @@
 
 namespace ppspeech {
 
-struct DispenserOptions {
+struct AssemblerOptions {
     int32 frame_chunk_size;
     int32 frame_chunk_stride;
     
-    DispenserOptions()
+    AssemblerOptions()
         : frame_chunk_size(1),
           frame_chunk_stride(1) {}
 };
 
-class Dispenser : public FrontendInterface {
+class Assembler : public FrontendInterface {
   public:
-    explicit Dispenser(
-        DispenserOptions opts,
+    explicit Assembler(
+        AssemblerOptions opts,
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
@@ -61,7 +61,7 @@ class Dispenser : public FrontendInterface {
     int32 frame_chunk_stride_;  // stride
     std::queue<kaldi::Vector<kaldi::BaseFloat>> feature_cache_;
     std::unique_ptr<FrontendInterface> base_extractor_;
-    DISALLOW_COPY_AND_ASSIGN(Dispenser);
+    DISALLOW_COPY_AND_ASSIGN(Assembler);
 };
 
 }  // namespace ppspeech

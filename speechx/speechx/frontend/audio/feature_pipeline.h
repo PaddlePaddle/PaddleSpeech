@@ -23,7 +23,7 @@
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
-#include "frontend/audio/dispenser.h"
+#include "frontend/audio/assembler.h"
 
 namespace ppspeech {
 
@@ -34,7 +34,7 @@ struct FeaturePipelineOptions {
     LinearSpectrogramOptions linear_spectrogram_opts;
     FbankOptions fbank_opts;
     FeatureCacheOptions feature_cache_opts;
-    DispenserOptions dispenser_opts;
+    AssemblerOptions assembler_opts;
 
     FeaturePipelineOptions()
         : cmvn_file(""),
@@ -43,7 +43,7 @@ struct FeaturePipelineOptions {
           linear_spectrogram_opts(),
           fbank_opts(),
           feature_cache_opts(),
-          dispenser_opts() {}
+          assembler_opts() {}
 };
 
 class FeaturePipeline : public FrontendInterface {

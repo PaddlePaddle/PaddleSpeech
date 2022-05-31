@@ -64,10 +64,6 @@ int main(int argc, char* argv[]) {
 
     ppspeech::FeatureCacheOptions feat_cache_opts;
     // the feature cache output feature chunk by chunk.
-    // frame_chunk_size : num frame of a chunk.
-    // frame_chunk_stride: chunk sliding window stride.
-    feat_cache_opts.frame_chunk_stride = 1;
-    feat_cache_opts.frame_chunk_size = 1;
     ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
     LOG(INFO) << "fbank: " << true;
     LOG(INFO) << "feat dim: " << feature_cache.Dim();

@@ -8,6 +8,7 @@ add_library(frontend STATIC
   feature_cache.cc
   feature_pipeline.cc
   fbank.cc
+  assembler.cc
 )
 target_link_libraries(frontend PUBLIC kaldi-matrix kaldi-feat-common kaldi-fbank)
 

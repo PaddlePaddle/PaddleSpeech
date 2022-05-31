@@ -194,7 +194,7 @@ class BeamSearch(paddle.nn.Layer):
 
         Args:
             hyp (Hypothesis): Hypothesis with prefix tokens to score
-            ids (paddle.Tensor): 1D tensor of new partial tokens to score, 
+            ids (paddle.Tensor): 1D tensor of new partial tokens to score,
                 len(ids) < n_vocab
             x (paddle.Tensor): Corresponding input feature, (T, D)
 
@@ -224,14 +224,14 @@ class BeamSearch(paddle.nn.Layer):
             ids (paddle.Tensor): The partial token ids(Global) to compute topk.
 
         Returns:
-            Tuple[paddle.Tensor, paddle.Tensor]: 
+            Tuple[paddle.Tensor, paddle.Tensor]:
                 The topk full token ids and partial token ids.
                 Their shapes are `(self.beam_size,)`.
                 i.e. (global ids, global relative local ids).
 
         """
         # no pre beam performed, `ids` equal to `weighted_scores`
-        if weighted_scores.size(0) == ids.size(0):
+        if paddle.shape(weighted_scores)[0] == paddle.shape(ids)[0]:
             top_ids = weighted_scores.topk(
                 self.beam_size)[1]  # index in n_vocab
             return top_ids, top_ids
@@ -370,13 +370,13 @@ class BeamSearch(paddle.nn.Layer):
         """
         # set length bounds
         if maxlenratio == 0:
-            maxlen = x.shape[0]
+            maxlen = paddle.shape(x)[0]
         elif maxlenratio < 0:
             maxlen = -1 * int(maxlenratio)
         else:
-            maxlen = max(1, int(maxlenratio * x.size(0)))
-        minlen = int(minlenratio * x.size(0))
-        logger.info("decoder input length: " + str(x.shape[0]))
+            maxlen = max(1, int(maxlenratio * paddle.shape(x)[0]))
+        minlen = int(minlenratio * paddle.shape(x)[0])
+        logger.info("decoder input length: " + str(paddle.shape(x)[0]))
         logger.info("max output length: " + str(maxlen))
         logger.info("min output length: " + str(minlen))
 

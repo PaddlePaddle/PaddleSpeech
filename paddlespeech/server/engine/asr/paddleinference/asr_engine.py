@@ -19,10 +19,10 @@ from typing import Optional
 import paddle
 from yacs.config import CfgNode
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -36,7 +36,8 @@ __all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='asr', model_format='static')
 
     def _init_from_path(self,
                         model_type: str='wenetspeech',
@@ -53,17 +54,17 @@ class ASRServerExecutor(ASRExecutor):
         self.max_len = 50
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
         tag = model_type + '-' + lang + '-' + sample_rate_str
+        self.task_resource.set_task_model(model_tag=tag)
         if cfg_path is None or am_model is None or am_params is None:
-            res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
-            self.res_path = res_path
+            self.res_path = self.task_resource.res_dir
             self.cfg_path = os.path.join(
-                res_path, self.pretrained_models[tag]['cfg_path'])
+                self.res_path, self.task_resource.res_dict['cfg_path'])
 
-            self.am_model = os.path.join(res_path,
-                                         self.pretrained_models[tag]['model'])
-            self.am_params = os.path.join(res_path,
-                                          self.pretrained_models[tag]['params'])
-            logger.info(res_path)
+            self.am_model = os.path.join(self.res_path,
+                                         self.task_resource.res_dict['model'])
+            self.am_params = os.path.join(self.res_path,
+                                          self.task_resource.res_dict['params'])
+            logger.info(self.res_path)
             logger.info(self.cfg_path)
             logger.info(self.am_model)
             logger.info(self.am_params)
@@ -89,8 +90,8 @@ class ASRServerExecutor(ASRExecutor):
                 self.text_feature = TextFeaturizer(
                     unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = self.pretrained_models[tag]['lm_url']
-                lm_md5 = self.pretrained_models[tag]['lm_md5']
+                lm_url = self.task_resource.res_dict['lm_url']
+                lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)

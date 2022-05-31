@@ -16,8 +16,8 @@ import os
 
 import paddle
 
-from paddlespeech.cli import ASRExecutor
-from paddlespeech.cli import TextExecutor
+from paddlespeech.cli.asr import ASRExecutor
+from paddlespeech.cli.text import TextExecutor
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

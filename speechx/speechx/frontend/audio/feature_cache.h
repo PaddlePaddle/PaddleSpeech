@@ -21,13 +21,9 @@ namespace ppspeech {
 
 struct FeatureCacheOptions {
     int32 max_size;
-    int32 frame_chunk_size;
-    int32 frame_chunk_stride;
     int32 timeout;  // ms
     FeatureCacheOptions()
         : max_size(kint16max),
-          frame_chunk_size(1),
-          frame_chunk_stride(1),
           timeout(1) {}
 };
 
@@ -80,7 +76,7 @@ class FeatureCache : public FrontendInterface {
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
 
-    // DISALLOW_COPY_AND_ASSGIN(FeatureCache);
+    DISALLOW_COPY_AND_ASSIGN(FeatureCache);
 };
 
 }  // namespace ppspeech

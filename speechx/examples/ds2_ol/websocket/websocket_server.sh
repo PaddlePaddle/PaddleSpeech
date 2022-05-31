@@ -45,7 +45,7 @@ export GLOG_logtostderr=1
 
 # 3. gen cmvn 
 cmvn=$data/cmvn.ark
-cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
+cmvn_json2kaldi_main --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
 
 wfst=$data/wfst/

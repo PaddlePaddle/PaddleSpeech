@@ -113,12 +113,12 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 ```
 ```text
 usage: synthesize.py [-h]
-                     [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
+                     [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
                      [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
                      [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
                      [--tones_dict TONES_DICT] [--speaker_dict SPEAKER_DICT]
                      [--voice-cloning VOICE_CLONING]
-                     [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}]
+                     [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,wavernn_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,style_melgan_csmsc}]
                      [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
                      [--voc_stat VOC_STAT] [--ngpu NGPU]
                      [--test_metadata TEST_METADATA] [--output_dir OUTPUT_DIR]
@@ -127,11 +127,10 @@ Synthesize with acoustic model & vocoder
 
 optional arguments:
   -h, --help            show this help message and exit
-  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}
+  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}
                         Choose acoustic model type of tts task.
   --am_config AM_CONFIG
-                        Config of acoustic model. Use deault config when it is
-                        None.
+                        Config of acoustic model.
   --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
   --am_stat AM_STAT     mean and standard deviation used to normalize
                         spectrogram when training acoustic model.
@@ -143,10 +142,10 @@ optional arguments:
                         speaker id map file.
   --voice-cloning VOICE_CLONING
                         whether training voice cloning model.
-  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,wavernn_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,style_melgan_csmsc}
                         Choose vocoder type of tts task.
   --voc_config VOC_CONFIG
-                        Config of voc. Use deault config when it is None.
+                        Config of voc.
   --voc_ckpt VOC_CKPT   Checkpoint file of voc.
   --voc_stat VOC_STAT   mean and standard deviation used to normalize
                         spectrogram when training voc.
@@ -162,12 +161,12 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_outp
 ```
 ```text
 usage: synthesize_e2e.py [-h]
-                         [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}]
+                         [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]
                          [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
                          [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
                          [--tones_dict TONES_DICT]
                          [--speaker_dict SPEAKER_DICT] [--spk_id SPK_ID]
-                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}]
+                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}]
                          [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
                          [--voc_stat VOC_STAT] [--lang LANG]
                          [--inference_dir INFERENCE_DIR] [--ngpu NGPU]
@@ -177,11 +176,10 @@ Synthesize with acoustic model & vocoder
 
 optional arguments:
   -h, --help            show this help message and exit
-  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk}
+  --am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}
                         Choose acoustic model type of tts task.
   --am_config AM_CONFIG
-                        Config of acoustic model. Use deault config when it is
-                        None.
+                        Config of acoustic model.
   --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
   --am_stat AM_STAT     mean and standard deviation used to normalize
                         spectrogram when training acoustic model.
@@ -192,10 +190,10 @@ optional arguments:
   --speaker_dict SPEAKER_DICT
                         speaker id map file.
   --spk_id SPK_ID       spk id for multi speaker acoustic model
-  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc}
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}
                         Choose vocoder type of tts task.
   --voc_config VOC_CONFIG
-                        Config of voc. Use deault config when it is None.
+                        Config of voc.
   --voc_ckpt VOC_CKPT   Checkpoint file of voc.
   --voc_stat VOC_STAT   mean and standard deviation used to normalize
                         spectrogram when training voc.
@@ -208,9 +206,9 @@ optional arguments:
                         output dir.
 ```
 1. `--am` is acoustic model type with the format {model_name}_{dataset}
-2. `--am_config`, `--am_checkpoint`, `--am_stat`, `--phones_dict` `--speaker_dict` are arguments for acoustic model, which correspond to the 5 files in the fastspeech2 pretrained model.
+2. `--am_config`, `--am_ckpt`, `--am_stat`, `--phones_dict` `--speaker_dict` are arguments for acoustic model, which correspond to the 5 files in the fastspeech2 pretrained model.
 3. `--voc` is vocoder type with the format {model_name}_{dataset}
-4. `--voc_config`, `--voc_checkpoint`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
+4. `--voc_config`, `--voc_ckpt`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
 5. `--lang` is the model language, which can be `zh` or `en`.
 6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
 7. `--text` is the text file, which contains sentences to synthesize.

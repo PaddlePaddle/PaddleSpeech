@@ -22,30 +22,20 @@ from typing import Union
 
 import paddle
 import soundfile
-from paddleaudio.backends import load as load_audio
-from paddleaudio.compliance.librosa import melspectrogram
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
-from paddlespeech.utils.dynamic_import import dynamic_import
+from paddleaudio.backends import load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 
 
-@cli_register(
-    name="paddlespeech.vector",
-    description="Speech to vector embedding infer command.")
 class VectorExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
-
+        super().__init__('vector')
         self.parser = argparse.ArgumentParser(
             prog="paddlespeech.vector", add_help=True)
 
@@ -53,7 +43,10 @@ class VectorExecutor(BaseExecutor):
             "--model",
             type=str,
             default="ecapatdnn_voxceleb12",
-            choices=["ecapatdnn_voxceleb12"],
+            choices=[
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
+            ],
             help="Choose model type of vector task.")
         self.parser.add_argument(
             "--task",
@@ -123,7 +116,7 @@ class VectorExecutor(BaseExecutor):
             self.disable_task_loggers()
 
         # stage 2: read the input data and store them as a list
-        task_source = self.get_task_source(parser_args.input)
+        task_source = self.get_input_source(parser_args.input)
         logger.info(f"task source: {task_source}")
 
         # stage 3: process the audio one by one
@@ -300,17 +293,18 @@ class VectorExecutor(BaseExecutor):
             # get the mode from pretrained list
             sample_rate_str = "16k" if sample_rate == 16000 else "8k"
             tag = model_type + "-" + sample_rate_str
+            self.task_resource.set_task_model(tag, version=None)
             logger.info(f"load the pretrained model: {tag}")
             # get the model from the pretrained list
             # we download the pretrained model and store it in the res_path
-            res_path = self._get_pretrained_path(tag)
-            self.res_path = res_path
+            self.res_path = self.task_resource.res_dir
 
             self.cfg_path = os.path.join(
-                res_path, self.pretrained_models[tag]['cfg_path'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['cfg_path'])
             self.ckpt_path = os.path.join(
-                res_path,
-                self.pretrained_models[tag]['ckpt_path'] + '.pdparams')
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['ckpt_path'] + '.pdparams')
         else:
             # get the model from disk
             self.cfg_path = os.path.abspath(cfg_path)
@@ -329,8 +323,8 @@ class VectorExecutor(BaseExecutor):
         # stage 3: get the model name to instance the model network with dynamic_import
         logger.info("start to dynamic import the model class")
         model_name = model_type[:model_type.rindex('_')]
+        model_class = self.task_resource.get_model_class(model_name)
         logger.info(f"model name {model_name}")
-        model_class = dynamic_import(model_name, self.model_alias)
         model_conf = self.config.model
         backbone = model_class(**model_conf)
         model = SpeakerIdetification(

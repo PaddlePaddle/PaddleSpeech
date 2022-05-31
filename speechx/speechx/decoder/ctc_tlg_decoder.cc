@@ -47,6 +47,26 @@ void TLGDecoder::Reset() {
     return;
 }
 
+std::string TLGDecoder::GetPartialResult() {
+    if (frame_decoded_size_ == 0) {
+        // Assertion failed: (this->NumFramesDecoded() > 0 && "You cannot call
+        // BestPathEnd if no frames were decoded.")
+        return std::string("");
+    }
+    kaldi::Lattice lat;
+    kaldi::LatticeWeight weight;
+    std::vector<int> alignment;
+    std::vector<int> words_id;
+    decoder_->GetBestPath(&lat, false);
+    fst::GetLinearSymbolSequence(lat, &alignment, &words_id, &weight);
+    std::string words;
+    for (int32 idx = 0; idx < words_id.size(); ++idx) {
+        std::string word = word_symbol_table_->Find(words_id[idx]);
+        words += word;
+    }
+    return words; 
+}
+
 std::string TLGDecoder::GetFinalBestPath() {
     if (frame_decoded_size_ == 0) {
         // Assertion failed: (this->NumFramesDecoded() > 0 && "You cannot call

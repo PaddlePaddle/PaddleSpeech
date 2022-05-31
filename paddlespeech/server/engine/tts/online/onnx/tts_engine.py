@@ -20,9 +20,9 @@ from typing import Optional
 import numpy as np
 import paddle
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.onnx_infer import get_sess
@@ -37,7 +37,7 @@ __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(task='tts', model_format='onnx')
 
     def _init_from_path(
             self,
@@ -66,16 +66,21 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
+        self.am_res_path = self.task_resource.res_dir
         if am == "fastspeech2_csmsc_onnx":
             # get model info
             if am_ckpt is None or phones_dict is None:
-                am_res_path = self._get_pretrained_path(am_tag)
-                self.am_res_path = am_res_path
                 self.am_ckpt = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['ckpt'][0])
+                    self.am_res_path, self.task_resource.res_dict['ckpt'][0])
                 # must have phones_dict in acoustic
                 self.phones_dict = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['phones_dict'])
+                    self.am_res_path,
+                    self.task_resource.res_dict['phones_dict'])
 
             else:
                 self.am_ckpt = os.path.abspath(am_ckpt[0])
@@ -88,19 +93,19 @@ class TTSServerExecutor(TTSExecutor):
 
         elif am == "fastspeech2_cnndecoder_csmsc_onnx":
             if am_ckpt is None or am_stat is None or phones_dict is None:
-                am_res_path = self._get_pretrained_path(am_tag)
-                self.am_res_path = am_res_path
                 self.am_encoder_infer = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['ckpt'][0])
+                    self.am_res_path, self.task_resource.res_dict['ckpt'][0])
                 self.am_decoder = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['ckpt'][1])
+                    self.am_res_path, self.task_resource.res_dict['ckpt'][1])
                 self.am_postnet = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['ckpt'][2])
+                    self.am_res_path, self.task_resource.res_dict['ckpt'][2])
                 # must have phones_dict in acoustic
                 self.phones_dict = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['phones_dict'])
+                    self.am_res_path,
+                    self.task_resource.res_dict['phones_dict'])
                 self.am_stat = os.path.join(
-                    am_res_path, self.pretrained_models[am_tag]['speech_stats'])
+                    self.am_res_path,
+                    self.task_resource.res_dict['speech_stats'])
 
             else:
                 self.am_encoder_infer = os.path.abspath(am_ckpt[0])
@@ -125,11 +130,15 @@ class TTSServerExecutor(TTSExecutor):
 
         # voc model info
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_ckpt is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
+            self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_ckpt = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['ckpt'])
+                self.voc_res_path, self.task_resource.voc_res_dict['ckpt'])
         else:
             self.voc_ckpt = os.path.abspath(voc_ckpt)
             self.voc_res_path = os.path.dirname(os.path.abspath(self.voc_ckpt))

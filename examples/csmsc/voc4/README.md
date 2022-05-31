@@ -63,7 +63,7 @@ Train a Style MelGAN model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       config file to overwrite default config.
+  --config CONFIG       Style MelGAN config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA

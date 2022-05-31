@@ -21,9 +21,9 @@ import numpy as np
 import paddle
 import yaml
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.cls.infer import CLSExecutor
 from paddlespeech.cli.log import logger
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
@@ -34,11 +34,12 @@ __all__ = ['CLSEngine', 'PaddleCLSConnectionHandler']
 class CLSServerExecutor(CLSExecutor):
     def __init__(self):
         super().__init__()
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='cls', model_format='static')
 
     def _init_from_path(
             self,
-            model_type: str='panns_cnn14',
+            model_type: str='panns_cnn14_audioset',
             cfg_path: Optional[os.PathLike]=None,
             model_path: Optional[os.PathLike]=None,
             params_path: Optional[os.PathLike]=None,
@@ -50,15 +51,16 @@ class CLSServerExecutor(CLSExecutor):
 
         if cfg_path is None or model_path is None or params_path is None or label_file is None:
             tag = model_type + '-' + '32k'
-            self.res_path = self._get_pretrained_path(tag)
+            self.task_resource.set_task_model(model_tag=tag)
+            self.res_path = self.task_resource.res_dir
             self.cfg_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['cfg_path'])
+                self.res_path, self.task_resource.res_dict['cfg_path'])
             self.model_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['model_path'])
+                self.res_path, self.task_resource.res_dict['model_path'])
             self.params_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['params_path'])
+                self.res_path, self.task_resource.res_dict['params_path'])
             self.label_file = os.path.join(
-                self.res_path, self.pretrained_models[tag]['label_file'])
+                self.res_path, self.task_resource.res_dict['label_file'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.model_path = os.path.abspath(model_path)

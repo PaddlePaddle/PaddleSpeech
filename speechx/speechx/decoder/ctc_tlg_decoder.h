@@ -38,6 +38,7 @@ class TLGDecoder {
     std::string GetBestPath();
     std::vector<std::pair<double, std::string>> GetNBestPath();
     std::string GetFinalBestPath();
+    std::string GetPartialResult();
     int NumFrameDecoded();
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           std::vector<std::string>& nbest_words);

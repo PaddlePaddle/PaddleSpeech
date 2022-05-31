@@ -25,6 +25,7 @@ from ..executor import BaseExecutor
 from ..util import cli_server_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.engine.engine_warmup import warm_up
 from paddlespeech.server.restful.api import setup_router as setup_http_router
@@ -158,101 +159,30 @@ class ServerStatsExecutor():
                 "Please input correct speech task, choices = ['asr', 'tts']")
             return False
 
-        elif self.task.lower() == 'asr':
-            try:
-                from paddlespeech.cli.asr.infer import pretrained_models
+        try:
+            # Dynamic models
+            dynamic_pretrained_models = CommonTaskResource(
+                task=self.task, model_format='dynamic').pretrained_models
+
+            if len(dynamic_pretrained_models) > 0:
                 logger.info(
-                    "Here is the table of ASR pretrained models supported in the service."
-                )
+                    "Here is the table of {} pretrained models supported in the service.".
+                    format(self.task.upper()))
+                self.show_support_models(dynamic_pretrained_models)
+
+            # Static models
+            static_pretrained_models = CommonTaskResource(
+                task=self.task, model_format='static').pretrained_models
+            if len(static_pretrained_models) > 0:
+                logger.info(
+                    "Here is the table of {} static pretrained models supported in the service.".
+                    format(self.task.upper()))
                 self.show_support_models(pretrained_models)
 
-                # show ASR static pretrained model
-                from paddlespeech.server.engine.asr.paddleinference.asr_engine import pretrained_models
-                logger.info(
-                    "Here is the table of ASR static pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
+            return True
 
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the table of ASR pretrained models supported in the service."
-                )
-                return False
-
-        elif self.task.lower() == 'tts':
-            try:
-                from paddlespeech.cli.tts.infer import pretrained_models
-                logger.info(
-                    "Here is the table of TTS pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                # show TTS static pretrained model
-                from paddlespeech.server.engine.tts.paddleinference.tts_engine import pretrained_models
-                logger.info(
-                    "Here is the table of TTS static pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the table of TTS pretrained models supported in the service."
-                )
-                return False
-
-        elif self.task.lower() == 'cls':
-            try:
-                from paddlespeech.cli.cls.infer import pretrained_models
-                logger.info(
-                    "Here is the table of CLS pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                # show CLS static pretrained model
-                from paddlespeech.server.engine.cls.paddleinference.cls_engine import pretrained_models
-                logger.info(
-                    "Here is the table of CLS static pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the table of CLS pretrained models supported in the service."
-                )
-                return False
-        elif self.task.lower() == 'text':
-            try:
-                from paddlespeech.cli.text.infer import pretrained_models
-                logger.info(
-                    "Here is the table of Text pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the table of Text pretrained models supported in the service."
-                )
-                return False
-        elif self.task.lower() == 'vector':
-            try:
-                from paddlespeech.cli.vector.infer import pretrained_models
-                logger.info(
-                    "Here is the table of Vector pretrained models supported in the service."
-                )
-                self.show_support_models(pretrained_models)
-
-                return True
-            except BaseException:
-                logger.error(
-                    "Failed to get the table of Vector pretrained models supported in the service."
-                )
-                return False
-        else:
+        except BaseException:
             logger.error(
-                f"Failed to get the table of {self.task} pretrained models supported in the service."
-            )
+                "Failed to get the table of {} pretrained models supported in the service.".
+                format(self.task.upper()))
             return False

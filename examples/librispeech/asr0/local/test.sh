@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 4 ];then
-    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix model_type"
+if [ $# != 3 ];then
+    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix"
     exit -1
 fi
 stage=0
@@ -13,7 +13,6 @@ echo "using $ngpu gpus..."
 config_path=$1
 decode_config_path=$2
 ckpt_prefix=$3
-model_type=$4
 
 # download language model
 bash local/download_lm_en.sh
@@ -23,7 +22,7 @@ fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # format the reference test file
-    python utils/format_rsl.py \
+    python3 utils/format_rsl.py \
         --origin_ref data/manifest.test-clean.raw \
         --trans_ref data/manifest.test-clean.text
 
@@ -32,33 +31,32 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --config ${config_path} \
     --decode_cfg ${decode_config_path} \
     --result_file ${ckpt_prefix}.rsl \
-    --checkpoint_path ${ckpt_prefix} \
-    --model_type ${model_type}
+    --checkpoint_path ${ckpt_prefix}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"
         exit 1
     fi
 
-    python utils/format_rsl.py \
+    python3 utils/format_rsl.py \
         --origin_hyp ${ckpt_prefix}.rsl \
         --trans_hyp ${ckpt_prefix}.rsl.text
 
-    python utils/compute-wer.py --char=1 --v=1 \
+    python3 utils/compute-wer.py --char=1 --v=1 \
         data/manifest.test-clean.text ${ckpt_prefix}.rsl.text > ${ckpt_prefix}.error
 fi
 
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
-    python utils/format_rsl.py \
+    python3 utils/format_rsl.py \
         --origin_ref data/manifest.test-clean.raw \
         --trans_ref_sclite data/manifest.test.text-clean.sclite
 
-        python utils/format_rsl.py \
-            --origin_hyp ${ckpt_prefix}.rsl \
-            --trans_hyp_sclite ${ckpt_prefix}.rsl.text.sclite
+    python3 utils/format_rsl.py \
+        --origin_hyp ${ckpt_prefix}.rsl \
+        --trans_hyp_sclite ${ckpt_prefix}.rsl.text.sclite
 
-        mkdir -p ${ckpt_prefix}_sclite
-        sclite -i wsj -r data/manifest.test-clean.text.sclite -h  ${ckpt_prefix}.rsl.text.sclite  -e utf-8 -o all -O ${ckpt_prefix}_sclite -c NOASCII
+    mkdir -p ${ckpt_prefix}_sclite
+    sclite -i wsj -r data/manifest.test-clean.text.sclite -h  ${ckpt_prefix}.rsl.text.sclite  -e utf-8 -o all -O ${ckpt_prefix}_sclite -c NOASCII
 fi
 
 

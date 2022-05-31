@@ -248,7 +248,6 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            #trans.append(''.join([chr(i) for i in ids]))
             trans.append(self._text_featurizer.defeaturize(ids.numpy().tolist()))
         return trans
 

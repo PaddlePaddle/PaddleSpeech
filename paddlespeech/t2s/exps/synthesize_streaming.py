@@ -133,7 +133,7 @@ def evaluate(args):
 
     N = 0
     T = 0
-    chunk_size = args.chunk_size
+    block_size = args.block_size
     pad_size = args.pad_size
 
     for utt_id, sentence in sentences:
@@ -153,7 +153,7 @@ def evaluate(args):
                 # acoustic model
                 orig_hs = am_encoder_infer(phone_ids)
                 if args.am_streaming:
-                    hss = get_chunks(orig_hs, chunk_size, pad_size)
+                    hss = get_chunks(orig_hs, block_size, pad_size)
                     chunk_num = len(hss)
                     mel_list = []
                     for i, hs in enumerate(hss):
@@ -171,7 +171,7 @@ def evaluate(args):
                             sub_mel = sub_mel[pad_size:]
                         else:
                             # 倒数几块的右侧也可能没有 pad 够
-                            sub_mel = sub_mel[pad_size:(chunk_size + pad_size) -
+                            sub_mel = sub_mel[pad_size:(block_size + pad_size) -
                                               sub_mel.shape[0]]
                         mel_list.append(sub_mel)
                     mel = paddle.concat(mel_list, axis=0)
@@ -277,7 +277,7 @@ def parse_args():
         default=False,
         help="whether use streaming acoustic model")
     parser.add_argument(
-        "--chunk_size", type=int, default=42, help="chunk size of am streaming")
+        "--block_size", type=int, default=42, help="block size of am streaming")
     parser.add_argument(
         "--pad_size", type=int, default=12, help="pad size of am streaming")
 

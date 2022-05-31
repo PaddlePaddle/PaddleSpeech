@@ -107,7 +107,7 @@ pwg_ljspeech_ckpt_0.5
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-``text
+```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
                      [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]

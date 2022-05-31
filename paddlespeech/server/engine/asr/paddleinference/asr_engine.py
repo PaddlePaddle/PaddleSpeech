@@ -37,7 +37,7 @@ class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
         self.task_resource = CommonTaskResource(
-            task='asr', model_format='static', inference_mode='online')
+            task='asr', model_format='static')
 
     def _init_from_path(self,
                         model_type: str='wenetspeech',

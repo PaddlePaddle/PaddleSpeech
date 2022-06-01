@@ -30,8 +30,8 @@ class AudioCache : public FrontendInterface {
 
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
 
-    // the audio dim is 1, one sample
-    virtual size_t Dim() const { return 1; }
+    // the audio dim is 1, one sample, we return size_ instead.
+    virtual size_t Dim() const { return size_; }
 
     virtual void SetFinished() {
         std::lock_guard<std::mutex> lock(mutex_);

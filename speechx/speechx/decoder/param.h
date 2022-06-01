@@ -25,7 +25,6 @@ DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");
 // feature, or fbank");
 DEFINE_int32(num_bins, 161, "num bins of mel");
 DEFINE_string(cmvn_file, "", "read cmvn");
-DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
 // feature sliding window
 DEFINE_int32(receptive_field_length,
              7,

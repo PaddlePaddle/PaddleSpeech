@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
 
     int sample_rate = FLAGS_sample_rate;
-    float streaming_chunk = FLAGS_streaming_chunk;
+    float streaming_chunk = 0.1;
     int chunk_sample_size = streaming_chunk * sample_rate;
     LOG(INFO) << "sr: " << sample_rate;
     LOG(INFO) << "chunk size (s): " << streaming_chunk;

@@ -16,15 +16,15 @@
 #pragma once
 
 #include "base/common.h"
+#include "frontend/audio/feature_common.h"
 #include "frontend/audio/frontend_itf.h"
 #include "kaldi/feat/feature-window.h"
-#include "frontend/audio/feature_common.h"
 
 namespace ppspeech {
 
 struct LinearSpectrogramOptions {
     kaldi::FrameExtractionOptions frame_opts;
-    LinearSpectrogramOptions(): frame_opts() {}
+    LinearSpectrogramOptions() : frame_opts() {}
 };
 
 class LinearSpectrogramComputer {
@@ -33,7 +33,7 @@ class LinearSpectrogramComputer {
     explicit LinearSpectrogramComputer(const Options& opts);
 
     kaldi::FrameExtractionOptions& GetFrameOptions() {
-      return opts_.frame_opts;
+        return opts_.frame_opts;
     }
 
     bool Compute(kaldi::Vector<kaldi::BaseFloat>* window,
@@ -42,17 +42,16 @@ class LinearSpectrogramComputer {
     int32 Dim() const { return dim_; }
 
     bool NeedRawLogEnergy() { return false; }
-    
+
   private:
     kaldi::BaseFloat scale_;
     Options opts_;
     int32 frame_length_;
     int32 dim_;
+    DISALLOW_COPY_AND_ASSIGN(LinearSpectrogramComputer);
 };
 
 typedef StreamingFeatureTpl<LinearSpectrogramComputer> LinearSpectrogram;
-
-    //DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
 
 
 }  // namespace ppspeech

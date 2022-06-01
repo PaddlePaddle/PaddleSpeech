@@ -15,8 +15,8 @@
 #pragma once
 
 #include "base/common.h"
-#include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/feature_common.h"
+#include "frontend/audio/frontend_itf.h"
 #include "kaldi/feat/feature-fbank.h"
 #include "kaldi/feat/feature-mfcc.h"
 #include "kaldi/matrix/kaldi-vector.h"
@@ -25,11 +25,11 @@ namespace ppspeech {
 
 class FbankComputer {
   public:
-    typedef kaldi::FbankOptions Options;     
+    typedef kaldi::FbankOptions Options;
     explicit FbankComputer(const Options& opts);
 
     kaldi::FrameExtractionOptions& GetFrameOptions() {
-      return opts_.frame_opts;
+        return opts_.frame_opts;
     }
 
     bool Compute(kaldi::Vector<kaldi::BaseFloat>* window,
@@ -42,7 +42,7 @@ class FbankComputer {
     Options opts_;
 
     kaldi::FbankComputer computer_;
-    //DISALLOW_COPY_AND_ASSIGN(FbankComputer);
+    DISALLOW_COPY_AND_ASSIGN(FbankComputer);
 };
 
 typedef StreamingFeatureTpl<FbankComputer> Fbank;

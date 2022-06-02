@@ -16,6 +16,7 @@
 #pragma once
 
 #include "base/common.h"
+#include "frontend/audio/feature_common.h"
 #include "frontend/audio/frontend_itf.h"
 #include "kaldi/feat/feature-window.h"
 
@@ -23,47 +24,34 @@ namespace ppspeech {
 
 struct LinearSpectrogramOptions {
     kaldi::FrameExtractionOptions frame_opts;
-    kaldi::BaseFloat streaming_chunk;  // second
-
-    LinearSpectrogramOptions() : streaming_chunk(0.1), frame_opts() {}
-
-    void Register(kaldi::OptionsItf* opts) {
-        opts->Register("streaming-chunk",
-                       &streaming_chunk,
-                       "streaming chunk size, default: 0.1 sec");
-        frame_opts.Register(opts);
-    }
+    LinearSpectrogramOptions() : frame_opts() {}
 };
 
-class LinearSpectrogram : public FrontendInterface {
+class LinearSpectrogramComputer {
   public:
-    explicit LinearSpectrogram(
-        const LinearSpectrogramOptions& opts,
-        std::unique_ptr<FrontendInterface> base_extractor);
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
-    // the dim_ is the dim of single frame feature
-    virtual size_t Dim() const { return dim_; }
-    virtual void SetFinished() { base_extractor_->SetFinished(); }
-    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
-    virtual void Reset() {
-        base_extractor_->Reset();
-        remained_wav_.Resize(0);
+    typedef LinearSpectrogramOptions Options;
+    explicit LinearSpectrogramComputer(const Options& opts);
+
+    kaldi::FrameExtractionOptions& GetFrameOptions() {
+        return opts_.frame_opts;
     }
+
+    bool Compute(kaldi::Vector<kaldi::BaseFloat>* window,
+                 kaldi::Vector<kaldi::BaseFloat>* feat);
+
+    int32 Dim() const { return dim_; }
+
+    bool NeedRawLogEnergy() { return false; }
 
   private:
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
-                 kaldi::Vector<kaldi::BaseFloat>* feats);
-
-    size_t dim_;
-    kaldi::FeatureWindowFunction feature_window_funtion_;
-    kaldi::BaseFloat hanning_window_energy_;
-    LinearSpectrogramOptions opts_;
-    std::unique_ptr<FrontendInterface> base_extractor_;
-    kaldi::Vector<kaldi::BaseFloat> remained_wav_;
-    int chunk_sample_size_;
-    DISALLOW_COPY_AND_ASSIGN(LinearSpectrogram);
+    kaldi::BaseFloat scale_;
+    Options opts_;
+    int32 frame_length_;
+    int32 dim_;
+    DISALLOW_COPY_AND_ASSIGN(LinearSpectrogramComputer);
 };
+
+typedef StreamingFeatureTpl<LinearSpectrogramComputer> LinearSpectrogram;
 
 
 }  // namespace ppspeech

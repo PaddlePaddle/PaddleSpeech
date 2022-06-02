@@ -25,7 +25,6 @@ DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");
 // feature, or fbank");
 DEFINE_int32(num_bins, 161, "num bins of mel");
 DEFINE_string(cmvn_file, "", "read cmvn");
-DEFINE_double(streaming_chunk, 0.1, "streaming feature chunk size");
 // feature sliding window
 DEFINE_int32(receptive_field_length,
              7,
@@ -62,7 +61,6 @@ namespace ppspeech {
 FeaturePipelineOptions InitFeaturePipelineOptions() {
     FeaturePipelineOptions opts;
     opts.cmvn_file = FLAGS_cmvn_file;
-    opts.linear_spectrogram_opts.streaming_chunk = FLAGS_streaming_chunk;
     kaldi::FrameExtractionOptions frame_opts;
     frame_opts.dither = 0.0;
     frame_opts.frame_shift_ms = 10;
@@ -71,8 +69,8 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
         opts.to_float32 = false;
         frame_opts.window_type = "povey";
         frame_opts.frame_length_ms = 25;
-        opts.fbank_opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
-        opts.fbank_opts.fbank_opts.frame_opts = frame_opts;
+        opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
+        opts.fbank_opts.frame_opts = frame_opts;
     } else {
         opts.to_float32 = true;
         frame_opts.remove_dc_offset = false;

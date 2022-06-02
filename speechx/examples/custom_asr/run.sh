@@ -71,7 +71,6 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   recognizer_test_main \
     --wav_rspecifier=scp:$wav_scp \
     --cmvn_file=$cmvn \
-    --streaming_chunk=30 \
     --use_fbank=true \
     --model_path=$model_dir/avg_10.jit.pdmodel \
     --param_path=$model_dir/avg_10.jit.pdiparams \

@@ -138,6 +138,7 @@ class ASRExecutor(BaseExecutor):
             tag = model_type + '-' + lang + '-' + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)
             self.res_path = self.task_resource.res_dir
+
             self.cfg_path = os.path.join(
                 self.res_path, self.task_resource.res_dict['cfg_path'])
             self.ckpt_path = os.path.join(
@@ -158,15 +159,18 @@ class ASRExecutor(BaseExecutor):
         self.config.merge_from_file(self.cfg_path)
 
         with UpdateConfig(self.config):
-            if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-                from paddlespeech.s2t.io.collator import SpeechCollator
-                self.vocab = self.config.vocab_filepath
+            if self.config.spm_model_prefix:
+                self.config.spm_model_prefix = os.path.join(
+                    self.res_path, self.config.spm_model_prefix)
+            self.text_feature = TextFeaturizer(
+                unit_type=self.config.unit_type,
+                vocab=self.config.vocab_filepath,
+                spm_model_prefix=self.config.spm_model_prefix)
+            if "deepspeech2" in model_type:
                 self.config.decode.lang_model_path = os.path.join(
                     MODEL_HOME, 'language_model',
                     self.config.decode.lang_model_path)
-                self.collate_fn_test = SpeechCollator.from_config(self.config)
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type, vocab=self.vocab)
+
                 lm_url = self.task_resource.res_dict['lm_url']
                 lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
@@ -174,12 +178,6 @@ class ASRExecutor(BaseExecutor):
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
 
             elif "conformer" in model_type or "transformer" in model_type:
-                self.config.spm_model_prefix = os.path.join(
-                    self.res_path, self.config.spm_model_prefix)
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type,
-                    vocab=self.config.vocab_filepath,
-                    spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.decoding_method = decode_method
 
             else:
@@ -222,19 +220,7 @@ class ASRExecutor(BaseExecutor):
             logger.info("Preprocess audio_file:" + audio_file)
 
         # Get the object for feature extraction
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-            audio, _ = self.collate_fn_test.process_utterance(
-                audio_file=audio_file, transcript=" ")
-            audio_len = audio.shape[0]
-            audio = paddle.to_tensor(audio, dtype='float32')
-            audio_len = paddle.to_tensor(audio_len)
-            audio = paddle.unsqueeze(audio, axis=0)
-            # vocab_list = collate_fn_test.vocab_list
-            self._inputs["audio"] = audio
-            self._inputs["audio_len"] = audio_len
-            logger.info(f"audio feat shape: {audio.shape}")
-
-        elif "conformer" in model_type or "transformer" in model_type:
+        if "deepspeech2" in model_type or "conformer" in model_type or "transformer" in model_type:
             logger.info("get the preprocess conf")
             preprocess_conf = self.config.preprocess_config
             preprocess_args = {"train": False}
@@ -242,7 +228,6 @@ class ASRExecutor(BaseExecutor):
             logger.info("read the audio file")
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
-
             if self.change_format:
                 if audio.shape[1] >= 2:
                     audio = audio.mean(axis=1, dtype=np.int16)
@@ -285,7 +270,7 @@ class ASRExecutor(BaseExecutor):
         cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
+        if "deepspeech2" in model_type:
             decode_batch_size = audio.shape[0]
             self.model.decoder.init_decoder(
                 decode_batch_size, self.text_feature.vocab_list,

@@ -33,12 +33,13 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     num_workers=$(nproc)
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
-    --spectrum_type="linear" \
+    --spectrum_type="fbank" \
+    --feat_dim=161 \
     --delta_delta=false \
     --stride_ms=10 \
-    --window_ms=20 \
+    --window_ms=25 \
     --sample_rate=16000 \
-    --use_dB_normalization=True \
+    --use_dB_normalization=False \
     --num_samples=2000 \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"

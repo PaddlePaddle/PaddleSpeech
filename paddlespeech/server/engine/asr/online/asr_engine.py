@@ -25,7 +25,6 @@ from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.frontend.speech import SpeechSegment
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
@@ -66,10 +65,13 @@ class PaddleASRConnectionHanddler:
         self.text_feature = self.asr_engine.executor.text_feature
 
         if "deepspeech2" in self.model_type:
-            from paddlespeech.s2t.io.collator import SpeechCollator
             self.am_predictor = self.asr_engine.executor.am_predictor
 
-            self.collate_fn_test = SpeechCollator.from_config(self.model_config)
+            # extract feat, new only fbank in conformer model
+            self.preprocess_conf = self.model_config.preprocess_config
+            self.preprocess_args = {"train": False}
+            self.preprocessing = Transformation(self.preprocess_conf)
+
             self.decoder = CTCDecoder(
                 odim=self.model_config.output_dim,  # <blank> is in  vocab
                 enc_n_units=self.model_config.rnn_layer_size * 2,
@@ -89,10 +91,8 @@ class PaddleASRConnectionHanddler:
                 cfg.num_proc_bsearch)
 
             # frame window and frame shift, in samples unit
-            self.win_length = int(self.model_config.window_ms / 1000 *
-                                  self.sample_rate)
-            self.n_shift = int(self.model_config.stride_ms / 1000 *
-                               self.sample_rate)
+            self.win_length = self.preprocess_conf.process[0]['win_length']
+            self.n_shift = self.preprocess_conf.process[0]['n_shift']
 
         elif "conformer" in self.model_type or "transformer" in self.model_type:
             # acoustic model
@@ -114,19 +114,14 @@ class PaddleASRConnectionHanddler:
             raise ValueError(f"Not supported: {self.model_type}")
 
     def extract_feat(self, samples):
-        # we compute the elapsed time of first char occuring 
+        # we compute the elapsed time of first char occuring
         # and we record the start time at the first pcm sample arraving
 
         if "deepspeech2online" in self.model_type:
-            # self.reamined_wav stores all the samples, 
+            # self.reamined_wav stores all the samples,
             # include the original remained_wav and this package samples
             samples = np.frombuffer(samples, dtype=np.int16)
             assert samples.ndim == 1
-
-            # pcm16 -> pcm 32
-            # pcm2float will change the orignal samples, 
-            # so we shoule do pcm2float before concatenate
-            samples = pcm2float(samples)
 
             if self.remained_wav is None:
                 self.remained_wav = samples
@@ -137,26 +132,11 @@ class PaddleASRConnectionHanddler:
                 f"The connection remain the audio samples: {self.remained_wav.shape}"
             )
 
-            # read audio
-            speech_segment = SpeechSegment.from_pcm(
-                self.remained_wav, self.sample_rate, transcript=" ")
-            # audio augment
-            self.collate_fn_test.augmentation.transform_audio(speech_segment)
-
-            # extract speech feature
-            spectrum, transcript_part = self.collate_fn_test._speech_featurizer.featurize(
-                speech_segment, self.collate_fn_test.keep_transcription_text)
-            # CMVN spectrum
-            if self.collate_fn_test._normalizer:
-                spectrum = self.collate_fn_test._normalizer.apply(spectrum)
-
-            # spectrum augment
-            feat = self.collate_fn_test.augmentation.transform_feature(spectrum)
-
-            # audio_len is frame num
-            frame_num = feat.shape[0]
-            feat = paddle.to_tensor(feat, dtype='float32')
-            feat = paddle.unsqueeze(feat, axis=0)
+            # fbank
+            feat = self.preprocessing(self.remained_wav,
+                                         **self.preprocess_args)
+            feat = paddle.to_tensor(
+                feat, dtype="float32").unsqueeze(axis=0)
 
             if self.cached_feat is None:
                 self.cached_feat = feat
@@ -170,8 +150,11 @@ class PaddleASRConnectionHanddler:
             if self.device is None:
                 self.device = self.cached_feat.place
 
-            self.num_frames += frame_num
-            self.remained_wav = self.remained_wav[self.n_shift * frame_num:]
+            # cur frame step
+            num_frames = feat.shape[1]
+
+            self.num_frames += num_frames
+            self.remained_wav = self.remained_wav[self.n_shift * num_frames:]
 
             logger.info(
                 f"process the audio feature success, the connection feat shape: {self.cached_feat.shape}"
@@ -190,7 +173,7 @@ class PaddleASRConnectionHanddler:
                 f"This package receive {samples.shape[0]} pcm data. Global samples:{self.num_samples}"
             )
 
-            # self.reamined_wav stores all the samples, 
+            # self.reamined_wav stores all the samples,
             # include the original remained_wav and this package samples
             if self.remained_wav is None:
                 self.remained_wav = samples
@@ -246,7 +229,7 @@ class PaddleASRConnectionHanddler:
 
     def reset(self):
         if "deepspeech2" in self.model_type:
-            # for deepspeech2 
+            # for deepspeech2
             # init state
             self.chunk_state_h_box = np.zeros(
                 (self.model_config.num_rnn_layers, 1,
@@ -275,7 +258,7 @@ class PaddleASRConnectionHanddler:
 
         ## conformer
 
-        # cache for conformer online 
+        # cache for conformer online
         self.subsampling_cache = None
         self.elayers_output_cache = None
         self.conformer_cnn_cache = None
@@ -359,7 +342,7 @@ class PaddleASRConnectionHanddler:
             # update feat cache
             self.cached_feat = self.cached_feat[:, end - cached_feature_num:, :]
 
-            # return trans_best[0]            
+            # return trans_best[0]
         elif "conformer" in self.model_type or "transformer" in self.model_type:
             try:
                 logger.info(
@@ -565,7 +548,7 @@ class PaddleASRConnectionHanddler:
 
     @paddle.no_grad()
     def rescoring(self):
-        """Second-Pass Decoding, 
+        """Second-Pass Decoding,
         only for conformer and transformer model.
         """
         if "deepspeech2" in self.model_type:
@@ -652,11 +635,11 @@ class PaddleASRConnectionHanddler:
         ## asr results
         # hyps[0][0]: the sentence word-id in the vocab with a tuple
         # hyps[0][1]: the sentence decoding probability with all paths
-        ## timestamp 
+        ## timestamp
         # hyps[0][2]: viterbi_blank ending probability
         # hyps[0][3]: viterbi_non_blank dending probability
         # hyps[0][4]: current_token_prob,
-        # hyps[0][5]: times_viterbi_blank ending timestamp, 
+        # hyps[0][5]: times_viterbi_blank ending timestamp,
         # hyps[0][6]: times_titerbi_non_blank encding timestamp.
         self.hyps = [hyps[best_index][0]]
         logger.info(f"best hyp ids: {self.hyps}")
@@ -752,16 +735,19 @@ class ASRServerExecutor(ASRExecutor):
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
 
+        if self.config.spm_model_prefix:
+            self.config.spm_model_prefix = os.path.join(
+                self.res_path, self.config.spm_model_prefix)
+        self.text_feature = TextFeaturizer(
+            unit_type=self.config.unit_type,
+            vocab=self.config.vocab_filepath,
+            spm_model_prefix=self.config.spm_model_prefix)
+        self.vocab = self.config.vocab_filepath
         with UpdateConfig(self.config):
             if "deepspeech2" in model_type:
-                from paddlespeech.s2t.io.collator import SpeechCollator
-                self.vocab = self.config.vocab_filepath
                 self.config.decode.lang_model_path = os.path.join(
                     MODEL_HOME, 'language_model',
                     self.config.decode.lang_model_path)
-                self.collate_fn_test = SpeechCollator.from_config(self.config)
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type, vocab=self.vocab)
 
                 lm_url = self.task_resource.res_dict['lm_url']
                 lm_md5 = self.task_resource.res_dict['lm_md5']
@@ -772,14 +758,6 @@ class ASRServerExecutor(ASRExecutor):
 
             elif "conformer" in model_type or "transformer" in model_type:
                 logger.info("start to create the stream conformer asr engine")
-                if self.config.spm_model_prefix:
-                    self.config.spm_model_prefix = os.path.join(
-                        self.res_path, self.config.spm_model_prefix)
-                self.vocab = self.config.vocab_filepath
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type,
-                    vocab=self.config.vocab_filepath,
-                    spm_model_prefix=self.config.spm_model_prefix)
                 # update the decoding method
                 if decode_method:
                     self.config.decode.decoding_method = decode_method

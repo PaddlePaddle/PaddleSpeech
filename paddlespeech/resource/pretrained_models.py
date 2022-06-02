@@ -136,9 +136,9 @@ asr_dynamic_pretrained_models = {
     "deepspeech2online_wenetspeech-zh-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.0a.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.1.model.tar.gz',
             'md5':
-            'e393d4d274af0f6967db24fc146e8074',
+            'd1be86a3e786042ab64f05161b5fae62',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
@@ -152,13 +152,13 @@ asr_dynamic_pretrained_models = {
     "deepspeech2offline_aishell-zh-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz',
             'md5':
-            '932c3593d62fe5c741b59b31318aa314',
+            '4d26066c6f19f52087425dc722ae5b13',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
-            'exp/deepspeech2/checkpoints/avg_1',
+            'exp/deepspeech2/checkpoints/avg_10',
             'lm_url':
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':
@@ -168,9 +168,9 @@ asr_dynamic_pretrained_models = {
     "deepspeech2online_aishell-zh-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_0.2.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.1.model.tar.gz',
             'md5':
-            '98b87b171b7240b7cae6e07d8d0bc9be',
+            'df5ddeac8b679a470176649ac4b78726',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
@@ -188,13 +188,13 @@ asr_dynamic_pretrained_models = {
     "deepspeech2offline_librispeech-en-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr0/asr0_deepspeech2_librispeech_ckpt_0.1.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr0/asr0_deepspeech2_offline_librispeech_ckpt_1.0.1.model.tar.gz',
             'md5':
-            'f5666c81ad015c8de03aac2bc92e5762',
+            'ed9e2b008a65268b3484020281ab048c',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
-            'exp/deepspeech2/checkpoints/avg_1',
+            'exp/deepspeech2/checkpoints/avg_5',
             'lm_url':
             'https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm',
             'lm_md5':
@@ -207,17 +207,17 @@ asr_static_pretrained_models = {
     "deepspeech2offline_aishell-zh-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz',
             'md5':
-            '932c3593d62fe5c741b59b31318aa314',
+            '4d26066c6f19f52087425dc722ae5b13',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
-            'exp/deepspeech2/checkpoints/avg_1',
+            'exp/deepspeech2/checkpoints/avg_10',
             'model':
-            'exp/deepspeech2/checkpoints/avg_1.jit.pdmodel',
+            'exp/deepspeech2/checkpoints/avg_10.jit.pdmodel',
             'params':
-            'exp/deepspeech2/checkpoints/avg_1.jit.pdiparams',
+            'exp/deepspeech2/checkpoints/avg_10.jit.pdiparams',
             'lm_url':
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':
@@ -830,7 +830,7 @@ vector_dynamic_pretrained_models = {
             'cfg_path':
             'conf/model.yaml',  # the yaml config path
             'ckpt_path':
-            'model/model',  # the format is ${dir}/{model_name}, 
+            'model/model',  # the format is ${dir}/{model_name},
             # so the first 'model' is dir, the second 'model' is the name
             # this means we have a model stored as model/model.pdparams
         },

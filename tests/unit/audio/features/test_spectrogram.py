@@ -15,29 +15,27 @@ import unittest
 
 import numpy as np
 import paddle
-from paddleaudio.functional.window import get_window
 
+import paddlespeech.audio
 from .base import FeatTest
-from paddlespeech.s2t.transform.spectrogram import Stft
+from paddlespeech.s2t.transform.spectrogram import Spectrogram
 
 
-class TestStft(FeatTest):
+class TestSpectrogram(FeatTest):
     def initParmas(self):
         self.n_fft = 512
         self.hop_length = 128
-        self.window_str = 'hann'
 
-    def test_stft(self):
-        ps_stft = Stft(self.n_fft, self.hop_length)
-        ps_res = ps_stft(
-            self.waveform.T).squeeze(1).T  # (n_fft//2 + 1, n_frmaes)
+    def test_spectrogram(self):
+        ps_spect = Spectrogram(self.n_fft, self.hop_length)
+        ps_res = ps_spect(self.waveform.T).squeeze(1).T  # Magnitude
 
         x = paddle.to_tensor(self.waveform)
-        window = get_window(self.window_str, self.n_fft, dtype=x.dtype)
-        pd_res = paddle.signal.stft(
-            x, self.n_fft, self.hop_length, window=window).squeeze(0).numpy()
+        pa_spect = paddlespeech.audio.features.Spectrogram(
+            self.n_fft, self.hop_length, power=1.0)
+        pa_res = pa_spect(x).squeeze(0).numpy()
 
-        np.testing.assert_array_almost_equal(ps_res, pd_res, decimal=5)
+        np.testing.assert_array_almost_equal(ps_res, pa_res, decimal=5)
 
 
 if __name__ == '__main__':

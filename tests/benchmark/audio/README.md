@@ -15,7 +15,6 @@ Result:
 ========================================================================== test session starts ==========================================================================
 platform linux -- Python 3.7.7, pytest-7.0.1, pluggy-1.0.0
 benchmark: 3.4.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
-rootdir: /ssd3/chenxiaojie06/PaddleSpeech/DeepSpeech/paddleaudio
 plugins: typeguard-2.12.1, benchmark-3.4.1, anyio-3.5.0
 collected 4 items
 

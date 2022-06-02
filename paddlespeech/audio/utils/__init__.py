@@ -11,13 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from ...cli.utils import DATA_HOME
+from ...cli.utils import MODEL_HOME
 from .download import decompress
 from .download import download_and_decompress
 from .download import load_state_dict_from_url
-from .env import DATA_HOME
-from .env import MODEL_HOME
-from .env import PPAUDIO_HOME
-from .env import USER_HOME
 from .error import ParameterError
 from .log import Logger
 from .log import logger

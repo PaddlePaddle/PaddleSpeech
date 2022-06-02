@@ -16,16 +16,16 @@ import os
 import unittest
 
 import numpy as np
-import paddleaudio
 import soundfile as sf
 
+import paddlespeech.audio
 from ..base import BackendTest
 
 
 class TestIO(BackendTest):
     def test_load_mono_channel(self):
         sf_data, sf_sr = sf.read(self.files[0])
-        pa_data, pa_sr = paddleaudio.load(
+        pa_data, pa_sr = paddlespeech.audio.load(
             self.files[0], normal=False, dtype='float64')
 
         self.assertEqual(sf_data.dtype, pa_data.dtype)
@@ -35,7 +35,7 @@ class TestIO(BackendTest):
     def test_load_multi_channels(self):
         sf_data, sf_sr = sf.read(self.files[1])
         sf_data = sf_data.T  # Channel dim first
-        pa_data, pa_sr = paddleaudio.load(
+        pa_data, pa_sr = paddlespeech.audio.load(
             self.files[1], mono=False, normal=False, dtype='float64')
 
         self.assertEqual(sf_data.dtype, pa_data.dtype)
@@ -49,7 +49,7 @@ class TestIO(BackendTest):
         pa_tmp_file = 'pa_tmp.wav'
 
         sf.write(sf_tmp_file, waveform, sr)
-        paddleaudio.save(waveform, sr, pa_tmp_file)
+        paddlespeech.audio.save(waveform, sr, pa_tmp_file)
 
         self.assertTrue(filecmp.cmp(sf_tmp_file, pa_tmp_file))
         for file in [sf_tmp_file, pa_tmp_file]:
@@ -62,7 +62,7 @@ class TestIO(BackendTest):
         pa_tmp_file = 'pa_tmp.wav'
 
         sf.write(sf_tmp_file, waveform.T, sr)
-        paddleaudio.save(waveform.T, sr, pa_tmp_file)
+        paddlespeech.audio.save(waveform.T, sr, pa_tmp_file)
 
         self.assertTrue(filecmp.cmp(sf_tmp_file, pa_tmp_file))
         for file in [sf_tmp_file, pa_tmp_file]:

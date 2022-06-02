@@ -25,7 +25,7 @@ class StreamingFeatureTpl : public FrontendInterface {
     typedef typename F::Options Options;
     StreamingFeatureTpl(const Options& opts, 
                         std::unique_ptr<FrontendInterface> base_extractor);
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
     
     // the dim_ is the dim of single frame feature

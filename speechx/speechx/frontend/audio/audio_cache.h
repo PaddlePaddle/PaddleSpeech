@@ -30,7 +30,8 @@ class AudioCache : public FrontendInterface {
 
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
 
-    // the audio dim is 1, one sample, we return size_ instead.
+    // the audio dim is 1, one sample, which is useless, 
+    // so we return size_(cache samples) instead.
     virtual size_t Dim() const { return size_; }
 
     virtual void SetFinished() {

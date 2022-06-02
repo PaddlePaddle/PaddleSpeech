@@ -25,8 +25,8 @@ StreamingFeatureTpl<F>::StreamingFeatureTpl(const Options& opts,
 }
 
 template <class F>
-void StreamingFeatureTpl<F>::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
-    base_extractor_->Accept(inputs);
+void StreamingFeatureTpl<F>::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves) {
+    base_extractor_->Accept(waves);
 }
 
 template <class F>

@@ -49,12 +49,11 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> data_source(
         new ppspeech::AudioCache(3600 * 1600, false));
 
-    ppspeech::FbankOptions opt;
-    opt.fbank_opts.frame_opts.frame_length_ms = 25;
-    opt.fbank_opts.frame_opts.frame_shift_ms = 10;
-    opt.streaming_chunk = FLAGS_streaming_chunk;
-    opt.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
-    opt.fbank_opts.frame_opts.dither = 0.0;
+    kaldi::FbankOptions opt;
+    opt.frame_opts.frame_length_ms = 25;
+    opt.frame_opts.frame_shift_ms = 10;
+    opt.mel_opts.num_bins = FLAGS_num_bins;
+    opt.frame_opts.dither = 0.0;
 
     std::unique_ptr<ppspeech::FrontendInterface> fbank(
         new ppspeech::Fbank(opt, std::move(data_source)));

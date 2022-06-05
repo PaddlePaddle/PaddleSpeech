@@ -19,6 +19,7 @@
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
+DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
 int main(int argc, char* argv[]) {

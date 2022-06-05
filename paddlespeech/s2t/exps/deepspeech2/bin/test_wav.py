@@ -23,7 +23,6 @@ from yacs.config import CfgNode
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.collator import SpeechCollator
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model
-from paddlespeech.s2t.models.ds2_online import DeepSpeech2ModelOnline
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils import mp_tools
 from paddlespeech.s2t.utils.checkpoint import Checkpoint
@@ -113,12 +112,7 @@ class DeepSpeech2Tester_hub():
             config.input_dim = self.collate_fn_test.feature_size
             config.output_dim = self.collate_fn_test.vocab_size
 
-        if self.args.model_type == 'offline':
-            model = DeepSpeech2Model.from_config(config)
-        elif self.args.model_type == 'online':
-            model = DeepSpeech2ModelOnline.from_config(config)
-        else:
-            raise Exception("wrong model type")
+        model = DeepSpeech2Model.from_config(config)
 
         self.model = model
 
@@ -172,8 +166,6 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument(
-        "--model_type", type=str, default='offline', help='offline/online')
     parser.add_argument("--audio_file", type=str, help='audio file path')
     # save asr result to
     parser.add_argument(
@@ -184,7 +176,6 @@ if __name__ == "__main__":
         print("Please input the audio file path")
         sys.exit(-1)
     check(args.audio_file)
-    print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
     config = CfgNode(new_allowed=True)

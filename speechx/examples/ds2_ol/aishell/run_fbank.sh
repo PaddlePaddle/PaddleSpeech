@@ -152,7 +152,6 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_5.jit.pdmodel \
-        --streaming_chunk=30 \
         --use_fbank=true \
         --param_path=$model_dir/avg_5.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \

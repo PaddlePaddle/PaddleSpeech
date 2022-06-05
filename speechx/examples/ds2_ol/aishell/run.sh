@@ -78,7 +78,6 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
         --cmvn_file=$cmvn \
-        --streaming_chunk=0.36
     echo "feature make have finished!!!"
 fi
 
@@ -155,7 +154,6 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_1.jit.pdmodel \
-        --streaming_chunk=30 \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \

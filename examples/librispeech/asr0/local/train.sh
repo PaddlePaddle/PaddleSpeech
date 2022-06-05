@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 3 ];then
-    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name model_type"
+if [ $# != 2 ];then
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name"
     exit -1
 fi
 
@@ -10,7 +10,6 @@ echo "using $ngpu gpus..."
 
 config_path=$1
 ckpt_name=$2
-model_type=$3
 
 mkdir -p exp
 
@@ -25,14 +24,12 @@ python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---model_type ${model_type} \
 --seed ${seed}
 else
 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---model_type ${model_type} \
 --seed ${seed}
 fi
 

@@ -32,7 +32,7 @@ struct FeaturePipelineOptions {
     bool to_float32;  // true, only for linear feature
     bool use_fbank;
     LinearSpectrogramOptions linear_spectrogram_opts;
-    FbankOptions fbank_opts;
+    kaldi::FbankOptions fbank_opts;
     FeatureCacheOptions feature_cache_opts;
     AssemblerOptions assembler_opts;
 

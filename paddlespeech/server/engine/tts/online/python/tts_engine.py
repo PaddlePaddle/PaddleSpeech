@@ -40,7 +40,7 @@ class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
         self.task_resource = CommonTaskResource(
-            task='tts', model_format='static', inference_mode='online')
+            task='tts', model_format='dynamic', inference_mode='online')
 
 
     def get_model_info(self,

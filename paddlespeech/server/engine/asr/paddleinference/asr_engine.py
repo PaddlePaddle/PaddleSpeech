@@ -54,6 +54,7 @@ class ASRServerExecutor(ASRExecutor):
         self.max_len = 50
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
         tag = model_type + '-' + lang + '-' + sample_rate_str
+        self.max_len = 50
         self.task_resource.set_task_model(model_tag=tag)
         if cfg_path is None or am_model is None or am_params is None:
             self.res_path = self.task_resource.res_dir
@@ -80,22 +81,25 @@ class ASRServerExecutor(ASRExecutor):
         self.config.merge_from_file(self.cfg_path)
 
         with UpdateConfig(self.config):
-            if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-                from paddlespeech.s2t.io.collator import SpeechCollator
+            if "deepspeech2" in model_type:
                 self.vocab = self.config.vocab_filepath
+                if self.config.spm_model_prefix:
+                    self.config.spm_model_prefix = os.path.join(
+                        self.res_path, self.config.spm_model_prefix)
+                self.text_feature = TextFeaturizer(
+                    unit_type=self.config.unit_type,
+                    vocab=self.vocab,
+                    spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.lang_model_path = os.path.join(
                     MODEL_HOME, 'language_model',
                     self.config.decode.lang_model_path)
-                self.collate_fn_test = SpeechCollator.from_config(self.config)
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type, vocab=self.vocab)
 
                 lm_url = self.task_resource.res_dict['lm_url']
                 lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
-            elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+            elif "conformer" in model_type or "transformer" in model_type:
                 raise Exception("wrong type")
             else:
                 raise Exception("wrong type")
@@ -125,7 +129,7 @@ class ASRServerExecutor(ASRExecutor):
         cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
+        if "deepspeech2" in model_type:
             decode_batch_size = audio.shape[0]
             # init once
             self.decoder.init_decoder(
@@ -222,10 +226,9 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
         self.decoder = self.executor.decoder
         self.am_predictor = self.executor.am_predictor
         self.text_feature = self.executor.text_feature
-        self.collate_fn_test = self.executor.collate_fn_test
 
     def run(self, audio_data):
-        """engine run 
+        """engine run
 
         Args:
             audio_data (bytes): base64.b64decode

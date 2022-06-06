@@ -47,7 +47,7 @@ tts_online:
     am_pad: 12
     # voc_pad and voc_block voc model to streaming voc infer,
     # when voc model is mb_melgan_csmsc, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
-    # when voc model is hifigan_csmsc, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
+    # when voc model is hifigan_csmsc, voc_pad set 19, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
     voc_block: 36
     voc_pad: 14
     
@@ -95,7 +95,7 @@ tts_online-onnx:
     am_pad: 12
     # voc_pad and voc_block voc model to streaming voc infer,
     # when voc model is mb_melgan_csmsc_onnx, voc_pad set 14, streaming synthetic audio is the same as non-streaming synthetic audio; The minimum value of pad can be set to 7, streaming synthetic audio sounds normal
-    # when voc model is hifigan_csmsc_onnx, voc_pad set 20, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
+    # when voc model is hifigan_csmsc_onnx, voc_pad set 19, streaming synthetic audio is the same as non-streaming synthetic audio; voc_pad set 14, streaming synthetic audio sounds normal
     voc_block: 36
     voc_pad: 14
     # voc_upsample should be same as n_shift on voc config.

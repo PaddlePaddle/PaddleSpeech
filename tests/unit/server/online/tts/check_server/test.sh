@@ -28,7 +28,7 @@ StartService(){
 ClientTest_http(){
     for ((i=1; i<=3;i++))
     do
-    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" 
+    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" --port $port
     ((http_test_times+=1))
     done
 }
@@ -36,7 +36,7 @@ ClientTest_http(){
 ClientTest_ws(){
     for ((i=1; i<=3;i++))
     do
-    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" --protocol websocket
+    paddlespeech_client tts_online --input "您好，欢迎使用百度飞桨深度学习框架。" --protocol websocket --port $port
     ((ws_test_times+=1))
     done
 }
@@ -54,7 +54,7 @@ GetTestResult_http() {
 
 GetTestResult_ws() {
     # Determine if the test was successful
-    ws_response_success_time=$(cat $log/server.log.wf | grep "Complete the transmission of audio streams" -c)
+    ws_response_success_time=$(cat $log/server.log.wf | grep "Complete the synthesis of the audio streams" -c)
     if (( $ws_response_success_time == $ws_test_times )) ; then
         echo "Testing successfully. $info"  | tee -a $log/test_result.log
     else

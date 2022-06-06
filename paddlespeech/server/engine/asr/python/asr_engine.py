@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
+import sys
 import time
 
 import paddle
@@ -20,7 +21,7 @@ from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.base_engine import BaseEngine
 
-__all__ = ['ASREngine']
+__all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 
 
 class ASRServerExecutor(ASRExecutor):
@@ -48,20 +49,23 @@ class ASREngine(BaseEngine):
         Returns:
             bool: init failed or success
         """
-        self.input = None
-        self.output = None
         self.executor = ASRServerExecutor()
         self.config = config
+        self.engine_type = "python"
+
         try:
-            if self.config.device:
+            if self.config.device is not None:
                 self.device = self.config.device
             else:
                 self.device = paddle.get_device()
+
             paddle.set_device(self.device)
-        except BaseException:
+        except Exception as e:
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
             )
+            logger.error(e)
+            return False
 
         self.executor._init_from_path(
             self.config.model, self.config.lang, self.config.sample_rate,
@@ -72,6 +76,24 @@ class ASREngine(BaseEngine):
                     (self.device))
         return True
 
+
+class PaddleASRConnectionHandler(ASRServerExecutor):
+    def __init__(self, asr_engine):
+        """The PaddleSpeech ASR Server Connection Handler
+           This connection process every asr server request
+        Args:
+            asr_engine (ASREngine): The ASR engine
+        """
+        super().__init__()
+        self.input = None
+        self.output = None
+        self.asr_engine = asr_engine
+        self.executor = self.asr_engine.executor
+        self.max_len = self.executor.max_len
+        self.text_feature = self.executor.text_feature
+        self.model = self.executor.model
+        self.config = self.executor.config
+
     def run(self, audio_data):
         """engine run 
 
@@ -79,17 +101,16 @@ class ASREngine(BaseEngine):
             audio_data (bytes): base64.b64decode
         """
         try:
-            if self.executor._check(
-                    io.BytesIO(audio_data), self.config.sample_rate,
-                    self.config.force_yes):
+            if self._check(
+                    io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
+                    self.asr_engine.config.force_yes):
                 logger.info("start run asr engine")
-                self.executor.preprocess(self.config.model,
-                                         io.BytesIO(audio_data))
+                self.preprocess(self.asr_engine.config.model,
+                                io.BytesIO(audio_data))
                 st = time.time()
-                self.executor.infer(self.config.model)
+                self.infer(self.asr_engine.config.model)
                 infer_time = time.time() - st
-                self.output = self.executor.postprocess(
-                )  # Retrieve result of asr.
+                self.output = self.postprocess()  # Retrieve result of asr.
             else:
                 logger.info("file check failed!")
                 self.output = None
@@ -98,8 +119,4 @@ class ASREngine(BaseEngine):
             logger.info("asr engine type: python")
         except Exception as e:
             logger.info(e)
-
-    def postprocess(self):
-        """postprocess
-        """
-        return self.output
+            sys.exit(-1)

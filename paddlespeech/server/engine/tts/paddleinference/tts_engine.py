@@ -14,6 +14,7 @@
 import base64
 import io
 import os
+import sys
 import time
 from typing import Optional
 
@@ -35,7 +36,7 @@ from paddlespeech.server.utils.paddle_predictor import run_model
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
-__all__ = ['TTSEngine']
+__all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 
 
 class TTSServerExecutor(TTSExecutor):
@@ -254,7 +255,7 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 wav_all = paddle.concat([wav_all, wav])
             self.voc_time += (time.time() - voc_st)
-        self._outputs['wav'] = wav_all
+        self._outputs["wav"] = wav_all
 
 
 class TTSEngine(BaseEngine):
@@ -272,6 +273,8 @@ class TTSEngine(BaseEngine):
     def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
         self.config = config
+        self.lang = self.config.lang
+        self.engine_type = "inference"
 
         try:
             if self.config.am_predictor_conf.device is not None:
@@ -281,58 +284,59 @@ class TTSEngine(BaseEngine):
             else:
                 self.device = paddle.get_device()
             paddle.set_device(self.device)
-        except BaseException as e:
+        except Exception as e:
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
             )
             logger.error("Initialize TTS server engine Failed on device: %s." %
                          (self.device))
+            logger.error(e)
             return False
 
-        self.executor._init_from_path(
-            am=self.config.am,
-            am_model=self.config.am_model,
-            am_params=self.config.am_params,
-            am_sample_rate=self.config.am_sample_rate,
-            phones_dict=self.config.phones_dict,
-            tones_dict=self.config.tones_dict,
-            speaker_dict=self.config.speaker_dict,
-            voc=self.config.voc,
-            voc_model=self.config.voc_model,
-            voc_params=self.config.voc_params,
-            voc_sample_rate=self.config.voc_sample_rate,
-            lang=self.config.lang,
-            am_predictor_conf=self.config.am_predictor_conf,
-            voc_predictor_conf=self.config.voc_predictor_conf, )
-
-        # warm up
         try:
-            self.warm_up()
-            logger.info("Warm up successfully.")
+            self.executor._init_from_path(
+                am=self.config.am,
+                am_model=self.config.am_model,
+                am_params=self.config.am_params,
+                am_sample_rate=self.config.am_sample_rate,
+                phones_dict=self.config.phones_dict,
+                tones_dict=self.config.tones_dict,
+                speaker_dict=self.config.speaker_dict,
+                voc=self.config.voc,
+                voc_model=self.config.voc_model,
+                voc_params=self.config.voc_params,
+                voc_sample_rate=self.config.voc_sample_rate,
+                lang=self.config.lang,
+                am_predictor_conf=self.config.am_predictor_conf,
+                voc_predictor_conf=self.config.voc_predictor_conf, )
         except Exception as e:
-            logger.error("Failed to warm up on tts engine.")
+            logger.error("Failed to get model related files.")
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
             return False
 
         logger.info("Initialize TTS server engine successfully.")
         return True
 
-    def warm_up(self):
-        """warm up
+
+class PaddleTTSConnectionHandler(TTSServerExecutor):
+    def __init__(self, tts_engine):
+        """The PaddleSpeech TTS Server Connection Handler
+           This connection process every tts server request
+        Args:
+            tts_engine (TTSEngine): The TTS engine
         """
-        if self.config.lang == 'zh':
-            sentence = "您好，欢迎使用语音合成服务。"
-        if self.config.lang == 'en':
-            sentence = "Hello and welcome to the speech synthesis service."
-        logger.info("Start to warm up.")
-        for i in range(3):
-            st = time.time()
-            self.executor.infer(
-                text=sentence,
-                lang=self.config.lang,
-                am=self.config.am,
-                spk_id=0, )
-            logger.info(
-                f"The response time of the {i} warm up: {time.time() - st} s")
+        super().__init__()
+        logger.info(
+            "Create PaddleTTSConnectionHandler to process the tts request")
+
+        self.tts_engine = tts_engine
+        self.executor = self.tts_engine.executor
+        self.config = self.tts_engine.config
+        self.frontend = self.executor.frontend
+        self.am_predictor = self.executor.am_predictor
+        self.voc_predictor = self.executor.voc_predictor
 
     def postprocess(self,
                     wav,
@@ -384,8 +388,11 @@ class TTSEngine(BaseEngine):
                 ErrorCode.SERVER_INTERNAL_ERR,
                 "Failed to transform speed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("Failed to transform speed.")
+            logger.error(e)
+            sys.exit(-1)
 
         # wav to base64
         buf = io.BytesIO()
@@ -442,7 +449,7 @@ class TTSEngine(BaseEngine):
 
         try:
             infer_st = time.time()
-            self.executor.infer(
+            self.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
             infer_et = time.time()
             infer_time = infer_et - infer_st
@@ -450,13 +457,16 @@ class TTSEngine(BaseEngine):
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts infer failed.")
+            logger.error(e)
+            sys.exit(-1)
 
         try:
             postprocess_st = time.time()
             target_sample_rate, wav_base64 = self.postprocess(
-                wav=self.executor._outputs['wav'].numpy(),
+                wav=self._outputs["wav"].numpy(),
                 original_fs=self.executor.am_sample_rate,
                 target_fs=sample_rate,
                 volume=volume,
@@ -464,26 +474,28 @@ class TTSEngine(BaseEngine):
                 audio_path=save_path)
             postprocess_et = time.time()
             postprocess_time = postprocess_et - postprocess_st
-            duration = len(self.executor._outputs['wav']
-                           .numpy()) / self.executor.am_sample_rate
+            duration = len(
+                self._outputs["wav"].numpy()) / self.executor.am_sample_rate
             rtf = infer_time / duration
 
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts postprocess failed.")
+            logger.error(e)
+            sys.exit(-1)
 
         logger.info("AM model: {}".format(self.config.am))
         logger.info("Vocoder model: {}".format(self.config.voc))
         logger.info("Language: {}".format(lang))
-        logger.info("tts engine type: paddle inference")
+        logger.info("tts engine type: python")
 
         logger.info("audio duration: {}".format(duration))
-        logger.info(
-            "frontend inference time: {}".format(self.executor.frontend_time))
-        logger.info("AM inference time: {}".format(self.executor.am_time))
-        logger.info("Vocoder inference time: {}".format(self.executor.voc_time))
+        logger.info("frontend inference time: {}".format(self.frontend_time))
+        logger.info("AM inference time: {}".format(self.am_time))
+        logger.info("Vocoder inference time: {}".format(self.voc_time))
         logger.info("total inference time: {}".format(infer_time))
         logger.info(
             "postprocess (change speed, volume, target sample rate) time: {}".
@@ -491,5 +503,6 @@ class TTSEngine(BaseEngine):
         logger.info("total generate audio time: {}".format(infer_time +
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
+        logger.info("device: {}".format(self.tts_engine.device))
 
         return lang, target_sample_rate, duration, wav_base64

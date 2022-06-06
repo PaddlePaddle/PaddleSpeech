@@ -12,22 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// todo refactor, repalce with gtest
-
 #include "base/flags.h"
 #include "base/log.h"
-#include "decoder/ctc_beam_search_decoder.h"
 #include "frontend/audio/data_cache.h"
+#include "frontend/audio/assembler.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
-DEFINE_string(result_wspecifier, "", "test result wspecifier");
+DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
-DEFINE_string(dict_file, "vocab.txt", "vocabulary of lm");
-DEFINE_string(lm_path, "", "language model");
+DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=5) downsampling module.");
@@ -45,41 +42,28 @@ DEFINE_string(model_cache_names,
               "chunk_state_h_box,chunk_state_c_box",
               "model cache names");
 DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
-DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
+DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
-// test ds2 online decoder by feeding speech feature
 int main(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
 
-    CHECK(FLAGS_result_wspecifier != "");
-    CHECK(FLAGS_feature_rspecifier != "");
-
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
-    kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-    std::string model_path = FLAGS_model_path;
+    kaldi::BaseFloatMatrixWriter nnet_writer(FLAGS_nnet_prob_wspecifier);
+    std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
-    std::string dict_file = FLAGS_dict_file;
-    std::string lm_path = FLAGS_lm_path;
-    LOG(INFO) << "model path: " << model_path;
+    LOG(INFO) << "model path: " << model_graph;
     LOG(INFO) << "model param: " << model_params;
-    LOG(INFO) << "dict path: " << dict_file;
-    LOG(INFO) << "lm path: " << lm_path;
 
     int32 num_done = 0, num_err = 0;
 
-    ppspeech::CTCBeamSearchOptions opts;
-    opts.dict_file = dict_file;
-    opts.lm_path = lm_path;
-    ppspeech::CTCBeamSearch decoder(opts);
-
     ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_path;
+    model_opts.model_path = model_graph;
     model_opts.param_path = model_params;
     model_opts.cache_names = FLAGS_model_cache_names;
     model_opts.cache_shape = FLAGS_model_cache_shapes;
@@ -89,17 +73,15 @@ int main(int argc, char* argv[]) {
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
     std::shared_ptr<ppspeech::Decodable> decodable(
-        new ppspeech::Decodable(nnet, raw_data));
+        new ppspeech::Decodable(nnet, raw_data, FLAGS_acoustic_scale));
 
-     int32 chunk_size = FLAGS_receptive_field_length
+    int32 chunk_size = FLAGS_receptive_field_length 
         + (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
     int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;
     LOG(INFO) << "receptive field (frame): " << receptive_field_length;
-    decoder.InitDecoder();
-
     kaldi::Timer timer;
     for (; !feature_reader.Done(); feature_reader.Next()) {
         string utt = feature_reader.Key();
@@ -120,6 +102,8 @@ int main(int argc, char* argv[]) {
                            kaldi::kCopyData);
         }
         int32 num_chunks = (feature.NumRows() - chunk_size) / chunk_stride + 1;
+        int32 frame_idx = 0;
+        std::vector<kaldi::Vector<kaldi::BaseFloat>> prob_vec;
         for (int chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
             kaldi::Vector<kaldi::BaseFloat> feature_chunk(chunk_size *
                                                           feature.NumCols());
@@ -131,7 +115,6 @@ int main(int argc, char* argv[]) {
             if (feature_chunk_size < receptive_field_length) break;
 
             int32 start = chunk_idx * chunk_stride;
-
             for (int row_id = 0; row_id < chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> tmp(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> f_chunk_tmp(
@@ -144,26 +127,36 @@ int main(int argc, char* argv[]) {
             if (chunk_idx == num_chunks - 1) {
                 raw_data->SetFinished();
             }
-            decoder.AdvanceDecode(decodable);
+            vector<kaldi::BaseFloat> prob;
+            while (decodable->FrameLikelihood(frame_idx, &prob)) {
+                kaldi::Vector<kaldi::BaseFloat> vec_tmp(prob.size());
+                std::memcpy(vec_tmp.Data(), prob.data(), sizeof(kaldi::BaseFloat)*prob.size());
+                prob_vec.push_back(vec_tmp);
+                frame_idx++;
+            }
         }
-        std::string result;
-        result = decoder.GetFinalBestPath();
         decodable->Reset();
-        decoder.Reset();
-        if (result.empty()) {
+        if (prob_vec.size() == 0) {
             // the TokenWriter can not write empty string.
             ++num_err;
-            KALDI_LOG << " the result of " << utt << " is empty";
+            KALDI_LOG << " the nnet prob of " << utt << " is empty";
             continue;
         }
-        KALDI_LOG << " the result of " << utt << " is " << result;
-        result_writer.Write(utt, result);
+        kaldi::Matrix<kaldi::BaseFloat> result(prob_vec.size(),prob_vec[0].Dim());
+        for (int32 row_idx = 0; row_idx < prob_vec.size(); ++row_idx) {
+            for (int32 col_idx = 0; col_idx < prob_vec[0].Dim(); ++col_idx) {
+                result(row_idx, col_idx) = prob_vec[row_idx](col_idx);
+            }
+        }
+
+        nnet_writer.Write(utt, result);
         ++num_done;
     }
 
-    KALDI_LOG << "Done " << num_done << " utterances, " << num_err
-              << " with errors.";
     double elapsed = timer.Elapsed();
     KALDI_LOG << " cost:" << elapsed << " s";
+
+    KALDI_LOG << "Done " << num_done << " utterances, " << num_err
+              << " with errors.";
     return (num_done != 0 ? 0 : 1);
 }

@@ -32,7 +32,7 @@ DEFINE_int32(receptive_field_length,
 DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=5) module downsampling rate.");
-
+DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 // nnet
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
@@ -79,8 +79,10 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
         frame_opts.preemph_coeff = 0.0;
         opts.linear_spectrogram_opts.frame_opts = frame_opts;
     }
-    opts.assembler_opts.frame_chunk_size = FLAGS_receptive_field_length;
-    opts.assembler_opts.frame_chunk_stride = FLAGS_downsampling_rate;
+    opts.assembler_opts.subsampling_rate = FLAGS_downsampling_rate;
+    opts.assembler_opts.receptive_filed_length = FLAGS_receptive_field_length;
+    opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
+    
     return opts;
 }
 

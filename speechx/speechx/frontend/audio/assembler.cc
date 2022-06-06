@@ -23,8 +23,9 @@ using std::unique_ptr;
 
 Assembler::Assembler(AssemblerOptions opts,
                      unique_ptr<FrontendInterface> base_extractor) {
-    frame_chunk_stride_ = opts.frame_chunk_stride;
-    frame_chunk_size_ = opts.frame_chunk_size;
+    frame_chunk_stride_ = opts.subsampling_rate * opts.nnet_decoder_chunk;
+    frame_chunk_size_ = (opts.nnet_decoder_chunk - 1) * opts.subsampling_rate + opts.receptive_filed_length;
+    receptive_filed_length_ = opts.receptive_filed_length;
     base_extractor_ = std::move(base_extractor);
     dim_ = base_extractor_->Dim();
 }
@@ -48,8 +49,20 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     while (feature_cache_.size() < frame_chunk_size_) {
         Vector<BaseFloat> feature;
         result = base_extractor_->Read(&feature);
-        if (result == false || feature.Dim() == 0) return false;
+        if (result == false || feature.Dim() == 0) {
+          if (IsFinished() == false) return false;
+          break;
+        }
         feature_cache_.push(feature);
+    }
+
+    if (feature_cache_.size() < receptive_filed_length_) {
+        return false;
+    }
+
+    while (feature_cache_.size() < frame_chunk_size_) {
+       Vector<BaseFloat> feature(dim_, kaldi::kSetZero); 
+       feature_cache_.push(feature);
     }
 
     int32 counter = 0; 

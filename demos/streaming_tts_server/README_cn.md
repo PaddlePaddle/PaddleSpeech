@@ -27,7 +27,7 @@
 - 流式 voc 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `voc_block` 表示chunk中的有效帧数，`voc_pad` 表示一个 chunk 中 voc_block 前后各加的帧数。voc_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
     - hifigan, mb_melgan 均支持流式 voc 推理
     - 当 voc 模型为 mb_melgan，当 voc_pad=14 时，流式推理合成音频与非流式合成音频一致；voc_pad 最小可以设置为7，合成音频听感上没有异常，若 voc_pad 小于7，合成音频听感上存在异常。
-    - 当 voc 模型为 hifigan，当 voc_pad=20 时，流式推理合成音频与非流式合成音频一致；当 voc_pad=14 时，合成音频听感上没有异常。
+    - 当 voc 模型为 hifigan，当 voc_pad=19 时，流式推理合成音频与非流式合成音频一致；当 voc_pad=14 时，合成音频听感上没有异常。
 - 推理速度：mb_melgan > hifigan; 音频质量：mb_melgan < hifigan
 - **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 

@@ -27,6 +27,7 @@ from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.engine_pool import init_engine_pool
+from paddlespeech.server.engine.engine_warmup import warm_up
 from paddlespeech.server.restful.api import setup_router as setup_http_router
 from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.ws.api import setup_router as setup_ws_router
@@ -86,6 +87,11 @@ class ServerExecutor(BaseExecutor):
         logger.info("start to init the engine")
         if not init_engine_pool(config):
             return False
+
+        # warm up
+        for engine_and_type in config.engine_list:
+            if not warm_up(engine_and_type):
+                return False
 
         return True
 

@@ -22,8 +22,7 @@ model_alias = {
     # -------------- ASR --------------
     # ---------------------------------
     "deepspeech2offline": ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],
-    "deepspeech2online":
-    ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],
+    "deepspeech2online": ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],
     "conformer": ["paddlespeech.s2t.models.u2:U2Model"],
     "conformer_online": ["paddlespeech.s2t.models.u2:U2Model"],
     "transformer": ["paddlespeech.s2t.models.u2:U2Model"],

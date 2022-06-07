@@ -90,7 +90,7 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
 
     def _target_mask(self, ys_in_pad):
         ys_mask = ys_in_pad != 0
-        m = subsequent_mask(paddle.shape(ys_mask)[-1])).unsqueeze(0)
+        m = subsequent_mask(paddle.shape(ys_mask)[-1]).unsqueeze(0)
         return ys_mask.unsqueeze(-2) & m
 
     def forward(self, x: paddle.Tensor, t: paddle.Tensor

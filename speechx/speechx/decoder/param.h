@@ -82,7 +82,7 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     opts.assembler_opts.subsampling_rate = FLAGS_downsampling_rate;
     opts.assembler_opts.receptive_filed_length = FLAGS_receptive_field_length;
     opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
-    
+
     return opts;
 }
 

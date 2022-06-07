@@ -14,8 +14,8 @@
 
 #include "base/flags.h"
 #include "base/log.h"
-#include "frontend/audio/data_cache.h"
 #include "frontend/audio/assembler.h"
+#include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/paddle_nnet.h"
@@ -75,8 +75,8 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet, raw_data, FLAGS_acoustic_scale));
 
-    int32 chunk_size = FLAGS_receptive_field_length 
-        + (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
+    int32 chunk_size = FLAGS_receptive_field_length +
+                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
     int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
@@ -130,7 +130,9 @@ int main(int argc, char* argv[]) {
             vector<kaldi::BaseFloat> prob;
             while (decodable->FrameLikelihood(frame_idx, &prob)) {
                 kaldi::Vector<kaldi::BaseFloat> vec_tmp(prob.size());
-                std::memcpy(vec_tmp.Data(), prob.data(), sizeof(kaldi::BaseFloat)*prob.size());
+                std::memcpy(vec_tmp.Data(),
+                            prob.data(),
+                            sizeof(kaldi::BaseFloat) * prob.size());
                 prob_vec.push_back(vec_tmp);
                 frame_idx++;
             }
@@ -142,7 +144,8 @@ int main(int argc, char* argv[]) {
             KALDI_LOG << " the nnet prob of " << utt << " is empty";
             continue;
         }
-        kaldi::Matrix<kaldi::BaseFloat> result(prob_vec.size(),prob_vec[0].Dim());
+        kaldi::Matrix<kaldi::BaseFloat> result(prob_vec.size(),
+                                               prob_vec[0].Dim());
         for (int32 row_idx = 0; row_idx < prob_vec.size(); ++row_idx) {
             for (int32 col_idx = 0; col_idx < prob_vec[0].Dim(); ++col_idx) {
                 result(row_idx, col_idx) = prob_vec[row_idx](col_idx);

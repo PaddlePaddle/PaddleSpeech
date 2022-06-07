@@ -55,7 +55,7 @@ class PaddleASRConnectionHanddler:
         self.config = asr_engine.config  # server config
         self.model_config = asr_engine.executor.config
         self.asr_engine = asr_engine
-    
+
         # model_type, sample_rate and text_feature is shared for deepspeech2 and conformer
         self.model_type = self.asr_engine.executor.model_type
         self.sample_rate = self.asr_engine.executor.sample_rate
@@ -191,7 +191,7 @@ class PaddleASRConnectionHanddler:
         self.num_frames = 0
 
         ## endpoint
-        self.endpoint_state = False # True for detect endpoint
+        self.endpoint_state = False  # True for detect endpoint
 
         ## conformer
         self.model_reset()
@@ -503,11 +503,13 @@ class PaddleASRConnectionHanddler:
 
         # endpoint
         if not is_finished:
+
             def contain_nonsilence():
                 return len(self.hyps) > 0 and len(self.hyps[0]) > 0
 
             decoding_something = contain_nonsilence()
-            if self.endpointer.endpoint_detected(ctc_probs.numpy(), decoding_something):
+            if self.endpointer.endpoint_detected(ctc_probs.numpy(),
+                                                 decoding_something):
                 self.endpoint_state = True
                 logger.info(f"Endpoint is detected at {self.num_frames} frame.")
 
@@ -868,7 +870,6 @@ class ASREngine(BaseEngine):
 
         logger.info("Initialize ASR server engine successfully.")
         return True
-
 
     def new_handler(self):
         """New handler from model.

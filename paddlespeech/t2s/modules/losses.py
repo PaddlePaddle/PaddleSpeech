@@ -971,18 +971,18 @@ class FeatureMatchLoss(nn.Layer):
 
         return feat_match_loss
 
+
 # loss for VITS
 class KLDivergenceLoss(nn.Layer):
     """KL divergence loss."""
 
     def forward(
-        self,
-        z_p: paddle.Tensor,
-        logs_q: paddle.Tensor,
-        m_p: paddle.Tensor,
-        logs_p: paddle.Tensor,
-        z_mask: paddle.Tensor,
-    ) -> paddle.Tensor:
+            self,
+            z_p: paddle.Tensor,
+            logs_q: paddle.Tensor,
+            m_p: paddle.Tensor,
+            logs_p: paddle.Tensor,
+            z_mask: paddle.Tensor, ) -> paddle.Tensor:
         """Calculate KL divergence loss.
 
         Args:
@@ -1002,7 +1002,7 @@ class KLDivergenceLoss(nn.Layer):
         logs_p = paddle.cast(logs_p, 'float32')
         z_mask = paddle.cast(z_mask, 'float32')
         kl = logs_p - logs_q - 0.5
-        kl += 0.5 * ((z_p - m_p) ** 2) * paddle.exp(-2.0 * logs_p)
+        kl += 0.5 * ((z_p - m_p)**2) * paddle.exp(-2.0 * logs_p)
         kl = paddle.sum(kl * z_mask)
         loss = kl / paddle.sum(z_mask)
 

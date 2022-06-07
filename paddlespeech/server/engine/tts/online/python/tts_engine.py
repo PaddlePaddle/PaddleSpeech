@@ -42,7 +42,6 @@ class TTSServerExecutor(TTSExecutor):
         self.task_resource = CommonTaskResource(
             task='tts', model_format='dynamic', inference_mode='online')
 
-
     def get_model_info(self,
                        field: str,
                        model_name: str,

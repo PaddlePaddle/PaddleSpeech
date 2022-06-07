@@ -23,11 +23,11 @@ template <class F>
 class StreamingFeatureTpl : public FrontendInterface {
   public:
     typedef typename F::Options Options;
-    StreamingFeatureTpl(const Options& opts, 
+    StreamingFeatureTpl(const Options& opts,
                         std::unique_ptr<FrontendInterface> base_extractor);
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
-    
+
     // the dim_ is the dim of single frame feature
     virtual size_t Dim() const { return computer_.Dim(); }
 
@@ -39,8 +39,9 @@ class StreamingFeatureTpl : public FrontendInterface {
         base_extractor_->Reset();
         remained_wav_.Resize(0);
     }
+
   private:
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves, 
+    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
                  kaldi::Vector<kaldi::BaseFloat>* feats);
     Options opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;

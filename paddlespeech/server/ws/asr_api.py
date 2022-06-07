@@ -19,7 +19,6 @@ from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
 from paddlespeech.cli.log import logger
-from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 router = APIRouter()
 
@@ -106,7 +105,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     logger.info("endpoint: detected and rescoring.")
                     connection_handler.rescoring()
                     word_time_stamp = connection_handler.get_word_time_stamp()
-                
+
                 asr_results = connection_handler.get_result()
 
                 if connection_handler.endpoint_state:
@@ -124,7 +123,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         }
                         await websocket.send_json(resp)
                         break
- 
+
                 # return the current partial result
                 # if the engine create the vad instance, this connection will have many partial results 
                 resp = {'result': asr_results}

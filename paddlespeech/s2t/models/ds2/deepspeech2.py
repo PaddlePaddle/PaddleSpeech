@@ -372,11 +372,15 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def forward(self, audio_chunk, audio_chunk_lens, chunk_state_h_box=None,
+    def forward(self,
+                audio_chunk,
+                audio_chunk_lens,
+                chunk_state_h_box=None,
                 chunk_state_c_box=None):
         if self.encoder.rnn_direction == "forward":
             eouts_chunk, eouts_chunk_lens, final_state_h_box, final_state_c_box = self.encoder(
-                audio_chunk, audio_chunk_lens, chunk_state_h_box, chunk_state_c_box)
+                audio_chunk, audio_chunk_lens, chunk_state_h_box,
+                chunk_state_c_box)
             probs_chunk = self.decoder.softmax(eouts_chunk)
             return probs_chunk, eouts_chunk_lens, final_state_h_box, final_state_c_box
         elif self.encoder.rnn_direction == "bidirect":
@@ -392,8 +396,8 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
                 self,
                 input_spec=[
                     paddle.static.InputSpec(
-                        shape=[None, None,
-                               self.encoder.feat_size],  #[B, chunk_size, feat_dim]
+                        shape=[None, None, self.encoder.feat_size
+                               ],  #[B, chunk_size, feat_dim]
                         dtype='float32'),
                     paddle.static.InputSpec(shape=[None],
                                             dtype='int64'),  # audio_length, [B]

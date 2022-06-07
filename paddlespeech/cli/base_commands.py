@@ -145,4 +145,3 @@ for com, info in _commands.items():
         name='paddlespeech.{}'.format(com),
         description=info[0],
         cls='paddlespeech.cli.{}.{}'.format(com, info[1]))
-        

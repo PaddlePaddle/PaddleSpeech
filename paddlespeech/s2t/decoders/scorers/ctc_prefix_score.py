@@ -76,7 +76,8 @@ class CTCPrefixScorePD():
         last_ids = [yi[-1] for yi in y]  # last output label ids
         n_bh = len(last_ids)  # batch * hyps
         n_hyps = n_bh // self.batch  # assuming each utterance has the same # of hyps
-        self.scoring_num = paddle.shape(scoring_ids)[-1] if scoring_ids is not None else 0
+        self.scoring_num = paddle.shape(scoring_ids)[
+            -1] if scoring_ids is not None else 0
         # prepare state info
         if state is None:
             r_prev = paddle.full(

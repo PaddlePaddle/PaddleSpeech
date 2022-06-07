@@ -29,19 +29,19 @@ using kaldi::Matrix;
 using std::vector;
 
 FbankComputer::FbankComputer(const Options& opts)
-    : opts_(opts),
-    computer_(opts) {}
+    : opts_(opts), computer_(opts) {}
 
 int32 FbankComputer::Dim() const {
     return opts_.mel_opts.num_bins + (opts_.use_energy ? 1 : 0);
 }
 
 bool FbankComputer::NeedRawLogEnergy() {
-    return opts_.use_energy && opts_.raw_energy; 
+    return opts_.use_energy && opts_.raw_energy;
 }
 
 // Compute feat
-bool FbankComputer::Compute(Vector<BaseFloat>* window, Vector<BaseFloat>* feat) {
+bool FbankComputer::Compute(Vector<BaseFloat>* window,
+                            Vector<BaseFloat>* feat) {
     RealFft(window, true);
     kaldi::ComputePowerSpectrum(window);
     const kaldi::MelBanks& mel_bank = *(computer_.GetMelBanks(1.0));

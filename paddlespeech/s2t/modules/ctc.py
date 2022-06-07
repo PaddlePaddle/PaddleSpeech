@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 from typing import Union
 
 import paddle
@@ -22,7 +23,6 @@ from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.loss import CTCLoss
 from paddlespeech.s2t.utils import ctc_utils
 from paddlespeech.s2t.utils.log import Log
-import sys
 
 logger = Log(__name__).getlog()
 

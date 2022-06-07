@@ -13,6 +13,7 @@
 # limitations under the License.
 from dataclasses import dataclass
 from typing import List
+import numpy as np
 
 from paddlespeech.cli.log import logger
 
@@ -76,14 +77,23 @@ class OnlineCTCEndpoint:
         ) and trailine_silence >= rule.min_trailing_silence and utterance_length >= rule.min_utterance_length
         if (ans):
             logger.info(
-                f"Endpoint Rule: {rule_name} activated: {decoding_something}, {trailine_silence}, {utterance_length}"
+                f"Endpoint Rule: {rule_name} activated: {rule}"
             )
         return ans
 
-    def endpoint_detected(ctc_log_probs: List[List[float]],
+    def endpoint_detected(self, ctc_log_probs: np.ndarray,
                           decoding_something: bool) -> bool:
+        """detect endpoint.
+
+        Args:
+            ctc_log_probs (np.ndarray): (T, D)
+            decoding_something (bool): contain nonsilince.
+
+        Returns:
+            bool: whether endpoint detected.
+        """
         for logprob in ctc_log_probs:
-            blank_prob = exp(logprob[self.opts.blank_id])
+            blank_prob = np.exp(logprob[self.opts.blank])
 
             self.num_frames_decoded += 1
             if blank_prob > self.opts.blank_threshold:
@@ -96,6 +106,7 @@ class OnlineCTCEndpoint:
 
         utterance_length = self.num_frames_decoded * self.frame_shift_in_ms
         trailing_silence = self.trailing_silence_frames * self.frame_shift_in_ms
+
         if self.rule_activated(self.opts.rule1, 'rule1', decoding_something,
                                trailing_silence, utterance_length):
             return True

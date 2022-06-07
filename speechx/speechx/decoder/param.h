@@ -28,10 +28,10 @@ DEFINE_string(cmvn_file, "", "read cmvn");
 // feature sliding window
 DEFINE_int32(receptive_field_length,
              7,
-             "receptive field of two CNN(kernel=5) downsampling module.");
+             "receptive field of two CNN(kernel=3) downsampling module.");
 DEFINE_int32(downsampling_rate,
              4,
-             "two CNN(kernel=5) module downsampling rate.");
+             "two CNN(kernel=3) module downsampling rate.");
 DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 // nnet
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");

@@ -33,10 +33,10 @@ DEFINE_int32(max_active, 7500, "decoder graph");
 DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 DEFINE_int32(receptive_field_length,
              7,
-             "receptive field of two CNN(kernel=5) downsampling module.");
+             "receptive field of two CNN(kernel=3) downsampling module.");
 DEFINE_int32(downsampling_rate,
              4,
-             "two CNN(kernel=5) module downsampling rate.");
+             "two CNN(kernel=3) module downsampling rate.");
 DEFINE_string(
     model_input_names,
     "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",

@@ -136,9 +136,9 @@ asr_dynamic_pretrained_models = {
     "deepspeech2online_wenetspeech-zh-16k": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.2.model.tar.gz',
             'md5':
-            'd1be86a3e786042ab64f05161b5fae62',
+            'b0c77e7f8881e0a27b82127d1abb8d5f',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

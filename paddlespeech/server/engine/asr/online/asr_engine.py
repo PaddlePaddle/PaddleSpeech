@@ -161,7 +161,9 @@ class PaddleASRConnectionHanddler:
         self.model_reset()
         self.searcher.reset()
         self.endpointer.reset()
-        self.output_reset()
+
+        # reset hys will trancate history transcripts.
+        # self.output_reset()
 
     def reset(self):
         if "deepspeech2" in self.model_type:

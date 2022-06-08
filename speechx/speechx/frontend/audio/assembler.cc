@@ -24,7 +24,8 @@ using std::unique_ptr;
 Assembler::Assembler(AssemblerOptions opts,
                      unique_ptr<FrontendInterface> base_extractor) {
     frame_chunk_stride_ = opts.subsampling_rate * opts.nnet_decoder_chunk;
-    frame_chunk_size_ = (opts.nnet_decoder_chunk - 1) * opts.subsampling_rate + opts.receptive_filed_length;
+    frame_chunk_size_ = (opts.nnet_decoder_chunk - 1) * opts.subsampling_rate +
+                        opts.receptive_filed_length;
     receptive_filed_length_ = opts.receptive_filed_length;
     base_extractor_ = std::move(base_extractor);
     dim_ = base_extractor_->Dim();
@@ -50,8 +51,8 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
         Vector<BaseFloat> feature;
         result = base_extractor_->Read(&feature);
         if (result == false || feature.Dim() == 0) {
-          if (IsFinished() == false) return false;
-          break;
+            if (IsFinished() == false) return false;
+            break;
         }
         feature_cache_.push(feature);
     }
@@ -61,22 +62,22 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     }
 
     while (feature_cache_.size() < frame_chunk_size_) {
-       Vector<BaseFloat> feature(dim_, kaldi::kSetZero); 
-       feature_cache_.push(feature);
+        Vector<BaseFloat> feature(dim_, kaldi::kSetZero);
+        feature_cache_.push(feature);
     }
 
-    int32 counter = 0; 
+    int32 counter = 0;
     int32 cache_size = frame_chunk_size_ - frame_chunk_stride_;
     int32 elem_dim = base_extractor_->Dim();
     while (counter < frame_chunk_size_) {
-      Vector<BaseFloat>& val = feature_cache_.front();
-      int32 start = counter * elem_dim;
-      feats->Range(start, elem_dim).CopyFromVec(val);
-      if (frame_chunk_size_ - counter <= cache_size ) {
-          feature_cache_.push(val);
-      }
-      feature_cache_.pop();
-      counter++;
+        Vector<BaseFloat>& val = feature_cache_.front();
+        int32 start = counter * elem_dim;
+        feats->Range(start, elem_dim).CopyFromVec(val);
+        if (frame_chunk_size_ - counter <= cache_size) {
+            feature_cache_.push(val);
+        }
+        feature_cache_.pop();
+        counter++;
     }
 
     return result;

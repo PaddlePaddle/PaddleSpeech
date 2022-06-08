@@ -93,8 +93,8 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet, raw_data, FLAGS_acoustic_scale));
 
-    int32 chunk_size = FLAGS_receptive_field_length
-        + (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
+    int32 chunk_size = FLAGS_receptive_field_length +
+                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
     int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;

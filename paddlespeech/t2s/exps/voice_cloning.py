@@ -131,10 +131,7 @@ def parse_args():
         choices=['fastspeech2_aishell3', 'tacotron2_aishell3'],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
-        '--am_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model.')
+        '--am_config', type=str, default=None, help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -160,10 +157,7 @@ def parse_args():
         help='Choose vocoder type of tts task.')
 
     parser.add_argument(
-        '--voc_config',
-        type=str,
-        default=None,
-        help='Config of voc.')
+        '--voc_config', type=str, default=None, help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(

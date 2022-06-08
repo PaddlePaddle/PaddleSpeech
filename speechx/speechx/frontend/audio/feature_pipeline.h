@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "frontend/audio/assembler.h"
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
 #include "frontend/audio/fbank.h"
@@ -23,7 +24,6 @@
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
-#include "frontend/audio/assembler.h"
 
 namespace ppspeech {
 

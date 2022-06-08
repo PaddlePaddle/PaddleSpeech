@@ -22,11 +22,9 @@ import numpy as np
 import paddle
 from paddle import distributed as dist
 from paddle import inference
-from paddle.io import DataLoader
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.io.dataset import ManifestDataset
+from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.models.ds2 import DeepSpeech2InferModel
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model
 from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
@@ -238,8 +236,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
         self._text_featurizer = TextFeaturizer(
-            unit_type=config.unit_type,
-            vocab=config.vocab_filepath)
+            unit_type=config.unit_type, vocab=config.vocab_filepath)
         self.vocab_list = self._text_featurizer.vocab_list
 
     def ordid2token(self, texts, texts_len):
@@ -248,7 +245,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            trans.append(self._text_featurizer.defeaturize(ids.numpy().tolist()))
+            trans.append(
+                self._text_featurizer.defeaturize(ids.numpy().tolist()))
         return trans
 
     def compute_metrics(self,

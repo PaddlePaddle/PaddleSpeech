@@ -25,7 +25,7 @@ struct AssemblerOptions {
     int32 receptive_filed_length;
     int32 subsampling_rate;
     int32 nnet_decoder_chunk;
-    
+
     AssemblerOptions()
         : receptive_filed_length(1),
           subsampling_rate(1),
@@ -47,15 +47,11 @@ class Assembler : public FrontendInterface {
     // feat dim
     virtual size_t Dim() const { return dim_; }
 
-    virtual void SetFinished() {
-        base_extractor_->SetFinished();
-    }
+    virtual void SetFinished() { base_extractor_->SetFinished(); }
 
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
-    virtual void Reset() {
-        base_extractor_->Reset();
-    }
+    virtual void Reset() { base_extractor_->Reset(); }
 
   private:
     bool Compute(kaldi::Vector<kaldi::BaseFloat>* feats);

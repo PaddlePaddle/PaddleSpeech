@@ -22,9 +22,7 @@ namespace ppspeech {
 struct FeatureCacheOptions {
     int32 max_size;
     int32 timeout;  // ms
-    FeatureCacheOptions()
-        : max_size(kint16max),
-          timeout(1) {}
+    FeatureCacheOptions() : max_size(kint16max), timeout(1) {}
 };
 
 class FeatureCache : public FrontendInterface {

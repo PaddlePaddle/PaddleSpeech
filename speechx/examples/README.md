@@ -25,4 +25,3 @@ netron exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel  --port 8022 --host 
 > Reminder: Only for developer, make sure you know what's it.
 
 * codelab - for speechx developer, using for test.
-

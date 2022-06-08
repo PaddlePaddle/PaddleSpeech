@@ -56,7 +56,8 @@ class VITSUpdater(StandardUpdater):
         self.models: Dict[str, Layer] = models
         # self.model = model
 
-        self.model = model._layers if isinstance(model, paddle.DataParallel) else model
+        self.model = model._layers if isinstance(model,
+                                                 paddle.DataParallel) else model
 
         self.optimizers = optimizers
         self.optimizer_g: Optimizer = optimizers['generator']
@@ -225,7 +226,8 @@ class VITSEvaluator(StandardEvaluator):
         models = {"main": model}
         self.models: Dict[str, Layer] = models
         # self.model = model
-        self.model = model._layers if isinstance(model, paddle.DataParallel) else model
+        self.model = model._layers if isinstance(model,
+                                                 paddle.DataParallel) else model
 
         self.criterions = criterions
         self.criterion_mel = criterions['mel']

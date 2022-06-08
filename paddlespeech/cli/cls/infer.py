@@ -21,12 +21,12 @@ from typing import Union
 import numpy as np
 import paddle
 import yaml
+from paddleaudio import load
+from paddleaudio.features import LogMelSpectrogram
 
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from paddleaudio import load
-from paddleaudio.features import LogMelSpectrogram
 
 __all__ = ['CLSExecutor']
 

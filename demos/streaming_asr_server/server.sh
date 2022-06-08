@@ -6,3 +6,4 @@ paddlespeech_server start --config_file conf/punc_application.yaml &> punc.log &
 
 # nohup python3 streaming_asr_server.py --config_file conf/ws_conformer_application.yaml > streaming_asr.log 2>&1 &
 paddlespeech_server start --config_file conf/ws_conformer_application.yaml &> streaming_asr.log  &
+

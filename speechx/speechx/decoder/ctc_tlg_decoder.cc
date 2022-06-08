@@ -64,7 +64,7 @@ std::string TLGDecoder::GetPartialResult() {
         std::string word = word_symbol_table_->Find(words_id[idx]);
         words += word;
     }
-    return words; 
+    return words;
 }
 
 std::string TLGDecoder::GetFinalBestPath() {

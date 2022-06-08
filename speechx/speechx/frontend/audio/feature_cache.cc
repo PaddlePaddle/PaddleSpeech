@@ -72,9 +72,9 @@ bool FeatureCache::Compute() {
     bool result = base_extractor_->Read(&feature);
     if (result == false || feature.Dim() == 0) return false;
 
-    int32 num_chunk = feature.Dim() / dim_ ;
+    int32 num_chunk = feature.Dim() / dim_;
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
-        int32 start = chunk_idx *  dim_;
+        int32 start = chunk_idx * dim_;
         Vector<BaseFloat> feature_chunk(dim_);
         SubVector<BaseFloat> tmp(feature.Data() + start, dim_);
         feature_chunk.CopyFromVec(tmp);

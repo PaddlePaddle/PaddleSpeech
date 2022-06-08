@@ -28,22 +28,21 @@ using kaldi::VectorBase;
 using kaldi::Matrix;
 using std::vector;
 
-LinearSpectrogramComputer::LinearSpectrogramComputer(
-    const Options& opts)
+LinearSpectrogramComputer::LinearSpectrogramComputer(const Options& opts)
     : opts_(opts) {
     kaldi::FeatureWindowFunction feature_window_function(opts.frame_opts);
     int32 window_size = opts.frame_opts.WindowSize();
     frame_length_ = window_size;
     dim_ = window_size / 2 + 1;
-    BaseFloat hanning_window_energy = kaldi::VecVec(feature_window_function.window,
-                                          feature_window_function.window);
+    BaseFloat hanning_window_energy = kaldi::VecVec(
+        feature_window_function.window, feature_window_function.window);
     int32 sample_rate = opts.frame_opts.samp_freq;
     scale_ = 2.0 / (hanning_window_energy * sample_rate);
 }
 
 // Compute spectrogram feat
 bool LinearSpectrogramComputer::Compute(Vector<BaseFloat>* window,
-                                Vector<BaseFloat>* feat) {
+                                        Vector<BaseFloat>* feat) {
     window->Resize(frame_length_, kaldi::kCopyData);
     RealFft(window, true);
     kaldi::ComputePowerSpectrum(window);

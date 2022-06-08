@@ -16,16 +16,15 @@
 namespace ppspeech {
 
 template <class F>
-StreamingFeatureTpl<F>::StreamingFeatureTpl(const Options& opts, 
-                        std::unique_ptr<FrontendInterface> base_extractor):
-                        opts_(opts),
-                        computer_(opts),
-                        window_function_(opts.frame_opts) {
+StreamingFeatureTpl<F>::StreamingFeatureTpl(
+    const Options& opts, std::unique_ptr<FrontendInterface> base_extractor)
+    : opts_(opts), computer_(opts), window_function_(opts.frame_opts) {
     base_extractor_ = std::move(base_extractor);
 }
 
 template <class F>
-void StreamingFeatureTpl<F>::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves) {
+void StreamingFeatureTpl<F>::Accept(
+    const kaldi::VectorBase<kaldi::BaseFloat>& waves) {
     base_extractor_->Accept(waves);
 }
 
@@ -58,8 +57,9 @@ bool StreamingFeatureTpl<F>::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 
 // Compute feat
 template <class F>
-bool StreamingFeatureTpl<F>::Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
-                                     kaldi::Vector<kaldi::BaseFloat>* feats) {
+bool StreamingFeatureTpl<F>::Compute(
+    const kaldi::Vector<kaldi::BaseFloat>& waves,
+    kaldi::Vector<kaldi::BaseFloat>* feats) {
     const kaldi::FrameExtractionOptions& frame_opts =
         computer_.GetFrameOptions();
     int32 num_samples = waves.Dim();
@@ -84,9 +84,11 @@ bool StreamingFeatureTpl<F>::Compute(const kaldi::Vector<kaldi::BaseFloat>& wave
                              &window,
                              need_raw_log_energy ? &raw_log_energy : NULL);
 
-        kaldi::Vector<kaldi::BaseFloat> this_feature(computer_.Dim(), kaldi::kUndefined);
+        kaldi::Vector<kaldi::BaseFloat> this_feature(computer_.Dim(),
+                                                     kaldi::kUndefined);
         computer_.Compute(&window, &this_feature);
-        kaldi::SubVector<kaldi::BaseFloat> output_row(feats->Data() + frame * Dim(), Dim());
+        kaldi::SubVector<kaldi::BaseFloat> output_row(
+            feats->Data() + frame * Dim(), Dim());
         output_row.CopyFromVec(this_feature);
     }
     return true;

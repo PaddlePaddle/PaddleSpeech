@@ -705,6 +705,7 @@ class ASRServerExecutor(ASRExecutor):
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         decode_method: str='attention_rescoring',
+                        num_decoding_left_chunks: int=-1,
                         am_predictor_conf: dict=None):
         """
         Init model and other resources from a specific path.
@@ -790,7 +791,10 @@ class ASRServerExecutor(ASRExecutor):
                 # update the decoding method
                 if decode_method:
                     self.config.decode.decoding_method = decode_method
-
+                # update num_decoding_left_chunks
+                if num_decoding_left_chunks:
+                    self.config.decode.num_decoding_left_chunks = num_decoding_left_chunks
+                    assert self.config.decode.num_decoding_left_chunks == -1 or self.config.decode.num_decoding_left_chunks >= 0, f"num_decoding_left_chunks should be -1 or >=0"
                 # we only support ctc_prefix_beam_search and attention_rescoring dedoding method
                 # Generally we set the decoding_method to attention_rescoring
                 if self.config.decode.decoding_method not in [
@@ -864,6 +868,7 @@ class ASREngine(BaseEngine):
                 sample_rate=self.config.sample_rate,
                 cfg_path=self.config.cfg_path,
                 decode_method=self.config.decode_method,
+                num_decoding_left_chunks=self.config.num_decoding_left_chunks,
                 am_predictor_conf=self.config.am_predictor_conf):
             logger.error(
                 "Init the ASR server occurs error, please check the server configuration yaml"

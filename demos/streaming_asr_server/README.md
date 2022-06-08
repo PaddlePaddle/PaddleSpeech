@@ -33,6 +33,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```bash
   # in PaddleSpeech/demos/streaming_asr_server start the service
    paddlespeech_server start --config_file ./conf/ws_conformer_wenetspeech_application.yaml
+  # if you want to increase decoding speed, you can use the config file below, it will increase decoding speed and reduce accuracy  
+   paddlespeech_server start --config_file ./conf/ws_conformer_wenetspeech_application_faster.yaml
   ```
 
   Usage:

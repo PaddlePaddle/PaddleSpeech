@@ -794,7 +794,7 @@ class ASRServerExecutor(ASRExecutor):
                 # update num_decoding_left_chunks
                 if num_decoding_left_chunks:
                     self.config.decode.num_decoding_left_chunks = num_decoding_left_chunks
-                    assert self.config.decode.num_decoding_left_chunks == -1 or self.config.decode.num_decoding_left_chunks >= 0, f"num_decoding_left_chunks should be -1 or >=0"
+                    assert self.config.decode.num_decoding_left_chunks == -1 or self.config.decode.num_decoding_left_chunks >= 0, "num_decoding_left_chunks should be -1 or >=0"
                 # we only support ctc_prefix_beam_search and attention_rescoring dedoding method
                 # Generally we set the decoding_method to attention_rescoring
                 if self.config.decode.decoding_method not in [

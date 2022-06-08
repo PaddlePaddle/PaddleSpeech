@@ -3,6 +3,7 @@
 set -e
 
 if [ $# != 5 ]; then
+    # local/prune.sh data/exp/deepspeech2_online/checkpoints avg_1.jit.pdmodel avg_1.jit.pdiparams  softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0  $PWD                                                 
     echo "usage: $0 model_dir model_filename param_filename outputs_names save_dir"
     exit 1
 fi

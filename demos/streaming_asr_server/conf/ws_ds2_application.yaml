@@ -28,6 +28,7 @@ asr_online:
     sample_rate: 16000
     cfg_path: 
     decode_method: 
+    num_decoding_left_chunks: 
     force_yes: True
     device: 'cpu' # cpu or gpu:id
 

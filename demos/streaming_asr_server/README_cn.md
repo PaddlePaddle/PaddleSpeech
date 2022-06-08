@@ -21,7 +21,7 @@
 下载好 `PaddleSpeech` 之后，进入到 `PaddleSpeech/demos/streaming_asr_server` 目录。
 配置文件可参见该目录下 `conf/ws_application.yaml` 和 `conf/ws_conformer_wenetspeech_application.yaml` 。
 
-目前服务集成的模型有： DeepSpeech2和 conformer模型，对应的配置文件如下：
+目前服务集成的模型有： DeepSpeech2 和 conformer模型，对应的配置文件如下：
 * DeepSpeech: `conf/ws_application.yaml`
 * conformer: `conf/ws_conformer_wenetspeech_application.yaml`
 
@@ -40,6 +40,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
   ```bash
   # 在 PaddleSpeech/demos/streaming_asr_server 目录启动服务
   paddlespeech_server start --config_file ./conf/ws_conformer_wenetspeech_application.yaml
+  # 你如果愿意为了增加解码的速度而牺牲一定的模型精度，你可以使用如下的脚本 
+   paddlespeech_server start --config_file ./conf/ws_conformer_wenetspeech_application_faster.yaml
   ```
 
   使用方法：

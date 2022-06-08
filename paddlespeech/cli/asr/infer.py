@@ -88,7 +88,7 @@ class ASRExecutor(BaseExecutor):
             '-num_left',
             type=str,
             default=-1,
-            help='only support transformer and conformer model')
+            help='only support transformer and conformer online model')
         self.parser.add_argument(
             '--ckpt_path',
             type=str,

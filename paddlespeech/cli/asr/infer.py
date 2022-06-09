@@ -136,7 +136,6 @@ class ASRExecutor(BaseExecutor):
         logger.info("start to init the model")
         # default max_len: unit:second
         self.max_len = 50
-        assert num_decoding_left_chunks == -1 or num_decoding_left_chunks >= 0
         if hasattr(self, 'model'):
             logger.info('Model had been initialized.')
             return
@@ -187,7 +186,9 @@ class ASRExecutor(BaseExecutor):
 
             elif "conformer" in model_type or "transformer" in model_type:
                 self.config.decode.decoding_method = decode_method
-                self.config.num_decoding_left_chunks = num_decoding_left_chunks
+                if num_decoding_left_chunks:
+                    assert num_decoding_left_chunks == -1 or num_decoding_left_chunks >= 0, f"num_decoding_left_chunks should be -1 or >=0"
+                    self.config.num_decoding_left_chunks = num_decoding_left_chunks
 
             else:
                 raise Exception("wrong type")

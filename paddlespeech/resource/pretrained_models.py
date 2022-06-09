@@ -836,3 +836,21 @@ vector_dynamic_pretrained_models = {
         },
     },
 }
+
+# ---------------------------------
+# ------------- KWS ---------------
+# ---------------------------------
+kws_dynamic_pretrained_models = {
+    'mdtc_heysnips-16k': {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/kws/heysnips/kws0_mdtc_heysnips_ckpt.tar.gz',
+            'md5':
+            None,
+            'cfg_path':
+            'conf/model.yaml',  # the yaml config path
+            'ckpt_path':
+            'model/model',  # the format is ${dir}/{model_name},
+        },
+    },
+}

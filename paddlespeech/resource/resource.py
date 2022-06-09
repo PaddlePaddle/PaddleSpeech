@@ -22,7 +22,7 @@ from ..cli.utils import MODEL_HOME
 from ..utils.dynamic_import import dynamic_import
 from .model_alias import model_alias
 
-task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
+task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws']
 model_format_supported = ['dynamic', 'static', 'onnx']
 inference_mode_supported = ['online', 'offline']
 

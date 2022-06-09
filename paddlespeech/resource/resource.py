@@ -22,7 +22,7 @@ from ..utils.dynamic_import import dynamic_import
 from ..utils.env import MODEL_HOME
 from .model_alias import model_alias
 
-task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
+task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws']
 model_format_supported = ['dynamic', 'static', 'onnx']
 inference_mode_supported = ['online', 'offline']
 
@@ -164,7 +164,6 @@ class CommonTaskResource:
         try:
             import_models = '{}_{}_pretrained_models'.format(self.task,
                                                              self.model_format)
-            print(f"from .pretrained_models import {import_models}")
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
         except Exception as e:

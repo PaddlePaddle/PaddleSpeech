@@ -83,4 +83,10 @@ model_alias = {
     # ------------ Vector -------------
     # ---------------------------------
     "ecapatdnn": ["paddlespeech.vector.models.ecapa_tdnn:EcapaTdnn"],
+
+    # ---------------------------------
+    # -------------- kws --------------
+    # ---------------------------------
+    "mdtc": ["paddlespeech.kws.models.mdtc:MDTC"],
+    "mdtc_for_kws": ["paddlespeech.kws.models.mdtc:KWSModel"],
 }

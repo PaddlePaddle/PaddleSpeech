@@ -28,6 +28,7 @@ param=avg_1.jit.pdiparams
 
 output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ];then
+    #  prune model by outputs
     mkdir -p $exp/prune
 
     # prune model deps on output_names.
@@ -36,8 +37,8 @@ fi
 
 input_shape_dict="{'audio_chunk':[1,-1,161], 'audio_chunk_lens':[1], 'chunk_state_c_box':[5, 1, 1024], 'chunk_state_h_box':[5,1,1024]}"
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ];then
+    # infer shape by new shape
     mkdir -p $exp/shape
-
     python3 local/pd_infer_shape.py \
         --model_dir $dir \
         --model_filename $model \
@@ -47,5 +48,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ];then
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ];then
+    # to onnx
    ./local/tonnx.sh $dir $model $param $exp/model.onnx
 fi

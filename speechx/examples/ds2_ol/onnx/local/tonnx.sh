@@ -21,5 +21,5 @@ paddle2onnx --model_dir $dir \
             --save_file $output \
             --enable_dev_version True \
             --opset_version 9 \
-            --enable_onnx_checker True \
+            --enable_onnx_checker True
             

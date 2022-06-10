@@ -9,6 +9,7 @@ gpus=0,1,2,3,4,5,6,7
 stage=0
 stop_stage=50
 conf_path=conf/transformer.yaml
+ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/decode/decode_base.yaml
 dict_path=data/lang_char/train_960_unigram5000_units.txt
 avg_num=10
@@ -26,7 +27,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt}
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${ckpt} ${ips}
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

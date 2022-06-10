@@ -6,6 +6,7 @@ gpus=0,1,2,3
 stage=0
 stop_stage=100
 conf_path=conf/deepspeech2.yaml    #conf/deepspeech2.yaml or conf/deepspeech2_online.yaml
+ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=10
 audio_file=data/demo_01_03.wav
@@ -24,7 +25,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt}
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${ckpt} ${ips}
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

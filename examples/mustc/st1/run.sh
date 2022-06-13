@@ -7,6 +7,7 @@ gpus=0,1,2,3
 stage=0
 stop_stage=3
 conf_path=conf/transformer_es.yaml
+ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
 must_c_path=
 lang=es
@@ -25,7 +26,7 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `exp` dir
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt} "${ckpt_path}" 
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path}  ${ckpt} "${ckpt_path}" ${ips} 
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

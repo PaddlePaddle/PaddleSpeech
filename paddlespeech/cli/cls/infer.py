@@ -21,8 +21,6 @@ from typing import Union
 import numpy as np
 import paddle
 import yaml
-from paddleaudio import load
-from paddleaudio.features import LogMelSpectrogram
 
 from ..executor import BaseExecutor
 from ..log import logger

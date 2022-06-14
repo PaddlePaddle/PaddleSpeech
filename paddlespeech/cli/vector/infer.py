@@ -22,8 +22,6 @@ from typing import Union
 
 import paddle
 import soundfile
-from paddleaudio.backends import load as load_audio
-from paddleaudio.compliance.librosa import melspectrogram
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor

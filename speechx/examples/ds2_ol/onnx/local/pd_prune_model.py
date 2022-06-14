@@ -4,6 +4,7 @@ import argparse
 import sys
 from typing import List
 
+# paddle prune model.
 
 def prepend_feed_ops(program,
                      feed_target_names: List[str],

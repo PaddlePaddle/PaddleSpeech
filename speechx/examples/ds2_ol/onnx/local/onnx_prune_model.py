@@ -1,10 +1,12 @@
 #!/usr/bin/env python3 -W ignore::DeprecationWarning
+
+# prune model by output names
+
 import argparse
 import copy
 import sys
 
 import onnx
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

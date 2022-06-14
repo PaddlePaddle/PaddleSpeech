@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# show model 
+
 if [ $# != 1 ];then
     echo "usage: $0 model_path"
     exit 1

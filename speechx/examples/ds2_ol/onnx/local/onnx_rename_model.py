@@ -1,4 +1,6 @@
 #!/usr/bin/env python3 -W ignore::DeprecationWarning
+
+# rename node to new names
 import argparse
 import sys
 

@@ -2,6 +2,7 @@
 # https://github.com/jiangjiajun/PaddleUtils/blob/main/paddle/README.md#2-%E4%BF%AE%E6%94%B9paddle%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%85%A5shape
 import argparse
 
+# paddle inference shape
 
 def process_old_ops_desc(program):
     """set matmul op head_number attr to 1 is not exist.

@@ -22,9 +22,11 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     popd
 fi
 
+
 dir=$data/exp/deepspeech2_online/checkpoints
 model=avg_1.jit.pdmodel
 param=avg_1.jit.pdiparams
+
 
 output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ];then
@@ -47,7 +49,10 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ];then
         --input_shape_dict=${input_shape_dict} 
 fi
 
+
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ];then
     # to onnx
    ./local/tonnx.sh $dir $model $param $exp/model.onnx
+   ./local/infer_check.py --input_file 'static_ds2online_inputs.pickle' --model_dir $dir --onnx_model $exp/model.onnx
 fi
+

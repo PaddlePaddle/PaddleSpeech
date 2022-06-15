@@ -15,6 +15,7 @@
 __all__ = [
     'asr_dynamic_pretrained_models',
     'asr_static_pretrained_models',
+    'asr_onnx_pretrained_models',
     'cls_dynamic_pretrained_models',
     'cls_static_pretrained_models',
     'st_dynamic_pretrained_models',
@@ -242,6 +243,21 @@ asr_static_pretrained_models = {
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':
             '29e02312deb2e59b3c8686c7966d4fe3'
+        },
+    },
+}
+
+
+asr_onnx_pretrained_models = {
+    "deepspeech2online_wenetspeech-zh-16k": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.2.model.tar.gz',
+            'md5': 'b0c77e7f8881e0a27b82127d1abb8d5f',
+            'cfg_path':'model.yaml',
+            'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_10',
+            'lm_url': 'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5': '29e02312deb2e59b3c8686c7966d4fe3'
         },
     },
 }

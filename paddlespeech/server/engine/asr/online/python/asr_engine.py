@@ -845,7 +845,6 @@ class ASREngine(BaseEngine):
 
     def __init__(self):
         super(ASREngine, self).__init__()
-        logger.info("create the online asr engine resource instance")
 
     def init_model(self) -> bool:
         if not self.executor._init_from_path(

@@ -30,7 +30,7 @@ from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
-from paddlespeech.server.utils.paddle_predictor import init_predictor
+from paddlespeech.server.utils import onnx_infer
 
 __all__ = ['PaddleASRConnectionHanddler', 'ASRServerExecutor', 'ASREngine']
 
@@ -295,40 +295,25 @@ class PaddleASRConnectionHanddler:
             logprob: poster probability.
         """
         logger.info("start to decoce one chunk for deepspeech2")
-        input_names = self.am_predictor.get_input_names()
-        audio_handle = self.am_predictor.get_input_handle(input_names[0])
-        audio_len_handle = self.am_predictor.get_input_handle(input_names[1])
-        h_box_handle = self.am_predictor.get_input_handle(input_names[2])
-        c_box_handle = self.am_predictor.get_input_handle(input_names[3])
+        # state_c, state_h, audio_lens, audio
+        # 'chunk_state_c_box', 'chunk_state_h_box', 'audio_chunk_lens', 'audio_chunk'
+        input_names = [n.name for n in self.am_predictor.get_inputs()]
+        logger.info(f"ort inputs: {input_names}")
+        # 'softmax_0.tmp_0', 'tmp_5', 'concat_0.tmp_0', 'concat_1.tmp_0'
+        # audio, audio_lens, state_h, state_c
+        output_names = [n.name for n in self.am_predictor.get_outputs()]
+        logger.info(f"ort outpus: {output_names}")
+        assert (len(input_names) == len(output_names))
+        assert isinstance(input_names[0], str)
 
-        audio_handle.reshape(x_chunk.shape)
-        audio_handle.copy_from_cpu(x_chunk)
+        input_datas = [self.chunk_state_c_box, self.chunk_state_h_box, x_chunk_lens, x_chunk]
+        feeds = dict(zip(input_names, input_datas))
 
-        audio_len_handle.reshape(x_chunk_lens.shape)
-        audio_len_handle.copy_from_cpu(x_chunk_lens)
+        outputs = self.am_predictor.run(
+            [*output_names],
+            {**feeds})
 
-        h_box_handle.reshape(self.chunk_state_h_box.shape)
-        h_box_handle.copy_from_cpu(self.chunk_state_h_box)
-
-        c_box_handle.reshape(self.chunk_state_c_box.shape)
-        c_box_handle.copy_from_cpu(self.chunk_state_c_box)
-
-        output_names = self.am_predictor.get_output_names()
-        output_handle = self.am_predictor.get_output_handle(output_names[0])
-        output_lens_handle = self.am_predictor.get_output_handle(
-            output_names[1])
-        output_state_h_handle = self.am_predictor.get_output_handle(
-            output_names[2])
-        output_state_c_handle = self.am_predictor.get_output_handle(
-            output_names[3])
-
-        self.am_predictor.run()
-
-        output_chunk_probs = output_handle.copy_to_cpu()
-        output_chunk_lens = output_lens_handle.copy_to_cpu()
-        self.chunk_state_h_box = output_state_h_handle.copy_to_cpu()
-        self.chunk_state_c_box = output_state_c_handle.copy_to_cpu()
-
+        output_chunk_probs, output_chunk_lens, self.chunk_state_h_box, self.chunk_state_c_box = outputs
         self.decoder.next(output_chunk_probs, output_chunk_lens)
         trans_best, trans_beam = self.decoder.decode()
         logger.info(f"decode one best result for deepspeech2: {trans_best[0]}")
@@ -375,10 +360,8 @@ class ASRServerExecutor(ASRExecutor):
         if "deepspeech2" in self.model_type:
             # AM predictor
             logger.info("ASR engine start to init the am predictor")
-            self.am_predictor = init_predictor(
-                model_file=self.am_model,
-                params_file=self.am_params,
-                predictor_conf=self.am_predictor_conf)
+            self.am_predictor = onnx_infer.get_sess(
+                model_path=self.am_model, sess_conf=self.am_predictor_conf)
         else:
             raise NotImplementedError(
                 f"{self.model_type} not support paddleinference.")
@@ -401,6 +384,7 @@ class ASRServerExecutor(ASRExecutor):
                 "The model type or lang or sample rate is None, please input an valid server parameter yaml"
             )
             return False
+        assert am_params is None, "am_params not used in onnx engine"
 
         self.model_type = model_type
         self.sample_rate = sample_rate
@@ -414,21 +398,19 @@ class ASRServerExecutor(ASRExecutor):
         tag = model_type + '-' + lang + '-' + sample_rate_str
         self.task_resource.set_task_model(model_tag=tag)
 
-        if cfg_path is None or am_model is None or am_params is None:
+        if cfg_path is None:
             self.res_path = self.task_resource.res_dir
             self.cfg_path = os.path.join(
                 self.res_path, self.task_resource.res_dict['cfg_path'])
-
-            self.am_model = os.path.join(self.res_path,
-                                         self.task_resource.res_dict['model'])
-            self.am_params = os.path.join(self.res_path,
-                                          self.task_resource.res_dict['params'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
-            self.am_model = os.path.abspath(am_model)
-            self.am_params = os.path.abspath(am_params)
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
+
+        self.am_model = os.path.join(self.res_path,
+                                         self.task_resource.res_dict['model']) if am_model is None else os.path.abspath(am_model)
+        self.am_params = os.path.join(self.res_path,
+                                          self.task_resource.res_dict['params']) if am_params is None else os.path.abspath(am_params)
 
         logger.info("Load the pretrained model:")
         logger.info(f"  tag = {tag}")

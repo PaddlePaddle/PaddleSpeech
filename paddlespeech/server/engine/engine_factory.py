@@ -26,7 +26,10 @@ class EngineFactory(object):
             from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
             return ASREngine()
         elif engine_name == 'asr' and engine_type == 'online':
-            from paddlespeech.server.engine.asr.online.asr_engine import ASREngine
+            from paddlespeech.server.engine.asr.online.python.asr_engine import ASREngine
+            return ASREngine()
+        elif engine_name == 'asr' and engine_type == 'online-onnx':
+            from paddlespeech.server.engine.asr.online.onnx.asr_engine import ASREngine
             return ASREngine()
         elif engine_name == 'tts' and engine_type == 'inference':
             from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine

@@ -12,13 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import argparse
+import os
+import pickle
+
 import numpy as np
 import onnxruntime
 import paddle
-import os
-import pickle
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -26,26 +27,19 @@ def parse_args():
         '--input_file',
         type=str,
         default="static_ds2online_inputs.pickle",
-        help="ds2 input pickle file.",
-    )
+        help="ds2 input pickle file.", )
     parser.add_argument(
-        '--model_dir',
-        type=str,
-        default=".",
-        help="paddle model dir."
-    )
+        '--model_dir', type=str, default=".", help="paddle model dir.")
     parser.add_argument(
         '--model_prefix',
         type=str,
         default="avg_1.jit",
-        help="paddle model prefix."
-    )
+        help="paddle model prefix.")
     parser.add_argument(
         '--onnx_model',
         type=str,
         default='./model.old.onnx',
-        help="onnx model."
-    )
+        help="onnx model.")
 
     return parser.parse_args()
 
@@ -69,19 +63,19 @@ if __name__ == '__main__':
         paddle.to_tensor(audio_chunk),
         paddle.to_tensor(audio_chunk_lens),
         paddle.to_tensor(chunk_state_h_box),
-        paddle.to_tensor(chunk_state_c_box),
-    )
+        paddle.to_tensor(chunk_state_c_box), )
 
     # onnxruntime
     options = onnxruntime.SessionOptions()
-    options.enable_profiling=True
+    options.enable_profiling = True
     sess = onnxruntime.InferenceSession(FLAGS.onnx_model, sess_options=options)
     ort_res_chunk, ort_res_lens, ort_chunk_state_h, ort_chunk_state_c = sess.run(
-                ['softmax_0.tmp_0', 'tmp_5', 'concat_0.tmp_0', 'concat_1.tmp_0'],
-                {"audio_chunk": audio_chunk,
-                 "audio_chunk_lens":audio_chunk_lens,
-                 "chunk_state_h_box": chunk_state_h_box,
-                 "chunk_state_c_box":chunk_state_c_box})
+        ['softmax_0.tmp_0', 'tmp_5', 'concat_0.tmp_0', 'concat_1.tmp_0'], {
+            "audio_chunk": audio_chunk,
+            "audio_chunk_lens": audio_chunk_lens,
+            "chunk_state_h_box": chunk_state_h_box,
+            "chunk_state_c_box": chunk_state_c_box
+        })
 
     print(sess.end_profiling())
 

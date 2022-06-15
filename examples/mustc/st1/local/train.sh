@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# != 3 ];then
-    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name ckpt_path"
+if [ $# -lt 3 ] && [ $# -gt 4 ];then
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name ckpt_path ips(optional)"
     exit -1
 fi
 
@@ -11,6 +11,13 @@ echo "using $ngpu gpus..."
 config_path=$1
 ckpt_name=$2
 ckpt_path=$3
+ips=$3
+
+if [ ! $ips ];then
+  ips_config=
+else
+  ips_config="--ips="${ips}
+fi
 
 
 mkdir -p exp
@@ -21,12 +28,21 @@ if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
 
+if [ ${ngpu} == 0 ]; then
 python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
 --checkpoint_path "${ckpt_path}" \
 --seed ${seed}
+else
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
+--ngpu ${ngpu} \
+--config ${config_path} \
+--output exp/${ckpt_name} \
+--checkpoint_path "${ckpt_path}" \
+--seed ${seed}
+fi
 
 if [ ${seed} != 0 ]; then
     unset FLAGS_cudnn_deterministic

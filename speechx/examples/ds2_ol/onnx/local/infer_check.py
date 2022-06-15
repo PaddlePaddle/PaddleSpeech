@@ -27,7 +27,12 @@ def parse_args():
         '--input_file',
         type=str,
         default="static_ds2online_inputs.pickle",
-        help="ds2 input pickle file.", )
+        help="aishell ds2 input data file. For wenetspeech, we only feed for infer model", )
+    parser.add_argument(
+        '--model_type',
+        type=str,
+        default="aishell",
+        help="aishell(1024) or wenetspeech(2048)", )
     parser.add_argument(
         '--model_dir', type=str, default=".", help="paddle model dir.")
     parser.add_argument(
@@ -52,10 +57,17 @@ if __name__ == '__main__':
         iodict = pickle.load(f)
         print(iodict.keys())
 
+
     audio_chunk = iodict['audio_chunk']
     audio_chunk_lens = iodict['audio_chunk_lens']
     chunk_state_h_box = iodict['chunk_state_h_box']
     chunk_state_c_box = iodict['chunk_state_c_bos']
+    print("raw state shape: ", chunk_state_c_box.shape)
+
+    if FLAGS.model_type == 'wenetspeech':
+        chunk_state_h_box = np.repeat(chunk_state_h_box, 2, axis=-1)
+        chunk_state_c_box = np.repeat(chunk_state_c_box, 2, axis=-1)
+    print("state shape: ", chunk_state_c_box.shape)
 
     # paddle
     model = paddle.jit.load(os.path.join(FLAGS.model_dir, FLAGS.model_prefix))
@@ -82,5 +94,7 @@ if __name__ == '__main__':
     # assert paddle equal ort
     print(np.allclose(ort_res_chunk, res_chunk, atol=1e-6))
     print(np.allclose(ort_res_lens, res_lens, atol=1e-6))
-    print(np.allclose(ort_chunk_state_h, chunk_state_h, atol=1e-6))
-    print(np.allclose(ort_chunk_state_c, chunk_state_c, atol=1e-6))
+
+    if FLAGS.model_type == 'aishell':
+        print(np.allclose(ort_chunk_state_h, chunk_state_h, atol=1e-6))
+        print(np.allclose(ort_chunk_state_c, chunk_state_c, atol=1e-6))

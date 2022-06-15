@@ -16,10 +16,10 @@ import unittest
 import librosa
 import numpy as np
 import paddle
-import paddleaudio
-from paddleaudio.functional.window import get_window
 
+import paddlespeech.audio
 from .base import FeatTest
+from paddlespeech.audio.functional.window import get_window
 
 
 class TestLibrosa(FeatTest):
@@ -117,7 +117,7 @@ class TestLibrosa(FeatTest):
             htk=False,
             norm='slaney',
             dtype=self.waveform.dtype, )
-        feature_compliance = paddleaudio.compliance.librosa.compute_fbank_matrix(
+        feature_compliance = paddlespeech.audio.compliance.librosa.compute_fbank_matrix(
             sr=self.sr,
             n_fft=self.n_fft,
             n_mels=self.n_mels,
@@ -127,7 +127,7 @@ class TestLibrosa(FeatTest):
             norm='slaney',
             dtype=self.waveform.dtype, )
         x = paddle.to_tensor(self.waveform)
-        feature_functional = paddleaudio.functional.compute_fbank_matrix(
+        feature_functional = paddlespeech.audio.functional.compute_fbank_matrix(
             sr=self.sr,
             n_fft=self.n_fft,
             n_mels=self.n_mels,
@@ -156,8 +156,8 @@ class TestLibrosa(FeatTest):
             n_mels=self.n_mels,
             fmin=self.fmin)
 
-        # paddleaudio.compliance.librosa:
-        feature_compliance = paddleaudio.compliance.librosa.melspectrogram(
+        # paddlespeech.audio.compliance.librosa:
+        feature_compliance = paddlespeech.audio.compliance.librosa.melspectrogram(
             x=self.waveform,
             sr=self.sr,
             window_size=self.n_fft,
@@ -166,10 +166,10 @@ class TestLibrosa(FeatTest):
             fmin=self.fmin,
             to_db=False)
 
-        # paddleaudio.features.layer
+        # paddlespeech.audio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.MelSpectrogram(
+        feature_extractor = paddlespeech.audio.features.MelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
@@ -198,8 +198,8 @@ class TestLibrosa(FeatTest):
             fmin=self.fmin)
         feature_librosa = librosa.power_to_db(feature_librosa, top_db=None)
 
-        # paddleaudio.compliance.librosa:
-        feature_compliance = paddleaudio.compliance.librosa.melspectrogram(
+        # paddlespeech.audio.compliance.librosa:
+        feature_compliance = paddlespeech.audio.compliance.librosa.melspectrogram(
             x=self.waveform,
             sr=self.sr,
             window_size=self.n_fft,
@@ -207,10 +207,10 @@ class TestLibrosa(FeatTest):
             n_mels=self.n_mels,
             fmin=self.fmin)
 
-        # paddleaudio.features.layer
+        # paddlespeech.audio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.LogMelSpectrogram(
+        feature_extractor = paddlespeech.audio.features.LogMelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
@@ -243,8 +243,8 @@ class TestLibrosa(FeatTest):
             n_mels=self.n_mels,
             fmin=self.fmin)
 
-        # paddleaudio.compliance.librosa:
-        feature_compliance = paddleaudio.compliance.librosa.mfcc(
+        # paddlespeech.audio.compliance.librosa:
+        feature_compliance = paddlespeech.audio.compliance.librosa.mfcc(
             x=self.waveform,
             sr=self.sr,
             n_mfcc=self.n_mfcc,
@@ -257,10 +257,10 @@ class TestLibrosa(FeatTest):
             fmin=self.fmin,
             top_db=self.top_db)
 
-        # paddleaudio.features.layer
+        # paddlespeech.audio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.MFCC(
+        feature_extractor = paddlespeech.audio.features.MFCC(
             sr=self.sr,
             n_mfcc=self.n_mfcc,
             n_fft=self.n_fft,

@@ -17,15 +17,17 @@ import urllib.request
 import librosa
 import numpy as np
 import paddle
-import paddleaudio
 import torch
 import torchaudio
+
+import paddlespeech.audio
 
 wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 if not os.path.isfile(os.path.basename(wav_url)):
     urllib.request.urlretrieve(wav_url, os.path.basename(wav_url))
 
-waveform, sr = paddleaudio.load(os.path.abspath(os.path.basename(wav_url)))
+waveform, sr = paddlespeech.audio.load(
+    os.path.abspath(os.path.basename(wav_url)))
 waveform_tensor = paddle.to_tensor(waveform).unsqueeze(0)
 waveform_tensor_torch = torch.from_numpy(waveform).unsqueeze(0)
 
@@ -64,7 +66,7 @@ def enable_gpu_device():
     paddle.set_device('gpu')
 
 
-mfcc_extractor = paddleaudio.features.MFCC(
+mfcc_extractor = paddlespeech.audio.features.MFCC(
     **mfcc_conf, f_min=0.0, dtype=waveform_tensor.dtype)
 
 
@@ -74,18 +76,18 @@ def mfcc():
 
 def test_mfcc_cpu(benchmark):
     enable_cpu_device()
-    feature_paddleaudio = benchmark(mfcc)
+    feature_audio = benchmark(mfcc)
     feature_librosa = librosa.feature.mfcc(waveform, **mel_conf)
     np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+        feature_librosa, feature_audio, decimal=3)
 
 
 def test_mfcc_gpu(benchmark):
     enable_gpu_device()
-    feature_paddleaudio = benchmark(mfcc)
+    feature_audio = benchmark(mfcc)
     feature_librosa = librosa.feature.mfcc(waveform, **mel_conf)
     np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+        feature_librosa, feature_audio, decimal=3)
 
 
 del mel_conf_torchaudio['sample_rate']
@@ -103,10 +105,10 @@ def test_mfcc_cpu_torchaudio(benchmark):
     mel_extractor_torchaudio = mfcc_extractor_torchaudio.to('cpu')
     waveform_tensor_torch = waveform_tensor_torch.to('cpu')
 
-    feature_paddleaudio = benchmark(mfcc_torchaudio)
+    feature_audio = benchmark(mfcc_torchaudio)
     feature_librosa = librosa.feature.mfcc(waveform, **mel_conf)
     np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+        feature_librosa, feature_audio, decimal=3)
 
 
 def test_mfcc_gpu_torchaudio(benchmark):

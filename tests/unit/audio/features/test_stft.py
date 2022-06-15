@@ -15,35 +15,29 @@ import unittest
 
 import numpy as np
 import paddle
-import paddleaudio
 
 from .base import FeatTest
-from paddlespeech.s2t.transform.spectrogram import LogMelSpectrogram
+from paddlespeech.audio.functional.window import get_window
+from paddlespeech.s2t.transform.spectrogram import Stft
 
 
-class TestLogMelSpectrogram(FeatTest):
+class TestStft(FeatTest):
     def initParmas(self):
         self.n_fft = 512
         self.hop_length = 128
-        self.n_mels = 40
+        self.window_str = 'hann'
 
-    def test_log_melspect(self):
-        ps_melspect = LogMelSpectrogram(self.sr, self.n_mels, self.n_fft,
-                                        self.hop_length)
-        ps_res = ps_melspect(self.waveform.T).squeeze(1).T
+    def test_stft(self):
+        ps_stft = Stft(self.n_fft, self.hop_length)
+        ps_res = ps_stft(
+            self.waveform.T).squeeze(1).T  # (n_fft//2 + 1, n_frmaes)
 
         x = paddle.to_tensor(self.waveform)
-        # paddlespeech.s2t的特征存在幅度谱和功率谱滥用的情况
-        ps_melspect = paddleaudio.features.LogMelSpectrogram(
-            self.sr,
-            self.n_fft,
-            self.hop_length,
-            power=1.0,
-            n_mels=self.n_mels,
-            f_min=0.0)
-        pa_res = (ps_melspect(x) / 10.0).squeeze(0).numpy()
+        window = get_window(self.window_str, self.n_fft, dtype=x.dtype)
+        pd_res = paddle.signal.stft(
+            x, self.n_fft, self.hop_length, window=window).squeeze(0).numpy()
 
-        np.testing.assert_array_almost_equal(ps_res, pa_res, decimal=5)
+        np.testing.assert_array_almost_equal(ps_res, pd_res, decimal=5)
 
 
 if __name__ == '__main__':

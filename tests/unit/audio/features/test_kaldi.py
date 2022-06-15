@@ -15,10 +15,10 @@ import unittest
 
 import numpy as np
 import paddle
-import paddleaudio
 import torch
 import torchaudio
 
+import paddlespeech.audio
 from .base import FeatTest
 
 
@@ -40,17 +40,17 @@ class TestKaldi(FeatTest):
             self.window_size, periodic=False,
             dtype=eval(f'torch.{self.dtype}')).pow(0.85)
 
-        p_hann_window = paddleaudio.functional.window.get_window(
+        p_hann_window = paddlespeech.audio.functional.window.get_window(
             'hann',
             self.window_size,
             fftbins=False,
             dtype=eval(f'paddle.{self.dtype}'))
-        p_hamm_window = paddleaudio.functional.window.get_window(
+        p_hamm_window = paddlespeech.audio.functional.window.get_window(
             'hamming',
             self.window_size,
             fftbins=False,
             dtype=eval(f'paddle.{self.dtype}'))
-        p_povey_window = paddleaudio.functional.window.get_window(
+        p_povey_window = paddlespeech.audio.functional.window.get_window(
             'hann',
             self.window_size,
             fftbins=False,
@@ -63,7 +63,7 @@ class TestKaldi(FeatTest):
     def test_fbank(self):
         ta_features = torchaudio.compliance.kaldi.fbank(
             torch.from_numpy(self.waveform.astype(self.dtype)))
-        pa_features = paddleaudio.compliance.kaldi.fbank(
+        pa_features = paddlespeech.audio.compliance.kaldi.fbank(
             paddle.to_tensor(self.waveform.astype(self.dtype)))
         np.testing.assert_array_almost_equal(
             ta_features, pa_features, decimal=4)
@@ -71,7 +71,7 @@ class TestKaldi(FeatTest):
     def test_mfcc(self):
         ta_features = torchaudio.compliance.kaldi.mfcc(
             torch.from_numpy(self.waveform.astype(self.dtype)))
-        pa_features = paddleaudio.compliance.kaldi.mfcc(
+        pa_features = paddlespeech.audio.compliance.kaldi.mfcc(
             paddle.to_tensor(self.waveform.astype(self.dtype)))
         np.testing.assert_array_almost_equal(
             ta_features, pa_features, decimal=4)

@@ -16,8 +16,8 @@ import os
 from typing import List
 from typing import Tuple
 
+from ..utils import DATA_HOME
 from ..utils.download import download_and_decompress
-from ..utils.env import DATA_HOME
 from .dataset import AudioClassificationDataset
 
 __all__ = ['UrbanSound8K']

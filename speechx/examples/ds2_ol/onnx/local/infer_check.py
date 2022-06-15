@@ -35,6 +35,12 @@ def parse_args():
         help="paddle model dir."
     )
     parser.add_argument(
+        '--model_prefix',
+        type=str,
+        default="avg_1.jit",
+        help="paddle model prefix."
+    )
+    parser.add_argument(
         '--onnx_model',
         type=str,
         default='./model.old.onnx',
@@ -58,7 +64,7 @@ if __name__ == '__main__':
     chunk_state_c_box = iodict['chunk_state_c_bos']
 
     # paddle
-    model = paddle.jit.load(os.path.join(FLAGS.model_dir, "avg_1.jit"))
+    model = paddle.jit.load(os.path.join(FLAGS.model_dir, FLAGS.model_prefix))
     res_chunk, res_lens, chunk_state_h, chunk_state_c = model(
         paddle.to_tensor(audio_chunk),
         paddle.to_tensor(audio_chunk_lens),

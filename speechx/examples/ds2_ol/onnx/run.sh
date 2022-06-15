@@ -53,6 +53,15 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ];then
     # to onnx
    ./local/tonnx.sh $dir $model $param $exp/model.onnx
+
    ./local/infer_check.py --input_file 'static_ds2online_inputs.pickle' --model_dir $dir --onnx_model $exp/model.onnx
 fi
 
+
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ] ;then
+    input_shape="audio_chunk:1,-1,161  audio_chunk_lens:1 chunk_state_c_box:5,1,1024 chunk_state_h_box:5,1,1024"   
+    # simplifying onnx model
+    ./local/onnx_opt.sh $exp/model.onnx $exp/model.opt.onnx  $input_shape    
+
+    ./local/infer_check.py --input_file 'static_ds2online_inputs.pickle' --model_dir $dir --onnx_model $exp/model.opt.onnx
+fi

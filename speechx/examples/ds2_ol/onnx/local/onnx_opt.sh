@@ -17,4 +17,4 @@ input_shape=$3
 
 check_n=3
 
-onnxsim $in $2 $check_n --dynamic-input-shape  --input-shape $input_shape 
+onnxsim $in $out $check_n --dynamic-input-shape  --input-shape $input_shape

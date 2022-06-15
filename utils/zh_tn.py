@@ -747,7 +747,7 @@ def num2chn(number_string,
                         previous_symbol, (CNU, type(None))):
                     if next_symbol.power != 1 and (
                         (previous_symbol is None) or
-                        (previous_symbol.power != 1)):
+                        (previous_symbol.power != 1)):  # noqa: E129
                         result_symbols[i] = liang
 
     # if big is True, '两' will not be used and `alt_two` has no impact on output

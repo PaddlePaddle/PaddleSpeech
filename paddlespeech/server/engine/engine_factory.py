@@ -28,6 +28,9 @@ class EngineFactory(object):
         elif engine_name == 'asr' and engine_type == 'online':
             from paddlespeech.server.engine.asr.online.python.asr_engine import ASREngine
             return ASREngine()
+        elif engine_name == 'asr' and engine_type == 'online-inference':
+            from paddlespeech.server.engine.asr.online.paddleinference.asr_engine import ASREngine
+            return ASREngine()
         elif engine_name == 'asr' and engine_type == 'online-onnx':
             from paddlespeech.server.engine.asr.online.onnx.asr_engine import ASREngine
             return ASREngine()

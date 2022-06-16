@@ -175,7 +175,7 @@ asr_dynamic_pretrained_models = {
             'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
             'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
             'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
-            'onnx_model': 'onnx/model.onnx'
+            'onnx_model': 'onnx/model.onnx',
             'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
         },
@@ -228,7 +228,7 @@ asr_static_pretrained_models = {
             'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
             'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
             'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
-            'onnx_model': 'onnx/model.onnx'
+            'onnx_model': 'onnx/model.onnx',
             'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
         },
@@ -246,7 +246,7 @@ asr_onnx_pretrained_models = {
             'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
             'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
             'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
-            'onnx_model': 'onnx/model.onnx'
+            'onnx_model': 'onnx/model.onnx',
             'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
         },

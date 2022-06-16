@@ -39,6 +39,9 @@ tools/env.sh
 tools/openfst-1.8.1/
 tools/libsndfile/
 tools/python-soundfile/
+tools/onnx
+tools/onnxruntime
+tools/Paddle2ONNX
 
 speechx/fc_patch/
 

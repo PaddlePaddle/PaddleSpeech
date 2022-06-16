@@ -176,7 +176,10 @@ def main():
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu.")
     parser.add_argument(
-        "--nxpu", type=int, default=0, help="if nxpu == 0 and ngpu == 0, use cpu.")
+        "--nxpu",
+        type=int,
+        default=0,
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
 
     args, _ = parser.parse_known_args()
 

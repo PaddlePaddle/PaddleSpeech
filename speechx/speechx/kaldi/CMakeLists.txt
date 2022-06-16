@@ -7,3 +7,7 @@ add_subdirectory(matrix)
 add_subdirectory(lat)
 add_subdirectory(fstext)
 add_subdirectory(decoder)
+add_subdirectory(lm)
+
+add_subdirectory(fstbin)
+add_subdirectory(lmbin)

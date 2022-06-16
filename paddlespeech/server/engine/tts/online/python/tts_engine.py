@@ -22,10 +22,9 @@ import paddle
 import yaml
 from yacs.config import CfgNode
 
-from .pretrained_models import pretrained_models
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.util import denorm
@@ -34,17 +33,14 @@ from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 
-__all__ = ['TTSEngine']
+__all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 
 
 class TTSServerExecutor(TTSExecutor):
-    def __init__(self, am_block, am_pad, voc_block, voc_pad):
+    def __init__(self):
         super().__init__()
-        self.am_block = am_block
-        self.am_pad = am_pad
-        self.voc_block = voc_block
-        self.voc_pad = voc_pad
-        self.pretrained_models = pretrained_models
+        self.task_resource = CommonTaskResource(
+            task='tts', model_format='dynamic', inference_mode='online')
 
     def get_model_info(self,
                        field: str,
@@ -65,7 +61,7 @@ class TTSServerExecutor(TTSExecutor):
             [Tensor]: standard deviation
         """
 
-        model_class = dynamic_import(model_name, self.model_alias)
+        model_class = self.task_resource.get_model_class(model_name)
 
         if field == "am":
             odim = self.am_config.n_mels
@@ -110,20 +106,24 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am model info
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
         if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
-            am_res_path = self._get_pretrained_path(am_tag)
-            self.am_res_path = am_res_path
-            self.am_config = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['config'])
-            self.am_ckpt = os.path.join(am_res_path,
-                                        self.pretrained_models[am_tag]['ckpt'])
+            self.am_res_path = self.task_resource.res_dir
+            self.am_config = os.path.join(self.am_res_path,
+                                          self.task_resource.res_dict['config'])
+            self.am_ckpt = os.path.join(self.am_res_path,
+                                        self.task_resource.res_dict['ckpt'])
             self.am_stat = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['speech_stats'])
+                self.am_res_path, self.task_resource.res_dict['speech_stats'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, self.pretrained_models[am_tag]['phones_dict'])
+                self.am_res_path, self.task_resource.res_dict['phones_dict'])
             print("self.phones_dict:", self.phones_dict)
-            logger.info(am_res_path)
+            logger.info(self.am_res_path)
             logger.info(self.am_config)
             logger.info(self.am_ckpt)
         else:
@@ -139,16 +139,21 @@ class TTSServerExecutor(TTSExecutor):
 
         # voc model info
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_ckpt is None or voc_config is None or voc_stat is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
+            self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['config'])
+                self.voc_res_path, self.task_resource.voc_res_dict['config'])
             self.voc_ckpt = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['ckpt'])
+                self.voc_res_path, self.task_resource.voc_res_dict['ckpt'])
             self.voc_stat = os.path.join(
-                voc_res_path, self.pretrained_models[voc_tag]['speech_stats'])
-            logger.info(voc_res_path)
+                self.voc_res_path,
+                self.task_resource.voc_res_dict['speech_stats'])
+            logger.info(self.voc_res_path)
             logger.info(self.voc_config)
             logger.info(self.voc_ckpt)
         else:
@@ -188,8 +193,8 @@ class TTSServerExecutor(TTSExecutor):
             am, am_mu, am_std = self.get_model_info("am", self.am_name,
                                                     self.am_ckpt, self.am_stat)
             am_normalizer = ZScore(am_mu, am_std)
-            am_inference_class = dynamic_import(self.am_name + '_inference',
-                                                self.model_alias)
+            am_inference_class = self.task_resource.get_model_class(
+                self.am_name + '_inference')
             self.am_inference = am_inference_class(am_normalizer, am)
             self.am_inference.eval()
         print("acoustic model done!")
@@ -199,11 +204,111 @@ class TTSServerExecutor(TTSExecutor):
         voc, voc_mu, voc_std = self.get_model_info("voc", self.voc_name,
                                                    self.voc_ckpt, self.voc_stat)
         voc_normalizer = ZScore(voc_mu, voc_std)
-        voc_inference_class = dynamic_import(self.voc_name + '_inference',
-                                             self.model_alias)
+        voc_inference_class = self.task_resource.get_model_class(self.voc_name +
+                                                                 '_inference')
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
         print("voc done!")
+
+
+class TTSEngine(BaseEngine):
+    """TTS server engine
+
+    Args:
+        metaclass: Defaults to Singleton.
+    """
+
+    def __init__(self, name=None):
+        """Initialize TTS server engine
+        """
+        super().__init__()
+
+    def init(self, config: dict) -> bool:
+        self.executor = TTSServerExecutor()
+        self.config = config
+        self.lang = self.config.lang
+        self.engine_type = "online"
+
+        assert (
+            config.am == "fastspeech2_csmsc" or
+            config.am == "fastspeech2_cnndecoder_csmsc"
+        ) and (
+            config.voc == "hifigan_csmsc" or config.voc == "mb_melgan_csmsc"
+        ), 'Please check config, am support: fastspeech2, voc support: hifigan_csmsc-zh or mb_melgan_csmsc.'
+
+        assert (
+            config.voc_block > 0 and config.voc_pad > 0
+        ), "Please set correct voc_block and voc_pad, they should be more than 0."
+
+        try:
+            if self.config.device is not None:
+                self.device = self.config.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
+
+        try:
+            self.executor._init_from_path(
+                am=self.config.am,
+                am_config=self.config.am_config,
+                am_ckpt=self.config.am_ckpt,
+                am_stat=self.config.am_stat,
+                phones_dict=self.config.phones_dict,
+                tones_dict=self.config.tones_dict,
+                speaker_dict=self.config.speaker_dict,
+                voc=self.config.voc,
+                voc_config=self.config.voc_config,
+                voc_ckpt=self.config.voc_ckpt,
+                voc_stat=self.config.voc_stat,
+                lang=self.config.lang)
+        except Exception as e:
+            logger.error("Failed to get model related files.")
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
+
+        self.am_block = self.config.am_block
+        self.am_pad = self.config.am_pad
+        self.voc_block = self.config.voc_block
+        self.voc_pad = self.config.voc_pad
+        self.am_upsample = 1
+        self.voc_upsample = self.executor.voc_config.n_shift
+
+        logger.info("Initialize TTS server engine successfully on device: %s." %
+                    (self.device))
+
+        return True
+
+
+class PaddleTTSConnectionHandler:
+    def __init__(self, tts_engine):
+        """The PaddleSpeech TTS Server Connection Handler
+           This connection process every tts server request
+        Args:
+            tts_engine (TTSEngine): The TTS engine
+        """
+        super().__init__()
+        logger.info(
+            "Create PaddleTTSConnectionHandler to process the tts request")
+
+        self.tts_engine = tts_engine
+        self.executor = self.tts_engine.executor
+        self.config = self.tts_engine.config
+        self.am_block = self.tts_engine.am_block
+        self.am_pad = self.tts_engine.am_pad
+        self.voc_block = self.tts_engine.voc_block
+        self.voc_pad = self.tts_engine.voc_pad
+        self.am_upsample = self.tts_engine.am_upsample
+        self.voc_upsample = self.tts_engine.voc_upsample
 
     def depadding(self, data, chunk_num, chunk_id, block, pad, upsample):
         """ 
@@ -233,12 +338,6 @@ class TTSServerExecutor(TTSExecutor):
         Model inference and result stored in self.output.
         """
 
-        am_block = self.am_block
-        am_pad = self.am_pad
-        am_upsample = 1
-        voc_block = self.voc_block
-        voc_pad = self.voc_pad
-        voc_upsample = self.voc_config.n_shift
         # first_flag 用于标记首包
         first_flag = 1
 
@@ -246,7 +345,7 @@ class TTSServerExecutor(TTSExecutor):
         merge_sentences = False
         frontend_st = time.time()
         if lang == 'zh':
-            input_ids = self.frontend.get_input_ids(
+            input_ids = self.executor.frontend.get_input_ids(
                 text,
                 merge_sentences=merge_sentences,
                 get_tone_ids=get_tone_ids)
@@ -254,7 +353,7 @@ class TTSServerExecutor(TTSExecutor):
             if get_tone_ids:
                 tone_ids = input_ids["tone_ids"]
         elif lang == 'en':
-            input_ids = self.frontend.get_input_ids(
+            input_ids = self.executor.frontend.get_input_ids(
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
@@ -269,19 +368,21 @@ class TTSServerExecutor(TTSExecutor):
             # fastspeech2_csmsc
             if am == "fastspeech2_csmsc":
                 # am 
-                mel = self.am_inference(part_phone_ids)
+                mel = self.executor.am_inference(part_phone_ids)
                 if first_flag == 1:
                     first_am_et = time.time()
                     self.first_am_infer = first_am_et - frontend_et
 
                 # voc streaming
-                mel_chunks = get_chunks(mel, voc_block, voc_pad, "voc")
+                mel_chunks = get_chunks(mel, self.voc_block, self.voc_pad,
+                                        "voc")
                 voc_chunk_num = len(mel_chunks)
                 voc_st = time.time()
                 for i, mel_chunk in enumerate(mel_chunks):
-                    sub_wav = self.voc_inference(mel_chunk)
+                    sub_wav = self.executor.voc_inference(mel_chunk)
                     sub_wav = self.depadding(sub_wav, voc_chunk_num, i,
-                                             voc_block, voc_pad, voc_upsample)
+                                             self.voc_block, self.voc_pad,
+                                             self.voc_upsample)
                     if first_flag == 1:
                         first_voc_et = time.time()
                         self.first_voc_infer = first_voc_et - first_am_et
@@ -293,7 +394,8 @@ class TTSServerExecutor(TTSExecutor):
             # fastspeech2_cnndecoder_csmsc 
             elif am == "fastspeech2_cnndecoder_csmsc":
                 # am 
-                orig_hs = self.am_inference.encoder_infer(part_phone_ids)
+                orig_hs = self.executor.am_inference.encoder_infer(
+                    part_phone_ids)
 
                 # streaming voc chunk info
                 mel_len = orig_hs.shape[1]
@@ -305,13 +407,15 @@ class TTSServerExecutor(TTSExecutor):
                 hss = get_chunks(orig_hs, self.am_block, self.am_pad, "am")
                 am_chunk_num = len(hss)
                 for i, hs in enumerate(hss):
-                    before_outs = self.am_inference.decoder(hs)
-                    after_outs = before_outs + self.am_inference.postnet(
+                    before_outs = self.executor.am_inference.decoder(hs)
+                    after_outs = before_outs + self.executor.am_inference.postnet(
                         before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
                     normalized_mel = after_outs[0]
-                    sub_mel = denorm(normalized_mel, self.am_mu, self.am_std)
-                    sub_mel = self.depadding(sub_mel, am_chunk_num, i, am_block,
-                                             am_pad, am_upsample)
+                    sub_mel = denorm(normalized_mel, self.executor.am_mu,
+                                     self.executor.am_std)
+                    sub_mel = self.depadding(sub_mel, am_chunk_num, i,
+                                             self.am_block, self.am_pad,
+                                             self.am_upsample)
 
                     if i == 0:
                         mel_streaming = sub_mel
@@ -328,11 +432,11 @@ class TTSServerExecutor(TTSExecutor):
                             self.first_am_infer = first_am_et - frontend_et
                         voc_chunk = mel_streaming[start:end, :]
                         voc_chunk = paddle.to_tensor(voc_chunk)
-                        sub_wav = self.voc_inference(voc_chunk)
+                        sub_wav = self.executor.voc_inference(voc_chunk)
 
-                        sub_wav = self.depadding(sub_wav, voc_chunk_num,
-                                                 voc_chunk_id, voc_block,
-                                                 voc_pad, voc_upsample)
+                        sub_wav = self.depadding(
+                            sub_wav, voc_chunk_num, voc_chunk_id,
+                            self.voc_block, self.voc_pad, self.voc_upsample)
                         if first_flag == 1:
                             first_voc_et = time.time()
                             self.first_voc_infer = first_voc_et - first_am_et
@@ -342,9 +446,11 @@ class TTSServerExecutor(TTSExecutor):
                         yield sub_wav
 
                         voc_chunk_id += 1
-                        start = max(0, voc_chunk_id * voc_block - voc_pad)
-                        end = min((voc_chunk_id + 1) * voc_block + voc_pad,
-                                  mel_len)
+                        start = max(
+                            0, voc_chunk_id * self.voc_block - self.voc_pad)
+                        end = min(
+                            (voc_chunk_id + 1) * self.voc_block + self.voc_pad,
+                            mel_len)
 
             else:
                 logger.error(
@@ -352,100 +458,6 @@ class TTSServerExecutor(TTSExecutor):
                 )
 
         self.final_response_time = time.time() - frontend_st
-
-
-class TTSEngine(BaseEngine):
-    """TTS server engine
-
-    Args:
-        metaclass: Defaults to Singleton.
-    """
-
-    def __init__(self, name=None):
-        """Initialize TTS server engine
-        """
-        super().__init__()
-
-    def init(self, config: dict) -> bool:
-        self.config = config
-        assert (
-            config.am == "fastspeech2_csmsc" or
-            config.am == "fastspeech2_cnndecoder_csmsc"
-        ) and (
-            config.voc == "hifigan_csmsc" or config.voc == "mb_melgan_csmsc"
-        ), 'Please check config, am support: fastspeech2, voc support: hifigan_csmsc-zh or mb_melgan_csmsc.'
-
-        assert (
-            config.voc_block > 0 and config.voc_pad > 0
-        ), "Please set correct voc_block and voc_pad, they should be more than 0."
-
-        try:
-            if self.config.device is not None:
-                self.device = self.config.device
-            else:
-                self.device = paddle.get_device()
-            paddle.set_device(self.device)
-        except Exception as e:
-            logger.error(
-                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
-            )
-            logger.error("Initialize TTS server engine Failed on device: %s." %
-                         (self.device))
-            return False
-
-        self.executor = TTSServerExecutor(config.am_block, config.am_pad,
-                                          config.voc_block, config.voc_pad)
-
-        try:
-            self.executor._init_from_path(
-                am=self.config.am,
-                am_config=self.config.am_config,
-                am_ckpt=self.config.am_ckpt,
-                am_stat=self.config.am_stat,
-                phones_dict=self.config.phones_dict,
-                tones_dict=self.config.tones_dict,
-                speaker_dict=self.config.speaker_dict,
-                voc=self.config.voc,
-                voc_config=self.config.voc_config,
-                voc_ckpt=self.config.voc_ckpt,
-                voc_stat=self.config.voc_stat,
-                lang=self.config.lang)
-        except Exception as e:
-            logger.error("Failed to get model related files.")
-            logger.error("Initialize TTS server engine Failed on device: %s." %
-                         (self.device))
-            return False
-
-        # warm up
-        try:
-            self.warm_up()
-            logger.info("Warm up successfully.")
-        except Exception as e:
-            logger.error("Failed to warm up on tts engine.")
-            return False
-
-        logger.info("Initialize TTS server engine successfully on device: %s." %
-                    (self.device))
-        return True
-
-    def warm_up(self):
-        """warm up
-        """
-        if self.config.lang == 'zh':
-            sentence = "您好，欢迎使用语音合成服务。"
-        if self.config.lang == 'en':
-            sentence = "Hello and welcome to the speech synthesis service."
-        logger.info("Start to warm up.")
-        for i in range(3):
-            for wav in self.executor.infer(
-                    text=sentence,
-                    lang=self.config.lang,
-                    am=self.config.am,
-                    spk_id=0, ):
-                logger.info(
-                    f"The first response time of the {i} warm up: {self.executor.first_response_time} s"
-                )
-                break
 
     def preprocess(self, text_bese64: str=None, text_bytes: bytes=None):
         # Convert byte to text
@@ -480,7 +492,7 @@ class TTSEngine(BaseEngine):
 
         wav_list = []
 
-        for wav in self.executor.infer(
+        for wav in self.infer(
                 text=sentence,
                 lang=self.config.lang,
                 am=self.config.am,
@@ -496,13 +508,12 @@ class TTSEngine(BaseEngine):
 
         wav_all = np.concatenate(wav_list, axis=0)
         duration = len(wav_all) / self.executor.am_config.fs
+
         logger.info(f"sentence: {sentence}")
         logger.info(f"The durations of audio is: {duration} s")
+        logger.info(f"first response time: {self.first_response_time} s")
+        logger.info(f"final response time: {self.final_response_time} s")
+        logger.info(f"RTF: {self.final_response_time / duration}")
         logger.info(
-            f"first response time: {self.executor.first_response_time} s")
-        logger.info(
-            f"final response time: {self.executor.final_response_time} s")
-        logger.info(f"RTF: {self.executor.final_response_time / duration}")
-        logger.info(
-            f"Other info: front time: {self.executor.frontend_time} s, first am infer time: {self.executor.first_am_infer} s, first voc infer time: {self.executor.first_voc_infer} s,"
+            f"Other info: front time: {self.frontend_time} s, first am infer time: {self.first_am_infer} s, first voc infer time: {self.first_voc_infer} s,"
         )

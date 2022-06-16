@@ -42,9 +42,6 @@ def get_transcripts(path: Union[str, Path]):
     for i in range(0, len(lines), 2):
         sentence_id = lines[i].split()[0]
         transcription = lines[i + 1].strip()
-        # tones are dropped here
-        # since the lexicon does not consider tones, too
-        transcription = " ".join([item[:-1] for item in transcription.split()])
         transcripts[sentence_id] = transcription
 
     return transcripts

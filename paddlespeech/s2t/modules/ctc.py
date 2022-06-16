@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 from typing import Union
 
 import paddle
@@ -34,7 +35,8 @@ except ImportError:
     try:
         from paddlespeech.s2t.utils import dynamic_pip_install
         package_name = 'paddlespeech_ctcdecoders'
-        dynamic_pip_install.install(package_name)
+        if sys.platform != "win32":
+            dynamic_pip_install.install(package_name)
         from paddlespeech.s2t.decoders.ctcdecoder import ctc_beam_search_decoding_batch  # noqa: F401
         from paddlespeech.s2t.decoders.ctcdecoder import ctc_greedy_decoding  # noqa: F401
         from paddlespeech.s2t.decoders.ctcdecoder import Scorer  # noqa: F401

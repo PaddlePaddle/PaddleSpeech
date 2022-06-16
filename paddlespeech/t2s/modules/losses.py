@@ -17,7 +17,6 @@ import librosa
 import numpy as np
 import paddle
 from paddle import nn
-from paddle.fluid.layers import sequence_mask
 from paddle.nn import functional as F
 from scipy import signal
 
@@ -160,7 +159,7 @@ def sample_from_discretized_mix_logistic(y, log_scale_min=None):
     return x
 
 
-# Loss for new Tacotron2
+# Loss for Tacotron2
 class GuidedAttentionLoss(nn.Layer):
     """Guided attention loss function module.
 
@@ -426,41 +425,6 @@ class Tacotron2Loss(nn.Layer):
                 masks.squeeze(-1).broadcast_to(bce_loss)).sum()
 
         return l1_loss, mse_loss, bce_loss
-
-
-# Loss for Tacotron2
-def attention_guide(dec_lens, enc_lens, N, T, g, dtype=None):
-    """Build that W matrix. shape(B, T_dec, T_enc)
-    W[i, n, t] = 1 - exp(-(n/dec_lens[i] - t/enc_lens[i])**2 / (2g**2)) 
-
-    See also:
-    Tachibana, Hideyuki, Katsuya Uenoyama, and Shunsuke Aihara. 2017. “Efficiently Trainable Text-to-Speech System Based on Deep Convolutional Networks with Guided Attention.” ArXiv:1710.08969 [Cs, Eess], October. http://arxiv.org/abs/1710.08969.
-    """
-    dtype = dtype or paddle.get_default_dtype()
-    dec_pos = paddle.arange(0, N).astype(dtype) / dec_lens.unsqueeze(
-        -1)  # n/N # shape(B, T_dec)
-    enc_pos = paddle.arange(0, T).astype(dtype) / enc_lens.unsqueeze(
-        -1)  # t/T # shape(B, T_enc)
-    W = 1 - paddle.exp(-(dec_pos.unsqueeze(-1) - enc_pos.unsqueeze(1))**2 /
-                       (2 * g**2))
-
-    dec_mask = sequence_mask(dec_lens, maxlen=N)
-    enc_mask = sequence_mask(enc_lens, maxlen=T)
-    mask = dec_mask.unsqueeze(-1) * enc_mask.unsqueeze(1)
-    mask = paddle.cast(mask, W.dtype)
-
-    W *= mask
-    return W
-
-
-def guided_attention_loss(attention_weight, dec_lens, enc_lens, g):
-    """Guided attention loss, masked to excluded padding parts."""
-    _, N, T = attention_weight.shape
-    W = attention_guide(dec_lens, enc_lens, N, T, g, attention_weight.dtype)
-
-    total_tokens = (dec_lens * enc_lens).astype(W.dtype)
-    loss = paddle.mean(paddle.sum(W * attention_weight, [1, 2]) / total_tokens)
-    return loss
 
 
 # Losses for GAN Vocoder
@@ -1006,3 +970,40 @@ class FeatureMatchLoss(nn.Layer):
             feat_match_loss /= i + 1
 
         return feat_match_loss
+
+
+# loss for VITS
+class KLDivergenceLoss(nn.Layer):
+    """KL divergence loss."""
+
+    def forward(
+            self,
+            z_p: paddle.Tensor,
+            logs_q: paddle.Tensor,
+            m_p: paddle.Tensor,
+            logs_p: paddle.Tensor,
+            z_mask: paddle.Tensor, ) -> paddle.Tensor:
+        """Calculate KL divergence loss.
+
+        Args:
+            z_p (Tensor): Flow hidden representation (B, H, T_feats).
+            logs_q (Tensor): Posterior encoder projected scale (B, H, T_feats).
+            m_p (Tensor): Expanded text encoder projected mean (B, H, T_feats).
+            logs_p (Tensor): Expanded text encoder projected scale (B, H, T_feats).
+            z_mask (Tensor): Mask tensor (B, 1, T_feats).
+
+        Returns:
+            Tensor: KL divergence loss.
+
+        """
+        z_p = paddle.cast(z_p, 'float32')
+        logs_q = paddle.cast(logs_q, 'float32')
+        m_p = paddle.cast(m_p, 'float32')
+        logs_p = paddle.cast(logs_p, 'float32')
+        z_mask = paddle.cast(z_mask, 'float32')
+        kl = logs_p - logs_q - 0.5
+        kl += 0.5 * ((z_p - m_p)**2) * paddle.exp(-2.0 * logs_p)
+        kl = paddle.sum(kl * z_mask)
+        loss = kl / paddle.sum(z_mask)
+
+        return loss

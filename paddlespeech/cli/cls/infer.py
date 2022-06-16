@@ -21,28 +21,19 @@ from typing import Union
 import numpy as np
 import paddle
 import yaml
-from paddleaudio import load
-from paddleaudio.features import LogMelSpectrogram
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.audio import load
+from paddlespeech.audio.features import LogMelSpectrogram
 
 __all__ = ['CLSExecutor']
 
 
-@cli_register(
-    name='paddlespeech.cls', description='Audio classification infer command.')
 class CLSExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
-
+        super().__init__(task='cls')
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.cls', add_help=True)
         self.parser.add_argument(
@@ -52,7 +43,8 @@ class CLSExecutor(BaseExecutor):
             type=str,
             default='panns_cnn14',
             choices=[
-                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
             ],
             help='Choose model type of cls task.')
         self.parser.add_argument(
@@ -105,13 +97,16 @@ class CLSExecutor(BaseExecutor):
 
         if label_file is None or ckpt_path is None:
             tag = model_type + '-' + '32k'  # panns_cnn14-32k
-            self.res_path = self._get_pretrained_path(tag)
+            self.task_resource.set_task_model(tag, version=None)
             self.cfg_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['cfg_path'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['cfg_path'])
             self.label_file = os.path.join(
-                self.res_path, self.pretrained_models[tag]['label_file'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['label_file'])
             self.ckpt_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['ckpt_path'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['ckpt_path'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.label_file = os.path.abspath(label_file)
@@ -128,7 +123,7 @@ class CLSExecutor(BaseExecutor):
                 self._label_list.append(line.strip())
 
         # model
-        model_class = dynamic_import(model_type, self.model_alias)
+        model_class = self.task_resource.get_model_class(model_type)
         model_dict = paddle.load(self.ckpt_path)
         self.model = model_class(extract_embedding=False)
         self.model.set_state_dict(model_dict)
@@ -205,7 +200,7 @@ class CLSExecutor(BaseExecutor):
         if not parser_args.verbose:
             self.disable_task_loggers()
 
-        task_source = self.get_task_source(parser_args.input)
+        task_source = self.get_input_source(parser_args.input)
         task_results = OrderedDict()
         has_exceptions = False
 

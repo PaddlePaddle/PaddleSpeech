@@ -91,7 +91,7 @@ ffce340b3790  minio/minio:RELEASE.2020-12-03T00-03-10Z  "/usr/bin/docker-ent…"
   启动用 Fastapi 构建的服务
 
   ```bash
-  export PYTHONPATH=$PYTHONPATH:./src:../../paddleaudio
+  export PYTHONPATH=$PYTHONPATH:./src
   python src/audio_search.py
   ```
 

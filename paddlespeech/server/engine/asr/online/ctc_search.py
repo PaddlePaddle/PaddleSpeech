@@ -30,7 +30,28 @@ class CTCPrefixBeamSearch:
             config (yacs.config.CfgNode): the ctc prefix beam search configuration
         """
         self.config = config
+
+        # beam size
+        self.first_beam_size = self.config.beam_size
+        # TODO(support second beam size)
+        self.second_beam_size = int(self.first_beam_size * 1.0)
+        logger.info(
+            f"first and second beam size: {self.first_beam_size}, {self.second_beam_size}"
+        )
+
+        # state
+        self.cur_hyps = None
+        self.hyps = None
+        self.abs_time_step = 0
+
         self.reset()
+
+    def reset(self):
+        """Rest the search cache value
+        """
+        self.cur_hyps = None
+        self.hyps = None
+        self.abs_time_step = 0
 
     @paddle.no_grad()
     def search(self, ctc_probs, device, blank_id=0):
@@ -47,12 +68,17 @@ class CTCPrefixBeamSearch:
         """
         # decode 
         logger.info("start to ctc prefix search")
-
-        batch_size = 1
-        beam_size = self.config.beam_size
-        maxlen = ctc_probs.shape[0]
-
         assert len(ctc_probs.shape) == 2
+        batch_size = 1
+
+        vocab_size = ctc_probs.shape[1]
+        first_beam_size = min(self.first_beam_size, vocab_size)
+        second_beam_size = min(self.second_beam_size, vocab_size)
+        logger.info(
+            f"effect first and second beam size: {self.first_beam_size}, {self.second_beam_size}"
+        )
+
+        maxlen = ctc_probs.shape[0]
 
         # cur_hyps: (prefix, (blank_ending_score, none_blank_ending_score))
         # 0. blank_ending_score,
@@ -75,7 +101,8 @@ class CTCPrefixBeamSearch:
 
             # 2.1 First beam prune: select topk best
             #     do token passing process
-            top_k_logp, top_k_index = logp.topk(beam_size)  # (beam_size,)
+            top_k_logp, top_k_index = logp.topk(
+                first_beam_size)  # (first_beam_size,)
             for s in top_k_index:
                 s = s.item()
                 ps = logp[s].item()
@@ -148,7 +175,7 @@ class CTCPrefixBeamSearch:
                 next_hyps.items(),
                 key=lambda x: log_add([x[1][0], x[1][1]]),
                 reverse=True)
-            self.cur_hyps = next_hyps[:beam_size]
+            self.cur_hyps = next_hyps[:second_beam_size]
 
             # 2.3 update the absolute time step
             self.abs_time_step += 1
@@ -163,7 +190,7 @@ class CTCPrefixBeamSearch:
         """Return the one best result
 
         Returns:
-            list: the one best result
+            list: the one best result, List[str]
         """
         return [self.hyps[0][0]]
 
@@ -171,16 +198,9 @@ class CTCPrefixBeamSearch:
         """Return the search hyps
 
         Returns:
-            list: return the search hyps
+            list: return the search hyps, List[Tuple[str, float, ...]]
         """
         return self.hyps
-
-    def reset(self):
-        """Rest the search cache value
-        """
-        self.cur_hyps = None
-        self.hyps = None
-        self.abs_time_step = 0
 
     def finalize_search(self):
         """do nothing in ctc_prefix_beam_search

@@ -24,9 +24,8 @@ from typing import Union
 
 import paddle
 
+from ..resource import CommonTaskResource
 from .log import logger
-from .utils import download_and_decompress
-from .utils import MODEL_HOME
 
 
 class BaseExecutor(ABC):
@@ -34,11 +33,10 @@ class BaseExecutor(ABC):
         An abstract executor of paddlespeech tasks.
     """
 
-    def __init__(self):
+    def __init__(self, task: str, **kwargs):
         self._inputs = OrderedDict()
         self._outputs = OrderedDict()
-        self.pretrained_models = OrderedDict()
-        self.model_alias = OrderedDict()
+        self.task_resource = CommonTaskResource(task=task, **kwargs)
 
     @abstractmethod
     def _init_from_path(self, *args, **kwargs):
@@ -98,8 +96,8 @@ class BaseExecutor(ABC):
         """
         pass
 
-    def get_task_source(self, input_: Union[str, os.PathLike, None]
-                        ) -> Dict[str, Union[str, os.PathLike]]:
+    def get_input_source(self, input_: Union[str, os.PathLike, None]
+                         ) -> Dict[str, Union[str, os.PathLike]]:
         """
         Get task input source from command line input.
 
@@ -115,15 +113,17 @@ class BaseExecutor(ABC):
             ret = OrderedDict()
 
             if input_ is None:  # Take input from stdin
-                for i, line in enumerate(sys.stdin):
-                    line = line.strip()
-                    if len(line.split(' ')) == 1:
-                        ret[str(i + 1)] = line
-                    elif len(line.split(' ')) == 2:
-                        id_, info = line.split(' ')
-                        ret[id_] = info
-                    else:  # No valid input info from one line.
-                        continue
+                if not sys.stdin.isatty(
+                ):  # Avoid getting stuck when stdin is empty.
+                    for i, line in enumerate(sys.stdin):
+                        line = line.strip()
+                        if len(line.split(' ')) == 1:
+                            ret[str(i + 1)] = line
+                        elif len(line.split(' ')) == 2:
+                            id_, info = line.split(' ')
+                            ret[id_] = info
+                        else:  # No valid input info from one line.
+                            continue
             else:
                 ret[1] = input_
         return ret
@@ -218,23 +218,6 @@ class BaseExecutor(ABC):
         ]
         for l in loggers:
             l.disabled = True
-
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-        Download and returns pretrained resources path of current task.
-        """
-        support_models = list(self.pretrained_models.keys())
-        assert tag in self.pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(self.pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
 
     def show_rtf(self, info: Dict[str, List[float]]):
         """

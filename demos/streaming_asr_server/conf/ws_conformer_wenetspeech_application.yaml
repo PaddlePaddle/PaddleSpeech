@@ -31,6 +31,8 @@ asr_online:
     force_yes: True
     device: 'cpu' # cpu or gpu:id
     decode_method: "attention_rescoring"
+    continuous_decoding: True # enable continue decoding when endpoint detected
+    num_decoding_left_chunks: -1
     am_predictor_conf:
         device:  # set 'gpu:id' or 'cpu'
         switch_ir_optim: True

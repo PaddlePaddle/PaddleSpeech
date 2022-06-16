@@ -20,7 +20,6 @@ of each audio file in the data set.
 """
 import argparse
 import codecs
-import json
 import os
 from pathlib import Path
 
@@ -55,6 +54,7 @@ args = parser.parse_args()
 def create_manifest(data_dir, manifest_path_prefix):
     print("Creating manifest %s ..." % manifest_path_prefix)
     json_lines = []
+    reference_lines = []
     transcript_path = os.path.join(data_dir, 'transcript',
                                    'aishell_transcript_v0.8.txt')
     transcript_dict = {}
@@ -88,6 +88,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                 duration = float(len(audio_data) / samplerate)
                 text = transcript_dict[audio_id]
                 json_lines.append(audio_path)
+                reference_lines.append(str(total_num + 1) + "\t" + text)
 
                 total_sec += duration
                 total_text += len(text)
@@ -98,7 +99,12 @@ def create_manifest(data_dir, manifest_path_prefix):
             for line in json_lines:
                 fout.write(line + '\n')
 
+        with codecs.open(manifest_path + ".text", 'w', 'utf-8') as fout:
+            for line in reference_lines:
+                fout.write(line + '\n')
+
         manifest_dir = os.path.dirname(manifest_path_prefix)
+
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path=None):
     """Download, unpack and create manifest file."""

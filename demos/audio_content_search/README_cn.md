@@ -16,7 +16,11 @@
 请看[安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install_cn.md)。
 
 你可以从 medium，hard 三中方式中选择一种方式安装。
-依赖参见 requirements.txt
+依赖参见 requirements.txt, 安装依赖
+
+```
+pip install -r requriement.txt 
+```
 
 ### 2. 准备输入
 这个 demo 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。

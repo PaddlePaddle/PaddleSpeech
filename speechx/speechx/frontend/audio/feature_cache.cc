@@ -26,8 +26,6 @@ using std::unique_ptr;
 FeatureCache::FeatureCache(FeatureCacheOptions opts,
                            unique_ptr<FrontendInterface> base_extractor) {
     max_size_ = opts.max_size;
-    frame_chunk_stride_ = opts.frame_chunk_stride;
-    frame_chunk_size_ = opts.frame_chunk_size;
     timeout_ = opts.timeout;  // ms
     base_extractor_ = std::move(base_extractor);
     dim_ = base_extractor_->Dim();
@@ -74,24 +72,11 @@ bool FeatureCache::Compute() {
     bool result = base_extractor_->Read(&feature);
     if (result == false || feature.Dim() == 0) return false;
 
-    // join with remained
-    int32 joint_len = feature.Dim() + remained_feature_.Dim();
-    Vector<BaseFloat> joint_feature(joint_len);
-    joint_feature.Range(0, remained_feature_.Dim())
-        .CopyFromVec(remained_feature_);
-    joint_feature.Range(remained_feature_.Dim(), feature.Dim())
-        .CopyFromVec(feature);
-
-    // one by one, or stride with window
-    // controlled by frame_chunk_stride_ and frame_chunk_size_
-    int32 num_chunk =
-        ((joint_len / dim_) - frame_chunk_size_) / frame_chunk_stride_ + 1;
+    int32 num_chunk = feature.Dim() / dim_;
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
-        int32 start = chunk_idx * frame_chunk_stride_ * dim_;
-
-        Vector<BaseFloat> feature_chunk(frame_chunk_size_ * dim_);
-        SubVector<BaseFloat> tmp(joint_feature.Data() + start,
-                                 frame_chunk_size_ * dim_);
+        int32 start = chunk_idx * dim_;
+        Vector<BaseFloat> feature_chunk(dim_);
+        SubVector<BaseFloat> tmp(feature.Data() + start, dim_);
         feature_chunk.CopyFromVec(tmp);
 
         std::unique_lock<std::mutex> lock(mutex_);
@@ -104,13 +89,6 @@ bool FeatureCache::Compute() {
         cache_.push(feature_chunk);
         ready_read_condition_.notify_one();
     }
-
-    // cache remained feats
-    int32 remained_feature_len =
-        joint_len - num_chunk * frame_chunk_stride_ * dim_;
-    remained_feature_.Resize(remained_feature_len);
-    remained_feature_.CopyFromVec(joint_feature.Range(
-        frame_chunk_stride_ * num_chunk * dim_, remained_feature_len));
     return result;
 }
 

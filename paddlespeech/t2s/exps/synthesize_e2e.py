@@ -159,7 +159,7 @@ def evaluate(args):
 
 
 def parse_args():
-    # parse args and config and redirect to train_sp
+    # parse args and config
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
@@ -174,10 +174,7 @@ def parse_args():
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
-        '--am_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        '--am_config', type=str, default=None, help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -220,10 +217,7 @@ def parse_args():
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(
-        '--voc_config',
-        type=str,
-        default=None,
-        help='Config of voc. Use deault config when it is None.')
+        '--voc_config', type=str, default=None, help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(

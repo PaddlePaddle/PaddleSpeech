@@ -5,4 +5,4 @@ score.h and score.cpp is under the LGPL license.
 The two files include the header files from KenLM project.
 
 For the rest:
-The default licence of paddlespeech-ctcdecoders is Apache License 2.0.
+The default license of paddlespeech-ctcdecoders is Apache License 2.0.

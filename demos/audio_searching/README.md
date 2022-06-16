@@ -89,7 +89,7 @@ Then to start the system server, and it provides HTTP backend services.
   Then start the server with Fastapi.
 
   ```bash
-  export PYTHONPATH=$PYTHONPATH:./src:../../paddleaudio
+  export PYTHONPATH=$PYTHONPATH:./src
   python src/audio_search.py
   ```
 

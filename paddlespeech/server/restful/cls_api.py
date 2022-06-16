@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import base64
+import sys
 import traceback
 from typing import Union
 
 from fastapi import APIRouter
 
+from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.restful.request import CLSRequest
 from paddlespeech.server.restful.response import CLSResponse
@@ -68,8 +70,18 @@ def cls(request_body: CLSRequest):
         engine_pool = get_engine_pool()
         cls_engine = engine_pool['cls']
 
-        cls_engine.run(audio_data)
-        cls_results = cls_engine.postprocess(request_body.topk)
+        if cls_engine.engine_type == "python":
+            from paddlespeech.server.engine.cls.python.cls_engine import PaddleCLSConnectionHandler
+        elif cls_engine.engine_type == "inference":
+            from paddlespeech.server.engine.cls.paddleinference.cls_engine import PaddleCLSConnectionHandler
+        else:
+            logger.error("Offline cls engine only support python or inference.")
+            sys.exit(-1)
+
+        connection_handler = PaddleCLSConnectionHandler(cls_engine)
+
+        connection_handler.run(audio_data)
+        cls_results = connection_handler.postprocess(request_body.topk)
 
         response = {
             "success": True,
@@ -85,8 +97,11 @@ def cls(request_body: CLSRequest):
 
     except ServerBaseException as e:
         response = failed_response(e.error_code, e.msg)
-    except BaseException:
+        logger.error(e)
+        sys.exit(-1)
+    except Exception as e:
         response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
+        logger.error(e)
         traceback.print_exc()
 
     return response

@@ -1,7 +1,4 @@
 ([简体中文](./README_cn.md)|English)
-
-
-
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
 </p>
@@ -20,20 +17,19 @@
     <a href="https://huggingface.co/spaces"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue"></a>
 </p>
 <div align="center">  
-<h3>
-  | <a href="#quick-start"> Quick Start </a>
+<h4>
+    <a href="#quick-start"> Quick Start </a>
   | <a href="#quick-start-server"> Quick Start Server </a>
   | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
-  |
-  </br>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
-  |
-</h3>
+  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
+  | <a href="https://arxiv.org/abs/2205.12007"> Paper </a>
+  | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee </a>
+</h4>
 </div>
 
-
-
+------------------------------------------------------------------------------------
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
 
@@ -170,23 +166,12 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🤗  2021.12.14: [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: `CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
-### 🔥 Hot Activities
-
-<!---
-2021.12.14: We would like to have an online courses to introduce basics and research of speech, as well as code practice with `paddlespeech`. Please pay attention to our [Calendar](https://www.paddlepaddle.org.cn/live).
---->
-
-- 2021.12.21~12.24
-
-  4 Days Live Courses: Depth interpretation of PaddleSpeech!
-
-  **Courses videos and related materials: https://aistudio.baidu.com/aistudio/education/group/info/25130**
 
 ### Community
-- Scan the QR code below with your Wechat (reply【语音】after your friend's application is approved), you can access to official technical exchange group. Look forward to your participation.
+- Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/yt605155624/lanceTest/main/images/wechat_4.jpg"  width = "300"  />
+<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
 </div>
 
 ## Installation

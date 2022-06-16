@@ -32,14 +32,17 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument(
-        "--model_type", type=str, default='offline', help='offline/online')
-    # save asr result to 
+    # save asr result to
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
+    parser.add_argument(
+        '--nxpu',
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
     print_arguments(args, globals())
-    print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
     config = CfgNode(new_allowed=True)

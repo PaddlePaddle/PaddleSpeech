@@ -19,7 +19,6 @@ from fastapi import WebSocketDisconnect
 from starlette.websockets import WebSocketState as WebSocketState
 
 from paddlespeech.cli.log import logger
-from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 router = APIRouter()
 
@@ -38,7 +37,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     #2. if we accept the websocket headers, we will get the online asr engine instance
     engine_pool = get_engine_pool()
-    asr_engine = engine_pool['asr']
+    asr_model = engine_pool['asr']
 
     #3. each websocket connection, we will create an PaddleASRConnectionHanddler to process such audio
     #   and each connection has its own connection instance to process the request
@@ -70,7 +69,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     resp = {"status": "ok", "signal": "server_ready"}
                     # do something at begining here
                     # create the instance to process the audio
-                    connection_handler = PaddleASRConnectionHanddler(asr_engine)
+                    #connection_handler = PaddleASRConnectionHanddler(asr_model)
+                    connection_handler = asr_model.new_handler()
                     await websocket.send_json(resp)
                 elif message['signal'] == 'end':
                     # reset single  engine for an new connection
@@ -92,6 +92,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 else:
                     resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
+
             elif "bytes" in message:
                 # bytes for the pcm data
                 message = message["bytes"]
@@ -100,11 +101,34 @@ async def websocket_endpoint(websocket: WebSocket):
                 # and decode for the result in this package data
                 connection_handler.extract_feat(message)
                 connection_handler.decode(is_finished=False)
+
+                if connection_handler.endpoint_state:
+                    logger.info("endpoint: detected and rescoring.")
+                    connection_handler.rescoring()
+                    word_time_stamp = connection_handler.get_word_time_stamp()
+
                 asr_results = connection_handler.get_result()
 
-                # return the current period result
-                # if the engine create the vad instance, this connection will have many period results 
+                if connection_handler.endpoint_state:
+                    if connection_handler.continuous_decoding:
+                        logger.info("endpoint: continue decoding")
+                        connection_handler.reset_continuous_decoding()
+                    else:
+                        logger.info("endpoint: exit decoding")
+                        # ending by endpoint
+                        resp = {
+                            "status": "ok",
+                            "signal": "finished",
+                            'result': asr_results,
+                            'times': word_time_stamp
+                        }
+                        await websocket.send_json(resp)
+                        break
+
+                # return the current partial result
+                # if the engine create the vad instance, this connection will have many partial results 
                 resp = {'result': asr_results}
                 await websocket.send_json(resp)
+
     except WebSocketDisconnect as e:
         logger.error(e)

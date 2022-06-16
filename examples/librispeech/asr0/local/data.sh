@@ -49,12 +49,13 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
     --manifest_path="data/manifest.train.raw" \
     --num_samples=2000 \
-    --spectrum_type="linear" \
+    --spectrum_type="fbank" \
+    --feat_dim=161 \
     --delta_delta=false \
     --sample_rate=16000 \
     --stride_ms=10 \
-    --window_ms=20 \
-    --use_dB_normalization=True \
+    --window_ms=25 \
+    --use_dB_normalization=False \
     --num_workers=${num_workers} \
     --output_path="data/mean_std.json"
 

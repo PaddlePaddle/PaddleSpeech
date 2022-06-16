@@ -195,7 +195,7 @@ class Frontend():
                 new_initials.append(initials[i])
         return new_initials, new_finals
 
-    def _p2id(self, phonemes: List[str]) -> np.array:
+    def _p2id(self, phonemes: List[str]) -> np.ndarray:
         # replace unk phone with sp
         phonemes = [
             phn if phn in self.vocab_phones else "sp" for phn in phonemes
@@ -203,7 +203,7 @@ class Frontend():
         phone_ids = [self.vocab_phones[item] for item in phonemes]
         return np.array(phone_ids, np.int64)
 
-    def _t2id(self, tones: List[str]) -> np.array:
+    def _t2id(self, tones: List[str]) -> np.ndarray:
         # replace unk phone with sp
         tones = [tone if tone in self.vocab_tones else "0" for tone in tones]
         tone_ids = [self.vocab_tones[item] for item in tones]

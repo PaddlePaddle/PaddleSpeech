@@ -1,3 +1,4 @@
+# Copyright 2021 Mobvoi Inc. All Rights Reserved.
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -775,7 +776,7 @@ class U2DecodeModel(U2BaseModel):
         """
         self.eval()
         x = paddle.to_tensor(x).unsqueeze(0)
-        ilen = x.size(1)
+        ilen = paddle.shape(x)[1]
         enc_output, _ = self._forward_encoder(x, ilen)
         return enc_output.squeeze(0)
 

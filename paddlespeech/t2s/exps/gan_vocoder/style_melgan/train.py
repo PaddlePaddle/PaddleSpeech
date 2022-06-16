@@ -224,8 +224,7 @@ def main():
     # parse args and config and redirect to train_sp
 
     parser = argparse.ArgumentParser(description="Train a Style MelGAN model.")
-    parser.add_argument(
-        "--config", type=str, help="config file to overwrite default config.")
+    parser.add_argument("--config", type=str, help="Style MelGAN config file.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")

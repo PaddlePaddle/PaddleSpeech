@@ -24,6 +24,7 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+from setuptools.command.test import test
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
@@ -31,42 +32,13 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
-    "editdistance",
-    "g2p_en",
-    "g2pM",
-    "h5py",
-    "inflect",
-    "jieba",
-    "jsonlines",
-    "kaldiio",
-    "librosa==0.8.1",
-    "loguru",
-    "matplotlib",
-    "nara_wpe",
-    "onnxruntime",
-    "pandas",
-    "paddleaudio",
-    "paddlenlp",
-    "paddlespeech_feat",
-    "praatio==5.0.0",
-    "pypinyin",
-    "pypinyin-dict",
-    "python-dateutil",
-    "pyworld",
-    "resampy==0.2.2",
-    "sacrebleu",
-    "scipy",
-    "sentencepiece~=0.1.96",
-    "soundfile~=0.10",
-    "textgrid",
-    "timer",
-    "tqdm",
-    "typeguard",
-    "visualdl",
-    "webrtcvad",
-    "yacs~=0.1.8",
-    "prettytable",
-    "zhon",
+    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
+    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
+    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
+    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
+    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
+    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
+    "yacs~=0.1.8", "prettytable", "zhon", 'colorlog', 'pathos == 0.2.8'
 ]
 
 server = [
@@ -98,7 +70,6 @@ requirements = {
 }
 
 
-
 def check_call(cmd: str, shell=False, executable=None):
     try:
         sp.check_call(
@@ -112,12 +83,13 @@ def check_call(cmd: str, shell=False, executable=None):
             file=sys.stderr)
         raise e
 
+
 def check_output(cmd: str, shell=False):
     try:
         out_bytes = sp.check_output(cmd.split())
     except sp.CalledProcessError as e:
-        out_bytes = e.output       # Output generated before error
-        code      = e.returncode   # Return code
+        out_bytes = e.output  # Output generated before error
+        code = e.returncode  # Return code
         print(
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
             out_bytes,
@@ -145,6 +117,7 @@ def read(*names, **kwargs):
 def _remove(files: str):
     for f in files:
         f.unlink()
+
 
 ################################# Install ##################################
 
@@ -176,7 +149,19 @@ class InstallCommand(install):
         install.run(self)
 
 
-    # cmd: python setup.py upload
+class TestCommand(test):
+    def finalize_options(self):
+        test.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # Run nose ensuring that argv simulates running nosetests directly
+        import nose
+        nose.run_exit(argv=['nosetests', '-w', 'tests'])
+
+
+# cmd: python setup.py upload
 class UploadCommand(Command):
     description = "Build and publish the package."
     user_options = []
@@ -278,11 +263,13 @@ setup_info = dict(
             "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
             "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
         ],
+        'test': ['nose', 'torchaudio==0.10.2'],
     },
     cmdclass={
         'develop': DevelopCommand,
         'install': InstallCommand,
         'upload': UploadCommand,
+        'test': TestCommand,
     },
 
     # Package info
@@ -307,7 +294,6 @@ setup_info = dict(
             'paddlespeech_client=paddlespeech.server.entry:client_execute'
         ]
     })
-
 
 with version_info():
     setup(**setup_info)

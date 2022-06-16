@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import base64
+import sys
 import traceback
 from typing import Union
 
 from fastapi import APIRouter
 
+from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 from paddlespeech.server.restful.request import ASRRequest
 from paddlespeech.server.restful.response import ASRResponse
@@ -68,8 +70,18 @@ def asr(request_body: ASRRequest):
         engine_pool = get_engine_pool()
         asr_engine = engine_pool['asr']
 
-        asr_engine.run(audio_data)
-        asr_results = asr_engine.postprocess()
+        if asr_engine.engine_type == "python":
+            from paddlespeech.server.engine.asr.python.asr_engine import PaddleASRConnectionHandler
+        elif asr_engine.engine_type == "inference":
+            from paddlespeech.server.engine.asr.paddleinference.asr_engine import PaddleASRConnectionHandler
+        else:
+            logger.error("Offline asr engine only support python or inference.")
+            sys.exit(-1)
+
+        connection_handler = PaddleASRConnectionHandler(asr_engine)
+
+        connection_handler.run(audio_data)
+        asr_results = connection_handler.postprocess()
 
         response = {
             "success": True,

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class Frame(object):
     """Represents a "frame" of audio data."""
 
@@ -45,7 +46,7 @@ class ChunkBuffer(object):
         self.shift_ms = shift_ms
         self.sample_rate = sample_rate
         self.sample_width = sample_width  # int16 = 2; float32 = 4
-        
+
         self.window_sec = float((self.window_n - 1) * self.shift_ms +
                                 self.window_ms) / 1000.0
         self.shift_sec = float(self.shift_n * self.shift_ms / 1000.0)
@@ -77,8 +78,8 @@ class ChunkBuffer(object):
 
         offset = 0
         while offset + self.window_bytes <= len(audio):
-            yield Frame(audio[offset:offset + self.window_bytes], self.timestamp,
-                        self.window_sec)
+            yield Frame(audio[offset:offset + self.window_bytes],
+                        self.timestamp, self.window_sec)
             self.timestamp += self.shift_sec
             offset += self.shift_bytes
 

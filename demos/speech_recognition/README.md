@@ -58,7 +58,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 - Python API
   ```python
   import paddle
-  from paddlespeech.cli import ASRExecutor
+  from paddlespeech.cli.asr import ASRExecutor
 
   asr_executor = ASRExecutor()
   text = asr_executor(

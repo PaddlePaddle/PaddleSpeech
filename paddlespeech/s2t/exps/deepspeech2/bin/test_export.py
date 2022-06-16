@@ -39,12 +39,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--export_path", type=str, help="path of the jit model to save")
     parser.add_argument(
-        "--model_type", type=str, default='offline', help='offline/online')
+        '--nxpu',
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
     parser.add_argument(
         "--enable-auto-log", action="store_true", help="use auto log")
     args = parser.parse_args()
     print_arguments(args, globals())
-    print("model_type:{}".format(args.model_type))
 
     # https://yaml.org/type/float.html
     config = CfgNode(new_allowed=True)

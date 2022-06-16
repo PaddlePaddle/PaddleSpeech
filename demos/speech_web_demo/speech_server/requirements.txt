@@ -1,0 +1,14 @@
+aiofiles
+fastapi
+librosa
+numpy
+pydantic
+scikit_learn
+SoundFile
+starlette
+uvicorn
+paddlepaddle
+paddlespeech
+paddlenlp
+faiss-cpu
+python-multipart

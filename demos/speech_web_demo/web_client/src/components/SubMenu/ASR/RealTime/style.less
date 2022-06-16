@@ -1,0 +1,112 @@
+.realTime{
+    width: 1106px;
+    height: 270px;
+    // background-color: pink;
+    padding-top: 40px;
+    box-sizing: border-box;
+    display: flex;
+    // 开始识别
+    .public_recognition_speech {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        .endToEndIdentification_start_recorder_img {
+            width: 116px;
+            height: 116px;
+            background: #2932E1;
+            background: url("../../../../assets/image/ic_开始聊天.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 116px 116px;
+            margin-left: 98px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            &:hover {
+                background: url("../../../../assets/image/ic_开始聊天_hover.svg");
+
+            };
+
+        };
+
+        .endToEndIdentification_end_recorder_img {
+            width: 116px;
+            height: 116px;
+            background: #2932E1;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 98px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            .endToEndIdentification_end_recorder_img_back {
+                width: 50px;
+                height: 50px;
+                background: url("../../../../assets/image/ic_大-声音波浪.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 50px 50px;
+              
+                &:hover {
+                    opacity: 0.9;
+        
+                };
+            };
+           
+        };
+        .endToEndIdentification_prompt {
+                height: 22px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 124px;
+                margin-bottom: 10px;
+        };
+        .speech_text_prompt {
+            height: 20px;
+            font-family: PingFangSC-Regular;
+            font-size: 14px;
+            color: #999999;
+            font-weight: 400;
+            margin-left: 105px;
+        };
+    };
+    // 指向
+    .public_recognition_point_to {
+        width: 47px;
+        height: 67px;
+        background: url("../../../../assets/image/步骤-箭头切图@2x.png") no-repeat;
+        background-position: center;
+        background-size: 47px 67px;
+       margin-top: 91px;
+       margin-right: 67px;
+    };
+    // 识别结果
+    .public_recognition_result {
+        width: 680px;
+        height: 230px;
+        background: #FAFAFA;
+        padding: 40px 50px 0px 50px;
+        div {
+            &:nth-of-type(1) {
+                height: 26px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #666666;
+                line-height: 26px;
+                font-weight: 500;
+                margin-bottom: 20px;
+            };
+            &:nth-of-type(2) {
+                height: 26px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #666666;
+                line-height: 26px;
+                font-weight: 500;
+            };
+        };
+    };
+};

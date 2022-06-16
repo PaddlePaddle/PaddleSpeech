@@ -1,0 +1,419 @@
+.voiceprint {
+    width: 1200px;
+    height: 410px;
+    background: #FFFFFF;
+    padding: 41px 80px 56px 80px;
+    box-sizing: border-box;
+    display: flex;
+    // 录制声纹
+    .voiceprint_recording {
+        width: 423px;
+        height: 354px;
+        margin-right: 66px;
+        .recording_title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            div {
+                &:nth-of-type(1) {
+                    width: 24px;
+                    height: 24px;
+                    background: rgba(41,50,225,0.70);
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #FFFFFF;
+                    letter-spacing: 0;
+                    text-align: center;
+                    line-height: 24px;
+                    font-weight: 400;
+                    margin-right: 16px;
+                    border-radius: 50%;
+                };
+                &:nth-of-type(2) {
+                    height: 26px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #000000;
+                    line-height: 26px;
+                    font-weight: 400;
+                };
+            };
+        };
+        // 开始录音
+        .recording_btn {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #2932E1;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            margin-top: 10px;
+            
+            &:hover {
+                background: #7278F5;
+                .recording_img {
+                    width: 20px;
+                    height: 20px;
+                    background: url("../../../assets/image//icon_录制声音小语音1.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 20px 20px;
+                    margin-right: 8.26px;
+                
+                };
+            }
+            .recording_img {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_录制声音小语音1.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            
+            };
+            .recording_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+           
+        };
+        // 录音中
+        .recording_btn_the_recording {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #7278F5;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            .recording_img_the_recording {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_小-声音波浪.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            };
+            .recording_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+        };
+        // 完成录音
+        .complete_the_recording_btn {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #2932E1;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            &:hover {
+                background: #7278F5;
+                .complete_the_recording_img {
+                    width: 20px;
+                    height: 20px;
+                    background: url("../../../assets/image//icon_小-声音波浪.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 20px 20px;
+                    margin-right: 8.26px;
+                
+                };
+            }
+            .complete_the_recording_img {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_小-声音波浪.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            
+            };
+            .complete_the_recording_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+           
+        };
+         // table
+         .recording_table {
+            width: 322px;
+            .recording_table_box {
+                .ant-table-thead > tr > th {
+                    color: rgba(0, 0, 0, 0.85);
+                    font-weight: 500;
+                    text-align: left;
+                    background: rgba(40,50,225,0.08);
+                    border-bottom: none; 
+                    transition: background 0.3s ease;
+                    height: 22px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #333333;
+                    // text-align: center;
+                    font-weight: 400;
+                    &:nth-of-type(2) {
+                       border-left: 2px solid white; 
+                    };
+                };
+            .ant-table-tbody > tr > td {
+                border-bottom: 1px solid #f0f0f0;
+                transition: background 0.3s;
+                height: 22px;
+                font-family: PingFangSC-Regular;
+                font-size: 16px;
+                color: #333333;
+                // text-align: center;
+                font-weight: 400;
+            };
+            };
+        };
+        // input
+        .recording_input {
+            width: 322px;
+            margin-bottom: 20px;
+        };
+    };
+    // 指向
+    .recording_point_to {
+        width: 63px;
+        height: 47px;
+        background: url("../../../assets/image//步骤-箭头切图@2x.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 63px 47px;
+        margin-right: 66px;
+        margin-top: 198px;
+    };
+    //识别声纹
+    .voiceprint_identify {
+        width: 423px;
+        height: 354px;
+        .identify_title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            div {
+                &:nth-of-type(1) {
+                    width: 24px;
+                    height: 24px;
+                    background: rgba(41,50,225,0.70);
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #FFFFFF;
+                    letter-spacing: 0;
+                    text-align: center;
+                    line-height: 24px;
+                    font-weight: 400;
+                    margin-right: 16px;
+                    border-radius: 50%;
+                };
+                &:nth-of-type(2) {
+                    height: 26px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #000000;
+                    line-height: 26px;
+                    font-weight: 400;
+                };
+            };
+        };
+        // 开始识别
+        .identify_btn {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #2932E1;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            margin-top: 10px;
+            &:hover {
+                background: #7278F5;
+                .identify_img {
+                    width: 20px;
+                    height: 20px;
+                    background: url("../../../assets/image//icon_录制声音小语音1.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 20px 20px;
+                    margin-right: 8.26px;
+                
+                };
+            }
+            .identify_img {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_录制声音小语音1.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            
+            };
+            .identify_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+           
+        };
+         // 识别中
+         .identify_btn_the_recording {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #7278F5;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            .identify_img_the_recording {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_录制声音小语音1.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            };
+            .recording_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+        };
+        // 完成识别
+        .identify_complete_the_recording_btn {
+            width: 143px;
+            height: 44px;
+            cursor: pointer;
+            background: #2932E1;
+            padding: 0px  24px 0px 21px;
+            box-sizing: border-box;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            &:hover {
+                background: #7278F5;
+                .identify_complete_the_recording_img {
+                    width: 20px;
+                    height: 20px;
+                    background: url("../../../assets/image//icon_小-声音波浪.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 20px 20px;
+                    margin-right: 8.26px;
+                
+                };
+            }
+            .identify_complete_the_recording_img {
+                width: 20px;
+                height: 20px;
+                background: url("../../../assets/image//icon_小-声音波浪.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 20px 20px;
+                margin-right: 8.26px;
+            
+            };
+            .identify_complete_the_recording_prompt {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #FFFFFF;
+                font-weight: 400;
+            };
+           
+        };
+
+
+
+
+        // 结果
+        .identify_result {
+            width: 422px;
+            height: 184px;
+            text-align: center;
+            line-height: 184px;
+            background: #FAFAFA;
+            position: relative;
+            .identify_result_default {
+               
+            font-family: PingFangSC-Regular;
+            font-size: 16px;
+            color: #999999;
+            font-weight: 400;
+            };
+            .identify_result_content {
+                // text-align: center;
+                // position: absolute;
+                // top: 50%;
+                // left: 50%;
+                // transform: translate(-50%,-50%);
+               div {
+                   &:nth-of-type(1) {
+                    height: 22px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 16px;
+                    color: #666666;
+                    font-weight: 400;
+                    margin-bottom: 10px;
+                   };
+                   &:nth-of-type(2) {
+                    height: 33px;
+                    font-family: PingFangSC-Medium;
+                    font-size: 24px;
+                    color: #000000;
+                    font-weight: 500;
+                   };
+               };
+            };
+        };
+    };
+    .action_btn {
+        display: inline-block;
+        height: 22px;
+        font-family: PingFangSC-Regular;
+        font-size: 16px;
+        color: #2932E1;
+        text-align: center;
+        font-weight: 400;
+        cursor: pointer;
+    };
+};

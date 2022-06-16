@@ -1,0 +1,369 @@
+.speech_recognition {
+    width: 1200px;
+    height: 410px;
+    background: #FFFFFF;
+    padding: 40px 0px 50px 50px;
+    box-sizing: border-box;
+    display: flex;
+    .recognition_text {
+        width: 589px; 
+        height: 320px;
+        // background: pink;
+       .recognition_text_header {
+           margin-bottom: 30px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           .recognition_text_title {
+            height: 26px;
+            font-family: PingFangSC-Medium;
+            font-size: 16px;
+            color: #000000;
+            letter-spacing: 0;
+            line-height: 26px;
+            font-weight: 500;
+           };
+           .recognition_text_random {
+               display: flex;
+               align-items: center;
+               cursor: pointer;
+               span {
+                display: inline-block;
+                    &:nth-of-type(1) {
+                        width: 20px;
+                        height: 20px;
+                        background: url("../../../assets/image/ic_更换示例.svg") no-repeat;
+                        background-position: center;
+                        background-size: 20px 20px;
+                        margin-right: 5px;
+                       
+                    };
+                    &:nth-of-type(2) {
+                        height: 20px;
+                        font-family: PingFangSC-Regular;
+                        font-size: 14px;
+                        color: #2932E1;
+                        letter-spacing: 0;
+                        font-weight: 400;
+                    };
+               };
+           };
+       };
+       .recognition_text_field {
+        width: 589px;
+        height: 264px;
+        background: #FAFAFA;
+        .textToSpeech_content_show_text{
+            width: 100%;
+            height: 264px;
+            padding: 0px 30px 30px 0px;
+            box-sizing: border-box;
+            .ant-input {
+                height: 208px;
+                resize: none;
+                // margin-bottom: 230px;
+                padding: 21px 20px;
+            };
+        };
+       };
+    };
+    // 指向
+    .recognition_point_to {
+        width: 47px;
+        height: 63px;
+        background: url("../../../assets/image/步骤-箭头切图@2x.png") no-repeat;
+        background-position: center;
+        background-size: 47px 63px;
+        margin-top: 164px;
+        margin-right: 101px;
+        margin-left: 100px;
+        margin-top: 164px;
+       };
+    //    语音合成
+    .speech_recognition_new {
+        .speech_recognition_title {
+            height: 26px;
+            font-family: PingFangSC-Medium;
+            font-size: 16px;
+            color: #000000;
+            line-height: 26px;
+            font-weight: 500;
+            margin-left: 32px;
+            margin-bottom: 96px;
+        };
+        // 流式合成
+        .speech_recognition_streaming {
+            width: 136px;
+            height: 44px;
+            background: #2932E1;
+            border-radius: 22px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 500;
+            text-align: center;
+            line-height: 44px;
+            margin-bottom: 40px;
+            cursor: pointer;
+            &:hover {
+                opacity: .9;
+            };
+        };
+         // 合成中
+        .streaming_ing_box {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            margin-bottom: 40px;
+         .streaming_ing {
+            width: 136px;
+            height: 44px;
+            background: #7278F5;
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+          
+            .streaming_ing_img {
+                width: 16px;
+                height: 16px;
+                // background: url("../../../assets/image/ic_小-录制语音.svg");
+                // background-repeat: no-repeat;
+                // background-position: center;
+                // background-size: 16px 16px;
+                // margin-right: 12px;
+            };
+            .streaming_ing_text {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #FFFFFF;
+                font-weight: 500;
+                margin-left: 12px;
+            };
+        };
+        // 合成时间文字
+        .streaming_time {
+            height: 20px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #000000;
+            font-weight: 500;
+            margin-left: 12px;
+        };
+        };
+        
+
+        // 暂停播放
+        .streaming_suspended_box {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            margin-bottom: 40px;
+            .streaming_suspended {
+                width: 136px;
+                height: 44px;
+                background: #2932E1;
+                border-radius: 22px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+              
+                .streaming_suspended_img {
+                    width: 16px;
+                    height: 16px;
+                    background: url("../../../assets/image/ic_暂停（按钮）.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 16px 16px;
+                    margin-right: 12px;
+                };
+                .streaming_suspended_text {
+                    height: 20px;
+                    font-family: PingFangSC-Medium;
+                    font-size: 14px;
+                    color: #FFFFFF;
+                    font-weight: 500;
+                    margin-left: 12px;
+                };
+               
+            };
+            // 暂停获取时间
+            .suspended_time {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 12px;
+            }
+        };
+       
+        // 继续播放
+        .streaming_continue {
+            width: 136px;
+            height: 44px;
+            background: #2932E1;
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 40px;
+            .streaming_continue_img {
+                width: 16px;
+                height: 16px;
+                background: url("../../../assets/image/ic_播放（按钮）.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 16px 16px;
+                margin-right: 12px;
+            };
+            .streaming_continue_text {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #FFFFFF;
+                font-weight: 500;
+            };
+        };
+
+
+
+
+
+
+        // 端到端合成
+        .speech_recognition_end_to_end {
+            width: 136px;
+            height: 44px;
+            background: #2932E1;
+            border-radius: 22px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 500;
+            text-align: center;
+            line-height: 44px;
+            cursor: pointer;
+            &:hover {
+                opacity: .9;
+            };
+        };
+        // 合成中
+        .end_to_end_ing_box {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            .end_to_end_ing {
+                width: 136px;
+                height: 44px;
+                background: #7278F5;
+                border-radius: 22px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                .end_to_end_ing_img {
+                    width: 16px;
+                    height: 16px;
+                    // background: url("../../../assets/image/ic_小-录制语音.svg");
+                    // background-repeat: no-repeat;
+                    // background-position: center;
+                    // background-size: 16px 16px;
+                   
+                };
+                .end_to_end_ing_text {
+                    height: 20px;
+                    font-family: PingFangSC-Medium;
+                    font-size: 14px;
+                    color: #FFFFFF;
+                    font-weight: 500;
+                    margin-left: 12px;
+                };
+            };
+            // 合成时间文本
+            .end_to_end_ing_time {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 12px;
+            };
+        };
+       
+
+        // 暂停播放
+        .end_to_end_suspended_box {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            .end_to_end_suspended {
+                width: 136px;
+                height: 44px;
+                background: #2932E1;
+                border-radius: 22px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                .end_to_end_suspended_img {
+                    width: 16px;
+                    height: 16px;
+                    background: url("../../../assets/image/ic_暂停（按钮）.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 16px 16px;
+                    margin-right: 12px;
+                };
+                .end_to_end_suspended_text {
+                    height: 20px;
+                    font-family: PingFangSC-Medium;
+                    font-size: 14px;
+                    color: #FFFFFF;
+                    font-weight: 500;
+                };
+            };
+            // 暂停播放时间
+            .end_to_end_ing_suspended_time {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 12px;
+            };
+        };
+       
+        // 继续播放
+        .end_to_end_continue {
+            width: 136px;
+            height: 44px;
+            background: #2932E1;
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            .end_to_end_continue_img {
+                width: 16px;
+                height: 16px;
+                background: url("../../../assets/image/ic_播放（按钮）.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 16px 16px;
+                margin-right: 12px;
+            };
+            .end_to_end_continue_text {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #FFFFFF;
+                font-weight: 500;
+            };
+        };
+    };
+};

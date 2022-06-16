@@ -35,14 +35,15 @@ def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):
         if sess_conf.get("use_trt", 0):
             providers = ['TensorrtExecutionProvider']
     logger.info(f"ort providers: {providers}")
-    
+
     if 'cpu_threads' in sess_conf:
-        sess_options.intra_op_num_threads =  sess_conf.get("cpu_threads", 0)
+        sess_options.intra_op_num_threads = sess_conf.get("cpu_threads", 0)
     else:
-        sess_options.intra_op_num_threads = sess_conf.get("intra_op_num_threads", 0)
+        sess_options.intra_op_num_threads = sess_conf.get(
+            "intra_op_num_threads", 0)
 
     sess_options.inter_op_num_threads = sess_conf.get("inter_op_num_threads", 0)
-   
+
     sess = ort.InferenceSession(
         model_path, providers=providers, sess_options=sess_options)
     return sess

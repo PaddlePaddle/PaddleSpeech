@@ -164,9 +164,11 @@ class CommonTaskResource:
         try:
             import_models = '{}_{}_pretrained_models'.format(self.task,
                                                              self.model_format)
+            print(f"from .pretrained_models import {import_models}")
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
-        except ImportError:
+        except Exception as e:
+            print(e)
             models = OrderedDict({})  # no models.
         finally:
             return models

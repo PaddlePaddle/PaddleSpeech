@@ -27,7 +27,8 @@ def parse_args():
         '--input_file',
         type=str,
         default="static_ds2online_inputs.pickle",
-        help="aishell ds2 input data file. For wenetspeech, we only feed for infer model", )
+        help="aishell ds2 input data file. For wenetspeech, we only feed for infer model",
+    )
     parser.add_argument(
         '--model_type',
         type=str,
@@ -56,7 +57,6 @@ if __name__ == '__main__':
     with open(FLAGS.input_file, 'rb') as f:
         iodict = pickle.load(f)
         print(iodict.keys())
-
 
     audio_chunk = iodict['audio_chunk']
     audio_chunk_lens = iodict['audio_chunk_lens']

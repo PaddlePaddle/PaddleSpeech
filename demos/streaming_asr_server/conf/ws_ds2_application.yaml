@@ -11,7 +11,7 @@ port: 8090
 # protocol = ['websocket'] (only one can be selected).
 # websocket only support online engine type.
 protocol: 'websocket'
-engine_list: ['asr_online-onnx']
+engine_list: ['asr_online-inference']
 
 
 #################################################################################

@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import Text
+
 from ..utils.log import logger
 
 __all__ = ['EngineFactory']
+
 
 class EngineFactory(object):
     @staticmethod
     def get_engine(engine_name: Text, engine_type: Text):
         logger.info(f"{engine_name} : {engine_type} engine.")
+
         if engine_name == 'asr' and engine_type == 'inference':
             from paddlespeech.server.engine.asr.paddleinference.asr_engine import ASREngine
             return ASREngine()

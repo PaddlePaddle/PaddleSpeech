@@ -331,6 +331,13 @@ class PaddleASRConnectionHanddler:
         else:
             return ''
 
+    def get_word_time_stamp(self):
+        return []
+
+    @paddle.no_grad()
+    def rescoring(self):
+        ...
+
 
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
@@ -409,17 +416,18 @@ class ASRServerExecutor(ASRExecutor):
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
         self.am_model = os.path.join(self.res_path, self.task_resource.res_dict[
-            'model']) if am_model is None else os.path.abspath(am_model)
-        self.am_params = os.path.join(
-            self.res_path, self.task_resource.res_dict[
-                'params']) if am_params is None else os.path.abspath(am_params)
+            'onnx_model']) if am_model is None else os.path.abspath(am_model)
+
+        # self.am_params = os.path.join(
+        #     self.res_path, self.task_resource.res_dict[
+        #         'params']) if am_params is None else os.path.abspath(am_params)
 
         logger.info("Load the pretrained model:")
         logger.info(f"  tag = {tag}")
         logger.info(f"  res_path: {self.res_path}")
         logger.info(f"  cfg path: {self.cfg_path}")
         logger.info(f"  am_model path: {self.am_model}")
-        logger.info(f"  am_params path: {self.am_params}")
+        # logger.info(f"  am_params path: {self.am_params}")
 
         #Init body.
         self.config = CfgNode(new_allowed=True)

@@ -345,6 +345,12 @@ class PaddleASRConnectionHanddler:
         else:
             return ''
 
+    def get_word_time_stamp(self):
+        return []
+
+    @paddle.no_grad()
+    def rescoring(self):
+        ...
 
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):

@@ -11,7 +11,7 @@ port: 8090
 # protocol = ['websocket'] (only one can be selected).
 # websocket only support online engine type.
 protocol: 'websocket'
-engine_list: ['asr_online-onnx']
+engine_list: ['asr_online-inference']
 
 
 #################################################################################
@@ -22,8 +22,8 @@ engine_list: ['asr_online-onnx']
 ################### speech task: asr; engine_type: online-inference #######################
 asr_online-inference:
     model_type: 'deepspeech2online_aishell'
-    am_model:   # the pdmodel file of am static model [optional]
-    am_params:  # the pdiparams file of am static model [optional]
+    am_model:    # the pdmodel file of am static model [optional]
+    am_params:   # the pdiparams file of am static model [optional]
     lang: 'zh'
     sample_rate: 16000
     cfg_path: 
@@ -54,7 +54,7 @@ asr_online-inference:
 ################### speech task: asr; engine_type: online-onnx #######################
 asr_online-onnx:
     model_type: 'deepspeech2online_aishell'
-    am_model:  # the pdmodel file of am static model [optional]
+    am_model:  # the pdmodel file of onnx am static model [optional]
     am_params:  # the pdiparams file of am static model [optional]
     lang: 'zh'
     sample_rate: 16000

@@ -168,7 +168,6 @@ class CommonTaskResource:
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
         except Exception as e:
-            print(e)
             models = OrderedDict({})  # no models.
         finally:
             return models

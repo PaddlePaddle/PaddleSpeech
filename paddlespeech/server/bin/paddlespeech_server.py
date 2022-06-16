@@ -45,10 +45,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"])
-<<<<<<< HEAD
-=======
-
->>>>>>> develop
 
 @cli_server_register(
     name='paddlespeech_server.start', description='Start the service')

@@ -51,30 +51,8 @@ def main():
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
         "--speaker-dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
-    args = parser.parse_args()
 
-    # set logger
-    if args.verbose > 1:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    elif args.verbose > 0:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    else:
-        logging.basicConfig(
-            level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-        logging.warning('Skip DEBUG/INFO messages')
+    args = parser.parse_args()
 
     # check directory existence
     dumpdir = Path(args.dumpdir).resolve()

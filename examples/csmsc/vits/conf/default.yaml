@@ -178,6 +178,8 @@ generator_first: False # whether to start updating generator first
 ##########################################################
 #                OTHER TRAINING SETTING                  #
 ##########################################################
-max_epoch: 1000           # number of epochs
-num_snapshots: 10         # max number of snapshots to keep while training
-seed: 777                 # random seed number
+num_snapshots: 10            # max number of snapshots to keep while training
+train_max_steps: 250000      # Number of training steps. == total_iters / ngpus, total_iters = 1000000
+save_interval_steps: 1000    # Interval steps to save checkpoint.
+eval_interval_steps: 250     # Interval steps to evaluate the network.
+seed: 777                    # random seed number

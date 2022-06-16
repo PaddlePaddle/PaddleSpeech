@@ -167,23 +167,17 @@ asr_dynamic_pretrained_models = {
         },
     },
     "deepspeech2online_aishell-zh-16k": {
-        '1.0': {
+        '1.0.2': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.1.model.tar.gz',
-            'md5':
-            'df5ddeac8b679a470176649ac4b78726',
-            'cfg_path':
-            'model.yaml',
-            'ckpt_path':
-            'exp/deepspeech2_online/checkpoints/avg_1',
-            'model':
-            'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
-            'params':
-            'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
-            'lm_url':
-            'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-            'lm_md5':
-            '29e02312deb2e59b3c8686c7966d4fe3'
+            'http://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.2.model.tar.gz',
+            'md5': '4dd42cfce9aaa54db0ec698da6c48ec5',
+            'cfg_path': 'model.yaml',
+            'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
+            'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
+            'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
+            'onnx_model': 'onnx/model.onnx'
+            'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
         },
     },
     "deepspeech2offline_librispeech-en-16k": {
@@ -226,7 +220,7 @@ asr_static_pretrained_models = {
         }
     },
     "deepspeech2online_aishell-zh-16k": {
-        '1.0': {
+        '1.0.1': {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.1.model.tar.gz',
             'md5':
@@ -244,20 +238,35 @@ asr_static_pretrained_models = {
             'lm_md5':
             '29e02312deb2e59b3c8686c7966d4fe3'
         },
+        '1.0.2': {
+            'url':
+            'http://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.2.model.tar.gz',
+            'md5': '4dd42cfce9aaa54db0ec698da6c48ec5',
+            'cfg_path': 'model.yaml',
+            'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
+            'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
+            'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
+            'onnx_model': 'onnx/model.onnx'
+            'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
+        },
     },
 }
 
 
 asr_onnx_pretrained_models = {
-    "deepspeech2online_wenetspeech-zh-16k": {
-        '1.0': {
+    "deepspeech2online_aishell-zh-16k": {
+        '1.0.2': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.2.model.tar.gz',
-            'md5': 'b0c77e7f8881e0a27b82127d1abb8d5f',
-            'cfg_path':'model.yaml',
-            'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_10',
-            'lm_url': 'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-            'lm_md5': '29e02312deb2e59b3c8686c7966d4fe3'
+            'http://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.2.model.tar.gz',
+            'md5': '4dd42cfce9aaa54db0ec698da6c48ec5',
+            'cfg_path': 'model.yaml',
+            'ckpt_path':'exp/deepspeech2_online/checkpoints/avg_1',
+            'model':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel',
+            'params':'exp/deepspeech2_online/checkpoints/avg_1.jit.pdiparams',
+            'onnx_model': 'onnx/model.onnx'
+            'lm_url':'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':'29e02312deb2e59b3c8686c7966d4fe3'
         },
     },
 }

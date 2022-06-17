@@ -39,11 +39,11 @@ asr_online:
         summary: True  # False -> do not show predictor config
 
     chunk_buffer_conf:
-        frame_duration_ms: 80
+        frame_duration_ms: 85
         shift_ms: 40
         sample_rate: 16000
         sample_width: 2
         window_n: 7     # frame
         shift_n: 4      # frame
-        window_ms: 20   # ms
+        window_ms: 25   # ms
         shift_ms: 10    # ms

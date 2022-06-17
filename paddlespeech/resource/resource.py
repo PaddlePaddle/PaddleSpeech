@@ -18,8 +18,8 @@ from typing import List
 from typing import Optional
 
 from ..cli.utils import download_and_decompress
-from ..cli.utils import MODEL_HOME
 from ..utils.dynamic_import import dynamic_import
+from ..utils.env import MODEL_HOME
 from .model_alias import model_alias
 
 task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector']

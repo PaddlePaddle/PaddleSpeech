@@ -21,7 +21,6 @@ from yacs.config import CfgNode
 
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
@@ -29,6 +28,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
+from paddlespeech.utils.env import MODEL_HOME
 
 __all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 

@@ -139,28 +139,13 @@ pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 To avoid the trouble of environment setup, running in a Docker container is highly recommended. Otherwise, if you work on `Ubuntu` with `root` privilege, you can still complete the installation.
 
 ### Choice 1: Running in Docker Container (Recommend)
-Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. A Docker image for this project has been provided in [hub.docker.com](https://hub.docker.com) with dependencies of cuda and cudnn installed. This Docker image requires the support of NVIDIA GPU, so please make sure its availability and the [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) has been installed.
+Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. If you  do not have a Docker environment, please refer to [Docker](https://www.docker.com/). If you will use GPU version, you also need to install [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
 
-Take several steps to launch the Docker image:
-- Download the Docker image
+We provide docker images containing the latest PaddleSpeech code, and all environment and package dependencies are pre-installed. All you have to do is to **pull and run the docker image**. Then you can enjoy PaddleSpeech without any extra steps.
 
-For example, pull paddle 2.2.0 image:
-```bash
-sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
-```
-- Clone this repository
-```bash
-git clone https://github.com/PaddlePaddle/PaddleSpeech.git
-```
-- Run the Docker image
-```bash
-sudo nvidia-docker run --net=host --ipc=host --rm -it -v $(pwd)/PaddleSpeech:/PaddleSpeech registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7 /bin/bash
-```
-- Enter PaddleSpeech directory.
-```bash
-cd /PaddleSpeech
-```
-Now you can execute training, inference, and hyper-parameters tuning in  Docker container.
+Get these images and guidance in [docker hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech), including CPU, GPU, ROCm environment versions. 
+
+If you have some customized requirements about automatic building docker images, you can get it in github repo [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton).
 
 ### Choice 2: Running in Ubuntu with Root Privilege
 - Install `build-essential` by apt

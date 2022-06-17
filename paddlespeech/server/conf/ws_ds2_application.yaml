@@ -45,7 +45,7 @@ asr_online-inference:
         sample_width: 2
         window_n: 7     # frame
         shift_n: 4      # frame
-        window_ms: 20   # ms
+        window_ms: 25   # ms
         shift_ms: 10    # ms
 
 
@@ -80,5 +80,5 @@ asr_online-onnx:
         sample_width: 2
         window_n: 7     # frame
         shift_n: 4      # frame
-        window_ms: 20   # ms
+        window_ms: 25   # ms
         shift_ms: 10    # ms

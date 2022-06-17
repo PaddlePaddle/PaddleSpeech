@@ -18,37 +18,6 @@ engine_list: ['asr_online-onnx']
 #                                ENGINE CONFIG                                  #
 #################################################################################
 
-################################### ASR #########################################
-################### speech task: asr; engine_type: online-inference #######################
-asr_online-inference:
-    model_type: 'deepspeech2online_wenetspeech'
-    am_model:    # the pdmodel file of am static model [optional]
-    am_params:   # the pdiparams file of am static model [optional]
-    lang: 'zh'
-    sample_rate: 16000
-    cfg_path: 
-    decode_method: 
-    num_decoding_left_chunks: 
-    force_yes: True
-    device: 'cpu' # cpu or gpu:id
-
-    am_predictor_conf:
-        device:  # set 'gpu:id' or 'cpu'
-        switch_ir_optim: True
-        glog_info: False  # True -> print glog
-        summary: True  # False -> do not show predictor config
-
-    chunk_buffer_conf:
-        frame_duration_ms: 85
-        shift_ms: 40
-        sample_rate: 16000
-        sample_width: 2
-        window_n: 7     # frame
-        shift_n: 4      # frame
-        window_ms: 25   # ms
-        shift_ms: 10    # ms
-
-
 
 ################################### ASR #########################################
 ################### speech task: asr; engine_type: online-onnx #######################
@@ -74,7 +43,38 @@ asr_online-onnx:
         log_verbosity_level: 0  # VLOG level if DEBUG build and session_log_severity_level is 0. Applies to session load, initialization, etc. Default is 0.
 
     chunk_buffer_conf:
-        frame_duration_ms: 80
+        frame_duration_ms: 85
+        shift_ms: 40
+        sample_rate: 16000
+        sample_width: 2
+        window_n: 7     # frame
+        shift_n: 4      # frame
+        window_ms: 25   # ms
+        shift_ms: 10    # ms
+
+
+################################### ASR #########################################
+################### speech task: asr; engine_type: online-inference #######################
+asr_online-inference:
+    model_type: 'deepspeech2online_wenetspeech'
+    am_model:    # the pdmodel file of am static model [optional]
+    am_params:   # the pdiparams file of am static model [optional]
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: 
+    decode_method: 
+    num_decoding_left_chunks: 
+    force_yes: True
+    device: 'cpu' # cpu or gpu:id
+
+    am_predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False  # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+    chunk_buffer_conf:
+        frame_duration_ms: 85
         shift_ms: 40
         sample_rate: 16000
         sample_width: 2

@@ -15,11 +15,12 @@ pip install paddle2onnx
 pip install onnx
 
 # https://github.com/PaddlePaddle/Paddle2ONNX#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%BD%AC%E6%8D%A2
+ # opset10 support quantize
 paddle2onnx --model_dir $dir \
             --model_filename $model \
             --params_filename $param \
             --save_file $output \
             --enable_dev_version True \
-            --opset_version 9 \
+            --opset_version 11 \
             --enable_onnx_checker True
             

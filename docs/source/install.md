@@ -141,7 +141,7 @@ To avoid the trouble of environment setup, running in a Docker container is high
 ### Choice 1: Running in Docker Container (Recommend)
 Docker is an open-source tool to build, ship, and run distributed applications in an isolated environment. If you  do not have a Docker environment, please refer to [Docker](https://www.docker.com/). If you will use GPU version, you also need to install [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
 
-We provides built docker images with latest code. All you have to do is to **pull the docker image** and **run the docker image**. Then you can enjoy PaddleSpeech without any extra action.
+We provide docker images containing the latest PaddleSpeech code, and all environment and package dependencies are pre-installed. All you have to do is to **pull and run the docker image**. Then you can enjoy PaddleSpeech without any extra steps.
 
 Get these images and guidance in [docker hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech), including CPU, GPU, ROCm environment versions. 
 

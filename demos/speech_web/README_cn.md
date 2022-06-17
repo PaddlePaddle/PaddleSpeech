@@ -65,7 +65,7 @@ yarn dev --port 8011
 ## Docker启动
 
 ### 后端docker
-后端docker使用[paddlepaddle官方docker](https://www.paddlepaddle.org.cn/),这里演示CPU版本
+后端docker使用[paddlepaddle官方docker](https://www.paddlepaddle.org.cn),这里演示CPU版本
 ```
 # 拉取PaddleSpeech项目
 cd PaddleSpeechServer

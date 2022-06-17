@@ -133,7 +133,7 @@ pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 ### 选择1： 使用Docker容器（推荐）
 Docker 是一种开源工具，用于在和系统本身环境相隔离的环境中构建、发布和运行各类应用程序。如果您没有 Docker 运行环境，请参考 [Docker 官网](https://www.docker.com/)进行安装，如果您准备使用 GPU 版本镜像，还需要提前安装好 [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) 。 
 
-PaddleSpeech 提供了带有最新代码的 docker 镜像供您使用，您只需要**拉取 docker 镜像 **，然后**运行 docker 镜像**，无需其他任何额外操作，即可开始使用 PaddleSpeech 的所有功能。
+我们提供了包含最新 PaddleSpeech 代码的 docker 镜像，并预先安装好了所有的环境和库依赖，您只需要**拉取并运行 docker 镜像**，无需其他任何额外操作，即可开始享用 PaddleSpeech 的所有功能。
 
 在 [Docker Hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech) 中获取这些镜像及相应的使用指南，包括 CPU、GPU、ROCm 版本。
 

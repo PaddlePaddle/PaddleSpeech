@@ -18,6 +18,7 @@ from typing import List
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from prettytable import PrettyTable
 from starlette.middleware.cors import CORSMiddleware
 
@@ -44,7 +45,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"])
-
 
 @cli_server_register(
     name='paddlespeech_server.start', description='Start the service')

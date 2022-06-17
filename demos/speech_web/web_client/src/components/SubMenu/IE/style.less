@@ -1,0 +1,179 @@
+.voice_commands {
+    width: 1200px;
+    height: 410px;
+    background: #FFFFFF;
+    padding: 40px 50px 50px 50px;
+    box-sizing: border-box;
+    display: flex;
+    // 交通报销
+    .voice_commands_traffic {
+        width: 468px;
+        height: 320px;
+        .voice_commands_traffic_title {
+            height: 26px;
+            font-family: PingFangSC-Medium;
+            font-size: 16px;
+            color: #000000;
+            letter-spacing: 0;
+            line-height: 26px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            // background: pink;
+        };
+        .voice_commands_traffic_wrapper {
+            width: 465px;
+            height: 264px;
+            // background: #FAFAFA;
+            position: relative;
+            .voice_commands_traffic_wrapper_move {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+            };
+            .traffic_btn_img_btn {
+                width: 116px;
+                height: 116px;
+                background: #2932E1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                cursor: pointer;
+                margin-bottom: 20px;
+                margin-left: 84px;
+                &:hover {
+                    width: 116px;
+                    height: 116px;
+                    background: #7278F5;
+                   
+                        .start_recorder_img{
+                            width: 50px;
+                            height: 50px;
+                            background: url("../../../assets/image/ic_开始聊天_hover.svg") no-repeat;
+                            background-position: center;
+                            background-size: 50px 50px;
+                        };
+                   
+                };
+            
+                    .start_recorder_img{
+                        width: 50px;
+                        height: 50px;
+                        background: url("../../../assets/image/ic_开始聊天.svg") no-repeat;
+                        background-position: center;
+                        background-size: 50px 50px;
+                    };
+                
+            };
+            .traffic_btn_prompt {
+                height: 22px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #000000;
+                font-weight: 500;
+                margin-bottom: 16px;
+                margin-left: 110px;
+            };
+            .traffic_btn_list {
+                height: 20px;
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #999999;
+                font-weight: 400;
+                width: 112%;
+            };
+        };
+    };
+    //指向
+    .voice_point_to {
+        width: 47px;
+        height: 63px;
+        background: url("../../../assets/image/步骤-箭头切图@2x.png") no-repeat;
+        background-position: center;
+        background-size: 47px 63px;
+        margin-top: 164px;
+        margin-right: 82px;
+    };
+    //识别结果
+    .voice_commands_IdentifyTheResults {
+        .voice_commands_IdentifyTheResults_title {
+            height: 26px;
+            font-family: PingFangSC-Medium;
+            font-size: 16px;
+            color: #000000;
+            line-height: 26px;
+            font-weight: 500;
+            margin-bottom: 30px;
+        };
+        // 显示框
+        .voice_commands_IdentifyTheResults_show {
+            width: 503px;
+            height: 264px;
+            background: #FAFAFA;
+            padding: 40px 0px 0px 50px;
+            box-sizing: border-box;
+            .voice_commands_IdentifyTheResults_show_title {
+                height: 22px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #000000;
+                // text-align: center;
+                font-weight: 500;
+                margin-bottom: 30px;
+            };
+            .oice_commands_IdentifyTheResults_show_time {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #666666;
+                font-weight: 500;
+                margin-bottom: 12px;
+            };
+            .oice_commands_IdentifyTheResults_show_money {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #666666;
+                font-weight: 500;
+                margin-bottom: 12px;
+            };
+            .oice_commands_IdentifyTheResults_show_origin {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #666666;
+                font-weight: 500;
+                margin-bottom: 12px;
+            };
+            .oice_commands_IdentifyTheResults_show_destination {
+                height: 20px;
+                font-family: PingFangSC-Medium;
+                font-size: 14px;
+                color: #666666;
+                font-weight: 500;
+            };
+        };
+        //加载状态
+        .voice_commands_IdentifyTheResults_show_loading {
+            width: 503px;
+            height: 264px;
+            background: #FAFAFA;
+            padding: 40px 0px 0px 50px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        };
+    };
+    .end_recorder_img {
+        width: 50px;
+        height: 50px;
+        background: url("../../../assets/image/ic_大-声音波浪.svg") no-repeat;
+        background-position: center;
+        background-size: 50px 50px;
+    };
+    .end_recorder_img:hover {
+        opacity: 0.9;
+    };
+};

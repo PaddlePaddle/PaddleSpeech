@@ -16,10 +16,11 @@ import os
 
 import numpy as np
 from paddle import inference
-from paddleaudio.backends import load as load_audio
-from paddleaudio.datasets import ESC50
-from paddleaudio.features import melspectrogram
 from scipy.special import softmax
+
+from paddlespeech.audio.backends import load as load_audio
+from paddlespeech.audio.datasets import ESC50
+from paddlespeech.audio.features import melspectrogram
 
 # yapf: disable
 parser = argparse.ArgumentParser()

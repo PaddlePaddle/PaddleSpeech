@@ -24,11 +24,11 @@ from typing import Any
 from typing import Dict
 
 import paddle
-import paddleaudio
 import requests
 import yaml
 from paddle.framework import load
 
+import paddlespeech.audio
 from .entry import client_commands
 from .entry import server_commands
 from paddlespeech.cli import download
@@ -289,7 +289,7 @@ def _note_one_stat(cls_name, params={}):
 
     if 'audio_file' in params:
         try:
-            _, sr = paddleaudio.load(params['audio_file'])
+            _, sr = paddlespeech.audio.load(params['audio_file'])
         except Exception:
             sr = -1
 

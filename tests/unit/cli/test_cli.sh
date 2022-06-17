@@ -22,6 +22,9 @@ paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
 paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
 
+# Support editing num_decoding_left_chunks
+paddlespeech asr --model conformer_online_wenetspeech --num_decoding_left_chunks 3 --input ./zh.wav
+
 # long audio restriction
 {
 wget -c https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav

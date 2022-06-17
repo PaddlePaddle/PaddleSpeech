@@ -17,13 +17,21 @@ if [ ${seed} != 0  ]; then
     echo "using seed $seed & FLAGS_cudnn_deterministic=True ..."
 fi
 
-if [ $# != 2 ];then
-    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name"
+if [ $# -lt 2 ] && [ $# -gt 3 ];then
+    echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name ips(optional)"
     exit -1
 fi
 
 config_path=$1
 ckpt_name=$2
+ips=$3
+
+if [ ! $ips ];then
+  ips_config=
+else
+  ips_config="--ips="${ips}
+fi
+echo ${ips_config}
 
 mkdir -p exp
 
@@ -37,7 +45,7 @@ python3 -u ${BIN_DIR}/train.py \
 --benchmark-batch-size ${benchmark_batch_size} \
 --benchmark-max-step ${benchmark_max_step}
 else
-python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${BIN_DIR}/train.py \
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --seed ${seed} \
 --config ${config_path} \

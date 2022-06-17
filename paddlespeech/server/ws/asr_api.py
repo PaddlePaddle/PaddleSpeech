@@ -92,6 +92,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 else:
                     resp = {"status": "ok", "message": "no valid json data"}
                     await websocket.send_json(resp)
+
             elif "bytes" in message:
                 # bytes for the pcm data
                 message = message["bytes"]

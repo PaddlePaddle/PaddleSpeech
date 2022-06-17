@@ -84,6 +84,12 @@ class ASRExecutor(BaseExecutor):
             ],
             help='only support transformer and conformer model')
         self.parser.add_argument(
+            '--num_decoding_left_chunks',
+            '-num_left',
+            type=str,
+            default=-1,
+            help='only support transformer and conformer online model')
+        self.parser.add_argument(
             '--ckpt_path',
             type=str,
             default=None,
@@ -122,6 +128,7 @@ class ASRExecutor(BaseExecutor):
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         decode_method: str='attention_rescoring',
+                        num_decoding_left_chunks: int=-1,
                         ckpt_path: Optional[os.PathLike]=None):
         """
         Init model and other resources from a specific path.
@@ -179,6 +186,9 @@ class ASRExecutor(BaseExecutor):
 
             elif "conformer" in model_type or "transformer" in model_type:
                 self.config.decode.decoding_method = decode_method
+                if num_decoding_left_chunks:
+                    assert num_decoding_left_chunks == -1 or num_decoding_left_chunks >= 0, "num_decoding_left_chunks should be -1 or >=0"
+                    self.config.num_decoding_left_chunks = num_decoding_left_chunks
 
             else:
                 raise Exception("wrong type")
@@ -451,6 +461,7 @@ class ASRExecutor(BaseExecutor):
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
                  decode_method: str='attention_rescoring',
+                 num_decoding_left_chunks: int=-1,
                  force_yes: bool=False,
                  rtf: bool=False,
                  device=paddle.get_device()):
@@ -460,7 +471,7 @@ class ASRExecutor(BaseExecutor):
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)
         self._init_from_path(model, lang, sample_rate, config, decode_method,
-                             ckpt_path)
+                             num_decoding_left_chunks, ckpt_path)
         if not self._check(audio_file, sample_rate, force_yes):
             sys.exit(-1)
         if rtf:

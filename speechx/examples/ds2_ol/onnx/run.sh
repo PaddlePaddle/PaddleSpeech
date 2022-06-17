@@ -5,10 +5,11 @@ set -e
 . path.sh
 
 stage=0
-stop_stage=100
-#tarfile=asr0_deepspeech2_online_wenetspeech_ckpt_1.0.2.model.tar.gz
-tarfile=asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.1.model.tar.gz
-model_prefix=avg_1.jit
+stop_stage=50
+tarfile=asr0_deepspeech2_online_wenetspeech_ckpt_1.0.2.model.tar.gz
+#tarfile=asr0_deepspeech2_online_aishell_fbank161_ckpt_1.0.1.model.tar.gz
+model_prefix=avg_10.jit
+#model_prefix=avg_1.jit
 model=${model_prefix}.pdmodel
 param=${model_prefix}.pdiparams
 
@@ -80,6 +81,14 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ];then
 fi
 
 
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ] ;then
+    # ort graph optmize
+    ./local/ort_opt.py --model_in $exp/model.onnx --opt_level 0 --model_out $exp/model.ort.opt.onnx
+
+    ./local/infer_check.py --input_file $input_file --model_type $model_type  --model_dir $dir --model_prefix $model_prefix --onnx_model $exp/model.ort.opt.onnx
+fi
+
+
 # aishell rnn hidden is 1024
 # wenetspeech rnn hiddn is 2048
 if [ $model_type == 'aishell' ];then
@@ -90,9 +99,9 @@ else
     echo "not support: $model_type"
     exit -1
 fi
- 
 
-if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ] ;then
+
+if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ] ;then
     # wenetspeech ds2 model execed 2GB limit, will error.
     # simplifying onnx model
     ./local/onnx_opt.sh $exp/model.onnx $exp/model.opt.onnx  "$input_shape"

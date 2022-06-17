@@ -130,7 +130,7 @@ pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 - 选择 2： 使用`Ubuntu` ，并且拥有 root 权限。
 
 为了避免各种环境配置问题，我们非常推荐你使用 docker 容器。如果你不想使用 docker，但是可以使用拥有 root 权限的 Ubuntu 系统，你也可以完成**困难**方式的安装。
-### 选择1： 使用Docker容器（推荐）
+### 选择1： 使用 Docker 容器（推荐）
 Docker 是一种开源工具，用于在和系统本身环境相隔离的环境中构建、发布和运行各类应用程序。如果您没有 Docker 运行环境，请参考 [Docker 官网](https://www.docker.com/)进行安装，如果您准备使用 GPU 版本镜像，还需要提前安装好 [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) 。 
 
 我们提供了包含最新 PaddleSpeech 代码的 docker 镜像，并预先安装好了所有的环境和库依赖，您只需要**拉取并运行 docker 镜像**，无需其他任何额外操作，即可开始享用 PaddleSpeech 的所有功能。

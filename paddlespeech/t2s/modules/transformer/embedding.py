@@ -185,3 +185,61 @@ class RelPositionalEncoding(nn.Layer):
         pe_size = paddle.shape(self.pe)
         pos_emb = self.pe[:, pe_size[1] // 2 - T + 1:pe_size[1] // 2 + T, ]
         return self.dropout(x), self.dropout(pos_emb)
+
+
+class LegacyRelPositionalEncoding(PositionalEncoding):
+    """Relative positional encoding module (old version).
+
+    Details can be found in https://github.com/espnet/espnet/pull/2816.
+
+    See : Appendix B in https://arxiv.org/abs/1901.02860
+
+    Args:
+        d_model (int): Embedding dimension.
+        dropout_rate (float): Dropout rate.
+        max_len (int): Maximum input length.
+
+    """
+
+    def __init__(self, d_model: int, dropout_rate: float, max_len: int=5000):
+        """
+        Args:
+            d_model (int): Embedding dimension.
+            dropout_rate (float): Dropout rate.
+            max_len (int, optional): [Maximum input length.]. Defaults to 5000.
+        """
+        super().__init__(d_model, dropout_rate, max_len, reverse=True)
+
+    def extend_pe(self, x):
+        """Reset the positional encodings."""
+        if self.pe is not None:
+            if paddle.shape(self.pe)[1] >= paddle.shape(x)[1]:
+                return
+        pe = paddle.zeros((paddle.shape(x)[1], self.d_model))
+        if self.reverse:
+            position = paddle.arange(
+                paddle.shape(x)[1] - 1, -1, -1.0,
+                dtype=paddle.float32).unsqueeze(1)
+        else:
+            position = paddle.arange(
+                0, paddle.shape(x)[1], dtype=paddle.float32).unsqueeze(1)
+        div_term = paddle.exp(
+            paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
+            -(math.log(10000.0) / self.d_model))
+        pe[:, 0::2] = paddle.sin(position * div_term)
+        pe[:, 1::2] = paddle.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        self.pe = pe
+
+    def forward(self, x: paddle.Tensor):
+        """Compute positional encoding.
+        Args:
+            x (paddle.Tensor): Input tensor (batch, time, `*`).
+        Returns:
+            paddle.Tensor: Encoded tensor (batch, time, `*`).
+            paddle.Tensor: Positional embedding tensor (1, time, `*`).
+        """
+        self.extend_pe(x)
+        x = x * self.xscale
+        pos_emb = self.pe[:, :paddle.shape(x)[1]]
+        return self.dropout(x), self.dropout(pos_emb)

@@ -24,11 +24,11 @@ from typing import Any
 from typing import Dict
 
 import paddle
-import paddleaudio
 import requests
 import yaml
 from paddle.framework import load
 
+import paddlespeech.audio
 from . import download
 from .entry import commands
 try:
@@ -190,6 +190,7 @@ def _get_sub_home(directory):
 PPSPEECH_HOME = _get_paddlespcceh_home()
 MODEL_HOME = _get_sub_home('models')
 CONF_HOME = _get_sub_home('conf')
+DATA_HOME = _get_sub_home('datasets')
 
 
 def _md5(text: str):
@@ -281,7 +282,7 @@ def _note_one_stat(cls_name, params={}):
 
     if 'audio_file' in params:
         try:
-            _, sr = paddleaudio.load(params['audio_file'])
+            _, sr = paddlespeech.audio.load(params['audio_file'])
         except Exception:
             sr = -1
 

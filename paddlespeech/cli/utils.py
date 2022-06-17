@@ -25,10 +25,10 @@ from typing import Dict
 
 import paddle
 import requests
+import soundfile as sf
 import yaml
 from paddle.framework import load
 
-import paddlespeech.audio
 from . import download
 from .entry import commands
 try:
@@ -282,7 +282,8 @@ def _note_one_stat(cls_name, params={}):
 
     if 'audio_file' in params:
         try:
-            _, sr = paddlespeech.audio.load(params['audio_file'])
+            # recursive import cased by: utils.DATA_HOME
+            _, sr = sf.read(params['audio_file'])
         except Exception:
             sr = -1
 

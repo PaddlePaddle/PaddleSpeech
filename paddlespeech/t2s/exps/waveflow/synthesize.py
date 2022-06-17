@@ -72,8 +72,6 @@ if __name__ == "__main__":
         nargs=argparse.REMAINDER,
         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs"
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="print msg")
 
     args = parser.parse_args()
     if args.config:

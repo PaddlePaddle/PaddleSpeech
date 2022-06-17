@@ -23,6 +23,7 @@ from yacs.config import CfgNode
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.models.vits import VITS
+from paddlespeech.t2s.utils import str2bool
 
 
 def evaluate(args):
@@ -55,6 +56,7 @@ def evaluate(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     merge_sentences = False
+    add_blank = args.add_blank
 
     N = 0
     T = 0
@@ -62,7 +64,9 @@ def evaluate(args):
         with timer() as t:
             if args.lang == 'zh':
                 input_ids = frontend.get_input_ids(
-                    sentence, merge_sentences=merge_sentences)
+                    sentence,
+                    merge_sentences=merge_sentences,
+                    add_blank=add_blank)
                 phone_ids = input_ids["phone_ids"]
             elif args.lang == 'en':
                 input_ids = frontend.get_input_ids(
@@ -124,6 +128,12 @@ def parse_args():
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
+
+    parser.add_argument(
+        "--add-blank",
+        type=str2bool,
+        default=True,
+        help="whether to add blank between phones")
 
     args = parser.parse_args()
     return args

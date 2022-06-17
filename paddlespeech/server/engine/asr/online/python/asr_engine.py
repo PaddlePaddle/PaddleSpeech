@@ -23,7 +23,6 @@ from yacs.config import CfgNode
 
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
@@ -36,6 +35,7 @@ from paddlespeech.server.engine.asr.online.ctc_endpoint import OnlineCTCEndpoint
 from paddlespeech.server.engine.asr.online.ctc_search import CTCPrefixBeamSearch
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
+from paddlespeech.utils.env import MODEL_HOME
 
 __all__ = ['PaddleASRConnectionHanddler', 'ASRServerExecutor', 'ASREngine']
 

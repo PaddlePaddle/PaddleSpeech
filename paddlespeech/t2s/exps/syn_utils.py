@@ -27,11 +27,11 @@ from paddle import jit
 from paddle.static import InputSpec
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 model_alias = {
     # acoustic model
@@ -75,13 +75,13 @@ def denorm(data, mean, std):
     return data * std + mean
 
 
-def get_chunks(data, chunk_size: int, pad_size: int):
+def get_chunks(data, block_size: int, pad_size: int):
     data_len = data.shape[1]
     chunks = []
-    n = math.ceil(data_len / chunk_size)
+    n = math.ceil(data_len / block_size)
     for i in range(n):
-        start = max(0, i * chunk_size - pad_size)
-        end = min((i + 1) * chunk_size + pad_size, data_len)
+        start = max(0, i * block_size - pad_size)
+        end = min((i + 1) * block_size + pad_size, data_len)
         chunks.append(data[:, start:end, :])
     return chunks
 

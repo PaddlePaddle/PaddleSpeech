@@ -20,15 +20,14 @@ from scipy.interpolate import interp1d
 
 class LogMelFBank():
     def __init__(self,
-                 sr=24000,
-                 n_fft=2048,
-                 hop_length=300,
-                 win_length=None,
-                 window="hann",
-                 n_mels=80,
-                 fmin=80,
-                 fmax=7600,
-                 eps=1e-10):
+                 sr: int=24000,
+                 n_fft: int=2048,
+                 hop_length: int=300,
+                 win_length: int=None,
+                 window: str="hann",
+                 n_mels: int=80,
+                 fmin: int=80,
+                 fmax: int=7600):
         self.sr = sr
         # stft
         self.n_fft = n_fft
@@ -54,7 +53,7 @@ class LogMelFBank():
             fmax=self.fmax)
         return mel_filter
 
-    def _stft(self, wav):
+    def _stft(self, wav: np.ndarray):
         D = librosa.core.stft(
             wav,
             n_fft=self.n_fft,
@@ -65,11 +64,11 @@ class LogMelFBank():
             pad_mode=self.pad_mode)
         return D
 
-    def _spectrogram(self, wav):
+    def _spectrogram(self, wav: np.ndarray):
         D = self._stft(wav)
         return np.abs(D)
 
-    def _mel_spectrogram(self, wav):
+    def _mel_spectrogram(self, wav: np.ndarray):
         S = self._spectrogram(wav)
         mel = np.dot(self.mel_filter, S)
         return mel
@@ -90,14 +89,18 @@ class LogMelFBank():
 
 
 class Pitch():
-    def __init__(self, sr=24000, hop_length=300, f0min=80, f0max=7600):
+    def __init__(self,
+                 sr: int=24000,
+                 hop_length: int=300,
+                 f0min: int=80,
+                 f0max: int=7600):
 
         self.sr = sr
         self.hop_length = hop_length
         self.f0min = f0min
         self.f0max = f0max
 
-    def _convert_to_continuous_f0(self, f0: np.array) -> np.array:
+    def _convert_to_continuous_f0(self, f0: np.ndarray) -> np.ndarray:
         if (f0 == 0).all():
             print("All frames seems to be unvoiced.")
             return f0
@@ -120,9 +123,9 @@ class Pitch():
         return f0
 
     def _calculate_f0(self,
-                      input: np.array,
-                      use_continuous_f0=True,
-                      use_log_f0=True) -> np.array:
+                      input: np.ndarray,
+                      use_continuous_f0: bool=True,
+                      use_log_f0: bool=True) -> np.ndarray:
         input = input.astype(np.float)
         frame_period = 1000 * self.hop_length / self.sr
         f0, timeaxis = pyworld.dio(
@@ -139,7 +142,8 @@ class Pitch():
             f0[nonzero_idxs] = np.log(f0[nonzero_idxs])
         return f0.reshape(-1)
 
-    def _average_by_duration(self, input: np.array, d: np.array) -> np.array:
+    def _average_by_duration(self, input: np.ndarray,
+                             d: np.ndarray) -> np.ndarray:
         d_cumsum = np.pad(d.cumsum(0), (1, 0), 'constant')
         arr_list = []
         for start, end in zip(d_cumsum[:-1], d_cumsum[1:]):
@@ -154,11 +158,11 @@ class Pitch():
         return arr_list
 
     def get_pitch(self,
-                  wav,
-                  use_continuous_f0=True,
-                  use_log_f0=True,
-                  use_token_averaged_f0=True,
-                  duration=None):
+                  wav: np.ndarray,
+                  use_continuous_f0: bool=True,
+                  use_log_f0: bool=True,
+                  use_token_averaged_f0: bool=True,
+                  duration: np.ndarray=None):
         f0 = self._calculate_f0(wav, use_continuous_f0, use_log_f0)
         if use_token_averaged_f0 and duration is not None:
             f0 = self._average_by_duration(f0, duration)
@@ -167,15 +171,13 @@ class Pitch():
 
 class Energy():
     def __init__(self,
-                 sr=24000,
-                 n_fft=2048,
-                 hop_length=300,
-                 win_length=None,
-                 window="hann",
-                 center=True,
-                 pad_mode="reflect"):
+                 n_fft: int=2048,
+                 hop_length: int=300,
+                 win_length: int=None,
+                 window: str="hann",
+                 center: bool=True,
+                 pad_mode: str="reflect"):
 
-        self.sr = sr
         self.n_fft = n_fft
         self.win_length = win_length
         self.hop_length = hop_length
@@ -183,7 +185,7 @@ class Energy():
         self.center = center
         self.pad_mode = pad_mode
 
-    def _stft(self, wav):
+    def _stft(self, wav: np.ndarray):
         D = librosa.core.stft(
             wav,
             n_fft=self.n_fft,
@@ -194,7 +196,7 @@ class Energy():
             pad_mode=self.pad_mode)
         return D
 
-    def _calculate_energy(self, input):
+    def _calculate_energy(self, input: np.ndarray):
         input = input.astype(np.float32)
         input_stft = self._stft(input)
         input_power = np.abs(input_stft)**2
@@ -203,7 +205,8 @@ class Energy():
                 np.sum(input_power, axis=0), a_min=1.0e-10, a_max=float('inf')))
         return energy
 
-    def _average_by_duration(self, input: np.array, d: np.array) -> np.array:
+    def _average_by_duration(self, input: np.ndarray,
+                             d: np.ndarray) -> np.ndarray:
         d_cumsum = np.pad(d.cumsum(0), (1, 0), 'constant')
         arr_list = []
         for start, end in zip(d_cumsum[:-1], d_cumsum[1:]):
@@ -214,8 +217,49 @@ class Energy():
         arr_list = np.expand_dims(np.array(arr_list), 0).T
         return arr_list
 
-    def get_energy(self, wav, use_token_averaged_energy=True, duration=None):
+    def get_energy(self,
+                   wav: np.ndarray,
+                   use_token_averaged_energy: bool=True,
+                   duration: np.ndarray=None):
         energy = self._calculate_energy(wav)
         if use_token_averaged_energy and duration is not None:
             energy = self._average_by_duration(energy, duration)
         return energy
+
+
+class LinearSpectrogram():
+    def __init__(
+            self,
+            n_fft: int=1024,
+            win_length: int=None,
+            hop_length: int=256,
+            window: str="hann",
+            center: bool=True, ):
+        self.n_fft = n_fft
+        self.hop_length = hop_length
+        self.win_length = win_length
+        self.window = window
+        self.center = center
+        self.n_fft = n_fft
+        self.pad_mode = "reflect"
+
+    def _stft(self, wav: np.ndarray):
+        D = librosa.core.stft(
+            wav,
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            win_length=self.win_length,
+            window=self.window,
+            center=self.center,
+            pad_mode=self.pad_mode)
+        return D
+
+    def _spectrogram(self, wav: np.ndarray):
+        D = self._stft(wav)
+        return np.abs(D)
+
+    def get_linear_spectrogram(self, wav: np.ndarray):
+        linear_spectrogram = self._spectrogram(wav)
+        linear_spectrogram = np.clip(
+            linear_spectrogram, a_min=1e-10, a_max=float("inf"))
+        return linear_spectrogram.T

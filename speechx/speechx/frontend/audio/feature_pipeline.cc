@@ -22,15 +22,24 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
     unique_ptr<FrontendInterface> data_source(
         new ppspeech::AudioCache(1000 * kint16max, opts.to_float32));
 
-    unique_ptr<FrontendInterface> linear_spectrogram(
-        new ppspeech::LinearSpectrogram(opts.linear_spectrogram_opts,
-                                        std::move(data_source)));
+    unique_ptr<FrontendInterface> base_feature;
+
+    if (opts.use_fbank) {
+        base_feature.reset(
+            new ppspeech::Fbank(opts.fbank_opts, std::move(data_source)));
+    } else {
+        base_feature.reset(new ppspeech::LinearSpectrogram(
+            opts.linear_spectrogram_opts, std::move(data_source)));
+    }
 
     unique_ptr<FrontendInterface> cmvn(
-        new ppspeech::CMVN(opts.cmvn_file, std::move(linear_spectrogram)));
+        new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
+
+    unique_ptr<FrontendInterface> cache(
+        new ppspeech::FeatureCache(opts.feature_cache_opts, std::move(cmvn)));
 
     base_extractor_.reset(
-        new ppspeech::FeatureCache(opts.feature_cache_opts, std::move(cmvn)));
+        new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));
 }
 
 }  // ppspeech

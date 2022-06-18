@@ -15,7 +15,6 @@
 import cProfile
 import os
 
-from paddle import distributed as dist
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.u2.model import U2Trainer as Trainer
@@ -32,10 +31,7 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    if args.ngpu > 1:
-        dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
-    else:
-        main_sp(config, args)
+    main_sp(config, args)
 
 
 if __name__ == "__main__":

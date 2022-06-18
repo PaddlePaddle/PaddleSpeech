@@ -110,10 +110,10 @@ def voice_cloning(args):
         print(f"{utt_id} done!")
     # Randomly generate numbers of 0 ~ 0.2, 256 is the dim of spk_emb
     random_spk_emb = np.random.rand(256) * 0.2
-    random_spk_emb = paddle.to_tensor(random_spk_emb)
+    random_spk_emb = paddle.to_tensor(random_spk_emb, dtype='float32')
     utt_id = "random_spk_emb"
     with paddle.no_grad():
-        wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
+        wav = voc_inference(am_inference(phone_ids, spk_emb=random_spk_emb))
     sf.write(
         str(output_dir / (utt_id + ".wav")),
         wav.numpy(),
@@ -122,7 +122,7 @@ def voice_cloning(args):
 
 
 def parse_args():
-    # parse args and config and redirect to train_sp
+    # parse args and config
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         '--am',
@@ -131,10 +131,7 @@ def parse_args():
         choices=['fastspeech2_aishell3', 'tacotron2_aishell3'],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
-        '--am_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        '--am_config', type=str, default=None, help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -160,10 +157,7 @@ def parse_args():
         help='Choose vocoder type of tts task.')
 
     parser.add_argument(
-        '--voc_config',
-        type=str,
-        default=None,
-        help='Config of voc. Use deault config when it is None.')
+        '--voc_config', type=str, default=None, help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(

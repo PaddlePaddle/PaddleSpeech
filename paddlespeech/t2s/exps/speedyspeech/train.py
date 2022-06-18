@@ -46,7 +46,10 @@ def train_sp(args, config):
     # setup running environment correctly
     world_size = paddle.distributed.get_world_size()
     if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
-        paddle.set_device("cpu")
+        if (not paddle.is_compiled_with_xpu()) or args.nxpu == 0:
+            paddle.set_device("cpu")
+        else:
+            paddle.set_device("xpu")
     else:
         paddle.set_device("gpu")
         if world_size > 1:
@@ -185,7 +188,12 @@ def main():
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+        "--nxpu",
+        type=int,
+        default=0,
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu")
 
     parser.add_argument(
         "--use-relative-path",

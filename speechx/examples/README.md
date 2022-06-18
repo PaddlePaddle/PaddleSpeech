@@ -1,8 +1,6 @@
 # Examples for SpeechX
 
-* ds2_ol - ds2 streaming test under `aishell-1` test dataset.  
-The entrypoint is `ds2_ol/aishell/run.sh`
-
+* `ds2_ol` - ds2 streaming test under `aishell-1` test dataset. 
 
 ## How to run  
 
@@ -24,14 +22,6 @@ netron exp/deepspeech2_online/checkpoints/avg_1.jit.pdmodel  --port 8022 --host 
 
 ## For Developer  
 
-> Warning: Only for developer, make sure you know what's it.
+> Reminder: Only for developer, make sure you know what's it.
 
-* dev - for speechx developer, using for test.
-
-## Build WFST  
-
-> Warning: Using below example when you know what's it.
-
-* text_lm - process text for build lm
-* ngram - using to build NGram ARPA lm.
-* wfst - build wfst for TLG.
+* codelab - for speechx developer, using for test.

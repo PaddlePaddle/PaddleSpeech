@@ -14,6 +14,7 @@
 import base64
 import io
 import os
+import sys
 import time
 from typing import Optional
 
@@ -25,8 +26,7 @@ from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
-from paddlespeech.cli.utils import download_and_decompress
-from paddlespeech.cli.utils import MODEL_HOME
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.audio_process import change_speed
 from paddlespeech.server.utils.errors import ErrorCode
@@ -36,103 +36,14 @@ from paddlespeech.server.utils.paddle_predictor import run_model
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
-__all__ = ['TTSEngine']
-
-# Static model applied on paddle inference
-pretrained_models = {
-    # speedyspeech
-    "speedyspeech_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_nosil_baker_static_0.5.zip',
-        'md5':
-        'f10cbdedf47dc7a9668d2264494e1823',
-        'model':
-        'speedyspeech_csmsc.pdmodel',
-        'params':
-        'speedyspeech_csmsc.pdiparams',
-        'phones_dict':
-        'phone_id_map.txt',
-        'tones_dict':
-        'tone_id_map.txt',
-        'sample_rate':
-        24000,
-    },
-    # fastspeech2
-    "fastspeech2_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip',
-        'md5':
-        '9788cd9745e14c7a5d12d32670b2a5a7',
-        'model':
-        'fastspeech2_csmsc.pdmodel',
-        'params':
-        'fastspeech2_csmsc.pdiparams',
-        'phones_dict':
-        'phone_id_map.txt',
-        'sample_rate':
-        24000,
-    },
-    # pwgan
-    "pwgan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip',
-        'md5':
-        'e3504aed9c5a290be12d1347836d2742',
-        'model':
-        'pwgan_csmsc.pdmodel',
-        'params':
-        'pwgan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-    # mb_melgan
-    "mb_melgan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_0.1.1.zip',
-        'md5':
-        'ac6eee94ba483421d750433f4c3b8d36',
-        'model':
-        'mb_melgan_csmsc.pdmodel',
-        'params':
-        'mb_melgan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-    # hifigan
-    "hifigan_csmsc-zh": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_0.1.1.zip',
-        'md5':
-        '7edd8c436b3a5546b3a7cb8cff9d5a0c',
-        'model':
-        'hifigan_csmsc.pdmodel',
-        'params':
-        'hifigan_csmsc.pdiparams',
-        'sample_rate':
-        24000,
-    },
-}
+__all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 
 
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        pass
-
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-        Download and returns pretrained resources path of current task.
-        """
-        assert tag in pretrained_models, 'Can not find pretrained resources of {}.'.format(
-            tag)
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-        return decompressed_path
+        self.task_resource = CommonTaskResource(
+            task='tts', model_format='static')
 
     def _init_from_path(
             self,
@@ -158,19 +69,23 @@ class TTSServerExecutor(TTSExecutor):
             return
         # am
         am_tag = am + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=am_tag,
+            model_type=0,  # am
+            version=None,  # default version
+        )
         if am_model is None or am_params is None or phones_dict is None:
-            am_res_path = self._get_pretrained_path(am_tag)
-            self.am_res_path = am_res_path
-            self.am_model = os.path.join(am_res_path,
-                                         pretrained_models[am_tag]['model'])
-            self.am_params = os.path.join(am_res_path,
-                                          pretrained_models[am_tag]['params'])
+            self.am_res_path = self.task_resource.res_dir
+            self.am_model = os.path.join(self.am_res_path,
+                                         self.task_resource.res_dict['model'])
+            self.am_params = os.path.join(self.am_res_path,
+                                          self.task_resource.res_dict['params'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['phones_dict'])
-            self.am_sample_rate = pretrained_models[am_tag]['sample_rate']
+                self.am_res_path, self.task_resource.res_dict['phones_dict'])
+            self.am_sample_rate = self.task_resource.res_dict['sample_rate']
 
-            logger.info(am_res_path)
+            logger.info(self.am_res_path)
             logger.info(self.am_model)
             logger.info(self.am_params)
         else:
@@ -183,31 +98,36 @@ class TTSServerExecutor(TTSExecutor):
 
         # for speedyspeech
         self.tones_dict = None
-        if 'tones_dict' in pretrained_models[am_tag]:
+        if 'tones_dict' in self.task_resource.res_dict:
             self.tones_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['tones_dict'])
+                self.am_res_path, self.task_resource.res_dict['tones_dict'])
             if tones_dict:
                 self.tones_dict = tones_dict
 
         # for multi speaker fastspeech2
         self.speaker_dict = None
-        if 'speaker_dict' in pretrained_models[am_tag]:
+        if 'speaker_dict' in self.task_resource.res_dict:
             self.speaker_dict = os.path.join(
-                am_res_path, pretrained_models[am_tag]['speaker_dict'])
+                self.am_res_path, self.task_resource.res_dict['speaker_dict'])
             if speaker_dict:
                 self.speaker_dict = speaker_dict
 
         # voc
         voc_tag = voc + '-' + lang
+        self.task_resource.set_task_model(
+            model_tag=voc_tag,
+            model_type=1,  # vocoder
+            version=None,  # default version
+        )
         if voc_model is None or voc_params is None:
-            voc_res_path = self._get_pretrained_path(voc_tag)
-            self.voc_res_path = voc_res_path
-            self.voc_model = os.path.join(voc_res_path,
-                                          pretrained_models[voc_tag]['model'])
-            self.voc_params = os.path.join(voc_res_path,
-                                           pretrained_models[voc_tag]['params'])
-            self.voc_sample_rate = pretrained_models[voc_tag]['sample_rate']
-            logger.info(voc_res_path)
+            self.voc_res_path = self.task_resource.voc_res_dir
+            self.voc_model = os.path.join(
+                self.voc_res_path, self.task_resource.voc_res_dict['model'])
+            self.voc_params = os.path.join(
+                self.voc_res_path, self.task_resource.voc_res_dict['params'])
+            self.voc_sample_rate = self.task_resource.voc_res_dict[
+                'sample_rate']
+            logger.info(self.voc_res_path)
             logger.info(self.voc_model)
             logger.info(self.voc_params)
         else:
@@ -335,7 +255,7 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 wav_all = paddle.concat([wav_all, wav])
             self.voc_time += (time.time() - voc_st)
-        self._outputs['wav'] = wav_all
+        self._outputs["wav"] = wav_all
 
 
 class TTSEngine(BaseEngine):
@@ -352,26 +272,71 @@ class TTSEngine(BaseEngine):
 
     def init(self, config: dict) -> bool:
         self.executor = TTSServerExecutor()
-
         self.config = config
-        self.executor._init_from_path(
-            am=self.config.am,
-            am_model=self.config.am_model,
-            am_params=self.config.am_params,
-            am_sample_rate=self.config.am_sample_rate,
-            phones_dict=self.config.phones_dict,
-            tones_dict=self.config.tones_dict,
-            speaker_dict=self.config.speaker_dict,
-            voc=self.config.voc,
-            voc_model=self.config.voc_model,
-            voc_params=self.config.voc_params,
-            voc_sample_rate=self.config.voc_sample_rate,
-            lang=self.config.lang,
-            am_predictor_conf=self.config.am_predictor_conf,
-            voc_predictor_conf=self.config.voc_predictor_conf, )
+        self.lang = self.config.lang
+        self.engine_type = "inference"
+
+        try:
+            if self.config.am_predictor_conf.device is not None:
+                self.device = self.config.am_predictor_conf.device
+            elif self.config.voc_predictor_conf.device is not None:
+                self.device = self.config.voc_predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
+
+        try:
+            self.executor._init_from_path(
+                am=self.config.am,
+                am_model=self.config.am_model,
+                am_params=self.config.am_params,
+                am_sample_rate=self.config.am_sample_rate,
+                phones_dict=self.config.phones_dict,
+                tones_dict=self.config.tones_dict,
+                speaker_dict=self.config.speaker_dict,
+                voc=self.config.voc,
+                voc_model=self.config.voc_model,
+                voc_params=self.config.voc_params,
+                voc_sample_rate=self.config.voc_sample_rate,
+                lang=self.config.lang,
+                am_predictor_conf=self.config.am_predictor_conf,
+                voc_predictor_conf=self.config.voc_predictor_conf, )
+        except Exception as e:
+            logger.error("Failed to get model related files.")
+            logger.error("Initialize TTS server engine Failed on device: %s." %
+                         (self.device))
+            logger.error(e)
+            return False
 
         logger.info("Initialize TTS server engine successfully.")
         return True
+
+
+class PaddleTTSConnectionHandler(TTSServerExecutor):
+    def __init__(self, tts_engine):
+        """The PaddleSpeech TTS Server Connection Handler
+           This connection process every tts server request
+        Args:
+            tts_engine (TTSEngine): The TTS engine
+        """
+        super().__init__()
+        logger.info(
+            "Create PaddleTTSConnectionHandler to process the tts request")
+
+        self.tts_engine = tts_engine
+        self.executor = self.tts_engine.executor
+        self.config = self.tts_engine.config
+        self.frontend = self.executor.frontend
+        self.am_predictor = self.executor.am_predictor
+        self.voc_predictor = self.executor.voc_predictor
 
     def postprocess(self,
                     wav,
@@ -423,8 +388,11 @@ class TTSEngine(BaseEngine):
                 ErrorCode.SERVER_INTERNAL_ERR,
                 "Failed to transform speed. Can not install soxbindings on your system. \
                  You need to set speed value 1.0.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("Failed to transform speed.")
+            logger.error(e)
+            sys.exit(-1)
 
         # wav to base64
         buf = io.BytesIO()
@@ -481,7 +449,7 @@ class TTSEngine(BaseEngine):
 
         try:
             infer_st = time.time()
-            self.executor.infer(
+            self.infer(
                 text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
             infer_et = time.time()
             infer_time = infer_et - infer_st
@@ -489,13 +457,16 @@ class TTSEngine(BaseEngine):
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts infer failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts infer failed.")
+            logger.error(e)
+            sys.exit(-1)
 
         try:
             postprocess_st = time.time()
             target_sample_rate, wav_base64 = self.postprocess(
-                wav=self.executor._outputs['wav'].numpy(),
+                wav=self._outputs["wav"].numpy(),
                 original_fs=self.executor.am_sample_rate,
                 target_fs=sample_rate,
                 volume=volume,
@@ -503,26 +474,28 @@ class TTSEngine(BaseEngine):
                 audio_path=save_path)
             postprocess_et = time.time()
             postprocess_time = postprocess_et - postprocess_st
-            duration = len(self.executor._outputs['wav']
-                           .numpy()) / self.executor.am_sample_rate
+            duration = len(
+                self._outputs["wav"].numpy()) / self.executor.am_sample_rate
             rtf = infer_time / duration
 
         except ServerBaseException:
             raise ServerBaseException(ErrorCode.SERVER_INTERNAL_ERR,
                                       "tts postprocess failed.")
-        except BaseException:
+            sys.exit(-1)
+        except Exception as e:
             logger.error("tts postprocess failed.")
+            logger.error(e)
+            sys.exit(-1)
 
         logger.info("AM model: {}".format(self.config.am))
         logger.info("Vocoder model: {}".format(self.config.voc))
         logger.info("Language: {}".format(lang))
-        logger.info("tts engine type: paddle inference")
+        logger.info("tts engine type: python")
 
         logger.info("audio duration: {}".format(duration))
-        logger.info(
-            "frontend inference time: {}".format(self.executor.frontend_time))
-        logger.info("AM inference time: {}".format(self.executor.am_time))
-        logger.info("Vocoder inference time: {}".format(self.executor.voc_time))
+        logger.info("frontend inference time: {}".format(self.frontend_time))
+        logger.info("AM inference time: {}".format(self.am_time))
+        logger.info("Vocoder inference time: {}".format(self.voc_time))
         logger.info("total inference time: {}".format(infer_time))
         logger.info(
             "postprocess (change speed, volume, target sample rate) time: {}".
@@ -530,5 +503,6 @@ class TTSEngine(BaseEngine):
         logger.info("total generate audio time: {}".format(infer_time +
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
+        logger.info("device: {}".format(self.tts_engine.device))
 
         return lang, target_sample_rate, duration, wav_base64

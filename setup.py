@@ -24,48 +24,21 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+from setuptools.command.test import test
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-VERSION = '1.0.0a'
+VERSION = '0.0.0'
+COMMITID = 'none'
 
 base = [
-    "editdistance",
-    "g2p_en",
-    "g2pM",
-    "h5py",
-    "inflect",
-    "jieba",
-    "jsonlines",
-    "kaldiio",
-    "librosa==0.8.1",
-    "loguru",
-    "matplotlib",
-    "nara_wpe",
-    "onnxruntime",
-    "pandas",
-    "paddleaudio",
-    "paddlenlp",
-    "paddlespeech_feat",
-    "praatio==5.0.0",
-    "pypinyin",
-    "pypinyin-dict",
-    "python-dateutil",
-    "pyworld",
-    "resampy==0.2.2",
-    "sacrebleu",
-    "scipy",
-    "sentencepiece~=0.1.96",
-    "soundfile~=0.10",
-    "textgrid",
-    "timer",
-    "tqdm",
-    "typeguard",
-    "visualdl",
-    "webrtcvad",
-    "yacs~=0.1.8",
-    "prettytable",
-    "zhon",
+    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
+    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
+    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
+    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
+    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
+    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
+    "yacs~=0.1.8", "prettytable", "zhon", 'colorlog', 'pathos == 0.2.8'
 ]
 
 server = [
@@ -97,22 +70,31 @@ requirements = {
 }
 
 
-def write_version_py(filename='paddlespeech/__init__.py'):
-    import paddlespeech
-    if hasattr(paddlespeech,
-               "__version__") and paddlespeech.__version__ == VERSION:
-        return
-    with open(filename, "a") as f:
-        f.write(f"\n__version__ = '{VERSION}'\n")
+def check_call(cmd: str, shell=False, executable=None):
+    try:
+        sp.check_call(
+            cmd.split(),
+            shell=shell,
+            executable="/bin/bash" if shell else executable)
+    except sp.CalledProcessError as e:
+        print(
+            f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
+            e.output,
+            file=sys.stderr)
+        raise e
 
 
-def remove_version_py(filename='paddlespeech/__init__.py'):
-    with open(filename, "r") as f:
-        lines = f.readlines()
-    with open(filename, "w") as f:
-        for line in lines:
-            if "__version__" not in line:
-                f.write(line)
+def check_output(cmd: str, shell=False):
+    try:
+        out_bytes = sp.check_output(cmd.split())
+    except sp.CalledProcessError as e:
+        out_bytes = e.output  # Output generated before error
+        code = e.returncode  # Return code
+        print(
+            f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
+            out_bytes,
+            file=sys.stderr)
+    return out_bytes.strip().decode('utf8')
 
 
 @contextlib.contextmanager
@@ -132,23 +114,12 @@ def read(*names, **kwargs):
         return fp.read()
 
 
-def check_call(cmd: str, shell=False, executable=None):
-    try:
-        sp.check_call(
-            cmd.split(),
-            shell=shell,
-            executable="/bin/bash" if shell else executable)
-    except sp.CalledProcessError as e:
-        print(
-            f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
-            e.output,
-            file=sys.stderr)
-        raise e
-
-
 def _remove(files: str):
     for f in files:
         f.unlink()
+
+
+################################# Install ##################################
 
 
 def _post_install(install_lib_dir):
@@ -178,7 +149,19 @@ class InstallCommand(install):
         install.run(self)
 
 
-    # cmd: python setup.py upload
+class TestCommand(test):
+    def finalize_options(self):
+        test.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # Run nose ensuring that argv simulates running nosetests directly
+        import nose
+        nose.run_exit(argv=['nosetests', '-w', 'tests'])
+
+
+# cmd: python setup.py upload
 class UploadCommand(Command):
     description = "Build and publish the package."
     user_options = []
@@ -202,8 +185,45 @@ class UploadCommand(Command):
         sys.exit()
 
 
-write_version_py()
+################################# Version ##################################
+def write_version_py(filename='paddlespeech/__init__.py'):
+    import paddlespeech
+    if hasattr(paddlespeech,
+               "__version__") and paddlespeech.__version__ == VERSION:
+        return
+    with open(filename, "a") as f:
+        out_str = f"\n__version__ = '{VERSION}'\n"
+        print(out_str)
+        f.write(f"\n__version__ = '{VERSION}'\n")
 
+    COMMITID = check_output("git rev-parse HEAD")
+    with open(filename, 'a') as f:
+        out_str = f"\n__commit__ = '{COMMITID}'\n"
+        print(out_str)
+        f.write(f"\n__commit__ = '{COMMITID}'\n")
+
+    print(f"{inspect.currentframe().f_code.co_name} done")
+
+
+def remove_version_py(filename='paddlespeech/__init__.py'):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    with open(filename, "w") as f:
+        for line in lines:
+            if "__version__" in line or "__commit__" in line:
+                continue
+            f.write(line)
+    print(f"{inspect.currentframe().f_code.co_name} done")
+
+
+@contextlib.contextmanager
+def version_info():
+    write_version_py()
+    yield
+    remove_version_py()
+
+
+################################# Steup ##################################
 setup_info = dict(
     # Metadata
     name='paddlespeech',
@@ -243,11 +263,13 @@ setup_info = dict(
             "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
             "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
         ],
+        'test': ['nose', 'torchaudio==0.10.2'],
     },
     cmdclass={
         'develop': DevelopCommand,
         'install': InstallCommand,
         'upload': UploadCommand,
+        'test': TestCommand,
     },
 
     # Package info
@@ -273,6 +295,5 @@ setup_info = dict(
         ]
     })
 
-setup(**setup_info)
-
-remove_version_py()
+with version_info():
+    setup(**setup_info)

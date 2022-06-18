@@ -11,7 +11,7 @@ paddlespeech version: 0.2.0
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.0464 | 
 
 
-## Chunk Conformer
+## Conformer Streaming
 paddle version: 2.2.2  
 paddlespeech version: 0.2.0  
 Need set `decoding.decoding_chunk_size=16` when decoding.

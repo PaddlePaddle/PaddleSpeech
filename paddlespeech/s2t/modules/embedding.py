@@ -112,8 +112,10 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
             paddle.Tensor: for compatibility to RelPositionalEncoding, (batch=1, time, ...)
         """
         T = x.shape[1]
-        assert offset + x.shape[1] < self.max_len
-        #TODO(Hui Zhang): using T = x.size(1), __getitem__ not support Tensor
+        assert offset + x.shape[
+            1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
+                offset, x.shape[1], self.max_len)
+        #TODO(Hui Zhang): using T = paddle.shape(x)[1], __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + T]
         x = x * self.xscale + pos_emb
         return self.dropout(x), self.dropout(pos_emb)
@@ -148,6 +150,7 @@ class RelPositionalEncoding(PositionalEncoding):
             max_len (int, optional): [Maximum input length.]. Defaults to 5000.
         """
         super().__init__(d_model, dropout_rate, max_len, reverse=True)
+        logger.info(f"max len: {max_len}")
 
     def forward(self, x: paddle.Tensor,
                 offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
@@ -158,8 +161,10 @@ class RelPositionalEncoding(PositionalEncoding):
             paddle.Tensor: Encoded tensor (batch, time, `*`).
             paddle.Tensor: Positional embedding tensor (1, time, `*`).
         """
-        assert offset + x.shape[1] < self.max_len
+        assert offset + x.shape[
+            1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
+                offset, x.shape[1], self.max_len)
         x = x * self.xscale
-        #TODO(Hui Zhang): using x.size(1), __getitem__ not support Tensor
+        #TODO(Hui Zhang): using paddle.shape(x)[1], __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + x.shape[1]]
         return self.dropout(x), self.dropout(pos_emb)

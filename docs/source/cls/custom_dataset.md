@@ -1,8 +1,8 @@
 # Customize Dataset for Audio Classification
 
-Following this tutorial you can customize your dataset for audio classification task by using `paddlespeech` and `paddleaudio`.
+Following this tutorial you can customize your dataset for audio classification task by using `paddlespeech`.
 
-A base class of classification dataset is `paddleaudio.dataset.AudioClassificationDataset`. To customize your dataset you should write a dataset class derived from `AudioClassificationDataset`. 
+A base class of classification dataset is `paddlespeech.audio.dataset.AudioClassificationDataset`. To customize your dataset you should write a dataset class derived from `AudioClassificationDataset`. 
 
 Assuming you have some wave files that stored in your own directory. You should prepare a meta file with the information of filepaths and labels. For example the absolute path of it is `/PATH/TO/META_FILE.txt`:
 ```
@@ -14,7 +14,7 @@ Assuming you have some wave files that stored in your own directory. You should 
 Here is an example to build your custom dataset in `custom_dataset.py`:
 
 ```python
-from paddleaudio.datasets.dataset import AudioClassificationDataset
+from paddlespeech.audio.datasets.dataset import AudioClassificationDataset
 
 class CustomDataset(AudioClassificationDataset):
     meta_file = '/PATH/TO/META_FILE.txt'
@@ -48,7 +48,7 @@ class CustomDataset(AudioClassificationDataset):
 Then you can build dataset and data loader from `CustomDataset`:
 ```python
 import paddle
-from paddleaudio.features import LogMelSpectrogram
+from paddlespeech.audio.features import LogMelSpectrogram
 
 from custom_dataset import CustomDataset
 

@@ -18,5 +18,6 @@ from .parallel_wavegan import *
 from .speedyspeech import *
 from .tacotron2 import *
 from .transformer_tts import *
+from .vits import *
 from .waveflow import *
 from .wavernn import *

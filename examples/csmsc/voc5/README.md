@@ -2,7 +2,7 @@
 This example contains code used to train a [HiFiGAN](https://arxiv.org/abs/2010.05646) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 ## Dataset
 ### Download and Extract
-Download CSMSC from the [official website](https://www.data-baker.com/data/index/source) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
+Download CSMSC from it's [official website](https://test.data-baker.com/data/index/TNtts/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
@@ -63,7 +63,7 @@ Train a HiFiGAN model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       config file to overwrite default config.
+  --config CONFIG       HiFiGAN config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA
@@ -130,7 +130,7 @@ HiFiGAN checkpoint contains files listed below.
 ```text
 hifigan_csmsc_ckpt_0.1.1
 ├── default.yaml                  # default config used to train hifigan
-├── feats_stats.npy                  # statistics used to normalize spectrogram when training hifigan
+├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
 └── snapshot_iter_2500000.pdz     # generator parameters of hifigan
 ```
 

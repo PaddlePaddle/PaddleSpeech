@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 import traceback
 from typing import Union
 
@@ -99,7 +100,16 @@ def tts(request_body: TTSRequest):
         tts_engine = engine_pool['tts']
         logger.info("Get tts engine successfully.")
 
-        lang, target_sample_rate, duration, wav_base64 = tts_engine.run(
+        if tts_engine.engine_type == "python":
+            from paddlespeech.server.engine.tts.python.tts_engine import PaddleTTSConnectionHandler
+        elif tts_engine.engine_type == "inference":
+            from paddlespeech.server.engine.tts.paddleinference.tts_engine import PaddleTTSConnectionHandler
+        else:
+            logger.error("Offline tts engine only support python or inference.")
+            sys.exit(-1)
+
+        connection_handler = PaddleTTSConnectionHandler(tts_engine)
+        lang, target_sample_rate, duration, wav_base64 = connection_handler.run(
             text, spk_id, speed, volume, sample_rate, save_path)
 
         response = {
@@ -128,7 +138,7 @@ def tts(request_body: TTSRequest):
     return response
 
 
-@router.post("/paddlespeech/streaming/tts")
+@router.post("/paddlespeech/tts/streaming")
 async def stream_tts(request_body: TTSRequest):
     text = request_body.text
 
@@ -136,4 +146,14 @@ async def stream_tts(request_body: TTSRequest):
     tts_engine = engine_pool['tts']
     logger.info("Get tts engine successfully.")
 
-    return StreamingResponse(tts_engine.run(sentence=text))
+    if tts_engine.engine_type == "online":
+        from paddlespeech.server.engine.tts.online.python.tts_engine import PaddleTTSConnectionHandler
+    elif tts_engine.engine_type == "online-onnx":
+        from paddlespeech.server.engine.tts.online.onnx.tts_engine import PaddleTTSConnectionHandler
+    else:
+        logger.error("Online tts engine only support online or online-onnx.")
+        sys.exit(-1)
+
+    connection_handler = PaddleTTSConnectionHandler(tts_engine)
+
+    return StreamingResponse(connection_handler.run(sentence=text))

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Trainer for DeepSpeech2 model."""
-from paddle import distributed as dist
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.deepspeech2.model import DeepSpeech2Trainer as Trainer
@@ -27,18 +26,18 @@ def main_sp(config, args):
 
 
 def main(config, args):
-    if args.ngpu > 1:
-        dist.spawn(main_sp, args=(config, args), nprocs=args.ngpu)
-    else:
-        main_sp(config, args)
+    main_sp(config, args)
 
 
 if __name__ == "__main__":
     parser = default_argument_parser()
     parser.add_argument(
-        "--model_type", type=str, default='offline', help='offline/online')
+        '--nxpu',
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
-    print("model_type:{}".format(args.model_type))
     print_arguments(args, globals())
 
     # https://yaml.org/type/float.html

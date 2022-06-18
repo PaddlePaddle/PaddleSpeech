@@ -13,12 +13,16 @@
 # limitations under the License.
 from typing import Text
 
+from ..utils.log import logger
+
 __all__ = ['EngineFactory']
 
 
 class EngineFactory(object):
     @staticmethod
     def get_engine(engine_name: Text, engine_type: Text):
+        logger.info(f"{engine_name} : {engine_type} engine.")
+
         if engine_name == 'asr' and engine_type == 'inference':
             from paddlespeech.server.engine.asr.paddleinference.asr_engine import ASREngine
             return ASREngine()
@@ -26,7 +30,13 @@ class EngineFactory(object):
             from paddlespeech.server.engine.asr.python.asr_engine import ASREngine
             return ASREngine()
         elif engine_name == 'asr' and engine_type == 'online':
-            from paddlespeech.server.engine.asr.online.asr_engine import ASREngine
+            from paddlespeech.server.engine.asr.online.python.asr_engine import ASREngine
+            return ASREngine()
+        elif engine_name == 'asr' and engine_type == 'online-inference':
+            from paddlespeech.server.engine.asr.online.paddleinference.asr_engine import ASREngine
+            return ASREngine()
+        elif engine_name == 'asr' and engine_type == 'online-onnx':
+            from paddlespeech.server.engine.asr.online.onnx.asr_engine import ASREngine
             return ASREngine()
         elif engine_name == 'tts' and engine_type == 'inference':
             from paddlespeech.server.engine.tts.paddleinference.tts_engine import TTSEngine
@@ -49,5 +59,11 @@ class EngineFactory(object):
         elif engine_name.lower() == 'text' and engine_type.lower() == 'python':
             from paddlespeech.server.engine.text.python.text_engine import TextEngine
             return TextEngine()
+        elif engine_name.lower() == 'vector' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.vector.python.vector_engine import VectorEngine
+            return VectorEngine()
+        elif engine_name.lower() == 'acs' and engine_type.lower() == 'python':
+            from paddlespeech.server.engine.acs.python.acs_engine import ACSEngine
+            return ACSEngine()
         else:
             return None

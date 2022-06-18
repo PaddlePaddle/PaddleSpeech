@@ -32,4 +32,4 @@ export GLOG_logtostderr=1
 
 # websocket client
 websocket_client_main \
-    --wav_rspecifier=scp:$data/$aishell_wav_scp --streaming_chunk=0.36
+    --wav_rspecifier=scp:$data/$aishell_wav_scp --streaming_chunk=0.5

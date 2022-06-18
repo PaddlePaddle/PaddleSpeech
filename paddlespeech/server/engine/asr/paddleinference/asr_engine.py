@@ -22,6 +22,7 @@ from yacs.config import CfgNode
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.utils import MODEL_HOME
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -29,34 +30,14 @@ from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
 
-__all__ = ['ASREngine']
-
-pretrained_models = {
-    "deepspeech2offline_aishell-zh-16k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz',
-        'md5':
-        '932c3593d62fe5c741b59b31318aa314',
-        'cfg_path':
-        'model.yaml',
-        'ckpt_path':
-        'exp/deepspeech2/checkpoints/avg_1',
-        'model':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdmodel',
-        'params':
-        'exp/deepspeech2/checkpoints/avg_1.jit.pdiparams',
-        'lm_url':
-        'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
-        'lm_md5':
-        '29e02312deb2e59b3c8686c7966d4fe3'
-    },
-}
+__all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 
 
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        pass
+        self.task_resource = CommonTaskResource(
+            task='asr', model_format='static')
 
     def _init_from_path(self,
                         model_type: str='wenetspeech',
@@ -70,20 +51,21 @@ class ASRServerExecutor(ASRExecutor):
         """
         Init model and other resources from a specific path.
         """
-
+        self.max_len = 50
+        sample_rate_str = '16k' if sample_rate == 16000 else '8k'
+        tag = model_type + '-' + lang + '-' + sample_rate_str
+        self.max_len = 50
+        self.task_resource.set_task_model(model_tag=tag)
         if cfg_path is None or am_model is None or am_params is None:
-            sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            tag = model_type + '-' + lang + '-' + sample_rate_str
-            res_path = self._get_pretrained_path(tag)  # wenetspeech_zh
-            self.res_path = res_path
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]['cfg_path'])
+            self.res_path = self.task_resource.res_dir
+            self.cfg_path = os.path.join(
+                self.res_path, self.task_resource.res_dict['cfg_path'])
 
-            self.am_model = os.path.join(res_path,
-                                         pretrained_models[tag]['model'])
-            self.am_params = os.path.join(res_path,
-                                          pretrained_models[tag]['params'])
-            logger.info(res_path)
+            self.am_model = os.path.join(self.res_path,
+                                         self.task_resource.res_dict['model'])
+            self.am_params = os.path.join(self.res_path,
+                                          self.task_resource.res_dict['params'])
+            logger.info(self.res_path)
             logger.info(self.cfg_path)
             logger.info(self.am_model)
             logger.info(self.am_params)
@@ -99,22 +81,25 @@ class ASRServerExecutor(ASRExecutor):
         self.config.merge_from_file(self.cfg_path)
 
         with UpdateConfig(self.config):
-            if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
-                from paddlespeech.s2t.io.collator import SpeechCollator
+            if "deepspeech2" in model_type:
                 self.vocab = self.config.vocab_filepath
+                if self.config.spm_model_prefix:
+                    self.config.spm_model_prefix = os.path.join(
+                        self.res_path, self.config.spm_model_prefix)
+                self.text_feature = TextFeaturizer(
+                    unit_type=self.config.unit_type,
+                    vocab=self.vocab,
+                    spm_model_prefix=self.config.spm_model_prefix)
                 self.config.decode.lang_model_path = os.path.join(
                     MODEL_HOME, 'language_model',
                     self.config.decode.lang_model_path)
-                self.collate_fn_test = SpeechCollator.from_config(self.config)
-                self.text_feature = TextFeaturizer(
-                    unit_type=self.config.unit_type, vocab=self.vocab)
 
-                lm_url = pretrained_models[tag]['lm_url']
-                lm_md5 = pretrained_models[tag]['lm_md5']
+                lm_url = self.task_resource.res_dict['lm_url']
+                lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
                     lm_url,
                     os.path.dirname(self.config.decode.lang_model_path), lm_md5)
-            elif "conformer" in model_type or "transformer" in model_type or "wenetspeech" in model_type:
+            elif "conformer" in model_type or "transformer" in model_type:
                 raise Exception("wrong type")
             else:
                 raise Exception("wrong type")
@@ -144,7 +129,7 @@ class ASRServerExecutor(ASRExecutor):
         cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
-        if "deepspeech2online" in model_type or "deepspeech2offline" in model_type:
+        if "deepspeech2" in model_type:
             decode_batch_size = audio.shape[0]
             # init once
             self.decoder.init_decoder(
@@ -192,10 +177,23 @@ class ASREngine(BaseEngine):
         Returns:
             bool: init failed or success
         """
-        self.input = None
-        self.output = None
         self.executor = ASRServerExecutor()
         self.config = config
+        self.engine_type = "inference"
+
+        try:
+            if self.config.am_predictor_conf.device is not None:
+                self.device = self.config.am_predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error(e)
+            return False
 
         self.executor._init_from_path(
             model_type=self.config.model_type,
@@ -210,22 +208,41 @@ class ASREngine(BaseEngine):
         logger.info("Initialize ASR server engine successfully.")
         return True
 
+
+class PaddleASRConnectionHandler(ASRServerExecutor):
+    def __init__(self, asr_engine):
+        """The PaddleSpeech ASR Server Connection Handler
+           This connection process every asr server request
+        Args:
+            asr_engine (ASREngine): The ASR engine
+        """
+        super().__init__()
+        self.input = None
+        self.output = None
+        self.asr_engine = asr_engine
+        self.executor = self.asr_engine.executor
+        self.config = self.executor.config
+        self.max_len = self.executor.max_len
+        self.decoder = self.executor.decoder
+        self.am_predictor = self.executor.am_predictor
+        self.text_feature = self.executor.text_feature
+
     def run(self, audio_data):
-        """engine run 
+        """engine run
 
         Args:
             audio_data (bytes): base64.b64decode
         """
-        if self.executor._check(
-                io.BytesIO(audio_data), self.config.sample_rate,
-                self.config.force_yes):
+        if self._check(
+                io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
+                self.asr_engine.config.force_yes):
             logger.info("start running asr engine")
-            self.executor.preprocess(self.config.model_type,
-                                     io.BytesIO(audio_data))
+            self.preprocess(self.asr_engine.config.model_type,
+                            io.BytesIO(audio_data))
             st = time.time()
-            self.executor.infer(self.config.model_type)
+            self.infer(self.asr_engine.config.model_type)
             infer_time = time.time() - st
-            self.output = self.executor.postprocess()  # Retrieve result of asr.
+            self.output = self.postprocess()  # Retrieve result of asr.
             logger.info("end inferring asr engine")
         else:
             logger.info("file check failed!")
@@ -233,8 +250,3 @@ class ASREngine(BaseEngine):
 
         logger.info("inference time: {}".format(infer_time))
         logger.info("asr engine type: paddle inference")
-
-    def postprocess(self):
-        """postprocess
-        """
-        return self.output

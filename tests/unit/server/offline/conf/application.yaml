@@ -1,14 +1,14 @@
-# This is the parameter configuration file for PaddleSpeech Serving.
+# This is the parameter configuration file for PaddleSpeech Offline Serving.
 
 #################################################################################
 #                             SERVER SETTING                                    #
 #################################################################################
-host: 127.0.0.1
+host: 0.0.0.0
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference']
-
+# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference']
+protocol: 'http'
 engine_list: ['asr_python', 'tts_python', 'cls_python']
 
 

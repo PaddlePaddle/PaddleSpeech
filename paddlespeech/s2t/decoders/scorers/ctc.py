@@ -69,7 +69,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
                 return sc[i], st[i]
             else:  # for CTCPrefixScorePD (need new_id > 0)
                 r, log_psi, f_min, f_max, scoring_idmap = state
-                s = log_psi[i, new_id].expand(log_psi.size(1))
+                s = log_psi[i, new_id].expand(paddle.shape(log_psi)[1])
                 if scoring_idmap is not None:
                     return r[:, :, i, scoring_idmap[i, new_id]], s, f_min, f_max
                 else:
@@ -107,7 +107,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
 
         """
         logp = self.ctc.log_softmax(x.unsqueeze(0))  # assuming batch_size = 1
-        xlen = paddle.to_tensor([logp.size(1)])
+        xlen = paddle.to_tensor([paddle.shape(logp)[1]])
         self.impl = CTCPrefixScorePD(logp, xlen, 0, self.eos)
         return None
 

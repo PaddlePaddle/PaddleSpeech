@@ -28,27 +28,25 @@ from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import download_and_decompress
 from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
-from .pretrained_models import kaldi_bins
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["STExecutor"]
 
+kaldi_bins = {
+    "url":
+    "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
+    "md5":
+    "c0682303b3f3393dbf6ed4c4e35a53eb",
+}
 
-@cli_register(
-    name="paddlespeech.st", description="Speech translation infer command.")
+
 class STExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
+        super().__init__(task='st')
         self.kaldi_bins = kaldi_bins
 
         self.parser = argparse.ArgumentParser(
@@ -60,7 +58,8 @@ class STExecutor(BaseExecutor):
             type=str,
             default="fat_st_ted",
             choices=[
-                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
             ],
             help="Choose model type of st task.")
         self.parser.add_argument(
@@ -134,14 +133,16 @@ class STExecutor(BaseExecutor):
 
         if cfg_path is None or ckpt_path is None:
             tag = model_type + "-" + src_lang + "-" + tgt_lang
-            res_path = self._get_pretrained_path(tag)
-            self.cfg_path = os.path.join(res_path,
-                                         pretrained_models[tag]["cfg_path"])
-            self.ckpt_path = os.path.join(res_path,
-                                          pretrained_models[tag]["ckpt_path"])
-            logger.info(res_path)
+            self.task_resource.set_task_model(tag, version=None)
+            self.cfg_path = os.path.join(
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['cfg_path'])
+            self.ckpt_path = os.path.join(
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['ckpt_path'])
             logger.info(self.cfg_path)
             logger.info(self.ckpt_path)
+            res_path = self.task_resource.res_dir
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path)
@@ -166,7 +167,7 @@ class STExecutor(BaseExecutor):
         model_conf = self.config
         model_name = model_type[:model_type.rindex(
             '_')]  # model_type: {model_name}_{dataset}
-        model_class = dynamic_import(model_name, self.model_alias)
+        model_class = self.task_resource.get_model_class(model_name)
         self.model = model_class.from_config(model_conf)
         self.model.eval()
 
@@ -304,7 +305,7 @@ class STExecutor(BaseExecutor):
         if not parser_args.verbose:
             self.disable_task_loggers()
 
-        task_source = self.get_task_source(parser_args.input)
+        task_source = self.get_input_source(parser_args.input)
         task_results = OrderedDict()
         has_exceptions = False
 

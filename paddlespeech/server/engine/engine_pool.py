@@ -34,6 +34,7 @@ def init_engine_pool(config) -> bool:
         engine_type = engine_and_type.split("_")[1]
         ENGINE_POOL[engine] = EngineFactory.get_engine(
             engine_name=engine, engine_type=engine_type)
+
         if not ENGINE_POOL[engine].init(config=config[engine_and_type]):
             return False
 

@@ -24,7 +24,6 @@ from paddle.static import InputSpec
 from timer import timer
 from yacs.config import CfgNode
 
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.t2s.exps.syn_utils import denorm
 from paddlespeech.t2s.exps.syn_utils import get_chunks
 from paddlespeech.t2s.exps.syn_utils import get_frontend
@@ -33,6 +32,7 @@ from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import model_alias
 from paddlespeech.t2s.exps.syn_utils import voc_to_static
 from paddlespeech.t2s.utils import str2bool
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 
 def evaluate(args):
@@ -133,7 +133,7 @@ def evaluate(args):
 
     N = 0
     T = 0
-    chunk_size = args.chunk_size
+    block_size = args.block_size
     pad_size = args.pad_size
 
     for utt_id, sentence in sentences:
@@ -153,7 +153,7 @@ def evaluate(args):
                 # acoustic model
                 orig_hs = am_encoder_infer(phone_ids)
                 if args.am_streaming:
-                    hss = get_chunks(orig_hs, chunk_size, pad_size)
+                    hss = get_chunks(orig_hs, block_size, pad_size)
                     chunk_num = len(hss)
                     mel_list = []
                     for i, hs in enumerate(hss):
@@ -171,7 +171,7 @@ def evaluate(args):
                             sub_mel = sub_mel[pad_size:]
                         else:
                             # 倒数几块的右侧也可能没有 pad 够
-                            sub_mel = sub_mel[pad_size:(chunk_size + pad_size) -
+                            sub_mel = sub_mel[pad_size:(block_size + pad_size) -
                                               sub_mel.shape[0]]
                         mel_list.append(sub_mel)
                     mel = paddle.concat(mel_list, axis=0)
@@ -201,7 +201,7 @@ def evaluate(args):
 
 
 def parse_args():
-    # parse args and config and redirect to train_sp
+    # parse args and config
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
@@ -212,10 +212,7 @@ def parse_args():
         choices=['fastspeech2_csmsc'],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
-        '--am_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model. Use deault config when it is None.')
+        '--am_config', type=str, default=None, help='Config of acoustic model.')
     parser.add_argument(
         '--am_ckpt',
         type=str,
@@ -245,10 +242,7 @@ def parse_args():
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(
-        '--voc_config',
-        type=str,
-        default=None,
-        help='Config of voc. Use deault config when it is None.')
+        '--voc_config', type=str, default=None, help='Config of voc.')
     parser.add_argument(
         '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
     parser.add_argument(
@@ -283,7 +277,7 @@ def parse_args():
         default=False,
         help="whether use streaming acoustic model")
     parser.add_argument(
-        "--chunk_size", type=int, default=42, help="chunk size of am streaming")
+        "--block_size", type=int, default=42, help="block size of am streaming")
     parser.add_argument(
         "--pad_size", type=int, default=12, help="pad size of am streaming")
 

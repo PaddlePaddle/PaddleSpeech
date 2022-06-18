@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include "frontend/audio/assembler.h"
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
+#include "frontend/audio/fbank.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/linear_spectrogram.h"
@@ -27,14 +29,21 @@ namespace ppspeech {
 
 struct FeaturePipelineOptions {
     std::string cmvn_file;
-    bool to_float32;
+    bool to_float32;  // true, only for linear feature
+    bool use_fbank;
     LinearSpectrogramOptions linear_spectrogram_opts;
+    kaldi::FbankOptions fbank_opts;
     FeatureCacheOptions feature_cache_opts;
+    AssemblerOptions assembler_opts;
+
     FeaturePipelineOptions()
         : cmvn_file(""),
-          to_float32(false),
+          to_float32(false),  // true, only for linear feature
+          use_fbank(true),
           linear_spectrogram_opts(),
-          feature_cache_opts() {}
+          fbank_opts(),
+          feature_cache_opts(),
+          assembler_opts() {}
 };
 
 class FeaturePipeline : public FrontendInterface {

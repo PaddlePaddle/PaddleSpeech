@@ -62,21 +62,21 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             False: x -> x + att(x)
     """
 
-    def __init__(
-            self,
-            vocab_size: int,
-            encoder_output_size: int,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            self_attention_dropout_rate: float=0.0,
-            src_attention_dropout_rate: float=0.0,
-            input_layer: str="embed",
-            use_output_layer: bool=True,
-            normalize_before: bool=True,
-            concat_after: bool=False, ):
+    def __init__(self,
+                 vocab_size: int,
+                 encoder_output_size: int,
+                 attention_heads: int=4,
+                 linear_units: int=2048,
+                 num_blocks: int=6,
+                 dropout_rate: float=0.1,
+                 positional_dropout_rate: float=0.1,
+                 self_attention_dropout_rate: float=0.0,
+                 src_attention_dropout_rate: float=0.0,
+                 input_layer: str="embed",
+                 use_output_layer: bool=True,
+                 normalize_before: bool=True,
+                 concat_after: bool=False,
+                 max_len: int=5000):
 
         assert check_argument_types()
 
@@ -87,7 +87,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         if input_layer == "embed":
             self.embed = nn.Sequential(
                 Embedding(vocab_size, attention_dim),
-                PositionalEncoding(attention_dim, positional_dropout_rate), )
+                PositionalEncoding(
+                    attention_dim, positional_dropout_rate, max_len=max_len), )
         else:
             raise ValueError(f"only 'embed' is supported: {input_layer}")
 
@@ -241,7 +242,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(ys.size(-1)).unsqueeze(0)  # (B,L,L)
+        ys_mask = subsequent_mask(paddle.shape(ys)[-1]).unsqueeze(0)  # (B,L,L)
         xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
         logp, states = self.forward_one_step(
             xs, xs_mask, ys, ys_mask, cache=batch_state)

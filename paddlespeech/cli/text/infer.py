@@ -21,26 +21,16 @@ from typing import Union
 
 import paddle
 
-from ...s2t.utils.dynamic_import import dynamic_import
 from ..executor import BaseExecutor
 from ..log import logger
-from ..utils import cli_register
 from ..utils import stats_wrapper
-from .pretrained_models import model_alias
-from .pretrained_models import pretrained_models
-from .pretrained_models import tokenizer_alias
 
 __all__ = ['TextExecutor']
 
 
-@cli_register(name='paddlespeech.text', description='Text infer command.')
 class TextExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__()
-        self.model_alias = model_alias
-        self.pretrained_models = pretrained_models
-        self.tokenizer_alias = tokenizer_alias
-
+        super().__init__(task='text')
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.text', add_help=True)
         self.parser.add_argument(
@@ -56,7 +46,8 @@ class TextExecutor(BaseExecutor):
             type=str,
             default='ernie_linear_p7_wudao',
             choices=[
-                tag[:tag.index('-')] for tag in self.pretrained_models.keys()
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
             ],
             help='Choose model type of text task.')
         self.parser.add_argument(
@@ -114,13 +105,16 @@ class TextExecutor(BaseExecutor):
 
         if cfg_path is None or ckpt_path is None or vocab_file is None:
             tag = '-'.join([model_type, task, lang])
-            self.res_path = self._get_pretrained_path(tag)
+            self.task_resource.set_task_model(tag, version=None)
             self.cfg_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['cfg_path'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['cfg_path'])
             self.ckpt_path = os.path.join(
-                self.res_path, self.pretrained_models[tag]['ckpt_path'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['ckpt_path'])
             self.vocab_file = os.path.join(
-                self.res_path, self.pretrained_models[tag]['vocab_file'])
+                self.task_resource.res_dir,
+                self.task_resource.res_dict['vocab_file'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path)
@@ -135,8 +129,8 @@ class TextExecutor(BaseExecutor):
                     self._punc_list.append(line.strip())
 
             # model
-            model_class = dynamic_import(model_name, self.model_alias)
-            tokenizer_class = dynamic_import(model_name, self.tokenizer_alias)
+            model_class, tokenizer_class = self.task_resource.get_model_class(
+                model_name)
             self.model = model_class(
                 cfg_path=self.cfg_path, ckpt_path=self.ckpt_path)
             self.tokenizer = tokenizer_class.from_pretrained('ernie-1.0')
@@ -226,7 +220,7 @@ class TextExecutor(BaseExecutor):
         if not parser_args.verbose:
             self.disable_task_loggers()
 
-        task_source = self.get_task_source(parser_args.input)
+        task_source = self.get_input_source(parser_args.input)
         task_results = OrderedDict()
         has_exceptions = False
 

@@ -293,3 +293,45 @@ def transformer_single_spk_batch_fn(examples):
         "speech_lengths": speech_lengths,
     }
     return batch
+
+
+def vits_single_spk_batch_fn(examples):
+    """
+    Returns:
+        Dict[str, Any]:
+            - text (Tensor): Text index tensor (B, T_text).
+            - text_lengths (Tensor): Text length tensor (B,).
+            - feats (Tensor): Feature tensor (B, T_feats, aux_channels).
+            - feats_lengths (Tensor): Feature length tensor (B,).
+            - speech (Tensor): Speech waveform tensor (B, T_wav).
+
+    """
+    # fields = ["text", "text_lengths", "feats", "feats_lengths", "speech"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    feats = [np.array(item["feats"], dtype=np.float32) for item in examples]
+    speech = [np.array(item["wave"], dtype=np.float32) for item in examples]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    feats_lengths = [
+        np.array(item["feats_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    feats = batch_sequences(feats)
+    speech = batch_sequences(speech)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    feats = paddle.to_tensor(feats)
+    text_lengths = paddle.to_tensor(text_lengths)
+    feats_lengths = paddle.to_tensor(feats_lengths)
+
+    batch = {
+        "text": text,
+        "text_lengths": text_lengths,
+        "feats": feats,
+        "feats_lengths": feats_lengths,
+        "speech": speech
+    }
+    return batch

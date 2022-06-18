@@ -15,7 +15,10 @@ from typing import List
 
 from pydantic import BaseModel
 
-__all__ = ['ASRResponse', 'TTSResponse', 'CLSResponse']
+__all__ = [
+    'ASRResponse', 'TTSResponse', 'CLSResponse', 'TextResponse',
+    'VectorResponse', 'VectorScoreResponse', 'ACSResponse'
+]
 
 
 class Message(BaseModel):
@@ -129,6 +132,11 @@ class CLSResponse(BaseModel):
     result: CLSResult
 
 
+#****************************************************************************************/
+#************************************ Text response **************************************/
+#****************************************************************************************/
+
+
 class TextResult(BaseModel):
     punc_text: str
 
@@ -154,6 +162,59 @@ class TextResponse(BaseModel):
 
 
 #****************************************************************************************/
+#************************************ Vector response **************************************/
+#****************************************************************************************/
+
+
+class VectorResult(BaseModel):
+    vec: list
+
+
+class VectorResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "vec": [1.0, 1.0]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorResult
+
+
+class VectorScoreResult(BaseModel):
+    score: float
+
+
+class VectorScoreResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "score": 1.0
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: VectorScoreResult
+
+
+#****************************************************************************************/
 #********************************** Error response **************************************/
 #****************************************************************************************/
 class ErrorResponse(BaseModel):
@@ -170,3 +231,32 @@ class ErrorResponse(BaseModel):
     success: bool
     code: int
     message: Message
+
+
+#****************************************************************************************/
+#************************************ ACS response **************************************/
+#****************************************************************************************/
+class AcsResult(BaseModel):
+    transcription: str
+    acs: list
+
+
+class ACSResponse(BaseModel):
+    """
+    response example
+    {
+        "success": true,
+        "code": 0,
+        "message": {
+            "description": "success" 
+        },
+        "result": {
+            "transcription": "你好，飞桨"
+            "acs": [(你好, 0.0, 0.45)]
+        }
+    }
+    """
+    success: bool
+    code: int
+    message: Message
+    result: AcsResult

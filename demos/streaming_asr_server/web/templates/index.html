@@ -93,6 +93,7 @@
 
     function parseResult(data) {
       var data = JSON.parse(data)
+      console.log('result json:', data)
       var result = data.result
       console.log(result)
       $("#resultPanel").html(result)

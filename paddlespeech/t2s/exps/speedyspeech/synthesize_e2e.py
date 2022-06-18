@@ -174,12 +174,20 @@ def main():
     parser.add_argument(
         "--inference-dir", type=str, help="dir to save inference models")
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu.")
+    parser.add_argument(
+        "--nxpu",
+        type=int,
+        default=0,
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
 
     args, _ = parser.parse_known_args()
 
     if args.ngpu == 0:
-        paddle.set_device("cpu")
+        if args.nxpu == 0:
+            paddle.set_device("cpu")
+        else:
+            paddle.set_device("xpu")
     elif args.ngpu > 0:
         paddle.set_device("gpu")
     else:

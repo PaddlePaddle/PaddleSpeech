@@ -2,7 +2,7 @@
 This example contains code used to train a [parallel wavegan](http://arxiv.org/abs/1910.11480) model with [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/).
 ## Dataset
 ### Download and Extract
-Download LJSpeech-1.1 from the [official website](https://keithito.com/LJ-Speech-Dataset/).
+Download LJSpeech-1.1 from it's [Official Website](https://keithito.com/LJ-Speech-Dataset/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/LJSpeech-1.1`.
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
 You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
@@ -65,7 +65,7 @@ Train a ParallelWaveGAN model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       config file to overwrite default config.
+  --config CONFIG       ParallelWaveGAN config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA

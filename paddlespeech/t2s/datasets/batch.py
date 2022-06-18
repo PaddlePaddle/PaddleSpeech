@@ -167,7 +167,6 @@ def batch_spec(minibatch, pad_value=0., time_major=False, dtype=np.float32):
 
 
 def batch_sequences(sequences, axis=0, pad_value=0):
-    # import pdb; pdb.set_trace()
     seq = sequences[0]
     ndim = seq.ndim
     if axis < 0:

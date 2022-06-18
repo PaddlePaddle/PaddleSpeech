@@ -44,6 +44,10 @@ std::string Recognizer::GetFinalResult() {
     return decoder_->GetFinalBestPath();
 }
 
+std::string Recognizer::GetPartialResult() {
+    return decoder_->GetPartialResult();
+}
+
 void Recognizer::SetFinished() {
     feature_pipeline_->SetFinished();
     input_finished_ = true;

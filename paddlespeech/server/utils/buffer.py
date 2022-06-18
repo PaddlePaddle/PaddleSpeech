@@ -46,7 +46,6 @@ class ChunkBuffer(object):
         self.shift_ms = shift_ms
         self.sample_rate = sample_rate
         self.sample_width = sample_width  # int16 = 2; float32 = 4
-        self.remained_audio = b''
 
         self.window_sec = float((self.window_n - 1) * self.shift_ms +
                                 self.window_ms) / 1000.0
@@ -57,22 +56,31 @@ class ChunkBuffer(object):
         self.shift_bytes = int(self.shift_sec * self.sample_rate *
                                self.sample_width)
 
+        self.remained_audio = b''
+        # abs timestamp from `start` or latest `reset`
+        self.timestamp = 0.0
+
+    def reset(self):
+        """
+            reset buffer state.
+        """
+        self.timestamp = 0.0
+        self.remained_audio = b''
+
     def frame_generator(self, audio):
         """Generates audio frames from PCM audio data.
         Takes the desired frame duration in milliseconds, the PCM data, and
         the sample rate.
         Yields Frames of the requested duration.
         """
-
         audio = self.remained_audio + audio
         self.remained_audio = b''
 
         offset = 0
-        timestamp = 0.0
         while offset + self.window_bytes <= len(audio):
-            yield Frame(audio[offset:offset + self.window_bytes], timestamp,
-                        self.window_sec)
-            timestamp += self.shift_sec
+            yield Frame(audio[offset:offset + self.window_bytes],
+                        self.timestamp, self.window_sec)
+            self.timestamp += self.shift_sec
             offset += self.shift_bytes
 
         self.remained_audio += audio[offset:]

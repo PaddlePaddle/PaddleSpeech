@@ -17,12 +17,12 @@ import os
 import paddle
 import paddle.nn.functional as F
 import yaml
-from paddleaudio.backends import load as load_audio
-from paddleaudio.features import LogMelSpectrogram
-from paddleaudio.utils import logger
 
+from paddlespeech.audio.backends import load as load_audio
+from paddlespeech.audio.features import LogMelSpectrogram
+from paddlespeech.audio.utils import logger
 from paddlespeech.cls.models import SoundClassifier
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from paddlespeech.utils.dynamic_import import dynamic_import
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)

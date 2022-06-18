@@ -24,8 +24,8 @@ from typing import Any
 from typing import Dict
 
 import paddle
-import paddleaudio
 import requests
+import soundfile as sf
 import yaml
 from paddle.framework import load
 
@@ -39,12 +39,21 @@ except ImportError:
 requests.adapters.DEFAULT_RETRIES = 3
 
 __all__ = [
+    'timer_register',
     'cli_register',
+    'explicit_command_register',
     'get_command',
     'download_and_decompress',
     'load_state_dict_from_url',
     'stats_wrapper',
 ]
+
+CLI_TIMER = {}
+
+
+def timer_register(command):
+    CLI_TIMER[command.__name__] = {'start': [], 'end': [], 'extra': []}
+    return command
 
 
 def cli_register(name: str, description: str='') -> Any:
@@ -60,6 +69,16 @@ def cli_register(name: str, description: str='') -> Any:
         return command
 
     return _warpper
+
+
+def explicit_command_register(name: str, description: str='', cls: str=''):
+    items = name.split('.')
+    com = commands
+    for item in items:
+        com = com[item]
+    com['_entry'] = cls
+    if description:
+        com['_description'] = description
 
 
 def get_command(name: str) -> Any:
@@ -171,6 +190,7 @@ def _get_sub_home(directory):
 PPSPEECH_HOME = _get_paddlespcceh_home()
 MODEL_HOME = _get_sub_home('models')
 CONF_HOME = _get_sub_home('conf')
+DATA_HOME = _get_sub_home('datasets')
 
 
 def _md5(text: str):
@@ -262,7 +282,8 @@ def _note_one_stat(cls_name, params={}):
 
     if 'audio_file' in params:
         try:
-            _, sr = paddleaudio.load(params['audio_file'])
+            # recursive import cased by: utils.DATA_HOME
+            _, sr = sf.read(params['audio_file'])
         except Exception:
             sr = -1
 

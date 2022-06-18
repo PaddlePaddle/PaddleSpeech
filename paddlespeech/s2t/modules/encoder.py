@@ -47,24 +47,24 @@ __all__ = ["BaseEncoder", 'TransformerEncoder', "ConformerEncoder"]
 
 
 class BaseEncoder(nn.Layer):
-    def __init__(
-            self,
-            input_size: int,
-            output_size: int=256,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            attention_dropout_rate: float=0.0,
-            input_layer: str="conv2d",
-            pos_enc_layer_type: str="abs_pos",
-            normalize_before: bool=True,
-            concat_after: bool=False,
-            static_chunk_size: int=0,
-            use_dynamic_chunk: bool=False,
-            global_cmvn: paddle.nn.Layer=None,
-            use_dynamic_left_chunk: bool=False, ):
+    def __init__(self,
+                 input_size: int,
+                 output_size: int=256,
+                 attention_heads: int=4,
+                 linear_units: int=2048,
+                 num_blocks: int=6,
+                 dropout_rate: float=0.1,
+                 positional_dropout_rate: float=0.1,
+                 attention_dropout_rate: float=0.0,
+                 input_layer: str="conv2d",
+                 pos_enc_layer_type: str="abs_pos",
+                 normalize_before: bool=True,
+                 concat_after: bool=False,
+                 static_chunk_size: int=0,
+                 use_dynamic_chunk: bool=False,
+                 global_cmvn: paddle.nn.Layer=None,
+                 use_dynamic_left_chunk: bool=False,
+                 max_len: int=5000):
         """
         Args:
             input_size (int): input dim, d_feature
@@ -127,7 +127,9 @@ class BaseEncoder(nn.Layer):
             odim=output_size,
             dropout_rate=dropout_rate,
             pos_enc_class=pos_enc_class(
-                d_model=output_size, dropout_rate=positional_dropout_rate), )
+                d_model=output_size,
+                dropout_rate=positional_dropout_rate,
+                max_len=max_len), )
 
         self.normalize_before = normalize_before
         self.after_norm = LayerNorm(output_size, epsilon=1e-12)
@@ -216,7 +218,7 @@ class BaseEncoder(nn.Layer):
         assert xs.shape[0] == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
         # TODO(Hui Zhang): stride_slice not support bool tensor
-        # tmp_masks = paddle.ones([1, xs.size(1)], dtype=paddle.bool)
+        # tmp_masks = paddle.ones([1, paddle.shape(xs)[1]], dtype=paddle.bool)
         tmp_masks = paddle.ones([1, xs.shape[1]], dtype=paddle.int32)
         tmp_masks = tmp_masks.unsqueeze(1)  #[B=1, C=1, T]
 
@@ -415,32 +417,32 @@ class TransformerEncoder(BaseEncoder):
 class ConformerEncoder(BaseEncoder):
     """Conformer encoder module."""
 
-    def __init__(
-            self,
-            input_size: int,
-            output_size: int=256,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            attention_dropout_rate: float=0.0,
-            input_layer: str="conv2d",
-            pos_enc_layer_type: str="rel_pos",
-            normalize_before: bool=True,
-            concat_after: bool=False,
-            static_chunk_size: int=0,
-            use_dynamic_chunk: bool=False,
-            global_cmvn: nn.Layer=None,
-            use_dynamic_left_chunk: bool=False,
-            positionwise_conv_kernel_size: int=1,
-            macaron_style: bool=True,
-            selfattention_layer_type: str="rel_selfattn",
-            activation_type: str="swish",
-            use_cnn_module: bool=True,
-            cnn_module_kernel: int=15,
-            causal: bool=False,
-            cnn_module_norm: str="batch_norm", ):
+    def __init__(self,
+                 input_size: int,
+                 output_size: int=256,
+                 attention_heads: int=4,
+                 linear_units: int=2048,
+                 num_blocks: int=6,
+                 dropout_rate: float=0.1,
+                 positional_dropout_rate: float=0.1,
+                 attention_dropout_rate: float=0.0,
+                 input_layer: str="conv2d",
+                 pos_enc_layer_type: str="rel_pos",
+                 normalize_before: bool=True,
+                 concat_after: bool=False,
+                 static_chunk_size: int=0,
+                 use_dynamic_chunk: bool=False,
+                 global_cmvn: nn.Layer=None,
+                 use_dynamic_left_chunk: bool=False,
+                 positionwise_conv_kernel_size: int=1,
+                 macaron_style: bool=True,
+                 selfattention_layer_type: str="rel_selfattn",
+                 activation_type: str="swish",
+                 use_cnn_module: bool=True,
+                 cnn_module_kernel: int=15,
+                 causal: bool=False,
+                 cnn_module_norm: str="batch_norm",
+                 max_len: int=5000):
         """Construct ConformerEncoder
         Args:
             input_size to use_dynamic_chunk, see in BaseEncoder
@@ -464,7 +466,7 @@ class ConformerEncoder(BaseEncoder):
                          attention_dropout_rate, input_layer,
                          pos_enc_layer_type, normalize_before, concat_after,
                          static_chunk_size, use_dynamic_chunk, global_cmvn,
-                         use_dynamic_left_chunk)
+                         use_dynamic_left_chunk, max_len)
         activation = get_activation(activation_type)
 
         # self-attention module definition

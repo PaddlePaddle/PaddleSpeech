@@ -69,27 +69,27 @@ export GLOG_logtostderr=1
 cmvn=$data/cmvn.ark
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # 3. gen linear feat
-    cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
+    cmvn_json2kaldi_main --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/feat.log \
-    linear-spectrogram-wo-db-norm-ol \
+    compute_linear_spectrogram_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --feature_wspecifier=ark,scp:$data/split${nj}/JOB/feat.ark,$data/split${nj}/JOB/feat.scp \
         --cmvn_file=$cmvn \
-        --streaming_chunk=0.36
     echo "feature make have finished!!!"
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     #  recognizer
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
+	--nnet_decoder_chunk=8 \
         --dict_file=$vocb_dir/vocab.txt \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result
 
@@ -97,16 +97,18 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file} > $exp/${wer}
     echo "ctc-prefix-beam-search-decoder-ol without lm has finished!!!"
     echo "please checkout in ${exp}/${wer}"
+    tail -n 7 $exp/${wer}
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     #  decode with lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
-    ctc-prefix-beam-search-decoder-ol \
+    ctc_prefix_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
+	--nnet_decoder_chunk=8 \
         --dict_file=$vocb_dir/vocab.txt \
         --lm_path=$lm \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_lm
@@ -115,6 +117,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_lm > $exp/${wer}.lm
     echo "ctc-prefix-beam-search-decoder-ol with lm test has finished!!!"
     echo "please checkout in ${exp}/${wer}.lm"
+    tail -n 7 $exp/${wer}.lm
 fi
 
 wfst=$data/wfst/
@@ -132,13 +135,14 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
-    wfst-decoder-ol \
+    tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
+	--nnet_decoder_chunk=8 \
         --acoustic_scale=1.2 \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_tlg
 
@@ -146,19 +150,19 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_tlg > $exp/${wer}.tlg
     echo "wfst-decoder-ol have finished!!!"
     echo "please checkout in ${exp}/${wer}.tlg"
+    tail -n 7 $exp/${wer}.tlg
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.log \
-    recognizer_test_main \
+    recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
         --cmvn_file=$cmvn \
         --model_path=$model_dir/avg_1.jit.pdmodel \
-        --to_float32=true \
-        --streaming_chunk=30 \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
+	--nnet_decoder_chunk=8 \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \
@@ -168,4 +172,5 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_recognizer > $exp/${wer}.recognizer
     echo "recognizer test have finished!!!"
     echo "please checkout in ${exp}/${wer}.recognizer"
+    tail -n 7 $exp/${wer}.recognizer
 fi

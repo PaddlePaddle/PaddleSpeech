@@ -13,6 +13,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 - Apache-2.0 License
 - U2 model
 - Building TLG based Graph
+- websocket server & client
 
 * [kaldi](https://github.com/kaldi-asr/kaldi/blob/master/COPYING)
 - Apache-2.0 License

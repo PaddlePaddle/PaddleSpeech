@@ -14,6 +14,7 @@
 import io
 import os
 import time
+from collections import OrderedDict
 from typing import Optional
 
 import numpy as np
@@ -22,85 +23,23 @@ import yaml
 
 from paddlespeech.cli.cls.infer import CLSExecutor
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.utils import download_and_decompress
-from paddlespeech.cli.utils import MODEL_HOME
+from paddlespeech.resource import CommonTaskResource
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
 
-__all__ = ['CLSEngine']
-
-pretrained_models = {
-    "panns_cnn6-32k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/cls/inference_model/panns_cnn6_static.tar.gz',
-        'md5':
-        'da087c31046d23281d8ec5188c1967da',
-        'cfg_path':
-        'panns.yaml',
-        'model_path':
-        'inference.pdmodel',
-        'params_path':
-        'inference.pdiparams',
-        'label_file':
-        'audioset_labels.txt',
-    },
-    "panns_cnn10-32k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/cls/inference_model/panns_cnn10_static.tar.gz',
-        'md5':
-        '5460cc6eafbfaf0f261cc75b90284ae1',
-        'cfg_path':
-        'panns.yaml',
-        'model_path':
-        'inference.pdmodel',
-        'params_path':
-        'inference.pdiparams',
-        'label_file':
-        'audioset_labels.txt',
-    },
-    "panns_cnn14-32k": {
-        'url':
-        'https://paddlespeech.bj.bcebos.com/cls/inference_model/panns_cnn14_static.tar.gz',
-        'md5':
-        'ccc80b194821274da79466862b2ab00f',
-        'cfg_path':
-        'panns.yaml',
-        'model_path':
-        'inference.pdmodel',
-        'params_path':
-        'inference.pdiparams',
-        'label_file':
-        'audioset_labels.txt',
-    },
-}
+__all__ = ['CLSEngine', 'PaddleCLSConnectionHandler']
 
 
 class CLSServerExecutor(CLSExecutor):
     def __init__(self):
         super().__init__()
-        pass
-
-    def _get_pretrained_path(self, tag: str) -> os.PathLike:
-        """
-            Download and returns pretrained resources path of current task.
-        """
-        support_models = list(pretrained_models.keys())
-        assert tag in pretrained_models, 'The model "{}" you want to use has not been supported, please choose other models.\nThe support models includes:\n\t\t{}\n'.format(
-            tag, '\n\t\t'.join(support_models))
-
-        res_path = os.path.join(MODEL_HOME, tag)
-        decompressed_path = download_and_decompress(pretrained_models[tag],
-                                                    res_path)
-        decompressed_path = os.path.abspath(decompressed_path)
-        logger.info(
-            'Use pretrained model stored in: {}'.format(decompressed_path))
-
-        return decompressed_path
+        self.task_resource = CommonTaskResource(
+            task='cls', model_format='static')
 
     def _init_from_path(
             self,
-            model_type: str='panns_cnn14',
+            model_type: str='panns_cnn14_audioset',
             cfg_path: Optional[os.PathLike]=None,
             model_path: Optional[os.PathLike]=None,
             params_path: Optional[os.PathLike]=None,
@@ -112,15 +51,16 @@ class CLSServerExecutor(CLSExecutor):
 
         if cfg_path is None or model_path is None or params_path is None or label_file is None:
             tag = model_type + '-' + '32k'
-            self.res_path = self._get_pretrained_path(tag)
-            self.cfg_path = os.path.join(self.res_path,
-                                         pretrained_models[tag]['cfg_path'])
-            self.model_path = os.path.join(self.res_path,
-                                           pretrained_models[tag]['model_path'])
+            self.task_resource.set_task_model(model_tag=tag)
+            self.res_path = self.task_resource.res_dir
+            self.cfg_path = os.path.join(
+                self.res_path, self.task_resource.res_dict['cfg_path'])
+            self.model_path = os.path.join(
+                self.res_path, self.task_resource.res_dict['model_path'])
             self.params_path = os.path.join(
-                self.res_path, pretrained_models[tag]['params_path'])
-            self.label_file = os.path.join(self.res_path,
-                                           pretrained_models[tag]['label_file'])
+                self.res_path, self.task_resource.res_dict['params_path'])
+            self.label_file = os.path.join(
+                self.res_path, self.task_resource.res_dict['label_file'])
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.model_path = os.path.abspath(model_path)
@@ -182,13 +122,54 @@ class CLSEngine(BaseEngine):
         """
         self.executor = CLSServerExecutor()
         self.config = config
-        self.executor._init_from_path(
-            self.config.model_type, self.config.cfg_path,
-            self.config.model_path, self.config.params_path,
-            self.config.label_file, self.config.predictor_conf)
+        self.engine_type = "inference"
+
+        try:
+            if self.config.predictor_conf.device is not None:
+                self.device = self.config.predictor_conf.device
+            else:
+                self.device = paddle.get_device()
+            paddle.set_device(self.device)
+        except Exception as e:
+            logger.error(
+                "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
+            )
+            logger.error(e)
+            return False
+
+        try:
+            self.executor._init_from_path(
+                self.config.model_type, self.config.cfg_path,
+                self.config.model_path, self.config.params_path,
+                self.config.label_file, self.config.predictor_conf)
+
+        except Exception as e:
+            logger.error("Initialize CLS server engine Failed.")
+            logger.error(e)
+            return False
 
         logger.info("Initialize CLS server engine successfully.")
         return True
+
+
+class PaddleCLSConnectionHandler(CLSServerExecutor):
+    def __init__(self, cls_engine):
+        """The PaddleSpeech CLS Server Connection Handler
+           This connection process every cls server request
+        Args:
+            cls_engine (CLSEngine): The CLS engine
+        """
+        super().__init__()
+        logger.info(
+            "Create PaddleCLSConnectionHandler to process the cls request")
+
+        self._inputs = OrderedDict()
+        self._outputs = OrderedDict()
+        self.cls_engine = cls_engine
+        self.executor = self.cls_engine.executor
+        self._conf = self.executor._conf
+        self._label_list = self.executor._label_list
+        self.predictor = self.executor.predictor
 
     def run(self, audio_data):
         """engine run 
@@ -197,9 +178,9 @@ class CLSEngine(BaseEngine):
             audio_data (bytes): base64.b64decode
         """
 
-        self.executor.preprocess(io.BytesIO(audio_data))
+        self.preprocess(io.BytesIO(audio_data))
         st = time.time()
-        self.executor.infer()
+        self.infer()
         infer_time = time.time() - st
 
         logger.info("inference time: {}".format(infer_time))
@@ -208,15 +189,15 @@ class CLSEngine(BaseEngine):
     def postprocess(self, topk: int):
         """postprocess
         """
-        assert topk <= len(self.executor._label_list
-                           ), 'Value of topk is larger than number of labels.'
+        assert topk <= len(
+            self._label_list), 'Value of topk is larger than number of labels.'
 
-        result = np.squeeze(self.executor._outputs['logits'], axis=0)
+        result = np.squeeze(self._outputs['logits'], axis=0)
         topk_idx = (-result).argsort()[:topk]
         topk_results = []
         for idx in topk_idx:
             res = {}
-            label, score = self.executor._label_list[idx], result[idx]
+            label, score = self._label_list[idx], result[idx]
             res['class_name'] = label
             res['prob'] = score
             topk_results.append(res)

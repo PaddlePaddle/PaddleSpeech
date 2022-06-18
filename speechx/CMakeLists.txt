@@ -142,4 +142,3 @@ set(DEPS ${DEPS}
 set(SPEECHX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/speechx)
 
 add_subdirectory(speechx)
-add_subdirectory(examples)

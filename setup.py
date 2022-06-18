@@ -32,13 +32,43 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
-    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
-    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
-    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
-    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
-    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
-    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
-    "yacs~=0.1.8", "prettytable", "zhon", 'colorlog', 'pathos == 0.2.8'
+    "editdistance",
+    "g2p_en", 
+    "g2pM", 
+    "h5py", 
+    "inflect", 
+    "jieba", 
+    "jsonlines",
+    "kaldiio", 
+    "librosa==0.8.1",
+    "loguru", 
+    "matplotlib", 
+    "nara_wpe",
+    "onnxruntime", 
+    "pandas", 
+    "paddlenlp", 
+    "paddlespeech_feat", 
+    "praatio==5.0.0",
+    "pypinyin", 
+    "pypinyin-dict", 
+    "python-dateutil", 
+    "pyworld", 
+    "resampy==0.2.2",
+    "sacrebleu", 
+    "scipy", 
+    "sentencepiece~=0.1.96", 
+    "soundfile~=0.10",
+    "textgrid", 
+    "timer", 
+    "tqdm", 
+    "typeguard", 
+    "visualdl", 
+    "webrtcvad",
+    "yacs~=0.1.8", 
+    "prettytable", 
+    "zhon", 
+    'colorlog', 
+    'pathos == 0.2.8'
 ]
 
 server = [
@@ -239,6 +269,9 @@ setup_info = dict(
         "speech",
         "asr",
         "tts",
+        "streaming asr"
+        "streaming tts"
+        "audio process"
         "speaker verfication",
         "speech classfication",
         "text frontend",
@@ -252,7 +285,11 @@ setup_info = dict(
         "fastspeech",
         "vocoder",
         "pwgan",
+        "melgan",
+        "mb-melgan",
+        "hifigan",
         "gan",
+        "wfst decoder",
     ],
     python_requires='>=3.7',
     install_requires=requirements["install"],

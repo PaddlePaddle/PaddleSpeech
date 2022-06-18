@@ -1,0 +1,181 @@
+.voice_chat {
+    width: 1200px;
+    height: 410px;
+    background: #FFFFFF;
+    position: relative;
+    // 开始聊天
+    .voice_chat_wrapper {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        position: absolute;
+        .voice_chat_btn {
+            width: 116px;
+            height: 116px;
+            margin-left: 54px;
+            // background: #2932E1;
+            border-radius: 50%;
+            cursor: pointer;
+            background: url("../../../assets/image/ic_开始聊天.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 116px 116px;
+            margin-bottom: 17px;
+            &:hover {
+                width: 116px;
+                height: 116px;
+                background: url("../../../assets/image/ic_开始聊天_hover.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 116px 116px;
+            };
+           
+        };
+        .voice_chat_btn_title {
+            height: 22px;
+            font-family: PingFangSC-Medium;
+            font-size: 16px;
+            color: #000000;
+            letter-spacing: 0;
+            text-align: center;
+            line-height: 22px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        };
+        .voice_chat_btn_prompt {
+            height: 24px;
+            font-family: PingFangSC-Regular;
+            font-size: 14px;
+            color: #999999;
+            letter-spacing: 0;
+            text-align: center;
+            line-height: 24px;
+            font-weight: 400;
+        };
+    };
+    .voice_chat_wrapper::after {
+        content: "";
+        display: block;
+        clear: both;
+        visibility: hidden;
+    };
+    // 结束聊天
+    .voice_chat_dialog_wrapper {
+        width: 1200px;
+        height: 410px;
+        background: #FFFFFF;
+        position: relative;
+        .dialog_box {
+            width: 100%;
+            height: 410px;
+            padding: 50px 198px 82px 199px;
+            box-sizing: border-box;
+           
+            .dialog_content {
+                width: 100%;
+                height: 268px;
+                // background: rgb(113, 144, 145);
+                padding: 0px;  
+                overflow: auto;           
+                li {
+                    list-style-type: none;
+                    margin-bottom: 33px;
+                    display: flex;
+                    align-items: center;
+                    &:last-of-type(1) {
+                        margin-bottom: 0px;
+                    };
+                    .dialog_content_img_pp {
+                        width: 60px;
+                        height: 60px;
+                        // transform: scaleX(-1);
+                        background: url("../../../assets/image/飞桨头像@2x.png");
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        background-size: 60px 60px;
+                        margin-right: 20px;
+                    };
+                    .dialog_content_img_user {
+                        width: 60px;
+                        height: 60px;
+                        transform: scaleX(-1);
+                        background: url("../../../assets/image/用户头像@2x.png");
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        background-size: 60px 60px;
+                        margin-left: 20px;
+                    };
+                    .dialog_content_dialogue_pp {
+                        height: 50px;
+                        background: #F5F5F5;
+                        border-radius: 25px;
+                        font-family: PingFangSC-Regular;
+                        font-size: 14px;
+                        color: #000000;
+                        line-height: 50px;
+                        font-weight: 400;
+                        padding: 0px 16px;
+                        box-sizing: border-box;
+                    };
+                    .dialog_content_dialogue_user {
+                        height: 50px;
+                        background: rgba(41,50,225,0.90);
+                        border-radius: 25px;
+                        font-family: PingFangSC-Regular;
+                        font-size: 14px;
+                        color: #FFFFFF;
+                        line-height: 50px;
+                        font-weight: 400;
+                        padding: 0px 16px;
+                        box-sizing: border-box;
+                    };
+                };
+            };
+            .move_dialogue {
+                justify-content: flex-end;
+            };
+
+        };
+       
+        .btn_end_dialog {
+            width: 124px;
+            height: 42px;
+            line-height: 42px;
+            background: #FFFFFF;
+            box-shadow: 0px 4px 16px 0px rgba(0,0,0,0.09);
+            border-radius: 21px;
+            padding: 0px 24px;
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            bottom: 40px;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            span {
+                display: inline-block;
+                &:nth-of-type(1) {
+                    width: 16px;
+                    height: 16px;
+                    background: url("../../../assets/image/ic_小-结束.svg");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 16px 16px;
+                   
+                };
+                &:nth-of-type(2) {
+                    height: 20px;
+                    font-family: PingFangSC-Regular;
+                    font-size: 14px;
+                    color: #F33E3E;
+                    text-align: center;
+                    font-weight: 400;
+                    line-height: 20px;
+                    margin-left: 4px;
+                };
+            };
+        };
+    };
+};

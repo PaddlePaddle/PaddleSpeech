@@ -130,26 +130,14 @@ pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
 - 选择 2： 使用`Ubuntu` ，并且拥有 root 权限。
 
 为了避免各种环境配置问题，我们非常推荐你使用 docker 容器。如果你不想使用 docker，但是可以使用拥有 root 权限的 Ubuntu 系统，你也可以完成**困难**方式的安装。
-### 选择1： 使用Docker容器（推荐）
-Docker 是一种开源工具，用于在和系统本身环境相隔离的环境中构建、发布和运行各类应用程序。你可以访问 [hub.docker.com](https://hub.docker.com) 来下载各种版本的 docker，目前已经有适用于 `PaddleSpeech` 的 docker 提供在了该网站上。Docker 镜像需要使用 Nvidia GPU，所以你也需要提前安装好 [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) 。
-你需要完成几个步骤来启动docker：
-- 下载 docker 镜像:
-  例如，拉取 paddle2.2.0 镜像：
-```bash
-sudo nvidia-docker pull registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7
-```
-- 克隆 `PaddleSpeech` 仓库
-```bash
-git clone https://github.com/PaddlePaddle/PaddleSpeech.git
-```
-- 启动 docker 镜像
-```bash
-sudo nvidia-docker run --net=host --ipc=host --rm -it -v $(pwd)/PaddleSpeech:/PaddleSpeech registry.baidubce.com/paddlepaddle/paddle:2.2.0-gpu-cuda10.2-cudnn7 /bin/bash
-```
-- 进入 PaddleSpeech 目录
-```bash
-cd /PaddleSpeech
-```
+### 选择1： 使用 Docker 容器（推荐）
+Docker 是一种开源工具，用于在和系统本身环境相隔离的环境中构建、发布和运行各类应用程序。如果您没有 Docker 运行环境，请参考 [Docker 官网](https://www.docker.com/)进行安装，如果您准备使用 GPU 版本镜像，还需要提前安装好 [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) 。 
+
+我们提供了包含最新 PaddleSpeech 代码的 docker 镜像，并预先安装好了所有的环境和库依赖，您只需要**拉取并运行 docker 镜像**，无需其他任何额外操作，即可开始享用 PaddleSpeech 的所有功能。
+
+在 [Docker Hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech) 中获取这些镜像及相应的使用指南，包括 CPU、GPU、ROCm 版本。
+
+如果您对自动化制作docker镜像感兴趣，或有自定义需求，请访问 [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton) 做进一步了解。
 完成这些以后，你就可以在 docker 容器中执行训练、推理和超参 fine-tune。
 ### 选择2： 使用有 root 权限的 Ubuntu
 - 使用apt安装 `build-essential`

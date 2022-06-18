@@ -26,10 +26,10 @@ import soundfile
 from kaldiio import WriteHelper
 from yacs.config import CfgNode
 
+from ...utils.env import MODEL_HOME
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import download_and_decompress
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.utility import UpdateConfig

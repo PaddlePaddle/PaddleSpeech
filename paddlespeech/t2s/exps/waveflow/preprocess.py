@@ -143,8 +143,6 @@ if __name__ == "__main__":
         nargs=argparse.REMAINDER,
         help="options to overwrite --config file and the default config, passing in KEY VALUE pairs"
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="print msg")
 
     config = get_cfg_defaults()
     args = parser.parse_args()
@@ -153,8 +151,5 @@ if __name__ == "__main__":
     if args.opts:
         config.merge_from_list(args.opts)
     config.freeze()
-    if args.verbose:
-        print(config.data)
-        print(args)
 
     create_dataset(config.data, args.input, args.output)

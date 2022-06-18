@@ -4,6 +4,7 @@ stage=0
 stop_stage=100
 
 config_path=$1
+add_blank=$2
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # get durations from MFA's result
@@ -44,6 +45,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --feats-stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --speaker-dict=dump/speaker_id_map.txt \
+        --add-blank=${add_blank} \
         --skip-wav-copy
 
     python3 ${BIN_DIR}/normalize.py \
@@ -52,6 +54,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --feats-stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --speaker-dict=dump/speaker_id_map.txt \
+        --add-blank=${add_blank} \
         --skip-wav-copy
 
     python3 ${BIN_DIR}/normalize.py \
@@ -60,5 +63,6 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --feats-stats=dump/train/feats_stats.npy \
         --phones-dict=dump/phone_id_map.txt \
         --speaker-dict=dump/speaker_id_map.txt \
+        --add-blank=${add_blank} \
         --skip-wav-copy
 fi

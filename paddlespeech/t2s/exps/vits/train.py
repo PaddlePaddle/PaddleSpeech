@@ -211,13 +211,18 @@ def train_sp(args, config):
         generator_first=config.generator_first,
         output_dir=output_dir)
 
-    trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
+    trainer = Trainer(
+        updater,
+        stop_trigger=(config.train_max_steps, "iteration"),
+        out=output_dir)
 
     if dist.get_rank() == 0:
-        trainer.extend(evaluator, trigger=(1, "epoch"))
-        trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
+        trainer.extend(
+            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
     trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+        Snapshot(max_size=config.num_snapshots),
+        trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()

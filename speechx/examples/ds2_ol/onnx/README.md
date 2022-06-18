@@ -9,7 +9,7 @@ Please make sure [Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX) and 
 
 The example test with these packages installed:
 ```
-paddle2onnx              0.9.8rc0    # develop af4354b4e9a61a93be6490640059a02a4499bc7a
+paddle2onnx              0.9.8    # develop 62c5424e22cd93968dc831216fc9e0f0fce3d819
 paddleaudio              0.2.1
 paddlefsl                1.1.0
 paddlenlp                2.2.6

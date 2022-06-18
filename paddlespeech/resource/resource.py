@@ -18,8 +18,8 @@ from typing import List
 from typing import Optional
 
 from ..cli.utils import download_and_decompress
-from ..cli.utils import MODEL_HOME
 from ..utils.dynamic_import import dynamic_import
+from ..utils.env import MODEL_HOME
 from .model_alias import model_alias
 
 task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
@@ -164,9 +164,10 @@ class CommonTaskResource:
         try:
             import_models = '{}_{}_pretrained_models'.format(self.task,
                                                              self.model_format)
+            print(f"from .pretrained_models import {import_models}")
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
-        except ImportError:
+        except Exception as e:
             models = OrderedDict({})  # no models.
         finally:
             return models

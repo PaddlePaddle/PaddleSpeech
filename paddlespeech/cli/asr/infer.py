@@ -26,11 +26,11 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
+from ...utils.env import MODEL_HOME
 from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import CLI_TIMER
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
 from ..utils import timer_register
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
@@ -187,7 +187,7 @@ class ASRExecutor(BaseExecutor):
             elif "conformer" in model_type or "transformer" in model_type:
                 self.config.decode.decoding_method = decode_method
                 if num_decoding_left_chunks:
-                    assert num_decoding_left_chunks == -1 or num_decoding_left_chunks >= 0, f"num_decoding_left_chunks should be -1 or >=0"
+                    assert num_decoding_left_chunks == -1 or num_decoding_left_chunks >= 0, "num_decoding_left_chunks should be -1 or >=0"
                     self.config.num_decoding_left_chunks = num_decoding_left_chunks
 
             else:

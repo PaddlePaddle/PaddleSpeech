@@ -227,11 +227,7 @@ class VITS(nn.Layer):
             lids (Optional[Tensor]): Language index tensor (B,) or (B, 1).
             forward_generator (bool): Whether to forward generator.
         Returns:
-            Dict[str, Any]:
-                - loss (Tensor): Loss scalar tensor.
-                - stats (Dict[str, float]): Statistics to be monitored.
-                - weight (Tensor): Weight tensor to summarize losses.
-                - optim_idx (int): Optimizer index (0 for G and 1 for D).
+        
         """
         if forward_generator:
             return self._forward_generator(

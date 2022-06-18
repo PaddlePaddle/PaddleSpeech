@@ -50,11 +50,6 @@ def main():
         "--tones-dict", type=str, default=None, help="tone vocabulary file.")
     parser.add_argument(
         "--speaker-dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
 
     parser.add_argument(
         "--use-relative-path",
@@ -62,24 +57,6 @@ def main():
         default=False,
         help="whether use relative path in metadata")
     args = parser.parse_args()
-
-    # set logger
-    if args.verbose > 1:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    elif args.verbose > 0:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    else:
-        logging.basicConfig(
-            level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-        logging.warning('Skip DEBUG/INFO messages')
 
     dumpdir = Path(args.dumpdir).expanduser()
     # use absolute path

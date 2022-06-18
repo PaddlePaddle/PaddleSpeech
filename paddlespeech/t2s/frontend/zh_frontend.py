@@ -29,6 +29,29 @@ from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 
+INITIALS = [
+    'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'zh', 'ch', 'sh',
+    'r', 'z', 'c', 's', 'j', 'q', 'x'
+]
+INITIALS += ['y', 'w', 'sp', 'spl', 'spn', 'sil']
+
+
+def intersperse(lst, item):
+    result = [item] * (len(lst) * 2 + 1)
+    result[1::2] = lst
+    return result
+
+
+def insert_after_character(lst, item):
+    result = [item]
+    for phone in lst:
+        result.append(phone)
+        if phone not in INITIALS:
+            # finals has tones
+            # assert phone[-1] in "12345"
+            result.append(item)
+    return result
+
 
 class Frontend():
     def __init__(self,
@@ -280,12 +303,15 @@ class Frontend():
             print("----------------------------")
         return phonemes
 
-    def get_input_ids(self,
-                      sentence: str,
-                      merge_sentences: bool=True,
-                      get_tone_ids: bool=False,
-                      robot: bool=False,
-                      print_info: bool=False) -> Dict[str, List[paddle.Tensor]]:
+    def get_input_ids(
+            self,
+            sentence: str,
+            merge_sentences: bool=True,
+            get_tone_ids: bool=False,
+            robot: bool=False,
+            print_info: bool=False,
+            add_blank: bool=False,
+            blank_token: str="<pad>") -> Dict[str, List[paddle.Tensor]]:
         phonemes = self.get_phonemes(
             sentence,
             merge_sentences=merge_sentences,
@@ -299,6 +325,10 @@ class Frontend():
         for part_phonemes in phonemes:
             phones, tones = self._get_phone_tone(
                 part_phonemes, get_tone_ids=get_tone_ids)
+
+            if add_blank:
+                phones = insert_after_character(phones, blank_token)
+
             if tones:
                 tone_ids = self._t2id(tones)
                 tone_ids = paddle.to_tensor(tone_ids)

@@ -1,0 +1,293 @@
+.audioFileIdentification {
+    width: 1106px;
+    height: 270px;
+    // background-color: pink;
+    padding-top: 40px;
+    box-sizing: border-box;
+    display: flex;
+    // 开始上传
+    .public_recognition_speech {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        // 开始上传
+        .upload_img {
+            width: 116px;
+            height: 116px;
+            background: #2932E1;
+            border-radius: 50%;
+            margin-left: 98px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .upload_img_back {
+                width: 34.38px;
+                height: 30.82px;
+                background: #2932E1;
+                background: url("../../../../assets/image/ic_大-上传文件.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 34.38px  30.82px;
+                cursor: pointer;
+            }
+            &:hover {
+                opacity: 0.9;
+            };
+
+        };
+      
+          
+        .speech_text {
+                height: 22px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 124px;
+                margin-bottom: 10px;
+        };
+        .speech_text_prompt {
+            height: 20px;
+            font-family: PingFangSC-Regular;
+            font-size: 14px;
+            color: #999999;
+            font-weight: 400;
+            margin-left: 84px;
+        };
+    };
+    // 上传中
+    .on_the_cross_speech {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        
+        .on_the_upload_img {
+            width: 116px;
+            height: 116px;
+           background: #7278F5;
+            border-radius: 50%;
+            margin-left: 98px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            .on_the_upload_img_back {
+                width: 34.38px;
+                height: 30.82px;
+               background: #7278F5;
+                background: url("../../../../assets/image/ic_大-上传文件.svg");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 34.38px  30.82px;
+                cursor: pointer;
+              
+            };
+        };
+      
+          
+        .on_the_speech_text {
+                height: 22px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #000000;
+                font-weight: 500;
+                margin-left: 124px;
+                margin-bottom: 10px;
+                display: flex;
+                // justify-content: center;
+                align-items: center;
+                .on_the_speech_loading {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                   background: #7278F5;
+                    // background: url("../../../../assets/image/ic_开始聊天.svg");
+                    // background-repeat: no-repeat;
+                    // background-position: center;
+                    // background-size: 16px  16px;
+                    margin-right: 8px;
+                };
+        };
+    };
+
+    //开始识别
+    .public_recognition_speech_start {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        position: relative;
+        .public_recognition_speech_content {
+        width: 100%;
+          position: absolute;
+          top: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+            .public_recognition_speech_title {
+                height: 22px;
+                font-family: PingFangSC-Regular;
+                font-size: 16px;
+                color: #000000;
+                font-weight: 400;
+            };
+            .public_recognition_speech_again {
+                height: 22px;
+                font-family: PingFangSC-Regular;
+                font-size: 16px;
+                color: #2932E1;
+                font-weight: 400;
+                margin-left: 30px;
+                cursor: pointer;
+            };
+            .public_recognition_speech_play {
+                height: 22px;
+                font-family: PingFangSC-Regular;
+                font-size: 16px;
+                color: #2932E1;
+                font-weight: 400;
+                margin-left: 20px;
+                cursor: pointer;
+            };
+        };
+        .speech_promp {
+            position: absolute;
+            top: 112px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 142px;
+            height: 44px;
+            background: #2932E1;
+            border-radius: 22px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #FFFFFF;
+            text-align: center;
+            line-height: 44px;
+            font-weight: 500;
+            cursor: pointer;
+        };
+          
+      
+    };
+    // 识别中
+    .public_recognition_speech_identify {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        position: relative;
+       .public_recognition_speech_identify_box {
+        width: 143px;
+        height: 44px;
+        background: #7278F5;
+        border-radius: 22px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        .public_recognition_speech_identify_back_img {
+            width: 16px;
+            height: 16px;
+        //    background: #7278F5;
+        //     background: url("../../../../assets/image/ic_开始聊天.svg");
+        //     background-repeat: no-repeat;
+        //     background-position: center;
+        //     background-size: 16px  16px;
+        };
+        .public_recognition__identify_the_promp {
+            height: 20px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-left: 12px;
+        };
+       };
+       
+
+        
+    };
+    // 重新识别
+    .public_recognition_speech_identify_ahain {
+        width: 295px;
+        height: 230px;
+        padding-top: 32px;
+        box-sizing: border-box;
+        position: relative;
+        cursor: pointer;
+       .public_recognition_speech_identify_box_btn {
+        width: 143px;
+        height: 44px;
+        background: #2932E1;
+        border-radius: 22px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        .public_recognition__identify_the_btn {
+            height: 20px;
+            font-family: PingFangSC-Medium;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 500;
+        };
+       };
+       
+
+        
+    };
+    // 指向
+    .public_recognition_point_to {
+        width: 47px;
+        height: 67px;
+        background: url("../../../../assets/image/步骤-箭头切图@2x.png") no-repeat;
+        background-position: center;
+        background-size: 47px 67px;
+       margin-top: 91px;
+       margin-right: 67px;
+    };
+    // 识别结果
+    .public_recognition_result {
+        width: 680px;
+        height: 230px;
+        background: #FAFAFA;
+        padding: 40px 50px 0px 50px;
+        div {
+            &:nth-of-type(1) {
+                height: 26px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #666666;
+                line-height: 26px;
+                font-weight: 500;
+                margin-bottom: 20px;
+            };
+            &:nth-of-type(2) {
+                height: 26px;
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #666666;
+                line-height: 26px;
+                font-weight: 500;
+            };
+        };
+    };
+};

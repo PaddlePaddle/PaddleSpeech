@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-project(paddleaudio)
+project(paddlespeech)
 
 # check and set CMAKE_CXX_STANDARD
 string(FIND "${CMAKE_CXX_FLAGS}" "-std=c++" env_cxx_standard)
@@ -14,4 +14,4 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(BUILD_SOX "Build libsox statically" ON)
 
 add_subdirectory(third_party)
-add_subdirectory(paddleaudio/csrc)
+add_subdirectory(audio/csrc)

@@ -4,7 +4,7 @@ find_package(pybind11 CONFIG)
 function(define_extension name sources libraries)
   add_library(${name} SHARED ${sources})
   target_include_directories(
-    ${name} PRIVATE ${PROJECT_SOURCE_DIR} ${Python3_INCLUDE_DIRS} ${pybind11_INCLUDE_DIR})
+    ${name} PRIVATE ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${Python3_INCLUDE_DIRS} ${pybind11_INCLUDE_DIR})
   target_link_libraries(${name} ${libraries})
   set_target_properties(${name} PROPERTIES PREFIX "")
   install(

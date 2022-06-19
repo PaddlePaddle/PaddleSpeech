@@ -1,7 +1,8 @@
-
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 project(paddleaudio VERSION 0.1)
+
+string(FIND "${CMAKE_CXX_FLAGS}" "-std=c++" env_cxx_standard)
 
 # cmake dir
 set(paddleaudio_cmake_dir ${PROJECT_SOURCE_DIR}/cmake)
@@ -17,21 +18,26 @@ set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -fPIC -O0 -Wall -g")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+option(BUILD_SOX "Build libsox statically" ON)
 
-# see the thirdparty/kaldi/base/kaldi-types.h
+
+# checkout the thirdparty/kaldi/base/kaldi-types.h
 # compile kaldi without openfst
 add_definitions("-DCOMPILE_WITHOUT_OPENFST")
 
-include(openblas)
+#include(openblas)
 include(pybind)
-#set(fc_patch /paddle/mnt/zhouyang/wks2/PaddleSpeech/paddleaudio/fc_patch)
-#set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
-#link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
-#include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
+set(fc_patch /paddle/mnt/zhouyang/wks2/PaddleSpeech/paddleaudio/fc_patch)
+set(OpenBLAS_INSTALL_PREFIX ${fc_patch}/openblas-install)
+link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
+include_directories(${OpenBLAS_INSTALL_PREFIX}/include)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kaldi)
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/pybind11/include)
 include_directories(/usr/include/python3.7m)
 add_subdirectory(third_party)
-add_subdirectory(kaldi_frontend)
+add_subdirectory(audio/csrc)

@@ -147,14 +147,14 @@ def get_frontend(lang: str='zh',
 
 
 # dygraph
-def get_am_inference(
-        am: str='fastspeech2_csmsc',
-        am_config: CfgNode=None,
-        am_ckpt: Optional[os.PathLike]=None,
-        am_stat: Optional[os.PathLike]=None,
-        phones_dict: Optional[os.PathLike]=None,
-        tones_dict: Optional[os.PathLike]=None,
-        speaker_dict: Optional[os.PathLike]=None, ):
+def get_am_inference(am: str='fastspeech2_csmsc',
+                     am_config: CfgNode=None,
+                     am_ckpt: Optional[os.PathLike]=None,
+                     am_stat: Optional[os.PathLike]=None,
+                     phones_dict: Optional[os.PathLike]=None,
+                     tones_dict: Optional[os.PathLike]=None,
+                     speaker_dict: Optional[os.PathLike]=None,
+                     return_am: bool=False):
     with open(phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
@@ -203,7 +203,10 @@ def get_am_inference(
     am_inference = am_inference_class(am_normalizer, am)
     am_inference.eval()
     print("acoustic model done!")
-    return am_inference
+    if return_am:
+        return am_inference, am
+    else:
+        return am_inference
 
 
 def get_voc_inference(

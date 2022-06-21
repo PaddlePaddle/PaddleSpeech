@@ -48,5 +48,5 @@ class StreamingFeatureTpl {
 
 }  // namespace ppspeech
 
-#include "kaldi_frontend/feature_common_inl.h"
+#include "feature_common_inl.h"
 

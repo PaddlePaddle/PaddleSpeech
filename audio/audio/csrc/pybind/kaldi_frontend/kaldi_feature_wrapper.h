@@ -1,6 +1,6 @@
 
 #include "base/kaldi-common.h"
-#include "kaldi_frontend/feature_common.h"
+#include "feature_common.h"
 #include "feat/feature-fbank.h"
 
 #pragma once

@@ -42,6 +42,7 @@ tools/python-soundfile/
 tools/onnx
 tools/onnxruntime
 tools/Paddle2ONNX
+tools/onnx-simplifier/
 
 speechx/fc_patch/
 

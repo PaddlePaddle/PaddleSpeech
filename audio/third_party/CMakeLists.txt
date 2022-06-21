@@ -7,9 +7,3 @@ if (BUILD_SOX)
   target_include_directories(libsox INTERFACE ${SOX_INCLUDE_DIR})
   target_link_libraries(libsox INTERFACE ${SOX_LIBRARIES})
 endif()
-
-include_directories(
-${CMAKE_CURRENT_SOURCE_DIR}
-${CMAKE_CURRENT_SOURCE_DIR}/kaldi
-)
-add_subdirectory(kaldi)

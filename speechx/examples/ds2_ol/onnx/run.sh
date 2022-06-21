@@ -89,6 +89,18 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ] ;then
 fi
 
 
+if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ];then
+    # convert opset_num to 11
+    ./local/onnx_convert_opset.py --target-opset 11  --model-file $exp/model.ort.opt.onnx --save-model $exp/model.optset11.onnx 
+
+    # quant model
+    nodes_to_exclude='p2o.Conv.0,p2o.Conv.2'
+    ./local/ort_dyanmic_quant.py --model-in $exp/model.optset11.onnx --model-out $exp/model.optset11.quant.onnx --nodes-to-exclude "${nodes_to_exclude}"
+
+    ./local/infer_check.py --input_file $input_file --model_type $model_type  --model_dir $dir --model_prefix $model_prefix --onnx_model $exp/model.optset11.quant.onnx
+fi
+
+
 # aishell rnn hidden is 1024
 # wenetspeech rnn hiddn is 2048
 if [ $model_type == 'aishell' ];then

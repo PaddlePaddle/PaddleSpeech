@@ -33,8 +33,9 @@ if __name__ == '__main__':
     P = 0.0
     n = 0
     for m in rtfs:
-        n += 1
+        # not accurate, may have duplicate log
+        n += 1  
         T += m['T']
         P += m['P']
 
-    print(f"RTF: {P/T}, utts: {n}")
+    print(f"RTF: {P/T}")

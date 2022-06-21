@@ -155,6 +155,26 @@ asr_dynamic_pretrained_models = {
             'lm_md5':
             '29e02312deb2e59b3c8686c7966d4fe3'
         },
+        '1.0.4': {
+            'url':
+            'http://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.4.model.tar.gz',
+            'md5':
+            'c595cb76902b5a5d01409171375989f4',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/deepspeech2_online/checkpoints/avg_10',
+            'model':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdmodel',
+            'params':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdiparams',
+            'onnx_model':
+            'onnx/model.onnx',
+            'lm_url':
+            'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':
+            '29e02312deb2e59b3c8686c7966d4fe3'
+        },
     },
     "deepspeech2offline_aishell-zh-16k": {
         '1.0': {
@@ -294,6 +314,26 @@ asr_static_pretrained_models = {
             'lm_md5':
             '29e02312deb2e59b3c8686c7966d4fe3'
         },
+        '1.0.4': {
+            'url':
+            'http://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.4.model.tar.gz',
+            'md5':
+            'c595cb76902b5a5d01409171375989f4',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/deepspeech2_online/checkpoints/avg_10',
+            'model':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdmodel',
+            'params':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdiparams',
+            'onnx_model':
+            'onnx/model.onnx',
+            'lm_url':
+            'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':
+            '29e02312deb2e59b3c8686c7966d4fe3'
+        },
     },
 }
 
@@ -326,6 +366,26 @@ asr_onnx_pretrained_models = {
             'http://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.3.model.tar.gz',
             'md5':
             'cfe273793e68f790f742b411c98bc75e',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/deepspeech2_online/checkpoints/avg_10',
+            'model':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdmodel',
+            'params':
+            'exp/deepspeech2_online/checkpoints/avg_10.jit.pdiparams',
+            'onnx_model':
+            'onnx/model.onnx',
+            'lm_url':
+            'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
+            'lm_md5':
+            '29e02312deb2e59b3c8686c7966d4fe3'
+        },
+        '1.0.4': {
+            'url':
+            'http://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/asr0_deepspeech2_online_wenetspeech_ckpt_1.0.4.model.tar.gz',
+            'md5':
+            'c595cb76902b5a5d01409171375989f4',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

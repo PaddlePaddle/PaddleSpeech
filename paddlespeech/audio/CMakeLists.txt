@@ -25,4 +25,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(BUILD_SOX "Build libsox statically" ON)
 
-add_subdirectory(audio/csrc)
+
+# checkout the thirdparty/kaldi/base/kaldi-types.h
+# compile kaldi without openfst
+add_definitions("-DCOMPILE_WITHOUT_OPENFST")
+
+include(openblas)
+include(pybind)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kaldi)
+include_directories(/usr/include/python3.7m)
+add_subdirectory(third_party)
+add_subdirectory(csrc)

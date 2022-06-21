@@ -1,0 +1,27 @@
+#include <iostream>
+#include "kaldi_feature_wrapper.h"
+#include <vector>
+#include "wav.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
+using namespace std; 
+namespace py=pybind11;
+
+int main() {
+   kaldi::Vector<kaldi::BaseFloat> wav(raw_wav.size());
+   kaldi::Vector<kaldi::BaseFloat> result;
+   for (int idx = 0; idx < raw_wav.size(); ++idx) {
+     wav(idx) = raw_wav[idx];
+   }
+   kaldi::FbankOptions opts;
+   paddleaudio::Fbank fbank(opts);
+   fbank.ComputeFeature(wav, &result);
+   for (int idx = 0; idx < 10; ++idx) {
+      ////double val = *((double*)result.data(0, idx)); 
+      float val = result(idx);
+      cout << val << " ";
+   }
+   cout << endl;
+   fbank.Reset();
+}

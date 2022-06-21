@@ -32,5 +32,3 @@ if(BUILD_SOX)
     "${LINK_LIBRARIES}"
     )
 endif()
-
-add_subdirectory(pybind/kaldi_frontend)

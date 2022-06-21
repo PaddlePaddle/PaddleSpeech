@@ -1,0 +1,65 @@
+#include "kaldi_feature_wrapper.h"
+
+namespace paddleaudio {
+
+KaldiFeatureWrapper* KaldiFeatureWrapper::GetInstance() {
+    static KaldiFeatureWrapper instance;
+    return &instance;
+}
+
+bool KaldiFeatureWrapper::InitFbank(kaldi::FbankOptions opts) {
+  fbank_.reset(new Fbank(opts));
+  return true;
+}
+
+py::array_t<double> KaldiFeatureWrapper::ComputeFbank(const py::array_t<double> wav) {
+  /*
+    py::buffer_info info = wav.request();
+    kaldi::Vector<kaldi::BaseFloat> input_wav;
+    kaldi::Vector<kaldi::BaseFloat> feats;
+    memcpy(input_wav.Data(), (double*)info.ptr, wav.nbytes());
+    fbank_->ComputeFeature(input_wav, &feats);
+    auto result = py::array_t<double>(feats.Dim());
+    py::buffer_info xs = result.request();
+    memcpy((double*)xs.ptr, feats.Data(), feats.Dim()*sizeof(kaldi::BaseFloat));
+    return result.reshape({ feats.Dim() / Dim(), Dim()});
+    */
+  py::buffer_info info = wav.request();
+  auto result = py::array_t<double>(info.size);
+  py::buffer_info result_info = result.request();
+
+  double* req_ptr = (double*)info.ptr;
+  double* res_ptr = (double*)result_info.ptr;
+  std::cout << info.itemsize << std::endl;
+  std::cout << info.format<< std::endl;
+  std::cout << info.ndim<< std::endl;
+  std::cout << "shape" << std::endl;
+  for (int i = 0; i < info.shape.size(); ++i) {
+    std::cout << info.shape[i]<< std::endl;
+  }
+
+  std::cout << "strides" << std::endl;
+  for (int i = 0; i < info.strides.size(); ++i) {
+    std::cout << info.strides[i]<< std::endl;
+  }
+
+  std::cout << "result shape" << std::endl;
+  for (int i = 0; i < result_info.shape.size(); ++i) {
+    std::cout << result_info.shape[i]<< std::endl;
+  }
+
+  int max_idx = 1;
+  for (auto dim : info.shape) {
+    max_idx *= dim;
+  }
+
+  for (int i = 0; i < max_idx; i++) {
+    *res_ptr = (*req_ptr) * (*req_ptr);
+    res_ptr++;
+    req_ptr++;
+  }
+    return  result;
+}
+
+    
+} // namespace paddleaudio

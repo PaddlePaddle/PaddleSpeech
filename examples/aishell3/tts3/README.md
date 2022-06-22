@@ -220,6 +220,12 @@ Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
 - [fastspeech2_conformer_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_aishell3_ckpt_0.2.0.zip) (Thanks for [@awmmmm](https://github.com/awmmmm)'s contribution)
 
+The static model can be downloaded here:
+- [fastspeech2_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_1.1.0.zip)
+
+The ONNX model can be downloaded here:
+- [fastspeech2_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_onnx_1.1.0.zip)
+
 FastSpeech2 checkpoint contains files listed below.
 
 ```text

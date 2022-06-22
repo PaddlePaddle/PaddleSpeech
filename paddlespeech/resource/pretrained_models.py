@@ -1014,3 +1014,21 @@ vector_dynamic_pretrained_models = {
         },
     },
 }
+
+# ---------------------------------
+# ------------- KWS ---------------
+# ---------------------------------
+kws_dynamic_pretrained_models = {
+    'mdtc_heysnips-16k': {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/kws/heysnips/kws0_mdtc_heysnips_ckpt.tar.gz',
+            'md5':
+            'c0de0a9520d66c3c8d6679460893578f',
+            'cfg_path':
+            'conf/mdtc.yaml',
+            'ckpt_path':
+            'ckpt/model',
+        },
+    },
+}

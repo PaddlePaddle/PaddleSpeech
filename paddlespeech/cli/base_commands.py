@@ -94,7 +94,7 @@ class StatsCommand:
     def __init__(self):
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.stats', add_help=True)
-        self.task_choices = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
+        self.task_choices = ['asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws']
         self.parser.add_argument(
             '--task',
             type=str,
@@ -138,6 +138,7 @@ _commands = {
     'text': ['Text command.', 'TextExecutor'],
     'tts': ['Text to Speech infer command.', 'TTSExecutor'],
     'vector': ['Speech to vector embedding infer command.', 'VectorExecutor'],
+    'kws': ['Keyword Spotting infer command.', 'KWSExecutor'],
 }
 
 for com, info in _commands.items():

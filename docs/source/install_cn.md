@@ -116,7 +116,7 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 安装 PaddleSpeech
-最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech`中已有的 examples：
+最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech` 中已有的 examples：
 ```bash
 # 部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
@@ -137,7 +137,7 @@ Docker 是一种开源工具，用于在和系统本身环境相隔离的环境�
 
 在 [Docker Hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech) 中获取这些镜像及相应的使用指南，包括 CPU、GPU、ROCm 版本。
 
-如果您对自动化制作docker镜像感兴趣，或有自定义需求，请访问 [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton) 做进一步了解。
+如果您对自动化制作 docker 镜像感兴趣，或有自定义需求，请访问 [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton) 做进一步了解。
 完成这些以后，你就可以在 docker 容器中执行训练、推理和超参 fine-tune。
 ### 选择2： 使用有 root 权限的 Ubuntu
 - 使用apt安装 `build-essential`
@@ -173,7 +173,7 @@ conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 用开发者模式安装 PaddleSpeech
-部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+部分用户系统由于默认源的问题，安装中会出现 kaldiio 安转出错的问题，建议首先安装 pytest-runner:
 ```bash
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```

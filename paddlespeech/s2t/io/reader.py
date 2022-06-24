@@ -19,7 +19,7 @@ import numpy as np
 import soundfile
 
 from .utility import feat_type
-from paddlespeech.s2t.transform.transformation import Transformation
+from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.utils.log import Log
 # from paddlespeech.s2t.frontend.augmentor.augmentation import AugmentationPipeline as Transformation
 

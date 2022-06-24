@@ -50,26 +50,41 @@ test_manifest: data/manifest.test
 ###########################################
 #              Dataloader                 #
 ###########################################
-vocab_filepath: data/lang_char/vocab.txt 
+use_stream_data: True
 unit_type: 'char'
+vocab_filepath: data/lang_char/vocab.txt 
+cmvn_file: data/mean_std.json
 preprocess_config: conf/preprocess.yaml
 spm_model_prefix: ''
 feat_dim: 80
 stride_ms: 10.0
 window_ms: 25.0
+dither: 0.1
 sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
 batch_size: 64
+minlen_in: 10
 maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+minlen_out: 0
 maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
-minibatches: 0 # for debug
-batch_count: auto
-batch_bins: 0 
-batch_frames_in: 0
-batch_frames_out: 0
-batch_frames_inout: 0
-num_workers: 0
-subsampling_factor: 1
+resample_rate: 16000
+shuffle_size: 10000
+sort_size: 500
+num_workers: 4
+prefetch_factor: 100
+dist_sampler: True
 num_encs: 1
+augment_conf:
+  max_w: 80
+  w_inplace: True
+  w_mode: "PIL"
+  max_f: 30
+  num_f_mask: 2
+  f_inplace: True
+  f_replace_with_zero: False
+  max_t: 40
+  num_t_mask: 2
+  t_inplace: True
+  t_replace_with_zero: False
 
 
 ###########################################
@@ -78,7 +93,7 @@ num_encs: 1
 n_epoch: 240 
 accum_grad: 16
 global_grad_clip: 5.0
-log_interval: 100
+log_interval: 1
 checkpoint:
   kbest_n: 50
   latest_n: 5

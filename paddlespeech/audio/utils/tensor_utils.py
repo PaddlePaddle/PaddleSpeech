@@ -93,9 +93,6 @@ def pad_sequence(sequences: List[paddle.Tensor],
     for i, tensor in enumerate(sequences):
         length = tensor.shape[0]
         # use index notation to prevent duplicate references to the tensor
-        logger.info(
-            f"length {length}, out_tensor {out_tensor.shape}, tensor {tensor.shape}"
-        )
         if batch_first:
             # TODO (Hui Zhang): set_value op not supprot `end==start`
             # TODO (Hui Zhang): set_value op not support int16

@@ -89,6 +89,12 @@ class DataPipeline(IterableDataset, PipelineStage):
     def append(self, f):
         """Append a pipeline stage (modifies the object)."""
         self.pipeline.append(f)
+        return self
+
+    def append_list(self, *args):
+        for arg in args:
+            self.pipeline.append(arg)
+        return self
 
     def compose(self, *args):
         """Append a pipeline stage to a copy of the pipeline and returns the copy."""

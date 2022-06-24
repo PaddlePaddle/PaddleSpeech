@@ -24,6 +24,8 @@ from .filters import pipelinefilter
 from .paddle_utils import IterableDataset
 
 
+from ..utils.log import Logger
+logger = Logger(__name__)
 def expand_urls(urls):
     if isinstance(urls, str):
         urllist = urls.split("::")

@@ -41,7 +41,8 @@ from .filters import (
     spec_aug,
     sort,
     padding,
-    cmvn
+    cmvn,
+    placeholder,
 )
 from webdataset.handlers import (
     ignore_and_continue,

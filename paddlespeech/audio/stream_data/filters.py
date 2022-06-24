@@ -758,27 +758,44 @@ def _compute_fbank(source,
 
 compute_fbank = pipelinefilter(_compute_fbank)
 
-def _spec_aug(source, num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80):
+def _spec_aug(source,
+            max_w=5, 
+            w_inplace=True, 
+            w_mode="PIL",
+            max_f=30,
+            num_f_mask=2, 
+            f_inplace=True, 
+            f_replace_with_zero=False,
+            max_t=40, 
+            num_t_mask=2, 
+            t_inplace=True, 
+            t_replace_with_zero=False,):
     """ Do spec augmentation
         Inplace operation
 
         Args:
             source: Iterable[{fname, feat, label}]
-            num_t_mask: number of time mask to apply
-            num_f_mask: number of freq mask to apply
-            max_t: max width of time mask
-            max_f: max width of freq mask
             max_w: max width of time warp
-
+            w_inplace: whether to inplace the original data while time warping
+            w_mode: time warp mode
+            max_f: max width of freq mask
+            num_f_mask: number of freq mask to apply
+            f_inplace: whether to inplace the original data while frequency masking
+            f_replace_with_zero: use zero to mask
+            max_t: max width of time mask
+            num_t_mask: number of time mask to apply
+            t_inplace: whether to inplace the original data while time masking
+            t_replace_with_zero: use zero to mask
+            
         Returns
             Iterable[{fname, feat, label}]
      """
     for sample in source:
         x = sample['feat']
         x = x.numpy()
-        x = time_warp(x, max_time_warp=max_w, inplace = True, mode= "PIL")
-        x = freq_mask(x, F = max_f, n_mask = num_f_mask, inplace = True, replace_with_zero = False)
-        x = time_mask(x, T = max_t, n_mask = num_t_mask, inplace = True, replace_with_zero = False)
+        x = time_warp(x, max_time_warp=max_w, inplace = w_inplace, mode= w_mode)
+        x = freq_mask(x, F = max_f, n_mask = num_f_mask, inplace = f_inplace, replace_with_zero = f_replace_with_zero)
+        x = time_mask(x, T = max_t, n_mask = num_t_mask, inplace = t_inplace, replace_with_zero = t_replace_with_zero)
         sample['feat'] = paddle.to_tensor(x, dtype=paddle.float32)
         yield sample
 
@@ -910,3 +927,9 @@ def _cmvn(source, cmvn_file):
            label_lengths)
 
 cmvn = pipelinefilter(_cmvn)
+
+def _placeholder(source):
+    for data in source:
+        yield data
+
+placeholder = pipelinefilter(_placeholder)

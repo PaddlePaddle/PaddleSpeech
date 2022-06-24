@@ -28,6 +28,9 @@ from paddlespeech.s2t.io.dataset import TransformDataset
 from paddlespeech.s2t.io.reader import LoadInputsAndTargets
 from paddlespeech.s2t.utils.log import Log
 
+import paddlespeech.audio.stream_data as stream_data
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+
 __all__ = ["BatchDataLoader"]
 
 logger = Log(__name__).getlog()
@@ -55,6 +58,90 @@ def batch_collate(x):
         Tuple: (utts, xs, ilens, ys, olens)
     """
     return x[0]
+
+class StreamDataLoader():
+    def __init__(self,
+                 manifest_file: str,
+                 train_mode: bool,
+                 unit_type: str='char',
+                 batch_size: int=0,
+                 num_mel_bins=80,
+                 frame_length=25,
+                 frame_shift=10,
+                 dither=0.0,
+                 minlen_in: float=0.0, 
+                 maxlen_in: float=float('inf'),
+                 minlen_out: float=0.0,
+                 maxlen_out: float=float('inf'),
+                 resample_rate: int=16000,
+                 augment_conf: dict=None,
+                 shuffle_size: int=10000, 
+                 sort_size: int=1000,
+                 n_iter_processes: int=1,
+                 prefetch_factor: int=2,
+                 dist_sampler: bool=False,
+                 cmvn_file="data/mean_std.json",
+                 vocab_filepath='data/lang_char/vocab.txt'):
+        self.manifest_file = manifest_file
+        self.train_model = train_mode
+        self.batch_size = batch_size
+        self.prefetch_factor = prefetch_factor
+        self.dist_sampler = dist_sampler
+        self.n_iter_processes = n_iter_processes
+
+        text_featurizer = TextFeaturizer(unit_type, vocab_filepath)
+        symbol_table = text_featurizer.vocab_dict
+        self.feat_dim = num_mel_bins 
+        self.vocab_size = text_featurizer.vocab_size 
+        
+        # The list of shard
+        shardlist = []
+        with open(manifest_file, "r") as f:
+            for line in f.readlines():
+                shardlist.append(line.strip())
+        
+        if self.dist_sampler:
+            base_dataset = stream_data.DataPipeline(
+                stream_data.SimpleShardList(shardlist),
+                stream_data.split_by_node,
+                stream_data.split_by_worker,
+                stream_data.tarfile_to_samples(stream_data.reraise_exception)
+            )
+        else:
+            base_dataset = stream_data.DataPipeline(
+                stream_data.SimpleShardList(shardlist),
+                stream_data.split_by_worker,
+                stream_data.tarfile_to_samples(stream_data.reraise_exception)
+            )
+
+        self.dataset = base_dataset.append_list(
+            stream_data.tokenize(symbol_table),
+            stream_data.data_filter(frame_shift=frame_shift, max_length=maxlen_in, min_length=minlen_in, token_max_length=maxlen_out, token_min_length=minlen_in),
+            stream_data.resample(resample_rate=resample_rate),
+            stream_data.compute_fbank(num_mel_bins=num_mel_bins, frame_length=frame_length, frame_shift=frame_shift, dither=dither),
+            stream_data.spec_aug(**augment_conf) if train_mode else stream_data.placeholder(),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
+            stream_data.shuffle(shuffle_size),
+            stream_data.sort(sort_size=sort_size),
+            stream_data.batched(batch_size),
+            stream_data.padding(),
+            stream_data.cmvn(cmvn_file)
+        )
+        self.loader = stream_data.WebLoader(
+            self.dataset, 
+            num_workers=self.n_iter_processes, 
+            prefetch_factor = self.prefetch_factor, 
+            batch_size=None
+        )
+
+    def __iter__(self):
+        return self.loader.__iter__()
+
+    def __call__(self):
+        return self.__iter__()
+
+    def __len__(self):
+        logger.info("Stream dataloader does not support calculate the length of the dataset")
+        return -1
 
 
 class BatchDataLoader():

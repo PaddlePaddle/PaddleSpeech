@@ -6,8 +6,8 @@ import itertools, os, random, re, sys
 from urllib.parse import urlparse
 
 from . import filters
-from webdataset import gopen
-from webdataset.handlers import reraise_exception
+from . import gopen
+from .handlers import reraise_exception
 from .tariterators import tar_file_and_group_expander
 
 default_cache_dir = os.environ.get("WDS_CACHE", "./_cache")

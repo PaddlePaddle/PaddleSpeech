@@ -10,8 +10,7 @@ from typing import List
 
 import braceexpand, yaml
 
-from webdataset import autodecode, extradatasets as eds, filters, shardlists, tariterators
-from webdataset.handlers import reraise_exception
+from .handlers import reraise_exception
 from .paddle_utils import DataLoader, IterableDataset
 from .utils import PipelineStage
 

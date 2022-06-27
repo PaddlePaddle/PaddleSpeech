@@ -11,7 +11,7 @@ from .cache import (
     pipe_cleaner,
 )
 from .compat import WebDataset, WebLoader, FluidWrapper
-from webdataset.extradatasets import MockDataset, with_epoch, with_length
+from .extradatasets import MockDataset, with_epoch, with_length
 from .filters import (
     associate,
     batched,
@@ -65,5 +65,5 @@ from .shardlists import (
 )
 from .tariterators import tarfile_samples, tarfile_to_samples
 from .utils import PipelineStage, repeatedly
-from webdataset.writer import ShardWriter, TarWriter, numpy_dumps
-from webdataset.mix import RandomMix, RoundRobin
+from .writer import ShardWriter, TarWriter, numpy_dumps
+from .mix import RandomMix, RoundRobin

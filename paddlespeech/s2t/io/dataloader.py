@@ -18,6 +18,7 @@ from typing import Text
 
 import jsonlines
 import numpy as np
+import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
@@ -28,7 +29,7 @@ from paddlespeech.s2t.io.dataset import TransformDataset
 from paddlespeech.s2t.io.reader import LoadInputsAndTargets
 from paddlespeech.s2t.utils.log import Log
 
-import paddlespeech.audio.stream_data as stream_data
+import paddlespeech.audio.streamdata as streamdata
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 
 __all__ = ["BatchDataLoader"]
@@ -101,37 +102,45 @@ class StreamDataLoader():
                 shardlist.append(line.strip())
         
         if self.dist_sampler:
-            base_dataset = stream_data.DataPipeline(
-                stream_data.SimpleShardList(shardlist),
-                stream_data.split_by_node,
-                stream_data.split_by_worker,
-                stream_data.tarfile_to_samples(stream_data.reraise_exception)
+            base_dataset = streamdata.DataPipeline(
+                streamdata.SimpleShardList(shardlist),
+                streamdata.split_by_node,
+                streamdata.split_by_worker,
+                streamdata.tarfile_to_samples(streamdata.reraise_exception)
             )
         else:
-            base_dataset = stream_data.DataPipeline(
-                stream_data.SimpleShardList(shardlist),
-                stream_data.split_by_worker,
-                stream_data.tarfile_to_samples(stream_data.reraise_exception)
+            base_dataset = streamdata.DataPipeline(
+                streamdata.SimpleShardList(shardlist),
+                streamdata.split_by_worker,
+                streamdata.tarfile_to_samples(streamdata.reraise_exception)
             )
 
         self.dataset = base_dataset.append_list(
-            stream_data.tokenize(symbol_table),
-            stream_data.data_filter(frame_shift=frame_shift, max_length=maxlen_in, min_length=minlen_in, token_max_length=maxlen_out, token_min_length=minlen_in),
-            stream_data.resample(resample_rate=resample_rate),
-            stream_data.compute_fbank(num_mel_bins=num_mel_bins, frame_length=frame_length, frame_shift=frame_shift, dither=dither),
-            stream_data.spec_aug(**augment_conf) if train_mode else stream_data.placeholder(),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
-            stream_data.shuffle(shuffle_size),
-            stream_data.sort(sort_size=sort_size),
-            stream_data.batched(batch_size),
-            stream_data.padding(),
-            stream_data.cmvn(cmvn_file)
+            streamdata.tokenize(symbol_table),
+            streamdata.data_filter(frame_shift=frame_shift, max_length=maxlen_in, min_length=minlen_in, token_max_length=maxlen_out, token_min_length=minlen_in),
+            streamdata.resample(resample_rate=resample_rate),
+            streamdata.compute_fbank(num_mel_bins=num_mel_bins, frame_length=frame_length, frame_shift=frame_shift, dither=dither),
+            streamdata.spec_aug(**augment_conf) if train_mode else streamdata.placeholder(),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
+            streamdata.shuffle(shuffle_size),
+            streamdata.sort(sort_size=sort_size),
+            streamdata.batched(batch_size),
+            streamdata.padding(),
+            streamdata.cmvn(cmvn_file)
         )
-        self.loader = stream_data.WebLoader(
-            self.dataset, 
-            num_workers=self.n_iter_processes, 
-            prefetch_factor = self.prefetch_factor, 
-            batch_size=None
-        )
+
+        if paddle.__version__ >= '2.3.2':
+            self.loader = streamdata.WebLoader(
+                self.dataset, 
+                num_workers=self.n_iter_processes, 
+                prefetch_factor = self.prefetch_factor, 
+                batch_size=None
+            )
+        else:
+            self.loader = streamdata.WebLoader(
+                self.dataset, 
+                num_workers=self.n_iter_processes, 
+                batch_size=None
+            )
 
     def __iter__(self):
         return self.loader.__iter__()

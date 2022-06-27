@@ -14,8 +14,8 @@ import random, re, tarfile
 import braceexpand
 
 from . import filters
-from webdataset import gopen
-from webdataset.handlers import reraise_exception
+from . import gopen
+from .handlers import reraise_exception
 
 trace = False
 meta_prefix = "__"

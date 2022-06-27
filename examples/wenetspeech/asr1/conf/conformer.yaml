@@ -1,7 +1,6 @@
 ############################################
 #           Network Architecture           #
 ############################################
-cmvn_file: 
 cmvn_file_type: "json"
 # encoder related
 encoder: conformer
@@ -43,9 +42,9 @@ model_conf:
 ###########################################
 #                   Data                  #
 ###########################################
-train_manifest: data/manifest.train
-dev_manifest: data/manifest.dev
-test_manifest: data/manifest.test
+train_manifest: data/train_l/data.list
+dev_manifest: data/dev/data.list
+test_manifest: data/test_meeting/data.list
 
 ###########################################
 #              Dataloader                 #
@@ -54,23 +53,22 @@ use_stream_data: True
 unit_type: 'char'
 vocab_filepath: data/lang_char/vocab.txt 
 cmvn_file: data/mean_std.json
-preprocess_config: conf/preprocess.yaml
 spm_model_prefix: ''
 feat_dim: 80
 stride_ms: 10.0
 window_ms: 25.0
 dither: 0.1
 sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
-batch_size: 64
+batch_size: 32
 minlen_in: 10
-maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen_in: 1200  # if input length(number of frames) > maxlen-in, data is automatically removed
 minlen_out: 0
-maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
+maxlen_out: 150  # if output length(number of tokens) > maxlen-out, data is automatically removed
 resample_rate: 16000
-shuffle_size: 10000
-sort_size: 500
-num_workers: 4
-prefetch_factor: 100
+shuffle_size: 1500
+sort_size: 1000
+num_workers: 0
+prefetch_factor: 10
 dist_sampler: True
 num_encs: 1
 augment_conf:
@@ -90,10 +88,10 @@ augment_conf:
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 240 
-accum_grad: 16
+n_epoch: 30 
+accum_grad: 32
 global_grad_clip: 5.0
-log_interval: 1
+log_interval: 100
 checkpoint:
   kbest_n: 50
   latest_n: 5

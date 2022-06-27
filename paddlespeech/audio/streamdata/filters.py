@@ -21,7 +21,7 @@ from functools import reduce, wraps
 
 import numpy as np
 
-from webdataset import autodecode
+from . import autodecode
 from . import  utils
 from .paddle_utils import PaddleTensor
 from .utils import PipelineStage

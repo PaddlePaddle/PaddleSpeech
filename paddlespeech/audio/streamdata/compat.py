@@ -8,7 +8,7 @@ from typing import List
 
 import braceexpand, yaml
 
-from webdataset import autodecode
+from . import autodecode
 from . import cache, filters, shardlists, tariterators
 from .filters import reraise_exception
 from .pipeline import DataPipeline

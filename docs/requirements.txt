@@ -26,7 +26,7 @@ praatio==5.0.0
 pypinyin
 pypinyin-dict
 python-dateutil
-pyworld
+pyworld==0.2.12
 resampy==0.2.2
 sacrebleu
 scipy

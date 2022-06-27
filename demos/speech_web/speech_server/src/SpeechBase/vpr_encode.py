@@ -1,4 +1,4 @@
-from paddlespeech.cli import VectorExecutor
+from paddlespeech.cli.vector import VectorExecutor
 import numpy as np
 import logging
 
@@ -17,10 +17,4 @@ def get_audio_embedding(path):
         logging.error(f"Error with embedding:{e}")
         return None
 
-if __name__ == '__main__':
-    audio_path = r"../../source/demo/demo_16k.wav"
-    emb = get_audio_embedding(audio_path)
-    print(emb.shape)
-    print(emb.dtype)
-    print(type(emb))
     

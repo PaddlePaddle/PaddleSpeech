@@ -54,19 +54,31 @@ def ort_predict(args):
         device=args.device,
         cpu_threads=args.cpu_threads)
 
+    merge_sentences = True
+
     # frontend warmup
     # Loading model cost 0.5+ seconds
     if args.lang == 'zh':
-        frontend.get_input_ids("你好，欢迎使用飞桨框架进行深度学习研究！", merge_sentences=True)
+        frontend.get_input_ids(
+            "你好，欢迎使用飞桨框架进行深度学习研究！", merge_sentences=merge_sentences)
     else:
-        print("lang should in be 'zh' here!")
+        frontend.get_input_ids(
+            "hello, thank you, thank you very much",
+            merge_sentences=merge_sentences)
 
     # am warmup
+    spk_id = [args.spk_id]
     for T in [27, 38, 54]:
         am_input_feed = {}
         if am_name == 'fastspeech2':
-            phone_ids = np.random.randint(1, 266, size=(T, ))
+            if args.lang == 'en':
+                phone_ids = np.random.randint(1, 78, size=(T, ))
+            else:
+                phone_ids = np.random.randint(1, 266, size=(T, ))
             am_input_feed.update({'text': phone_ids})
+            if am_dataset in {"aishell3", "vctk"}:
+                am_input_feed.update({'spk_id': spk_id})
+
         elif am_name == 'speedyspeech':
             phone_ids = np.random.randint(1, 92, size=(T, ))
             tone_ids = np.random.randint(1, 5, size=(T, ))
@@ -96,12 +108,18 @@ def ort_predict(args):
                 phone_ids = input_ids["phone_ids"]
                 if get_tone_ids:
                     tone_ids = input_ids["tone_ids"]
+            elif args.lang == 'en':
+                input_ids = frontend.get_input_ids(
+                    sentence, merge_sentences=merge_sentences)
+                phone_ids = input_ids["phone_ids"]
             else:
-                print("lang should in be 'zh' here!")
+                print("lang should in {'zh', 'en'}!")
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0].numpy()
             if am_name == 'fastspeech2':
                 am_input_feed.update({'text': phone_ids})
+                if am_dataset in {"aishell3", "vctk"}:
+                    am_input_feed.update({'spk_id': spk_id})
             elif am_name == 'speedyspeech':
                 tone_ids = tone_ids[0].numpy()
                 am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
@@ -130,19 +148,40 @@ def parse_args():
         '--am',
         type=str,
         default='fastspeech2_csmsc',
-        choices=['fastspeech2_csmsc', 'speedyspeech_csmsc'],
+        choices=[
+            'fastspeech2_csmsc',
+            'fastspeech2_aishell3',
+            'fastspeech2_ljspeech',
+            'fastspeech2_vctk',
+            'speedyspeech_csmsc',
+        ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
         "--tones_dict", type=str, default=None, help="tone vocabulary file.")
+    parser.add_argument(
+        '--spk_id',
+        type=int,
+        default=0,
+        help='spk id for multi speaker acoustic model')
 
     # voc
     parser.add_argument(
         '--voc',
         type=str,
         default='hifigan_csmsc',
-        choices=['hifigan_csmsc', 'mb_melgan_csmsc', 'pwgan_csmsc'],
+        choices=[
+            'pwgan_csmsc',
+            'pwgan_aishell3',
+            'pwgan_ljspeech',
+            'pwgan_vctk',
+            'hifigan_csmsc',
+            'hifigan_aishell3',
+            'hifigan_ljspeech',
+            'hifigan_vctk',
+            'mb_melgan_csmsc',
+        ],
         help='Choose vocoder type of tts task.')
     # other
     parser.add_argument(

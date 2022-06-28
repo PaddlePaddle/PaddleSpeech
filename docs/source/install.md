@@ -5,8 +5,8 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 | Way | Function                                                     | Support|
 |:---- |:----------------------------------------------------------- |:----|
 | Easy     | (1) Use command-line functions of PaddleSpeech. <br> (2) Experience PaddleSpeech on Ai Studio. | Linux, Mac(not support M1 chip)，Windows ( For more information about installation, see [#1195](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1195)) |
-| Medium     | Support major functions ，such as using the` ready-made `examples and using PaddleSpeech to train your model.                                           | Linux |
-| Hard     | Support full function of Paddlespeech, including using join ctc decoder with kaldi, training n-gram language model, Montreal-Forced-Aligner, and so on. And you are more able to be a developer! | Ubuntu |
+| Medium     | Support major functions ，such as using the` ready-made `examples and using PaddleSpeech to train your model.                                           | Linux, Mac(not support M1 chip, not support training models)，Windows (not support training models) |
+| Hard     | Support full function of Paddlespeech, including using join ctc decoder with kaldi([asr2](../../examples/librispeech/asr2 )), training n-gram language model, Montreal-Forced-Aligner, and so on. And you are more able to be a developer! | Ubuntu |
 
 ## Prerequisites
 - Python >= 3.7
@@ -65,7 +65,7 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 > If you fail to install paddlespeech-ctcdecoders, it doesn't matter.
  
-## Medium: Get the Major Functions (Support Linux)
+## Medium: Get the Major Functions (Support Linux, mac and windows not support training)
 If you want to get the major function of  `paddlespeech`, you need to do following steps:
 ### Git clone PaddleSpeech
 You need to `git clone` this repository at first.
@@ -75,7 +75,7 @@ cd PaddleSpeech
 ```
 
 ### Install Conda
-Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7) and install it by yourself or you can use the following command:
+Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html) to select a version (py>=3.7). For windows, you can follow the installing guide step by step and for linux and mac, you can use the following commands:
 ```bash
 # download the miniconda
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/

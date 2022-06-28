@@ -113,40 +113,4 @@ class DataBase(object):
         b = base64.b64decode(vector_base64)
         vc = np.frombuffer(b, dtype=dtype)
         return vc
-
-if __name__ == '__main__':
-    db_path = "../../source/db/vpr.sqlite"
-    db = DataBase(db_path)
-    
-    # 准备数据
-    import numpy as np
-    vector = np.random.randn((192)).astype(np.float32).tobytes()
-    vector_base64 = base64.b64encode(vector).decode('utf8')
-    username = "sss"
-    wav_path = r"../../source/demo/demo_16k.wav"
-    
-    # 插入数据
-    db.insert_one(username, vector_base64, wav_path)
-    
-    # 查询数据
-    res_all = db.select_all()
-    print("res_all: ", res_all)
-    
-    s_id = res_all[0]['id']
-    res_id = db.select_by_id(s_id)
-    print("res_id: ", res_id)
-    
-    res_uername = db.select_by_username(username)
-    print("res_username: ", res_uername)
-    
-    # base64还原
-    b = base64.b64decode(res_uername[0]['vector'])
-    vc = np.frombuffer(b, dtype=np.float32)
-    print(vc)
-    
-    # 删除数据
-    db.drop_by_username(username)
-    res_all = db.select_all()
-    print("删除后 res_all: ", res_all)
-    db.drop_all()
     

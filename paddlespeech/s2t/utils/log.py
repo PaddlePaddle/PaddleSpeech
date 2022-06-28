@@ -99,7 +99,7 @@ class Log():
     _call_from_cli = False
     _frame = inspect.currentframe()
     while _frame:
-        if 'paddlespeech/cli/__init__.py' in _frame.f_code.co_filename or 'paddlespeech/t2s' in _frame.f_code.co_filename:
+        if 'paddlespeech/cli/entry.py' in _frame.f_code.co_filename or 'paddlespeech/t2s' in _frame.f_code.co_filename:
             _call_from_cli = True
             break
         _frame = _frame.f_back

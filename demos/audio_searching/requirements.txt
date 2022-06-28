@@ -2,7 +2,7 @@ diskcache==5.2.1
 dtaidistance==2.3.1
 fastapi
 librosa==0.8.0
-numpy==1.21.0
+numpy==1.22.0
 pydantic
 pymilvus==2.0.1
 pymysql

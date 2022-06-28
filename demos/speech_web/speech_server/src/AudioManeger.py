@@ -145,29 +145,6 @@ class AudioMannger:
     
     def resume(self):
         self.is_pause = False
-
-
-if __name__ == '__main__':
-    from robot import Robot
-
-    chatbot = Robot()
-    chatbot.init()
-    audio_manger = AudioMannger(chatbot)
-    
-    file_list = [
-        "source/20220418145230qbenc.pcm",
-    ]
-    
-    for file in file_list:
-        with open(file, "rb") as f:
-            pcm_bin = f.read()
-            print(len(pcm_bin))
-        asr_ = audio_manger.stream_asr(pcm_bin=pcm_bin)
-        print(asr_)
-    
-    print(audio_manger.end())
-    
-    print(chatbot.speech2text("source/20220418145230zrxia.wav"))
     
     
     

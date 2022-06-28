@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#TOTAL_ERRORS=0
+#echo "HAHAHAHAHHA"
+#exit 5
+#
+#files=$(
+#
+#if [[ ! $TRAVIS_BRANCH ]]; then
+#  # install cpplint on local machine.
+#  if [[ ! $(which cpplint) ]]; then
+#    pip install cpplint
+#  fi
+#  # diff files on local machine. 
+#  files=$(git diff --cached --name-status | awk 'Extra open brace or missing close brace2}')
+#else
+#  # diff files between PR and latest commit on Travis CI. 
+#  branch_ref=(gitrev−parse"TRAVIS_BRANCH")
+#  head_ref=$(git rev-parse HEAD)
+#  files=(gitdiff−−name−statusbranch_ref $head_ref | awk 'Extra open brace or missing close brace2}')
+#fi
+## The trick to remove deleted files: https://stackoverflow.com/a/2413151
+#for file in $files; do
+#    echo $file
+#    if [[ $file =~ ^(patches/.*) ]]; then
+#        continue;
+#    else
+#        cpplint --filter=-readability/fn_size $file;
+#        TOTAL_ERRORS=(exprTOTAL_ERRORS + $?);
+#    fi
+#done
+#
+#exit $TOTAL_ERRORS
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+    against=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    against=664cc9ca631283d0f38b8feb6b52b68152d0f63d
+fi
+
+# Redirect output to stderr.
+exec 1>&2
+
+cpplint=cpplint
+sum=0
+filters='-build/include_order,-build/namespaces,-legal/copyright,-runtime/references,-build/include_what_you_use'
+        
+# for cpp
+for file in $(git diff-index --name-status $against -- | grep -E '\.[ch](pp)?$' | awk '{print $2}'); do
+    $cpplint --filter=$filters $file
+    sum=$(expr ${sum} + $?)
+done
+    
+if [ ${sum} -eq 0 ]; then
+    exit 0
+else
+    exit 1
+fi

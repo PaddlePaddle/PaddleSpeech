@@ -4,7 +4,7 @@
 #ifndef PADDLEAUDIO_PYBIND_SOX_IO_H
 #define PADDLEAUDIO_PYBIND_SOX_IO_H
 
-#include "pybind/sox/utils.h"
+#include "paddlespeech/audio/src/pybind/sox/utils.h"
 
 namespace paddleaudio {
 namespace sox_io {

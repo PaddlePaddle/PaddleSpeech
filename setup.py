@@ -18,7 +18,11 @@ import os
 import subprocess as sp
 import sys
 from pathlib import Path
+from typing import Union
+from typing import Tuple
+from typing import List
 
+import distutils.command.clean
 from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
@@ -26,7 +30,9 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 from setuptools.command.test import test
 
-HERE = Path(os.path.abspath(os.path.dirname(__file__)))
+from tools import setup_helpers
+
+HERE = Path(__file__).parent.resolve()
 
 VERSION = '0.0.0'
 COMMITID = 'none'
@@ -114,9 +120,15 @@ def check_call(cmd: str, shell=False, executable=None):
         raise e
 
 
-def check_output(cmd: str, shell=False):
+def check_output(cmd: Union[str, List[str], Tuple[str]], shell=False):
     try:
-        out_bytes = sp.check_output(cmd.split())
+
+        if isinstance(cmd, (list, tuple)):
+            cmds = cmd
+        else:
+            cmds = cmd.split()
+        out_bytes = sp.check_output(cmds)
+
     except sp.CalledProcessError as e:
         out_bytes = e.output  # Output generated before error
         code = e.returncode  # Return code
@@ -216,121 +228,135 @@ class UploadCommand(Command):
 
 
 ################################# Version ##################################
-def write_version_py(filename='paddlespeech/__init__.py'):
-    import paddlespeech
-    if hasattr(paddlespeech,
-               "__version__") and paddlespeech.__version__ == VERSION:
-        return
-    with open(filename, "a") as f:
-        out_str = f"\n__version__ = '{VERSION}'\n"
-        print(out_str)
-        f.write(f"\n__version__ = '{VERSION}'\n")
-
-    COMMITID = check_output("git rev-parse HEAD")
-    with open(filename, 'a') as f:
-        out_str = f"\n__commit__ = '{COMMITID}'\n"
-        print(out_str)
-        f.write(f"\n__commit__ = '{COMMITID}'\n")
-
-    print(f"{inspect.currentframe().f_code.co_name} done")
+def _get_version(sha):
+    version = VERSION
+    if os.getenv("BUILD_VERSION"):
+        version = os.getenv("BUILD_VERSION")
+    elif sha is not None:
+        version += "+" + sha[:7]
+    return version
 
 
-def remove_version_py(filename='paddlespeech/__init__.py'):
-    with open(filename, "r") as f:
-        lines = f.readlines()
-    with open(filename, "w") as f:
-        for line in lines:
-            if "__version__" in line or "__commit__" in line:
-                continue
-            f.write(line)
-    print(f"{inspect.currentframe().f_code.co_name} done")
-
-
-@contextlib.contextmanager
-def version_info():
-    write_version_py()
-    yield
-    remove_version_py()
+def _make_version_file(version, sha):
+    sha = "Unknown" if sha is None else sha
+    version_path = HERE / "paddlespeech" / "version.py"
+    with open(version_path, "w") as f:
+        f.write(f"__version__ = '{version}'\n")
+        f.write(f"__commit__ = '{sha}'\n")
 
 
 ################################# Steup ##################################
-setup_info = dict(
-    # Metadata
-    name='paddlespeech',
-    version=VERSION,
-    author='PaddlePaddle Speech and Language Team',
-    author_email='paddlesl@baidu.com',
-    url='https://github.com/PaddlePaddle/PaddleSpeech',
-    license='Apache 2.0',
-    description='Speech tools and models based on Paddlepaddle',
-    long_description=read("README.md"),
-    long_description_content_type="text/markdown",
-    keywords=[
-        "speech",
-        "asr",
-        "tts",
-        "streaming asr"
-        "streaming tts"
-        "audio process"
-        "speaker verfication",
-        "speech classfication",
-        "text frontend",
-        "MFA",
-        "paddlepaddle",
-        "beam search",
-        "ctcdecoder",
-        "deepspeech2",
-        "transformer",
-        "conformer",
-        "fastspeech",
-        "vocoder",
-        "pwgan",
-        "melgan",
-        "mb-melgan",
-        "hifigan",
-        "gan",
-        "wfst decoder",
-    ],
-    python_requires='>=3.7',
-    install_requires=requirements["install"],
-    extras_require={
-        'develop':
-        requirements["develop"],
-        'doc': [
-            "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
-            "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
-        ],
-        'test': ['nose', 'torchaudio==0.10.2'],
-    },
-    cmdclass={
-        'develop': DevelopCommand,
-        'install': InstallCommand,
-        'upload': UploadCommand,
-        'test': TestCommand,
-    },
+class clean(distutils.command.clean.clean):
+    def run(self):
+        # Run default behavior first
+        distutils.command.clean.clean.run(self)
 
-    # Package info
-    packages=find_packages(include=('paddlespeech*')),
-    zip_safe=True,
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-    ],
-    entry_points={
-        'console_scripts': [
-            'paddlespeech=paddlespeech.cli.entry:_execute',
-            'paddlespeech_server=paddlespeech.server.entry:server_execute',
-            'paddlespeech_client=paddlespeech.server.entry:client_execute'
+        # Remove torchaudio extension
+        for path in (ROOT_DIR / "paddlespeech").glob("**/*.so"):
+            print(f"removing '{path}'")
+            path.unlink()
+        # Remove build directory
+        build_dirs = [
+            ROOT_DIR / "build",
         ]
-    })
+        for path in build_dirs:
+            if path.exists():
+                print(f"removing '{path}' (and everything under it)")
+                shutil.rmtree(str(path), ignore_errors=True)
 
-with version_info():
+def main():
+    sha = check_output(["git", "rev-parse", "HEAD"]) # commit id
+    branch = check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+    tag = check_output(["git", "describe", "--tags", "--exact-match", "@"])
+    print("-- Git branch:", branch)
+    print("-- Git SHA:", sha)
+    print("-- Git tag:", tag)
+    version = _get_version(sha)
+    print("-- Building version", version)
+    _make_version_file(version, sha)
+
+    setup_info = dict(
+        # Metadata
+        name='paddlespeech',
+        version=VERSION,
+        author='PaddlePaddle Speech and Language Team',
+        author_email='paddlesl@baidu.com',
+        url='https://github.com/PaddlePaddle/PaddleSpeech',
+        license='Apache 2.0',
+        description='Speech tools and models based on Paddlepaddle',
+        long_description=read("README.md"),
+        long_description_content_type="text/markdown",
+        keywords=[
+            "speech",
+            "asr",
+            "tts",
+            "streaming asr"
+            "streaming tts"
+            "audio process"
+            "speaker verfication",
+            "speech classfication",
+            "text frontend",
+            "MFA",
+            "paddlepaddle",
+            "beam search",
+            "ctcdecoder",
+            "deepspeech2",
+            "transformer",
+            "conformer",
+            "fastspeech",
+            "vocoder",
+            "pwgan",
+            "melgan",
+            "mb-melgan",
+            "hifigan",
+            "gan",
+            "wfst decoder",
+        ],
+        python_requires='>=3.7',
+        install_requires=requirements["install"],
+        extras_require={
+            'develop':
+            requirements["develop"],
+            'doc': [
+                "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
+                "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
+            ],
+            'test': ['nose', 'torchaudio==0.10.2'],
+        },
+        cmdclass={
+            'develop': DevelopCommand,
+            'install': InstallCommand,
+            'upload': UploadCommand,
+            'test': TestCommand,
+            "build_ext": setup_helpers.CMakeBuild,
+            "clean": clean,
+        },
+
+        # Package info
+        packages=find_packages(include=('paddlespeech*')),
+        ext_modules=setup_helpers.get_ext_modules(),
+        zip_safe=True,
+        classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
+            'Topic :: Scientific/Engineering :: Artificial Intelligence',
+            'License :: OSI Approved :: Apache Software License',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
+        ],
+        entry_points={
+            'console_scripts': [
+                'paddlespeech=paddlespeech.cli.entry:_execute',
+                'paddlespeech_server=paddlespeech.server.entry:server_execute',
+                'paddlespeech_client=paddlespeech.server.entry:client_execute'
+            ]
+        })
+
     setup(**setup_info)
+
+if __name__ == '__main__':
+    main()

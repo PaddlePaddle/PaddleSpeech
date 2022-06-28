@@ -1,8 +1,8 @@
 //Copyright (c) 2017 Facebook Inc. (Soumith Chintala), 
 //All rights reserved.
 
-#include "pybind/sox/io.h"
-#include "pybind/sox/utils.h"
+#include "paddlespeech/audio/src/pybind/sox/io.h"
+#include "paddlespeech/audio/src/pybind/sox/utils.h"
 
 using namespace paddleaudio::sox_utils;
 

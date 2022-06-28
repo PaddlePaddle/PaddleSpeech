@@ -1,7 +1,7 @@
 //Copyright (c) 2017 Facebook Inc. (Soumith Chintala), 
 //All rights reserved.
 
-#include "pybind/sox/io.h"
+#include "paddlespeech/audio/src/pybind/sox/io.h"
 
 PYBIND11_MODULE(_paddleaudio, m) {
   m.def("get_info_file", &paddleaudio::sox_io::get_info_file,

@@ -24,7 +24,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e_streaming \
         --phones_dict=dump/phone_id_map.txt \
-        --am_streaming=True
+        --am_streaming=True \
+        --inference_dir=${train_output_path}/inference_streaming
 fi
 
 # for more GAN Vocoders
@@ -45,7 +46,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e_streaming \
         --phones_dict=dump/phone_id_map.txt \
-        --am_streaming=True
+        --am_streaming=True \
+        --inference_dir=${train_output_path}/inference_streaming
 fi
 
 # the pretrained models haven't release now

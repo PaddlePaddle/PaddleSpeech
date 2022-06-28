@@ -218,6 +218,12 @@ optional arguments:
 Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_nosil_vctk_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_vctk_ckpt_0.5.zip)
 
+The static model can be downloaded here:
+- [fastspeech2_vctk_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_static_1.1.0.zip)
+
+The ONNX model can be downloaded here:
+- [fastspeech2_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip)
+
 FastSpeech2 checkpoint contains files listed below.
 ```text
 fastspeech2_nosil_vctk_ckpt_0.5

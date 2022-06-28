@@ -44,7 +44,7 @@ from .filters import (
     cmvn,
     placeholder,
 )
-from webdataset.handlers import (
+from .handlers import (
     ignore_and_continue,
     ignore_and_stop,
     reraise_exception,

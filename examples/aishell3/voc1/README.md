@@ -133,6 +133,12 @@ optional arguments:
 Pretrained models can be downloaded here:
 - [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
 
+The static model can be downloaded here:
+- [pwgan_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_1.1.0.zip)
+
+The ONNX model can be downloaded here:
+- [pwgan_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_onnx_1.1.0.zip)
+
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss:| eval/spectral_convergence_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------:
 default| 1(gpu) x 400000|1.968762|0.759008|0.218524

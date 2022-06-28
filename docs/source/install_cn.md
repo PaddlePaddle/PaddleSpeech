@@ -4,8 +4,8 @@
 | 方式 | 功能                                                         | 支持系统            |
 | :--- | :----------------------------------------------------------- | :------------------ |
 | 简单 | (1) 使用 PaddleSpeech 的命令行功能. <br> (2) 在 Aistudio上体验 PaddleSpeech. | Linux, Mac(不支持M1芯片)，Windows (安装详情查看[#1195](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1195)) |
-| 中等 | 支持 PaddleSpeech 主要功能，比如使用已有 examples 中的模型和使用 PaddleSpeech 来训练自己的模型. | Linux               |
-| 困难 | 支持 PaddleSpeech 的各项功能，包含结合kaldi使用 join ctc decoder 方式解码，训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
+| 中等 | 支持 PaddleSpeech 主要功能，比如使用已有 examples 中的模型和使用 PaddleSpeech 来训练自己的模型. | Linux, Mac(不支持M1芯片，不支持训练), Windows(不支持训练)               |
+| 困难 | 支持 PaddleSpeech 的各项功能，包含结合 kaldi 使用 join ctc decoder 方式解码 ([asr2](../../examples/librispeech/asr2 ))，训练语言模型,使用强制对齐等。并且你更能成为一名开发者！ | Ubuntu              |
 ## 先决条件
 - Python >= 3.7
 - 最新版本的 PaddlePaddle (请看 [安装向导](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
@@ -62,7 +62,7 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 > 如果出现 paddlespeech-ctcdecoders 无法安装的问题，无须担心，这不影响使用。
 
-## 中等： 获取主要功能（支持 Linux）
+## 中等： 获取主要功能（支持 Linux， Mac 和 Windows 不支持训练）
 如果你想要使用 `paddlespeech` 的主要功能。你需要完成以下几个步骤
 ### Git clone PaddleSpeech
 你需要先 git clone 本仓库
@@ -71,7 +71,7 @@ git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 cd PaddleSpeech
 ```
 ### 安装 Conda
-Conda 是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。你可以尝试自己安装，或者使用以下的命令：
+Conda 是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。windows 系统可以使用 conda 的向导安装，linux 和 mac 可以使用以下的命令：
 ```bash
 # 下载 miniconda
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P tools/
@@ -116,9 +116,9 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 安装 PaddleSpeech
-最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech`中已有的 examples：
+最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech` 中已有的 examples：
 ```bash
-# 部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+# 部分用户系统由于默认源的问题，安装中会出现 kaldiio 安转出错的问题，建议首先安装pytest-runner:
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
 # 请确保目前处于PaddleSpeech项目的根目录
 pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -137,7 +137,7 @@ Docker 是一种开源工具，用于在和系统本身环境相隔离的环境�
 
 在 [Docker Hub](https://hub.docker.com/repository/docker/paddlecloud/paddlespeech) 中获取这些镜像及相应的使用指南，包括 CPU、GPU、ROCm 版本。
 
-如果您对自动化制作docker镜像感兴趣，或有自定义需求，请访问 [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton) 做进一步了解。
+如果您对自动化制作 docker 镜像感兴趣，或有自定义需求，请访问 [PaddlePaddle/PaddleCloud](https://github.com/PaddlePaddle/PaddleCloud/tree/main/tekton) 做进一步了解。
 完成这些以后，你就可以在 docker 容器中执行训练、推理和超参 fine-tune。
 ### 选择2： 使用有 root 权限的 Ubuntu
 - 使用apt安装 `build-essential`
@@ -173,7 +173,7 @@ conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 用开发者模式安装 PaddleSpeech
-部分用户系统由于默认源的问题，安装中会出现kaldiio安转出错的问题，建议首先安装pytest-runner:
+部分用户系统由于默认源的问题，安装中会出现 kaldiio 安转出错的问题，建议首先安装 pytest-runner:
 ```bash
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```

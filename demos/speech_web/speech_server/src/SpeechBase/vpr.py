@@ -116,37 +116,3 @@ class VPR:
         # 清空 faiss
         self.index_ip.reset()
         
-    
-
-if __name__ == '__main__':
-    
-    db_path = "../../source/db/vpr.sqlite"
-    dim = 192
-    top_k = 5
-    vpr = VPR(db_path, dim, top_k)
-    
-    # 准备测试数据
-    username = "sss"
-    wav_path = r"../../source/demo/demo_16k.wav"
-    
-    # 注册声纹
-    vpr.vpr_enroll(username, wav_path)
-    
-    # 获取数据
-    print(vpr.vpr_list())
-    
-    # 识别声纹
-    recolist = vpr.vpr_recog(wav_path)
-    print(recolist)
-    
-    # 通过 id 获取数据
-    idx = recolist[0][1]
-    print(vpr.vpr_data(idx))
-
-    # 删除声纹
-    vpr.vpr_del(username)
-    vpr.vpr_droptable()
-    
-    
-    
-    

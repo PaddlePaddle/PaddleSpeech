@@ -215,6 +215,13 @@ optional arguments:
 Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_nosil_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_ljspeech_ckpt_0.5.zip)
 
+The static model can be downloaded here:
+- [fastspeech2_ljspeech_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_ljspeech_static_1.1.0.zip)
+
+The ONNX model can be downloaded here:
+- [fastspeech2_ljspeech_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_ljspeech_onnx_1.1.0.zip)
+
+
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
 default| 2(gpu) x 100000| 1.505682|0.612104| 0.045505| 0.62792| 0.220147

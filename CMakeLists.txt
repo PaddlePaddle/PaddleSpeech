@@ -23,8 +23,10 @@ if(env_cxx_standard GREATER -1)
       "paddlespeech requires -std=c++14. Please remove -std=c++ settings in your environment.")
 endif()
 
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
+
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -44,3 +46,6 @@ message(STATUS "Python_INCLUDE_DIR=" ${Python_INCLUDE_DIR})
 
 add_subdirectory(paddlespeech/audio/third_party)
 add_subdirectory(paddlespeech/audio/src)
+
+include(cmake/summary.cmake)
+onnx_print_configuration_summary()

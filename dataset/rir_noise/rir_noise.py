@@ -34,7 +34,7 @@ from utils.utility import unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
-URL_ROOT = '--no-check-certificate http://www.openslr.org/resources/28'
+URL_ROOT = '--no-check-certificate http://openslr.elda.org/resources/28'
 DATA_URL = URL_ROOT + '/rirs_noises.zip'
 MD5_DATA = 'e6f48e257286e05de56413b4779d8ffb'
 

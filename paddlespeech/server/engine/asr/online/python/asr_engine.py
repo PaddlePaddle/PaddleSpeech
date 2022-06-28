@@ -24,9 +24,9 @@ from yacs.config import CfgNode
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.resource import CommonTaskResource
+from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
-from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
 from paddlespeech.s2t.utils.tensor_utils import pad_sequence
 from paddlespeech.s2t.utils.utility import UpdateConfig

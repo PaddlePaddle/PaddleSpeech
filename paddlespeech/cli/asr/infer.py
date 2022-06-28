@@ -33,8 +33,8 @@ from ..log import logger
 from ..utils import CLI_TIMER
 from ..utils import stats_wrapper
 from ..utils import timer_register
+from paddlespeech.s2t.audio.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']

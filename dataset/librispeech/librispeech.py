@@ -31,7 +31,7 @@ import soundfile
 from utils.utility import download
 from utils.utility import unpack
 
-URL_ROOT = "http://www.openslr.org/resources/12"
+URL_ROOT = "http://openslr.elda.org/resources/12"
 #URL_ROOT = "https://openslr.magicdatatech.com/resources/12"
 URL_TEST_CLEAN = URL_ROOT + "/test-clean.tar.gz"
 URL_TEST_OTHER = URL_ROOT + "/test-other.tar.gz"

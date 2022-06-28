@@ -4,8 +4,8 @@ import paddle
 import librosa
 import soundfile
 
-from paddlespeech.server.engine.asr.online.asr_engine import ASREngine
-from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
+from paddlespeech.server.engine.asr.online.python.asr_engine import ASREngine
+from paddlespeech.server.engine.asr.online.python.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.utils.config import get_config
 
 def readWave(samples):
@@ -58,30 +58,5 @@ class ASR:
             asr_results = self.connection_handler.get_result()
             self.connection_handler.reset()
             return asr_results
-
-
-if __name__ == '__main__':
-    config_path = r"../../PaddleSpeech/paddlespeech/server/conf/ws_conformer_application.yaml"
-    
-    wav_path = r"../../source/demo/demo_16k.wav"
-    samples, sample_rate = soundfile.read(wav_path, dtype='int16')
-    
-    asr = ASR(config_path=config_path)
-    end_result = asr.offlineASR(samples=samples, sample_rate=sample_rate)
-    print("端到端识别结果：", end_result)
-    
-    for sub_wav in readWave(samples=samples):
-        # print(sub_wav)
-        message = sub_wav.tobytes()
-        offline_result = asr.onlineASR(message, is_finished=False)
-        print("流式识别结果: ", offline_result)
-    offline_result = asr.onlineASR(is_finished=True)
-    print("流式识别结果: ", offline_result)
-
-
-    
-    
-    
-    
 
         

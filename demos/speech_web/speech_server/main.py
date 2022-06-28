@@ -30,7 +30,7 @@ from src.robot import Robot
 from src.WebsocketManeger import ConnectionManager
 from src.SpeechBase.vpr import VPR
 
-from paddlespeech.server.engine.asr.online.asr_engine import PaddleASRConnectionHanddler
+from paddlespeech.server.engine.asr.online.python.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.utils.audio_process import float2pcm
 
 

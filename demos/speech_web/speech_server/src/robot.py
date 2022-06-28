@@ -35,7 +35,7 @@ class Robot:
             
         # asr model初始化
         self.asr_model(asr_init_path, model=self.asr_name,lang='zh',
-                 sample_rate=16000)
+                 sample_rate=16000, force_yes=True)
         
     
     def speech2text(self, audio_file):
@@ -66,28 +66,5 @@ class Robot:
     def ie(self, text):
         result = self.nlp.ie(text)
         return result
-    
-if __name__ == '__main__':
-    tts_config = "../PaddleSpeech/demos/streaming_tts_server/conf/tts_online_application.yaml"
-    asr_config = "../PaddleSpeech/demos/streaming_asr_server/conf/ws_conformer_application.yaml"
-    demo_wav = "../source/demo/demo_16k.wav"
-    ie_model_path = "../source/model"
-    tts_wav = "../source/demo/tts.wav"
-    text = "今天天气真不错"
-    ie_text = "今天晚上我从大牛坊出发去三里屯花了六十五块钱"
-    
-    
-    robot = Robot(asr_config, tts_config, asr_init_path=demo_wav)
-    res = robot.speech2text(demo_wav)
-    print(res)
-    
-    res = robot.chat(text)
-    print(res)
-    print("tts offline")
-    robot.text2speech(res, tts_wav)
-    
-    print("ie test")
-    res = robot.ie(ie_text)
-    print(res)
     
     

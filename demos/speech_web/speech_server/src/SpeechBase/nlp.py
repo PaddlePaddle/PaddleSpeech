@@ -20,9 +20,4 @@ class NLP:
         result = self.ie_model(text)
         return result
 
-if __name__ == '__main__':
-    ie_model_path = "../../source/model/"
-    nlp = NLP(ie_model_path=ie_model_path)
-    text = "今天早上我从大牛坊去百度科技园花了七百块钱"
-    print(nlp.ie(text))
     

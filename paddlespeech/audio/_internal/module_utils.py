@@ -3,6 +3,7 @@ import warnings
 from functools import wraps
 from typing import Optional
 
+
 def is_module_available(*modules: str) -> bool:
     r"""Returns if a top-level module with :attr:`name` exists *without**
     importing it. This is generally safer than try-catch block around a
@@ -26,19 +27,21 @@ def requires_module(*modules: str):
             return func
 
     else:
-        req = f"module: {missing[0]}" if len(missing) == 1 else f"modules: {missing}"
+        req = f"module: {missing[0]}" if len(
+            missing) == 1 else f"modules: {missing}"
 
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
-                raise RuntimeError(f"{func.__module__}.{func.__name__} requires {req}")
+                raise RuntimeError(
+                    f"{func.__module__}.{func.__name__} requires {req}")
 
             return wrapped
 
     return decorator
 
 
-def deprecated(direction: str, version: Optional[str] = None):
+def deprecated(direction: str, version: Optional[str]=None):
     """Decorator to add deprecation message
     Args:
         direction (str): Migration steps to be given to users.
@@ -51,8 +54,7 @@ def deprecated(direction: str, version: Optional[str] = None):
             message = (
                 f"{func.__module__}.{func.__name__} has been deprecated "
                 f'and will be removed from {"future" if version is None else version} release. '
-                f"{direction}"
-            )
+                f"{direction}")
             warnings.warn(message, stacklevel=2)
             return func(*args, **kwargs)
 
@@ -62,7 +64,7 @@ def deprecated(direction: str, version: Optional[str] = None):
 
 
 def is_kaldi_available():
-    return is_module_available("paddlespeech"._paddleaudio") and paddlespeech.ops.paddleaudio.is_kaldi_available()
+    return is_module_available("paddlespeech.audio._paddleaudio")
 
 
 def requires_kaldi():
@@ -76,7 +78,8 @@ def requires_kaldi():
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
-                raise RuntimeError(f"{func.__module__}.{func.__name__} requires kaldi")
+                raise RuntimeError(
+                    f"{func.__module__}.{func.__name__} requires kaldi")
 
             return wrapped
 
@@ -91,7 +94,8 @@ def _check_soundfile_importable():
 
         return True
     except Exception:
-        warnings.warn("Failed to import soundfile. 'soundfile' backend is not available.")
+        warnings.warn(
+            "Failed to import soundfile. 'soundfile' backend is not available.")
         return False
 
 
@@ -113,7 +117,8 @@ def requires_soundfile():
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
-                raise RuntimeError(f"{func.__module__}.{func.__name__} requires soundfile")
+                raise RuntimeError(
+                    f"{func.__module__}.{func.__name__} requires soundfile")
 
             return wrapped
 
@@ -121,7 +126,7 @@ def requires_soundfile():
 
 
 def is_sox_available():
-    return is_module_available("paddlespeech._paddleaudio") and paddlespeech.ops.paddleaudio.is_sox_available()
+    return is_module_available("paddlespeech.audio._paddleaudio")
 
 
 def requires_sox():
@@ -135,7 +140,8 @@ def requires_sox():
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
-                raise RuntimeError(f"{func.__module__}.{func.__name__} requires sox")
+                raise RuntimeError(
+                    f"{func.__module__}.{func.__name__} requires sox")
 
             return wrapped
 

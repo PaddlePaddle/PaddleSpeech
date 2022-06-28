@@ -1,5 +1,5 @@
-//Copyright (c) 2017 Facebook Inc. (Soumith Chintala), 
-//All rights reserved.
+// Copyright (c) 2017 Facebook Inc. (Soumith Chintala),
+// All rights reserved.
 
 #ifndef PADDLEAUDIO_PYBIND_SOX_IO_H
 #define PADDLEAUDIO_PYBIND_SOX_IO_H
@@ -15,7 +15,7 @@ auto get_info_file(const std::string &path, const std::string &format)
 auto get_info_fileobj(py::object fileobj, const std::string &format)
     -> std::tuple<int64_t, int64_t, int64_t, int64_t, std::string>;
 
-} // namespace paddleaudio
-} // namespace sox_io
+}  // namespace paddleaudio
+}  // namespace sox_io
 
 #endif

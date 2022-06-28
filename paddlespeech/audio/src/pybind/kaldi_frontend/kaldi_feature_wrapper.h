@@ -1,7 +1,7 @@
 
 #include "base/kaldi-common.h"
-#include "feature_common.h"
 #include "feat/feature-fbank.h"
+#include "feature_common.h"
 
 #pragma once
 
@@ -14,12 +14,8 @@ class KaldiFeatureWrapper {
     static KaldiFeatureWrapper* GetInstance();
     bool InitFbank(kaldi::FbankOptions opts);
     py::array_t<double> ComputeFbank(const py::array_t<double> wav);
-    int Dim() {
-      return fbank_->Dim();
-    }
-    void ResetFbank() {
-      fbank_->Reset();
-    }
+    int Dim() { return fbank_->Dim(); }
+    void ResetFbank() { fbank_->Reset(); }
 
   private:
     std::unique_ptr<paddleaudio::Fbank> fbank_;

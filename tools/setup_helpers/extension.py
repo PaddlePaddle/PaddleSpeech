@@ -1,9 +1,9 @@
-import distutils.sysconfig
 import os
 import platform
 import subprocess
 from pathlib import Path
 
+import distutils.sysconfig
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 
@@ -27,11 +27,13 @@ def _get_build(var, default=False):
     if val in trues:
         return True
     if val not in falses:
-        print(f"WARNING: Unexpected environment variable value `{var}={val}`. " f"Expected one of {trues + falses}")
+        print(f"WARNING: Unexpected environment variable value `{var}={val}`. "
+              f"Expected one of {trues + falses}")
     return False
 
 
-_BUILD_SOX = False if platform.system() == "Windows" else _get_build("BUILD_SOX", True)
+_BUILD_SOX = False if platform.system() == "Windows" else _get_build(
+    "BUILD_SOX", True)
 _BUILD_MAD = _get_build("BUILD_MAD", False)
 # _BUILD_KALDI = False if platform.system() == "Windows" else _get_build("BUILD_KALDI", True)
 # _BUILD_RNNT = _get_build("BUILD_RNNT", True)
@@ -40,7 +42,8 @@ _BUILD_MAD = _get_build("BUILD_MAD", False)
 # _USE_ROCM = _get_build("USE_ROCM", torch.cuda.is_available() and torch.version.hip is not None)
 # _USE_CUDA = _get_build("USE_CUDA", torch.cuda.is_available() and torch.version.hip is None)
 # _USE_OPENMP = _get_build("USE_OPENMP", True) and "ATen parallel backend: OpenMP" in torch.__config__.parallel_info()
-_PADDLESPEECH_CUDA_ARCH_LIST = os.environ.get("PADDLESPEECH_CUDA_ARCH_LIST", None)
+_PADDLESPEECH_CUDA_ARCH_LIST = os.environ.get("PADDLESPEECH_CUDA_ARCH_LIST",
+                                              None)
 
 
 def get_ext_modules():
@@ -71,7 +74,8 @@ class CMakeBuild(build_ext):
         if ext.name != "paddlespeech.audio._paddleaudio":
             return
 
-        extdir = os.path.abspath(os.path.dirname(self.get_ext_filename(ext.name)))
+        extdir = os.path.abspath(
+            os.path.dirname(self.get_ext_filename(ext.name)))
 
         # required for auto-detection of auxiliary "native" libs
         if not extdir.endswith(os.path.sep):
@@ -101,8 +105,12 @@ class CMakeBuild(build_ext):
         if _PADDLESPEECH_CUDA_ARCH_LIST is not None:
             # Convert MAJOR.MINOR[+PTX] list to new style one
             # defined at https://cmake.org/cmake/help/latest/prop_tgt/CUDA_ARCHITECTURES.html
-            _arches = _PADDLESPEECH_CUDA_ARCH_LIST.replace(".", "").replace(" ", ";").split(";")
-            _arches = [arch[:-4] if arch.endswith("+PTX") else f"{arch}-real" for arch in _arches]
+            _arches = _PADDLESPEECH_CUDA_ARCH_LIST.replace(".", "").replace(
+                " ", ";").split(";")
+            _arches = [
+                arch[:-4] if arch.endswith("+PTX") else f"{arch}-real"
+                for arch in _arches
+            ]
             cmake_args += [f"-DCMAKE_CUDA_ARCHITECTURES={';'.join(_arches)}"]
 
         # Default to Ninja
@@ -131,10 +139,13 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        print(f"cmake {_ROOT_DIR} {' '.join(cmake_args)}, cwd={self.build_temp}")
-        subprocess.check_call(["cmake", str(_ROOT_DIR)] + cmake_args, cwd=self.build_temp)
+        print(
+            f"cmake {_ROOT_DIR} {' '.join(cmake_args)}, cwd={self.build_temp}")
+        subprocess.check_call(
+            ["cmake", str(_ROOT_DIR)] + cmake_args, cwd=self.build_temp)
         print(f"cmake --build . {' '.join(build_args)}, cwd={self.build_temp}")
-        subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
+        subprocess.check_call(
+            ["cmake", "--build", "."] + build_args, cwd=self.build_temp)
 
     def get_ext_filename(self, fullname):
         ext_filename = super().get_ext_filename(fullname)

@@ -5,7 +5,7 @@ repos:
     -   id: yapf
         files: \.py$
         exclude: (?=third_party).*(\.py)$
-        
+
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: a11d9314b22d8f8c7556443875b731ef05965464
     hooks:
@@ -76,4 +76,4 @@ repos:
         entry: bash .pre-commit-hooks/cpplint.hook
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx)$
-        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$
+        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|paddlespeech/audio/src/optional).*(\.cpp|\.cc|\.h|\.hpp)$

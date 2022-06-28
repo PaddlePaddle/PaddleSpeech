@@ -17,16 +17,15 @@
 namespace paddleaudio {
 
 template <class F>
-StreamingFeatureTpl<F>::StreamingFeatureTpl(
-    const Options& opts)
-    : opts_(opts), computer_(opts), 
-      window_function_(opts.frame_opts) {
-      //window_function_(computer_.GetFrameOptions()) { the opt set to zero
+StreamingFeatureTpl<F>::StreamingFeatureTpl(const Options& opts)
+    : opts_(opts), computer_(opts), window_function_(opts.frame_opts) {
+    // window_function_(computer_.GetFrameOptions()) { the opt set to zero
 }
 
 template <class F>
-bool StreamingFeatureTpl<F>::ComputeFeature(const kaldi::VectorBase<kaldi::BaseFloat>& wav, 
-                                            kaldi::Vector<kaldi::BaseFloat>* feats) {
+bool StreamingFeatureTpl<F>::ComputeFeature(
+    const kaldi::VectorBase<kaldi::BaseFloat>& wav,
+    kaldi::Vector<kaldi::BaseFloat>* feats) {
     // append remaned waves
     kaldi::int32 wav_len = wav.Dim();
     if (wav_len == 0) return false;
@@ -61,7 +60,7 @@ bool StreamingFeatureTpl<F>::Compute(
     kaldi::int32 frame_length = frame_opts.WindowSize();
     kaldi::int32 sample_rate = frame_opts.samp_freq;
     if (num_samples < frame_length) {
-        return false; 
+        return false;
     }
 
     kaldi::int32 num_frames = kaldi::NumFrames(num_samples, frame_opts);

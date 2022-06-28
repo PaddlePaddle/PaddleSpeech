@@ -42,7 +42,7 @@ typedef float   BaseFloat;
 // for discussion on what to do if you need compile kaldi
 // without OpenFST, see the bottom of this this file
 
-#ifndef COMPILE_WITHOUT_OPENFST 
+#if (COMPILE_WITHOUT_OPENFST != 0)
 
 #include <fst/types.h>
 

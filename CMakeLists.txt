@@ -14,4 +14,4 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(BUILD_SOX "Build libsox statically" ON)
 
 add_subdirectory(paddlespeech/audio/third_party)
-add_subdirectory(paddlespeech/audio//csrc)
+add_subdirectory(paddlespeech/audio/src)

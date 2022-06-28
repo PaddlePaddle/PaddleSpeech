@@ -1,6 +1,5 @@
 project(kaldi)
 
-
 add_library(kaldi-base  
   base/io-funcs.cc
   base/kaldi-error.cc

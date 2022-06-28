@@ -4,17 +4,17 @@ namespace {
 
 bool is_sox_available() {
 #ifdef INCLUDE_SOX
-  return true;
+    return true;
 #else
-  return false;
+    return false;
 #endif
 }
 
 bool is_kaldi_available() {
 #ifdef INCLUDE_KALDI
-  return true;
+    return true;
 #else
-  return false;
+    return false;
 #endif
 }
 
@@ -22,12 +22,12 @@ bool is_kaldi_available() {
 // not the runtime availability.
 bool is_ffmpeg_available() {
 #ifdef USE_FFMPEG
-  return true;
+    return true;
 #else
-  return false;
+    return false;
 #endif
 }
 
-} // namespace
+}  // namespace
 
-} // namespace paddleaudio
+}  // namespace paddleaudio

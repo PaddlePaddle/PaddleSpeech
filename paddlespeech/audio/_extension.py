@@ -64,7 +64,8 @@ def _init_ffmpeg():
     try:
         _load_lib("libpaddlleaudio_ffmpeg")
     except OSError as err:
-        raise ImportError("FFmpeg libraries are not found. Please install FFmpeg.") from err
+        raise ImportError(
+            "FFmpeg libraries are not found. Please install FFmpeg.") from err
 
     import paddllespeech._paddlleaudio_ffmpeg  # noqa
 

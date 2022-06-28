@@ -1,5 +1,6 @@
 import types
 
+
 class _ClassNamespace(types.ModuleType):
     def __init__(self, name):
         super(_ClassNamespace, self).__init__('paddlespeech.classes' + name)
@@ -10,6 +11,7 @@ class _ClassNamespace(types.ModuleType):
         if proxy is None:
             raise RuntimeError(f'Class {self.name}.{attr} not registered!')
         return proxy
+
 
 class _Classes(types.ModuleType):
     __file__ = '_classes.py'
@@ -42,6 +44,7 @@ class _Classes(types.ModuleType):
             path (str): A path to a shared library to load.
         """
         paddlespeech.ops.load_library(path)
+
 
 # The classes "namespace"
 classes = _Classes()

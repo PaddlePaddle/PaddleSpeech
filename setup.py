@@ -18,9 +18,9 @@ import os
 import subprocess as sp
 import sys
 from pathlib import Path
-from typing import Union
-from typing import Tuple
 from typing import List
+from typing import Tuple
+from typing import Union
 
 import distutils.command.clean
 from setuptools import Command
@@ -38,43 +38,13 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
-    "editdistance",
-    "g2p_en", 
-    "g2pM", 
-    "h5py", 
-    "inflect", 
-    "jieba", 
-    "jsonlines",
-    "kaldiio", 
-    "librosa==0.8.1",
-    "loguru", 
-    "matplotlib", 
-    "nara_wpe",
-    "onnxruntime", 
-    "pandas", 
-    "paddlenlp", 
-    "paddlespeech_feat", 
-    "praatio==5.0.0",
-    "pypinyin", 
-    "pypinyin-dict", 
-    "python-dateutil", 
-    "pyworld", 
-    "resampy==0.2.2",
-    "sacrebleu", 
-    "scipy", 
-    "sentencepiece~=0.1.96", 
-    "soundfile~=0.10",
-    "textgrid", 
-    "timer", 
-    "tqdm", 
-    "typeguard", 
-    "visualdl", 
-    "webrtcvad",
-    "yacs~=0.1.8", 
-    "prettytable", 
-    "zhon", 
-    'colorlog', 
-    'pathos == 0.2.8'
+    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
+    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
+    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
+    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
+    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
+    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
+    "yacs~=0.1.8", "prettytable", "zhon", 'colorlog', 'pathos == 0.2.8'
 ]
 
 server = [
@@ -264,8 +234,9 @@ class clean(distutils.command.clean.clean):
                 print(f"removing '{path}' (and everything under it)")
                 shutil.rmtree(str(path), ignore_errors=True)
 
+
 def main():
-    sha = check_output(["git", "rev-parse", "HEAD"]) # commit id
+    sha = check_output(["git", "rev-parse", "HEAD"])  # commit id
     branch = check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
     tag = check_output(["git", "describe", "--tags", "--exact-match", "@"])
     print("-- Git branch:", branch)
@@ -319,7 +290,8 @@ def main():
             requirements["develop"],
             'doc': [
                 "sphinx", "sphinx-rtd-theme", "numpydoc", "myst_parser",
-                "recommonmark>=0.5.0", "sphinx-markdown-tables", "sphinx-autobuild"
+                "recommonmark>=0.5.0", "sphinx-markdown-tables",
+                "sphinx-autobuild"
             ],
             'test': ['nose', 'torchaudio==0.10.2'],
         },
@@ -357,6 +329,7 @@ def main():
         })
 
     setup(**setup_info)
+
 
 if __name__ == '__main__':
     main()

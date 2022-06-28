@@ -1,11 +1,12 @@
 import contextlib
 import ctypes
-import sys
 import os
+import sys
 import types
 
 # Query `hasattr` only once.
-_SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(sys, 'setdlopenflags')
+_SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(sys,
+                                                               'setdlopenflags')
 
 
 @contextlib.contextmanager
@@ -22,7 +23,7 @@ def dl_open_guard():
     if _SET_GLOBAL_FLAGS:
         sys.setdlopenflags(old_flags)
 
-        
+
 def resolve_library_path(path: str) -> str:
     return os.path.realpath(path)
 

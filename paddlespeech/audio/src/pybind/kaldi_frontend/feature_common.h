@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "feat/feature-window.h"
-#include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include "feat/feature-window.h"
 
 namespace paddleaudio {
 
@@ -27,18 +27,14 @@ class StreamingFeatureTpl {
   public:
     typedef typename F::Options Options;
     StreamingFeatureTpl(const Options& opts);
-    bool ComputeFeature(const kaldi::VectorBase<kaldi::BaseFloat>& wav, 
+    bool ComputeFeature(const kaldi::VectorBase<kaldi::BaseFloat>& wav,
                         kaldi::Vector<kaldi::BaseFloat>* feats);
-    void Reset() {
-        remained_wav_.Resize(0);
-    }
+    void Reset() { remained_wav_.Resize(0); }
 
-    int Dim() {
-      return computer_.Dim();
-    }
+    int Dim() { return computer_.Dim(); }
 
   private:
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves, 
+    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
                  kaldi::Vector<kaldi::BaseFloat>* feats);
     Options opts_;
     kaldi::FeatureWindowFunction window_function_;
@@ -49,4 +45,3 @@ class StreamingFeatureTpl {
 }  // namespace ppspeech
 
 #include "feature_common_inl.h"
-

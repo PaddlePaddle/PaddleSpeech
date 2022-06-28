@@ -5,6 +5,7 @@ repos:
     -   id: yapf
         files: \.py$
         exclude: (?=third_party).*(\.py)$
+        
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: a11d9314b22d8f8c7556443875b731ef05965464
     hooks:
@@ -31,6 +32,7 @@ repos:
         -  --builtins=G,request
         -  --jobs=1
         exclude: (?=third_party).*(\.py)$
+
 -   repo : https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.0.1
     hooks:
@@ -42,6 +44,7 @@ repos:
         files: \.md$
     -   id: remove-tabs
         files: \.md$
+
 -   repo: local
     hooks:
     -   id: clang-format
@@ -51,14 +54,26 @@ repos:
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
         exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$
+
     #-   id: copyright_checker
     #    name: copyright_checker
     #    entry: python .pre-commit-hooks/copyright-check.hook
     #    language: system
     #    files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
     #    exclude: (?=third_party|pypinyin|speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$
+
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0
     hooks:
       - id: reorder-python-imports
         exclude: (?=third_party).*(\.py)$
+
+-   repo: local
+    hooks:
+    -   id: cpplint-cpp-source
+        name: cpplint
+        description: Check C++ code style using cpplint.py.
+        entry: bash .pre-commit-hooks/cpplint.hook
+        language: system
+        files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx)$
+        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$

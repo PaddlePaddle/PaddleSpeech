@@ -35,7 +35,7 @@ def _get_build(var, default=False):
 _BUILD_SOX = False if platform.system() == "Windows" else _get_build(
     "BUILD_SOX", True)
 _BUILD_MAD = _get_build("BUILD_MAD", False)
-# _BUILD_KALDI = False if platform.system() == "Windows" else _get_build("BUILD_KALDI", True)
+_BUILD_KALDI = False if platform.system() == "Windows" else _get_build("BUILD_KALDI", True)
 # _BUILD_RNNT = _get_build("BUILD_RNNT", True)
 # _BUILD_CTC_DECODER = False if platform.system() == "Windows" else _get_build("BUILD_CTC_DECODER", True)
 # _USE_FFMPEG = _get_build("USE_FFMPEG", False)
@@ -88,7 +88,7 @@ class CMakeBuild(build_ext):
             # f"-DCMAKE_PREFIX_PATH={torch.utils.cmake_prefix_path}",
             f"-DCMAKE_INSTALL_PREFIX={extdir}",
             "-DCMAKE_VERBOSE_MAKEFILE=ON",
-            f"-DPython_INCLUDE_DIR={distutils.sysconfig.get_python_inc()}",
+            f"-DPython_INCLUDE_DIRS={distutils.sysconfig.get_python_inc()}",
             f"-DBUILD_SOX:BOOL={'ON' if _BUILD_SOX else 'OFF'}",
             f"-DBUILD_MAD:BOOL={'ON' if _BUILD_MAD else 'OFF'}",
             # f"-DBUILD_KALDI:BOOL={'ON' if _BUILD_KALDI else 'OFF'}",

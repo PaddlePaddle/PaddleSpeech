@@ -1,4 +1,5 @@
 include(FetchContent)
+include(ExternalProject)
 
 set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
 set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)

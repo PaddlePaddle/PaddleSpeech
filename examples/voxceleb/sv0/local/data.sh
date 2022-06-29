@@ -74,7 +74,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
    # convert the m4a to wav
    # and we will not delete the original m4a file
    echo "start to convert the m4a to wav"
-   bash local/convert.sh ${TARGET_DIR}/voxceleb/vox2/test/ || exit 1;
+   bash local/convert.sh ${TARGET_DIR}/voxceleb/vox2/ || exit 1;
    
    if [ $? -ne 0 ]; then
       echo "Convert voxceleb2 dataset from m4a to wav failed. Terminated."

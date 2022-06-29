@@ -31,9 +31,10 @@ option(BUILD_SOX "Build libsox statically" ON)
 add_definitions("-DCOMPILE_WITHOUT_OPENFST")
 
 include(openblas)
-include(pybind)
+# include(pybind)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/third_party/kaldi)
 include_directories(/usr/include/python3.7m)
+
 add_subdirectory(third_party)
-add_subdirectory(csrc)
+add_subdirectory(src)

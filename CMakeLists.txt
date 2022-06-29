@@ -44,8 +44,8 @@ find_package(Python3 COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
 message(STATUS "Python_INCLUDE_DIR=" ${Python_INCLUDE_DIR})
 
-add_subdirectory(paddlespeech/audio/third_party)
-add_subdirectory(paddlespeech/audio/src)
+add_subdirectory(paddlespeech/audio)
 
+# Summary
 include(cmake/summary.cmake)
 onnx_print_configuration_summary()

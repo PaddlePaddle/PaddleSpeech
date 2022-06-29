@@ -13,7 +13,9 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.15.0)
   cmake_policy(SET CMP0092 NEW)
 endif()
 
+
 project(paddlespeech)
+
 
 # check and set CMAKE_CXX_STANDARD
 string(FIND "${CMAKE_CXX_FLAGS}" "-std=c++" env_cxx_standard)
@@ -27,25 +29,40 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
 
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 
+
 # Options
 option(BUILD_SOX "Build libsox statically" ON)
 option(BUILD_MAD "Enable libmad" ON)
+option(BUILD_KALDI "Build kaldi statically" ON)
 option(BUILD_PADDLEAUDIO_PYTHON_EXTENSION "Build Python extension" ON)
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+# cmake
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake;${PROJECT_SOURCE_DIR}/cmake/external")
+
+
+# fc_patch dir
+set(FETCHCONTENT_QUIET off)
+get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
+set(FETCHCONTENT_BASE_DIR ${fc_patch})
+
+
+include(openblas)
+# include(pybind)
+
+# packages
 find_package(Python3 COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
-message(STATUS "Python_INCLUDE_DIR=" ${Python_INCLUDE_DIR})
 
-add_subdirectory(paddlespeech/audio/third_party)
-add_subdirectory(paddlespeech/audio/src)
 
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -Wall -g")
+add_subdirectory(paddlespeech/audio)
+
+# Summary
 include(cmake/summary.cmake)
 onnx_print_configuration_summary()

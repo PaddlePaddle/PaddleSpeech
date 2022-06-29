@@ -35,11 +35,6 @@ if(BUILD_SOX)
   list(
     APPEND
     LIBPADDLEAUDIO_SOURCES
-    # sox/io.cpp
-    # sox/utils.cpp
-    # sox/effects.cpp
-    # sox/effects_chain.cpp
-    # sox/types.cpp
     )
   list(
     APPEND
@@ -48,6 +43,20 @@ if(BUILD_SOX)
     )
 endif()
 
+
+if(BUILD_KALDI)
+  list(
+    APPEND
+    LIBPADDLEAUDIO_LINK_LIBRARIES
+    libkaldi
+  )
+  list(
+    APPEND
+    LIBPADDLEAUDIO_COMPILE_DEFINITIONS
+    INCLUDE_KALDI
+    COMPILE_WITHOUT_OPENFST
+  )
+endif()
 
 #------------------------------------------------------------------------------#
 # END OF CUSTOMIZATION LOGICS
@@ -79,9 +88,9 @@ define_library(
 )
 
 if (APPLE)
-  set(TORCHAUDIO_LIBRARY libtorchaudio CACHE INTERNAL "")
+  set(TORCHAUDIO_LIBRARY libpaddleaudio CACHE INTERNAL "")
 else()
-  set(TORCHAUDIO_LIBRARY -Wl,--no-as-needed libtorchaudio -Wl,--as-needed CACHE INTERNAL "")
+  set(TORCHAUDIO_LIBRARY -Wl,--no-as-needed libpaddleaudio -Wl,--as-needed CACHE INTERNAL "")
 endif()
 
   ################################################################################
@@ -134,6 +143,15 @@ if(BUILD_SOX)
     # pybind/sox/effects_chain.cpp
     pybind/sox/io.cpp
     pybind/sox/utils.cpp
+    )
+endif()
+
+if(BUILD_KALDI)
+  list(
+    APPEND
+    EXTENSION_SOURCES
+    pybind/kaldi/kaldi_feature_wrapper.cc
+    pybind/kaldi/kaldi_feature.cc
     )
 endif()
 #----------------------------------------------------------------------------#

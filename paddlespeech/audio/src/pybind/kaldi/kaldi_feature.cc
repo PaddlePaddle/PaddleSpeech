@@ -1,10 +1,21 @@
+// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
+#include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature.h"
 
-#include "kaldi_feature_wrapper.h"
-
-namespace py = pybind11;
+namespace paddleaudio {
+namespace kaldi {
 
 bool InitFbank(float samp_freq,  // frame opts
                float frame_shift_ms,
@@ -32,7 +43,7 @@ bool InitFbank(float samp_freq,  // frame opts
                bool htk_compat,
                bool use_log_fbank,
                bool use_power) {
-    kaldi::FbankOptions opts;
+    ::kaldi::FbankOptions opts;
     opts.frame_opts.samp_freq = samp_freq;  // frame opts
     opts.frame_opts.frame_shift_ms = frame_shift_ms;
     opts.frame_opts.frame_length_ms = frame_length_ms;
@@ -61,12 +72,12 @@ bool InitFbank(float samp_freq,  // frame opts
     opts.htk_compat = htk_compat;
     opts.use_log_fbank = use_log_fbank;
     opts.use_power = use_power;
-    paddleaudio::KaldiFeatureWrapper::GetInstance()->InitFbank(opts);
+    paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->InitFbank(opts);
     return true;
 }
 
 py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav) {
-    return paddleaudio::KaldiFeatureWrapper::GetInstance()->ComputeFbank(wav);
+    return paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ComputeFbank(wav);
 }
 
 py::array_t<double> ComputeFbank(
@@ -124,21 +135,14 @@ py::array_t<double> ComputeFbank(
               use_log_fbank,
               use_power);
     py::array_t<double> result = ComputeFbankStreaming(wav);
-    paddleaudio::KaldiFeatureWrapper::GetInstance()->ResetFbank();
+    paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ResetFbank();
     return result;
 }
 
 
 void ResetFbank() {
-    paddleaudio::KaldiFeatureWrapper::GetInstance()->ResetFbank();
+    paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ResetFbank();
 }
 
-PYBIND11_MODULE(kaldi_featurepy, m) {
-    m.doc() = "kaldi_feature example";
-    m.def("InitFbank", &InitFbank, "init fbank");
-    m.def("ResetFbank", &ResetFbank, "reset fbank");
-    m.def("ComputeFbank", &ComputeFbank, "compute fbank");
-    m.def("ComputeFbankStreaming",
-          &ComputeFbankStreaming,
-          "compute fbank streaming");
-}
+} // kaldi
+} // paddleaudio

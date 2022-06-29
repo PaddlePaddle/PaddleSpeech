@@ -1,4 +1,5 @@
 include(FetchContent)
+include(ExternalProject)
 
 set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
 set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
@@ -47,12 +48,19 @@ set(OpenBLAS_INSTALL_PREFIX ${INSTALL_DIR})
 add_library(openblas STATIC IMPORTED)
 add_dependencies(openblas OPENBLAS)
 set_target_properties(openblas PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES Fortran)
-# ${CMAKE_INSTALL_LIBDIR}  lib
-set_target_properties(openblas PROPERTIES IMPORTED_LOCATION ${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libopenblas.a)
+
+set_target_properties(openblas PROPERTIES IMPORTED_LOCATION ${OpenBLAS_INSTALL_PREFIX}/lib/libopenblas.a)
 
 
-# https://cmake.org/cmake/help/latest/command/install.html?highlight=cmake_install_libdir#installing-targets
-# ${CMAKE_INSTALL_LIBDIR}  lib
-# ${CMAKE_INSTALL_INCLUDEDIR}  include
-link_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-include_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/openblas)
+link_directories(${OpenBLAS_INSTALL_PREFIX}/lib)
+include_directories(${OpenBLAS_INSTALL_PREFIX}/include/openblas)
+
+
+set(OPENBLAS_LIBRARIES
+    ${OpenBLAS_INSTALL_PREFIX}/lib/libopenblas.a
+)
+
+add_library(libopenblas INTERFACE)
+add_dependencies(libopenblas openblas)
+target_include_directories(libopenblas INTERFACE ${OpenBLAS_INSTALL_PREFIX}/include/openblas)
+target_link_libraries(libopenblas INTERFACE ${OPENBLAS_LIBRARIES})

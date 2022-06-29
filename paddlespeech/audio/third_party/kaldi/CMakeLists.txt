@@ -2,11 +2,6 @@
 # compile kaldi without openfst
 add_definitions("-DCOMPILE_WITHOUT_OPENFST")
 
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/kaldi)
-# include_directories(/usr/include/python3.7m)
-
-set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
 # function (define_library name source include_dirs link_libraries compile_defs)
 #   add_library(${name} INTERFACE ${source})
 #   target_include_directories(${name} INTERFACE ${include_dirs})
@@ -24,18 +19,18 @@ set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # endfunction()
 
 # kaldi-base
-add_library(kaldi-base INTERFACE
+add_library(kaldi-base STATIC
   base/io-funcs.cc
   base/kaldi-error.cc
   base/kaldi-math.cc
   base/kaldi-utils.cc
   base/timer.cc
 )
-target_include_directories(kaldi-base INTERFACE ${INSTALL_DIR}/base)
-target_compile_definitions(kaldi-base INTERFACE "-DCOMPILE_WITHOUT_OPENFST")
+target_include_directories(kaldi-base PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # kaldi-matrix
-add_library(kaldi-matrix INTERFACE
+add_library(kaldi-matrix STATIC
   matrix/compressed-matrix.cc
   matrix/kaldi-matrix.cc
   matrix/kaldi-vector.cc
@@ -48,11 +43,12 @@ add_library(kaldi-matrix INTERFACE
   matrix/srfft.cc
   matrix/tp-matrix.cc
 )
-target_include_directories(kaldi-matrix INTERFACE ${INSTALL_DIR}/matrix)
-target_link_libraries(kaldi-matrix INTERFACE gfortran kaldi-base libopenblas.a)
+target_include_directories(kaldi-matrix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(kaldi-matrix PUBLIC gfortran kaldi-base libopenblas.a)
+
 
 # kaldi-util
-add_library(kaldi-util INTERFACE
+add_library(kaldi-util STATIC
   util/kaldi-holder.cc
   util/kaldi-io.cc
   util/kaldi-semaphore.cc
@@ -63,11 +59,12 @@ add_library(kaldi-util INTERFACE
   util/simple-options.cc
   util/text-utils.cc
 )
-target_include_directories(kaldi-util INTERFACE ${INSTALL_DIR}/util)
-target_link_libraries(kaldi-util INTERFACE kaldi-base kaldi-matrix)
+target_include_directories(kaldi-util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(kaldi-util PUBLIC kaldi-base kaldi-matrix)
+
 
 # kaldi-feat-common
-add_library(kaldi-feat-common INTERFACE
+add_library(kaldi-feat-common STATIC
   feat/wave-reader.cc
   feat/signal.cc
   feat/feature-functions.cc
@@ -76,19 +73,37 @@ add_library(kaldi-feat-common INTERFACE
   feat/mel-computations.cc
   feat/cmvn.cc
 )
-target_include_directories(kaldi-feat-common INTERFACE ${INSTALL_DIR}/feat)
-target_link_libraries(kaldi-feat-common INTERFACE kaldi-base kaldi-matrix kaldi-util)
+target_include_directories(kaldi-feat-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(kaldi-feat-common PUBLIC kaldi-base kaldi-matrix kaldi-util)
+
 
 # kaldi-mfcc
-add_library(kaldi-mfcc INTERFACE
+add_library(kaldi-mfcc STATIC
   feat/feature-mfcc.cc
 )
-target_include_directories(kaldi-mfcc INTERFACE ${INSTALL_DIR}/feat)
-target_link_libraries(kaldi-mfcc INTERFACE kaldi-feat-common)
+target_include_directories(kaldi-mfcc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(kaldi-mfcc PUBLIC kaldi-feat-common)
+
 
 # kaldi-fbank
-add_library(kaldi-fbank INTERFACE
+add_library(kaldi-fbank STATIC
   feat/feature-fbank.cc
 )
-target_include_directories(kaldi-fbank INTERFACE ${INSTALL_DIR}/feat)
-target_link_libraries(kaldi-fbank INTERFACE kaldi-feat-common)
+target_include_directories(kaldi-fbank PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(kaldi-fbank PUBLIC kaldi-feat-common)
+
+
+set(KALDI_LIBRARIES
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-base.a
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-matrix.a
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-util.a
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-feat-common.a
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-mfcc.a
+  ${CMAKE_CURRENT_BINARY_DIR}/libkaldi-fbank.a
+)
+
+add_library(libkaldi INTERFACE)
+add_dependencies(libkaldi kaldi-base kaldi-matrix kaldi-util kaldi-feat-common kaldi-mfcc kaldi-fbank)
+target_include_directories(libkaldi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(libkaldi INTERFACE ${KALDI_LIBRARIES})
+target_compile_definitions(libkaldi INTERFACE "-DCOMPILE_WITHOUT_OPENFST")

@@ -1,8 +1,7 @@
 // Copyright (c) 2017 Facebook Inc. (Soumith Chintala),
 // All rights reserved.
 
-#ifndef PADDLEAUDIO_PYBIND_SOX_UTILS_H
-#define PADDLEAUDIO_PYBIND_SOX_UTILS_H
+#pragma once
 
 #include <pybind11/pybind11.h>
 #include <sox.h>
@@ -41,5 +40,3 @@ std::string get_encoding(sox_encoding_t encoding);
 
 }  // namespace paddleaudio
 }  // namespace sox_utils
-
-#endif

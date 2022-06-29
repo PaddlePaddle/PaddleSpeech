@@ -12,5 +12,4 @@ endif()
 ################################################################################
 if (BUILD_KALDI)
   add_subdirectory(kaldi)
-  message(STATUS "Build Kaldi")
 endif()

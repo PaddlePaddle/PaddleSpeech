@@ -67,7 +67,7 @@ maxlen_out: 150  # if output length(number of tokens) > maxlen-out, data is auto
 resample_rate: 16000
 shuffle_size: 1500
 sort_size: 1000
-num_workers: 0
+num_workers: 8
 prefetch_factor: 10
 dist_sampler: True
 num_encs: 1

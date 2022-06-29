@@ -45,8 +45,7 @@ python3 -u ${BIN_DIR}/train.py \
 --benchmark-batch-size ${benchmark_batch_size} \
 --benchmark-max-step ${benchmark_max_step}
 else
-#NCCL_SOCKET_IFNAME=eth0
-python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
+NCCL_SOCKET_IFNAME=eth0 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --seed ${seed} \
 --config ${config_path} \

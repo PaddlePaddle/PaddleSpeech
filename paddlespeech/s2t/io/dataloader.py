@@ -104,7 +104,7 @@ class StreamDataLoader():
         if self.dist_sampler:
             base_dataset = streamdata.DataPipeline(
                 streamdata.SimpleShardList(shardlist),
-                streamdata.split_by_node,
+                streamdata.split_by_node if train_mode else streamdata.placeholder(),
                 streamdata.split_by_worker,
                 streamdata.tarfile_to_samples(streamdata.reraise_exception)
             )

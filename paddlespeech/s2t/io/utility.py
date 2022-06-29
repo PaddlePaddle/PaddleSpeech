@@ -93,7 +93,7 @@ def feat_type(filepath):
     if isinstance(filepath, BytesIO):
         return 'sound'
 
-    suffix = filepath.split(":")[0].split('.')[-1].lower()
+    suffix = filepath.split(":")[-1].split('.')[-1].lower()
     if suffix == 'ark':
         return 'mat'
     elif suffix == 'scp':

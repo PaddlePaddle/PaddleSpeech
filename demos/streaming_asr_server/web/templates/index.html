@@ -66,7 +66,7 @@
     </div>
   </div>
   <script>
-    var wenetWs = null
+    var ws = null
     var timeLoop = null
     var result = ""
     $(document).ready(function () {
@@ -76,18 +76,18 @@
 
     function openWebSocket(url) {
       if ("WebSocket" in window) {
-        wenetWs = new WebSocket(url)
-        wenetWs.onopen = function () {
+        ws = new WebSocket(url)
+        ws.onopen = function () {
           console.log("Websocket 连接成功，开始识别")
-          wenetWs.send(JSON.stringify({
+          ws.send(JSON.stringify({
             "signal": "start"
           }))
         }
-        wenetWs.onmessage = function (_msg) { parseResult(_msg.data) }
-        wenetWs.onclose = function () {
+        ws.onmessage = function (_msg) { parseResult(_msg.data) }
+        ws.onclose = function () {
           console.log("WebSocket 连接断开")
         }
-        wenetWs.onerror = function () { console.log("WebSocket 连接失败") }
+        ws.onerror = function () { console.log("WebSocket 连接失败") }
       }
     }
 
@@ -104,7 +104,7 @@
         var blob = blobOrNull
         var encTime = blob.encTime
         var reader = new FileReader()
-        reader.onloadend = function () { wenetWs.send(reader.result) }
+        reader.onloadend = function () { ws.send(reader.result) }
         reader.readAsArrayBuffer(blob)
       }
     }
@@ -142,7 +142,7 @@
     }
 
     function stopRecording() {
-      wenetWs.send(JSON.stringify({ "signal": "end" }))
+      ws.send(JSON.stringify({ "signal": "end" }))
       SoundRecognizer.recordClose()
 
       $('#endBtn').add($('#timeBox')).removeClass('show')

@@ -45,7 +45,7 @@ exec 1>&2
 
 cpplint=cpplint
 sum=0
-filters='-build/include_order,-build/namespaces,-legal/copyright,-runtime/references,-build/include_what_you_use'
+filters='-build/include_order,-build/namespaces,-legal/copyright,-runtime/references,-build/include_what_you_use,-whitespace/indent,-build/header_guard'
         
 # for cpp
 for file in $(git diff-index --name-status $against -- | grep -E '\.[ch](pp)?$' | awk '{print $2}'); do

@@ -108,9 +108,11 @@ def is_soundfile_available():
 
 def requires_soundfile():
     if is_soundfile_available():
+
         def decorator(func):
             return func
     else:
+
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
@@ -128,9 +130,11 @@ def is_sox_available():
 
 def requires_sox():
     if is_sox_available():
+
         def decorator(func):
             return func
     else:
+
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):

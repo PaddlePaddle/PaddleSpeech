@@ -1,8 +1,8 @@
 // Copyright (c) 2017 Facebook Inc. (Soumith Chintala), All rights reserved.
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 
-#include "paddlespeech/audio/src/pybind/sox/io.h"
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature.h"
+#include "paddlespeech/audio/src/pybind/sox/io.h"
 
 // Sox
 PYBIND11_MODULE(_paddleaudio, m) {

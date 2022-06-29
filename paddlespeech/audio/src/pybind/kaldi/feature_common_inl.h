@@ -15,7 +15,7 @@
 #include "base/kaldi-common.h"
 
 namespace paddleaudio {
-namespace kaldi {  
+namespace kaldi {
 
 template <class F>
 StreamingFeatureTpl<F>::StreamingFeatureTpl(const Options& opts)
@@ -72,15 +72,15 @@ bool StreamingFeatureTpl<F>::Compute(
     for (::kaldi::int32 frame = 0; frame < num_frames; frame++) {
         ::kaldi::BaseFloat raw_log_energy = 0.0;
         ::kaldi::ExtractWindow(0,
-                             waves,
-                             frame,
-                             frame_opts,
-                             window_function_,
-                             &window,
-                             need_raw_log_energy ? &raw_log_energy : NULL);
+                               waves,
+                               frame,
+                               frame_opts,
+                               window_function_,
+                               &window,
+                               need_raw_log_energy ? &raw_log_energy : NULL);
 
         ::kaldi::Vector<::kaldi::BaseFloat> this_feature(computer_.Dim(),
-                                                     ::kaldi::kUndefined);
+                                                         ::kaldi::kUndefined);
         computer_.Compute(raw_log_energy, vtln_warp, &window, &this_feature);
         ::kaldi::SubVector<::kaldi::BaseFloat> output_row(
             feats->Data() + frame * Dim(), Dim());

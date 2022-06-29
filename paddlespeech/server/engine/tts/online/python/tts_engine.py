@@ -105,13 +105,19 @@ class TTSServerExecutor(TTSExecutor):
             logger.info('Models had been initialized.')
             return
         # am model info
+        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+            use_pretrained_am = True
+        else:
+            use_pretrained_am = False
+
         am_tag = am + '-' + lang
         self.task_resource.set_task_model(
             model_tag=am_tag,
             model_type=0,  # am
+            skip_download=not use_pretrained_am,
             version=None,  # default version
         )
-        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+        if use_pretrained_am:
             self.am_res_path = self.task_resource.res_dir
             self.am_config = os.path.join(self.am_res_path,
                                           self.task_resource.res_dict['config'])
@@ -138,13 +144,19 @@ class TTSServerExecutor(TTSExecutor):
         self.speaker_dict = None
 
         # voc model info
+        if voc_ckpt is None or voc_config is None or voc_stat is None:
+            use_pretrained_voc = True
+        else:
+            use_pretrained_voc = False
+
         voc_tag = voc + '-' + lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,
             model_type=1,  # vocoder
+            skip_download=not use_pretrained_voc,
             version=None,  # default version
         )
-        if voc_ckpt is None or voc_config is None or voc_stat is None:
+        if use_pretrained_voc:
             self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
                 self.voc_res_path, self.task_resource.voc_res_dict['config'])

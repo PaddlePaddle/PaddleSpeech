@@ -60,7 +60,7 @@ find_package(Python3 COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -fPIC -O0 -Wall -g")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -Wall -g")
 add_subdirectory(paddlespeech/audio)
 
 # Summary

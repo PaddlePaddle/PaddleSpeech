@@ -44,7 +44,7 @@ add_library(kaldi-matrix STATIC
   matrix/tp-matrix.cc
 )
 target_include_directories(kaldi-matrix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(kaldi-matrix PUBLIC gfortran kaldi-base libopenblas.a)
+target_link_libraries(kaldi-matrix PUBLIC gfortran kaldi-base libopenblas)
 
 
 # kaldi-util
@@ -105,5 +105,12 @@ set(KALDI_LIBRARIES
 add_library(libkaldi INTERFACE)
 add_dependencies(libkaldi kaldi-base kaldi-matrix kaldi-util kaldi-feat-common kaldi-mfcc kaldi-fbank)
 target_include_directories(libkaldi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(libkaldi INTERFACE ${KALDI_LIBRARIES})
+target_link_libraries(libkaldi INTERFACE   
+  # --whole-archive  for undefined symbol when link static lib into shared lib
+  -Wl,--start-group -Wl,--whole-archive 
+  ${KALDI_LIBRARIES}
+  libopenblas
+  gfortran
+  -Wl,--no-whole-archive -Wl,--end-group
+)
 target_compile_definitions(libkaldi INTERFACE "-DCOMPILE_WITHOUT_OPENFST")

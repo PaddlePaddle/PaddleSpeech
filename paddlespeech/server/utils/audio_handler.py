@@ -447,6 +447,7 @@ class TTSHttpHandler:
             sample_rate (int, optional): audio sample rate, 0 means the same as model. Defaults to 0.
             output (str, optional): save audio path. Defaults to None.
         """
+        sample_rate = 24000 if sample_rate == 0 else sample_rate
         # 1. Create request
         params = {
             "text": text,
@@ -482,14 +483,14 @@ class TTSHttpHandler:
                     self.t.start()
                     self.start_play = False
             all_bytes += audio
-            chunk_duration_list.append(len(audio) / 2.0 / 24000)
+            chunk_duration_list.append(len(audio) / 2.0 / sample_rate)
 
         final_response = time.time() - st
-        duration = len(all_bytes) / 2.0 / 24000
+        duration = len(all_bytes) / 2.0 / sample_rate
         html.close()  # when stream=True
 
         if output is not None:
-            save_audio_success = save_audio(all_bytes, output)
+            save_audio_success = save_audio(all_bytes, output, sample_rate=sample_rate)
         else:
             save_audio_success = False
 

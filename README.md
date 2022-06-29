@@ -1,3 +1,4 @@
+
 ([简体中文](./README_cn.md)|English)
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
@@ -492,6 +493,14 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>AISHELL-3</td>
       <td>
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
+      </td>
+    </tr>
+     <tr>
+      <td rowspan="3">End-to-End</td>
+      <td>VITS</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
       </td>
     </tr>
   </tbody>

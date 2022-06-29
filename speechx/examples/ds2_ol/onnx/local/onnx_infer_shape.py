@@ -499,6 +499,15 @@ class SymbolicShapeInference:
 
 
 
+
+
+
+
+
+
+
+
+
             'Attention', 'BiasGelu', \
             'EmbedLayerNormalization', \
             'FastGelu', 'Gelu', 'LayerNormalization', \

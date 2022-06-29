@@ -36,5 +36,5 @@ class KaldiFeatureWrapper {
     std::unique_ptr<paddleaudio::kaldi::Fbank> fbank_;
 };
 
-} // namespace kaldi
-} // namespace paddleaudio
+}  // namespace kaldi
+}  // namespace paddleaudio

@@ -77,7 +77,8 @@ bool InitFbank(float samp_freq,  // frame opts
 }
 
 py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav) {
-    return paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ComputeFbank(wav);
+    return paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ComputeFbank(
+        wav);
 }
 
 py::array_t<double> ComputeFbank(
@@ -144,5 +145,5 @@ void ResetFbank() {
     paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ResetFbank();
 }
 
-} // kaldi
-} // paddleaudio
+}  // namespace kaldi
+}  // namespace paddleaudio

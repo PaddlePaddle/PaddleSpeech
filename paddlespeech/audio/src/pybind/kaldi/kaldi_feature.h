@@ -16,6 +16,7 @@
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature_wrapper.h"
 
@@ -88,5 +89,5 @@ py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav);
 
 py::array_t<double> TestFun(const py::array_t<double>& wav);
 
-} // namespace kaldi
-} // namespace paddleaudio
+}  // namespace kaldi
+}  // namespace paddleaudio

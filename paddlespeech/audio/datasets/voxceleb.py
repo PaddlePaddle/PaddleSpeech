@@ -23,7 +23,6 @@ from paddle.io import Dataset
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
 
-from ..backends import load as load_audio
 from ..utils import DATA_HOME
 from ..utils import decompress
 from ..utils.download import download_and_decompress
@@ -192,7 +191,7 @@ class VoxCeleb(Dataset):
         for field in type(sample)._fields:
             record[field] = getattr(sample, field)
 
-        waveform, sr = load_audio(record['wav'])
+        waveform, sr = paddlespeech.audio.load(record['wav'])
 
         # random select a chunk audio samples from the audio
         if self.random_chunk:
@@ -231,7 +230,7 @@ class VoxCeleb(Dataset):
 
     def _get_audio_info(self, wav_file: str,
                         split_chunks: bool) -> List[List[str]]:
-        waveform, sr = load_audio(wav_file)
+        waveform, sr = paddlespeech.audio.load(wav_file)
         spk_id, sess_id, utt_id = wav_file.split("/")[-3:]
         audio_id = '-'.join([spk_id, sess_id, utt_id.split(".")[0]])
         audio_duration = waveform.shape[0] / sr

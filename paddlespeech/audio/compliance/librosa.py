@@ -22,7 +22,7 @@ import scipy
 from numpy.lib.stride_tricks import as_strided
 from scipy import signal
 
-from ..backends import depth_convert
+from ..utils import depth_convert
 from ..utils import ParameterError
 
 __all__ = [

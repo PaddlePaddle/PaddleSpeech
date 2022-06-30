@@ -18,7 +18,7 @@ import numpy as np
 from paddle import inference
 from scipy.special import softmax
 
-from paddlespeech.audio.backends import load as load_audio
+from paddlespeech.audio import load as load_audio
 from paddlespeech.audio.datasets import ESC50
 from paddlespeech.audio.features import melspectrogram
 

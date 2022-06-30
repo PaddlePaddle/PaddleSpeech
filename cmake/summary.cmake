@@ -35,6 +35,7 @@ function (onnx_print_configuration_summary)
   message(STATUS "  BUILD_ONNX_PYTHON         : ${BUILD_ONNX_PYTHON}")
   message(STATUS "    Python version        : ${Python_VERSION}")
   message(STATUS "    Python executable     : ${Python_EXECUTABLE}")
-  message(STATUS "    Python includes       : ${Python_INCLUDE_DIRS}")
+  message(STATUS "    Python includes       : ${Python_INCLUDE_DIR}")
+  message(STATUS "    Python libraries      : ${Python_LIBRARY}")
 
 endfunction()

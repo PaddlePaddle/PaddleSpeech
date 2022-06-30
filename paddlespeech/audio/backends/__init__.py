@@ -11,9 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .soundfile_backend import depth_convert
-from .soundfile_backend import load
-from .soundfile_backend import normalize
-from .soundfile_backend import resample
-from .soundfile_backend import save
-from .soundfile_backend import to_mono
+
+# flake8: noqa
+from . import utils
+from .utils import get_audio_backend, list_audio_backends, set_audio_backend

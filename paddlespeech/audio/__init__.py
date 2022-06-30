@@ -11,12 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from . import compliance
 from . import datasets
 from . import features
 from . import functional
 from . import io
 from . import metric
-from . import sox_effects
-from .backends import load
-from .backends import save
+from . import utils
+
+from ._ops import ops
+
+from paddlespeech.audio.backends import get_audio_backend, list_audio_backends, set_audio_backend
+
+__all__ = [
+    "io",
+    "compliance",
+    "datasets",
+    "functional",
+    "features",
+    "utils",
+    'ops'
+    "list_audio_backends",
+    "get_audio_backend",
+    "set_audio_backend",
+]

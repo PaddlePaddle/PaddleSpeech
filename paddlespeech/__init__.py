@@ -12,5 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import _locale
-
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+
+from . import audio
+# _init_audio_backend must called after audio import 
+audio.backends.utils._init_audio_backend()
+
+__all__ = [
+    "audio"
+]

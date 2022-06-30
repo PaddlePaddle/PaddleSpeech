@@ -16,7 +16,6 @@ from typing import List
 import numpy as np
 import paddle
 
-from ..backends import load as load_audio
 from ..compliance.kaldi import fbank as kaldi_fbank
 from ..compliance.kaldi import mfcc as kaldi_mfcc
 from ..compliance.librosa import melspectrogram
@@ -70,9 +69,9 @@ class AudioClassificationDataset(paddle.io.Dataset):
         file, label = self.files[idx], self.labels[idx]
 
         if self.sample_rate is None:
-            waveform, sample_rate = load_audio(file)
+            waveform, sample_rate = paddlespeech.audio.load(file)
         else:
-            waveform, sample_rate = load_audio(file, sr=self.sample_rate)
+            waveform, sample_rate = paddlespeech.audio.load(file, sr=self.sample_rate)
 
         feat_func = feat_funcs[self.feat_type]
 

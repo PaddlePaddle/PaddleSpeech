@@ -60,6 +60,7 @@ class CommonTaskResource:
     def set_task_model(self,
                        model_tag: str,
                        model_type: int=0,
+                       skip_download: bool=False,
                        version: Optional[str]=None):
         """Set model tag and version of current task.
 
@@ -83,16 +84,18 @@ class CommonTaskResource:
             self.version = version
             self.res_dict = self.pretrained_models[model_tag][version]
             self._format_path(self.res_dict)
-            self.res_dir = self._fetch(self.res_dict,
-                                       self._get_model_dir(model_type))
+            if not skip_download:
+                self.res_dir = self._fetch(self.res_dict,
+                                           self._get_model_dir(model_type))
         else:
             assert self.task == 'tts', 'Vocoder will only be used in tts task.'
             self.voc_model_tag = model_tag
             self.voc_version = version
             self.voc_res_dict = self.pretrained_models[model_tag][version]
             self._format_path(self.voc_res_dict)
-            self.voc_res_dir = self._fetch(self.voc_res_dict,
-                                           self._get_model_dir(model_type))
+            if not skip_download:
+                self.voc_res_dir = self._fetch(self.voc_res_dict,
+                                               self._get_model_dir(model_type))
 
     @staticmethod
     def get_model_class(model_name) -> List[object]:

@@ -258,7 +258,6 @@ class FastSpeech2(nn.Layer):
             padding_idx=self.padding_idx)
 
         if encoder_type == "transformer":
-            print("encoder_type is transformer")
             self.encoder = TransformerEncoder(
                 idim=idim,
                 attention_dim=adim,
@@ -275,7 +274,6 @@ class FastSpeech2(nn.Layer):
                 positionwise_layer_type=positionwise_layer_type,
                 positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
         elif encoder_type == "conformer":
-            print("encoder_type is conformer")
             self.encoder = ConformerEncoder(
                 idim=idim,
                 attention_dim=adim,
@@ -362,7 +360,6 @@ class FastSpeech2(nn.Layer):
         # NOTE: we use encoder as decoder
         # because fastspeech's decoder is the same as encoder
         if decoder_type == "transformer":
-            print("decoder_type is transformer")
             self.decoder = TransformerEncoder(
                 idim=0,
                 attention_dim=adim,
@@ -380,7 +377,6 @@ class FastSpeech2(nn.Layer):
                 positionwise_layer_type=positionwise_layer_type,
                 positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
         elif decoder_type == "conformer":
-            print("decoder_type is conformer")
             self.decoder = ConformerEncoder(
                 idim=0,
                 attention_dim=adim,

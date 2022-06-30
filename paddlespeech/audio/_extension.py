@@ -44,7 +44,7 @@ def _load_lib(lib: str) -> bool:
     path = _get_lib_path(lib)
     if not path.exists():
         return False
-    paddlespeech.ops.load_library(path)
+    paddlespeech.audio.ops.load_library(path)
     return True
 
 
@@ -56,7 +56,7 @@ def _init_ffmpeg():
     if _FFMPEG_INITIALIZED:
         return
 
-    if not paddlespeech.ops.paddlleaudio.is_ffmpeg_available():
+    if not paddlespeech.audio.ops.paddlleaudio.is_ffmpeg_available():
         raise RuntimeError(
             "paddlleaudio is not compiled with FFmpeg integration. Please set USE_FFMPEG=1 when compiling paddlleaudio."
         )
@@ -67,11 +67,11 @@ def _init_ffmpeg():
         raise ImportError(
             "FFmpeg libraries are not found. Please install FFmpeg.") from err
 
-    import paddllespeech._paddlleaudio_ffmpeg  # noqa
+    import paddllespeech.audio._paddlleaudio_ffmpeg  # noqa
 
-    paddlespeech.ops.paddlleaudio.ffmpeg_init()
-    if paddlespeech.ops.paddlleaudio.ffmpeg_get_log_level() > 8:
-        paddlespeech.ops.paddlleaudio.ffmpeg_set_log_level(8)
+    paddlespeech.audio.ops.paddlleaudio.ffmpeg_init()
+    if paddlespeech.audio.ops.paddlleaudio.ffmpeg_get_log_level() > 8:
+        paddlespeech.audio.ops.paddlleaudio.ffmpeg_set_log_level(8)
 
     _FFMPEG_INITIALIZED = True
 
@@ -84,7 +84,7 @@ def _init_extension():
     _load_lib("libpaddleaudio")
     # This import is for initializing the methods registered via PyBind11
     # This has to happen after the base library is loaded
-    from paddlespeech import _paddleaudio  # noqa
+    from paddlespeech.audio import _paddleaudio  # noqa
 
     # Because this part is executed as part of `import torchaudio`, we ignore the
     # initialization failure.

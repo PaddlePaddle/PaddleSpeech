@@ -20,8 +20,6 @@ from typing import List
 from paddle.io import Dataset
 from tqdm import tqdm
 
-from ..backends import load as load_audio
-from ..backends import save as save_wav
 from ..utils import DATA_HOME
 from ..utils.download import download_and_decompress
 from .dataset import feat_funcs
@@ -105,7 +103,7 @@ class OpenRIRNoise(Dataset):
         for field in type(sample)._fields:
             record[field] = getattr(sample, field)
 
-        waveform, sr = load_audio(record['wav'])
+        waveform, sr = paddlespeech.audio.load(record['wav'])
 
         assert self.feat_type in feat_funcs.keys(), \
             f"Unknown feat_type: {self.feat_type}, it must be one in {list(feat_funcs.keys())}"
@@ -128,7 +126,7 @@ class OpenRIRNoise(Dataset):
 
     def _get_audio_info(self, wav_file: str,
                         split_chunks: bool) -> List[List[str]]:
-        waveform, sr = load_audio(wav_file)
+        waveform, sr = paddlespeech.audio.load(wav_file)
         audio_id = wav_file.split("/open_rir_noise/")[-1].split(".")[0]
         audio_duration = waveform.shape[0] / sr
 
@@ -143,7 +141,7 @@ class OpenRIRNoise(Dataset):
                 end_sample = int(float(e) * sr)
                 new_wav_file = os.path.join(self.base_path,
                                             audio_id + f'_chunk_{idx+1:02}.wav')
-                save_wav(waveform[start_sample:end_sample], sr, new_wav_file)
+                paddlespeech.audio.save(waveform[start_sample:end_sample], sr, new_wav_file)
                 # id, duration, new_wav
                 ret.append([chunk, self.chunk_duration, new_wav_file])
         else:  # Keep whole audio.

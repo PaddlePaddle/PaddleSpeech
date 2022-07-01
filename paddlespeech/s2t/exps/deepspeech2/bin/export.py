@@ -35,12 +35,6 @@ if __name__ == "__main__":
     # save jit model to
     parser.add_argument(
         "--export_path", type=str, help="path of the jit model to save")
-    parser.add_argument(
-        '--nxpu',
-        type=int,
-        default=0,
-        choices=[0, 1],
-        help="if nxpu == 0 and ngpu == 0, use cpu.")
     args = parser.parse_args()
     print_arguments(args)
 

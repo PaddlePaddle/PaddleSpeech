@@ -71,7 +71,8 @@ class AudioClassificationDataset(paddle.io.Dataset):
         if self.sample_rate is None:
             waveform, sample_rate = paddlespeech.audio.load(file)
         else:
-            waveform, sample_rate = paddlespeech.audio.load(file, sr=self.sample_rate)
+            waveform, sample_rate = paddlespeech.audio.load(
+                file, sr=self.sample_rate)
 
         feat_func = feat_funcs[self.feat_type]
 

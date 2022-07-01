@@ -27,7 +27,6 @@ from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.develop import develop
-from setuptools.command.install import install
 from setuptools.command.test import test
 
 from tools import setup_helpers
@@ -38,43 +37,13 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
-    "editdistance", 
-    "g2p_en", 
-    "g2pM", 
-    "h5py", 
-    "inflect", 
-    "jieba", 
-    "jsonlines",
-    "kaldiio", 
-    "librosa==0.8.1", 
-    "loguru", 
-    "matplotlib", 
-    "nara_wpe",
-    "onnxruntime", 
-    "pandas", 
-    "paddlenlp", 
-    "paddlespeech_feat", 
-    "praatio==5.0.0",
-    "pypinyin", 
-    "pypinyin-dict", 
-    "python-dateutil", 
-    "pyworld", 
-    "resampy==0.2.2",
-    "sacrebleu", 
-    "scipy", 
-    "sentencepiece~=0.1.96", 
-    "soundfile~=0.10",
-    "textgrid", 
-    "timer", 
-    "tqdm", 
-    "typeguard", 
-    "visualdl", 
-    "webrtcvad",
-    "yacs~=0.1.8", 
-    "prettytable", 
-    "zhon", 
-    "colorlog", 
-    "pathos == 0.2.8"
+    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
+    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
+    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
+    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
+    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
+    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
+    "yacs~=0.1.8", "prettytable", "zhon", "colorlog", "pathos == 0.2.8"
 ]
 
 server = [
@@ -141,7 +110,9 @@ def check_output(cmd: Union[str, List[str], Tuple[str]], shell=False):
 
 def _run_cmd(cmd):
     try:
-        return subprocess.check_output(cmd, cwd=ROOT_DIR, stderr=subprocess.DEVNULL).decode("ascii").strip()
+        return subprocess.check_output(
+            cmd, cwd=ROOT_DIR,
+            stderr=subprocess.DEVNULL).decode("ascii").strip()
     except Exception:
         return None
 
@@ -193,7 +164,6 @@ class DevelopCommand(develop):
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
 
-
 class TestCommand(test):
     def finalize_options(self):
         test.finalize_options(self)
@@ -207,7 +177,7 @@ class TestCommand(test):
 
 
 # cmd: python setup.py upload
-class UploadCommand(distutils.cmd.Command):
+class UploadCommand(Command):
     description = "Build and publish the package."
     user_options = []
 
@@ -269,7 +239,6 @@ class clean(distutils.command.clean.clean):
 
 
 def main():
-
 
     sha = _run_cmd(["git", "rev-parse", "HEAD"])  # commit id
     branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])

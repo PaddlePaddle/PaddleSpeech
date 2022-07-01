@@ -15,15 +15,14 @@ import os
 import warnings
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import numpy as np
 import resampy
 import soundfile as sf
 from scipy.io import wavfile
 
-from ..utils import ParameterError
 from ..utils import depth_convert
+from ..utils import ParameterError
 
 __all__ = [
     'resample',

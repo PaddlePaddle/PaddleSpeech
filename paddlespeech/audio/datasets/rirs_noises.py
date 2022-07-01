@@ -141,7 +141,8 @@ class OpenRIRNoise(Dataset):
                 end_sample = int(float(e) * sr)
                 new_wav_file = os.path.join(self.base_path,
                                             audio_id + f'_chunk_{idx+1:02}.wav')
-                paddlespeech.audio.save(waveform[start_sample:end_sample], sr, new_wav_file)
+                paddlespeech.audio.save(waveform[start_sample:end_sample], sr,
+                                        new_wav_file)
                 # id, duration, new_wav
                 ret.append([chunk, self.chunk_duration, new_wav_file])
         else:  # Keep whole audio.

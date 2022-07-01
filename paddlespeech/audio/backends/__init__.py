@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 # flake8: noqa
 from . import utils
-from .utils import get_audio_backend, list_audio_backends, set_audio_backend
+from .utils import get_audio_backend
+from .utils import list_audio_backends
+from .utils import set_audio_backend

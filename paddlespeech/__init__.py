@@ -18,6 +18,4 @@ from . import audio
 # _init_audio_backend must called after audio import 
 audio.backends.utils._init_audio_backend()
 
-__all__ = [
-    "audio"
-]
+__all__ = ["audio"]

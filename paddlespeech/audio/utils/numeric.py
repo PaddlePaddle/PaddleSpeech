@@ -11,13 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
 from typing import Union
 
-__all__ = [
-    "pcm16to32",
-    "depth_convert"
-]
+import numpy as np
+
+__all__ = ["pcm16to32", "depth_convert"]
+
 
 def pcm16to32(audio: np.ndarray) -> np.ndarray:
     """pcm int16 to float32

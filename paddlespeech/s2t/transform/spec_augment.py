@@ -14,10 +14,8 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Spec Augment module for preprocessing i.e., data augmentation"""
 import random
-
 import numpy
 from PIL import Image
-from PIL.Image import Resampling
 
 from paddlespeech.s2t.transform.functional import FuncTrans
 
@@ -47,9 +45,9 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
                                   window) + 1  # 1 ... t - 1
 
         left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
-                                                  Resampling.BICUBIC)
+                                                  Image.BICUBIC)
         right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped),
-                                                   Resampling.BICUBIC)
+                                                   Image.BICUBIC)
         if inplace:
             x[:warped] = left
             x[warped:] = right

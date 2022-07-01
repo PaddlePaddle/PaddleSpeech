@@ -76,7 +76,7 @@ num_encs: 1
 n_epoch: 150 
 accum_grad: 8
 global_grad_clip: 5.0
-dist_sampler: True
+dist_sampler: False
 optim: adam
 optim_conf:
   lr: 0.002

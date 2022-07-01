@@ -61,7 +61,7 @@ def _get_unique_endpoints(trainer_endpoints):
             continue
         ips.add(ip)
         unique_endpoints.add(endpoint)
-    logger.info("unique_endpoints {}".format(unique_endpoints))
+    logger.debug("unique_endpoints {}".format(unique_endpoints))
     return unique_endpoints
 
 
@@ -96,7 +96,7 @@ def get_path_from_url(url,
     # data, and the same ip will only download data once.
     unique_endpoints = _get_unique_endpoints(ParallelEnv().trainer_endpoints[:])
     if osp.exists(fullpath) and check_exist and _md5check(fullpath, md5sum):
-        logger.info("Found {}".format(fullpath))
+        logger.debug("Found {}".format(fullpath))
     else:
         if ParallelEnv().current_endpoint in unique_endpoints:
             fullpath = _download(url, root_dir, md5sum, method=method)
@@ -118,7 +118,7 @@ def _get_download(url, fullname):
     try:
         req = requests.get(url, stream=True)
     except Exception as e:  # requests.exceptions.ConnectionError
-        logger.info("Downloading {} from {} failed with exception {}".format(
+        logger.debug("Downloading {} from {} failed with exception {}".format(
             fname, url, str(e)))
         return False
 
@@ -190,7 +190,7 @@ def _download(url, path, md5sum=None, method='get'):
     fullname = osp.join(path, fname)
     retry_cnt = 0
 
-    logger.info("Downloading {} from {}".format(fname, url))
+    logger.debug("Downloading {} from {}".format(fname, url))
     while not (osp.exists(fullname) and _md5check(fullname, md5sum)):
         if retry_cnt < DOWNLOAD_RETRY_LIMIT:
             retry_cnt += 1
@@ -209,7 +209,7 @@ def _md5check(fullname, md5sum=None):
     if md5sum is None:
         return True
 
-    logger.info("File {} md5 checking...".format(fullname))
+    logger.debug("File {} md5 checking...".format(fullname))
     md5 = hashlib.md5()
     with open(fullname, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -217,8 +217,8 @@ def _md5check(fullname, md5sum=None):
     calc_md5sum = md5.hexdigest()
 
     if calc_md5sum != md5sum:
-        logger.info("File {} md5 check failed, {}(calc) != "
-                    "{}(base)".format(fullname, calc_md5sum, md5sum))
+        logger.debug("File {} md5 check failed, {}(calc) != "
+                     "{}(base)".format(fullname, calc_md5sum, md5sum))
         return False
     return True
 
@@ -227,7 +227,7 @@ def _decompress(fname):
     """
     Decompress for zip and tar file
     """
-    logger.info("Decompressing {}...".format(fname))
+    logger.debug("Decompressing {}...".format(fname))
 
     # For protecting decompressing interupted,
     # decompress to fpath_tmp directory firstly, if decompress

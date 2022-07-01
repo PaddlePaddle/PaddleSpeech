@@ -173,7 +173,7 @@ class TTSExecutor(BaseExecutor):
         Init model and other resources from a specific path.
         """
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
 
         # am
@@ -200,9 +200,9 @@ class TTSExecutor(BaseExecutor):
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
-            logger.info(self.am_res_path)
-            logger.info(self.am_config)
-            logger.info(self.am_ckpt)
+            logger.debug(self.am_res_path)
+            logger.debug(self.am_config)
+            logger.debug(self.am_ckpt)
         else:
             self.am_config = os.path.abspath(am_config)
             self.am_ckpt = os.path.abspath(am_ckpt)
@@ -248,9 +248,9 @@ class TTSExecutor(BaseExecutor):
             self.voc_stat = os.path.join(
                 self.voc_res_path,
                 self.task_resource.voc_res_dict['speech_stats'])
-            logger.info(self.voc_res_path)
-            logger.info(self.voc_config)
-            logger.info(self.voc_ckpt)
+            logger.debug(self.voc_res_path)
+            logger.debug(self.voc_config)
+            logger.debug(self.voc_ckpt)
         else:
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)

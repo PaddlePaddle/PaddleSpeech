@@ -88,7 +88,7 @@ class KWSExecutor(BaseExecutor):
             Init model and other resources from a specific path.
         """
         if hasattr(self, 'model'):
-            logger.info('Model had been initialized.')
+            logger.debug('Model had been initialized.')
             return
 
         if ckpt_path is None:
@@ -141,7 +141,7 @@ class KWSExecutor(BaseExecutor):
         assert os.path.isfile(audio_file)
         waveform, _ = load(audio_file)
         if isinstance(audio_file, (str, os.PathLike)):
-            logger.info("Preprocessing audio_file:" + audio_file)
+            logger.debug("Preprocessing audio_file:" + audio_file)
 
         # Feature extraction
         waveform = paddle.to_tensor(waveform).unsqueeze(0)

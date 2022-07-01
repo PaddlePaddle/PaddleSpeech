@@ -267,21 +267,18 @@ class TTSExecutor(BaseExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
-        print("vocab_size:", vocab_size)
 
         tone_size = None
         if self.tones_dict:
             with open(self.tones_dict, "r") as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
-            print("tone_size:", tone_size)
 
         spk_num = None
         if self.speaker_dict:
             with open(self.speaker_dict, 'rt') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
-            print("spk_num:", spk_num)
 
         # frontend
         if lang == 'zh':
@@ -291,7 +288,6 @@ class TTSExecutor(BaseExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        print("frontend done!")
 
         # acoustic model
         odim = self.am_config.n_mels
@@ -324,7 +320,6 @@ class TTSExecutor(BaseExecutor):
         am_normalizer = ZScore(am_mu, am_std)
         self.am_inference = am_inference_class(am_normalizer, am)
         self.am_inference.eval()
-        print("acoustic model done!")
 
         # vocoder
         # model: {model_name}_{dataset}
@@ -347,7 +342,6 @@ class TTSExecutor(BaseExecutor):
         voc_normalizer = ZScore(voc_mu, voc_std)
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
-        print("voc done!")
 
     def preprocess(self, input: Any, *args, **kwargs):
         """

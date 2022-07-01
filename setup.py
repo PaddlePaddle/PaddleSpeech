@@ -32,19 +32,49 @@ from setuptools.command.test import test
 
 from tools import setup_helpers
 
-HERE = Path(__file__).parent.resolve()
+ROOT_DIR = Path(__file__).parent.resolve()
 
 VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
-    "editdistance", "g2p_en", "g2pM", "h5py", "inflect", "jieba", "jsonlines",
-    "kaldiio", "librosa==0.8.1", "loguru", "matplotlib", "nara_wpe",
-    "onnxruntime", "pandas", "paddlenlp", "paddlespeech_feat", "praatio==5.0.0",
-    "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
-    "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
-    "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
-    "yacs~=0.1.8", "prettytable", "zhon", 'colorlog', 'pathos == 0.2.8'
+    "editdistance", 
+    "g2p_en", 
+    "g2pM", 
+    "h5py", 
+    "inflect", 
+    "jieba", 
+    "jsonlines",
+    "kaldiio", 
+    "librosa==0.8.1", 
+    "loguru", 
+    "matplotlib", 
+    "nara_wpe",
+    "onnxruntime", 
+    "pandas", 
+    "paddlenlp", 
+    "paddlespeech_feat", 
+    "praatio==5.0.0",
+    "pypinyin", 
+    "pypinyin-dict", 
+    "python-dateutil", 
+    "pyworld", 
+    "resampy==0.2.2",
+    "sacrebleu", 
+    "scipy", 
+    "sentencepiece~=0.1.96", 
+    "soundfile~=0.10",
+    "textgrid", 
+    "timer", 
+    "tqdm", 
+    "typeguard", 
+    "visualdl", 
+    "webrtcvad",
+    "yacs~=0.1.8", 
+    "prettytable", 
+    "zhon", 
+    "colorlog", 
+    "pathos == 0.2.8"
 ]
 
 server = [
@@ -109,6 +139,13 @@ def check_output(cmd: Union[str, List[str], Tuple[str]], shell=False):
     return out_bytes.strip().decode('utf8')
 
 
+def _run_cmd(cmd):
+    try:
+        return subprocess.check_output(cmd, cwd=ROOT_DIR, stderr=subprocess.DEVNULL).decode("ascii").strip()
+    except Exception:
+        return None
+
+
 @contextlib.contextmanager
 def pushd(new_dir):
     old_dir = os.getcwd()
@@ -136,14 +173,14 @@ def _remove(files: str):
 
 def _post_install(install_lib_dir):
     # tools/make
-    tool_dir = HERE / "tools"
+    tool_dir = ROOT_DIR / "tools"
     _remove(tool_dir.glob("*.done"))
     with pushd(tool_dir):
         check_call("make")
     print("tools install.")
 
     # ctcdecoder
-    ctcdecoder_dir = HERE / 'third_party/ctc_decoders'
+    ctcdecoder_dir = ROOT_DIR / 'third_party/ctc_decoders'
     with pushd(ctcdecoder_dir):
         check_call("bash -e setup.sh")
     print("ctcdecoder install.")
@@ -155,10 +192,6 @@ class DevelopCommand(develop):
         # must after develop.run, or pkg install by shell will not see
         self.execute(_post_install, (self.install_lib, ), msg="Post Install...")
 
-
-class InstallCommand(install):
-    def run(self):
-        install.run(self)
 
 
 class TestCommand(test):
@@ -174,7 +207,7 @@ class TestCommand(test):
 
 
 # cmd: python setup.py upload
-class UploadCommand(Command):
+class UploadCommand(distutils.cmd.Command):
     description = "Build and publish the package."
     user_options = []
 
@@ -187,7 +220,7 @@ class UploadCommand(Command):
     def run(self):
         try:
             print("Removing previous dist/ ...")
-            shutil.rmtree(str(HERE / "dist"))
+            shutil.rmtree(str(ROOT_DIR / "dist"))
         except OSError:
             pass
         print("Building source distribution...")
@@ -209,7 +242,7 @@ def _get_version(sha):
 
 def _make_version_file(version, sha):
     sha = "Unknown" if sha is None else sha
-    version_path = HERE / "paddlespeech" / "version.py"
+    version_path = ROOT_DIR / "paddlespeech" / "version.py"
     with open(version_path, "w") as f:
         f.write(f"__version__ = '{version}'\n")
         f.write(f"__commit__ = '{sha}'\n")
@@ -236,9 +269,11 @@ class clean(distutils.command.clean.clean):
 
 
 def main():
-    sha = check_output(["git", "rev-parse", "HEAD"])  # commit id
-    branch = check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-    tag = check_output(["git", "describe", "--tags", "--exact-match", "@"])
+
+
+    sha = _run_cmd(["git", "rev-parse", "HEAD"])  # commit id
+    branch = _run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+    tag = _run_cmd(["git", "describe", "--tags", "--exact-match", "@"])
     print("-- Git branch:", branch)
     print("-- Git SHA:", sha)
     print("-- Git tag:", tag)
@@ -296,11 +331,10 @@ def main():
             'test': ['nose', 'torchaudio==0.10.2'],
         },
         cmdclass={
-            'develop': DevelopCommand,
-            'install': InstallCommand,
-            'upload': UploadCommand,
-            'test': TestCommand,
             "build_ext": setup_helpers.CMakeBuild,
+            'develop': DevelopCommand,
+            'test': TestCommand,
+            'upload': UploadCommand,
             "clean": clean,
         },
 

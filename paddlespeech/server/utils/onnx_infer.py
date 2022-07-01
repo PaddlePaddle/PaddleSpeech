@@ -16,7 +16,7 @@ from typing import Optional
 
 import onnxruntime as ort
 
-from .log import logger
+from paddlespeech.cli.log import logger
 
 
 def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):

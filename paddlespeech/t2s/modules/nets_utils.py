@@ -393,7 +393,6 @@ def phones_masking(xs_pad: paddle.Tensor,
                     mean_phn_span=mean_phn_span).nonzero()
                 masked_start = align_start[idx][masked_phn_idxs].tolist()
                 masked_end = align_end[idx][masked_phn_idxs].tolist()
-
                 for s, e in zip(masked_start, masked_end):
                     masked_pos[idx, s:e] = 1
     non_eos_mask = paddle.reshape(src_mask, paddle.shape(xs_pad)[:2])

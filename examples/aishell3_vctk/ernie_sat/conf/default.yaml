@@ -1,0 +1,351 @@
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+
+fs: 24000          # sr
+n_fft: 2048        # FFT size (samples).
+n_shift: 300       # Hop size (samples). 12.5ms
+win_length: 1200   # Window length (samples). 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+
+# Only used for feats_type != raw
+
+fmin: 80           # Minimum frequency of Mel basis.
+fmax: 7600         # Maximum frequency of Mel basis.
+n_mels: 80         # The number of mel basis.
+
+mean_phn_span: 8
+mlm_prob: 0.8
+
+###########################################################
+#                       DATA SETTING                      #
+###########################################################
+batch_size: 64
+num_workers: 2
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model:
+    text_masking: true
+    postnet_layers: 5
+    postnet_filts: 5
+    postnet_chans: 256
+    encoder_type: conformer
+    decoder_type: conformer
+    enc_input_layer: sega_mlm
+    enc_pre_speech_layer: 0
+    enc_cnn_module_kernel: 7
+    enc_attention_dim: 384
+    enc_attention_heads: 2
+    enc_linear_units: 1536
+    enc_num_blocks: 4
+    enc_dropout_rate: 0.2
+    enc_positional_dropout_rate: 0.2
+    enc_attention_dropout_rate: 0.2
+    enc_normalize_before: true
+    enc_macaron_style: true
+    enc_use_cnn_module: true
+    enc_selfattention_layer_type: legacy_rel_selfattn
+    enc_activation_type: swish
+    enc_pos_enc_layer_type: legacy_rel_pos
+    enc_positionwise_layer_type: conv1d
+    enc_positionwise_conv_kernel_size: 3
+    dec_cnn_module_kernel: 31
+    dec_attention_dim: 384
+    dec_attention_heads: 2
+    dec_linear_units: 1536
+    dec_num_blocks: 4
+    dec_dropout_rate: 0.2
+    dec_positional_dropout_rate: 0.2
+    dec_attention_dropout_rate: 0.2
+    dec_macaron_style: true
+    dec_use_cnn_module: true
+    dec_selfattention_layer_type: legacy_rel_selfattn
+    dec_activation_type: swish
+    dec_pos_enc_layer_type: legacy_rel_pos
+    dec_positionwise_layer_type: conv1d
+    dec_positionwise_conv_kernel_size: 3
+
+###########################################################
+#                     OPTIMIZER SETTING                   #
+###########################################################
+optimizer:
+    optim: adam               # optimizer type
+    learning_rate: 0.001      # learning rate
+
+###########################################################
+#                     TRAINING SETTING                    #
+###########################################################
+max_epoch: 100
+num_snapshots: 5
+
+###########################################################
+#                       OTHER SETTING                     #
+###########################################################
+seed: 10086
+
+token_list:
+- <blank>
+- <unk>
+- AH0
+- T
+- N
+- sp
+- S
+- R
+- D
+- L
+- Z
+- DH
+- IH1
+- K
+- W
+- M
+- EH1
+- AE1
+- ER0
+- B
+- IY1
+- P
+- V
+- IY0
+- F
+- HH
+- AA1
+- AY1
+- AH1
+- EY1
+- IH0
+- AO1
+- OW1
+- UW1
+- G
+- NG
+- SH
+- Y
+- TH
+- ER1
+- JH
+- UH1
+- AW1
+- CH
+- IH2
+- OW0
+- OW2
+- EY2
+- EH2
+- UW0
+- OY1
+- ZH
+- EH0
+- AY2
+- AW2
+- AA2
+- AE2
+- IY2
+- AH2
+- AE0
+- AO2
+- AY0
+- AO0
+- UW2
+- UH2
+- AA0
+- EY0
+- AW0
+- UH0
+- ER2
+- OY2
+- OY0
+- d
+- sh
+- ii
+- j
+- zh
+- l
+- x
+- b
+- g
+- uu
+- e5
+- h
+- q
+- m
+- i1
+- t
+- z
+- ch
+- f
+- s
+- u4
+- ix4
+- i4
+- n
+- i3
+- iu3
+- vv
+- ian4
+- ix2
+- r
+- e4
+- ai4
+- k
+- ing2
+- a1
+- en2
+- ui4
+- ong1
+- uo3
+- u2
+- u3
+- ao4
+- ee
+- p
+- an1
+- eng2
+- i2
+- in1
+- c
+- ai2
+- ian2
+- e2
+- an4
+- ing4
+- v4
+- ai3
+- a5
+- ian3
+- eng1
+- ong4
+- ang4
+- ian1
+- ing1
+- iy4
+- ao3
+- ang1
+- uo4
+- u1
+- iao4
+- iu4
+- a4
+- van2
+- ie4
+- ang2
+- ou4
+- iang4
+- ix1
+- er4
+- iy1
+- e1
+- en1
+- ui2
+- an3
+- ei4
+- ong2
+- uo1
+- ou3
+- uo2
+- iao1
+- ou1
+- an2
+- uan4
+- ia4
+- ia1
+- ang3
+- v3
+- iu2
+- iao3
+- in4
+- a3
+- ei3
+- iang3
+- v2
+- eng4
+- en3
+- aa
+- uan1
+- v1
+- ao1
+- ve4
+- ie3
+- ai1
+- ing3
+- iang1
+- a2
+- ui1
+- en4
+- en5
+- in3
+- uan3
+- e3
+- ie1
+- ve2
+- ei2
+- in2
+- ix3
+- uan2
+- iang2
+- ie2
+- ua4
+- ou2
+- uai4
+- er2
+- eng3
+- uang3
+- un1
+- ong3
+- uang4
+- vn4
+- un2
+- iy3
+- iz4
+- ui3
+- iao2
+- iong4
+- un4
+- van4
+- ao2
+- uang1
+- iy5
+- o2
+- ei1
+- ua1
+- iu1
+- uang2
+- er5
+- o1
+- un3
+- vn1
+- vn2
+- o4
+- ve1
+- van3
+- ua2
+- er3
+- iong3
+- van1
+- ia2
+- iy2
+- ia3
+- iong1
+- uo5
+- oo
+- ve3
+- ou5
+- uai3
+- ian5
+- iong2
+- uai2
+- uai1
+- ua3
+- vn3
+- ia5
+- ie5
+- ueng1
+- o5
+- o3
+- iang5
+- ei5
+- <sos/eos>

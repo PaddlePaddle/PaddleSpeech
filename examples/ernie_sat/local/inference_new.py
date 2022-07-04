@@ -20,6 +20,7 @@ import librosa
 import numpy as np
 import paddle
 import soundfile as sf
+import yaml
 from align import alignment
 from align import alignment_zh
 from align import words2phns
@@ -31,9 +32,10 @@ from utils import get_voc_out
 from utils import is_chinese
 from utils import load_num_sequence_text
 from utils import read_2col_text
+from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.am_batch_fn import build_mlm_collate_fn
-from paddlespeech.t2s.models.ernie_sat.mlm import build_model_from_file
+from paddlespeech.t2s.models.ernie_sat.ernie_sat import ErnieSAT
 
 random.seed(0)
 np.random.seed(0)
@@ -70,10 +72,22 @@ def get_wav(wav_path: str,
 
 
 def load_model(model_name: str="paddle_checkpoint_en"):
-    config_path = './pretrained_model/{}/config.yaml'.format(model_name)
+    config_path = './pretrained_model/{}/default.yaml'.format(model_name)
     model_path = './pretrained_model/{}/model.pdparams'.format(model_name)
-    mlm_model, conf = build_model_from_file(
-        config_file=config_path, model_file=model_path)
+    with open(config_path) as f:
+        conf = CfgNode(yaml.safe_load(f))
+    token_list = list(conf.token_list)
+    vocab_size = len(token_list)
+    odim = conf.n_mels
+    mlm_model = ErnieSAT(idim=vocab_size, odim=odim, **conf["model"])
+    state_dict = paddle.load(model_path)
+    new_state_dict = {}
+    for key, value in state_dict.items():
+        new_key = "model." + key
+        new_state_dict[new_key] = value
+    mlm_model.set_state_dict(new_state_dict)
+    mlm_model.eval()
+
     return mlm_model, conf
 
 
@@ -532,19 +546,18 @@ def get_mlm_output(wav_path: str,
                    duration_adjust: bool=True,
                    start_end_sp: bool=False):
     mlm_model, train_conf = load_model(model_name)
-    mlm_model.eval()
 
     collate_fn = build_mlm_collate_fn(
-        sr=train_conf.feats_extract_conf['fs'],
-        n_fft=train_conf.feats_extract_conf['n_fft'],
-        hop_length=train_conf.feats_extract_conf['hop_length'],
-        win_length=train_conf.feats_extract_conf['win_length'],
-        n_mels=train_conf.feats_extract_conf['n_mels'],
-        fmin=train_conf.feats_extract_conf['fmin'],
-        fmax=train_conf.feats_extract_conf['fmax'],
-        mlm_prob=train_conf['mlm_prob'],
-        mean_phn_span=train_conf['mean_phn_span'],
-        seg_emb=train_conf.encoder_conf['input_layer'] == 'sega_mlm')
+        sr=train_conf.fs,
+        n_fft=train_conf.n_fft,
+        hop_length=train_conf.n_shift,
+        win_length=train_conf.win_length,
+        n_mels=train_conf.n_mels,
+        fmin=train_conf.fmin,
+        fmax=train_conf.fmax,
+        mlm_prob=train_conf.mlm_prob,
+        mean_phn_span=train_conf.mean_phn_span,
+        seg_emb=train_conf.model['enc_input_layer'] == 'sega_mlm')
 
     return decode_with_model(
         source_lang=source_lang,
@@ -557,8 +570,8 @@ def get_mlm_output(wav_path: str,
         use_teacher_forcing=use_teacher_forcing,
         duration_adjust=duration_adjust,
         start_end_sp=start_end_sp,
-        fs=train_conf.feats_extract_conf['fs'],
-        hop_length=train_conf.feats_extract_conf['hop_length'],
+        fs=train_conf.fs,
+        hop_length=train_conf.n_shift,
         token_list=train_conf.token_list)
 
 

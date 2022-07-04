@@ -30,7 +30,7 @@ class ACSEngine(BaseEngine):
         """The ACSEngine Engine
         """
         super(ACSEngine, self).__init__()
-        logger.info("Create the ACSEngine Instance")
+        logger.debug("Create the ACSEngine Instance")
         self.word_list = []
 
     def init(self, config: dict):
@@ -42,7 +42,7 @@ class ACSEngine(BaseEngine):
         Returns:
             bool: The engine instance flag
         """
-        logger.info("Init the acs engine")
+        logger.debug("Init the acs engine")
         try:
             self.config = config
             self.device = self.config.get("device", paddle.get_device())
@@ -50,7 +50,7 @@ class ACSEngine(BaseEngine):
             # websocket default ping timeout is 20 seconds
             self.ping_timeout = self.config.get("ping_timeout", 20)
             paddle.set_device(self.device)
-            logger.info(f"ACS Engine set the device: {self.device}")
+            logger.debug(f"ACS Engine set the device: {self.device}")
 
         except BaseException as e:
             logger.error(
@@ -66,7 +66,9 @@ class ACSEngine(BaseEngine):
         self.url = "ws://" + self.config.asr_server_ip + ":" + str(
             self.config.asr_server_port) + "/paddlespeech/asr/streaming"
 
-        logger.info("Init the acs engine successfully")
+        logger.info("Initialize acs server engine successfully on device: %s." %
+                    (self.device))
+
         return True
 
     def read_search_words(self):
@@ -95,12 +97,12 @@ class ACSEngine(BaseEngine):
         Returns:
             _type_: _description_
         """
-        logger.info("send a message to the server")
+        logger.debug("send a message to the server")
         if self.url is None:
             logger.error("No asr server, please input valid ip and port")
             return ""
         ws = websocket.WebSocket()
-        logger.info(f"set the ping timeout: {self.ping_timeout} seconds")
+        logger.debug(f"set the ping timeout: {self.ping_timeout} seconds")
         ws.connect(self.url, ping_timeout=self.ping_timeout)
         audio_info = json.dumps(
             {
@@ -123,7 +125,7 @@ class ACSEngine(BaseEngine):
             logger.info(f"audio result: {msg}")
 
         # 3. send chunk audio data to engine
-        logger.info("send the end signal")
+        logger.debug("send the end signal")
         audio_info = json.dumps(
             {
                 "name": "test.wav",
@@ -197,7 +199,7 @@ class ACSEngine(BaseEngine):
                 start = max(time_stamp[m.start(0)]['bg'] - offset, 0)
 
                 end = min(time_stamp[m.end(0) - 1]['ed'] + offset, max_ed)
-                logger.info(f'start: {start}, end: {end}')
+                logger.debug(f'start: {start}, end: {end}')
                 acs_result.append({'w': w, 'bg': start, 'ed': end})
 
         return acs_result, asr_result
@@ -212,7 +214,7 @@ class ACSEngine(BaseEngine):
         Returns:
             acs_result, asr_result: the acs result and the asr result
         """
-        logger.info("start to process the audio content search")
+        logger.debug("start to process the audio content search")
         msg = self.get_asr_content(io.BytesIO(audio_data))
 
         acs_result, asr_result = self.get_macthed_word(msg)

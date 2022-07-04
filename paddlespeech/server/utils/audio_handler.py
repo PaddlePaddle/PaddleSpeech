@@ -138,7 +138,7 @@ class ASRWsAudioHandler:
         Returns:
             str: the final asr result
         """
-        logging.info("send a message to the server")
+        logging.debug("send a message to the server")
 
         if self.url is None:
             logger.error("No asr server, please input valid ip and port")
@@ -160,7 +160,7 @@ class ASRWsAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            logger.info("client receive msg={}".format(msg))
+            logger.debug("client receive msg={}".format(msg))
 
             # 3. send chunk audio data to engine
             for chunk_data in self.read_wave(wavfile_path):
@@ -170,7 +170,7 @@ class ASRWsAudioHandler:
 
                 if self.punc_server and len(msg["result"]) > 0:
                     msg["result"] = self.punc_server.run(msg["result"])
-                logger.info("client receive msg={}".format(msg))
+                logger.debug("client receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
@@ -310,7 +310,7 @@ class TTSWsHandler:
             start_request = json.dumps({"task": "tts", "signal": "start"})
             await ws.send(start_request)
             msg = await ws.recv()
-            logger.info(f"client receive msg={msg}")
+            logger.debug(f"client receive msg={msg}")
             msg = json.loads(msg)
             session = msg["session"]
 
@@ -319,7 +319,7 @@ class TTSWsHandler:
             request = json.dumps({"text": text_base64})
             st = time.time()
             await ws.send(request)
-            logging.info("send a message to the server")
+            logging.debug("send a message to the server")
 
             # 4. Process the received response
             message = await ws.recv()
@@ -543,7 +543,6 @@ class VectorHttpHandler:
             "sample_rate": sample_rate,
         }
 
-        logger.info(self.url)
         res = requests.post(url=self.url, data=json.dumps(data))
 
         return res.json()

@@ -62,7 +62,7 @@ class TTSServerExecutor(TTSExecutor):
             (hasattr(self, 'am_encoder_infer_sess') and
              hasattr(self, 'am_decoder_sess') and hasattr(
                  self, 'am_postnet_sess'))) and hasattr(self, 'voc_inference'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
         # am
         am_tag = am + '-' + lang
@@ -85,8 +85,7 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 self.am_ckpt = os.path.abspath(am_ckpt[0])
                 self.phones_dict = os.path.abspath(phones_dict)
-                self.am_res_path = os.path.dirname(
-                    os.path.abspath(am_ckpt))
+                self.am_res_path = os.path.dirname(os.path.abspath(am_ckpt))
 
             # create am sess
             self.am_sess = get_sess(self.am_ckpt, am_sess_conf)
@@ -119,8 +118,7 @@ class TTSServerExecutor(TTSExecutor):
                 self.am_postnet = os.path.abspath(am_ckpt[2])
                 self.phones_dict = os.path.abspath(phones_dict)
                 self.am_stat = os.path.abspath(am_stat)
-                self.am_res_path = os.path.dirname(
-                    os.path.abspath(am_ckpt[0]))
+                self.am_res_path = os.path.dirname(os.path.abspath(am_ckpt[0]))
 
             # create am sess
             self.am_encoder_infer_sess = get_sess(self.am_encoder_infer,
@@ -130,13 +128,13 @@ class TTSServerExecutor(TTSExecutor):
 
             self.am_mu, self.am_std = np.load(self.am_stat)
 
-        logger.info(f"self.phones_dict: {self.phones_dict}")
-        logger.info(f"am model dir: {self.am_res_path}")
-        logger.info("Create am sess successfully.")
+        logger.debug(f"self.phones_dict: {self.phones_dict}")
+        logger.debug(f"am model dir: {self.am_res_path}")
+        logger.debug("Create am sess successfully.")
 
         # voc model info
         voc_tag = voc + '-' + lang
-        
+
         if voc_ckpt is None:
             self.task_resource.set_task_model(
                 model_tag=voc_tag,
@@ -149,16 +147,16 @@ class TTSServerExecutor(TTSExecutor):
         else:
             self.voc_ckpt = os.path.abspath(voc_ckpt)
             self.voc_res_path = os.path.dirname(os.path.abspath(self.voc_ckpt))
-        logger.info(self.voc_res_path)
+        logger.debug(self.voc_res_path)
 
         # create voc sess
         self.voc_sess = get_sess(self.voc_ckpt, voc_sess_conf)
-        logger.info("Create voc sess successfully.")
+        logger.debug("Create voc sess successfully.")
 
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         self.vocab_size = len(phn_id)
-        logger.info(f"vocab_size: {self.vocab_size}")
+        logger.debug(f"vocab_size: {self.vocab_size}")
 
         # frontend
         self.tones_dict = None
@@ -169,7 +167,7 @@ class TTSServerExecutor(TTSExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        logger.info("frontend done!")
+        logger.debug("frontend done!")
 
 
 class TTSEngine(BaseEngine):
@@ -267,7 +265,7 @@ class PaddleTTSConnectionHandler:
             tts_engine (TTSEngine): The TTS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTTSConnectionHandler to process the tts request")
 
         self.tts_engine = tts_engine

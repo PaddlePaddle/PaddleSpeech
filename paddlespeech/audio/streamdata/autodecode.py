@@ -291,12 +291,12 @@ def torch_video(key, data):
 
 
 ################################################################
-# paddleaudio
+# paddlespeech.audio
 ################################################################
 
 
 def paddle_audio(key, data):
-    """Decode audio using the paddleaudio library.
+    """Decode audio using the paddlespeech.audio library.
 
     :param key: file name extension
     :param data: data to be decoded
@@ -305,13 +305,13 @@ def paddle_audio(key, data):
     if extension not in ["flac", "mp3", "sox", "wav", "m4a", "ogg", "wma"]:
         return None
 
-    import paddleaudio
+    import paddlespeech.audio
 
     with tempfile.TemporaryDirectory() as dirname:
         fname = os.path.join(dirname, f"file.{extension}")
         with open(fname, "wb") as stream:
             stream.write(data)
-        return paddleaudio.load(fname)
+        return paddlespeech.audio.load(fname)
 
 
 ################################################################

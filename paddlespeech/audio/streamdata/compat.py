@@ -78,29 +78,29 @@ class FluidInterface:
     def xdecode(self, *args, **kw):
         return self.compose(filters.xdecode(*args, **kw))
 
-    def data_filter(self, *args, **kw):
-        return self.compose(filters.data_filter(*args, **kw))
+    def audio_data_filter(self, *args, **kw):
+        return self.compose(filters.audio_data_filter(*args, **kw))
     
-    def tokenize(self, *args, **kw):
-        return self.compose(filters.tokenize(*args, **kw))
+    def audio_tokenize(self, *args, **kw):
+        return self.compose(filters.audio_tokenize(*args, **kw))
 
     def resample(self, *args, **kw):
         return self.compose(filters.resample(*args, **kw)) 
 
-    def compute_fbank(self, *args, **kw):
-        return self.compose(filters.compute_fbank(*args, **kw))
+    def audio_compute_fbank(self, *args, **kw):
+        return self.compose(filters.audio_compute_fbank(*args, **kw))
 
-    def spec_aug(self, *args, **kw):
-        return self.compose(filters.spec_aug(*args, **kw))
+    def audio_spec_aug(self, *args, **kw):
+        return self.compose(filters.audio_spec_aug(*args, **kw))
 
     def sort(self, size=500):
         return self.compose(filters.sort(size))
 
-    def padding(self):
-        return self.compose(filters.padding())
+    def audio_padding(self):
+        return self.compose(filters.audio_padding())
 
-    def cmvn(self, cmvn_file):
-        return self.compose(filters.cmvn(cmvn_file))
+    def audio_cmvn(self, cmvn_file):
+        return self.compose(filters.audio_cmvn(cmvn_file))
 
 class WebDataset(DataPipeline, FluidInterface):
     """Small fluid-interface wrapper for DataPipeline."""

@@ -27,6 +27,7 @@ from paddle import distributed as dist
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.io.dataloader import StreamDataLoader
+from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -134,7 +135,8 @@ class U2Trainer(Trainer):
                 msg = f"Valid: Rank: {dist.get_rank()}, "
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
-                #msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
+                if not self.use_streamdata:
+                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -195,7 +197,6 @@ class U2Trainer(Trainer):
                 except Exception as e:
                     logger.error(e)
                     raise e
-
             with Timer("Eval Time Cost: {}"):
                 total_loss, num_seen_utts = self.valid()
                 if dist.get_world_size() > 1:
@@ -224,186 +225,14 @@ class U2Trainer(Trainer):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
-            # train/valid dataset, return token ids
-            if self.use_streamdata:
-                self.train_loader = StreamDataLoader(
-                    manifest_file=config.train_manifest,
-                    train_mode=True,
-                    unit_type=config.unit_type,
-                    batch_size=config.batch_size,
-                    num_mel_bins=config.feat_dim,
-                    frame_length=config.window_ms,
-                    frame_shift=config.stride_ms,
-                    dither=config.dither,
-                    minlen_in=config.minlen_in,
-                    maxlen_in=config.maxlen_in,
-                    minlen_out=config.minlen_out,
-                    maxlen_out=config.maxlen_out,
-                    resample_rate=config.resample_rate,
-                    augment_conf=config.augment_conf, # dict
-                    shuffle_size=config.shuffle_size, 
-                    sort_size=config.sort_size,
-                    n_iter_processes=config.num_workers,
-                    prefetch_factor=config.prefetch_factor,
-                    dist_sampler=config.get('dist_sampler', False),
-                    cmvn_file=config.cmvn_file,
-                    vocab_filepath=config.vocab_filepath,
-                )
-                self.valid_loader = StreamDataLoader(
-                    manifest_file=config.dev_manifest,
-                    train_mode=False,
-                    unit_type=config.unit_type,
-                    batch_size=config.batch_size,
-                    num_mel_bins=config.feat_dim,
-                    frame_length=config.window_ms,
-                    frame_shift=config.stride_ms,
-                    dither=config.dither,
-                    minlen_in=config.minlen_in,
-                    maxlen_in=config.maxlen_in,
-                    minlen_out=config.minlen_out,
-                    maxlen_out=config.maxlen_out,
-                    resample_rate=config.resample_rate,
-                    augment_conf=config.augment_conf, # dict
-                    shuffle_size=config.shuffle_size, 
-                    sort_size=config.sort_size,
-                    n_iter_processes=config.num_workers,
-                    prefetch_factor=config.prefetch_factor,
-                    dist_sampler=config.get('dist_sampler', False),
-                    cmvn_file=config.cmvn_file,
-                    vocab_filepath=config.vocab_filepath,
-                )        
-            else:
-                self.train_loader = BatchDataLoader(
-                    json_file=config.train_manifest,
-                    train_mode=True,
-                    sortagrad=config.sortagrad,
-                    batch_size=config.batch_size,
-                    maxlen_in=config.maxlen_in,
-                    maxlen_out=config.maxlen_out,
-                    minibatches=config.minibatches,
-                    mini_batch_size=self.args.ngpu,
-                    batch_count=config.batch_count,
-                    batch_bins=config.batch_bins,
-                    batch_frames_in=config.batch_frames_in,
-                    batch_frames_out=config.batch_frames_out,
-                    batch_frames_inout=config.batch_frames_inout,
-                    preprocess_conf=config.preprocess_config,
-                    n_iter_processes=config.num_workers,
-                    subsampling_factor=1,
-                    num_encs=1,
-                    dist_sampler=config.get('dist_sampler', False),
-                    shortest_first=False)
-        
-                self.valid_loader = BatchDataLoader(
-                    json_file=config.dev_manifest,
-                    train_mode=False,
-                    sortagrad=False,
-                    batch_size=config.batch_size,
-                    maxlen_in=float('inf'),
-                    maxlen_out=float('inf'),
-                    minibatches=0,
-                    mini_batch_size=self.args.ngpu,
-                    batch_count='auto',
-                    batch_bins=0,
-                    batch_frames_in=0,
-                    batch_frames_out=0,
-                    batch_frames_inout=0,
-                    preprocess_conf=config.preprocess_config,
-                    n_iter_processes=config.num_workers,
-                    subsampling_factor=1,
-                    num_encs=1,
-                    dist_sampler=config.get('dist_sampler', False),
-                    shortest_first=False) 
+            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
             decode_batch_size = config.get('decode', dict()).get(
                 'decode_batch_size', 1)
-            # test dataset, return raw text
-            if self.use_streamdata:
-                self.test_loader = StreamDataLoader(
-                    manifest_file=config.test_manifest,
-                    train_mode=False,
-                    unit_type=config.unit_type,
-                    batch_size=config.batch_size,
-                    num_mel_bins=config.feat_dim,
-                    frame_length=config.window_ms,
-                    frame_shift=config.stride_ms,
-                    dither=0.0,
-                    minlen_in=0.0,
-                    maxlen_in=float('inf'),
-                    minlen_out=0,
-                    maxlen_out=float('inf'),
-                    resample_rate=config.resample_rate,
-                    augment_conf=config.augment_conf, # dict
-                    shuffle_size=config.shuffle_size, 
-                    sort_size=config.sort_size,
-                    n_iter_processes=config.num_workers,
-                    prefetch_factor=config.prefetch_factor,
-                    dist_sampler=config.get('dist_sampler', False),
-                    cmvn_file=config.cmvn_file,
-                    vocab_filepath=config.vocab_filepath,
-                )
-                self.align_loader = StreamDataLoader(
-                    manifest_file=config.test_manifest,
-                    train_mode=False,
-                    unit_type=config.unit_type,
-                    batch_size=config.batch_size,
-                    num_mel_bins=config.feat_dim,
-                    frame_length=config.window_ms,
-                    frame_shift=config.stride_ms,
-                    dither=0.0,
-                    minlen_in=0.0,
-                    maxlen_in=float('inf'),
-                    minlen_out=0,
-                    maxlen_out=float('inf'),
-                    resample_rate=config.resample_rate,
-                    augment_conf=config.augment_conf, # dict
-                    shuffle_size=config.shuffle_size, 
-                    sort_size=config.sort_size,
-                    n_iter_processes=config.num_workers,
-                    prefetch_factor=config.prefetch_factor,
-                    dist_sampler=config.get('dist_sampler', False),
-                    cmvn_file=config.cmvn_file,
-                    vocab_filepath=config.vocab_filepath,
-                ) 
-            else:
-                self.test_loader = BatchDataLoader(
-                    json_file=config.test_manifest,
-                    train_mode=False,
-                    sortagrad=False,
-                    batch_size=decode_batch_size,
-                    maxlen_in=float('inf'),
-                    maxlen_out=float('inf'),
-                    minibatches=0,
-                    mini_batch_size=1,
-                    batch_count='auto',
-                    batch_bins=0,
-                    batch_frames_in=0,
-                    batch_frames_out=0,
-                    batch_frames_inout=0,
-                    preprocess_conf=config.preprocess_config,
-                    n_iter_processes=1,
-                    subsampling_factor=1,
-                    num_encs=1)
-
-                self.align_loader = BatchDataLoader(
-                    json_file=config.test_manifest,
-                    train_mode=False,
-                    sortagrad=False,
-                    batch_size=decode_batch_size,
-                    maxlen_in=float('inf'),
-                    maxlen_out=float('inf'),
-                    minibatches=0,
-                    mini_batch_size=1,
-                    batch_count='auto',
-                    batch_bins=0,
-                    batch_frames_in=0,
-                    batch_frames_out=0,
-                    batch_frames_inout=0,
-                    preprocess_conf=config.preprocess_config,
-                    n_iter_processes=1,
-                    subsampling_factor=1,
-                    num_encs=1)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
             logger.info("Setup test/align Dataloader!")
 
     def setup_model(self):

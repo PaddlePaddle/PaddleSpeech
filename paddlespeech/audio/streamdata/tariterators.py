@@ -21,7 +21,7 @@ trace = False
 meta_prefix = "__"
 meta_suffix = "__"
 
-from ... import audio as paddleaudio
+import paddlespeech
 import paddle
 import numpy as np
 
@@ -118,7 +118,7 @@ def tar_file_iterator(
             assert pos > 0
             prefix, postfix = name[:pos], name[pos + 1:]
             if postfix == 'wav':
-                waveform, sample_rate = paddleaudio.load(stream.extractfile(tarinfo), normal=False)
+                waveform, sample_rate = paddlespeech.audio.load(stream.extractfile(tarinfo), normal=False)
                 result = dict(fname=prefix, wav=waveform, sample_rate = sample_rate)
             else:
                 txt = stream.extractfile(tarinfo).read().decode('utf8').strip()
@@ -167,7 +167,7 @@ def tar_file_and_group_iterator(
                 if postfix == 'txt':
                     example['txt'] = file_obj.read().decode('utf8').strip()
                 elif postfix in AUDIO_FORMAT_SETS:
-                    waveform, sample_rate = paddleaudio.load(file_obj, normal=False)
+                    waveform, sample_rate = paddlespeech.audio.load(file_obj, normal=False)
                     waveform = paddle.to_tensor(np.expand_dims(np.array(waveform),0), dtype=paddle.float32)
 
                     example['wav'] = waveform

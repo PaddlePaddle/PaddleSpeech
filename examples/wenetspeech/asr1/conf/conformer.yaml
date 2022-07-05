@@ -52,6 +52,7 @@ test_manifest: data/test_meeting/data.list
 use_stream_data: True
 unit_type: 'char'
 vocab_filepath: data/lang_char/vocab.txt 
+preprocess_config: conf/preprocess.yaml
 cmvn_file: data/mean_std.json
 spm_model_prefix: ''
 feat_dim: 80
@@ -65,30 +66,17 @@ maxlen_in: 1200  # if input length(number of frames) > maxlen-in, data is automa
 minlen_out: 0
 maxlen_out: 150  # if output length(number of tokens) > maxlen-out, data is automatically removed
 resample_rate: 16000
-shuffle_size: 1500
-sort_size: 1000
+shuffle_size: 1500 # read number of 'shuffle_size' data as a chunk, shuffle the data in the chunk
+sort_size: 1000  # read number of 'sort_size' data as a chunk, sort the data in the chunk 
 num_workers: 8
 prefetch_factor: 10
 dist_sampler: True
 num_encs: 1
-augment_conf:
-  max_w: 80
-  w_inplace: True
-  w_mode: "PIL"
-  max_f: 30
-  num_f_mask: 2
-  f_inplace: True
-  f_replace_with_zero: False
-  max_t: 40
-  num_t_mask: 2
-  t_inplace: True
-  t_replace_with_zero: False
-
 
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 30 
+n_epoch: 32 
 accum_grad: 32
 global_grad_clip: 5.0
 log_interval: 100

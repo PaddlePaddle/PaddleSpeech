@@ -90,8 +90,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
   for x in $dev_set $test_sets ${train_set}; do
     dst=$shards_dir/$x
     mkdir -p $dst
-    utils/make_filted_shard_list.py --resample 16000 --num_utts_per_shard 1000 \
-      --do_filter --num_node 1 --num_gpus_per_node 8 \
+    utils/make_filted_shard_list.py --num_node 1 --num_gpus_per_node 8 --num_utts_per_shard 1000 \
+      --do_filter --resample 16000  \
       --num_threads 32 --segments data/$x/segments \
       data/$x/wav.scp data/$x/text \
       $(realpath $dst) data/$x/data.list

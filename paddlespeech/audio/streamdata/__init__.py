@@ -1,4 +1,5 @@
 # Copyright (c) 2017-2019 NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
@@ -26,7 +27,7 @@ from .filters import (
     pipelinefilter,
     rename,
     rename_keys,
-    rsample,
+    audio_resample,
     select,
     shuffle,
     slice,
@@ -34,14 +35,14 @@ from .filters import (
     transform_with,
     unbatched,
     xdecode,
-    data_filter,
-    tokenize,
-    resample,
-    compute_fbank,
-    spec_aug,
+    audio_data_filter,
+    audio_tokenize,
+    audio_resample,
+    audio_compute_fbank,
+    audio_spec_aug,
     sort,
-    padding,
-    cmvn,
+    audio_padding,
+    audio_cmvn,
     placeholder,
 )
 from .handlers import (

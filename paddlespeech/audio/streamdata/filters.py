@@ -579,7 +579,7 @@ xdecode = pipelinefilter(_xdecode)
 
 
 
-def _data_filter(source,
+def _audio_data_filter(source,
            frame_shift=10,
            max_length=10240,
            min_length=10,
@@ -629,9 +629,9 @@ def _data_filter(source,
                 continue
         yield sample
 
-data_filter = pipelinefilter(_data_filter)
+audio_data_filter = pipelinefilter(_audio_data_filter)
 
-def _tokenize(source,
+def _audio_tokenize(source,
              symbol_table,
              bpe_model=None,
              non_lang_syms=None,
@@ -693,9 +693,9 @@ def _tokenize(source,
         sample['label'] = label
         yield sample
 
-tokenize = pipelinefilter(_tokenize)
+audio_tokenize = pipelinefilter(_audio_tokenize)
 
-def _resample(source, resample_rate=16000):
+def _audio_resample(source, resample_rate=16000):
     """ Resample data.
         Inplace operation.
 
@@ -718,9 +718,9 @@ def _resample(source, resample_rate=16000):
             ))
         yield sample
 
-resample = pipelinefilter(_resample)
+audio_resample = pipelinefilter(_audio_resample)
 
-def _compute_fbank(source,
+def _audio_compute_fbank(source,
                   num_mel_bins=80,
                   frame_length=25,
                   frame_shift=10,
@@ -756,9 +756,9 @@ def _compute_fbank(source,
         yield dict(fname=sample['fname'], label=sample['label'], feat=mat)
 
 
-compute_fbank = pipelinefilter(_compute_fbank)
+audio_compute_fbank = pipelinefilter(_audio_compute_fbank)
 
-def _spec_aug(source,
+def _audio_spec_aug(source,
             max_w=5, 
             w_inplace=True, 
             w_mode="PIL",
@@ -799,7 +799,7 @@ def _spec_aug(source,
         sample['feat'] = paddle.to_tensor(x, dtype=paddle.float32)
         yield sample
 
-spec_aug = pipelinefilter(_spec_aug)
+audio_spec_aug = pipelinefilter(_audio_spec_aug)
 
 
 def _sort(source, sort_size=500):
@@ -881,7 +881,7 @@ def dynamic_batched(source, max_frames_in_batch=12000):
         yield buf
 
 
-def _padding(source):
+def _audio_padding(source):
     """ Padding the data into training data
 
         Args:
@@ -914,9 +914,9 @@ def _padding(source):
         yield (sorted_keys, padded_feats, feats_lengths, padding_labels, 
                label_lengths)
 
-padding = pipelinefilter(_padding)
+audio_padding = pipelinefilter(_audio_padding)
 
-def _cmvn(source, cmvn_file):
+def _audio_cmvn(source, cmvn_file):
     global_cmvn = GlobalCMVN(cmvn_file)
     for batch in source:
         sorted_keys, padded_feats, feats_lengths, padding_labels, label_lengths = batch
@@ -926,7 +926,7 @@ def _cmvn(source, cmvn_file):
         yield (sorted_keys, padded_feats, feats_lengths, padding_labels, 
            label_lengths)
 
-cmvn = pipelinefilter(_cmvn)
+audio_cmvn = pipelinefilter(_audio_cmvn)
 
 def _placeholder(source):
     for data in source:

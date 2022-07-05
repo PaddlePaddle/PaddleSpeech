@@ -25,9 +25,12 @@ from paddlespeech.t2s.modules.masked_fill import masked_fill
 class MultiHeadedAttention(nn.Layer):
     """Multi-Head Attention layer.
     Args:
-        n_head (int): The number of heads.
-        n_feat (int): The number of features.
-        dropout_rate (float): Dropout rate.
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
     """
 
     def __init__(self, n_head, n_feat, dropout_rate):
@@ -48,14 +51,20 @@ class MultiHeadedAttention(nn.Layer):
         """Transform query, key and value.
 
         Args:
-            query(Tensor): query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
+            query(Tensor): 
+                query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
 
         Returns:
-            Tensor: Transformed query tensor (#batch, n_head, time1, d_k).
-            Tensor: Transformed key tensor (#batch, n_head, time2, d_k).
-            Tensor: Transformed value tensor (#batch, n_head, time2, d_k).
+            Tensor: 
+                Transformed query tensor (#batch, n_head, time1, d_k).
+            Tensor: 
+                Transformed key tensor (#batch, n_head, time2, d_k).
+            Tensor: 
+                Transformed value tensor (#batch, n_head, time2, d_k).
         """
         n_batch = paddle.shape(query)[0]
 
@@ -77,9 +86,12 @@ class MultiHeadedAttention(nn.Layer):
         """Compute attention context vector.
 
         Args:
-            value(Tensor): Transformed value (#batch, n_head, time2, d_k).
-            scores(Tensor): Attention score (#batch, n_head, time1, time2).
-            mask(Tensor, optional): Mask (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
+            value(Tensor): 
+                Transformed value (#batch, n_head, time2, d_k).
+            scores(Tensor): 
+                Attention score (#batch, n_head, time1, time2).
+            mask(Tensor, optional): 
+                Mask (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
 
         Returns:
             Tensor: Transformed value (#batch, time1, d_model) weighted by the attention score (#batch, time1, time2).
@@ -113,10 +125,14 @@ class MultiHeadedAttention(nn.Layer):
         """Compute scaled dot product attention.
 
         Args:
-            query(Tensor): Query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
-            mask(Tensor, optional): Mask tensor (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
+            query(Tensor): 
+                Query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
+            mask(Tensor, optional): 
+                Mask tensor (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
 
         Returns:
             Tensor: Output tensor (#batch, time1, d_model).
@@ -134,10 +150,14 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     Paper: https://arxiv.org/abs/1901.02860
 
     Args:
-        n_head (int): The number of heads.
-        n_feat (int): The number of features.
-        dropout_rate (float): Dropout rate.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
     """
 
     def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
@@ -161,10 +181,11 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     def rel_shift(self, x):
         """Compute relative positional encoding.
         Args:
-            x(Tensor): Input tensor (batch, head, time1, 2*time1-1).
+            x(Tensor): 
+                Input tensor (batch, head, time1, 2*time1-1).
 
         Returns:
-            Tensor:Output tensor.
+            Tensor: Output tensor.
         """
         b, h, t1, t2 = paddle.shape(x)
         zero_pad = paddle.zeros((b, h, t1, 1))
@@ -183,11 +204,16 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
 
         Args:
-            query(Tensor): Query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
-            pos_emb(Tensor): Positional embedding tensor (#batch, 2*time1-1, size).
-            mask(Tensor): Mask tensor (#batch, 1, time2) or (#batch, time1, time2).
+            query(Tensor): 
+                Query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
+            pos_emb(Tensor): 
+                Positional embedding tensor (#batch, 2*time1-1, size).
+            mask(Tensor): 
+                Mask tensor (#batch, 1, time2) or (#batch, time1, time2).
 
         Returns:
             Tensor: Output tensor (#batch, time1, d_model).
@@ -228,10 +254,14 @@ class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
     Paper: https://arxiv.org/abs/1901.02860
 
     Args:
-        n_head (int): The number of heads.
-        n_feat (int): The number of features.
-        dropout_rate (float): Dropout rate.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
     """
 
     def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
@@ -255,8 +285,8 @@ class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
     def rel_shift(self, x):
         """Compute relative positional encoding.
         Args:
-            x(Tensor): Input tensor (batch, head, time1, time2).
-
+            x(Tensor): 
+                Input tensor (batch, head, time1, time2).
         Returns:
             Tensor:Output tensor.
         """

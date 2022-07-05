@@ -34,7 +34,7 @@ from utils.utility import unpack
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
-URL_ROOT = 'https://www.openslr.org/resources/17'
+URL_ROOT = 'https://openslr.elda.org/resources/17'
 DATA_URL = URL_ROOT + '/musan.tar.gz'
 MD5_DATA = '0c472d4fc0c5141eca47ad1ffeb2a7df'
 

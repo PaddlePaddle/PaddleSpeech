@@ -1,1 +1,1 @@
-# [FreeST](http://www.openslr.org/38/)
+# [FreeST](http://openslr.elda.org/38/)

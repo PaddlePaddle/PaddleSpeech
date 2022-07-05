@@ -14,10 +14,8 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Spec Augment module for preprocessing i.e., data augmentation"""
 import random
-
 import numpy
 from PIL import Image
-from PIL.Image import BICUBIC
 
 from .functional import FuncTrans
 
@@ -46,9 +44,10 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
         warped = random.randrange(center - window, center +
                                   window) + 1  # 1 ... t - 1
 
-        left = Image.fromarray(x[:center]).resize((x.shape[1], warped), BICUBIC)
+        left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
+                                                  Image.BICUBIC)
         right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped),
-                                                   BICUBIC)
+                                                   Image.BICUBIC)
         if inplace:
             x[:warped] = left
             x[warped:] = right

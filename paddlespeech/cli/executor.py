@@ -217,7 +217,7 @@ class BaseExecutor(ABC):
             logging.getLogger(name) for name in logging.root.manager.loggerDict
         ]
         for l in loggers:
-            l.disabled = True
+            l.setLevel(logging.ERROR)
 
     def show_rtf(self, info: Dict[str, List[float]]):
         """

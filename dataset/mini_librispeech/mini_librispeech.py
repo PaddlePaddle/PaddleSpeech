@@ -30,7 +30,7 @@ import soundfile
 from utils.utility import download
 from utils.utility import unpack
 
-URL_ROOT = "http://www.openslr.org/resources/31"
+URL_ROOT = "http://openslr.elda.org/resources/31"
 URL_TRAIN_CLEAN = URL_ROOT + "/train-clean-5.tar.gz"
 URL_DEV_CLEAN = URL_ROOT + "/dev-clean-2.tar.gz"
 

@@ -83,6 +83,12 @@ def default_argument_parser(parser=None):
         default=1,
         help="number of parallel processes. 0 for cpu.")
     train_group.add_argument(
+        '--nxpu',
+        type=int,
+        default=0,
+        choices=[0, 1],
+        help="if nxpu == 0 and ngpu == 0, use cpu.")
+    train_group.add_argument(
         "--config", metavar="CONFIG_FILE", help="config file.")
     train_group.add_argument(
         "--output", metavar="CKPT_DIR", help="path to save checkpoint.")

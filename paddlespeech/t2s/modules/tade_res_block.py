@@ -60,11 +60,15 @@ class TADELayer(nn.Layer):
     def forward(self, x, c):
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, in_channels, T).
-            c (Tensor): Auxiliary input tensor (B, aux_channels, T).
+            x (Tensor): 
+                Input tensor (B, in_channels, T).
+            c (Tensor): 
+                Auxiliary input tensor (B, aux_channels, T).
         Returns:
-            Tensor: Output tensor (B, in_channels, T * upsample_factor).
-            Tensor: Upsampled aux tensor (B, in_channels, T * upsample_factor).
+            Tensor: 
+                Output tensor (B, in_channels, T * upsample_factor).
+            Tensor:
+                Upsampled aux tensor (B, in_channels, T * upsample_factor).
         """
 
         x = self.norm(x)
@@ -138,11 +142,15 @@ class TADEResBlock(nn.Layer):
         """Calculate forward propagation.
         Args:
 
-            x (Tensor): Input tensor (B, in_channels, T).
-            c (Tensor): Auxiliary input tensor (B, aux_channels, T).
+            x (Tensor): 
+                Input tensor (B, in_channels, T).
+            c (Tensor): 
+                Auxiliary input tensor (B, aux_channels, T).
         Returns:
-            Tensor: Output tensor (B, in_channels, T * upsample_factor).
-            Tensor: Upsampled auxirialy tensor (B, in_channels, T * upsample_factor).
+            Tensor: 
+                Output tensor (B, in_channels, T * upsample_factor).
+            Tensor: 
+                Upsampled auxirialy tensor (B, in_channels, T * upsample_factor).
         """
         residual = x
         x, c = self.tade1(x, c)

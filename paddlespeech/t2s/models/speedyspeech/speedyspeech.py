@@ -29,10 +29,14 @@ class ResidualBlock(nn.Layer):
                  n: int=2):
         """SpeedySpeech encoder module.
         Args:
-            channels (int, optional): Feature size of the residual output(and also the input).
-            kernel_size (int, optional): Kernel size of the 1D convolution.
-            dilation (int, optional): Dilation of the 1D convolution.
-            n (int): Number of blocks.
+            channels (int, optional): 
+                Feature size of the residual output(and also the input).
+            kernel_size (int, optional): 
+                Kernel size of the 1D convolution.
+            dilation (int, optional): 
+                Dilation of the 1D convolution.
+            n (int): 
+                Number of blocks.
         """
 
         super().__init__()
@@ -57,7 +61,8 @@ class ResidualBlock(nn.Layer):
     def forward(self, x: paddle.Tensor):
         """Calculate forward propagation.
         Args:
-            x(Tensor): Batch of input sequences (B, hidden_size, Tmax).
+            x(Tensor): 
+                Batch of input sequences (B, hidden_size, Tmax).
         Returns:
             Tensor: The residual output (B, hidden_size, Tmax).
         """
@@ -89,8 +94,10 @@ class TextEmbedding(nn.Layer):
     def forward(self, text: paddle.Tensor, tone: paddle.Tensor=None):
         """Calculate forward propagation.
         Args:
-            text(Tensor(int64)): Batch of padded token ids (B, Tmax).
-            tones(Tensor, optional(int64)): Batch of padded tone ids (B, Tmax).
+            text(Tensor(int64)): 
+                Batch of padded token ids (B, Tmax).
+            tones(Tensor, optional(int64)): 
+                Batch of padded tone ids (B, Tmax).
         Returns:
             Tensor: The residual output (B, Tmax, embedding_size).
         """
@@ -109,12 +116,18 @@ class TextEmbedding(nn.Layer):
 class SpeedySpeechEncoder(nn.Layer):
     """SpeedySpeech encoder module.
     Args:
-        vocab_size (int): Dimension of the inputs.
-        tone_size (Optional[int]): Number of tones.
-        hidden_size (int): Number of encoder hidden units.
-        kernel_size (int): Kernel size of encoder.
-        dilations (List[int]): Dilations of encoder.
-        spk_num (Optional[int]): Number of speakers. 
+        vocab_size (int): 
+            Dimension of the inputs.
+        tone_size (Optional[int]): 
+            Number of tones.
+        hidden_size (int): 
+            Number of encoder hidden units.
+        kernel_size (int): 
+            Kernel size of encoder.
+        dilations (List[int]): 
+            Dilations of encoder.
+        spk_num (Optional[int]): 
+            Number of speakers. 
     """
 
     def __init__(self,
@@ -161,9 +174,12 @@ class SpeedySpeechEncoder(nn.Layer):
                 spk_id: paddle.Tensor=None):
         """Encoder input sequence.
         Args:
-            text(Tensor(int64)): Batch of padded token ids (B, Tmax).
-            tones(Tensor, optional(int64)): Batch of padded tone ids (B, Tmax).
-            spk_id(Tnesor, optional(int64)): Batch of speaker ids (B,)
+            text(Tensor(int64)): 
+                Batch of padded token ids (B, Tmax).
+            tones(Tensor, optional(int64)): 
+                Batch of padded tone ids (B, Tmax).
+            spk_id(Tnesor, optional(int64)): 
+                Batch of speaker ids (B,)
 
         Returns:
             Tensor: Output tensor (B, Tmax, hidden_size).
@@ -192,7 +208,8 @@ class DurationPredictor(nn.Layer):
     def forward(self, x: paddle.Tensor):
         """Calculate forward propagation.
         Args:
-            x(Tensor): Batch of input sequences (B, Tmax, hidden_size).
+            x(Tensor): 
+                Batch of input sequences (B, Tmax, hidden_size).
 
         Returns:
             Tensor: Batch of predicted durations in log domain (B, Tmax).
@@ -212,10 +229,14 @@ class SpeedySpeechDecoder(nn.Layer):
                  ]):
         """SpeedySpeech decoder module.
         Args:
-            hidden_size (int): Number of decoder hidden units.
-            kernel_size (int): Kernel size of decoder.
-            output_size (int): Dimension of the outputs.
-            dilations (List[int]): Dilations of decoder.
+            hidden_size (int): 
+                Number of decoder hidden units.
+            kernel_size (int): 
+                Kernel size of decoder.
+            output_size (int): 
+                Dimension of the outputs.
+            dilations (List[int]): 
+                Dilations of decoder.
         """
         super().__init__()
         res_blocks = [
@@ -230,7 +251,8 @@ class SpeedySpeechDecoder(nn.Layer):
     def forward(self, x):
         """Decoder input sequence.
         Args:
-            x(Tensor): Input tensor (B, time, hidden_size).
+            x(Tensor): 
+                Input tensor (B, time, hidden_size).
 
         Returns:
             Tensor: Output tensor (B, time, output_size).
@@ -261,18 +283,30 @@ class SpeedySpeech(nn.Layer):
             positional_dropout_rate: int=0.1):
         """Initialize SpeedySpeech module.
         Args:
-            vocab_size (int): Dimension of the inputs.
-            encoder_hidden_size (int): Number of encoder hidden units.
-            encoder_kernel_size (int): Kernel size of encoder.
-            encoder_dilations (List[int]): Dilations of encoder.
-            duration_predictor_hidden_size (int): Number of duration predictor hidden units.
-            decoder_hidden_size (int): Number of decoder hidden units.
-            decoder_kernel_size (int): Kernel size of decoder.
-            decoder_dilations (List[int]): Dilations of decoder.
-            decoder_output_size (int): Dimension of the outputs.
-            tone_size (Optional[int]): Number of tones.
-            spk_num (Optional[int]): Number of speakers. 
-            init_type (str): How to initialize transformer parameters.
+            vocab_size (int): 
+                Dimension of the inputs.
+            encoder_hidden_size (int): 
+                Number of encoder hidden units.
+            encoder_kernel_size (int): 
+                Kernel size of encoder.
+            encoder_dilations (List[int]): 
+                Dilations of encoder.
+            duration_predictor_hidden_size (int):
+                Number of duration predictor hidden units.
+            decoder_hidden_size (int): 
+                Number of decoder hidden units.
+            decoder_kernel_size (int): 
+                Kernel size of decoder.
+            decoder_dilations (List[int]): 
+                Dilations of decoder.
+            decoder_output_size (int): 
+                Dimension of the outputs.
+            tone_size (Optional[int]): 
+                Number of tones.
+            spk_num (Optional[int]): 
+                Number of speakers. 
+            init_type (str): 
+                How to initialize transformer parameters.
     
         """
         super().__init__()
@@ -304,14 +338,20 @@ class SpeedySpeech(nn.Layer):
                 spk_id: paddle.Tensor=None):
         """Calculate forward propagation.
         Args:
-            text(Tensor(int64)): Batch of padded token ids (B, Tmax).
-            durations(Tensor(int64)): Batch of padded durations (B, Tmax).
-            tones(Tensor, optional(int64)): Batch of padded tone ids  (B, Tmax).
-            spk_id(Tnesor, optional(int64)): Batch of speaker ids (B,)
+            text(Tensor(int64)): 
+                Batch of padded token ids (B, Tmax).
+            durations(Tensor(int64)): 
+                Batch of padded durations (B, Tmax).
+            tones(Tensor, optional(int64)): 
+                Batch of padded tone ids  (B, Tmax).
+            spk_id(Tnesor, optional(int64)): 
+                Batch of speaker ids (B,)
 
         Returns:
-            Tensor: Output tensor (B, T_frames, decoder_output_size).
-            Tensor: Predicted durations (B, Tmax).
+            Tensor: 
+                Output tensor (B, T_frames, decoder_output_size).
+            Tensor: 
+                Predicted durations (B, Tmax).
         """
         # input of embedding must be int64
         text = paddle.cast(text, 'int64')
@@ -336,10 +376,14 @@ class SpeedySpeech(nn.Layer):
                   spk_id: paddle.Tensor=None):
         """Generate the sequence of features given the sequences of characters.
         Args:
-            text(Tensor(int64)): Input sequence of characters (T,).
-            tones(Tensor, optional(int64)): Batch of padded tone ids (T, ).
-            durations(Tensor, optional (int64)): Groundtruth of duration (T,).
-            spk_id(Tensor, optional(int64), optional): spk ids (1,). (Default value = None)
+            text(Tensor(int64)): 
+                Input sequence of characters (T,).
+            tones(Tensor, optional(int64)): 
+                Batch of padded tone ids (T, ).
+            durations(Tensor, optional (int64)): 
+                Groundtruth of duration (T,).
+            spk_id(Tensor, optional(int64), optional): 
+                spk ids (1,). (Default value = None)
 
         Returns:
             Tensor: logmel (T, decoder_output_size).

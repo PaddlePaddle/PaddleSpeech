@@ -22,7 +22,8 @@ def convert_dtype_to_np_dtype_(dtype):
     Convert paddle's data type to corrsponding numpy data type.
 
     Args:
-        dtype(np.dtype): the data type in paddle.
+        dtype(np.dtype): 
+            the data type in paddle.
 
     Returns:
         type: the data type in numpy.

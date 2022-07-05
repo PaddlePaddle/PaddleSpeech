@@ -133,11 +133,11 @@ class ASRExecutor(BaseExecutor):
         """
         Init model and other resources from a specific path.
         """
-        logger.info("start to init the model")
+        logger.debug("start to init the model")
         # default max_len: unit:second
         self.max_len = 50
         if hasattr(self, 'model'):
-            logger.info('Model had been initialized.')
+            logger.debug('Model had been initialized.')
             return
 
         if cfg_path is None or ckpt_path is None:
@@ -151,15 +151,15 @@ class ASRExecutor(BaseExecutor):
             self.ckpt_path = os.path.join(
                 self.res_path,
                 self.task_resource.res_dict['ckpt_path'] + ".pdparams")
-            logger.info(self.res_path)
+            logger.debug(self.res_path)
 
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
-        logger.info(self.cfg_path)
-        logger.info(self.ckpt_path)
+        logger.debug(self.cfg_path)
+        logger.debug(self.ckpt_path)
 
         #Init body.
         self.config = CfgNode(new_allowed=True)
@@ -216,7 +216,7 @@ class ASRExecutor(BaseExecutor):
                 max_len = self.config.encoder_conf.max_len
 
             self.max_len = frame_shift_ms * max_len * subsample_rate
-            logger.info(
+            logger.debug(
                 f"The asr server limit max duration len: {self.max_len}")
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
@@ -227,15 +227,15 @@ class ASRExecutor(BaseExecutor):
 
         audio_file = input
         if isinstance(audio_file, (str, os.PathLike)):
-            logger.info("Preprocess audio_file:" + audio_file)
+            logger.debug("Preprocess audio_file:" + audio_file)
 
         # Get the object for feature extraction
         if "deepspeech2" in model_type or "conformer" in model_type or "transformer" in model_type:
-            logger.info("get the preprocess conf")
+            logger.debug("get the preprocess conf")
             preprocess_conf = self.config.preprocess_config
             preprocess_args = {"train": False}
             preprocessing = Transformation(preprocess_conf)
-            logger.info("read the audio file")
+            logger.debug("read the audio file")
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
             if self.change_format:
@@ -255,7 +255,7 @@ class ASRExecutor(BaseExecutor):
             else:
                 audio = audio[:, 0]
 
-            logger.info(f"audio shape: {audio.shape}")
+            logger.debug(f"audio shape: {audio.shape}")
             # fbank
             audio = preprocessing(audio, **preprocess_args)
 
@@ -264,19 +264,19 @@ class ASRExecutor(BaseExecutor):
 
             self._inputs["audio"] = audio
             self._inputs["audio_len"] = audio_len
-            logger.info(f"audio feat shape: {audio.shape}")
+            logger.debug(f"audio feat shape: {audio.shape}")
 
         else:
             raise Exception("wrong type")
 
-        logger.info("audio feat process success")
+        logger.debug("audio feat process success")
 
     @paddle.no_grad()
     def infer(self, model_type: str):
         """
         Model inference and result stored in self.output.
         """
-        logger.info("start to infer the model to get the output")
+        logger.debug("start to infer the model to get the output")
         cfg = self.config.decode
         audio = self._inputs["audio"]
         audio_len = self._inputs["audio_len"]
@@ -293,7 +293,7 @@ class ASRExecutor(BaseExecutor):
             self._outputs["result"] = result_transcripts[0]
 
         elif "conformer" in model_type or "transformer" in model_type:
-            logger.info(
+            logger.debug(
                 f"we will use the transformer like model : {model_type}")
             try:
                 result_transcripts = self.model.decode(
@@ -352,7 +352,7 @@ class ASRExecutor(BaseExecutor):
                 logger.error("Please input the right audio file path")
                 return False
 
-        logger.info("checking the audio file format......")
+        logger.debug("checking the audio file format......")
         try:
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
@@ -374,7 +374,7 @@ class ASRExecutor(BaseExecutor):
                  sox input_audio.xx --rate 8k --bits 16 --channels 1 output_audio.wav \n \
                  ")
             return False
-        logger.info("The sample rate is %d" % audio_sample_rate)
+        logger.debug("The sample rate is %d" % audio_sample_rate)
         if audio_sample_rate != self.sample_rate:
             logger.warning("The sample rate of the input file is not {}.\n \
                             The program will resample the wav file to {}.\n \
@@ -383,28 +383,28 @@ class ASRExecutor(BaseExecutor):
                         ".format(self.sample_rate, self.sample_rate))
             if force_yes is False:
                 while (True):
-                    logger.info(
+                    logger.debug(
                         "Whether to change the sample rate and the channel. Y: change the sample. N: exit the prgream."
                     )
                     content = input("Input(Y/N):")
                     if content.strip() == "Y" or content.strip(
                     ) == "y" or content.strip() == "yes" or content.strip(
                     ) == "Yes":
-                        logger.info(
+                        logger.debug(
                             "change the sampele rate, channel to 16k and 1 channel"
                         )
                         break
                     elif content.strip() == "N" or content.strip(
                     ) == "n" or content.strip() == "no" or content.strip(
                     ) == "No":
-                        logger.info("Exit the program")
+                        logger.debug("Exit the program")
                         return False
                     else:
                         logger.warning("Not regular input, please input again")
 
             self.change_format = True
         else:
-            logger.info("The audio file format is right")
+            logger.debug("The audio file format is right")
             self.change_format = False
 
         return True

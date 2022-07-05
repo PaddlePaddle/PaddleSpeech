@@ -32,29 +32,45 @@ class PWGGenerator(nn.Layer):
     """Wave Generator for Parallel WaveGAN
 
     Args:
-        in_channels (int, optional): Number of channels of the input waveform, by default 1
-        out_channels (int, optional): Number of channels of the output waveform, by default 1
-        kernel_size (int, optional): Kernel size of the residual blocks inside, by default 3
-        layers (int, optional): Number of residual blocks inside, by default 30
-        stacks (int, optional): The number of groups to split the residual blocks into, by default 3
+        in_channels (int, optional): 
+            Number of channels of the input waveform, by default 1
+        out_channels (int, optional): 
+            Number of channels of the output waveform, by default 1
+        kernel_size (int, optional): 
+            Kernel size of the residual blocks inside, by default 3
+        layers (int, optional): 
+            Number of residual blocks inside, by default 30
+        stacks (int, optional):
+            The number of groups to split the residual blocks into, by default 3
             Within each group, the dilation of the residual block grows exponentially.
-        residual_channels (int, optional): Residual channel of the residual blocks, by default 64
-        gate_channels (int, optional): Gate channel of the residual blocks, by default 128
-        skip_channels (int, optional): Skip channel of the residual blocks, by default 64
-        aux_channels (int, optional): Auxiliary channel of the residual blocks, by default 80
-        aux_context_window (int, optional): The context window size of the first convolution applied to the 
-            auxiliary input, by default 2
-        dropout (float, optional): Dropout of the residual blocks, by default 0.
-        bias (bool, optional): Whether to use bias in residual blocks, by default True
-        use_weight_norm (bool, optional): Whether to use weight norm in all convolutions, by default True
-        use_causal_conv (bool, optional): Whether to use causal padding in the upsample network and residual 
-            blocks, by default False
-        upsample_scales (List[int], optional): Upsample scales of the upsample network, by default [4, 4, 4, 4]
-        nonlinear_activation (Optional[str], optional): Non linear activation in upsample network, by default None
-        nonlinear_activation_params (Dict[str, Any], optional): Parameters passed to the linear activation in the upsample network, 
-            by default {}
-        interpolate_mode (str, optional): Interpolation mode of the upsample network, by default "nearest"
-        freq_axis_kernel_size (int, optional): Kernel size along the frequency axis of the upsample network, by default 1
+        residual_channels (int, optional): 
+            Residual channel of the residual blocks, by default 64
+        gate_channels (int, optional): 
+            Gate channel of the residual blocks, by default 128
+        skip_channels (int, optional): 
+            Skip channel of the residual blocks, by default 64
+        aux_channels (int, optional): 
+            Auxiliary channel of the residual blocks, by default 80
+        aux_context_window (int, optional): 
+            The context window size of the first convolution applied to the auxiliary input, by default 2
+        dropout (float, optional): 
+            Dropout of the residual blocks, by default 0.
+        bias (bool, optional): 
+            Whether to use bias in residual blocks, by default True
+        use_weight_norm (bool, optional): 
+            Whether to use weight norm in all convolutions, by default True
+        use_causal_conv (bool, optional): 
+            Whether to use causal padding in the upsample network and residual blocks, by default False
+        upsample_scales (List[int], optional): 
+            Upsample scales of the upsample network, by default [4, 4, 4, 4]
+        nonlinear_activation (Optional[str], optional): 
+            Non linear activation in upsample network, by default None
+        nonlinear_activation_params (Dict[str, Any], optional): 
+            Parameters passed to the linear activation in the upsample network, by default {}
+        interpolate_mode (str, optional): 
+            Interpolation mode of the upsample network, by default "nearest"
+        freq_axis_kernel_size (int, optional): 
+            Kernel size along the frequency axis of the upsample network, by default 1
     """
 
     def __init__(
@@ -147,9 +163,11 @@ class PWGGenerator(nn.Layer):
         """Generate waveform.
 
         Args:
-            x(Tensor): Shape (N, C_in, T), The input waveform.
-            c(Tensor): Shape (N, C_aux, T'). The auxiliary input (e.g. spectrogram). It
-            is upsampled to match the time resolution of the input.
+            x(Tensor): 
+                Shape (N, C_in, T), The input waveform.
+            c(Tensor): 
+                Shape (N, C_aux, T'). The auxiliary input (e.g. spectrogram). 
+                It is upsampled to match the time resolution of the input.
 
         Returns:
             Tensor: Shape (N, C_out, T), the generated waveform.
@@ -195,8 +213,10 @@ class PWGGenerator(nn.Layer):
         """Waveform generation. This function is used for single instance inference.
 
         Args:
-            c(Tensor, optional, optional): Shape (T', C_aux), the auxiliary input, by default None
-            x(Tensor, optional): Shape (T, C_in), the noise waveform, by default None
+            c(Tensor, optional, optional): 
+                Shape (T', C_aux), the auxiliary input, by default None
+            x(Tensor, optional): 
+                Shape (T, C_in), the noise waveform, by default None
 
         Returns:
             Tensor: Shape (T, C_out), the generated waveform
@@ -214,20 +234,28 @@ class PWGDiscriminator(nn.Layer):
     """A convolutional discriminator for audio.
 
     Args:
-        in_channels (int, optional): Number of channels of the input audio, by default 1
-        out_channels (int, optional): Output feature size, by default 1
-        kernel_size (int, optional): Kernel size of convolutional sublayers, by default 3
-        layers (int, optional): Number of layers, by default 10
-        conv_channels (int, optional): Feature size of the convolutional sublayers, by default 64
-        dilation_factor (int, optional): The factor with which dilation of each convolutional sublayers grows 
+        in_channels (int, optional): 
+            Number of channels of the input audio, by default 1
+        out_channels (int, optional): 
+            Output feature size, by default 1
+        kernel_size (int, optional): 
+            Kernel size of convolutional sublayers, by default 3
+        layers (int, optional): 
+            Number of layers, by default 10
+        conv_channels (int, optional): 
+            Feature size of the convolutional sublayers, by default 64
+        dilation_factor (int, optional): 
+            The factor with which dilation of each convolutional sublayers grows 
             exponentially if it is greater than 1, else the dilation of each convolutional sublayers grows linearly, 
             by default 1
-        nonlinear_activation (str, optional): The activation after each convolutional sublayer, by default "leakyrelu"
-        nonlinear_activation_params (Dict[str, Any], optional): The parameters passed to the activation's initializer, by default 
-            {"negative_slope": 0.2}
-        bias (bool, optional): Whether to use bias in convolutional sublayers, by default True
-        use_weight_norm (bool, optional): Whether to use weight normalization at all convolutional sublayers, 
-            by default True
+        nonlinear_activation (str, optional): 
+            The activation after each convolutional sublayer, by default "leakyrelu"
+        nonlinear_activation_params (Dict[str, Any], optional): 
+            The parameters passed to the activation's initializer, by default {"negative_slope": 0.2}
+        bias (bool, optional): 
+            Whether to use bias in convolutional sublayers, by default True
+        use_weight_norm (bool, optional): 
+            Whether to use weight normalization at all convolutional sublayers, by default True
     """
 
     def __init__(
@@ -290,7 +318,8 @@ class PWGDiscriminator(nn.Layer):
         """
 
         Args:
-            x (Tensor): Shape (N, in_channels, num_samples), the input audio.
+            x (Tensor): 
+                Shape (N, in_channels, num_samples), the input audio.
 
         Returns:
             Tensor: Shape (N, out_channels, num_samples), the predicted logits.
@@ -318,24 +347,35 @@ class ResidualPWGDiscriminator(nn.Layer):
     """A wavenet-style discriminator for audio.
 
     Args:
-        in_channels (int, optional): Number of channels of the input audio, by default 1
-        out_channels (int, optional): Output feature size, by default 1
-        kernel_size (int, optional): Kernel size of residual blocks, by default 3
-        layers (int, optional): Number of residual blocks, by default 30
-        stacks (int, optional): Number of groups of residual blocks, within which the dilation 
+        in_channels (int, optional): 
+            Number of channels of the input audio, by default 1
+        out_channels (int, optional): 
+            Output feature size, by default 1
+        kernel_size (int, optional): 
+            Kernel size of residual blocks, by default 3
+        layers (int, optional): 
+            Number of residual blocks, by default 30
+        stacks (int, optional): 
+            Number of groups of residual blocks, within which the dilation 
             of each residual blocks grows exponentially, by default 3
-        residual_channels (int, optional): Residual channels of residual blocks, by default 64
-        gate_channels (int, optional): Gate channels of residual blocks, by default 128
-        skip_channels (int, optional): Skip channels of residual blocks, by default 64
-        dropout (float, optional): Dropout probability of residual blocks, by default 0.
-        bias (bool, optional): Whether to use bias in residual blocks, by default True
-        use_weight_norm (bool, optional): Whether to use weight normalization in all convolutional layers, 
-            by default True
-        use_causal_conv (bool, optional): Whether to use causal convolution in residual blocks, by default False
-        nonlinear_activation (str, optional): Activation after convolutions other than those in residual blocks, 
-            by default "leakyrelu"
-        nonlinear_activation_params (Dict[str, Any], optional): Parameters to pass to the activation, 
-            by default {"negative_slope": 0.2}
+        residual_channels (int, optional): 
+            Residual channels of residual blocks, by default 64
+        gate_channels (int, optional): 
+            Gate channels of residual blocks, by default 128
+        skip_channels (int, optional): 
+            Skip channels of residual blocks, by default 64
+        dropout (float, optional): 
+            Dropout probability of residual blocks, by default 0.
+        bias (bool, optional): 
+            Whether to use bias in residual blocks, by default True
+        use_weight_norm (bool, optional): 
+            Whether to use weight normalization in all convolutional layers, by default True
+        use_causal_conv (bool, optional): 
+            Whether to use causal convolution in residual blocks, by default False
+        nonlinear_activation (str, optional): 
+            Activation after convolutions other than those in residual blocks, by default "leakyrelu"
+        nonlinear_activation_params (Dict[str, Any], optional): 
+            Parameters to pass to the activation, by default {"negative_slope": 0.2}
     """
 
     def __init__(
@@ -405,7 +445,8 @@ class ResidualPWGDiscriminator(nn.Layer):
     def forward(self, x):
         """
         Args:
-            x(Tensor): Shape (N, in_channels, num_samples), the input audio.↩
+            x(Tensor): 
+                Shape (N, in_channels, num_samples), the input audio.↩
 
         Returns:
             Tensor: Shape (N, out_channels, num_samples), the predicted logits.

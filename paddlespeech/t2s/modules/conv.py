@@ -42,13 +42,19 @@ class Conv1dCell(nn.Conv1D):
     class.
 
     Args:
-        in_channels (int): The feature size of the input.
-        out_channels (int): The feature size of the output.
-        kernel_size (int or Tuple[int]): The size of the kernel.
-        dilation (int or Tuple[int]): The dilation of the convolution, by default 1
-        weight_attr (ParamAttr, Initializer, str or bool, optional) : The parameter attribute of the convolution kernel, 
+        in_channels (int): 
+            The feature size of the input.
+        out_channels (int): 
+            The feature size of the output.
+        kernel_size (int or Tuple[int]): 
+            The size of the kernel.
+        dilation (int or Tuple[int]): 
+            The dilation of the convolution, by default 1
+        weight_attr (ParamAttr, Initializer, str or bool, optional): 
+            The parameter attribute of the convolution kernel, 
             by default None.
-        bias_attr (ParamAttr, Initializer, str or bool, optional):The parameter attribute of the bias. 
+        bias_attr (ParamAttr, Initializer, str or bool, optional):
+            The parameter attribute of the bias. 
             If ``False``, this layer does not have a bias, by default None.
             
     Examples: 
@@ -122,7 +128,8 @@ class Conv1dCell(nn.Conv1D):
         """Initialize the buffer for the step input.
 
         Args:
-            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+            x_t (Tensor): 
+                The step input. shape=(batch_size, in_channels)
             
         """
         batch_size, _ = x_t.shape
@@ -134,7 +141,8 @@ class Conv1dCell(nn.Conv1D):
         """Shift the buffer by one step.
 
         Args:
-            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+            x_t (Tensor): T
+                he step input. shape=(batch_size, in_channels)
             
         """
         self._buffer = paddle.concat(
@@ -144,10 +152,12 @@ class Conv1dCell(nn.Conv1D):
         """Add step input and compute step output.
 
         Args:
-            x_t (Tensor): The step input. shape=(batch_size, in_channels)
+            x_t (Tensor): 
+                The step input. shape=(batch_size, in_channels)
           
         Returns: 
-            y_t (Tensor): The step output. shape=(batch_size, out_channels)
+            y_t (Tensor): 
+                The step output. shape=(batch_size, out_channels)
 
         """
         batch_size = x_t.shape[0]
@@ -173,10 +183,14 @@ class Conv1dBatchNorm(nn.Layer):
     """A Conv1D Layer followed by a BatchNorm1D.
 
     Args:
-        in_channels (int): The feature size of the input.
-        out_channels (int): The feature size of the output.
-        kernel_size (int): The size of the convolution kernel.
-        stride (int, optional): The stride of the convolution, by default 1.
+        in_channels (int): 
+            The feature size of the input.
+        out_channels (int): 
+            The feature size of the output.
+        kernel_size (int): 
+            The size of the convolution kernel.
+        stride (int, optional): 
+            The stride of the convolution, by default 1.
         padding (int, str or Tuple[int], optional):
             The padding of the convolution.
             If int, a symmetrical padding is applied before convolution;
@@ -189,9 +203,12 @@ class Conv1dBatchNorm(nn.Layer):
         bias_attr (ParamAttr, Initializer, str or bool, optional):
             The parameter attribute of the bias of the convolution,
             by defaultNone.
-        data_format (str ["NCL" or "NLC"], optional): The data layout of the input, by default "NCL"
-        momentum (float, optional): The momentum of the BatchNorm1D layer, by default 0.9
-        epsilon (float, optional): The epsilon of the BatchNorm1D layer, by default 1e-05
+        data_format (str ["NCL" or "NLC"], optional): 
+            The data layout of the input, by default "NCL"
+        momentum (float, optional): 
+            The momentum of the BatchNorm1D layer, by default 0.9
+        epsilon (float, optional): 
+            The epsilon of the BatchNorm1D layer, by default 1e-05
     """
 
     def __init__(self,
@@ -225,12 +242,13 @@ class Conv1dBatchNorm(nn.Layer):
         """Forward pass of the Conv1dBatchNorm layer.
         
         Args:
-            x (Tensor): The input tensor. Its data layout depends on ``data_format``. 
-            shape=(B, C_in, T_in) or (B, T_in, C_in)
+            x (Tensor): 
+                The input tensor. Its data layout depends on ``data_format``. 
+                shape=(B, C_in, T_in) or (B, T_in, C_in)
     
         Returns:
-            Tensor: The output tensor. 
-                shape=(B, C_out, T_out) or (B, T_out, C_out)
+            Tensor: 
+                The output tensor. shape=(B, C_out, T_out) or (B, T_out, C_out)
                 
         """
         x = self.conv(x)

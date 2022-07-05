@@ -32,7 +32,7 @@ from utils.utility import unpack
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
-URL_ROOT = 'http://www.openslr.org/resources/18'
+URL_ROOT = 'http://openslr.elda.org/resources/18'
 # URL_ROOT = 'https://openslr.magicdatatech.com/resources/18'
 DATA_URL = URL_ROOT + '/data_thchs30.tgz'
 TEST_NOISE_URL = URL_ROOT + '/test-noise.tgz'

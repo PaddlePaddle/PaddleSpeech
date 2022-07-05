@@ -39,15 +39,24 @@ class ResidualStack(nn.Layer):
         """Initialize ResidualStack module.
 
         Args:
-            kernel_size (int): Kernel size of dilation convolution layer.
-            channels (int): Number of channels of convolution layers.
-            dilation (int): Dilation factor.
-            bias (bool): Whether to add bias parameter in convolution layers.
-            nonlinear_activation (str): Activation function module name.
-            nonlinear_activation_params (Dict[str,Any]): Hyperparameters for activation function.
-            pad (str): Padding function module name before dilated convolution layer.
-            pad_params (Dict[str, Any]): Hyperparameters for padding function.
-            use_causal_conv (bool): Whether to use causal convolution.
+            kernel_size (int): 
+                Kernel size of dilation convolution layer.
+            channels (int): 
+                Number of channels of convolution layers.
+            dilation (int): 
+                Dilation factor.
+            bias (bool): 
+                Whether to add bias parameter in convolution layers.
+            nonlinear_activation (str): 
+                Activation function module name.
+            nonlinear_activation_params (Dict[str,Any]): 
+                Hyperparameters for activation function.
+            pad (str): 
+                Padding function module name before dilated convolution layer.
+            pad_params (Dict[str, Any]): 
+                Hyperparameters for padding function.
+            use_causal_conv (bool): 
+                Whether to use causal convolution.
         """
         super().__init__()
         # for compatibility
@@ -95,7 +104,8 @@ class ResidualStack(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            c (Tensor): Input tensor (B, channels, T).
+            c (Tensor): 
+                Input tensor (B, channels, T).
         Returns:     
             Tensor: Output tensor (B, chennels, T).
         """

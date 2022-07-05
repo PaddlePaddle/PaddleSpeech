@@ -13,7 +13,7 @@
 # limitations under the License.
 from typing import Text
 
-from ..utils.log import logger
+from paddlespeech.cli.log import logger
 
 __all__ = ['EngineFactory']
 

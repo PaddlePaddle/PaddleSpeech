@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature.h"
+#include "feat/pitch-functions.h"
 
 namespace paddleaudio {
 namespace kaldi {
@@ -144,6 +145,72 @@ py::array_t<double> ComputeFbank(
 void ResetFbank() {
     paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ResetFbank();
 }
+
+py::array_t<double> ComputeKaldiPitch(
+ int samp_freq,
+ float frame_shift_ms,
+ float frame_length_ms,
+ float preemph_coeff,
+ int min_f0,
+ int max_f0,
+ float soft_min_f0,
+ float penalty_factor,
+ int   lowpass_cutoff,
+ int  resample_freq,
+ float delta_pitch,
+ int  nccf_ballast,
+ int lowpass_filter_width,
+ int upsample_filter_width,
+ int  max_frames_latency,
+ int  frames_per_chunk,
+ bool  simulate_first_pass_online,
+ int  recompute_frame,
+ bool  nccf_ballast_online,
+ bool  snip_edges,
+ const py::array_t<double>& wav) {
+::kaldi::PitchExtractionOptions opts;
+opts.samp_freq = samp_freq;
+opts.frame_shift_ms = frame_shift_ms;
+opts.frame_length_ms = frame_length_ms;
+opts.preemph_coeff = preemph_coeff;
+      opts.min_f0 = min_f0;
+      opts.max_f0 = max_f0;
+      opts.soft_min_f0 = soft_min_f0;
+      opts.penalty_factor = penalty_factor;
+      opts.lowpass_cutoff = lowpass_cutoff;
+      opts.resample_freq = resample_freq;
+      opts.delta_pitch = delta_pitch;
+      opts.nccf_ballast = nccf_ballast;
+      opts.lowpass_filter_width = lowpass_filter_width;
+      opts.upsample_filter_width = upsample_filter_width;
+      opts.max_frames_latency = max_frames_latency;
+      opts.frames_per_chunk = frames_per_chunk;
+      opts.simulate_first_pass_online = simulate_first_pass_online;
+      opts.recompute_frame = recompute_frame;
+      opts.nccf_ballast_online = nccf_ballast_online;
+      opts.snip_edges = snip_edges;
+
+   py::buffer_info info = wav.request();
+   kaldi::Vector<::kaldi::BaseFloat> input_wav(info.size);
+   double* wav_ptr = (double*)info.ptr;
+   for (int idx = 0; idx < info.size; ++idx) {
+       input_wav(idx) = *wav_ptr;
+       wav_ptr++;
+   }
+   
+   kaldi::Matrix<kaldi::BaseFloat> features; 
+   kaldi::ComputeKaldiPitch(opts, input_wav, &features);
+   auto result = py::array_t<double>({features.NumRows(), features.NumCols()});
+   for (int row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
+        for (int col_idx = 0; col_idx < features.NumCols(); ++col_idx) {
+        result.mutable_at(row_idx, col_idx) = features(row_idx, col_idx);
+
+        }
+   }
+
+   return result;
+}
+
 
 }  // namespace kaldi
 }  // namespace paddleaudio

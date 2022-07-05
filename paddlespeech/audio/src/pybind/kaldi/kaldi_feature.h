@@ -87,7 +87,28 @@ void ResetFbank();
 
 py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav);
 
-py::array_t<double> TestFun(const py::array_t<double>& wav);
+py::array_t<double> ComputeKaldiPitch(
+ int samp_freq,
+ float frame_shift_ms,
+ float frame_length_ms,
+ float preemph_coeff,
+ int min_f0,
+ int max_f0,
+ float soft_min_f0,
+ float penalty_factor,
+ int   lowpass_cutoff,
+ int  resample_freq,
+ float delta_pitch,
+ int  nccf_ballast,
+ int lowpass_filter_width,
+ int upsample_filter_width,
+ int  max_frames_latency,
+ int  frames_per_chunk,
+ bool  simulate_first_pass_online,
+ int  recompute_frame,
+ bool  nccf_ballast_online,
+ bool  snip_edges,
+ const py::array_t<double>& wav);
 
 }  // namespace kaldi
 }  // namespace paddleaudio

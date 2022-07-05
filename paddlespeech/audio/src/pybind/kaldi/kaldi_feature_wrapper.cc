@@ -43,10 +43,6 @@ py::array_t<double> KaldiFeatureWrapper::ComputeFbank(
     if (flag == false || feats.Dim() == 0) return py::array_t<double>();
     auto result = py::array_t<double>(feats.Dim());
     py::buffer_info xs = result.request();
-    for (int idx = 0; idx < 10; ++idx) {
-        float val = feats(idx);
-        std::cout << val << " ";
-    }
     std::cout << std::endl;
     double* res_ptr = (double*)xs.ptr;
     for (int idx = 0; idx < feats.Dim(); ++idx) {

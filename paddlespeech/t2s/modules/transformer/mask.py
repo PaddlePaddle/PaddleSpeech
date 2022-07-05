@@ -19,8 +19,10 @@ def subsequent_mask(size, dtype=paddle.bool):
     """Create mask for subsequent steps (size, size).
 
     Args:
-        size (int): size of mask
-        dtype (paddle.dtype): result dtype
+        size (int): 
+            size of mask
+        dtype (paddle.dtype): 
+            result dtype
     Return:
         Tensor:
             >>> subsequent_mask(3)
@@ -36,9 +38,12 @@ def target_mask(ys_in_pad, ignore_id, dtype=paddle.bool):
     """Create mask for decoder self-attention.
 
     Args:
-        ys_pad (Tensor): batch of padded target sequences (B, Lmax)
-        ignore_id (int): index of padding
-        dtype (paddle.dtype): result dtype
+        ys_pad (Tensor): 
+            batch of padded target sequences (B, Lmax)
+        ignore_id (int): 
+            index of padding
+        dtype (paddle.dtype): 
+            result dtype
     Return: 
         Tensor: (B, Lmax, Lmax)
     """

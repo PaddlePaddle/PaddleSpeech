@@ -23,11 +23,16 @@ class PositionalEncoding(nn.Layer):
     """Positional encoding.
 
     Args:
-        d_model (int):  Embedding dimension.
-        dropout_rate (float): Dropout rate.
-        max_len (int): Maximum input length.
-        reverse (bool): Whether to reverse the input position.
-        type (str): dtype of param
+        d_model (int):
+            Embedding dimension.
+        dropout_rate (float): 
+            Dropout rate.
+        max_len (int): 
+            Maximum input length.
+        reverse (bool): 
+            Whether to reverse the input position.
+        type (str): 
+            dtype of param
     """
 
     def __init__(self,
@@ -68,7 +73,8 @@ class PositionalEncoding(nn.Layer):
         """Add positional encoding.
 
         Args:
-            x (Tensor): Input tensor (batch, time, `*`).
+            x (Tensor): 
+                Input tensor (batch, time, `*`).
 
         Returns:
             Tensor: Encoded tensor (batch, time, `*`).
@@ -84,10 +90,14 @@ class ScaledPositionalEncoding(PositionalEncoding):
     See Sec. 3.2  https://arxiv.org/abs/1809.08895
 
     Args:
-        d_model (int): Embedding dimension.
-        dropout_rate (float): Dropout rate.
-        max_len (int): Maximum input length.
-        dtype (str): dtype of param
+        d_model (int): 
+            Embedding dimension.
+        dropout_rate (float): 
+            Dropout rate.
+        max_len (int): 
+            Maximum input length.
+        dtype (str): 
+            dtype of param
     """
 
     def __init__(self, d_model, dropout_rate, max_len=5000, dtype="float32"):
@@ -111,7 +121,8 @@ class ScaledPositionalEncoding(PositionalEncoding):
         """Add positional encoding.
 
         Args:
-            x (Tensor): Input tensor (batch, time, `*`).
+            x (Tensor): 
+                Input tensor (batch, time, `*`).
         Returns:
             Tensor: Encoded tensor (batch, time, `*`).
         """
@@ -127,9 +138,12 @@ class RelPositionalEncoding(nn.Layer):
     See : Appendix B in https://arxiv.org/abs/1901.02860
 
     Args:
-        d_model (int): Embedding dimension.
-        dropout_rate (float): Dropout rate.
-        max_len (int): Maximum input length.
+        d_model (int): 
+            Embedding dimension.
+        dropout_rate (float): 
+            Dropout rate.
+        max_len (int): 
+            Maximum input length.
     """
 
     def __init__(self, d_model, dropout_rate, max_len=5000, dtype="float32"):
@@ -175,7 +189,8 @@ class RelPositionalEncoding(nn.Layer):
     def forward(self, x: paddle.Tensor):
         """Add positional encoding.
         Args:
-            x (Tensor):Input tensor (batch, time, `*`).
+            x (Tensor):
+                Input tensor (batch, time, `*`).
         Returns:
             Tensor: Encoded tensor (batch, time, `*`).
         """
@@ -195,18 +210,24 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
     See : Appendix B in https://arxiv.org/abs/1901.02860
 
     Args:
-        d_model (int): Embedding dimension.
-        dropout_rate (float): Dropout rate.
-        max_len (int): Maximum input length.
+        d_model (int): 
+            Embedding dimension.
+        dropout_rate (float): 
+            Dropout rate.
+        max_len (int): 
+            Maximum input length.
 
     """
 
     def __init__(self, d_model: int, dropout_rate: float, max_len: int=5000):
         """
         Args:
-            d_model (int): Embedding dimension.
-            dropout_rate (float): Dropout rate.
-            max_len (int, optional): [Maximum input length.]. Defaults to 5000.
+            d_model (int): 
+                Embedding dimension.
+            dropout_rate (float): 
+                Dropout rate.
+            max_len (int, optional): 
+                [Maximum input length.]. Defaults to 5000.
         """
         super().__init__(d_model, dropout_rate, max_len, reverse=True)
 
@@ -234,10 +255,13 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
     def forward(self, x: paddle.Tensor):
         """Compute positional encoding.
         Args:
-            x (paddle.Tensor): Input tensor (batch, time, `*`).
+            x (Tensor): 
+                Input tensor (batch, time, `*`).
         Returns:
-            paddle.Tensor: Encoded tensor (batch, time, `*`).
-            paddle.Tensor: Positional embedding tensor (1, time, `*`).
+            Tensor: 
+                Encoded tensor (batch, time, `*`).
+            Tensor: 
+                Positional embedding tensor (1, time, `*`).
         """
         self.extend_pe(x)
         x = x * self.xscale

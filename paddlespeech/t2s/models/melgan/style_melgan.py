@@ -54,20 +54,34 @@ class StyleMelGANGenerator(nn.Layer):
         """Initilize Style MelGAN generator.
 
         Args:
-            in_channels (int): Number of input noise channels.
-            aux_channels (int): Number of auxiliary input channels.
-            channels (int): Number of channels for conv layer.
-            out_channels (int): Number of output channels.
-            kernel_size (int): Kernel size of conv layers.
-            dilation (int): Dilation factor for conv layers.
-            bias (bool): Whether to add bias parameter in convolution layers.
-            noise_upsample_scales (list): List of noise upsampling scales.
-            noise_upsample_activation (str): Activation function module name for noise upsampling.
-            noise_upsample_activation_params (dict): Hyperparameters for the above activation function.
-            upsample_scales (list): List of upsampling scales.
-            upsample_mode (str): Upsampling mode in TADE layer.
-            gated_function (str): Gated function in TADEResBlock ("softmax" or "sigmoid").
-            use_weight_norm (bool): Whether to use weight norm.
+            in_channels (int): 
+                Number of input noise channels.
+            aux_channels (int): 
+                Number of auxiliary input channels.
+            channels (int): 
+                Number of channels for conv layer.
+            out_channels (int): 
+                Number of output channels.
+            kernel_size (int): 
+                Kernel size of conv layers.
+            dilation (int): 
+                Dilation factor for conv layers.
+            bias (bool): 
+                Whether to add bias parameter in convolution layers.
+            noise_upsample_scales (list): 
+                List of noise upsampling scales.
+            noise_upsample_activation (str): 
+                Activation function module name for noise upsampling.
+            noise_upsample_activation_params (dict): 
+                Hyperparameters for the above activation function.
+            upsample_scales (list): 
+                List of upsampling scales.
+            upsample_mode (str): 
+                Upsampling mode in TADE layer.
+            gated_function (str): 
+                Gated function in TADEResBlock ("softmax" or "sigmoid").
+            use_weight_norm (bool): 
+                Whether to use weight norm.
                 If set to true, it will be applied to all of the conv layers.
         """
         super().__init__()
@@ -194,7 +208,8 @@ class StyleMelGANGenerator(nn.Layer):
     def inference(self, c):
         """Perform inference.
         Args:
-            c (Tensor): Input tensor (T, in_channels).
+            c (Tensor): 
+                Input tensor (T, in_channels).
         Returns:
             Tensor: Output tensor (T ** prod(upsample_scales), out_channels).
         """
@@ -258,11 +273,16 @@ class StyleMelGANDiscriminator(nn.Layer):
         """Initilize Style MelGAN discriminator.
 
         Args:
-            repeats (int): Number of repititons to apply RWD.
-            window_sizes (list): List of random window sizes.
-            pqmf_params (list): List of list of Parameters for PQMF modules
-            discriminator_params (dict): Parameters for base discriminator module.
-            use_weight_nom (bool): Whether to apply weight normalization.
+            repeats (int): 
+                Number of repititons to apply RWD.
+            window_sizes (list): 
+                List of random window sizes.
+            pqmf_params (list): 
+                List of list of Parameters for PQMF modules
+            discriminator_params (dict): 
+                Parameters for base discriminator module.
+            use_weight_nom (bool): 
+                Whether to apply weight normalization.
         """
         super().__init__()
 
@@ -299,7 +319,8 @@ class StyleMelGANDiscriminator(nn.Layer):
     def forward(self, x):
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, 1, T).
+            x (Tensor): 
+                Input tensor (B, 1, T).
         Returns:
             List: List of discriminator outputs, #items in the list will be
                 equal to repeats * #discriminators.

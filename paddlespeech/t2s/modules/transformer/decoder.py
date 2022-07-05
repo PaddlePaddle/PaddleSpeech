@@ -37,28 +37,46 @@ class Decoder(nn.Layer):
     """Transfomer decoder module.
 
     Args:
-        odim (int): Output diminsion.
-        self_attention_layer_type (str): Self-attention layer type.
-        attention_dim (int): Dimention of attention.
-        attention_heads (int): The number of heads of multi head attention.
-        conv_wshare (int): The number of kernel of convolution. Only used in
+        odim (int): 
+            Output diminsion.
+        self_attention_layer_type (str): 
+            Self-attention layer type.
+        attention_dim (int): 
+            Dimention of attention.
+        attention_heads (int): 
+            The number of heads of multi head attention.
+        conv_wshare (int):
+            The number of kernel of convolution. Only used in
             self_attention_layer_type == "lightconv*" or "dynamiconv*".
-        conv_kernel_length (Union[int, str]):Kernel size str of convolution
+        conv_kernel_length (Union[int, str]):
+            Kernel size str of convolution
             (e.g. 71_71_71_71_71_71). Only used in self_attention_layer_type == "lightconv*" or "dynamiconv*".
-        conv_usebias (bool): Whether to use bias in convolution. Only used in
+        conv_usebias (bool): 
+            Whether to use bias in convolution. Only used in
             self_attention_layer_type == "lightconv*" or "dynamiconv*".
-        linear_units(int): The number of units of position-wise feed forward.
-        num_blocks (int): The number of decoder blocks.
-        dropout_rate (float): Dropout rate.
-        positional_dropout_rate (float): Dropout rate after adding positional encoding.
-        self_attention_dropout_rate (float): Dropout rate in self-attention.
-        src_attention_dropout_rate (float): Dropout rate in source-attention.
-        input_layer (Union[str, nn.Layer]): Input layer type.
-        use_output_layer (bool): Whether to use output layer.
-        pos_enc_class (nn.Layer): Positional encoding module class.
+        linear_units(int): 
+            The number of units of position-wise feed forward.
+        num_blocks (int): 
+            The number of decoder blocks.
+        dropout_rate (float): 
+            Dropout rate.
+        positional_dropout_rate (float): 
+            Dropout rate after adding positional encoding.
+        self_attention_dropout_rate (float): 
+            Dropout rate in self-attention.
+        src_attention_dropout_rate (float): 
+            Dropout rate in source-attention.
+        input_layer (Union[str, nn.Layer]): 
+            Input layer type.
+        use_output_layer (bool): 
+            Whether to use output layer.
+        pos_enc_class (nn.Layer): 
+            Positional encoding module class.
             `PositionalEncoding `or `ScaledPositionalEncoding`
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
@@ -143,17 +161,22 @@ class Decoder(nn.Layer):
     def forward(self, tgt, tgt_mask, memory, memory_mask):
         """Forward decoder.
         Args:
-            tgt(Tensor): Input token ids, int64 (#batch, maxlen_out) if input_layer == "embed".
+            tgt(Tensor): 
+                Input token ids, int64 (#batch, maxlen_out) if input_layer == "embed".
                 In the other case, input tensor (#batch, maxlen_out, odim).
-            tgt_mask(Tensor): Input token mask (#batch, maxlen_out).
-            memory(Tensor): Encoded memory, float32 (#batch, maxlen_in, feat).
-            memory_mask(Tensor): Encoded memory mask (#batch, maxlen_in).
+            tgt_mask(Tensor): 
+                Input token mask (#batch, maxlen_out).
+            memory(Tensor): 
+                Encoded memory, float32 (#batch, maxlen_in, feat).
+            memory_mask(Tensor): 
+                Encoded memory mask (#batch, maxlen_in).
 
         Returns:
             Tensor:
                 Decoded token score before softmax (#batch, maxlen_out, odim) if use_output_layer is True. 
                 In the other case,final block outputs (#batch, maxlen_out, attention_dim).
-            Tensor: Score mask before softmax (#batch, maxlen_out).
+            Tensor: 
+                Score mask before softmax (#batch, maxlen_out).
 
         """
         x = self.embed(tgt)
@@ -169,14 +192,20 @@ class Decoder(nn.Layer):
         """Forward one step.
 
         Args:
-            tgt(Tensor): Input token ids, int64 (#batch, maxlen_out).
-            tgt_mask(Tensor): Input token mask (#batch, maxlen_out).
-            memory(Tensor): Encoded memory, float32 (#batch, maxlen_in, feat).
-            cache((List[Tensor]), optional): List of cached tensors. (Default value = None)
+            tgt(Tensor): 
+                Input token ids, int64 (#batch, maxlen_out).
+            tgt_mask(Tensor): 
+                Input token mask (#batch, maxlen_out).
+            memory(Tensor): 
+                Encoded memory, float32 (#batch, maxlen_in, feat).
+            cache((List[Tensor]), optional): 
+                List of cached tensors. (Default value = None)
 
         Returns:
-            Tensor: Output tensor (batch, maxlen_out, odim).
-            List[Tensor]: List of cache tensors of each decoder layer.
+            Tensor: 
+                Output tensor (batch, maxlen_out, odim).
+            List[Tensor]: 
+                List of cache tensors of each decoder layer.
 
         """
         x = self.embed(tgt)
@@ -219,9 +248,12 @@ class Decoder(nn.Layer):
         """Score new token batch (required).
 
         Args:
-            ys(Tensor): paddle.int64 prefix tokens (n_batch, ylen).
-            states(List[Any]): Scorer states for prefix tokens.
-            xs(Tensor): The encoder feature that generates ys (n_batch, xlen, n_feat).
+            ys(Tensor): 
+                paddle.int64 prefix tokens (n_batch, ylen).
+            states(List[Any]): 
+                Scorer states for prefix tokens.
+            xs(Tensor): 
+                The encoder feature that generates ys (n_batch, xlen, n_feat).
 
         Returns:
             tuple[Tensor, List[Any]]:

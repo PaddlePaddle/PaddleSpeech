@@ -30,8 +30,10 @@ def repeat(N, fn):
     """Repeat module N times.
 
     Args:
-        N (int): Number of repeat time.
-        fn (Callable): Function to generate module.
+        N (int): 
+            Number of repeat time.
+        fn (Callable): 
+            Function to generate module.
 
     Returns:
         MultiSequential: Repeated model instance.

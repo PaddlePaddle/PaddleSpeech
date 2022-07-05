@@ -26,9 +26,12 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     filters of cosine modulated filterbanks`_.
 
     Args:
-        taps (int): The number of filter taps.
-        cutoff_ratio (float): Cut-off frequency ratio.
-        beta (float): Beta coefficient for kaiser window.
+        taps (int): 
+            The number of filter taps.
+        cutoff_ratio (float): 
+            Cut-off frequency ratio.
+        beta (float): 
+            Beta coefficient for kaiser window.
     Returns:
         ndarray:
             Impluse response of prototype filter (taps + 1,).
@@ -66,10 +69,14 @@ class PQMF(nn.Layer):
         See dicussion in https://github.com/kan-bayashi/ParallelWaveGAN/issues/195.
 
         Args:
-            subbands (int): The number of subbands.
-            taps (int): The number of filter taps.
-            cutoff_ratio (float): Cut-off frequency ratio.
-            beta (float): Beta coefficient for kaiser window.
+            subbands (int): 
+                The number of subbands.
+            taps (int): 
+                The number of filter taps.
+            cutoff_ratio (float): 
+                Cut-off frequency ratio.
+            beta (float): 
+                Beta coefficient for kaiser window.
         """
         super().__init__()
 
@@ -103,7 +110,8 @@ class PQMF(nn.Layer):
     def analysis(self, x):
         """Analysis with PQMF.
         Args:
-            x (Tensor): Input tensor (B, 1, T).
+            x (Tensor): 
+                Input tensor (B, 1, T).
         Returns:
             Tensor: Output tensor (B, subbands, T // subbands).
         """
@@ -113,7 +121,8 @@ class PQMF(nn.Layer):
     def synthesis(self, x):
         """Synthesis with PQMF.
         Args:
-            x (Tensor): Input tensor (B, subbands, T // subbands).
+            x (Tensor): 
+                Input tensor (B, subbands, T // subbands).
         Returns:
             Tensor: Output tensor (B, 1, T).
         """

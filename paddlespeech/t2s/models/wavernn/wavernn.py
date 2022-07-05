@@ -165,19 +165,29 @@ class WaveRNN(nn.Layer):
             init_type: str="xavier_uniform", ):
         '''
         Args:
-            rnn_dims (int, optional): Hidden dims of RNN Layers.
-            fc_dims (int, optional): Dims of FC Layers.
-            bits (int, optional): bit depth of signal.
-            aux_context_window (int, optional): The context window size of the first convolution applied to the 
-                auxiliary input, by default 2
-            upsample_scales (List[int], optional): Upsample scales of the upsample network.
-            aux_channels (int, optional): Auxiliary channel of the residual blocks.
-            compute_dims (int, optional): Dims of Conv1D in MelResNet.
-            res_out_dims (int, optional): Dims of output in MelResNet.
-            res_blocks (int, optional): Number of residual blocks.
-            mode (str, optional): Output mode of the WaveRNN vocoder. 
+            rnn_dims (int, optional): 
+                Hidden dims of RNN Layers.
+            fc_dims (int, optional): 
+                Dims of FC Layers.
+            bits (int, optional): 
+                bit depth of signal.
+            aux_context_window (int, optional): 
+                The context window size of the first convolution applied to the auxiliary input, by default 2
+            upsample_scales (List[int], optional): 
+                Upsample scales of the upsample network.
+            aux_channels (int, optional): 
+                Auxiliary channel of the residual blocks.
+            compute_dims (int, optional): 
+                Dims of Conv1D in MelResNet.
+            res_out_dims (int, optional): 
+                Dims of output in MelResNet.
+            res_blocks (int, optional): 
+                Number of residual blocks.
+            mode (str, optional): 
+                Output mode of the WaveRNN vocoder. 
                 `MOL` for Mixture of Logistic Distribution, and `RAW` for quantized bits as the model's output.
-            init_type (str): How to initialize parameters.
+            init_type (str): 
+                How to initialize parameters.
         '''
         super().__init__()
         self.mode = mode
@@ -226,8 +236,10 @@ class WaveRNN(nn.Layer):
     def forward(self, x, c):
         '''
         Args:
-            x (Tensor): wav sequence, [B, T]
-            c (Tensor): mel spectrogram [B, C_aux, T']
+            x (Tensor): 
+                wav sequence, [B, T]
+            c (Tensor): 
+                mel spectrogram [B, C_aux, T']
 
             T = (T' - 2 * aux_context_window ) * hop_length
         Returns:
@@ -280,10 +292,14 @@ class WaveRNN(nn.Layer):
                  gen_display: bool=False):
         """
         Args:
-            c(Tensor): input mels, (T', C_aux)
-            batched(bool): generate in batch or not
-            target(int): target number of samples to be generated in each batch entry
-            overlap(int): number of samples for crossfading between batches
+            c(Tensor): 
+                input mels, (T', C_aux)
+            batched(bool): 
+                generate in batch or not
+            target(int): 
+                target number of samples to be generated in each batch entry
+            overlap(int): 
+                number of samples for crossfading between batches
             mu_law(bool)
         Returns: 
             wav sequence: Output (T' * prod(upsample_scales), out_channels, C_out).
@@ -404,7 +420,8 @@ class WaveRNN(nn.Layer):
     def pad_tensor(self, x, pad, side='both'):
         '''
         Args:
-            x(Tensor): mel, [1, n_frames, 80]
+            x(Tensor): 
+                mel, [1, n_frames, 80]
             pad(int): 
             side(str, optional):  (Default value = 'both')
 
@@ -428,12 +445,15 @@ class WaveRNN(nn.Layer):
         Overlap will be used for crossfading in xfade_and_unfold()
 
         Args:
-            x(Tensor): Upsampled conditioning features. mels or aux
+            x(Tensor): 
+                Upsampled conditioning features. mels or aux
                 shape=(1, T, features)
                 mels: [1, T, 80]
                 aux: [1, T, 128]
-            target(int): Target timesteps for each index of batch
-            overlap(int): Timesteps for both xfade and rnn warmup
+            target(int): 
+                Target timesteps for each index of batch
+            overlap(int): 
+                Timesteps for both xfade and rnn warmup
 
         Returns:
             Tensor: 

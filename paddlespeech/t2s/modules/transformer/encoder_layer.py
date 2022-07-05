@@ -21,14 +21,20 @@ class EncoderLayer(nn.Layer):
     """Encoder layer module.
 
     Args:
-        size (int): Input dimension.
-        self_attn (nn.Layer): Self-attention module instance.
+        size (int): 
+            Input dimension.
+        self_attn (nn.Layer): 
+            Self-attention module instance.
             `MultiHeadedAttention`  instance can be used as the argument.
-        feed_forward (nn.Layer): Feed-forward module instance.
+        feed_forward (nn.Layer): 
+            Feed-forward module instance.
             `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance can be used as the argument.
-        dropout_rate (float): Dropout rate.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        dropout_rate (float): 
+            Dropout rate.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
@@ -59,13 +65,18 @@ class EncoderLayer(nn.Layer):
         """Compute encoded features.
 
         Args:
-            x(Tensor): Input tensor (#batch, time, size).
-            mask(Tensor): Mask tensor for the input (#batch, time).
-            cache(Tensor, optional): Cache tensor of the input (#batch, time - 1, size). 
+            x(Tensor): 
+                Input tensor (#batch, time, size).
+            mask(Tensor): 
+                Mask tensor for the input (#batch, time).
+            cache(Tensor, optional): 
+                Cache tensor of the input (#batch, time - 1, size). 
 
         Returns:
-            Tensor: Output tensor (#batch, time, size).
-            Tensor: Mask tensor (#batch, time).
+            Tensor: 
+                Output tensor (#batch, time, size).
+            Tensor: 
+                Mask tensor (#batch, time).
         """
         residual = x
         if self.normalize_before:

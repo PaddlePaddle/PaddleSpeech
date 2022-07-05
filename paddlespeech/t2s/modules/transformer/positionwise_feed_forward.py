@@ -21,9 +21,12 @@ class PositionwiseFeedForward(nn.Layer):
     """Positionwise feed forward layer.
 
     Args:
-        idim (int): Input dimenstion.
-        hidden_units (int): The number of hidden units.
-        dropout_rate (float): Dropout rate.
+        idim (int): 
+            Input dimenstion.
+        hidden_units (int): 
+            The number of hidden units.
+        dropout_rate (float): 
+            Dropout rate.
     """
 
     def __init__(self,

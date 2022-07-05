@@ -24,16 +24,23 @@ class DecoderLayer(nn.Layer):
 
  
     Args:
-        size (int): Input dimension.
-        self_attn (nn.Layer): Self-attention module instance.
+        size (int): 
+            Input dimension.
+        self_attn (nn.Layer): 
+            Self-attention module instance.
             `MultiHeadedAttention` instance can be used as the argument.
-        src_attn (nn.Layer): Self-attention module instance.
+        src_attn (nn.Layer): 
+            Self-attention module instance.
             `MultiHeadedAttention` instance can be used as the argument.
-        feed_forward (nn.Layer): Feed-forward module instance.
+        feed_forward (nn.Layer): 
+            Feed-forward module instance.
             `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance can be used as the argument.
-        dropout_rate (float): Dropout rate.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        dropout_rate (float):
+            Dropout rate.
+        normalize_before (bool):
+             Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
@@ -69,11 +76,16 @@ class DecoderLayer(nn.Layer):
         """Compute decoded features.
 
         Args:
-            tgt(Tensor): Input tensor (#batch, maxlen_out, size).
-            tgt_mask(Tensor): Mask for input tensor (#batch, maxlen_out).
-            memory(Tensor): Encoded memory, float32 (#batch, maxlen_in, size).
-            memory_mask(Tensor): Encoded memory mask (#batch, maxlen_in).
-            cache(List[Tensor], optional): List of cached tensors.
+            tgt(Tensor): 
+                Input tensor (#batch, maxlen_out, size).
+            tgt_mask(Tensor): 
+                Mask for input tensor (#batch, maxlen_out).
+            memory(Tensor): 
+                Encoded memory, float32 (#batch, maxlen_in, size).
+            memory_mask(Tensor): 
+                Encoded memory mask (#batch, maxlen_in).
+            cache(List[Tensor], optional): 
+                List of cached tensors.
                 Each tensor shape should be (#batch, maxlen_out - 1, size). (Default value = None)
         Returns:
             Tensor

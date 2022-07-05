@@ -25,8 +25,10 @@ def pad_list(xs, pad_value):
     """Perform padding for the list of tensors.
 
     Args:
-        xs (List[Tensor]): List of Tensors [(T_1, `*`), (T_2, `*`), ..., (T_B, `*`)].
-        pad_value (float): Value for padding.
+        xs (List[Tensor]): 
+            List of Tensors [(T_1, `*`), (T_2, `*`), ..., (T_B, `*`)].
+        pad_value (float): 
+            Value for padding.
 
     Returns:
         Tensor: Padded tensor (B, Tmax, `*`).
@@ -55,10 +57,13 @@ def make_pad_mask(lengths, xs=None, length_dim=-1):
     """Make mask tensor containing indices of padded part.
 
     Args:
-        lengths (Tensor(int64)): Batch of lengths (B,).
-        xs (Tensor, optional): The reference tensor.
+        lengths (Tensor(int64)): 
+            Batch of lengths (B,).
+        xs (Tensor, optional): 
+            The reference tensor.
             If set, masks will be the same shape as this tensor.
-        length_dim (int, optional): Dimension indicator of the above tensor.
+        length_dim (int, optional): 
+            Dimension indicator of the above tensor.
             See the example.
 
     Returns:
@@ -166,14 +171,18 @@ def make_non_pad_mask(lengths, xs=None, length_dim=-1):
     """Make mask tensor containing indices of non-padded part.
 
     Args:
-        lengths (Tensor(int64) or List): Batch of lengths (B,).
-        xs (Tensor, optional): The reference tensor.
+        lengths (Tensor(int64) or List): 
+            Batch of lengths (B,).
+        xs (Tensor, optional): 
+            The reference tensor.
             If set, masks will be the same shape as this tensor.
-        length_dim (int, optional): Dimension indicator of the above tensor.
+        length_dim (int, optional): 
+            Dimension indicator of the above tensor.
             See the example.
 
     Returns:
-        Tensor(bool): mask tensor containing indices of padded part bool.
+        Tensor(bool): 
+            mask tensor containing indices of padded part bool.
 
     Examples:
         With only lengths.
@@ -257,8 +266,10 @@ def initialize(model: nn.Layer, init: str):
     Custom initialization routines can be implemented into submodules
 
     Args:
-        model (nn.Layer): Target.
-        init (str): Method of initialization.
+        model (nn.Layer): 
+            Target.
+        init (str):
+            Method of initialization.
     """
     assert check_argument_types()
 
@@ -285,12 +296,17 @@ def get_random_segments(
         segment_size: int, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
     """Get random segments.
     Args:
-        x (Tensor): Input tensor (B, C, T).
-        x_lengths (Tensor): Length tensor (B,).
-        segment_size (int): Segment size.
+        x (Tensor): 
+            Input tensor (B, C, T).
+        x_lengths (Tensor): 
+            Length tensor (B,).
+        segment_size (int): 
+            Segment size.
     Returns:
-        Tensor: Segmented tensor (B, C, segment_size).
-        Tensor: Start index tensor (B,).
+        Tensor: 
+            Segmented tensor (B, C, segment_size).
+        Tensor: 
+            Start index tensor (B,).
     """
     b, c, t = paddle.shape(x)
     max_start_idx = x_lengths - segment_size
@@ -306,9 +322,12 @@ def get_segments(
         segment_size: int, ) -> paddle.Tensor:
     """Get segments.
     Args:
-        x (Tensor): Input tensor (B, C, T).
-        start_idxs (Tensor): Start index tensor (B,).
-        segment_size (int): Segment size.
+        x (Tensor): 
+            Input tensor (B, C, T).
+        start_idxs (Tensor): 
+            Start index tensor (B,).
+        segment_size (int): 
+            Segment size.
     Returns:
         Tensor: Segmented tensor (B, C, segment_size).
     """
@@ -353,14 +372,20 @@ def phones_masking(xs_pad: paddle.Tensor,
                    span_bdy: paddle.Tensor=None):
     '''
     Args:
-        xs_pad (paddle.Tensor): input speech (B, Tmax, D).
-        src_mask (paddle.Tensor): mask of speech (B, 1, Tmax).
-        align_start (paddle.Tensor): frame level phone alignment start (B, Tmax2).
-        align_end (paddle.Tensor): frame level phone alignment end (B, Tmax2).
-        align_start_lens (paddle.Tensor): length of align_start (B, ).
+        xs_pad (paddle.Tensor): 
+            input speech (B, Tmax, D).
+        src_mask (paddle.Tensor): 
+            mask of speech (B, 1, Tmax).
+        align_start (paddle.Tensor): 
+            frame level phone alignment start (B, Tmax2).
+        align_end (paddle.Tensor): 
+            frame level phone alignment end (B, Tmax2).
+        align_start_lens (paddle.Tensor): 
+            length of align_start (B, ).
         mlm_prob (float):
         mean_phn_span (int):
-        span_bdy (paddle.Tensor): masked mel boundary of input speech (B, 2).
+        span_bdy (paddle.Tensor): 
+            masked mel boundary of input speech (B, 2).
     Returns:
         paddle.Tensor[bool]: masked position of input speech (B, Tmax).
     '''
@@ -416,19 +441,29 @@ def phones_text_masking(xs_pad: paddle.Tensor,
                         span_bdy: paddle.Tensor=None):
     '''
     Args:
-        xs_pad (paddle.Tensor): input speech (B, Tmax, D).
-        src_mask (paddle.Tensor): mask of speech (B, 1, Tmax).
-        text_pad (paddle.Tensor): input text (B, Tmax2).
-        text_mask (paddle.Tensor): mask of text (B, 1, Tmax2).
-        align_start (paddle.Tensor): frame level phone alignment start (B, Tmax2).
-        align_end (paddle.Tensor): frame level phone alignment end (B, Tmax2).
-        align_start_lens (paddle.Tensor): length of align_start (B, ).
+        xs_pad (paddle.Tensor): 
+            input speech (B, Tmax, D).
+        src_mask (paddle.Tensor): 
+            mask of speech (B, 1, Tmax).
+        text_pad (paddle.Tensor): 
+            input text (B, Tmax2).
+        text_mask (paddle.Tensor):
+            mask of text (B, 1, Tmax2).
+        align_start (paddle.Tensor): 
+            frame level phone alignment start (B, Tmax2).
+        align_end (paddle.Tensor): 
+            frame level phone alignment end (B, Tmax2).
+        align_start_lens (paddle.Tensor): 
+            length of align_start (B, ).
         mlm_prob (float):
         mean_phn_span (int):
-        span_bdy (paddle.Tensor): masked mel boundary of input speech (B, 2).
+        span_bdy (paddle.Tensor): 
+            masked mel boundary of input speech (B, 2).
     Returns:
-        paddle.Tensor[bool]: masked position of input speech (B, Tmax).
-        paddle.Tensor[bool]: masked position of input text (B, Tmax2).
+        paddle.Tensor[bool]: 
+            masked position of input speech (B, Tmax).
+        paddle.Tensor[bool]: 
+            masked position of input text (B, Tmax2).
     '''
     bz, sent_len, _ = paddle.shape(xs_pad)
     masked_pos = paddle.zeros((bz, sent_len))
@@ -488,12 +523,18 @@ def get_seg_pos(speech_pad: paddle.Tensor,
                 seg_emb: bool=False):
     '''
     Args:
-        speech_pad (paddle.Tensor): input speech (B, Tmax, D).
-        text_pad (paddle.Tensor): input text (B, Tmax2).
-        align_start (paddle.Tensor): frame level phone alignment start (B, Tmax2).
-        align_end (paddle.Tensor): frame level phone alignment end (B, Tmax2).
-        align_start_lens (paddle.Tensor): length of align_start (B, ).
-        seg_emb (bool): whether to use segment embedding.
+        speech_pad (paddle.Tensor): 
+            input speech (B, Tmax, D).
+        text_pad (paddle.Tensor): 
+            input text (B, Tmax2).
+        align_start (paddle.Tensor): 
+            frame level phone alignment start (B, Tmax2).
+        align_end (paddle.Tensor): 
+            frame level phone alignment end (B, Tmax2).
+        align_start_lens (paddle.Tensor): 
+            length of align_start (B, ).
+        seg_emb (bool): 
+            whether to use segment embedding.
     Returns:
         paddle.Tensor[int]: n-th phone of each mel, 0<=n<=Tmax2 (B, Tmax).
             eg: 
@@ -579,8 +620,10 @@ def random_spans_noise_mask(length: int,
     def _random_seg(num_items, num_segs):
         """Partition a sequence of items randomly into non-empty segments.
         Args:
-            num_items: an integer scalar > 0
-            num_segs: an integer scalar in [1, num_items]
+            num_items: 
+                an integer scalar > 0
+            num_segs: 
+                an integer scalar in [1, num_items]
         Returns:
             a Tensor with shape [num_segs] containing positive integers that add
             up to num_items

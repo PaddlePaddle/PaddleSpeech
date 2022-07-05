@@ -19,8 +19,10 @@ from paddle import nn
 class LayerNorm(nn.LayerNorm):
     """Layer normalization module.
     Args:
-        nout (int): Output dim size.
-        dim (int): Dimension to be normalized.
+        nout (int): 
+            Output dim size.
+        dim (int): 
+            Dimension to be normalized.
     """
 
     def __init__(self, nout, dim=-1):
@@ -32,7 +34,8 @@ class LayerNorm(nn.LayerNorm):
         """Apply layer normalization.
 
         Args:
-            x (Tensor):Input tensor.
+            x (Tensor):
+                Input tensor.
 
         Returns: 
             Tensor: Normalized tensor.

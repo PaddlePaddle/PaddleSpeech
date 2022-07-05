@@ -65,7 +65,7 @@ class TTSServerExecutor(TTSExecutor):
         Init model and other resources from a specific path.
         """
         if hasattr(self, 'am_predictor') and hasattr(self, 'voc_predictor'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
         # am
         if am_model is None or am_params is None or phones_dict is None:
@@ -91,16 +91,16 @@ class TTSServerExecutor(TTSExecutor):
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
             self.am_sample_rate = self.task_resource.res_dict['sample_rate']
 
-            logger.info(self.am_res_path)
-            logger.info(self.am_model)
-            logger.info(self.am_params)
+            logger.debug(self.am_res_path)
+            logger.debug(self.am_model)
+            logger.debug(self.am_params)
         else:
             self.am_model = os.path.abspath(am_model)
             self.am_params = os.path.abspath(am_params)
             self.phones_dict = os.path.abspath(phones_dict)
             self.am_sample_rate = am_sample_rate
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_model))
-        logger.info("self.phones_dict: {}".format(self.phones_dict))
+        logger.debug("self.phones_dict: {}".format(self.phones_dict))
 
         # for speedyspeech
         self.tones_dict = None
@@ -139,9 +139,9 @@ class TTSServerExecutor(TTSExecutor):
                 self.voc_res_path, self.task_resource.voc_res_dict['params'])
             self.voc_sample_rate = self.task_resource.voc_res_dict[
                 'sample_rate']
-            logger.info(self.voc_res_path)
-            logger.info(self.voc_model)
-            logger.info(self.voc_params)
+            logger.debug(self.voc_res_path)
+            logger.debug(self.voc_model)
+            logger.debug(self.voc_params)
         else:
             self.voc_model = os.path.abspath(voc_model)
             self.voc_params = os.path.abspath(voc_params)
@@ -156,21 +156,21 @@ class TTSServerExecutor(TTSExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
-        logger.info("vocab_size: {}".format(vocab_size))
+        logger.debug("vocab_size: {}".format(vocab_size))
 
         tone_size = None
         if self.tones_dict:
             with open(self.tones_dict, "r") as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
-            logger.info("tone_size: {}".format(tone_size))
+            logger.debug("tone_size: {}".format(tone_size))
 
         spk_num = None
         if self.speaker_dict:
             with open(self.speaker_dict, 'rt') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
-            logger.info("spk_num: {}".format(spk_num))
+            logger.debug("spk_num: {}".format(spk_num))
 
         # frontend
         if lang == 'zh':
@@ -180,7 +180,7 @@ class TTSServerExecutor(TTSExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        logger.info("frontend done!")
+        logger.debug("frontend done!")
 
         # Create am predictor
         self.am_predictor_conf = am_predictor_conf
@@ -188,7 +188,7 @@ class TTSServerExecutor(TTSExecutor):
             model_file=self.am_model,
             params_file=self.am_params,
             predictor_conf=self.am_predictor_conf)
-        logger.info("Create AM predictor successfully.")
+        logger.debug("Create AM predictor successfully.")
 
         # Create voc predictor
         self.voc_predictor_conf = voc_predictor_conf
@@ -196,7 +196,7 @@ class TTSServerExecutor(TTSExecutor):
             model_file=self.voc_model,
             params_file=self.voc_params,
             predictor_conf=self.voc_predictor_conf)
-        logger.info("Create Vocoder predictor successfully.")
+        logger.debug("Create Vocoder predictor successfully.")
 
     @paddle.no_grad()
     def infer(self,
@@ -328,7 +328,8 @@ class TTSEngine(BaseEngine):
             logger.error(e)
             return False
 
-        logger.info("Initialize TTS server engine successfully.")
+        logger.info("Initialize TTS server engine successfully on device: %s." %
+                    (self.device))
         return True
 
 
@@ -340,7 +341,7 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             tts_engine (TTSEngine): The TTS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTTSConnectionHandler to process the tts request")
 
         self.tts_engine = tts_engine
@@ -378,23 +379,23 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         if target_fs == 0 or target_fs > original_fs:
             target_fs = original_fs
             wav_tar_fs = wav
-            logger.info(
+            logger.debug(
                 "The sample rate of synthesized audio is the same as model, which is {}Hz".
                 format(original_fs))
         else:
             wav_tar_fs = librosa.resample(
                 np.squeeze(wav), original_fs, target_fs)
-            logger.info(
+            logger.debug(
                 "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
                 format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
-        logger.info("Transform the volume of the audio successfully.")
+        logger.debug("Transform the volume of the audio successfully.")
 
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
-            logger.info("Transform the speed of the audio successfully.")
+            logger.debug("Transform the speed of the audio successfully.")
         except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
@@ -411,7 +412,7 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         wavfile.write(buf, target_fs, wav_speed)
         base64_bytes = base64.b64encode(buf.read())
         wav_base64 = base64_bytes.decode('utf-8')
-        logger.info("Audio to string successfully.")
+        logger.debug("Audio to string successfully.")
 
         # save audio
         if audio_path is not None:
@@ -499,15 +500,15 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             logger.error(e)
             sys.exit(-1)
 
-        logger.info("AM model: {}".format(self.config.am))
-        logger.info("Vocoder model: {}".format(self.config.voc))
-        logger.info("Language: {}".format(lang))
+        logger.debug("AM model: {}".format(self.config.am))
+        logger.debug("Vocoder model: {}".format(self.config.voc))
+        logger.debug("Language: {}".format(lang))
         logger.info("tts engine type: python")
 
         logger.info("audio duration: {}".format(duration))
-        logger.info("frontend inference time: {}".format(self.frontend_time))
-        logger.info("AM inference time: {}".format(self.am_time))
-        logger.info("Vocoder inference time: {}".format(self.voc_time))
+        logger.debug("frontend inference time: {}".format(self.frontend_time))
+        logger.debug("AM inference time: {}".format(self.am_time))
+        logger.debug("Vocoder inference time: {}".format(self.voc_time))
         logger.info("total inference time: {}".format(infer_time))
         logger.info(
             "postprocess (change speed, volume, target sample rate) time: {}".
@@ -515,6 +516,6 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         logger.info("total generate audio time: {}".format(infer_time +
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
-        logger.info("device: {}".format(self.tts_engine.device))
+        logger.debug("device: {}".format(self.tts_engine.device))
 
         return lang, target_sample_rate, duration, wav_base64

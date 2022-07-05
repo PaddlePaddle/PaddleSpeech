@@ -13,6 +13,8 @@
 import base64
 import math
 
+from paddlespeech.cli.log import logger
+
 
 def wav2base64(wav_file: str):
     """
@@ -61,7 +63,7 @@ def get_chunks(data, block_size, pad_size, step):
     elif step == "voc":
         data_len = data.shape[0]
     else:
-        print("Please set correct type to get chunks, am or voc")
+        logger.error("Please set correct type to get chunks, am or voc")
 
     chunks = []
     n = math.ceil(data_len / block_size)
@@ -73,7 +75,7 @@ def get_chunks(data, block_size, pad_size, step):
         elif step == "voc":
             chunks.append(data[start:end, :])
         else:
-            print("Please set correct type to get chunks, am or voc")
+            logger.error("Please set correct type to get chunks, am or voc")
     return chunks
 
 

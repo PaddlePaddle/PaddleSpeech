@@ -102,7 +102,7 @@ class TTSServerExecutor(TTSExecutor):
         Init model and other resources from a specific path.
         """
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
         # am model info
         if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
@@ -128,17 +128,15 @@ class TTSServerExecutor(TTSExecutor):
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
-            print("self.phones_dict:", self.phones_dict)
-            logger.info(self.am_res_path)
-            logger.info(self.am_config)
-            logger.info(self.am_ckpt)
+            logger.debug(self.am_res_path)
+            logger.debug(self.am_config)
+            logger.debug(self.am_ckpt)
         else:
             self.am_config = os.path.abspath(am_config)
             self.am_ckpt = os.path.abspath(am_ckpt)
             self.am_stat = os.path.abspath(am_stat)
             self.phones_dict = os.path.abspath(phones_dict)
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_config))
-        print("self.phones_dict:", self.phones_dict)
 
         self.tones_dict = None
         self.speaker_dict = None
@@ -165,9 +163,9 @@ class TTSServerExecutor(TTSExecutor):
             self.voc_stat = os.path.join(
                 self.voc_res_path,
                 self.task_resource.voc_res_dict['speech_stats'])
-            logger.info(self.voc_res_path)
-            logger.info(self.voc_config)
-            logger.info(self.voc_ckpt)
+            logger.debug(self.voc_res_path)
+            logger.debug(self.voc_config)
+            logger.debug(self.voc_ckpt)
         else:
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)
@@ -184,7 +182,6 @@ class TTSServerExecutor(TTSExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         self.vocab_size = len(phn_id)
-        print("vocab_size:", self.vocab_size)
 
         # frontend
         if lang == 'zh':
@@ -194,7 +191,6 @@ class TTSServerExecutor(TTSExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        print("frontend done!")
 
         # am infer info
         self.am_name = am[:am.rindex('_')]
@@ -209,7 +205,6 @@ class TTSServerExecutor(TTSExecutor):
                 self.am_name + '_inference')
             self.am_inference = am_inference_class(am_normalizer, am)
             self.am_inference.eval()
-        print("acoustic model done!")
 
         # voc infer info
         self.voc_name = voc[:voc.rindex('_')]
@@ -220,7 +215,6 @@ class TTSServerExecutor(TTSExecutor):
                                                                  '_inference')
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
-        print("voc done!")
 
 
 class TTSEngine(BaseEngine):
@@ -309,7 +303,7 @@ class PaddleTTSConnectionHandler:
             tts_engine (TTSEngine): The TTS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTTSConnectionHandler to process the tts request")
 
         self.tts_engine = tts_engine
@@ -369,7 +363,7 @@ class PaddleTTSConnectionHandler:
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
-            print("lang should in {'zh', 'en'}!")
+            logger.error("lang should in {'zh', 'en'}!")
         frontend_et = time.time()
         self.frontend_time = frontend_et - frontend_st
 

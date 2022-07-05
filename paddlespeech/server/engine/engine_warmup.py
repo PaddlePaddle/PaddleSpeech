@@ -45,7 +45,7 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
             logger.error("Please check tte engine type.")
 
         try:
-            logger.info("Start to warm up tts engine.")
+            logger.debug("Start to warm up tts engine.")
             for i in range(warm_up_time):
                 connection_handler = PaddleTTSConnectionHandler(tts_engine)
                 if flag_online:
@@ -53,7 +53,7 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
                             text=sentence,
                             lang=tts_engine.lang,
                             am=tts_engine.config.am):
-                        logger.info(
+                        logger.debug(
                             f"The first response time of the {i} warm up: {connection_handler.first_response_time} s"
                         )
                         break
@@ -62,7 +62,7 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
                     st = time.time()
                     connection_handler.infer(text=sentence)
                     et = time.time()
-                    logger.info(
+                    logger.debug(
                         f"The response time of the {i} warm up: {et - st} s")
         except Exception as e:
             logger.error("Failed to warm up on tts engine.")

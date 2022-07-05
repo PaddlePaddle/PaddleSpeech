@@ -382,7 +382,7 @@ class TTSExecutor(BaseExecutor):
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
-            print("lang should in {'zh', 'en'}!")
+            logger.error("lang should in {'zh', 'en'}!")
         self.frontend_time = time.time() - frontend_st
 
         self.am_time = 0

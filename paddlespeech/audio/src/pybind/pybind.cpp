@@ -19,4 +19,5 @@ PYBIND11_MODULE(_paddleaudio, m) {
     m.def("ComputeFbankStreaming",
           &paddleaudio::kaldi::ComputeFbankStreaming,
           "compute fbank streaming");
+    m.def("ComputeKaldiPitch", &paddleaudio::kaldi::ComputeKaldiPitch, "compute kaldi pitch");
 }

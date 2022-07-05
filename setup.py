@@ -76,7 +76,7 @@ server = [
     "fastapi",
     "uvicorn",
     "pattern_singleton",
-    "websockets",
+    "websockets" 
 ]
 
 requirements = {

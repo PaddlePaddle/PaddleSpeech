@@ -25,7 +25,7 @@ from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_dict
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
+from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.scheduler import LRSchedulerFactory
@@ -104,7 +104,8 @@ class U2Trainer(Trainer):
     @paddle.no_grad()
     def valid(self):
         self.model.eval()
-        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
@@ -131,7 +132,8 @@ class U2Trainer(Trainer):
                 msg = f"Valid: Rank: {dist.get_rank()}, "
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
-                msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
+                if not self.use_streamdata:
+                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -150,8 +152,8 @@ class U2Trainer(Trainer):
         # paddle.jit.save(script_model, script_model_path)
 
         self.before_train()
-
-        logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -162,7 +164,8 @@ class U2Trainer(Trainer):
                         msg = "Train: Rank: {}, ".format(dist.get_rank())
                         msg += "epoch: {}, ".format(self.epoch)
                         msg += "step: {}, ".format(self.iteration)
-                        msg += "batch : {}/{}, ".format(batch_index + 1,
+                        if not self.use_streamdata:
+                            msg += "batch : {}/{}, ".format(batch_index + 1,
                                                         len(self.train_loader))
                         msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                         msg += "data time: {:>.3f}s, ".format(dataload_time)
@@ -198,87 +201,23 @@ class U2Trainer(Trainer):
             self.new_epoch()
 
     def setup_dataloader(self):
-        config = self.config.clone()
-        # train/valid dataset, return token ids
-        self.train_loader = BatchDataLoader(
-            json_file=config.train_manifest,
-            train_mode=True,
-            sortagrad=False,
-            batch_size=config.batch_size,
-            maxlen_in=float('inf'),
-            maxlen_out=float('inf'),
-            minibatches=0,
-            mini_batch_size=self.args.ngpu,
-            batch_count='auto',
-            batch_bins=0,
-            batch_frames_in=0,
-            batch_frames_out=0,
-            batch_frames_inout=0,
-            preprocess_conf=config.preprocess_config,
-            n_iter_processes=config.num_workers,
-            subsampling_factor=1,
-            num_encs=1)
+        self.use_streamdata = config.get("use_stream_data", False)
+        if self.train:
+            config = self.config.clone()
+            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
+            config = self.config.clone()
+            config['preprocess_config'] = None
+            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
+            logger.info("Setup train/valid Dataloader!")
+        else:
+            config = self.config.clone()
+            config['preprocess_config'] = None
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
+            config = self.config.clone()
+            config['preprocess_config'] = None
+            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
+            logger.info("Setup test/align Dataloader!")
 
-        self.valid_loader = BatchDataLoader(
-            json_file=config.dev_manifest,
-            train_mode=False,
-            sortagrad=False,
-            batch_size=config.batch_size,
-            maxlen_in=float('inf'),
-            maxlen_out=float('inf'),
-            minibatches=0,
-            mini_batch_size=self.args.ngpu,
-            batch_count='auto',
-            batch_bins=0,
-            batch_frames_in=0,
-            batch_frames_out=0,
-            batch_frames_inout=0,
-            preprocess_conf=None,
-            n_iter_processes=config.num_workers,
-            subsampling_factor=1,
-            num_encs=1)
-
-        decode_batch_size = config.get('decode', dict()).get(
-            'decode_batch_size', 1)
-        # test dataset, return raw text
-        self.test_loader = BatchDataLoader(
-            json_file=config.test_manifest,
-            train_mode=False,
-            sortagrad=False,
-            batch_size=decode_batch_size,
-            maxlen_in=float('inf'),
-            maxlen_out=float('inf'),
-            minibatches=0,
-            mini_batch_size=1,
-            batch_count='auto',
-            batch_bins=0,
-            batch_frames_in=0,
-            batch_frames_out=0,
-            batch_frames_inout=0,
-            preprocess_conf=None,
-            n_iter_processes=1,
-            subsampling_factor=1,
-            num_encs=1)
-
-        self.align_loader = BatchDataLoader(
-            json_file=config.test_manifest,
-            train_mode=False,
-            sortagrad=False,
-            batch_size=decode_batch_size,
-            maxlen_in=float('inf'),
-            maxlen_out=float('inf'),
-            minibatches=0,
-            mini_batch_size=1,
-            batch_count='auto',
-            batch_bins=0,
-            batch_frames_in=0,
-            batch_frames_out=0,
-            batch_frames_inout=0,
-            preprocess_conf=None,
-            n_iter_processes=1,
-            subsampling_factor=1,
-            num_encs=1)
-        logger.info("Setup train/valid/test/align Dataloader!")
 
     def setup_model(self):
         config = self.config
@@ -406,7 +345,8 @@ class U2Tester(U2Trainer):
     def test(self):
         assert self.args.result_file
         self.model.eval()
-        logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
         stride_ms = self.config.stride_ms
         error_rate_type = None

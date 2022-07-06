@@ -22,32 +22,32 @@ from inspect import signature
 
 import yaml
 
-from paddlespeech.s2t.utils.dynamic_import import dynamic_import
+from ..utils.dynamic_import import dynamic_import
 
 import_alias = dict(
-    identity="paddlespeech.s2t.transform.transform_interface:Identity",
-    time_warp="paddlespeech.s2t.transform.spec_augment:TimeWarp",
-    time_mask="paddlespeech.s2t.transform.spec_augment:TimeMask",
-    freq_mask="paddlespeech.s2t.transform.spec_augment:FreqMask",
-    spec_augment="paddlespeech.s2t.transform.spec_augment:SpecAugment",
-    speed_perturbation="paddlespeech.s2t.transform.perturb:SpeedPerturbation",
-    speed_perturbation_sox="paddlespeech.s2t.transform.perturb:SpeedPerturbationSox",
-    volume_perturbation="paddlespeech.s2t.transform.perturb:VolumePerturbation",
-    noise_injection="paddlespeech.s2t.transform.perturb:NoiseInjection",
-    bandpass_perturbation="paddlespeech.s2t.transform.perturb:BandpassPerturbation",
-    rir_convolve="paddlespeech.s2t.transform.perturb:RIRConvolve",
-    delta="paddlespeech.s2t.transform.add_deltas:AddDeltas",
-    cmvn="paddlespeech.s2t.transform.cmvn:CMVN",
-    utterance_cmvn="paddlespeech.s2t.transform.cmvn:UtteranceCMVN",
-    fbank="paddlespeech.s2t.transform.spectrogram:LogMelSpectrogram",
-    spectrogram="paddlespeech.s2t.transform.spectrogram:Spectrogram",
-    stft="paddlespeech.s2t.transform.spectrogram:Stft",
-    istft="paddlespeech.s2t.transform.spectrogram:IStft",
-    stft2fbank="paddlespeech.s2t.transform.spectrogram:Stft2LogMelSpectrogram",
-    wpe="paddlespeech.s2t.transform.wpe:WPE",
-    channel_selector="paddlespeech.s2t.transform.channel_selector:ChannelSelector",
-    fbank_kaldi="paddlespeech.s2t.transform.spectrogram:LogMelSpectrogramKaldi",
-    cmvn_json="paddlespeech.s2t.transform.cmvn:GlobalCMVN")
+    identity="paddlespeech.audio.transform.transform_interface:Identity",
+    time_warp="paddlespeech.audio.transform.spec_augment:TimeWarp",
+    time_mask="paddlespeech.audio.transform.spec_augment:TimeMask",
+    freq_mask="paddlespeech.audio.transform.spec_augment:FreqMask",
+    spec_augment="paddlespeech.audio.transform.spec_augment:SpecAugment",
+    speed_perturbation="paddlespeech.audio.transform.perturb:SpeedPerturbation",
+    speed_perturbation_sox="paddlespeech.audio.transform.perturb:SpeedPerturbationSox",
+    volume_perturbation="paddlespeech.audio.transform.perturb:VolumePerturbation",
+    noise_injection="paddlespeech.audio.transform.perturb:NoiseInjection",
+    bandpass_perturbation="paddlespeech.audio.transform.perturb:BandpassPerturbation",
+    rir_convolve="paddlespeech.audio.transform.perturb:RIRConvolve",
+    delta="paddlespeech.audio.transform.add_deltas:AddDeltas",
+    cmvn="paddlespeech.audio.transform.cmvn:CMVN",
+    utterance_cmvn="paddlespeech.audio.transform.cmvn:UtteranceCMVN",
+    fbank="paddlespeech.audio.transform.spectrogram:LogMelSpectrogram",
+    spectrogram="paddlespeech.audio.transform.spectrogram:Spectrogram",
+    stft="paddlespeech.audio.transform.spectrogram:Stft",
+    istft="paddlespeech.audio.transform.spectrogram:IStft",
+    stft2fbank="paddlespeech.audio.transform.spectrogram:Stft2LogMelSpectrogram",
+    wpe="paddlespeech.audio.transform.wpe:WPE",
+    channel_selector="paddlespeech.audio.transform.channel_selector:ChannelSelector",
+    fbank_kaldi="paddlespeech.audio.transform.spectrogram:LogMelSpectrogramKaldi",
+    cmvn_json="paddlespeech.audio.transform.cmvn:GlobalCMVN")
 
 
 class Transformation():

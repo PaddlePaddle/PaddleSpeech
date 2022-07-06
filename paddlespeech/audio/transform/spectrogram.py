@@ -17,7 +17,7 @@ import numpy as np
 import paddle
 from python_speech_features import logfbank
 
-import paddlespeech.audio.compliance.kaldi as kaldi
+from ..compliance import kaldi
 
 
 def stft(x,

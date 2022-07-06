@@ -23,7 +23,7 @@ import paddle
 from paddle import distributed as dist
 from paddle import inference
 
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.audio.text.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.models.ds2 import DeepSpeech2InferModel
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model

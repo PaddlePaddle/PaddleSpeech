@@ -14,8 +14,8 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 import inspect
 
-from paddlespeech.s2t.transform.transform_interface import TransformInterface
-from paddlespeech.s2t.utils.check_kwargs import check_kwargs
+from paddlespeech.audio.transform.transform_interface import TransformInterface
+from paddlespeech.audio.utils.check_kwargs import check_kwargs
 
 
 class FuncTrans(TransformInterface):

@@ -17,7 +17,7 @@ import random
 import numpy
 from PIL import Image
 
-from paddlespeech.s2t.transform.functional import FuncTrans
+from .functional import FuncTrans
 
 
 def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):

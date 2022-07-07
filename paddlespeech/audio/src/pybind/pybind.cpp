@@ -13,11 +13,6 @@ PYBIND11_MODULE(_paddleaudio, m) {
           &paddleaudio::sox_io::get_info_fileobj,
           "Get metadata of audio in file object.");
 // kaldi feat
-    m.def("InitFbank", &paddleaudio::kaldi::InitFbank, "init fbank");
-    m.def("ResetFbank", &paddleaudio::kaldi::ResetFbank, "reset fbank");
     m.def("ComputeFbank", &paddleaudio::kaldi::ComputeFbank, "compute fbank");
-    m.def("ComputeFbankStreaming",
-          &paddleaudio::kaldi::ComputeFbankStreaming,
-          "compute fbank streaming");
     m.def("ComputeKaldiPitch", &paddleaudio::kaldi::ComputeKaldiPitch, "compute kaldi pitch");
 }

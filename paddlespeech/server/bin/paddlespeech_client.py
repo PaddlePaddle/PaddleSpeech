@@ -191,23 +191,10 @@ class TTSOnlineClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--spk_id', type=int, default=0, help='Speaker id')
         self.parser.add_argument(
-            '--speed',
-            type=float,
-            default=1.0,
-            help='Audio speed, the value should be set between 0 and 3')
-        self.parser.add_argument(
-            '--volume',
-            type=float,
-            default=1.0,
-            help='Audio volume, the value should be set between 0 and 3')
-        self.parser.add_argument(
-            '--sample_rate',
-            type=int,
-            default=0,
-            choices=[0, 8000, 16000],
-            help='Sampling rate, the default is the same as the model')
-        self.parser.add_argument(
-            '--output', type=str, default=None, help='Synthesized audio file')
+            '--output',
+            type=str,
+            default=None,
+            help='Client saves synthesized audio')
         self.parser.add_argument(
             "--play", type=bool, help="whether to play audio", default=False)
 
@@ -218,9 +205,6 @@ class TTSOnlineClientExecutor(BaseExecutor):
         port = args.port
         protocol = args.protocol
         spk_id = args.spk_id
-        speed = args.speed
-        volume = args.volume
-        sample_rate = args.sample_rate
         output = args.output
         play = args.play
 
@@ -231,9 +215,6 @@ class TTSOnlineClientExecutor(BaseExecutor):
                 port=port,
                 protocol=protocol,
                 spk_id=spk_id,
-                speed=speed,
-                volume=volume,
-                sample_rate=sample_rate,
                 output=output,
                 play=play)
             return True
@@ -249,9 +230,6 @@ class TTSOnlineClientExecutor(BaseExecutor):
                  port: int=8092,
                  protocol: str="http",
                  spk_id: int=0,
-                 speed: float=1.0,
-                 volume: float=1.0,
-                 sample_rate: int=0,
                  output: str=None,
                  play: bool=False):
         """
@@ -263,7 +241,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
             from paddlespeech.server.utils.audio_handler import TTSHttpHandler
             handler = TTSHttpHandler(server_ip, port, play)
             first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = handler.run(
-                input, spk_id, speed, volume, sample_rate, output)
+                input, spk_id, output)
             delay_time_list = compute_delay(receive_time_list,
                                             chunk_duration_list)
 
@@ -273,7 +251,7 @@ class TTSOnlineClientExecutor(BaseExecutor):
             handler = TTSWsHandler(server_ip, port, play)
             loop = asyncio.get_event_loop()
             first_response, final_response, duration, save_audio_success, receive_time_list, chunk_duration_list = loop.run_until_complete(
-                handler.run(input, output))
+                handler.run(input, spk_id, output))
             delay_time_list = compute_delay(receive_time_list,
                                             chunk_duration_list)
 

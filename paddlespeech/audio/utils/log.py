@@ -65,6 +65,7 @@ class Logger(object):
 
     def __init__(self, name: str=None):
         name = 'PaddleAudio' if not name else name
+        self.name = name
         self.logger = logging.getLogger(name)
 
         for key, conf in log_config.items():
@@ -101,7 +102,7 @@ class Logger(object):
         if not self.is_enable:
             return
 
-        self.logger.log(log_level, msg)
+        self.logger.log(log_level, self.name + " | " + msg)
 
     @contextlib.contextmanager
     def use_terminator(self, terminator: str):

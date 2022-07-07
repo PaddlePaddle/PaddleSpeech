@@ -173,16 +173,23 @@ class TTSExecutor(BaseExecutor):
         Init model and other resources from a specific path.
         """
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
+
         # am
+        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+            use_pretrained_am = True
+        else:
+            use_pretrained_am = False
+
         am_tag = am + '-' + lang
         self.task_resource.set_task_model(
             model_tag=am_tag,
             model_type=0,  # am
+            skip_download=not use_pretrained_am,
             version=None,  # default version
         )
-        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+        if use_pretrained_am:
             self.am_res_path = self.task_resource.res_dir
             self.am_config = os.path.join(self.am_res_path,
                                           self.task_resource.res_dict['config'])
@@ -193,9 +200,9 @@ class TTSExecutor(BaseExecutor):
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
-            logger.info(self.am_res_path)
-            logger.info(self.am_config)
-            logger.info(self.am_ckpt)
+            logger.debug(self.am_res_path)
+            logger.debug(self.am_config)
+            logger.debug(self.am_ckpt)
         else:
             self.am_config = os.path.abspath(am_config)
             self.am_ckpt = os.path.abspath(am_ckpt)
@@ -220,13 +227,19 @@ class TTSExecutor(BaseExecutor):
                 self.speaker_dict = speaker_dict
 
         # voc
+        if voc_ckpt is None or voc_config is None or voc_stat is None:
+            use_pretrained_voc = True
+        else:
+            use_pretrained_voc = False
+
         voc_tag = voc + '-' + lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,
             model_type=1,  # vocoder
+            skip_download=not use_pretrained_voc,
             version=None,  # default version
         )
-        if voc_ckpt is None or voc_config is None or voc_stat is None:
+        if use_pretrained_voc:
             self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
                 self.voc_res_path, self.task_resource.voc_res_dict['config'])
@@ -235,9 +248,9 @@ class TTSExecutor(BaseExecutor):
             self.voc_stat = os.path.join(
                 self.voc_res_path,
                 self.task_resource.voc_res_dict['speech_stats'])
-            logger.info(self.voc_res_path)
-            logger.info(self.voc_config)
-            logger.info(self.voc_ckpt)
+            logger.debug(self.voc_res_path)
+            logger.debug(self.voc_config)
+            logger.debug(self.voc_ckpt)
         else:
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)
@@ -254,21 +267,18 @@ class TTSExecutor(BaseExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
-        print("vocab_size:", vocab_size)
 
         tone_size = None
         if self.tones_dict:
             with open(self.tones_dict, "r") as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
-            print("tone_size:", tone_size)
 
         spk_num = None
         if self.speaker_dict:
             with open(self.speaker_dict, 'rt') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
-            print("spk_num:", spk_num)
 
         # frontend
         if lang == 'zh':
@@ -278,7 +288,6 @@ class TTSExecutor(BaseExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        print("frontend done!")
 
         # acoustic model
         odim = self.am_config.n_mels
@@ -311,7 +320,6 @@ class TTSExecutor(BaseExecutor):
         am_normalizer = ZScore(am_mu, am_std)
         self.am_inference = am_inference_class(am_normalizer, am)
         self.am_inference.eval()
-        print("acoustic model done!")
 
         # vocoder
         # model: {model_name}_{dataset}
@@ -334,7 +342,6 @@ class TTSExecutor(BaseExecutor):
         voc_normalizer = ZScore(voc_mu, voc_std)
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
-        print("voc done!")
 
     def preprocess(self, input: Any, *args, **kwargs):
         """
@@ -375,7 +382,7 @@ class TTSExecutor(BaseExecutor):
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
-            print("lang should in {'zh', 'en'}!")
+            logger.error("lang should in {'zh', 'en'}!")
         self.frontend_time = time.time() - frontend_st
 
         self.am_time = 0

@@ -19,8 +19,10 @@ def shuffle_dim(x, axis, perm=None):
     """Permute input tensor along aixs given the permutation or randomly.
     
     Args:
-        x (Tensor): The input tensor.
-        axis (int): The axis to shuffle.
+        x (Tensor): 
+            The input tensor.
+        axis (int): 
+            The axis to shuffle.
         perm (List[int], ndarray, optional): 
             The order to reorder the tensor along the ``axis``-th dimension.
             It is a permutation of ``[0, d)``, where d is the size of the

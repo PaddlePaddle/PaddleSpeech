@@ -123,7 +123,6 @@ class TTSClientExecutor(BaseExecutor):
             time_end = time.time()
             time_consume = time_end - time_start
             response_dict = res.json()
-            logger.info(response_dict["message"])
             logger.info("Save synthesized audio successfully on %s." % (output))
             logger.info("Audio duration: %f s." %
                         (response_dict['result']['duration']))
@@ -192,7 +191,10 @@ class TTSOnlineClientExecutor(BaseExecutor):
         self.parser.add_argument(
             '--spk_id', type=int, default=0, help='Speaker id')
         self.parser.add_argument(
-            '--output', type=str, default=None, help='Client saves synthesized audio')
+            '--output',
+            type=str,
+            default=None,
+            help='Client saves synthesized audio')
         self.parser.add_argument(
             "--play", type=bool, help="whether to play audio", default=False)
 
@@ -677,7 +679,6 @@ class VectorClientExecutor(BaseExecutor):
                 test_audio=args.test,
                 task=task)
             time_end = time.time()
-            logger.info(f"The vector: {res}")
             logger.info("Response time %f s." % (time_end - time_start))
             return True
         except Exception as e:

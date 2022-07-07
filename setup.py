@@ -48,6 +48,7 @@ base = [
     "pandas",
     "paddlenlp",
     "paddlespeech_feat",
+    "Pillow>=9.0.0"
     "praatio==5.0.0",
     "pypinyin",
     "pypinyin-dict",
@@ -68,14 +69,16 @@ base = [
     "prettytable",
     "zhon",
     "colorlog",
-    "pathos == 0.2.8"
+    "pathos == 0.2.8",
+    "braceexpand",
+    "pyyaml"
 ]
 
 server = [
     "fastapi",
     "uvicorn",
     "pattern_singleton",
-    "websockets",
+    "websockets" 
 ]
 
 requirements = {
@@ -87,7 +90,6 @@ requirements = {
         "gpustat",
         "paddlespeech_ctcdecoders",
         "phkit",
-        "Pillow",
         "pybind11",
         "pypi-kenlm",
         "snakeviz",

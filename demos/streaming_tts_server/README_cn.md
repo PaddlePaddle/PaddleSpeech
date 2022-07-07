@@ -118,12 +118,9 @@
     - `protocol`: 服务协议，可选 [http, websocket], 默认: http。
     - `input`: (必须输入): 待合成的文本。
     - `spk_id`: 说话人 id，用于多说话人语音合成，默认值： 0。
-    - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
-    - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
-    - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认值：0，表示与模型采样率相同
-    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
+    - `output`: 客户端输出音频的路径， 默认值：None，表示不保存音频。
     - `play`: 是否播放音频，边合成边播放， 默认值：False，表示不播放。**播放音频需要依赖pyaudio库**。
-    - `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
+    - 目前代码中只支持单说话人的模型，因此 spk_id 的选择并不生效。流式 TTS 不支持更换采样率，变速和变音量等功能。
 
     
     输出:
@@ -150,9 +147,6 @@
       port=8092,
       protocol="http",
       spk_id=0,
-      speed=1.0,
-      volume=1.0,
-      sample_rate=0,
       output="./output.wav",
       play=False)
 
@@ -256,12 +250,10 @@
     - `protocol`: 服务协议，可选 [http, websocket], 默认: http。
     - `input`: (必须输入): 待合成的文本。
     - `spk_id`: 说话人 id，用于多说话人语音合成，默认值： 0。
-    - `speed`: 音频速度，该值应设置在 0 到 3 之间。 默认值：1.0
-    - `volume`: 音频音量，该值应设置在 0 到 3 之间。 默认值： 1.0
-    - `sample_rate`: 采样率，可选 [0, 8000, 16000]，默认值：0，表示与模型采样率相同
-    - `output`: 输出音频的路径， 默认值：None，表示不保存音频到本地。
+    - `output`: 客户端输出音频的路径， 默认值：None，表示不保存音频。
     - `play`: 是否播放音频，边合成边播放， 默认值：False，表示不播放。**播放音频需要依赖pyaudio库**。
-    - `spk_id, speed, volume, sample_rate` 在流式语音合成服务中暂时不生效。
+    - 目前代码中只支持单说话人的模型，因此 spk_id 的选择并不生效。流式 TTS 不支持更换采样率，变速和变音量等功能。
+
 
     
     输出:
@@ -288,9 +280,6 @@
       port=8092,
       protocol="websocket",
       spk_id=0,
-      speed=1.0,
-      volume=1.0,
-      sample_rate=0,
       output="./output.wav",
       play=False)
 

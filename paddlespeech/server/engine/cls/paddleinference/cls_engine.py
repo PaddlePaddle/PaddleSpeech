@@ -67,22 +67,22 @@ class CLSServerExecutor(CLSExecutor):
             self.params_path = os.path.abspath(params_path)
             self.label_file = os.path.abspath(label_file)
 
-        logger.info(self.cfg_path)
-        logger.info(self.model_path)
-        logger.info(self.params_path)
-        logger.info(self.label_file)
+        logger.debug(self.cfg_path)
+        logger.debug(self.model_path)
+        logger.debug(self.params_path)
+        logger.debug(self.label_file)
 
         # config
         with open(self.cfg_path, 'r') as f:
             self._conf = yaml.safe_load(f)
-        logger.info("Read cfg file successfully.")
+        logger.debug("Read cfg file successfully.")
 
         # labels
         self._label_list = []
         with open(self.label_file, 'r') as f:
             for line in f:
                 self._label_list.append(line.strip())
-        logger.info("Read label file successfully.")
+        logger.debug("Read label file successfully.")
 
         # Create predictor
         self.predictor_conf = predictor_conf
@@ -90,7 +90,7 @@ class CLSServerExecutor(CLSExecutor):
             model_file=self.model_path,
             params_file=self.params_path,
             predictor_conf=self.predictor_conf)
-        logger.info("Create predictor successfully.")
+        logger.debug("Create predictor successfully.")
 
     @paddle.no_grad()
     def infer(self):
@@ -148,7 +148,8 @@ class CLSEngine(BaseEngine):
             logger.error(e)
             return False
 
-        logger.info("Initialize CLS server engine successfully.")
+        logger.info("Initialize CLS server engine successfully on device: %s." %
+                    (self.device))
         return True
 
 
@@ -160,7 +161,7 @@ class PaddleCLSConnectionHandler(CLSServerExecutor):
             cls_engine (CLSEngine): The CLS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleCLSConnectionHandler to process the cls request")
 
         self._inputs = OrderedDict()
@@ -183,7 +184,7 @@ class PaddleCLSConnectionHandler(CLSServerExecutor):
         self.infer()
         infer_time = time.time() - st
 
-        logger.info("inference time: {}".format(infer_time))
+        logger.debug("inference time: {}".format(infer_time))
         logger.info("cls engine type: inference")
 
     def postprocess(self, topk: int):

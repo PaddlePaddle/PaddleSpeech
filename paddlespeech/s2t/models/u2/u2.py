@@ -48,9 +48,9 @@ from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
-from paddlespeech.s2t.utils.tensor_utils import pad_sequence
-from paddlespeech.s2t.utils.tensor_utils import th_accuracy
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import pad_sequence
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
@@ -827,7 +827,7 @@ class U2Model(U2DecodeModel):
 
         # encoder
         encoder_type = configs.get('encoder', 'transformer')
-        logger.info(f"U2 Encoder type: {encoder_type}")
+        logger.debug(f"U2 Encoder type: {encoder_type}")
         if encoder_type == 'transformer':
             encoder = TransformerEncoder(
                 input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
@@ -894,7 +894,7 @@ class U2Model(U2DecodeModel):
         if checkpoint_path:
             infos = checkpoint.Checkpoint().load_parameters(
                 model, checkpoint_path=checkpoint_path)
-            logger.info(f"checkpoint info: {infos}")
+            logger.debug(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
 

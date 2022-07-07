@@ -32,10 +32,14 @@ class MultiLayeredConv1d(nn.Layer):
         """Initialize MultiLayeredConv1d module.
 
         Args: 
-            in_chans (int): Number of input channels.
-            hidden_chans (int): Number of hidden channels.
-            kernel_size (int): Kernel size of conv1d.
-            dropout_rate (float): Dropout rate.
+            in_chans (int): 
+                Number of input channels.
+            hidden_chans (int): 
+                Number of hidden channels.
+            kernel_size (int): 
+                Kernel size of conv1d.
+            dropout_rate (float): 
+                Dropout rate.
 
         """
         super().__init__()
@@ -58,7 +62,8 @@ class MultiLayeredConv1d(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Batch of input tensors (B, T, in_chans).
+            x (Tensor): 
+                Batch of input tensors (B, T, in_chans).
 
         Returns: 
             Tensor: Batch of output tensors (B, T, in_chans).
@@ -79,10 +84,14 @@ class Conv1dLinear(nn.Layer):
         """Initialize Conv1dLinear module.
 
         Args:
-            in_chans (int): Number of input channels.
-            hidden_chans (int): Number of hidden channels.
-            kernel_size (int): Kernel size of conv1d.
-            dropout_rate (float): Dropout rate.
+            in_chans (int): 
+                Number of input channels.
+            hidden_chans (int): 
+                Number of hidden channels.
+            kernel_size (int): 
+                Kernel size of conv1d.
+            dropout_rate (float):
+                Dropout rate.
         """
         super().__init__()
         self.w_1 = nn.Conv1D(
@@ -99,7 +108,8 @@ class Conv1dLinear(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Batch of input tensors (B, T, in_chans).
+            x (Tensor): 
+                Batch of input tensors (B, T, in_chans).
 
         Returns:
             Tensor: Batch of output tensors (B, T, in_chans).

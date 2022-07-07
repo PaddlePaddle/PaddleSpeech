@@ -24,9 +24,9 @@ from yacs.config import CfgNode
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.resource import CommonTaskResource
+from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
-from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
@@ -44,7 +44,7 @@ class PaddleASRConnectionHanddler:
             asr_engine (ASREngine): the global asr engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "create an paddle asr connection handler to process the websocket connection"
         )
         self.config = asr_engine.config  # server config
@@ -157,7 +157,7 @@ class PaddleASRConnectionHanddler:
         assert samples.ndim == 1
 
         self.num_samples += samples.shape[0]
-        logger.info(
+        logger.debug(
             f"This package receive {samples.shape[0]} pcm data. Global samples:{self.num_samples}"
         )
 
@@ -168,7 +168,7 @@ class PaddleASRConnectionHanddler:
         else:
             assert self.remained_wav.ndim == 1  # (T,)
             self.remained_wav = np.concatenate([self.remained_wav, samples])
-        logger.info(
+        logger.debug(
             f"The concatenation of remain and now audio samples length is: {self.remained_wav.shape}"
         )
 
@@ -202,14 +202,14 @@ class PaddleASRConnectionHanddler:
         # update remained wav
         self.remained_wav = self.remained_wav[self.n_shift * num_frames:]
 
-        logger.info(
+        logger.debug(
             f"process the audio feature success, the cached feat shape: {self.cached_feat.shape}"
         )
-        logger.info(
+        logger.debug(
             f"After extract feat, the cached remain the audio samples: {self.remained_wav.shape}"
         )
-        logger.info(f"global samples: {self.num_samples}")
-        logger.info(f"global frames: {self.num_frames}")
+        logger.debug(f"global samples: {self.num_samples}")
+        logger.debug(f"global frames: {self.num_frames}")
 
     def decode(self, is_finished=False):
         """advance decoding
@@ -237,13 +237,13 @@ class PaddleASRConnectionHanddler:
                 return
 
             num_frames = self.cached_feat.shape[1]
-            logger.info(
+            logger.debug(
                 f"Required decoding window {decoding_window} frames, and the connection has {num_frames} frames"
             )
 
             # the cached feat must be larger decoding_window
             if num_frames < decoding_window and not is_finished:
-                logger.info(
+                logger.debug(
                     f"frame feat num is less than {decoding_window}, please input more pcm data"
                 )
                 return None, None
@@ -294,7 +294,7 @@ class PaddleASRConnectionHanddler:
         Returns:
             logprob: poster probability.
         """
-        logger.info("start to decoce one chunk for deepspeech2")
+        logger.debug("start to decoce one chunk for deepspeech2")
         input_names = self.am_predictor.get_input_names()
         audio_handle = self.am_predictor.get_input_handle(input_names[0])
         audio_len_handle = self.am_predictor.get_input_handle(input_names[1])
@@ -369,7 +369,7 @@ class ASRServerExecutor(ASRExecutor):
 
             lm_url = self.task_resource.res_dict['lm_url']
             lm_md5 = self.task_resource.res_dict['lm_md5']
-            logger.info(f"Start to load language model {lm_url}")
+            logger.debug(f"Start to load language model {lm_url}")
             self.download_lm(
                 lm_url,
                 os.path.dirname(self.config.decode.lang_model_path), lm_md5)
@@ -381,7 +381,7 @@ class ASRServerExecutor(ASRExecutor):
 
         if "deepspeech2" in self.model_type:
             # AM predictor
-            logger.info("ASR engine start to init the am predictor")
+            logger.debug("ASR engine start to init the am predictor")
             self.am_predictor = init_predictor(
                 model_file=self.am_model,
                 params_file=self.am_params,
@@ -415,7 +415,7 @@ class ASRServerExecutor(ASRExecutor):
         self.num_decoding_left_chunks = num_decoding_left_chunks
         # conf for paddleinference predictor or onnx
         self.am_predictor_conf = am_predictor_conf
-        logger.info(f"model_type: {self.model_type}")
+        logger.debug(f"model_type: {self.model_type}")
 
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
         tag = model_type + '-' + lang + '-' + sample_rate_str
@@ -437,12 +437,12 @@ class ASRServerExecutor(ASRExecutor):
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
-        logger.info("Load the pretrained model:")
-        logger.info(f"  tag = {tag}")
-        logger.info(f"  res_path: {self.res_path}")
-        logger.info(f"  cfg path: {self.cfg_path}")
-        logger.info(f"  am_model path: {self.am_model}")
-        logger.info(f"  am_params path: {self.am_params}")
+        logger.debug("Load the pretrained model:")
+        logger.debug(f"  tag = {tag}")
+        logger.debug(f"  res_path: {self.res_path}")
+        logger.debug(f"  cfg path: {self.cfg_path}")
+        logger.debug(f"  am_model path: {self.am_model}")
+        logger.debug(f"  am_params path: {self.am_params}")
 
         #Init body.
         self.config = CfgNode(new_allowed=True)
@@ -451,7 +451,7 @@ class ASRServerExecutor(ASRExecutor):
         if self.config.spm_model_prefix:
             self.config.spm_model_prefix = os.path.join(
                 self.res_path, self.config.spm_model_prefix)
-            logger.info(f"spm model path: {self.config.spm_model_prefix}")
+            logger.debug(f"spm model path: {self.config.spm_model_prefix}")
 
         self.vocab = self.config.vocab_filepath
 
@@ -465,7 +465,7 @@ class ASRServerExecutor(ASRExecutor):
         # AM predictor
         self.init_model()
 
-        logger.info(f"create the {model_type} model success")
+        logger.debug(f"create the {model_type} model success")
         return True
 
 
@@ -516,7 +516,7 @@ class ASREngine(BaseEngine):
                 "If all GPU or XPU is used, you can set the server to 'cpu'")
             sys.exit(-1)
 
-        logger.info(f"paddlespeech_server set the device: {self.device}")
+        logger.debug(f"paddlespeech_server set the device: {self.device}")
 
         if not self.init_model():
             logger.error(
@@ -524,7 +524,9 @@ class ASREngine(BaseEngine):
             )
             return False
 
-        logger.info("Initialize ASR server engine successfully.")
+        logger.info("Initialize ASR server engine successfully on device: %s." %
+                    (self.device))
+
         return True
 
     def new_handler(self):

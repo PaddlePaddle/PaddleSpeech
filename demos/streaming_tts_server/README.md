@@ -119,12 +119,9 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - `protocol`: Service protocol, choices: [http, websocket], default: http.
     - `input`: (required): Input text to generate.
     - `spk_id`: Speaker id for multi-speaker text to speech. Default: 0
-    - `speed`: Audio speed, the value should be set between 0 and 3. Default: 1.0
-    - `volume`: Audio volume, the value should be set between 0 and 3. Default: 1.0
-    - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
-    - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
+    - `output`: Client output wave filepath. Default: None, which means not to save the audio to the local.
     - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
-    - `spk_id, speed, volume, sample_rate` do not take effect in streaming speech synthesis service temporarily.
+    - Currently, only the single-speaker model is supported in the code, so `spk_id` does not take effect. Streaming TTS does not support changing sample rate, variable speed and volume.
     
     Output:
     ```bash
@@ -150,9 +147,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
       port=8092,
       protocol="http",
       spk_id=0,
-      speed=1.0,
-      volume=1.0,
-      sample_rate=0,
       output="./output.wav",
       play=False)
 
@@ -256,12 +250,10 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - `protocol`: Service protocol, choices: [http, websocket], default: http.
     - `input`: (required): Input text to generate.
     - `spk_id`: Speaker id for multi-speaker text to speech. Default: 0
-    - `speed`: Audio speed, the value should be set between 0 and 3. Default: 1.0
-    - `volume`: Audio volume, the value should be set between 0 and 3. Default: 1.0
-    - `sample_rate`: Sampling rate, choices: [0, 8000, 16000], the default is the same as the model. Default: 0
-    - `output`: Output wave filepath. Default: None, which means not to save the audio to the local.
+    - `output`: Client output wave filepath. Default: None, which means not to save the audio to the local.
     - `play`: Whether to play audio, play while synthesizing, default value: False, which means not playing. **Playing audio needs to rely on the pyaudio library**.
-    - `spk_id, speed, volume, sample_rate` do not take effect in streaming speech synthesis service temporarily.
+    - Currently, only the single-speaker model is supported in the code, so `spk_id` does not take effect. Streaming TTS does not support changing sample rate, variable speed and volume.
+    
 
     
     Output:
@@ -288,9 +280,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
       port=8092,
       protocol="websocket",
       spk_id=0,
-      speed=1.0,
-      volume=1.0,
-      sample_rate=0,
       output="./output.wav",
       play=False)
 

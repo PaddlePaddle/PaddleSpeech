@@ -57,7 +57,7 @@ feat_dim: 80
 stride_ms: 10.0
 window_ms: 25.0
 sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
-batch_size: 64
+batch_size: 32
 maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
 maxlen_out: 150  # if output length > maxlen-out, batchsize is automatically reduced
 minibatches: 0 # for debug
@@ -73,10 +73,10 @@ num_encs: 1
 ###########################################
 #                Training                 #
 ###########################################
-n_epoch: 240 
-accum_grad: 2
+n_epoch: 150 
+accum_grad: 8
 global_grad_clip: 5.0
-dist_sampler: True
+dist_sampler: False
 optim: adam
 optim_conf:
   lr: 0.002

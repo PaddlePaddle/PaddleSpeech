@@ -138,7 +138,7 @@ class ASRWsAudioHandler:
         Returns:
             str: the final asr result
         """
-        logging.info("send a message to the server")
+        logging.debug("send a message to the server")
 
         if self.url is None:
             logger.error("No asr server, please input valid ip and port")
@@ -160,7 +160,7 @@ class ASRWsAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            logger.info("client receive msg={}".format(msg))
+            logger.debug("client receive msg={}".format(msg))
 
             # 3. send chunk audio data to engine
             for chunk_data in self.read_wave(wavfile_path):
@@ -170,7 +170,7 @@ class ASRWsAudioHandler:
 
                 if self.punc_server and len(msg["result"]) > 0:
                     msg["result"] = self.punc_server.run(msg["result"])
-                logger.info("client receive msg={}".format(msg))
+                logger.debug("client receive msg={}".format(msg))
 
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
@@ -299,10 +299,7 @@ class TTSWsHandler:
             self.buffer = b''
             self.mutex.release()
 
-    async def run(self, 
-                  text: str,
-                  spk_id=0,
-                  output: str=None):
+    async def run(self, text: str, spk_id=0, output: str=None):
         """Send a text to online server
 
         Args:
@@ -320,7 +317,7 @@ class TTSWsHandler:
             start_request = json.dumps({"task": "tts", "signal": "start"})
             await ws.send(start_request)
             msg = await ws.recv()
-            logger.info(f"client receive msg={msg}")
+            logger.debug(f"client receive msg={msg}")
             msg = json.loads(msg)
             session = msg["session"]
 
@@ -334,7 +331,7 @@ class TTSWsHandler:
             request = json.dumps(params)
             st = time.time()
             await ws.send(request)
-            logging.info("send a message to the server")
+            logging.debug("send a message to the server")
 
             # 4. Process the received response
             message = await ws.recv()
@@ -359,7 +356,8 @@ class TTSWsHandler:
                     duration = len(all_bytes) / 2.0 / self.sample_rate
 
                     if output is not None:
-                        save_audio_success = save_audio(all_bytes, output, self.sample_rate)
+                        save_audio_success = save_audio(all_bytes, output,
+                                                        self.sample_rate)
                     else:
                         save_audio_success = False
 
@@ -377,7 +375,8 @@ class TTSWsHandler:
                     receive_time_list.append(time.time())
                     audio = message["audio"]
                     audio = base64.b64decode(audio)  # bytes
-                    chunk_duration_list.append(len(audio) / 2.0 / self.sample_rate)
+                    chunk_duration_list.append(
+                        len(audio) / 2.0 / self.sample_rate)
                     all_bytes += audio
                     if self.play:
                         self.mutex.acquire()
@@ -437,7 +436,7 @@ class TTSHttpHandler:
                 output=True)
             self.mutex = threading.Lock()
             self.t = threading.Thread(target=self.play_audio)
-            
+
         logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
@@ -452,10 +451,7 @@ class TTSHttpHandler:
             self.buffer = b''
             self.mutex.release()
 
-    def run(self,
-            text: str,
-            spk_id=0,
-            output: str=None):
+    def run(self, text: str, spk_id=0, output: str=None):
         """Send a text to tts online server
 
         Args:
@@ -463,7 +459,7 @@ class TTSHttpHandler:
             spk_id (int, optional): speaker id. Defaults to 0.
             output (str, optional): client save audio path. Defaults to None.
         """
-    
+
         # 1. Create request
         params = {
             "text": text,
@@ -556,7 +552,6 @@ class VectorHttpHandler:
             "sample_rate": sample_rate,
         }
 
-        logger.info(self.url)
         res = requests.post(url=self.url, data=json.dumps(data))
 
         return res.json()

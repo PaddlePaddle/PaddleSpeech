@@ -60,7 +60,7 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 > 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
 
-> 如果出现 paddlespeech-ctcdecoders 无法安装的问题，无须担心，这不影响使用。
+> 如果出现 paddlespeech-ctcdecoders 无法安装的问题，无须担心，这个只影响 deepspeech2 模型的推理，不影响其他模型的使用。
 
 ## 中等： 获取主要功能（支持 Linux， Mac 和 Windows 不支持训练）
 如果你想要使用 `paddlespeech` 的主要功能。你需要完成以下几个步骤

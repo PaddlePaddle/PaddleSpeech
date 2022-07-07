@@ -92,7 +92,7 @@ class CLSExecutor(BaseExecutor):
             Init model and other resources from a specific path.
         """
         if hasattr(self, 'model'):
-            logger.info('Model had been initialized.')
+            logger.debug('Model had been initialized.')
             return
 
         if label_file is None or ckpt_path is None:
@@ -135,14 +135,14 @@ class CLSExecutor(BaseExecutor):
             Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
         feat_conf = self._conf['feature']
-        logger.info(feat_conf)
+        logger.debug(feat_conf)
         waveform, _ = load(
             file=audio_file,
             sr=feat_conf['sample_rate'],
             mono=True,
             dtype='float32')
         if isinstance(audio_file, (str, os.PathLike)):
-            logger.info("Preprocessing audio_file:" + audio_file)
+            logger.debug("Preprocessing audio_file:" + audio_file)
 
         # Feature extraction
         feature_extractor = LogMelSpectrogram(

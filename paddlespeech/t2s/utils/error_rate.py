@@ -71,10 +71,14 @@ def word_errors(reference, hypothesis, ignore_case=False, delimiter=' '):
     hypothesis sequence in word-level.
 
     Args:
-        reference (str): The reference sentence.
-        hypothesis (str): The hypothesis sentence.
-        ignore_case (bool): Whether case-sensitive or not.
-        delimiter (char(str)): Delimiter of input sentences.
+        reference (str): 
+            The reference sentence.
+        hypothesis (str): 
+            The hypothesis sentence.
+        ignore_case (bool): 
+            Whether case-sensitive or not.
+        delimiter (char(str)): 
+            Delimiter of input sentences.
 
     Returns:
         list: Levenshtein distance and word number of reference sentence.

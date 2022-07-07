@@ -38,8 +38,8 @@ from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
-from paddlespeech.s2t.utils.tensor_utils import th_accuracy
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]

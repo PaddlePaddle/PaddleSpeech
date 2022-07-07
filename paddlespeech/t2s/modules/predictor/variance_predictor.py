@@ -43,11 +43,16 @@ class VariancePredictor(nn.Layer):
         """Initilize duration predictor module.
 
         Args:
-            idim (int): Input dimension.
-            n_layers (int, optional): Number of convolutional layers.
-            n_chans (int, optional): Number of channels of convolutional layers.
-            kernel_size (int, optional): Kernel size of convolutional layers.
-            dropout_rate (float, optional): Dropout rate.
+            idim (int): 
+                Input dimension.
+            n_layers (int, optional): 
+                Number of convolutional layers.
+            n_chans (int, optional): 
+                Number of channels of convolutional layers.
+            kernel_size (int, optional): 
+                Kernel size of convolutional layers.
+            dropout_rate (float, optional): 
+                Dropout rate.
         """
         assert check_argument_types()
         super().__init__()
@@ -74,11 +79,14 @@ class VariancePredictor(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            xs (Tensor): Batch of input sequences (B, Tmax, idim).
-            x_masks (Tensor(bool), optional): Batch of masks indicating padded part (B, Tmax, 1).
+            xs (Tensor): 
+                Batch of input sequences (B, Tmax, idim).
+            x_masks (Tensor(bool), optional): 
+                Batch of masks indicating padded part (B, Tmax, 1).
 
         Returns:
-            Tensor: Batch of predicted sequences (B, Tmax, 1).
+            Tensor: 
+                Batch of predicted sequences (B, Tmax, 1).
         """
         # (B, idim, Tmax)
         xs = xs.transpose([0, 2, 1])

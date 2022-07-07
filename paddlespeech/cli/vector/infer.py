@@ -117,7 +117,7 @@ class VectorExecutor(BaseExecutor):
 
         # stage 2: read the input data and store them as a list
         task_source = self.get_input_source(parser_args.input)
-        logger.info(f"task source: {task_source}")
+        logger.debug(f"task source: {task_source}")
 
         # stage 3: process the audio one by one
         # we do action according the task type
@@ -127,13 +127,13 @@ class VectorExecutor(BaseExecutor):
             try:
                 # extract the speaker audio embedding
                 if parser_args.task == "spk":
-                    logger.info("do vector spk task")
+                    logger.debug("do vector spk task")
                     res = self(input_, model, sample_rate, config, ckpt_path,
                                device)
                     task_result[id_] = res
                 elif parser_args.task == "score":
-                    logger.info("do vector score task")
-                    logger.info(f"input content {input_}")
+                    logger.debug("do vector score task")
+                    logger.debug(f"input content {input_}")
                     if len(input_.split()) != 2:
                         logger.error(
                             f"vector score task input {input_} wav num is not two,"
@@ -142,7 +142,7 @@ class VectorExecutor(BaseExecutor):
 
                     # get the enroll and test embedding
                     enroll_audio, test_audio = input_.split()
-                    logger.info(
+                    logger.debug(
                         f"score task, enroll audio: {enroll_audio}, test audio: {test_audio}"
                     )
                     enroll_embedding = self(enroll_audio, model, sample_rate,
@@ -158,8 +158,8 @@ class VectorExecutor(BaseExecutor):
                 has_exceptions = True
                 task_result[id_] = f'{e.__class__.__name__}: {e}'
 
-        logger.info("task result as follows: ")
-        logger.info(f"{task_result}")
+        logger.debug("task result as follows: ")
+        logger.debug(f"{task_result}")
 
         # stage 4: process the all the task results
         self.process_task_results(parser_args.input, task_result,
@@ -207,7 +207,7 @@ class VectorExecutor(BaseExecutor):
         """
         if not hasattr(self, "score_func"):
             self.score_func = paddle.nn.CosineSimilarity(axis=0)
-            logger.info("create the cosine score function ")
+            logger.debug("create the cosine score function ")
 
         score = self.score_func(
             paddle.to_tensor(enroll_embedding),
@@ -244,7 +244,7 @@ class VectorExecutor(BaseExecutor):
             sys.exit(-1)
 
         # stage 1: set the paddle runtime host device
-        logger.info(f"device type: {device}")
+        logger.debug(f"device type: {device}")
         paddle.device.set_device(device)
 
         # stage 2: read the specific pretrained model
@@ -283,7 +283,7 @@ class VectorExecutor(BaseExecutor):
         # stage 0: avoid to init the mode again
         self.task = task
         if hasattr(self, "model"):
-            logger.info("Model has been initialized")
+            logger.debug("Model has been initialized")
             return
 
         # stage 1: get the model and config path
@@ -294,7 +294,7 @@ class VectorExecutor(BaseExecutor):
             sample_rate_str = "16k" if sample_rate == 16000 else "8k"
             tag = model_type + "-" + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)
-            logger.info(f"load the pretrained model: {tag}")
+            logger.debug(f"load the pretrained model: {tag}")
             # get the model from the pretrained list
             # we download the pretrained model and store it in the res_path
             self.res_path = self.task_resource.res_dir
@@ -312,19 +312,19 @@ class VectorExecutor(BaseExecutor):
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
-        logger.info(f"start to read the ckpt from {self.ckpt_path}")
-        logger.info(f"read the config from {self.cfg_path}")
-        logger.info(f"get the res path {self.res_path}")
+        logger.debug(f"start to read the ckpt from {self.ckpt_path}")
+        logger.debug(f"read the config from {self.cfg_path}")
+        logger.debug(f"get the res path {self.res_path}")
 
         # stage 2: read and config and init the model body
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
 
         # stage 3: get the model name to instance the model network with dynamic_import
-        logger.info("start to dynamic import the model class")
+        logger.debug("start to dynamic import the model class")
         model_name = model_type[:model_type.rindex('_')]
         model_class = self.task_resource.get_model_class(model_name)
-        logger.info(f"model name {model_name}")
+        logger.debug(f"model name {model_name}")
         model_conf = self.config.model
         backbone = model_class(**model_conf)
         model = SpeakerIdetification(
@@ -333,11 +333,11 @@ class VectorExecutor(BaseExecutor):
         self.model.eval()
 
         # stage 4: load the model parameters
-        logger.info("start to set the model parameters to model")
+        logger.debug("start to set the model parameters to model")
         model_dict = paddle.load(self.ckpt_path)
         self.model.set_state_dict(model_dict)
 
-        logger.info("create the model instance success")
+        logger.debug("create the model instance success")
 
     @paddle.no_grad()
     def infer(self, model_type: str):
@@ -349,14 +349,14 @@ class VectorExecutor(BaseExecutor):
         # stage 0: get the feat and length from _inputs
         feats = self._inputs["feats"]
         lengths = self._inputs["lengths"]
-        logger.info("start to do backbone network model forward")
-        logger.info(
+        logger.debug("start to do backbone network model forward")
+        logger.debug(
             f"feats shape:{feats.shape}, lengths shape: {lengths.shape}")
 
         # stage 1: get the audio embedding
         # embedding from (1, emb_size, 1) -> (emb_size)
         embedding = self.model.backbone(feats, lengths).squeeze().numpy()
-        logger.info(f"embedding size: {embedding.shape}")
+        logger.debug(f"embedding size: {embedding.shape}")
 
         # stage 2: put the embedding and dim info to _outputs property
         #          the embedding type is numpy.array
@@ -380,12 +380,13 @@ class VectorExecutor(BaseExecutor):
         """
         audio_file = input_file
         if isinstance(audio_file, (str, os.PathLike)):
-            logger.info(f"Preprocess audio file: {audio_file}")
+            logger.debug(f"Preprocess audio file: {audio_file}")
 
         # stage 1: load the audio sample points
         #    Note: this process must match the training process
         waveform, sr = load_audio(audio_file)
-        logger.info(f"load the audio sample points, shape is: {waveform.shape}")
+        logger.debug(
+            f"load the audio sample points, shape is: {waveform.shape}")
 
         # stage 2: get the audio feat
         # Note: Now we only support fbank feature
@@ -396,9 +397,9 @@ class VectorExecutor(BaseExecutor):
                 n_mels=self.config.n_mels,
                 window_size=self.config.window_size,
                 hop_length=self.config.hop_size)
-            logger.info(f"extract the audio feat, shape is: {feat.shape}")
+            logger.debug(f"extract the audio feat, shape is: {feat.shape}")
         except Exception as e:
-            logger.info(f"feat occurs exception {e}")
+            logger.debug(f"feat occurs exception {e}")
             sys.exit(-1)
 
         feat = paddle.to_tensor(feat).unsqueeze(0)
@@ -411,11 +412,11 @@ class VectorExecutor(BaseExecutor):
 
         # stage 4: store the feat and length in the _inputs,
         #          which will be used in other function
-        logger.info(f"feats shape: {feat.shape}")
+        logger.debug(f"feats shape: {feat.shape}")
         self._inputs["feats"] = feat
         self._inputs["lengths"] = lengths
 
-        logger.info("audio extract the feat success")
+        logger.debug("audio extract the feat success")
 
     def _check(self, audio_file: str, sample_rate: int):
         """Check if the model sample match the audio sample rate 
@@ -441,7 +442,7 @@ class VectorExecutor(BaseExecutor):
                 logger.error("Please input the right audio file path")
                 return False
 
-        logger.info("checking the aduio file format......")
+        logger.debug("checking the aduio file format......")
         try:
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="float32", always_2d=True)
@@ -458,7 +459,7 @@ class VectorExecutor(BaseExecutor):
                  ")
             return False
 
-        logger.info(f"The sample rate is {audio_sample_rate}")
+        logger.debug(f"The sample rate is {audio_sample_rate}")
 
         if audio_sample_rate != self.sample_rate:
             logger.error("The sample rate of the input file is not {}.\n \
@@ -468,6 +469,6 @@ class VectorExecutor(BaseExecutor):
                         ".format(self.sample_rate, self.sample_rate))
             sys.exit(-1)
         else:
-            logger.info("The audio file format is right")
+            logger.debug("The audio file format is right")
 
         return True

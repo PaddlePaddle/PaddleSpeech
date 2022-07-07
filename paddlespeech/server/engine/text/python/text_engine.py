@@ -28,7 +28,7 @@ class PaddleTextConnectionHandler:
             text_engine (TextEngine): The Text engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTextConnectionHandler to process the text request")
         self.text_engine = text_engine
         self.task = self.text_engine.executor.task
@@ -130,7 +130,7 @@ class TextEngine(BaseEngine):
         """The Text Engine
         """
         super(TextEngine, self).__init__()
-        logger.info("Create the TextEngine Instance")
+        logger.debug("Create the TextEngine Instance")
 
     def init(self, config: dict):
         """Init the Text Engine
@@ -141,7 +141,7 @@ class TextEngine(BaseEngine):
         Returns:
             bool: The engine instance flag
         """
-        logger.info("Init the text engine")
+        logger.debug("Init the text engine")
         try:
             self.config = config
             if self.config.device:
@@ -150,7 +150,7 @@ class TextEngine(BaseEngine):
                 self.device = paddle.get_device()
 
             paddle.set_device(self.device)
-            logger.info(f"Text Engine set the device: {self.device}")
+            logger.debug(f"Text Engine set the device: {self.device}")
         except BaseException as e:
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
@@ -168,5 +168,6 @@ class TextEngine(BaseEngine):
             ckpt_path=config.ckpt_path,
             vocab_file=config.vocab_file)
 
-        logger.info("Init the text engine successfully")
+        logger.info("Initialize Text server engine successfully on device: %s."
+                    % (self.device))
         return True

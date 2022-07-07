@@ -191,15 +191,15 @@ opts.preemph_coeff = preemph_coeff;
       opts.snip_edges = snip_edges;
 
    py::buffer_info info = wav.request();
-   kaldi::Vector<::kaldi::BaseFloat> input_wav(info.size);
+   ::kaldi::Vector<::kaldi::BaseFloat> input_wav(info.size);
    double* wav_ptr = (double*)info.ptr;
    for (int idx = 0; idx < info.size; ++idx) {
        input_wav(idx) = *wav_ptr;
        wav_ptr++;
    }
    
-   kaldi::Matrix<kaldi::BaseFloat> features; 
-   kaldi::ComputeKaldiPitch(opts, input_wav, &features);
+   ::kaldi::Matrix<::kaldi::BaseFloat> features;
+   ::kaldi::ComputeKaldiPitch(opts, input_wav, &features);
    auto result = py::array_t<double>({features.NumRows(), features.NumCols()});
    for (int row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
         for (int col_idx = 0; col_idx < features.NumCols(); ++col_idx) {

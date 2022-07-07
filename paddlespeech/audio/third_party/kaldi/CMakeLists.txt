@@ -70,6 +70,7 @@ add_library(kaldi-feat-common STATIC
   feat/feature-functions.cc
   feat/feature-window.cc
   feat/resample.cc
+  feat/pitch-functions.cc
   feat/mel-computations.cc
   feat/cmvn.cc
 )

@@ -63,7 +63,7 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 > If you encounter problem with downloading **nltk_data** while using paddlespeech, it maybe due to your poor network, we suggest you download the [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) provided by us, and extract it to your `${HOME}`.
 
-> If you fail to install paddlespeech-ctcdecoders, it doesn't matter.
+> If you fail to install paddlespeech-ctcdecoders, you only can not use deepspeech2 model inference. For other models, it doesn't matter.
  
 ## Medium: Get the Major Functions (Support Linux, mac and windows not support training)
 If you want to get the major function of  `paddlespeech`, you need to do following steps:

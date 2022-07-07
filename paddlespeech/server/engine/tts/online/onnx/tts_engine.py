@@ -19,6 +19,8 @@ from typing import Optional
 
 import numpy as np
 import paddle
+import librosa
+from scipy import signal
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
@@ -30,6 +32,8 @@ from paddlespeech.server.utils.util import denorm
 from paddlespeech.server.utils.util import get_chunks
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
+from paddlespeech.server.utils.audio_process import change_speed
+from paddlespeech.server.utils.exception import ServerBaseException
 
 __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 
@@ -64,6 +68,8 @@ class TTSServerExecutor(TTSExecutor):
                  self, 'am_postnet_sess'))) and hasattr(self, 'voc_inference'):
             logger.info('Models had been initialized.')
             return
+
+        
         # am
         am_tag = am + '-' + lang
         if am == "fastspeech2_csmsc_onnx":
@@ -212,6 +218,8 @@ class TTSEngine(BaseEngine):
         assert (
             self.config.voc_sample_rate == self.config.am_sample_rate
         ), "The sample rate of AM and Vocoder model are different, please check model."
+
+        self.sample_rate = self.config.voc_sample_rate
 
         try:
             if self.config.am_sess_conf.device is not None:
@@ -441,33 +449,16 @@ class PaddleTTSConnectionHandler:
 
         self.final_response_time = time.time() - frontend_st
 
-    def preprocess(self, text_bese64: str=None, text_bytes: bytes=None):
-        # Convert byte to text
-        if text_bese64:
-            text_bytes = base64.b64decode(text_bese64)  # base64 to bytes
-        text = text_bytes.decode('utf-8')  # bytes to text
-
-        return text
 
     def run(self,
             sentence: str,
-            spk_id: int=0,
-            speed: float=1.0,
-            volume: float=1.0,
-            sample_rate: int=0,
-            save_path: str=None):
+            spk_id: int=0):
         """ run include inference and postprocess.
 
         Args:
             sentence (str): text to be synthesized
             spk_id (int, optional): speaker id for multi-speaker speech synthesis. Defaults to 0.
-            speed (float, optional): speed. Defaults to 1.0.
-            volume (float, optional): volume. Defaults to 1.0.
-            sample_rate (int, optional): target sample rate for synthesized audio, 
-            0 means the same as the model sampling rate. Defaults to 0.
-            save_path (str, optional): The save path of the synthesized audio. 
-            None means do not save audio. Defaults to None.
-
+            
         Returns:
             wav_base64: The base64 format of the synthesized audio.
         """
@@ -488,7 +479,7 @@ class PaddleTTSConnectionHandler:
             yield wav_base64
 
         wav_all = np.concatenate(wav_list, axis=0)
-        duration = len(wav_all) / self.config.voc_sample_rate
+        duration = len(wav_all) / self.tts_engine.sample_rate
         logger.info(f"sentence: {sentence}")
         logger.info(f"The durations of audio is: {duration} s")
         logger.info(f"first response time: {self.first_response_time} s")

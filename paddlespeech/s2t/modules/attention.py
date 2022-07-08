@@ -181,8 +181,7 @@ class MultiHeadedAttention(nn.Layer):
         # >>> torch.equal(d[0], d[1])  # True
         if paddle.shape(cache)[0] > 0:
             # last dim `d_k * 2` for (key, val)
-            key_cache, value_cache = paddle.split(
-                cache, paddle.shape(cache)[-1] // 2, axis=-1)
+            key_cache, value_cache = paddle.split(cache, 2, axis=-1)
             k = paddle.concat([key_cache, k], axis=2)
             v = paddle.concat([value_cache, v], axis=2)
         # We do cache slicing in encoder.forward_chunk, since it's
@@ -289,8 +288,8 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # >>> d = torch.split(a, 2, dim=-1)
         # >>> torch.equal(d[0], d[1])  # True
         if paddle.shape(cache)[0] > 0:
-            key_cache, value_cache = paddle.split(
-                cache, paddle.shape(cache)[-1] // 2, axis=-1)
+            # last dim `d_k * 2` for (key, val)
+            key_cache, value_cache = paddle.split(cache, 2, axis=-1)
             k = paddle.concat([key_cache, k], axis=2)
             v = paddle.concat([value_cache, v], axis=2)
         # We do cache slicing in encoder.forward_chunk, since it's

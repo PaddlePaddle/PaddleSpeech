@@ -130,9 +130,9 @@ class PaddleASRConnectionHanddler:
 
         ## conformer
         # cache for conformer online
-        self.subsampling_cache = None
-        self.elayers_output_cache = None
-        self.conformer_cnn_cache = None
+        self.att_cache = paddle.zeros([0,0,0,0])
+        self.cnn_cache = paddle.zeros([0,0,0,0])
+
         self.encoder_out = None
         # conformer decoding state
         self.offset = 0  # global offset in decoding frame unit
@@ -474,11 +474,9 @@ class PaddleASRConnectionHanddler:
             # cur chunk
             chunk_xs = self.cached_feat[:, cur:end, :]
             # forward chunk
-            (y, self.subsampling_cache, self.elayers_output_cache,
-             self.conformer_cnn_cache) = self.model.encoder.forward_chunk(
+            (y, self.att_cache, self.cnn_cache) = self.model.encoder.forward_chunk(
                  chunk_xs, self.offset, required_cache_size,
-                 self.subsampling_cache, self.elayers_output_cache,
-                 self.conformer_cnn_cache)
+                 self.att_cache, self.cnn_cache)
             outputs.append(y)
 
             # update the global offset, in decoding frame unit

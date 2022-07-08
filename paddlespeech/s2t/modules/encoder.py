@@ -230,7 +230,8 @@ class BaseEncoder(nn.Layer):
         xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset) 
         # after embed, xs=(B=1, chunk_size, hidden-dim)
 
-        elayers, cache_t1 = paddle.shape(att_cache)[0], paddle.shape(att_cache)[2]
+        elayers = paddle.shape(att_cache)[0]
+        cache_t1 = paddle.shape(att_cache)[2]
         chunk_size = paddle.shape(xs)[1]
         attention_key_size = cache_t1 + chunk_size
 

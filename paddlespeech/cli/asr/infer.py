@@ -365,7 +365,7 @@ class ASRExecutor(BaseExecutor):
         except Exception as e:
             logger.exception(e)
             logger.error(
-                "can not open the audio file, please check the audio file format is 'wav'. \n \
+                f"can not open the audio file, please check the audio file({audio_file}) format is 'wav'. \n \
                  you can try to use sox to change the file format.\n \
                  For example: \n \
                  sample rate: 16k \n \

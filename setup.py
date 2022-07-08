@@ -71,7 +71,8 @@ base = [
     "colorlog",
     "pathos == 0.2.8",
     "braceexpand",
-    "pyyaml"
+    "pyyaml",
+    "pybind11",
 ]
 
 server = [
@@ -90,7 +91,6 @@ requirements = {
         "gpustat",
         "paddlespeech_ctcdecoders",
         "phkit",
-        "pybind11",
         "pypi-kenlm",
         "snakeviz",
         "sox",

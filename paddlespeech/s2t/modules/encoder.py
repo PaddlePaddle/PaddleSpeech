@@ -177,7 +177,7 @@ class BaseEncoder(nn.Layer):
             decoding_chunk_size, self.static_chunk_size,
             num_decoding_left_chunks)
         for layer in self.encoders:
-            xs, chunk_masks, _ = layer(xs, chunk_masks, pos_emb, mask_pad)
+            xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad)
         if self.normalize_before:
             xs = self.after_norm(xs)
         # Here we assume the mask is not changed in encoder layers, so just
@@ -190,30 +190,31 @@ class BaseEncoder(nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            subsampling_cache: Optional[paddle.Tensor]=None,
-            elayers_output_cache: Optional[List[paddle.Tensor]]=None,
-            conformer_cnn_cache: Optional[List[paddle.Tensor]]=None,
-    ) -> Tuple[paddle.Tensor, paddle.Tensor, List[paddle.Tensor], List[
-            paddle.Tensor]]:
+            att_cache: paddle.Tensor = paddle.zeros([0,0,0,0]),
+            cnn_cache: paddle.Tensor = paddle.zeros([0,0,0,0]),
+            att_mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Forward just one chunk
         Args:
-            xs (paddle.Tensor): chunk input, [B=1, T, D]
+            xs (paddle.Tensor): chunk audio feat input, [B=1, T, D], where 
+                `T==(chunk_size-1)*subsampling_rate + subsample.right_context + 1`
             offset (int): current offset in encoder output time stamp
             required_cache_size (int): cache size required for next chunk
                 compuation
                 >=0: actual cache size
                 <0: means all history cache is required
-            subsampling_cache (Optional[paddle.Tensor]): subsampling cache
-            elayers_output_cache (Optional[List[paddle.Tensor]]):
-                transformer/conformer encoder layers output cache
-            conformer_cnn_cache (Optional[List[paddle.Tensor]]): conformer
-                cnn cache
+            att_cache(paddle.Tensor): cache tensor for key & val in 
+                transformer/conformer attention. Shape is 
+                (elayers, head, cache_t1, d_k * 2), where`head * d_k == hidden-dim` 
+                and `cache_t1 == chunk_size * num_decoding_left_chunks`.
+            cnn_cache (paddle.Tensor): cache tensor for cnn_module in conformer, 
+                (elayers, B=1, hidden-dim, cache_t2), where `cache_t2 == cnn.lorder - 1`
         Returns:
-            paddle.Tensor: output of current input xs
-            paddle.Tensor: subsampling cache required for next chunk computation
-            List[paddle.Tensor]: encoder layers output cache required for next
-                chunk computation
-            List[paddle.Tensor]: conformer cnn cache
+            paddle.Tensor: output of current input xs, (B=1, chunk_size, hidden-dim)
+            paddle.Tensor: new attention cache required for next chunk, dyanmic shape 
+                (elayers, head, T, d_k*2) depending on required_cache_size
+            paddle.Tensor: new conformer cnn cache required for next chunk, with
+                same shape as the original cnn_cache
         """
         assert xs.shape[0] == 1  # batch size must be one
         # tmp_masks is just for interface compatibility
@@ -225,50 +226,49 @@ class BaseEncoder(nn.Layer):
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
 
-        xs, pos_emb, _ = self.embed(
-            xs, tmp_masks, offset=offset)  #xs=(B, T, D), pos_emb=(B=1, T, D)
+        # before embed, xs=(B, T, D1), pos_emb=(B=1, T, D)
+        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset) 
+        # after embed, xs=(B=1, chunk_size, hidden-dim)
 
-        if subsampling_cache is not None:
-            cache_size = subsampling_cache.shape[1]  #T
-            xs = paddle.cat((subsampling_cache, xs), dim=1)
-        else:
-            cache_size = 0
+        elayers, cache_t1 = paddle.shape(att_cache)[0], paddle.shape(att_cache)[2]
+        chunk_size = paddle.shape(xs)[1]
+        attention_key_size = cache_t1 + chunk_size
 
         # only used when using `RelPositionMultiHeadedAttention`
         pos_emb = self.embed.position_encoding(
-            offset=offset - cache_size, size=xs.shape[1])
+            offset=offset - cache_t1, size=attention_key_size)
 
         if required_cache_size < 0:
             next_cache_start = 0
         elif required_cache_size == 0:
-            next_cache_start = xs.shape[1]
+            next_cache_start = attention_key_size
         else:
-            next_cache_start = xs.shape[1] - required_cache_size
-        r_subsampling_cache = xs[:, next_cache_start:, :]
+            next_cache_start = max(attention_key_size - required_cache_size, 0)
 
-        # Real mask for transformer/conformer layers
-        masks = paddle.ones([1, xs.shape[1]], dtype=paddle.bool)
-        masks = masks.unsqueeze(1)  #[B=1, L'=1, T]
-        r_elayers_output_cache = []
-        r_conformer_cnn_cache = []
+        r_att_cache = []
+        r_cnn_cache = []
         for i, layer in enumerate(self.encoders):
-            attn_cache = None if elayers_output_cache is None else elayers_output_cache[
-                i]
-            cnn_cache = None if conformer_cnn_cache is None else conformer_cnn_cache[
-                i]
-            xs, _, new_cnn_cache = layer(
-                xs,
-                masks,
-                pos_emb,
-                output_cache=attn_cache,
-                cnn_cache=cnn_cache)
-            r_elayers_output_cache.append(xs[:, next_cache_start:, :])
-            r_conformer_cnn_cache.append(new_cnn_cache)
+            # att_cache[i:i+1] = (1, head, cache_t1, d_k*2)
+            # cnn_cache[i] = (B=1, hidden-dim, cache_t2)
+            xs, _, new_att_cache, new_cnn_cache = layer(
+                xs, att_mask, pos_emb,
+                att_cache=att_cache[i:i+1] if elayers > 0 else att_cache,
+                cnn_cache=cnn_cache[i] if paddle.shape(cnn_cache)[0] > 0 else cnn_cache,
+            )
+            # new_att_cache = (1, head, attention_key_size, d_k*2)
+            # new_cnn_cache = (B=1, hidden-dim, cache_t2)
+            r_att_cache.append(new_att_cache[:,:, next_cache_start:, :])
+            r_cnn_cache.append(new_cnn_cache.unsqueeze(0)) # add elayer dim
+
         if self.normalize_before:
             xs = self.after_norm(xs)
 
-        return (xs[:, cache_size:, :], r_subsampling_cache,
-                r_elayers_output_cache, r_conformer_cnn_cache)
+        # r_att_cache (elayers, head, T, d_k*2)
+        # r_cnn_cache （elayers, B=1, hidden-dim, cache_t2)
+        r_att_cache = paddle.concat(r_att_cache, axis=0)
+        r_cnn_cache = paddle.concat(r_cnn_cache, axis=0)
+        return xs, r_att_cache, r_cnn_cache
+
 
     def forward_chunk_by_chunk(
             self,
@@ -313,25 +313,24 @@ class BaseEncoder(nn.Layer):
 
         num_frames = xs.shape[1]
         required_cache_size = decoding_chunk_size * num_decoding_left_chunks
-        subsampling_cache: Optional[paddle.Tensor] = None
-        elayers_output_cache: Optional[List[paddle.Tensor]] = None
-        conformer_cnn_cache: Optional[List[paddle.Tensor]] = None
+
+        att_cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+        cnn_cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+
         outputs = []
         offset = 0
         # Feed forward overlap input step by step
         for cur in range(0, num_frames - context + 1, stride):
             end = min(cur + decoding_window, num_frames)
             chunk_xs = xs[:, cur:end, :]
-            (y, subsampling_cache, elayers_output_cache,
-             conformer_cnn_cache) = self.forward_chunk(
-                 chunk_xs, offset, required_cache_size, subsampling_cache,
-                 elayers_output_cache, conformer_cnn_cache)
+
+            (y, att_cache, cnn_cache) = self.forward_chunk(
+                 chunk_xs, offset, required_cache_size, att_cache, cnn_cache)
+
             outputs.append(y)
             offset += y.shape[1]
         ys = paddle.cat(outputs, 1)
-        # fake mask, just for jit script and compatibility with `forward` api
-        masks = paddle.ones([1, ys.shape[1]], dtype=paddle.bool)
-        masks = masks.unsqueeze(1)
+        masks = paddle.ones([1, 1, ys.shape[1]], dtype=paddle.bool)
         return ys, masks
 
 

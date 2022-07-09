@@ -18,6 +18,7 @@ from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
+from paddle.optimizer.lr import LRScheduler
 
 from paddlespeech.t2s.modules.losses import MLMLoss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
@@ -34,12 +35,14 @@ class ErnieSATUpdater(StandardUpdater):
     def __init__(self,
                  model: Layer,
                  optimizer: Optimizer,
+                 scheduler: LRScheduler,
                  dataloader: DataLoader,
                  init_state=None,
                  text_masking: bool=False,
                  odim: int=80,
                  output_dir: Path=None):
         super().__init__(model, optimizer, dataloader, init_state=None)
+        self.scheduler = scheduler
 
         self.criterion = MLMLoss(text_masking=text_masking, odim=odim)
 
@@ -75,10 +78,12 @@ class ErnieSATUpdater(StandardUpdater):
 
         loss = mlm_loss + text_mlm_loss if text_mlm_loss is not None else mlm_loss
 
-        optimizer = self.optimizer
-        optimizer.clear_grad()
+        self.optimizer.clear_grad()
+
         loss.backward()
-        optimizer.step()
+        self.optimizer.step()
+        self.scheduler.step()
+        scheduler_msg = 'lr: {}'.format(self.scheduler.last_lr)
 
         report("train/loss", float(loss))
         report("train/mlm_loss", float(mlm_loss))
@@ -90,6 +95,7 @@ class ErnieSATUpdater(StandardUpdater):
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
+        self.msg += ', ' + scheduler_msg
 
 
 class ErnieSATEvaluator(StandardEvaluator):

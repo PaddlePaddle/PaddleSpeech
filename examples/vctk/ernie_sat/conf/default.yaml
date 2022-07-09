@@ -71,9 +71,10 @@ model:
 ###########################################################
 #                     OPTIMIZER SETTING                   #
 ###########################################################
-optimizer:
-    optim: adam               # optimizer type
-    learning_rate: 0.001      # learning rate
+scheduler_params:
+    d_model: 384
+    warmup_steps: 4000
+grad_clip: 1.0
 
 ###########################################################
 #                     TRAINING SETTING                    #
@@ -84,7 +85,7 @@ num_snapshots: 5
 ###########################################################
 #                       OTHER SETTING                     #
 ###########################################################
-seed: 10086
+seed: 0
 
 token_list:
 - <blank>

@@ -74,4 +74,4 @@ RUN git clone https://github.com/PaddlePaddle/PaddleSpeech.git && cd PaddleSpeec
     chown -R paddle:paddle /home/paddle/PaddleSpeech
 
 USER paddle
-'bash']
+CMD ['bash']

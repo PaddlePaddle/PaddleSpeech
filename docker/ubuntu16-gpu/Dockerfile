@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y inetutils-ping wget vim curl cmake git 
     && /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
     cd /usr/lib/x86_64-linux-gnu && ln -s libcudnn.so.8 libcudnn.so && \
     cd /usr/local/cuda-11.2/targets/x86_64-linux/lib  && ln -s libcublas.so.11.4.1.1043 libcublas.so && \
-    ln -s libcusolver.so.11.1.0.152 libcusolver.so && ln -s libcusparse.so.11 libcusparse.so
+    ln -s libcusolver.so.11.1.0.152 libcusolver.so && ln -s libcusparse.so.11 libcusparse.so && \
+    ln -s libcufft.so.10.4.1.152 libcufft.so
 
 RUN echo "set meta-flag on" >> /etc/inputrc && echo "set convert-meta off" >> /etc/inputrc && \
     locale-gen en_US.UTF-8 && /sbin/ldconfig -v && groupadd -g 10001 paddle && \
@@ -31,7 +32,7 @@ RUN echo "set meta-flag on" >> /etc/inputrc && echo "set convert-meta off" >> /e
 
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US.UTF-8 TZ=Asia/Shanghai
 
-# official download site: https://cdn.npmmirror.com/binaries/python/3.7.13/Python-3.7.13.tgz
+# official download site: https://www.python.org/ftp/python/3.7.13/Python-3.7.13.tgz
 RUN wget https://cdn.npmmirror.com/binaries/python/3.7.13/Python-3.7.13.tgz && tar xvf Python-3.7.13.tgz && \
     cd Python-3.7.13 && ./configure --prefix=/home/paddle/python3.7 && make -j8 && make install && \
     rm -rf ../Python-3.7.13 ../Python-3.7.13.tgz && chown -R paddle:paddle /home/paddle/python3.7
@@ -54,7 +55,6 @@ RUN cd /tmp && wget https://mirrors.sjtug.sjtu.edu.cn/gnu/gmp/gmp-6.1.0.tar.bz2 
     rm -rf ../gcc-8.2.0.tar.gz ../gcc-8.2.0 && chown -R paddle:paddle /home/paddle/gcc82
 
 WORKDIR /home/paddle
-USER paddle
 ENV PATH=/home/paddle/python3.7/bin:/home/paddle/gcc82/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/local/cuda-11.2/targets/x86_64-linux/lib:${LD_LIBRARY_PATH}
 
@@ -62,9 +62,16 @@ RUN mkdir -p ~/.pip && echo "[global]" > ~/.pip/pip.conf && \
     echo "index-url=https://mirror.baidu.com/pypi/simple" >> ~/.pip/pip.conf && \
     echo "trusted-host=mirror.baidu.com" >> ~/.pip/pip.conf && \
     python3 -m pip install --upgrade pip && \
-    pip3 install paddlepaddle-gpu==2.3.1.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html 
+    pip install paddlepaddle-gpu==2.3.1.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html && \
+    rm -rf ~/.cache/pip
 
 RUN git clone https://github.com/PaddlePaddle/PaddleSpeech.git && cd PaddleSpeech && \
-    pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    cp -f /home/paddle/gcc82/lib64/libstdc++.so.6.0.25 /usr/lib/x86_64-linux-gnu/libstdc++.so.6 
+    pip3 install pytest-runner paddleaudio -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 install importlib-metadata==4.2.0 urllib3==1.25.10 -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    rm -rf ~/.cache/pip && \
+    sudo cp -f /home/paddle/gcc82/lib64/libstdc++.so.6.0.25 /usr/lib/x86_64-linux-gnu/libstdc++.so.6 && \
+    chown -R paddle:paddle /home/paddle/PaddleSpeech
+
+USER paddle
+'bash']

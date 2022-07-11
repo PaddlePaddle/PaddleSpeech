@@ -150,7 +150,7 @@ manylinux1 支持 Centos5以上， manylinux2010 支持 Centos 6 以上，manyli
 ### 拉取 manylinux2010
 
 ```bash
-docker pull quay.io/pypa/manylinux1_x86_64
+docker pull quay.io/pypa/manylinux2010_x86_64
 ```
 
 ### 使用 manylinux2010

@@ -192,12 +192,15 @@ class ACSEngine(BaseEngine):
 
         # search for each word in self.word_list
         offset = self.config.offset
+        # last time in time_stamp
         max_ed = time_stamp[-1]['ed']
         for w in self.word_list:
             # search the w in asr_result and the index in asr_result
+            # https://docs.python.org/3/library/re.html#re.finditer
             for m in re.finditer(w, asr_result):
+                # match start and end char index in timestamp
+                # https://docs.python.org/3/library/re.html#re.Match.start
                 start = max(time_stamp[m.start(0)]['bg'] - offset, 0)
-
                 end = min(time_stamp[m.end(0) - 1]['ed'] + offset, max_ed)
                 logger.debug(f'start: {start}, end: {end}')
                 acs_result.append({'w': w, 'bg': start, 'ed': end})

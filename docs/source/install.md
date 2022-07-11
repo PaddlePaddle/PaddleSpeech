@@ -10,7 +10,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 
 ## Prerequisites
 - Python >= 3.7
-- PaddlePaddle latest version (please refer to the [Installation Guide] (https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
+- PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ compilation environment
 - Hip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
 - Hip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 

@@ -86,6 +86,7 @@ class OnlineCTCEndpoint:
 
         Args:
             ctc_log_probs (np.ndarray): (T, D)
+            decoding_something (bool): contain nonsilince.
 
         Returns:
             bool: whether endpoint detected.

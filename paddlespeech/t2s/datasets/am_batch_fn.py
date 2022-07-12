@@ -119,9 +119,17 @@ def erniesat_batch_fn(examples,
     speech_mask = make_non_pad_mask(
         speech_lengths, speech_pad[:, :, 0], length_dim=1).unsqueeze(-2)
 
+    # for training
+    span_bdy = None
+    # for inference
+    if 'span_bdy' in examples[0].keys():
+        span_bdy = [
+            np.array(item["span_bdy"], dtype=np.int64) for item in examples
+        ]
+        span_bdy = paddle.to_tensor(span_bdy)
+
     # dual_mask 的是混合中英时候同时 mask 语音和文本 
     # ernie sat 在实现跨语言的时候都 mask 了
-    span_bdy = None
     if text_masking:
         masked_pos, text_masked_pos = phones_text_masking(
             xs_pad=speech_pad,

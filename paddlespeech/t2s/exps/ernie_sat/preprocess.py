@@ -166,7 +166,8 @@ def process_sentences(config,
                         results.append(record)
 
     results.sort(key=itemgetter("utt_id"))
-    with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
+    # replace 'w' with 'a' to write from the end of file
+    with jsonlines.open(output_dir / "metadata.jsonl", 'a') as writer:
         for item in results:
             writer.write(item)
     print("Done")

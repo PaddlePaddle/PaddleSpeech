@@ -68,6 +68,10 @@ model_alias = {
     "paddlespeech.t2s.models.wavernn:WaveRNN",
     "wavernn_inference":
     "paddlespeech.t2s.models.wavernn:WaveRNNInference",
+    "erniesat":
+    "paddlespeech.t2s.models.ernie_sat:ErnieSAT",
+    "erniesat_inference":
+    "paddlespeech.t2s.models.ernie_sat:ErnieSATInference",
 }
 
 
@@ -109,6 +113,7 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     # model: {model_name}_{dataset}
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
+    converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
         if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
@@ -126,8 +131,17 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
         if voice_cloning:
             print("voice cloning!")
             fields += ["spk_emb"]
+    elif am_name == 'erniesat':
+        fields = [
+            "utt_id", "text", "text_lengths", "speech", "speech_lengths",
+            "align_start", "align_end"
+        ]
+        converters = {"speech": np.load}
+    else:
+        print("wrong am, please input right am!!!")
 
-    test_dataset = DataTable(data=test_metadata, fields=fields)
+    test_dataset = DataTable(
+        data=test_metadata, fields=fields, converters=converters)
     return test_dataset
 
 
@@ -193,6 +207,10 @@ def get_am_inference(am: str='fastspeech2_csmsc',
             **am_config["model"])
     elif am_name == 'tacotron2':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+    elif am_name == 'erniesat':
+        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+    else:
+        print("wrong am, please input right am!!!")
 
     am.set_state_dict(paddle.load(am_ckpt)["main_params"])
     am.eval()

@@ -389,7 +389,7 @@ class MLM(nn.Layer):
             speech_seg_pos: paddle.Tensor,
             text_seg_pos: paddle.Tensor,
             span_bdy: List[int],
-            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
+            use_teacher_forcing: bool=False, ) -> List[paddle.Tensor]:
         '''
         Args:
             speech (paddle.Tensor): input speech (1, Tmax, D).
@@ -668,3 +668,38 @@ class ErnieSAT(nn.Layer):
             text_seg_pos=text_seg_pos,
             span_bdy=span_bdy,
             use_teacher_forcing=use_teacher_forcing)
+
+
+class ErnieSATInference(nn.Layer):
+    def __init__(self, normalizer, model):
+        super().__init__()
+        self.normalizer = normalizer
+        self.acoustic_model = model
+
+    def forward(
+            self,
+            speech: paddle.Tensor,
+            text: paddle.Tensor,
+            masked_pos: paddle.Tensor,
+            speech_mask: paddle.Tensor,
+            text_mask: paddle.Tensor,
+            speech_seg_pos: paddle.Tensor,
+            text_seg_pos: paddle.Tensor,
+            span_bdy: List[int],
+            use_teacher_forcing: bool=True, ):
+        outs = self.acoustic_model.inference(
+            speech=speech,
+            text=text,
+            masked_pos=masked_pos,
+            speech_mask=speech_mask,
+            text_mask=text_mask,
+            speech_seg_pos=speech_seg_pos,
+            text_seg_pos=text_seg_pos,
+            span_bdy=span_bdy,
+            use_teacher_forcing=use_teacher_forcing)
+
+        normed_mel_pre, normed_mel_masked, normed_mel_post = outs
+        logmel_pre = self.normalizer.inverse(normed_mel_pre)
+        logmel_masked = self.normalizer.inverse(normed_mel_masked)
+        logmel_post = self.normalizer.inverse(normed_mel_post)
+        return logmel_pre, logmel_masked, logmel_post

@@ -62,8 +62,6 @@ def train_sp(args, config):
         "align_end"
     ]
     converters = {"speech": np.load}
-    spk_num = None
-
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True
 

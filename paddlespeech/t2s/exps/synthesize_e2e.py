@@ -113,8 +113,12 @@ def evaluate(args):
                 input_ids = frontend.get_input_ids(
                     sentence, merge_sentences=merge_sentences)
                 phone_ids = input_ids["phone_ids"]
+            elif args.lang == 'mix':
+                input_ids = frontend.get_input_ids(
+                    sentence, merge_sentences=merge_sentences)
+                phone_ids = input_ids["phone_ids"]
             else:
-                print("lang should in {'zh', 'en'}!")
+                print("lang should in {'zh', 'en', 'mix'}!")
             with paddle.no_grad():
                 flags = 0
                 for i in range(len(phone_ids)):
@@ -122,7 +126,7 @@ def evaluate(args):
                     # acoustic model
                     if am_name == 'fastspeech2':
                         # multi speaker
-                        if am_dataset in {"aishell3", "vctk"}:
+                        if am_dataset in {"aishell3", "vctk", "mix"}:
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, spk_id)
                         else:
@@ -170,7 +174,7 @@ def parse_args():
         choices=[
             'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
             'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech'
+            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -231,7 +235,7 @@ def parse_args():
         '--lang',
         type=str,
         default='zh',
-        help='Choose model language. zh or en')
+        help='Choose model language. zh or en or mix')
 
     parser.add_argument(
         "--inference_dir",

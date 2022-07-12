@@ -26,7 +26,7 @@
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
-  | <a href="https://arxiv.org/abs/2205.12007"> 论文 </a>
+  | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 论文 </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee 
 </h4>
 </div>
@@ -35,6 +35,9 @@
 ------------------------------------------------------------------------------------
 
 **PaddleSpeech** 是基于飞桨 [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) 的语音方向的开源模型库，用于语音和音频中的各种关键任务的开发，包含大量基于深度学习前沿和有影响力的模型，一些典型的应用示例如下：
+
+**PaddleSpeech** 荣获 [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/).
+  
 ##### 语音识别
 
 <div align = "center">

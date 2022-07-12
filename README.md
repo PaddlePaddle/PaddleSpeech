@@ -25,14 +25,16 @@
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
-  | <a href="https://arxiv.org/abs/2205.12007"> Paper </a>
+  | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 Paper </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee </a>
 </h4>
 </div>
 
 ------------------------------------------------------------------------------------
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models. 
+
+Paddlespeech won the [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/).
 
 ##### Speech Recognition
 

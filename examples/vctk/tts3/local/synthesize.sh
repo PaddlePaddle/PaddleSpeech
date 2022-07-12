@@ -31,7 +31,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize.py \
-        --am=fastspeech2_aishell3 \
+        --am=fastspeech2_vctk \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \

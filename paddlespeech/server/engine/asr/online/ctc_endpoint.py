@@ -39,10 +39,10 @@ class OnlineCTCEndpoingOpt:
 
     # rule1 times out after 5 seconds of silence, even if we decoded nothing.
     rule1: OnlineCTCEndpointRule = OnlineCTCEndpointRule(False, 5000, 0)
-    # rule4 times out after 1.0 seconds of silence after decoding something,
+    # rule2 times out after 1.0 seconds of silence after decoding something,
     # even if we did not reach a final-state at all.
     rule2: OnlineCTCEndpointRule = OnlineCTCEndpointRule(True, 1000, 0)
-    # rule5 times out after the utterance is 20 seconds long, regardless of
+    # rule3 times out after the utterance is 20 seconds long, regardless of
     # anything else.
     rule3: OnlineCTCEndpointRule = OnlineCTCEndpointRule(False, 0, 20000)
 
@@ -102,7 +102,8 @@ class OnlineCTCEndpoint:
 
         assert self.num_frames_decoded >= self.trailing_silence_frames
         assert self.frame_shift_in_ms > 0
-
+        
+        decoding_something = (self.num_frames_decoded > self.trailing_silence_frames) and decoding_something
         utterance_length = self.num_frames_decoded * self.frame_shift_in_ms
         trailing_silence = self.trailing_silence_frames * self.frame_shift_in_ms
 

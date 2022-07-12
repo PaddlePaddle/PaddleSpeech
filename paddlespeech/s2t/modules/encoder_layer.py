@@ -75,49 +75,45 @@ class TransformerEncoderLayer(nn.Layer):
             self,
             x: paddle.Tensor,
             mask: paddle.Tensor,
-            pos_emb: Optional[paddle.Tensor]=None,
-            mask_pad: Optional[paddle.Tensor]=None,
-            output_cache: Optional[paddle.Tensor]=None,
-            cnn_cache: Optional[paddle.Tensor]=None,
-    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+            pos_emb: paddle.Tensor,
+            mask_pad: paddle.Tensor= paddle.ones([0,0,0], dtype=paddle.bool),
+            att_cache: paddle.Tensor=paddle.zeros([0,0,0,0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0,0,0,0]),
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
-            x (paddle.Tensor): Input tensor (#batch, time, size).
-            mask (paddle.Tensor): Mask tensor for the input (#batch, time).
+            x (paddle.Tensor): (#batch, time, size)
+            mask (paddle.Tensor): Mask tensor for the input (#batch, time，time),
+                (0, 0, 0) means fake mask.
             pos_emb (paddle.Tensor): just for interface compatibility
                 to ConformerEncoderLayer
-            mask_pad (paddle.Tensor): not used here, it's for interface
-                compatibility to ConformerEncoderLayer
-            output_cache (paddle.Tensor): Cache tensor of the output
-                (#batch, time2, size), time2 < time in x.
-            cnn_cache (paddle.Tensor): not used here, it's for interface
-                compatibility to ConformerEncoderLayer
+            mask_pad (paddle.Tensor): does not used in transformer layer,
+                just for unified api with conformer.
+            att_cache (paddle.Tensor): Cache tensor of the KEY & VALUE
+                (#batch=1, head, cache_t1, d_k * 2), head * d_k == size.
+            cnn_cache (paddle.Tensor): Convolution cache in conformer layer
+                (#batch=1, size, cache_t2), not used here, it's for interface
+                compatibility to ConformerEncoderLayer.
         Returns:
             paddle.Tensor: Output tensor (#batch, time, size).
-            paddle.Tensor: Mask tensor (#batch, time).
-            paddle.Tensor: Fake cnn cache tensor for api compatibility with Conformer (#batch, channels, time').
+            paddle.Tensor: Mask tensor (#batch, time, time).
+            paddle.Tensor: att_cache tensor,
+                (#batch=1, head, cache_t1 + time, d_k * 2).
+            paddle.Tensor: cnn_cahce tensor (#batch=1, size, cache_t2).
         """
         residual = x
         if self.normalize_before:
             x = self.norm1(x)
 
-        if output_cache is None:
-            x_q = x
-        else:
-            assert output_cache.shape[0] == x.shape[0]
-            assert output_cache.shape[1] < x.shape[1]
-            assert output_cache.shape[2] == self.size
-            chunk = x.shape[1] - output_cache.shape[1]
-            x_q = x[:, -chunk:, :]
-            residual = residual[:, -chunk:, :]
-            mask = mask[:, -chunk:, :]
+        x_att, new_att_cache = self.self_attn(
+            x, x, x, mask, cache=att_cache
+        )
 
         if self.concat_after:
-            x_concat = paddle.concat(
-                (x, self.self_attn(x_q, x, x, mask)), axis=-1)
+            x_concat = paddle.concat((x, x_att), axis=-1)
             x = residual + self.concat_linear(x_concat)
         else:
-            x = residual + self.dropout(self.self_attn(x_q, x, x, mask))
+            x = residual + self.dropout(x_att)
         if not self.normalize_before:
             x = self.norm1(x)
 
@@ -128,11 +124,8 @@ class TransformerEncoderLayer(nn.Layer):
         if not self.normalize_before:
             x = self.norm2(x)
 
-        if output_cache is not None:
-            x = paddle.concat([output_cache, x], axis=1)
-
-        fake_cnn_cache = paddle.zeros([1], dtype=x.dtype)
-        return x, mask, fake_cnn_cache
+        fake_cnn_cache = paddle.zeros([0,0,0], dtype=x.dtype)
+        return x, mask, new_att_cache, fake_cnn_cache
 
 
 class ConformerEncoderLayer(nn.Layer):
@@ -192,32 +185,41 @@ class ConformerEncoderLayer(nn.Layer):
         self.size = size
         self.normalize_before = normalize_before
         self.concat_after = concat_after
-        self.concat_linear = Linear(size + size, size)
+        if self.concat_after:
+            self.concat_linear = Linear(size + size, size)
+        else:
+            self.concat_linear = nn.Identity()
 
     def forward(
             self,
             x: paddle.Tensor,
             mask: paddle.Tensor,
             pos_emb: paddle.Tensor,
-            mask_pad: Optional[paddle.Tensor]=None,
-            output_cache: Optional[paddle.Tensor]=None,
-            cnn_cache: Optional[paddle.Tensor]=None,
-    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+            mask_pad: paddle.Tensor= paddle.ones([0,0,0], dtype=paddle.bool),
+            att_cache: paddle.Tensor=paddle.zeros([0,0,0,0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0,0,0,0]),
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
-            x (paddle.Tensor): (#batch, time, size)
-            mask (paddle.Tensor): Mask tensor for the input (#batch, time，time).
-            pos_emb (paddle.Tensor): positional encoding, must not be None
-                for ConformerEncoderLayer.
-            mask_pad (paddle.Tensor): batch padding mask used for conv module, (B, 1, T).
-            output_cache (paddle.Tensor): Cache tensor of the encoder output
-                (#batch, time2, size), time2 < time in x.
+            x (paddle.Tensor): Input tensor (#batch, time, size).
+            mask (paddle.Tensor): Mask tensor for the input (#batch, time, time).
+                (0,0,0) means fake mask.
+            pos_emb (paddle.Tensor): postional encoding, must not be None 
+                for ConformerEncoderLayer
+            mask_pad (paddle.Tensor): batch padding mask used for conv module.
+               (#batch, 1，time), (0, 0, 0) means fake mask.
+            att_cache (paddle.Tensor): Cache tensor of the KEY & VALUE
+                (#batch=1, head, cache_t1, d_k * 2), head * d_k == size.
             cnn_cache (paddle.Tensor): Convolution cache in conformer layer
+                (#batch=1, size, cache_t2)
         Returns:
-            paddle.Tensor: Output tensor (#batch, time, size).
-            paddle.Tensor: Mask tensor (#batch, time).
-            paddle.Tensor: New cnn cache tensor (#batch, channels, time').
+           paddle.Tensor: Output tensor (#batch, time, size).
+           paddle.Tensor: Mask tensor (#batch, time, time).
+           paddle.Tensor: att_cache tensor,
+                (#batch=1, head, cache_t1 + time, d_k * 2).
+           paddle.Tensor: cnn_cahce tensor (#batch, size, cache_t2).
         """
+
         # whether to use macaron style FFN
         if self.feed_forward_macaron is not None:
             residual = x
@@ -233,18 +235,8 @@ class ConformerEncoderLayer(nn.Layer):
         if self.normalize_before:
             x = self.norm_mha(x)
 
-        if output_cache is None:
-            x_q = x
-        else:
-            assert output_cache.shape[0] == x.shape[0]
-            assert output_cache.shape[1] < x.shape[1]
-            assert output_cache.shape[2] == self.size
-            chunk = x.shape[1] - output_cache.shape[1]
-            x_q = x[:, -chunk:, :]
-            residual = residual[:, -chunk:, :]
-            mask = mask[:, -chunk:, :]
-
-        x_att = self.self_attn(x_q, x, x, pos_emb, mask)
+        x_att, new_att_cache = self.self_attn(
+            x, x, x, mask, pos_emb, cache=att_cache)
 
         if self.concat_after:
             x_concat = paddle.concat((x, x_att), axis=-1)
@@ -257,7 +249,7 @@ class ConformerEncoderLayer(nn.Layer):
 
         # convolution module
         # Fake new cnn cache here, and then change it in conv_module
-        new_cnn_cache = paddle.zeros([1], dtype=x.dtype)
+        new_cnn_cache = paddle.zeros([0,0,0], dtype=x.dtype)
         if self.conv_module is not None:
             residual = x
             if self.normalize_before:
@@ -282,7 +274,4 @@ class ConformerEncoderLayer(nn.Layer):
         if self.conv_module is not None:
             x = self.norm_final(x)
 
-        if output_cache is not None:
-            x = paddle.concat([output_cache, x], axis=1)
-
-        return x, mask, new_cnn_cache
+        return x, mask, new_att_cache, new_cnn_cache

@@ -108,15 +108,17 @@ class ConvolutionModule(nn.Layer):
 
     def forward(self,
                 x: paddle.Tensor,
-                mask_pad: Optional[paddle.Tensor]=None,
-                cache: Optional[paddle.Tensor]=None
+                mask_pad: paddle.Tensor= paddle.ones([0,0,0], dtype=paddle.bool),
+                cache: paddle.Tensor= paddle.zeros([0,0,0]),
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, channels).
-            mask_pad (paddle.Tensor): used for batch padding, (#batch, channels, time).
+            mask_pad (paddle.Tensor): used for batch padding (#batch, 1, time),
+                (0, 0, 0) means fake mask.
             cache (paddle.Tensor): left context cache, it is only
-                used in causal convolution. (#batch, channels, time')
+                used in causal convolution (#batch, channels, cache_t),
+                (0, 0, 0) meas fake cache.
         Returns:
             paddle.Tensor: Output tensor (#batch, time, channels).
             paddle.Tensor: Output cache tensor (#batch, channels, time')
@@ -125,11 +127,11 @@ class ConvolutionModule(nn.Layer):
         x = x.transpose([0, 2, 1])  # [B, C, T]
 
         # mask batch padding
-        if mask_pad is not None:
+        if paddle.shape(mask_pad)[2] > 0: # time > 0
             x = x.masked_fill(mask_pad, 0.0)
 
         if self.lorder > 0:
-            if cache is None:
+            if paddle.shape(cache)[2] == 0: # cache_t == 0
                 x = nn.functional.pad(
                     x, [self.lorder, 0], 'constant', 0.0, data_format='NCL')
             else:
@@ -143,7 +145,7 @@ class ConvolutionModule(nn.Layer):
             # It's better we just return None if no cache is requried,
             # However, for JIT export, here we just fake one tensor instead of
             # None.
-            new_cache = paddle.zeros([1], dtype=x.dtype)
+            new_cache = paddle.zeros([0, 0, 0], dtype=x.dtype)
 
         # GLU mechanism
         x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)
@@ -159,7 +161,7 @@ class ConvolutionModule(nn.Layer):
         x = self.pointwise_conv2(x)
 
         # mask batch padding
-        if mask_pad is not None:
+        if paddle.shape(mask_pad)[2] > 0: # time > 0
             x = x.masked_fill(mask_pad, 0.0)
 
         x = x.transpose([0, 2, 1])  # [B, T, C]

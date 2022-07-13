@@ -16,31 +16,43 @@ import unittest
 import numpy as np
 import paddle
 
-import paddlespeech.audio.kaldi.kaldi.fbank as fbank
-import paddlespeech.audio.kaldi.kaldi.pitch as pitch
-import kaldiio import ReadHelper
+import paddlespeech.audio.kaldi.fbank as fbank
+import paddlespeech.audio.kaldi.pitch as pitch
+from kaldiio import ReadHelper
+
+# the groundtruth feats computed in kaldi command below.
+#compute-fbank-feats  --dither=0 scp:$wav_scp ark,t:fbank_feat.ark
+#compute-kaldi-pitch-feats --sample-frequency=16000 scp:$wav_scp ark,t:pitch_feat.ark
 
 class TestKaldiFbank(unittest.TestCase):
 
-    def test_fbank_pitch(self):
-        fbank_groundtruth = None
-        pitch_groundtruth = None
-        with ReadHelper('ark:fbank_feat.ark') as reader:
+    def test_fbank(self):
+        fbank_groundtruth = {}
+        with ReadHelper('ark:testdata/fbank_feat.ark') as reader:
             for key, feat in reader:
-                fbank_groundtruth = feat
+                fbank_groundtruth[key] = feat
 
-        with ReadHelper('ark:pitch_feat.ark') as reader:
-           for key, feat in reader:
-               pitch_groundtruth = feat
-
-        with ReadHelper('ark:wav.ark') as reader:
+        with ReadHelper('ark:testdata/wav.ark') as reader:
             for key, wav in reader:
                 fbank_feat = fbank(wav)
+                fbank_check = fbank_groundtruth[key]
+                np.testing.assert_array_almost_equal(
+                    fbank_feat, fbank_check, decimal=4)
+
+    def test_pitch(self):
+        pitch_groundtruth = {}
+        with ReadHelper('ark:testdata/pitch_feat.ark') as reader:
+           for key, feat in reader:
+               pitch_groundtruth[key] = feat
+
+        with ReadHelper('ark:testdata/wav.ark') as reader:
+            for key, wav in reader:
                 pitch_feat = pitch(wav)
+                pitch_check = pitch_groundtruth[key]
                 np.testing.assert_array_almost_equal(
-                    fbank_feat, fbank_groundtruth, decimal=4)
-                np.testing.assert_array_almost_equal(
-                    pitch_feat, pitch_groundtruth, decimal=4)
+                    pitch_feat, pitch_check, decimal=4)
+
+
 
 if __name__ == '__main__':
     unittest.main()

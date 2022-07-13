@@ -19,96 +19,46 @@
 #include <string>
 
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature_wrapper.h"
+#include "feat/pitch-functions.h"
 
 namespace py = pybind11;
 
 namespace paddleaudio {
 namespace kaldi {
 
-bool InitFbank(float samp_freq,  // frame opts
-               float frame_shift_ms,
-               float frame_length_ms,
-               float dither,
-               float preemph_coeff,
-               bool remove_dc_offset,
-               std::string window_type,  // e.g. Hamming window
-               bool round_to_power_of_two,
-               float blackman_coeff,
-               bool snip_edges,
-               bool allow_downsample,
-               bool allow_upsample,
-               int max_feature_vectors,
-               int num_bins,  // mel opts
-               float low_freq,
-               float high_freq,
-               float vtln_low,
-               float vtln_high,
-               bool debug_mel,
-               bool htk_mode,
-               bool use_energy,  // fbank opts
-               float energy_floor,
-               bool raw_energy,
-               bool htk_compat,
-               bool use_log_fbank,
-               bool use_power);
+struct FbankOptions{
+  bool use_energy;  // append an extra dimension with energy to the filter banks
+  float energy_floor;
+  bool raw_energy;  // If true, compute energy before preemphasis and windowing
+  bool htk_compat;  // If true, put energy last (if using energy)
+  bool use_log_fbank;  // if true (default), produce log-filterbank, else linear
+  bool use_power; 
+  FbankOptions(): use_energy(false),
+                 energy_floor(0.0),
+                 raw_energy(true),
+                 htk_compat(false),
+                 use_log_fbank(true),
+                 use_power(true) {}
+};
 
-py::array_t<double> ComputeFbank(
-    float samp_freq,  // frame opts
-    float frame_shift_ms,
-    float frame_length_ms,
-    float dither,
-    float preemph_coeff,
-    bool remove_dc_offset,
-    std::string window_type,  // e.g. Hamming window
-    bool round_to_power_of_two,
-    ::kaldi::BaseFloat blackman_coeff,
-    bool snip_edges,
-    bool allow_downsample,
-    bool allow_upsample,
-    int max_feature_vectors,
-    int num_bins,  // mel opts
-    float low_freq,
-    float high_freq,
-    float vtln_low,
-    float vtln_high,
-    bool debug_mel,
-    bool htk_mode,
-    bool use_energy,  // fbank opts
-    float energy_floor,
-    bool raw_energy,
-    bool htk_compat,
-    bool use_log_fbank,
-    bool use_power,
-    const py::array_t<double>& wav);
+bool InitFbank(
+    ::kaldi::FrameExtractionOptions frame_opts,
+    ::kaldi::MelBanksOptions mel_opts,
+    FbankOptions fbank_opts);
 
-py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav);
+py::array_t<float> ComputeFbank(
+    ::kaldi::FrameExtractionOptions frame_opts,
+    ::kaldi::MelBanksOptions mel_opts,
+    FbankOptions fbank_opts,
+    const py::array_t<float>& wav);
+
+py::array_t<float> ComputeFbankStreaming(const py::array_t<float>& wav);
 
 void ResetFbank();
 
-py::array_t<double> ComputeFbankStreaming(const py::array_t<double>& wav);
-
-py::array_t<double> ComputeKaldiPitch(
- int samp_freq,
- float frame_shift_ms,
- float frame_length_ms,
- float preemph_coeff,
- int min_f0,
- int max_f0,
- float soft_min_f0,
- float penalty_factor,
- int   lowpass_cutoff,
- int  resample_freq,
- float delta_pitch,
- int  nccf_ballast,
- int lowpass_filter_width,
- int upsample_filter_width,
- int  max_frames_latency,
- int  frames_per_chunk,
- bool  simulate_first_pass_online,
- int  recompute_frame,
- bool  nccf_ballast_online,
- bool  snip_edges,
- const py::array_t<double>& wav);
+py::array_t<float> ComputeKaldiPitch(
+    const ::kaldi::PitchExtractionOptions& opts,
+    const py::array_t<float>& wav);
 
 }  // namespace kaldi
 }  // namespace paddleaudio

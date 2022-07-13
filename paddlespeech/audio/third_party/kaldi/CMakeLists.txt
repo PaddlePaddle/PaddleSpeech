@@ -32,9 +32,9 @@ target_include_directories(kaldi-base PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # kaldi-matrix
 add_library(kaldi-matrix STATIC
   matrix/compressed-matrix.cc
+  matrix/matrix-functions.cc
   matrix/kaldi-matrix.cc
   matrix/kaldi-vector.cc
-  matrix/matrix-functions.cc
   matrix/optimization.cc
   matrix/packed-matrix.cc
   matrix/qr.cc
@@ -65,14 +65,14 @@ target_link_libraries(kaldi-util PUBLIC kaldi-base kaldi-matrix)
 
 # kaldi-feat-common
 add_library(kaldi-feat-common STATIC
-  feat/wave-reader.cc
-  feat/signal.cc
+  feat/cmvn.cc
   feat/feature-functions.cc
   feat/feature-window.cc
-  feat/resample.cc
-  feat/pitch-functions.cc
   feat/mel-computations.cc
-  feat/cmvn.cc
+  feat/pitch-functions.cc
+  feat/resample.cc
+  feat/signal.cc
+  feat/wave-reader.cc
 )
 target_include_directories(kaldi-feat-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(kaldi-feat-common PUBLIC kaldi-base kaldi-matrix kaldi-util)

@@ -1,4 +1,4 @@
-// itf/online-feature-itf.h
+// feat/online-feature-itf.h
 
 // Copyright    2013  Johns Hopkins University (author: Daniel Povey)
 
@@ -17,8 +17,8 @@
 // See the Apache 2 License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef KALDI_ITF_ONLINE_FEATURE_ITF_H_
-#define KALDI_ITF_ONLINE_FEATURE_ITF_H_ 1
+#ifndef KALDI_FEAT_ONLINE_FEATURE_ITF_H_
+#define KALDI_FEAT_ONLINE_FEATURE_ITF_H_ 1
 #include "base/kaldi-common.h"
 #include "matrix/matrix-lib.h"
 

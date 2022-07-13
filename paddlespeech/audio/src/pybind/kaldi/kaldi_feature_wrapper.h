@@ -28,7 +28,7 @@ class KaldiFeatureWrapper {
   public:
     static KaldiFeatureWrapper* GetInstance();
     bool InitFbank(::kaldi::FbankOptions opts);
-    py::array_t<double> ComputeFbank(const py::array_t<double> wav);
+    py::array_t<float> ComputeFbank(const py::array_t<float> wav);
     int Dim() { return fbank_->Dim(); }
     void ResetFbank() { fbank_->Reset(); }
 

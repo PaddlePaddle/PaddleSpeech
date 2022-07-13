@@ -11,14 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from paddlespeech.audio._internal import module_utils 
 import paddlespeech.audio.ops.paddleaudio.ComputeFbank as ComputeFbank
+import paddlespeech.audio.ops.paddleaudio.PitchExtractionOptions as PitchExtractionOptions
+import paddlespeech.audio.ops.paddleaudio.FrameExtractionOptions as FrameExtractionOptions
+import paddlespeech.audio.ops.paddleaudio.MelBanksOptions as MelBanksOptions
+import paddlespeech.audio.ops.paddleaudio.FbankOptions as FbankOptions
 import paddlespeech.audio.ops.paddleaudio.ComputeKaldiPitch as ComputeKaldiPitch
 
 __all__ = [
     'fbank',
     'pitch',
 ]
+
 
 @module_utils.requires_kaldi()
 def fbank(wav,
@@ -48,15 +54,38 @@ def fbank(wav,
           htk_compat: bool=False,
           use_log_fbank: bool=True,
           use_power: bool=True):
-    feat = ComputeFbank(
-        samp_freq, frame_shift_ms, frame_length_ms,
-        dither, preemph_coeff, remove_dc_offset,
-        window_type, round_to_power_of_two, blackman_coeff,
-        snip_edges, allow_downsample, allow_upsample,
-        max_feature_vectors, num_bins, low_freq,
-        high_freq, vtln_low, vtln_high, debug_mel,
-        htk_mode, use_energy, energy_floor,
-        raw_energy, htk_compat, use_log_fbank, use_power, wav)
+    frame_opts = FrameExtractionOptions()
+    mel_opts = MelBanksOptions()
+    fbank_opts = FbankOptions()
+    frame_opts.samp_freq = samp_freq  
+    frame_opts.frame_shift_ms = frame_shift_ms
+    frame_opts.frame_length_ms = frame_length_ms
+    frame_opts.dither = dither
+    frame_opts.preemph_coeff = preemph_coeff
+    frame_opts.remove_dc_offset = remove_dc_offset
+    frame_opts.window_type = window_type
+    frame_opts.round_to_power_of_two = round_to_power_of_two
+    frame_opts.blackman_coeff = blackman_coeff
+    frame_opts.snip_edges = snip_edges
+    frame_opts.allow_downsample = allow_downsample
+    frame_opts.allow_upsample = allow_upsample
+    frame_opts.max_feature_vectors = max_feature_vectors
+
+    mel_opts.num_bins = num_bins  
+    mel_opts.low_freq = low_freq
+    mel_opts.high_freq = high_freq
+    mel_opts.vtln_low = vtln_low
+    mel_opts.vtln_high = vtln_high
+    mel_opts.debug_mel = debug_mel
+    mel_opts.htk_mode = htk_mode
+
+    fbank_opts.use_energy = use_energy  
+    fbank_opts.energy_floor = energy_floor
+    fbank_opts.raw_energy = raw_energy
+    fbank_opts.htk_compat = htk_compat
+    fbank_opts.use_log_fbank = use_log_fbank
+    fbank_opts.use_power = use_power
+    feat = ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
     return feat
 
 @module_utils.requires_kaldi()
@@ -81,23 +110,26 @@ def pitch(wav,
           recompute_frame: int=500,
           nccf_ballast_online: bool=False,
           snip_edges: bool=True):
-    pitch = ComputeKaldiPitch(samp_freq, frame_shift_ms,
-          frame_length_ms,
-          preemph_coeff,
-          min_f0,
-          max_f0,
-          soft_min_f0,
-          penalty_factor,
-          lowpass_cutoff,
-          resample_freq,
-          delta_pitch,
-          nccf_ballast,
-          lowpass_filter_width,
-          upsample_filter_width,
-          max_frames_latency,
-          frames_per_chunk,
-          simulate_first_pass_online,
-          recompute_frame,
-          nccf_ballast_online,
-          snip_edges, wav)
+    pitch_opts = PitchExtractionOptions()
+    pitch_opts.samp_freq = samp_freq
+    pitch_opts.frame_shift_ms = frame_shift_ms
+    pitch_opts.frame_length_ms = frame_length_ms
+    pitch_opts.preemph_coeff = preemph_coeff 
+    pitch_opts.min_f0 = min_f0
+    pitch_opts.max_f0 = max_f0
+    pitch_opts.soft_min_f0 = soft_min_f0
+    pitch_opts.penalty_factor = penalty_factor
+    pitch_opts.lowpass_cutoff = lowpass_cutoff
+    pitch_opts.resample_freq = resample_freq
+    pitch_opts.delta_pitch = delta_pitch
+    pitch_opts.nccf_ballast = nccf_ballast
+    pitch_opts.lowpass_filter_width = lowpass_filter_width
+    pitch_opts.upsample_filter_width = upsample_filter_width
+    pitch_opts.max_frames_latency = max_frames_latency
+    pitch_opts.frames_per_chunk = frames_per_chunk
+    pitch_opts.simulate_first_pass_online = simulate_first_pass_online
+    pitch_opts.recompute_frame = recompute_frame
+    pitch_opts.nccf_ballast_online = nccf_ballast_online
+    pitch_opts.snip_edges = snip_edges
+    pitch = ComputeKaldiPitch(pitch_opts, wav)
     return pitch

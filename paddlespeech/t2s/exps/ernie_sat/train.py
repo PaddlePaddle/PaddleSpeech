@@ -154,6 +154,7 @@ def train_sp(args, config):
         dataloader=train_dataloader,
         text_masking=config["model"]["text_masking"],
         odim=odim,
+        vocab_size=vocab_size,
         output_dir=output_dir)
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
@@ -163,6 +164,7 @@ def train_sp(args, config):
         dataloader=dev_dataloader,
         text_masking=config["model"]["text_masking"],
         odim=odim,
+        vocab_size=vocab_size,
         output_dir=output_dir, )
 
     if dist.get_rank() == 0:

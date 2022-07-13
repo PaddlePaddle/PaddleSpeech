@@ -464,14 +464,15 @@ def phones_text_masking(xs_pad: paddle.Tensor,
                     set(range(length)) - set(masked_phn_idxs[0].tolist()))
                 np.random.shuffle(unmasked_phn_idxs)
                 masked_text_idxs = unmasked_phn_idxs[:text_mask_num_lower]
-                text_masked_pos[idx][masked_text_idxs] = 1
+                text_masked_pos[idx, masked_text_idxs] = 1
                 masked_start = align_start[idx][masked_phn_idxs].tolist()
                 masked_end = align_end[idx][masked_phn_idxs].tolist()
                 for s, e in zip(masked_start, masked_end):
                     masked_pos[idx, s:e] = 1
-    non_eos_mask = paddle.reshape(src_mask, paddle.shape(xs_pad)[:2])
+    non_eos_mask = paddle.reshape(src_mask, shape=paddle.shape(xs_pad)[:2])
     masked_pos = masked_pos * non_eos_mask
-    non_eos_text_mask = paddle.reshape(text_mask, paddle.shape(xs_pad)[:2])
+    non_eos_text_mask = paddle.reshape(
+        text_mask, shape=paddle.shape(text_pad)[:2])
     text_masked_pos = text_masked_pos * non_eos_text_mask
     masked_pos = paddle.cast(masked_pos, 'bool')
     text_masked_pos = paddle.cast(text_masked_pos, 'bool')

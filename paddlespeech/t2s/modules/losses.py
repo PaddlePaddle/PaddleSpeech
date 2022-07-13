@@ -1013,6 +1013,7 @@ class KLDivergenceLoss(nn.Layer):
 class MLMLoss(nn.Layer):
     def __init__(self,
                  odim: int,
+                 vocab_size: int=0,
                  lsm_weight: float=0.1,
                  ignore_id: int=-1,
                  text_masking: bool=False):
@@ -1025,6 +1026,7 @@ class MLMLoss(nn.Layer):
             self.l1_loss_func = nn.L1Loss(reduction='none')
         self.text_masking = text_masking
         self.odim = odim
+        self.vocab_size = vocab_size
 
     def forward(
             self,
@@ -1059,10 +1061,12 @@ class MLMLoss(nn.Layer):
             assert text is not None
             assert text_outs is not None
             assert text_masked_pos is not None
-            text_mlm_loss = paddle.sum((self.text_mlm_loss(
-                paddle.reshape(text_outs, (-1, self.vocab_size)),
-                paddle.reshape(text, (-1))) * paddle.reshape(
-                    text_masked_pos,
-                    (-1)))) / paddle.sum((text_masked_pos) + 1e-10)
+            text_outs = paddle.reshape(text_outs, [-1, self.vocab_size])
+            text = paddle.reshape(text, [-1])
+            text_mlm_loss = self.text_mlm_loss(text_outs, text)
+            text_masked_pos_reshape = paddle.reshape(text_masked_pos, [-1])
+            text_mlm_loss = paddle.sum(
+                text_mlm_loss *
+                text_masked_pos_reshape) / paddle.sum((text_masked_pos) + 1e-10)
 
         return mlm_loss, text_mlm_loss

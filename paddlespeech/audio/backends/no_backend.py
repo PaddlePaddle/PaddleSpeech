@@ -6,6 +6,7 @@ from typing import Union
 
 from paddle import Tensor
 
+#code is from: https://github.com/pytorch/audio/blob/main/torchaudio/backend/no_backend.py
 
 def load(
     filepath: Union[str, Path],

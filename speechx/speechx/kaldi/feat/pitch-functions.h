@@ -31,7 +31,7 @@
 
 #include "base/kaldi-error.h"
 #include "feat/mel-computations.h"
-#include "itf/online-feature-itf.h"
+#include "feat/online-feature-itf.h"
 #include "matrix/matrix-lib.h"
 #include "util/common-utils.h"
 

@@ -27,7 +27,7 @@
 #include "feat/feature-functions.h"
 #include "feat/feature-window.h"
 #include "feat/mel-computations.h"
-#include "itf/options-itf.h"
+#include "util/options-itf.h"
 
 namespace kaldi {
 /// @addtogroup  feat FeatureExtraction

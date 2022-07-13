@@ -1,4 +1,6 @@
 """Defines utilities for switching audio backends"""
+#code is from: https://github.com/pytorch/audio/blob/main/torchaudio/backend/utils.py
+
 import warnings
 from typing import List
 from typing import Optional

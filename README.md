@@ -34,7 +34,7 @@
 
 **PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models. 
 
-**PaddleSpeech** won the [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/).
+**PaddleSpeech** won the [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/), please check out our paper on [Arxiv](https://arxiv.org/abs/2205.12007).
 
 ##### Speech Recognition
 

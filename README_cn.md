@@ -20,7 +20,8 @@
 </p>
 <div align="center">  
 <h4>
-    <a href="#快速开始"> 快速开始 </a>
+  <a href="#安装"> 安装 </a>
+  | <a href="#快速开始"> 快速开始 </a>
   | <a href="#快速使用服务"> 快速使用服务 </a>
   | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
@@ -38,115 +39,7 @@
 
 **PaddleSpeech** 荣获 [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/), 请访问 [Arxiv](https://arxiv.org/abs/2205.12007) 论文。
   
-##### 语音识别
 
-<div align = "center">
-<table style="width:100%">
-  <thead>
-    <tr>
-      <th> 输入音频  </th>
-      <th width="550"> 识别结果 </th>
-    </tr>
-  </thead>
-  <tbody>
-   <tr>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
-      </td>
-      <td >I knocked at the door on the ancient side of the building.</td>
-    </tr>
-    <tr>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
-      </td>
-      <td>我认为跑步最重要的就是给我带来了身体健康。</td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
-
-##### 语音翻译 (英译中)
-
-<div align = "center">
-<table style="width:100%">
-  <thead>
-    <tr>
-      <th> 输入音频 </th>
-      <th width="550"> 翻译结果 </th>
-    </tr>
-  </thead>
-  <tbody>
-   <tr>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
-      </td>
-      <td >我 在 这栋 建筑 的 古老 门上 敲门。</td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
-
-##### 语音合成
-<div align = "center">
-<table style="width:100%">
-  <thead>
-    <tr>
-      <th width="550">输入文本</th>
-      <th>合成音频</th>
-    </tr>
-  </thead>
-  <tbody>
-   <tr>
-      <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
-      </td>
-    </tr>
-    <tr>
-      <td >早上好，今天是2020/10/29，最低温度是-3°C。</td>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
-      </td>
-    </tr>
-    <tr>
-      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
-      <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
-            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
-
-更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
-
-##### 标点恢复
-<div align = "center">
-<table style="width:100%">
-  <thead>
-    <tr>
-      <th width="390"> 输入文本 </th>
-      <th width="390"> 输出文本 </th>
-    </tr>
-  </thead>
-  <tbody>
-   <tr>
-      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
-      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
-    </tr>
-  </tbody>
-</table>
-
-</div>
 
 
 ### 特性
@@ -182,54 +75,134 @@
 <img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
 </div>
 
+<a name="安装"></a>
 ## 安装
 
 我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。
-目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解具体安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
+
+### 相关依赖
++ gcc >= 4.8.5
++ paddlepaddle >= 2.2.0
++ python >= 3.7
++ linux(推荐), mac, windows
+
+PaddleSpeech依赖于paddlepaddle，安装可以参考[paddlepaddle官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出cpu版本示例，其它版本大家可以根据自己机器的情况进行安装。
+
+```shell
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+```
+
+PaddleSpeech快速安装方式有两种，一种是pip安装，一种是源码编译（推荐）。
+
+### pip 安装
+```shell
+pip install pytest-runner
+pip install paddlespeech
+```
+
+### 源码编译
+```shell
+git clone https://github.com/PaddlePaddle/PaddleSpeech.git
+cd PaddleSpeech
+pip install pytest-runner
+pip install .
+```
+
+更多关于安装问题，如conda环境，librosa依赖的系统库，gcc环境问题，kaldi安装等，可以参考这篇[安装文档](docs/source/install_cn.md)，如安装上遇到问题可以在[#2150](https://github.com/PaddlePaddle/PaddleSpeech/issues/2150)上留言以及查找相关问题
 
 <a name="快速开始"></a>
 ## 快速开始
 
-安装完成后，开发者可以通过命令行快速开始，改变 `--input` 可以尝试用自己的音频或文本测试。
+安装完成后，开发者可以通过命令行或者Python快速开始，改变 `--input` 可以尝试用自己的音频或文本测试，支持16k wav格式音频。你也可以在`aistudio`中进行体验[PaddleSpeech API Demo ](https://aistudio.baidu.com/aistudio/projectdetail/4281335?shared=1)。
 
-**声音分类**     
+测试音频示例下载
 ```shell
-paddlespeech cls --input input.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 ```
-**声纹识别**
-```shell
-paddlespeech vector --task spk --input input_16k.wav
-```
+
 **语音识别**
 ```shell
-paddlespeech asr --lang zh --input input_16k.wav
+paddlespeech asr --lang zh --input zh.wav
 ```
-**语音翻译** (English to Chinese)
-```shell
-paddlespeech st --input input_16k.wav
+
+```python
+from paddlespeech.cli.asr.infer import ASRExecutor
+asr = ASRExecutor()
+result = asr(audio_file="zh.wav")
 ```
+
 **语音合成** 
+
+输出24k采样率wav格式音频
+
 ```shell
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
+
+```python
+from paddlespeech.cli.tts.infer import TTSExecutor
+tts = TTSExecutor()
+tts(text="今天天气十分不错。", output="output.wav")
+```
 - 语音合成的 web demo 已经集成进了 [Huggingface Spaces](https://huggingface.co/spaces). 请参考: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
 
-**文本后处理** 
- - 标点恢复
-   ```bash
-   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
-   ```
+**声音分类**   
 
-**批处理**
-```
-echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+输出声音分类结果
+
+```shell
+paddlespeech cls --input zh.wav
 ```
 
-**Shell管道**
-ASR + Punc:
+```python
+from paddlespeech.cli.cls.infer import CLSExecutor
+cls = CLSExecutor()
+result = cls(audio_file="zh.wav")
 ```
-paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+
+**声纹提取**
+
+输出声音提取向量
+
+```shell
+paddlespeech vector --task spk --input zh.wav
 ```
+
+```python
+from paddlespeech.cli.vector import VectorExecutor
+vec = VectorExecutor()
+result = vec(audio_file="zh.wav")
+```
+
+**标点恢复** 
+
+输出添加标点的文本
+
+```shell
+paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+```
+
+```python
+from paddlespeech.cli.text.infer import TextExecutor
+text_punc = TextExecutor()
+result = text_punc(text="今天的天气真不错啊你下午有空吗我想约你一起去吃饭")
+```
+
+**语音翻译**
+
+使用预编译的kaldi相关工具，只支持在Ubuntu系统中体验
+
+```shell
+paddlespeech st --input en.wav
+```
+
+```python
+from paddlespeech.cli.st.infer import STExecutor
+st = STExecutor()
+result = st(audio_file="en.wav")
+```
+
 
 更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
 > Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
@@ -613,6 +586,119 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 
 语音合成模块最初被称为 [Parakeet](https://github.com/PaddlePaddle/Parakeet)，现在与此仓库合并。如果您对该任务的学术研究感兴趣，请参阅 [TTS 研究概述](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview)。此外，[模型介绍](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) 是了解语音合成流程的一个很好的指南。
+
+## 效果展示
+
+##### 语音识别
+
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 输入音频  </th>
+      <th width="550"> 识别结果 </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
+      </td>
+      <td >I knocked at the door on the ancient side of the building.</td>
+    </tr>
+    <tr>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+      <td>我认为跑步最重要的就是给我带来了身体健康。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+##### 语音翻译 (英译中)
+
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 输入音频 </th>
+      <th width="550"> 翻译结果 </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
+      </td>
+      <td >我 在 这栋 建筑 的 古老 门上 敲门。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+##### 语音合成
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th width="550">输入文本</th>
+      <th>合成音频</th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td >早上好，今天是2020/10/29，最低温度是-3°C。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+更多合成音频，可以参考 [PaddleSpeech 语音合成音频示例](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)。
+
+##### 标点恢复
+<div align = "center">
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th width="390"> 输入文本 </th>
+      <th width="390"> 输出文本 </th>
+    </tr>
+  </thead>
+  <tbody>
+   <tr>
+      <td>今天的天气真不错啊你下午有空吗我想约你一起去吃饭</td>
+      <td>今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
 
 ## ⭐ 应用案例
 - **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成模块生成虚拟人的声音。**

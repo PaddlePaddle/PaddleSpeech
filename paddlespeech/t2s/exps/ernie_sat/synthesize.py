@@ -73,8 +73,7 @@ def evaluate(args):
         mlm_prob=erniesat_config.mlm_prob,
         mean_phn_span=erniesat_config.mean_phn_span,
         seg_emb=erniesat_config.model['enc_input_layer'] == 'sega_mlm',
-        text_masking=False,
-        epoch=-1)
+        text_masking=False)
 
     gen_raw = True
     erniesat_mu, erniesat_std = np.load(args.erniesat_stat)

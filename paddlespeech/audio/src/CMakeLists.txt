@@ -105,7 +105,7 @@ function(define_extension name sources include_dirs libraries definitions)
   add_library(${name} SHARED ${sources})
   target_compile_definitions(${name} PRIVATE "${definitions}")
   target_include_directories(
-    ${name} PRIVATE ${PROJECT_SOURCE_DIR} ${Python_INCLUDE_DIR} ${include_dirs})
+    ${name} PRIVATE ${PROJECT_SOURCE_DIR} ${Python_INCLUDE_DIR} ${pybind11_INCLUDE_DIR} ${include_dirs})
   target_link_libraries(
     ${name}
     ${libraries}

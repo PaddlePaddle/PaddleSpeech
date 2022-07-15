@@ -5,6 +5,7 @@ from typing import Optional
 
 #code is from https://github.com/pytorch/audio/blob/main/torchaudio/_internal/module_utils.py
 
+
 def is_module_available(*modules: str) -> bool:
     r"""Returns if a top-level module with :attr:`name` exists *without**
     importing it. This is generally safer than try-catch block around a

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from paddlespeech.audio._internal import module_utils 
+from paddlespeech.audio._internal import module_utils
 import paddlespeech.audio.ops.paddleaudio.ComputeFbank as ComputeFbank
 import paddlespeech.audio.ops.paddleaudio.PitchExtractionOptions as PitchExtractionOptions
 import paddlespeech.audio.ops.paddleaudio.FrameExtractionOptions as FrameExtractionOptions
@@ -27,37 +27,38 @@ __all__ = [
 
 
 @module_utils.requires_kaldi()
-def fbank(wav,
-          samp_freq: int=16000,
-          frame_shift_ms: float=10.0,
-          frame_length_ms: float=25.0,
-          dither: float=0.0,
-          preemph_coeff: float=0.97,
-          remove_dc_offset: bool=True,
-          window_type: str='povey',
-          round_to_power_of_two: bool=True,
-          blackman_coeff: float=0.42,
-          snip_edges: bool=True,
-          allow_downsample: bool=False,
-          allow_upsample: bool=False,
-          max_feature_vectors: int=-1,
-          num_bins: int=23,
-          low_freq: float=20,
-          high_freq: float=0,
-          vtln_low: float=100,
-          vtln_high: float=-500,
-          debug_mel: bool=False,
-          htk_mode: bool=False,
-          use_energy: bool=False, # fbank opts
-          energy_floor: float=0.0,
-          raw_energy: bool=True,
-          htk_compat: bool=False,
-          use_log_fbank: bool=True,
-          use_power: bool=True):
+def fbank(
+        wav,
+        samp_freq: int=16000,
+        frame_shift_ms: float=10.0,
+        frame_length_ms: float=25.0,
+        dither: float=0.0,
+        preemph_coeff: float=0.97,
+        remove_dc_offset: bool=True,
+        window_type: str='povey',
+        round_to_power_of_two: bool=True,
+        blackman_coeff: float=0.42,
+        snip_edges: bool=True,
+        allow_downsample: bool=False,
+        allow_upsample: bool=False,
+        max_feature_vectors: int=-1,
+        num_bins: int=23,
+        low_freq: float=20,
+        high_freq: float=0,
+        vtln_low: float=100,
+        vtln_high: float=-500,
+        debug_mel: bool=False,
+        htk_mode: bool=False,
+        use_energy: bool=False,  # fbank opts
+        energy_floor: float=0.0,
+        raw_energy: bool=True,
+        htk_compat: bool=False,
+        use_log_fbank: bool=True,
+        use_power: bool=True):
     frame_opts = FrameExtractionOptions()
     mel_opts = MelBanksOptions()
     fbank_opts = FbankOptions()
-    frame_opts.samp_freq = samp_freq  
+    frame_opts.samp_freq = samp_freq
     frame_opts.frame_shift_ms = frame_shift_ms
     frame_opts.frame_length_ms = frame_length_ms
     frame_opts.dither = dither
@@ -71,7 +72,7 @@ def fbank(wav,
     frame_opts.allow_upsample = allow_upsample
     frame_opts.max_feature_vectors = max_feature_vectors
 
-    mel_opts.num_bins = num_bins  
+    mel_opts.num_bins = num_bins
     mel_opts.low_freq = low_freq
     mel_opts.high_freq = high_freq
     mel_opts.vtln_low = vtln_low
@@ -79,7 +80,7 @@ def fbank(wav,
     mel_opts.debug_mel = debug_mel
     mel_opts.htk_mode = htk_mode
 
-    fbank_opts.use_energy = use_energy  
+    fbank_opts.use_energy = use_energy
     fbank_opts.energy_floor = energy_floor
     fbank_opts.raw_energy = raw_energy
     fbank_opts.htk_compat = htk_compat
@@ -87,6 +88,7 @@ def fbank(wav,
     fbank_opts.use_power = use_power
     feat = ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
     return feat
+
 
 @module_utils.requires_kaldi()
 def pitch(wav,
@@ -114,7 +116,7 @@ def pitch(wav,
     pitch_opts.samp_freq = samp_freq
     pitch_opts.frame_shift_ms = frame_shift_ms
     pitch_opts.frame_length_ms = frame_length_ms
-    pitch_opts.preemph_coeff = preemph_coeff 
+    pitch_opts.preemph_coeff = preemph_coeff
     pitch_opts.min_f0 = min_f0
     pitch_opts.max_f0 = max_f0
     pitch_opts.soft_min_f0 = soft_min_f0

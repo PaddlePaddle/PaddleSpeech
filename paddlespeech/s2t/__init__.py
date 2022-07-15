@@ -18,7 +18,6 @@ from typing import Union
 
 import paddle
 from paddle import nn
-from paddle.fluid import core
 from paddle.nn import functional as F
 
 from paddlespeech.s2t.utils.log import Log
@@ -38,46 +37,6 @@ paddle.int = 'int32'
 paddle.long = 'int64'
 paddle.uint16 = 'uint16'
 paddle.cdouble = 'complex128'
-
-
-def convert_dtype_to_string(tensor_dtype):
-    """
-    Convert the data type in numpy to the data type in Paddle
-    Args:
-        tensor_dtype(core.VarDesc.VarType): the data type in numpy.
-    Returns:
-        core.VarDesc.VarType: the data type in Paddle.
-    """
-    dtype = tensor_dtype
-    if dtype == core.VarDesc.VarType.FP32:
-        return paddle.float32
-    elif dtype == core.VarDesc.VarType.FP64:
-        return paddle.float64
-    elif dtype == core.VarDesc.VarType.FP16:
-        return paddle.float16
-    elif dtype == core.VarDesc.VarType.INT32:
-        return paddle.int32
-    elif dtype == core.VarDesc.VarType.INT16:
-        return paddle.int16
-    elif dtype == core.VarDesc.VarType.INT64:
-        return paddle.int64
-    elif dtype == core.VarDesc.VarType.BOOL:
-        return paddle.bool
-    elif dtype == core.VarDesc.VarType.BF16:
-        # since there is still no support for bfloat16 in NumPy,
-        # uint16 is used for casting bfloat16
-        return paddle.uint16
-    elif dtype == core.VarDesc.VarType.UINT8:
-        return paddle.uint8
-    elif dtype == core.VarDesc.VarType.INT8:
-        return paddle.int8
-    elif dtype == core.VarDesc.VarType.COMPLEX64:
-        return paddle.complex64
-    elif dtype == core.VarDesc.VarType.COMPLEX128:
-        return paddle.complex128
-    else:
-        raise ValueError("Not supported tensor dtype %s" % dtype)
-
 
 if not hasattr(paddle, 'softmax'):
     logger.debug("register user softmax to paddle, remove this when fixed!")
@@ -154,28 +113,6 @@ if not hasattr(paddle.Tensor, 'new_full'):
     )
     paddle.Tensor.new_full = new_full
     paddle.static.Variable.new_full = new_full
-
-
-def eq(xs: paddle.Tensor, ys: Union[paddle.Tensor, float]) -> paddle.Tensor:
-    if convert_dtype_to_string(xs.dtype) == paddle.bool:
-        xs = xs.astype(paddle.int)
-    return xs.equal(
-        paddle.to_tensor(
-            ys, dtype=convert_dtype_to_string(xs.dtype), place=xs.place))
-
-
-if not hasattr(paddle.Tensor, 'eq'):
-    logger.debug(
-        "override eq of paddle.Tensor if exists or register, remove this when fixed!"
-    )
-    paddle.Tensor.eq = eq
-    paddle.static.Variable.eq = eq
-
-if not hasattr(paddle, 'eq'):
-    logger.debug(
-        "override eq of paddle if exists or register, remove this when fixed!")
-    paddle.eq = eq
-
 
 def contiguous(xs: paddle.Tensor) -> paddle.Tensor:
     return xs

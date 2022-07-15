@@ -318,7 +318,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 dim=1)  # (B*N, i+1)
 
             # 2.6 Update end flag
-            end_flag = paddle.eq(hyps[:, -1], self.eos).view(-1, 1)
+            end_flag = paddle.equal(hyps[:, -1], self.eos).view(-1, 1)
 
         # 3. Select best of best
         scores = scores.view(batch_size, beam_size)

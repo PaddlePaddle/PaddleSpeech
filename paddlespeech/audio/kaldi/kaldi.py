@@ -13,12 +13,12 @@
 # limitations under the License.
 
 from paddlespeech.audio._internal import module_utils 
-import paddlespeech.audio.ops.paddleaudio.ComputeFbank as ComputeFbank
-import paddlespeech.audio.ops.paddleaudio.PitchExtractionOptions as PitchExtractionOptions
-import paddlespeech.audio.ops.paddleaudio.FrameExtractionOptions as FrameExtractionOptions
-import paddlespeech.audio.ops.paddleaudio.MelBanksOptions as MelBanksOptions
-import paddlespeech.audio.ops.paddleaudio.FbankOptions as FbankOptions
-import paddlespeech.audio.ops.paddleaudio.ComputeKaldiPitch as ComputeKaldiPitch
+from paddlespeech.audio._paddleaudio import ComputeFbank as ComputeFbank
+from paddlespeech.audio._paddleaudio import PitchExtractionOptions as PitchExtractionOptions
+from paddlespeech.audio._paddleaudio import FrameExtractionOptions as FrameExtractionOptions
+from paddlespeech.audio._paddleaudio import MelBanksOptions as MelBanksOptions
+from paddlespeech.audio._paddleaudio import FbankOptions as FbankOptions
+from paddlespeech.audio._paddleaudio import ComputeKaldiPitch as ComputeKaldiPitch
 
 __all__ = [
     'fbank',

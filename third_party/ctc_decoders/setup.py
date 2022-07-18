@@ -89,10 +89,11 @@ FILES = [
                                or fn.endswith('unittest.cc'))
 ]
 # yapf: enable
-
-LIBS = ['stdc++']
+# LIBS = ['stdc++']
+LIBS = ['-static-libstdc++']
 if platform.system() != 'Darwin':
-    LIBS.append('rt')
+    # LIBS.append('rt')
+    pass
 
 ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6', '-std=c++11']
 
@@ -126,12 +127,12 @@ decoders_module = [
 ]
 
 setup(
-    name='paddlespeech_ctcdecoders',
+    name='paddlespeech_ldd_ctcdecoders',
     version='0.2.0',
     description="CTC decoders in paddlespeech",
-    author="PaddlePaddle Speech and Language Team",
-    author_email="paddlesl@baidu.com",
+    author="PaddlePaddle Speech user lidongdong compile for windows",
+    author_email="double_dongli@foxmail.com",
     url="https://github.com/PaddlePaddle/PaddleSpeech",
     license='Apache 2.0, GNU Lesser General Public License v3 (LGPLv3) (LGPL-3)',
     ext_modules=decoders_module,
-    py_modules=['paddlespeech_ctcdecoders'])
+    py_modules=['paddlespeech_ldd_ctcdecoders'])

@@ -3,9 +3,6 @@
 cd ctc_decoders
 if not exist kenlm (
     git clone https://github.com/Doubledongli/kenlm.git
-    cd kenlm/
-    git checkout df2d717e95183f79a90b2fa6e4307083a351ca6a
-    cd ..
     @echo.
 )
 

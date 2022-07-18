@@ -57,7 +57,7 @@ include(openblas)
 
 # packages
 find_package(Python3 COMPONENTS Interpreter Development)
-find_package(pybind11 CONFIG)
+find_package(pybind11 CONFIG REQUIRED)
 
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -O0 -Wall -g")

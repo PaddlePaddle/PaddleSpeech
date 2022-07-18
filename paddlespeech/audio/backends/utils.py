@@ -40,7 +40,8 @@ def set_audio_backend(backend: Optional[str]):
             of the system. If ``None`` is provided the  current backend is unassigned.
     """
     if backend is not None and backend not in list_audio_backends():
-        raise RuntimeError(f'Backend "{backend}" is not one of ' f"available backends: {list_audio_backends()}.")
+        raise RuntimeError(f'Backend "{backend}" is not one of '
+                           f"available backends: {list_audio_backends()}.")
 
     if backend is None:
         module = no_backend
@@ -75,6 +76,7 @@ def _init_audio_backend():
     else:
         warnings.warn("No audio backend is available.")
         set_audio_backend(None)
+
 
 def get_audio_backend() -> Optional[str]:
     """Get the name of the current backend

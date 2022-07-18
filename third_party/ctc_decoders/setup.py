@@ -92,7 +92,7 @@ FILES = [
 LIBS = ['stdc++']
 if platform.system() != 'Darwin':
     LIBS.append('rt')
-if platform.system() != 'Windows':
+if platform.system() == 'Windows':
     LIBS = ['-static-libstdc++']
 
 ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6', '-std=c++11']

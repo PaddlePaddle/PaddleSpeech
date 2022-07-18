@@ -1,5 +1,5 @@
 # Transformer/Conformer ASR with Aishell
-This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Aishell dataset](http://www.openslr.org/resources/33)
+This example contains code used to train a [u2](https://arxiv.org/pdf/2012.05481.pdf) model (Transformer or [Conformer](https://arxiv.org/pdf/2005.08100.pdf) model) with [Aishell dataset](http://www.openslr.org/resources/33)
 ## Overview
 All the scripts you need are in `run.sh`. There are several stages in `run.sh`, and each stage has its function.
 | Stage | Function                                                     |

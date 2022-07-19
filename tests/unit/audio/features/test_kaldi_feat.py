@@ -16,8 +16,8 @@ import unittest
 import numpy as np
 import paddle
 
-import paddlespeech.audio.kaldi.fbank as fbank
-import paddlespeech.audio.kaldi.pitch as pitch
+from paddlespeech.audio.kaldi import fbank as fbank
+from paddlespeech.audio.kaldi import pitch as pitch
 from kaldiio import ReadHelper
 
 # the groundtruth feats computed in kaldi command below.

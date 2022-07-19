@@ -4,8 +4,69 @@ from pathlib import Path
 
 from ._internal import module_utils as _mod_utils  # noqa: F401
 
-_LIB_DIR = Path(__file__) / "lib"
 
+import contextlib
+import ctypes
+import os
+import sys
+import types
+
+# Query `hasattr` only once.
+_SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(sys,
+                                                               'setdlopenflags')
+
+
+@contextlib.contextmanager
+def dl_open_guard():
+    """
+    # https://manpages.debian.org/bullseye/manpages-dev/dlopen.3.en.html
+    Context manager to set the RTLD_GLOBAL dynamic linker flag while we open a
+    shared library to load custom operators.
+    """
+    if _SET_GLOBAL_FLAGS:
+        old_flags = sys.getdlopenflags()
+        sys.setdlopenflags(old_flags | ctypes.RTLD_GLOBAL)
+    yield
+    if _SET_GLOBAL_FLAGS:
+        sys.setdlopenflags(old_flags)
+
+
+def resolve_library_path(path: str) -> str:
+    return os.path.realpath(path)
+
+
+class _Ops(types.ModuleType):
+    #__file__ = '_ops.py'
+
+    def __init__(self):
+        super(_Ops, self).__init__('paddlespeech.ops')
+        self.loaded_libraries = set()
+
+    def load_library(self, path):
+        """
+        Loads a shared library from the given path into the current process.
+        This allows dynamically loading custom operators. For this, 
+        you should compile your operator and 
+        the static registration code into a shared library object, and then
+        call ``paddlespeech.ops.load_library('path/to/libcustom.so')`` to load the
+        shared object.
+        After the library is loaded, it is added to the
+        ``paddlespeech.ops.loaded_libraries`` attribute, a set that may be inspected
+        for the paths of all libraries loaded using this function.
+        Args:
+            path (str): A path to a shared library to load.
+        """
+        path = resolve_library_path(path)
+        with dl_open_guard():
+            # https://docs.python.org/3/library/ctypes.html?highlight=ctypes#loading-shared-libraries
+            # Import the shared library into the process, thus running its
+            # static (global) initialization code in order to register custom
+            # operators with the JIT.
+            ctypes.CDLL(path)
+        self.loaded_libraries.add(path)
+
+
+_LIB_DIR = Path(__file__).parent / "lib"
 
 def _get_lib_path(lib: str):
     suffix = "pyd" if os.name == "nt" else "so"
@@ -42,9 +103,12 @@ def _load_lib(lib: str) -> bool:
             If a dependency is missing, then users have to install it.
     """
     path = _get_lib_path(lib)
+    warnings.warn("lib path is :" + str(path))
     if not path.exists():
+        warnings.warn("lib path is not exists:" + str(path))
         return False
-    paddlespeech.audio.ops.load_library(path)
+    #paddlespeech.audio.ops.load_library(path)
+    ops.load_library(path)
     return True
 
 
@@ -56,7 +120,7 @@ def _init_ffmpeg():
     if _FFMPEG_INITIALIZED:
         return
 
-    if not paddlespeech.audio.ops.paddlleaudio.is_ffmpeg_available():
+    if not paddlespeech.audio._paddlleaudio.is_ffmpeg_available():
         raise RuntimeError(
             "paddlleaudio is not compiled with FFmpeg integration. Please set USE_FFMPEG=1 when compiling paddlleaudio."
         )
@@ -69,15 +133,15 @@ def _init_ffmpeg():
 
     import paddllespeech.audio._paddlleaudio_ffmpeg  # noqa
 
-    paddlespeech.audio.ops.paddlleaudio.ffmpeg_init()
-    if paddlespeech.audio.ops.paddlleaudio.ffmpeg_get_log_level() > 8:
-        paddlespeech.audio.ops.paddlleaudio.ffmpeg_set_log_level(8)
+    paddlespeech.audio._paddlleaudio.ffmpeg_init()
+    if paddlespeech.audio._paddlleaudio.ffmpeg_get_log_level() > 8:
+        paddlespeech.audio._paddlleaudio.ffmpeg_set_log_level(8)
 
     _FFMPEG_INITIALIZED = True
 
 
 def _init_extension():
-    if not _mod_utils.is_module_available("paddlespeech._paddleaudio"):
+    if not _mod_utils.is_module_available("paddlespeech.audio._paddleaudio"):
         warnings.warn("paddlespeech C++ extension is not available.")
         return
 
@@ -95,5 +159,7 @@ def _init_extension():
     except Exception:
         pass
 
+
+ops = _Ops()
 
 _init_extension()

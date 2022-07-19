@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from . import _extension
 from . import compliance
 from . import datasets
 from . import features
@@ -18,7 +20,6 @@ from . import functional
 from . import io
 from . import metric
 from . import utils
-from ._ops import ops
 from paddlespeech.audio.backends import get_audio_backend
 from paddlespeech.audio.backends import list_audio_backends
 from paddlespeech.audio.backends import set_audio_backend
@@ -30,7 +31,6 @@ __all__ = [
     "functional",
     "features",
     "utils",
-    'ops'
     "list_audio_backends",
     "get_audio_backend",
     "set_audio_backend",

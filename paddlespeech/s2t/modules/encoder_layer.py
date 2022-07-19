@@ -250,6 +250,7 @@ class ConformerEncoderLayer(nn.Layer):
         # convolution module
         # Fake new cnn cache here, and then change it in conv_module
         new_cnn_cache = paddle.zeros([0,0,0], dtype=x.dtype)
+        cnn_cache = paddle.squeeze(cnn_cache, axis=0)
         if self.conv_module is not None:
             residual = x
             if self.normalize_before:

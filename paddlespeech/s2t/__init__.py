@@ -156,13 +156,22 @@ def is_broadcastable(shp1, shp2):
     return True
 
 
+def broadcast_shape(shp1, shp2):
+    result = []
+    for a, b in zip(shp1[::-1], shp2[::-1]):
+        result.append(max(a, b))
+    return result[::-1]
+
+
 def masked_fill(xs: paddle.Tensor,
                 mask: paddle.Tensor,
                 value: Union[float, int]):
-    assert is_broadcastable(xs.shape, mask.shape) is True, (xs.shape,
-                                                            mask.shape)
-    bshape = paddle.broadcast_shape(xs.shape, mask.shape)
-    mask = mask.broadcast_to(bshape)
+    bshape = broadcast_shape(xs.shape, mask.shape)
+    mask.stop_gradient = True
+    tmp = paddle.ones(shape=[len(bshape)], dtype='int32')
+    for index in range(len(bshape)):
+        tmp[index] = bshape[index]
+    mask = mask.broadcast_to(tmp)
     trues = paddle.ones_like(xs) * value
     xs = paddle.where(mask, trues, xs)
     return xs

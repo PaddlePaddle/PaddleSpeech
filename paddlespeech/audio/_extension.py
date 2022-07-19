@@ -120,7 +120,7 @@ def _init_ffmpeg():
     if _FFMPEG_INITIALIZED:
         return
 
-    if not paddlespeech.audio.paddlleaudio.is_ffmpeg_available():
+    if not paddlespeech.audio._paddlleaudio.is_ffmpeg_available():
         raise RuntimeError(
             "paddlleaudio is not compiled with FFmpeg integration. Please set USE_FFMPEG=1 when compiling paddlleaudio."
         )
@@ -133,9 +133,9 @@ def _init_ffmpeg():
 
     import paddllespeech.audio._paddlleaudio_ffmpeg  # noqa
 
-    paddlespeech.audio.paddlleaudio.ffmpeg_init()
-    if paddlespeech.audio.paddlleaudio.ffmpeg_get_log_level() > 8:
-        paddlespeech.audio.paddlleaudio.ffmpeg_set_log_level(8)
+    paddlespeech.audio._paddlleaudio.ffmpeg_init()
+    if paddlespeech.audio._paddlleaudio.ffmpeg_get_log_level() > 8:
+        paddlespeech.audio._paddlleaudio.ffmpeg_set_log_level(8)
 
     _FFMPEG_INITIALIZED = True
 

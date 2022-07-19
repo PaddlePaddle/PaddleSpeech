@@ -13,12 +13,6 @@
 # limitations under the License.
 
 from paddlespeech.audio._internal import module_utils 
-from paddlespeech.audio._paddleaudio import ComputeFbank as ComputeFbank
-from paddlespeech.audio._paddleaudio import PitchExtractionOptions as PitchExtractionOptions
-from paddlespeech.audio._paddleaudio import FrameExtractionOptions as FrameExtractionOptions
-from paddlespeech.audio._paddleaudio import MelBanksOptions as MelBanksOptions
-from paddlespeech.audio._paddleaudio import FbankOptions as FbankOptions
-from paddlespeech.audio._paddleaudio import ComputeKaldiPitch as ComputeKaldiPitch
 
 __all__ = [
     'fbank',
@@ -55,9 +49,9 @@ def fbank(
         htk_compat: bool=False,
         use_log_fbank: bool=True,
         use_power: bool=True):
-    frame_opts = FrameExtractionOptions()
-    mel_opts = MelBanksOptions()
-    fbank_opts = FbankOptions()
+    frame_opts = paddlespeech.audio._paddleaudio.FrameExtractionOptions()
+    mel_opts = paddlespeech.audio._paddleaudio.MelBanksOptions()
+    fbank_opts = paddlespeech.audio._paddleaudio.FbankOptions()
     frame_opts.samp_freq = samp_freq
     frame_opts.frame_shift_ms = frame_shift_ms
     frame_opts.frame_length_ms = frame_length_ms
@@ -86,7 +80,7 @@ def fbank(
     fbank_opts.htk_compat = htk_compat
     fbank_opts.use_log_fbank = use_log_fbank
     fbank_opts.use_power = use_power
-    feat = ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
+    feat = paddlespeech.audio._paddleaudio.CopmputeFbank(frame_opts, mel_opts, fbank_opts, wav)
     return feat
 
 
@@ -112,7 +106,7 @@ def pitch(wav,
           recompute_frame: int=500,
           nccf_ballast_online: bool=False,
           snip_edges: bool=True):
-    pitch_opts = PitchExtractionOptions()
+    pitch_opts = paddlespeech.audio._paddleaudio.PitchExtractionOptions()
     pitch_opts.samp_freq = samp_freq
     pitch_opts.frame_shift_ms = frame_shift_ms
     pitch_opts.frame_length_ms = frame_length_ms
@@ -133,5 +127,5 @@ def pitch(wav,
     pitch_opts.recompute_frame = recompute_frame
     pitch_opts.nccf_ballast_online = nccf_ballast_online
     pitch_opts.snip_edges = snip_edges
-    pitch = ComputeKaldiPitch(pitch_opts, wav)
+    pitch = paddlespeech.audio._paddleaudio.ComputeKaldiPitch(pitch_opts, wav)
     return pitch

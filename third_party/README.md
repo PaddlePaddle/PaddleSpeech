@@ -5,7 +5,7 @@ commit: fc1bd6240c2008412ab64dc25045cd872f5e126c
 ref: https://zhuanlan.zhihu.com/p/55371926  
 license: MIT
 
-# install ctc_decoder for windows
+# Install ctc_decoder for Windows
 
 `install_win_ctc.bat` is bat script to install paddlespeech_ctc_decoders for windows
 

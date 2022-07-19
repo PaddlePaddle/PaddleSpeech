@@ -12,6 +12,7 @@ This directory contains many speech applications in multiple scenarios.
 * speech recognition - recognize text of an audio file 
 * speech server - Server for Speech Task, e.g. ASR,TTS,CLS
 * streaming asr server - receive audio stream from websocket, and recognize to transcript.
+* streaming tts server - receive text from http or websocket, and streaming audio data stream.
 * speech translation - end to end speech translation  
 * story talker - book reader based on OCR and TTS  
 * style_fs2 - multi style control for FastSpeech2 model  

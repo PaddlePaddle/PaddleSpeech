@@ -109,7 +109,7 @@ class MultiHeadedAttention(nn.Layer):
         # 1. onnx(16/-1, -1/-1, 16/0)
         # 2. jit (16/-1, -1/-1, 16/0, 16/4)
         if paddle.shape(mask)[2] > 0: # time2 > 0
-            mask = mask.unsqueeze(1).eq(0)  # (batch, 1, *, time2)
+            mask = mask.unsqueeze(1).equal(0)  # (batch, 1, *, time2)
             # for last chunk, time2 might be larger than scores.size(-1)
             mask = mask[:, :, :, :paddle.shape(scores)[-1]]
             scores = scores.masked_fill(mask, -float('inf'))

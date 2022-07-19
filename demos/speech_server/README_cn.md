@@ -3,7 +3,7 @@
 # 语音服务
 
 ## 介绍
-这个 demo 是一个启动离线语音服务和访问服务的实现。它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个 demo 是一个启动离线语音服务和访问服务的实现。它可以通过使用`paddlespeech_server` 和 `paddlespeech_client` 的单个命令或 python 的几行代码来实现。
 
 
 ## 使用方法
@@ -11,13 +11,14 @@
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 推荐使用 **paddlepaddle 2.2.2** 或以上版本。
-你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
+你可以从简单，中等，困难几种方式中选择一种方式安装 PaddleSpeech。
+**如果使用简单模式安装，需要自行准备 yaml 文件，可参考 conf 目录下的 yaml 文件。**
 
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/application.yaml` 。
 其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)、cls(音频分类)、vector(声纹识别)以及text(文本处理)。
+目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)、cls(音频分类)、vector(声纹识别)以及 text(文本处理)。
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
 **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 

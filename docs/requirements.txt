@@ -49,3 +49,4 @@ websockets
 keyboard
 uvicorn
 pattern_singleton
+braceexpand

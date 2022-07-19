@@ -29,6 +29,9 @@ import paddle
 from paddle import jit
 from paddle import nn
 
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import pad_sequence
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.decoders.scorers.ctc import CTCPrefixScorer
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
@@ -48,9 +51,6 @@ from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.audio.utils.tensor_utils import add_sos_eos
-from paddlespeech.audio.utils.tensor_utils import pad_sequence
-from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
@@ -605,8 +605,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -625,13 +625,11 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 (elayers, head, cache_t1, d_k * 2), where
                 `head * d_k == hidden-dim` and
                 `cache_t1 == chunk_size * num_decoding_left_chunks`.
-                `d_k * 2` for att key & value. Default is 0-dims Tensor, 
-                it is used for dy2st.
+                `d_k * 2` for att key & value. 
             cnn_cache (paddle.Tensor): cache tensor for cnn_module in conformer,
                 (elayers, b=1, hidden-dim, cache_t2), where
-                `cache_t2 == cnn.lorder - 1`. Default is 0-dims Tensor, 
-                it is used for dy2st.
-
+                `cache_t2 == cnn.lorder - 1`. 
+                
         Returns:
             paddle.Tensor: output of current input xs,
                 with shape (b=1, chunk_size, hidden-dim).
@@ -641,8 +639,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             paddle.Tensor: new conformer cnn cache required for next chunk, with
                 same shape as the original cnn_cache.
         """
-        return self.encoder.forward_chunk(
-            xs, offset, required_cache_size, att_cache, cnn_cache)
+        return self.encoder.forward_chunk(xs, offset, required_cache_size,
+                                          att_cache, cnn_cache)
 
     # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:

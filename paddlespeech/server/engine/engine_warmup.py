@@ -60,7 +60,10 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
 
                 else:
                     st = time.time()
-                    connection_handler.infer(text=sentence)
+                    connection_handler.infer(
+						text=sentence,
+                        lang=tts_engine.lang,
+                        am=tts_engine.config.am)
                     et = time.time()
                     logger.debug(
                         f"The response time of the {i} warm up: {et - st} s")

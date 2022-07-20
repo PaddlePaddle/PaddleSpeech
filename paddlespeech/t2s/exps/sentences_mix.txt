@@ -1,0 +1,8 @@
+001 你好，欢迎使用 Paddle Speech 中英文混合 T T S 功能，开始你的合成之旅吧!
+002 我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN.
+003 Paddle N L P 发布 ERNIE Tiny 全系列中文预训练小模型，快速提升预训练模型部署效率，通用信息抽取技术 U I E Tiny 系列模型全新升级，支持速度更快效果更好的 U I E 小模型。
+004 Paddle Speech 发布 P P A S R 流式语音识别系统、P P T T S 流式语音合成系统、P P V P R 全链路声纹识别系统。
+005 Paddle Bo Bo: 使用 Paddle Speech 的语音合成模块生成虚拟人的声音。
+006 热烈欢迎您在 Discussions 中提交问题，并在 Issues 中指出发现的 bug。此外，我们非常希望您参与到 Paddle Speech 的开发中！
+007 我喜欢 eat apple, 你喜欢 drink milk。
+008 我们要去云南 team building, 非常非常 happy.

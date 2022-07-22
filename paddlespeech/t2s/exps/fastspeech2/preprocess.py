@@ -74,7 +74,7 @@ def process_sentence(config: Dict[str, Any],
             start = 0
             end = d_cumsum[-1]
             if phones[0] == "sil" and len(durations) > 1:
-                start = times[1]
+                start = times[0]
                 durations = durations[1:]
                 phones = phones[1:]
             if phones[-1] == 'sil' and len(durations) > 1:

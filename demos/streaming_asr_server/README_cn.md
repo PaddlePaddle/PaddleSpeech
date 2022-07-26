@@ -3,17 +3,20 @@
 # 流式语音识别服务
 
 ## 介绍
-这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
 
 **流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。**
+
+
+For service interface definition, please check:
+- [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
 
 ## 使用方法
 ### 1. 安装
 安装 PaddleSpeech 的详细过程请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md)。
 
-推荐使用 **paddlepaddle 2.2.1** 或以上版本。
+推荐使用 **paddlepaddle 2.3.1** 或以上版本。
 你可以从medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
-
 
 ### 2. 准备配置文件
 
@@ -24,7 +27,6 @@
 目前服务集成的模型有： DeepSpeech2 和 conformer模型，对应的配置文件如下：
 * DeepSpeech: `conf/ws_application.yaml`
 * conformer: `conf/ws_conformer_wenetspeech_application.yaml`
-
 
 
 这个 ASR client 的输入应该是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。

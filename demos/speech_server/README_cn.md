@@ -3,21 +3,22 @@
 # 语音服务
 
 ## 介绍
-这个 demo 是一个启动离线语音服务和访问服务的实现。它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个 demo 是一个启动离线语音服务和访问服务的实现。它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client` 的单个命令或 python 的几行代码来实现。
 
+服务接口定义请参考:
+- [PaddleSpeech Server RESTful API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-RESTful-API)
 
 ## 使用方法
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-推荐使用 **paddlepaddle 2.2.2** 或以上版本。
+推荐使用 **paddlepaddle 2.3.1** 或以上版本。
 你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
-
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/application.yaml` 。
 其中，`engine_list`表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
-目前服务集成的语音任务有： asr(语音识别)、tts(语音合成)、cls(音频分类)、vector(声纹识别)以及text(文本处理)。
+目前服务集成的语音任务有： asr (语音识别)、tts (语音合成)、cls (音频分类)、vector (声纹识别)以及 text (文本处理)。
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
 **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 
@@ -55,7 +56,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 11:17:32] [INFO] [on.py:38] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-
   ```
 
 - Python API
@@ -78,7 +78,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 14:57:56] [INFO] [on.py:38] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-
   ```
 
 ### 4. ASR 客户端使用方法
@@ -195,7 +194,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   {'description': 'success.'}
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
-
   ```
 
 ### 6. CLS 客户端使用方法
@@ -206,7 +204,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
-  ```
+  ```bash
   paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
   ```
 
@@ -241,7 +239,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       port=8090,
       topk=1)
   print(res.json())
-
   ```
 
   输出:
@@ -258,7 +255,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
-  ``` bash
+  ```bash
   paddlespeech_client vector --task spk  --server_ip 127.0.0.1 --port 8090 --input 85236145389.wav
   ```
 
@@ -276,7 +273,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   * test: 测试音频。
   输出:
 
-  ``` bash
+  ```bash
     [2022-05-25 12:25:36,165] [    INFO] - vector http client start
     [2022-05-25 12:25:36,165] [    INFO] - the input audio: 85236145389.wav
     [2022-05-25 12:25:36,165] [    INFO] - endpoint: http://127.0.0.1:8790/paddlespeech/vector
@@ -405,7 +402,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
       server_ip="127.0.0.1",
       port=8090,)
   print(res)
-
   ```
 
   输出:
@@ -418,10 +414,10 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 通过 `paddlespeech_server stats --task asr` 获取 ASR 服务支持的所有模型，其中静态模型可用于 paddle inference 推理。 
 
 ### TTS 支持的模型
-通过 `paddlespeech_server stats --task tts` 获取 TTS 服务支持的所有模型，其中静态模型可用于  paddle inference 推理。
+通过 `paddlespeech_server stats --task tts` 获取 TTS 服务支持的所有模型，其中静态模型可用于 paddle inference 推理。
 
 ### CLS 支持的模型
-通过 `paddlespeech_server stats --task cls` 获取 CLS 服务支持的所有模型，其中静态模型可用于  paddle inference 推理。
+通过 `paddlespeech_server stats --task cls` 获取 CLS 服务支持的所有模型，其中静态模型可用于 paddle inference 推理。
 
 ### Vector 支持的模型
 通过 `paddlespeech_server stats --task vector` 获取 Vector 服务支持的所有模型。

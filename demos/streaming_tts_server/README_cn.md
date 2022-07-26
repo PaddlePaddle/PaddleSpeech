@@ -3,16 +3,17 @@
 # 流式语音合成服务
 
 ## 介绍
-这个demo是一个启动流式语音合成服务和访问该服务的实现。 它可以通过使用`paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个 demo 是一个启动流式语音合成服务和访问该服务的实现。 它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client` 的单个命令或 python 的几行代码来实现。
 
-
+服务接口定义请参考:
+- [PaddleSpeech Server RESTful API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-RESTful-API)
+- [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
 ## 使用方法
 ### 1. 安装
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-推荐使用 **paddlepaddle 2.2.2** 或以上版本。
+推荐使用 **paddlepaddle 2.3.1** 或以上版本。
 你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
-
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。
@@ -20,11 +21,11 @@
 - `engine_list` 表示即将启动的服务将会包含的语音引擎，格式为 <语音任务>_<引擎类型>。
     - 该 demo 主要介绍流式语音合成服务，因此语音任务应设置为 tts。
     - 目前引擎类型支持两种形式：**online** 表示使用python进行动态图推理的引擎；**online-onnx** 表示使用 onnxruntime 进行推理的引擎。其中，online-onnx 的推理速度更快。
-- 流式 TTS 引擎的 AM 模型支持：**fastspeech2 以及fastspeech2_cnndecoder**; Voc 模型支持：**hifigan, mb_melgan**
+- 流式 TTS 引擎的 AM 模型支持：**fastspeech2 以及 fastspeech2_cnndecoder**; Voc 模型支持：**hifigan, mb_melgan**
 - 流式 am 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `am_block` 表示 chunk 中的有效帧数，`am_pad` 表示一个 chunk 中 am_block 前后各加的帧数。am_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
-    - fastspeech2 不支持流式 am 推理，因此 am_pad 与 m_block 对它无效
+    - fastspeech2 不支持流式 am 推理，因此 am_pad 与 am_block 对它无效
     - fastspeech2_cnndecoder 支持流式推理，当 am_pad=12 时，流式推理合成音频与非流式合成音频一致
-- 流式 voc 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `voc_block` 表示chunk中的有效帧数，`voc_pad` 表示一个 chunk 中 voc_block 前后各加的帧数。voc_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
+- 流式 voc 推理中，每次会对一个 chunk 的数据进行推理以达到流式的效果。其中 `voc_block` 表示 chunk 中的有效帧数，`voc_pad` 表示一个 chunk 中 voc_block 前后各加的帧数。voc_pad 的存在用于消除流式推理产生的误差，避免由流式推理对合成音频质量的影响。
     - hifigan, mb_melgan 均支持流式 voc 推理
     - 当 voc 模型为 mb_melgan，当 voc_pad=14 时，流式推理合成音频与非流式合成音频一致；voc_pad 最小可以设置为7，合成音频听感上没有异常，若 voc_pad 小于7，合成音频听感上存在异常。
     - 当 voc 模型为 hifigan，当 voc_pad=19 时，流式推理合成音频与非流式合成音频一致；当 voc_pad=14 时，合成音频听感上没有异常。
@@ -32,7 +33,7 @@
 - **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 
 
-### 3. 使用http协议的流式语音合成服务端及客户端使用方法
+### 3. 使用 http 协议的流式语音合成服务端及客户端使用方法
 #### 3.1 服务端使用方法
 - 命令行 (推荐使用)
 
@@ -64,7 +65,6 @@
   [2022-04-24 20:05:28] [INFO] [on.py:59] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   [2022-04-24 20:05:28] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
   ```
 
 - Python API
@@ -91,8 +91,6 @@
   [2022-04-24 21:00:17] [INFO] [on.py:59] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
-
   ```
 
 #### 3.2 客户端使用方法
@@ -162,9 +160,8 @@
   [2022-04-24 21:11:16,802] [    INFO] - RTF: 0.7846773683635238
   [2022-04-24 21:11:16,837] [    INFO] - 音频保存至：./output.wav
   ```
-
  
-### 4. 使用websocket协议的流式语音合成服务端及客户端使用方法
+### 4. 使用 websocket 协议的流式语音合成服务端及客户端使用方法
 #### 4.1 服务端使用方法
 - 命令行 (推荐使用)
   首先修改配置文件 `conf/tts_online_application.yaml`， **将 `protocol` 设置为 `websocket`**。
@@ -196,7 +193,6 @@
     [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
     INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
     [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
 
   ```
 
@@ -230,7 +226,7 @@
 #### 4.2 客户端使用方法
 - 命令行 (推荐使用)
 
-    访问 websocket 流式TTS服务：
+    访问 websocket 流式 TTS 服务：
 
     若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
@@ -255,7 +251,6 @@
     - 目前代码中只支持单说话人的模型，因此 spk_id 的选择并不生效。流式 TTS 不支持更换采样率，变速和变音量等功能。
 
 
-    
     输出:
     ```bash
     [2022-04-27 10:21:04,262] [    INFO] - tts websocket client start
@@ -296,6 +291,3 @@
     [2022-04-27 10:22:52,134] [    INFO] - 音频保存至：./output.wav
 
   ```
-
-
-  

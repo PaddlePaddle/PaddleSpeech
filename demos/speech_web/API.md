@@ -8,7 +8,7 @@ http://0.0.0.0:8010/docs
 
 ### 【POST】/asr/offline
 
-说明：上传16k,16bit wav文件，返回 offline 语音识别模型识别结果
+说明：上传 16k, 16bit wav 文件，返回 offline 语音识别模型识别结果
 
 返回: JSON
 
@@ -26,11 +26,11 @@ http://0.0.0.0:8010/docs
 
 ### 【POST】/asr/offlinefile
 
-说明：上传16k,16bit wav文件，返回 offline 语音识别模型识别结果 + wav数据的base64
+说明：上传16k,16bit wav文件，返回 offline 语音识别模型识别结果 + wav 数据的 base64
 
 返回: JSON
 
-前端接口： 音频文件识别(播放这段base64还原后记得添加wav头，采样率16k, int16，添加后才能播放)
+前端接口： 音频文件识别(播放这段base64还原后记得添加 wav 头，采样率 16k, int16，添加后才能播放)
 
 示例:
 
@@ -48,7 +48,7 @@ http://0.0.0.0:8010/docs
 
 ### 【POST】/asr/collectEnv
 
-说明： 通过采集环境噪音，上传16k, int16 wav文件，来生成后台VAD的能量阈值， 返回阈值结果
+说明： 通过采集环境噪音，上传 16k, int16 wav 文件，来生成后台 VAD 的能量阈值， 返回阈值结果
 
 前端接口：ASR-环境采样
 
@@ -64,9 +64,9 @@ http://0.0.0.0:8010/docs
 
 ### 【GET】/asr/stopRecord
 
-说明：通过 GET 请求 /asr/stopRecord, 后台停止接收 offlineStream 中通过 WS协议 上传的数据
+说明：通过 GET 请求 /asr/stopRecord, 后台停止接收 offlineStream 中通过 WS 协议 上传的数据
 
-前端接口：语音聊天-暂停录音（获取NLP，播放TTS时暂停）
+前端接口：语音聊天-暂停录音（获取 NLP，播放 TTS 时暂停）
 
 返回: JSON
 
@@ -80,9 +80,9 @@ http://0.0.0.0:8010/docs
 
 ### 【GET】/asr/resumeRecord
 
-说明：通过 GET 请求 /asr/resumeRecord, 后台停止接收 offlineStream 中通过 WS协议 上传的数据
+说明：通过 GET 请求 /asr/resumeRecord, 后台停止接收 offlineStream 中通过 WS 协议 上传的数据
 
-前端接口：语音聊天-恢复录音（TTS播放完毕时，告诉后台恢复录音）
+前端接口：语音聊天-恢复录音（ TTS 播放完毕时，告诉后台恢复录音）
 
 返回: JSON
 
@@ -100,16 +100,16 @@ http://0.0.0.0:8010/docs
 
 前端接口：语音聊天-开始录音，持续将麦克风语音传给后端，后端推送语音识别结果
 
-返回：后端返回识别结果，offline模型识别结果， 由WS推送
+返回：后端返回识别结果，offline 模型识别结果， 由WS推送
 
 
 ### 【Websocket】/ws/asr/onlineStream
 
-说明：通过 WS 协议，将前端音频持续上传到后台，前端采集 16k，Int16 类型的PCM片段，持续上传到后端
+说明：通过 WS 协议，将前端音频持续上传到后台，前端采集 16k，Int16 类型的 PCM 片段，持续上传到后端
 
 前端接口：ASR-流式识别开始录音，持续将麦克风语音传给后端，后端推送语音识别结果
 
-返回：后端返回识别结果，online模型识别结果， 由WS推送
+返回：后端返回识别结果，online 模型识别结果， 由 WS 推送
 
 ## NLP
 
@@ -202,7 +202,7 @@ http://0.0.0.0:8010/docs
 
 ### 【POST】/tts/offline
 
-说明：获取TTS离线模型音频
+说明：获取 TTS 离线模型音频
 
 前端接口：TTS-端到端合成
 
@@ -272,7 +272,7 @@ curl -X 'POST' \
 
 ### 【POST】/vpr/recog
 
-说明：声纹识别，识别文件，提取文件的声纹信息做比对 音频 16k, int 16 wav格式
+说明：声纹识别，识别文件，提取文件的声纹信息做比对 音频 16k, int 16 wav 格式
 
 前端接口：声纹识别-上传音频，返回声纹识别结果
 
@@ -383,9 +383,9 @@ curl -X 'GET' \
 
 ### 【GET】/vpr/database64
 
-说明： 根据 vpr_id 获取用户vpr时注册使用音频转换成 16k, int16 类型的数组，返回base64编码
+说明： 根据 vpr_id 获取用户 vpr 时注册使用音频转换成 16k, int16 类型的数组，返回 base64 编码
 
-前端接口：声纹识别-获取vpr对应的音频（注意：播放时需要添加 wav头，16k,int16, 可参考tts播放时添加wav的方式，注意更改采样率）
+前端接口：声纹识别-获取 vpr 对应的音频（注意：播放时需要添加 wav头，16k,int16, 可参考 tts 播放时添加 wav 的方式，注意更改采样率）
 
 访问示例：
 
@@ -402,5 +402,3 @@ curl -X 'GET' \
   "result":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
   "message": "ok"
 ```
-
-

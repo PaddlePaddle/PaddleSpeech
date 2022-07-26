@@ -5,12 +5,15 @@
 ## Introduction
 This demo is an implementation of starting the voice service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.
 
+For service interface definition, please check:
+- [PaddleSpeech Server RESTful API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-RESTful-API)
+
 
 ## Usage
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.2.2** or above.
+It is recommended to use **paddlepaddle 2.3.1** or above.
 You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File
@@ -54,7 +57,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 11:17:32] [INFO] [on.py:38] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   [2022-02-23 11:17:32] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-
   ```
 
 - Python API
@@ -77,7 +79,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   [2022-02-23 14:57:56] [INFO] [on.py:38] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
-
   ```
 
 
@@ -162,7 +163,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
     [2022-02-23 15:20:37,875] [    INFO] - Save synthesized audio successfully on output.wav.
     [2022-02-23 15:20:37,875] [    INFO] - Audio duration: 3.612500 s.
     [2022-02-23 15:20:37,875] [    INFO] - Response time: 0.348050 s.
-
     ```
 
 - Python API
@@ -192,7 +192,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   {'description': 'success.'}
   Save synthesized audio successfully on ./output.wav.
   Audio duration: 3.612500 s.
-
   ```
 
 ### 6. CLS Client Usage
@@ -201,7 +200,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
-   ```
+   ```bash
    paddlespeech_client cls --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
    ```
 
@@ -220,8 +219,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```bash
   [2022-03-09 20:44:39,974] [    INFO] - {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
   [2022-03-09 20:44:39,975] [    INFO] - Response time 0.104360 s.
-
-
   ```
 
 - Python API
@@ -241,7 +238,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   Output:
   ```bash
   {'success': True, 'code': 200, 'message': {'description': 'success'}, 'result': {'topk': 1, 'results': [{'class_name': 'Speech', 'prob': 0.9027184844017029}]}}
-
   ```
 
 
@@ -410,7 +406,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```bash
   我认为跑步最重要的就是给我带来了身体健康。
   ```
-
 
 ## Models supported by the service
 ### ASR model

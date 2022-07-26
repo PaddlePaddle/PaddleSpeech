@@ -5,14 +5,17 @@
 ## Introduction
 This demo is an implementation of starting the streaming speech synthesis service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.
 
+For service interface definition, please check:
+- [PaddleSpeech Server RESTful API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-RESTful-API)
+- [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
+
 
 ## Usage
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.2.2** or above.
+It is recommended to use **paddlepaddle 2.3.1** or above.
 You can choose one way from meduim and hard to install paddlespeech.
-
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/tts_online_application.yaml`.

@@ -7,11 +7,14 @@ This demo is an implementation of starting the streaming speech service and acce
 
 Streaming ASR server only support `websocket` protocol, and doesn't support `http` protocol.
 
+服务接口定义请参考:
+- [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
+
 ## Usage
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.2.1** or above.
+It is recommended to use **paddlepaddle 2.3.1** or above.
 You can choose one way from meduim and hard to install paddlespeech.
 
 ### 2. Prepare config File

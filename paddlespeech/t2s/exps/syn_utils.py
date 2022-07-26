@@ -29,6 +29,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
@@ -98,6 +99,8 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
                 sentence = "".join(items[1:])
             elif lang == 'en':
                 sentence = " ".join(items[1:])
+            elif lang == 'mix':
+                sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
     return sentences
 
@@ -111,7 +114,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     am_dataset = am[am.rindex('_') + 1:]
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             fields += ["spk_id"]
         elif voice_cloning:
@@ -140,6 +144,10 @@ def get_frontend(lang: str='zh',
             phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
+    elif lang == 'mix':
+        frontend = MixFrontend(
+            phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
+
     else:
         print("wrong lang!")
     print("frontend done!")
@@ -341,8 +349,12 @@ def get_am_output(
         input_ids = frontend.get_input_ids(
             input, merge_sentences=merge_sentences)
         phone_ids = input_ids["phone_ids"]
+    elif lang == 'mix':
+        input_ids = frontend.get_input_ids(
+            input, merge_sentences=merge_sentences)
+        phone_ids = input_ids["phone_ids"]
     else:
-        print("lang should in {'zh', 'en'}!")
+        print("lang should in {'zh', 'en', 'mix'}!")
 
     if get_tone_ids:
         tone_ids = input_ids["tone_ids"]

@@ -1,6 +1,6 @@
 # Paddle Speech Demo
 
-PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发的Demo展示项目，用于帮助大家更好的上手PaddleSpeech 以及使用 PaddleSpeech 构建自己的应用。
+PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发的 Demo 展示项目，用于帮助大家更好的上手 PaddleSpeech 以及使用 PaddleSpeech 构建自己的应用。
 
 智能语音交互部分使用 PaddleSpeech，对话以及信息抽取部分使用 PaddleNLP，网页前端展示部分基于 Vue3 进行开发
 

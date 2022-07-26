@@ -718,6 +718,7 @@ class VectorClientExecutor(BaseExecutor):
             logger.info(f"the input audio: {input}")
             handler = VectorHttpHandler(server_ip=server_ip, port=port)
             res = handler.run(input, audio_format, sample_rate)
+            logger.info(f"The spk embedding is: {res}")
             return res
         elif task == "score":
             from paddlespeech.server.utils.audio_handler import VectorScoreHttpHandler

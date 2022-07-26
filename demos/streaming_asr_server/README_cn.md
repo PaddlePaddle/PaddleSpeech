@@ -3,12 +3,11 @@
 # 流式语音识别服务
 
 ## 介绍
-这个demo是一个启动流式语音服务和访问服务的实现。 它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client`的单个命令或 python 的几行代码来实现。
+这个 demo 是一个启动流式语音服务和访问服务的实现。 它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client` 的单个命令或 python 的几行代码来实现。
 
 **流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。**
 
-
-For service interface definition, please check:
+服务接口定义请参考:
 - [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
 
 ## 使用方法
@@ -16,7 +15,10 @@ For service interface definition, please check:
 安装 PaddleSpeech 的详细过程请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md)。
 
 推荐使用 **paddlepaddle 2.3.1** 或以上版本。
-你可以从medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
+
+你可以从简单，中等，困难 几种方式中选择一种方式安装 PaddleSpeech。
+
+**如果使用简单模式安装，需要自行准备 yaml 文件，可参考 conf 目录下的 yaml 文件。**
 
 ### 2. 准备配置文件
 

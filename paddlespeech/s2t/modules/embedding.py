@@ -131,7 +131,7 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
             offset (int): start offset
             size (int): requried size of position encoding
         Returns:
-            paddle.Tensor: Corresponding position encoding
+            paddle.Tensor: Corresponding position encoding, #[1, T, D].
         """
         assert offset + size < self.max_len
         return self.dropout(self.pe[:, offset:offset + size])

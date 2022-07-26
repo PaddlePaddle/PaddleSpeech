@@ -111,9 +111,9 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 （提示： 如果你想使用**困难**方式完成安装，请不要使用最后一条命令）
 ### 安装 PaddlePaddle
-你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.2.0：
+你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.3.1：
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
+python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 安装 PaddleSpeech
 最后安装 `paddlespeech`，这样你就可以使用 `paddlespeech` 中已有的 examples：
@@ -168,9 +168,9 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### 安装 PaddlePaddle
-请确认你系统是否有 GPU，并且使用了正确版本的 paddlepaddle。例如系统使用 CUDA 10.2, CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.2.0：
+请确认你系统是否有 GPU，并且使用了正确版本的 paddlepaddle。例如系统使用 CUDA 10.2, CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.3.1：
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.2.0 -i https://mirror.baidu.com/pypi/simple
+python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
 ```
 ### 用开发者模式安装 PaddleSpeech
 部分用户系统由于默认源的问题，安装中会出现 kaldiio 安转出错的问题，建议首先安装 pytest-runner:

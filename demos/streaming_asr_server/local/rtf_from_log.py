@@ -38,4 +38,4 @@ if __name__ == '__main__':
         T += m['T']
         P += m['P']
 
-    print(f"RTF: {P/T}")
+    print(f"RTF: {P/T}, utts: {n}")

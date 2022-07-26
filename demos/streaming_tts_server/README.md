@@ -15,7 +15,10 @@ For service interface definition, please check:
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 It is recommended to use **paddlepaddle 2.3.1** or above.
-You can choose one way from meduim and hard to install paddlespeech.
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
+
+**If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to the yaml file in the conf directory.**
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/tts_online_application.yaml`.

@@ -15,7 +15,10 @@ Streaming ASR server only support `websocket` protocol, and doesn't support `htt
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 It is recommended to use **paddlepaddle 2.3.1** or above.
-You can choose one way from meduim and hard to install paddlespeech.
+
+You can choose one way from easy, meduim and hard to install paddlespeech.
+
+**If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to 
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/ws_application.yaml` 和 `conf/ws_conformer_wenetspeech_application.yaml`.

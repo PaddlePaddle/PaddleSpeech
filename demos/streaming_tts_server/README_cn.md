@@ -13,7 +13,11 @@
 请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
 推荐使用 **paddlepaddle 2.3.1** 或以上版本。
-你可以从 medium，hard 两种方式中选择一种方式安装 PaddleSpeech。
+
+你可以从简单，中等，困难 几种方式中选择一种方式安装 PaddleSpeech。
+
+**如果使用简单模式安装，需要自行准备 yaml 文件，可参考 conf 目录下的 yaml 文件。**
+
 
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。

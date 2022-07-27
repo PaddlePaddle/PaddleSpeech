@@ -116,13 +116,6 @@ def train_sp(args, config):
 
     odim = config.n_mels
     model = ErnieSAT(idim=vocab_size, odim=odim, **config["model"])
-    # model_path = "/home/yuantian01/PaddleSpeech_ERNIE_SAT/PaddleSpeech/examples/ernie_sat/pretrained_model/paddle_checkpoint_en/model.pdparams"
-    # state_dict = paddle.load(model_path)
-    # new_state_dict = {}
-    # for key, value in state_dict.items():
-    #     new_key = "model." + key
-    #     new_state_dict[new_key] = value
-    # model.set_state_dict(new_state_dict)
 
     if world_size > 1:
         model = DataParallel(model)

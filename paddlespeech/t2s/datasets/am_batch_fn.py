@@ -68,7 +68,7 @@ def erniesat_batch_fn(examples,
                       mean_phn_span: int=8,
                       seg_emb: bool=False,
                       text_masking: bool=False):
-    # fields = ["text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]
+    # fields = ["text", "text_lengths", "speech", "speech_lengths", "align_start", "align_end"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
 

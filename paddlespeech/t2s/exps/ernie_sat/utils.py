@@ -15,15 +15,69 @@ from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import Union
+import os
 
 import numpy as np
 import paddle
 import yaml
-from sedit_arg_parser import parse_args
 from yacs.config import CfgNode
+import hashlib
+
 
 from paddlespeech.t2s.exps.syn_utils import get_am_inference
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
+
+def _get_user():
+    return os.path.expanduser('~').split('/')[-1]
+
+def str2md5(string):
+    md5_val = hashlib.md5(string.encode('utf8')).hexdigest()
+    return md5_val
+
+def get_tmp_name(text:str):
+    return _get_user() + '_' + str(os.getpid()) + '_' + str2md5(text)
+
+def get_dict(dictfile: str):
+    word2phns_dict = {}
+    with open(dictfile, 'r') as fid:
+        for line in fid:
+            line_lst = line.split()
+            word, phn_lst = line_lst[0], line.split()[1:]
+            if word not in word2phns_dict.keys():
+                word2phns_dict[word] = ' '.join(phn_lst)
+    return word2phns_dict
+
+
+# 获取需要被 mask 的 mel 帧的范围
+def get_span_bdy(mfa_start: List[float],
+                 mfa_end: List[float],
+                 span_to_repl: List[List[int]]):
+    if span_to_repl[0] >= len(mfa_start):
+        span_bdy = [mfa_end[-1], mfa_end[-1]]
+    else:
+        span_bdy = [mfa_start[span_to_repl[0]], mfa_end[span_to_repl[1] - 1]]
+    return span_bdy
+
+
+# mfa 获得的 duration 和 fs2 的 duration_predictor 获取的 duration 可能不同
+# 此处获得一个缩放比例, 用于预测值和真实值之间的缩放
+def get_dur_adj_factor(orig_dur: List[int],
+                       pred_dur: List[int],
+                       phns: List[str]):
+    length = 0
+    factor_list = []
+    for orig, pred, phn in zip(orig_dur, pred_dur, phns):
+        if pred == 0 or phn == 'sp':
+            continue
+        else:
+            factor_list.append(orig / pred)
+    factor_list = np.array(factor_list)
+    factor_list.sort()
+    if len(factor_list) < 5:
+        return 1
+    length = 2
+    avg = np.average(factor_list[length:-length])
+    return avg
 
 
 def read_2col_text(path: Union[Path, str]) -> Dict[str, str]:
@@ -119,46 +173,36 @@ def get_voc_out(mel):
     return np.squeeze(wav)
 
 
-def eval_durs(phns, target_lang="chinese", fs=24000, hop_length=300):
-    args = parse_args()
+def eval_durs(phns, target_lang: str='zh', fs: int=24000, n_shift: int=300):
 
-    if target_lang == 'english':
-        args.am = "fastspeech2_ljspeech"
-        args.am_config = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/default.yaml"
-        args.am_ckpt = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/snapshot_iter_100000.pdz"
-        args.am_stat = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/speech_stats.npy"
-        args.phones_dict = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/phone_id_map.txt"
+    if target_lang == 'en':
+        am = "fastspeech2_ljspeech"
+        am_config = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/default.yaml"
+        am_ckpt = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/snapshot_iter_100000.pdz"
+        am_stat = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/speech_stats.npy"
+        phones_dict = "download/fastspeech2_nosil_ljspeech_ckpt_0.5/phone_id_map.txt"
 
-    elif target_lang == 'chinese':
-        args.am = "fastspeech2_csmsc"
-        args.am_config = "download/fastspeech2_conformer_baker_ckpt_0.5/conformer.yaml"
-        args.am_ckpt = "download/fastspeech2_conformer_baker_ckpt_0.5/snapshot_iter_76000.pdz"
-        args.am_stat = "download/fastspeech2_conformer_baker_ckpt_0.5/speech_stats.npy"
-        args.phones_dict = "download/fastspeech2_conformer_baker_ckpt_0.5/phone_id_map.txt"
-
-    if args.ngpu == 0:
-        paddle.set_device("cpu")
-    elif args.ngpu > 0:
-        paddle.set_device("gpu")
-    else:
-        print("ngpu should >= 0 !")
+    elif target_lang == 'zh':
+        am = "fastspeech2_csmsc"
+        am_config = "download/fastspeech2_conformer_baker_ckpt_0.5/conformer.yaml"
+        am_ckpt = "download/fastspeech2_conformer_baker_ckpt_0.5/snapshot_iter_76000.pdz"
+        am_stat = "download/fastspeech2_conformer_baker_ckpt_0.5/speech_stats.npy"
+        phones_dict = "download/fastspeech2_conformer_baker_ckpt_0.5/phone_id_map.txt"
 
     # Init body.
-    with open(args.am_config) as f:
+    with open(am_config) as f:
         am_config = CfgNode(yaml.safe_load(f))
 
     am_inference, am = get_am_inference(
-        am=args.am,
+        am=am,
         am_config=am_config,
-        am_ckpt=args.am_ckpt,
-        am_stat=args.am_stat,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict,
-        speaker_dict=args.speaker_dict,
+        am_ckpt=am_ckpt,
+        am_stat=am_stat,
+        phones_dict=phones_dict,
         return_am=True)
 
     vocab_phones = {}
-    with open(args.phones_dict, "r") as f:
+    with open(phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     for tone, id in phn_id:
         vocab_phones[tone] = int(id)
@@ -166,10 +210,7 @@ def eval_durs(phns, target_lang="chinese", fs=24000, hop_length=300):
     phonemes = [phn if phn in vocab_phones else "sp" for phn in phns]
 
     phone_ids = [vocab_phones[item] for item in phonemes]
-    phone_ids.append(vocab_size - 1)
     phone_ids = paddle.to_tensor(np.array(phone_ids, np.int64))
-    _, d_outs, _, _ = am.inference(phone_ids, spk_id=None, spk_emb=None)
-    pre_d_outs = d_outs
-    phu_durs_new = pre_d_outs * hop_length / fs
-    phu_durs_new = phu_durs_new.tolist()[:-1]
-    return phu_durs_new
+    _, d_outs, _, _ = am.inference(phone_ids)
+    d_outs = d_outs.tolist()
+    return d_outs

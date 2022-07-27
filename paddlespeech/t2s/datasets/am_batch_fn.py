@@ -28,6 +28,150 @@ from paddlespeech.t2s.modules.nets_utils import phones_masking
 from paddlespeech.t2s.modules.nets_utils import phones_text_masking
 
 
+# 因为要传参数，所以需要额外构建
+def build_erniesat_collate_fn(mlm_prob: float=0.8,
+                              mean_phn_span: int=8,
+                              seg_emb: bool=False,
+                              text_masking: bool=False):
+
+    return ErnieSATCollateFn(
+        mlm_prob=mlm_prob,
+        mean_phn_span=mean_phn_span,
+        seg_emb=seg_emb,
+        text_masking=text_masking)
+
+
+class ErnieSATCollateFn:
+    """Functor class of common_collate_fn()"""
+
+    def __init__(self,
+                 mlm_prob: float=0.8,
+                 mean_phn_span: int=8,
+                 seg_emb: bool=False,
+                 text_masking: bool=False):
+        self.mlm_prob = mlm_prob
+        self.mean_phn_span = mean_phn_span
+        self.seg_emb = seg_emb
+        self.text_masking = text_masking
+
+    def __call__(self, exmaples):
+        return erniesat_batch_fn(
+            exmaples,
+            mlm_prob=self.mlm_prob,
+            mean_phn_span=self.mean_phn_span,
+            seg_emb=self.seg_emb,
+            text_masking=self.text_masking)
+
+
+def erniesat_batch_fn(examples,
+                      mlm_prob: float=0.8,
+                      mean_phn_span: int=8,
+                      seg_emb: bool=False,
+                      text_masking: bool=False):
+    # fields = ["text", "text_lengths", "speech", "speech_lengths", "align_start", "align_end"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    align_start = [
+        np.array(item["align_start"], dtype=np.int64) for item in examples
+    ]
+
+    align_end = [
+        np.array(item["align_end"], dtype=np.int64) for item in examples
+    ]
+
+    align_start_lengths = [
+        np.array(len(item["align_start"]), dtype=np.int64) for item in examples
+    ]
+
+    # add_pad
+    text = batch_sequences(text)
+    speech = batch_sequences(speech)
+    align_start = batch_sequences(align_start)
+    align_end = batch_sequences(align_end)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    speech = paddle.to_tensor(speech)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+    align_start_lengths = paddle.to_tensor(align_start_lengths)
+
+    speech_pad = speech
+    text_pad = text
+
+    text_mask = make_non_pad_mask(
+        text_lengths, text_pad, length_dim=1).unsqueeze(-2)
+    speech_mask = make_non_pad_mask(
+        speech_lengths, speech_pad[:, :, 0], length_dim=1).unsqueeze(-2)
+
+    # for training
+    span_bdy = None
+    # for inference
+    if 'span_bdy' in examples[0].keys():
+        span_bdy = [
+            np.array(item["span_bdy"], dtype=np.int64) for item in examples
+        ]
+        span_bdy = paddle.to_tensor(span_bdy)
+
+    # dual_mask 的是混合中英时候同时 mask 语音和文本 
+    # ernie sat 在实现跨语言的时候都 mask 了
+    if text_masking:
+        masked_pos, text_masked_pos = phones_text_masking(
+            xs_pad=speech_pad,
+            src_mask=speech_mask,
+            text_pad=text_pad,
+            text_mask=text_mask,
+            align_start=align_start,
+            align_end=align_end,
+            align_start_lens=align_start_lengths,
+            mlm_prob=mlm_prob,
+            mean_phn_span=mean_phn_span,
+            span_bdy=span_bdy)
+    # 训练纯中文和纯英文的 -> a3t 没有对 phoneme 做 mask, 只对语音 mask 了
+    # a3t 和 ernie sat 的区别主要在于做 mask 的时候
+    else:
+        masked_pos = phones_masking(
+            xs_pad=speech_pad,
+            src_mask=speech_mask,
+            align_start=align_start,
+            align_end=align_end,
+            align_start_lens=align_start_lengths,
+            mlm_prob=mlm_prob,
+            mean_phn_span=mean_phn_span,
+            span_bdy=span_bdy)
+        text_masked_pos = paddle.zeros(paddle.shape(text_pad))
+
+    speech_seg_pos, text_seg_pos = get_seg_pos(
+        speech_pad=speech_pad,
+        text_pad=text_pad,
+        align_start=align_start,
+        align_end=align_end,
+        align_start_lens=align_start_lengths,
+        seg_emb=seg_emb)
+
+    batch = {
+        "text": text,
+        "speech": speech,
+        # need to generate 
+        "masked_pos": masked_pos,
+        "speech_mask": speech_mask,
+        "text_mask": text_mask,
+        "speech_seg_pos": speech_seg_pos,
+        "text_seg_pos": text_seg_pos,
+        "text_masked_pos": text_masked_pos
+    }
+
+    return batch
+
+
 def tacotron2_single_spk_batch_fn(examples):
     # fields = ["text", "text_lengths", "speech", "speech_lengths"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
@@ -378,7 +522,6 @@ class MLMCollateFn:
             mean_phn_span=self.mean_phn_span,
             seg_emb=self.seg_emb,
             text_masking=self.text_masking,
-            attention_window=self.attention_window,
             not_sequence=self.not_sequence)
 
 
@@ -389,7 +532,6 @@ def mlm_collate_fn(
         mean_phn_span: int=8,
         seg_emb: bool=False,
         text_masking: bool=False,
-        attention_window: int=0,
         pad_value: int=0,
         not_sequence: Collection[str]=(),
 ) -> Tuple[List[str], Dict[str, paddle.Tensor]]:
@@ -420,6 +562,7 @@ def mlm_collate_fn(
 
     feats = feats_extract.get_log_mel_fbank(np.array(output["speech"][0]))
     feats = paddle.to_tensor(feats)
+    print("feats.shape:", feats.shape)
     feats_lens = paddle.shape(feats)[0]
     feats = paddle.unsqueeze(feats, 0)
 
@@ -439,6 +582,7 @@ def mlm_collate_fn(
         text_lens, text_pad, length_dim=1).unsqueeze(-2)
     speech_mask = make_non_pad_mask(
         feats_lens, speech_pad[:, :, 0], length_dim=1).unsqueeze(-2)
+
     span_bdy = None
     if 'span_bdy' in output.keys():
         span_bdy = output['span_bdy']

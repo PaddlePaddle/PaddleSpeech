@@ -11,15 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse
 from typing import Dict
 from typing import List
 from typing import Optional
 
 import paddle
-import yaml
 from paddle import nn
-from yacs.config import CfgNode
 
 from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.conformer.convolution import ConvolutionModule
@@ -120,6 +117,7 @@ class MLMEncoder(nn.Layer):
                  positionwise_conv_kernel_size: int=1,
                  macaron_style: bool=False,
                  pos_enc_layer_type: str="abs_pos",
+                 pos_enc_class=None,
                  selfattention_layer_type: str="selfattn",
                  activation_type: str="swish",
                  use_cnn_module: bool=False,
@@ -391,7 +389,7 @@ class MLM(nn.Layer):
             speech_seg_pos: paddle.Tensor,
             text_seg_pos: paddle.Tensor,
             span_bdy: List[int],
-            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
+            use_teacher_forcing: bool=False, ) -> List[paddle.Tensor]:
         '''
         Args:
             speech (paddle.Tensor): input speech (1, Tmax, D).
@@ -513,67 +511,195 @@ class MLMDualMaksing(MLM):
         return before_outs, after_outs, text_outs
 
 
-def build_model_from_file(config_file, model_file):
+class ErnieSAT(nn.Layer):
+    def __init__(
+            self,
+            # network structure related
+            idim: int,
+            odim: int,
+            postnet_layers: int=5,
+            postnet_filts: int=5,
+            postnet_chans: int=256,
+            use_scaled_pos_enc: bool=False,
+            encoder_type: str='conformer',
+            decoder_type: str='conformer',
+            enc_input_layer: str='sega_mlm',
+            enc_pre_speech_layer: int=0,
+            enc_cnn_module_kernel: int=7,
+            enc_attention_dim: int=384,
+            enc_attention_heads: int=2,
+            enc_linear_units: int=1536,
+            enc_num_blocks: int=4,
+            enc_dropout_rate: float=0.2,
+            enc_positional_dropout_rate: float=0.2,
+            enc_attention_dropout_rate: float=0.2,
+            enc_normalize_before: bool=True,
+            enc_macaron_style: bool=True,
+            enc_use_cnn_module: bool=True,
+            enc_selfattention_layer_type: str='legacy_rel_selfattn',
+            enc_activation_type: str='swish',
+            enc_pos_enc_layer_type: str='legacy_rel_pos',
+            enc_positionwise_layer_type: str='conv1d',
+            enc_positionwise_conv_kernel_size: int=3,
+            text_masking: bool=False,
+            dec_cnn_module_kernel: int=31,
+            dec_attention_dim: int=384,
+            dec_attention_heads: int=2,
+            dec_linear_units: int=1536,
+            dec_num_blocks: int=4,
+            dec_dropout_rate: float=0.2,
+            dec_positional_dropout_rate: float=0.2,
+            dec_attention_dropout_rate: float=0.2,
+            dec_macaron_style: bool=True,
+            dec_use_cnn_module: bool=True,
+            dec_selfattention_layer_type: str='legacy_rel_selfattn',
+            dec_activation_type: str='swish',
+            dec_pos_enc_layer_type: str='legacy_rel_pos',
+            dec_positionwise_layer_type: str='conv1d',
+            dec_positionwise_conv_kernel_size: int=3,
+            init_type: str="xavier_uniform", ):
+        super().__init__()
+        # store hyperparameters
+        self.odim = odim
 
-    state_dict = paddle.load(model_file)
-    model_class = MLMDualMaksing if 'conformer_combine_vctk_aishell3_dual_masking' in config_file \
-        else MLMEncAsDecoder
+        self.use_scaled_pos_enc = use_scaled_pos_enc
 
-    # 构建模型
-    with open(config_file) as f:
-        conf = CfgNode(yaml.safe_load(f))
-    model = build_model(conf, model_class)
-    model.set_state_dict(state_dict)
-    return model, conf
+        # initialize parameters
+        initialize(self, init_type)
+
+        # Encoder
+        if encoder_type == "conformer":
+            encoder = MLMEncoder(
+                idim=odim,
+                vocab_size=idim,
+                pre_speech_layer=enc_pre_speech_layer,
+                attention_dim=enc_attention_dim,
+                attention_heads=enc_attention_heads,
+                linear_units=enc_linear_units,
+                num_blocks=enc_num_blocks,
+                dropout_rate=enc_dropout_rate,
+                positional_dropout_rate=enc_positional_dropout_rate,
+                attention_dropout_rate=enc_attention_dropout_rate,
+                input_layer=enc_input_layer,
+                normalize_before=enc_normalize_before,
+                positionwise_layer_type=enc_positionwise_layer_type,
+                positionwise_conv_kernel_size=enc_positionwise_conv_kernel_size,
+                macaron_style=enc_macaron_style,
+                pos_enc_layer_type=enc_pos_enc_layer_type,
+                selfattention_layer_type=enc_selfattention_layer_type,
+                activation_type=enc_activation_type,
+                use_cnn_module=enc_use_cnn_module,
+                cnn_module_kernel=enc_cnn_module_kernel,
+                text_masking=text_masking)
+        else:
+            raise ValueError(f"{encoder_type} is not supported.")
+
+        # Decoder
+        if decoder_type != 'no_decoder':
+            decoder = MLMDecoder(
+                idim=0,
+                input_layer=None,
+                cnn_module_kernel=dec_cnn_module_kernel,
+                attention_dim=dec_attention_dim,
+                attention_heads=dec_attention_heads,
+                linear_units=dec_linear_units,
+                num_blocks=dec_num_blocks,
+                dropout_rate=dec_dropout_rate,
+                positional_dropout_rate=dec_positional_dropout_rate,
+                macaron_style=dec_macaron_style,
+                use_cnn_module=dec_use_cnn_module,
+                selfattention_layer_type=dec_selfattention_layer_type,
+                activation_type=dec_activation_type,
+                pos_enc_layer_type=dec_pos_enc_layer_type,
+                positionwise_layer_type=dec_positionwise_layer_type,
+                positionwise_conv_kernel_size=dec_positionwise_conv_kernel_size)
+
+        else:
+            decoder = None
+
+        model_class = MLMDualMaksing if text_masking else MLMEncAsDecoder
+
+        self.model = model_class(
+            odim=odim,
+            encoder=encoder,
+            decoder=decoder,
+            postnet_layers=postnet_layers,
+            postnet_filts=postnet_filts,
+            postnet_chans=postnet_chans,
+            text_masking=text_masking)
+
+        nn.initializer.set_global_initializer(None)
+
+    def forward(self,
+                speech: paddle.Tensor,
+                text: paddle.Tensor,
+                masked_pos: paddle.Tensor,
+                speech_mask: paddle.Tensor,
+                text_mask: paddle.Tensor,
+                speech_seg_pos: paddle.Tensor,
+                text_seg_pos: paddle.Tensor):
+        return self.model(
+            speech=speech,
+            text=text,
+            masked_pos=masked_pos,
+            speech_mask=speech_mask,
+            text_mask=text_mask,
+            speech_seg_pos=speech_seg_pos,
+            text_seg_pos=text_seg_pos)
+
+    def inference(
+            self,
+            speech: paddle.Tensor,
+            text: paddle.Tensor,
+            masked_pos: paddle.Tensor,
+            speech_mask: paddle.Tensor,
+            text_mask: paddle.Tensor,
+            speech_seg_pos: paddle.Tensor,
+            text_seg_pos: paddle.Tensor,
+            span_bdy: List[int],
+            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
+        return self.model.inference(
+            speech=speech,
+            text=text,
+            masked_pos=masked_pos,
+            speech_mask=speech_mask,
+            text_mask=text_mask,
+            speech_seg_pos=speech_seg_pos,
+            text_seg_pos=text_seg_pos,
+            span_bdy=span_bdy,
+            use_teacher_forcing=use_teacher_forcing)
 
 
-# select encoder and decoder here
-def build_model(args: argparse.Namespace, model_class=MLMEncAsDecoder) -> MLM:
-    if isinstance(args.token_list, str):
-        with open(args.token_list, encoding="utf-8") as f:
-            token_list = [line.rstrip() for line in f]
+class ErnieSATInference(nn.Layer):
+    def __init__(self, normalizer, model):
+        super().__init__()
+        self.normalizer = normalizer
+        self.acoustic_model = model
 
-        # Overwriting token_list to keep it as "portable".
-        args.token_list = list(token_list)
-    elif isinstance(args.token_list, (tuple, list)):
-        token_list = list(args.token_list)
-    else:
-        raise RuntimeError("token_list must be str or list")
+    def forward(
+            self,
+            speech: paddle.Tensor,
+            text: paddle.Tensor,
+            masked_pos: paddle.Tensor,
+            speech_mask: paddle.Tensor,
+            text_mask: paddle.Tensor,
+            speech_seg_pos: paddle.Tensor,
+            text_seg_pos: paddle.Tensor,
+            span_bdy: List[int],
+            use_teacher_forcing: bool=True, ):
+        outs = self.acoustic_model.inference(
+            speech=speech,
+            text=text,
+            masked_pos=masked_pos,
+            speech_mask=speech_mask,
+            text_mask=text_mask,
+            speech_seg_pos=speech_seg_pos,
+            text_seg_pos=text_seg_pos,
+            span_bdy=span_bdy,
+            use_teacher_forcing=use_teacher_forcing)
 
-    vocab_size = len(token_list)
-    odim = 80
-
-    # Encoder
-    encoder_class = MLMEncoder
-
-    if 'text_masking' in args.model_conf.keys() and args.model_conf[
-            'text_masking']:
-        args.encoder_conf['text_masking'] = True
-    else:
-        args.encoder_conf['text_masking'] = False
-
-    encoder = encoder_class(
-        args.input_size, vocab_size=vocab_size, **args.encoder_conf)
-
-    # Decoder
-    if args.decoder != 'no_decoder':
-        decoder_class = MLMDecoder
-        decoder = decoder_class(
-            idim=0,
-            input_layer=None,
-            **args.decoder_conf, )
-    else:
-        decoder = None
-
-    # Build model
-    model = model_class(
-        odim=odim,
-        encoder=encoder,
-        decoder=decoder,
-        **args.model_conf, )
-
-    # Initialize
-    if args.init is not None:
-        initialize(model, args.init)
-
-    return model
+        normed_mel_pre, normed_mel_masked, normed_mel_post = outs
+        logmel_pre = self.normalizer.inverse(normed_mel_pre)
+        logmel_masked = self.normalizer.inverse(normed_mel_masked)
+        logmel_post = self.normalizer.inverse(normed_mel_post)
+        return logmel_pre, logmel_masked, logmel_post

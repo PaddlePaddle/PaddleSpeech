@@ -18,7 +18,6 @@
 
 **如果使用简单模式安装，需要自行准备 yaml 文件，可参考 conf 目录下的 yaml 文件。**
 
-
 ### 2. 准备配置文件
 配置文件可参见 `conf/tts_online_application.yaml` 。
 - `protocol` 表示该流式 TTS 服务使用的网络协议，目前支持 **http 和 websocket** 两种。
@@ -33,6 +32,7 @@
     - hifigan, mb_melgan 均支持流式 voc 推理
     - 当 voc 模型为 mb_melgan，当 voc_pad=14 时，流式推理合成音频与非流式合成音频一致；voc_pad 最小可以设置为7，合成音频听感上没有异常，若 voc_pad 小于7，合成音频听感上存在异常。
     - 当 voc 模型为 hifigan，当 voc_pad=19 时，流式推理合成音频与非流式合成音频一致；当 voc_pad=14 时，合成音频听感上没有异常。
+    - PaddleSpeech 中流式声码器 Pad 计算方法: [AIStudio 教程](https://aistudio.baidu.com/aistudio/projectdetail/4151335)
 - 推理速度：mb_melgan > hifigan; 音频质量：mb_melgan < hifigan
 - **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 
@@ -56,7 +56,7 @@
   - `log_file`: log 文件. 默认：./log/paddlespeech.log
 
   输出:
-  ```bash
+  ```text
   [2022-04-24 20:05:27,887] [    INFO] - The first response time of the 0 warm up: 1.0123658180236816 s
   [2022-04-24 20:05:28,038] [    INFO] - The first response time of the 1 warm up: 0.15108466148376465 s
   [2022-04-24 20:05:28,191] [    INFO] - The first response time of the 2 warm up: 0.15317344665527344 s
@@ -81,8 +81,8 @@
       log_file="./log/paddlespeech.log")
   ```
 
-  输出：
-  ```bash
+  输出:
+  ```text
   [2022-04-24 21:00:16,934] [    INFO] - The first response time of the 0 warm up: 1.268730878829956 s
   [2022-04-24 21:00:17,046] [    INFO] - The first response time of the 1 warm up: 0.11168622970581055 s
   [2022-04-24 21:00:17,151] [    INFO] - The first response time of the 2 warm up: 0.10413002967834473 s
@@ -126,7 +126,7 @@
 
     
     输出:
-    ```bash
+    ```text
     [2022-04-24 21:08:18,559] [    INFO] - tts http client start
     [2022-04-24 21:08:21,702] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
     [2022-04-24 21:08:21,703] [    INFO] - 首包响应：0.18863153457641602 s
@@ -184,20 +184,19 @@
   - `log_file`: log 文件. 默认：./log/paddlespeech.log
 
   输出:
-  ```bash
-    [2022-04-27 10:18:09,107] [    INFO] - The first response time of the 0 warm up: 1.1551103591918945 s
-    [2022-04-27 10:18:09,219] [    INFO] - The first response time of the 1 warm up: 0.11204338073730469 s
-    [2022-04-27 10:18:09,324] [    INFO] - The first response time of the 2 warm up: 0.1051797866821289 s
-    [2022-04-27 10:18:09,325] [    INFO] - **********************************************************************
-    INFO:     Started server process [17600]
-    [2022-04-27 10:18:09] [INFO] [server.py:75] Started server process [17600]
-    INFO:     Waiting for application startup.
-    [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
+  ```text
+  [2022-04-27 10:18:09,107] [    INFO] - The first response time of the 0 warm up: 1.1551103591918945 s
+  [2022-04-27 10:18:09,219] [    INFO] - The first response time of the 1 warm up: 0.11204338073730469 s
+  [2022-04-27 10:18:09,324] [    INFO] - The first response time of the 2 warm up: 0.1051797866821289 s
+  [2022-04-27 10:18:09,325] [    INFO] - **********************************************************************
+  INFO:     Started server process [17600]
+  [2022-04-27 10:18:09] [INFO] [server.py:75] Started server process [17600]
+  INFO:     Waiting for application startup.
+  [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
+  INFO:     Application startup complete.
+  [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   ```
 
 - Python API
@@ -210,21 +209,20 @@
       log_file="./log/paddlespeech.log")
   ```
 
-  输出：
-  ```bash
-    [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
-    [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
-    [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
-    [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
-    INFO:     Started server process [23466]
-    [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
-    INFO:     Waiting for application startup.
-    [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
+  输出:
+  ```text
+  [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
+  [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
+  [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
+  [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
+  INFO:     Started server process [23466]
+  [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
+  INFO:     Waiting for application startup.
+  [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
+  INFO:     Application startup complete.
+  [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   ```
 
 #### 4.2 客户端使用方法
@@ -256,7 +254,7 @@
 
 
     输出:
-    ```bash
+    ```text
     [2022-04-27 10:21:04,262] [    INFO] - tts websocket client start
     [2022-04-27 10:21:04,496] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
     [2022-04-27 10:21:04,496] [    INFO] - 首包响应：0.2124948501586914 s
@@ -264,7 +262,6 @@
     [2022-04-27 10:21:07,484] [    INFO] - 音频时长：3.825 s
     [2022-04-27 10:21:07,484] [    INFO] - RTF: 0.8363677006141812
     [2022-04-27 10:21:07,516] [    INFO] - 音频保存至：output.wav
-
     ```
 
 - Python API
@@ -281,11 +278,10 @@
       spk_id=0,
       output="./output.wav",
       play=False)
-
   ```
 
   输出:
-  ```bash
+  ```text
     [2022-04-27 10:22:48,852] [    INFO] - tts websocket client start
     [2022-04-27 10:22:49,080] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
     [2022-04-27 10:22:49,080] [    INFO] - 首包响应：0.21017956733703613 s
@@ -293,5 +289,4 @@
     [2022-04-27 10:22:52,101] [    INFO] - 音频时长：3.825 s
     [2022-04-27 10:22:52,101] [    INFO] - RTF: 0.8445606356352762
     [2022-04-27 10:22:52,134] [    INFO] - 音频保存至：./output.wav
-
   ```

@@ -3,6 +3,7 @@
 
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature.h"
 #include "paddlespeech/audio/src/pybind/sox/io.h"
+#include "paddlespeech/audio/src/pybind/sox/effects.h"
 #include "paddlespeech/audio/third_party/kaldi/feat/feature-fbank.h"
 
 PYBIND11_MODULE(_paddleaudio, m) {
@@ -13,6 +14,15 @@ PYBIND11_MODULE(_paddleaudio, m) {
     m.def("get_info_fileobj",
           &paddleaudio::sox_io::get_info_fileobj,
           "Get metadata of audio in file object.");
+    m.def("load_audio_fileobj",
+          &paddleaudio::sox_io::load_audio_fileobj,
+          "Load audio from file object.");
+    m.def("save_audio_fileobj",
+          &paddleaudio::sox_io::save_audio_fileobj,
+          "Save audio to file obj.");
+    m.def("apply_effects_fileobj",
+          &paddleaudio::sox_effects::apply_effects_fileobj,
+          "Decode audio data from file-like obj and apply effects.");
 #endif
 
 #ifdef INCLUDE_KALDI

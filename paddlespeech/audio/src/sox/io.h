@@ -2,11 +2,10 @@
 // Copyright (c) 2017 Facebook Inc. (Soumith Chintala),
 // All rights reserved.
 
-#ifndef PADDLEAUDIO_SOX_IO_H
-#define PADDLEAUDIO_SOX_IO_H
+#pragma once
 
-// #include "sox/utils.h"
-#include "optional/optional.hpp"
+#include "paddlespeech/audio/src/optional/optional.hpp"
+#include "paddlespeech/audio/src/sox/utils.h"
 
 namespace paddleaudio {
 namespace sox_io {
@@ -21,7 +20,7 @@ using MetaDataTuple =
 tl::optional<MetaDataTuple> get_info_file(
     const std::string& path, const tl::optional<std::string>& format);
 
-tl::optional<std::tuple<torch::Tensor, int64_t>> load_audio_file(
+tl::optional<std::tuple<py::array, int64_t>> load_audio_file(
     const std::string& path,
     const tl::optional<int64_t>& frame_offset,
     const tl::optional<int64_t>& num_frames,
@@ -30,7 +29,7 @@ tl::optional<std::tuple<torch::Tensor, int64_t>> load_audio_file(
     const tl::optional<std::string>& format);
 
 void save_audio_file(const std::string& path,
-                     torch::Tensor tensor,
+                     py::array tensor,
                      int64_t sample_rate,
                      bool channels_first,
                      tl::optional<double> compression,
@@ -40,5 +39,3 @@ void save_audio_file(const std::string& path,
 
 }  // namespace sox_io
 }  // namespace paddleaudio
-
-#endif

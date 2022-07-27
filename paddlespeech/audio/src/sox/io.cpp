@@ -1,10 +1,10 @@
-// #include "sox/effects.h"
-// #include "sox/effects_chain.h"
-#include "sox/io.h"
-#include "sox/types.h"
-#include "sox/utils.h"
+//code is from: https://github.com/pytorch/audio/blob/main/torchaudio/csrc/sox/io.cpp
+#include "paddlespeech/audio/src/sox/effects.h"
+#include "paddlespeech/audio/src/sox/effects_chain.h"
+#include "paddlespeech/audio/src/sox/io.h"
+#include "paddlespeech/audio/src/sox/types.h"
+#include "paddlespeech/audio/src/sox/utils.h"
 
-using namespace torch::indexing;
 using namespace paddleaudio::sox_utils;
 
 namespace paddleaudio {
@@ -60,7 +60,7 @@ std::vector<std::vector<std::string>> get_effects(
     return effects;
 }
 
-tl::optional<std::tuple<torch::Tensor, int64_t>> load_audio_file(
+tl::optional<std::tuple<py::array, int64_t>> load_audio_file(
     const std::string& path,
     const tl::optional<int64_t>& frame_offset,
     const tl::optional<int64_t>& num_frames,
@@ -73,7 +73,7 @@ tl::optional<std::tuple<torch::Tensor, int64_t>> load_audio_file(
 }
 
 void save_audio_file(const std::string& path,
-                     torch::Tensor tensor,
+                     py::array tensor,
                      int64_t sample_rate,
                      bool channels_first,
                      tl::optional<double> compression,
@@ -88,19 +88,19 @@ void save_audio_file(const std::string& path,
     }();
 
     if (filetype == "amr-nb") {
-        const auto num_channels = tensor.size(channels_first ? 0 : 1);
-        TORCH_CHECK(num_channels == 1,
-                    "amr-nb format only supports single channel audio.");
+        const auto num_channels = tensor.shape(channels_first ? 0 : 1);
+        //TORCH_CHECK(num_channels == 1,
+        //            "amr-nb format only supports single channel audio.");
     } else if (filetype == "htk") {
-        const auto num_channels = tensor.size(channels_first ? 0 : 1);
-        TORCH_CHECK(num_channels == 1,
-                    "htk format only supports single channel audio.");
+        const auto num_channels = tensor.shape(channels_first ? 0 : 1);
+       // TORCH_CHECK(num_channels == 1,
+        //            "htk format only supports single channel audio.");
     } else if (filetype == "gsm") {
-        const auto num_channels = tensor.size(channels_first ? 0 : 1);
-        TORCH_CHECK(num_channels == 1,
-                    "gsm format only supports single channel audio.");
-        TORCH_CHECK(sample_rate == 8000,
-                    "gsm format only supports a sampling rate of 8kHz.");
+        const auto num_channels = tensor.shape(channels_first ? 0 : 1);
+        //TORCH_CHECK(num_channels == 1,
+        //            "gsm format only supports single channel audio.");
+        //TORCH_CHECK(sample_rate == 8000,
+        //            "gsm format only supports a sampling rate of 8kHz.");
     }
     const auto signal_info =
         get_signalinfo(&tensor, sample_rate, filetype, channels_first);
@@ -125,14 +125,6 @@ void save_audio_file(const std::string& path,
     chain.addInputTensor(&tensor, sample_rate, channels_first);
     chain.addOutputFile(sf);
     chain.run();
-}
-
-TORCH_LIBRARY_FRAGMENT(paddleaudio, m) {
-    m.def("paddleaudio::sox_io_get_info", &paddleaudio::sox_io::get_info_file);
-    m.def("paddleaudio::sox_io_load_audio_file",
-          &paddleaudio::sox_io::load_audio_file);
-    m.def("paddleaudio::sox_io_save_audio_file",
-          &paddleaudio::sox_io::save_audio_file);
 }
 
 }  // namespace sox_io

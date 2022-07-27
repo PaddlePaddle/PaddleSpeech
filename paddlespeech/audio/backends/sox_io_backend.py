@@ -29,7 +29,7 @@ def _fail_load(
     normalize: bool = True,
     channels_first: bool = True,
     format: Optional[str] = None,
-) -> Tuple[paddle.Tensor, int]:
+) -> Tuple[Tensor, int]:
     raise RuntimeError("Failed to load audio from {}".format(filepath))
 
 
@@ -41,6 +41,7 @@ _fallback_info_fileobj = _fail_info_fileobj
 _fallback_load = _fail_load
 _fallback_load_filebj = _fail_load_fileobj
 
+@_mod_utils.requires_sox()
 def load(
         filepath: Union[str, Path],
         out: Optional[Tensor]=None,
@@ -51,6 +52,7 @@ def load(
         filetype: Optional[str]=None, ) -> Tuple[Tensor, int]:
     raise RuntimeError("No audio I/O backend is available.")
 
+@_mod_utils.requires_sox()
 def save(filepath: str, 
          src: Tensor, 
          sample_rate: int, 

@@ -471,6 +471,165 @@ class U2Tester(U2Trainer):
         infer_model, input_spec = self.load_inferspec()
         assert isinstance(input_spec, list), type(input_spec)
         infer_model.eval()
-        static_model = paddle.jit.to_static(infer_model, input_spec=input_spec)
-        logger.info(f"Export code: {static_model.forward.code}")
-        paddle.jit.save(static_model, self.args.export_path)
+        # static_model = paddle.jit.to_static(infer_model, input_spec=input_spec)
+        # logger.info(f"Export code: {static_model.forward.code}")
+        # paddle.jit.save(static_model, self.args.export_path)
+
+        # # to check outputs
+        # def flatten(out):
+        #     if isinstance(out, paddle.Tensor):
+        #         return [out]
+            
+        #     flatten_out = []
+        #     for var in out:
+        #         if isinstance(var, (list, tuple)):
+        #             flatten_out.extend(flatten(var))
+        #         else:
+        #             flatten_out.append(var)
+        #     return flatten_out
+
+        
+        # ######################### infer_model.forward_attention_decoder ########################
+        # a = paddle.full(shape=[10, 8], fill_value=10, dtype='int64')
+        # b = paddle.full(shape=[10], fill_value=8, dtype='int64')
+        # # c =  paddle.rand(shape=[1, 20, 512], dtype='float32')
+        # c = paddle.full(shape=[1, 20, 512], fill_value=1, dtype='float32')
+
+        # out1 = infer_model.forward_attention_decoder(a, b, c)
+        # print(out1)
+
+        # input_spec = [paddle.static.InputSpec(shape=[None, None], dtype='int64'), 
+        #               paddle.static.InputSpec(shape=[None], dtype='int64'), 
+        #               paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')]
+        # static_model = paddle.jit.to_static(infer_model.forward_attention_decoder, input_spec=input_spec)
+        # paddle.jit.save(static_model, self.args.export_path)
+        # static_model = paddle.jit.load(self.args.export_path)
+        # out2 = static_model(a, b, c)
+        # # print(out2)
+
+        # out1 = flatten(out1)
+        # out2 = flatten(out2)
+        # for i in range(len(out1)):
+        #     print(np.equal(out1[i].numpy(), out2[i].numpy()).all())
+
+
+
+
+
+
+        # ######################### infer_model.forward_encoder_chunk ########################
+        # xs =  paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([80], dtype='int32')
+        # required_cache_size = -16
+        # att_cache = paddle.randn(shape=[12, 8, 80, 128], dtype='float32')
+        # cnn_cache = paddle.randn(shape=[12, 1, 512, 14], dtype='float32')
+        # # out1 = infer_model.forward_encoder_chunk(xs, offset, required_cache_size, att_cache, cnn_cache)
+        # # print(out1)
+        # zero_out1 = infer_model.forward_encoder_chunk(xs, offset, required_cache_size, att_cache=paddle.zeros([0, 0, 0, 0]), cnn_cache=paddle.zeros([0, 0, 0, 0]))
+        # # print(zero_out1)
+
+        # input_spec = [
+        #     paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
+        #     paddle.static.InputSpec(shape=[1], dtype='int32'), 
+        #     -16,
+        #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'),
+        #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')]
+        # static_model = paddle.jit.to_static(infer_model.forward_encoder_chunk, input_spec=input_spec)
+        # paddle.jit.save(static_model, self.args.export_path)
+        # static_model = paddle.jit.load(self.args.export_path)
+        # # out2 = static_model(xs, offset, att_cache, cnn_cache)
+        # # print(out2)
+        # zero_out2 = static_model(xs, offset, paddle.zeros([0, 0, 0, 0]), paddle.zeros([0, 0, 0, 0]))
+        
+        # # out1 = flatten(out1)
+        # # out2 = flatten(out2)
+        # # for i in range(len(out1)):
+        # #     print(np.equal(out1[i].numpy(), out2[i].numpy()).all())
+
+        # zero_out1 = flatten(zero_out1)
+        # zero_out2 = flatten(zero_out2)
+        # for i in range(len(zero_out1)):
+        #     print(np.equal(zero_out1[i].numpy(), zero_out2[i].numpy()).all())
+
+
+
+
+
+
+
+        # ######################### infer_model.forward_encoder_chunk zero Tensor online ########################
+        # xs1 =  paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([0], dtype='int32')
+        # required_cache_size = -16
+        # att_cache = paddle.zeros([0, 0, 0, 0])
+        # cnn_cache=paddle.zeros([0, 0, 0, 0])
+
+        # xs, att_cache, cnn_cache = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
+        # xs2 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out1 = infer_model.forward_encoder_chunk(xs2, offset, required_cache_size, att_cache, cnn_cache)
+        # # print(out1)
+        
+        # input_spec = [
+        #     paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
+        #     paddle.static.InputSpec(shape=[1], dtype='int32'), 
+        #     -16,
+        #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'),
+        #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')]
+        # static_model = paddle.jit.to_static(infer_model.forward_encoder_chunk, input_spec=input_spec)
+        # paddle.jit.save(static_model, self.args.export_path)
+        # static_model = paddle.jit.load(self.args.export_path)
+
+        # offset = paddle.to_tensor([0], dtype='int32')
+        # att_cache = paddle.zeros([0, 0, 0, 0])
+        # cnn_cache=paddle.zeros([0, 0, 0, 0])
+        # xs, att_cache, cnn_cache = static_model(xs1, offset, att_cache, cnn_cache)
+        # xs =  paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out2 = static_model(xs2, offset, att_cache, cnn_cache)
+        # # print(out2)
+
+        # out1 = flatten(out1)
+        # out2 = flatten(out2)
+        # for i in range(len(out1)):
+        #     print(np.equal(out1[i].numpy(), out2[i].numpy()).all())
+
+
+
+
+
+
+
+        ###################### save/load combine ########################
+        paddle.jit.save(infer_model, '/workspace/conformer/PaddleSpeech-conformer/conformer/conformer', combine_params=True)
+
+
+        # xs1 =  paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([0], dtype='int32')
+        # required_cache_size = -16
+        # att_cache = paddle.zeros([0, 0, 0, 0])
+        # cnn_cache=paddle.zeros([0, 0, 0, 0])
+
+        # xs, att_cache, cnn_cache = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
+        # xs2 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out1 = infer_model.forward_encoder_chunk(xs2, offset, required_cache_size, att_cache, cnn_cache)
+        # # print(out1)
+        
+
+        # from paddle.jit.layer import Layer
+        # layer = Layer()
+        # layer.load('/workspace/conformer/PaddleSpeech-conformer/conformer/conformer', paddle.CUDAPlace(0))
+
+        # offset = paddle.to_tensor([0], dtype='int32')
+        # att_cache = paddle.zeros([0, 0, 0, 0])
+        # cnn_cache=paddle.zeros([0, 0, 0, 0])
+        # xs, att_cache, cnn_cache = layer.forward_encoder_chunk(xs1, offset, att_cache, cnn_cache)
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out2 = layer.forward_encoder_chunk(xs2, offset, att_cache, cnn_cache)
+        # # print(out2)
+
+        # out1 = flatten(out1)
+        # out2 = flatten(out2)
+        # for i in range(len(out1)):
+        #     print(np.equal(out1[i].numpy(), out2[i].numpy()).all())

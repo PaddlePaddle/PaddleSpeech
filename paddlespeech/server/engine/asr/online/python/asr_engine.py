@@ -80,6 +80,10 @@ class PaddleASRConnectionHanddler:
         self.init_decoder()
         self.reset()
 
+        from paddle.jit.layer import Layer
+        self.jit_layer = Layer()
+        self.jit_layer.load('/workspace/conformer/PaddleSpeech-conformer/conformer/conformer', paddle.CUDAPlace(1))
+
     def init_decoder(self):
         if "deepspeech2" in self.model_type:
             assert self.continuous_decoding is False, "ds2 model not support endpoint"
@@ -474,9 +478,16 @@ class PaddleASRConnectionHanddler:
             # cur chunk
             chunk_xs = self.cached_feat[:, cur:end, :]
             # forward chunk
-            (y, self.att_cache, self.cnn_cache) = self.model.encoder.forward_chunk(
-                 chunk_xs, self.offset, required_cache_size,
-                 self.att_cache, self.cnn_cache)
+            # (y, self.att_cache, self.cnn_cache) = self.model.encoder.forward_chunk(
+            #      chunk_xs, self.offset, required_cache_size,
+            #      self.att_cache, self.cnn_cache)
+
+            (y, self.att_cache, self.cnn_cache) = self.jit_layer.forward_encoder_chunk(
+                                                    chunk_xs, 
+                                                    paddle.to_tensor([self.offset], dtype='int32'), 
+                                                    self.att_cache, 
+                                                    self.cnn_cache)
+
             outputs.append(y)
 
             # update the global offset, in decoding frame unit

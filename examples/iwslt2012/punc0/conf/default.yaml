@@ -29,7 +29,7 @@ optimizer_params:
 
 scheduler_params:
     learning_rate: 1.0e-5               # learning rate.
-    gamma: 1.0                          # scheduler gamma.
+    gamma: 1.0                          # scheduler gamma must between(0.0, 1.0) and close to 1.0 is better.
 
 ###########################################################
 #                     TRAINING SETTING                    #

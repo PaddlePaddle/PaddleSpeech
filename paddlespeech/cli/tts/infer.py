@@ -98,7 +98,7 @@ class TTSExecutor(BaseExecutor):
         self.parser.add_argument(
             '--voc',
             type=str,
-            default='pwgan_csmsc',
+            default='hifigan_csmsc',
             choices=[
                 'pwgan_csmsc',
                 'pwgan_ljspeech',

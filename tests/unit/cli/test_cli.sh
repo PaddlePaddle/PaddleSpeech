@@ -43,7 +43,7 @@ paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！
 paddlespeech tts --am speedyspeech_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --voc mb_melgan_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --voc style_melgan_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
-paddlespeech tts --voc hifigan_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
+paddlespeech tts --voc pwgan_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am fastspeech2_aishell3 --voc pwgan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
 paddlespeech tts --am fastspeech2_aishell3 --voc hifigan_aishell3 --input "你好，欢迎使用百度飞桨深度学习框架！" --spk_id 0
 paddlespeech tts --am fastspeech2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."

@@ -655,6 +655,24 @@ tts_dynamic_pretrained_models = {
             'phone_id_map.txt',
         },
     },
+    "fastspeech2_mix-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_csmscljspeech_add-zhen.zip',
+            'md5':
+            '77d9d4b5a79ed6203339ead7ef6c74f9',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_94000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+        },
+    },
     # tacotron2
     "tacotron2_csmsc-zh": {
         '1.0': {

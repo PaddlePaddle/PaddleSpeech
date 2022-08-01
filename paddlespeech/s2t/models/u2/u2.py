@@ -29,6 +29,9 @@ import paddle
 from paddle import jit
 from paddle import nn
 
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import pad_sequence
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.decoders.scorers.ctc import CTCPrefixScorer
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
@@ -48,9 +51,6 @@ from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.audio.utils.tensor_utils import add_sos_eos
-from paddlespeech.audio.utils.tensor_utils import pad_sequence
-from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
@@ -58,20 +58,6 @@ __all__ = ["U2Model", "U2InferModel"]
 
 logger = Log(__name__).getlog()
 
-
-# input_spec1 = [paddle.static.InputSpec(shape=[None, None], dtype='int64'), 
-#               paddle.static.InputSpec(shape=[None], dtype='int64'), 
-#               paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')]
-
-# input_spec2 = [
-#     paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
-#     paddle.static.InputSpec(shape=[1], dtype='int32'), 
-#     -16,
-#     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'), 
-#     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')]
-
-# input_spec3 = [paddle.static.InputSpec(shape=[1, 1, 1], dtype='int64'), 
-#                paddle.static.InputSpec(shape=[1], dtype='int64')]
 
 class U2BaseModel(ASRInterface, nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
@@ -588,44 +574,44 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 best_index = i
         return hyps[best_index][0]
 
-    #@jit.to_static
+    @jit.to_static(property=True)
     def subsampling_rate(self) -> int:
         """ Export interface for c++ call, return subsampling_rate of the
             model
         """
         return self.encoder.embed.subsampling_rate
 
-    #@jit.to_static
+    @jit.to_static(property=True)
     def right_context(self) -> int:
         """ Export interface for c++ call, return right_context of the model
         """
         return self.encoder.embed.right_context
 
-    #@jit.to_static
+    @jit.to_static(property=True)
     def sos_symbol(self) -> int:
         """ Export interface for c++ call, return sos symbol id of the model
         """
         return self.sos
 
-    #@jit.to_static
+    @jit.to_static(property=True)
     def eos_symbol(self) -> int:
         """ Export interface for c++ call, return eos symbol id of the model
         """
         return self.eos
 
-    @jit.to_static(input_spec=[
-        paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
-        paddle.static.InputSpec(shape=[1], dtype='int32'), 
-        -16,
-        paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'), 
-        paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')])
+    # @jit.to_static(input_spec=[
+    #     paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
+    #     paddle.static.InputSpec(shape=[1], dtype='int32'), 
+    #     -1,
+    #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'), 
+    #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')])
     def forward_encoder_chunk(
             self,
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -660,8 +646,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             paddle.Tensor: new conformer cnn cache required for next chunk, with
                 same shape as the original cnn_cache.
         """
-        return self.encoder.forward_chunk(
-            xs, offset, required_cache_size, att_cache, cnn_cache)
+        return self.encoder.forward_chunk(xs, offset, required_cache_size,
+                                          att_cache, cnn_cache)
 
     # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
@@ -674,10 +660,10 @@ class U2BaseModel(ASRInterface, nn.Layer):
         """
         return self.ctc.log_softmax(xs)
 
-    @jit.to_static(input_spec=[
-        paddle.static.InputSpec(shape=[None, None], dtype='int64'), 
-        paddle.static.InputSpec(shape=[None], dtype='int64'), 
-        paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')])
+    # @jit.to_static(input_spec=[
+    #     paddle.static.InputSpec(shape=[None, None], dtype='int64'), 
+    #     paddle.static.InputSpec(shape=[None], dtype='int64'), 
+    #     paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')])
     def forward_attention_decoder(
             self,
             hyps: paddle.Tensor,
@@ -941,8 +927,9 @@ class U2InferModel(U2Model):
         super().__init__(configs)
 
     @jit.to_static(input_spec=[
-        paddle.static.InputSpec(shape=[1, 1, 1], dtype='int64'), 
-        paddle.static.InputSpec(shape=[1], dtype='int64')])
+        paddle.static.InputSpec(shape=[1, 1, 1], dtype='int64'),
+        paddle.static.InputSpec(shape=[1], dtype='int64')
+    ])
     def forward(self,
                 feats,
                 feats_lengths,
@@ -958,6 +945,7 @@ class U2InferModel(U2Model):
         Returns:
             List[List[int]]: best path result
         """
+        # dummy code for dy2st
         # return self.ctc_greedy_search(
         #     feats,
         #     feats_lengths,

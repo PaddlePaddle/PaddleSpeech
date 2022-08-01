@@ -26,14 +26,6 @@ At present, the speech tasks integrated by the service include: asr (speech reco
 Currently the engine type supports two forms: python and inference (Paddle Inference)
 **Note:** If the service can be started normally in the container, but the client access IP is unreachable, you can try to replace the `host` address in the configuration file with the local IP address.
 
-
-The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
-
-Here are sample files for thisASR client demo that can be downloaded:
-```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-```
-
 ### 3. Server Usage
 - Command Line (Recommended)
 
@@ -86,6 +78,15 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 
 ### 4. ASR Client Usage
+
+The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
+
+Here are sample files for this ASR client demo that can be downloaded:
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+```
+
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
 
@@ -194,6 +195,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
 
 ### 6. CLS Client Usage
+
+Here are sample files for this CLS Client demo that can be downloaded:
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav 
+```
+
 **Note:** The response time will be slightly longer when using the client for the first time
 - Command Line (Recommended)
 
@@ -241,6 +248,12 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 
 ### 7. Speaker Verification Client Usage
+
+Here are sample files for this Speaker Verification Client demo that can be downloaded:
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+```
 
 #### 7.1 Extract speaker embedding
 **Note:** The response time will be slightly longer when using the client for the first time

@@ -29,14 +29,6 @@
 目前引擎类型支持两种形式：python 及 inference (Paddle Inference)
 **注意：** 如果在容器里可正常启动服务，但客户端访问 ip 不可达，可尝试将配置文件中 `host` 地址换成本地 ip 地址。
 
-
-ASR client 的输入是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
-
-可以下载此 ASR client 的示例音频：
-```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-```
-
 ### 3. 服务端使用方法
 - 命令行 (推荐使用)
 
@@ -88,6 +80,15 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   ```
 
 ### 4. ASR 客户端使用方法
+
+ASR 客户端的输入是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
+
+可以下载 ASR 客户端的示例音频：
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+```
+
 **注意：** 初次使用客户端时响应时间会略长
 - 命令行 (推荐使用)
 
@@ -95,7 +96,6 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
   ```
   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
-
   ```
 
   使用帮助:
@@ -201,6 +201,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 ### 6. CLS 客户端使用方法
 
+可以下载 CLS 客户端的示例音频：
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+```
+
 **注意：** 初次使用客户端时响应时间会略长
 
 - 命令行 (推荐使用)
@@ -249,8 +254,14 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 ### 7. 声纹客户端使用方法
 
+可以下载声纹客户端的示例音频：
+```bash
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+```
+
 #### 7.1 提取声纹特征
-注意： 初次使用客户端时响应时间会略长
+**注意：** 初次使用客户端时响应时间会略长
 * 命令行 (推荐使用)
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
@@ -303,7 +314,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 #### 7.2 音频声纹打分
 
-注意： 初次使用客户端时响应时间会略长
+**注意：** 初次使用客户端时响应时间会略长
 * 命令行 (推荐使用)
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址

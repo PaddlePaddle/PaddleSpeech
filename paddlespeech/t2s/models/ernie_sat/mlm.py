@@ -1,9 +1,20 @@
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import argparse
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Union
 
 import paddle
 import yaml
@@ -109,7 +120,6 @@ class MLMEncoder(nn.Layer):
                  positionwise_conv_kernel_size: int=1,
                  macaron_style: bool=False,
                  pos_enc_layer_type: str="abs_pos",
-                 pos_enc_class=None,
                  selfattention_layer_type: str="selfattn",
                  activation_type: str="swish",
                  use_cnn_module: bool=False,
@@ -334,7 +344,6 @@ class MLMDecoder(MLMEncoder):
 # encoder and decoder is nn.Layer, not str
 class MLM(nn.Layer):
     def __init__(self,
-                 token_list: Union[Tuple[str, ...], List[str]],
                  odim: int,
                  encoder: nn.Layer,
                  decoder: Optional[nn.Layer],
@@ -345,7 +354,6 @@ class MLM(nn.Layer):
 
         super().__init__()
         self.odim = odim
-        self.token_list = token_list.copy()
         self.encoder = encoder
         self.decoder = decoder
         self.vocab_size = encoder.text_embed[0]._num_embeddings
@@ -535,32 +543,6 @@ def build_model(args: argparse.Namespace, model_class=MLMEncAsDecoder) -> MLM:
     vocab_size = len(token_list)
     odim = 80
 
-    pos_enc_class = ScaledPositionalEncoding if args.use_scaled_pos_enc else PositionalEncoding
-
-    if "conformer" == args.encoder:
-        conformer_self_attn_layer_type = args.encoder_conf[
-            'selfattention_layer_type']
-        conformer_pos_enc_layer_type = args.encoder_conf['pos_enc_layer_type']
-        conformer_rel_pos_type = "legacy"
-        if conformer_rel_pos_type == "legacy":
-            if conformer_pos_enc_layer_type == "rel_pos":
-                conformer_pos_enc_layer_type = "legacy_rel_pos"
-            if conformer_self_attn_layer_type == "rel_selfattn":
-                conformer_self_attn_layer_type = "legacy_rel_selfattn"
-        elif conformer_rel_pos_type == "latest":
-            assert conformer_pos_enc_layer_type != "legacy_rel_pos"
-            assert conformer_self_attn_layer_type != "legacy_rel_selfattn"
-        else:
-            raise ValueError(f"Unknown rel_pos_type: {conformer_rel_pos_type}")
-        args.encoder_conf[
-            'selfattention_layer_type'] = conformer_self_attn_layer_type
-        args.encoder_conf['pos_enc_layer_type'] = conformer_pos_enc_layer_type
-        if "conformer" == args.decoder:
-            args.decoder_conf[
-                'selfattention_layer_type'] = conformer_self_attn_layer_type
-            args.decoder_conf[
-                'pos_enc_layer_type'] = conformer_pos_enc_layer_type
-
     # Encoder
     encoder_class = MLMEncoder
 
@@ -571,10 +553,7 @@ def build_model(args: argparse.Namespace, model_class=MLMEncAsDecoder) -> MLM:
         args.encoder_conf['text_masking'] = False
 
     encoder = encoder_class(
-        args.input_size,
-        vocab_size=vocab_size,
-        pos_enc_class=pos_enc_class,
-        **args.encoder_conf)
+        args.input_size, vocab_size=vocab_size, **args.encoder_conf)
 
     # Decoder
     if args.decoder != 'no_decoder':
@@ -591,7 +570,6 @@ def build_model(args: argparse.Namespace, model_class=MLMEncAsDecoder) -> MLM:
         odim=odim,
         encoder=encoder,
         decoder=decoder,
-        token_list=token_list,
         **args.model_conf, )
 
     # Initialize

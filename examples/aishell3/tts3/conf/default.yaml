@@ -88,8 +88,8 @@ updater:
 #                     OPTIMIZER SETTING                   #
 ###########################################################
 optimizer:
-  optim: adam               # optimizer type
-  learning_rate: 0.001     # learning rate
+    optim: adam               # optimizer type
+    learning_rate: 0.001      # learning rate
 
 ###########################################################
 #                     TRAINING SETTING                    #

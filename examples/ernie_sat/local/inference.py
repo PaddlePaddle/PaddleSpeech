@@ -1,4 +1,16 @@
-#!/usr/bin/env python3
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import os
 import random
 from typing import Dict
@@ -305,7 +317,6 @@ def get_dur_adj_factor(orig_dur: List[int],
 
 
 def prep_feats_with_dur(wav_path: str,
-                        mlm_model: nn.Layer,
                         source_lang: str="English",
                         target_lang: str="English",
                         old_str: str="",
@@ -425,8 +436,7 @@ def prep_feats_with_dur(wav_path: str,
     return new_wav, new_phns, new_mfa_start, new_mfa_end, old_span_bdy, new_span_bdy
 
 
-def prep_feats(mlm_model: nn.Layer,
-               wav_path: str,
+def prep_feats(wav_path: str,
                source_lang: str="english",
                target_lang: str="english",
                old_str: str="",
@@ -440,7 +450,6 @@ def prep_feats(mlm_model: nn.Layer,
     wav, phns, mfa_start, mfa_end, old_span_bdy, new_span_bdy = prep_feats_with_dur(
         source_lang=source_lang,
         target_lang=target_lang,
-        mlm_model=mlm_model,
         old_str=old_str,
         new_str=new_str,
         wav_path=wav_path,
@@ -482,7 +491,6 @@ def decode_with_model(mlm_model: nn.Layer,
     batch, old_span_bdy, new_span_bdy = prep_feats(
         source_lang=source_lang,
         target_lang=target_lang,
-        mlm_model=mlm_model,
         wav_path=wav_path,
         old_str=old_str,
         new_str=new_str,

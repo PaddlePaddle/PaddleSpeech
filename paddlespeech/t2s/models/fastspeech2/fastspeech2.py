@@ -274,9 +274,7 @@ class FastSpeech2(nn.Layer):
         super().__init__()
 
         # store hyperparameters
-        self.idim = idim
         self.odim = odim
-        self.eos = idim - 1
         self.reduction_factor = reduction_factor
         self.encoder_type = encoder_type
         self.decoder_type = decoder_type

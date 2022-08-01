@@ -1068,6 +1068,8 @@ class KLDivergenceLoss(nn.Layer):
 # loss for ERNIE SAT
 class MLMLoss(nn.Layer):
     def __init__(self,
+                 odim: int,
+                 vocab_size: int=0,
                  lsm_weight: float=0.1,
                  ignore_id: int=-1,
                  text_masking: bool=False):
@@ -1079,15 +1081,19 @@ class MLMLoss(nn.Layer):
         else:
             self.l1_loss_func = nn.L1Loss(reduction='none')
         self.text_masking = text_masking
+        self.odim = odim
+        self.vocab_size = vocab_size
 
-    def forward(self,
-                speech: paddle.Tensor,
-                before_outs: paddle.Tensor,
-                after_outs: paddle.Tensor,
-                masked_pos: paddle.Tensor,
-                text: paddle.Tensor=None,
-                text_outs: paddle.Tensor=None,
-                text_masked_pos: paddle.Tensor=None):
+    def forward(
+            self,
+            speech: paddle.Tensor,
+            before_outs: paddle.Tensor,
+            after_outs: paddle.Tensor,
+            masked_pos: paddle.Tensor,
+            # for text_loss when text_masking == True
+            text: paddle.Tensor=None,
+            text_outs: paddle.Tensor=None,
+            text_masked_pos: paddle.Tensor=None):
 
         xs_pad = speech
         mlm_loss_pos = masked_pos > 0
@@ -1102,16 +1108,21 @@ class MLMLoss(nn.Layer):
                     paddle.reshape(after_outs, (-1, self.odim)),
                     paddle.reshape(xs_pad, (-1, self.odim))),
                 axis=-1)
-        loss_mlm = paddle.sum((loss * paddle.reshape(
+        mlm_loss = paddle.sum((loss * paddle.reshape(
             mlm_loss_pos, [-1]))) / paddle.sum((mlm_loss_pos) + 1e-10)
 
+        text_mlm_loss = None
+
         if self.text_masking:
-            loss_text = paddle.sum((self.text_mlm_loss(
-                paddle.reshape(text_outs, (-1, self.vocab_size)),
-                paddle.reshape(text, (-1))) * paddle.reshape(
-                    text_masked_pos,
-                    (-1)))) / paddle.sum((text_masked_pos) + 1e-10)
+            assert text is not None
+            assert text_outs is not None
+            assert text_masked_pos is not None
+            text_outs = paddle.reshape(text_outs, [-1, self.vocab_size])
+            text = paddle.reshape(text, [-1])
+            text_mlm_loss = self.text_mlm_loss(text_outs, text)
+            text_masked_pos_reshape = paddle.reshape(text_masked_pos, [-1])
+            text_mlm_loss = paddle.sum(
+                text_mlm_loss *
+                text_masked_pos_reshape) / paddle.sum((text_masked_pos) + 1e-10)
 
-            return loss_mlm, loss_text
-
-        return loss_mlm
+        return mlm_loss, text_mlm_loss

@@ -630,13 +630,11 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 (elayers, head, cache_t1, d_k * 2), where
                 `head * d_k == hidden-dim` and
                 `cache_t1 == chunk_size * num_decoding_left_chunks`.
-                `d_k * 2` for att key & value. Default is 0-dims Tensor, 
-                it is used for dy2st.
+                `d_k * 2` for att key & value. 
             cnn_cache (paddle.Tensor): cache tensor for cnn_module in conformer,
                 (elayers, b=1, hidden-dim, cache_t2), where
-                `cache_t2 == cnn.lorder - 1`. Default is 0-dims Tensor, 
-                it is used for dy2st.
-
+                `cache_t2 == cnn.lorder - 1`. 
+                
         Returns:
             paddle.Tensor: output of current input xs,
                 with shape (b=1, chunk_size, hidden-dim).

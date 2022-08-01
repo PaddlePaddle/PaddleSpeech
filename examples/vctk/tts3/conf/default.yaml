@@ -24,7 +24,7 @@ f0max: 400         # Maximum f0 for pitch extraction.
 #                       DATA SETTING                      #
 ###########################################################
 batch_size: 64
-num_workers: 4
+num_workers: 2
 
 
 ###########################################################
@@ -88,8 +88,8 @@ updater:
 #                     OPTIMIZER SETTING                   #
 ###########################################################
 optimizer:
-  optim: adam               # optimizer type
-  learning_rate: 0.001     # learning rate
+    optim: adam               # optimizer type
+    learning_rate: 0.001      # learning rate
 
 ###########################################################
 #                     TRAINING SETTING                    #

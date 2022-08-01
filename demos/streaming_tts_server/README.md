@@ -5,15 +5,19 @@
 ## Introduction
 This demo is an implementation of starting the streaming speech synthesis service and accessing the service. It can be achieved with a single command using `paddlespeech_server` and `paddlespeech_client` or a few lines of code in python.
 
+For service interface definition, please check:
+- [PaddleSpeech Server RESTful API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-RESTful-API)
+- [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
 
 ## Usage
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.2.2** or above.
-You can choose one way from easy, meduim and hard to install paddlespeech.
-**If you install in simple mode, you need to prepare the yaml file by yourself, you can refer to the yaml file in the conf directory.**
+It is recommended to use **paddlepaddle 2.3.1** or above.
 
+You can choose one way from easy, meduim and hard to install paddlespeech.
+
+**If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to the yaml file in the conf directory.**
 
 ### 2. Prepare config File
 The configuration file can be found in `conf/tts_online_application.yaml`.
@@ -29,10 +33,9 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - Both hifigan and mb_melgan support streaming voc inference.
     - When the voc model is mb_melgan, when voc_pad=14, the synthetic audio for streaming inference is consistent with the non-streaming synthetic audio; the minimum voc_pad can be set to 7, and the synthetic audio has no abnormal hearing. If the voc_pad is less than 7, the synthetic audio sounds abnormal.
     - When the voc model is hifigan, when voc_pad=19, the streaming inference synthetic audio is consistent with the non-streaming synthetic audio; when voc_pad=14, the synthetic audio has no abnormal hearing.
+    - Pad calculation method of streaming vocoder in PaddleSpeech: [AIStudio tutorial](https://aistudio.baidu.com/aistudio/projectdetail/4151335)
 - Inference speed: mb_melgan > hifigan; Audio quality: mb_melgan < hifigan
 - **Note:** If the service can be started normally in the container, but the client access IP is unreachable, you can try to replace the `host` address in the configuration file with the local IP address.
-
-
 
 ### 3. Streaming speech synthesis server and client using http protocol
 #### 3.1 Server Usage
@@ -53,7 +56,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:
-  ```bash
+  ```text
   [2022-04-24 20:05:27,887] [    INFO] - The first response time of the 0 warm up: 1.0123658180236816 s
   [2022-04-24 20:05:28,038] [    INFO] - The first response time of the 1 warm up: 0.15108466148376465 s
   [2022-04-24 20:05:28,191] [    INFO] - The first response time of the 2 warm up: 0.15317344665527344 s
@@ -79,8 +82,8 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
       log_file="./log/paddlespeech.log")
   ```
 
- Output:
-  ```bash
+  Output:
+  ```text
   [2022-04-24 21:00:16,934] [    INFO] - The first response time of the 0 warm up: 1.268730878829956 s
   [2022-04-24 21:00:17,046] [    INFO] - The first response time of the 1 warm up: 0.11168622970581055 s
   [2022-04-24 21:00:17,151] [    INFO] - The first response time of the 2 warm up: 0.10413002967834473 s
@@ -93,8 +96,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 21:00:17] [INFO] [on.py:59] Application startup complete.
   INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   [2022-04-24 21:00:17] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
-
   ```
 
 #### 3.2 Streaming TTS client Usage
@@ -125,7 +126,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     - Currently, only the single-speaker model is supported in the code, so `spk_id` does not take effect. Streaming TTS does not support changing sample rate, variable speed and volume.
     
     Output:
-    ```bash
+    ```text
     [2022-04-24 21:08:18,559] [    INFO] - tts http client start
     [2022-04-24 21:08:21,702] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
     [2022-04-24 21:08:21,703] [    INFO] - 首包响应：0.18863153457641602 s
@@ -154,7 +155,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   ```
 
   Output:
-  ```bash
+  ```text
   [2022-04-24 21:11:13,798] [    INFO] - tts http client start
   [2022-04-24 21:11:16,800] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
   [2022-04-24 21:11:16,801] [    INFO] - 首包响应：0.18234872817993164 s
@@ -164,7 +165,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   [2022-04-24 21:11:16,837] [    INFO] - 音频保存至：./output.wav
   ```
 
- 
 ### 4. Streaming speech synthesis server and client using websocket protocol
 #### 4.1 Server Usage
 - Command Line (Recommended)
@@ -184,21 +184,19 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:
-  ```bash
-    [2022-04-27 10:18:09,107] [    INFO] - The first response time of the 0 warm up: 1.1551103591918945 s
-    [2022-04-27 10:18:09,219] [    INFO] - The first response time of the 1 warm up: 0.11204338073730469 s
-    [2022-04-27 10:18:09,324] [    INFO] - The first response time of the 2 warm up: 0.1051797866821289 s
-    [2022-04-27 10:18:09,325] [    INFO] - **********************************************************************
-    INFO:     Started server process [17600]
-    [2022-04-27 10:18:09] [INFO] [server.py:75] Started server process [17600]
-    INFO:     Waiting for application startup.
-    [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
-
+  ```text
+  [2022-04-27 10:18:09,107] [    INFO] - The first response time of the 0 warm up: 1.1551103591918945 s
+  [2022-04-27 10:18:09,219] [    INFO] - The first response time of the 1 warm up: 0.11204338073730469 s
+  [2022-04-27 10:18:09,324] [    INFO] - The first response time of the 2 warm up: 0.1051797866821289 s
+  [2022-04-27 10:18:09,325] [    INFO] - **********************************************************************
+  INFO:     Started server process [17600]
+  [2022-04-27 10:18:09] [INFO] [server.py:75] Started server process [17600]
+  INFO:     Waiting for application startup.
+  [2022-04-27 10:18:09] [INFO] [on.py:45] Waiting for application startup.
+  INFO:     Application startup complete.
+  [2022-04-27 10:18:09] [INFO] [on.py:59] Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-27 10:18:09] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   ```
 
 - Python API
@@ -212,20 +210,19 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   ```
 
   Output:
-  ```bash
-    [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
-    [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
-    [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
-    [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
-    INFO:     Started server process [23466]
-    [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
-    INFO:     Waiting for application startup.
-    [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
-    INFO:     Application startup complete.
-    [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
-    INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-    [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
-
+  ```text
+  [2022-04-27 10:20:16,660] [    INFO] - The first response time of the 0 warm up: 1.0945196151733398 s
+  [2022-04-27 10:20:16,773] [    INFO] - The first response time of the 1 warm up: 0.11222052574157715 s
+  [2022-04-27 10:20:16,878] [    INFO] - The first response time of the 2 warm up: 0.10494542121887207 s
+  [2022-04-27 10:20:16,878] [    INFO] - **********************************************************************
+  INFO:     Started server process [23466]
+  [2022-04-27 10:20:16] [INFO] [server.py:75] Started server process [23466]
+  INFO:     Waiting for application startup.
+  [2022-04-27 10:20:16] [INFO] [on.py:45] Waiting for application startup.
+  INFO:     Application startup complete.
+  [2022-04-27 10:20:16] [INFO] [on.py:59] Application startup complete.
+  INFO:     Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
+  [2022-04-27 10:20:16] [INFO] [server.py:211] Uvicorn running on http://0.0.0.0:8092 (Press CTRL+C to quit)
   ```
 
 #### 4.2 Streaming TTS client Usage
@@ -258,7 +255,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
 
     
     Output:
-    ```bash
+    ```text
     [2022-04-27 10:21:04,262] [    INFO] - tts websocket client start
     [2022-04-27 10:21:04,496] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
     [2022-04-27 10:21:04,496] [    INFO] - 首包响应：0.2124948501586914 s
@@ -266,7 +263,6 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
     [2022-04-27 10:21:07,484] [    INFO] - 音频时长：3.825 s
     [2022-04-27 10:21:07,484] [    INFO] - RTF: 0.8363677006141812
     [2022-04-27 10:21:07,516] [    INFO] - 音频保存至：output.wav
-
     ```
 
 - Python API
@@ -283,21 +279,15 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
       spk_id=0,
       output="./output.wav",
       play=False)
-
   ```
 
   Output:
-  ```bash
-    [2022-04-27 10:22:48,852] [    INFO] - tts websocket client start
-    [2022-04-27 10:22:49,080] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
-    [2022-04-27 10:22:49,080] [    INFO] - 首包响应：0.21017956733703613 s
-    [2022-04-27 10:22:52,100] [    INFO] - 尾包响应：3.2304444313049316 s
-    [2022-04-27 10:22:52,101] [    INFO] - 音频时长：3.825 s
-    [2022-04-27 10:22:52,101] [    INFO] - RTF: 0.8445606356352762
-    [2022-04-27 10:22:52,134] [    INFO] - 音频保存至：./output.wav
-
+  ```text
+  [2022-04-27 10:22:48,852] [    INFO] - tts websocket client start
+  [2022-04-27 10:22:49,080] [    INFO] - 句子：您好，欢迎使用百度飞桨语音合成服务。
+  [2022-04-27 10:22:49,080] [    INFO] - 首包响应：0.21017956733703613 s
+  [2022-04-27 10:22:52,100] [    INFO] - 尾包响应：3.2304444313049316 s
+  [2022-04-27 10:22:52,101] [    INFO] - 音频时长：3.825 s
+  [2022-04-27 10:22:52,101] [    INFO] - RTF: 0.8445606356352762
+  [2022-04-27 10:22:52,134] [    INFO] - 音频保存至：./output.wav
   ```
-
-
-
-  

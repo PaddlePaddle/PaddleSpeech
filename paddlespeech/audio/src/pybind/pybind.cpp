@@ -5,17 +5,23 @@
 #include "paddlespeech/audio/src/pybind/sox/io.h"
 #include "paddlespeech/audio/src/pybind/sox/effects.h"
 #include "paddlespeech/audio/third_party/kaldi/feat/feature-fbank.h"
+
 #include <pybind11/stl.h>
-#include <pybind11/complex.h>
-#incldue <pybind11/functional.h>
-#include <pybind11/chrono.h>
+#include <pybind11/pybind11.h>
+
+// `tl::optional` 
+namespace pybind11 { namespace detail {
+   template <typename T>
+   struct type_caster<tl::optional<T>> : optional_caster<tl::optional<T>> {};
+}}
 
 PYBIND11_MODULE(_paddleaudio, m) {
 #ifdef INCLUDE_SOX
     m.def("get_info_file",
           &paddleaudio::sox_io::get_info_file,
           "Get metadata of audio file.");
-    m.def("get_info_fileobj",
+    // support obj later
+    /*m.def("get_info_fileobj",
           &paddleaudio::sox_io::get_info_fileobj,
           "Get metadata of audio in file object.");
     m.def("load_audio_fileobj",
@@ -24,6 +30,7 @@ PYBIND11_MODULE(_paddleaudio, m) {
     m.def("save_audio_fileobj",
           &paddleaudio::sox_io::save_audio_fileobj,
           "Save audio to file obj.");
+          */
     // sox io
      m.def("sox_io_get_info", &paddleaudio::sox_io::get_info_file);
      m.def(
@@ -58,9 +65,9 @@ PYBIND11_MODULE(_paddleaudio, m) {
          &paddleaudio::sox_utils::get_buffer_size);
 
      // effect
-     m.def("apply_effects_fileobj",
-           &paddleaudio::sox_effects::apply_effects_fileobj,
-           "Decode audio data from file-like obj and apply effects.");
+     //m.def("apply_effects_fileobj",
+     //      &paddleaudio::sox_effects::apply_effects_fileobj,
+     //      "Decode audio data from file-like obj and apply effects.");
      m.def("sox_effects_initialize_sox_effects",
        &paddleaudio::sox_effects::initialize_sox_effects);
      m.def(

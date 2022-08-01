@@ -554,7 +554,7 @@ class VectorHttpHandler:
 
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res
 
 
 class VectorScoreHttpHandler:
@@ -602,4 +602,4 @@ class VectorScoreHttpHandler:
 
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res

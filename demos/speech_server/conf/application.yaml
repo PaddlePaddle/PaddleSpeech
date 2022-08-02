@@ -7,7 +7,7 @@ host: 0.0.0.0
 port: 8090
 
 # The task format in the engin_list is: <speech task>_<engine type>
-# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference']
+# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference', 'text_python', 'vector_python']
 protocol: 'http'
 engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python', 'vector_python']
 
@@ -27,7 +27,6 @@ asr_python:
     decode_method: 'attention_rescoring'
     force_yes: True
     device:  # set 'gpu:id' or 'cpu'
-
 
 ################### speech task: asr; engine_type: inference #######################
 asr_inference:
@@ -50,10 +49,11 @@ asr_inference:
 
 ################################### TTS #########################################
 ################### speech task: tts; engine_type: python #######################
-tts_python: 
-    # am (acoustic model) choices=['speedyspeech_csmsc', 'fastspeech2_csmsc', 
-    #                              'fastspeech2_ljspeech', 'fastspeech2_aishell3',
-    #                              'fastspeech2_vctk']        
+tts_python:
+    # am (acoustic model) choices=['speedyspeech_csmsc', 'fastspeech2_csmsc',
+    #                             'fastspeech2_ljspeech', 'fastspeech2_aishell3',
+    #                             'fastspeech2_vctk', 'fastspeech2_mix',
+    #                             'tacotron2_csmsc', 'tacotron2_ljspeech']
     am: 'fastspeech2_csmsc'   
     am_config: 
     am_ckpt: 
@@ -64,8 +64,10 @@ tts_python:
     spk_id: 0
 
     # voc (vocoder) choices=['pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3',
-    #                        'pwgan_vctk', 'mb_melgan_csmsc']
-    voc: 'pwgan_csmsc'
+    #                        'pwgan_vctk', 'mb_melgan_csmsc', 'style_melgan_csmsc',
+    #                        'hifigan_csmsc', 'hifigan_ljspeech', 'hifigan_aishell3',
+    #                        'hifigan_vctk', 'wavernn_csmsc']
+    voc: 'mb_melgan_csmsc'
     voc_config: 
     voc_ckpt: 
     voc_stat: 
@@ -94,7 +96,7 @@ tts_inference:
         summary: True  # False -> do not show predictor config
 
     # voc (vocoder) choices=['pwgan_csmsc', 'mb_melgan_csmsc','hifigan_csmsc']
-    voc: 'pwgan_csmsc'
+    voc: 'mb_melgan_csmsc'
     voc_model: # the pdmodel file of your vocoder static model (XX.pdmodel)
     voc_params: # the pdiparams file of your vocoder static model (XX.pdipparams)
     voc_sample_rate: 24000

@@ -79,7 +79,7 @@ tts_online-onnx:
 
     # voc (vocoder) choices=['mb_melgan_csmsc_onnx, hifigan_csmsc_onnx']
     # Both mb_melgan_csmsc_onnx and hifigan_csmsc_onnx support streaming voc inference
-    voc: 'hifigan_csmsc_onnx'
+    voc: 'mb_melgan_csmsc_onnx'
     voc_ckpt: 
     voc_sample_rate: 24000
     voc_sess_conf:

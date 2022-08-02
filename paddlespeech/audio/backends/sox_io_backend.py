@@ -8,7 +8,7 @@ from paddle import Tensor
 from .common import AudioMetaData
 
 from paddlespeech.audio._internal import module_utils  as _mod_utils
-from paddlespeech.aduio import _paddleaudio as paddleaudio 
+from paddlespeech.audio import _paddleaudio as paddleaudio 
 
 #https://github.com/pytorch/audio/blob/main/torchaudio/backend/sox_io_backend.py
 

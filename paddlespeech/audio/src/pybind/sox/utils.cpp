@@ -178,35 +178,67 @@ py::array convert_to_tensor(
     const py::dtype dtype,
     const bool normalize,
     const bool channels_first) {
+  // todo refector later(SGoat)
   py::array t;
   uint64_t dummy = 0;
   SOX_SAMPLE_LOCALS;
+  int32_t num_rows = num_samples / num_channels;
   if (normalize || dtype.char_() == 'f') {
-    t = py::array(dtype, {num_samples / num_channels, num_channels});
+    t = py::array(dtype, {num_rows, num_channels});
     auto ptr = (float*)t.mutable_data(0, 0);
     for (int32_t i = 0; i < num_samples; ++i) {
       ptr[i] = SOX_SAMPLE_TO_FLOAT_32BIT(buffer[i], dummy);
     }
+    if (channels_first) {
+    py::array t2 = py::array(dtype, {num_channels, num_rows});
+    for (int32_t row_idx = 0; row_idx < num_channels; ++row_idx) {
+      for (int32_t col_idx = 0; col_idx < num_rows; ++col_idx)
+       *(float*)t2.mutable_data(row_idx, col_idx) = *(float*)t.data(col_idx, row_idx);
+    }
+    return t2;
+  }
   } else if (dtype.char_() == 'i') {
-    //t = torch::from_blob(
-    //        buffer, {num_samples / num_channels, num_channels}, torch::kInt32)
-    //        .clone();
-    t = py::array(dtype, {num_samples / num_channels, num_channels});
+    t = py::array(dtype, {num_rows, num_channels});
     auto ptr = (int*)t.mutable_data(0, 0);
     for (int32_t i = 0; i < num_samples; ++i) {
       ptr[i] = buffer[i];
     }
+    if (channels_first) {
+      py::array t2 = py::array(dtype, {num_channels, num_rows});
+      for (int32_t row_idx = 0; row_idx < num_channels; ++row_idx) {
+        for (int32_t col_idx = 0; col_idx < num_rows; ++col_idx)
+          *(int*)t2.mutable_data(row_idx, col_idx) = *(int*)t.data(col_idx, row_idx);
+      }
+      return t2;
+    }
   } else if (dtype.char_() == 'h') { // int16
-    t = py::array(dtype, {num_samples / num_channels, num_channels});
+    t = py::array(dtype, {num_rows, num_channels});
     auto ptr = (int16_t*)t.mutable_data(0, 0);
     for (int32_t i = 0; i < num_samples; ++i) {
       ptr[i] = SOX_SAMPLE_TO_SIGNED_16BIT(buffer[i], dummy);
     }
+    if (channels_first) {
+      py::array t2 = py::array(dtype, {num_channels, num_rows});
+      for (int32_t row_idx = 0; row_idx < num_channels; ++row_idx) {
+        for (int32_t col_idx = 0; col_idx < num_rows; ++col_idx)
+          *(int16_t*)t2.mutable_data(row_idx, col_idx) = *(int16_t*)t.data(col_idx, row_idx);
+      }
+      return t2;
+    }
   } else if (dtype.char_() == 'b') {
     //t = torch::empty({num_samples / num_channels, num_channels}, torch::kUInt8);
+    t = py::array(dtype, {num_rows, num_channels});
     auto ptr = (uint8_t*)t.mutable_data(0,0);
     for (int32_t i = 0; i < num_samples; ++i) {
       ptr[i] = SOX_SAMPLE_TO_UNSIGNED_8BIT(buffer[i], dummy);
+    }
+    if (channels_first) {
+      py::array t2 = py::array(dtype, {num_channels, num_rows});
+      for (int32_t row_idx = 0; row_idx < num_channels; ++row_idx) {
+        for (int32_t col_idx = 0; col_idx < num_rows; ++col_idx)
+        *(uint8_t*)t2.mutable_data(row_idx, col_idx) = *(uint8_t*)t.data(col_idx, row_idx);
+      }
+      return t2;
     }
   } else {
     throw std::runtime_error("Unsupported dtype.");

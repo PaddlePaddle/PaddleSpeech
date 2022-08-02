@@ -13,26 +13,19 @@
 # limitations under the License.
 import argparse
 import asyncio
-import base64
-import io
 import json
-import os
-import random
 import sys
 import time
 import warnings
 from typing import List
 
-import numpy as np
 import requests
-import soundfile
 
 from ..executor import BaseExecutor
 from ..util import cli_client_register
 from ..util import stats_wrapper
 from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
-from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import compute_delay
 from paddlespeech.server.utils.util import wav2base64
 warnings.filterwarnings("ignore")
@@ -80,23 +73,6 @@ class TTSClientExecutor(BaseExecutor):
             help='Sampling rate, the default is the same as the model')
         self.parser.add_argument(
             '--output', type=str, default=None, help='Synthesized audio file')
-
-    def postprocess(self, wav_base64: str, outfile: str) -> float:
-        audio_data_byte = base64.b64decode(wav_base64)
-        # from byte
-        samples, sample_rate = soundfile.read(
-            io.BytesIO(audio_data_byte), dtype='float32')
-
-        # transform audio
-        if outfile.endswith(".wav"):
-            soundfile.write(outfile, samples, sample_rate)
-        elif outfile.endswith(".pcm"):
-            temp_wav = str(random.getrandbits(128)) + ".wav"
-            soundfile.write(temp_wav, samples, sample_rate)
-            wav2pcm(temp_wav, outfile, data_type=np.int16)
-            os.remove(temp_wav)
-        else:
-            logger.error("The format for saving audio only supports wav or pcm")
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -147,20 +123,19 @@ class TTSClientExecutor(BaseExecutor):
         Python API to call an executor.
         """
 
-        url = 'http://' + server_ip + ":" + str(port) + '/paddlespeech/tts'
-        request = {
-            "text": input,
-            "spk_id": spk_id,
-            "speed": speed,
-            "volume": volume,
-            "sample_rate": sample_rate,
-            "save_path": output
-        }
+        protocol = "http"
+        if protocol.lower() == "http":
+            from paddlespeech.server.utils.audio_handler import TTSHttpOfflineHandler
+            logger.info("asr http client start")
+            handler = TTSHttpOfflineHandler(server_ip=server_ip, port=port)
+            res = handler.run(input, spk_id, speed, volume, sample_rate, output)
+            logger.info("tts http client finished")
+        else:
+            logger.error(
+                f"Sorry, we have not support protocol: {protocol}, please use http"
+            )
+            sys.exit(-1)
 
-        res = requests.post(url, json.dumps(request))
-        response_dict = res.json()
-        if output is not None:
-            self.postprocess(response_dict["result"]["audio"], output)
         return res
 
 

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import base64
+import io
 import json
 import logging
 import threading
@@ -24,6 +25,7 @@ import websockets
 
 from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_process import save_audio
+from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import wav2base64
 
 
@@ -250,6 +252,78 @@ class ASRHttpHandler:
         res = requests.post(url=self.url, data=json.dumps(data))
 
         return res.json()
+
+
+class TTSHttpOfflineHandler:
+    def __init__(self, server_ip=None, port=None, endpoint="/paddlespeech/tts"):
+        """The ASR client http request
+
+        Args:
+            server_ip (str, optional): the http asr server ip. Defaults to "127.0.0.1".
+            port (int, optional): the http asr server port. Defaults to 8090.
+        """
+        super().__init__()
+        self.server_ip = server_ip
+        self.port = port
+        if server_ip is None or port is None:
+            self.url = None
+        else:
+            self.url = 'http://' + self.server_ip + ":" + str(
+                self.port) + endpoint
+        logger.info(f"endpoint: {self.url}")
+
+    def postprocess(self, wav_base64: str, outfile: str) -> float:
+        audio_data_byte = base64.b64decode(wav_base64)
+        # from byte
+        samples, sample_rate = soundfile.read(
+            io.BytesIO(audio_data_byte), dtype='float32')
+
+        # transform audio
+        if outfile.endswith(".wav"):
+            soundfile.write(outfile, samples, sample_rate)
+        elif outfile.endswith(".pcm"):
+            temp_wav = str(random.getrandbits(128)) + ".wav"
+            soundfile.write(temp_wav, samples, sample_rate)
+            wav2pcm(temp_wav, outfile, data_type=np.int16)
+            os.remove(temp_wav)
+        else:
+            logger.error("The format for saving audio only supports wav or pcm")
+
+    def run(self,
+            input: str,
+            spk_id: int=0,
+            speed: float=1.0,
+            volume: float=1.0,
+            sample_rate: int=0,
+            output: str=None):
+        """_summary_
+
+        Args:
+            input (str): sentence to be synthesized
+            spk_id (int): speaker id
+            speed (float): 1.0 < speed < 3.0
+            volume (float): 1.0 < speed < 3.0
+            sample_rate (int): sample rate
+            output (str): save audio path on server
+
+        Returns:
+            res: response
+        """
+        request = {
+            "text": input,
+            "spk_id": spk_id,
+            "speed": speed,
+            "volume": volume,
+            "sample_rate": sample_rate,
+            "save_path": output
+        }
+
+        res = requests.post(url=self.url, data=json.dumps(request))
+        response_dict = res.json()
+        if output is not None:
+            self.postprocess(response_dict["result"]["audio"], output)
+
+        return res
 
 
 class TTSWsHandler:

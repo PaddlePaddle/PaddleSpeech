@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import yaml
 from typing import Dict
 from typing import List
 
@@ -19,6 +20,7 @@ import jieba.posseg as psg
 import numpy as np
 import paddle
 from g2pM import G2pM
+from g2pw import G2PWConverter
 from pypinyin import lazy_pinyin
 from pypinyin import load_phrases_dict
 from pypinyin import load_single_dict
@@ -53,9 +55,23 @@ def insert_after_character(lst, item):
     return result
 
 
+class Polyphonic():
+    def __init__(self,dict_file="./paddlespeech/t2s/frontend/polyphonic.yaml"):
+        with open(dict_file, encoding='utf8') as polyphonic_file:
+            # 解析yaml
+            polyphonic_dict = yaml.load(polyphonic_file, Loader=yaml.FullLoader)
+        self.polyphonic_words = polyphonic_dict["polyphonic"]
+
+    def correct_pronunciation(self,word,pinyin):
+        # 词汇被词典收录则返回纠正后的读音
+        if word in self.polyphonic_words.keys():
+            pinyin = self.polyphonic_words[word]
+        # 否则返回原读音
+        return pinyin
+
 class Frontend():
     def __init__(self,
-                 g2p_model="pypinyin",
+                 g2p_model="g2pW",
                  phone_vocab_path=None,
                  tone_vocab_path=None):
         self.tone_modifier = ToneSandhi()
@@ -67,6 +83,12 @@ class Frontend():
             self.g2pM_model = G2pM()
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
+        elif self.g2p_model == "g2pW":
+            self.corrector = Polyphonic()
+            self.g2pW_model = G2PWConverter(style='pinyin', enable_non_tradional_chinese=True)
+            self.pinyin2phone = generate_lexicon(
+                with_tone=True, with_erhua=False)
+
         else:
             self.__init__pypinyin()
         self.must_erhua = {"小院儿", "胡同儿", "范儿", "老汉儿", "撒欢儿", "寻老礼儿", "妥妥儿"}
@@ -139,6 +161,24 @@ class Frontend():
                     # If it's not pinyin (possibly punctuation) or no conversion is required
                     initials.append(pinyin)
                     finals.append(pinyin)
+        elif self.g2p_model == "g2pW":
+            pinyins = self.g2pW_model(word)[0]
+            if pinyins == [None]:
+                pinyins = [word]
+            for pinyin in pinyins:
+                pinyin = pinyin.replace("u:", "v")
+                if pinyin in self.pinyin2phone:
+                    initial_final_list = self.pinyin2phone[pinyin].split(" ")
+                    if len(initial_final_list) == 2:
+                        initials.append(initial_final_list[0])
+                        finals.append(initial_final_list[1])
+                    elif len(initial_final_list) == 1:
+                        initials.append('')
+                        finals.append(initial_final_list[1])
+                else:
+                    # If it's not pinyin (possibly punctuation) or no conversion is required
+                    initials.append(pinyin)
+                    finals.append(pinyin)
         return initials, finals
 
     # if merge_sentences, merge all sentences into one phone sequence
@@ -150,27 +190,65 @@ class Frontend():
         phones_list = []
         for seg in segments:
             phones = []
+            initials = []
+            finals = []
             # Replace all English words in the sentence
             seg = re.sub('[a-zA-Z]+', '', seg)
             seg_cut = psg.lcut(seg)
-            initials = []
-            finals = []
             seg_cut = self.tone_modifier.pre_merge_for_modify(seg_cut)
-            for word, pos in seg_cut:
-                if pos == 'eng':
-                    continue
-                sub_initials, sub_finals = self._get_initials_finals(word)
-                sub_finals = self.tone_modifier.modified_tone(word, pos,
-                                                              sub_finals)
-                if with_erhua:
-                    sub_initials, sub_finals = self._merge_erhua(
-                        sub_initials, sub_finals, word, pos)
-                initials.append(sub_initials)
-                finals.append(sub_finals)
-                # assert len(sub_initials) == len(sub_finals) == len(word)
+            if self.g2p_model == "g2pW":
+                pinyins = self.g2pW_model(seg)[0]
+                pre_word_length = 0
+                for word, pos in seg_cut:
+                    sub_initials = []
+                    sub_finals = []
+                    now_word_length = pre_word_length + len(word)
+                    if pos == 'eng':
+                        pre_word_length = now_word_length
+                        continue
+                    word_pinyins = pinyins[pre_word_length:now_word_length]
+                    # 矫正发音
+                    word_pinyins = self.corrector.correct_pronunciation(word,word_pinyins)
+                    for pinyin,char in zip(word_pinyins,word):
+                        if pinyin == None:
+                            pinyin = char
+                        pinyin = pinyin.replace("u:", "v")
+                        if pinyin in self.pinyin2phone:
+                            initial_final_list = self.pinyin2phone[pinyin].split(" ")
+                            if len(initial_final_list) == 2:
+                                sub_initials.append(initial_final_list[0])
+                                sub_finals.append(initial_final_list[1])
+                            elif len(initial_final_list) == 1:
+                                sub_initials.append('')
+                                sub_finals.append(initial_final_list[1])
+                        else:
+                            # If it's not pinyin (possibly punctuation) or no conversion is required
+                            sub_initials.append(pinyin)
+                            sub_finals.append(pinyin)
+                    pre_word_length = now_word_length
+                    sub_finals = self.tone_modifier.modified_tone(word, pos,
+                                                                sub_finals)
+                    if with_erhua:
+                        sub_initials, sub_finals = self._merge_erhua(
+                            sub_initials, sub_finals, word, pos)
+                    initials.append(sub_initials)
+                    finals.append(sub_finals)
+                    # assert len(sub_initials) == len(sub_finals) == len(word)
+            else:
+                for word, pos in seg_cut:
+                    if pos == 'eng':
+                        continue
+                    sub_initials, sub_finals = self._get_initials_finals(word)
+                    sub_finals = self.tone_modifier.modified_tone(word, pos,
+                                                                sub_finals)
+                    if with_erhua:
+                        sub_initials, sub_finals = self._merge_erhua(
+                            sub_initials, sub_finals, word, pos)
+                    initials.append(sub_initials)
+                    finals.append(sub_finals)
+                    # assert len(sub_initials) == len(sub_finals) == len(word)
             initials = sum(initials, [])
             finals = sum(finals, [])
-
             for c, v in zip(initials, finals):
                 # NOTE: post process for pypinyin outputs
                 # we discriminate i, ii and iii

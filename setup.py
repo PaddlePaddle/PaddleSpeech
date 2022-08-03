@@ -44,7 +44,7 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
-    "onnxruntime",
+    "onnxruntime-gpu==1.10.0",
     "pandas",
     "paddlenlp",
     "paddlespeech_feat",

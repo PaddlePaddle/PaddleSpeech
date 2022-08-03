@@ -654,7 +654,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         Args:
             xs (paddle.Tensor): encoder output, (B, T, D)
         Returns:
-            paddle.Tensor: activation before ctc
+            paddle.Tensor: activation before ctc. (B, Tmax, odim)
         """
         return self.ctc.log_softmax(xs)
 

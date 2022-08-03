@@ -1149,7 +1149,7 @@ tts_onnx_pretrained_models = {
     "fastspeech2_vctk_onnx-en": {
         '1.0': {
             'url':
-            'hhttps://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip',
             'md5':
             'd9c3a9b02204a2070504dd99f5f959bf',
             'ckpt': ['fastspeech2_vctk.onnx'],

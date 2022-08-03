@@ -87,11 +87,6 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
     parser.add_argument(
-        "--use_trt",
-        type=str2bool,
-        default=False,
-        help="Whether to use inference engin TensorRT.", )
-    parser.add_argument(
         "--int8",
         type=str2bool,
         default=False,

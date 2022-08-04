@@ -364,7 +364,7 @@ class TTSExecutor(BaseExecutor):
         else:
             self.am_ckpt = os.path.abspath(am_ckpt[0])
             self.phones_dict = os.path.abspath(phones_dict)
-            self.am_res_path = os.path.dirname(os.path.abspath(am_ckpt))
+            self.am_res_path = os.path.dirname(os.path.abspath(self.am_ckpt))
             self.am_fs = fs
 
         # for speedyspeech
@@ -404,7 +404,6 @@ class TTSExecutor(BaseExecutor):
         # frontend
         self.frontend = get_frontend(
             lang=lang, phones_dict=self.phones_dict, tones_dict=self.tones_dict)
-
         self.am_sess = get_sess(
             model_path=self.am_ckpt, device=device, cpu_threads=cpu_threads)
 

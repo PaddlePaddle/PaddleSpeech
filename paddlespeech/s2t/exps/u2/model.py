@@ -512,3 +512,52 @@ class U2Tester(U2Trainer):
             infer_model.ctc_activation, input_spec=input_spec)
 
         paddle.jit.save(infer_model, './export.jit', combine_params=True)
+
+        def flatten(out):
+            if isinstance(out, paddle.Tensor):
+                return [out]
+
+            flatten_out = []
+            for var in out:
+                if isinstance(var, (list, tuple)):
+                    flatten_out.extend(flatten(var))
+                else:
+                    flatten_out.append(var)
+            return flatten_out
+
+        xs1 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        offset = paddle.to_tensor([0], dtype='int32')
+        required_cache_size = -16
+        att_cache = paddle.zeros([0, 0, 0, 0])
+        cnn_cache = paddle.zeros([0, 0, 0, 0])
+
+        # xs, att_cache, cnn_cache = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
+        # xs2 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out1 = infer_model.forward_encoder_chunk(xs2, offset, required_cache_size, att_cache, cnn_cache)
+        # print(out1)
+
+        xs, att_cache, cnn_cache = infer_model.forward_encoder_chunk(
+            xs1, offset, att_cache, cnn_cache)
+        xs2 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        offset = paddle.to_tensor([16], dtype='int32')
+        out1 = infer_model.forward_encoder_chunk(xs2, offset, att_cache,
+                                                 cnn_cache)
+        print(out1)
+
+        # from paddle.jit.layer import Layer
+        # layer = Layer()
+        # layer.load('./export.jit', paddle.CPUPlace())
+
+        # offset = paddle.to_tensor([0], dtype='int32')
+        # att_cache = paddle.zeros([0, 0, 0, 0])
+        # cnn_cache=paddle.zeros([0, 0, 0, 0])
+        # xs, att_cache, cnn_cache = layer.forward_encoder_chunk(xs1, offset, att_cache, cnn_cache)
+        # offset = paddle.to_tensor([16], dtype='int32')
+        # out2 = layer.forward_encoder_chunk(xs2, offset, att_cache, cnn_cache)
+        # # print(out2)
+
+        # out1 = flatten(out1)
+        # out2 = flatten(out2)
+        # for i in range(len(out1)):
+        #     print(np.equal(out1[i].numpy(), out2[i].numpy()).all())

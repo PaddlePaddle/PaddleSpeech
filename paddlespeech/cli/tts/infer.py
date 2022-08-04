@@ -226,7 +226,7 @@ class TTSExecutor(BaseExecutor):
             self.am_ckpt = os.path.abspath(am_ckpt)
             self.am_stat = os.path.abspath(am_stat)
             self.phones_dict = os.path.abspath(phones_dict)
-            self.am_res_path = os.path.dirname(os.path.abspath(self.am_config))
+            self.am_res_path = os.path.dirname(self.am_config)
 
         # for speedyspeech
         self.tones_dict = None
@@ -354,7 +354,7 @@ class TTSExecutor(BaseExecutor):
         if use_pretrained_am:
             self.am_res_path = self.task_resource.res_dir
             self.am_ckpt = os.path.join(self.am_res_path,
-                                        self.task_resource.res_dict['ckpt'][0])
+                                        self.task_resource.res_dict['ckpt'])
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
@@ -362,9 +362,9 @@ class TTSExecutor(BaseExecutor):
             logger.debug(self.am_res_path)
             logger.debug(self.am_ckpt)
         else:
-            self.am_ckpt = os.path.abspath(am_ckpt[0])
+            self.am_ckpt = os.path.abspath(am_ckpt)
             self.phones_dict = os.path.abspath(phones_dict)
-            self.am_res_path = os.path.dirname(os.path.abspath(self.am_ckpt))
+            self.am_res_path = os.path.dirname(self.am_ckpt)
             self.am_fs = fs
 
         # for speedyspeech

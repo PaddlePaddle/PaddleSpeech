@@ -172,6 +172,11 @@ class TTSExecutor(BaseExecutor):
             type=str2bool,
             default=False,
             help="whether to usen onnxruntime inference.")
+        self.parser.add_argument(
+            '--fs',
+            type=int,
+            default=24000,
+            help='sample rate for onnx models when use specified model files.')
 
     def _init_from_path(
             self,
@@ -581,6 +586,7 @@ class TTSExecutor(BaseExecutor):
         spk_id = args.spk_id
         use_onnx = args.use_onnx
         cpu_threads = args.cpu_threads
+        fs = args.fs
 
         if not args.verbose:
             self.disable_task_loggers()
@@ -619,7 +625,8 @@ class TTSExecutor(BaseExecutor):
                     device=device,
                     output=output,
                     use_onnx=use_onnx,
-                    cpu_threads=cpu_threads)
+                    cpu_threads=cpu_threads,
+                    fs=fs)
                 task_results[id_] = res
             except Exception as e:
                 has_exceptions = True
@@ -653,7 +660,8 @@ class TTSExecutor(BaseExecutor):
                  device: str=paddle.get_device(),
                  output: str='output.wav',
                  use_onnx: bool=False,
-                 cpu_threads: int=2):
+                 cpu_threads: int=2,
+                 fs: int=24000):
         """
         Python API to call an executor.
         """
@@ -695,7 +703,8 @@ class TTSExecutor(BaseExecutor):
                 voc_ckpt=voc_ckpt,
                 lang=lang,
                 device=device,
-                cpu_threads=cpu_threads)
+                cpu_threads=cpu_threads,
+                fs=fs)
             self.infer_onnx(text=text, lang=lang, am=am, spk_id=spk_id)
             res = self.postprocess_onnx(output=output)
             return res

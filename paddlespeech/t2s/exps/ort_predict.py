@@ -41,17 +41,17 @@ def ort_predict(args):
 
     # am
     am_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.am + ".onnx",
+        model_path=str(Path(args.inference_dir) / (args.am + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     # vocoder
     voc_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.voc + ".onnx",
+        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     # am warmup
     for T in [27, 38, 54]:

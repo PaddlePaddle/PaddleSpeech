@@ -24,6 +24,7 @@ from paddlespeech.t2s.exps.syn_utils import get_chunks
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_sess
+from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.utils import str2bool
 
 
@@ -45,29 +46,33 @@ def ort_predict(args):
 
     # streaming acoustic model
     am_encoder_infer_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.am + "_am_encoder_infer" + ".onnx",
+        model_path=str(
+            Path(args.inference_dir) /
+            (args.am + '_am_encoder_infer' + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
     am_decoder_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.am + "_am_decoder" + ".onnx",
+        model_path=str(
+            Path(args.inference_dir) / (args.am + '_am_decoder' + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     am_postnet_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.am + "_am_postnet" + ".onnx",
+        model_path=str(
+            Path(args.inference_dir) / (args.am + '_am_postnet' + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
     am_mu, am_std = np.load(args.am_stat)
 
     # vocoder
     voc_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.voc + ".onnx",
+        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     # frontend warmup
     # Loading model cost 0.5+ seconds
@@ -102,14 +107,13 @@ def ort_predict(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            if args.lang == 'zh':
-                input_ids = frontend.get_input_ids(
-                    sentence,
-                    merge_sentences=merge_sentences,
-                    get_tone_ids=get_tone_ids)
-                phone_ids = input_ids["phone_ids"]
-            else:
-                print("lang should in be 'zh' here!")
+            frontend_dict = run_frontend(
+                frontend=frontend,
+                text=sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                lang=args.lang)
+            phone_ids = frontend_dict['phone_ids']
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0].numpy()
             orig_hs = am_encoder_infer_sess.run(

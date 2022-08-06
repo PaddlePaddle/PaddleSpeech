@@ -50,3 +50,4 @@ keyboard
 uvicorn
 pattern_singleton
 braceexpand
+transformers==3.4.0

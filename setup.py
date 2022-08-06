@@ -44,7 +44,7 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
-    "onnxruntime",
+    "onnxruntime==1.10.0",
     "opencc",
     "pandas",
     "paddlenlp",

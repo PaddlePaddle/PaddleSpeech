@@ -45,6 +45,7 @@ base = [
     "matplotlib",
     "nara_wpe",
     "onnxruntime",
+    "opencc",
     "pandas",
     "paddlenlp",
     "paddlespeech_feat",

@@ -50,4 +50,5 @@ keyboard
 uvicorn
 pattern_singleton
 braceexpand
+opencc
 transformers==3.4.0

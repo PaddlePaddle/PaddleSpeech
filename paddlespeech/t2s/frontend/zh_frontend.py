@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import os
 import yaml
 from typing import Dict
 from typing import List
@@ -20,13 +21,13 @@ import jieba.posseg as psg
 import numpy as np
 import paddle
 from g2pM import G2pM
-from g2pw import G2PWConverter
 from pypinyin import lazy_pinyin
 from pypinyin import load_phrases_dict
 from pypinyin import load_single_dict
 from pypinyin import Style
 from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
+from paddlespeech.t2s.frontend.g2pw import G2PWOnnxConverter
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
@@ -56,8 +57,9 @@ def insert_after_character(lst, item):
 
 
 class Polyphonic():
-    def __init__(self,dict_file="./paddlespeech/t2s/frontend/polyphonic.yaml"):
-        with open(dict_file, encoding='utf8') as polyphonic_file:
+    def __init__(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                'polyphonic.yaml'), 'r',encoding='utf-8') as polyphonic_file:
             # 解析yaml
             polyphonic_dict = yaml.load(polyphonic_file, Loader=yaml.FullLoader)
         self.polyphonic_words = polyphonic_dict["polyphonic"]
@@ -85,7 +87,7 @@ class Frontend():
                 with_tone=True, with_erhua=False)
         elif self.g2p_model == "g2pW":
             self.corrector = Polyphonic()
-            self.g2pW_model = G2PWConverter(style='pinyin', enable_non_tradional_chinese=True)
+            self.g2pW_model = G2PWOnnxConverter(style='pinyin', enable_non_tradional_chinese=True)
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
 
@@ -147,24 +149,6 @@ class Frontend():
                 finals.append(v)
         elif self.g2p_model == "g2pM":
             pinyins = self.g2pM_model(word, tone=True, char_split=False)
-            for pinyin in pinyins:
-                pinyin = pinyin.replace("u:", "v")
-                if pinyin in self.pinyin2phone:
-                    initial_final_list = self.pinyin2phone[pinyin].split(" ")
-                    if len(initial_final_list) == 2:
-                        initials.append(initial_final_list[0])
-                        finals.append(initial_final_list[1])
-                    elif len(initial_final_list) == 1:
-                        initials.append('')
-                        finals.append(initial_final_list[1])
-                else:
-                    # If it's not pinyin (possibly punctuation) or no conversion is required
-                    initials.append(pinyin)
-                    finals.append(pinyin)
-        elif self.g2p_model == "g2pW":
-            pinyins = self.g2pW_model(word)[0]
-            if pinyins == [None]:
-                pinyins = [word]
             for pinyin in pinyins:
                 pinyin = pinyin.replace("u:", "v")
                 if pinyin in self.pinyin2phone:

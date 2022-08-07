@@ -174,11 +174,11 @@ class Frontend():
         phones_list = []
         for seg in segments:
             phones = []
-            initials = []
-            finals = []
             # Replace all English words in the sentence
             seg = re.sub('[a-zA-Z]+', '', seg)
             seg_cut = psg.lcut(seg)
+            initials = []
+            finals = []
             seg_cut = self.tone_modifier.pre_merge_for_modify(seg_cut)
             if self.g2p_model == "g2pW":
                 pinyins = self.g2pW_model(seg)[0]
@@ -233,6 +233,7 @@ class Frontend():
                     # assert len(sub_initials) == len(sub_finals) == len(word)
             initials = sum(initials, [])
             finals = sum(finals, [])
+
             for c, v in zip(initials, finals):
                 # NOTE: post process for pypinyin outputs
                 # we discriminate i, ii and iii
@@ -365,15 +366,15 @@ class Frontend():
             print("----------------------------")
         return phonemes
 
-    def get_input_ids(
-            self,
-            sentence: str,
-            merge_sentences: bool=True,
-            get_tone_ids: bool=False,
-            robot: bool=False,
-            print_info: bool=False,
-            add_blank: bool=False,
-            blank_token: str="<pad>") -> Dict[str, List[paddle.Tensor]]:
+    def get_input_ids(self,
+                      sentence: str,
+                      merge_sentences: bool=True,
+                      get_tone_ids: bool=False,
+                      robot: bool=False,
+                      print_info: bool=False,
+                      add_blank: bool=False,
+                      blank_token: str="<pad>",
+                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
         phonemes = self.get_phonemes(
             sentence,
             merge_sentences=merge_sentences,
@@ -384,20 +385,22 @@ class Frontend():
         tones = []
         temp_phone_ids = []
         temp_tone_ids = []
+
         for part_phonemes in phonemes:
             phones, tones = self._get_phone_tone(
                 part_phonemes, get_tone_ids=get_tone_ids)
-
             if add_blank:
                 phones = insert_after_character(phones, blank_token)
-
             if tones:
                 tone_ids = self._t2id(tones)
-                tone_ids = paddle.to_tensor(tone_ids)
+                if to_tensor:
+                    tone_ids = paddle.to_tensor(tone_ids)
                 temp_tone_ids.append(tone_ids)
             if phones:
                 phone_ids = self._p2id(phones)
-                phone_ids = paddle.to_tensor(phone_ids)
+                # if use paddle.to_tensor() in onnxruntime, the first time will be too low
+                if to_tensor:
+                    phone_ids = paddle.to_tensor(phone_ids)
                 temp_phone_ids.append(phone_ids)
         if temp_tone_ids:
             result["tone_ids"] = temp_tone_ids

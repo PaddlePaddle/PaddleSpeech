@@ -19,6 +19,7 @@ loguru
 matplotlib
 nara_wpe
 onnxruntime==1.10.0
+opencc
 pandas
 paddlenlp
 paddlespeech_feat
@@ -36,6 +37,7 @@ soundfile~=0.10
 textgrid
 timer
 tqdm
+transformers==3.4.0
 typeguard
 visualdl
 webrtcvad

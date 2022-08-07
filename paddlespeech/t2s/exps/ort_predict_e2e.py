@@ -22,6 +22,7 @@ from timer import timer
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_sess
+from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.utils import str2bool
 
 
@@ -42,17 +43,17 @@ def ort_predict(args):
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
     am_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.am + ".onnx",
+        model_path=str(Path(args.inference_dir) / (args.am + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     # vocoder
     voc_sess = get_sess(
-        model_dir=args.inference_dir,
-        model_file=args.voc + ".onnx",
+        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
         device=args.device,
-        cpu_threads=args.cpu_threads)
+        cpu_threads=args.cpu_threads,
+        use_trt=args.use_trt)
 
     merge_sentences = True
 
@@ -78,7 +79,6 @@ def ort_predict(args):
             am_input_feed.update({'text': phone_ids})
             if am_dataset in {"aishell3", "vctk"}:
                 am_input_feed.update({'spk_id': spk_id})
-
         elif am_name == 'speedyspeech':
             phone_ids = np.random.randint(1, 92, size=(T, ))
             tone_ids = np.random.randint(1, 5, size=(T, ))
@@ -93,50 +93,51 @@ def ort_predict(args):
 
     N = 0
     T = 0
-    merge_sentences = True
+    merge_sentences = False
     get_tone_ids = False
-    am_input_feed = {}
     if am_name == 'speedyspeech':
         get_tone_ids = True
+    am_input_feed = {}
     for utt_id, sentence in sentences:
         with timer() as t:
-            if args.lang == 'zh':
-                input_ids = frontend.get_input_ids(
-                    sentence,
-                    merge_sentences=merge_sentences,
-                    get_tone_ids=get_tone_ids)
-                phone_ids = input_ids["phone_ids"]
-                if get_tone_ids:
-                    tone_ids = input_ids["tone_ids"]
-            elif args.lang == 'en':
-                input_ids = frontend.get_input_ids(
-                    sentence, merge_sentences=merge_sentences)
-                phone_ids = input_ids["phone_ids"]
-            else:
-                print("lang should in {'zh', 'en'}!")
-            # merge_sentences=True here, so we only use the first item of phone_ids
-            phone_ids = phone_ids[0].numpy()
-            if am_name == 'fastspeech2':
-                am_input_feed.update({'text': phone_ids})
-                if am_dataset in {"aishell3", "vctk"}:
-                    am_input_feed.update({'spk_id': spk_id})
-            elif am_name == 'speedyspeech':
-                tone_ids = tone_ids[0].numpy()
-                am_input_feed.update({'phones': phone_ids, 'tones': tone_ids})
-            mel = am_sess.run(output_names=None, input_feed=am_input_feed)
-            mel = mel[0]
-            wav = voc_sess.run(output_names=None, input_feed={'logmel': mel})
-
-            N += len(wav[0])
-            T += t.elapse
-            speed = len(wav[0]) / t.elapse
-            rtf = fs / speed
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            np.array(wav)[0],
-            samplerate=fs)
+            frontend_dict = run_frontend(
+                frontend=frontend,
+                text=sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                lang=args.lang)
+            phone_ids = frontend_dict['phone_ids']
+            flags = 0
+            for i in range(len(phone_ids)):
+                part_phone_ids = phone_ids[i].numpy()
+                if am_name == 'fastspeech2':
+                    am_input_feed.update({'text': part_phone_ids})
+                    if am_dataset in {"aishell3", "vctk"}:
+                        am_input_feed.update({'spk_id': spk_id})
+                elif am_name == 'speedyspeech':
+                    part_tone_ids = frontend_dict['tone_ids'][i].numpy()
+                    am_input_feed.update({
+                        'phones': part_phone_ids,
+                        'tones': part_tone_ids
+                    })
+                mel = am_sess.run(output_names=None, input_feed=am_input_feed)
+                mel = mel[0]
+                wav = voc_sess.run(
+                    output_names=None, input_feed={'logmel': mel})
+                wav = wav[0]
+                if flags == 0:
+                    wav_all = wav
+                    flags = 1
+                else:
+                    wav_all = np.concatenate([wav_all, wav])
+        wav = wav_all
+        N += len(wav)
+        T += t.elapse
+        speed = len(wav) / t.elapse
+        rtf = fs / speed
+        sf.write(str(output_dir / (utt_id + ".wav")), wav, samplerate=fs)
         print(
-            f"{utt_id}, mel: {mel.shape}, wave: {len(wav[0])}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+            f"{utt_id}, mel: {mel.shape}, wave: {len(wav)}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
     print(f"generation speed: {N / T}Hz, RTF: {fs / (N / T) }")
 

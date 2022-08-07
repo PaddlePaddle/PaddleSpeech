@@ -1,18 +1,11 @@
 import os
 import json
-import requests
-import zipfile
 import onnxruntime
 import numpy as np
-from io import BytesIO
-import shutil
+
+from opencc import OpenCC
 
 from transformers import BertTokenizer
-
-try:
-    from opencc import OpenCC
-except:
-    pass
 
 from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data, prepare_onnx_input, get_phoneme_labels, get_char_phoneme_labels
 from paddlespeech.t2s.frontend.g2pw.utils import load_config

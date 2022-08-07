@@ -389,6 +389,7 @@ class DataLoaderFactory():
                 config['mini_batch_size'] = args.ngpu
                 config['subsampling_factor'] = 1
                 config['num_encs'] = 1
+                config['shortest_first'] = False
             elif mode == 'valid':
                 config['manifest'] = config.dev_manifest
                 config['train_mode'] = False

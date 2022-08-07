@@ -136,7 +136,8 @@ class MixFrontend():
                       sentence: str,
                       merge_sentences: bool=True,
                       get_tone_ids: bool=False,
-                      add_sp: bool=True) -> Dict[str, List[paddle.Tensor]]:
+                      add_sp: bool=True,
+                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
 
         sentences = self._split(sentence)
         phones_list = []
@@ -152,11 +153,12 @@ class MixFrontend():
                     input_ids = self.zh_frontend.get_input_ids(
                         content,
                         merge_sentences=True,
-                        get_tone_ids=get_tone_ids)
+                        get_tone_ids=get_tone_ids,
+                        to_tensor=to_tensor)
 
                 elif lang == "en":
                     input_ids = self.en_frontend.get_input_ids(
-                        content, merge_sentences=True)
+                        content, merge_sentences=True, to_tensor=to_tensor)
 
                 phones_seg.append(input_ids["phone_ids"][0])
                 if add_sp:

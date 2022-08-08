@@ -37,7 +37,6 @@ soundfile~=0.10
 textgrid
 timer
 tqdm
-transformers==3.4.0
 typeguard
 visualdl
 webrtcvad

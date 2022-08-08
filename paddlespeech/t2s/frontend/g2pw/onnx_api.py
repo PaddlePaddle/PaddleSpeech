@@ -5,7 +5,7 @@ import numpy as np
 
 from opencc import OpenCC
 
-from transformers import BertTokenizer
+from paddlenlp.transformers import BertTokenizer
 
 from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data, prepare_onnx_input, get_phoneme_labels, get_char_phoneme_labels
 from paddlespeech.t2s.frontend.g2pw.utils import load_config

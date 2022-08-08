@@ -61,7 +61,6 @@ base = [
     "scipy",
     "sentencepiece~=0.1.96",
     "soundfile~=0.10",
-    "transformers==3.4.0",
     "textgrid",
     "timer",
     "tqdm",

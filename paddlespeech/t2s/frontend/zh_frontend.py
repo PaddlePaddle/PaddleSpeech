@@ -79,7 +79,7 @@ class Frontend():
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
         self.punc = "：，；。？！“”‘’':,;.?!"
-        # g2p_model can be pypinyin and g2pM
+        # g2p_model can be pypinyin and g2pM and g2pW
         self.g2p_model = g2p_model
         if self.g2p_model == "g2pM":
             self.g2pM_model = G2pM()
@@ -87,6 +87,7 @@ class Frontend():
                 with_tone=True, with_erhua=False)
         elif self.g2p_model == "g2pW":
             self.corrector = Polyphonic()
+            self.g2pM_model = G2pM()
             self.g2pW_model = G2PWOnnxConverter(style='pinyin', enable_non_tradional_chinese=True)
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
@@ -180,8 +181,14 @@ class Frontend():
             initials = []
             finals = []
             seg_cut = self.tone_modifier.pre_merge_for_modify(seg_cut)
+            # 为了多音词获得更好的效果，这里采用整句预测
             if self.g2p_model == "g2pW":
-                pinyins = self.g2pW_model(seg)[0]
+                try:
+                    pinyins = self.g2pW_model(seg)[0]
+                except Exception:
+                    # g2pW采用模型采用繁体输入，如果有cover不了的简体词，采用g2pM预测
+                    print("[%s] not in g2pW dict,use g2pM"%seg)
+                    pinyins = self.g2pM_model(seg, tone=True, char_split=False)
                 pre_word_length = 0
                 for word, pos in seg_cut:
                     sub_initials = []

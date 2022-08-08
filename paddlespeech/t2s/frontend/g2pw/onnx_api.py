@@ -1,3 +1,7 @@
+"""
+Credits
+ This code is modified from https://github.com/GitYCC/g2pW
+"""
 import os
 import json
 import onnxruntime
@@ -7,7 +11,10 @@ from opencc import OpenCC
 
 from paddlenlp.transformers import BertTokenizer
 
-from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data, prepare_onnx_input, get_phoneme_labels, get_char_phoneme_labels
+from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data,\
+                                                   prepare_onnx_input,\
+                                                   get_phoneme_labels,\
+                                                   get_char_phoneme_labels
 from paddlespeech.t2s.frontend.g2pw.utils import load_config
 
 MODEL_URL = 'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel.tar'
@@ -34,6 +41,7 @@ def predict(session, onnx_input, labels):
 
 
 def download_model(model_dir):
+    os.makedirs(model_dir, exist_ok=True)
     wget_shell = "cd %s  && wget %s"%(model_dir,MODEL_URL)
     os.system(wget_shell)
     shell = "cd %s ;tar -xvf %s;cd %s/G2PWModel;rm -rf .*" % (model_dir,MODEL_URL.split("/")[-1], model_dir)
@@ -44,10 +52,12 @@ def download_model(model_dir):
 
 class G2PWOnnxConverter:
     def __init__(self, style='bopomofo', model_source=None, enable_non_tradional_chinese=False):
-        model_dir = os.path.dirname(os.path.abspath(__file__))
+        model_dir = os.path.join(os.path.expandvars('$HOME'), 'paddlespeech/models')
         if not os.path.exists(os.path.join(model_dir, 'G2PWModel/g2pW.onnx')):
             download_model(model_dir)
 
+        sess_options = onnxruntime.SessionOptions()
+        sess_options.intra_op_num_threads = 2
         self.session_g2pW =  onnxruntime.InferenceSession(os.path.join(model_dir, 'G2PWModel/g2pW.onnx'))
         self.config = load_config(os.path.join(model_dir, 'G2PWModel/config.py'), use_default=True)
 
@@ -65,16 +75,14 @@ class G2PWOnnxConverter:
         self.chars = sorted(list(self.char2phonemes.keys()))
         self.pos_tags = ['UNK', 'A', 'C', 'D', 'I', 'N', 'P', 'T', 'V', 'DE', 'SHI']
 
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               'bopomofo_to_pinyin_wo_tune_dict.json'), 'r',encoding='utf-8') as fr:
+        with open(os.path.join(model_dir,'G2PWModel/bopomofo_to_pinyin_wo_tune_dict.json'), 'r',encoding='utf-8') as fr:
             self.bopomofo_convert_dict = json.load(fr)
         self.style_convert_func = {
             'bopomofo': lambda x: x,
             'pinyin': self._convert_bopomofo_to_pinyin,
         }[style]
 
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               'char_bopomofo_dict.json'), 'r',encoding='utf-8') as fr:
+        with open(os.path.join(model_dir,'G2PWModel/char_bopomofo_dict.json'), 'r',encoding='utf-8') as fr:
             self.char_bopomofo_dict = json.load(fr)
 
         if self.enable_opencc:

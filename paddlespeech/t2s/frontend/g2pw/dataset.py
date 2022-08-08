@@ -1,3 +1,7 @@
+"""
+Credits
+ This code is modified from https://github.com/GitYCC/g2pW
+"""
 import numpy as np
 from paddlespeech.t2s.frontend.g2pw.utils import tokenize_and_map
 
@@ -128,8 +132,3 @@ def get_char_phoneme_labels(polyphonic_chars):
             char2phonemes[char] = []
         char2phonemes[char].append(labels.index(f'{char} {phoneme}'))
     return labels, char2phonemes
-
-
-def prepare_pos(pos_path):
-     return open(pos_path).read().rstrip().split('\n')
-

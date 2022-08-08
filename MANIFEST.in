@@ -1,0 +1,3 @@
+include paddlespeech/t2s/exps/*.txt
+include paddlespeech/t2s/frontend/*.yaml
+include paddlespeech/t2s/frontend/g2pw/*.json

@@ -330,4 +330,4 @@ setup_info = dict(
     })
 
 with version_info():
-    setup(**setup_info)
+    setup(**setup_info,include_package_data=True)

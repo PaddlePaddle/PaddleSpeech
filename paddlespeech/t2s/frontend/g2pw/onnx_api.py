@@ -10,14 +10,14 @@ import numpy as np
 from opencc import OpenCC
 
 from paddlenlp.transformers import BertTokenizer
-
+from paddlespeech.utils.env import MODEL_HOME
 from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data,\
                                                    prepare_onnx_input,\
                                                    get_phoneme_labels,\
                                                    get_char_phoneme_labels
 from paddlespeech.t2s.frontend.g2pw.utils import load_config
-
-MODEL_URL = 'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel.tar'
+from paddlespeech.cli.utils import download_and_decompress
+from paddlespeech.resource.pretrained_models import g2pw_onnx_models
 
 
 def predict(session, onnx_input, labels):
@@ -40,21 +40,10 @@ def predict(session, onnx_input, labels):
     return all_preds, all_confidences
 
 
-def download_model(model_dir):
-    os.makedirs(model_dir, exist_ok=True)
-    wget_shell = "cd %s  && wget %s"%(model_dir,MODEL_URL)
-    os.system(wget_shell)
-    shell = "cd %s ;tar -xvf %s;cd %s/G2PWModel;rm -rf .*" % (model_dir,MODEL_URL.split("/")[-1], model_dir)
-    os.system(shell)
-    rm_shell = "cd %s && rm -rf %s"%(model_dir,MODEL_URL.split("/")[-1])
-    os.system(rm_shell)
-
-
 class G2PWOnnxConverter:
-    def __init__(self, style='bopomofo', model_source=None, enable_non_tradional_chinese=False):
-        model_dir = os.path.join(os.path.expandvars('$HOME'), 'paddlespeech/models')
+    def __init__(self, model_dir = MODEL_HOME, style='bopomofo', model_source=None, enable_non_tradional_chinese=False):
         if not os.path.exists(os.path.join(model_dir, 'G2PWModel/g2pW.onnx')):
-            download_model(model_dir)
+            uncompress_path = download_and_decompress(g2pw_onnx_models['G2PWModel']['1.0'],model_dir)
 
         sess_options = onnxruntime.SessionOptions()
         sess_options.intra_op_num_threads = 2

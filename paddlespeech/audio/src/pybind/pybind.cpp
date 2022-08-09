@@ -21,7 +21,7 @@ PYBIND11_MODULE(_paddleaudio, m) {
           &paddleaudio::sox_io::get_info_file,
           "Get metadata of audio file.");
     // support obj later
-    /*m.def("get_info_fileobj",
+    m.def("get_info_fileobj",
           &paddleaudio::sox_io::get_info_fileobj,
           "Get metadata of audio in file object.");
     m.def("load_audio_fileobj",
@@ -30,7 +30,7 @@ PYBIND11_MODULE(_paddleaudio, m) {
     m.def("save_audio_fileobj",
           &paddleaudio::sox_io::save_audio_fileobj,
           "Save audio to file obj.");
-          */
+          
     // sox io
      m.def("sox_io_get_info", &paddleaudio::sox_io::get_info_file);
      m.def(

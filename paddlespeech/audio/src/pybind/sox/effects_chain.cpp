@@ -1,5 +1,6 @@
 #include <sox.h>
-
+#include <iostream>
+#include <vector>
 #include "paddlespeech/audio/src/pybind/sox/effects_chain.h"
 #include "paddlespeech/audio/src/pybind/sox/utils.h"
 
@@ -42,6 +43,7 @@ int tensor_input_drain(sox_effect_t* effp, sox_sample_t* obuf, size_t* osamp) {
   if (index + *osamp > num_samples) {
     *osamp = num_samples - index;
   }
+
   // Ensure that it's a multiple of the number of channels
   *osamp -= *osamp % num_channels;
 
@@ -49,52 +51,80 @@ int tensor_input_drain(sox_effect_t* effp, sox_sample_t* obuf, size_t* osamp) {
   // refacor this module, chunk
   auto i_frame = index / num_channels;
   auto num_frames = *osamp / num_channels;
-  py::array chunk(tensor.dtype(), {num_frames*num_channels});
+
+  std::vector<int> chunk(num_frames*num_channels);
   py::buffer_info ori_info = tensor.request();
-  py::buffer_info info = chunk.request();
-  char* ori_start_ptr = (char*)ori_info.ptr + index * chunk.itemsize() / sizeof(char);
-  std::memcpy(info.ptr, ori_start_ptr, chunk.nbytes());
-  
-  py::dtype chunk_type = py::dtype("i"); // dtype int32
-  py::array new_chunk = py::array(chunk_type, chunk.shape());
-  py::buffer_info new_info = new_chunk.request();
-  void* ptr = (void*) info.ptr;
-  int* new_ptr = (int*) new_info.ptr;
+  void* ptr = ori_info.ptr;
   // Convert to sox_sample_t (int32_t)
-  switch (chunk.dtype().num()) {
+  switch (tensor.dtype().num()) {
     //case c10::ScalarType::Float: {
     case 11: {
+      break;
       // Need to convert to 64-bit precision so that
       // values around INT32_MIN/MAX are handled correctly.
-      float* ptr_f = (float*)ptr;
       for (int idx = 0; idx < chunk.size(); ++idx) {
-        double elem = *ptr_f * 2147483648.;
+        int frame_idx = (idx + index) / num_channels;
+        int channels_idx = (idx + index) % num_channels;
+        double elem = 0; 
+        if (priv->channels_first) {
+          elem = *(float*)tensor.data(channels_idx, frame_idx);
+        } else {
+          elem = *(float*)tensor.data(frame_idx, channels_idx);
+        } 
+        elem = elem * 2147483648.;
         // *new_ptr = std::clamp(elem, INT32_MIN, INT32_MAX);
         if (elem > INT32_MAX) { 
-          *new_ptr = INT32_MAX; 
+          chunk[idx] = INT32_MAX; 
         } else if (elem < INT32_MIN) {
-          *new_ptr = INT32_MIN; 
-        } else { *new_ptr = elem; }
+          chunk[idx] = INT32_MIN; 
+        } else { 
+          chunk[idx] = elem;
+        }
       }
       break;
     }
     //case c10::ScalarType::Int: {
     case 5: {
+      for (int idx = 0; idx < chunk.size(); ++idx) {
+        int frame_idx = (idx + index) / num_channels;
+        int channels_idx = (idx + index) % num_channels;
+        int elem = 0;
+        if (priv->channels_first) {
+          elem = *(int*)tensor.data(channels_idx, frame_idx);
+        } else {
+          elem = *(int*)tensor.data(frame_idx, channels_idx);
+        }
+        chunk[idx] = elem;
+      }
       break;
     }
     // case short
     case 3: {
-      int16_t* ptr_s = (int16_t*) ptr;
       for (int idx = 0; idx < chunk.size(); ++idx) {
-        *new_ptr = *ptr_s * 65536; 
+        int frame_idx = (idx + index) / num_channels;
+        int channels_idx = (idx + index) % num_channels;
+        int16_t elem = 0;
+        if (priv->channels_first) {
+          elem = *(int16_t*)tensor.data(channels_idx, frame_idx);
+        } else {
+          elem = *(int16_t*)tensor.data(frame_idx, channels_idx);
+        }
+        chunk[idx] = elem * 65536;
       }
       break;
     }
     // case byte
     case 1: {
-      int8_t* ptr_b = (int8_t*) ptr;
       for (int idx = 0; idx < chunk.size(); ++idx) {
-        *new_ptr = (*ptr_b - 128) * 16777216; 
+        int frame_idx = (idx + index) / num_channels;
+        int channels_idx = (idx + index) % num_channels;
+        int8_t elem = 0;
+        if (priv->channels_first) {
+          elem = *(int8_t*)tensor.data(channels_idx, frame_idx);
+        } else {
+          elem = *(int8_t*)tensor.data(frame_idx, channels_idx);
+        }
+        chunk[idx] = (elem - 128) * 16777216; 
       }
       break;
     }
@@ -102,7 +132,7 @@ int tensor_input_drain(sox_effect_t* effp, sox_sample_t* obuf, size_t* osamp) {
       throw std::runtime_error("Unexpected dtype.");
   }
   // Write to buffer
-  memcpy(obuf, (int*)new_info.ptr, *osamp * 4);
+  memcpy(obuf, chunk.data(), *osamp * 4);
   priv->index += *osamp;
   return (priv->index == num_samples) ? SOX_EOF : SOX_SUCCESS;
 }

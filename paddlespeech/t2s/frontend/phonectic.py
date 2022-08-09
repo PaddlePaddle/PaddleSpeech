@@ -99,7 +99,11 @@ class English(Phonetics):
                 if (phn in self.vocab_phones and phn not in self.punc) else "sp"
                 for phn in phones
             ]
-            phones_list.append(phones)
+            # when sentences have double punctuations in the end, like "!\"",or "?\"", will get null list like []
+            # add judge to filter it 
+            if len(phones) != 0:
+                # replace unk phone with sp
+                phones_list.append(phones)
 
         if merge_sentences:
             merge_list = sum(phones_list, [])

@@ -273,7 +273,8 @@ def am_to_static(am_inference,
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     if am_name == 'fastspeech2':
-        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix"
+                          } and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -285,7 +286,8 @@ def am_to_static(am_inference,
                 am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
     elif am_name == 'speedyspeech':
-        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix"
+                          } and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -356,7 +358,7 @@ def get_am_output(
     get_spk_id = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
-    if am_dataset in {"aishell3", "vctk"} and speaker_dict:
+    if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
         get_spk_id = True
         spk_id = np.array([spk_id])
     if lang == 'zh':

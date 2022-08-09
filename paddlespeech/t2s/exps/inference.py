@@ -41,6 +41,7 @@ def parse_args():
             'fastspeech2_ljspeech',
             'fastspeech2_vctk',
             'tacotron2_csmsc',
+            'fastspeech2_mix',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -77,7 +78,7 @@ def parse_args():
         '--lang',
         type=str,
         default='zh',
-        help='Choose model language. zh or en')
+        help='Choose model language. zh or en or mix')
     parser.add_argument(
         "--text",
         type=str,
@@ -156,7 +157,8 @@ def main():
                 frontend=frontend,
                 lang=args.lang,
                 merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict, )
+                speaker_dict=args.speaker_dict,
+                spk_id=args.spk_id, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
         speed = wav.size / t.elapse
@@ -178,7 +180,8 @@ def main():
                 frontend=frontend,
                 lang=args.lang,
                 merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict, )
+                speaker_dict=args.speaker_dict,
+                spk_id=args.spk_id, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
 

@@ -133,7 +133,7 @@ def evaluate(args):
                             mel = am_inference(part_phone_ids)
                     elif am_name == 'speedyspeech':
                         part_tone_ids = tone_ids[i]
-                        if am_dataset in {"aishell3", "vctk"}:
+                        if am_dataset in {"aishell3", "vctk", "mix"}:
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, part_tone_ids,
                                                spk_id)

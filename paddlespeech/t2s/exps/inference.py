@@ -88,11 +88,6 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
     parser.add_argument(
-        "--use_trt",
-        type=str2bool,
-        default=False,
-        help="Whether to use inference engin TensorRT.", )
-    parser.add_argument(
         "--int8",
         type=str2bool,
         default=False,
@@ -190,7 +185,7 @@ def main():
         speed = wav.size / t.elapse
         rtf = fs / speed
 
-        sf.write(output_dir / (utt_id + ".wav"), wav, samplerate=24000)
+        sf.write(output_dir / (utt_id + ".wav"), wav, samplerate=fs)
         print(
             f"{utt_id}, mel: {am_output_data.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )

@@ -55,7 +55,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_ljspeech
 fi
 
-# inference with onnxruntime, use fastspeech2 + hifigan by default
+# inference with onnxruntime, use fastspeech2 + pwgan by default
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/ort_predict.sh ${train_output_path}
 fi

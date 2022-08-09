@@ -82,8 +82,10 @@ class English(Phonetics):
         phone_ids = [self.vocab_phones[item] for item in phonemes]
         return np.array(phone_ids, np.int64)
 
-    def get_input_ids(self, sentence: str,
-                      merge_sentences: bool=False) -> paddle.Tensor:
+    def get_input_ids(self,
+                      sentence: str,
+                      merge_sentences: bool=False,
+                      to_tensor: bool=True) -> paddle.Tensor:
         result = {}
         sentences = self.text_normalizer._split(sentence, lang="en")
         phones_list = []
@@ -112,7 +114,8 @@ class English(Phonetics):
 
         for part_phones_list in phones_list:
             phone_ids = self._p2id(part_phones_list)
-            phone_ids = paddle.to_tensor(phone_ids)
+            if to_tensor:
+                phone_ids = paddle.to_tensor(phone_ids)
             temp_phone_ids.append(phone_ids)
         result["phone_ids"] = temp_phone_ids
         return result

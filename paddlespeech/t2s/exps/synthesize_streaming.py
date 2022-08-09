@@ -30,6 +30,7 @@ from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import model_alias
+from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.exps.syn_utils import voc_to_static
 from paddlespeech.t2s.utils import str2bool
 from paddlespeech.utils.dynamic_import import dynamic_import
@@ -138,15 +139,13 @@ def evaluate(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            if args.lang == 'zh':
-                input_ids = frontend.get_input_ids(
-                    sentence,
-                    merge_sentences=merge_sentences,
-                    get_tone_ids=get_tone_ids)
-
-                phone_ids = input_ids["phone_ids"]
-            else:
-                print("lang should be 'zh' here!")
+            frontend_dict = run_frontend(
+                frontend=frontend,
+                text=sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                lang=args.lang)
+            phone_ids = frontend_dict['phone_ids']
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0]
             with paddle.no_grad():

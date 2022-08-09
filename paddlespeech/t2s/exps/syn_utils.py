@@ -33,6 +33,8 @@ from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
+# remove [W:onnxruntime: xxx] from ort
+ort.set_default_logger_severity(3)
 
 model_alias = {
     # acoustic model
@@ -161,11 +163,40 @@ def get_frontend(lang: str='zh',
     elif lang == 'mix':
         frontend = MixFrontend(
             phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
-
     else:
         print("wrong lang!")
-    print("frontend done!")
     return frontend
+
+
+def run_frontend(frontend: object,
+                 text: str,
+                 merge_sentences: bool=False,
+                 get_tone_ids: bool=False,
+                 lang: str='zh',
+                 to_tensor: bool=True):
+    outs = dict()
+    if lang == 'zh':
+        input_ids = frontend.get_input_ids(
+            text,
+            merge_sentences=merge_sentences,
+            get_tone_ids=get_tone_ids,
+            to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
+        if get_tone_ids:
+            tone_ids = input_ids["tone_ids"]
+            outs.update({'tone_ids': tone_ids})
+    elif lang == 'en':
+        input_ids = frontend.get_input_ids(
+            text, merge_sentences=merge_sentences, to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
+    elif lang == 'mix':
+        input_ids = frontend.get_input_ids(
+            text, merge_sentences=merge_sentences, to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
+    else:
+        print("lang should in {'zh', 'en', 'mix'}!")
+    outs.update({'phone_ids': phone_ids})
+    return outs
 
 
 # dygraph
@@ -180,30 +211,22 @@ def get_am_inference(am: str='fastspeech2_csmsc',
     with open(phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
-    print("vocab_size:", vocab_size)
-
     tone_size = None
     if tones_dict is not None:
         with open(tones_dict, "r") as f:
             tone_id = [line.strip().split() for line in f.readlines()]
         tone_size = len(tone_id)
-        print("tone_size:", tone_size)
-
     spk_num = None
     if speaker_dict is not None:
         with open(speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
-        print("spk_num:", spk_num)
-
     odim = am_config.n_mels
     # model: {model_name}_{dataset}
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
-
     am_class = dynamic_import(am_name, model_alias)
     am_inference_class = dynamic_import(am_name + '_inference', model_alias)
-
     if am_name == 'fastspeech2':
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
@@ -228,7 +251,6 @@ def get_am_inference(am: str='fastspeech2_csmsc',
     am_normalizer = ZScore(am_mu, am_std)
     am_inference = am_inference_class(am_normalizer, am)
     am_inference.eval()
-    print("acoustic model done!")
     if return_am:
         return am_inference, am
     else:
@@ -260,7 +282,6 @@ def get_voc_inference(
     voc_normalizer = ZScore(voc_mu, voc_std)
     voc_inference = voc_inference_class(voc_normalizer, voc)
     voc_inference.eval()
-    print("voc done!")
     return voc_inference
 
 
@@ -344,9 +365,9 @@ def get_predictor(model_dir: Optional[os.PathLike]=None,
 
 def get_am_output(
         input: str,
-        am_predictor,
-        am,
-        frontend,
+        am_predictor: paddle.nn.Layer,
+        am: str,
+        frontend: object,
         lang: str='zh',
         merge_sentences: bool=True,
         speaker_dict: Optional[os.PathLike]=None,
@@ -354,30 +375,23 @@ def get_am_output(
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     am_input_names = am_predictor.get_input_names()
-    get_tone_ids = False
     get_spk_id = False
+    get_tone_ids = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
     if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
         get_spk_id = True
         spk_id = np.array([spk_id])
-    if lang == 'zh':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
-        phone_ids = input_ids["phone_ids"]
-    elif lang == 'en':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences)
-        phone_ids = input_ids["phone_ids"]
-    elif lang == 'mix':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences)
-        phone_ids = input_ids["phone_ids"]
-    else:
-        print("lang should in {'zh', 'en', 'mix'}!")
+
+    frontend_dict = run_frontend(
+        frontend=frontend,
+        text=input,
+        merge_sentences=merge_sentences,
+        get_tone_ids=get_tone_ids,
+        lang=lang)
 
     if get_tone_ids:
-        tone_ids = input_ids["tone_ids"]
+        tone_ids = frontend_dict['tone_ids']
         tones = tone_ids[0].numpy()
         tones_handle = am_predictor.get_input_handle(am_input_names[1])
         tones_handle.reshape(tones.shape)
@@ -386,6 +400,7 @@ def get_am_output(
         spk_id_handle = am_predictor.get_input_handle(am_input_names[1])
         spk_id_handle.reshape(spk_id.shape)
         spk_id_handle.copy_from_cpu(spk_id)
+    phone_ids = frontend_dict['phone_ids']
     phones = phone_ids[0].numpy()
     phones_handle = am_predictor.get_input_handle(am_input_names[0])
     phones_handle.reshape(phones.shape)
@@ -434,13 +449,13 @@ def get_streaming_am_output(input: str,
                             lang: str='zh',
                             merge_sentences: bool=True):
     get_tone_ids = False
-    if lang == 'zh':
-        input_ids = frontend.get_input_ids(
-            input, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
-        phone_ids = input_ids["phone_ids"]
-    else:
-        print("lang should be 'zh' here!")
-
+    frontend_dict = run_frontend(
+        frontend=frontend,
+        text=input,
+        merge_sentences=merge_sentences,
+        get_tone_ids=get_tone_ids,
+        lang=lang)
+    phone_ids = frontend_dict['phone_ids']
     phones = phone_ids[0].numpy()
     am_encoder_infer_output = get_am_sublayer_output(
         am_encoder_infer_predictor, input=phones)
@@ -457,26 +472,25 @@ def get_streaming_am_output(input: str,
 
 
 # onnx
-def get_sess(model_dir: Optional[os.PathLike]=None,
-             model_file: Optional[os.PathLike]=None,
+def get_sess(model_path: Optional[os.PathLike],
              device: str='cpu',
              cpu_threads: int=1,
              use_trt: bool=False):
-
-    model_dir = str(Path(model_dir) / model_file)
     sess_options = ort.SessionOptions()
     sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
     sess_options.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
-
-    if device == "gpu":
+    if 'gpu' in device.lower():
+        device_id = int(device.split(':')[1]) if len(
+            device.split(':')) == 2 else 0
         # fastspeech2/mb_melgan can't use trt now!
         if use_trt:
-            providers = ['TensorrtExecutionProvider']
+            provider_name = 'TensorrtExecutionProvider'
         else:
-            providers = ['CUDAExecutionProvider']
-    elif device == "cpu":
+            provider_name = 'CUDAExecutionProvider'
+        providers = [(provider_name, {'device_id': device_id})]
+    elif device.lower() == 'cpu':
         providers = ['CPUExecutionProvider']
     sess_options.intra_op_num_threads = cpu_threads
     sess = ort.InferenceSession(
-        model_dir, providers=providers, sess_options=sess_options)
+        model_path, providers=providers, sess_options=sess_options)
     return sess

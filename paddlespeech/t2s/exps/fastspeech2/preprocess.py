@@ -180,7 +180,6 @@ def process_sentences(config,
                         results.append(record)
 
     results.sort(key=itemgetter("utt_id"))
-    print("wwwwwwwwwwwwwwwwwwwwwwwwwwwrite_metadata_method: ",
           write_metadata_method)
     with jsonlines.open(output_dir / "metadata.jsonl",
                         write_metadata_method) as writer:

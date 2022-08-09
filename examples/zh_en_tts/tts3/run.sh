@@ -5,7 +5,7 @@ source path.sh
 
 gpus=0,1
 stage=0
-stop_stage=0
+stop_stage=100
 
 datasets_root_dir=./datasets/
 mfa_root_dir=./mfa_results/

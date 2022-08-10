@@ -98,7 +98,6 @@ class Frontend():
         load_phrases_dict({u'放款行': [[u'fa4ng'], [u'kua3n'], [u'hang2']]})
         load_phrases_dict({u'茧行': [[u'jia3n'], [u'hang2']]})
         load_phrases_dict({u'行号': [[u'hang2'], [u'ha4o']]})
-        load_phrases_dict({u'行政': [[u'xing2'], [u'zheng4']]})
         load_phrases_dict({u'各地': [[u'ge4'], [u'di4']]})
         load_phrases_dict({u'借还款': [[u'jie4'], [u'hua2n'], [u'kua3n']]})
         load_phrases_dict({u'时间为': [[u'shi2'], [u'jia1n'], [u'we2i']]})

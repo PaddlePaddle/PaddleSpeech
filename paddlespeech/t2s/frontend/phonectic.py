@@ -100,7 +100,6 @@ class English(Phonetics):
                 for phn in phones
             ]
             if len(phones) != 0:
-                # replace unk phone with sp
                 phones_list.append(phones)
 
         if merge_sentences:

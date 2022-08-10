@@ -102,6 +102,9 @@ class G2PWOnnxConverter:
             sentences = translated_sentences
         
         texts, query_ids, sent_ids, partial_results = self._prepare_data(sentences)
+        if len(texts) == 0:
+            # sentences no polyphonic words
+            return partial_results
 
         onnx_input = prepare_onnx_input(self.tokenizer, self.labels, self.char2phonemes, self.chars, texts, query_ids,
                               use_mask=self.config.use_mask, use_char_phoneme=self.config.use_char_phoneme,

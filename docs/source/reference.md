@@ -40,3 +40,6 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 * [ThreadPool](https://github.com/progschj/ThreadPool/blob/master/COPYING)
 - zlib License
 - ThreadPool
+
+* [g2pW](https://github.com/GitYCC/g2pW/blob/master/LICENCE)
+- Apache-2.0 license

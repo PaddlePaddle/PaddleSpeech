@@ -100,7 +100,7 @@ class English(Phonetics):
                 for phn in phones
             ]
             # when sentences have double punctuations in the end, like "!\"",or "?\"", will get null list like []
-            # add judge to filter it 
+            # add a condition to filter it 
             if len(phones) != 0:
                 # replace unk phone with sp
                 phones_list.append(phones)

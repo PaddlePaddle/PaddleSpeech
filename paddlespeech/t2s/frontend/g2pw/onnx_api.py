@@ -108,7 +108,7 @@ class G2PWOnnxConverter:
 
         onnx_input = prepare_onnx_input(self.tokenizer, self.labels, self.char2phonemes, self.chars, texts, query_ids,
                               use_mask=self.config.use_mask, use_char_phoneme=self.config.use_char_phoneme,
-                              window_size=self.config.window_size)
+                              window_size=None)
 
         preds, confidences = predict(self.session_g2pW, onnx_input, self.labels)
         if self.config.use_char_phoneme:

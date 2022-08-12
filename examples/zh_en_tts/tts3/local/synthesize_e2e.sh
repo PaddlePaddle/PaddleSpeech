@@ -54,4 +54,29 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --speaker_dict=dump/speaker_id_map.txt \
         --spk_id=174 \
         --inference_dir=${train_output_path}/inference
-    fi
+fi
+
+
+# voc: hifigan_csmsc
+# when speaker is 174 (csmsc), use csmsc's vocoder is better than aishell3's
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    echo "in csmsc's hifigan syn_e2e"
+    FLAGS_allocator_strategy=naive_best_fit \
+    FLAGS_fraction_of_gpu_memory_to_use=0.01 \
+    python3 ${BIN_DIR}/../synthesize_e2e.py \
+        --am=fastspeech2_mix \
+        --am_config=${config_path} \
+        --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
+        --am_stat=dump/train/speech_stats.npy \
+        --voc=hifigan_csmsc \
+        --voc_config=hifigan_csmsc_ckpt_0.1.1/default.yaml \
+        --voc_ckpt=hifigan_csmsc_ckpt_0.1.1/snapshot_iter_2500000.pdz \
+        --voc_stat=hifigan_csmsc_ckpt_0.1.1/feats_stats.npy \
+        --lang=mix \
+        --text=${BIN_DIR}/../sentences_mix.txt \
+        --output_dir=${train_output_path}/test_e2e \
+        --phones_dict=dump/phone_id_map.txt \
+        --speaker_dict=dump/speaker_id_map.txt \
+        --spk_id=174 \
+        --inference_dir=${train_output_path}/inference
+fi

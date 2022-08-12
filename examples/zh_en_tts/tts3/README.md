@@ -98,8 +98,15 @@ optional arguments:
 
 
 ### Synthesizing
-We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
+We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the default neural vocoder.
 Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+
+When speaker is `174` (csmsc), use csmsc's vocoder is better than aishell3's, we recommend that you use [hifigan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip), please check `stage 2`  of `synthesize_e2e.sh`.
+
+But if speaker is `175` (ljspeech), we **don't** recommend you to use ljspeech's vocoder, because ljspeech's vocoders are trained on sample rate 22.05kHz, but this acoustic model is trained on sample rate 24kHz, you can use csmsc's vocoder also, because ljspeech and csmsc are both female speakers.
+
+For speakers in aishell3 and vctk, we recommend you use aishell3 or vctk's vocoders, because ljspeech and csmsc are both female speakers, there vocoders may not perform well for male speakers in aishell3 and vctk, you can check speaker name and spk_id in `dump/speaker_id_map.txt` and check speakers' information ( Age / Gender / Accents / region, etc ) in [this issue](https://github.com/PaddlePaddle/PaddleSpeech/issues/1620) and choose the `spk_id` you want.
+
 
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip

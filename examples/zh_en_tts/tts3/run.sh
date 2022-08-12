@@ -7,7 +7,7 @@ gpus=0,1
 stage=0
 stop_stage=100
 
-datasets_root_dir=./datasets/
+datasets_root_dir=~/datasets
 mfa_root_dir=./mfa_results/
 conf_path=conf/default.yaml
 train_output_path=exp/default
@@ -53,11 +53,11 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_mix
     # considering the balance between speed and quality, we recommend that you use hifigan as vocoder
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_aishell3
-    #./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_aishell3
-    
+    # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_aishell3
+    # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_csmsc
 fi
 
-# inference with onnxruntime, use fastspeech2 + hifigan by default
+# inference with onnxruntime, use fastspeech2 + pwgan by default
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/ort_predict.sh ${train_output_path}
 fi

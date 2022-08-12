@@ -20,7 +20,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
         --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
         --voc_stat=pwg_aishell3_ckpt_0.5/feats_stats.npy \
-        --test_metadata=dump/test/norm/metadata2.jsonl \
+        --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt
@@ -45,6 +45,3 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt
 fi
-
-
-

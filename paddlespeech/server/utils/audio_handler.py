@@ -167,11 +167,11 @@ class ASRWsAudioHandler:
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-
-                if self.punc_server and len(msg["result"]) > 0:
-                    msg["result"] = self.punc_server.run(msg["result"])
                 logger.debug("client receive msg={}".format(msg))
-
+            #client start to punctuation restore process
+            if self.punc_server and len(msg["result"]) > 0:
+                msg["result"] = self.punc_server.run(msg["result"])
+                logger.debug("client final result={}".format(msg))
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
                 {

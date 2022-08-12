@@ -65,9 +65,9 @@ PYBIND11_MODULE(_paddleaudio, m) {
          &paddleaudio::sox_utils::get_buffer_size);
 
      // effect
-     //m.def("apply_effects_fileobj",
-     //      &paddleaudio::sox_effects::apply_effects_fileobj,
-     //      "Decode audio data from file-like obj and apply effects.");
+     m.def("apply_effects_fileobj",
+           &paddleaudio::sox_effects::apply_effects_fileobj,
+           "Decode audio data from file-like obj and apply effects.");
      m.def("sox_effects_initialize_sox_effects",
        &paddleaudio::sox_effects::initialize_sox_effects);
      m.def(

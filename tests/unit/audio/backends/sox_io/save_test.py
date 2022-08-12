@@ -164,8 +164,6 @@ class TestSave(TestSaveBase, unittest.TestCase):
         [
             ("float32",),
             ("int32",),
-            ("int16",),
-            ("uint8",),
         ],
     )
     def test_save_wav_dtype(self, test_mode, params):

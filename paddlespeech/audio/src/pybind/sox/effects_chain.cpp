@@ -59,7 +59,6 @@ int tensor_input_drain(sox_effect_t* effp, sox_sample_t* obuf, size_t* osamp) {
   switch (tensor.dtype().num()) {
     //case c10::ScalarType::Float: {
     case 11: {
-      break;
       // Need to convert to 64-bit precision so that
       // values around INT32_MIN/MAX are handled correctly.
       for (int idx = 0; idx < chunk.size(); ++idx) {

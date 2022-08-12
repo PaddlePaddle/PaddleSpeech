@@ -1,15 +1,28 @@
 import json
 from itertools import product
+import os
 
 from parameterized import param, parameterized
 
-def get_asset_path(*paths):
-    """Return full path of a test asset"""
-    return os.path.join(_TEST_DIR_PATH, "assets", *paths)
+#def get_asset_path(*paths):
+    #"""Return full path of a test asset"""
+    #return os.path.join(_TEST_DIR_PATH, "assets", *paths)
 
-def load_params(*paths):
-    with open(get_asset_path(*paths), "r") as file:
-        return [param(json.loads(line)) for line in file]
+#def load_params(*paths):
+    #with open(get_asset_path(*paths), "r") as file:
+        #return [param(json.loads(line)) for line in file]
+
+#def load_effects_params(*paths):
+    #params = []
+    #with open(get_asset_path(*paths), "r") as file:
+        #for line in file:
+            #data = json.loads(line)
+            #for effect in data["effects"]:
+                #for i, arg in enumerate(effect):
+                    #if arg.startswith("<ASSET_DIR>"):
+                        #effect[i] = arg.replace("<ASSET_DIR>", get_asset_path())
+            #params.append(param(data))
+    #return params
 
 def _name_func(func, _, params):
     strs = []

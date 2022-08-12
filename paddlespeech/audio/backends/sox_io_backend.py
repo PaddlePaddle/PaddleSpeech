@@ -88,9 +88,9 @@ def save(filepath: str,
     )
 
 @_mod_utils.requires_sox()
-def info(filepath: str, format: Optional[str]) -> None:
+def info(filepath: str, format: Optional[str] = "") -> None:
     if hasattr(filepath, "read"):
-        sinfo = paddleaudio.get_info_fileojb(filepath, format)
+        sinfo = paddleaudio.get_info_fileobj(filepath, format)
         if sinfo is not None:
             return AudioMetaData(*sinfo)
         return _fallback_info_fileobj(filepath, format)

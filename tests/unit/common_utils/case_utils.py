@@ -14,6 +14,9 @@ from paddlespeech.audio._internal.module_utils import (
     is_sox_available,
 )
 
+def name_func(func, _, params):
+    return f'{func.__name__}_{"_".join(str(arg) for arg in params.args)}'
+
 class TempDirMixin:
     """Mixin to provide easy access to temp dir"""
 

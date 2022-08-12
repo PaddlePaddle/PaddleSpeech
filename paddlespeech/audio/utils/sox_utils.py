@@ -31,7 +31,7 @@ def set_verbosity(verbosity: int):
     See Also:
         http://sox.sourceforge.net/sox.html
     """
-   _paddleaudio.sox_utils_set_verbosity(verbosity)
+    _paddleaudio.sox_utils_set_verbosity(verbosity)
 
 
 @_mod_utils.requires_sox()

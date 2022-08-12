@@ -1,3 +1,4 @@
+
 # Mixed Chinese and English TTS with CSMSC, LJSpeech-1.1, AISHELL-3 and VCTK datasets
 
 This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [CSMSC](https://www.data-baker.com/open_source.html), [LJSpeech-1.1](https://keithito.com/LJ-Speech-Dataset/), [AISHELL3](http://www.aishelltech.com/aishell_3) and [VCTK](https://datashare.ed.ac.uk/handle/10283/3443) datasets.
@@ -5,15 +6,34 @@ This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2
 
 ## Dataset
 ### Download and Extract
-Download all datasets and extract it to `~/datasets`. The CSMSC dataset is in the directory `~/datasets/BZNSYP`. The Ljspeech dataset is in the directory `~/datasets/LJSpeech-1.1`. The aishell3 dataset is in the directory `~/datasets/data_aishell3`. The vctk dataset is in the directory `~/datasets/VCTK-Corpus-0.92`.
+Download all datasets and extract it to `~/datasets`:
+- The CSMSC dataset is in the directory `~/datasets/BZNSYP`
+- The Ljspeech dataset is in the directory `~/datasets/LJSpeech-1.1`
+- The aishell3 dataset is in the directory `~/datasets/data_aishell3`
+- The vctk dataset is in the directory `~/datasets/VCTK-Corpus-0.92`
  
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for the fastspeech2 training.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz) and [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz). Or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here:
+- [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz)
+- [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz)
+- [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz) 
+- [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz)
+
+Or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
-Assume the paths of the datasets are `~/datasets/BZNSYP`, `~/datasets/LJSpeech-1.1`, `~/datasets/data_aishell3` and `~/datasets/VCTK-Corpus-0.92`.
-Assume the path to the MFA result of the datasets are `./mfa_results/baker_alignment_tone`, `./mfa_results/ljspeech_alignment`, `./mfa_results/aishell3_alignment_tone` and `./mfa_results/vctk_alignment`.
+Assume the paths to the datasets are:
+- `~/datasets/BZNSYP`
+- `~/datasets/LJSpeech-1.1`
+- `~/datasets/data_aishell3` 
+- `~/datasets/VCTK-Corpus-0.92`
+
+Assume the path to the MFA results of the datasets are:
+- `./mfa_results/baker_alignment_tone`
+- `./mfa_results/ljspeech_alignment`
+- `./mfa_results/aishell3_alignment_tone`
+- `./mfa_results/vctk_alignment`
 
 Run the command below to
 1. **source path**.
@@ -252,7 +272,7 @@ fastspeech2_mix_ckpt_0.2.0
 
 
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_mix.txt` using pretrained fastspeech2 and parallel wavegan models.
-174 means baker speaker, 175 means ljspeech speaker. For other speaker information, see `speaker_id_map.txt`
+`174` means baker speaker, `175` means ljspeech speaker. For other speaker information, please see `speaker_id_map.txt`.
 
 ```bash
 source path.sh
@@ -262,7 +282,7 @@ FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_mix \
   --am_config=fastspeech2_mix_ckpt_0.2.0/default.yaml \
-  --am_ckpt=fastspeech2_mix_ckpt_0.2.0/snapshot_iter_96400.pdz \
+  --am_ckpt=fastspeech2_mix_ckpt_0.2.0/snapshot_iter_99200.pdz \
   --am_stat=fastspeech2_mix_ckpt_0.2.0/speech_stats.npy \
   --voc=pwgan_aishell3 \
   --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
@@ -275,5 +295,4 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --speaker_dict=fastspeech2_mix_ckpt_0.2.0/speaker_id_map.txt \
   --spk_id=174 \
   --inference_dir=exp/default/inference
-
 ```

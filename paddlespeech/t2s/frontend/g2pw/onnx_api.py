@@ -8,7 +8,7 @@ import onnxruntime
 import numpy as np
 
 from opencc import OpenCC
-
+from pypinyin import pinyin, lazy_pinyin, Style
 from paddlenlp.transformers import BertTokenizer
 from paddlespeech.utils.env import MODEL_HOME
 from paddlespeech.t2s.frontend.g2pw.dataset import prepare_data,\
@@ -127,6 +127,7 @@ class G2PWOnnxConverter:
         }
         texts, query_ids, sent_ids, partial_results = [], [], [], []
         for sent_id, sent in enumerate(sentences):
+            pypinyin_result = pinyin(sent,style=Style.TONE3)
             partial_result = [None] * len(sent)
             for i, char in enumerate(sent):
                 if char in polyphonic_chars:
@@ -136,6 +137,7 @@ class G2PWOnnxConverter:
                 elif char in monophonic_chars_dict:
                     partial_result[i] =  self.style_convert_func(monophonic_chars_dict[char])
                 elif char in self.char_bopomofo_dict:
-                    partial_result[i] =  self.style_convert_func(self.char_bopomofo_dict[char][0])
+                    partial_result[i] =  pypinyin_result[i][0]
+                    # partial_result[i] =  self.style_convert_func(self.char_bopomofo_dict[char][0])
             partial_results.append(partial_result)
         return texts, query_ids, sent_ids, partial_results

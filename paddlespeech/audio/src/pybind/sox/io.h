@@ -10,10 +10,12 @@ namespace py = pybind11;
 namespace paddleaudio {
 namespace sox_io {
 
-auto get_info_file(const std::string &path, const std::string &format)
+auto get_info_file(const std::string &path, 
+                   const tl::optional<std::string> &format)
     -> std::tuple<int64_t, int64_t, int64_t, int64_t, std::string>;
 
-auto get_info_fileobj(py::object fileobj, const std::string &format)
+auto get_info_fileobj(py::object fileobj,
+                   const tl::optional<std::string> &format)
     -> std::tuple<int64_t, int64_t, int64_t, int64_t, std::string>;
 
 tl::optional<std::tuple<py::array, int64_t>> load_audio_fileobj(

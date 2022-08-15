@@ -13,13 +13,14 @@ using namespace paddleaudio::sox_utils;
 namespace paddleaudio {
 namespace sox_io {
 
-auto get_info_file(const std::string &path, const std::string &format)
+auto get_info_file(const std::string &path, 
+                   const tl::optional<std::string> &format)
     -> std::tuple<int64_t, int64_t, int64_t, int64_t, std::string> {
     SoxFormat sf(
         sox_open_read(path.data(),
                       /*signal=*/nullptr,
                       /*encoding=*/nullptr,
-                      /*filetype=*/format.empty() ? nullptr : format.data()));
+                      /*filetype=*/format.has_value() ? format.value().c_str() : nullptr));
 
 
     validate_input_file(sf, path);
@@ -61,7 +62,8 @@ std::vector<std::vector<std::string>> get_effects(
   return effects;
 }
 
-auto get_info_fileobj(py::object fileobj, const std::string &format)
+auto get_info_fileobj(py::object fileobj, 
+                      const tl::optional<std::string> &format)
     -> std::tuple<int64_t, int64_t, int64_t, int64_t, std::string> {
     const auto capacity = [&]() {
         const auto bufsiz = get_buffer_size();
@@ -80,7 +82,7 @@ auto get_info_fileobj(py::object fileobj, const std::string &format)
         buf_size,
         /*signal=*/nullptr,
         /*encoding=*/nullptr,
-        /*filetype=*/format.empty() ? nullptr : format.data()));
+        /*filetype=*/format.has_value() ? format.value().c_str() : nullptr));
 
     // In case of streamed data, length can be 0
     validate_input_memfile(sf);

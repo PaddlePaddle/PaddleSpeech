@@ -7,6 +7,8 @@ import tempfile
 import time
 import unittest
 
+#code is from:https://github.com/pytorch/audio/blob/main/test/torchaudio_unittest/common_utils/case_utils.py
+
 import paddle
 from paddlespeech.audio._internal.module_utils import (
     is_kaldi_available,
@@ -24,9 +26,9 @@ class TempDirMixin:
 
     @classmethod
     def get_base_temp_dir(cls):
-        # If TORCHAUDIO_TEST_TEMP_DIR is set, use it instead of temporary directory.
+        # If PADDLEAUDIO_TEST_TEMP_DIR is set, use it instead of temporary directory.
         # this is handy for debugging.
-        key = "TORCHAUDIO_TEST_TEMP_DIR"
+        key = "PADDLEAUDIO_TEST_TEMP_DIR"
         if key in os.environ:
             return os.environ[key]
         if cls.temp_dir_ is None:

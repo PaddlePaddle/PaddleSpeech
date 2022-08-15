@@ -136,12 +136,16 @@ void save_audio_file(const std::string& path,
         const auto num_channels = tensor.shape(channels_first ? 0 : 1);
         //TORCH_CHECK(num_channels == 1,
         //            "amr-nb format only supports single channel audio.");
+        assert(num_channels == 1);
     } else if (filetype == "htk") {
         const auto num_channels = tensor.shape(channels_first ? 0 : 1);
        // TORCH_CHECK(num_channels == 1,
         //            "htk format only supports single channel audio.");
+        assert(num_channels == 1);
     } else if (filetype == "gsm") {
         const auto num_channels = tensor.shape(channels_first ? 0 : 1);
+        assert(num_channels == 1);
+        assert(sample_rate == 8000);
         //TORCH_CHECK(num_channels == 1,
         //            "gsm format only supports single channel audio.");
         //TORCH_CHECK(sample_rate == 8000,

@@ -118,39 +118,6 @@ def apply_effects_tensor(
         >>> sample_rate
         8000
 
-    Example - Torchscript-able transform
-        >>>
-        >>> # Use `apply_effects_tensor` in `paddle.nn.Module` and dump it to file,
-        >>> # then run sox effect via Torchscript runtime.
-        >>>
-        >>> class SoxEffectTransform(paddle.nn.Module):
-        ...     effects: List[List[str]]
-        ...
-        ...     def __init__(self, effects: List[List[str]]):
-        ...         super().__init__()
-        ...         self.effects = effects
-        ...
-        ...     def forward(self, tensor: paddle.Tensor, sample_rate: int):
-        ...         return sox_effects.apply_effects_tensor(
-        ...             tensor, sample_rate, self.effects)
-        ...
-        ...
-        >>> # Create transform object
-        >>> effects = [
-        ...     ["lowpass", "-1", "300"],  # apply single-pole lowpass filter
-        ...     ["rate", "8000"],  # change sample rate to 8000
-        ... ]
-        >>> transform = SoxEffectTensorTransform(effects, input_sample_rate)
-        >>>
-        >>> # Dump it to file and load
-        >>> path = 'sox_effect.zip'
-        >>> paddle.jit.script(trans).save(path)
-        >>> transform = paddle.jit.load(path)
-        >>>
-        >>>> # Run transform
-        >>> waveform, input_sample_rate = paddleaudio.load("input.wav")
-        >>> waveform, sample_rate = transform(waveform, input_sample_rate)
-        >>> assert sample_rate == 8000
     """
     tensor_np = tensor.numpy()
     ret = paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate, effects, channels_first)
@@ -169,10 +136,6 @@ def apply_effects_file(
 ) -> Tuple[paddle.Tensor, int]:
     """Apply sox effects to the audio file and load the resulting data as Tensor
 
-    .. devices:: CPU
-
-    .. properties:: TorchScript
-
     Note:
         This function works in the way very similar to ``sox`` command, however there are slight
         differences. For example, ``sox`` commnad adds certain effects automatically (such as
@@ -183,17 +146,6 @@ def apply_effects_file(
 
     Args:
         path (path-like object or file-like object):
-            Source of audio data. When the function is not compiled by TorchScript,
-            (e.g. ``paddle.jit.script``), the following types are accepted:
-
-                  * ``path-like``: file path
-                  * ``file-like``: Object with ``read(size: int) -> bytes`` method,
-                    which returns byte string of at most ``size`` length.
-
-            When the function is compiled by TorchScript, only ``str`` type is allowed.
-
-            Note: This argument is intentionally annotated as ``str`` only for
-            TorchScript compiler compatibility.
         effects (List[List[str]]): List of effects.
         normalize (bool, optional):
             When ``True``, this function always return ``float32``, and sample values are

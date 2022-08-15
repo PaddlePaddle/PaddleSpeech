@@ -45,6 +45,7 @@ base = [
     "matplotlib",
     "nara_wpe",
     "onnxruntime==1.10.0",
+    "opencc",
     "pandas",
     "paddlenlp",
     "paddlespeech_feat",
@@ -329,4 +330,4 @@ setup_info = dict(
     })
 
 with version_info():
-    setup(**setup_info)
+    setup(**setup_info,include_package_data=True)

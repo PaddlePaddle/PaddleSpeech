@@ -1335,3 +1335,17 @@ kws_dynamic_pretrained_models = {
         },
     },
 }
+
+# ---------------------------------
+# ------------- G2PW ---------------
+# ---------------------------------
+g2pw_onnx_models = {
+    'G2PWModel': {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel.tar',
+            'md5':
+            '63bc0894af15a5a591e58b2130a2bcac',
+        },
+    },
+}

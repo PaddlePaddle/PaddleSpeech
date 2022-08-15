@@ -1,0 +1,185 @@
+# This configuration tested on 4 GPUs (V100) with 32GB GPU
+# memory. It takes around 2 weeks to finish the training
+# but 100k iters model should generate reasonable results.
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+
+fs: 22050         # sr
+n_fft: 1024        # FFT size (samples).
+n_shift: 256       # Hop size (samples). 12.5ms
+win_length: null   # Window length (samples). 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+
+
+##########################################################
+#                  TTS MODEL SETTING                     #
+##########################################################
+model:
+    # generator related
+    generator_type: vits_generator
+    generator_params:
+        hidden_channels: 192
+        spk_embed_dim: 256
+        global_channels: 256
+        segment_size: 32
+        text_encoder_attention_heads: 2
+        text_encoder_ffn_expand: 4
+        text_encoder_blocks: 6
+        text_encoder_positionwise_layer_type: "conv1d"
+        text_encoder_positionwise_conv_kernel_size: 3
+        text_encoder_positional_encoding_layer_type: "rel_pos"
+        text_encoder_self_attention_layer_type: "rel_selfattn"
+        text_encoder_activation_type: "swish"
+        text_encoder_normalize_before: True
+        text_encoder_dropout_rate: 0.1
+        text_encoder_positional_dropout_rate: 0.0
+        text_encoder_attention_dropout_rate: 0.1
+        use_macaron_style_in_text_encoder: True
+        use_conformer_conv_in_text_encoder: False
+        text_encoder_conformer_kernel_size: -1
+        decoder_kernel_size: 7
+        decoder_channels: 512
+        decoder_upsample_scales: [8, 8, 2, 2]
+        decoder_upsample_kernel_sizes: [16, 16, 4, 4]
+        decoder_resblock_kernel_sizes: [3, 7, 11]
+        decoder_resblock_dilations: [[1, 3, 5], [1, 3, 5], [1, 3, 5]]
+        use_weight_norm_in_decoder: True
+        posterior_encoder_kernel_size: 5
+        posterior_encoder_layers: 16
+        posterior_encoder_stacks: 1
+        posterior_encoder_base_dilation: 1
+        posterior_encoder_dropout_rate: 0.0
+        use_weight_norm_in_posterior_encoder: True
+        flow_flows: 4
+        flow_kernel_size: 5
+        flow_base_dilation: 1
+        flow_layers: 4
+        flow_dropout_rate: 0.0
+        use_weight_norm_in_flow: True
+        use_only_mean_in_flow: True
+        stochastic_duration_predictor_kernel_size: 3
+        stochastic_duration_predictor_dropout_rate: 0.5
+        stochastic_duration_predictor_flows: 4
+        stochastic_duration_predictor_dds_conv_layers: 3
+    # discriminator related
+    discriminator_type: hifigan_multi_scale_multi_period_discriminator
+    discriminator_params:
+        scales: 1
+        scale_downsample_pooling: "AvgPool1D"
+        scale_downsample_pooling_params:
+            kernel_size: 4
+            stride: 2
+            padding: 2
+        scale_discriminator_params:
+            in_channels: 1
+            out_channels: 1
+            kernel_sizes: [15, 41, 5, 3]
+            channels: 128
+            max_downsample_channels: 1024
+            max_groups: 16
+            bias: True
+            downsample_scales: [2, 2, 4, 4, 1]
+            nonlinear_activation: "leakyrelu"
+            nonlinear_activation_params:
+                negative_slope: 0.1
+            use_weight_norm: True
+            use_spectral_norm: False
+        follow_official_norm: False
+        periods: [2, 3, 5, 7, 11]
+        period_discriminator_params:
+            in_channels: 1
+            out_channels: 1
+            kernel_sizes: [5, 3]
+            channels: 32
+            downsample_scales: [3, 3, 3, 3, 1]
+            max_downsample_channels: 1024
+            bias: True
+            nonlinear_activation: "leakyrelu"
+            nonlinear_activation_params:
+                negative_slope: 0.1
+            use_weight_norm: True
+            use_spectral_norm: False
+    # others
+    sampling_rate: 22050          # needed in the inference for saving wav
+    cache_generator_outputs: True # whether to cache generator outputs in the training
+          
+###########################################################
+#                        LOSS SETTING                     #
+###########################################################
+# loss function related
+generator_adv_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    loss_type: mse                   # loss type, "mse" or "hinge"
+discriminator_adv_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    loss_type: mse                   # loss type, "mse" or "hinge"
+feat_match_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    average_by_layers: False         # whether to average loss value by #layers of each discriminator
+    include_final_outputs: True      # whether to include final outputs for loss calculation
+mel_loss_params:
+    fs: 22050          # must be the same as the training data
+    fft_size: 1024        # fft points
+    hop_size: 256    # hop size
+    win_length: null   # window length
+    window: hann       # window type
+    num_mels: 80         # number of Mel basis
+    fmin: 0            # minimum frequency for Mel basis
+    fmax: null         # maximum frequency for Mel basis
+    log_base: null     # null represent natural log
+
+###########################################################
+#               ADVERSARIAL LOSS SETTING                  #
+###########################################################
+lambda_adv: 1.0        # loss scaling coefficient for adversarial loss
+lambda_mel: 45.0       # loss scaling coefficient for Mel loss
+lambda_feat_match: 2.0 # loss scaling coefficient for feat match loss
+lambda_dur: 1.0        # loss scaling coefficient for duration loss
+lambda_kl: 1.0         # loss scaling coefficient for KL divergence loss
+# others
+sampling_rate: 22050          # needed in the inference for saving wav
+cache_generator_outputs: True # whether to cache generator outputs in the training
+
+
+###########################################################
+#                  DATA LOADER SETTING                    #
+###########################################################
+batch_size: 64              # Batch size.
+num_workers: 4              # Number of workers in DataLoader.
+
+##########################################################
+#            OPTIMIZER & SCHEDULER SETTING               #
+##########################################################
+# optimizer setting for generator
+generator_optimizer_params:
+    beta1: 0.8
+    beta2: 0.99
+    epsilon: 1.0e-9
+    weight_decay: 0.0
+generator_scheduler: exponential_decay
+generator_scheduler_params:
+    learning_rate: 2.0e-4
+    gamma: 0.999875                   
+
+# optimizer setting for discriminator
+discriminator_optimizer_params:
+    beta1: 0.8
+    beta2: 0.99
+    epsilon: 1.0e-9
+    weight_decay: 0.0
+discriminator_scheduler: exponential_decay
+discriminator_scheduler_params:
+    learning_rate: 2.0e-4          
+    gamma: 0.999875
+generator_first: False # whether to start updating generator first
+
+##########################################################
+#                OTHER TRAINING SETTING                  #
+##########################################################
+num_snapshots: 10            # max number of snapshots to keep while training
+train_max_steps: 350000      # Number of training steps. == total_iters / ngpus, total_iters = 1000000
+save_interval_steps: 1000    # Interval steps to save checkpoint.
+eval_interval_steps: 250     # Interval steps to evaluate the network.
+seed: 777                    # random seed number

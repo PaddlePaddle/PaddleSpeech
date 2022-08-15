@@ -15,6 +15,7 @@ import argparse
 from pathlib import Path
 
 import jsonlines
+import numpy as np
 import paddle
 import soundfile as sf
 import yaml
@@ -23,6 +24,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.vits import VITS
+from paddlespeech.t2s.utils import str2bool
 
 
 def evaluate(args):
@@ -40,8 +42,27 @@ def evaluate(args):
     print(config)
 
     fields = ["utt_id", "text"]
+    converters = {}
 
-    test_dataset = DataTable(data=test_metadata, fields=fields)
+    spk_num = None
+    if args.speaker_dict is not None:
+        print("multiple speaker vits!")
+        with open(args.speaker_dict, 'rt') as f:
+            spk_id = [line.strip().split() for line in f.readlines()]
+        spk_num = len(spk_id)
+        fields += ["spk_id"]
+    elif args.voice_cloning:
+        print("Training voice cloning!")
+        fields += ["spk_emb"]
+        converters["spk_emb"] = np.load
+    else:
+        print("single speaker vits!")
+    print("spk_num:", spk_num)
+
+    test_dataset = DataTable(
+        data=test_metadata,
+        fields=fields,
+        converters=converters, )
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -49,6 +70,7 @@ def evaluate(args):
     print("vocab_size:", vocab_size)
 
     odim = config.n_fft // 2 + 1
+    config["model"]["generator_params"]["spks"] = spk_num
 
     vits = VITS(idim=vocab_size, odim=odim, **config["model"])
     vits.set_state_dict(paddle.load(args.ckpt)["main_params"])
@@ -65,7 +87,15 @@ def evaluate(args):
         phone_ids = paddle.to_tensor(datum["text"])
         with timer() as t:
             with paddle.no_grad():
-                out = vits.inference(text=phone_ids)
+                spk_emb = None
+                spk_id = None
+                # multi speaker
+                if args.voice_cloning and "spk_emb" in datum:
+                    spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
+                elif "spk_id" in datum:
+                    spk_id = paddle.to_tensor(datum["spk_id"])
+                out = vits.inference(
+                    text=phone_ids, sids=spk_id, spembs=spk_emb)
             wav = out["wav"]
             wav = wav.numpy()
             N += wav.size
@@ -90,6 +120,13 @@ def parse_args():
         '--ckpt', type=str, default=None, help='Checkpoint file of VITS.')
     parser.add_argument(
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")
+    parser.add_argument(
+        "--speaker_dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument(
+        "--voice-cloning",
+        type=str2bool,
+        default=False,
+        help="whether training voice cloning model.")
     # other
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")

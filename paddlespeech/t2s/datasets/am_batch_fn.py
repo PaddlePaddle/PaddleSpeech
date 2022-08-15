@@ -492,6 +492,61 @@ def vits_single_spk_batch_fn(examples):
     return batch
 
 
+def vits_multi_spk_batch_fn(examples):
+    """
+    Returns:
+        Dict[str, Any]:
+            - text (Tensor): Text index tensor (B, T_text).
+            - text_lengths (Tensor): Text length tensor (B,).
+            - feats (Tensor): Feature tensor (B, T_feats, aux_channels).
+            - feats_lengths (Tensor): Feature length tensor (B,).
+            - speech (Tensor): Speech waveform tensor (B, T_wav).
+            - spk_id (Optional[Tensor]): Speaker index tensor (B,) or (B, 1).
+            - spk_emb (Optional[Tensor]): Speaker embedding tensor (B, spk_embed_dim).
+    """
+    # fields = ["text", "text_lengths", "feats", "feats_lengths", "speech", "spk_id"/"spk_emb"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    feats = [np.array(item["feats"], dtype=np.float32) for item in examples]
+    speech = [np.array(item["wave"], dtype=np.float32) for item in examples]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    feats_lengths = [
+        np.array(item["feats_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    feats = batch_sequences(feats)
+    speech = batch_sequences(speech)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    feats = paddle.to_tensor(feats)
+    text_lengths = paddle.to_tensor(text_lengths)
+    feats_lengths = paddle.to_tensor(feats_lengths)
+
+    batch = {
+        "text": text,
+        "text_lengths": text_lengths,
+        "feats": feats,
+        "feats_lengths": feats_lengths,
+        "speech": speech
+    }
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
+    elif "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
+    return batch
+
+
 # for ERNIE SAT
 class MLMCollateFn:
     """Functor class of common_collate_fn()"""

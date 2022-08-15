@@ -56,9 +56,13 @@ paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input 
 # mix tts
 # The `am` must be `fastspeech2_mix`!
 # The `lang` must be `mix`!
-# The voc must be `hifigan_ljspeech` or `pwgan_ljspeech` for f`astspeech2_mix` now!
-paddlespeech tts --am fastspeech2_mix --voc hifigan_ljspeech --lang mix  --input "热烈欢迎您在 Discussions 中提交问题，并在 Issues 中指出发现的 bug。此外，我们非常希望您参与到 Paddle Speech 的开发中！" --spk_id 0  --output mix_spk0.wav
-paddlespeech tts --am fastspeech2_mix --voc pwgan_ljspeech --lang mix  --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --spk_id 1  --output mix_spk1.wav
+# The voc must be chinese datasets' voc now!
+# spk 174 is csmcc, spk 175 is ljspeech
+paddlespeech tts --am fastspeech2_mix --voc hifigan_csmsc --lang mix --input "热烈欢迎您在 Discussions 中提交问题，并在 Issues 中指出发现的 bug。此外，我们非常希望您参与到 Paddle Speech 的开发中！" --spk_id 174 --output mix_spk174.wav
+paddlespeech tts --am fastspeech2_mix --voc hifigan_aishell3 --lang mix --input "热烈欢迎您在 Discussions 中提交问题，并在 Issues 中指出发现的 bug。此外，我们非常希望您参与到 Paddle Speech 的开发中！" --spk_id 174 --output mix_spk174_aishell3.wav
+paddlespeech tts --am fastspeech2_mix --voc pwgan_csmsc --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --spk_id 175 --output mix_spk175_pwgan.wav
+paddlespeech tts --am fastspeech2_mix --voc hifigan_csmsc --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --spk_id 175 --output mix_spk175.wav
+
 
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav

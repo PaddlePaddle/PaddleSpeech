@@ -672,6 +672,22 @@ tts_dynamic_pretrained_models = {
             'speaker_dict':
             'speaker_id_map.txt',
         },
+        '2.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_0.2.0.zip',
+            'md5':
+            '1d938e104e972386c8bfcbcc98a91587',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_99200.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+        },
     },
     # tacotron2
     "tacotron2_csmsc-zh": {

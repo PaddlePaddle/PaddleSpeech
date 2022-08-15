@@ -255,9 +255,9 @@ class TTSExecutor(BaseExecutor):
         else:
             use_pretrained_voc = False
         voc_lang = lang
-        # we must use ljspeech's voc for mix am now!
+        # When speaker is 174 (csmsc), use csmsc's vocoder is better than aishell3's
         if lang == 'mix':
-            voc_lang = 'en'
+            voc_lang = 'zh'
         voc_tag = voc + '-' + voc_lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,

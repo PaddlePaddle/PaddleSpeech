@@ -63,8 +63,6 @@ def apply_effects_tensor(
 
     .. devices:: CPU
 
-    .. properties:: TorchScript
-
     Note:
         This function only works on CPU Tensors.
         This function works in the way very similar to ``sox`` command, however there are slight
@@ -74,7 +72,7 @@ def apply_effects_tensor(
         need to give ``rate`` effect with desired sampling rate.).
 
     Args:
-        tensor (torch.Tensor): Input 2D CPU Tensor.
+        tensor (paddle.Tensor): Input 2D CPU Tensor.
         sample_rate (int): Sample rate
         effects (List[List[str]]): List of effects.
         channels_first (bool, optional): Indicates if the input Tensor's dimension is
@@ -98,9 +96,9 @@ def apply_effects_tensor(
         >>> # Generate pseudo wave:
         >>> # normalized, channels first, 2ch, sampling rate 16000, 1 second
         >>> sample_rate = 16000
-        >>> waveform = 2 * torch.rand([2, sample_rate * 1]) - 1
+        >>> waveform = 2 * paddle.rand([2, sample_rate * 1]) - 1
         >>> waveform.shape
-        torch.Size([2, 16000])
+        paddle.Size([2, 16000])
         >>> waveform
         tensor([[ 0.3138,  0.7620, -0.9019,  ..., -0.7495, -0.4935,  0.5442],
                 [-0.0832,  0.0061,  0.8233,  ..., -0.5176, -0.9140, -0.2434]])
@@ -113,7 +111,7 @@ def apply_effects_tensor(
         >>> # The new waveform is sampling rate 8000, 1 second.
         >>> # normalization and channel order are preserved
         >>> waveform.shape
-        torch.Size([2, 8000])
+        paddle.Size([2, 8000])
         >>> waveform
         tensor([[ 0.5054, -0.5518, -0.4800,  ..., -0.0076,  0.0096, -0.0110],
                 [ 0.1331,  0.0436, -0.3783,  ..., -0.0035,  0.0012,  0.0008]])
@@ -122,17 +120,17 @@ def apply_effects_tensor(
 
     Example - Torchscript-able transform
         >>>
-        >>> # Use `apply_effects_tensor` in `torch.nn.Module` and dump it to file,
+        >>> # Use `apply_effects_tensor` in `paddle.nn.Module` and dump it to file,
         >>> # then run sox effect via Torchscript runtime.
         >>>
-        >>> class SoxEffectTransform(torch.nn.Module):
+        >>> class SoxEffectTransform(paddle.nn.Module):
         ...     effects: List[List[str]]
         ...
         ...     def __init__(self, effects: List[List[str]]):
         ...         super().__init__()
         ...         self.effects = effects
         ...
-        ...     def forward(self, tensor: torch.Tensor, sample_rate: int):
+        ...     def forward(self, tensor: paddle.Tensor, sample_rate: int):
         ...         return sox_effects.apply_effects_tensor(
         ...             tensor, sample_rate, self.effects)
         ...
@@ -146,8 +144,8 @@ def apply_effects_tensor(
         >>>
         >>> # Dump it to file and load
         >>> path = 'sox_effect.zip'
-        >>> torch.jit.script(trans).save(path)
-        >>> transform = torch.jit.load(path)
+        >>> paddle.jit.script(trans).save(path)
+        >>> transform = paddle.jit.load(path)
         >>>
         >>>> # Run transform
         >>> waveform, input_sample_rate = paddleaudio.load("input.wav")
@@ -186,7 +184,7 @@ def apply_effects_file(
     Args:
         path (path-like object or file-like object):
             Source of audio data. When the function is not compiled by TorchScript,
-            (e.g. ``torch.jit.script``), the following types are accepted:
+            (e.g. ``paddle.jit.script``), the following types are accepted:
 
                   * ``path-like``: file path
                   * ``file-like``: Object with ``read(size: int) -> bytes`` method,
@@ -232,7 +230,7 @@ def apply_effects_file(
         >>>
         >>> # Check the result
         >>> waveform.shape
-        torch.Size([2, 8000])
+        paddle.Size([2, 8000])
         >>> waveform
         tensor([[ 5.1151e-03,  1.8073e-02,  2.2188e-02,  ...,  1.0431e-07,
                  -1.4761e-07,  1.8114e-07],
@@ -244,7 +242,7 @@ def apply_effects_file(
     Example - Apply random speed perturbation to dataset
         >>>
         >>> # Load data from file, apply random speed perturbation
-        >>> class RandomPerturbationFile(torch.utils.data.Dataset):
+        >>> class RandomPerturbationFile(paddle.utils.data.Dataset):
         ...     \"\"\"Given flist, apply random speed perturbation
         ...
         ...     Suppose all the input files are at least one second long.
@@ -272,7 +270,7 @@ def apply_effects_file(
         ...         return len(self.flist)
         ...
         >>> dataset = RandomPerturbationFile(file_list, sample_rate=8000)
-        >>> loader = torch.utils.data.DataLoader(dataset, batch_size=32)
+        >>> loader = paddle.utils.data.DataLoader(dataset, batch_size=32)
         >>> for batch in loader:
         >>>     pass
     """

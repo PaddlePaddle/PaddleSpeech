@@ -52,9 +52,8 @@ def evaluate(args):
         spk_num = len(spk_id)
         fields += ["spk_id"]
     elif args.voice_cloning:
-        print("Training voice cloning!")
+        print("Evaluating voice cloning!")
         fields += ["spk_emb"]
-        converters["spk_emb"] = np.load
     else:
         print("single speaker vits!")
     print("spk_num:", spk_num)

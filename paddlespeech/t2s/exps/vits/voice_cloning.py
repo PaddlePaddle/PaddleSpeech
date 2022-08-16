@@ -102,7 +102,7 @@ def voice_cloning(args):
         phone_ids = input_ids["phone_ids"][0]
     else:
         wav, _ = librosa.load(str(args.audio_path), sr=config.fs)
-        feats = spec_extractor.get_linear_spectrogram(wav)
+        feats = paddle.to_tensor(spec_extractor.get_linear_spectrogram(wav))
 
         mel_sequences = p.extract_mel_partials(
             p.preprocess_wav(args.audio_path))
@@ -122,10 +122,11 @@ def voice_cloning(args):
 
         with paddle.no_grad():
             if args.audio_path is None:
-                wav = vits.inference(text=phone_ids, spembs=spk_emb)
+                out = vits.inference(text=phone_ids, spembs=spk_emb)
             else:
-                wav = vits.voice_conversion(
+                out = vits.voice_conversion(
                     feats=feats, spembs_src=spk_emb_src, spembs_tgt=spk_emb)
+            wav = out["wav"]
 
         sf.write(
             str(output_dir / (utt_id + ".wav")),
@@ -138,10 +139,11 @@ def voice_cloning(args):
     utt_id = "random_spk_emb"
     with paddle.no_grad():
         if args.audio_path is None:
-            wav = vits.inference(text=phone_ids, spembs=random_spk_emb)
+            out = vits.inference(text=phone_ids, spembs=random_spk_emb)
         else:
-            wav = vits.voice_conversion(
+            out = vits.voice_conversion(
                 feats=feats, spembs_src=spk_emb_src, spembs_tgt=random_spk_emb)
+        wav = out["wav"]
     sf.write(
         str(output_dir / (utt_id + ".wav")), wav.numpy(), samplerate=config.fs)
     print(f"{utt_id} done!")

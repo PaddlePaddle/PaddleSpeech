@@ -122,13 +122,13 @@ ref_audio
 `./local/voice_cloning.sh` calls `${BIN_DIR}/voice_cloning.py`
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${add_blank} ${ref_audio_dir}
 ```
 
 If you want to convert a speaker audio file to refered speaker, run:
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir} ${src_audio_path}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${add_blank} ${ref_audio_dir} ${src_audio_path}
 ```
 
 ## Pretrained Model

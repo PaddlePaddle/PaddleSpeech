@@ -381,7 +381,7 @@ class VITS(nn.Layer):
         if use_teacher_forcing:
             assert feats is not None
             feats = feats[None].transpose([0, 2, 1])
-            feats_lengths = paddle.to_tensor([paddle.shape(feats)[2]])
+            feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
             wav, att_w, dur = self.generator.inference(
                 text=text,
                 text_lengths=text_lengths,
@@ -409,7 +409,7 @@ class VITS(nn.Layer):
 
     def voice_conversion(
             self,
-            feats: Optional[paddle.Tensor]=None,
+            feats: paddle.Tensor,
             sids_src: Optional[paddle.Tensor]=None,
             sids_tgt: Optional[paddle.Tensor]=None,
             spembs_src: Optional[paddle.Tensor]=None,
@@ -429,7 +429,7 @@ class VITS(nn.Layer):
         """
         assert feats is not None
         feats = feats[None].transpose([0, 2, 1])
-        feats_lengths = paddle.to_tensor([paddle.shape(feats)[2]])
+        feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
 
         sids_none = sids_src is None and sids_tgt is None
         spembs_none = spembs_src is None and spembs_tgt is None

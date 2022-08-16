@@ -11,6 +11,7 @@ conf_path=conf/default.yaml
 train_output_path=exp/default
 ckpt_name=snapshot_iter_153.pdz
 add_blank=true
+ref_audio_dir=ref_audio
 src_audio_path=''
 
 # not include ".pdparams" here
@@ -40,5 +41,5 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} \
-        ${ge2e_params_path} ${ref_audio_dir} ${add_blank} ${src_audio_path} || exit -1
+        ${ge2e_params_path} ${add_blank} ${ref_audio_dir} ${src_audio_path} || exit -1
 fi

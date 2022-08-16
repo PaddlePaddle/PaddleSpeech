@@ -524,8 +524,8 @@ class VITSGenerator(nn.Layer):
 
     def voice_conversion(
             self,
-            feats: Optional[paddle.Tensor]=None,
-            feats_lengths: Optional[paddle.Tensor]=None,
+            feats: paddle.Tensor=None,
+            feats_lengths: paddle.Tensor=None,
             sids_src: Optional[paddle.Tensor]=None,
             sids_tgt: Optional[paddle.Tensor]=None,
             spembs_src: Optional[paddle.Tensor]=None,

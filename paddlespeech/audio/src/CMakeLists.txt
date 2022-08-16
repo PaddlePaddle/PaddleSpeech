@@ -35,6 +35,11 @@ if(BUILD_SOX)
   list(
     APPEND
     LIBPADDLEAUDIO_SOURCES
+    #sox/io.cpp
+    #sox/utils.cpp
+    #sox/effects.cpp
+    #sox/effects_chain.cpp
+    #sox/types.cpp
     )
   list(
     APPEND
@@ -139,9 +144,10 @@ if(BUILD_SOX)
   list(
     APPEND
     EXTENSION_SOURCES
-    # pybind/sox/effects.cpp
-    # pybind/sox/effects_chain.cpp
+    pybind/sox/effects.cpp
+    pybind/sox/effects_chain.cpp
     pybind/sox/io.cpp
+    pybind/sox/types.cpp
     pybind/sox/utils.cpp
     )
 endif()

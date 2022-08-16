@@ -43,7 +43,7 @@ base = [
     "pypinyin", "pypinyin-dict", "python-dateutil", "pyworld", "resampy==0.2.2",
     "sacrebleu", "scipy", "sentencepiece~=0.1.96", "soundfile~=0.10",
     "textgrid", "timer", "tqdm", "typeguard", "visualdl", "webrtcvad",
-    "yacs~=0.1.8", "prettytable", "zhon", "colorlog", "pathos == 0.2.8"
+    "yacs~=0.1.8", "prettytable", "zhon", "colorlog", "pathos == 0.2.8", "Ninja"
 ]
 
 server = [

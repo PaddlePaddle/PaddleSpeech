@@ -103,7 +103,6 @@ def _load_lib(lib: str) -> bool:
             If a dependency is missing, then users have to install it.
     """
     path = _get_lib_path(lib)
-    warnings.warn("lib path is :" + str(path))
     if not path.exists():
         warnings.warn("lib path is not exists:" + str(path))
         return False

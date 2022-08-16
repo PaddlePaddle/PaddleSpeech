@@ -3,16 +3,82 @@
 
 #include "paddlespeech/audio/src/pybind/kaldi/kaldi_feature.h"
 #include "paddlespeech/audio/src/pybind/sox/io.h"
+#include "paddlespeech/audio/src/pybind/sox/effects.h"
 #include "paddlespeech/audio/third_party/kaldi/feat/feature-fbank.h"
+
+#include <pybind11/stl.h>
+#include <pybind11/pybind11.h>
+
+// `tl::optional` 
+namespace pybind11 { namespace detail {
+   template <typename T>
+   struct type_caster<tl::optional<T>> : optional_caster<tl::optional<T>> {};
+}}
 
 PYBIND11_MODULE(_paddleaudio, m) {
 #ifdef INCLUDE_SOX
     m.def("get_info_file",
           &paddleaudio::sox_io::get_info_file,
           "Get metadata of audio file.");
+    // support obj later
     m.def("get_info_fileobj",
           &paddleaudio::sox_io::get_info_fileobj,
           "Get metadata of audio in file object.");
+    m.def("load_audio_fileobj",
+          &paddleaudio::sox_io::load_audio_fileobj,
+          "Load audio from file object.");
+    m.def("save_audio_fileobj",
+          &paddleaudio::sox_io::save_audio_fileobj,
+          "Save audio to file obj.");
+          
+    // sox io
+     m.def("sox_io_get_info", &paddleaudio::sox_io::get_info_file);
+     m.def(
+         "sox_io_load_audio_file",
+         &paddleaudio::sox_io::load_audio_file);
+     m.def(
+         "sox_io_save_audio_file",
+         &paddleaudio::sox_io::save_audio_file);
+    
+     // sox utils
+     m.def("sox_utils_set_seed", &paddleaudio::sox_utils::set_seed);
+     m.def(
+         "sox_utils_set_verbosity",
+         &paddleaudio::sox_utils::set_verbosity);
+     m.def(
+         "sox_utils_set_use_threads",
+         &paddleaudio::sox_utils::set_use_threads);
+     m.def(
+         "sox_utils_set_buffer_size",
+         &paddleaudio::sox_utils::set_buffer_size);
+     m.def(
+         "sox_utils_list_effects",
+         &paddleaudio::sox_utils::list_effects);
+     m.def(
+         "sox_utils_list_read_formats",
+         &paddleaudio::sox_utils::list_read_formats);
+     m.def(
+         "sox_utils_list_write_formats",
+         &paddleaudio::sox_utils::list_write_formats);
+     m.def(
+         "sox_utils_get_buffer_size",
+         &paddleaudio::sox_utils::get_buffer_size);
+
+     // effect
+     m.def("apply_effects_fileobj",
+           &paddleaudio::sox_effects::apply_effects_fileobj,
+           "Decode audio data from file-like obj and apply effects.");
+     m.def("sox_effects_initialize_sox_effects",
+       &paddleaudio::sox_effects::initialize_sox_effects);
+     m.def(
+         "sox_effects_shutdown_sox_effects",
+         &paddleaudio::sox_effects::shutdown_sox_effects);
+     m.def(
+         "sox_effects_apply_effects_tensor",
+         &paddleaudio::sox_effects::apply_effects_tensor);
+     m.def(
+         "sox_effects_apply_effects_file",
+         &paddleaudio::sox_effects::apply_effects_file);
 #endif
 
 #ifdef INCLUDE_KALDI

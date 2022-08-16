@@ -145,4 +145,4 @@ def requires_sox():
 
             return wrapped
 
-    return
+    return decorator

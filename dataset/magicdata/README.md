@@ -1,4 +1,4 @@
-# [MagicData](http://www.openslr.org/68/)
+# [MagicData](http://openslr.elda.org/68/)
 
 MAGICDATA Mandarin Chinese Read Speech Corpus was developed by MAGIC DATA Technology Co., Ltd. and freely published for non-commercial use.
 The contents and the corresponding descriptions of the corpus include:

@@ -16,8 +16,8 @@ import os
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddlespeech.audio.utils import MODEL_HOME
 from paddlespeech.audio.utils.download import load_state_dict_from_url
+from paddlespeech.utils.env import MODEL_HOME
 
 __all__ = ['CNN14', 'CNN10', 'CNN6', 'cnn14', 'cnn10', 'cnn6']
 

@@ -98,7 +98,7 @@ class TextExecutor(BaseExecutor):
             Init model and other resources from a specific path.
         """
         if hasattr(self, 'model'):
-            logger.info('Model had been initialized.')
+            logger.debug('Model had been initialized.')
             return
 
         self.task = task

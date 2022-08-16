@@ -29,7 +29,7 @@ generator_params:
     out_channels: 4               # Number of output channels.
     kernel_size: 7                # Kernel size of initial and final conv layers.
     channels: 384                 # Initial number of channels for conv layers.
-    upsample_scales: [5, 5, 3]    # List of Upsampling scales. prod(upsample_scales) == n_shift
+    upsample_scales: [5, 5, 3]    # List of Upsampling scales. prod(upsample_scales) x out_channels == n_shift
     stack_kernel_size: 3          # Kernel size of dilated conv layers in residual stack.
     stacks: 4                     # Number of stacks in a single residual stack module.
     use_weight_norm: True         # Whether to use weight normalization.

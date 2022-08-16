@@ -187,11 +187,6 @@ def main():
         help="yaml format configuration file.")
 
     parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
-    parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")
 
     args = parser.parse_args()
@@ -209,10 +204,6 @@ def main():
         _C = yaml.safe_load(f)
         _C = Configuration(_C)
         config = _C.clone()
-
-    if args.verbose > 1:
-        print(vars(args))
-        print(config)
 
     phone_id_map_path = dumpdir / "phone_id_map.txt"
     speaker_id_map_path = dumpdir / "speaker_id_map.txt"

@@ -16,11 +16,11 @@ from typing import Optional
 
 import onnxruntime as ort
 
-from .log import logger
+from paddlespeech.cli.log import logger
 
 
 def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):
-    logger.info(f"ort sessconf: {sess_conf}")
+    logger.debug(f"ort sessconf: {sess_conf}")
     sess_options = ort.SessionOptions()
     sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
     if sess_conf.get('graph_optimization_level', 99) == 0:
@@ -30,11 +30,13 @@ def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):
     # "gpu:0"
     providers = ['CPUExecutionProvider']
     if "gpu" in sess_conf.get("device", ""):
-        providers = ['CUDAExecutionProvider']
+        device_id = int(sess_conf["device"].split(":")[1])
+        providers = [('CUDAExecutionProvider', {'device_id': device_id})]
+
         # fastspeech2/mb_melgan can't use trt now!
         if sess_conf.get("use_trt", 0):
             providers = ['TensorrtExecutionProvider']
-    logger.info(f"ort providers: {providers}")
+    logger.debug(f"ort providers: {providers}")
 
     if 'cpu_threads' in sess_conf:
         sess_options.intra_op_num_threads = sess_conf.get("cpu_threads", 0)

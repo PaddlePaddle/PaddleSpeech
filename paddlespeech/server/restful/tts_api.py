@@ -140,7 +140,9 @@ def tts(request_body: TTSRequest):
 
 @router.post("/paddlespeech/tts/streaming")
 async def stream_tts(request_body: TTSRequest):
+    # get params
     text = request_body.text
+    spk_id = request_body.spk_id
 
     engine_pool = get_engine_pool()
     tts_engine = engine_pool['tts']
@@ -156,4 +158,24 @@ async def stream_tts(request_body: TTSRequest):
 
     connection_handler = PaddleTTSConnectionHandler(tts_engine)
 
-    return StreamingResponse(connection_handler.run(sentence=text))
+    return StreamingResponse(
+        connection_handler.run(sentence=text, spk_id=spk_id))
+
+
+@router.get("/paddlespeech/tts/streaming/samplerate")
+def get_samplerate():
+    try:
+        engine_pool = get_engine_pool()
+        tts_engine = engine_pool['tts']
+        logger.info("Get tts engine successfully.")
+        sample_rate = tts_engine.sample_rate
+
+        response = {"sample_rate": sample_rate}
+
+    except ServerBaseException as e:
+        response = failed_response(e.error_code, e.msg)
+    except BaseException:
+        response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
+        traceback.print_exc()
+
+    return response

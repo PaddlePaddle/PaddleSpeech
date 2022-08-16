@@ -2,6 +2,8 @@
 
 # Copyright 2021  Mobvoi Inc(Author: Di Wu, Binbin Zhang)
 #                 NPU, ASLP Group (Author: Qijie Shao)
+#
+# Modified from wenet(https://github.com/wenet-e2e/wenet)
 
 stage=-1
 stop_stage=100
@@ -30,7 +32,7 @@ mkdir -p data
 TARGET_DIR=${MAIN_ROOT}/dataset
 mkdir -p ${TARGET_DIR}
 
-if [ ${stage} -le -2 ] && [ ${stop_stage} -ge -2 ]; then
+if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     # download data
     echo "Please follow https://github.com/wenet-e2e/WenetSpeech to download the data."
     exit 0;
@@ -44,86 +46,57 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         data || exit 1;
 fi
 
-if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
-    # generate manifests
-    python3 ${TARGET_DIR}/aishell/aishell.py \
-    --manifest_prefix="data/manifest" \
-    --target_dir="${TARGET_DIR}/aishell"
-
-    if [ $? -ne 0 ]; then
-        echo "Prepare Aishell failed. Terminated."
-        exit 1
-    fi
-
-    for dataset in train dev test; do
-        mv data/manifest.${dataset} data/manifest.${dataset}.raw
-    done
-fi
-
-if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-    # compute mean and stddev for normalizer
-    if $cmvn; then
-        full_size=`cat data/${train_set}/wav.scp | wc -l`
-        sampling_size=$((full_size / cmvn_sampling_divisor))
-        shuf -n $sampling_size data/$train_set/wav.scp \
-            > data/$train_set/wav.scp.sampled
-        num_workers=$(nproc)
-
-        python3 ${MAIN_ROOT}/utils/compute_mean_std.py \
-        --manifest_path="data/manifest.train.raw" \
-        --spectrum_type="fbank" \
-        --feat_dim=80 \
-        --delta_delta=false \
-        --stride_ms=10 \
-        --window_ms=25 \
-        --sample_rate=16000 \
-        --use_dB_normalization=False \
-        --num_samples=-1 \
-        --num_workers=${num_workers} \
-        --output_path="data/mean_std.json"
-
-        if [ $? -ne 0 ]; then
-            echo "Compute mean and stddev failed. Terminated."
-            exit 1
-        fi
-    fi
-fi
-
-dict=data/dict/lang_char.txt
+dict=data/lang_char/vocab.txt
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # download data, generate manifests
-    # build vocabulary
-    python3 ${MAIN_ROOT}/utils/build_vocab.py \
-    --unit_type="char" \
-    --count_threshold=0 \
-    --vocab_path="data/lang_char/vocab.txt" \
-    --manifest_paths "data/manifest.train.raw"
-
-    if [ $? -ne 0 ]; then
-        echo "Build vocabulary failed. Terminated."
-        exit 1
-    fi
+    echo "Make a dictionary"
+    echo "dictionary: ${dict}"
+    mkdir -p $(dirname $dict)
+    echo "<blank>" > ${dict} # 0 will be used for "blank" in CTC
+    echo "<unk>" >> ${dict} # <unk> must be 1
+    echo "▁" >> ${dict} # ▁ is for space
+    utils/text2token.py -s 1 -n 1 --space "▁" data/${train_set}/text \
+        | cut -f 2- -d" " | tr " " "\n" \
+        | sort | uniq | grep -a -v -e '^\s*$' \
+        | grep -v "▁" \
+        | awk '{print $0}' >> ${dict} \
+        || exit 1;
+    echo "<eos>" >> $dict
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    # format manifest with tokenids, vocab size
-    for dataset in train dev test; do
-    {
-        python3 ${MAIN_ROOT}/utils/format_data.py \
-            --cmvn_path "data/mean_std.json" \
-            --unit_type "char" \
-            --vocab_path="data/vocab.txt" \
-            --manifest_path="data/manifest.${dataset}.raw" \
-            --output_path="data/manifest.${dataset}"
-
-        if [ $? -ne 0 ]; then
-            echo "Formt mnaifest failed. Terminated."
-            exit 1
-        fi
-    } &
-    done
-    wait
+  echo "Compute cmvn"
+  # Here we use all the training data, you can sample some some data to save time
+  # BUG!!! We should use the segmented data for CMVN
+  if $cmvn; then
+    full_size=`cat data/${train_set}/wav.scp | wc -l`
+    sampling_size=$((full_size / cmvn_sampling_divisor))
+    shuf -n $sampling_size data/$train_set/wav.scp \
+      > data/$train_set/wav.scp.sampled
+    python3 utils/compute_cmvn_stats.py \
+    --num_workers 16 \
+    --train_config $train_config \
+    --in_scp data/$train_set/wav.scp.sampled \
+    --out_cmvn data/$train_set/mean_std.json \
+    || exit 1;
+  fi
 fi
 
-echo "Aishell data preparation done."
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+  echo "Making shards, please wait..."
+  RED='\033[0;31m'
+  NOCOLOR='\033[0m'
+  echo -e "It requires ${RED}1.2T ${NOCOLOR}space for $shards_dir, please make sure you have enough space"
+  echo -e "It takes about ${RED}12 ${NOCOLOR}hours with 32 threads"
+  for x in $dev_set $test_sets ${train_set}; do
+    dst=$shards_dir/$x
+    mkdir -p $dst
+    utils/make_filted_shard_list.py --num_node 1 --num_gpus_per_node 8 --num_utts_per_shard 1000 \
+      --do_filter --resample 16000  \
+      --num_threads 32 --segments data/$x/segments \
+      data/$x/wav.scp data/$x/text \
+      $(realpath $dst) data/$x/data.list
+  done
+fi
+
+echo "Wenetspeech data preparation done."
 exit 0

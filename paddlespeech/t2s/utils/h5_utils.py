@@ -24,8 +24,10 @@ import numpy as np
 def read_hdf5(filename: Union[Path, str], dataset_name: str) -> Any:
     """Read a dataset from a HDF5 file.
     Args:
-        filename (Union[Path, str]): Path of the HDF5 file.
-        dataset_name (str): Name of the dataset to read.
+        filename (Union[Path, str]): 
+            Path of the HDF5 file.
+        dataset_name (str): 
+            Name of the dataset to read.
 
     Returns:
         Any: The retrieved dataset.

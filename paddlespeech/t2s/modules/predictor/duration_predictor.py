@@ -50,12 +50,18 @@ class DurationPredictor(nn.Layer):
         """Initilize duration predictor module.
 
         Args:
-            idim (int):Input dimension.
-            n_layers (int, optional): Number of convolutional layers.
-            n_chans (int, optional): Number of channels of convolutional layers.
-            kernel_size (int, optional): Kernel size of convolutional layers.
-            dropout_rate (float, optional): Dropout rate.
-            offset (float, optional): Offset value to avoid nan in log domain.
+            idim (int):
+                Input dimension.
+            n_layers (int, optional): 
+                Number of convolutional layers.
+            n_chans (int, optional): 
+                Number of channels of convolutional layers.
+            kernel_size (int, optional): 
+                Kernel size of convolutional layers.
+            dropout_rate (float, optional): 
+                Dropout rate.
+            offset (float, optional): 
+                Offset value to avoid nan in log domain.
 
         """
         super().__init__()
@@ -99,8 +105,10 @@ class DurationPredictor(nn.Layer):
     def forward(self, xs, x_masks=None):
         """Calculate forward propagation.
         Args:
-            xs(Tensor): Batch of input sequences (B, Tmax, idim).
-            x_masks(ByteTensor, optional, optional): Batch of masks indicating padded part (B, Tmax). (Default value = None)
+            xs(Tensor): 
+                Batch of input sequences (B, Tmax, idim).
+            x_masks(ByteTensor, optional, optional): 
+                Batch of masks indicating padded part (B, Tmax). (Default value = None)
 
         Returns:
             Tensor: Batch of predicted durations in log domain (B, Tmax).
@@ -110,8 +118,10 @@ class DurationPredictor(nn.Layer):
     def inference(self, xs, x_masks=None):
         """Inference duration.
         Args:
-            xs(Tensor): Batch of input sequences (B, Tmax, idim).
-            x_masks(Tensor(bool), optional, optional): Batch of masks indicating padded part (B, Tmax). (Default value = None)
+            xs(Tensor): 
+                Batch of input sequences (B, Tmax, idim).
+            x_masks(Tensor(bool), optional, optional): 
+                Batch of masks indicating padded part (B, Tmax). (Default value = None)
 
         Returns:
             Tensor: Batch of predicted durations in linear domain int64 (B, Tmax).
@@ -140,8 +150,10 @@ class DurationPredictorLoss(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            outputs(Tensor): Batch of prediction durations in log domain (B, T)
-            targets(Tensor): Batch of groundtruth durations in linear domain (B, T)
+            outputs(Tensor): 
+                Batch of prediction durations in log domain (B, T)
+            targets(Tensor): 
+                Batch of groundtruth durations in linear domain (B, T)
 
         Returns: 
             Tensor: Mean squared error loss value.

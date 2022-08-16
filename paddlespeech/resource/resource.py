@@ -18,11 +18,11 @@ from typing import List
 from typing import Optional
 
 from ..cli.utils import download_and_decompress
-from ..cli.utils import MODEL_HOME
 from ..utils.dynamic_import import dynamic_import
+from ..utils.env import MODEL_HOME
 from .model_alias import model_alias
 
-task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector']
+task_supported = ['asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws']
 model_format_supported = ['dynamic', 'static', 'onnx']
 inference_mode_supported = ['online', 'offline']
 
@@ -60,6 +60,7 @@ class CommonTaskResource:
     def set_task_model(self,
                        model_tag: str,
                        model_type: int=0,
+                       skip_download: bool=False,
                        version: Optional[str]=None):
         """Set model tag and version of current task.
 
@@ -83,16 +84,18 @@ class CommonTaskResource:
             self.version = version
             self.res_dict = self.pretrained_models[model_tag][version]
             self._format_path(self.res_dict)
-            self.res_dir = self._fetch(self.res_dict,
-                                       self._get_model_dir(model_type))
+            if not skip_download:
+                self.res_dir = self._fetch(self.res_dict,
+                                           self._get_model_dir(model_type))
         else:
             assert self.task == 'tts', 'Vocoder will only be used in tts task.'
             self.voc_model_tag = model_tag
             self.voc_version = version
             self.voc_res_dict = self.pretrained_models[model_tag][version]
             self._format_path(self.voc_res_dict)
-            self.voc_res_dir = self._fetch(self.voc_res_dict,
-                                           self._get_model_dir(model_type))
+            if not skip_download:
+                self.voc_res_dir = self._fetch(self.voc_res_dict,
+                                               self._get_model_dir(model_type))
 
     @staticmethod
     def get_model_class(model_name) -> List[object]:
@@ -164,7 +167,6 @@ class CommonTaskResource:
         try:
             import_models = '{}_{}_pretrained_models'.format(self.task,
                                                              self.model_format)
-            print(f"from .pretrained_models import {import_models}")
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
         except Exception as e:

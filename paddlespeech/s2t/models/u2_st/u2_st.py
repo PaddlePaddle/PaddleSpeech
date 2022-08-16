@@ -38,8 +38,8 @@ from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.s2t.utils.tensor_utils import add_sos_eos
-from paddlespeech.s2t.utils.tensor_utils import th_accuracy
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]
@@ -401,29 +401,42 @@ class U2STBaseModel(nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            subsampling_cache: Optional[paddle.Tensor]=None,
-            elayers_output_cache: Optional[List[paddle.Tensor]]=None,
-            conformer_cnn_cache: Optional[List[paddle.Tensor]]=None,
-    ) -> Tuple[paddle.Tensor, paddle.Tensor, List[paddle.Tensor], List[
-            paddle.Tensor]]:
+            att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
+
         Args:
-            xs (paddle.Tensor): chunk input
-            subsampling_cache (Optional[paddle.Tensor]): subsampling cache
-            elayers_output_cache (Optional[List[paddle.Tensor]]):
-                transformer/conformer encoder layers output cache
-            conformer_cnn_cache (Optional[List[paddle.Tensor]]): conformer
-                cnn cache
+            xs (paddle.Tensor): chunk input, with shape (b=1, time, mel-dim),
+                where `time == (chunk_size - 1) * subsample_rate + \
+                        subsample.right_context + 1`
+            offset (int): current offset in encoder output time stamp
+            required_cache_size (int): cache size required for next chunk
+                compuation
+                >=0: actual cache size
+                <0: means all history cache is required
+            att_cache (paddle.Tensor): cache tensor for KEY & VALUE in
+                transformer/conformer attention, with shape
+                (elayers, head, cache_t1, d_k * 2), where
+                `head * d_k == hidden-dim` and
+                `cache_t1 == chunk_size * num_decoding_left_chunks`.
+                `d_k * 2` for att key & value.
+            cnn_cache (paddle.Tensor): cache tensor for cnn_module in conformer,
+                (elayers, b=1, hidden-dim, cache_t2), where
+                `cache_t2 == cnn.lorder - 1`
+
         Returns:
-            paddle.Tensor: output, it ranges from time 0 to current chunk.
-            paddle.Tensor: subsampling cache
-            List[paddle.Tensor]: attention cache
-            List[paddle.Tensor]: conformer cnn cache
+            paddle.Tensor: output of current input xs,
+                with shape (b=1, chunk_size, hidden-dim).
+            paddle.Tensor: new attention cache required for next chunk, with
+                dynamic shape (elayers, head, T(?), d_k * 2)
+                depending on required_cache_size.
+            paddle.Tensor: new conformer cnn cache required for next chunk, with
+                same shape as the original cnn_cache.
         """
         return self.encoder.forward_chunk(
-            xs, offset, required_cache_size, subsampling_cache,
-            elayers_output_cache, conformer_cnn_cache)
+            xs, offset, required_cache_size, att_cache, cnn_cache)
 
     # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:

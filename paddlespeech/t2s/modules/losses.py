@@ -269,8 +269,10 @@ class GuidedAttentionLoss(nn.Layer):
         """Make masks indicating non-padded part.
 
         Args:
-            ilens(Tensor(int64) or List): Batch of lengths (B,).
-            olens(Tensor(int64) or List): Batch of lengths (B,).
+            ilens(Tensor(int64) or List): 
+                Batch of lengths (B,).
+            olens(Tensor(int64) or List): 
+                Batch of lengths (B,).
 
         Returns:
             Tensor: Mask tensor indicating non-padded part.
@@ -322,9 +324,12 @@ class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
         """Calculate forward propagation.
 
         Args:
-            att_ws(Tensor): Batch of multi head attention weights (B, H, T_max_out, T_max_in).
-            ilens(Tensor): Batch of input lenghts (B,).
-            olens(Tensor): Batch of output lenghts (B,).
+            att_ws(Tensor): 
+                Batch of multi head attention weights (B, H, T_max_out, T_max_in).
+            ilens(Tensor): 
+                Batch of input lenghts (B,).
+            olens(Tensor): 
+                Batch of output lenghts (B,).
 
         Returns:
             Tensor: Guided attention loss value.
@@ -354,9 +359,12 @@ class Tacotron2Loss(nn.Layer):
         """Initialize Tactoron2 loss module.
 
         Args:
-            use_masking (bool): Whether to apply masking for padded part in loss calculation.
-            use_weighted_masking (bool): Whether to apply weighted masking in loss calculation.
-            bce_pos_weight (float): Weight of positive sample of stop token.
+            use_masking (bool): 
+                Whether to apply masking for padded part in loss calculation.
+            use_weighted_masking (bool): 
+                Whether to apply weighted masking in loss calculation.
+            bce_pos_weight (float): 
+                Weight of positive sample of stop token.
         """
         super().__init__()
         assert (use_masking != use_weighted_masking) or not use_masking
@@ -374,17 +382,25 @@ class Tacotron2Loss(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            after_outs(Tensor): Batch of outputs after postnets (B, Lmax, odim).
-            before_outs(Tensor): Batch of outputs before postnets (B, Lmax, odim).
-            logits(Tensor): Batch of stop logits (B, Lmax).
-            ys(Tensor): Batch of padded target features (B, Lmax, odim).
-            stop_labels(Tensor(int64)): Batch of the sequences of stop token labels (B, Lmax).
+            after_outs(Tensor): 
+                Batch of outputs after postnets (B, Lmax, odim).
+            before_outs(Tensor): 
+                Batch of outputs before postnets (B, Lmax, odim).
+            logits(Tensor): 
+                Batch of stop logits (B, Lmax).
+            ys(Tensor): 
+                Batch of padded target features (B, Lmax, odim).
+            stop_labels(Tensor(int64)): 
+                Batch of the sequences of stop token labels (B, Lmax).
             olens(Tensor(int64)): 
 
         Returns:
-            Tensor: L1 loss value.
-            Tensor: Mean square error loss value.
-            Tensor: Binary cross entropy loss value.
+            Tensor: 
+                L1 loss value.
+            Tensor: 
+                Mean square error loss value.
+            Tensor: 
+                Binary cross entropy loss value.
         """
         # make mask and apply it
         if self.use_masking:
@@ -437,16 +453,24 @@ def stft(x,
          pad_mode='reflect'):
     """Perform STFT and convert to magnitude spectrogram.
     Args:
-        x(Tensor): Input signal tensor (B, T).
-        fft_size(int): FFT size.
-        hop_size(int): Hop size.
-        win_length(int, optional): window : str, optional (Default value = None)
-        window(str, optional): Name of window function, see `scipy.signal.get_window` for more
-            details. Defaults to "hann".
-        center(bool, optional, optional): center (bool, optional): Whether to pad `x` to make that the
+        x(Tensor): 
+            Input signal tensor (B, T).
+        fft_size(int): 
+            FFT size.
+        hop_size(int): 
+            Hop size.
+        win_length(int, optional): 
+        window (str, optional):
+            (Default value = None)
+        window(str, optional): 
+            Name of window function, see `scipy.signal.get_window` for more details. Defaults to "hann".
+        center(bool, optional, optional): center (bool, optional): 
+            Whether to pad `x` to make that the
             :math:`t \times hop\\_length` at the center of :math:`t`-th frame. Default: `True`.
-        pad_mode(str, optional, optional):  (Default value = 'reflect')
-        hop_length:  (Default value = None)
+        pad_mode(str, optional, optional):  
+            (Default value = 'reflect')
+        hop_length:  
+            (Default value = None)
 
     Returns:
         Tensor: Magnitude spectrogram (B, #frames, fft_size // 2 + 1).
@@ -480,8 +504,10 @@ class SpectralConvergenceLoss(nn.Layer):
     def forward(self, x_mag, y_mag):
         """Calculate forward propagation.
         Args: 
-            x_mag (Tensor): Magnitude spectrogram of predicted signal (B, #frames, #freq_bins).
-            y_mag (Tensor): Magnitude spectrogram of groundtruth signal (B, #frames, #freq_bins).
+            x_mag (Tensor):
+                 Magnitude spectrogram of predicted signal (B, #frames, #freq_bins).
+            y_mag (Tensor): 
+                Magnitude spectrogram of groundtruth signal (B, #frames, #freq_bins).
         Returns:
             Tensor: Spectral convergence loss value.
         """
@@ -501,8 +527,10 @@ class LogSTFTMagnitudeLoss(nn.Layer):
     def forward(self, x_mag, y_mag):
         """Calculate forward propagation.
         Args:
-            x_mag (Tensor): Magnitude spectrogram of predicted signal (B, #frames, #freq_bins).
-            y_mag (Tensor): Magnitude spectrogram of groundtruth signal (B, #frames, #freq_bins).
+            x_mag (Tensor): 
+                Magnitude spectrogram of predicted signal (B, #frames, #freq_bins).
+            y_mag (Tensor):
+                Magnitude spectrogram of groundtruth signal (B, #frames, #freq_bins).
         Returns:
             Tensor: Log STFT magnitude loss value.
         """
@@ -531,11 +559,15 @@ class STFTLoss(nn.Layer):
     def forward(self, x, y):
         """Calculate forward propagation.
         Args:
-            x (Tensor): Predicted signal (B, T).
-            y (Tensor): Groundtruth signal (B, T).
+            x (Tensor): 
+                Predicted signal (B, T).
+            y (Tensor): 
+                Groundtruth signal (B, T).
         Returns:
-            Tensor: Spectral convergence loss value.
-            Tensor: Log STFT magnitude loss value.
+            Tensor: 
+                Spectral convergence loss value.
+            Tensor: 
+                Log STFT magnitude loss value.
         """
         x_mag = stft(x, self.fft_size, self.shift_size, self.win_length,
                      self.window)
@@ -558,10 +590,14 @@ class MultiResolutionSTFTLoss(nn.Layer):
             window="hann", ):
         """Initialize Multi resolution STFT loss module.
         Args:
-            fft_sizes (list): List of FFT sizes.
-            hop_sizes (list): List of hop sizes.
-            win_lengths (list): List of window lengths.
-            window (str): Window function type.
+            fft_sizes (list): 
+                List of FFT sizes.
+            hop_sizes (list): 
+                List of hop sizes.
+            win_lengths (list): 
+                List of window lengths.
+            window (str): 
+                Window function type.
         """
         super().__init__()
         assert len(fft_sizes) == len(hop_sizes) == len(win_lengths)
@@ -573,11 +609,15 @@ class MultiResolutionSTFTLoss(nn.Layer):
         """Calculate forward propagation.
         
         Args:
-            x (Tensor): Predicted signal (B, T) or (B, #subband, T).
-            y (Tensor): Groundtruth signal (B, T) or (B, #subband, T).
+            x (Tensor): 
+                Predicted signal (B, T) or (B, #subband, T).
+            y (Tensor): 
+                Groundtruth signal (B, T) or (B, #subband, T).
         Returns:
-            Tensor: Multi resolution spectral convergence loss value.
-            Tensor: Multi resolution log STFT magnitude loss value.
+            Tensor: 
+                Multi resolution spectral convergence loss value.
+            Tensor: 
+                Multi resolution log STFT magnitude loss value.
         """
         if len(x.shape) == 3:
             # (B, C, T) -> (B x C, T)
@@ -615,9 +655,11 @@ class GeneratorAdversarialLoss(nn.Layer):
     def forward(self, outputs):
         """Calcualate generator adversarial loss.
         Args:
-            outputs (Tensor or List): Discriminator outputs or list of discriminator outputs.
+            outputs (Tensor or List): 
+                Discriminator outputs or list of discriminator outputs.
         Returns:
-            Tensor: Generator adversarial loss value.
+            Tensor: 
+                Generator adversarial loss value.
         """
         if isinstance(outputs, (tuple, list)):
             adv_loss = 0.0
@@ -659,13 +701,15 @@ class DiscriminatorAdversarialLoss(nn.Layer):
         """Calcualate discriminator adversarial loss.
 
         Args:
-            outputs_hat (Tensor or list): Discriminator outputs or list of
-                discriminator outputs calculated from generator outputs.
-            outputs (Tensor or list): Discriminator outputs or list of
-                discriminator outputs calculated from groundtruth.
+            outputs_hat (Tensor or list): 
+                Discriminator outputs or list of discriminator outputs calculated from generator outputs.
+            outputs (Tensor or list): 
+                Discriminator outputs or list of discriminator outputs calculated from groundtruth.
         Returns:
-            Tensor: Discriminator real loss value.
-            Tensor: Discriminator fake loss value.
+            Tensor: 
+                Discriminator real loss value.
+            Tensor: 
+                Discriminator fake loss value.
         """
         if isinstance(outputs, (tuple, list)):
             real_loss = 0.0
@@ -766,9 +810,12 @@ def masked_l1_loss(prediction, target, mask):
     """Compute maksed L1 loss.
 
     Args:
-        prediction(Tensor): The prediction.
-        target(Tensor): The target. The shape should be broadcastable to ``prediction``.
-        mask(Tensor): The mask. The shape should be broadcatable to the broadcasted shape of
+        prediction(Tensor): 
+            The prediction.
+        target(Tensor): 
+            The target. The shape should be broadcastable to ``prediction``.
+        mask(Tensor): 
+            The mask. The shape should be broadcatable to the broadcasted shape of
             ``prediction`` and ``target``.
 
     Returns:
@@ -916,8 +963,10 @@ class MelSpectrogramLoss(nn.Layer):
     def forward(self, y_hat, y):
         """Calculate Mel-spectrogram loss.
         Args:
-            y_hat(Tensor): Generated single tensor (B, 1, T).
-            y(Tensor): Groundtruth single tensor (B, 1, T).
+            y_hat(Tensor): 
+                Generated single tensor (B, 1, T).
+            y(Tensor): 
+                Groundtruth single tensor (B, 1, T).
 
         Returns:
             Tensor: Mel-spectrogram loss value.
@@ -947,9 +996,11 @@ class FeatureMatchLoss(nn.Layer):
         """Calcualate feature matching loss.
 
         Args:
-            feats_hat(list): List of list of discriminator outputs
+            feats_hat(list): 
+                List of list of discriminator outputs
                 calcuated from generater outputs.
-            feats(list): List of list of discriminator outputs
+            feats(list): 
+                List of list of discriminator outputs
 
         Returns:
             Tensor: Feature matching loss value.
@@ -986,11 +1037,16 @@ class KLDivergenceLoss(nn.Layer):
         """Calculate KL divergence loss.
 
         Args:
-            z_p (Tensor): Flow hidden representation (B, H, T_feats).
-            logs_q (Tensor): Posterior encoder projected scale (B, H, T_feats).
-            m_p (Tensor): Expanded text encoder projected mean (B, H, T_feats).
-            logs_p (Tensor): Expanded text encoder projected scale (B, H, T_feats).
-            z_mask (Tensor): Mask tensor (B, 1, T_feats).
+            z_p (Tensor): 
+                Flow hidden representation (B, H, T_feats).
+            logs_q (Tensor): 
+                Posterior encoder projected scale (B, H, T_feats).
+            m_p (Tensor): 
+                Expanded text encoder projected mean (B, H, T_feats).
+            logs_p (Tensor): 
+                Expanded text encoder projected scale (B, H, T_feats).
+            z_mask (Tensor): 
+                Mask tensor (B, 1, T_feats).
 
         Returns:
             Tensor: KL divergence loss.
@@ -1007,3 +1063,66 @@ class KLDivergenceLoss(nn.Layer):
         loss = kl / paddle.sum(z_mask)
 
         return loss
+
+
+# loss for ERNIE SAT
+class MLMLoss(nn.Layer):
+    def __init__(self,
+                 odim: int,
+                 vocab_size: int=0,
+                 lsm_weight: float=0.1,
+                 ignore_id: int=-1,
+                 text_masking: bool=False):
+        super().__init__()
+        if text_masking:
+            self.text_mlm_loss = nn.CrossEntropyLoss(ignore_index=ignore_id)
+        if lsm_weight > 50:
+            self.l1_loss_func = nn.MSELoss()
+        else:
+            self.l1_loss_func = nn.L1Loss(reduction='none')
+        self.text_masking = text_masking
+        self.odim = odim
+        self.vocab_size = vocab_size
+
+    def forward(
+            self,
+            speech: paddle.Tensor,
+            before_outs: paddle.Tensor,
+            after_outs: paddle.Tensor,
+            masked_pos: paddle.Tensor,
+            # for text_loss when text_masking == True
+            text: paddle.Tensor=None,
+            text_outs: paddle.Tensor=None,
+            text_masked_pos: paddle.Tensor=None):
+
+        xs_pad = speech
+        mlm_loss_pos = masked_pos > 0
+        loss = paddle.sum(
+            self.l1_loss_func(
+                paddle.reshape(before_outs, (-1, self.odim)),
+                paddle.reshape(xs_pad, (-1, self.odim))),
+            axis=-1)
+        if after_outs is not None:
+            loss += paddle.sum(
+                self.l1_loss_func(
+                    paddle.reshape(after_outs, (-1, self.odim)),
+                    paddle.reshape(xs_pad, (-1, self.odim))),
+                axis=-1)
+        mlm_loss = paddle.sum((loss * paddle.reshape(
+            mlm_loss_pos, [-1]))) / paddle.sum((mlm_loss_pos) + 1e-10)
+
+        text_mlm_loss = None
+
+        if self.text_masking:
+            assert text is not None
+            assert text_outs is not None
+            assert text_masked_pos is not None
+            text_outs = paddle.reshape(text_outs, [-1, self.vocab_size])
+            text = paddle.reshape(text, [-1])
+            text_mlm_loss = self.text_mlm_loss(text_outs, text)
+            text_masked_pos_reshape = paddle.reshape(text_masked_pos, [-1])
+            text_mlm_loss = paddle.sum(
+                text_mlm_loss *
+                text_masked_pos_reshape) / paddle.sum((text_masked_pos) + 1e-10)
+
+        return mlm_loss, text_mlm_loss

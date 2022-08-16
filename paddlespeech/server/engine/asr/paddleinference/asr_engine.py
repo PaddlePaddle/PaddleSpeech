@@ -21,7 +21,6 @@ from yacs.config import CfgNode
 
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
-from paddlespeech.cli.utils import MODEL_HOME
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
@@ -29,6 +28,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
+from paddlespeech.utils.env import MODEL_HOME
 
 __all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 
@@ -65,10 +65,10 @@ class ASRServerExecutor(ASRExecutor):
                                          self.task_resource.res_dict['model'])
             self.am_params = os.path.join(self.res_path,
                                           self.task_resource.res_dict['params'])
-            logger.info(self.res_path)
-            logger.info(self.cfg_path)
-            logger.info(self.am_model)
-            logger.info(self.am_params)
+            logger.debug(self.res_path)
+            logger.debug(self.cfg_path)
+            logger.debug(self.am_model)
+            logger.debug(self.am_params)
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.am_model = os.path.abspath(am_model)
@@ -236,16 +236,16 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
         if self._check(
                 io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
                 self.asr_engine.config.force_yes):
-            logger.info("start running asr engine")
+            logger.debug("start running asr engine")
             self.preprocess(self.asr_engine.config.model_type,
                             io.BytesIO(audio_data))
             st = time.time()
             self.infer(self.asr_engine.config.model_type)
             infer_time = time.time() - st
             self.output = self.postprocess()  # Retrieve result of asr.
-            logger.info("end inferring asr engine")
+            logger.debug("end inferring asr engine")
         else:
-            logger.info("file check failed!")
+            logger.error("file check failed!")
             self.output = None
 
         logger.info("inference time: {}".format(infer_time))

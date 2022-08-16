@@ -25,7 +25,8 @@ def _load_latest_checkpoint(checkpoint_dir: str) -> int:
     """Get the iteration number corresponding to the latest saved checkpoint.
 
     Args:
-        checkpoint_dir (str): the directory where checkpoint is saved.
+        checkpoint_dir (str):
+            the directory where checkpoint is saved.
 
     Returns:
         int: the latest iteration number.
@@ -46,8 +47,10 @@ def _save_checkpoint(checkpoint_dir: str, iteration: int):
     """Save the iteration number of the latest model to be checkpointed.
 
     Args:
-        checkpoint_dir (str): the directory where checkpoint is saved.
-        iteration (int): the latest iteration number.
+        checkpoint_dir (str): 
+            the directory where checkpoint is saved.
+        iteration (int): 
+            the latest iteration number.
 
     Returns:
         None
@@ -65,11 +68,14 @@ def load_parameters(model,
     """Load a specific model checkpoint from disk.
 
     Args:
-        model (Layer): model to load parameters.
-        optimizer (Optimizer, optional): optimizer to load states if needed.
-            Defaults to None.
-        checkpoint_dir (str, optional): the directory where checkpoint is saved.
-        checkpoint_path (str, optional): if specified, load the checkpoint
+        model (Layer): 
+            model to load parameters.
+        optimizer (Optimizer, optional): 
+            optimizer to load states if needed. Defaults to None.
+        checkpoint_dir (str, optional): 
+            the directory where checkpoint is saved.
+        checkpoint_path (str, optional): 
+            if specified, load the checkpoint
             stored in the checkpoint_path and the argument 'checkpoint_dir' will
             be ignored. Defaults to None.
 
@@ -113,11 +119,14 @@ def save_parameters(checkpoint_dir, iteration, model, optimizer=None):
     """Checkpoint the latest trained model parameters.
 
     Args:
-        checkpoint_dir (str): the directory where checkpoint is saved.
-        iteration (int): the latest iteration number.
-        model (Layer): model to be checkpointed.
-        optimizer (Optimizer, optional): optimizer to be checkpointed.
-            Defaults to None.
+        checkpoint_dir (str): 
+            the directory where checkpoint is saved.
+        iteration (int): 
+            the latest iteration number.
+        model (Layer): 
+            model to be checkpointed.
+        optimizer (Optimizer, optional): 
+            optimizer to be checkpointed. Defaults to None.
 
     Returns:
         None

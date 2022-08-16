@@ -168,11 +168,6 @@ def main():
         help="directory to dump feature files.")
     parser.add_argument("--config", type=str, help="vocoder config file.")
     parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
-    parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")
     parser.add_argument(
         "--dur-file", default=None, type=str, help="path to durations.txt.")
@@ -196,10 +191,6 @@ def main():
 
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
-
-    if args.verbose > 1:
-        print(vars(args))
-        print(config)
 
     sentences, speaker_set = get_phn_dur(dur_file)
     merge_silence(sentences)

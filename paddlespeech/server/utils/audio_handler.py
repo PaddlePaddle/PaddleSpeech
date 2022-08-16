@@ -138,7 +138,7 @@ class ASRWsAudioHandler:
         Returns:
             str: the final asr result
         """
-        logging.info("send a message to the server")
+        logging.debug("send a message to the server")
 
         if self.url is None:
             logger.error("No asr server, please input valid ip and port")
@@ -167,11 +167,11 @@ class ASRWsAudioHandler:
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-
-                if self.punc_server and len(msg["result"]) > 0:
-                    msg["result"] = self.punc_server.run(msg["result"])
                 logger.info("client receive msg={}".format(msg))
-
+            #client start to punctuation restore
+            if self.punc_server and len(msg['result']) > 0:
+                msg["result"] = self.punc_server.run(msg["result"])
+                logger.info("client punctuation restored msg={}".format(msg))
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
                 {
@@ -266,6 +266,12 @@ class TTSWsHandler:
         self.url = "ws://" + self.server + ":" + str(
             self.port) + "/paddlespeech/tts/streaming"
         self.play = play
+
+        # get model sample rate
+        self.url_get_sr = "http://" + str(self.server) + ":" + str(
+            self.port) + "/paddlespeech/tts/streaming/samplerate"
+        self.sample_rate = requests.get(self.url_get_sr).json()["sample_rate"]
+
         if self.play:
             import pyaudio
             self.buffer = b''
@@ -273,7 +279,7 @@ class TTSWsHandler:
             self.stream = self.p.open(
                 format=self.p.get_format_from_width(2),
                 channels=1,
-                rate=24000,
+                rate=self.sample_rate,
                 output=True)
             self.mutex = threading.Lock()
             self.start_play = True
@@ -293,12 +299,13 @@ class TTSWsHandler:
             self.buffer = b''
             self.mutex.release()
 
-    async def run(self, text: str, output: str=None):
+    async def run(self, text: str, spk_id=0, output: str=None):
         """Send a text to online server
 
         Args:
             text (str): sentence to be synthesized
-            output (str): save audio path
+            spk_id (int, optional): speaker id. Defaults to 0.
+            output (str, optional): client save audio path. Defaults to None.
         """
         all_bytes = b''
         receive_time_list = []
@@ -315,11 +322,16 @@ class TTSWsHandler:
             session = msg["session"]
 
             # 3. send speech synthesis request 
-            text_base64 = str(base64.b64encode((text).encode('utf-8')), "UTF8")
-            request = json.dumps({"text": text_base64})
+            #text_base64 = str(base64.b64encode((text).encode('utf-8')), "UTF8")
+            params = {
+                "text": text,
+                "spk_id": spk_id,
+            }
+
+            request = json.dumps(params)
             st = time.time()
             await ws.send(request)
-            logging.info("send a message to the server")
+            logging.debug("send a message to the server")
 
             # 4. Process the received response
             message = await ws.recv()
@@ -341,10 +353,11 @@ class TTSWsHandler:
                 # Rerutn last packet normally, no audio information
                 elif status == 2:
                     final_response = time.time() - st
-                    duration = len(all_bytes) / 2.0 / 24000
+                    duration = len(all_bytes) / 2.0 / self.sample_rate
 
                     if output is not None:
-                        save_audio_success = save_audio(all_bytes, output)
+                        save_audio_success = save_audio(all_bytes, output,
+                                                        self.sample_rate)
                     else:
                         save_audio_success = False
 
@@ -362,7 +375,8 @@ class TTSWsHandler:
                     receive_time_list.append(time.time())
                     audio = message["audio"]
                     audio = base64.b64decode(audio)  # bytes
-                    chunk_duration_list.append(len(audio) / 2.0 / 24000)
+                    chunk_duration_list.append(
+                        len(audio) / 2.0 / self.sample_rate)
                     all_bytes += audio
                     if self.play:
                         self.mutex.acquire()
@@ -403,19 +417,26 @@ class TTSHttpHandler:
             self.port) + "/paddlespeech/tts/streaming"
         self.play = play
 
+        # get model sample rate
+        self.url_get_sr = "http://" + str(self.server) + ":" + str(
+            self.port) + "/paddlespeech/tts/streaming/samplerate"
+        self.sample_rate = requests.get(self.url_get_sr).json()["sample_rate"]
+
         if self.play:
             import pyaudio
             self.buffer = b''
             self.p = pyaudio.PyAudio()
+            self.start_play = True
+            self.max_fail = 50
+
             self.stream = self.p.open(
                 format=self.p.get_format_from_width(2),
                 channels=1,
-                rate=24000,
+                rate=self.sample_rate,
                 output=True)
             self.mutex = threading.Lock()
-            self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
-            self.max_fail = 50
+
         logger.info(f"endpoint: {self.url}")
 
     def play_audio(self):
@@ -430,31 +451,19 @@ class TTSHttpHandler:
             self.buffer = b''
             self.mutex.release()
 
-    def run(self,
-            text: str,
-            spk_id=0,
-            speed=1.0,
-            volume=1.0,
-            sample_rate=0,
-            output: str=None):
+    def run(self, text: str, spk_id=0, output: str=None):
         """Send a text to tts online server
 
         Args:
             text (str): sentence to be synthesized.
             spk_id (int, optional): speaker id. Defaults to 0.
-            speed (float, optional): audio speed. Defaults to 1.0.
-            volume (float, optional): audio volume. Defaults to 1.0.
-            sample_rate (int, optional): audio sample rate, 0 means the same as model. Defaults to 0.
-            output (str, optional): save audio path. Defaults to None.
+            output (str, optional): client save audio path. Defaults to None.
         """
+
         # 1. Create request
         params = {
             "text": text,
             "spk_id": spk_id,
-            "speed": speed,
-            "volume": volume,
-            "sample_rate": sample_rate,
-            "save_path": output
         }
 
         all_bytes = b''
@@ -482,14 +491,14 @@ class TTSHttpHandler:
                     self.t.start()
                     self.start_play = False
             all_bytes += audio
-            chunk_duration_list.append(len(audio) / 2.0 / 24000)
+            chunk_duration_list.append(len(audio) / 2.0 / self.sample_rate)
 
         final_response = time.time() - st
-        duration = len(all_bytes) / 2.0 / 24000
+        duration = len(all_bytes) / 2.0 / self.sample_rate
         html.close()  # when stream=True
 
         if output is not None:
-            save_audio_success = save_audio(all_bytes, output)
+            save_audio_success = save_audio(all_bytes, output, self.sample_rate)
         else:
             save_audio_success = False
 
@@ -543,10 +552,9 @@ class VectorHttpHandler:
             "sample_rate": sample_rate,
         }
 
-        logger.info(self.url)
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res
 
 
 class VectorScoreHttpHandler:
@@ -594,4 +602,4 @@ class VectorScoreHttpHandler:
 
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res

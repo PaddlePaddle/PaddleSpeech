@@ -1,4 +1,4 @@
-# [Aidatatang_200zh](http://www.openslr.org/62/)
+# [Aidatatang_200zh](http://openslr.elda.org/62/)
 
 Aidatatang_200zh is a free Chinese Mandarin speech corpus provided by Beijing DataTang Technology Co., Ltd under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License.
 The contents and the corresponding descriptions of the corpus include:

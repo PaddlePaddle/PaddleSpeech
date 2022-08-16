@@ -16,7 +16,6 @@ import random
 
 import numpy as np
 from PIL import Image
-from PIL.Image import BICUBIC
 
 from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
 from paddlespeech.s2t.utils.log import Log
@@ -164,9 +163,9 @@ class SpecAugmentor(AugmentorBase):
                                       window) + 1  # 1 ... t - 1
 
             left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
-                                                      BICUBIC)
+                                                      Image.BICUBIC)
             right = Image.fromarray(x[center:]).resize((x.shape[1], t - warped),
-                                                       BICUBIC)
+                                                       Image.BICUBIC)
             if self.inplace:
                 x[:warped] = left
                 x[warped:] = right

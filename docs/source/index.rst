@@ -64,3 +64,18 @@ Contents
    :caption: Acknowledgement
 
    asr/reference
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
+   paddlespeech.audio <api/paddlespeech.audio>
+   paddlespeech.cli <api/paddlespeech.cli>
+   paddlespeech.cls <api/paddlespeech.cls>
+   paddlespeech.kws <api/paddlespeech.kws>
+   paddlespeech.s2t <api/paddlespeech.s2t>
+   paddlespeech.server <api/paddlespeech.server>
+   paddlespeech.t2s <api/paddlespeech.t2s>
+   paddlespeech.text <api/paddlespeech.text>
+   paddlespeech.vector <api/paddlespeech.vector>

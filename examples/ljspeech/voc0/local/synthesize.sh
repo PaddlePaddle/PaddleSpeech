@@ -8,5 +8,4 @@ python ${BIN_DIR}/synthesize.py \
     --input=${input_mel_path} \
     --output=${train_output_path}/wavs/ \
     --checkpoint_path=${train_output_path}/checkpoints/${ckpt_name} \
-    --ngpu=1 \
-    --verbose
+    --ngpu=1

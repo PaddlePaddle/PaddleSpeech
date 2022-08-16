@@ -492,22 +492,6 @@ class SymbolicShapeInference:
         skip_infer = node.op_type in [
             'If', 'Loop', 'Scan', 'SplitToSequence', 'ZipMap', \
             # contrib ops
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             'Attention', 'BiasGelu', \
             'EmbedLayerNormalization', \
             'FastGelu', 'Gelu', 'LayerNormalization', \

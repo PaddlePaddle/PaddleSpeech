@@ -105,7 +105,7 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             tts_engine (TTSEngine): The TTS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTTSConnectionHandler to process the tts request")
 
         self.tts_engine = tts_engine
@@ -143,23 +143,23 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         if target_fs == 0 or target_fs > original_fs:
             target_fs = original_fs
             wav_tar_fs = wav
-            logger.info(
+            logger.debug(
                 "The sample rate of synthesized audio is the same as model, which is {}Hz".
                 format(original_fs))
         else:
             wav_tar_fs = librosa.resample(
                 np.squeeze(wav), original_fs, target_fs)
-            logger.info(
+            logger.debug(
                 "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
                 format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
-        logger.info("Transform the volume of the audio successfully.")
+        logger.debug("Transform the volume of the audio successfully.")
 
         # transform speed
         try:  # windows not support soxbindings
             wav_speed = change_speed(wav_vol, speed, target_fs)
-            logger.info("Transform the speed of the audio successfully.")
+            logger.debug("Transform the speed of the audio successfully.")
         except ServerBaseException:
             raise ServerBaseException(
                 ErrorCode.SERVER_INTERNAL_ERR,
@@ -176,7 +176,7 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         wavfile.write(buf, target_fs, wav_speed)
         base64_bytes = base64.b64encode(buf.read())
         wav_base64 = base64_bytes.decode('utf-8')
-        logger.info("Audio to string successfully.")
+        logger.debug("Audio to string successfully.")
 
         # save audio
         if audio_path is not None:
@@ -264,15 +264,15 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             logger.error(e)
             sys.exit(-1)
 
-        logger.info("AM model: {}".format(self.config.am))
-        logger.info("Vocoder model: {}".format(self.config.voc))
-        logger.info("Language: {}".format(lang))
+        logger.debug("AM model: {}".format(self.config.am))
+        logger.debug("Vocoder model: {}".format(self.config.voc))
+        logger.debug("Language: {}".format(lang))
         logger.info("tts engine type: python")
 
         logger.info("audio duration: {}".format(duration))
-        logger.info("frontend inference time: {}".format(self.frontend_time))
-        logger.info("AM inference time: {}".format(self.am_time))
-        logger.info("Vocoder inference time: {}".format(self.voc_time))
+        logger.debug("frontend inference time: {}".format(self.frontend_time))
+        logger.debug("AM inference time: {}".format(self.am_time))
+        logger.debug("Vocoder inference time: {}".format(self.voc_time))
         logger.info("total inference time: {}".format(infer_time))
         logger.info(
             "postprocess (change speed, volume, target sample rate) time: {}".
@@ -280,6 +280,6 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
         logger.info("total generate audio time: {}".format(infer_time +
                                                            postprocess_time))
         logger.info("RTF: {}".format(rtf))
-        logger.info("device: {}".format(self.tts_engine.device))
+        logger.debug("device: {}".format(self.tts_engine.device))
 
         return lang, target_sample_rate, duration, wav_base64

@@ -26,10 +26,10 @@ import soundfile
 from kaldiio import WriteHelper
 from yacs.config import CfgNode
 
+from ...utils.env import MODEL_HOME
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import download_and_decompress
-from ..utils import MODEL_HOME
 from ..utils import stats_wrapper
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -110,7 +110,7 @@ class STExecutor(BaseExecutor):
         """
         decompressed_path = download_and_decompress(self.kaldi_bins, MODEL_HOME)
         decompressed_path = os.path.abspath(decompressed_path)
-        logger.info("Kaldi_bins stored in: {}".format(decompressed_path))
+        logger.debug("Kaldi_bins stored in: {}".format(decompressed_path))
         if "LD_LIBRARY_PATH" in os.environ:
             os.environ["LD_LIBRARY_PATH"] += f":{decompressed_path}"
         else:
@@ -128,7 +128,7 @@ class STExecutor(BaseExecutor):
             Init model and other resources from a specific path.
         """
         if hasattr(self, 'model'):
-            logger.info('Model had been initialized.')
+            logger.debug('Model had been initialized.')
             return
 
         if cfg_path is None or ckpt_path is None:
@@ -140,8 +140,8 @@ class STExecutor(BaseExecutor):
             self.ckpt_path = os.path.join(
                 self.task_resource.res_dir,
                 self.task_resource.res_dict['ckpt_path'])
-            logger.info(self.cfg_path)
-            logger.info(self.ckpt_path)
+            logger.debug(self.cfg_path)
+            logger.debug(self.ckpt_path)
             res_path = self.task_resource.res_dir
         else:
             self.cfg_path = os.path.abspath(cfg_path)
@@ -192,7 +192,7 @@ class STExecutor(BaseExecutor):
             Input content can be a file(wav).
         """
         audio_file = os.path.abspath(wav_file)
-        logger.info("Preprocess audio_file:" + audio_file)
+        logger.debug("Preprocess audio_file:" + audio_file)
 
         if "fat_st" in model_type:
             cmvn = self.config.cmvn_path

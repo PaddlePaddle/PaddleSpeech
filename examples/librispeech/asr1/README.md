@@ -1,5 +1,5 @@
 # Transformer/Conformer ASR with Librispeech
-This example contains code used to train a Transformer or [Conformer](http://arxiv.org/abs/2008.03802) model with [Librispeech dataset](http://www.openslr.org/resources/12)
+This example contains code used to train [u2](https://arxiv.org/pdf/2012.05481.pdf) model (Transformer or [Conformer](https://arxiv.org/pdf/2005.08100.pdf) model) with [Librispeech dataset](http://www.openslr.org/resources/12)
 ## Overview
 All the scripts you need are in `run.sh`. There are several stages in `run.sh`, and each stage has its function.
 | Stage | Function                                                     |

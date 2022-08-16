@@ -80,4 +80,13 @@ if [ ${MODE} = "benchmark_train" ];then
         python ../paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
     fi
 
+    if [ ${model_name} == "mdtc" ]; then
+        # 下载 Snips 数据集并解压缩
+        wget -nc https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.1 https://paddlespeech.bj.bcebos.com/datasets/hey_snips_https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.2
+        cat hey_snips_kws_4.0.tar.gz.* > hey_snips_kws_4.0.tar.gz
+        rm hey_snips_kws_4.0.tar.gz.*
+        tar -xzf hey_snips_kws_4.0.tar.gz
+        # 解压后的数据目录 ./hey_snips_research_6k_en_train_eval_clean_ter
+    fi
+
 fi

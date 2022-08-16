@@ -1,0 +1,16 @@
+*/.vscode/*
+*.wav
+*/resource/*
+.Ds*
+*.pyc
+*.pcm
+*.npy
+*.diff
+*.sqlite
+*/static/*
+*.pdparams
+*.pdiparams*
+*.pdmodel
+*/source/*
+*/PaddleSpeech/*
+

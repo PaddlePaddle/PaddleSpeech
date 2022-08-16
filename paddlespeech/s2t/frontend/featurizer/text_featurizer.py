@@ -226,10 +226,10 @@ class TextFeaturizer():
         sos_id = vocab_list.index(SOS) if SOS in vocab_list else -1
         space_id = vocab_list.index(SPACE) if SPACE in vocab_list else -1
 
-        logger.info(f"BLANK id: {blank_id}")
-        logger.info(f"UNK id: {unk_id}")
-        logger.info(f"EOS id: {eos_id}")
-        logger.info(f"SOS id: {sos_id}")
-        logger.info(f"SPACE id: {space_id}")
-        logger.info(f"MASKCTC id: {maskctc_id}")
+        logger.debug(f"BLANK id: {blank_id}")
+        logger.debug(f"UNK id: {unk_id}")
+        logger.debug(f"EOS id: {eos_id}")
+        logger.debug(f"SOS id: {sos_id}")
+        logger.debug(f"SPACE id: {space_id}")
+        logger.debug(f"MASKCTC id: {maskctc_id}")
         return token2id, id2token, vocab_list, unk_id, eos_id, blank_id
